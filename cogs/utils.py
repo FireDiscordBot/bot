@@ -71,7 +71,7 @@ def quote_embed(context_channel, message, user):
 					embed.add_field(name = 'Attachment', value = '[' + attachment.filename + '](' + attachment.url + ')', inline = False)
 		embed.set_author(name = str(message.author), icon_url = message.author.avatar_url, url = 'https://discordapp.com/channels/' + str(message.guild.id) + '/' + str(message.channel.id) + '/' + str(message.id))
 		if message.channel != context_channel:
-			embed.set_footer(text = 'Quoted by: ' + str(user) + ' | in channel: #' + message.channel.name)
+			embed.set_footer(text = 'Quoted by: ' + str(user) + ' | #' + message.channel.name)
 		else:
 			embed.set_footer(text = 'Quoted by: ' + str(user))
 	return embed
