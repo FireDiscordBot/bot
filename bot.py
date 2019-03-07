@@ -41,6 +41,7 @@ extensions = [
 	"cogs.pickle",
 	"cogs.ksoft",
 	"cogs.skier",
+	"cogs.utils",
 	"jishaku"
 ]
 
