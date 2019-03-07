@@ -109,3 +109,7 @@ application.yml
 lavalink.jar
 bot.log
 logs/
+Lavalink.bat
+api.py
+fire.bat
+cogs/thing.file

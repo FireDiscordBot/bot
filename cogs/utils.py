@@ -253,7 +253,5 @@ class utils:
 		embed = discord.Embed(title=f"Found user {fetched}", description=f"```json\n{user}```")
 		await ctx.send(embed=embed)
 		
-
-
 def setup(bot):
 	bot.add_cog(utils(bot))
