@@ -223,5 +223,4 @@ async def game_changer():
 		print("Game changed. going to sleep for 60 seconds")
 		await asyncio.sleep(60)
 
-bot.remove_command("help")
 bot.run(config['token'])

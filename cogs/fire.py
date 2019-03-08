@@ -158,6 +158,7 @@ class fire(commands.Cog, name="Main Commands"):
 			except Exception as e:
 				await ctx.send(f"Fire did an oopsie ```{e}```")
 
+	@commands.Cog.listener()
 	async def on_message(self, message):
 		channel = message.channel
 		if channel.id == 544488595528876043:
