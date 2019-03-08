@@ -39,7 +39,7 @@ async def getprefix(ctx):
 		prefix = "$"
 	return prefix
 
-class pickle:
+class pickle(commands.Cog, name="Hypixel Commands"):
 	def __init__(self, bot):
 		self.bot = bot
   

@@ -52,7 +52,7 @@ async def getprefix(ctx):
 		prefix = "$"
 	return prefix
 
-class fire:
+class fire(commands.Cog, name="Main Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 		self._last_result = None
