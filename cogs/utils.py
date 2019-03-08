@@ -96,18 +96,21 @@ class utils(commands.Cog, name="Utility Commands"):
 		await ctx.message.channel.purge(limit=amount)
 		await ctx.send(f'Sucesfully deleted **{int(amount)}** messages!', delete_after=5)
 
+	@commands.Cog.listener()
 	async def on_guild_remove(self, guild):
 		try:
 			del snipes[guild.id]
 		except KeyError:
 			pass
 
+	@commands.Cog.listener()
 	async def on_guild_channel_delete(self, channel):
 		try:
 			del snipes[channel.guild.id][channel.id]
 		except KeyError:
 			pass
 
+	@commands.Cog.listener()
 	async def on_message_delete(self, message):
 		if message.guild and not message.author.bot:
 			try:
@@ -130,6 +133,7 @@ class utils(commands.Cog, name="Utility Commands"):
 		else:
 			await ctx.send(embed = snipe_embed(ctx.channel, sniped_message, ctx.author))
 
+	@commands.Cog.listener()
 	async def on_raw_reaction_add(self, payload):
 		if str(payload.emoji) == '💬' and not self.bot.get_guild(payload.guild_id).get_member(payload.user_id).bot:
 			guild = self.bot.get_guild(payload.guild_id)
@@ -149,6 +153,7 @@ class utils(commands.Cog, name="Utility Commands"):
 					else:
 						await channel.send(embed = quote_embed(channel, message, user))
 
+	@commands.Cog.listener()
 	async def on_message(self, message):
 		if message.guild.id in disabled:
 			return
