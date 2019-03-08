@@ -29,7 +29,7 @@ async def getprefix(ctx):
 		prefix = "$"
 	return prefix
 
-class skier:
+class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 

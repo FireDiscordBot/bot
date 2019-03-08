@@ -76,7 +76,7 @@ def quote_embed(context_channel, message, user):
 			embed.set_footer(text = 'Quoted by: ' + str(user))
 	return embed
 
-class utils:
+class utils(commands.Cog, name="Utility Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 

@@ -17,7 +17,7 @@ def isadmin(ctx):
 		admin = True
 	return admin
 
-class Music:
+class Music(commands.Cog, name="Music Commands"):
 	def __init__(self, bot):
 		self.playlist_urls = (
 			"https://youtube.com/playlist",

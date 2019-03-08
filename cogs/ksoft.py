@@ -34,7 +34,7 @@ async def getprefix(ctx):
 		prefix = "$"
 	return prefix
 
-class ksoft:
+class ksoft(commands.Cog, name="KSoft.SI API"):
 	def __init__(self, bot):
 		self.bot = bot
 
