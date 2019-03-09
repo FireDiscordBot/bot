@@ -16,6 +16,7 @@ import copy
 from typing import Union
 import speedtest
 import subprocess
+import random
 
 launchtime = datetime.datetime.utcnow()
 process = psutil.Process(os.getpid())
@@ -152,6 +153,25 @@ class fire(commands.Cog, name="Main Commands"):
 	async def warm(self, ctx, *, warm: str):
 		"""warm something up. idk"""
 		await ctx.send(f'🔥 Warming up {warm}')
+
+	@commands.command(description="Say goodbye to me")
+	async def leaveguild(self, ctx):
+		"""Makes me leave the guild :("""
+		confirm = random.randint(5000, 10000)
+		msg = await ctx.send(f'Are you sure? I won\'t be able to come back unless someone with `Manage Server` permission reinvites me.\nFor confirmation, please repeat this code... {confirm}')
+		
+		def check(m):
+			return m.content == f'{confirm}' and m.author == ctx.message.author
+
+		try:
+			await self.bot.wait_for('message', timeout=60.0, check=check)
+		except asyncio.TimeoutError:
+			await msg.edit('Didn\'t recieve a response, so I\'m here to stay')
+		else:
+			await msg.edit('Goodbye! :wave:')
+			guild = ctx.message.guild
+			await guild.leave()
+	
 
 	@commands.command(description="Changes whether the autotip bot restarts or not", hidden=True)
 	async def togglerestart(self, ctx, restart: bool = True):
