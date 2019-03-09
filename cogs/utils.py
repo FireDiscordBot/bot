@@ -120,6 +120,7 @@ class utils(commands.Cog, name="Utility Commands"):
 
 	@commands.command(description='Get the last deleted message')
 	async def snipe(self, ctx, channel: discord.TextChannel = None):
+		"""Get the last deleted message"""
 		if not channel:
 			channel = ctx.channel
 
@@ -199,6 +200,7 @@ class utils(commands.Cog, name="Utility Commands"):
 
 	@commands.command(description="Quote a message from an id")
 	async def quote(self, ctx, msg_id: int = None):
+		"""Quote a message from an id"""
 		if not msg_id:
 			return await ctx.send(content = error_string + ' Please specify a message ID to quote.')
 
@@ -226,8 +228,16 @@ class utils(commands.Cog, name="Utility Commands"):
 		else:
 			await ctx.send(content = error_string + ' I couldn\'t find that message...')
 
+	@commands.command(description="Got a HTTP Error Code? My cat knows what it means.", name="http.cat")
+	async def httpcat(self, ctx, error: int = 200):
+		"""Got a HTTP Error Code? My cat knows what it means."""
+		embed = discord.Embed(color=ctx.author.color)
+		embed.set_image(url=f'https://http.cat/{error}')
+		await ctx.send(embed=embed)
+
 	@commands.command(description='Find a user from their id')
 	async def fetchuser(self, ctx, user: int = None):
+		"""Find a user from their id"""
 		if user == None:
 			user = ctx.message.author.id
 		try:

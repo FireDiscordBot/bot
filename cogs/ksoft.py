@@ -40,6 +40,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 	@commands.command(description="Gets a random meme from Reddit")
 	async def meme(self, ctx, sub: str = None):
+		"""Gets a random meme from Reddit"""
 		if sub == None:
 			meme = await client.random_meme()
 		else:
@@ -63,6 +64,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 	@commands.command(description="Gets a random image from a specified tag", name="image")
 	async def randimage(self, ctx, tag: str = None, nsfw: bool = None):
+		"""Gets a random image from a specified tag"""
 		taglist = await client.tags()
 		tags = str(taglist).split(', ')
 		if tag == 'False':
@@ -103,6 +105,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 	@commands.command(description="List all available tags")
 	async def tags(self, ctx):
+		"""List all available tags"""
 		tags = await client.tags()
 		nsfwtags = ', '.join(tags.nsfw_tags)
 		sfwtags = ', '.join(tags.sfw_tags)
