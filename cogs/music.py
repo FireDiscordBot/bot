@@ -125,7 +125,7 @@ class Music(commands.Cog, name="Music Commands"):
 		queue_text = "\n".join(f"{t.title} by {t.author}" for t in queue)
 		await ctx.send(queue_text)
 
-	@commands.command(aliases=["np"])
+	@commands.command(name='np', aliases=['nowplaying', 'now_playing'])
 	async def now_playing(self, ctx):
 		"""Show the currently playing song."""
 		player = self.bot.aqualink.get_player(ctx.guild.id)

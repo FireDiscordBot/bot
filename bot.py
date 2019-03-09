@@ -158,6 +158,7 @@ async def on_guild_remove(guild):
 @has_permissions(administrator=True)
 @commands.guild_only()
 async def prefix(ctx, prf: str = None):
+	"""Change my prefix for this guild."""
 	if prf == None:
 		await ctx.send("Missing argument for prefix! (Note: For prefixes with a space, surround it in \"\")")
 	else:

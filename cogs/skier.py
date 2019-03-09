@@ -35,6 +35,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 
 	@commands.command(description="Get a player's levelhead info")
 	async def levelhead(self, ctx, player: str = None):
+		"""Get a player's levelhead info"""
 		if player == None:
 			await ctx.send("What user should I check? (IGNs must be exact capitalization!)")
 		else:
@@ -107,6 +108,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 
 	@commands.command(description="Check stuff related to Hyperium")
 	async def hyperium(self, ctx, player: str = None, task: str = None):
+		"""Check stuff related to Hyperium"""
 		if player == None:
 			await ctx.send("I can either check a player's info or `stats`")
 			return

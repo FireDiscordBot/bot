@@ -63,8 +63,9 @@ class fire(commands.Cog, name="Main Commands"):
 
 		return content.strip('` \n')
   
-	@commands.command(description="Shows you my latency between the discord servers")
+	@commands.command(description="Shows you my ping to discord's servers")
 	async def ping(self, ctx):
+		"""Shows you my ping to discord's servers"""
 		latency = round(self.bot.latency * 1000)
 		start = round(time.time()*1000)
 		msg = await ctx.send(content="Pinging...")
@@ -76,6 +77,7 @@ class fire(commands.Cog, name="Main Commands"):
 
 	@commands.command(description="Suggest a feature")
 	async def suggest(self, ctx, *, suggestion: str):
+		"""Suggest a feature"""
 		if suggestion == None:
 			await ctx.send("You can't suggest nothing!")
 		else:
@@ -85,6 +87,7 @@ class fire(commands.Cog, name="Main Commands"):
 
 	@commands.command(description="Shows you some stats about me.")
 	async def stats(self, ctx):
+		"""Shows you some stats about me."""
 		delta_uptime = datetime.datetime.utcnow() - launchtime
 		hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
 		minutes, seconds = divmod(remainder, 60)
@@ -113,6 +116,7 @@ class fire(commands.Cog, name="Main Commands"):
 
 	@commands.command(description="Shows you all the guilds I'm in.")
 	async def listguilds(self, ctx):
+		"""Shows you all the guilds I'm in."""
 		if isadmin(ctx) == True:
 			guilds = self.bot.guilds
 			guildlist = []
@@ -125,6 +129,7 @@ class fire(commands.Cog, name="Main Commands"):
 
 	@commands.command(name="speedtest", description="Runs a speedtest on my VPS")
 	async def speedtest_(self, ctx):
+		"""Runs a speedtest on my VPS"""
 		msg = await ctx.send("<a:Load:546751645954998282> Running Speedtest")
 		ctx.message.channel.typing()
 		s = speedtest.Speedtest()
@@ -140,13 +145,15 @@ class fire(commands.Cog, name="Main Commands"):
 
 	@commands.command(description="dab")
 	async def dab(self, ctx):
+		"""<o/"""
 		await ctx.send(f"{ctx.message.author.mention}, <o/")
 
 	@commands.command(description="idk")
 	async def warm(self, ctx, *, warm: str):
+		"""warm something up. idk"""
 		await ctx.send(f'🔥 Warming up {warm}')
 
-	@commands.command(description="Changes whether the autotip bot restarts or not")
+	@commands.command(description="Changes whether the autotip bot restarts or not", hidden=True)
 	async def togglerestart(self, ctx, restart: bool = True):
 		if isadmin(ctx):
 			conf = config()
