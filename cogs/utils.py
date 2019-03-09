@@ -33,7 +33,7 @@ async def getprefix(ctx):
 	return prefix
 
 snipes = {}
-disabled = [264445053596991498, 110373943822540800]
+disabled = [264445053596991498, 110373943822540800, 336642139381301249]
 
 def snipe_embed(context_channel, message, user):
 	if message.author not in message.guild.members or message.author.color == discord.Colour.default():
