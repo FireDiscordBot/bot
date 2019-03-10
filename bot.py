@@ -9,6 +9,10 @@ import aiohttp
 import time
 import asyncio
 import random
+import dataset
+
+db = dataset.connect('sqlite:///fire.db')
+prefixes = db['prefixes']
 
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
@@ -25,11 +29,10 @@ def isadmin(ctx):
 async def get_pre(bot, message):
 	if not message.guild:
 		return "$"
-	with open('prefixes.json', 'r') as pfx:
-		customprefix = json.load(pfx)
-	try:
-		prefix = customprefix[str(message.guild.id)]
-	except Exception:
+	prefixraw = prefixes.find_one(gid=message.guild.id)
+	if prefixraw != None:
+		prefix = prefixraw['prefix']
+	else:
 		prefix = "$"
 	return commands.when_mentioned_or(prefix)(bot, message)
 
@@ -157,21 +160,18 @@ async def on_guild_remove(guild):
 @bot.command(description="Change my prefix for this guild.")
 @has_permissions(administrator=True)
 @commands.guild_only()
-async def prefix(ctx, prf: str = None):
+async def prefix(ctx, pfx: str = None):
 	"""Change my prefix for this guild."""
-	if prf == None:
+	if pfx == None:
 		await ctx.send("Missing argument for prefix! (Note: For prefixes with a space, surround it in \"\")")
 	else:
-		with open('prefixes.json', 'r') as pfx:
-			prefixes = json.load(pfx)
-		prefix = prefixes
-		prefix[f"{ctx.guild.id}"] = prf
-		try:
-			with open('prefixes.json', 'w') as custpfx:
-				json.dump(prefix, custpfx)
-			await ctx.send(f"{ctx.guild}'s prefix is now {prf}!")
-		except Exception as e:
-			await ctx.send(f"Error:\n```{e}```")
+		prefixraw = prefixes.find_one(gid=ctx.guild.id)
+		if prefixraw == None:
+			prefixes.insert(dict(name=ctx.guild.name, gid=ctx.guild.id, prefix=pfx))
+		else:
+			pfxid = prefixraw['id']
+			prefixes.update(dict(id=pfxid, prefix=pfx), ['id'])
+		await ctx.send(f'Ok, {ctx.guild.name}\'s prefix is now {pfx}!')
 
 @bot.command(hidden=True)
 async def shutdown(ctx):

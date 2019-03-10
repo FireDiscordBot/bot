@@ -17,6 +17,10 @@ from typing import Union
 import speedtest
 import subprocess
 import random
+import dataset
+
+db = dataset.connect('sqlite:///fire.db')
+prefixes = db['prefixes']
 
 launchtime = datetime.datetime.utcnow()
 process = psutil.Process(os.getpid())
@@ -43,13 +47,13 @@ def isadmin(ctx):
 	return admin
 
 async def getprefix(ctx):
+	"""Get the prefix from context (ctx)"""
 	if not ctx.guild:
 		return "$"
-	with open('prefixes.json', 'r') as pfx:
-		customprefix = json.load(pfx)
-	try:
-		prefix = customprefix[str(ctx.guild.id)]
-	except Exception:
+	prefixraw = prefixes.find_one(gid=ctx.guild.id)
+	if prefixraw != None:
+		prefix = prefixraw['prefix']
+	else:
 		prefix = "$"
 	return prefix
 
@@ -158,19 +162,15 @@ class fire(commands.Cog, name="Main Commands"):
 	async def leaveguild(self, ctx):
 		"""Makes me leave the guild :("""
 		confirm = random.randint(5000, 10000)
-		msg = await ctx.send(f'Are you sure? I won\'t be able to come back unless someone with `Manage Server` permission reinvites me.\nFor confirmation, please repeat this code... {confirm}')
+		await ctx.send(f'Are you sure? I won\'t be able to come back unless someone with `Manage Server` permission reinvites me.\nFor confirmation, please repeat this code... {confirm}')
 		
 		def check(m):
 			return m.content == f'{confirm}' and m.author == ctx.message.author
 
-		try:
-			await self.bot.wait_for('message', timeout=60.0, check=check)
-		except asyncio.TimeoutError:
-			await msg.edit('Didn\'t recieve a response, so I\'m here to stay')
-		else:
-			await msg.edit('Goodbye! :wave:')
-			guild = ctx.message.guild
-			await guild.leave()
+		await self.bot.wait_for('message', check=check)
+		await ctx.send('Goodbye! :wave:')
+		guild = ctx.guild
+		await guild.leave()
 	
 
 	@commands.command(description="Changes whether the autotip bot restarts or not", hidden=True)
