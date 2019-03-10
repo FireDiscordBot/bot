@@ -156,6 +156,12 @@ async def on_guild_remove(guild):
 	users = format(len(bot.users), ',d')
 	guilds = format(len(bot.guilds), ',d')
 	await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"{users} users in {guilds} guilds"))
+	prefixraw = prefixes.find_one(gid=guild.id)
+	if prefixraw == None:
+		return
+	else:
+		dbid = prefixraw['id']
+		prefixes.delete(id=dbid)
 
 @bot.command(description="Change my prefix for this guild.")
 @has_permissions(administrator=True)
