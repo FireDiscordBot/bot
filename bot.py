@@ -128,6 +128,11 @@ async def on_ready():
 	logging.info(f"LOGGING START ON {datetime.datetime.now()}")
 	await game_changer()
 
+@bot.check
+async def hve_block(ctx):
+    if ctx.message.author.id == 261418273009041408:
+		return False
+
 @bot.event
 async def on_message(message):
 	if message.author.bot == True:
