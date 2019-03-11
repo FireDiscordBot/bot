@@ -130,7 +130,7 @@ async def on_ready():
 
 @bot.check
 async def hve_block(ctx):
-    if ctx.message.author.id == 261418273009041408:
+	if ctx.message.author.id == 261418273009041408:
 		return False
 
 @bot.event
