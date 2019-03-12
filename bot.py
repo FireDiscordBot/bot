@@ -132,6 +132,8 @@ async def on_ready():
 async def hve_block(ctx):
 	if ctx.message.author.id == 261418273009041408:
 		return False
+	else:
+		return True
 
 @bot.event
 async def on_message(message):
