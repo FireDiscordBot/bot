@@ -293,7 +293,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		img.save(f'cogs/{user.id}.png')
 		image = discord.File(f'cogs/{user.id}.png', filename=f'{user.id}.png', spoiler=False)
 		await ctx.send(file=image)
-		os.remove(f'cogs/{user.id}')
+		os.remove(f'cogs/{user.id}.png')
 		
 def setup(bot):
 	bot.add_cog(utils(bot))
