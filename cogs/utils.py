@@ -272,8 +272,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed = discord.Embed(title=f'Found user {fetched}', description=f'```json\n{user}```')
 		await ctx.send(embed=embed)
 	
-	@commands.command(description='Get user info in an image.')
-	async def info(self, ctx, user: discord.Member = None):
+	@commands.command(description='Get user info in an image. (proof of concept)')
+	async def imgtest(self, ctx, user: discord.Member = None):
 		'''this is just a test for now...'''
 		if user == None:
 			user = ctx.author
@@ -293,7 +293,11 @@ class utils(commands.Cog, name='Utility Commands'):
 		img.save(f'cogs/{user.id}.png')
 		image = discord.File(f'cogs/{user.id}.png', filename=f'{user.id}.png', spoiler=False)
 		await ctx.send(file=image)
-		os.remove(f'cogs/{user.id}.png')
+		uid = user.id
+		if os.path.exists(f"cogs/{uid}.png"):
+			os.remove(f'cogs/{uid}.png')
+		else:
+			await ctx.send('error deleting file.')
 		
 def setup(bot):
 	bot.add_cog(utils(bot))
