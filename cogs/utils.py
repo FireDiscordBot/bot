@@ -3,10 +3,13 @@ from discord.ext import commands
 import datetime
 import json
 import time
+from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw
 
 launchtime = datetime.datetime.utcnow()
 
-print("utils.py has been loaded")
+print('utils.py has been loaded')
 
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
@@ -14,7 +17,7 @@ with open('config.json', 'r') as cfg:
 	success_string = config['response_string']['success']
 
 def isadmin(ctx):
-	"""Checks if the author is an admin"""
+	'''Checks if the author is an admin'''
 	if str(ctx.author.id) not in config['admins']:
 		admin = False
 	else:
@@ -23,13 +26,13 @@ def isadmin(ctx):
 
 async def getprefix(ctx):
 	if not ctx.guild:
-		return "$"
+		return '$'
 	with open('prefixes.json', 'r') as pfx:
 		customprefix = json.load(pfx)
 	try:
 		prefix = customprefix[str(ctx.guild.id)]
 	except Exception:
-		prefix = "$"
+		prefix = '$'
 	return prefix
 
 snipes = {}
@@ -76,17 +79,17 @@ def quote_embed(context_channel, message, user):
 			embed.set_footer(text = 'Quoted by: ' + str(user))
 	return embed
 
-class utils(commands.Cog, name="Utility Commands"):
+class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
 
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
 	async def purge(self, ctx, amount: int=None):
-		"""Purge an amount of messages in a channel
+		'''Purge an amount of messages in a channel
 		-------------------------
 		Ex:
-		$purge 50"""
+		$purge 50'''
 		prefix = await getprefix(ctx)
 		if amount is None:
 			return await ctx.send(f'Hey, please do `{prefix}purge [amount]`!')
@@ -120,7 +123,7 @@ class utils(commands.Cog, name="Utility Commands"):
 
 	@commands.command(description='Get the last deleted message')
 	async def snipe(self, ctx, channel: discord.TextChannel = None):
-		"""Get the last deleted message"""
+		'''Get the last deleted message'''
 		if not channel:
 			channel = ctx.channel
 
@@ -198,9 +201,9 @@ class utils(commands.Cog, name="Utility Commands"):
 						else:
 							await message.channel.send(embed = quote_embed(message.channel, msg_found, message.author))
 
-	@commands.command(description="Quote a message from an id")
+	@commands.command(description='Quote a message from an id')
 	async def quote(self, ctx, msg_id: int = None):
-		"""Quote a message from an id"""
+		'''Quote a message from an id'''
 		if not msg_id:
 			return await ctx.send(content = error_string + ' Please specify a message ID to quote.')
 
@@ -228,16 +231,16 @@ class utils(commands.Cog, name="Utility Commands"):
 		else:
 			await ctx.send(content = error_string + ' I couldn\'t find that message...')
 
-	@commands.command(description="Got a HTTP Error Code? My cat knows what it means.", name="http.cat")
+	@commands.command(description='Got a HTTP Error Code? My cat knows what it means.', name='http.cat')
 	async def httpcat(self, ctx, error: int = 200):
-		"""Got a HTTP Error Code? My cat knows what it means."""
+		'''Got a HTTP Error Code? My cat knows what it means.'''
 		embed = discord.Embed(color=ctx.author.color)
 		embed.set_image(url=f'https://http.cat/{error}')
 		await ctx.send(embed=embed)
 
 	@commands.command(description='Find a user from their id')
 	async def fetchuser(self, ctx, user: int = None):
-		"""Find a user from their id"""
+		'''Find a user from their id'''
 		if user == None:
 			user = ctx.message.author.id
 		try:
@@ -265,8 +268,32 @@ class utils(commands.Cog, name="Utility Commands"):
 			'avatar': fetched.avatar
 		}
 		user = json.dumps(userInfo, indent=2)
-		embed = discord.Embed(title=f"Found user {fetched}", description=f"```json\n{user}```")
+		embed = discord.Embed(title=f'Found user {fetched}', description=f'```json\n{user}```')
 		await ctx.send(embed=embed)
+	
+	@commands.command(description='Get user info in an image.')
+	async def info(self, ctx, user: discord.Member = None):
+		'''this is just a test for now...'''
+		if user == None:
+			user = ctx.author
+		await ctx.send(f'Retrieving {user}\'s info')
+		img = Image.open('cogs/infoimgimg.png')
+		print('file opened')
+		draw = ImageDraw.Draw(img)
+		font = ImageFont.truetype('cogs/Modern_Sans_Light.otf', 100)
+		fontbig = ImageFont.truetype('cogs/Fitamint Script.ttf', 400)
+		print('fonts and methods set')
+		draw.text((200, 0), 'Information:', (255, 255, 255), font=fontbig)
+		draw.text((50, 500), f'Username: {user.name}', (255, 255, 255), font=font)
+		draw.text((50, 700), f'ID: {user.id}', (255, 255, 255), font=font)
+		draw.text((50, 900), f'User Status: {user.status}', (255, 255, 255), font=font)
+		draw.text((50, 1100), f'Account created: {user.created_at}', (255, 255, 255), font=font)
+		draw.text((50, 1300), f'Nickname: {user.display_name}', (255, 255, 255), font=font)
+		draw.text((50, 1500), f'{user.name}\'s Top Role: {user.top_role}', (255, 255, 255), font=font)
+		draw.text((50, 1700), f'User Joined: {user.joined_at}', (255, 255, 255), font=font)
+		print('finished drawing text')
+		image = discord.File(f'cogs/{user.id}.png', filename=f'{user.id}.png', spoiler=False)
+		await ctx.send(file=image)
 		
 def setup(bot):
 	bot.add_cog(utils(bot))
