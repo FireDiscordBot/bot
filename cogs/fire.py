@@ -118,7 +118,7 @@ class fire(commands.Cog, name="Main Commands"):
 				dnd = dnd + 1
 			if str(member.status) == 'offline':
 				offline = offline + 1
-		users = format(len(bot.users), ',d')
+		users = format(len(self.bot.users), ',d')
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.now())
 		embed.set_author(name="Bot made by Geek#9999", url="https://gaminggeek.club", icon_url="https://cdn.discordapp.com/avatars/287698408855044097/7d8707c0556bdbe5e29b2b0788de8ca9.png?size=1024")
 		embed.add_field(name="**Runtime**", value=f"{uptime}", inline=False)
