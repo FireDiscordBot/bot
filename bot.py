@@ -208,6 +208,7 @@ async def reload(ctx, cog: str = None):
 				if cog == 'jishaku':
 					bot.unload_extension(cog)
 					bot.load_extension(cog)
+					await ctx.send(f"i think i reloaded {cog} but if it broke then blame yourself not me")
 				else:
 					await ctx.send("cogs start with `cogs.` you fucking idot")
 					return
