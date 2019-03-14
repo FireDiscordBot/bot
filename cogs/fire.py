@@ -93,6 +93,7 @@ class fire(commands.Cog, name="Main Commands"):
 	@commands.command(description="Shows you some stats about me.")
 	async def stats(self, ctx):
 		"""Shows you some stats about me."""
+		msg = await ctx.send('Gathering info...')
 		delta_uptime = datetime.datetime.utcnow() - launchtime
 		hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
 		minutes, seconds = divmod(remainder, 60)
@@ -103,21 +104,32 @@ class fire(commands.Cog, name="Main Commands"):
 		cpustats = psutil.cpu_percent()
 		ramuse = (process.memory_info().rss / 1024) / 1000
 		custprefix = await getprefix(ctx)
-		color = ctx.author.color
-		embed = discord.Embed(colour=color, timestamp=datetime.datetime.now())
+		online = 0
+		idle = 0
+		dnd = 0
+		offline = 0
+		members = self.bot.get_all_members()
+		for member in members:
+			if str(member.status) == 'online':
+				online = online + 1
+			if str(member.status) == 'idle':
+				idle = idle + 1
+			if str(member.status) == 'dnd':
+				dnd = dnd + 1
+			if str(member.status) == 'offline':
+				offline = offline + 1
+		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.now())
 		embed.set_author(name="Bot made by Geek#9999", url="https://gaminggeek.club", icon_url="https://cdn.discordapp.com/avatars/287698408855044097/7d8707c0556bdbe5e29b2b0788de8ca9.png?size=1024")
 		embed.add_field(name="**Runtime**", value=f"{uptime}", inline=False)
 		embed.add_field(name="**OS**", value=f"{os}", inline=False)
 		embed.add_field(name="**CPU**", value=f"{cpu} ({round(cpustats)}%)", inline=False)
 		embed.add_field(name="**RAM**", value=f"{ramuse} MB / 6024 MB", inline=False)
-		embed.add_field(name="**Version Info**", value=f"Discord.py: Rewrite | Python: 3.7.2", inline=False)
+		embed.add_field(name="**Version Info**", value=f"Discord.py Rewrite | Python: 3.7.2", inline=False)
 		embed.add_field(name="**Guilds**", value=f"{len(self.bot.guilds)}", inline=True)
-		embed.add_field(name="**Members**", value=f"{len(self.bot.users)}", inline=True)
 		embed.add_field(name="**Prefix**", value=f"{custprefix}", inline=True)
 		embed.add_field(name="**Commands**", value=len(self.bot.commands), inline=True)
-		await ctx.send(embed=embed)
-		if isadmin(ctx):
-			await ctx.send(f'```sh\n        ,.=:!!t3Z3z.,                  Administrator@SilkyServersLTD\n       :tt:::tt333EE3                  -----------------------------\n       Et:::ztt33EEEL @Ee.,      ..,   OS: Windows Server 2016 Standard\n      ;tt:::tt333EE7 ;EEEEEEttttt33#   Host: Red Hat KVM\n     :Et:::zt333EEQ. $EEEEEttttt33QL   Kernel: 2.11.2(0.329/5/3)\n     it::::tt333EEF @EEEEEEttttt33F    Uptime: {uptime}\n    ;3=*^\'\'\'\"*4EEV :EEEEEEttttt33@.    Shell: bash 4.4.23\n    ,.=::::!t=., \' @EEEEEEtttz33QF     Resolution: 1024x768\n   ;::::::::zt33)   \"4EEEtttji3P*      DE: Aero\n  :t::::::::tt33.:Z3z..  \'\' ,..g.      WM: Explorer\n  i::::::::zt33F AEEEtttt::::ztF       WM Theme: aero\n ;:::::::::t33V ;EEEttttt::::t3        CPU: {cpu}\n E::::::::zt33L @EEEtttt::::z3F        GPU: Microsoft Basic Display Adapter\n(3=*^\'\'\'\"*4E3) ;EEEtttt:::::tZ\'        Memory: {ramuse} MB / 6024 MB\n             \' :EEEEtttt::::z7\n                 \"VEzjt:;;z>*\'```')
+		embed.add_field(name="**Members**", value=f"{self.bot.get_emoji(313956277808005120)} {online:,d}\n{self.bot.get_emoji(313956277220802560)} {idle:,d}\n{self.bot.get_emoji(313956276893646850)} {dnd:,d}\n{self.bot.get_emoji(313956277237710868)} {offline:,d}\nTotal: {len(self.bot.users)}\n", inline=False)
+		await msg.edit(content=None, embed=embed)
 
 	@commands.command(description="Shows you all the guilds I'm in.")
 	async def listguilds(self, ctx):
