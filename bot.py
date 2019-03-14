@@ -206,7 +206,8 @@ async def reload(ctx, cog: str = None):
 		else:
 			if "cogs." not in cog:
 				if cog == 'jishaku':
-					pass
+					bot.unload_extension(cog)
+					bot.load_extension(cog)
 				else:
 					await ctx.send("cogs start with `cogs.` you fucking idot")
 					return
