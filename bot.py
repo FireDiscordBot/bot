@@ -144,6 +144,10 @@ async def on_message(message):
 	await bot.process_commands(message)
 
 @bot.event
+async def on_message_edit(before,after):
+	await bot.process_commands(after)
+
+@bot.event
 async def on_guild_join(guild):
 	print(f"Fire joined a new guild! {guild.name}({guild.id}) with {guild.member_count} members")
 	pushb = await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members")
