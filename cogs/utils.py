@@ -3,6 +3,7 @@ from discord.ext import commands
 import datetime
 import json
 import time
+import os
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -278,11 +279,9 @@ class utils(commands.Cog, name='Utility Commands'):
 			user = ctx.author
 		await ctx.send(f'Retrieving {user}\'s info')
 		img = Image.open('cogs/infoimgimg.png')
-		print('file opened')
 		draw = ImageDraw.Draw(img)
 		font = ImageFont.truetype('cogs/Modern_Sans_Light.otf', 100)
 		fontbig = ImageFont.truetype('cogs/Fitamint Script.ttf', 400)
-		print('fonts and methods set')
 		draw.text((200, 0), 'Information:', (255, 255, 255), font=fontbig)
 		draw.text((50, 500), f'Username: {user.name}', (255, 255, 255), font=font)
 		draw.text((50, 700), f'ID: {user.id}', (255, 255, 255), font=font)
@@ -291,9 +290,10 @@ class utils(commands.Cog, name='Utility Commands'):
 		draw.text((50, 1300), f'Nickname: {user.display_name}', (255, 255, 255), font=font)
 		draw.text((50, 1500), f'{user.name}\'s Top Role: {user.top_role}', (255, 255, 255), font=font)
 		draw.text((50, 1700), f'User Joined: {user.joined_at}', (255, 255, 255), font=font)
-		print('finished drawing text')
+		img.save(f'cogs/{user.id}.png')
 		image = discord.File(f'cogs/{user.id}.png', filename=f'{user.id}.png', spoiler=False)
 		await ctx.send(file=image)
+		os.remove(f'cogs/{user.id}')
 		
 def setup(bot):
 	bot.add_cog(utils(bot))
