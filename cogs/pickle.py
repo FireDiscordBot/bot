@@ -53,6 +53,18 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				await msg.delete()
 			except Exception as e:
 				print(f"I failed to delete a message due to... {e}")
+		if arg1.lower() == "tournament":
+			async with aiohttp.ClientSession() as session:
+				async with session.get(f'https://api.hypixel.net/gamecounts?key={hypixelkey}') as resp:
+					games = await resp.json()
+			hall = games['games']['TOURNAMENT_LOBBY']['players']
+			players = games['games']['SKYWARS']['modes']['solo_crazyinsane']
+			embed = discord.Embed(title="Tournament Player Count", colour=ctx.author.color, url="https://hypixel.net/threads/hypixel-tournaments-skywars-crazy-solo.1958904/", timestamp=datetime.datetime.now())
+			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
+			embed.add_field(name="Tournament Hall", value=format(hall, ',d'), inline=False)
+			embed.add_field(name="Games", value=format(players, ',d'), inline=False)
+			await ctx.send(embed=embed)
+			return
 		if arg1.lower() == "watchdog":
 			async with aiohttp.ClientSession() as session:
 				async with session.get(f'https://api.hypixel.net/watchdogstats?key={hypixelkey}') as resp:
@@ -90,6 +102,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			async with channel.typing():
 				player = hypixel.Player(arg1)
 				p = player.JSON
+				tributes = p['tourney']['total_tributes'] # TOURNAMENT TRIBUTES
 				level = round(player.getLevel())
 				try:
 					rankcolor = p['rankPlusColor']
@@ -262,6 +275,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					except Exception:
 						dscrd = "Not Set"
 					embed.add_field(name="Social Media", value=f"Twitter: {twitter}\nYouTube: {yt}\nInstagram: {insta}\nTwitch: {twitch}\nBeam: {beam}\nDiscord: {dscrd}", inline=True)
+					if tributes != 0:
+						embed.add_field(name="Tournament Tributes", value=tributes, inline=False)
 					await msg.edit(embed=embed)
 
 def setup(bot):
