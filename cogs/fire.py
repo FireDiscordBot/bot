@@ -90,7 +90,7 @@ class fire(commands.Cog, name="Main Commands"):
 			me = self.bot.get_user(287698408855044097)
 			await me.send(f"{ctx.message.author} suggested: {suggestion}")
 
-	@commands.command(description="Shows you some stats about me.")
+	@commands.command(description="Shows you some stats about me.", aliases=['about'])
 	async def stats(self, ctx):
 		"""Shows you some stats about me."""
 		msg = await ctx.send('Gathering info...')
