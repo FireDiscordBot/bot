@@ -214,7 +214,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 							rankimg = "https://firediscordbot.tk/pickleranks/threeGREY.png"
 						if rankcolor ==  "BLACK":
 							rankimg = "https://firediscordbot.tk/pickleranks/threeBLACK.png"
-				if rank == "NONE":
+				if rank == "Non":
 					rankimg = "https://firediscordbot.tk/pickleranks/NON.png"
 				if rank == "YouTube":
 					rankimg = "https://firediscordbot.tk/pickleranks/YOUTUBE.png"
