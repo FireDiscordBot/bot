@@ -11,8 +11,6 @@ import asyncio
 import random
 import dataset
 
-#hi
-
 db = dataset.connect('sqlite:///fire.db')
 prefixes = db['prefixes']
 
