@@ -10,6 +10,7 @@ import time
 import asyncio
 import random
 import dataset
+import traceback
 
 db = dataset.connect('sqlite:///fire.db')
 prefixes = db['prefixes']
@@ -92,23 +93,20 @@ async def on_command_error(ctx, error):
 	if isinstance(error, ignored):
 		return
 
-	elif isinstance(error, commands.DisabledCommand):
-		return await ctx.send(f'{ctx.command} has been disabled.')
-
-	elif isinstance(error, commands.MissingPermissions):
-		return await ctx.send(f'{ctx.message.author}, you lack the required permission for this command.')
-
-	elif isinstance(error, commands.NoPrivateMessage):
-		try:
-			return await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
-		except:
-			pass
-	
-	elif isinstance(error, commands.NotOwner):
-		try:
-			await ctx.send(f'{ctx.command} requires bot admin, which you lack...')
-		except:
-			pass
+	messages = ['Fire did an oopsie!', 'Oh no, it be broke.', 'this was intentional...', 'Well this slipped through quality assurance', 'How did this happen?', 'rip', 'Can we get an L in the chat?', 'Can we get an F in the chat?', 'he do not sing', 'lmao who did this?']
+	chosenmessage = random.choice(messages)
+	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"Here's the error. You might not be able to do anything about it though... I've sent this to my developer!\n```py\n{error}```", timestamp=datetime.datetime.now())
+	embed.set_footer(text="this may or may not be fixed soon. it may not even be broken.")
+	await ctx.send(embed=embed)
+	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!\n```py\n{error}```", timestamp=datetime.datetime.now())
+	embed.add_field(name='User', value=ctx.author, inline=False)
+	embed.add_field(name='Guild', value=ctx.guild, inline=False)
+	me = bot.get_user(287698408855044097)
+	missingperms = (commands.BotMissingPermissions, commands.MissingPermissions)
+	if isinstance(error, missingperms):
+		return
+	else:
+		await me.send(embed=embed)
 
 @bot.event
 async def on_ready():
