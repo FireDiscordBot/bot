@@ -4,11 +4,13 @@ import datetime
 import json
 import time
 import os
+import dataset
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 
 launchtime = datetime.datetime.utcnow()
+db = dataset.connect('sqlite:///fire.db')
 
 print('utils.py has been loaded')
 
@@ -83,6 +85,52 @@ def quote_embed(context_channel, message, user):
 class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
+		self.bot.bl = db['blacklist']
+
+	@commands.check
+	async def blacklist_check(self, ctx):
+		blacklist = self.bot.bl.find_one(uid=ctx.author.id)
+		if blacklist != None:
+			print(blacklist)
+			if ctx.author.id == self.bot.owner_id:
+				return True
+			else:
+				return False
+		else:
+			return True
+
+	@commands.command(name='bl.add', description='Add someone to the blacklist')
+	async def blacklist_add(self, ctx, user: discord.User = None, reason: str = 'bad boi', permanent: bool = False):
+		'''Add a user to the blacklist'''
+		if user == None:
+			await ctx.send('You need to provide a user to add to the blacklist!')
+		else:
+			blraw = self.bot.bl.find_one(uid=user.id)
+			if blraw == None:
+				if permanent == True:
+					permanent = 1
+				else:
+					permanent = 0
+				self.bot.bl.insert(dict(user=f'{user}', uid=user.id, reason=reason, perm=permanent))
+				await ctx.send(f'{user.mention} was successfully blacklisted!')
+			else:
+				blid = blraw['id']
+				self.bot.bl.update(dict(id=blid, user=f'{user}', uid=user.id, reason=reason, perm=permanent), ['id'])
+				await ctx.send(f'Blacklist entry updated for {user.mention}.')
+
+	@commands.command(name='bl.remove', description='Remove someone from the blacklist')
+	async def blacklist_remove(self, ctx, user: discord.User = None):
+		'''Remove a user from the blacklist'''
+		if user == None:
+			await ctx.send('You need to provide a user to remove from the blacklist!')
+		else:
+			blraw = self.bot.bl.find_one(uid=user.id)
+			if blraw == None:
+				await ctx.send(f'{user.mention} is not blacklisted.')
+				return
+			else:
+				self.bot.bl.delete(uid=user.id)
+				await ctx.send(f'{user.mention} id now unblacklisted!')
 
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
