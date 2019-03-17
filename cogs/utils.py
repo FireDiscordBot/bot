@@ -87,11 +87,6 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.bot = bot
 		self.bl = db['blacklist']
 
-	@commands.command(name='bl.test')
-	async def blacklist_test(self, ctx, check: discord.User):
-		bltest = self.bl.find_one(uid=check.id)
-		await ctx.send(f'test: {bltest}')
-
 	@commands.command(name='bl.add', description='Add someone to the blacklist', hidden=True)
 	async def blacklist_add(self, ctx, user: discord.User = None, reason: str = 'bad boi', permanent: bool = False):
 		'''Add a user to the blacklist'''
