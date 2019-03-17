@@ -53,6 +53,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				await msg.delete()
 			except Exception as e:
 				print(f"I failed to delete a message due to... {e}")
+			return
 		if arg1.lower() == "help":
 			await ctx.send('help embed coming soon')
 			return
@@ -76,7 +77,10 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					await ctx.send('I couldn\'t find that player...')
 					return
 				p = player.JSON
-				tributes = p['tourney']['total_tributes'] or 0
+				try:
+					tributes = p['tourney']['total_tributes']
+				except KeyError:
+					trubutes = 0
 				mode = p['stats']['SkyWars']['lastMode']
 				if mode == "CRAZYTOURNEY":
 					tournamentmode = True
@@ -169,7 +173,10 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			async with channel.typing():
 				player = hypixel.Player(arg1)
 				p = player.JSON
-				tributes = p['tourney']['total_tributes'] # TOURNAMENT TRIBUTES
+				try:
+					tributes = p['tourney']['total_tributes'] # TOURNAMENT TRIBUTES
+				except KeyError:
+					tributes = 0
 				level = round(player.getLevel())
 				try:
 					rankcolor = p['rankPlusColor']

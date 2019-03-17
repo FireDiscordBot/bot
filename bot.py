@@ -38,6 +38,7 @@ async def get_pre(bot, message):
 	return commands.when_mentioned_or(prefix)(bot, message)
 
 bot = commands.Bot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="Loading..."), case_insensitive=True)
+bot.bl = db['blacklist']
 
 extensions = [
 	"cogs.fire",
@@ -83,7 +84,7 @@ async def on_command_error(ctx, error):
 	if hasattr(ctx.command, 'on_error'):
 		return
 	
-	ignored = (commands.CommandNotFound, commands.UserInputError)
+	ignored = (commands.CommandNotFound, commands.UserInputError, commands.CheckFailure, KeyError)
 	
 	# Allows us to check for original exceptions raised and sent to CommandInvokeError.
 	# If nothing is found. We keep the exception passed to on_command_error.
@@ -103,9 +104,9 @@ async def on_command_error(ctx, error):
 	embed.add_field(name='Guild', value=ctx.guild, inline=False)
 	embed.add_field(name='Message', value=ctx.message.content, inline=False)
 	me = bot.get_user(287698408855044097)
-	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.CheckFailure)
+	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions)
 	if isinstance(error, nomsg):
-		pass
+		return
 	else:
 		await me.send(embed=embed)
 
@@ -192,6 +193,17 @@ async def shutdown(ctx):
 		quit()
 	else:
 		await ctx.send("no.")
+
+@bot.check
+async def blacklist_check(ctx):
+	blacklist = bot.bl.find_one(uid=ctx.author.id)
+	if blacklist != None:
+		if ctx.author.id == bot.owner_id:
+			return True
+		else:
+			return False
+	else:
+		return True
 
 @bot.command(hidden=True)
 async def reload(ctx, cog: str = None):
