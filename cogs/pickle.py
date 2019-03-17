@@ -53,6 +53,9 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				await msg.delete()
 			except Exception as e:
 				print(f"I failed to delete a message due to... {e}")
+		if arg1.lower() == "help":
+			await ctx.send('help embed coming soon')
+			return
 		if arg1.lower() == "tournament":
 			if arg2 == None:
 				async with aiohttp.ClientSession() as session:

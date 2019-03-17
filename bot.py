@@ -83,7 +83,7 @@ async def on_command_error(ctx, error):
 	if hasattr(ctx.command, 'on_error'):
 		return
 	
-	ignored = (commands.CommandNotFound, commands.UserInputError, commands.CheckFailure)
+	ignored = (commands.CommandNotFound, commands.UserInputError)
 	
 	# Allows us to check for original exceptions raised and sent to CommandInvokeError.
 	# If nothing is found. We keep the exception passed to on_command_error.
@@ -103,9 +103,9 @@ async def on_command_error(ctx, error):
 	embed.add_field(name='Guild', value=ctx.guild, inline=False)
 	embed.add_field(name='Message', value=ctx.message.content, inline=False)
 	me = bot.get_user(287698408855044097)
-	missingperms = (commands.BotMissingPermissions, commands.MissingPermissions)
-	if isinstance(error, missingperms):
-		return
+	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.CheckFailure)
+	if isinstance(error, nomsg):
+		pass
 	else:
 		await me.send(embed=embed)
 
