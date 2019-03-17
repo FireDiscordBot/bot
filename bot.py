@@ -47,7 +47,8 @@ extensions = [
 	"cogs.ksoft",
 	"cogs.skier",
 	"cogs.utils",
-	"jishaku"
+	"jishaku",
+	"cogs.help_cmd"
 ]
 
 for cog in extensions:
@@ -89,10 +90,13 @@ async def on_command_error(ctx, error):
 	# Allows us to check for original exceptions raised and sent to CommandInvokeError.
 	# If nothing is found. We keep the exception passed to on_command_error.
 	error = getattr(error, 'original', error)
-	
+
 	# Anything in ignored will return and prevent anything happening.
 	if isinstance(error, ignored):
-		return
+		if 'permission' in str(error):
+			pass
+		else:
+			return
 
 	messages = ['Fire did an oopsie!', 'Oh no, it be broke.', 'this was intentional...', 'Well this slipped through quality assurance', 'How did this happen?', 'rip', 'Can we get an L in the chat?', 'Can we get an F in the chat?', 'he do not sing', 'lmao who did this?']
 	chosenmessage = random.choice(messages)
@@ -106,7 +110,7 @@ async def on_command_error(ctx, error):
 	me = bot.get_user(287698408855044097)
 	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions)
 	if isinstance(error, nomsg):
-		return
+		print('not sending message to dms')
 	else:
 		await me.send(embed=embed)
 
