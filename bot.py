@@ -83,7 +83,7 @@ async def on_command_error(ctx, error):
 	if hasattr(ctx.command, 'on_error'):
 		return
 	
-	ignored = (commands.CommandNotFound, commands.UserInputError)
+	ignored = (commands.CommandNotFound, commands.UserInputError, commands.CheckFailure)
 	
 	# Allows us to check for original exceptions raised and sent to CommandInvokeError.
 	# If nothing is found. We keep the exception passed to on_command_error.
@@ -101,6 +101,7 @@ async def on_command_error(ctx, error):
 	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!\n```py\n{error}```", timestamp=datetime.datetime.now())
 	embed.add_field(name='User', value=ctx.author, inline=False)
 	embed.add_field(name='Guild', value=ctx.guild, inline=False)
+	embed.add_field(name='Message', value=ctx.message.content, inline=False)
 	me = bot.get_user(287698408855044097)
 	missingperms = (commands.BotMissingPermissions, commands.MissingPermissions)
 	if isinstance(error, missingperms):
