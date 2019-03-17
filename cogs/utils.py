@@ -99,7 +99,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		else:
 			return True
 
-	@commands.command(name='bl.add', description='Add someone to the blacklist')
+	@commands.command(name='bl.add', description='Add someone to the blacklist', hidden=True)
 	async def blacklist_add(self, ctx, user: discord.User = None, reason: str = 'bad boi', permanent: bool = False):
 		'''Add a user to the blacklist'''
 		if user == None:
@@ -118,7 +118,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				self.bot.bl.update(dict(id=blid, user=f'{user}', uid=user.id, reason=reason, perm=permanent), ['id'])
 				await ctx.send(f'Blacklist entry updated for {user.mention}.')
 
-	@commands.command(name='bl.remove', description='Remove someone from the blacklist')
+	@commands.command(name='bl.remove', description='Remove someone from the blacklist', hidden=True)
 	async def blacklist_remove(self, ctx, user: discord.User = None):
 		'''Remove a user from the blacklist'''
 		if user == None:
