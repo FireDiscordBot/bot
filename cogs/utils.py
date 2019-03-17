@@ -102,6 +102,8 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.command(name='bl.add', description='Add someone to the blacklist', hidden=True)
 	async def blacklist_add(self, ctx, user: discord.User = None, reason: str = 'bad boi', permanent: bool = False):
 		'''Add a user to the blacklist'''
+		if isadmin(ctx) == False:
+			return
 		if user == None:
 			await ctx.send('You need to provide a user to add to the blacklist!')
 		else:
@@ -121,6 +123,8 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.command(name='bl.remove', description='Remove someone from the blacklist', hidden=True)
 	async def blacklist_remove(self, ctx, user: discord.User = None):
 		'''Remove a user from the blacklist'''
+		if isadmin(ctx) == False:
+			return
 		if user == None:
 			await ctx.send('You need to provide a user to remove from the blacklist!')
 		else:
