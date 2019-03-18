@@ -80,7 +80,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				try:
 					tributes = p['tourney']['total_tributes']
 				except KeyError:
-					trubutes = 0
+					tributes = 0
 				mode = p['stats']['SkyWars']['lastMode']
 				if mode == "CRAZYTOURNEY":
 					tournamentmode = True
