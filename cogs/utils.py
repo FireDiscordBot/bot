@@ -27,17 +27,6 @@ def isadmin(ctx):
 		admin = True
 	return admin
 
-async def getprefix(ctx):
-	if not ctx.guild:
-		return '$'
-	with open('prefixes.json', 'r') as pfx:
-		customprefix = json.load(pfx)
-	try:
-		prefix = customprefix[str(ctx.guild.id)]
-	except Exception:
-		prefix = '$'
-	return prefix
-
 snipes = {}
 disabled = [264445053596991498, 110373943822540800, 336642139381301249]
 
@@ -213,9 +202,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		-------------------------
 		Ex:
 		$purge 50'''
-		prefix = await getprefix(ctx)
 		if amount is None:
-			return await ctx.send(f'Hey, please do `{prefix}purge [amount]`!')
+			return await ctx.send(f'Hey, please do `purge [amount]`!')
 		if amount>500 or amount<0:
 			return await ctx.send('Invalid amount. Maximum is 500')
 		await ctx.message.delete()
