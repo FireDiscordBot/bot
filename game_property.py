@@ -4,6 +4,7 @@ class Member():
     def getGame(self):
         game = str(self.activities[0])
         game = game.lower()
+        check = game
         if 'minecraft' in game:
             game = '<:Minecraft:516401572755013639> Minecraft'
         if 'hyperium' in game:
@@ -72,3 +73,6 @@ class Member():
             game = '<:BLEND:516401568321634314> Blender'
         if 'cinema 4d' in game:
             game = '<:C4D:516401570741616659> Cinema 4D'
+        if check == game:
+            game = self.activities[0]
+        return game
