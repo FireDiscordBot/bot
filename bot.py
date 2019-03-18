@@ -98,6 +98,12 @@ async def on_command_error(ctx, error):
 			pass
 		else:
 			return
+	
+	if isinstance(error, commands.CommandOnCooldown):
+		embed = discord.Embed(title='Command on cooldown...', colour=ctx.author.color, url="https://http.cat/429", description=f"Here's what happened\n```py\n{error}```", timestamp=datetime.datetime.now())
+		embed.set_footer(text="Just wait a bit and it'll be fine!")
+		await ctx.send(embed=embed)
+		return
 
 	messages = ['Fire did an oopsie!', 'Oh no, it be broke.', 'this was intentional...', 'Well this slipped through quality assurance', 'How did this happen?', 'rip', 'Can we get an L in the chat?', 'Can we get an F in the chat?', 'he do not sing', 'lmao who did this?']
 	chosenmessage = random.choice(messages)
