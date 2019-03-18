@@ -47,8 +47,9 @@ extensions = [
 	"cogs.ksoft",
 	"cogs.skier",
 	"cogs.utils",
-	"jishaku",
-	"cogs.help_cmd"
+	"cogs.help_cmd",
+	"cogs.dbl",
+	"jishaku"
 ]
 
 for cog in extensions:
@@ -208,32 +209,6 @@ async def blacklist_check(ctx):
 			return False
 	else:
 		return True
-
-@bot.command(hidden=True)
-async def reload(ctx, cog: str = None):
-	if isadmin(ctx):
-		if cog == None:
-			await ctx.send("provide a cog to reload you fucking idot")
-			return
-		else:
-			if "cogs." not in cog:
-				if cog == 'jishaku':
-					bot.unload_extension(cog)
-					bot.load_extension(cog)
-					await ctx.send(f"i think i reloaded {cog} but if it broke then blame yourself not me")
-				else:
-					await ctx.send("cogs start with `cogs.` you fucking idot")
-					return
-			else:
-				try:
-					bot.unload_extension(cog)
-					bot.load_extension(cog)
-				except Exception as e:
-					await ctx.send(f"Fire did an oopsie ```{e}```")
-				else:
-					await ctx.send(f"i think i reloaded {cog} but if it broke then blame yourself not me")
-	else:
-		await ctx.send("no.")
 
 async def game_changer():
 	while True:
