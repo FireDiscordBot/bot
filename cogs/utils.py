@@ -96,12 +96,18 @@ def getGame(activity):
 		game = '<:LabyMod:531495743295586305> LabyMod'
 	if 'fortnite' in game:
 		game = '<:Fortnite:516401567990153217> Fortnite'
-	if 'csgo' or 'counter-strike' in game:
-		game = '<:CSGO:516401568019513370> CS:GO'
-	if 'pubg' or 'playerunknown\'s battlegrounds' in game:
-		game =  '<:PUBG:516401568434618388> PUBG'
-	if 'gta v' or 'grand theft auto v' in game:
-		game = '<:GTAV:516401570556936232> GTA V'
+	csgo = ['csgo', 'counter-strike']
+	for string in csgo: 
+		if string in game:
+			game = '<:CSGO:516401568019513370> CS:GO'
+	pubg = ['pubg', 'playerunknown\'s battlegrounds']
+	for string in pubg:
+		if string in game:
+			game =  '<:PUBG:516401568434618388> PUBG'
+	gta = ['gta v', 'grand theft auto v']
+	for string in gta:
+		if string in game:
+			game = '<:GTAV:516401570556936232> GTA V'
 	if 'roblox' in game:
 		game = '<:Roblox:516403059673530368> Roblox'
 	if 'payday 2' in game:
