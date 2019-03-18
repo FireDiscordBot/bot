@@ -16,6 +16,7 @@ import math
 import random
 import re
 import wavelink
+import psutil
 from collections import deque
 from discord.ext import commands
 from typing import Union
@@ -131,7 +132,7 @@ class Player(wavelink.Player):
         self.updating = True
 
         embed = discord.Embed(title='Music Controller',
-                              description=f'<a:eq:545194963810648077>Now Playing:```ini\n{track.title}\n\n'
+                              description=f'<a:eq:557312295340998687> Now Playing:```ini\n{track.title}\n\n'
                               f'[EQ]: {self.eq}\n'
                               f'[Presets]: Flat/Boost/Piano/Metal```',
                               colour=0xffb347)
@@ -766,28 +767,6 @@ class Music(commands.Cog):
         await player.set_preq(eq)
         player.eq = eq.capitalize()
         await ctx.send(f'The player Equalizer was set to - {eq.capitalize()}')
-
-    @commands.command()
-    async def info(self, ctx):
-        """Retrieve various Node/Server/Player information."""
-        player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
-        node = player.node
-
-        used = humanize.naturalsize(node.stats.memory_used)
-        total = humanize.naturalsize(node.stats.memory_allocated)
-        free = humanize.naturalsize(node.stats.memory_free)
-        cpu = node.stats.cpu_cores
-
-        fmt = f'**WaveLink:** `{wavelink.__version__}`\n\n' \
-              f'Connected to `{len(self.bot.wavelink.nodes)}` nodes.\n' \
-              f'Best available Node `{self.bot.wavelink.get_best_node().__repr__()}`\n' \
-              f'`{len(self.bot.wavelink.players)}` players are distributed on nodes.\n' \
-              f'`{node.stats.players}` players are distributed on server.\n' \
-              f'`{node.stats.playing_players}` players are playing on server.\n\n' \
-              f'Server Memory: `{used}/{total}` | `({free} free)`\n' \
-              f'Server CPU: `{cpu}`\n\n' \
-              f'Server Uptime: `{datetime.timedelta(milliseconds=node.stats.uptime)}`'
-        await ctx.send(fmt)
 
 def setup(bot):
 	bot.add_cog(Music(bot))
