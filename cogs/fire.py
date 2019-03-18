@@ -18,6 +18,7 @@ import speedtest
 import subprocess
 import random
 import dataset
+from jishaku.paginators import PaginatorInterface, WrappedPaginator
 
 db = dataset.connect('sqlite:///fire.db')
 prefixes = db['prefixes']
@@ -135,15 +136,17 @@ class fire(commands.Cog, name="Main Commands"):
 	@commands.command(description="Shows you all the guilds I'm in.")
 	async def listguilds(self, ctx):
 		"""Shows you all the guilds I'm in."""
-		if isadmin(ctx) == True:
-			guilds = self.bot.guilds
-			guildlist = []
-			separator = ",\n"
-			for guild in guilds:
-				guildlist.append(f"{guild.name}")
-			await ctx.send(f"```{separator.join(guildlist)}```")
-		else:
-			await ctx.send("I can't send the list here due to character limits and me being lazy")
+		paginator = WrappedPaginator(prefix='```vbs', suffix='```', max_size=1500)
+		gcount = 1
+		for guild in self.bot.guilds:
+			if guild == ctx.guild:
+				current = ' (HERE)'
+			else:
+				current = ''
+			paginator.add_line(f'[{gcount}] {guild.name}{current} || {guild.owner} || {guild.member_count} Members')
+			gcount = gcount + 1
+		interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
+		await interface.send_to(ctx)
 
 	@commands.command(name="speedtest", description="Runs a speedtest on my VPS")
 	async def speedtest_(self, ctx):
