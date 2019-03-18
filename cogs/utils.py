@@ -85,6 +85,7 @@ def quote_embed(context_channel, message, user):
 def getGame(activity):
 	game = str(activity)
 	game = game.lower()
+	check = game
 	if 'minecraft' in game:
 		game = '<:Minecraft:516401572755013639> Minecraft'
 	if 'hyperium' in game:
@@ -153,6 +154,9 @@ def getGame(activity):
 		game = '<:BLEND:516401568321634314> Blender'
 	if 'cinema 4d' in game:
 		game = '<:C4D:516401570741616659> Cinema 4D'
+	if check == game:
+		game = str(activity)
+	return game
 
 class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
