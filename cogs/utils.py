@@ -270,47 +270,48 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
-		if message.guild.id in disabled:
-			return
-		perms = message.guild.me.permissions_in(message.channel)
-		if not perms.send_messages or not perms.embed_links or message.author.bot:
-			return
+		if message.guild != None:
+			if message.guild.id in disabled:
+				return
+			perms = message.guild.me.permissions_in(message.channel)
+			if not perms.send_messages or not perms.embed_links or message.author.bot:
+				return
 
-		for i in message.content.split():
-			word = i.lower().strip('<>')
-			if word.startswith('https://canary.discordapp.com/channels/'):
-				word = word.strip('https://canary.discordapp.com/channels/')
-			elif word.startswith('https://ptb.discordapp.com/channels/'):
-				word = word.strip('https://ptb.discordapp.com/channels/')
-			elif word.startswith('https://discordapp.com/channels/'):
-				word = word.strip('https://discordapp.com/channels/')
-			else:
-				continue
-
-			list_ids = word.split('/')
-			if len(list_ids) == 3:
-				del list_ids[0]
-
-				try:
-					channel = self.bot.get_channel(int(list_ids[0]))
-				except:
+			for i in message.content.split():
+				word = i.lower().strip('<>')
+				if word.startswith('https://canary.discordapp.com/channels/'):
+					word = word.strip('https://canary.discordapp.com/channels/')
+				elif word.startswith('https://ptb.discordapp.com/channels/'):
+					word = word.strip('https://ptb.discordapp.com/channels/')
+				elif word.startswith('https://discordapp.com/channels/'):
+					word = word.strip('https://discordapp.com/channels/')
+				else:
 					continue
 
-				if channel and isinstance(channel, discord.TextChannel):
+				list_ids = word.split('/')
+				if len(list_ids) == 3:
+					del list_ids[0]
+
 					try:
-						msg_id = int(list_ids[1])
+						channel = self.bot.get_channel(int(list_ids[0]))
 					except:
 						continue
 
-					try:
-						msg_found = await channel.get_message(msg_id)
-					except:
-						continue
-					else:
-						if not msg_found.content and msg_found.embeds and msg_found.author.bot:
-							await message.channel.send(content = 'Raw embed from `' + str(msg_found.author).strip('`') + '` in ' + msg_found.channel.mention, embed = quote_embed(message.channel, msg_found, message.author))
+					if channel and isinstance(channel, discord.TextChannel):
+						try:
+							msg_id = int(list_ids[1])
+						except:
+							continue
+
+						try:
+							msg_found = await channel.get_message(msg_id)
+						except:
+							continue
 						else:
-							await message.channel.send(embed = quote_embed(message.channel, msg_found, message.author))
+							if not msg_found.content and msg_found.embeds and msg_found.author.bot:
+								await message.channel.send(content = 'Raw embed from `' + str(msg_found.author).strip('`') + '` in ' + msg_found.channel.mention, embed = quote_embed(message.channel, msg_found, message.author))
+							else:
+								await message.channel.send(embed = quote_embed(message.channel, msg_found, message.author))
 
 	@commands.command(description='Quote a message from an id')
 	async def quote(self, ctx, msg_id: int = None):
