@@ -361,7 +361,11 @@ class utils(commands.Cog, name='Utility Commands'):
 			channel = ctx.channel
 
 		route = discord.http.Route("GET", f"/channels/{channel.id}")
-		raw = await ctx.bot.http.request(route)
+		try:
+			raw = await ctx.bot.http.request(route)
+		except discord.HTTPException:
+			raise commands.UserInputError('Couldn\'t find that channel.')
+			return
 
 		try:
 			await ctx.send(f"```json\n{json.dumps(raw, indent=2)}```")
@@ -413,6 +417,11 @@ class utils(commands.Cog, name='Utility Commands'):
 				else:
 					continue
 			list_ids = word.split('/')
+			try:
+				test = list_ids[1]
+			except IndexError:
+				raise commands.UserInputError(f'Unable to retrieve a message from {msg}')
+				return
 			if len(list_ids) == 3:
 				del list_ids[0]
 			chanid = list_ids[0]
@@ -431,19 +440,19 @@ class utils(commands.Cog, name='Utility Commands'):
 		try:
 			fetched = self.bot.get_user(user)
 		except Exception as e:
-			await ctx.send(f'Fire did an oopsie! ```{e}```')
+			raise commands.UserInputError('Oops, couldn\'t find that user. I need to be in a server with them')
 		if fetched == None:
 			if isadmin(ctx):
 				try:
 					fetched = await self.bot.get_user_info(user)
 				except discord.NotFound:
-					await ctx.send('Hmm.... I can\'t seem to find that user', delete_after=10)
+					raise commands.UserInputError('Hmm.... I can\'t seem to find that user')
 					return
 				except discord.HTTPException:
-					await ctx.send('Something went wrong when trying to find that user...', delete_after=10)
+					raise commands.UserInputError('Something went wrong when trying to find that user...')
 					return
 			else:
-				await ctx.send('Hmm.... I can\'t seem to find that user', delete_after=10)
+				raise commands.UserInputError('Hmm.... I can\'t seem to find that user')
 				return
 		userInfo = {
 			'name': fetched.name,

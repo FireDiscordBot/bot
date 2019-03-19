@@ -86,7 +86,7 @@ async def on_command_error(ctx, error):
 	if hasattr(ctx.command, 'on_error'):
 		return
 	
-	ignored = (commands.CommandNotFound, commands.UserInputError, commands.CheckFailure, KeyError)
+	ignored = (commands.CommandNotFound, commands.CheckFailure, KeyError)
 	
 	# Allows us to check for original exceptions raised and sent to CommandInvokeError.
 	# If nothing is found. We keep the exception passed to on_command_error.
@@ -115,7 +115,7 @@ async def on_command_error(ctx, error):
 	embed.add_field(name='Guild', value=ctx.guild, inline=False)
 	embed.add_field(name='Message', value=ctx.message.content, inline=False)
 	me = bot.get_user(287698408855044097)
-	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions)
+	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError)
 	if isinstance(error, nomsg):
 		print('not sending message to dms')
 	else:
