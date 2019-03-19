@@ -16,7 +16,6 @@ import math
 import random
 import re
 import wavelink
-import psutil
 from collections import deque
 from discord.ext import commands
 from typing import Union
