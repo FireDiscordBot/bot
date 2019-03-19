@@ -259,7 +259,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 			if user.permissions_in(channel).send_messages:
 				try:
-					message = await channel.get_message(payload.message_id)
+					message = await channel.fetch_message(payload.message_id)
 				except discord.NotFound:
 					return
 				except discord.Forbidden:
@@ -308,7 +308,7 @@ class utils(commands.Cog, name='Utility Commands'):
 							continue
 
 						try:
-							msg_found = await channel.get_message(msg_id)
+							msg_found = await channel.fetch_message(msg_id)
 						except:
 							continue
 						else:
@@ -325,7 +325,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 		message = None
 		try:
-			message = await ctx.channel.get_message(msg_id)
+			message = await ctx.channel.fetch_message(msg_id)
 		except:
 			for channel in ctx.guild.text_channels:
 				perms = ctx.guild.me.permissions_in(channel)
@@ -333,7 +333,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					continue
 
 				try:
-					message = await channel.get_message(msg_id)
+					message = await channel.fetch_message(msg_id)
 				except:
 					continue
 				else:
@@ -387,7 +387,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if type(msg) == int:
 			message = None
 			try:
-				message = await ctx.channel.get_message(msg)
+				message = await ctx.channel.fetch_message(msg)
 			except:
 				for channel in ctx.guild.text_channels:
 					perms = ctx.guild.me.permissions_in(channel)
@@ -395,7 +395,7 @@ class utils(commands.Cog, name='Utility Commands'):
 						continue
 
 					try:
-						message = await channel.get_message(msg)
+						message = await channel.fetch_message(msg)
 					except:
 						continue
 					else:
@@ -444,7 +444,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if fetched == None:
 			if isadmin(ctx):
 				try:
-					fetched = await self.bot.get_user_info(user)
+					fetched = await self.bot.fetch_user(user)
 				except discord.NotFound:
 					raise commands.UserInputError('Hmm.... I can\'t seem to find that user')
 					return
