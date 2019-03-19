@@ -5,6 +5,8 @@ import json
 import time
 import os
 import dataset
+import typing
+from jishaku.paginators import PaginatorInterface, WrappedPaginator
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -270,6 +272,8 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
+		if 'fetchmsg' in message.content:
+			return
 		if message.guild != None:
 			if message.guild.id in disabled:
 				return
@@ -349,6 +353,75 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed = discord.Embed(color=ctx.author.color)
 		embed.set_image(url=f'https://http.cat/{error}')
 		await ctx.send(embed=embed)
+
+	@commands.command(description='Fetch a channel and get some beautiful json')
+	async def fetchchannel(self, ctx, channel: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel] = None):
+		'''Return a channel as beautiful json'''
+		if channel is None:
+			channel = ctx.channel
+
+		route = discord.http.Route("GET", f"/channels/{channel.id}")
+		raw = await ctx.bot.http.request(route)
+
+		try:
+			await ctx.send(f"```json\n{json.dumps(raw, indent=2)}```")
+		except discord.HTTPException as e:
+			e = str(e)
+			if 'Must be 2000 or fewer in length' in e:
+				paginator = WrappedPaginator(prefix='```json', suffix='```', max_size=1895)
+				paginator.add_line(json.dumps(raw, indent=2))
+				interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
+				await interface.send_to(ctx)
+
+	@commands.command(description='Fetch a channel from it\'s id or link')
+	async def fetchmsg(self, ctx, msg: typing.Union[str, int] = None):
+		'''Returns a message as beautiful json'''
+		try:
+			msg = int(msg)
+		except Exception:
+			pass
+		if type(msg) == int:
+			message = None
+			try:
+				message = await ctx.channel.get_message(msg)
+			except:
+				for channel in ctx.guild.text_channels:
+					perms = ctx.guild.me.permissions_in(channel)
+					if channel == ctx.channel or not perms.read_messages or not perms.read_message_history:
+						continue
+
+					try:
+						message = await channel.get_message(msg)
+					except:
+						continue
+					else:
+						break
+			if message:
+				raw = await ctx.bot.http.get_message(message.channel.id, message.id)
+				await ctx.send(f"```json\n{json.dumps(raw, indent=2)}```")
+			else:
+				raise commands.UserInputError('Message could not be found. Make sure you have the right id')
+		elif type(msg) == str:
+			for i in msg.split():
+				word = i.lower().strip('<>')
+				if word.startswith('https://canary.discordapp.com/channels/'):
+					word = word.strip('https://canary.discordapp.com/channels/')
+				elif word.startswith('https://ptb.discordapp.com/channels/'):
+					word = word.strip('https://ptb.discordapp.com/channels/')
+				elif word.startswith('https://discordapp.com/channels/'):
+					word = word.strip('https://discordapp.com/channels/')
+				else:
+					continue
+			list_ids = word.split('/')
+			if len(list_ids) == 3:
+				del list_ids[0]
+			chanid = list_ids[0]
+			msgid = list_ids[1]
+			raw = await ctx.bot.http.get_message(chanid, msgid)
+			await ctx.send(f"```json\n{json.dumps(raw, indent=2)}```")
+		else:
+			raise commands.UserInputError('Message argument was neither an id or url')
+
 
 	@commands.command(description='Find a user from their id')
 	async def fetchuser(self, ctx, user: int = None):
