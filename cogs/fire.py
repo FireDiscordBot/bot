@@ -126,7 +126,7 @@ class fire(commands.Cog, name="Main Commands"):
 		embed.add_field(name="**OS**", value=f"{os}", inline=False)
 		embed.add_field(name="**CPU**", value=f"{cpu} ({round(cpustats)}%)", inline=False)
 		embed.add_field(name="**RAM**", value=f"{ramuse} MB / 6024 MB", inline=False)
-		embed.add_field(name="**Version Info**", value=f"Discord.py Rewrite | Python: 3.7.2", inline=False)
+		embed.add_field(name="**Version Info**", value=f"discord.py {discord.__version__} | Python: 3.7.2", inline=False)
 		embed.add_field(name="**Guilds**", value=f"{len(self.bot.guilds)}", inline=True)
 		embed.add_field(name="**Prefix**", value=f"{custprefix}", inline=True)
 		embed.add_field(name="**Commands**", value=len(self.bot.commands), inline=True)
@@ -148,22 +148,6 @@ class fire(commands.Cog, name="Main Commands"):
 		interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
 		await interface.send_to(ctx)
 
-	@commands.command(name="speedtest", description="Runs a speedtest on my VPS")
-	async def speedtest_(self, ctx):
-		"""Runs a speedtest on my VPS"""
-		msg = await ctx.send("<a:Load:546751645954998282> Running Speedtest")
-		ctx.message.channel.typing()
-		s = speedtest.Speedtest()
-		s.get_best_server()
-		s.download()
-		s.upload()
-		s.results.share()
-		test = s.results.dict()
-		url = test['share']
-		embed = discord.Embed(color=ctx.author.color)
-		embed.set_image(url=url)
-		await msg.edit(embed=embed)
-
 	@commands.command(description="dab")
 	async def dab(self, ctx):
 		"""<o/"""
@@ -175,6 +159,7 @@ class fire(commands.Cog, name="Main Commands"):
 		await ctx.send(f'🔥 Warming up {warm}')
 
 	@commands.command(description="Say goodbye to me")
+	@commands.has_permissions(manage_members=True)
 	async def leaveguild(self, ctx):
 		"""Makes me leave the guild :("""
 		confirm = random.randint(5000, 10000)
