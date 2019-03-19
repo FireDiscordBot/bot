@@ -42,11 +42,7 @@ class Help(commands.Cog):
     async def _help(self, ctx, *, cmd: commands.clean_content = None):
         """The help command.
         Use this to view other commands."""
-        if cmd == "all":
-            _all = True
-            cmd = None
-        else:
-            _all = False
+        _all = False
         if not cmd:
             embed = discord.Embed(color=ctx.author.color)
             embed.set_author(name=f"Here's all my commands!", icon_url=ctx.me.avatar_url_as(format="png",
