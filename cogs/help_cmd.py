@@ -66,7 +66,7 @@ class Help(commands.Cog):
                 elif cogname[1] == 'utils':
                     name = 'Utility Commands'
 				elif cogname[1] == 'wta':
-					name = 'Winner Takes All'
+                    name = 'Winner Takes All'
                 n.append(f"**{name}**\n")
                 for cmd in self.formatter(cog.get_commands(), ignore_hidden=_all):
                     n.append(cmd)
