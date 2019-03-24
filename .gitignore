@@ -106,4 +106,4 @@ venv.bak/
 # other stuff
 bot.log
 logs/
-*.jar
+lavalink.jar
