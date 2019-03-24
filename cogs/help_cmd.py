@@ -38,45 +38,6 @@ class Help(commands.Cog):
 		else:
 			raise RuntimeError("??")
 
-<<<<<<< HEAD
-    @commands.command(name="help", hidden=True)
-    async def _help(self, ctx, *, cmd: commands.clean_content = None):
-        """The help command.
-        Use this to view other commands."""
-        _all = False
-        if not cmd:
-            embed = discord.Embed(color=ctx.author.color)
-            embed.set_author(name=f"Here's all my commands!", icon_url=ctx.me.avatar_url_as(format="png",
-                                                                                                      size=32))
-            embed.set_footer(text=f"Prefix: {ctx.prefix}")
-            n = []
-            for cog in self.bot.cogs.values():
-                if sum(1 for n in cog.get_commands() if not (n.hidden and not _all)) == 0:
-                    continue
-                cogname = f'{cog}'.split('.')
-                if cogname[1] == 'fire':
-                    name = 'Main Commands'
-                elif cogname[1] == 'music':
-                    name = 'Music Commands'
-                elif cogname[1] == 'pickle':
-                    name = 'Hypixel Commands'
-                elif cogname[1] == 'ksoft':
-                    name = 'KSoft.Si API Commands'
-                elif cogname[1] == 'skier':
-                    name = 'Sk1er/Hyperium Commands'
-                elif cogname[1] == 'utils':
-                    name = 'Utility Commands'
-                n.append(f"**{name}**\n")
-                for cmd in self.formatter(cog.get_commands(), ignore_hidden=_all):
-                    n.append(cmd)
-            embed.description = "".join(n)
-            await ctx.send(embed=embed)
-        else:
-            item = self.bot.get_cog(cmd) or self.bot.get_command(cmd)
-            if not item:
-                return await ctx.send(f"Couldn't find anything named '{cmd}'.")
-            await ctx.send(embed=self.format_help_for(item, ctx.author.color))
-=======
 	@commands.command(name="help", hidden=True)
 	async def _help(self, ctx, *, cmd: commands.clean_content = None):
 		"""The help command.
@@ -104,8 +65,6 @@ class Help(commands.Cog):
 					name = 'Sk1er/Hyperium Commands'
 				elif cogname[1] == 'utils':
 					name = 'Utility Commands'
-				elif cogname[1] == 'wta':
-					name = 'Winner Takes All'
 				n.append(f"**{name}**\n")
 				for cmd in self.formatter(cog.get_commands(), ignore_hidden=_all):
 					n.append(cmd)
@@ -116,7 +75,6 @@ class Help(commands.Cog):
 			if not item:
 				return await ctx.send(f"Couldn't find anything named '{cmd}'.")
 			await ctx.send(embed=self.format_help_for(item, ctx.author.color))
->>>>>>> 6f4b73e6fac59c3c7db31335b9683dcb46aa6bea
 
 
 def setup(bot):
