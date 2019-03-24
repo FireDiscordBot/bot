@@ -11,6 +11,8 @@ import asyncio
 import random
 import dataset
 import traceback
+from fire.pushbullet import pushbullet
+from fire import exceptions
 
 db = dataset.connect('sqlite:///fire.db')
 prefixes = db['prefixes']
@@ -57,27 +59,6 @@ for cog in extensions:
 		bot.load_extension(cog)
 	except Exception as e:
 	   print(f"Error while loading {cog}: {e}")
-
-
-async def pushbullet(msgtype: str, title: str, message: str):
-	print("Attempting to send a request to pushbullet")
-	headers = {
-		'USER-AGENT': 'Fire',
-		'CONTENT-TYPE': 'application/json',
-		'ACCESS-TOKEN': config['pushbullet']}
-	body = {
-		'type': f'{msgtype}',
-		'title': f'{title}',
-		'body': f'{message}',
-		'url': 'https://discordapp.com/channels/@me'}
-	url = "https://api.pushbullet.com/v2/pushes"
-	async with aiohttp.ClientSession(headers=headers) as session:
-		async with session.post(url, json=body) as resp:
-			status = resp.status
-			if status == 200:
-				print("Pushbullet request completed successfully")
-			else:
-				print(f"Pushbullet request was unsuccessful!\n Status code: {status}")
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -154,11 +135,10 @@ async def on_message_edit(before,after):
 @bot.event
 async def on_guild_join(guild):
 	print(f"Fire joined a new guild! {guild.name}({guild.id}) with {guild.member_count} members")
-	pushb = await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members")
-	if pushb == "Success":
-		print("Pushbullet request completed successfully")
-	if pushb == "Unauthorized":
-		print("Pushbullet request was not successful...")
+	try:
+		await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members")
+	except exceptions.PushError as e:
+		print(e)
 	users = format(len(bot.users), ',d')
 	guilds = format(len(bot.guilds), ',d')
 	await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"{users} users in {guilds} guilds"))
@@ -167,7 +147,10 @@ async def on_guild_join(guild):
 @bot.event
 async def on_guild_remove(guild):
 	print(f"Fire left the guild {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/")
-	await pushbullet("link", "Fire left a guild!", f"Fire left {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/")
+	try:
+		await pushbullet("link", "Fire left a guild!", f"Fire left {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/")
+	except exceptions.PushError as e:
+		print(e)
 	users = format(len(bot.users), ',d')
 	guilds = format(len(bot.guilds), ',d')
 	await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"{users} users in {guilds} guilds"))
