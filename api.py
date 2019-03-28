@@ -297,10 +297,18 @@ async def invite(request):
 			'splash': invguild.splash_url,
 			'created': str(invguild.created_at)
 		}
+		if isinstance(invchan, discord.PartialInviteChannel):
+			invchantype = 'PartialInviteChannel'
+		elif isinstance(invchan, discord.TextChannel):
+			invchantype = 'TextChannel'
+		elif isinstance(invchan, discord.VoiceChannel):
+			invchantype = 'VoiceChannel'
+		else:
+			invchantype = None
 		channel = {
 			'name': invchan.name,
 			'id': invchan.id,
-			'type': str(type(invchan)),
+			'type': invchantype,
 			'created': str(invchan.created_at)
 		}
 		data = {
