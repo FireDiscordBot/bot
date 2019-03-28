@@ -313,18 +313,13 @@ async def invite(request):
 		}
 		data = {
 			'code': invite.code,
-			'max_age': invite.max_age,
 			'guild': {
 
 			},
 			'channel': {
 
 			},
-			'revoked': invite.revoked,
 			'created_at': str(invite.created_at),
-			'temporary': invite.temporary,
-			'uses': invite.uses,
-			'max_uses': invite.max_uses,
 			'inviter': str(invite.inviter),
 			'approx_members': invite.approximate_member_count,
 			'approx_active_members': invite.approximate_presence_count,
