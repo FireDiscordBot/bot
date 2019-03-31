@@ -402,7 +402,15 @@ class utils(commands.Cog, name='Utility Commands'):
 						break
 			if message:
 				raw = await ctx.bot.http.get_message(message.channel.id, message.id)
-				await ctx.send(f"```json\n{json.dumps(raw, indent=2)}```")
+				try:
+					await ctx.send(f"```json\n{json.dumps(raw, indent=2)}```")
+				except discord.HTTPException as e:
+					e = str(e)
+					if 'Must be 2000 or fewer in length' in e:
+						paginator = WrappedPaginator(prefix='```json', suffix='```', max_size=1895)
+						paginator.add_line(json.dumps(raw, indent=2))
+						interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
+						await interface.send_to(ctx)
 			else:
 				raise commands.UserInputError('Message could not be found. Make sure you have the right id')
 		elif type(msg) == str:
@@ -427,7 +435,15 @@ class utils(commands.Cog, name='Utility Commands'):
 			chanid = list_ids[0]
 			msgid = list_ids[1]
 			raw = await ctx.bot.http.get_message(chanid, msgid)
-			await ctx.send(f"```json\n{json.dumps(raw, indent=2)}```")
+			try:
+				await ctx.send(f"```json\n{json.dumps(raw, indent=2)}```")
+			except discord.HTTPException as e:
+				e = str(e)
+				if 'Must be 2000 or fewer in length' in e:
+					paginator = WrappedPaginator(prefix='```json', suffix='```', max_size=1895)
+					paginator.add_line(json.dumps(raw, indent=2))
+					interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
+					await interface.send_to(ctx)
 		else:
 			raise commands.UserInputError('Message argument was neither an id or url')
 

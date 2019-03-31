@@ -201,7 +201,6 @@ async def blacklist_check(ctx):
 
 async def game_changer():
 	while True:
-		print("Changing game...")
 		randint = random.randint(1, 3)
 		users = format(len(bot.users), ',d')
 		guilds = format(len(bot.guilds), ',d')
@@ -212,7 +211,6 @@ async def game_changer():
 		if randint == 3:
 			me = bot.get_user(287698408855044097)
 			await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"Created by {me}"))
-		print("Game changed. going to sleep for 60 seconds")
 		await asyncio.sleep(60)
 
 bot.run(config['token'])
