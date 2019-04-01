@@ -11,7 +11,7 @@ import asyncio
 import random
 import dataset
 import traceback
-from fire.pushbullet import pushbullet
+from fire.push import pushbullet
 from fire import exceptions
 
 db = dataset.connect('sqlite:///fire.db')
