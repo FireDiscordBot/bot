@@ -6,6 +6,7 @@ import time
 import os
 import dataset
 import typing
+import re
 from jishaku.paginators import PaginatorInterface, WrappedPaginator
 from PIL import Image
 from PIL import ImageFont
@@ -13,6 +14,9 @@ from PIL import ImageDraw
 
 launchtime = datetime.datetime.utcnow()
 db = dataset.connect('sqlite:///fire.db')
+
+inv = r'(http|https)?(:)?(\/\/)?(discordapp|discord).(gg|io|me|com)\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!]))?'
+invreplace = '[redacted invite]'
 
 print('utils.py has been loaded')
 
@@ -155,6 +159,20 @@ def getGame(activity):
 		game = str(activity)
 	return game
 
+def findinvite(text: str):
+	search = re.search(inv, text)
+	if search:
+		return search.group(7)
+	else:
+		return False
+
+def replaceinvite(text: str):
+	message = re.sub(inv, invreplace, text, 0, re.MULTILINE)
+	if message:
+		return message
+	else:
+		return False
+
 class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
@@ -235,8 +253,10 @@ class utils(commands.Cog, name='Utility Commands'):
 				snipes[message.guild.id] = {message.channel.id: message}
 
 	@commands.command(description='Get the last deleted message')
-	async def snipe(self, ctx, channel: discord.TextChannel = None):
+	async def snipe(self, ctx, channel: typing.Union[discord.TextChannel, int] = None):
 		'''Get the last deleted message'''
+		if type(channel) == int:
+			channel = self.bot.get_channel(channel)
 		if not channel:
 			channel = ctx.channel
 
