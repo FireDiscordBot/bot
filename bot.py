@@ -9,13 +9,10 @@ import aiohttp
 import time
 import asyncio
 import random
-import dataset
+import aiosqlite3
 import traceback
 from fire.push import pushbullet
 from fire import exceptions
-
-db = dataset.connect('sqlite:///fire.db')
-prefixes = db['prefixes']
 
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
@@ -32,15 +29,17 @@ def isadmin(ctx):
 async def get_pre(bot, message):
 	if not message.guild:
 		return "$"
-	prefixraw = prefixes.find_one(gid=message.guild.id)
-	if prefixraw != None:
-		prefix = prefixraw['prefix']
-	else:
-		prefix = "$"
+	async with aiosqlite3.connect('fire.db', loop=bot.loop) as conn:
+		async with conn.cursor() as cur:
+			await cur.execute(f'SELECT * FROM prefixes WHERE gid = {message.guild.id};')
+			prefixraw = await cur.fetchone()
+			if prefixraw != None:
+				prefix = prefixraw[3]
+			else:
+				prefix = "$"
 	return commands.when_mentioned_or(prefix)(bot, message)
 
 bot = commands.Bot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="Loading..."), case_insensitive=True)
-bot.bl = db['blacklist']
 
 extensions = [
 	"cogs.fire",
@@ -68,6 +67,7 @@ async def on_command_error(ctx, error):
 		return
 	
 	ignored = (commands.CommandNotFound, commands.CheckFailure, KeyError)
+	saved = error
 	
 	# Allows us to check for original exceptions raised and sent to CommandInvokeError.
 	# If nothing is found. We keep the exception passed to on_command_error.
@@ -99,11 +99,15 @@ async def on_command_error(ctx, error):
 	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError)
 	if isinstance(error, nomsg):
 		print('not sending message to dms')
+	if isinstance(error, aiosqlite3.OperationalError):
+		await me.send(content=str(saved), embed=embed)
 	else:
 		await me.send(embed=embed)
 
 @bot.event
 async def on_ready():
+	bot.conn = await aiosqlite3.connect('fire.db', loop=bot.loop)
+	bot.db = await bot.conn.cursor()
 	print("-------------------------")
 	print(f"Bot: {bot.user}")
 	print(f"ID: {bot.user.id}")
@@ -169,12 +173,13 @@ async def prefix(ctx, pfx: str = None):
 	if pfx == None:
 		await ctx.send("Missing argument for prefix! (Note: For prefixes with a space, surround it in \"\")")
 	else:
-		prefixraw = prefixes.find_one(gid=ctx.guild.id)
+		await bot.db.execute(f'SELECT * FROM prefixes WHERE gid = {ctx.guild.id};')
+		prefixraw = await bot.db.fetchone()
 		if prefixraw == None:
-			prefixes.insert(dict(name=ctx.guild.name, gid=ctx.guild.id, prefix=pfx))
+			await bot.db.execute(f'INSERT INTO prefixes (\"name\", \"gid\", \"prefix\") VALUES (\"{ctx.guild.name}\", {ctx.guild.id}, \"{pfx}\");')
 		else:
-			pfxid = prefixraw['id']
-			prefixes.update(dict(id=pfxid, prefix=pfx), ['id'])
+			await bot.db.execute(f'UPDATE prefixes SET prefix = \"{pfx}\" WHERE gid = {ctx.guild.id};')
+		await bot.conn.commit()
 		await ctx.send(f'Ok, {ctx.guild.name}\'s prefix is now {pfx}!')
 
 @bot.command(hidden=True)
@@ -190,11 +195,12 @@ async def shutdown(ctx):
 
 @bot.check
 async def blacklist_check(ctx):
-	blacklist = bot.bl.find_one(uid=ctx.author.id)
-	if blacklist != None:
-		if ctx.author.id == bot.owner_id:
+	await bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {ctx.author.id};')
+	blinf = await bot.db.fetchone()
+	if blinf != None:
+		if ctx.author.id == bot.owner.id:
 			return True
-		else:
+		elif ctx.author.id == blinf[2]:
 			return False
 	else:
 		return True

@@ -4,16 +4,15 @@ import datetime
 import json
 import time
 import os
-import dataset
 import typing
 import re
+import aiosqlite3
 from jishaku.paginators import PaginatorInterface, WrappedPaginator
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 
 launchtime = datetime.datetime.utcnow()
-db = dataset.connect('sqlite:///fire.db')
 
 inv = r'(http|https)?(:)?(\/\/)?(discordapp|discord).(gg|io|me|com)\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!]))?'
 invreplace = '[redacted invite]'
@@ -176,27 +175,33 @@ def replaceinvite(text: str):
 class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
-		self.bl = db['blacklist']
 
 	@commands.command(name='bl.add', description='Add someone to the blacklist', hidden=True)
 	async def blacklist_add(self, ctx, user: discord.User = None, reason: str = 'bad boi', permanent: bool = False):
-		'''Add a user to the blacklist'''
+		'''Add a user to the blacklist or Update a user on the blacklist. (Note: bc im lazy, values will reset to default if not provided)'''
 		if isadmin(ctx) == False:
 			return
 		if user == None:
 			await ctx.send('You need to provide a user to add to the blacklist!')
 		else:
-			blraw = self.bl.find_one(uid=user.id)
+			await self.bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {user.id};')
+			blraw = await self.bot.db.fetchone()
 			if blraw == None:
 				if permanent == True:
 					permanent = 1
 				else:
 					permanent = 0
-				self.bl.insert(dict(user=f'{user}', uid=user.id, reason=reason, perm=permanent))
+				await self.bot.db.execute(f'INSERT INTO blacklist (\"user\", \"uid\", \"reason\", \"perm\") VALUES (\"{user}\", {user.id}, \"{reason}\", {permanent});')
+				await self.bot.conn.commit()
 				await ctx.send(f'{user.mention} was successfully blacklisted!')
 			else:
-				blid = blraw['id']
-				self.bl.update(dict(id=blid, user=f'{user}', uid=user.id, reason=reason, perm=permanent), ['id'])
+				blid = blraw[0]
+				if permanent == True:
+					permanent = 1
+				else:
+					permanent = 0
+				await self.bot.db.execute(f'UPDATE blacklist SET user = \"{user}\", uid = {user.id}, reason = \"{reason}\", perm = {permanent} WHERE id = {blid};')
+				await self.bot.conn.commit()
 				await ctx.send(f'Blacklist entry updated for {user.mention}.')
 
 	@commands.command(name='bl.remove', description='Remove someone from the blacklist', hidden=True)
@@ -207,13 +212,16 @@ class utils(commands.Cog, name='Utility Commands'):
 		if user == None:
 			await ctx.send('You need to provide a user to remove from the blacklist!')
 		else:
-			blraw = self.bl.find_one(uid=user.id)
+			await self.bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {user.id};')
+			blraw = await self.bot.db.fetchone()
 			if blraw == None:
 				await ctx.send(f'{user.mention} is not blacklisted.')
 				return
 			else:
-				self.bl.delete(uid=user.id)
+				await self.bot.db.execute(f'DELETE FROM blacklist WHERE uid = {user.id};')
+				await self.bot.conn.commit()
 				await ctx.send(f'{user.mention} is now unblacklisted!')
+
 
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
