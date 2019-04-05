@@ -187,12 +187,8 @@ class Player(wavelink.Player):
 		This handles the reaction buttons and it's controls.
 		"""
 		self.bot.loop.create_task(self.add_reactions())
-		
-		async def check(r, u):
-			await self.bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {u.id};')
-			blinf = await self.bot.db.fetchone()
-			if blinf != None:
-				return False
+
+		def check(r, u):
 			if not self.controller_message:
 				return False
 			elif str(r) not in self.controls.keys():
