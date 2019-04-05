@@ -190,7 +190,7 @@ class Player(wavelink.Player):
 		
 		async def check(r, u):
 			await self.bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {u.id};')
-			blinf = await bot.db.fetchone()
+			blinf = await self.bot.db.fetchone()
 			if blinf != None:
 				return False
 			if not self.controller_message:
@@ -326,7 +326,7 @@ class Music(commands.Cog):
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		await self.bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {ctx.author.id};')
-		blacklist = await bot.db.fetchone()
+		blacklist = await self.bot.db.fetchone()
 		if blacklist != None:
 			return False
 
