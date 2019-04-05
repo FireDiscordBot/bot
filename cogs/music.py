@@ -325,7 +325,8 @@ class Music(commands.Cog):
 		"""Check whether a member has the given permissions."""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
-		blacklist = self.bot.bl.find_one(uid=ctx.author.id)
+		await self.bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {ctx.author.id};')
+		blacklist = await bot.db.fetchone()
 		if blacklist != None:
 			return False
 
