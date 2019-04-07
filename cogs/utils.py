@@ -33,7 +33,7 @@ def isadmin(ctx):
 	return admin
 
 snipes = {}
-disabled = [264445053596991498, 110373943822540800, 336642139381301249]
+disabled = [264445053596991498, 110373943822540800, 336642139381301249, 458341246453415947]
 
 def snipe_embed(context_channel, message, user):
 	if message.author not in message.guild.members or message.author.color == discord.Colour.default():
@@ -302,6 +302,8 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def on_message(self, message):
 		if 'fetchmsg' in message.content:
 			return
+		if 'quote' in message.content:
+			return
 		if message.guild != None:
 			if message.guild.id in disabled:
 				return
@@ -345,35 +347,79 @@ class utils(commands.Cog, name='Utility Commands'):
 							else:
 								await message.channel.send(embed = quote_embed(message.channel, msg_found, message.author))
 
-	@commands.command(description='Quote a message from an id')
-	async def quote(self, ctx, msg_id: int = None):
-		'''Quote a message from an id'''
-		if not msg_id:
-			return await ctx.send(content = error_string + ' Please specify a message ID to quote.')
-
-		message = None
+	@commands.command(description='Quote a message from an id or url')
+	async def quote(self, ctx, msg: typing.Union[str, int] = None):
+		'''Quote a message from an id or url'''
+		if not msg:
+			return await ctx.send(content = error_string + ' Please specify a message ID/URL to quote.')
 		try:
-			message = await ctx.channel.fetch_message(msg_id)
-		except:
-			for channel in ctx.guild.text_channels:
-				perms = ctx.guild.me.permissions_in(channel)
-				if channel == ctx.channel or not perms.read_messages or not perms.read_message_history:
-					continue
+			msg_id = int(msg)
+		except Exception:
+			msg_id = str(msg)
+		if type(msg_id) == int:
+			message = None
+			try:
+				message = await ctx.channel.fetch_message(msg_id)
+			except:
+				for channel in ctx.guild.text_channels:
+					perms = ctx.guild.me.permissions_in(channel)
+					if channel == ctx.channel or not perms.read_messages or not perms.read_message_history:
+						continue
 
-				try:
-					message = await channel.fetch_message(msg_id)
-				except:
-					continue
+					try:
+						message = await channel.fetch_message(msg_id)
+					except:
+						continue
+					else:
+						break
+
+			if message:
+				if not message.content and message.embeds and message.author.bot:
+					await ctx.send(content = 'Raw embed from `' + str(message.author).strip('`') + '` in ' + message.channel.mention, embed = quote_embed(ctx.channel, message, ctx.author))
 				else:
-					break
-
-		if message:
-			if not message.content and message.embeds and message.author.bot:
-				await ctx.send(content = 'Raw embed from `' + str(message.author).strip('`') + '` in ' + message.channel.mention, embed = quote_embed(ctx.channel, message, ctx.author))
+					await ctx.send(embed = quote_embed(ctx.channel, message, ctx.author))
 			else:
-				await ctx.send(embed = quote_embed(ctx.channel, message, ctx.author))
+				await ctx.send(content = error_string + ' I couldn\'t find that message...')
 		else:
-			await ctx.send(content = error_string + ' I couldn\'t find that message...')
+			perms =  ctx.guild.me.permissions_in( ctx.channel)
+			if not perms.send_messages or not perms.embed_links or  ctx.author.bot:
+				return
+
+			for i in msg_id.split():
+				word = i.lower().strip('<>')
+				if word.startswith('https://canary.discordapp.com/channels/'):
+					word = word.strip('https://canary.discordapp.com/channels/')
+				elif word.startswith('https://ptb.discordapp.com/channels/'):
+					word = word.strip('https://ptb.discordapp.com/channels/')
+				elif word.startswith('https://discordapp.com/channels/'):
+					word = word.strip('https://discordapp.com/channels/')
+				else:
+					continue
+
+				list_ids = word.split('/')
+				if len(list_ids) == 3:
+					del list_ids[0]
+
+					try:
+						channel = self.bot.get_channel(int(list_ids[0]))
+					except:
+						continue
+
+					if channel and isinstance(channel, discord.TextChannel):
+						try:
+							msg_id = int(list_ids[1])
+						except:
+							continue
+
+						try:
+							msg_found = await channel.fetch_message(msg_id)
+						except:
+							continue
+						else:
+							if not msg_found.content and msg_found.embeds and msg_found.author.bot:
+								await ctx.send(content = 'Raw embed from `' + str(msg_found.author).strip('`') + '` in ' + msg_found.channel.mention, embed = quote_embed(ctx.channel, msg_found, ctx.author))
+							else:
+								await ctx.send(embed = quote_embed(ctx.channel, msg_found, ctx.author))
 
 	@commands.command(description='Got a HTTP Error Code? My cat knows what it means.', name='http.cat')
 	async def httpcat(self, ctx, error: int = 200):
