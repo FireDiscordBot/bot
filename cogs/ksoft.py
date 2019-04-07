@@ -6,8 +6,6 @@ import time
 import ksoftapi
 import random
 
-launchtime = datetime.datetime.utcnow()
-
 print("ksoft.py has been loaded")
 
 with open('config.json', 'r') as cfg:
@@ -22,17 +20,6 @@ def isadmin(ctx):
 	else:
 		admin = True
 	return admin
-
-async def getprefix(ctx):
-	if not ctx.guild:
-		return "$"
-	with open('prefixes.json', 'r') as pfx:
-		customprefix = json.load(pfx)
-	try:
-		prefix = customprefix[str(ctx.guild.id)]
-	except Exception:
-		prefix = "$"
-	return prefix
 
 class ksoft(commands.Cog, name="KSoft.SI API"):
 	def __init__(self, bot):

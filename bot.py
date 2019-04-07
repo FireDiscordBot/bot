@@ -96,7 +96,7 @@ async def on_command_error(ctx, error):
 	embed.add_field(name='Guild', value=ctx.guild, inline=False)
 	embed.add_field(name='Message', value=ctx.message.content, inline=False)
 	me = bot.get_user(287698408855044097)
-	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError)
+	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError, commands.MissingRequiredArgument, commands.TooManyArguments)
 	if isinstance(error, nomsg):
 		print('not sending message to dms')
 	if isinstance(error, aiosqlite3.OperationalError):
