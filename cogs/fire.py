@@ -17,16 +17,11 @@ from typing import Union
 import speedtest
 import subprocess
 import random
-import dataset
 from jishaku.paginators import PaginatorInterface, WrappedPaginator
-
-db = dataset.connect('sqlite:///fire.db')
-prefixes = db['prefixes']
 
 launchtime = datetime.datetime.utcnow()
 process = psutil.Process(os.getpid())
 autotipRestart = True
-
 
 print("fire.py has been loaded")
 
@@ -38,7 +33,6 @@ def config(path: str = None):
 	else:
 		return config
 
-
 def isadmin(ctx):
 	"""Checks if the author is an admin"""
 	if str(ctx.author.id) not in config('admins'):
@@ -46,17 +40,6 @@ def isadmin(ctx):
 	else:
 		admin = True
 	return admin
-
-async def getprefix(ctx):
-	"""Get the prefix from context (ctx)"""
-	if not ctx.guild:
-		return "$"
-	prefixraw = prefixes.find_one(gid=ctx.guild.id)
-	if prefixraw != None:
-		prefix = prefixraw['prefix']
-	else:
-		prefix = "$"
-	return prefix
 
 class fire(commands.Cog, name="Main Commands"):
 	def __init__(self, bot):
@@ -128,7 +111,7 @@ class fire(commands.Cog, name="Main Commands"):
 		embed.add_field(name="**RAM**", value=f"{ramuse} MB / 6024 MB", inline=False)
 		embed.add_field(name="**Version Info**", value=f"discord.py {discord.__version__} | Python: 3.7.2", inline=False)
 		embed.add_field(name="**Guilds**", value=f"{len(self.bot.guilds)}", inline=True)
-		embed.add_field(name="**Prefix**", value=f"{custprefix}", inline=True)
+		embed.add_field(name="**Prefix**", value=f"{ctx.prefix}", inline=True)
 		embed.add_field(name="**Commands**", value=len(self.bot.commands), inline=True)
 		embed.add_field(name="**Members**", value=f"{self.bot.get_emoji(313956277808005120)} {online:,d}\n{self.bot.get_emoji(313956277220802560)} {idle:,d}\n{self.bot.get_emoji(313956276893646850)} {dnd:,d}\n{self.bot.get_emoji(313956277237710868)} {offline:,d}\nTotal: {users}\n ", inline=False)
 		await msg.edit(content=None, embed=embed)
