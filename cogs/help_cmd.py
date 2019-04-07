@@ -26,13 +26,13 @@ class Help(commands.Cog):
 			embed.add_field(name="Commands", value=''.join([t for t in self.formatter(item.get_commands())]))
 			return embed
 		elif isinstance(item, commands.Group):
-			embed.title = f"{item.signature}"
+			embed.title = f"{item.qualified_name}"
 			embed.description = item.help or "Nothing provided."
 			fmt = "".join([c for c in self.formatter(item.commands)])
 			embed.add_field(name="Subcommands", value=fmt)
 			return embed
 		elif isinstance(item, commands.Command):
-			embed.title = f"{item.signature}"
+			embed.title = f"{item.qualified_name}"
 			embed.description = item.help or "Nothing provided."
 			return embed
 		else:
@@ -65,6 +65,8 @@ class Help(commands.Cog):
 					name = 'Sk1er/Hyperium Commands'
 				elif cogname[1] == 'utils':
 					name = 'Utility Commands'
+				elif cogname[1] == 'settings':
+					name = 'Guild Settings'
 				n.append(f"**{name}**\n")
 				for cmd in self.formatter(cog.get_commands(), ignore_hidden=_all):
 					n.append(cmd)
