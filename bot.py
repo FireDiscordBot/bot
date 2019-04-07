@@ -144,15 +144,6 @@ async def on_message_edit(before,after):
 	await bot.process_commands(after)
 
 @bot.event
-async def on_reaction_add(reaction, user):
-	await bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {user.id};')
-	blinf = await bot.db.fetchone()
-	if blinf != None:
-		return
-	else:
-		pass
-
-@bot.event
 async def on_guild_join(guild):
 	print(f"Fire joined a new guild! {guild.name}({guild.id}) with {guild.member_count} members")
 	try:

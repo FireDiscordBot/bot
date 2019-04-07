@@ -204,6 +204,10 @@ class Player(wavelink.Player):
 				return self.reaction_task.cancel()
 
 			react, user = await self.bot.wait_for('reaction_add', check=check)
+			await bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {user.id};')
+			blinf = await bot.db.fetchone()
+			if blinf != None:
+				pass
 			control = self.controls.get(str(react))
 
 			if control == 'rp':
