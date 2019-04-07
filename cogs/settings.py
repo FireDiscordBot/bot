@@ -3,7 +3,6 @@ from discord.ext import commands
 import datetime
 import json
 import aiosqlite3
-from jishaku.cog import Jishaku
 
 print("settings.py has been loaded")
 
