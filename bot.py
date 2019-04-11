@@ -50,6 +50,7 @@ extensions = [
 	"cogs.utils",
 	"cogs.help_cmd",
 	"cogs.dbl",
+	"cogs.settings",
 	"jishaku"
 ]
 
@@ -98,7 +99,7 @@ async def on_command_error(ctx, error):
 	me = bot.get_user(287698408855044097)
 	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError, commands.MissingRequiredArgument, commands.TooManyArguments)
 	if isinstance(error, nomsg):
-		print('not sending message to dms')
+		return
 	if isinstance(error, aiosqlite3.OperationalError):
 		await me.send(content=str(saved), embed=embed)
 	else:
