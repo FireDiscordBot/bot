@@ -14,9 +14,6 @@ from PIL import ImageDraw
 
 launchtime = datetime.datetime.utcnow()
 
-inv = r'(http|https)?(:)?(\/\/)?(discordapp|discord).(gg|io|me|com)\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!]))?'
-invreplace = '[redacted invite]'
-
 print('utils.py has been loaded')
 
 with open('config.json', 'r') as cfg:
@@ -157,20 +154,6 @@ def getGame(activity):
 	if check == game:
 		game = str(activity)
 	return game
-
-def findinvite(text: str):
-	search = re.search(inv, text)
-	if search:
-		return search.group(7)
-	else:
-		return False
-
-def replaceinvite(text: str):
-	message = re.sub(inv, invreplace, text, 0, re.MULTILINE)
-	if message:
-		return message
-	else:
-		return False
 
 class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):

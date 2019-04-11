@@ -3,6 +3,7 @@ from discord.ext import commands
 import datetime
 import json
 import aiosqlite3
+import typing
 
 print("settings.py has been loaded")
 
@@ -21,8 +22,9 @@ class settings(commands.Cog, name="Settings"):
 	def __init__(self, bot):
 		self.bot = bot
 
-	@commands.group(name='settings', description='Guild Settings', invoke_without_command=True, ignore_extra=False)
+	@commands.group(name='gsettings', description='Guild Settings', invoke_without_command=True, ignore_extra=False)
 	async def gsettings(self, ctx):
+		'''WIP Settings for guilds'''
 		await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {ctx.guild.id}')
 		guildsettings = await self.bot.db.fetchone()
 		if guildsettings == None:
@@ -68,15 +70,47 @@ class settings(commands.Cog, name="Settings"):
 		inviteblock = bool(guildsettings[5])
 		embed = discord.Embed(title=":gear: Guild Settings", colour=ctx.author.color, url="https://discordapp.com", description="Here's a list of the current guild settings", timestamp=datetime.datetime.now())
 		embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
-		embed.add_field(name="Logging", value=logchan or logging, inline=False)
+		if type(logchan) == discord.TextChannel:
+			embed.add_field(name="Logging", value=logchan.mention, inline=False)
+		elif logchan == None:
+			embed.add_field(name="Logging", value=logging, inline=False)
 		embed.add_field(name="Global Ban Check (KSoft.Si API)", value=globalbans, inline=False)
 		embed.add_field(name="Welcome Messages", value=welcomechan or welcome, inline=False)
 		embed.add_field(name="Goodbye Messages", value=goodbyechan or goodbye, inline=False)
 		embed.add_field(name="Invite Filter", value=inviteblock, inline=False)
 		await ctx.send(embed=embed)
 
-
-		
+	@gsettings.command(name='logs', aliases=['logging', 'log'])
+	@commands.has_permissions(manage_guild=True)
+	@commands.guild_only()
+	async def settings_logs(self, ctx, newlog: typing.Union[discord.TextChannel, int] = None):
+		'''Command to enable/disable logging in the current guild (placebo)'''
+		if newlog == None:
+			raise commands.UserInputError('Missing argument! Provide a channel for me to send logs to or 0 to disable logging')
+		elif newlog == 0:
+			await self.bot.db.execute(f'UPDATE settings SET logging = 0 WHERE gid = {ctx.guild.id}')
+			await self.bot.conn.commit()
+			await ctx.send(f'Successfully disabled logging in {ctx.guild.name}', delete_after=5)
+		else:
+			if type(newlog) == int:
+				channel = self.bot.get_channel(newlog)
+				if channel == None:
+					await ctx.send(f'Invalid channel ID provided! Use `0` to disable or provide a valid channel')
+					return
+				await self.bot.db.execute(f'UPDATE settings SET logging = {newlog} WHERE gid = {ctx.guild.id}')
+				await self.bot.conn.commit()
+				await ctx.send(f'Updated logs setting.')
+			elif type(newlog) == discord.TextChannel:
+				try:
+					self.bot.get_channel(newlog.id)
+				except discord.NotFound:
+					await ctx.send(f'Invalid channel provided! Use `0` to disable or provide a valid channel')
+					return
+				await self.bot.db.execute(f'UPDATE settings SET logging = {newlog.id} WHERE gid = {ctx.guild.id}')
+				await self.bot.conn.commit()
+				await ctx.send(f'Successfully enabled logging in {newlog.mention}', delete_after=5)
+			else:
+				raise commands.BadArgument('Invalid value provided. Use 0 to disable or provide a channel (name, mention, id) to enable')
 		
 
 
