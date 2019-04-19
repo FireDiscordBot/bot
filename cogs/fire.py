@@ -87,7 +87,6 @@ class fire(commands.Cog, name="Main Commands"):
 		cpu = "Intel™ Dual Xeon E5-2630"
 		cpustats = psutil.cpu_percent()
 		ramuse = (process.memory_info().rss / 1024) / 1000
-		custprefix = await getprefix(ctx)
 		online = 0
 		idle = 0
 		dnd = 0
