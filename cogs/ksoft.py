@@ -21,6 +21,8 @@ def isadmin(ctx):
 		admin = True
 	return admin
 
+imgext = ('.png', '.jpg', '.jpeg', '.gif')
+
 class ksoft(commands.Cog, name="KSoft.SI API"):
 	def __init__(self, bot):
 		self.bot = bot
@@ -41,12 +43,15 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 				return
 			else:
 				pass
-		embed = discord.Embed(title="Did someone order a spicy meme?", colour=ctx.message.author.color, url=meme.source, timestamp=datetime.datetime.now())
-		embed.set_image(url=meme.url)
+		embed = discord.Embed(title="Did someone order a spicy meme?", colour=ctx.message.author.color, url=meme.source, timestamp=datetime.datetime.now())		
 		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=ctx.message.author.avatar_url)
 		embed.set_footer(text=f"👍 {meme.upvotes} | 👎 {meme.downvotes} | 💬 {meme.comments} (https://api.ksoft.si)")
 		embed.add_field(name="Title", value=meme.title, inline=False)
 		embed.add_field(name="Subreddit", value=f"[{meme.subreddit}](https://reddit.com/{meme.subreddit})", inline=False)
+		if meme.url.endswith(imgext):
+			embed.set_image(url=meme.url)
+		else:
+			embed.add_field(name='Attachment', value=f"[Click Here]({meme.url})")
 		await ctx.send(embed=embed)
 
 	@commands.command(description="Gets a random image from a specified tag", name="image")
