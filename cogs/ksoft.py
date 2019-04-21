@@ -26,14 +26,15 @@ imgext = ('.png', '.jpg', '.jpeg', '.gif')
 class ksoft(commands.Cog, name="KSoft.SI API"):
 	def __init__(self, bot):
 		self.bot = bot
+		self.bot.ksoft = client
 
 	@commands.command(description="Gets a random meme from Reddit")
 	async def meme(self, ctx, sub: str = None):
 		"""Gets a random meme from Reddit"""
 		if sub == None:
-			meme = await client.random_meme()
+			meme = await self.bot.ksoft.random_meme()
 		else:
-			meme = await client.random_reddit(sub)
+			meme = await self.bot.ksoft.random_reddit(sub)
 		if meme.nsfw == True:
 			channel = ctx.message.channel
 			if channel.is_nsfw() == False:
@@ -57,7 +58,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 	@commands.command(description="Gets a random image from a specified tag", name="image")
 	async def randimage(self, ctx, tag: str = None, nsfw: bool = None):
 		"""Gets a random image from a specified tag"""
-		taglist = await client.tags()
+		taglist = await self.bot.ksoft.tags()
 		tags = str(taglist).split(', ')
 		if tag == 'False':
 			nsfw = False
@@ -82,7 +83,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 				tag = 'pepe'
 		if nsfw == None:
 			nsfw = False
-		img = await client.random_image(tag = tag, nsfw = nsfw)
+		img = await self.bot.ksoft.random_image(tag = tag, nsfw = nsfw)
 		if img.nsfw == True:
 			if channel.is_nsfw() == False:
 				msg = await ctx.send("The image I was given was marked as NSFW but this channel is not. Go into an NSFW channel to see NSFW memes")
@@ -98,7 +99,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 	@commands.command(description="List all available tags")
 	async def tags(self, ctx):
 		"""List all available tags"""
-		tags = await client.tags()
+		tags = await self.bot.ksoft.tags()
 		nsfwtags = ', '.join(tags.nsfw_tags)
 		sfwtags = ', '.join(tags.sfw_tags)
 		await ctx.send(f'```Non-NSFW Tags:\n{sfwtags}\n\nNSFW Tags:\n{nsfwtags}```')
