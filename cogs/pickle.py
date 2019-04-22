@@ -21,6 +21,8 @@ hypixelkey = config['hypixel']
 keys = [config['hypixel']]
 hypixel.setKeys(keys)
 
+uuidToName = {}
+
 def isadmin(ctx):
 	if str(ctx.author.id) not in config['admins']:
 		admin = False
@@ -47,15 +49,12 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 	async def hypixel(self, ctx, arg1: str = None, arg2: str = None):
 		"""Get hypixel stats"""
 		if arg1 == None:
-			msg = await ctx.send("I need an IGN, `help`, `key` or `watchdog`")
+			msg = await ctx.send("I need an IGN, `key` or `watchdog`")
 			time.sleep(5)
 			try:
 				await msg.delete()
 			except Exception as e:
-				print(f"I failed to delete a message due to... {e}")
-			return
-		if arg1.lower() == "help":
-			await ctx.send('help embed coming soon')
+				return
 			return
 		if arg1.lower() == "watchdog":
 			async with aiohttp.ClientSession() as session:
@@ -66,11 +65,12 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			embed.set_thumbnail(url="https://hypixel.net/attachments/cerbtrimmed-png.245674/")
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 			embed.add_field(name="Watchdog Bans in the last minute", value=watchdog['watchdog_lastMinute'], inline=False)
-			embed.add_field(name="Staff bans in the last day", value=watchdog['staff_rollingDaily'], inline=False)
-			embed.add_field(name="Watchdog bans in the last day", value=watchdog['watchdog_rollingDaily'], inline=False)
-			embed.add_field(name="Staff Total Bans", value=watchdog['staff_total'], inline=False)
-			embed.add_field(name="Watchdog Total Bans", value=watchdog['watchdog_total'], inline=False)
+			embed.add_field(name="Staff bans in the last day", value=format(watchdog['staff_rollingDaily'], ',d'), inline=False)
+			embed.add_field(name="Watchdog bans in the last day", value=format(watchdog['watchdog_rollingDaily'], ',d'), inline=False)
+			embed.add_field(name="Staff Total Bans", value=format(watchdog['staff_total'], ',d'), inline=False)
+			embed.add_field(name="Watchdog Total Bans", value=format(watchdog['watchdog_total'], ',d'), inline=False)
 			await ctx.send(embed=embed)
+			return
 		if arg1.lower() == "key":
 			lastmin = "0"
 			async with aiohttp.ClientSession() as session:
@@ -83,16 +83,20 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			color = ctx.author.color
 			embed = discord.Embed(title="My API Key Stats", colour=color, timestamp=datetime.datetime.now())
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
-			embed.add_field(name="Owner", value="PoppyIsFake (4686e7b58815485d8bc4a45445abb984)", inline=False)
-			embed.add_field(name="Total Requests", value=key['record']['totalQueries'], inline=False)
+			embed.add_field(name="Owner", value="GamingGeeek (4686e7b58815485d8bc4a45445abb984)", inline=False)
+			embed.add_field(name="Total Requests", value=format(key['record']['totalQueries'], ',d'), inline=False)
 			embed.add_field(name="Requests in the past minute", value=lastmin, inline=False)
 			await ctx.send(embed=embed)
-		else:
-			msg = await ctx.send(f"Requesting info about `{arg1}` from the Hypixel API!")
+			return
+		if arg2 == None:
+			msg = await ctx.send(f"Requesting info about {discord.utils.escape_markdown(arg1)} from the Hypixel API!")
 			channel = ctx.message.channel
 			color = ctx.author.color
 			async with channel.typing():
-				player = hypixel.Player(arg1)
+				try:
+					player = hypixel.Player(arg1)
+				except hypixel.PlayerNotFoundException:
+					raise commands.ArgumentParsingError('Couldn\'t find that player...')
 				p = player.JSON
 				try:
 					tributes = p['tourney']['total_tributes'] # TOURNAMENT TRIBUTES
@@ -220,9 +224,9 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				if rank == "Admin":
 					rankimg = "https://firediscordbot.tk/pickleranks/ADMIN.png"
 				if arg2 == None:
-					msg = await ctx.send(f"Retrieving {p['displayname']}'s info...")
+					msg = await ctx.send(f"Retrieving {discord.utils.escape_markdown(p['displayname'])}'s info...")
 					uuid = player.UUID
-					embed = discord.Embed(title=f"{p['displayname']}'s Info", colour=color, timestamp=datetime.datetime.now())
+					embed = discord.Embed(title=f"{discord.utils.escape_markdown(p['displayname'])}'s Info", colour=color, timestamp=datetime.datetime.now())
 					if rankimg != None:
 						embed.set_image(url=rankimg)
 					embed.set_thumbnail(url=f"https://crafatar.com/avatars/{uuid}?overlay=true")
@@ -272,7 +276,57 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					embed.add_field(name="Social Media", value=f"Twitter: {twitter}\nYouTube: {yt}\nInstagram: {insta}\nTwitch: {twitch}\nBeam: {beam}\nDiscord: {dscrd}", inline=True)
 					if tributes != 0:
 						embed.add_field(name="Tournament Tributes", value=tributes, inline=False)
-					await msg.edit(embed=embed)
+					await msg.edit(content=None, embed=embed)
+		elif arg2 == 'session':
+			msg = await ctx.send(f"Retrieving {discord.utils.escape_markdown(arg1)}'s session...")
+			try:
+				player = hypixel.Player(arg1)
+			except hypixel.PlayerNotFoundException:
+				raise commands.ArgumentParsingError('Couldn\'t find that player...')
+				return
+			uuid = player.JSON['uuid']
+			rank = player.getRank()['rank']
+			async with aiohttp.ClientSession() as session:
+				async with session.get(f'https://api.hypixel.net/session?uuid={uuid}&key={hypixelkey}') as resp:
+					session = await resp.json()
+			rankhide = ['YouTube', 'Helper', 'Moderator', 'Admin']
+			if rank in rankhide:
+				hidden = True
+				if isadmin(ctx):
+					hidden = False
+			else:
+				hidden = False
+			if session['session'] == None:
+				embed = discord.Embed(title=f"Session of {discord.utils.escape_markdown(arg1)}", colour=ctx.author.color, timestamp=datetime.datetime.now())
+				embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
+				embed.add_field(name="Session", value="undefined", inline=False)
+				embed.add_field(name="Why?", value=f"{discord.utils.escape_markdown(arg1)} is not in a game", inline=False)
+				await msg.edit(content=None, embed=embed)
+			else:
+				embed = discord.Embed(title=f"Session of {discord.utils.escape_markdown(arg1)}", colour=ctx.author.color, timestamp=datetime.datetime.now())
+				embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
+				embed.add_field(name="Playing", value=f"{session['session']['gameType']}", inline=False)
+				if hidden == True:
+					embed.add_field(name="Server", value="Hidden", inline=False)
+				else:
+					embed.add_field(name="Server", value=f"{session['session']['server']}", inline=False)
+				playingWith = []
+				if hidden == True:
+					embed.add_field(name="Playing With", value="Hidden", inline=False)
+				else:
+					for player in session['session']['players']:
+						try:
+							playingWith.append(uuidToName[player])
+						except KeyError:
+							async with aiohttp.ClientSession() as session:
+								async with session.get(f'https://sessionserver.mojang.com/session/minecraft/profile/{player}') as resp:
+									jresp = await resp.json()
+									playingWith.append(jresp['name'])
+									uuidToName.update({player: jresp['name']})
+					embed.add_field(name="Playing With", value=discord.utils.escape_markdown('\n'.join(playingWith)), inline=False)
+				await msg.edit(content=None, embed=embed)
+			return
+
 
 def setup(bot):
 	bot.add_cog(pickle(bot))
