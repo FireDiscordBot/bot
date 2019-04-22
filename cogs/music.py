@@ -599,6 +599,7 @@ class Music(commands.Cog):
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		await player.destroy_controller()
+		await player.destroy()
 		await player.disconnect()
 
 	@commands.command(name='volume', aliases=['vol'])
