@@ -84,17 +84,17 @@ async def on_command_error(ctx, error):
 			return
 	
 	if isinstance(error, commands.CommandOnCooldown):
-		embed = discord.Embed(title='Command on cooldown...', colour=ctx.author.color, url="https://http.cat/429", description=f"Here's what happened\n```py\n{error}```", timestamp=datetime.datetime.now())
+		embed = discord.Embed(title='Command on cooldown...', colour=ctx.author.color, url="https://http.cat/429", description=f"Here's what happened\n```py\n{error}```", timestamp=datetime.datetime.utcnow())
 		embed.set_footer(text="Just wait a bit and it'll be fine!")
 		await ctx.send(embed=embed)
 		return
 
 	messages = ['Fire did an oopsie!', 'Oh no, it be broke.', 'this was intentional...', 'Well this slipped through quality assurance', 'How did this happen?', 'rip', 'Can we get an L in the chat?', 'Can we get an F in the chat?', 'he do not sing', 'lmao who did this?']
 	chosenmessage = random.choice(messages)
-	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"Here's the error. You might not be able to do anything about it though... I've sent this to my developer!\n```py\n{error}```", timestamp=datetime.datetime.now())
+	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"Here's the error. You might not be able to do anything about it though... I've sent this to my developer!\n```py\n{error}```", timestamp=datetime.datetime.utcnow())
 	embed.set_footer(text="this may or may not be fixed soon. it may not even be broken.")
 	await ctx.send(embed=embed)
-	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!\n```py\n{error}```", timestamp=datetime.datetime.now())
+	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!\n```py\n{error}```", timestamp=datetime.datetime.utcnow())
 	embed.add_field(name='User', value=ctx.author, inline=False)
 	embed.add_field(name='Guild', value=ctx.guild, inline=False)
 	embed.add_field(name='Message', value=ctx.message.content, inline=False)
@@ -124,7 +124,7 @@ async def on_ready():
 	logging.info(f"Users: {len(bot.users)}")
 	logging.info("-------------------------")
 	print("Loaded!")
-	logging.info(f"LOGGING START ON {datetime.datetime.now()}")
+	logging.info(f"LOGGING START ON {datetime.datetime.utcnow()}")
 	await game_changer()
 
 @bot.event

@@ -17,7 +17,7 @@ from typing import Union
 import speedtest
 import subprocess
 import random
-from jishaku.paginators import PaginatorInterface, WrappedPaginator
+from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
 
 launchtime = datetime.datetime.utcnow()
 process = psutil.Process(os.getpid())
@@ -61,7 +61,7 @@ class fire(commands.Cog, name="Main Commands"):
 		end = round(time.time()*1000)
 		elapsed = round(end - start)
 		color = ctx.author.color
-		embed = discord.Embed(title=f":ping_pong: {elapsed}ms.\n:heartpulse: {latency}ms.", colour=color, timestamp=datetime.datetime.now())
+		embed = discord.Embed(title=f":ping_pong: {elapsed}ms.\n:heartpulse: {latency}ms.", colour=color, timestamp=datetime.datetime.utcnow())
 		await msg.edit(content="`Pong!`", embed=embed)
 
 	@commands.command(description="Suggest a feature")
@@ -102,7 +102,7 @@ class fire(commands.Cog, name="Main Commands"):
 			if str(member.status) == 'offline':
 				offline = offline + 1
 		users = format(len(self.bot.users), ',d')
-		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.now())
+		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		embed.set_author(name="Bot made by Geek#9999", url="https://gaminggeek.club", icon_url="https://cdn.discordapp.com/avatars/287698408855044097/7d8707c0556bdbe5e29b2b0788de8ca9.png?size=1024")
 		embed.add_field(name="**Runtime**", value=f"{uptime}", inline=False)
 		embed.add_field(name="**OS**", value=f"{os}", inline=False)

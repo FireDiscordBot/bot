@@ -79,7 +79,7 @@ class winnertakesall(commands.Cog, name="Winner Takes All S2"):
 				highest['amount'] = info['highest']['amount']
 			except KeyError:
 				highest['amount'] = 0
-			embed = discord.Embed(title="Winner Takes All Season 2", colour=ctx.author.color, url="https://winnertakesall.io", description="Here's a bunch of info about the latest season of Winner Takes All!", timestamp=datetime.datetime.now())
+			embed = discord.Embed(title="Winner Takes All Season 2", colour=ctx.author.color, url="https://winnertakesall.io", description="Here's a bunch of info about the latest season of Winner Takes All!", timestamp=datetime.datetime.utcnow())
 			embed.set_footer(text="Go donate at https://winnertakesall.io/", icon_url="https://winnertakesall.io/img/WinnerTakesAll_Logo.png")
 			embed.add_field(name="What is it?", value="Winner Takes All is a Minecraft livestreamed event for prize money. Founded, owned, and organized by [@Pikaclicks](https://twitter.com/Pikaclicks).\n\nSeason 1 was to see who could livestream the longest and the winner set a new record for the longest Minecraft livestream at 53 hours long\n\nSeason 2 is a new gametype called Lifeblocks. When a player's \"lifeblock\" is destroyed, they get eliminated. It also brings back the [UHC On Air donation system](https://winnertakesall.io/) where you can give streamers positive or negative items", inline=False)
 			embed.add_field(name="When is it?", value="The event takes place on March 23rd at 12PM EST", inline=False)
@@ -130,7 +130,7 @@ class winnertakesall(commands.Cog, name="Winner Takes All S2"):
 					break
 			if streamer == None:
 				raise commands.CommandError('Streamer info was invalid. oof')
-			embed = discord.Embed(title="Winner Takes All Season 2", colour=ctx.author.color, url=f"https://winnertakesall.io/streamer/{streamer['name']}", description=f"Here's a bunch of info about {streamer['name']}", timestamp=datetime.datetime.now())
+			embed = discord.Embed(title="Winner Takes All Season 2", colour=ctx.author.color, url=f"https://winnertakesall.io/streamer/{streamer['name']}", description=f"Here's a bunch of info about {streamer['name']}", timestamp=datetime.datetime.utcnow())
 			embed.set_footer(text=f"Donate at https://winnertakesall.io/streamer/{streamer['name']}", icon_url="https://winnertakesall.io/img/WinnerTakesAll_Logo.png")
 			embed.add_field(name="Name", value=f"[{streamer['name']}]({streamer['link']})", inline=False)
 			embed.add_field(name="Raised", value=f"${streamer['raised']}", inline=False)
