@@ -208,7 +208,7 @@ async def blacklist_check(ctx):
 	await bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {ctx.author.id};')
 	blinf = await bot.db.fetchone()
 	if blinf != None:
-		if ctx.author.id == bot.owner.id:
+		if ctx.author.id == 287698408855044097:
 			return True
 		elif ctx.author.id == blinf[2]:
 			return False
