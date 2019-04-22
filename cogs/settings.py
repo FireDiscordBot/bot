@@ -68,7 +68,7 @@ class settings(commands.Cog, name="Settings"):
 		else:
 			goodbye = False
 		inviteblock = bool(guildsettings[5])
-		embed = discord.Embed(title=":gear: Guild Settings", colour=ctx.author.color, url="https://discordapp.com", description="Here's a list of the current guild settings", timestamp=datetime.datetime.now())
+		embed = discord.Embed(title=":gear: Guild Settings", colour=ctx.author.color, url="https://discordapp.com", description="Here's a list of the current guild settings", timestamp=datetime.datetime.utcnow())
 		embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
 		if type(logchan) == discord.TextChannel:
 			embed.add_field(name="Logging", value=logchan.mention, inline=False)

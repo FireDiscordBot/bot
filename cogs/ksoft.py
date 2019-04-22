@@ -44,7 +44,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 				return
 			else:
 				pass
-		embed = discord.Embed(title="Did someone order a spicy meme?", colour=ctx.message.author.color, url=meme.source, timestamp=datetime.datetime.now())		
+		embed = discord.Embed(title="Did someone order a spicy meme?", colour=ctx.message.author.color, url=meme.source, timestamp=datetime.datetime.utcnow())		
 		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=ctx.message.author.avatar_url)
 		embed.set_footer(text=f"👍 {meme.upvotes} | 👎 {meme.downvotes} | 💬 {meme.comments} (https://api.ksoft.si)")
 		embed.add_field(name="Title", value=meme.title, inline=False)
@@ -90,7 +90,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 				time.sleep(5)
 				await msg.delete()
 				return
-		embed = discord.Embed(title="The randomizer machine returned this image!", colour=ctx.message.author.color, url=img.url, timestamp=datetime.datetime.now())
+		embed = discord.Embed(title="The randomizer machine returned this image!", colour=ctx.message.author.color, url=img.url, timestamp=datetime.datetime.utcnow())
 		embed.set_image(url=img.url)
 		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=ctx.message.author.avatar_url)
 		embed.set_footer(text=f"🏷️ {tag} (https://api.ksoft.si)")

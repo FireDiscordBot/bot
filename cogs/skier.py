@@ -92,7 +92,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				head = purchase['head']
 			else:
 				head = "Not Purchased!"
-			embed = discord.Embed(title=f"{player}'s Levelhead", colour=ctx.message.author.color, url="https://purchase.sk1er.club/category/1050972", timestamp=datetime.datetime.now())
+			embed = discord.Embed(title=f"{player}'s Levelhead", colour=ctx.message.author.color, url="https://purchase.sk1er.club/category/1050972", timestamp=datetime.datetime.utcnow())
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 			if nocustom == True:
 				embed.add_field(name="Custom Levelhead?", value="Nope :(", inline=False)
@@ -123,7 +123,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					stats = json.loads(data)
 					status = resp.status
 			if status == 200:
-				embed = discord.Embed(title="Hyperium Stats", colour=ctx.message.author.color, url="https://hyperium.cc/", timestamp=datetime.datetime.now())
+				embed = discord.Embed(title="Hyperium Stats", colour=ctx.message.author.color, url="https://hyperium.cc/", timestamp=datetime.datetime.utcnow())
 				embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/471405283562881073.png")
 				embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 				embed.add_field(name="Online Users", value=format(stats['online'], ",d"), inline=False)
@@ -162,7 +162,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				except Exception:
 					framesplus = None
 				if nocosmetics == True:
-					embed = discord.Embed(title=f"Hyperium Purchases for {player}", colour=ctx.message.author.color, timestamp=datetime.datetime.now())
+					embed = discord.Embed(title=f"Hyperium Purchases for {player}", colour=ctx.message.author.color, timestamp=datetime.datetime.utcnow())
 					embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/471405283562881073.png")
 					embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 					embed.add_field(name="Purchased Cosmetics", value='No Cosmetics! Purchase some [here](https://purchase.sk1er.club/)', inline=False)
@@ -259,7 +259,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					capes.append('Custom Cape')
 				if framesplus != None:
 					capes.append('Frames+ Cape')
-				embed = discord.Embed(title=f"Hyperium Purchases for {player}", colour=ctx.message.author.color, timestamp=datetime.datetime.now())
+				embed = discord.Embed(title=f"Hyperium Purchases for {player}", colour=ctx.message.author.color, timestamp=datetime.datetime.utcnow())
 				embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/471405283562881073.png")
 				embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 				try:
@@ -315,7 +315,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			except Exception:
 				pdot = "None"
 			pdot = pdot.replace('_', ' ').title()
-			embed = discord.Embed(title=f"Hyperium Status for {player}", colour=ctx.message.author.color, timestamp=datetime.datetime.now())
+			embed = discord.Embed(title=f"Hyperium Status for {player}", colour=ctx.message.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/471405283562881073.png")
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 			embed.add_field(name="Online?", value=online['status'], inline=False)

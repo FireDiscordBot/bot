@@ -6,8 +6,12 @@ import time
 import logging
 import aiohttp
 import hypixel
+import re
+from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 
-now = datetime.datetime.now()
+remcolor = r'\u00A7[0-9A-FK-OR]'
+
+now = datetime.datetime.utcnow()
 launchtime = datetime.datetime.utcnow()
 
 logging.basicConfig(filename='bot.log',level=logging.INFO)
@@ -61,7 +65,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				async with session.get(f'https://api.hypixel.net/watchdogstats?key={hypixelkey}') as resp:
 					watchdog = await resp.json()
 			color = ctx.author.color
-			embed = discord.Embed(title="Watchdog Stats", colour=color, timestamp=datetime.datetime.now())
+			embed = discord.Embed(title="Watchdog Stats", colour=color, timestamp=datetime.datetime.utcnow())
 			embed.set_thumbnail(url="https://hypixel.net/attachments/cerbtrimmed-png.245674/")
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 			embed.add_field(name="Watchdog Bans in the last minute", value=watchdog['watchdog_lastMinute'], inline=False)
@@ -81,7 +85,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			except Exception as e:
 				pass
 			color = ctx.author.color
-			embed = discord.Embed(title="My API Key Stats", colour=color, timestamp=datetime.datetime.now())
+			embed = discord.Embed(title="My API Key Stats", colour=color, timestamp=datetime.datetime.utcnow())
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 			embed.add_field(name="Owner", value="GamingGeeek (4686e7b58815485d8bc4a45445abb984)", inline=False)
 			embed.add_field(name="Total Requests", value=format(key['record']['totalQueries'], ',d'), inline=False)
@@ -226,7 +230,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				if arg2 == None:
 					msg = await ctx.send(f"Retrieving {discord.utils.escape_markdown(p['displayname'])}'s info...")
 					uuid = player.UUID
-					embed = discord.Embed(title=f"{discord.utils.escape_markdown(p['displayname'])}'s Info", colour=color, timestamp=datetime.datetime.now())
+					embed = discord.Embed(title=f"{discord.utils.escape_markdown(p['displayname'])}'s Info", colour=color, timestamp=datetime.datetime.utcnow())
 					if rankimg != None:
 						embed.set_image(url=rankimg)
 					embed.set_thumbnail(url=f"https://crafatar.com/avatars/{uuid}?overlay=true")
@@ -297,13 +301,13 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			else:
 				hidden = False
 			if session['session'] == None:
-				embed = discord.Embed(title=f"Session of {discord.utils.escape_markdown(arg1)}", colour=ctx.author.color, timestamp=datetime.datetime.now())
+				embed = discord.Embed(title=f"Session of {discord.utils.escape_markdown(arg1)}", colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 				embed.add_field(name="Session", value="undefined", inline=False)
 				embed.add_field(name="Why?", value=f"{discord.utils.escape_markdown(arg1)} is not in a game", inline=False)
 				await msg.edit(content=None, embed=embed)
 			else:
-				embed = discord.Embed(title=f"Session of {discord.utils.escape_markdown(arg1)}", colour=ctx.author.color, timestamp=datetime.datetime.now())
+				embed = discord.Embed(title=f"Session of {discord.utils.escape_markdown(arg1)}", colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 				embed.add_field(name="Playing", value=f"{session['session']['gameType']}", inline=False)
 				if hidden == True:
@@ -326,6 +330,19 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					embed.add_field(name="Playing With", value=discord.utils.escape_markdown('\n'.join(playingWith)), inline=False)
 				await msg.edit(content=None, embed=embed)
 			return
+		elif arg2 == 'friends':
+			async with aiohttp.ClientSession() as session:
+				async with session.get(f'https://api.sk1er.club/friends/{arg1}') as resp:
+					b = await resp.read()
+					friends = json.loads(b)
+			paginator = WrappedPaginator(prefix=f'-----------------------------------------------------\n                           Friends ({len(friends)}) >>', suffix='-----------------------------------------------------', max_size=280)
+			for uuid in friends:
+				friend = friends[uuid]
+				name = re.sub(remcolor, '', friend['display'], 0, re.IGNORECASE)
+				paginator.add_line(discord.utils.escape_markdown(name))
+			paginatorembed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=paginatorembed)
+			await interface.send_to(ctx)
 
 
 def setup(bot):

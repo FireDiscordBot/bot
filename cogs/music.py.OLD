@@ -45,7 +45,7 @@ class Music(commands.Cog, name="Music Commands"):
 		else:
 			track = queue_data[1].pop(0)  # get the next song
 			await player.play(track)  # play it
-			em = discord.Embed(title=f"▶ Now Playing", timestamp=datetime.datetime.now(), url=track.url)
+			em = discord.Embed(title=f"▶ Now Playing", timestamp=datetime.datetime.utcnow(), url=track.url)
 			em.add_field(name="Track", value=track.title)
 			em.add_field(name="Author", value=track.author)
 			em.add_field(name="Length", value=str(timedelta(milliseconds=track.length)))
@@ -81,7 +81,7 @@ class Music(commands.Cog, name="Music Commands"):
 			if is_playlist:
 				self.queue[ctx.guild] = [ctx.channel, tracks[1:]]
 				await player.play(track)
-				em = discord.Embed(title=f"▶ Playing a playlist with {len(tracks)} tracks in {ctx.guild}", color=ctx.message.author.color, timestamp=datetime.datetime.now(), url=track.url)
+				em = discord.Embed(title=f"▶ Playing a playlist with {len(tracks)} tracks in {ctx.guild}", color=ctx.message.author.color, timestamp=datetime.datetime.utcnow(), url=track.url)
 				em.add_field(name="Track", value=track.title)
 				em.add_field(name="Author", value=track.author)
 				em.add_field(name="Length", value=str(timedelta(milliseconds=track.length)))
@@ -92,7 +92,7 @@ class Music(commands.Cog, name="Music Commands"):
 			else:
 				self.queue[ctx.guild] = [ctx.channel, []]
 				await player.play(track)  # plays the track
-				em = discord.Embed(title=f"▶ Now Playing in {ctx.guild}", color=ctx.message.author.color, timestamp=datetime.datetime.now(), url=track.url)
+				em = discord.Embed(title=f"▶ Now Playing in {ctx.guild}", color=ctx.message.author.color, timestamp=datetime.datetime.utcnow(), url=track.url)
 				em.add_field(name="Track", value=track.title)
 				em.add_field(name="Author", value=track.author)
 				em.add_field(name="Length", value=str(timedelta(milliseconds=track.length)))
@@ -132,7 +132,7 @@ class Music(commands.Cog, name="Music Commands"):
 		if not player.track:
 			return await ctx.send("I'm not playing anything.")
 		track = player.track
-		em = discord.Embed(title=f"▶ Now Playing in {ctx.guild}", color=ctx.message.author.color, timestamp=datetime.datetime.now(), url=track.url)
+		em = discord.Embed(title=f"▶ Now Playing in {ctx.guild}", color=ctx.message.author.color, timestamp=datetime.datetime.utcnow(), url=track.url)
 		em.add_field(name="Track", value=track.title)
 		em.add_field(name="Author", value=track.author)
 		em.add_field(name="Length", value=str(timedelta(milliseconds=track.length)))
