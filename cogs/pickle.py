@@ -335,14 +335,71 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				async with session.get(f'https://api.sk1er.club/friends/{arg1}') as resp:
 					b = await resp.read()
 					friends = json.loads(b)
-			paginator = WrappedPaginator(prefix=f'-----------------------------------------------------\n                           Friends ({len(friends)}) >>', suffix='-----------------------------------------------------', max_size=280)
+			paginator = WrappedPaginator(prefix=f'-----------------------------------------------------\n                           Friends ({len(friends)}) >>', suffix='-----------------------------------------------------', max_size=512)
 			for uuid in friends:
 				friend = friends[uuid]
-				name = re.sub(remcolor, '', friend['display'], 0, re.IGNORECASE)
-				paginator.add_line(discord.utils.escape_markdown(name))
+				try:
+					name = re.sub(remcolor, '', friend['display'], 0, re.IGNORECASE)
+					time = str(datetime.datetime.utcfromtimestamp(friend['time']/1000)).split('.')[0]
+				except TypeError:
+					raise commands.ArgumentParsingError('Couldn\'t find that persons friends. Check the name and try again')
+					return
+				paginator.add_line(discord.utils.escape_markdown(f'{name} added on {time}'))
 			paginatorembed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=paginatorembed)
 			await interface.send_to(ctx)
+		elif arg2 == 'guild':
+			async with aiohttp.ClientSession() as session:
+				async with session.get(f'https://api.sk1er.club/guild/player/{arg1}') as resp:
+					b = await resp.read()
+					guild = json.loads(b)
+			if guild['success'] != True:
+				raise commands.ArgumentParsingError('Couldn\'t find a guild. Maybe they aren\'t in one...')
+			guild = guild['guild']
+			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
+			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
+			try:
+				gtag = guild['tag']
+				gtag = f'[{gtag}]'
+			except KeyError:
+				gtag = ''
+			try:
+				desc = guild['description']
+			except KeyError:
+				desc = 'No Description Set.'
+			embed.add_field(name=f"{arg1}'s guild", value=f"{guild['name']} {gtag}\n{desc}\n\nLevel: {guild['level_calc']}")
+			try:
+				embed.add_field(name="Joinable?", value=guild['joinable'], inline=False)
+			except KeyError:
+				embed.add_field(name="Joinable?", value=False, inline=False)
+			try:
+				embed.add_field(name="Publicly Listed?", value=guild['publiclyListed'], inline=False)
+			except KeyError:
+				pass
+			try:
+				embed.add_field(name="Legacy Rank", value=guild['legacyRanking'], inline=False)
+			except KeyError:
+				pass
+			games = []
+			for game in guild['preferredGames']:
+				game = game.replace('_', ' ')
+				games.append(game.lower().capitalize())
+			if games == []:
+				games.append('Preferred Games not set.')
+			embed.add_field(name="Preferred Games", value=', '.join(games), inline=False)
+			ranks = []
+			for rank in guild['ranks']:
+				name = rank['name']
+				if rank['tag'] == None:
+					tag = ''
+				else:
+					tag = rank['tag']
+					tag = f'[{tag}]'
+				ranks.append(f'{name} {tag}')
+			if ranks == []:
+				ranks.append('No custom ranks.')
+			embed.add_field(name="Ranks", value='\n'.join(ranks), inline=False)
+			await ctx.send(embed=embed)
 
 
 def setup(bot):
