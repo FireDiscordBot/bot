@@ -173,7 +173,6 @@ class fire(commands.Cog, name="Main Commands"):
 		await ctx.send('Goodbye! :wave:')
 		guild = ctx.guild
 		await guild.leave()
-	
 
 	@commands.command(description="Changes whether the autotip bot restarts or not", hidden=True)
 	async def togglerestart(self, ctx, restart: bool = True):
