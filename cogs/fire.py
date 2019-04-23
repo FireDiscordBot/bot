@@ -14,7 +14,7 @@ from contextlib import redirect_stdout
 import io
 import copy
 from typing import Union
-import speedtest
+import aiohttp
 import subprocess
 import random
 from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
@@ -139,6 +139,25 @@ class fire(commands.Cog, name="Main Commands"):
 	async def warm(self, ctx, *, warm: str):
 		"""warm something up. idk"""
 		await ctx.send(f'🔥 Warming up {warm}')
+
+	@commands.command(description='Cow goes moo')
+	async def cowsay(self, ctx, *, cow: str):
+		"""make my cow say something"""
+		async with aiohttp.ClientSession() as session:
+			async with session.get(f'http://cowsay.morecode.org/say?message={cow}&format=json') as resp:
+				body = await resp.json()
+		cow = body['cow']
+		await ctx.send(f'```{cow}```')
+
+	@commands.command(description='ascii text')
+	async def ascii(self, ctx, *, text: str):
+		"""turn your text into different looking text"""
+		textsplit = text.split(' ')
+		text = '+'.join(textsplit)
+		async with aiohttp.ClientSession() as session:
+			async with session.get(f'http://artii.herokuapp.com/make?text={text}') as resp:
+				body = await resp.text()
+		await ctx.send(f'```{body}```')
 
 	@commands.command(description="Say goodbye to me")
 	@commands.has_permissions(manage_members=True)
