@@ -150,7 +150,7 @@ async def on_message_edit(before,after):
 async def on_guild_join(guild):
 	print(f"Fire joined a new guild! {guild.name}({guild.id}) with {guild.member_count} members")
 	try:
-		await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members")
+		await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members", f"https://api.gaminggeek.club/guild/{guild.id}")
 	except exceptions.PushError as e:
 		print(e)
 	users = format(len(bot.users), ',d')
@@ -162,7 +162,7 @@ async def on_guild_join(guild):
 async def on_guild_remove(guild):
 	print(f"Fire left the guild {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/")
 	try:
-		await pushbullet("link", "Fire left a guild!", f"Fire left {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/")
+		await pushbullet("link", "Fire left a guild!", f"Fire left {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/", f"https://api.gaminggeek.club/guild/{guild.id}")
 	except exceptions.PushError as e:
 		print(e)
 	users = format(len(bot.users), ',d')
