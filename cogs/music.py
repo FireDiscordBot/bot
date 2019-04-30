@@ -445,8 +445,11 @@ class Music(commands.Cog):
 
 		if not RURL.match(query):
 			query = f'ytsearch:{query}'
-
-		tracks = await self.bot.wavelink.get_tracks(query)
+		try:
+			tracks = await self.bot.wavelink.get_tracks(query)
+		except Exception:
+			await player.destroy()
+			raise commands.CommandInvokeError('I couldn\'t find this guild\'s music player...\nThis should be fixed soon.')
 		if not tracks:
 			return await ctx.send('No songs were found with that query. Please try again.')
 
