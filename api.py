@@ -3,12 +3,10 @@ import datetime
 import json
 import time
 import os
-import dataset
 import typing
 from aiohttp import web
 
 launchtime = datetime.datetime.utcnow()
-db = dataset.connect('sqlite:///fire.db')
 
 client = discord.Client()
 routes = web.RouteTableDef()
@@ -391,4 +389,4 @@ async def on_ready():
 		await start_api()
 		started = 'yes'
 
-client.run('NDQ0ODcxNjc3MTc2NzA5MTQx.D2RVpQ.Xvzxmjk14CpVM03wR55dvFUAmN4')
+client.run(config['token'])
