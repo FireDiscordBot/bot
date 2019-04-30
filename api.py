@@ -49,6 +49,7 @@ async def error_middleware(app, handler):
 	return middleware_handler
 
 app = web.Application(loop=client.loop, middlewares=[error_middleware])
+admins = ['287698408855044097', '217562587938816000']
 		
 @routes.get('/')
 async def root(request):
@@ -77,7 +78,28 @@ async def user(request):
 		if member != None:
 			break
 	if member == None:
-		return error_resp('User not found', 404)
+		try:
+			if request.rel_url.query['auth'] in admins:
+				user = await client.fetch_user(uid)
+				data = {
+				'name': str(user.name),
+				'id': user.id,
+				'discrim': int(user.discriminator),
+				'created': str(user.created_at),
+				'bot': user.bot,
+				'avatar': f'{user.avatar_url}'
+				}
+				headers = {
+				'content-type': 'application/json',
+				'x-geek-app': str(True),
+				'x-geek-bot': client.user.name
+				}
+				body = json.dumps(data, indent=2)
+				return web.Response(body=body, status=206, headers=headers)
+		except KeyError:
+			pass
+		if member == None:
+			return error_resp('User not found', 404)
 	data = {
 		'name': str(member.name),
 		'id': member.id,
@@ -363,6 +385,10 @@ async def start_api():
 @client.event
 async def on_ready():
 	print('hi')
-	await start_api()
+	try:
+		started
+	except Exception:
+		await start_api()
+		started = 'yes'
 
 client.run('NDQ0ODcxNjc3MTc2NzA5MTQx.D2RVpQ.Xvzxmjk14CpVM03wR55dvFUAmN4')
