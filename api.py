@@ -5,6 +5,7 @@ import time
 import os
 import typing
 from aiohttp import web
+from fire.push import pushbullet
 
 launchtime = datetime.datetime.utcnow()
 
@@ -54,7 +55,7 @@ async def root(request):
 	data = {
 		'success': True,
 		'bot': str(client.user),
-		'now': str(datetime.datetime.utcnow()),
+		'now': str(datetime.datetime.utcnow()).split('.')[0],
 		'loaded': str(launchtime)
 	}
 	headers = {
@@ -64,6 +65,10 @@ async def root(request):
 	}
 	body = json.dumps(data, indent=2)
 	return web.Response(body=body, status=200, headers=headers)
+
+@routes.get('/error')
+async def error_test(request):
+	raise discord.HTTPException(message='this is a test')
 
 @routes.get('/user/{id}')
 async def user(request):
@@ -331,7 +336,7 @@ async def invite(request):
 			'icon': invguild.icon_url,
 			'banner': invguild.banner_url,
 			'splash': invguild.splash_url,
-			'created': str(invguild.created_at)
+			'created': str(invguild.created_at).split('.')[0]
 		}
 		if isinstance(invchan, discord.PartialInviteChannel):
 			invchantype = 'PartialInviteChannel'
@@ -345,7 +350,7 @@ async def invite(request):
 			'name': invchan.name,
 			'id': invchan.id,
 			'type': invchantype,
-			'created': str(invchan.created_at)
+			'created': str(invchan.created_at).split('.')[0]
 		}
 		data = {
 			'code': invite.code,
@@ -355,7 +360,7 @@ async def invite(request):
 			'channel': {
 
 			},
-			'created_at': str(invite.created_at),
+			'created_at': str(invite.created_at).split('.')[0],
 			'inviter': str(invite.inviter),
 			'approx_members': invite.approximate_member_count,
 			'approx_active_members': invite.approximate_presence_count,

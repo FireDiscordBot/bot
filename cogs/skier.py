@@ -40,8 +40,8 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			await ctx.send("What user should I check? (IGNs must be exact capitalization!)")
 		else:
 			hello = {
-				'USER-AGENT': 'hi sk1er how r u?',
-				'CONTENT-TYPE': 'json, but you don\'t return the right mimetype' 
+				'USER-AGENT': 'Fire (Python 2.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+				'CONTENT-TYPE': 'text/json' 
 			}
 			async with aiohttp.ClientSession(headers=hello) as session:
 				async with session.get(f'https://api.sk1er.club/levelheadv5/{player}/LEVEL') as resp:
@@ -113,8 +113,8 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			await ctx.send("I can either check a player's info or `stats`")
 			return
 		hello = {
-			'USER-AGENT': 'hi sk1er how r u?',
-			'CONTENT-TYPE': 'json, but you don\'t return the right mimetype' 
+			'USER-AGENT': 'Fire (Python 2.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+			'CONTENT-TYPE': 'text/json' 
 		}
 		if player == "stats": 
 			async with aiohttp.ClientSession(headers=hello) as session:
