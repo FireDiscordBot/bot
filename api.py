@@ -56,7 +56,7 @@ async def root(request):
 		'success': True,
 		'bot': str(client.user),
 		'now': str(datetime.datetime.utcnow()).split('.')[0],
-		'loaded': str(launchtime)
+		'loaded': str(launchtime).split('.')[0]
 	}
 	headers = {
 		'content-type': 'application/json',
