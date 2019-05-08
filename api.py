@@ -88,7 +88,7 @@ async def user(request):
 				'name': str(user.name),
 				'id': user.id,
 				'discrim': int(user.discriminator),
-				'created': str(user.created_at),
+				'created': str(user.created_at).split('.')[0],
 				'bot': user.bot,
 				'avatar': f'{user.avatar_url}'
 				}
@@ -107,7 +107,7 @@ async def user(request):
 		'name': str(member.name),
 		'id': member.id,
 		'discrim': int(member.discriminator),
-		'created': str(member.created_at),
+		'created': str(member.created_at).split('.')[0],
 		'bot': member.bot,
 		'status': str(member.status),
 		'desktop_status': str(member.desktop_status),
@@ -136,6 +136,15 @@ async def user(request):
 				}
 			}
 			data.update(spotifyinf)
+		elif type(activity) == discord.activity.Streaming:
+			activityinf = {
+				'activity': {
+				'type': 'streaming',
+				'name': activity.name,
+				'url': activity.url
+				}
+			}
+			data.update(activityinf)
 		else:
 			activityinf = {
 				'activity': {
@@ -181,7 +190,7 @@ async def member(request):
 		'name': str(member.name),
 		'id': member.id,
 		'discrim': int(member.discriminator),
-		'created': str(member.created_at),
+		'created': str(member.created_at).split('.')[0],
 		'bot': member.bot,
 		'status': str(member.status),
 		'desktop_status': str(member.desktop_status),
@@ -192,7 +201,7 @@ async def member(request):
 	if gid != None:
 		ginfo = {
 			'guild': member.guild.name,
-			'joined_at': str(member.joined_at),
+			'joined_at': str(member.joined_at).split('.')[0],
 			'nickname': str(member.nick),
 			'color': str(member.color),
 			'top_role': str(member.top_role)
@@ -219,6 +228,15 @@ async def member(request):
 				}
 			}
 			data.update(spotifyinf)
+		elif type(activity) == discord.activity.Streaming:
+			activityinf = {
+				'activity': {
+				'type': 'streaming',
+				'name': activity.name,
+				'url': activity.url
+				}
+			}
+			data.update(activityinf)
 		else:
 			activityinf = {
 				'activity': {
@@ -250,6 +268,7 @@ async def guild(request):
 	data = {
 		'name': str(guild.name),
 		'id': guild.id,
+		'created': str(guild.created_at).split('.')[0],
 		'owner': str(guild.owner),
 		'owner_id': guild.owner_id,
 		'region': str(guild.region),
