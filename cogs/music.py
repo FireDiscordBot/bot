@@ -271,12 +271,13 @@ class Music(commands.Cog):
 		if not hasattr(bot, 'wavelink'):
 			self.bot.wavelink = wavelink.Client(bot)
 
-		bot.loop.create_task(self.initiate_nodes())
+		#bot.loop.create_task(self.initiate_nodes())
 
 	@commands.Cog.listener()
 	async def on_ready(self):
+		self.bot.wavelink.nodes = {}
 		await self.initiate_nodes()
-		print('Music node(s) initiated!')
+		print('Initiaded Lavalink nodes.')
 
 	async def initiate_nodes(self):
 		nodes = {'MAIN': {'host': '127.0.0.1',
@@ -391,7 +392,7 @@ class Music(commands.Cog):
 			try:
 				channel = ctx.author.voice.channel
 			except AttributeError:
-				raise discord.DiscordException('No channel to join. Please either specify a valid channel or join one.')
+				raise commands.UserInputError('No channel to join. Please either specify a valid channel or join one.')
 
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
@@ -440,8 +441,8 @@ class Music(commands.Cog):
 		try:
 			tracks = await self.bot.wavelink.get_tracks(query)
 		except Exception:
-			await player.destroy()
-			raise commands.CommandInvokeError('I couldn\'t find this guild\'s music player...\nThis should be fixed soon.')
+			await self.do_stop(ctx)
+			raise commands.UserInputError('It seems that I couldn\'t connect to any of my audio nodes')
 		if not tracks:
 			return await ctx.send('No songs were found with that query. Please try again.')
 
