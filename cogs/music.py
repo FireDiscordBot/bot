@@ -195,10 +195,6 @@ class Player(wavelink.Player):
 				return self.reaction_task.cancel()
 
 			react, user = await self.bot.wait_for('reaction_add', check=check)
-			await bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {user.id};')
-			blinf = await bot.db.fetchone()
-			if blinf != None:
-				pass
 			control = self.controls.get(str(react))
 
 			if control == 'rp':
@@ -276,6 +272,11 @@ class Music(commands.Cog):
 			self.bot.wavelink = wavelink.Client(bot)
 
 		bot.loop.create_task(self.initiate_nodes())
+
+	@commands.Cog.listener()
+	async def on_ready(self):
+		await self.initiate_nodes()
+		print('Music node(s) initiated!')
 
 	async def initiate_nodes(self):
 		nodes = {'MAIN': {'host': '127.0.0.1',
