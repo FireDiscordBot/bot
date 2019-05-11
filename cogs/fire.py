@@ -91,6 +91,7 @@ class fire(commands.Cog, name="Main Commands"):
 		idle = 0
 		dnd = 0
 		offline = 0
+		streaming = 0
 		members = self.bot.get_all_members()
 		for member in members:
 			if str(member.status) == 'online':
@@ -101,7 +102,13 @@ class fire(commands.Cog, name="Main Commands"):
 				dnd = dnd + 1
 			if str(member.status) == 'offline':
 				offline = offline + 1
-		users = format(len(self.bot.users), ',d')
+			try:
+				activity = member.activities[0]
+				if isinstance(member.activities[0], discord.activity.Streaming):
+					streaming = streaming + 1
+			except Exception:
+				pass
+		users = online + idle + dnd + offline
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		embed.set_author(name="Bot made by Geek#9999", url="https://gaminggeek.club", icon_url="https://cdn.discordapp.com/avatars/287698408855044097/7d8707c0556bdbe5e29b2b0788de8ca9.png?size=1024")
 		embed.add_field(name="**Runtime**", value=f"{uptime}", inline=False)
@@ -112,7 +119,7 @@ class fire(commands.Cog, name="Main Commands"):
 		embed.add_field(name="**Guilds**", value=f"{len(self.bot.guilds)}", inline=True)
 		embed.add_field(name="**Prefix**", value=f"{ctx.prefix}", inline=True)
 		embed.add_field(name="**Commands**", value=len(self.bot.commands), inline=True)
-		embed.add_field(name="**Members**", value=f"{self.bot.get_emoji(313956277808005120)} {online:,d}\n{self.bot.get_emoji(313956277220802560)} {idle:,d}\n{self.bot.get_emoji(313956276893646850)} {dnd:,d}\n{self.bot.get_emoji(313956277237710868)} {offline:,d}\nTotal: {users}\n ", inline=False)
+		embed.add_field(name="**Members**", value=f"{self.bot.get_emoji(313956277808005120)} {online:,d}\n{self.bot.get_emoji(313956277220802560)} {idle:,d}\n{self.bot.get_emoji(313956276893646850)} {dnd:,d}\n{self.bot.get_emoji(313956277132853248)} {streaming:,d}\n{self.bot.get_emoji(313956277237710868)} {offline:,d}\nTotal: {users:,d}\n ", inline=False)
 		await msg.edit(content=None, embed=embed)
 
 	@commands.command(description="Shows you all the guilds I'm in.")
