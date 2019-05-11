@@ -218,7 +218,10 @@ async def blacklist_check(ctx):
 async def game_changer():
 	while True:
 		randint = random.randint(1, 3)
-		users = format(len(bot.users), ',d')
+		users = 0
+		for guild in bot.guilds:
+			users = users + guild._member_count
+		users = format(users, ',d')
 		guilds = format(len(bot.guilds), ',d')
 		if randint == 1:
 	   		await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"{users} users in {guilds} guilds"))
