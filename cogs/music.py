@@ -303,7 +303,7 @@ class Music(commands.Cog):
 		if isinstance(event, wavelink.TrackEnd):
 			event.player.next_event.set()
 		elif isinstance(event, wavelink.TrackException):
-			print(event.error)
+			raise commands.CommandError(event.error)
 
 	def required(self, player, invoked_with):
 		"""Calculate required votes."""
@@ -442,7 +442,9 @@ class Music(commands.Cog):
 			tracks = await self.bot.wavelink.get_tracks(query)
 		except Exception:
 			await self.do_stop(ctx)
-			raise commands.UserInputError('It seems that I couldn\'t connect to any of my audio nodes')
+			self.bot.wavelink.nodes = {}
+			await self.initiate_nodes()
+			tracks = await self.bot.wavelink.get_tracks(query)
 		if not tracks:
 			return await ctx.send('No songs were found with that query. Please try again.')
 
