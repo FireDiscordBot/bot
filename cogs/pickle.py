@@ -134,7 +134,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					tributes = p['tourney']['total_tributes'] # TOURNAMENT TRIBUTES
 				except KeyError:
 					tributes = 0
-				level = round(player.getLevel())
+				level = str(player.getLevel()).split('.')[0]
 				try:
 					rankcolor = p['rankPlusColor']
 				except Exception:
