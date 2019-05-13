@@ -108,3 +108,4 @@ bot.log
 logs/
 lavalink.jar
 config.json
+fire.db
