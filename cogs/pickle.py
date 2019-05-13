@@ -45,6 +45,34 @@ async def getprefix(ctx):
 		prefix = "$"
 	return prefix
 
+picklegames = {
+		'QUAKECRAFT': 'Quake',
+		'WALLS': 'Walls',
+		'PAINTBALL': 'Paintball',
+		'SURVIVAL_GAMES': 'Blitz SG',
+		'TNTGAMES': 'TNT Games',
+		'VAMPIREZ': 'VampireZ',
+		'WALLS3': 'Mega Walls',
+		'ARCADE': 'Arcade',
+		'ARENA': 'Arena',
+		'UHC': 'UHC Champions',
+		'MCGO': 'Cops and Crims',
+		'BATTLEGROUND': 'Warlords',
+		'SUPER_SMASH': 'Smash Heroes',
+		'GINGERBREAD': 'Turbo Kart Racers',
+		'HOUSING': 'Housing',
+		'SKYWARS': 'SkyWars',
+		'TRUE_COMBAT': 'Crazy Walls',
+		'SPEED_UHC': 'Speed UHC',
+		'SKYCLASH': 'SkyClash',
+		'LEGACY': 'Classic Games',
+		'PROTOTYPE': 'Prototype',
+		'BEDWARS': 'Bed Wars',
+		'MURDER_MYSTERY': 'Murder Mystery',
+		'BUILD_BATTLE': 'Build Battle',
+		'DUELS': 'Duels'
+	}
+
 class pickle(commands.Cog, name="Hypixel Commands"):
 	def __init__(self, bot):
 		self.bot = bot
@@ -148,7 +176,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 						rankimg = "https://firediscordbot.tk/pickleranks/MVPplusten.png"
 					if rankcolor == "DARK_PURPLE":
 						rankimg = "https://firediscordbot.tk/pickleranks/MVPpluseleven.png"
-					if rankcolor == "GREY":
+					if rankcolor == "DARK_GRAY":
 						rankimg = "https://firediscordbot.tk/pickleranks/MVPplustwelve.png"
 					if rankcolor == "BLACK":
 						rankimg = "https://firediscordbot.tk/pickleranks/MVPplusthirteen.png"
@@ -186,7 +214,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 							rankimg = "https://firediscordbot.tk/pickleranks/SUPERSTARdaqua.png"
 						if rankcolor ==  "DARK_PURPLE":
 							rankimg = "https://firediscordbot.tk/pickleranks/SUPERSTARdpurple.png"
-						if rankcolor ==  "GREY":
+						if rankcolor ==  "DARK_GRAY":
 							rankimg = "https://firediscordbot.tk/pickleranks/SUPERSTARgrey.png"
 						if rankcolor ==  "BLACK":
 							rankimg = "https://firediscordbot.tk/pickleranks/SUPERSTARblack.png"
@@ -213,7 +241,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 							rankimg = "https://firediscordbot.tk/pickleranks/threeDAQUA.png"
 						if rankcolor ==  "DARK_PURPLE":
 							rankimg = "https://firediscordbot.tk/pickleranks/threeDPURPLE.png"
-						if rankcolor ==  "GREY":
+						if rankcolor ==  "DARK_GRAY":
 							rankimg = "https://firediscordbot.tk/pickleranks/threeGREY.png"
 						if rankcolor ==  "BLACK":
 							rankimg = "https://firediscordbot.tk/pickleranks/threeBLACK.png"
@@ -359,8 +387,9 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 			try:
+				gtagcolor = guild['tagColor'].lower().replace('_', ' ').capitalize()
 				gtag = guild['tag']
-				gtag = f'[{gtag}]'
+				gtag = f'[{gtag}] ({gtagcolor})'
 			except KeyError:
 				gtag = ''
 			try:
@@ -377,29 +406,49 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			except KeyError:
 				pass
 			try:
-				embed.add_field(name="Legacy Rank", value=guild['legacyRanking'], inline=False)
+				embed.add_field(name="Legacy Rank", value=format(guild['legacyRanking'], ',d'), inline=False)
 			except KeyError:
 				pass
 			games = []
-			for game in guild['preferredGames']:
-				game = game.replace('_', ' ')
-				games.append(game.lower().capitalize())
-			if games == []:
+			try:
+				for game in guild['preferredGames']:
+					games.append(picklegames[game])
+			except KeyError:
 				games.append('Preferred Games not set.')
 			embed.add_field(name="Preferred Games", value=', '.join(games), inline=False)
 			ranks = []
-			for rank in guild['ranks']:
-				name = rank['name']
-				if rank['tag'] == None:
-					tag = ''
-				else:
-					tag = rank['tag']
-					tag = f'[{tag}]'
-				ranks.append(f'{name} {tag}')
-			if ranks == []:
+			try:
+				for rank in guild['ranks']:
+					name = rank['name']
+					if rank['tag'] == None:
+						tag = ''
+					else:
+						tag = rank['tag']
+						tag = f'[{tag}]'
+					ranks.append(f'{name} {tag}')
+			except KeyError:
 				ranks.append('No custom ranks.')
 			embed.add_field(name="Ranks", value='\n'.join(ranks), inline=False)
 			await ctx.send(embed=embed)
+			gname = guild['name']
+			paginatorembed = discord.Embed(title=f'{gname}\'s Members', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+			ranktags = {}
+			for rank in ranks:
+				ranktags[rank.split(' ')[0]] = rank.split(' ')[1]
+			paginator = WrappedPaginator(prefix='', suffix='', max_size=380)
+			for member in guild['members']:
+				name = re.sub(remcolor, '', member['displayname'], 0, re.IGNORECASE)
+				joined = str(datetime.datetime.utcfromtimestamp(member['joined']/1000)).split('.')[0]
+				try:
+					ranktag = ranktags[member['rank']]
+				except KeyError:
+					ranktag = ''
+				if ranktag != '':
+					paginator.add_line(f'{name} {ranktag} joined on {joined}')
+				else:
+					paginator.add_line(f'{name} joined on {joined}')
+			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=paginatorembed)
+			await interface.send_to(ctx)
 
 
 def setup(bot):
