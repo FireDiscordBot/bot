@@ -10,10 +10,6 @@ class Help(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
-	@commands.command(name='helpall', hidden=True)
-	async def showallhelp(self, ctx):
-		return True
-
 	@commands.command(name='help', description='Provides help for those who need it')
 	async def help(self, ctx, item: str = None):
 		cogs = []
@@ -21,7 +17,7 @@ class Help(commands.Cog):
 		allcmds = False
 		cmdhelp = False
 		if item:
-			if item == 'helpall':
+			if item == 'all':
 				allcmds = True
 				cmdhelp = False
 			else:
