@@ -57,7 +57,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 	@commands.command(description="Gets a random image from a specified tag", name="image")
 	async def randimage(self, ctx, tag: str = None, nsfw: bool = None):
-		"""PFXrandimage [<tag>] [<nsfw: true/false>]"""
+		"""PFXimage [<tag> <nsfw: true/false>]"""
 		taglist = await self.bot.ksoft.tags()
 		tags = str(taglist).split(', ')
 		if tag == 'False':
