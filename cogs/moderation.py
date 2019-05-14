@@ -66,6 +66,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			
 	@commands.command(aliases=["banish"], description="Ban a user from the server")
 	@commands.has_permissions(ban_members=True)
+	@commands.bot_has_permissions(ban_members=True)
 	async def ban(self, ctx, user: StaffCheck = None, reason = None, messages: int = 0):
 		"""PFXban <user> [<reason> <amount of days: 1-7>]"""
 		await ctx.trigger_typing()
@@ -90,6 +91,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 	@commands.command(description="Temporarily restricts access to this server.")
 	@commands.has_permissions(ban_members=True)
+	@commands.bot_has_permissions(ban_members=True)
 	async def softban(self, ctx, user: StaffCheck = None, reason = None, messages: int = 0):
 		"""PFXsoftban <user> [<reason> <amount of days: 1-7>]"""
 		await ctx.trigger_typing()
@@ -115,6 +117,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	
 	@commands.command(description="Mute a user.")
 	@commands.has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def mute(self, ctx, user: StaffCheck, *, reason = None):
 		"""PFXmute <user> [<reason>]"""
 		await ctx.trigger_typing()
@@ -122,6 +125,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	
 	@commands.command(description="Kick a user.")
 	@commands.has_permissions(kick_members=True)
+	@commands.bot_has_permissions(kick_members=True)
 	async def kick(self, ctx, user: StaffCheck = None, *, reason = None):
 		"""PFXkick <user> [<reason>]"""
 		await ctx.trigger_typing()
@@ -138,6 +142,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	
 	@commands.command(description="Unmute a muted user.")
 	@commands.has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def unmute(self, ctx, user: MuteCheck):
 		"""PFXunmute <user>"""
 		await ctx.trigger_typing()
@@ -146,6 +151,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 	@commands.command(description="Mute a user in the current channel.")
 	@commands.has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(manage_members=True)
 	async def block(self, ctx, user: StaffCheck = None, *, reason = None):
 		"""PFXblock <user> [<reason>]"""
 		await ctx.trigger_typing()
@@ -157,6 +163,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	
 	@commands.command(description="Unmute a user who has been blocked in the current channel.")
 	@commands.has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(manage_members=True)
 	async def unblock(self, ctx, user: StaffCheck = None, *, reason = None):
 		"""PFXunblock <user> [<reason>]"""
 		await ctx.trigger_typing()
