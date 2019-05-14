@@ -8,6 +8,7 @@ from aiohttp import web
 from fire.push import pushbullet
 
 launchtime = datetime.datetime.utcnow()
+started = False
 
 client = discord.Client()
 routes = web.RouteTableDef()
@@ -407,10 +408,8 @@ async def start_api():
 @client.event
 async def on_ready():
 	print('hi')
-	try:
-		started
-	except Exception:
+	if not started:
 		await start_api()
-		started = 'yes'
+		started = True
 
 client.run(config['token'])

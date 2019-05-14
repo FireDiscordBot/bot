@@ -43,6 +43,8 @@ async def get_pre(bot, message):
 
 bot = commands.Bot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="Loading..."), case_insensitive=True)
 
+changinggame = False
+
 extensions = [
 	"cogs.fire",
 	"cogs.music",
@@ -126,7 +128,8 @@ async def on_ready():
 	logging.info("-------------------------")
 	print("Loaded!")
 	logging.info(f"LOGGING START ON {datetime.datetime.utcnow()}")
-	await game_changer()
+	if not changinggame:
+		await game_changer()
 
 @bot.event
 async def on_message(message):
@@ -135,6 +138,9 @@ async def on_message(message):
 	if message.content == "":
 		return
 	if '&&' in message.content:
+		if 'admin sh' in message.content:
+			await bot.process_commands(message)
+			return
 		multicmd = message.content.split(' && ')
 		for cmd in multicmd:
 			msg = message
@@ -217,6 +223,7 @@ async def blacklist_check(ctx):
 		return True
 
 async def game_changer():
+	changinggame = True
 	while True:
 		randint = random.randint(1, 3)
 		users = 0
@@ -225,12 +232,17 @@ async def game_changer():
 		users = format(users, ',d')
 		guilds = format(len(bot.guilds), ',d')
 		if randint == 1:
-	   		await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"{users} users in {guilds} guilds"))
+			await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"{users} users in {guilds} guilds"))
+			await asyncio.sleep(300)
+			return
 		if randint == 2:
 			await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="Fire is currently in BETA"))
+			await asyncio.sleep(300)
+			return
 		if randint == 3:
 			me = bot.get_user(287698408855044097)
 			await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"Created by {me}"))
-		await asyncio.sleep(60)
+			await asyncio.sleep(300)
+			return
 
 bot.run(config['token'])
