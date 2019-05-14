@@ -275,9 +275,13 @@ class Music(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_ready(self):
-		self.bot.wavelink.nodes = {}
-		await self.initiate_nodes()
-		print('Initiaded Lavalink nodes.')
+		main = wavelink.Client.get_node('MAIN')
+		if not main:
+			try:
+				await self.initiate_nodes()
+				print('Initiaded Lavalink nodes.')
+			except wavelink.errors.NodeOccupied:
+				pass
 
 	async def initiate_nodes(self):
 		nodes = {'MAIN': {'host': '127.0.0.1',

@@ -175,11 +175,11 @@ async def on_guild_remove(guild):
 		dbid = prefixraw['id']
 		prefixes.delete(id=dbid)
 
-@bot.command(description="Change my prefix for this guild.")
+@bot.command(description="Change the prefix for this guild. (For prefixes with a space, surround it in \"\")")
 @has_permissions(administrator=True)
 @commands.guild_only()
 async def prefix(ctx, pfx: str = None):
-	"""Change my prefix for this guild."""
+	"""PFXprefix <prefix>"""
 	if pfx == None:
 		await ctx.send("Missing argument for prefix! (Note: For prefixes with a space, surround it in \"\")")
 	else:
