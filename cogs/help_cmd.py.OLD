@@ -45,8 +45,8 @@ class Help(commands.Cog):
 		_all = False
 		if not cmd:
 			embed = discord.Embed(color=ctx.author.color)
-			embed.set_author(name=f"Here's all my commands!", icon_url=ctx.me.avatar_url_as(format="png",
-																									  size=32))
+			embed.set_author(name=f"Here's all my commands!", icon_url=str(ctx.me.avatar_url_as(format="png",
+																									  size=32)))
 			embed.set_footer(text=f"Prefix: {ctx.prefix}")
 			n = []
 			for cog in self.bot.cogs.values():

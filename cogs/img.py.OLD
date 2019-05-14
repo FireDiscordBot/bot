@@ -15,7 +15,7 @@ class ImageCog(commands.Cog, name="Image Manipulation"):
 
 	async def get_avatar(self, user: Union[discord.User, discord.Member]) -> bytes:
 
-		avatar_url = user.avatar_url_as(format="png")
+		avatar_url = str(user.avatar_url_as(format="png"))
 
 		async with self.session.get(avatar_url) as response:
 			avatar_bytes = await response.read()
