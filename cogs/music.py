@@ -275,7 +275,7 @@ class Music(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_ready(self):
-		main = wavelink.Client.get_node('MAIN')
+		main = wavelink.Client.get_node(self.bot.wavelink, identifier='MAIN')
 		if not main:
 			try:
 				await self.initiate_nodes()
@@ -372,21 +372,14 @@ class Music(commands.Cog):
 						   f' **{self.required(player, ctx.invoked_with) - len(attr)}** more votes needed!',
 						   delete_after=45)
 
-	@commands.command(name='reactcontrol', hidden=True)
+	@commands.command(name='reactcontrol', hidden=True, description="Dummy command for error handling")
 	async def react_control(self, ctx):
-		"""Dummy command for error handling in our player."""
+		"""None"""
 		pass
 
-	@commands.command(name='connect', aliases=['join'])
+	@commands.command(name='connect', aliases=['join'], description="Connect to a voice channel")
 	async def connect_(self, ctx, *, channel: discord.VoiceChannel = None):
-		"""Connect to voice.
-
-		Parameters
-		------------
-		channel: discord.VoiceChannel [Optional]
-			The channel to connect to. If a channel is not specified, an attempt to join the voice channel you are in
-			will be made.
-		"""
+		"""PFXconnect <channel>"""
 		try:
 			await ctx.message.delete()
 		except discord.HTTPException:
@@ -406,27 +399,10 @@ class Music(commands.Cog):
 
 		await player.connect(channel.id)
 
-	@commands.command(name='play', aliases=['sing'])
+	@commands.command(name='play', aliases=['sing'], description="Queue a song or playlist for playback.")
 	@commands.cooldown(1, 2, commands.BucketType.user)
 	async def play_(self, ctx, *, query: str):
-		"""Queue a song or playlist for playback.
-
-		Aliases
-		---------
-			sing
-
-		Parameters
-		------------
-		query: simple, URL [Required]
-			The query to search for a song. This could be a simple search term or a valid URL.
-			e.g Youtube URL or Spotify Playlist URL.
-
-		Examples
-		----------
-		<prefix>play <query>
-			{ctx.prefix}play What is love?
-			{ctx.prefix}play https://www.youtube.com/watch?v=XfR9iY5y94s
-		"""
+		"""PFXplay <search query|url>"""
 		await ctx.trigger_typing()
 
 		await ctx.invoke(self.connect_)
@@ -466,21 +442,10 @@ class Music(commands.Cog):
 		if player.controller_message and player.is_playing:
 			await player.invoke_controller()
 
-	@commands.command(name='np', aliases=['now_playing', 'current', 'currentsong'])
+	@commands.command(name='np', aliases=['now_playing', 'current', 'currentsong'], description="Sends the music controller message which contains various information about the current and upcoming songs.")
 	@commands.cooldown(2, 15, commands.BucketType.user)
 	async def now_playing(self, ctx):
-		"""Invoke the player controller.
-		Aliases
-		---------
-			np
-			current
-			currentsong
-		Examples
-		----------
-		<prefix>now_playing
-			{ctx.prefix}np
-		The player controller contains various information about the current and upcoming songs.
-		"""
+		"""PFXnp"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 		if not player:
 			return
@@ -493,14 +458,9 @@ class Music(commands.Cog):
 
 		await player.invoke_controller()
 
-	@commands.command(name='pause')
+	@commands.command(name='pause', description="Pause the currently playing song.")
 	async def pause_(self, ctx):
-		"""Pause the currently playing song.
-		Examples
-		----------
-		<prefix>pause
-			{ctx.prefix}pause
-		"""
+		"""PFXpause"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 		if not player:
 			return
@@ -522,14 +482,9 @@ class Music(commands.Cog):
 		player.paused = True
 		await player.set_pause(True)
 
-	@commands.command(name='resume')
+	@commands.command(name='resume', description="Resume a currently paused song.")
 	async def resume_(self, ctx):
-		"""Resume a currently paused song.
-		Examples
-		----------
-		<prefix>resume
-			{ctx.prefix}resume
-		"""
+		"""PFXresume"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -548,15 +503,10 @@ class Music(commands.Cog):
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 		await player.set_pause(False)
 
-	@commands.command(name='skip')
+	@commands.command(name='skip', description="Skip the current song.")
 	@commands.cooldown(5, 10, commands.BucketType.user)
 	async def skip_(self, ctx):
-		"""Skip the current song.
-		Examples
-		----------
-		<prefix>skip
-			{ctx.prefix}skip
-		"""
+		"""PFXskip"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -577,15 +527,10 @@ class Music(commands.Cog):
 
 		await player.stop()
 
-	@commands.command(name='stop')
+	@commands.command(name='stop', description="Stop the player, disconnect and clear the queue.")
 	@commands.cooldown(3, 30, commands.BucketType.guild)
 	async def stop_(self, ctx):
-		"""Stop the player, disconnect and clear the queue.
-		Examples
-		----------
-		<prefix>stop
-			{ctx.prefix}stop
-		"""
+		"""PFXstop"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -604,22 +549,10 @@ class Music(commands.Cog):
 		await player.destroy()
 		await player.disconnect()
 
-	@commands.command(name='volume', aliases=['vol'])
+	@commands.command(name='volume', aliases=['vol'], description="Change the player volume.")
 	@commands.cooldown(1, 2, commands.BucketType.guild)
 	async def volume_(self, ctx, *, value: int):
-		"""Change the player volume.
-		Aliases
-		---------
-			vol
-		Parameters
-		------------
-		value: [Required]
-			The volume level you would like to set. This can be a number between 1 and 100.
-		Examples
-		----------
-		<prefix>volume <value>
-			{ctx.prefix}volume 50
-		"""
+		"""PFXvolume <number: 1-100>"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -638,20 +571,10 @@ class Music(commands.Cog):
 		if not player.updating and not player.update:
 			await player.invoke_controller()
 
-	@commands.command(name='queue', aliases=['q', 'que'])
+	@commands.command(name='queue', aliases=['q', 'que'], description="Retrieve a list of currently queued songs.")
 	@commands.cooldown(1, 10, commands.BucketType.user)
 	async def queue_(self, ctx):
-		"""Retrieve a list of currently queued songs.
-		Aliases
-		---------
-			que
-			q
-		Examples
-		----------
-		<prefix>queue
-			{ctx.prefix}queue
-			{ctx.prefix}q
-		"""
+		"""PFXqueue"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -667,19 +590,10 @@ class Music(commands.Cog):
 
 		await ctx.send(embed=embed)
 
-	@commands.command(name='shuffle', aliases=['mix'])
+	@commands.command(name='shuffle', aliases=['mix'], description="Shuffle the current queue.")
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def shuffle_(self, ctx):
-		"""Shuffle the current queue.
-		Aliases
-		---------
-			mix
-		Examples
-		----------
-		<prefix>shuffle
-			{ctx.prefix}shuffle
-			{ctx.prefix}mix
-		"""
+		"""PFXshuffle"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -700,14 +614,9 @@ class Music(commands.Cog):
 
 		player.update = True
 
-	@commands.command(name='repeat')
+	@commands.command(name='repeat', description="Repeat the currently playing song.")
 	async def repeat_(self, ctx):
-		"""Repeat the currently playing song.
-		Examples
-		----------
-		<prefix>repeat
-			{ctx.prefix}repeat
-		"""
+		"""PFXrepeat"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -729,8 +638,9 @@ class Music(commands.Cog):
 
 		player.update = True
 
-	@commands.command(name='vol_up', hidden=True)
+	@commands.command(name='vol_up', hidden=True, description="Turn up the volume.")
 	async def volume_up(self, ctx):
+		"""None"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -745,8 +655,9 @@ class Music(commands.Cog):
 		await player.set_volume(vol)
 		player.update = True
 
-	@commands.command(name='vol_down', hidden=True)
+	@commands.command(name='vol_down', hidden=True, description="Turn the volume down.")
 	async def volume_down(self, ctx):
+		"""None"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -761,8 +672,9 @@ class Music(commands.Cog):
 		await player.set_volume(vol)
 		player.update = True
 
-	@commands.command(name='seteq')
+	@commands.command(name='seteq', description="Pick from one of the equalizer presets to change your music.")
 	async def set_eq(self, ctx, *, eq: str):
+		"""PFXseteq <Flat|Boost|Metal|Piano>"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if eq.upper() not in player.equalizers:
