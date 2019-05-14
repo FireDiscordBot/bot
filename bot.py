@@ -50,7 +50,7 @@ extensions = [
 	"cogs.ksoft",
 	"cogs.skier",
 	"cogs.utils",
-	"cogs.help_cmd",
+	"cogs.help",
 	"cogs.dbl",
 	"cogs.settings",
 	"jishaku"

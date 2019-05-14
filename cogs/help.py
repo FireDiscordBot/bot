@@ -14,8 +14,8 @@ class Help(commands.Cog):
 	async def showallhelp(self, ctx):
 		return True
 
-	@commands.command(name='newhelp', description='Provides help for those who need it')
-	async def newhelp(self, ctx, item: str = None):
+	@commands.command(name='help', description='Provides help for those who need it')
+	async def help(self, ctx, item: str = None):
 		cogs = []
 		cmds = {}
 		allcmds = False
@@ -72,10 +72,9 @@ class Help(commands.Cog):
 
 
 def setup(bot):
-	#bot.old_help = bot.remove_command("help")
+	bot.old_help = bot.remove_command("help")
 	bot.add_cog(Help(bot))
 
 
 def teardown(bot):
-	print('oof')
-	#bot.add_command(bot.old_help)
+	bot.add_command(bot.old_help)
