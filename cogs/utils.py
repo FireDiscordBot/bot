@@ -161,7 +161,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='bl.add', description='Add someone to the blacklist', hidden=True)
 	async def blacklist_add(self, ctx, user: discord.User = None, reason: str = 'bad boi', permanent: bool = False):
-		'''Add a user to the blacklist or Update a user on the blacklist. (Note: bc im lazy, values will reset to default if not provided)'''
+		'''PFXbl.add <user> [<reason>] <perm: true/false>'''
 		if isadmin(ctx) == False:
 			return
 		if user == None:
@@ -189,7 +189,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='bl.remove', description='Remove someone from the blacklist', hidden=True)
 	async def blacklist_remove(self, ctx, user: discord.User = None):
-		'''Remove a user from the blacklist'''
+		'''PFXbl.remove <user>'''
 		if isadmin(ctx) == False:
 			return
 		if user == None:
@@ -209,10 +209,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
 	async def purge(self, ctx, amount: int=None):
-		'''Purge an amount of messages in a channel
-		-------------------------
-		Ex:
-		$purge 50'''
+		'''PFXpurge <amount>'''
 		if amount is None:
 			return await ctx.send(f'Hey, please do `purge [amount]`!')
 		if amount>500 or amount<0:
@@ -245,7 +242,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Get the last deleted message')
 	async def snipe(self, ctx, channel: typing.Union[discord.TextChannel, int] = None):
-		'''Get the last deleted message'''
+		'''PFXsnipe [<channel>]'''
 		if type(channel) == int:
 			channel = self.bot.get_channel(channel)
 		if not channel:
@@ -332,7 +329,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Quote a message from an id or url')
 	async def quote(self, ctx, msg: typing.Union[str, int] = None):
-		'''Quote a message from an id or url'''
+		'''PFXquote <message id|message url>'''
 		if not msg:
 			return await ctx.send(content = error_string + ' Please specify a message ID/URL to quote.')
 		try:
@@ -406,14 +403,14 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Got a HTTP Error Code? My cat knows what it means.', name='http.cat')
 	async def httpcat(self, ctx, error: int = 200):
-		'''Got a HTTP Error Code? My cat knows what it means.'''
+		'''PFXhttp.cat <error code>'''
 		embed = discord.Embed(color=ctx.author.color)
 		embed.set_image(url=f'https://http.cat/{error}')
 		await ctx.send(embed=embed)
 
 	@commands.command(description='Fetch a channel and get some beautiful json')
 	async def fetchchannel(self, ctx, channel: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel] = None):
-		'''Return a channel as beautiful json'''
+		'''PFXfetchchannel <channel>'''
 		if channel is None:
 			channel = ctx.channel
 
@@ -436,7 +433,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Fetch a channel from it\'s id or link')
 	async def fetchmsg(self, ctx, msg: typing.Union[str, int] = None):
-		'''Returns a message as beautiful json'''
+		'''PFXfetchmsg <message id|message url>'''
 		try:
 			msg = int(msg)
 		except Exception:
@@ -507,7 +504,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Find a user from their id')
 	async def fetchuser(self, ctx, user: int = None):
-		'''Find a user from their id'''
+		'''PFXfetchuser <id>'''
 		if user == None:
 			user = ctx.message.author.id
 		try:
@@ -540,7 +537,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	
 	@commands.command(description='Get user info in an image. (proof of concept)')
 	async def imgtest(self, ctx, user: discord.Member = None):
-		'''this is just a test for now...'''
+		'''PFXimgtest [<user>]'''
 		if user == None:
 			user = ctx.author
 		await ctx.send(f'Retrieving {user}\'s info')

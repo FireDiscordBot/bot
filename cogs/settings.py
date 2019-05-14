@@ -22,9 +22,9 @@ class settings(commands.Cog, name="Settings"):
 	def __init__(self, bot):
 		self.bot = bot
 
-	@commands.group(name='gsettings', description='Guild Settings', invoke_without_command=True, ignore_extra=False)
+	@commands.group(name='gsettings', description='Guild Settings [Work In Progress]', invoke_without_command=True, ignore_extra=False)
 	async def gsettings(self, ctx):
-		'''WIP Settings for guilds'''
+		'''PFXgsettings [<logs <channel>|another setting <arg>|more settings <arg>]'''
 		await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {ctx.guild.id}')
 		guildsettings = await self.bot.db.fetchone()
 		if guildsettings == None:
@@ -84,7 +84,7 @@ class settings(commands.Cog, name="Settings"):
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def settings_logs(self, ctx, newlog: typing.Union[discord.TextChannel, int] = None):
-		'''Command to enable/disable logging in the current guild (placebo)'''
+		'''PFXgsettings logs <channel>'''
 		if newlog == None:
 			raise commands.UserInputError('Missing argument! Provide a channel for me to send logs to or 0 to disable logging')
 		elif newlog == 0:

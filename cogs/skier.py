@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import datetime
 import json
-import time
 import aiohttp
 
 print("skier.py has been loaded")
@@ -18,29 +17,18 @@ def isadmin(ctx):
 		admin = True
 	return admin
 
-async def getprefix(ctx):
-	if not ctx.guild:
-		return "$"
-	with open('prefixes.json', 'r') as pfx:
-		customprefix = json.load(pfx)
-	try:
-		prefix = customprefix[str(ctx.guild.id)]
-	except Exception:
-		prefix = "$"
-	return prefix
-
 class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 
 	@commands.command(description="Get a player's levelhead info")
 	async def levelhead(self, ctx, player: str = None):
-		"""Get a player's levelhead info"""
+		"""PFXlevelhead <IGN>"""
 		if player == None:
 			await ctx.send("What user should I check? (IGNs must be exact capitalization!)")
 		else:
 			hello = {
-				'USER-AGENT': 'Fire (Python 2.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+				'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
 				'CONTENT-TYPE': 'text/json' 
 			}
 			async with aiohttp.ClientSession(headers=hello) as session:
@@ -108,12 +96,12 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 
 	@commands.command(description="Check stuff related to Hyperium")
 	async def hyperium(self, ctx, player: str = None, task: str = None):
-		"""Check stuff related to Hyperium"""
+		"""PFXhyperium <IGN <status|purchases> | stats>"""
 		if player == None:
 			await ctx.send("I can either check a player's info or `stats`")
 			return
 		hello = {
-			'USER-AGENT': 'Fire (Python 2.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+			'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
 			'CONTENT-TYPE': 'text/json' 
 		}
 		if player == "stats": 

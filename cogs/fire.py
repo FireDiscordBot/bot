@@ -54,7 +54,7 @@ class fire(commands.Cog, name="Main Commands"):
   
 	@commands.command(description="Shows you my ping to discord's servers")
 	async def ping(self, ctx):
-		"""Shows you my ping to discord's servers"""
+		"""PFXping"""
 		latency = round(self.bot.latency * 1000)
 		start = round(time.time()*1000)
 		msg = await ctx.send(content="Pinging...")
@@ -66,7 +66,7 @@ class fire(commands.Cog, name="Main Commands"):
 
 	@commands.command(description="Suggest a feature")
 	async def suggest(self, ctx, *, suggestion: str):
-		"""Suggest a feature"""
+		"""PFXsuggest <suggestion>"""
 		if suggestion == None:
 			await ctx.send("You can't suggest nothing!")
 		else:
@@ -76,7 +76,7 @@ class fire(commands.Cog, name="Main Commands"):
 
 	@commands.command(description="Shows you some stats about me.", aliases=['about'])
 	async def stats(self, ctx):
-		"""Shows you some stats about me."""
+		"""PFXstats"""
 		msg = await ctx.send('Gathering info...')
 		delta_uptime = datetime.datetime.utcnow() - launchtime
 		hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
@@ -124,7 +124,7 @@ class fire(commands.Cog, name="Main Commands"):
 
 	@commands.command(description="Shows you all the guilds I'm in.")
 	async def listguilds(self, ctx):
-		"""Shows you all the guilds I'm in."""
+		"""PFXlistguilds"""
 		paginator = WrappedPaginator(prefix='```vbs', suffix='```', max_size=1500)
 		gcount = 1
 		for guild in self.bot.guilds:
@@ -139,17 +139,17 @@ class fire(commands.Cog, name="Main Commands"):
 
 	@commands.command(description="dab")
 	async def dab(self, ctx):
-		"""<o/"""
+		"""PFXdab"""
 		await ctx.send(f"{ctx.message.author.mention}, <o/")
 
 	@commands.command(description="idk")
 	async def warm(self, ctx, *, warm: str):
-		"""warm something up. idk"""
+		"""PFXwarm <item>"""
 		await ctx.send(f'🔥 Warming up {warm}')
 
 	@commands.command(description='Cow goes moo')
 	async def cowsay(self, ctx, *, cow: str):
-		"""make my cow say something"""
+		"""PFXcowsay <text>"""
 		async with aiohttp.ClientSession() as session:
 			async with session.get(f'http://cowsay.morecode.org/say?message={cow}&format=json') as resp:
 				body = await resp.json()
@@ -158,7 +158,7 @@ class fire(commands.Cog, name="Main Commands"):
 
 	@commands.command(description='ascii text')
 	async def ascii(self, ctx, *, text: str):
-		"""turn your text into different looking text"""
+		"""PFXascii <text>"""
 		textsplit = text.split(' ')
 		text = '+'.join(textsplit)
 		async with aiohttp.ClientSession() as session:
@@ -169,7 +169,7 @@ class fire(commands.Cog, name="Main Commands"):
 	@commands.command(description="Say goodbye to me")
 	@commands.has_permissions(manage_members=True)
 	async def leaveguild(self, ctx):
-		"""Makes me leave the guild :("""
+		"""PFXleaveguild"""
 		confirm = random.randint(5000, 10000)
 		await ctx.send(f'Are you sure? I won\'t be able to come back unless someone with `Manage Server` permission reinvites me.\nFor confirmation, please repeat this code... {confirm}')
 		
@@ -180,28 +180,6 @@ class fire(commands.Cog, name="Main Commands"):
 		await ctx.send('Goodbye! :wave:')
 		guild = ctx.guild
 		await guild.leave()
-
-	@commands.command(description="Changes whether the autotip bot restarts or not", hidden=True)
-	async def togglerestart(self, ctx, restart: bool = True):
-		if isadmin(ctx):
-			conf = config()
-			conf["autotipRestart"] = restart
-			try:
-				with open('config.json', 'w') as cfg:
-					json.dump(conf, cfg)
-				await ctx.send(f"Autotip Restart: {config('autotipRestart')}")
-			except Exception as e:
-				await ctx.send(f"Fire did an oopsie ```{e}```")
-
-	@commands.Cog.listener()
-	async def on_message(self, message):
-		channel = message.channel
-		if channel.id == 544488595528876043:
-			if message.content == "CtrlShiftI disconnected!":
-				if config('autotipRestart') == True:
-					me = self.bot.get_user(287698408855044097)
-					await channel.send(f"Autotip bot is restarting {me.mention}")
-					os.system('pm2 restart 0')
 
 def setup(bot):
 	bot.add_cog(fire(bot))

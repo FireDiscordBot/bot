@@ -79,7 +79,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
   
 	@commands.command(description="Get hypixel stats")
 	async def hypixel(self, ctx, arg1: str = None, arg2: str = None):
-		"""Get hypixel stats"""
+		"""PFXhypixel <IGN [<guild|friends|session>]|key|watchdog>"""
 		if arg1 == None:
 			msg = await ctx.send("I need an IGN, `key` or `watchdog`")
 			time.sleep(5)

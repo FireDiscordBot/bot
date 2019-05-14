@@ -64,10 +64,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if isinstance(error, commands.BadArgument):
 			await ctx.send(error)
 			
-	@commands.command(aliases=["banish"])
+	@commands.command(aliases=["banish"], description="Ban a user from the server")
 	@commands.has_permissions(ban_members=True)
 	async def ban(self, ctx, user: StaffCheck = None, reason = None, messages: int = 0):
-		"""Banish a user from this server."""
+		"""PFXban <user> [<reason> <amount of days: 1-7>]"""
 		await ctx.trigger_typing()
 		
 		if not user:
@@ -88,10 +88,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		except discord.Forbidden:
 			raise commands.MissingPermissions("Ban failed. Are you trying to ban someone higher than the bot?")
 
-	@commands.command()
+	@commands.command(description="Temporarily restricts access to this server.")
 	@commands.has_permissions(ban_members=True)
 	async def softban(self, ctx, user: StaffCheck = None, reason = None, messages: int = 0):
-		"""Temporarily restricts access to this server."""
+		"""PFXsoftban <user> [<reason> <amount of days: 1-7>]"""
 		await ctx.trigger_typing()
 
 		if not user:
@@ -113,17 +113,17 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		except discord.Forbidden:
 			raise commands.MissingPermissions("Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
 	
-	@commands.command()
+	@commands.command(description="Mute a user.")
 	@commands.has_permissions(manage_messages=True)
 	async def mute(self, ctx, user: StaffCheck, *, reason = None):
-		"""Mute a user."""
+		"""PFXmute <user> [<reason>]"""
 		await ctx.trigger_typing()
 		await mute(ctx, user, reason or "No reason provided.")
 	
-	@commands.command()
+	@commands.command(description="Kick a user.")
 	@commands.has_permissions(kick_members=True)
 	async def kick(self, ctx, user: StaffCheck = None, *, reason = None):
-		"""Kick a user."""
+		"""PFXkick <user> [<reason>]"""
 		await ctx.trigger_typing()
 		if not user:
 			return await ctx.send("You must specify a user")
@@ -136,23 +136,18 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		except discord.Forbidden:
 			raise commands.MissingPermissions("Kick failed. Are you trying to kick someone higher than the bot?")
 	
-	@commands.command()
+	@commands.command(description="Unmute a muted user.")
 	@commands.has_permissions(manage_messages=True)
 	async def unmute(self, ctx, user: MuteCheck):
-		"""Unmutes a muted user"""
+		"""PFXunmute <user>"""
 		await ctx.trigger_typing()
 		await user.remove_roles(discord.utils.get(ctx.guild.roles, name="Muted"))
 		await ctx.send(f"{user.mention} has been unmuted")
 
-	@commands.command()
+	@commands.command(description="Mute a user in the current channel.")
 	@commands.has_permissions(manage_messages=True)
 	async def block(self, ctx, user: StaffCheck = None, *, reason = None):
-		"""
-		Blocks a user from chatting in current channel.
-		   
-		Similar to mute but instead of restricting access
-		to all channels it restricts in current channel.
-		"""
+		"""PFXblock <user> [<reason>]"""
 		await ctx.trigger_typing()
 		if not user:
 			return await ctx.send("You must specify a user")
@@ -160,10 +155,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await ctx.channel.set_permissions(user, send_messages=False, reason=reason or 'No reason specified.')
 		await ctx.send(f'Successfully blocked {user.mention} from chatting in {ctx.channel.mention}.')
 	
-	@commands.command()
+	@commands.command(description="Unmute a user who has been blocked in the current channel.")
 	@commands.has_permissions(manage_messages=True)
 	async def unblock(self, ctx, user: StaffCheck = None, *, reason = None):
-		"""Unblocks a user from current channel"""
+		"""PFXunblock <user> [<reason>]"""
 		await ctx.trigger_typing()
 		if not user:
 			return await ctx.send("You must specify a user")

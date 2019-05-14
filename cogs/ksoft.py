@@ -30,7 +30,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 	@commands.command(description="Gets a random meme from Reddit")
 	async def meme(self, ctx, sub: str = None):
-		"""Gets a random meme from Reddit"""
+		"""PFXmeme [<subreddit>]"""
 		if sub == None:
 			meme = await self.bot.ksoft.random_meme()
 		else:
@@ -57,7 +57,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 	@commands.command(description="Gets a random image from a specified tag", name="image")
 	async def randimage(self, ctx, tag: str = None, nsfw: bool = None):
-		"""Gets a random image from a specified tag"""
+		"""PFXrandimage [<tag>] [<nsfw: true/false>]"""
 		taglist = await self.bot.ksoft.tags()
 		tags = str(taglist).split(', ')
 		if tag == 'False':
@@ -86,9 +86,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		img = await self.bot.ksoft.random_image(tag = tag, nsfw = nsfw)
 		if img.nsfw == True:
 			if channel.is_nsfw() == False:
-				msg = await ctx.send("The image I was given was marked as NSFW but this channel is not. Go into an NSFW channel to see NSFW memes")
-				time.sleep(5)
-				await msg.delete()
+				msg = await ctx.send("The image I was given was marked as NSFW but this channel is not. Go into an NSFW channel to see NSFW memes", delete_after=5)
 				return
 		embed = discord.Embed(title="The randomizer machine returned this image!", colour=ctx.message.author.color, url=img.url, timestamp=datetime.datetime.utcnow())
 		embed.set_image(url=img.url)
@@ -98,7 +96,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 	@commands.command(description="List all available tags")
 	async def tags(self, ctx):
-		"""List all available tags"""
+		"""PFXtags"""
 		tags = await self.bot.ksoft.tags()
 		nsfwtags = ', '.join(tags.nsfw_tags)
 		sfwtags = ', '.join(tags.sfw_tags)
