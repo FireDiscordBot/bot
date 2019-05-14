@@ -38,7 +38,7 @@ class Help(commands.Cog):
 				if not allcmds:
 					if isinstance(cog, Jishaku):
 						pass
-					if cog.qualified_name == 'Help':
+					if cog.qualified_name.lower() == 'help':
 						pass
 				cogs.append(f'**{cog.qualified_name.upper()}**')
 				cmds[f'**{cog.qualified_name.upper()}**'] = []
