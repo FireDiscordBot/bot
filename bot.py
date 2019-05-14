@@ -52,6 +52,7 @@ extensions = [
 	"cogs.utils",
 	"cogs.help",
 	"cogs.dbl",
+	"cogs.moderation",
 	"cogs.settings",
 	"jishaku"
 ]

@@ -2,7 +2,6 @@ import logging
 from discord.ext import commands
 import discord
 import typing
-from jishaku.cog import Jishaku
 
 
 class Help(commands.Cog):
@@ -29,24 +28,26 @@ class Help(commands.Cog):
 			cmdhelp = False
 		if not cmdhelp:
 			for cog in self.bot.cogs.values():
-				if len(cog.get_commands()) == 0:
-					break
+				skip = False
 				if not allcmds:
-					if isinstance(cog, Jishaku):
-						pass
+					if cog.qualified_name.lower() == 'jishaku':
+						skip = True
 					if cog.qualified_name.lower() == 'help':
-						pass
-				cogs.append(f'**{cog.qualified_name.upper()}**')
-				cmds[f'**{cog.qualified_name.upper()}**'] = []
-				for cmd in cog.get_commands():
-					if cmd.hidden:
-						if allcmds:
-							cmds[f'**{cog.qualified_name.upper()}**'].append(cmd.name)
+						skip = True
+					if cog.qualified_name.lower() == 'discordbotsorgapi':
+						skip = True
+				if not skip:
+					cogs.append(f'**{cog.qualified_name.upper()}**')
+					cmds[f'**{cog.qualified_name.upper()}**'] = []
+					for cmd in cog.get_commands():
+						if cmd.hidden:
+							if allcmds:
+								cmds[f'**{cog.qualified_name.upper()}**'].append(cmd.name)
+							else:
+								pass
 						else:
-							pass
-					else:
-						cmds[f'**{cog.qualified_name.upper()}**'].append(cmd.name)
-				cmds[f'**{cog.qualified_name.upper()}**'] = ' - '.join(cmds[f'**{cog.qualified_name.upper()}**'])
+							cmds[f'**{cog.qualified_name.upper()}**'].append(cmd.name)
+					cmds[f'**{cog.qualified_name.upper()}**'] = ' - '.join(cmds[f'**{cog.qualified_name.upper()}**'])
 		elif cmd:
 			name = cmd.name
 			desc = cmd.description
