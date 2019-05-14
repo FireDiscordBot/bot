@@ -37,7 +37,7 @@ def snipe_embed(context_channel, message, user):
 		embed = discord.Embed(description = message.content, timestamp = message.created_at)
 	else:
 		embed = discord.Embed(description = message.content, color = message.author.color, timestamp = message.created_at)
-	embed.set_author(name = str(message.author), icon_url = message.author.avatar_url)
+	embed.set_author(name = str(message.author), icon_url = str(message.author.avatar_url))
 	if message.attachments:
 		embed.add_field(name = 'Attachment(s)', value = '\n'.join([attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
 	if message.channel != context_channel:
@@ -66,7 +66,7 @@ def quote_embed(context_channel, message, user):
 			else:
 				for attachment in message.attachments:
 					embed.add_field(name = 'Attachment', value = '[' + attachment.filename + '](' + attachment.url + ')', inline = False)
-		embed.set_author(name = str(message.author), icon_url = message.author.avatar_url, url = 'https://discordapp.com/channels/' + str(message.guild.id) + '/' + str(message.channel.id) + '/' + str(message.id))
+		embed.set_author(name = str(message.author), icon_url = str(message.author.avatar_url), url = 'https://discordapp.com/channels/' + str(message.guild.id) + '/' + str(message.channel.id) + '/' + str(message.id))
 		if message.channel != context_channel:
 			embed.set_footer(text = 'Quoted by: ' + str(user) + ' | #' + message.channel.name)
 		else:

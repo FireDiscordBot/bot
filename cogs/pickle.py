@@ -373,8 +373,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					raise commands.ArgumentParsingError('Couldn\'t find that persons friends. Check the name and try again')
 					return
 				paginator.add_line(discord.utils.escape_markdown(f'{name} added on {time}'))
-			paginatorembed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow())
-			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=paginatorembed)
+			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 			await interface.send_to(ctx)
 		elif arg2 == 'guild':
 			async with aiohttp.ClientSession() as session:
