@@ -113,31 +113,48 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		response_text, response_html = gassistant.assist(text_query=query)
 		return response_text
 
-	def screenshot(self):
+	def screenshot(self, fileid):
 		DRIVER = 'chromedriver'
 		driver = webdriver.Chrome(DRIVER)
 		driver.set_window_size(2160, 1440)
 		driver.get('chrome://settings/')
 		driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.75);')
-		driver.get('https://gaminggeek.club/google-assistant-sdk-screen-out.html')
+		driver.get(f'https://gaminggeek.club/{fileid}.html')
 		driver.execute_script('document.body.style.backgroundImage = "url(\'https://picsum.photos/1920/1080/?blur\')";')
-		driver.execute_script('document.getElementById(\'suggestion_header\').innerHTML = \'Try typing...\';')
+		try:
+			driver.execute_script('document.getElementById(\'suggestion_header\').innerHTML = \'Try typing...\';')
+		except Exception:
+			pass
 		#driver.execute_script("document.body.style.backgroundColor = '#36393F';")
 		#driver.execute_script("document.getElementById('assistant-shadow').remove();")
-		screenshot = driver.save_screenshot('assistresp.png')
+		screenshot = driver.save_screenshot(f'assist{fileid}.png')
 		driver.quit()
 
 	@commands.command()
 	async def gassist(self, ctx, *, query):
 		await ctx.channel.trigger_typing()
 		loop = self.bot.loop
-		response_text, response_html = await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query))
-		with open('C:/Users/Administrator/Documents/Geek/gaminggeek.club/google-assistant-sdk-screen-out.html', 'wb') as f:
-			f.write(response_html)
-		await loop.run_in_executor(None, func=self.screenshot)
-		img = discord.File('assistresp.png', 'gassist.png')
-		await ctx.send(file=img)
-		return
+		try:
+			response_text, response_html = await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query))
+		except Exception:
+			raise commands.CommandError('Something went wrong.')
+		if response_text == None:
+			if not response_html:
+				await ctx.send('I can\'t help you with that on this device')
+				return
+			else:
+				with open(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/{ctx.author.name}-{ctx.author.id}.html', 'wb') as f:
+					f.write(response_html)
+				await loop.run_in_executor(None, func=functools.partial(self.screenshot, f'{ctx.author.name}-{ctx.author.id}'))
+				img = discord.File(f'assist{ctx.author.name}-{ctx.author.id}.png', 'gassist.png')
+				await ctx.send(file=img)
+				try:
+					os.remove(f'assist{ctx.author.name}-{ctx.author.id}.png')
+				except Exception:
+					pass
+				return
+		else:
+			await ctx.send(response_text)
 
 def setup(bot):
 	if credentials:
