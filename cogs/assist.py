@@ -130,8 +130,9 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		screenshot = driver.save_screenshot(f'assist{fileid}.png')
 		driver.quit()
 
-	@commands.command()
+	@commands.command(description="Ask the Google Assistant a question!\n\nNote: It currently takes ~10 seconds for the response as this feature is in beta")
 	async def gassist(self, ctx, *, query):
+		'''PFXgassist <query>'''
 		await ctx.channel.trigger_typing()
 		loop = self.bot.loop
 		try:
@@ -150,6 +151,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
 				await ctx.send(file=img)
 				try:
 					os.remove(f'assist{ctx.author.name}-{ctx.author.id}.png')
+					os.remove(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/{ctx.author.name}-{ctx.author.id}.html')
 				except Exception:
 					pass
 				return
