@@ -88,7 +88,7 @@ async def on_command_error(ctx, error):
 	
 	if isinstance(error, commands.CommandOnCooldown):
 		embed = discord.Embed(title='Command on cooldown...', colour=ctx.author.color, url="https://http.cat/429", description=f"Here's what happened\n```py\n{error}```", timestamp=datetime.datetime.utcnow())
-		embed.set_footer(text="Just wait a bit and it'll be fine!")
+		embed.set_footer(text=f"Just wait a bit and it'll be fine!")
 		await ctx.send(embed=embed)
 		return
 
