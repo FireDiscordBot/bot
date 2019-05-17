@@ -81,12 +81,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 	async def hypixel(self, ctx, arg1: str = None, arg2: str = None):
 		"""PFXhypixel <IGN [<guild|friends|session>]|key|watchdog>"""
 		if arg1 == None:
-			msg = await ctx.send("I need an IGN, `key` or `watchdog`")
-			time.sleep(5)
-			try:
-				await msg.delete()
-			except Exception as e:
-				return
+			msg = await ctx.send("I need an IGN, `key` or `watchdog`", delete_after=5)
 			return
 		if arg1.lower() == "watchdog":
 			async with aiohttp.ClientSession() as session:
