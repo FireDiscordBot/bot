@@ -4,11 +4,13 @@ import json
 import time
 import os
 import typing
+import logging
 from aiohttp import web
 from fire.push import pushbullet
 
+logging.basicConfig(level=logging.INFO)
+
 launchtime = datetime.datetime.utcnow()
-started = False
 
 client = discord.Client()
 routes = web.RouteTableDef()
@@ -197,17 +199,18 @@ async def member(request):
 		'desktop_status': str(member.desktop_status),
 		'mobile_status': str(member.mobile_status),
 		'web_status': str(member.web_status),
-		'avatar': f'{member.avatar_url}'
+		'avatar': f'{member.avatar_url}',
+		'guild': {}
 	}
 	if gid != None:
-		ginfo = {
-			'guild': member.guild.name,
+		data['guild'] = {
+			'name': member.guild.name,
 			'joined_at': str(member.joined_at).split('.')[0],
 			'nickname': str(member.nick),
 			'color': str(member.color),
-			'top_role': str(member.top_role)
+			'top_role': str(member.top_role),
+			'icon': str(member.guild.icon_url)
 		}
-		data.update(ginfo)
 	try:
 		activity = member.activities[0]
 	except IndexError:
@@ -274,6 +277,7 @@ async def guild(request):
 		'owner_id': guild.owner_id,
 		'region': str(guild.region),
 		'members': guild.member_count,
+		'icon': str(guild.icon_url),
 		'emotes': {
 
 		},
@@ -353,9 +357,9 @@ async def invite(request):
 			'name': invguild.name,
 			'id': invguild.id,
 			'verification': str(invguild.verification_level),
-			'icon': invguild.icon_url,
-			'banner': invguild.banner_url,
-			'splash': invguild.splash_url,
+			'icon': str(invguild.icon_url),
+			'banner': str(invguild.banner_url),
+			'splash': str(invguild.splash_url),
 			'created': str(invguild.created_at).split('.')[0]
 		}
 		if isinstance(invchan, discord.PartialInviteChannel):
@@ -408,8 +412,10 @@ async def start_api():
 @client.event
 async def on_ready():
 	print('hi')
-	if not started:
+	try:
 		await start_api()
-		started = True
+		print('Started API on port 1337 (localhost) and https://api.gaminggeek.club/')
+	except Exception:
+		pass
 
 client.run(config['token'])
