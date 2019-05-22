@@ -175,7 +175,7 @@ async def on_guild_remove(guild):
 	users = format(len(bot.users), ',d')
 	guilds = format(len(bot.guilds), ',d')
 	await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"{users} users in {guilds} guilds"))
-	await bot.db.execute(f'DELETE * FROM prefixes WHERE gid = {guild.id};')
+	await bot.db.execute(f'DELETE FROM prefixes WHERE gid = {guild.id};')
 	await bot.conn.commit()
 
 @bot.command(description="Change the prefix for this guild. (For prefixes with a space, surround it in \"\")")
