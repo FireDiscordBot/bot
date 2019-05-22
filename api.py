@@ -5,6 +5,7 @@ import time
 import os
 import typing
 import logging
+import aiohttp
 from aiohttp import web
 from fire.push import pushbullet
 
@@ -351,6 +352,11 @@ async def invite(request):
 				else:
 					return error_resp('HTTP Error', e.code)
 	if invite != None:
+		route = discord.http.Route("GET", f"/invite/{code}")
+		try:
+			raw = await client.http.request(route)
+		except discord.HTTPException:
+			return error_resp('Invite not found', 404)
 		invguild = invite.guild
 		invchan = invite.channel
 		guild = {
@@ -358,6 +364,7 @@ async def invite(request):
 			'id': invguild.id,
 			'verification': str(invguild.verification_level),
 			'icon': str(invguild.icon_url),
+			'features': raw['guild']['features'],
 			'banner': str(invguild.banner_url),
 			'splash': str(invguild.splash_url),
 			'created': str(invguild.created_at).split('.')[0]
