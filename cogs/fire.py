@@ -166,20 +166,5 @@ class fire(commands.Cog, name="Main Commands"):
 				body = await resp.text()
 		await ctx.send(f'```{body}```')
 
-	@commands.command(description="Say goodbye to me")
-	@commands.has_permissions(manage_members=True)
-	async def leaveguild(self, ctx):
-		"""PFXleaveguild"""
-		confirm = random.randint(5000, 10000)
-		await ctx.send(f'Are you sure? I won\'t be able to come back unless someone with `Manage Server` permission reinvites me.\nFor confirmation, please repeat this code... {confirm}')
-		
-		def check(m):
-			return m.content == f'{confirm}' and m.author == ctx.message.author
-
-		await self.bot.wait_for('message', check=check)
-		await ctx.send('Goodbye! :wave:')
-		guild = ctx.guild
-		await guild.leave()
-
 def setup(bot):
 	bot.add_cog(fire(bot))
