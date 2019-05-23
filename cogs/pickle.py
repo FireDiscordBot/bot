@@ -129,19 +129,178 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/LEVEL') as resp:
 						content = await resp.read()
-				lbjson = table2json(content)
-				paginator = WrappedPaginator(prefix='', suffix='', max_size=256)
-				count = 0
+				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Level', 'Karma', 'Kills', 'Wins'])
+				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
 				for player in lbjson:
 					try:
 						pos = player['Position']
 						name = player['Name']
 						level = player['Level']
-						paginator.add_line(f'#{pos} {name} - {level}')
-						count =+ 1
+						paginator.add_line(f'[{pos}] {name} - {level}')
 					except Exception as e:
 						pass
 				embed = discord.Embed(title='Network Level Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
+				await msg.delete()
+				await interface.send_to(ctx)
+			elif arg2.lower() == 'karma':
+				msg = await ctx.send(f"Generating Karma leaderboard...")
+				headers = {
+					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'CONTENT-TYPE': 'text/json' 
+				}
+				async with aiohttp.ClientSession(headers=headers) as session:
+					async with session.get(f'https://sk1er.club/leaderboards/newdata/KARMA') as resp:
+						content = await resp.read()
+				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Karma', 'Level', 'Kills', 'Wins'])
+				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
+				for player in lbjson:
+					try:
+						pos = player['Position']
+						name = player['Name']
+						karma = player['Karma']
+						paginator.add_line(f'[{pos}] {name} - {karma}')
+					except Exception as e:
+						pass
+				embed = discord.Embed(title='Karma Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
+				await msg.delete()
+				await interface.send_to(ctx)
+			elif arg2.lower() == 'coins':
+				msg = await ctx.send(f"Generating Coins leaderboard...")
+				headers = {
+					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'CONTENT-TYPE': 'text/json' 
+				}
+				async with aiohttp.ClientSession(headers=headers) as session:
+					async with session.get(f'https://sk1er.club/leaderboards/newdata/COINS') as resp:
+						content = await resp.read()
+				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Coins', 'Karma', 'Kills', 'Wins'])
+				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
+				for player in lbjson:
+					try:
+						pos = player['Position']
+						name = player['Name']
+						coins = player['Coins']
+						paginator.add_line(f'[{pos}] {name} - {coins}')
+					except Exception as e:
+						pass
+				embed = discord.Embed(title='Coins Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
+				await msg.delete()
+				await interface.send_to(ctx)
+			elif arg2.lower() == 'kills':
+				msg = await ctx.send(f"Generating Total Kills leaderboard...")
+				headers = {
+					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'CONTENT-TYPE': 'text/json' 
+				}
+				async with aiohttp.ClientSession(headers=headers) as session:
+					async with session.get(f'https://sk1er.club/leaderboards/newdata/TOTAL_KILLS') as resp:
+						content = await resp.read()
+				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Kills', 'Level', 'Wins', 'Quests'])
+				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
+				for player in lbjson:
+					try:
+						pos = player['Position']
+						name = player['Name']
+						kills = player['Kills']
+						paginator.add_line(f'[{pos}] {name} - {kills}')
+					except Exception as e:
+						pass
+				embed = discord.Embed(title='Total Kills Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
+				await msg.delete()
+				await interface.send_to(ctx)
+			elif arg2.lower() == 'wins':
+				msg = await ctx.send(f"Generating Total Wins leaderboard...")
+				headers = {
+					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'CONTENT-TYPE': 'text/json' 
+				}
+				async with aiohttp.ClientSession(headers=headers) as session:
+					async with session.get(f'https://sk1er.club/leaderboards/newdata/TOTAL_WINS') as resp:
+						content = await resp.read()
+				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Wins', 'Level', 'Kills', 'Quests'])
+				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
+				for player in lbjson:
+					try:
+						pos = player['Position']
+						name = player['Name']
+						wins = player['Wins']
+						paginator.add_line(f'[{pos}] {name} - {wins}')
+					except Exception as e:
+						pass
+				embed = discord.Embed(title='Total Wins Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
+				await msg.delete()
+				await interface.send_to(ctx)
+			elif arg2.lower() == 'glevel':
+				msg = await ctx.send(f"Generating Guild Level leaderboard...")
+				headers = {
+					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'CONTENT-TYPE': 'text/json' 
+				}
+				async with aiohttp.ClientSession(headers=headers) as session:
+					async with session.get(f'https://sk1er.club/leaderboards/newdata/GUILD_LEVEL') as resp:
+						content = await resp.read()
+				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Level', 'Wins', 'Exp', 'Legacy', 'Created'])
+				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
+				for player in lbjson:
+					try:
+						pos = player['Position']
+						name = player['Name']
+						level = player['Level']
+						paginator.add_line(f'[{pos}] {name} - {level}')
+					except Exception as e:
+						pass
+				embed = discord.Embed(title='Guild Level Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
+				await msg.delete()
+				await interface.send_to(ctx)
+			elif arg2.lower() == 'gexperience':
+				msg = await ctx.send(f"Generating Guild Experience leaderboard...")
+				headers = {
+					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'CONTENT-TYPE': 'text/json' 
+				}
+				async with aiohttp.ClientSession(headers=headers) as session:
+					async with session.get(f'https://sk1er.club/leaderboards/newdata/GUILD_LEVEL') as resp:
+						content = await resp.read()
+				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Level', 'Wins', 'Exp', 'Legacy', 'Created'])
+				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
+				for player in lbjson:
+					try:
+						pos = player['Position']
+						name = player['Name']
+						exp = player['Exp']
+						paginator.add_line(f'[{pos}] {name} - {exp}')
+					except Exception as e:
+						pass
+				embed = discord.Embed(title='Guild Experience Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
+				await msg.delete()
+				await interface.send_to(ctx)
+			elif arg2.lower() == 'gwins':
+				msg = await ctx.send(f"Generating Guild Wins leaderboard...")
+				headers = {
+					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'CONTENT-TYPE': 'text/json' 
+				}
+				async with aiohttp.ClientSession(headers=headers) as session:
+					async with session.get(f'https://sk1er.club/leaderboards/newdata/GUILD_WINS') as resp:
+						content = await resp.read()
+				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Wins', 'Level', 'Exp', 'Legacy', 'Created'])
+				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
+				for player in lbjson:
+					try:
+						pos = player['Position']
+						name = player['Name']
+						wins = player['Wins']
+						paginator.add_line(f'[{pos}] {name} - {wins}')
+					except Exception as e:
+						pass
+				embed = discord.Embed(title='Guild Wins Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 				await msg.delete()
 				await interface.send_to(ctx)
