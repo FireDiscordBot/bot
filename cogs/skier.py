@@ -3,8 +3,11 @@ from discord.ext import commands
 import datetime
 import json
 import aiohttp
+import re
 
 print("skier.py has been loaded")
+
+remcolor = r'&[0-9A-FK-OR]'
 
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
@@ -51,6 +54,10 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					data = await resp.read()
 					purchase = json.loads(data)
 					status2 = resp.status
+			async with aiohttp.ClientSession(headers=hello) as session:
+				async with session.get(f'https://api.hyperium.cc/levelhead_propose/{uuid}') as resp:
+					data = await resp.read()
+					proposal = json.loads(data)
 			if status == 404:
 				await ctx.send("Uh oh, Sk1er's API returned 404... Check capitalization and try again")
 				return
@@ -59,8 +66,8 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			if len(uuid) < 28:
 				await ctx.send("Uh oh, the UUID I got doesn't look right. Check the spelling of the name")
 				return
-			header = levelhead['header']
-			strlevel = levelhead['strlevel']
+			header = re.sub(remcolor, '', levelhead['header'], 0, re.IGNORECASE)
+			strlevel = re.sub(remcolor, '', levelhead['strlevel'], 0, re.IGNORECASE)
 			level = levelhead['level']
 			if strlevel == level:
 				nocustom = True
@@ -97,6 +104,15 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				embed.add_field(name="Custom Levelhead?", value="Yeah!", inline=False)
 				embed.add_field(name="IGN", value=player, inline=False)
 				embed.add_field(name="Levelhead", value=f"{header}:{strlevel}", inline=False)
+				try:
+					denied = proposal['denied']
+					nheader = re.sub(remcolor, '', proposal['header'], 0, re.IGNORECASE)
+					nstrlevel = re.sub(remcolor, '', proposal['strlevel'], 0, re.IGNORECASE)
+				except Exception:
+					denied = None
+				if denied != None:
+					embed.add_field(name='Proposed Levelhead', value=f'{nheader}:{nstrlevel}', inline=False)
+					embed.add_field(name='Denied?', value=denied, inline=False)
 				embed.add_field(name="Other items", value=f"Tab: {tab} \nChat: {chat} \nAddon Head Layers: {head} \nMediahead: {mediahead}", inline=False)
 			await ctx.send(embed=embed)
 
