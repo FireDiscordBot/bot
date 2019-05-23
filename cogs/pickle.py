@@ -8,6 +8,7 @@ import aiohttp
 import hypixel
 import re
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
+from fire.jsontable import table2json
 
 remcolor = r'\u00A7[0-9A-FK-OR]'
 
@@ -115,6 +116,35 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			embed.add_field(name="Requests in the past minute", value=lastmin, inline=False)
 			await ctx.send(embed=embed)
 			return
+		if arg1.lower() == 'leaderboard':
+			if arg2 == None:
+				return
+				#Make available leaderboards embed
+			elif arg2.lower() == 'level':
+				msg = await ctx.send(f"Generating Network Level leaderboard...")
+				headers = {
+					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'CONTENT-TYPE': 'text/json' 
+				}
+				async with aiohttp.ClientSession(headers=headers) as session:
+					async with session.get(f'https://sk1er.club/leaderboards/newdata/LEVEL') as resp:
+						content = await resp.read()
+				lbjson = table2json(content)
+				paginator = WrappedPaginator(prefix='', suffix='', max_size=256)
+				count = 0
+				for player in lbjson:
+					try:
+						pos = player['Position']
+						name = player['Name']
+						level = player['Level']
+						paginator.add_line(f'#{pos} {name} - {level}')
+						count =+ 1
+					except Exception as e:
+						pass
+				embed = discord.Embed(title='Network Level Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
+				await msg.delete()
+				await interface.send_to(ctx)
 		if arg2 == None:
 			msg = await ctx.send(f"Requesting info about {discord.utils.escape_markdown(arg1)} from the Hypixel API!")
 			channel = ctx.message.channel
@@ -354,7 +384,11 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				await msg.edit(content=None, embed=embed)
 			return
 		elif arg2 == 'friends':
-			async with aiohttp.ClientSession() as session:
+			headers = {
+				'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+				'CONTENT-TYPE': 'text/json' 
+			}
+			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.sk1er.club/friends/{arg1}') as resp:
 					b = await resp.read()
 					friends = json.loads(b)
@@ -372,7 +406,11 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 			await interface.send_to(ctx)
 		elif arg2 == 'guild':
-			async with aiohttp.ClientSession() as session:
+			headers = {
+				'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+				'CONTENT-TYPE': 'text/json' 
+			}
+			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.sk1er.club/guild/player/{arg1}') as resp:
 					b = await resp.read()
 					guild = json.loads(b)
