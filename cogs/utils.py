@@ -155,6 +155,34 @@ def getGame(activity):
 		game = str(activity)
 	return game
 
+region = {
+	'amsterdam': '🇳🇱 Amsterdam',
+	'brazil': '🇧🇷 Brazil',
+	'eu-central': '🇪🇺 Central Europe',
+	'eu-west': '🇪🇺 Western Europe',
+	'frakfurt': '🇩🇪 Frankfurt',
+	'hongkong': '🇭🇰 Hong Kong',
+	'india': '🇮🇳 India',
+	'japan': '🇯🇵 Japan',
+	'england': '🇬🇧 England',
+	'russia': '🇷🇺 Russia',
+	'singapore': '🇸🇬 Singapore',
+	'southafrica': '🇿🇦 South Africa',
+	'sydney': '🇦🇺 Sydney',
+	'us-central': '🇺🇸 Central US',
+	'us-south': '🇺🇸 US South',
+	'us-east': '🇺🇸 US East',
+	'us-west': '🇺🇸 US West',
+	'vip-us-east': '🇺🇸 US East (VIP)',
+	'vip-us-west': '🇺🇸 US West (VIP)',
+	'vip-amsterdam': '🇳🇱 Amsterdam (VIP)'
+}
+
+notifs = {
+	'NotificationLevel.all_messages': 'All Messages',
+	'NotificationLevel.only_mentions': 'Only Mentions'
+}
+
 class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
@@ -205,6 +233,23 @@ class utils(commands.Cog, name='Utility Commands'):
 				await self.bot.conn.commit()
 				await ctx.send(f'{user.mention} is now unblacklisted!')
 
+	@commands.command(description='Check out the server\'s info')
+	async def serverinfo(self, ctx, guild: discord.Guild = None):
+		if not guild:
+			guild = ctx.guild
+		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
+		embed.set_thumbnail(url=guild.icon_url)
+		embed.add_field(name="» Name", value=guild.name, inline=True)
+		embed.add_field(name="» ID", value=guild.id, inline=True)
+		embed.add_field(name="» Members", value=guild.member_count, inline=True)
+		embed.add_field(name="» Channels", value=f"Text: {len(guild.text_channels)} | Voice: {len(guild.voice_channels)}", inline=True)
+		embed.add_field(name="» Owner", value=str(guild.owner), inline=True)
+		embed.add_field(name="» Region", value=region[str(guild.region)], inline=True)
+		embed.add_field(name="» Verification", value=str(guild.verification_level).capitalize(), inline=True)
+		embed.add_field(name="» Notifications", value=notifs[str(guild.default_notifications)], inline=True)
+		embed.add_field(name="» Multi-Factor Auth", value=bool(guild.mfa_level), inline=True)
+		embed.add_field(name="» Created", value=str(guild.created_at).split('.')[0], inline=True)
+		await ctx.send(embed=embed)
 
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
