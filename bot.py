@@ -54,6 +54,7 @@ extensions = [
 	"cogs.utils",
 	"cogs.help",
 	"cogs.dbl",
+	"cogs.youtube",
 	"cogs.moderation",
 	"cogs.settings",
 	"jishaku"
