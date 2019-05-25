@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import datetime
 import json
-import time
 import ksoftapi
 import random
 
@@ -38,10 +37,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		if meme.nsfw == True:
 			channel = ctx.message.channel
 			if channel.is_nsfw() == False:
-				msg = await ctx.send("The meme I was given was marked as NSFW but this channel is not. Go into an NSFW channel to see NSFW memes")
-				time.sleep(5)
-				await msg.delete()
-				return
+				await ctx.send("The meme I was given was marked as NSFW but this channel is not. Go into an NSFW channel to see NSFW memes", delete_after=5)
 			else:
 				pass
 		embed = discord.Embed(title="Did someone order a spicy meme?", colour=ctx.message.author.color, url=meme.source, timestamp=datetime.datetime.utcnow())		
