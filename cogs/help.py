@@ -34,6 +34,11 @@ class Help(commands.Cog):
 						skip = True
 					if cog.qualified_name.lower() == 'help':
 						skip = True
+					if cog.qualified_name.lower() == 'premium commands':
+						await ctx.bot.db.execute(f'SELECT * FROM prefixes WHERE gid = {ctx.guild.id};')
+						premium = await ctx.bot.db.fetchone()
+						if premium == None:
+							skip = True
 					if cog.qualified_name.lower() == 'discordbotsorgapi':
 						skip = True
 				if not skip:

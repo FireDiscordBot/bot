@@ -57,7 +57,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@commands.command(name='crabrave', description='Make a Crab Rave meme!', hidden=True)
 	async def crabmeme(self, ctx, *, text: str):
 		'''Limited to owner only (for now, it may return) due to this command using like 90% CPU'''
-		if not self.bot.is_owner(ctx.author):
+		if not await self.bot.is_owner(ctx.author):
 			return
 		if not '|' in text:
 			raise commands.ArgumentParsingError('Text should be separated by |')
@@ -76,7 +76,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		await ctx.send(file=meme)
 		os.remove(filename)
 
-	
+
 			
 
 def setup(bot):
