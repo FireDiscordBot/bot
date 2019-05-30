@@ -133,6 +133,7 @@ class fire(commands.Cog, name="Main Commands"):
 			else:
 				current = ''
 			paginator.add_line(f'[{gcount}] {guild.name}{current} || {guild.owner} || {guild.member_count} Members')
+			#paginator.add_line(f'[{gcount}] {guild.name}{current} || Shard ID: {guild.shard_id} || {guild.owner} || {guild.member_count} Members')
 			gcount = gcount + 1
 		interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
 		await interface.send_to(ctx)
