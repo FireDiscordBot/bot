@@ -156,6 +156,8 @@ async def on_message_edit(before,after):
 
 @bot.event
 async def on_guild_join(guild):
+	await bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
+	await bot.conn.commit()
 	print(f"Fire joined a new guild! {guild.name}({guild.id}) with {guild.member_count} members")
 	try:
 		await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members", f"https://api.gaminggeek.club/guild/{guild.id}")
@@ -177,6 +179,8 @@ async def on_guild_remove(guild):
 	guilds = format(len(bot.guilds), ',d')
 	await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"{users} users in {guilds} guilds"))
 	await bot.db.execute(f'DELETE FROM prefixes WHERE gid = {guild.id};')
+	await bot.db.execute(f'DELETE FROM settings WHERE gid = {guild.id};')
+	await bot.db.execute(f'DELETE FROM premium WHERE gid = {guild.id};')
 	await bot.conn.commit()
 
 @bot.command(description="Change the prefix for this guild. (For prefixes with a space, surround it in \"\")")
