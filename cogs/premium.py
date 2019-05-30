@@ -32,7 +32,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		"""
 		if await self.bot.is_owner(ctx.author):
 			return True
-		await ctx.bot.db.execute(f'SELECT * FROM prefixes WHERE gid = {ctx.guild.id};')
+		await ctx.bot.db.execute(f'SELECT * FROM premium WHERE gid = {ctx.guild.id};')
 		premium = await ctx.bot.db.fetchone()
 		if premium != None:
 			return True
@@ -45,7 +45,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		"""
 		if await self.bot.is_owner(member):
 			return True
-		await self.bot.db.execute(f'SELECT * FROM prefixes WHERE gid = {member.guild.id};')
+		await self.bot.db.execute(f'SELECT * FROM premium WHERE gid = {member.guild.id};')
 		premium = await self.bot.db.fetchone()
 		if premium != None:
 			return True
@@ -112,10 +112,12 @@ class Premium(commands.Cog, name="Premium Commands"):
 		if await self.member_guild_check(member):
 			await self.bot.db.execute(f'SELECT autorole FROM settings WHERE gid = {member.guild.id};')
 			role = await self.bot.db.fetchone()
+			print(role)
 			try:
 				role = discord.utils.get(member.guild.roles, id=role[0])
 			except Exception:
 				return
+			print(role)
 			if role != None:
 				await member.add_roles(role, reason='Auto-Role')
 			
