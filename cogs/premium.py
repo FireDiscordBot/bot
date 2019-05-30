@@ -112,12 +112,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 		if await self.member_guild_check(member):
 			await self.bot.db.execute(f'SELECT autorole FROM settings WHERE gid = {member.guild.id};')
 			role = await self.bot.db.fetchone()
-			print(role)
 			try:
 				role = discord.utils.get(member.guild.roles, id=role[0])
 			except Exception:
 				return
-			print(role)
 			if role != None:
 				await member.add_roles(role, reason='Auto-Role')
 			
