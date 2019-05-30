@@ -92,6 +92,11 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@commands.command(name='autorole', description='Automatically add a role to a user when they join')
 	async def autorole(self, ctx, role: discord.Role = None):
 		'''PFXautorole [<role name/id/mention>]\nUse command without role argument to disable'''
+		await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {ctx.guild.id}')
+		guildsettings = await self.bot.db.fetchone()
+		if guildsettings == None:
+			await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
+			await self.bot.conn.commit()
 		if not role:
 			await self.bot.db.execute(f'UPDATE settings SET autorole = 0 WHERE gid = {ctx.guild.id}')
 			await self.bot.conn.commit()
