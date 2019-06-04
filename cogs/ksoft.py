@@ -38,6 +38,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 			channel = ctx.message.channel
 			if channel.is_nsfw() == False:
 				await ctx.send("The meme I was given was marked as NSFW but this channel is not. Go into an NSFW channel to see NSFW memes", delete_after=5)
+				return
 			else:
 				pass
 		embed = discord.Embed(title="Did someone order a spicy meme?", colour=ctx.message.author.color, url=meme.source, timestamp=datetime.datetime.utcnow())		
