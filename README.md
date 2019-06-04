@@ -1,3 +1,5 @@
+![Fire](http://join-the.gaminggeek.club/images/5vOJx3lc0N.png)
+
 <h1 align="center">Fire</h1>
 <h3 align="center">A Discord bot for all your needs.<br>
 With memes, music, moderation & more,<br>
