@@ -187,7 +187,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
 
-	@commands.command(name='bl.add', description='Add someone to the blacklist', hidden=True)
+	@commands.command(name='plonk', description='Add someone to the blacklist', hidden=True)
 	async def blacklist_add(self, ctx, user: discord.User = None, reason: str = 'bad boi', permanent: bool = False):
 		'''PFXbl.add <user> [<reason>] <perm: true/false>'''
 		if isadmin(ctx) == False:
@@ -215,7 +215,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await self.bot.conn.commit()
 				await ctx.send(f'Blacklist entry updated for {user.mention}.')
 
-	@commands.command(name='bl.remove', description='Remove someone from the blacklist', hidden=True)
+	@commands.command(name='unplonk', description='Remove someone from the blacklist', hidden=True)
 	async def blacklist_remove(self, ctx, user: discord.User = None):
 		'''PFXbl.remove <user>'''
 		if isadmin(ctx) == False:
