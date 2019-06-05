@@ -253,14 +253,17 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
-	async def purge(self, ctx, amount: int=None):
-		'''PFXpurge <amount>'''
-		if amount is None:
-			return await ctx.send(f'Hey, please do `purge [amount]`!')
+	async def purge(self, ctx, amount: int=-1, member: discord.Member=None):
+		'''PFXpurge <amount> [<user>]'''
 		if amount>500 or amount<0:
-			return await ctx.send('Invalid amount. Maximum is 500')
+			return await ctx.send('Invalid amount. Minumum is 1, Maximum is 500')
 		await ctx.message.delete()
-		await ctx.message.channel.purge(limit=amount)
+		if member != None:
+			def checkmember(m):
+				return m.author == member
+			await ctx.channel.purge(limit=amount, check=checkmember)
+		else:
+			await ctx.channel.purge(limit=amount)
 		await ctx.send(f'Sucesfully deleted **{int(amount)}** messages!', delete_after=5)
 
 	@commands.Cog.listener()
