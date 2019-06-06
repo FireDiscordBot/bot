@@ -7,10 +7,13 @@ import os
 import typing
 import re
 import aiosqlite3
+import functools
+import strgen
 from jishaku.paginators import PaginatorInterface, WrappedPaginator
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
+from gtts import gTTS
 
 launchtime = datetime.datetime.utcnow()
 
@@ -52,11 +55,11 @@ def quote_embed(context_channel, message, user):
 	else:
 		if message.author not in message.guild.members or message.author.color == discord.Colour.default():
 			embed = discord.Embed(timestamp = message.created_at)
-			embed.add_field(name='Message', value=message.content, inline=False)
+			embed.add_field(name='Message', value=message.content or 'null', inline=False)
 			embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
 		else:
 			embed = discord.Embed(color = message.author.color, timestamp = message.created_at)
-			embed.add_field(name='Message', value=message.content, inline=False)
+			embed.add_field(name='Message', value=message.content or 'null', inline=False)
 			embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
 		if message.attachments:
 			if message.channel.is_nsfw() and not context_channel.is_nsfw():
@@ -582,6 +585,20 @@ class utils(commands.Cog, name='Utility Commands'):
 		user = json.dumps(userInfo, indent=2)
 		embed = discord.Embed(title=f'Found user {fetched}', description=f'```json\n{user}```')
 		await ctx.send(embed=embed)
+
+	def gtts(self, text: str):
+		fp = strgen.StringGenerator("[\d\w]{20}").render()
+		tts = gTTS(text)
+		tts.save(f'{fp}.mp3')
+		return fp
+	
+	@commands.command(description='Make Google TTS say something!')
+	async def tts(self, ctx, text: str):
+		'''PFXtts <text>'''
+		fp = await self.bot.loop.run_in_executor(None, functools.partial(self.gtts, text))
+		ttsfile = discord.File(f'{fp}.mp3', f'{ctx.author}.mp3')
+		await ctx.send(file=ttsfile)
+		os.remove(f'{fp}.mp3')
 	
 	@commands.command(description='Get user info in an image. (proof of concept)')
 	async def imgtest(self, ctx, user: discord.Member = None):
