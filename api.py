@@ -70,6 +70,10 @@ async def root(request):
 	body = json.dumps(data, indent=2)
 	return web.Response(body=body, status=200, headers=headers)
 
+@routes.get('/favicon.ico')
+async def favicon(request):
+	return web.FileResponse('./favicon.ico')
+
 @routes.get('/error')
 async def error_test(request):
 	raise discord.HTTPException(message='this is a test')
