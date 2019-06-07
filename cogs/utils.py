@@ -593,7 +593,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		return fp
 	
 	@commands.command(description='Make Google TTS say something!')
-	async def tts(self, ctx, text: str):
+	async def tts(self, ctx, *, text: str):
 		'''PFXtts <text>'''
 		fp = await self.bot.loop.run_in_executor(None, functools.partial(self.gtts, text))
 		ttsfile = discord.File(f'{fp}.mp3', f'{ctx.author}.mp3')
