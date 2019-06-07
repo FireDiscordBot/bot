@@ -156,7 +156,7 @@ async def on_message_edit(before,after):
 
 @bot.event
 async def on_guild_join(guild):
-	await bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
+	await bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({guild.id});')
 	await bot.conn.commit()
 	print(f"Fire joined a new guild! {guild.name}({guild.id}) with {guild.member_count} members")
 	try:
@@ -245,5 +245,5 @@ async def game_changer():
 			await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"Created by {me}"))
 			await asyncio.sleep(300)
 			return
-
+				
 bot.run(config['token'])
