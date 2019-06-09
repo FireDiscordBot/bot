@@ -273,7 +273,10 @@ async def guild(request):
 		return error_resp('Invalid ID', 400)
 	guild = client.get_guild(gid)
 	if guild == None:
-		return error_resp('Guild not found', 404)
+		return error_resp('Guild not found. I may not be in this guild *cough* https://firediscordbot.tk/invite *cough*', 404)
+	boostermembers = []
+	for member in guild.premium_subscribers:
+		boostermembers.append(f'{member}({member.id})')
 	data = {
 		'name': str(guild.name),
 		'id': guild.id,
@@ -282,18 +285,29 @@ async def guild(request):
 		'owner_id': guild.owner_id,
 		'region': str(guild.region),
 		'members': guild.member_count,
-		'icon': str(guild.icon_url),
+		'icon': {
+			'url': str(guild.icon_url),
+			'animated': guild.is_icon_animated()
+		},
 		'emotes': {
 
 		},
 		'channels': {
-			
 		},
 		'roles': {
 
 		},
 		'features': {
-
+			'premium_tier': guild.premium_tier,
+			'boosters': {
+				'amount': guild.premium_subscription_count,
+				'members': boostermembers
+			},
+			'limits': {
+				'emoji': guild.emoji_limit,
+				'bitrate': guild.bitrate_limit,
+				'filesize': int(str(guild.filesize_limit).split('.')[0])
+			}
 		}
 	}
 	emojis = {}
@@ -306,7 +320,8 @@ async def guild(request):
 		},
 		'voice': {
 
-		}
+		},
+		'system': {}
 	}
 	features = {}
 	roles = {}
@@ -314,6 +329,15 @@ async def guild(request):
 		emojis[emoji.name] = emoji.id
 	data['emotes'].update(emojis)
 	for channel in guild.channels:
+		if channel == guild.system_channel:
+			channels['system'] = {
+				'channel': f'#{channel}',
+				'id': channel.id,
+				'flags': {
+					'join_notifications': guild.system_channel_flags.join_notifications,
+					'boost_notifications': guild.system_channel_flags.premium_subscriptions
+				}
+			}
 		if isinstance(channel, discord.CategoryChannel):
 			channels['category'][channel.name] = channel.id
 		if isinstance(channel, discord.TextChannel):
@@ -371,8 +395,11 @@ async def invite(request):
 			'features': raw['guild']['features'],
 			'banner': str(invguild.banner_url),
 			'splash': str(invguild.splash_url),
-			'created': str(invguild.created_at).split('.')[0]
+			'created': str(invguild.created_at).split('.')[0],
+			'moreinfo': None
 		}
+		if isinstance(invguild, discord.Guild):
+			guild['moreinfo'] = f'https://api.gaminggeek.club/guild/{invguild.id}'
 		if isinstance(invchan, discord.PartialInviteChannel):
 			invchantype = 'PartialInviteChannel'
 		elif isinstance(invchan, discord.TextChannel):
@@ -395,7 +422,6 @@ async def invite(request):
 			'channel': {
 
 			},
-			'created_at': str(invite.created_at).split('.')[0],
 			'inviter': str(invite.inviter),
 			'approx_members': invite.approximate_member_count,
 			'approx_active_members': invite.approximate_presence_count,
