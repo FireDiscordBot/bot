@@ -264,7 +264,9 @@ class utils(commands.Cog, name='Utility Commands'):
 		if member != None:
 			def checkmember(m):
 				return m.author == member
+			amount += 1
 			await ctx.channel.purge(limit=amount, check=checkmember)
+			amount -= 1
 		else:
 			await ctx.channel.purge(limit=amount)
 		await ctx.send(f'Sucesfully deleted **{int(amount)}** messages!', delete_after=5)
