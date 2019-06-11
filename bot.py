@@ -98,7 +98,8 @@ async def on_command_error(ctx, error):
 	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"Here's the error. You might not be able to do anything about it though... I've sent this to my developer!\n```py\n{error}```", timestamp=datetime.datetime.utcnow())
 	embed.set_footer(text="this may or may not be fixed soon. it may not even be broken.")
 	await ctx.send(embed=embed)
-	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!\n```py\n{error}```", timestamp=datetime.datetime.utcnow())
+	errortb = traceback.format_exception(type(error), error, error.__traceback__)[0]
+	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!\n```py\n{errortb}```", timestamp=datetime.datetime.utcnow())
 	embed.add_field(name='User', value=ctx.author, inline=False)
 	embed.add_field(name='Guild', value=ctx.guild, inline=False)
 	embed.add_field(name='Message', value=ctx.message.content, inline=False)
