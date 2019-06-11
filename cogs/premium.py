@@ -180,6 +180,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				if roleid != None:
 					if msgid != None:
 						if emote != None:
+							emotecheck = None
 							try:
 								emote = int(emote)
 								if emote == reaction.emoji.id:
@@ -210,6 +211,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				if roleid != None:
 					if msgid != None:
 						if emote != None:
+							emotecheck = None
 							try:
 								emote = int(emote)
 								if emote == reaction.emoji.id:
