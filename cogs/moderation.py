@@ -24,9 +24,17 @@ async def mute(ctx, user, reason):
 		reason = "No reason specified."
 	muted = discord.utils.get(ctx.guild.roles, name="Muted")
 	mutedchat = discord.utils.get(ctx.guild.text_channels, name="muted-chat")
+	e = False
 	if not muted:
 		try:
-			muted = await ctx.guild.create_role(name="Muted", reason="To use for muting")
+			muted = await ctx.guild.create_role(name="Muted", reason="To use for muting", color=discord.Color().orange())
+			e = await ctx.send('Can\'t find muted role. Making one now...')
+			roles = ctx.guild.roles
+			for role in roles:
+				try:
+					await muted.edit(position=role.position)
+				except Exception:
+					pass
 			for channel in ctx.guild.channels:
 				await channel.set_permissions(muted, send_messages=False,
 											  read_message_history=False,
@@ -34,6 +42,8 @@ async def mute(ctx, user, reason):
 		except discord.Forbidden:
 			return await ctx.send("I have no permissions to make a muted role")
 		await user.add_roles(muted)
+		if e:
+			await e.delete()
 		await ctx.send(f"{user.mention} has been muted for {reason}")
 	else:
 		await user.add_roles(muted)
