@@ -125,6 +125,8 @@ class fire(commands.Cog, name="Main Commands"):
 	@commands.command(description="Shows you all the guilds I'm in.")
 	async def listguilds(self, ctx):
 		"""PFXlistguilds"""
+		if not isadmin(ctx):
+			return
 		paginator = WrappedPaginator(prefix='```vbs', suffix='```', max_size=1500)
 		gcount = 1
 		for guild in self.bot.guilds:
