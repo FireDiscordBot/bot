@@ -190,6 +190,11 @@ class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
 
+	@commands.command(name='errortest', hidden=True)
+	async def errortestboyo(self, ctx):
+		test = [1, 2]
+		return test[2]
+
 	@commands.command(name='plonk', description='Add someone to the blacklist', hidden=True)
 	async def blacklist_add(self, ctx, user: discord.User = None, reason: str = 'bad boi', permanent: bool = False):
 		'''PFXbl.add <user> [<reason>] <perm: true/false>'''
