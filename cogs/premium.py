@@ -174,6 +174,8 @@ class Premium(commands.Cog, name="Premium Commands"):
 				message = reaction.message
 				await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {user.guild.id};')
 				dbinf = await self.bot.db.fetchone()
+				if not dbinf:
+					return
 				roleid = dbinf[7]
 				msgid = dbinf[8]
 				emote = dbinf[9]
@@ -205,6 +207,8 @@ class Premium(commands.Cog, name="Premium Commands"):
 				message = reaction.message
 				await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {user.guild.id};')
 				dbinf = await self.bot.db.fetchone()
+				if not dbinf:
+					return
 				roleid = dbinf[7]
 				msgid = dbinf[8]
 				emote = dbinf[9]
