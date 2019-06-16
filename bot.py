@@ -2,6 +2,7 @@
 
 from discord.ext import commands
 from discord.ext.commands import has_permissions, MissingPermissions
+from discord import Webhook, AsyncWebhookAdapter
 import discord
 import logging
 import datetime
@@ -57,6 +58,7 @@ extensions = [
 	"cogs.youtube",
 	"cogs.moderation",
 	"cogs.settings",
+	"cogs.premium",
 	"jishaku"
 ]
 
@@ -103,14 +105,30 @@ async def on_command_error(ctx, error):
 	embed.add_field(name='User', value=ctx.author, inline=False)
 	embed.add_field(name='Guild', value=ctx.guild, inline=False)
 	embed.add_field(name='Message', value=ctx.message.content, inline=False)
+	embednotb = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!", timestamp=datetime.datetime.utcnow())
+	embednotb.add_field(name='User', value=ctx.author, inline=False)
+	embednotb.add_field(name='Guild', value=ctx.guild, inline=False)
+	embednotb.add_field(name='Message', value=ctx.message.content, inline=False)
 	me = bot.get_user(287698408855044097)
 	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError, commands.MissingRequiredArgument, commands.TooManyArguments)
 	if isinstance(error, nomsg):
 		return
-	if isinstance(error, aiosqlite3.OperationalError):
-		await me.send(content=str(saved), embed=embed)
-	else:
+	try:
 		await me.send(embed=embed)
+	except discord.HTTPException:
+		await me.send(embed=embednotb)
+		await me.send(f'```py\n{errortb}```')
+	time = datetime.datetime.utcnow().strftime('%d/%b/%Y:%H:%M:%S')
+	message = f'```ini\n[Command Error Logger]\n\n[User] {ctx.author}({ctx.author.id})\n[Guild] {ctx.guild}({ctx.guild.id})\n[Message] {ctx.message.content}\n[Time] {time}\n\n[Traceback]\n{errortb}```'
+	messagenotb = f'```ini\n[Command Error Logger]\n\n[User] {ctx.author}({ctx.author.id})\n[Guild] {ctx.guild}({ctx.guild.id})\n[Message] {ctx.message.content}\n[Time] {time}```'
+	tbmessage = f'```ini\n[Traceback]\n{errortb}```'
+	async with aiohttp.ClientSession() as session:
+		webhook = Webhook.from_url('https://canary.discordapp.com/api/webhooks/589581080277811203/iSMsu5c37pMqAJozeDjv5HsR9lP8JJKcl57Px3-jD4QtkSuOaWV14hW33U5DGP5VFd5L', adapter=AsyncWebhookAdapter(session))
+		try:
+			await webhook.send(message, username='Command Error Logger')
+		except discord.HTTPException:
+			await webhook.send(messagenotb, username='Command Error Logger')
+			await webhook.send(tbmessage, username='Command Error Logger')
 
 @bot.event
 async def on_ready():

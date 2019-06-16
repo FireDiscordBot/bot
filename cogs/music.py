@@ -34,6 +34,8 @@ class Player(wavelink.Player):
 	def __init__(self, bot: Union[commands.Bot, commands.AutoShardedBot], guild_id: int, node: wavelink.Node):
 		super(Player, self).__init__(bot, guild_id, node)
 
+		self.cmdchannel_id = None
+
 		self.queue = asyncio.Queue()
 		self.next_event = asyncio.Event()
 
@@ -302,12 +304,38 @@ class Music(commands.Cog):
 
 			node.set_hook(self.event_hook)
 
+	async def error_logger(self, event):
+		player = event.player
+		guild = self.bot.get_guild(player.guild_id)
+		if guild:
+			vc = discord.utils.get(guild.channels, id=player.channel_id)
+			channel = discord.utils.get(guild.channels, id=player.cmdchannel_id)
+		if not guild:
+			guild = 'Unknown'
+		if not vc:
+			vc = 'Unknown'
+		if not channel:
+			channel = 'Unknown'
+		track = event.track
+		error = event.error
+		errortb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
+		message = f'```ini\n[Command Error Logger]\n\n[Guild] {guild}\n[Voice Channel] {vc}\n[Command Channel] {channel}\n[Track] {track}\n\n[Traceback]\n{errortb}```'
+		messagenotb = f'```ini\n[Command Error Logger]\n\n[Guild] {guild}\n[Voice Channel] {vc}\n[Command Channel] {channel}\n[Track] {track}```'
+		tbmessage = f'```ini\n[Traceback]\n{errortb}```'
+		async with aiohttp.ClientSession() as session:
+			webhook = Webhook.from_url('https://canary.discordapp.com/api/webhooks/589581080277811203/iSMsu5c37pMqAJozeDjv5HsR9lP8JJKcl57Px3-jD4QtkSuOaWV14hW33U5DGP5VFd5L', adapter=AsyncWebhookAdapter(session))
+			try:
+				await webhook.send(message, username='Music Error Logger')
+			except discord.HTTPException:
+				await webhook.send(messagenotb, username='Music Error Logger')
+				await webhook.send(tbmessage, username='Music Error Logger')
+
 	def event_hook(self, event):
 		"""Our event hook. Dispatched when an event occurs on our Node."""
 		if isinstance(event, wavelink.TrackEnd):
 			event.player.next_event.set()
 		elif isinstance(event, wavelink.TrackException):
-			raise commands.CommandError(event.error)
+			asyncio.run_coroutine_threadsafe(self.error_logger(event), self.bot.loop)
 
 	def required(self, player, invoked_with):
 		"""Calculate required votes."""
@@ -398,6 +426,7 @@ class Music(commands.Cog):
 				return
 
 		await player.connect(channel.id)
+		player.cmdchannel_id = ctx.channel.id
 
 	@commands.command(name='play', aliases=['sing'], description="Queue a song or playlist for playback.")
 	@commands.cooldown(1, 2, commands.BucketType.user)
@@ -441,6 +470,7 @@ class Music(commands.Cog):
 
 		if player.controller_message and player.is_playing:
 			await player.invoke_controller()
+		player.cmdchannel_id = ctx.channel.id
 
 	@commands.command(name='np', aliases=['now_playing', 'current', 'currentsong'], description="Sends the music controller message which contains various information about the current and upcoming songs.")
 	@commands.cooldown(2, 15, commands.BucketType.user)
@@ -476,6 +506,7 @@ class Music(commands.Cog):
 			return await self.do_pause(ctx)
 
 		await self.do_vote(ctx, player, 'pause')
+		player.cmdchannel_id = ctx.channel.id
 
 	async def do_pause(self, ctx):
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
@@ -498,6 +529,7 @@ class Music(commands.Cog):
 			return await self.do_resume(ctx)
 
 		await self.do_vote(ctx, player, 'resume')
+		player.cmdchannel_id = ctx.channel.id
 
 	async def do_resume(self, ctx):
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
@@ -521,6 +553,7 @@ class Music(commands.Cog):
 			return await self.do_skip(ctx)
 
 		await self.do_vote(ctx, player, 'skip')
+		player.cmdchannel_id = ctx.channel.id
 
 	async def do_skip(self, ctx):
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
@@ -541,6 +574,7 @@ class Music(commands.Cog):
 			return await self.do_stop(ctx)
 
 		await self.do_vote(ctx, player, 'stop')
+		player.cmdchannel_id = ctx.channel.id
 
 	async def do_stop(self, ctx):
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
@@ -570,6 +604,7 @@ class Music(commands.Cog):
 
 		if not player.updating and not player.update:
 			await player.invoke_controller()
+		player.cmdchannel_id = ctx.channel.id
 
 	@commands.command(name='queue', aliases=['q', 'que'], description="Retrieve a list of currently queued songs.")
 	@commands.cooldown(1, 10, commands.BucketType.user)
@@ -589,6 +624,7 @@ class Music(commands.Cog):
 		embed = discord.Embed(title=f'Upcoming - Next {len(upcoming)}', description=fmt)
 
 		await ctx.send(embed=embed)
+		player.cmdchannel_id = ctx.channel.id
 
 	@commands.command(name='shuffle', aliases=['mix'], description="Shuffle the current queue.")
 	@commands.cooldown(2, 10, commands.BucketType.user)
@@ -607,6 +643,7 @@ class Music(commands.Cog):
 			return await self.do_shuffle(ctx)
 
 		await self.do_vote(ctx, player, 'shuffle')
+		player.cmdchannel_id = ctx.channel.id
 
 	async def do_shuffle(self, ctx):
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
@@ -627,6 +664,7 @@ class Music(commands.Cog):
 			return await self.do_repeat(ctx)
 
 		await self.do_vote(ctx, player, 'repeat')
+		player.cmdchannel_id = ctx.channel.id
 
 	async def do_repeat(self, ctx):
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
@@ -683,6 +721,7 @@ class Music(commands.Cog):
 		await player.set_preq(eq)
 		player.eq = eq.capitalize()
 		await ctx.send(f'The player Equalizer was set to - {eq.capitalize()}')
+		player.cmdchannel_id = ctx.channel.id
 
 def setup(bot):
 	bot.add_cog(Music(bot))
