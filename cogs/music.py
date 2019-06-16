@@ -306,7 +306,6 @@ class Music(commands.Cog):
 			node.set_hook(self.event_hook)
 
 	async def error_logger(self, event):
-		print('Sending music error to webook')
 		player = event.player
 		guild = self.bot.get_guild(player.guild_id)
 		if guild:
@@ -334,12 +333,9 @@ class Music(commands.Cog):
 
 	def event_hook(self, event):
 		"""Our event hook. Dispatched when an event occurs on our Node."""
-		print('Our event hook. Dispatched when an event occurs on our Node.')
-		print(type(event))
 		if isinstance(event, wavelink.TrackEnd):
 			event.player.next_event.set()
 		else:
-			print(event.error)
 			asyncio.run_coroutine_threadsafe(self.error_logger(event), self.bot.loop)
 
 	def required(self, player, invoked_with):
