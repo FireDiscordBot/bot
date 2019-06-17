@@ -407,7 +407,7 @@ async def invite(request):
 			'moreinfo': None
 		}
 		if isinstance(invguild, discord.Guild):
-			guild['moreinfo'] = f'https://api.gaminggeek.club/guild/{invguild.id}'
+			guild['moreinfo'] = f'https://api.gaminggeek.dev/guild/{invguild.id}'
 		if isinstance(invchan, discord.PartialInviteChannel):
 			invchantype = 'PartialInviteChannel'
 		elif isinstance(invchan, discord.TextChannel):
@@ -462,7 +462,7 @@ async def on_ready():
 	print('hi')
 	try:
 		await start_api()
-		print('Started API on port 1337 (localhost) and https://api.gaminggeek.club/')
+		print('Started API on port 1337 (localhost) and https://api.gaminggeek.dev/')
 	except Exception as e:
 		print(e)
 
