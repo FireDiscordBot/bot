@@ -35,6 +35,7 @@ def error_resp(error: str = 'Something went wrong and an error wasn\'t provided.
 		'content-type': 'application/json',
 		'x-geek-app': str(True),
 		'x-geek-bot': client.user.name,
+		'x-geek-lastvisit': 'null',
 		'success': str(False)
 	}
 	body = json.dumps(data, indent=2)
@@ -61,8 +62,7 @@ admins = ['287698408855044097', '217562587938816000']
 @routes.get('/')
 async def root(request):
 	session = await get_session(request)
-	last_visit = session['last_visit'] if 'last_visit' in session else None
-	session['last_visit'] = str(datetime.datetime.utcnow()).split('.')[0]
+	last_visit = session['last_visit'] if 'last_visit' in session else 'null'
 	data = {
 		'success': True,
 		'bot': str(client.user),
@@ -73,7 +73,8 @@ async def root(request):
 	headers = {
 		'content-type': 'application/json',
 		'x-geek-app': str(True),
-		'x-geek-bot': client.user.name
+		'x-geek-bot': client.user.name,
+		'x-geek-lastvisit': last_visit
 	}
 	body = json.dumps(data, indent=2)
 	return web.Response(body=body, status=200, headers=headers)
@@ -88,6 +89,9 @@ async def error_test(request):
 
 @routes.get('/user/{id}')
 async def user(request):
+	session = await get_session(request)
+	last_visit = session['last_visit'] if 'last_visit' in session else 'null'
+	session['last_visit'] = str(datetime.datetime.utcnow()).split('.')[0]
 	try:
 		uid = int(request.match_info['id'])
 	except ValueError:
@@ -111,7 +115,8 @@ async def user(request):
 				headers = {
 				'content-type': 'application/json',
 				'x-geek-app': str(True),
-				'x-geek-bot': client.user.name
+				'x-geek-bot': client.user.name,
+				'x-geek-lastvisit': last_visit
 				}
 				body = json.dumps(data, indent=2)
 				return web.Response(body=body, status=206, headers=headers)
@@ -175,13 +180,17 @@ async def user(request):
 	headers = {
 		'content-type': 'application/json',
 		'x-geek-app': str(True),
-		'x-geek-bot': client.user.name
+		'x-geek-bot': client.user.name,
+		'x-geek-lastvisit': last_visit
 	}
 	body = json.dumps(data, indent=2)
 	return web.Response(body=body, status=200, headers=headers)
 
 @routes.get('/member/{id}/{gid}')
 async def member(request):
+	session = await get_session(request)
+	last_visit = session['last_visit'] if 'last_visit' in session else 'null'
+	session['last_visit'] = str(datetime.datetime.utcnow()).split('.')[0]
 	try:
 		uid = int(request.match_info['id'])
 	except ValueError:
@@ -268,13 +277,17 @@ async def member(request):
 	headers = {
 		'content-type': 'application/json',
 		'x-geek-app': str(True),
-		'x-geek-bot': client.user.name
+		'x-geek-bot': client.user.name,
+		'x-geek-lastvisit': last_visit
 	}
 	body = json.dumps(data, indent=2)
 	return web.Response(body=body, status=200, headers=headers)
 
 @routes.get('/guild/{id}')
 async def guild(request):
+	session = await get_session(request)
+	last_visit = session['last_visit'] if 'last_visit' in session else 'null'
+	session['last_visit'] = str(datetime.datetime.utcnow()).split('.')[0]
 	try:
 		gid = int(request.match_info['id'])
 	except ValueError:
@@ -362,13 +375,17 @@ async def guild(request):
 	headers = {
 		'content-type': 'application/json',
 		'x-geek-app': str(True),
-		'x-geek-bot': client.user.name
+		'x-geek-bot': client.user.name,
+		'x-geek-lastvisit': last_visit
 	}
 	body = json.dumps(data, indent=2)
 	return web.Response(body=body, status=200, headers=headers)
 
 @routes.get('/invite/{code}')
 async def invite(request):
+	session = await get_session(request)
+	last_visit = session['last_visit'] if 'last_visit' in session else 'null'
+	session['last_visit'] = str(datetime.datetime.utcnow()).split('.')[0]
 	invite = None
 	try:
 		code = request.match_info['code']
@@ -440,7 +457,8 @@ async def invite(request):
 		headers = {
 		'content-type': 'application/json',
 		'x-geek-app': str(True),
-		'x-geek-bot': client.user.name
+		'x-geek-bot': client.user.name,
+		'x-geek-lastvisit': last_visit
 		}
 		body = json.dumps(data, indent=2)
 		return web.Response(body=body, status=200, headers=headers)
