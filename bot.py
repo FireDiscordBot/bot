@@ -123,7 +123,7 @@ async def on_command_error(ctx, error):
 	messagenotb = f'```ini\n[Command Error Logger]\n\n[User] {ctx.author}({ctx.author.id})\n[Guild] {ctx.guild}({ctx.guild.id})\n[Message] {ctx.message.content}\n[Time] {time}```'
 	tbmessage = f'```ini\n[Traceback]\n{errortb}```'
 	async with aiohttp.ClientSession() as session:
-		webhook = Webhook.from_url('https://canary.discordapp.com/api/webhooks/589581080277811203/iSMsu5c37pMqAJozeDjv5HsR9lP8JJKcl57Px3-jD4QtkSuOaWV14hW33U5DGP5VFd5L', adapter=AsyncWebhookAdapter(session))
+		webhook = Webhook.from_url(config['logwebhook'], adapter=AsyncWebhookAdapter(session))
 		try:
 			await webhook.send(message, username='Command Error Logger')
 		except discord.HTTPException:

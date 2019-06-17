@@ -13,7 +13,8 @@ from discord import Webhook, AsyncWebhookAdapter
 from typing import Union
 
 RURL = re.compile(r'https?:\/\/(?:www\.)?.+')
-
+with open('config.json', 'r') as cfg:
+	config = json.load(cfg)
 
 class Track(wavelink.Track):
 	__slots__ = ('requester', 'channel', 'message')
@@ -324,7 +325,7 @@ class Music(commands.Cog):
 		messagenotb = f'```ini\n[Command Error Logger]\n\n[Guild] {guild}\n[Voice Channel] {vc}\n[Command Channel] {channel}\n[Track] {track}```'
 		tbmessage = f'```ini\n[Traceback]\n{errortb}```'
 		async with aiohttp.ClientSession() as session:
-			webhook = Webhook.from_url('https://canary.discordapp.com/api/webhooks/589581080277811203/iSMsu5c37pMqAJozeDjv5HsR9lP8JJKcl57Px3-jD4QtkSuOaWV14hW33U5DGP5VFd5L', adapter=AsyncWebhookAdapter(session))
+			webhook = Webhook.from_url(config['logwebhook'], adapter=AsyncWebhookAdapter(session))
 			try:
 				await webhook.send(message, username='Music Error Logger')
 			except discord.HTTPException:
