@@ -63,6 +63,7 @@ admins = ['287698408855044097', '217562587938816000']
 async def root(request):
 	session = await get_session(request)
 	last_visit = session['last_visit'] if 'last_visit' in session else 'null'
+	session['last_visit'] = str(datetime.datetime.utcnow()).split('.')[0]
 	data = {
 		'success': True,
 		'bot': str(client.user),
