@@ -6,7 +6,11 @@ import os
 import typing
 import logging
 import aiohttp
+import base64
+from cryptography import fernet
 from aiohttp import web
+from aiohttp_session import setup, get_session, session_middleware
+from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from fire.push import pushbullet
 
 logging.basicConfig(level=logging.INFO)
@@ -56,11 +60,15 @@ admins = ['287698408855044097', '217562587938816000']
 		
 @routes.get('/')
 async def root(request):
+	session = await get_session(request)
+	last_visit = session['last_visit'] if 'last_visit' in session else None
+	session['last_visit'] = str(datetime.datetime.utcnow()).split('.')[0]
 	data = {
 		'success': True,
 		'bot': str(client.user),
 		'now': str(datetime.datetime.utcnow()).split('.')[0],
-		'loaded': str(launchtime).split('.')[0]
+		'loaded': str(launchtime).split('.')[0],
+		'last_visit': last_visit
 	}
 	headers = {
 		'content-type': 'application/json',
@@ -440,6 +448,9 @@ async def invite(request):
 		return error_resp('Something went wrong internally /shrug', 500)
 
 async def start_api():
+	fernet_key = fernet.Fernet.generate_key()
+	secret_key = base64.urlsafe_b64decode(fernet_key)
+	setup(app, EncryptedCookieStorage(secret_key))
 	app.add_routes(routes)
 	runner = web.AppRunner(app)
 	await runner.setup()
@@ -452,7 +463,7 @@ async def on_ready():
 	try:
 		await start_api()
 		print('Started API on port 1337 (localhost) and https://api.gaminggeek.club/')
-	except Exception:
-		pass
+	except Exception as e:
+		print(e)
 
 client.run(config['token'])
