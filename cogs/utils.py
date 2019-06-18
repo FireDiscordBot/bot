@@ -295,22 +295,28 @@ class utils(commands.Cog, name='Utility Commands'):
 		if message.guild and not message.author.bot:
 			try:
 				snipes[message.guild.id][message.channel.id] = message
+				snipes[message.guild.id][message.author.id] = message
 			except KeyError:
 				snipes[message.guild.id] = {message.channel.id: message}
+				snipes[message.guild.id] = {message.author.id: message}
 
 	@commands.command(description='Get the last deleted message')
-	async def snipe(self, ctx, channel: typing.Union[discord.TextChannel, int] = None):
-		'''PFXsnipe [<channel>]'''
-		if type(channel) == int:
-			channel = self.bot.get_channel(channel)
-		if not channel:
-			channel = ctx.channel
+	async def snipe(self, ctx, source: typing.Union[discord.TextChannel, discord.Member, int] = None):
+		'''PFXsnipe [<channel|user>]'''
+		if type(source) == int:
+			source = self.bot.get_channel(source)
+		if type(source) == discord.Member:
+			if source.guild != ctx.guild:
+				raise commands.ArgumentParsingError('Unable to find Member')
+		if not source:
+			source = ctx.channel
 
-		if not ctx.author.permissions_in(channel).read_messages:
-			return
+		if type(source) == discord.TextChannel:
+			if not ctx.author.permissions_in(source).read_messages:
+				return
 
 		try:
-			sniped_message = snipes[ctx.guild.id][channel.id]
+			sniped_message = snipes[ctx.guild.id][source.id]
 		except KeyError:
 			return await ctx.send(content = ':x: **No available messages.**')
 		else:
