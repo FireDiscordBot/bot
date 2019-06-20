@@ -243,6 +243,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Check out the server\'s info')
 	async def serverinfo(self, ctx, guild: discord.Guild = None):
+		'''PFXserverinfo'''
 		if not guild:
 			guild = ctx.guild
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
@@ -257,7 +258,58 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Notifications", value=notifs[str(guild.default_notifications)], inline=True)
 		embed.add_field(name="» Multi-Factor Auth", value=bool(guild.mfa_level), inline=True)
 		embed.add_field(name="» Created", value=str(guild.created_at).split('.')[0], inline=True)
+		roles = []
+		for role in guild.roles:
+			if role.is_default() == True:
+				pass
+			else:
+				roles.append(role.mention)
+		embed.add_field(name="» Roles", value=' - '.join(roles), inline=False)
 		await ctx.send(embed=embed)
+
+	@commands.command(description='Check out a user\'s info')
+	async def user(self, ctx, user: typing.Union[discord.User, discord.Member] = None):
+		'''PFXuser [<user>]'''
+		if not user:
+			user = ctx.author
+		if type(user) == discord.User:
+			color = ctx.author.color
+		elif type(user) == discord.Member:
+			color = user.color
+		if ctx.guild.get_member(user.id):
+			user = ctx.guild.get_member(user.id)
+		embed = discord.Embed(colour=color, timestamp=datetime.datetime.utcnow())
+		embed.set_thumbnail(url=str(user.avatar_url))
+		embed.add_field(name="» Name", value=user.name, inline=True)
+		embed.add_field(name="» ID", value=user.id, inline=True)
+		embed.add_field(name="» Discriminator", value=user.discriminator, inline=True)
+		embed.add_field(name="» Bot?", value=user.bot, inline=True)
+		embed.add_field(name="» Created", value=str(user.created_at).split('.')[0], inline=True)
+		embed.add_field(name="» Animated Avatar?", value=user.is_avatar_animated(), inline=True)
+		if type(user) == discord.Member:
+			embed.add_field(name="» Status", value=f'Overall: {user.status}\nDesktop: {user.desktop_status}\nMobile: {user.mobile_status}\nWeb: {user.web_status}', inline=True)
+			if user.nick:
+				embed.add_field(name="» Nickname", value=user.nick, inline=True)
+			if user.premium_since:
+				embed.add_field(name="» Boosting Since", value=str(user.premium_since).split('.')[0], inline=True)
+			rgbcolor = user.color.to_rgb()
+			embed.add_field(name="» Color", value=f'rgb{rgbcolor}', inline=True)
+			roles = []
+			for role in user.roles:
+				if role.is_default() == True:
+					pass
+				else:
+					roles.append(role.mention)
+			embed.add_field(name="» Roles", value=' - '.join(roles), inline=False)
+		await ctx.send(embed=embed)
+		# if user.activity:
+		# 	activity = user.activity
+		# else:
+		# 	return
+		# if type(activity) == discord.Game:
+		# 	return
+		# if type(activity) == discord.Activity:
+			# do things
 
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
