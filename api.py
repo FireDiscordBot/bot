@@ -57,7 +57,7 @@ async def error_middleware(app, handler):
 	return middleware_handler
 
 app = web.Application(loop=client.loop, middlewares=[error_middleware])
-admins = ['287698408855044097', '217562587938816000']
+admins = config['apiauth']
 		
 @routes.get('/')
 async def root(request):
