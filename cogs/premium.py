@@ -33,7 +33,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 		"""
 		if await self.bot.is_owner(ctx.author):
 			return True
-		await ctx.bot.db.execute(f'SELECT * FROM premium WHERE gid = {ctx.guild.id};')
+		try:
+			await ctx.bot.db.execute(f'SELECT * FROM premium WHERE gid = {ctx.guild.id};')
+		except Exception:
+			return False
 		premium = await ctx.bot.db.fetchone()
 		if premium != None:
 			return True
@@ -46,7 +49,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 		"""
 		if await self.bot.is_owner(member):
 			return True
-		await self.bot.db.execute(f'SELECT * FROM premium WHERE gid = {member.guild.id};')
+		try:
+			await self.bot.db.execute(f'SELECT * FROM premium WHERE gid = {member.guild.id};')
+		except Exception:
+			return False
 		premium = await self.bot.db.fetchone()
 		if premium != None:
 			return True
