@@ -46,10 +46,13 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		embed.set_footer(text=f"👍 {meme.upvotes} | 👎 {meme.downvotes} | 💬 {meme.comments} (https://api.ksoft.si)")
 		embed.add_field(name="Title", value=meme.title, inline=False)
 		embed.add_field(name="Subreddit", value=f"[{meme.subreddit}](https://reddit.com/{meme.subreddit})", inline=False)
-		if meme.url.endswith(imgext):
-			embed.set_image(url=meme.url)
+		if meme.url:
+			if meme.url.endswith(imgext):
+				embed.set_image(url=meme.url)
+			else:
+				embed.add_field(name='Attachment', value=f"[Click Here]({meme.url})")
 		else:
-			embed.add_field(name='Attachment', value=f"[Click Here]({meme.url})")
+			embed.add_field(name='Check it out', value=f'[Click Here]({meme.source})')
 		await ctx.send(embed=embed)
 
 	@commands.command(description="Gets a random image from a specified tag", name="image")
