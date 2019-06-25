@@ -192,8 +192,9 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='errortest', hidden=True)
 	async def errortestboyo(self, ctx):
-		test = [1, 2]
-		return test[2]
+		if await commands.is_owner(ctx):
+			test = [1, 2]
+			return test[2]
 
 	@commands.command(name='plonk', description='Add someone to the blacklist', hidden=True)
 	async def blacklist_add(self, ctx, user: discord.User = None, reason: str = 'bad boi', permanent: bool = False):
