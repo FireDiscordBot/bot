@@ -9,7 +9,6 @@ import datetime
 import os
 import json
 import aiohttp
-import time
 import asyncio
 import random
 import aiosqlite3
