@@ -35,9 +35,9 @@ class Premium(commands.Cog, name="Premium Commands"):
 			return True
 		try:
 			await ctx.bot.db.execute(f'SELECT * FROM premium WHERE gid = {ctx.guild.id};')
+			premium = await ctx.bot.db.fetchone()
 		except Exception:
 			return False
-		premium = await ctx.bot.db.fetchone()
 		if premium != None:
 			return True
 		else:
@@ -51,9 +51,9 @@ class Premium(commands.Cog, name="Premium Commands"):
 			return True
 		try:
 			await self.bot.db.execute(f'SELECT * FROM premium WHERE gid = {member.guild.id};')
+			premium = await self.bot.db.fetchone()
 		except Exception:
 			return False
-		premium = await self.bot.db.fetchone()
 		if premium != None:
 			return True
 		else:
@@ -116,15 +116,18 @@ class Premium(commands.Cog, name="Premium Commands"):
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
-		if await self.member_guild_check(member):
-			await self.bot.db.execute(f'SELECT autorole FROM settings WHERE gid = {member.guild.id};')
-			role = await self.bot.db.fetchone()
-			try:
-				role = discord.utils.get(member.guild.roles, id=role[0])
-			except Exception:
-				return
-			if role != None:
-				await member.add_roles(role, reason='Auto-Role')
+		try:
+			if await self.member_guild_check(member):
+				await self.bot.db.execute(f'SELECT autorole FROM settings WHERE gid = {member.guild.id};')
+				role = await self.bot.db.fetchone()
+				try:
+					role = discord.utils.get(member.guild.roles, id=role[0])
+				except Exception:
+					return
+				if role != None:
+					await member.add_roles(role, reason='Auto-Role')
+		except Exception:
+			return
 
 	@commands.command(name='reactrole', description='Automatically add a role to a user when they react to a message')
 	async def reactrole(self, ctx, role: discord.Role = None, message: int = None, emote: typing.Union[int, str] = None):
@@ -175,68 +178,74 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@commands.Cog.listener()
 	async def on_reaction_add(self, reaction, user):
 		if type(user) == discord.Member:
-			if await self.member_guild_check(user):
-				guild = user.guild
-				message = reaction.message
-				await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {user.guild.id};')
-				dbinf = await self.bot.db.fetchone()
-				if not dbinf:
-					return
-				roleid = dbinf[7]
-				msgid = dbinf[8]
-				emote = dbinf[9]
-				if roleid != None:
-					if msgid != None:
-						if emote != None:
-							emotecheck = None
-							try:
-								emote = int(emote)
-								if emote == reaction.emoji.id:
-									emotecheck = True
-							except Exception:
-								emote = str(emote)
-								if emote == reaction.emoji:
-									emotecheck = True
-							if emotecheck:
-								role = discord.utils.get(guild.roles, id=roleid)
-								if role != None:
-									try:
-										await user.add_roles(role, reason='Reaction Role')
-									except Exception:
-										pass
+			try:
+				if await self.member_guild_check(user):
+					guild = user.guild
+					message = reaction.message
+					await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {user.guild.id};')
+					dbinf = await self.bot.db.fetchone()
+					if not dbinf:
+						return
+					roleid = dbinf[7]
+					msgid = dbinf[8]
+					emote = dbinf[9]
+					if roleid != None:
+						if msgid != None:
+							if emote != None:
+								emotecheck = None
+								try:
+									emote = int(emote)
+									if emote == reaction.emoji.id:
+										emotecheck = True
+								except Exception:
+									emote = str(emote)
+									if emote == reaction.emoji:
+										emotecheck = True
+								if emotecheck:
+									role = discord.utils.get(guild.roles, id=roleid)
+									if role != None:
+										try:
+											await user.add_roles(role, reason='Reaction Role')
+										except Exception:
+											pass
+			except Exception:
+				return
 	
 	@commands.Cog.listener()
 	async def on_reaction_remove(self, reaction, user):
 		if type(user) == discord.Member:
-			if await self.member_guild_check(user):
-				guild = user.guild
-				message = reaction.message
-				await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {user.guild.id};')
-				dbinf = await self.bot.db.fetchone()
-				if not dbinf:
-					return
-				roleid = dbinf[7]
-				msgid = dbinf[8]
-				emote = dbinf[9]
-				if roleid != None:
-					if msgid != None:
-						if emote != None:
-							emotecheck = None
-							try:
-								emote = int(emote)
-								if emote == reaction.emoji.id:
-									emotecheck = True
-							except Exception:
-								emote = str(emote)
-								if emote == reaction.emoji:
-									emotecheck = True
-							if emotecheck:
-								role = discord.utils.get(guild.roles, id=roleid)
-								if role != None:
-									try:
-										await user.remove_roles(role, reason='Reaction Role')
-									except Exception:
-										pass
+			try:
+				if await self.member_guild_check(user):
+					guild = user.guild
+					message = reaction.message
+					await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {user.guild.id};')
+					dbinf = await self.bot.db.fetchone()
+					if not dbinf:
+						return
+					roleid = dbinf[7]
+					msgid = dbinf[8]
+					emote = dbinf[9]
+					if roleid != None:
+						if msgid != None:
+							if emote != None:
+								emotecheck = None
+								try:
+									emote = int(emote)
+									if emote == reaction.emoji.id:
+										emotecheck = True
+								except Exception:
+									emote = str(emote)
+									if emote == reaction.emoji:
+										emotecheck = True
+								if emotecheck:
+									role = discord.utils.get(guild.roles, id=roleid)
+									if role != None:
+										try:
+											await user.remove_roles(role, reason='Reaction Role')
+										except Exception:
+											pass
+			except Exception:
+				return
 			
 
 def setup(bot):
