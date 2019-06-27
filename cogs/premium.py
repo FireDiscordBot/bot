@@ -26,6 +26,40 @@ class Premium(commands.Cog, name="Premium Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.loop = bot.loop
+		self.premiumGuilds  = []
+		self.autoroles = {}
+		self.reactroles = {}
+
+	async def loadPremiumGuilds(self):
+		self.premiumGuilds = []
+		await self.bot.db.execute('SELECT * FROM premium;')
+		guilds = await self.bot.db.fetchall()
+		for guild in guilds:
+			self.premiumGuilds.append(guild[1])
+
+	async def loadAutoroles(self):
+		self.autoroles = {}
+		await self.bot.db.execute('SELECT * FROM settings;')
+		settings = await self.bot.db.fetchall()
+		for s in settings:
+			if s[6] != 0:
+				guild = s[10]
+				self.autoroles[guild] = {
+					"role": s[6]
+				}
+
+	async def loadReactroles(self):
+		self.reactroles = {}
+		await self.bot.db.execute('SELECT * FROM SETTINGS;')
+		settings = await self.bot.db.fetchall()
+		for s in settings:
+			if s[7] != 0:
+				guild = s[10]
+				self.reactroles[guild] = {
+					"role": s[7],
+					"message": s[8],
+					"emote": s[9]
+				}
 
 	async def cog_check(self, ctx: commands.Context):
 		"""
@@ -33,12 +67,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		"""
 		if await self.bot.is_owner(ctx.author):
 			return True
-		try:
-			await ctx.bot.db.execute(f'SELECT * FROM premium WHERE gid = {ctx.guild.id};')
-			premium = await ctx.bot.db.fetchone()
-		except Exception:
-			return False
-		if premium != None:
+		if ctx.guild.id in self.premiumGuilds:
 			return True
 		else:
 			return False
@@ -49,15 +78,16 @@ class Premium(commands.Cog, name="Premium Commands"):
 		"""
 		if await self.bot.is_owner(member):
 			return True
-		try:
-			await self.bot.db.execute(f'SELECT * FROM premium WHERE gid = {member.guild.id};')
-			premium = await self.bot.db.fetchone()
-		except Exception:
-			return False
-		if premium != None:
+		if member.guild.id in self.premiumGuilds:
 			return True
 		else:
 			return False
+
+	@commands.Cog.listener()
+	async def on_ready(self):
+		await self.loadPremiumGuilds()
+		await self.loadAutoroles()
+		await self.loadReactroles()
 
 	def gencrabrave(self, t, filename):
 		clip = VideoFileClip("crabtemplate.mp4")
@@ -107,21 +137,27 @@ class Premium(commands.Cog, name="Premium Commands"):
 		if not role:
 			await self.bot.db.execute(f'UPDATE settings SET autorole = 0 WHERE gid = {ctx.guild.id}')
 			await self.bot.conn.commit()
+			try:
+				self.autoroles[ctx.guild.id] = None
+			except KeyError:
+				pass
 			return await ctx.send(f'Successfully disabled auto-role in {ctx.guild.name}', delete_after=5)
 		else:
 			roleid = role.id
 			await self.bot.db.execute(f'UPDATE settings SET autorole = {roleid} WHERE gid = {ctx.guild.id}')
 			await self.bot.conn.commit()
+			self.autoroles[ctx.guild.id] = {
+				"role": roleid
+			}
 			return await ctx.send(f'Successfully enabled auto-role in {ctx.guild.name}! All new members will recieve the {role.name} role.', delete_after=5)
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
 		try:
 			if await self.member_guild_check(member):
-				await self.bot.db.execute(f'SELECT autorole FROM settings WHERE gid = {member.guild.id};')
-				role = await self.bot.db.fetchone()
 				try:
-					role = discord.utils.get(member.guild.roles, id=role[0])
+					roleid = self.autoroles[member.guild.id]["role"]
+					role = discord.utils.get(member.guild.roles, id=roleid)
 				except Exception:
 					return
 				if role != None:
@@ -173,6 +209,11 @@ class Premium(commands.Cog, name="Premium Commands"):
 			await self.bot.db.execute(f'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = ({roleid}, {messageid}, \"{emoteid}\") WHERE gid = {ctx.guild.id}')
 			await self.bot.conn.commit()
 			await msg.add_reaction(emote)
+			self.reactroles[ctx.guild.id] = {
+				"role": roleid,
+				"message": messageid,
+				"emote": emoteid
+			}
 			return await ctx.send(f'Successfully enabled reaction role in {ctx.guild.name}!', delete_after=5)
 
 	@commands.Cog.listener()
@@ -182,13 +223,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 				if await self.member_guild_check(user):
 					guild = user.guild
 					message = reaction.message
-					await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {user.guild.id};')
-					dbinf = await self.bot.db.fetchone()
-					if not dbinf:
-						return
-					roleid = dbinf[7]
-					msgid = dbinf[8]
-					emote = dbinf[9]
+					rr = self.reactroles[guild.id]
+					roleid = rr["role"]
+					msgid = rr["message"]
+					emote = rr["emote"]
 					if roleid != None:
 						if msgid != None:
 							if emote != None:
@@ -218,13 +256,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 				if await self.member_guild_check(user):
 					guild = user.guild
 					message = reaction.message
-					await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {user.guild.id};')
-					dbinf = await self.bot.db.fetchone()
-					if not dbinf:
-						return
-					roleid = dbinf[7]
-					msgid = dbinf[8]
-					emote = dbinf[9]
+					rr = self.reactroles[guild.id]
+					roleid = rr["role"]
+					msgid = rr["message"]
+					emote = rr["emote"]
 					if roleid != None:
 						if msgid != None:
 							if emote != None:
