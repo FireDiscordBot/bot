@@ -9,8 +9,6 @@ import typing
 import json
 import os
 
-print("Premium functions have been loaded!")
-
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
@@ -24,7 +22,7 @@ def isadmin(ctx):
 
 class Premium(commands.Cog, name="Premium Commands"):
 	def __init__(self, bot):
-		self.bot = bot
+		self.bot: commands.Bot = bot
 		self.loop = bot.loop
 		self.premiumGuilds  = []
 		self.autoroles = {}
@@ -85,9 +83,22 @@ class Premium(commands.Cog, name="Premium Commands"):
 
 	@commands.Cog.listener()
 	async def on_ready(self):
+		await asyncio.sleep(5)
 		await self.loadPremiumGuilds()
 		await self.loadAutoroles()
 		await self.loadReactroles()
+		print('Premium functions loaded!')
+
+	@commands.command(name='loadpremium', description='Load premium data', hidden=True)
+	async def loadpremium(self, ctx):
+		'''PFXloadpremium'''
+		if await self.bot.is_owner(ctx.author):
+			await self.loadPremiumGuilds()
+			await self.loadAutoroles()
+			await self.loadReactroles()
+			await ctx.send('Loaded data!')
+		else:
+			await ctx.send('no.')
 
 	def gencrabrave(self, t, filename):
 		clip = VideoFileClip("crabtemplate.mp4")
