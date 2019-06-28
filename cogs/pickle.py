@@ -468,7 +468,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 						ver = "Unknown"
 					embed.add_field(name="Version", value=ver, inline=True)
 					embed.add_field(name="Level", value=level, inline=True)
-					embed.add_field(name="Karma", value=format(p['karma'], ',d'), inline=True)
+					embed.add_field(name="Karma", value=format(p['karma'] if 'karma' in p else 0, ',d'), inline=True)
 					try:
 						twitter = p['socialMedia']['TWITTER']
 					except Exception:
