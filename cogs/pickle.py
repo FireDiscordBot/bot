@@ -327,8 +327,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					prefixcolor = p['monthlyRankColor']
 				except Exception as e:
 					prefixcolor = "GOLD"
-				lastlogin = p['lastLogin']
-				lastlogout = p['lastLogout']
+				lastlogin = p['lastLogin'] if 'lastLogin' in p else 0
+				lastlogout = p['lastLogout'] if 'lastLogout' in p else 1
 				if lastlogin > lastlogout:
 					status = "Online!"
 				else:
