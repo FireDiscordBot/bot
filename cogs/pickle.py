@@ -443,6 +443,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				try:
 					rank = re.sub(remcolor, '', p['prefix'], 0, re.IGNORECASE).replace('[', '').replace(']', '')
 					customtag = f"https://gaminggeek.dev/pickletags/{rank}.png"
+				except Exception:
+					pass
 				if arg2 == None:
 					msg = await ctx.send(f"Retrieving {discord.utils.escape_markdown(p['displayname'])}'s info...")
 					uuid = player.UUID
