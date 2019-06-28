@@ -441,8 +441,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					rankimg = "https://gaminggeek.dev/pickleranks/ADMIN.png"
 				customtag = False
 				try:
-					rank = re.sub(remcolor, '', p['prefix'], 0, re.IGNORECASE).replace('[', '').replace(']', '')
-					customtag = f"https://gaminggeek.dev/pickletags/{rank}.png"
+					customrank = re.sub(remcolor, '', p['prefix'], 0, re.IGNORECASE).replace('[', '').replace(']', '')
+					customtag = f"https://gaminggeek.dev/pickletags/{customrank}.png"
 				except Exception:
 					pass
 				if arg2 == None:
