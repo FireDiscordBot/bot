@@ -3,6 +3,7 @@ from discord.ext import commands
 import datetime
 import json
 import ksoftapi
+from ksoftapi import Ban
 import random
 
 print("ksoft.py has been loaded")
@@ -101,6 +102,39 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		nsfwtags = ', '.join(tags.nsfw_tags)
 		sfwtags = ', '.join(tags.sfw_tags)
 		await ctx.send(f'```Non-NSFW Tags:\n{sfwtags}\n\nNSFW Tags:\n{nsfwtags}```')
+
+	@commands.command(name='baninfo', description='Check the info of a ban on the KSoft.Si API')
+	async def baninfo(self, ctx, bannedboi: int):
+		'''PFXbaninfo <userid>'''
+		ksoftguild: discord.Guild = self.bot.get_guild(458341246453415947)
+		check = ksoftguild.get_member(ctx.author.id)
+		if not check:
+			embed = discord.Embed(title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color, timestamp=datetime.datetime.utcnow())
+			embed.add_field(name='Error', value="You must be in the KSoft.Si guild to use this command!\n[Click here to join](https://discord.gg/RsHqQR9 'Click this to join the KSoft.Si API guild')", inline=False)
+			return await ctx.send(embed=embed)
+		try:
+			inf = await self.bot.ksoft.bans_info(bannedboi)
+		except ksoftapi.APIError as e:
+			embed = discord.Embed(title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color, timestamp=datetime.datetime.utcnow())
+			embed.add_field(name='Error', value=e.message, inline=False)
+			embed.add_field(name='Code', value=e.code, inline=False)
+			return await ctx.send(embed=embed)
+		nothingtoseehere = self.bot.get_user(270235302071762945)
+		embed = discord.Embed(title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color, timestamp=datetime.datetime.utcnow())
+		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url))
+		embed.set_footer(text='Ban info from KSoft.Si API (https://api.ksoft.si/)', icon_url=str(nothingtoseehere.avatar_url))
+		embed.add_field(name='User', value=f'{inf.name}#{inf.discriminator}' if inf.name != 'Unknown' else 'Unknown#0000')
+		embed.add_field(name='Mod ID', value=inf.moderator_id)
+		embed.add_field(name='Active', value=inf.is_ban_active)
+		embed.add_field(name='Appeal Possible', value=inf.can_be_appealed)
+		embed.add_field(name='Reason', value=inf.reason, inline=False)
+		embed.add_field(name='Proof', value=f'[Click Here]({inf.proof})' if inf.proof != 'https://bans.ksoft.si' else 'None Provided')
+		embed.add_field(name='Timestamp', value=inf.timestamp.replace('T', ' ').split('.')[0]) # Amazing date formatting code. I call it the date formatter-inator (yes, I am Dr. Doofenshmirtz)
+		if inf.appeal_reason and inf.appeal_date:
+			embed.add_field(name='Appeal Reason', value=inf.appeal_reason)
+			embed.add_field(name='Appeal Date', value=inf.appeal_date.replace('T', ' ').split('.')[0])
+		await ctx.send(embed=embed)
+		
 
 
 def setup(bot):
