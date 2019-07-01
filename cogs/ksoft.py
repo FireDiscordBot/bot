@@ -3,7 +3,6 @@ from discord.ext import commands
 import datetime
 import json
 import ksoftapi
-from ksoftapi import Ban
 import random
 
 print("ksoft.py has been loaded")
