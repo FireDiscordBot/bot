@@ -391,9 +391,15 @@ class utils(commands.Cog, name='Utility Commands'):
 					return
 				else:
 					if not message.content and message.embeds and message.author.bot:
-						await channel.send(content = 'Raw embed from `' + str(message.author).strip('`') + '` in ' + message.channel.mention, embed = quote_embed(channel, message, user))
+						try:
+							await channel.send(content = 'Raw embed from `' + str(message.author).strip('`') + '` in ' + message.channel.mention, embed = quote_embed(channel, message, user))
+						except discord.Forbidden:
+							return
 					else:
-						await channel.send(embed = quote_embed(channel, message, user))
+						try:
+							await channel.send(embed = quote_embed(channel, message, user))
+						except discord.Forbidden:
+							return
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
