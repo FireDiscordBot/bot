@@ -140,16 +140,18 @@ class Assistant(commands.Cog, name='Google Assistant'):
 			response_text, response_html = await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query))
 		except Exception:
 			raise commands.CommandError('Something went wrong.')
-		if response_text == None:
-			if not response_html:
-				await ctx.send('I can\'t help you with that on this device')
-				return
-		else:
+		if response_text:
 			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_author(name="Google Assistant", url="https://assistant.google.com/", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Google_Assistant_logo.svg/1200px-Google_Assistant_logo.svg.png")
 			embed.add_field(name="You said...", value=query)
 			embed.add_field(name="Google Assistant said...", value=response_text)
-			return await ctx.send(embed=embed)
+			await ctx.send(embed=embed)
+		elif response_html:
+			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
+			embed.set_author(name="Google Assistant", url="https://assistant.google.com/", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Google_Assistant_logo.svg/1200px-Google_Assistant_logo.svg.png")
+			embed.add_field(name="You said...", value=query)
+			embed.add_field(name="Google Assistant said...", value="Sorry, I can't help with that on this device.")
+			await ctx.send(embed=embed)
 			# with open(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/{ctx.author.name}-{ctx.author.id}.html', 'wb') as f:
 			# 	f.write(response_html)
 			# await loop.run_in_executor(None, func=functools.partial(self.screenshot, f'{ctx.author.name}-{ctx.author.id}'))
