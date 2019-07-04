@@ -144,18 +144,22 @@ class Assistant(commands.Cog, name='Google Assistant'):
 			if not response_html:
 				await ctx.send('I can\'t help you with that on this device')
 				return
-			else:
-				with open(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/{ctx.author.name}-{ctx.author.id}.html', 'wb') as f:
-					f.write(response_html)
-				await loop.run_in_executor(None, func=functools.partial(self.screenshot, f'{ctx.author.name}-{ctx.author.id}'))
-				img = discord.File(f'assist{ctx.author.name}-{ctx.author.id}.png', 'gassist.png')
-				await ctx.send(file=img)
-				try:
-					os.remove(f'assist{ctx.author.name}-{ctx.author.id}.png')
-					os.remove(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/{ctx.author.name}-{ctx.author.id}.html')
-				except Exception:
-					pass
-				return
+		else:
+			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
+			embed.set_author(name="Google Assistant", url="https://assistant.google.com/", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Google_Assistant_logo.svg/1200px-Google_Assistant_logo.svg.png")
+			embed.add_field(name="You said...", value=query)
+			embed.add_field(name="Google Assistant said...", value=response_text)
+			return await ctx.send(embed=embed)
+			# with open(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/{ctx.author.name}-{ctx.author.id}.html', 'wb') as f:
+			# 	f.write(response_html)
+			# await loop.run_in_executor(None, func=functools.partial(self.screenshot, f'{ctx.author.name}-{ctx.author.id}'))
+			# img = discord.File(f'assist{ctx.author.name}-{ctx.author.id}.png', 'gassist.png')
+			# await ctx.send(file=img)
+			# try:
+			# 	os.remove(f'assist{ctx.author.name}-{ctx.author.id}.png')
+			# 	os.remove(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/{ctx.author.name}-{ctx.author.id}.html')
+			# except Exception:
+			# 	pass
 		else:
 			await ctx.send(response_text)
 
