@@ -132,7 +132,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		driver.quit()
 
 	@commands.command(description="Ask the Google Assistant a question!\n\nNote: It currently takes ~10 seconds for the response as this feature is in beta")
-	@commands.cooldown(1, 12, commands.BucketType.user)
+	# @commands.cooldown(1, 12, commands.BucketType.user)
 	async def gassist(self, ctx, *, query):
 		'''PFXgassist <query>'''
 		await ctx.channel.trigger_typing()
