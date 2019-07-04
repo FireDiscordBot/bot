@@ -151,6 +151,8 @@ class Assistant(commands.Cog, name='Google Assistant'):
 			response_text, response_html = await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query))
 		except Exception:
 			raise commands.CommandError('Something went wrong.')
+		with open(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/gassisttest.html', 'wb') as f:
+			f.write(response_html)
 		resptxt, respsuggest = self.getresponse(str(response_html))
 		if resptxt != None:
 			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
