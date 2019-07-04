@@ -142,8 +142,8 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		except Exception:
 			raise commands.CommandError('Something went wrong.')
 		if ctx.author.nick == 'debug':
-			await ctx.send(response_text)
-		if response_text != None:
+			await ctx.send(response_text if response_text != "" else "empty string")
+		if response_text != None or "":
 			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_author(name="Google Assistant", url="https://assistant.google.com/", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Google_Assistant_logo.svg/1200px-Google_Assistant_logo.svg.png")
 			embed.add_field(name="You said...", value=query, inline=False)
