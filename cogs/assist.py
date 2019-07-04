@@ -137,6 +137,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		for i in range(1, 6):
 			if f"suggestion_{i}" in html:
 				suggestion = html.split(f"id=\"suggestion_{i}\">")[1].split('</button>')[0]
+				print(suggestion)
 				respsuggest.append(suggestion)
 		return resptxt, respsuggest
 
