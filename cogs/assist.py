@@ -141,8 +141,6 @@ class Assistant(commands.Cog, name='Google Assistant'):
 			response_text, response_html = await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query))
 		except Exception:
 			raise commands.CommandError('Something went wrong.')
-		if ctx.author.nick == 'debug':
-			await ctx.send(response_text if response_text != "" or None else "empty string")
 		if response_text != None or "":
 			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_author(name="Google Assistant", url="https://assistant.google.com/", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Google_Assistant_logo.svg/1200px-Google_Assistant_logo.svg.png")
@@ -155,8 +153,8 @@ class Assistant(commands.Cog, name='Google Assistant'):
 			embed.add_field(name="You said...", value=query, inline=False)
 			embed.add_field(name="Google Assistant said...", value="Sorry, I can't help with that on this device.", inline=False)
 			await ctx.send(embed=embed)
-			# with open(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/{ctx.author.name}-{ctx.author.id}.html', 'wb') as f:
-			# 	f.write(response_html)
+			with open(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/gassisttest.html', 'wb') as f:
+				f.write(response_html)
 			# await loop.run_in_executor(None, func=functools.partial(self.screenshot, f'{ctx.author.name}-{ctx.author.id}'))
 			# img = discord.File(f'assist{ctx.author.name}-{ctx.author.id}.png', 'gassist.png')
 			# await ctx.send(file=img)
