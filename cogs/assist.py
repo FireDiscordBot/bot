@@ -131,6 +131,15 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		screenshot = driver.save_screenshot(f'assist{fileid}.png')
 		driver.quit()
 
+	def getresponse(self, html):
+		resptxt = html.split("class=\"show_text_content\">").split('</div>')[0]
+		respsuggest = []
+		for i in range(1, 6):
+			if f"suggestion_{i}" in html:
+				suggestion = html.split(f"id=\"suggestion_0\">").split('</button>')[0]
+				respsuggest.append(suggestion)
+		return resptxt, respsuggest
+
 	@commands.command(description="Ask the Google Assistant a question!\n\nNote: It currently takes ~10 seconds for the response as this feature is in beta")
 	# @commands.cooldown(1, 12, commands.BucketType.user)
 	async def gassist(self, ctx, *, query):
@@ -141,13 +150,16 @@ class Assistant(commands.Cog, name='Google Assistant'):
 			response_text, response_html = await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query))
 		except Exception:
 			raise commands.CommandError('Something went wrong.')
-		if response_text != None or "":
+		resptxt, respsuggest = self.getresponse(response_html)
+		if resptxt != None:
 			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_author(name="Google Assistant", url="https://assistant.google.com/", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Google_Assistant_logo.svg/1200px-Google_Assistant_logo.svg.png")
 			embed.add_field(name="You said...", value=query, inline=False)
-			embed.add_field(name="Google Assistant said...", value=response_text, inline=False)
+			embed.add_field(name="Google Assistant said...", value=resptxt, inline=False)
+			if respsuggest:
+				embed.add_field(name="Try asking...", value=', '.join(respsuggest), inline=False)
 			await ctx.send(embed=embed)
-		elif response_html:
+		else:
 			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_author(name="Google Assistant", url="https://assistant.google.com/", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Google_Assistant_logo.svg/1200px-Google_Assistant_logo.svg.png")
 			embed.add_field(name="You said...", value=query, inline=False)
