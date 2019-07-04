@@ -160,8 +160,6 @@ class Assistant(commands.Cog, name='Google Assistant'):
 			# 	os.remove(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/{ctx.author.name}-{ctx.author.id}.html')
 			# except Exception:
 			# 	pass
-		else:
-			await ctx.send(response_text)
 
 def setup(bot):
 	if credentials:
