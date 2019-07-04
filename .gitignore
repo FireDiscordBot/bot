@@ -112,3 +112,4 @@ fire.db
 bfg.jar
 *.png
 .vscode/settings.json
+.vscode/
