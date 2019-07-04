@@ -131,7 +131,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		screenshot = driver.save_screenshot(f'assist{fileid}.png')
 		driver.quit()
 
-	def getresponse(self, html):
+	def getresponse(self, html: str):
 		resptxt = html.split("class=\"show_text_content\">").split('</div>')[0]
 		respsuggest = []
 		for i in range(1, 6):
@@ -150,7 +150,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
 			response_text, response_html = await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query))
 		except Exception:
 			raise commands.CommandError('Something went wrong.')
-		resptxt, respsuggest = self.getresponse(response_html)
+		resptxt, respsuggest = self.getresponse(str(response_html))
 		if resptxt != None:
 			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_author(name="Google Assistant", url="https://assistant.google.com/", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Google_Assistant_logo.svg/1200px-Google_Assistant_logo.svg.png")
