@@ -144,14 +144,14 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		if response_text:
 			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_author(name="Google Assistant", url="https://assistant.google.com/", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Google_Assistant_logo.svg/1200px-Google_Assistant_logo.svg.png")
-			embed.add_field(name="You said...", value=query)
-			embed.add_field(name="Google Assistant said...", value=response_text)
+			embed.add_field(name="You said...", value=query, inline=False)
+			embed.add_field(name="Google Assistant said...", value=response_text, inline=False)
 			await ctx.send(embed=embed)
 		elif response_html:
 			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_author(name="Google Assistant", url="https://assistant.google.com/", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Google_Assistant_logo.svg/1200px-Google_Assistant_logo.svg.png")
-			embed.add_field(name="You said...", value=query)
-			embed.add_field(name="Google Assistant said...", value="Sorry, I can't help with that on this device.")
+			embed.add_field(name="You said...", value=query, inline=False)
+			embed.add_field(name="Google Assistant said...", value="Sorry, I can't help with that on this device.", inline=False)
 			await ctx.send(embed=embed)
 			# with open(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/{ctx.author.name}-{ctx.author.id}.html', 'wb') as f:
 			# 	f.write(response_html)
