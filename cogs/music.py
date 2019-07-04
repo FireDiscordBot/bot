@@ -124,6 +124,9 @@ class Player(wavelink.Player):
 		if not track:
 			track = self.current
 
+		if track.title == 'Unknown title':
+			return
+
 		self.updating = True
 
 		embed = discord.Embed(title='Music Controller',
@@ -448,8 +451,14 @@ class Music(commands.Cog):
 		if not player.dj:
 			player.dj = ctx.author
 
+		if query == f'{ctx.author.id}.mp3' or 'Soundboard/danko_memez.mp3':
+			assistant = True
+
 		if not RURL.match(query):
-			query = f'ytsearch:{query}'
+			if'.mp3' or '.mp4' in query:
+				pass
+			else:
+				query = f'ytsearch:{query}'
 		try:
 			tracks = await self.bot.wavelink.get_tracks(query)
 		except Exception:
@@ -458,7 +467,9 @@ class Music(commands.Cog):
 			await self.initiate_nodes()
 			tracks = await self.bot.wavelink.get_tracks(query)
 		if not tracks:
-			return await ctx.send('No songs were found with that query. Please try again.')
+			if query == f'{ctx.author.id}.mp3':
+				return await ctx.send('I got no response from Google Assistant.')
+			return await ctx.send(f'No songs were found with the query {query}. Please try again.')
 
 		if isinstance(tracks, wavelink.TrackPlaylist):
 			for t in tracks.tracks:
@@ -468,6 +479,9 @@ class Music(commands.Cog):
 						   f' with {len(tracks.tracks)} songs to the queue.\n```')
 		else:
 			track = tracks[0]
+			if assistant:
+				await player.queue.put(Track(track.id, track.info, ctx=ctx))
+				return
 			await ctx.send(f'```ini\nAdded {track.title} to the Queue\n```', delete_after=15)
 			await player.queue.put(Track(track.id, track.info, ctx=ctx))
 

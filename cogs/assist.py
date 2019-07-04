@@ -6,7 +6,10 @@ import json
 import click
 import functools
 import datetime
-from selenium import webdriver
+import wavelink
+from jishaku.cog import copy_context_with
+from cogs.music import Player as MusicPlayer
+from cogs.music import Track as MusicTrack
 import google.auth.transport.grpc
 import google.auth.transport.requests
 import google.oauth2.credentials
@@ -19,10 +22,12 @@ try:
 	from .amodules import (
 		assistant_helpers,
 		browser_helpers,
+		audio_helpers
 	)
 except (SystemError, ImportError):
 	import assistant_helpers
 	import browser_helpers
+	import audio_helpers
 
 print('assist.py has been loaded.')
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
@@ -50,7 +55,7 @@ class GoogleAssistant(object):
 		if e:
 			return False
 
-	def assist(self, text_query):
+	def assist(self, text_query, conversation_stream):
 		"""Send a text request to the Assistant and playback the response.
 		"""
 		def iter_assist_requests():
@@ -84,6 +89,7 @@ class GoogleAssistant(object):
 		for resp in self.assistant.Assist(iter_assist_requests(),
 										  self.deadline):
 			assistant_helpers.log_assist_response_without_audio(resp)
+			conversation_stream.write(resp.audio_out.audio_data)
 			if resp.screen_out.data:
 				html_response = resp.screen_out.data
 			if resp.dialog_state_out.conversation_state:
@@ -110,74 +116,48 @@ class Assistant(commands.Cog, name='Google Assistant'):
 	def __init__(self, bot):
 		self.bot = bot
 
-	def assistquery(self, query):
-		response_text, response_html = gassistant.assist(text_query=query)
-		return response_text
-
-	def screenshot(self, fileid):
-		DRIVER = 'chromedriver'
-		driver = webdriver.Chrome(DRIVER)
-		driver.set_window_size(2160, 1440)
-		driver.get('chrome://settings/')
-		driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.75);')
-		driver.get(f'https://gaminggeek.club/{fileid}.html')
-		driver.execute_script('document.body.style.backgroundImage = "url(\'https://picsum.photos/1920/1080/?blur\')";')
-		try:
-			driver.execute_script('document.getElementById(\'suggestion_header\').innerHTML = \'Try typing...\';')
-		except Exception:
-			pass
-		#driver.execute_script("document.body.style.backgroundColor = '#36393F';")
-		#driver.execute_script("document.getElementById('assistant-shadow').remove();")
-		screenshot = driver.save_screenshot(f'assist{fileid}.png')
-		driver.quit()
-
-	def getresponse(self, html: str):
-		resptxt = html.split("class=\"show_text_content\">")[1].split('</div>')[0]
-		respsuggest = []
-		for i in range(1, 6):
-			if f"suggestion_{i}" in html:
-				suggestion = html.split(f"id=\"suggestion_{i}\">")[1].split('</button>')[0]
-				print(suggestion)
-				respsuggest.append(suggestion)
-		return resptxt, respsuggest
-
-	@commands.command(description="Ask the Google Assistant a question!\n\nNote: It currently takes ~10 seconds for the response as this feature is in beta")
+	@commands.command(description="Ask the Google Assistant a question and hear the response in your voice channel!")
 	# @commands.cooldown(1, 12, commands.BucketType.user)
 	async def gassist(self, ctx, *, query):
 		'''PFXgassist <query>'''
 		await ctx.channel.trigger_typing()
 		loop = self.bot.loop
+		if not ctx.author.voice.channel:
+			return await ctx.send('You must be in a voice channel to use this!')
+		player = self.bot.wavelink.get_player(ctx.guild.id, cls=MusicPlayer)
+		if player.is_playing:
+			return await ctx.send('I\'m currently playing music so I can\'t play the response.')
 		try:
-			response_text, response_html = await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query))
-		except Exception:
-			raise commands.CommandError('Something went wrong.')
-		with open(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/gassisttest.html', 'wb') as f:
-			f.write(response_html)
-		resptxt, respsuggest = self.getresponse(str(response_html))
-		if resptxt != None:
-			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
-			embed.set_author(name="Google Assistant", url="https://assistant.google.com/", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Google_Assistant_logo.svg/1200px-Google_Assistant_logo.svg.png")
-			embed.add_field(name="You said...", value=query, inline=False)
-			embed.add_field(name="Google Assistant said...", value=resptxt.decode('UTF-8'), inline=False)
-			if respsuggest:
-				embed.add_field(name="Try asking...", value=', '.join(respsuggest), inline=False)
-			await ctx.send(embed=embed)
-		else:
-			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
-			embed.set_author(name="Google Assistant", url="https://assistant.google.com/", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Google_Assistant_logo.svg/1200px-Google_Assistant_logo.svg.png")
-			embed.add_field(name="You said...", value=query, inline=False)
-			embed.add_field(name="Google Assistant said...", value="Sorry, I can't help with that on this device.", inline=False)
-			await ctx.send(embed=embed)
-			with open(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/gassisttest.html', 'wb') as f:
-				f.write(response_html)
-			# await loop.run_in_executor(None, func=functools.partial(self.screenshot, f'{ctx.author.name}-{ctx.author.id}'))
-			# img = discord.File(f'assist{ctx.author.name}-{ctx.author.id}.png', 'gassist.png')
-			# await ctx.send(file=img)
-			# try:
-			# 	os.remove(f'assist{ctx.author.name}-{ctx.author.id}.png')
-			# 	os.remove(f'C:/Users/Administrator/Documents/Geek/gaminggeek.club/{ctx.author.name}-{ctx.author.id}.html')
-			# except Exception:
-			# 	pass
+			audio_sink = audio_helpers.WaveSink(
+				open(f'{ctx.author.id}.mp3', 'wb'),
+				sample_rate=16000,
+				sample_width=2
+			)
+			stream = audio_helpers.ConversationStream(
+				source=None,
+				sink=audio_sink,
+				iter_size=3200,
+				sample_width=2,
+			)
+			await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query, stream))
+			if os.path.exists(f'{ctx.author.id}.mp3'):
+				alt_ctx = await copy_context_with(ctx, content=ctx.prefix + f'play {ctx.author.id}.mp3')
+				await alt_ctx.command.reinvoke(alt_ctx)
+				await asyncio.sleep(3)
+				track = player.current
+				if track == None:
+					await player.destroy_controller()
+					await player.destroy()
+					await player.disconnect()
+					return
+				if track.title == 'Unknown title':
+					length = track.length / 1000
+					await asyncio.sleep(length)
+					await player.destroy_controller()
+					await player.destroy()
+					await player.disconnect()
+		except Exception as e:
+			raise e
 
 def setup(bot):
 	if credentials:
