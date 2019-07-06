@@ -382,6 +382,9 @@ class utils(commands.Cog, name='Utility Commands'):
 			channel = guild.get_channel(payload.channel_id)
 			user = guild.get_member(payload.user_id)
 
+			if guild.id in disabled:
+				return
+
 			if user.permissions_in(channel).send_messages:
 				try:
 					message = await channel.fetch_message(payload.message_id)
