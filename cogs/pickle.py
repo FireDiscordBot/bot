@@ -142,7 +142,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				embed = discord.Embed(title='Network Level Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 				await msg.delete()
-				await interface.send_to(ctx)
+				return await interface.send_to(ctx)
 			elif arg2.lower() == 'karma':
 				msg = await ctx.send(f"Generating Karma leaderboard...")
 				headers = {
@@ -165,7 +165,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				embed = discord.Embed(title='Karma Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 				await msg.delete()
-				await interface.send_to(ctx)
+				return await interface.send_to(ctx)
 			elif arg2.lower() == 'coins':
 				msg = await ctx.send(f"Generating Coins leaderboard...")
 				headers = {
@@ -188,7 +188,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				embed = discord.Embed(title='Coins Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 				await msg.delete()
-				await interface.send_to(ctx)
+				return await interface.send_to(ctx)
 			elif arg2.lower() == 'kills':
 				msg = await ctx.send(f"Generating Total Kills leaderboard...")
 				headers = {
@@ -211,7 +211,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				embed = discord.Embed(title='Total Kills Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 				await msg.delete()
-				await interface.send_to(ctx)
+				return await interface.send_to(ctx)
 			elif arg2.lower() == 'wins':
 				msg = await ctx.send(f"Generating Total Wins leaderboard...")
 				headers = {
@@ -234,7 +234,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				embed = discord.Embed(title='Total Wins Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 				await msg.delete()
-				await interface.send_to(ctx)
+				return await interface.send_to(ctx)
 			elif arg2.lower() == 'glevel':
 				msg = await ctx.send(f"Generating Guild Level leaderboard...")
 				headers = {
@@ -257,7 +257,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				embed = discord.Embed(title='Guild Level Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 				await msg.delete()
-				await interface.send_to(ctx)
+				return await interface.send_to(ctx)
 			elif arg2.lower() == 'gexperience':
 				msg = await ctx.send(f"Generating Guild Experience leaderboard...")
 				headers = {
@@ -280,7 +280,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				embed = discord.Embed(title='Guild Experience Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 				await msg.delete()
-				await interface.send_to(ctx)
+				return await interface.send_to(ctx)
 			elif arg2.lower() == 'gwins':
 				msg = await ctx.send(f"Generating Guild Wins leaderboard...")
 				headers = {
@@ -303,7 +303,9 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				embed = discord.Embed(title='Guild Wins Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 				await msg.delete()
-				await interface.send_to(ctx)
+				return await interface.send_to(ctx)
+			else:
+				return await ctx.send('Unknown leaderboard.')
 		if arg2 == None:
 			msg = await ctx.send(f"Requesting info about {discord.utils.escape_markdown(arg1)} from the Hypixel API!")
 			channel = ctx.message.channel
