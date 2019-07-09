@@ -158,7 +158,7 @@ async def user(request):
 				}
 			}
 			data.update(spotifyinf)
-		elif type(activity) == discord.activity.Streaming:
+		elif type(activity) == discord.Streaming:
 			activityinf = {
 				'activity': {
 				'type': 'streaming',
@@ -167,16 +167,26 @@ async def user(request):
 				}
 			}
 			data.update(activityinf)
-		else:
+		elif activity.state == None:
 			activityinf = {
-				'activity': {
-				'name': activity.name,
-				'state': activity.state,
-				'details': activity.details,
-				'assets': activity.assets,
-				'type': activity.type
-				}
+				'game': activity.name,
 			}
+			data.update(activityinf)
+		else:
+			try:
+				activityinf = {
+					'activity': {
+					'name': activity.name,
+					'state': activity.state,
+					'details': activity.details,
+					'assets': activity.assets,
+					'type': activity.type
+					}
+				}
+			except Exception:
+				activityinf = {
+					'game': activity.name
+				}
 			data.update(activityinf)
 	headers = {
 		'content-type': 'application/json',
