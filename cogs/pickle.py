@@ -7,8 +7,11 @@ import logging
 import aiohttp
 import hypixel
 import re
+import os
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 from fire.jsontable import table2json
+from PIL import Image
+from . import mcfont
 
 remcolor = r'\u00A7[0-9A-FK-OR]'
 
@@ -77,6 +80,20 @@ picklegames = {
 class pickle(commands.Cog, name="Hypixel Commands"):
 	def __init__(self, bot):
 		self.bot = bot
+
+	# @commands.command(description='Generate a rank image from text, e.g. `&d[PIG&c+&d]`')
+	# async def rankimg(self, ctx, *, arg):
+	# 	'''PFXrankimg <rank>'''
+	# 	text = arg.replace('&', '§')
+	# 	parsedtxt = mcfont.parse(text)
+	# 	width = mcfont.get_width(parsedtxt)
+	# 	img = Image.new('RGBA', (width+25, 42))
+	# 	mcfont.render((5, 0), parsedtxt, img)
+	# 	img.save('lastrank.png')
+	# 	file = discord.File('lastrank.png')
+	# 	embed = discord.Embed(color=ctx.author.color)
+	# 	embed.set_image(url=f'attachment://lastrank.png')
+	# 	await ctx.send(embed=embed, file=file)
   
 	@commands.command(description="Get hypixel stats")
 	async def hypixel(self, ctx, arg1: str = None, arg2: str = None):
@@ -442,11 +459,6 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				if rank == "Admin":
 					rankimg = "https://gaminggeek.dev/pickleranks/ADMIN.png"
 				customtag = False
-				try:
-					customrank = re.sub(remcolor, '', p['prefix'], 0, re.IGNORECASE).replace('[', '').replace(']', '')
-					customtag = f"https://gaminggeek.dev/pickletags/{customrank}.png"
-				except Exception:
-					pass
 				if arg2 == None:
 					msg = await ctx.send(f"Retrieving {discord.utils.escape_markdown(p['displayname'])}'s info...")
 					uuid = player.UUID
@@ -498,12 +510,25 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					embed.add_field(name="Social Media", value=f"Twitter: {twitter}\nYouTube: {yt}\nInstagram: {insta}\nTwitch: {twitch}\nBeam: {beam}\nDiscord: {dscrd}", inline=True)
 					if tributes != 0:
 						embed.add_field(name="Tournament Tributes", value=tributes, inline=False)
+					try:
+						parsedtxt = mcfont.parse(p['prefix'])
+						width = mcfont.get_width(parsedtxt)
+						img = Image.new('RGBA', (width+25, 42))
+						mcfont.render((5, 0), parsedtxt, img)
+						img.save('lastrank.png')
+						customtag = discord.File('lastrank.png')
+						embed.set_image(url=f'attachment://lastrank.png')
+					except Exception:
+						pass
 					if customtag:
 						embed.add_field(name='Base Rank', value=monthlyrank or rank, inline=False)
-						embed.set_image(url=customtag)
 					elif rankimg != None:
 						embed.set_image(url=rankimg)
-					await msg.edit(content=None, embed=embed)
+					if customtag:
+						await msg.delete()
+						await ctx.send(embed=embed, file=customtag)
+					else:
+						await msg.edit(content=None, embed=embed)
 		elif arg2 == 'session':
 			msg = await ctx.send(f"Retrieving {discord.utils.escape_markdown(arg1)}'s session...")
 			try:

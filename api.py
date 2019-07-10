@@ -12,6 +12,8 @@ from aiohttp import web
 from aiohttp_session import setup, get_session, session_middleware
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from fire.push import pushbullet
+from cogs import mcfont
+from PIL import Image
 
 logging.basicConfig(level=logging.INFO)
 
@@ -83,6 +85,24 @@ async def root(request):
 @routes.get('/favicon.ico')
 async def favicon(request):
 	return web.FileResponse('./favicon.ico')
+
+@routes.get('/mctext/{arg}')
+async def mctext(request):
+	try:
+		if request.rel_url.query['auth'] in admins:
+			try:
+				arg = request.match_info['arg']
+			except Exception:
+				return error_resp('Invalid Argument', 400)
+			text = arg.replace('&', '§')
+			parsedtxt = mcfont.parse(text)
+			width = mcfont.get_width(parsedtxt)
+			img = Image.new('RGBA', (width+25, 42))
+			mcfont.render((5, 0), parsedtxt, img)
+			img.save('lastrank.png')
+			return web.FileResponse('./lastrank.png')
+	except Exception:
+		return error_resp('Unauthorized', 401)
 
 @routes.get('/error')
 async def error_test(request):
