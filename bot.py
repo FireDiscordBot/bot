@@ -58,6 +58,7 @@ extensions = [
 	"cogs.moderation",
 	"cogs.settings",
 	"cogs.premium",
+	"cogs.assist",
 	"jishaku"
 ]
 
