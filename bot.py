@@ -59,6 +59,7 @@ extensions = [
 	"cogs.settings",
 	"cogs.premium",
 	"cogs.assist",
+	"cogs.skin",
 	"jishaku"
 ]
 
