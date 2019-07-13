@@ -8,7 +8,7 @@ class Skin(commands.Cog):
 
     @commands.command(name='skin', description='Show a skin of a Minecraft User')
     async def skincmd(self, ctx, *, username: str = None):
-        if str is None:
+        if username is None:
             # Defines the embed and sets basic options
             embed = discord.Embed(colour=discord.Color.red(
             ), title='Error!', description="You need to supply a username!")
