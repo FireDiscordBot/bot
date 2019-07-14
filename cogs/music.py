@@ -67,6 +67,8 @@ class Player(wavelink.Player):
 		self.repeats = set()
 
 		self.eq = 'Flat'
+		
+		self.gassist = False
 
 		bot.loop.create_task(self.player_loop())
 		bot.loop.create_task(self.updater())
@@ -455,12 +457,12 @@ class Music(commands.Cog):
 			assistant = True
 
 		if not RURL.match(query):
-			if'.mp3' or '.mp4' in query:
-				pass
-			else:
+			if not player.gassist:
 				query = f'ytsearch:{query}'
 		try:
 			tracks = await self.bot.wavelink.get_tracks(query)
+			print(query)
+			print(tracks)
 		except Exception:
 			await self.do_stop(ctx)
 			self.bot.wavelink.nodes = {}

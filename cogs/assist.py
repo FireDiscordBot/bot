@@ -125,6 +125,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		if not ctx.author.voice.channel:
 			return await ctx.send('You must be in a voice channel to use this!')
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=MusicPlayer)
+		player.gassist = True
 		if player.is_playing:
 			return await ctx.send('I\'m currently playing music so I can\'t play the response.')
 		try:
