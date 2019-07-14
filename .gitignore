@@ -103,14 +103,18 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+#vscode
+.vscode/
+
+#secret stuff
+api.py
+config.json
+fire.db
+
 # other stuff
 bot.log
 logs/
 lavalink.jar
-config.json
-fire.db
 bfg.jar
 *.png
-.vscode/
 *.mp3
-api.py
