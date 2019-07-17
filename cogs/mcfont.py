@@ -121,8 +121,14 @@ def parse(message):
     total_width = 0
     bold = False
     italics = False
+    posheight = 0
+    newline = 0
+    startline = True
+    newx = 0
     for i in range(0,len(message)):
         if message[i] == '§':
+            continue
+        if message[i] == '|':
             continue
         elif message[i-1] == '§':
             if message[i] in "01234567890abcdef":
@@ -139,17 +145,63 @@ def parse(message):
                 italics = False
                 lastColour = message[i]  
             continue
+        if message[i-1] == '|' and message[i] == 'n':
+            posheight += 42
+            newline += 1
+            startline = True
+            newx = 5
+            continue
+        if startline:
+            startline = False
+        else:
+            newx += 1
         width, height = _get_font(bold, italics).getsize(message[i])
         total_width += width
         result.append(((width, height), lastColour, bold, italics, 
-                        message[i]))
+                        message[i], newx, posheight, newline))
     return result
  
 def get_width(message):
     ''' Calculate the width of the message
     The message has to be in the format returned by the parse funtion
     '''
-    return sum([i[0][0] for i in message])    
+    w = 0
+    ws = {
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0,
+        5: 0,
+        6: 0,
+        7: 0,
+        8: 0,
+        9: 0,
+        10: 0,
+    }
+    highestw = 0
+    for i in message:
+        if i[-1] == 0:
+            w += i[0][0]
+    for i in message:
+        if i[-1] != 0:
+            ws[i[-1]] += i[0][0]
+    for width in ws:
+        width = ws[width]
+        if width > highestw:
+            print(f'{width} > {highestw}')
+            highestw = width
+    if w > highestw:
+        highestw = w
+    print(w)
+    print(ws)
+    print(highestw)
+    return highestw
+
+def get_height(message):
+    ''' Calculate the height of the message
+    The message has to be in the format returned by the parse funtion
+    '''
+    return message[-1][6] + 42
     
 def render(pos, message, image):
     ''' Render the message to the image with shadow
@@ -157,20 +209,16 @@ def render(pos, message, image):
     '''
     x = pos[0]
     y = pos[1]
+    needswidth = False
     for i in message:
-        (width, height), colour, bold, italics, char = i
+        (width, height), colour, bold, italics, char, newx, posheight, newline = i
+        if posheight != 0:
+            y = posheight
+            if not needswidth:
+                x = newx
+                needswidth = True
+            if newx == 5:
+                x = 5
         renderer = _get_renderer(bold, italics)
-        renderer.render(image, (x,y), char, color=_get_colour(colour))
-        x += width
-        
-def render_small(pos, message, image):
-    ''' Render the message to the image with shadow
-    The message has to be in the format returned by the parse function
-    '''
-    x = pos[0]
-    y = pos[1]
-    for i in message:
-        (width, height), colour, bold, italics, char = i
-        renderer = renderer_small
         renderer.render(image, (x,y), char, color=_get_colour(colour))
         x += width
