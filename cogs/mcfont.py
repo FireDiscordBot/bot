@@ -188,13 +188,9 @@ def get_width(message):
     for width in ws:
         width = ws[width]
         if width > highestw:
-            print(f'{width} > {highestw}')
             highestw = width
     if w > highestw:
         highestw = w
-    print(w)
-    print(ws)
-    print(highestw)
     return highestw
 
 def get_height(message):
