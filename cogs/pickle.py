@@ -333,136 +333,178 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				except hypixel.PlayerNotFoundException:
 					raise commands.ArgumentParsingError('Couldn\'t find that player...')
 				p = player.JSON
+				headers = {
+					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'CONTENT-TYPE': 'text/json' 
+				}
 				try:
 					tributes = p['tourney']['total_tributes'] # TOURNAMENT TRIBUTES
 				except KeyError:
 					tributes = 0
 				level = str(player.getLevel()).split('.')[0]
-				try:
-					rankcolor = p['rankPlusColor']
-				except Exception:
-					rankcolor = "RED"
-				try:
-					prefixcolor = p['monthlyRankColor']
-				except Exception as e:
-					prefixcolor = "GOLD"
+				# try:
+				# 	rankcolor = p['rankPlusColor']
+				# except Exception:
+				# 	rankcolor = "RED"
+				# try:
+				# 	prefixcolor = p['monthlyRankColor']
+				# except Exception as e:
+				# 	prefixcolor = "GOLD"
 				lastlogin = p['lastLogin'] if 'lastLogin' in p else 0
 				lastlogout = p['lastLogout'] if 'lastLogout' in p else 1
 				if lastlogin > lastlogout:
 					status = "Online!"
 				else:
 					status = "Offline!"
-				try:
-					rank = player.getRank()['rank']
-				except Exception:
-					rank = None
-				if rank == "MVP+":
-					if rankcolor == "RED":
-						rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusone.png"
-					if rankcolor == "GOLD":
-						rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplustwo.png"
-					if rankcolor == "GREEN":
-						rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusthree.png"
-					if rankcolor == "YELLOW":
-						rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusfour.png"
-					if rankcolor == "LIGHT_PURPLE":
-						rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusfive.png"
-					if rankcolor == "WHITE":
-						rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplussix.png"
-					if rankcolor == "BLUE":
-						rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusseven.png"
-					if rankcolor == "DARK_GREEN":
-						rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPpluseight.png"
-					if rankcolor == "DARK_RED":
-						rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusnine.png"
-					if rankcolor == "DARK_AQUA":
-						rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusten.png"
-					if rankcolor == "DARK_PURPLE":
-						rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPpluseleven.png"
-					if rankcolor == "DARK_GRAY":
-						rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplustwelve.png"
-					if rankcolor == "BLACK":
-						rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusthirteen.png"
-				if rank == "MVP":
-					rankimg = "https://gaminggeek.dev/assets/pickleranks/MVP.png"
-				if rank == "VIP+":
-					rankimg = "https://gaminggeek.dev/assets/pickleranks/VIPplus.png"
-				if rank == "VIP":
-					rankimg = "https://gaminggeek.dev/assets/pickleranks/VIP.png"
-				try:
-					monthlyrank = p['monthlyPackageRank']
-				except Exception:
-					monthlyrank = None
-				if monthlyrank == "SUPERSTAR":
-					if prefixcolor == "GOLD":
-						if rankcolor ==  "Default (Red)":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARlred.png"
-						if rankcolor ==  "GOLD":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARgold.png"
-						if rankcolor ==  "GREEN":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARlgreen.png"
-						if rankcolor ==  "YELLOW":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARyellow.png"
-						if rankcolor ==  "LIGHT_PURPLE":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARlpurple.png"
-						if rankcolor ==  "WHITE":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARwhite.png"
-						if rankcolor ==  "BLUE":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARblue.png"
-						if rankcolor ==  "DARK_GREEN":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARdgreen.png"
-						if rankcolor ==  "DARK_RED":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARdred.png"
-						if rankcolor ==  "DARK_AQUA":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARdaqua.png"
-						if rankcolor ==  "DARK_PURPLE":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARdpurple.png"
-						if rankcolor ==  "DARK_GRAY":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARgrey.png"
-						if rankcolor ==  "BLACK":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARblack.png"
-					if prefixcolor == "AQUA":
-						if rankcolor ==  "Default (Red)":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/threeRED.png"
-						if rankcolor ==  "GOLD":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/threeGOLD.png"
-						if rankcolor ==  "GREEN":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/threeGREEN.png"
-						if rankcolor ==  "YELLOW":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/threeYELLOW.png"
-						if rankcolor ==  "LIGHT_PURPLE":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/threePURPLE.png"
-						if rankcolor ==  "WHITE":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/threeWHITE.png"
-						if rankcolor ==  "BLUE":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/threeBLUE.png"
-						if rankcolor ==  "DARK_GREEN":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/threeDGREEN.png"
-						if rankcolor ==  "DARK_RED":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/threeDRED.png"
-						if rankcolor ==  "DARK_AQUA":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/threeDAQUA.png"
-						if rankcolor ==  "DARK_PURPLE":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/threeDPURPLE.png"
-						if rankcolor ==  "DARK_GRAY":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/threeGREY.png"
-						if rankcolor ==  "BLACK":
-							rankimg = "https://gaminggeek.dev/assets/pickleranks/threeBLACK.png"
-				if rank == "Non":
-					rankimg = "https://gaminggeek.dev/assets/pickleranks/NON.png"
-				if rank == "YouTube":
-					rankimg = "https://gaminggeek.dev/assets/pickleranks/YOUTUBE.png"
-				if rank == "Helper":
-					rankimg = "https://gaminggeek.dev/assets/pickleranks/HELPER.png"
-				if rank == "Moderator":
-					rankimg = "https://gaminggeek.dev/assets/pickleranks/MOD.png"
-				if rank == "Admin":
-					rankimg = "https://gaminggeek.dev/assets/pickleranks/ADMIN.png"
-				customtag = False
+				# try:
+				# 	rank = player.getRank()['rank']
+				# except Exception:
+				# 	rank = None
+				# if rank == "MVP+":
+				# 	if rankcolor == "RED":
+				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusone.png"
+				# 	if rankcolor == "GOLD":
+				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplustwo.png"
+				# 	if rankcolor == "GREEN":
+				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusthree.png"
+				# 	if rankcolor == "YELLOW":
+				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusfour.png"
+				# 	if rankcolor == "LIGHT_PURPLE":
+				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusfive.png"
+				# 	if rankcolor == "WHITE":
+				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplussix.png"
+				# 	if rankcolor == "BLUE":
+				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusseven.png"
+				# 	if rankcolor == "DARK_GREEN":
+				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPpluseight.png"
+				# 	if rankcolor == "DARK_RED":
+				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusnine.png"
+				# 	if rankcolor == "DARK_AQUA":
+				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusten.png"
+				# 	if rankcolor == "DARK_PURPLE":
+				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPpluseleven.png"
+				# 	if rankcolor == "DARK_GRAY":
+				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplustwelve.png"
+				# 	if rankcolor == "BLACK":
+				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusthirteen.png"
+				# if rank == "MVP":
+				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/MVP.png"
+				# if rank == "VIP+":
+				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/VIPplus.png"
+				# if rank == "VIP":
+				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/VIP.png"
+				# try:
+				# 	monthlyrank = p['monthlyPackageRank']
+				# except Exception:
+				# 	monthlyrank = None
+				# if monthlyrank == "SUPERSTAR":
+				# 	if prefixcolor == "GOLD":
+				# 		if rankcolor ==  "Default (Red)":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARlred.png"
+				# 		if rankcolor ==  "GOLD":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARgold.png"
+				# 		if rankcolor ==  "GREEN":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARlgreen.png"
+				# 		if rankcolor ==  "YELLOW":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARyellow.png"
+				# 		if rankcolor ==  "LIGHT_PURPLE":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARlpurple.png"
+				# 		if rankcolor ==  "WHITE":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARwhite.png"
+				# 		if rankcolor ==  "BLUE":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARblue.png"
+				# 		if rankcolor ==  "DARK_GREEN":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARdgreen.png"
+				# 		if rankcolor ==  "DARK_RED":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARdred.png"
+				# 		if rankcolor ==  "DARK_AQUA":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARdaqua.png"
+				# 		if rankcolor ==  "DARK_PURPLE":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARdpurple.png"
+				# 		if rankcolor ==  "DARK_GRAY":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARgrey.png"
+				# 		if rankcolor ==  "BLACK":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARblack.png"
+				# 	if prefixcolor == "AQUA":
+				# 		if rankcolor ==  "Default (Red)":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeRED.png"
+				# 		if rankcolor ==  "GOLD":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeGOLD.png"
+				# 		if rankcolor ==  "GREEN":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeGREEN.png"
+				# 		if rankcolor ==  "YELLOW":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeYELLOW.png"
+				# 		if rankcolor ==  "LIGHT_PURPLE":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threePURPLE.png"
+				# 		if rankcolor ==  "WHITE":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeWHITE.png"
+				# 		if rankcolor ==  "BLUE":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeBLUE.png"
+				# 		if rankcolor ==  "DARK_GREEN":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeDGREEN.png"
+				# 		if rankcolor ==  "DARK_RED":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeDRED.png"
+				# 		if rankcolor ==  "DARK_AQUA":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeDAQUA.png"
+				# 		if rankcolor ==  "DARK_PURPLE":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeDPURPLE.png"
+				# 		if rankcolor ==  "DARK_GRAY":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeGREY.png"
+				# 		if rankcolor ==  "BLACK":
+				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeBLACK.png"
+				# if rank == "Non":
+				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/NON.png"
+				# if rank == "YouTube":
+				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/YOUTUBE.png"
+				# if rank == "Helper":
+				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/HELPER.png"
+				# if rank == "Moderator":
+				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/MOD.png"
+				# if rank == "Admin":
+				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/ADMIN.png"
+				# customtag = False
+				async with aiohttp.ClientSession(headers=headers) as session:
+					async with session.get(f'https://api.sk1er.club/guild/player/{arg1}') as resp:
+						b = await resp.read()
+						guild = json.loads(b)
+				if guild['success']:
+					guild = guild['guild']
+					tag = guild['tag'] if 'tag' in guild else None
+					if tag:
+						tagcolor = guild['tagColor']
+						if tagcolor == 'GRAY' or tagcolor == 'GREY':
+							tag = f'§7[{tag}]'
+						elif tagcolor == 'GOLD':
+							tag = f'§6[{tag}]'
+						elif tagcolor == 'GREEN':
+							tag = f'§2[{tag}]'
+						elif tagcolor == 'YELLOW':
+							tag = f'§e[{tag}]'
+					for member in guild['members']:
+						if member['name'].lower() == p['displayname'].lower():
+							nametag = member['displayname'].replace('§0YOUTUBE', '§fYOUTUBE')
+							if tag:
+								nametag = f'{nametag} {tag}'
+				else:
+					async with aiohttp.ClientSession(headers=headers) as session:
+						async with session.get(f'https://api.sk1er.club/player/{arg1}') as resp:
+							b = await resp.read()
+							player = json.loads(b)
+					if player['success']:
+						nametag = player['player']['playerdisplay'].replace('§0YOUTUBE', '§fYOUTUBE')
+				if nametag:
+					parsedtxt = mcfont.parse(nametag)
+					width = mcfont.get_width(parsedtxt)
+					img = Image.new('RGBA', (width+25, 42))
+					mcfont.render((5, 0), parsedtxt, img)
+					img.save('lastrank.png')
+					customtag = discord.File('lastrank.png')
 				if arg2 == None:
 					msg = await ctx.send(f"Retrieving {discord.utils.escape_markdown(p['displayname'])}'s info...")
 					uuid = player.UUID
 					embed = discord.Embed(title=f"{discord.utils.escape_markdown(p['displayname'])}'s Info", colour=color, timestamp=datetime.datetime.utcnow())
+					if nametag:
+						embed.set_image(url=f'attachment://lastrank.png')
 					embed.set_thumbnail(url=f"https://crafatar.com/avatars/{uuid}?overlay=true")
 					embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 					embed.add_field(name="Online Status", value=status, inline=True)
@@ -510,20 +552,20 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					embed.add_field(name="Social Media", value=f"Twitter: {twitter}\nYouTube: {yt}\nInstagram: {insta}\nTwitch: {twitch}\nBeam: {beam}\nDiscord: {dscrd}", inline=True)
 					if tributes != 0:
 						embed.add_field(name="Tournament Tributes", value=tributes, inline=False)
-					try:
-						parsedtxt = mcfont.parse(p['prefix'])
-						width = mcfont.get_width(parsedtxt)
-						img = Image.new('RGBA', (width+25, 42))
-						mcfont.render((5, 0), parsedtxt, img)
-						img.save('lastrank.png')
-						customtag = discord.File('lastrank.png')
-						embed.set_image(url=f'attachment://lastrank.png')
-					except Exception:
-						pass
-					if customtag:
-						embed.add_field(name='Base Rank', value=monthlyrank or rank, inline=False)
-					elif rankimg != None:
-						embed.set_image(url=rankimg)
+					# try:
+					# 	parsedtxt = mcfont.parse(p['prefix'])
+					# 	width = mcfont.get_width(parsedtxt)
+					# 	img = Image.new('RGBA', (width+25, 42))
+					# 	mcfont.render((5, 0), parsedtxt, img)
+					# 	img.save('lastrank.png')
+					# 	customtag = discord.File('lastrank.png')
+					# 	embed.set_image(url=f'attachment://lastrank.png')
+					# except Exception:
+					# 	pass
+					# if customtag:
+					# 	embed.add_field(name='Base Rank', value=monthlyrank or rank, inline=False)
+					# elif rankimg != None:
+					# 	embed.set_image(url=rankimg)
 					if customtag:
 						await msg.delete()
 						await ctx.send(embed=embed, file=customtag)
