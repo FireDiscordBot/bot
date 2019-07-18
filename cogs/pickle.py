@@ -476,7 +476,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 							tag = f'§7[{tag}]'
 						elif tagcolor == 'GOLD':
 							tag = f'§6[{tag}]'
-						elif tagcolor == 'GREEN':
+						elif tagcolor == 'DARK_GREEN':
 							tag = f'§2[{tag}]'
 						elif tagcolor == 'YELLOW':
 							tag = f'§e[{tag}]'
