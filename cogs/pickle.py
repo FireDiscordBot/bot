@@ -480,22 +480,18 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 							tag = f'§2[{tag}]'
 						elif tagcolor == 'YELLOW':
 							tag = f'§e[{tag}]'
-					for member in guild['members']:
-						if member['name'].lower() == p['displayname'].lower():
-							nametag = member['displayname'].replace('§0YOUTUBE', '§fYOUTUBE')
-							if tag:
-								nametag = f'{nametag} {tag}'
-				else:
-					async with aiohttp.ClientSession(headers=headers) as session:
-						async with session.get(f'https://api.sk1er.club/player/{arg1}') as resp:
-							b = await resp.read()
-							apiplayer = json.loads(b)
-					if apiplayer['success']:
-						try:
-							nametag = apiplayer['player']['playerdisplay'].replace('§0YOUTUBE', '§fYOUTUBE') if 'playerdisplay' in apiplayer else apiplayer['player']['display'].replace('§0YOUTUBE', '§fYOUTUBE')
-						except Exception:
-							displayname = p['displayname']
-							nametag = f'§f{displayname}'
+				async with aiohttp.ClientSession(headers=headers) as session:
+					async with session.get(f'https://api.sk1er.club/player/{arg1}') as resp:
+						b = await resp.read()
+						apiplayer = json.loads(b)
+				if apiplayer['success']:
+					try:
+						nametag = apiplayer['player']['playerdisplay'].replace('§0YOUTUBE', '§fYOUTUBE') if 'playerdisplay' in apiplayer else apiplayer['player']['display'].replace('§0YOUTUBE', '§fYOUTUBE')
+					except Exception:
+						displayname = p['displayname']
+						nametag = f'§f{displayname}'
+				if tag:
+					nametag = f'{nametag} {tag}'
 				if nametag:
 					parsedtxt = mcfont.parse(nametag)
 					width = mcfont.get_width(parsedtxt)
