@@ -463,6 +463,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				# if rank == "Admin":
 				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/ADMIN.png"
 				# customtag = False
+				tag = None
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://api.sk1er.club/guild/player/{arg1}') as resp:
 						b = await resp.read()
@@ -491,7 +492,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 						displayname = p['displayname']
 						nametag = f'§f{displayname}'
 				if tag:
-					nametag = f'{nametag} {tag}'
+					nametag = f'{nametag} {tag}'					
 				if nametag:
 					parsedtxt = mcfont.parse(nametag)
 					width = mcfont.get_width(parsedtxt)
