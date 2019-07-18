@@ -461,8 +461,6 @@ class Music(commands.Cog):
 				query = f'ytsearch:{query}'
 		try:
 			tracks = await self.bot.wavelink.get_tracks(query)
-			print(query)
-			print(tracks)
 		except Exception:
 			await self.do_stop(ctx)
 			self.bot.wavelink.nodes = {}
