@@ -492,9 +492,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 							apiplayer = json.loads(b)
 					if apiplayer['success']:
 						try:
-							nametag = apiplayer['player']['playerdisplay'].replace('§0YOUTUBE', '§fYOUTUBE')
-							if not nametag:
-								nametag = apiplayer['player']['display'].replace('§0YOUTUBE', '§fYOUTUBE')
+							nametag = apiplayer['player']['playerdisplay'].replace('§0YOUTUBE', '§fYOUTUBE') if 'playerdisplay' in apiplayer else apiplayer['player']['display'].replace('§0YOUTUBE', '§fYOUTUBE')
 						except Exception:
 							displayname = p['displayname']
 							nametag = f'§f{displayname}'
