@@ -489,12 +489,12 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					async with aiohttp.ClientSession(headers=headers) as session:
 						async with session.get(f'https://api.sk1er.club/player/{arg1}') as resp:
 							b = await resp.read()
-							player = json.loads(b)
-					if player['success']:
+							apiplayer = json.loads(b)
+					if apiplayer['success']:
 						try:
-							nametag = player['player']['playerdisplay'].replace('§0YOUTUBE', '§fYOUTUBE')
+							nametag = apiplayer['player']['playerdisplay'].replace('§0YOUTUBE', '§fYOUTUBE')
 							if not nametag:
-								nametag = player['player']['display'].replace('§0YOUTUBE', '§fYOUTUBE')
+								nametag = apiplayer['player']['display'].replace('§0YOUTUBE', '§fYOUTUBE')
 						except Exception:
 							displayname = p['displayname']
 							nametag = f'§f{displayname}'
