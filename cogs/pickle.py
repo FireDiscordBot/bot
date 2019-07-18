@@ -491,7 +491,13 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 							b = await resp.read()
 							player = json.loads(b)
 					if player['success']:
-						nametag = player['player']['playerdisplay'].replace('§0YOUTUBE', '§fYOUTUBE')
+						try:
+							nametag = player['player']['playerdisplay'].replace('§0YOUTUBE', '§fYOUTUBE')
+							if not nametag:
+								nametag = player['player']['display'].replace('§0YOUTUBE', '§fYOUTUBE')
+						except Exception:
+							displayname = p['displayname']
+							nametag = f'§f{displayname}'
 				if nametag:
 					parsedtxt = mcfont.parse(nametag)
 					width = mcfont.get_width(parsedtxt)
