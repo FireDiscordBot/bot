@@ -105,6 +105,8 @@ class settings(commands.Cog, name="Settings"):
 	async def on_message(self, message):
 		code = findinvite(message.content)
 		if code:
+			if '/' in code:
+				return
 			invalidinvite = False
 			if not message.author.permissions_in(message.channel).manage_messages:
 				if message.guild.me.permissions_in(message.channel).manage_messages:
