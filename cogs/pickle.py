@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import datetime
 import json
-import time
 import logging
 import aiohttp
 import hypixel
@@ -332,6 +331,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					player = hypixel.Player(arg1)
 				except hypixel.PlayerNotFoundException:
 					raise commands.ArgumentParsingError('Couldn\'t find that player...')
+				except AttributeError:
+					raise commands.ArgumentParsingError('Couldn\'t find that player...')
 				p = player.JSON
 				headers = {
 					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
@@ -472,7 +473,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					guild = guild['guild']
 					tag = guild['tag'] if 'tag' in guild else None
 					if tag:
-						tagcolor = guild['tagColor']
+						tagcolor = guild['tagColor'] if 'tagColor' in guild else 'GRAY'
 						if tagcolor == 'GRAY' or tagcolor == 'GREY':
 							tag = f'§7[{tag}]'
 						elif tagcolor == 'GOLD':

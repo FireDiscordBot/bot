@@ -20,7 +20,6 @@ from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, Wrap
 
 launchtime = datetime.datetime.utcnow()
 process = psutil.Process(os.getpid())
-autotipRestart = True
 
 print("fire.py has been loaded")
 
@@ -138,6 +137,65 @@ class fire(commands.Cog, name="Main Commands"):
 			gcount = gcount + 1
 		interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
 		await interface.send_to(ctx)
+
+	@commands.command(name='rpc', description='View someone\'s rich presence')
+	async def rpc(self, ctx, member: discord.Member = None):
+		"""PFXrpc [<member>]"""
+		if not member:
+			member = ctx.author
+		try:
+			activity = member.activities[0]
+		except IndexError:
+			activity = None
+		if activity != None:
+			if activity.name == 'Spotify':
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+				embed.set_author(name=f'{member}\'s Spotify Info', icon_url='https://cdn.discordapp.com/emojis/471412444716072960.png')
+				embed.add_field(name='Song', value=activity.title, inline=False)
+				embed.add_field(name='Artists', value=', '.join(activity.artists), inline=False)
+				duration = str(activity.duration).split('.')[0]
+				now = datetime.datetime.utcnow()
+				elapsed = str(now - activity.start).split('.')[0]
+				left = str(activity.end - now).split('.')[0]
+				embed.add_field(name='Times', value=f'Duration: {duration}\nElapsed: {elapsed}\nLeft: {left}', inline=False)
+				embed.add_field(name='Listen to this track', value=f'[{activity.title}](https://open.spotify.com/track/{activity.track_id})', inline=False)
+				embed.set_thumbnail(url=activity.album_cover_url)
+				await ctx.send(embed=embed)
+			elif type(activity) == discord.Streaming:
+				embed = discord.Embed(color=discord.Color.purple(), timestamp=datetime.datetime.utcnow())
+				embed.set_author(name=f'{member}\'s Stream Info', icon_url='https://cdn.discordapp.com/emojis/603188557242433539.png')
+				if member.bot:
+					embed.add_field(name='Title', value=activity.name, inline=False)
+				else:
+					embed.add_field(name='Title', value=activity.name, inline=False)
+					embed.add_field(name='Twitch Name', value=activity.twitch_name, inline=False)
+					if activity.details != None:	
+						embed.add_field(name='Game', value=activity.details, inline=False)
+					embed.add_field(name='URL', value=f'[{activity.twitch_name}]({activity.url})', inline=False)
+				await ctx.send(embed=embed)
+			elif type(activity) == discord.Activity:
+				embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow())
+				if activity.small_image_url != None:
+					embed.set_author(name=f'{member}\'s Game Info', icon_url=activity.small_image_url)
+				else:
+					embed.set_author(name=f'{member}\'s Game Info')
+				embed.add_field(name='Game', value=activity.name, inline=False)
+				now = datetime.datetime.utcnow()
+				elapsed = str(now - activity.start).split('.')[0]
+				if activity.details != None and activity.state != None:
+					embed.add_field(name='Details', value=f'{activity.details}\n{activity.state}\n{elapsed} elapsed', inline=False)
+				elif activity.state != None:
+					embed.add_field(name='Details', value=f'{activity.state}\n{elapsed} elapsed', inline=False)
+				elif activity.details != None:
+					embed.add_field(name='Details', value=f'{activity.details}\n{elapsed} elapsed', inline=False)
+				if activity.large_image_url != None:
+					embed.set_thumbnail(url=activity.large_image_url)
+				else:
+					pass
+				await ctx.send(embed=embed)
+			else:
+				await ctx.send(f'{member} doesn\'t seem to be playing something with rich presence integration...')
+				
 
 	@commands.command(description="dab")
 	async def dab(self, ctx):
