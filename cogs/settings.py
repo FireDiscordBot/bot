@@ -55,7 +55,8 @@ class settings(commands.Cog, name="Settings"):
 	async def on_message_delete(self, message):
 		if message.guild and not message.author.bot:
 			logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-			logch = message.guild.get_channel(logid['channel'])
+			if logid:
+				logch = message.guild.get_channel(logid['channel'])
 			if logch:
 				embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'{message.author.mention} **deleted a message in** {message.channel.mention}\n{message.content}')
 				embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
@@ -68,7 +69,8 @@ class settings(commands.Cog, name="Settings"):
 			return
 		if after.guild and not after.author.bot:
 			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
-			logch = after.guild.get_channel(logid['channel'])
+			if logid:
+				logch = after.guild.get_channel(logid['channel'])
 			if logch:
 				embed = discord.Embed(color=after.author.color, timestamp=after.created_at, description=f'{after.author.mention} **edited a message in** {after.channel.mention}')
 				embed.set_author(name=after.author, icon_url=str(after.author.avatar_url))
@@ -83,7 +85,8 @@ class settings(commands.Cog, name="Settings"):
 	async def on_guild_channel_create(self, channel):
 		if channel.guild:
 			logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
-			logch = channel.guild.get_channel(logid['channel'])
+			if logid:
+				logch = channel.guild.get_channel(logid['channel'])
 			if logch:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=channel.created_at, description=f'**New channel created: #{channel.name}**')
 				embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
@@ -94,7 +97,8 @@ class settings(commands.Cog, name="Settings"):
 	async def on_guild_channel_delete(self, channel):
 		if channel.guild:
 			logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
-			logch = channel.guild.get_channel(logid['channel'])
+			if logid:
+				logch = channel.guild.get_channel(logid['channel'])
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=channel.created_at, description=f'**Channel deleted: #{channel.name}**')
 				embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
@@ -117,7 +121,8 @@ class settings(commands.Cog, name="Settings"):
 				invalidinvite = True
 			if message.guild:
 				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-				logch = message.guild.get_channel(logid['channel'])
+				if logid:
+					logch = message.guild.get_channel(logid['channel'])
 				if logch:
 					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
 					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))

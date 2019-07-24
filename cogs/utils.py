@@ -37,9 +37,17 @@ disabled = [264445053596991498, 110373943822540800, 336642139381301249, 45834124
 
 def snipe_embed(context_channel, message, user):
 	if message.author not in message.guild.members or message.author.color == discord.Colour.default():
-		embed = discord.Embed(description = message.content, timestamp = message.created_at)
+		lines = []
+		msg = message.content.split('\n')
+		for line in msg:
+			lines.append(f'> {line}')
+		embed = discord.Embed(description = '\n'.join(lines), timestamp = message.created_at)
 	else:
-		embed = discord.Embed(description = message.content, color = message.author.color, timestamp = message.created_at)
+		lines = []
+		msg = message.content.split('\n')
+		for line in msg:
+			lines.append(f'> {line}')
+		embed = discord.Embed(description = '\n'.join(lines), color = message.author.color, timestamp = message.created_at)
 	embed.set_author(name = str(message.author), icon_url = str(message.author.avatar_url))
 	if message.attachments:
 		embed.add_field(name = 'Attachment(s)', value = '\n'.join([attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
@@ -55,11 +63,18 @@ def quote_embed(context_channel, message, user):
 	else:
 		if message.author not in message.guild.members or message.author.color == discord.Colour.default():
 			embed = discord.Embed(timestamp = message.created_at)
-			embed.add_field(name='Message', value=message.content or 'null', inline=False)
+			msg = message.content.split('\n')
+			for line in msg:
+				lines.append(f'> {line}')
+			embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
 			embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
 		else:
 			embed = discord.Embed(color = message.author.color, timestamp = message.created_at)
-			embed.add_field(name='Message', value=message.content or 'null', inline=False)
+			lines = []
+			msg = message.content.split('\n')
+			for line in msg:
+				lines.append(f'> {line}')
+			embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
 			embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
 		if message.attachments:
 			if message.channel.is_nsfw() and not context_channel.is_nsfw():
@@ -348,9 +363,11 @@ class utils(commands.Cog, name='Utility Commands'):
 		if message.guild and not message.author.bot:
 			try:
 				snipes[message.guild.id][message.channel.id] = message
-				snipes[message.guild.id][message.author.id] = message
 			except KeyError:
 				snipes[message.guild.id] = {message.channel.id: message}
+			try:
+				snipes[message.guild.id][message.author.id] = message
+			except KeyError:
 				snipes[message.guild.id] = {message.author.id: message}
 
 	@commands.command(description='Get the last deleted message')
@@ -660,6 +677,18 @@ class utils(commands.Cog, name='Utility Commands'):
 		user = json.dumps(userInfo, indent=2)
 		embed = discord.Embed(title=f'Found user {fetched}', description=f'```json\n{user}```')
 		await ctx.send(embed=embed)
+
+	@commands.command(name='fetchactivity', description='Get a member\'s activity in json')
+	async def fetchactivity(self, ctx, member: discord.Member = None):
+		"""PFXfetchactivity [<member>]"""
+		if not member:
+			member = ctx.author
+		try:
+			a = member.activities[0]
+			adict = a.to_dict()
+			await ctx.send(f'```json\n{json.dumps(adict, indent=2)}```')
+		except Exception:
+			return await ctx.send('I couldn\'t get that member\'s activity...')
 
 	def gtts(self, text: str):
 		fp = strgen.StringGenerator("[\d\w]{20}").render()
