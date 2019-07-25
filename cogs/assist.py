@@ -122,12 +122,25 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		'''PFXgassist <query>'''
 		await ctx.channel.trigger_typing()
 		loop = self.bot.loop
-		if not ctx.author.voice.channel:
-			return await ctx.send('You must be in a voice channel to use this!')
-		player = self.bot.wavelink.get_player(ctx.guild.id, cls=MusicPlayer)
-		player.gassist = True
-		if player.is_playing:
-			return await ctx.send('I\'m currently playing music so I can\'t play the response.')
+		vc = True
+		uploadresp = False
+		player = False
+		try:
+			if not ctx.author.voice.channel:
+				vc = False
+				uploadresp = True
+				#return await ctx.send('You must be in a voice channel to use this!')
+		except AttributeError:
+			vc = False
+			uploadresp = True
+			#return await ctx.send('You must be in a voice channel to use this!')
+		if vc:
+			player = self.bot.wavelink.get_player(ctx.guild.id, cls=MusicPlayer)
+			player.gassist = True
+		if player:
+			if player.is_playing:
+				uploadresp = True
+				#return await ctx.send('I\'m currently playing music so I can\'t play the response.')
 		try:
 			audio_sink = audio_helpers.WaveSink(
 				open(f'{ctx.author.id}.mp3', 'wb'),
@@ -142,6 +155,9 @@ class Assistant(commands.Cog, name='Google Assistant'):
 			)
 			await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query, stream))
 			if os.path.exists(f'{ctx.author.id}.mp3'):
+				if uploadresp == True:
+					file = discord.File(f'{ctx.author.id}.mp3', 'gassist.mp3')
+					return await ctx.send(file=file)
 				alt_ctx = await copy_context_with(ctx, content=ctx.prefix + f'play {ctx.author.id}.mp3')
 				await alt_ctx.command.reinvoke(alt_ctx)
 				await asyncio.sleep(3)

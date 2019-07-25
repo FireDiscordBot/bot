@@ -96,6 +96,8 @@ class settings(commands.Cog, name="Settings"):
 			logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
 			if logid:
 				logch = message.guild.get_channel(logid['channel'])
+			else:
+				return
 			if logch:
 				if message.content == None or message.content  == '':
 					message.content = 'I was unable to get the message that was deleted. Maybe it was a system message?'
@@ -114,6 +116,8 @@ class settings(commands.Cog, name="Settings"):
 			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
 			if logid:
 				logch = after.guild.get_channel(logid['channel'])
+			else:
+				return
 			if logch:
 				embed = discord.Embed(color=after.author.color, timestamp=after.created_at, description=f'{after.author.mention} **edited a message in** {after.channel.mention}')
 				embed.set_author(name=after.author, icon_url=str(after.author.avatar_url))
@@ -130,6 +134,8 @@ class settings(commands.Cog, name="Settings"):
 			logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
 			if logid:
 				logch = channel.guild.get_channel(logid['channel'])
+			else:
+				return
 			if logch:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=channel.created_at, description=f'**New channel created: #{channel.name}**')
 				embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
@@ -142,6 +148,8 @@ class settings(commands.Cog, name="Settings"):
 			logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
 			if logid:
 				logch = channel.guild.get_channel(logid['channel'])
+			else:
+				return
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=channel.created_at, description=f'**Channel deleted: #{channel.name}**')
 				embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
@@ -166,6 +174,8 @@ class settings(commands.Cog, name="Settings"):
 				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
 				if logid:
 					logch = message.guild.get_channel(logid['channel'])
+				else:
+					return
 				if logch:
 					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
 					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
@@ -187,6 +197,8 @@ class settings(commands.Cog, name="Settings"):
 				logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
 				if logid:
 					logch = ctx.guild.get_channel(logid['channel'])
+				else:
+					return
 				if logch:
 					embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'`{ctx.command.name}` **was used in** {ctx.channel.mention} **by {ctx.author.name}**')
 					embed.set_author(name=ctx.author, icon_url=str(ctx.author.avatar_url))
@@ -200,6 +212,8 @@ class settings(commands.Cog, name="Settings"):
 			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
 			if logid:
 				logch = after.guild.get_channel(logid['channel'])
+			else:
+				return
 			if logch:
 				embed = discord.Embed(color=after.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'**s nickname was changed**')
 				embed.set_author(name=after, icon_url=str(after.avatar_url))
@@ -211,6 +225,8 @@ class settings(commands.Cog, name="Settings"):
 			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
 			if logid:
 				logch = after.guild.get_channel(logid['channel'])
+			else:
+				return
 			if logch:
 				broles = []
 				aroles = []
@@ -241,6 +257,8 @@ class settings(commands.Cog, name="Settings"):
 			logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
 			if logid:
 				logch = channel.guild.get_channel(logid['channel'])
+			else:
+				return
 			if logch:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'{channel.mention}\'**s pinned messages were updated**')
 				embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
@@ -252,6 +270,8 @@ class settings(commands.Cog, name="Settings"):
 		logid = self.logchannels[role.guild.id] if role.guild.id in self.logchannels else None
 		if logid:
 			logch = role.guild.get_channel(logid['channel'])
+		else:
+			return
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**A new role was created**\n{role.mention}')
 			embed.set_author(name=role.guild.name, icon_url=str(role.guild.icon_url))
@@ -263,6 +283,8 @@ class settings(commands.Cog, name="Settings"):
 		logid = self.logchannels[role.guild.id] if role.guild.id in self.logchannels else None
 		if logid:
 			logch = role.guild.get_channel(logid['channel'])
+		else:
+			return
 		if logch:
 			embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'**The role** `{role.name}` **was deleted**')
 			embed.set_author(name=role.guild.name, icon_url=str(role.guild.icon_url))
@@ -274,6 +296,8 @@ class settings(commands.Cog, name="Settings"):
 		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
 		if logid:
 			logch = member.guild.get_channel(logid['channel'])
+		else:
+			return
 		if logch:
 			if before.deaf != after.deaf:
 				if after.deaf:
@@ -352,6 +376,8 @@ class settings(commands.Cog, name="Settings"):
 		logid = self.logchannels[after.id] if after.id in self.logchannels else None
 		if logid:
 			logch = after.get_channel(logid['channel'])
+		else:
+			return
 		if logch:
 			if before.name != after.name:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**Guild name was changed**')
@@ -447,6 +473,8 @@ class settings(commands.Cog, name="Settings"):
 		logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
 		if logid:
 			logch = guild.get_channel(logid['channel'])
+		else:
+			return
 		if logch:
 			embed = discord.Embed(color=member.color if member.color != discord.Color.default() else discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
 			embed.set_author(name=member, icon_url=str(member.avatar_url))
@@ -458,6 +486,8 @@ class settings(commands.Cog, name="Settings"):
 		logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
 		if logid:
 			logch = guild.get_channel(logid['channel'])
+		else:
+			return
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{member} was unbanned**')
 			embed.set_author(name=member, icon_url=str(member.avatar_url))
