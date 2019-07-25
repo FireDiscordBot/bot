@@ -161,7 +161,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 	@commands.command(description="Mute a user in the current channel.")
 	@commands.has_permissions(manage_messages=True)
-	@commands.bot_has_permissions(manage_members=True)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def block(self, ctx, user: StaffCheck = None, *, reason = None):
 		"""PFXblock <user> [<reason>]"""
 		await ctx.trigger_typing()
@@ -173,7 +173,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	
 	@commands.command(description="Unmute a user who has been blocked in the current channel.")
 	@commands.has_permissions(manage_messages=True)
-	@commands.bot_has_permissions(manage_members=True)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def unblock(self, ctx, user: StaffCheck = None, *, reason = None):
 		"""PFXunblock <user> [<reason>]"""
 		await ctx.trigger_typing()
