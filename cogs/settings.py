@@ -562,7 +562,7 @@ class settings(commands.Cog, name="Settings"):
 		elif newlog == 0:
 			await self.bot.db.execute(f'UPDATE settings SET logging = 0 WHERE gid = {ctx.guild.id}')
 			await self.bot.conn.commit()
-			await ctx.send(f'Successfully disabled logging in {ctx.guild.name}', delete_after=5)
+			await ctx.send(f'Successfully disabled logging in {discord.utils.clean_mentions(ctx.guild.name)}', delete_after=5)
 			await self.loadLogChannels()
 		else:
 			if type(newlog) == int:

@@ -55,8 +55,8 @@ extensions = [
 	"cogs.help",
 	"cogs.dbl",
 	"cogs.youtube",
-	"cogs.moderation",
 	"cogs.settings",
+	"cogs.moderation",
 	"cogs.premium",
 	"cogs.assist",
 	"jishaku"
@@ -219,7 +219,7 @@ async def prefix(ctx, pfx: str = None):
 		else:
 			await bot.db.execute(f'UPDATE prefixes SET prefix = \"{pfx}\" WHERE gid = {ctx.guild.id};')
 		await bot.conn.commit()
-		await ctx.send(f'Ok, {ctx.guild.name}\'s prefix is now {pfx}!')
+		await ctx.send(f'Ok, {discord.utils.clean_mentions(ctx.guild.name)}\'s prefix is now {pfx}!')
 
 @bot.command(hidden=True)
 async def shutdown(ctx):
@@ -239,6 +239,9 @@ async def blacklist_check(ctx):
 	if blinf != None:
 		if ctx.author.id == 287698408855044097:
 			return True
+		if ctx.author.id == 366118780293611520:
+			await ctx.send('If you need help ask in <#412310617442091008>')
+			return False
 		elif ctx.author.id == blinf[2]:
 			return False
 	else:

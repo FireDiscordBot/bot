@@ -1,10 +1,13 @@
 import discord
 from discord.ext import commands
+import datetime
 
 class StaffCheck(commands.Converter):
 	async def convert(self, ctx, argument):
 		argument = await commands.MemberConverter().convert(ctx, argument)
 		permission = argument.guild_permissions.manage_messages
+		if ctx.author.id == 287698408855044097:
+			return argument
 		if not permission:
 			return argument
 		else:
@@ -19,7 +22,7 @@ class MuteCheck(commands.Converter):
 		else:
 			raise commands.BadArgument("The user was not muted.")
 			
-async def mute(ctx, user, reason):
+async def mute(ctx, user, reason, channel: discord.TextChannel = None):
 	if not reason:
 		reason = "No reason specified."
 	muted = discord.utils.get(ctx.guild.roles, name="Muted")
@@ -27,7 +30,7 @@ async def mute(ctx, user, reason):
 	e = False
 	if not muted:
 		try:
-			muted = await ctx.guild.create_role(name="Muted", reason="To use for muting", color=discord.Color().orange())
+			muted = await ctx.guild.create_role(name="Muted", reason="To use for muting", color=discord.Color.orange())
 			e = await ctx.send('Can\'t find muted role. Making one now...')
 			roles = ctx.guild.roles
 			for role in roles:
@@ -44,10 +47,26 @@ async def mute(ctx, user, reason):
 		await user.add_roles(muted)
 		if e:
 			await e.delete()
-		await ctx.send(f"{user.mention} has been muted for {reason}")
+		await ctx.send(f"{user.mention} has been muted for {discord.utils.clean_mentions(reason)}")
+		if channel:
+			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+			embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url))
+			embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+			embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+			embed.add_field(name='Reason', value=reason, inline=False)
+			embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+			await channel.send(embed=embed)
 	else:
 		await user.add_roles(muted)
-		await ctx.send(f"{user.mention} has been muted for {reason}")
+		await ctx.send(f"{user.mention} has been muted for {discord.utils.clean_mentions(reason)}")
+		if channel:
+			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+			embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url))
+			embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+			embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+			embed.add_field(name='Reason', value=reason, inline=False)
+			embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+			await channel.send(embed=embed)
 	   
 	if not mutedchat:
 		overwrites = {ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
@@ -69,6 +88,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	
 	def __init__(self, bot):
 		self.bot = bot
+		self.logchannels = self.bot.get_cog("Settings").logchannels
 	
 	async def __error(self, ctx, error):
 		if isinstance(error, commands.BadArgument):
@@ -77,24 +97,40 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(aliases=["banish"], description="Ban a user from the server")
 	@commands.has_permissions(ban_members=True)
 	@commands.bot_has_permissions(ban_members=True)
-	async def ban(self, ctx, user: StaffCheck = None, reason = None, messages: int = 0):
-		"""PFXban <user> [<reason> <amount of days: 1-7>]"""
+	async def ban(self, ctx, user: StaffCheck = None, *, reason: str = None, ):
+		"""PFXban <user> [<reason>]"""
 		await ctx.trigger_typing()
 		
 		if not user:
 			return await ctx.send("You must specify a user")
-
-		if messages > 7:
-			raise commands.ArgumentParsingError('I can only delete up to 7 days of messages')
-		elif messages < 0:
-			raise commands.ArgumentParsingError('That\'s not a valid number of days. It should be 1-7')
 		
 		try:
 			if reason:
-				await ctx.guild.ban(user, reason=f"Banned by {ctx.author} for {reason}", delete_message_days=messages)
-				await ctx.send(f"{user.mention} has been banished from {ctx.guild.name} for {reason}.")
+				await ctx.guild.ban(user, reason=f"Banned by {ctx.author} for {reason}")
+				logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
+				if logid:
+					logch = ctx.guild.get_channel(logid['channel'])
+					if logch:
+						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+						embed.set_author(name=f'Ban | {user}', icon_url=str(user.avatar_url))
+						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+						embed.add_field(name='Reason', value=reason, inline=False)
+						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+						await logch.send(embed=embed)
+				await ctx.send(f"{user.mention} has been banished from {ctx.guild.name} for {discord.utils.clean_mentions(reason)}.")
 			else:
-				await ctx.guild.ban(user, reason=f"Banned by {ctx.author}", delete_message_days=messages)
+				await ctx.guild.ban(user, reason=f"Banned by {ctx.author}")
+				logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
+				if logid:
+					logch = ctx.guild.get_channel(logid['channel'])
+					if logch:
+						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+						embed.set_author(name=f'Ban | {user}', icon_url=str(user.avatar_url))
+						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+						await logch.send(embed=embed)
 				await ctx.send(f"{user.mention} has been banished from {ctx.guild.name}")
 		except discord.Forbidden:
 			raise commands.MissingPermissions("Ban failed. Are you trying to ban someone higher than the bot?")
@@ -102,8 +138,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(description="Temporarily restricts access to this server.")
 	@commands.has_permissions(ban_members=True)
 	@commands.bot_has_permissions(ban_members=True)
-	async def softban(self, ctx, user: StaffCheck = None, reason = None, messages: int = 0):
-		"""PFXsoftban <user> [<reason> <amount of days: 1-7>]"""
+	async def softban(self, ctx, user: StaffCheck = None, messages: int = 7, *, reason = None, ):
+		"""PFXsoftban <user> <amount of days: 1-7> [<reason>]"""
 		await ctx.trigger_typing()
 
 		if not user:
@@ -117,9 +153,30 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		try:
 			if reason:
 				await ctx.guild.ban(user, reason=f"Softbanned by {ctx.author} for {reason}", delete_message_days=messages) 
+				logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
+				if logid:
+					logch = ctx.guild.get_channel(logid['channel'])
+					if logch:
+						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+						embed.set_author(name=f'Softban | {user}', icon_url=str(user.avatar_url))
+						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+						embed.add_field(name='Reason', value=reason, inline=False)
+						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+						await logch.send(embed=embed)
 				await ctx.guild.unban(user, reason="Temporarily Banned")
 			else:
 				await ctx.guild.ban(user, reason=f"Softbanned by {ctx.author}", delete_message_days=messages) 
+				logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
+				if logid:
+					logch = ctx.guild.get_channel(logid['channel'])
+					if logch:
+						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+						embed.set_author(name=f'Softban | {user}', icon_url=str(user.avatar_url))
+						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+						await logch.send(embed=embed)
 				await ctx.guild.unban(user, reason="Temporarily Banned")
 			await ctx.send(f"{user.mention} has been temporarily banished from {ctx.guild.name}")
 		except discord.Forbidden:
@@ -131,7 +188,11 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def mute(self, ctx, user: StaffCheck, *, reason = None):
 		"""PFXmute <user> [<reason>]"""
 		await ctx.trigger_typing()
-		await mute(ctx, user, reason or "No reason provided.")
+		logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
+		logch = None
+		if logid:
+			logch = ctx.guild.get_channel(logid['channel'])
+		await mute(ctx, user, reason or "No reason provided.", logch)
 	
 	@commands.command(description="Kick a user.")
 	@commands.has_permissions(kick_members=True)
@@ -145,8 +206,29 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		try:
 			if reason:
 				await ctx.guild.kick(user, reason=f"Kicked by {ctx.author} for {reason}")
+				logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
+				if logid:
+					logch = ctx.guild.get_channel(logid['channel'])
+					if logch:
+						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+						embed.set_author(name=f'Kick | {user}', icon_url=str(user.avatar_url))
+						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+						embed.add_field(name='Reason', value=reason, inline=False)
+						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+						await logch.send(embed=embed)
 			else:
-				 await ctx.guild.kick(user, reason=f"Kicked by {ctx.author}")
+				await ctx.guild.kick(user, reason=f"Kicked by {ctx.author}")
+				logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
+				if logid:
+					logch = ctx.guild.get_channel(logid['channel'])
+					if logch:
+						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+						embed.set_author(name=f'Kick | {user}', icon_url=str(user.avatar_url))
+						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+						await logch.send(embed=embed)
 		except discord.Forbidden:
 			raise commands.MissingPermissions("Kick failed. Are you trying to kick someone higher than the bot?")
 	
@@ -158,11 +240,21 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await ctx.trigger_typing()
 		await user.remove_roles(discord.utils.get(ctx.guild.roles, name="Muted"))
 		await ctx.send(f"{user.mention} has been unmuted")
+		logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
+		if logid:
+			logch = ctx.guild.get_channel(logid['channel'])
+			if logch:
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+				embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url))
+				embed.add_field(name='User', value=user.mention, inline=False)
+				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+				await logch.send(embed=embed)
 
 	@commands.command(description="Mute a user in the current channel.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def block(self, ctx, user: StaffCheck = None, *, reason = None):
+	async def block(self, ctx, user: StaffCheck = None, *, reason = 'No reason provided.'):
 		"""PFXblock <user> [<reason>]"""
 		await ctx.trigger_typing()
 		if not user:
@@ -170,11 +262,22 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		
 		await ctx.channel.set_permissions(user, send_messages=False, reason=reason or 'No reason specified.')
 		await ctx.send(f'Successfully blocked {user.mention} from chatting in {ctx.channel.mention}.')
+		logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
+		if logid:
+			logch = ctx.guild.get_channel(logid['channel'])
+			if logch:
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+				embed.set_author(name=f'Block | {user}', icon_url=str(user.avatar_url))
+				embed.add_field(name='User', value=user.mention, inline=False)
+				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+				embed.add_field(name='Reason', value=reason, inline=False)
+				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+				await logch.send(embed=embed)
 	
 	@commands.command(description="Unmute a user who has been blocked in the current channel.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def unblock(self, ctx, user: StaffCheck = None, *, reason = None):
+	async def unblock(self, ctx, user: StaffCheck = None, *, reason = 'No reason provided.'):
 		"""PFXunblock <user> [<reason>]"""
 		await ctx.trigger_typing()
 		if not user:
@@ -182,6 +285,17 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		
 		await ctx.channel.set_permissions(user, send_messages=True, reason=reason or 'No reason specified.')
 		await ctx.send(f'Successfully unblocked {user.mention}. Welcome back!')
+		logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
+		if logid:
+			logch = ctx.guild.get_channel(logid['channel'])
+			if logch:
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+				embed.set_author(name=f'Unblock | {user}', icon_url=str(user.avatar_url))
+				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+				embed.add_field(name='Moderator', value=user.mention, inline=False)
+				embed.add_field(name='Reason', value=reason, inline=False)
+				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+				await logch.send(embed=embed)
 								
 								
 def setup(bot):

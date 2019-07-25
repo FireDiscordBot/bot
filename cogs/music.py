@@ -469,7 +469,7 @@ class Music(commands.Cog):
 		if not tracks:
 			if query == f'{ctx.author.id}.mp3':
 				return await ctx.send('I got no response from Google Assistant.')
-			return await ctx.send(f'No songs were found with the query {query}. Please try again.')
+			return await ctx.send(f'No songs were found with the query {discord.utils.clean_mentions(query)}. Please try again.')
 
 		if isinstance(tracks, wavelink.TrackPlaylist):
 			for t in tracks.tracks:
@@ -482,7 +482,7 @@ class Music(commands.Cog):
 			if assistant:
 				await player.queue.put(Track(track.id, track.info, ctx=ctx))
 				return
-			await ctx.send(f'```ini\nAdded {track.title} to the Queue\n```', delete_after=15)
+			await ctx.send(f'```ini\nAdded {discord.utils.clean_mentions(discord.utils.escape_markdown(track.title))} to the Queue\n```', delete_after=15)
 			await player.queue.put(Track(track.id, track.info, ctx=ctx))
 
 		if player.controller_message and player.is_playing:
@@ -733,11 +733,11 @@ class Music(commands.Cog):
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if eq.upper() not in player.equalizers:
-			return await ctx.send(f'`{eq}` - Is not a valid equalizer!\nTry Flat, Boost, Metal, Piano.')
+			return await ctx.send(f'`{discord.utils.clean_mentions(eq)}` - Is not a valid equalizer!\nTry Flat, Boost, Metal, Piano.')
 
 		await player.set_preq(eq)
 		player.eq = eq.capitalize()
-		await ctx.send(f'The player Equalizer was set to - {eq.capitalize()}')
+		await ctx.send(f'The player Equalizer was set to - {discord.utils.clean_mentions(eq.capitalize())}')
 		player.cmdchannel_id = ctx.channel.id
 
 def setup(bot):

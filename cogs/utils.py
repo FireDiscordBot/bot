@@ -565,12 +565,12 @@ class utils(commands.Cog, name='Utility Commands'):
 			return
 
 		try:
-			await ctx.send(f"```json\n{json.dumps(raw, indent=2)}```")
+			await ctx.send(f"```json\n{json.dumps(discord.utils.escape_markdown(raw), indent=2)}```")
 		except discord.HTTPException as e:
 			e = str(e)
 			if 'Must be 2000 or fewer in length' in e:
 				paginator = WrappedPaginator(prefix='```json', suffix='```', max_size=1895)
-				paginator.add_line(json.dumps(raw, indent=2))
+				paginator.add_line(json.dumps(discord.utils.escape_markdown(raw), indent=2))
 				interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
 				await interface.send_to(ctx)
 
@@ -600,12 +600,12 @@ class utils(commands.Cog, name='Utility Commands'):
 			if message:
 				raw = await ctx.bot.http.get_message(message.channel.id, message.id)
 				try:
-					await ctx.send(f"```json\n{json.dumps(raw, indent=2)}```")
+					await ctx.send(f"```json\n{json.dumps(discord.utils.escape_markdown(raw), indent=2)}```")
 				except discord.HTTPException as e:
 					e = str(e)
 					if 'Must be 2000 or fewer in length' in e:
 						paginator = WrappedPaginator(prefix='```json', suffix='```', max_size=1895)
-						paginator.add_line(json.dumps(raw, indent=2))
+						paginator.add_line(json.dumps(discord.utils.escape_markdown(raw), indent=2))
 						interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
 						await interface.send_to(ctx)
 			else:
@@ -633,12 +633,12 @@ class utils(commands.Cog, name='Utility Commands'):
 			msgid = list_ids[1]
 			raw = await ctx.bot.http.get_message(chanid, msgid)
 			try:
-				await ctx.send(f"```json\n{json.dumps(raw, indent=2)}```")
+				await ctx.send(f"```json\n{json.dumps(discord.utils.escape_markdown(raw), indent=2)}```")
 			except discord.HTTPException as e:
 				e = str(e)
 				if 'Must be 2000 or fewer in length' in e:
 					paginator = WrappedPaginator(prefix='```json', suffix='```', max_size=1895)
-					paginator.add_line(json.dumps(raw, indent=2))
+					paginator.add_line(json.dumps(discord.utils.escape_markdown(raw), indent=2))
 					interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
 					await interface.send_to(ctx)
 		else:
@@ -686,7 +686,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		try:
 			a = member.activities[0]
 			adict = a.to_dict()
-			await ctx.send(f'```json\n{json.dumps(adict, indent=2)}```')
+			await ctx.send(f'```json\n{json.dumps(discord.utils.clean_mentions(discord.utils.escape_markdown(adict)), indent=2)}```')
 		except Exception:
 			return await ctx.send('I couldn\'t get that member\'s activity...')
 
@@ -709,7 +709,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		'''PFXimgtest [<user>]'''
 		if user == None:
 			user = ctx.author
-		await ctx.send(f'Retrieving {user}\'s info')
+		await ctx.send(f'Retrieving {discord.utils.clean_mentions(user)}\'s info')
 		img = Image.open('cogs/infoimgimg.png')
 		draw = ImageDraw.Draw(img)
 		font = ImageFont.truetype('cogs/Modern_Sans_Light.otf', 100)
