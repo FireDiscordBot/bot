@@ -197,6 +197,8 @@ class fire(commands.Cog, name="Main Commands"):
 				await ctx.send(embed=embed)
 			else:
 				await ctx.send(f'{member} doesn\'t seem to be playing something with rich presence integration...')
+		else:
+			await ctx.send(f'{member} doesn\'t seem to be playing something with rich presence integration...')
 				
 
 	@commands.command(description="dab")
