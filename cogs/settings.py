@@ -20,6 +20,21 @@ def isadmin(ctx):
 		admin = True
 	return admin
 
+def byteify(input):
+    if isinstance(input, dict):
+        return {byteify(key): byteify(value)
+                for key, value in input.iteritems()}
+    elif isinstance(input, list):
+        return [byteify(element) for element in input]
+    elif isinstance(input, unicode):
+        return input.encode('utf-8')
+    else:
+        return input
+
+# byteify example
+# byteify(json.loads(u"[ 'A','B','C' , ' D']".replace('\'','"')))
+# may have a use in the future ¯\_(ツ)_/¯
+
 watchedcmds = ['ban', 'softban', 'mute', 'kick', 'unmute', 'block', 'unblock', 'purge']
 region = {
 	'amsterdam': '🇳🇱 Amsterdam',
