@@ -76,7 +76,7 @@ class Music(commands.Cog, name="Music Commands"):
 				)
 			else:
 				self.queue[ctx.guild][1].append(track)
-				await ctx.send(f"▶ Added {discord.utils.clean_mentions(track.title)} to the queue")
+				await ctx.send(f"▶ Added {discord.utils.escape_mentions(track.title)} to the queue")
 		else:
 			if is_playlist:
 				self.queue[ctx.guild] = [ctx.channel, tracks[1:]]

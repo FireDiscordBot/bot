@@ -47,7 +47,7 @@ async def mute(ctx, user, reason, channel: discord.TextChannel = None):
 		await user.add_roles(muted)
 		if e:
 			await e.delete()
-		await ctx.send(f"{user.mention} has been muted for {discord.utils.clean_mentions(reason)}")
+		await ctx.send(f"{user.mention} has been muted for {discord.utils.escape_mentions(reason)}")
 		if channel:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 			embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url))
@@ -58,7 +58,7 @@ async def mute(ctx, user, reason, channel: discord.TextChannel = None):
 			await channel.send(embed=embed)
 	else:
 		await user.add_roles(muted)
-		await ctx.send(f"{user.mention} has been muted for {discord.utils.clean_mentions(reason)}")
+		await ctx.send(f"{user.mention} has been muted for {discord.utils.escape_mentions(reason)}")
 		if channel:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 			embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url))
@@ -118,7 +118,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						embed.add_field(name='Reason', value=reason, inline=False)
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 						await logch.send(embed=embed)
-				await ctx.send(f"{user.mention} has been banished from {ctx.guild.name} for {discord.utils.clean_mentions(reason)}.")
+				await ctx.send(f"{user.mention} has been banished from {ctx.guild.name} for {discord.utils.escape_mentions(reason)}.")
 			else:
 				await ctx.guild.ban(user, reason=f"Banned by {ctx.author}")
 				logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None

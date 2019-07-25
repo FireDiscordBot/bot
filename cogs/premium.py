@@ -152,7 +152,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				self.autoroles[ctx.guild.id] = None
 			except KeyError:
 				pass
-			return await ctx.send(f'Successfully disabled auto-role in {discord.utils.clean_mentions(ctx.guild.name)}', delete_after=5)
+			return await ctx.send(f'Successfully disabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}', delete_after=5)
 		else:
 			roleid = role.id
 			await self.bot.db.execute(f'UPDATE settings SET autorole = {roleid} WHERE gid = {ctx.guild.id}')
@@ -160,7 +160,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			self.autoroles[ctx.guild.id] = {
 				"role": roleid
 			}
-			return await ctx.send(f'Successfully enabled auto-role in {discord.utils.clean_mentions(ctx.guild.name)}! All new members will recieve the {role.name} role.', delete_after=5)
+			return await ctx.send(f'Successfully enabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}! All new members will recieve the {role.name} role.', delete_after=5)
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
@@ -187,7 +187,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		if not role:
 			await self.bot.db.execute(f'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = (0, 0, 0) WHERE gid = {ctx.guild.id}')
 			await self.bot.conn.commit()
-			return await ctx.send(f'Successfully disabled reaction role in {discord.utils.clean_mentions(ctx.guild.name)}', delete_after=5)
+			return await ctx.send(f'Successfully disabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}', delete_after=5)
 		else:
 			try:
 				msg = await ctx.channel.fetch_message(message)
@@ -225,7 +225,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				"message": messageid,
 				"emote": emoteid
 			}
-			return await ctx.send(f'Successfully enabled reaction role in {discord.utils.clean_mentions(ctx.guild.name)}!', delete_after=5)
+			return await ctx.send(f'Successfully enabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}!', delete_after=5)
 
 	@commands.Cog.listener()
 	async def on_reaction_add(self, reaction, user):

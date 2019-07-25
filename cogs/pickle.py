@@ -323,7 +323,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			else:
 				return await ctx.send('Unknown leaderboard.')
 		if arg2 == None:
-			cleaned = discord.utils.clean_mentions(discord.utils.escape_markdown(arg1))
+			cleaned = discord.utils.escape_mentions(discord.utils.escape_markdown(arg1))
 			msg = await ctx.send(f"Requesting info about {cleaned} from the Hypixel API!")
 			channel = ctx.message.channel
 			color = ctx.author.color
@@ -503,7 +503,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					img.save('lastrank.png')
 					customtag = discord.File('lastrank.png')
 				if arg2 == None:
-					msg = await ctx.send(f"Retrieving {discord.utils.clean_mentions(discord.utils.escape_markdown(p['displayname']))}'s info...")
+					msg = await ctx.send(f"Retrieving {discord.utils.escape_mentions(discord.utils.escape_markdown(p['displayname']))}'s info...")
 					uuid = player.UUID
 					embed = discord.Embed(title=f"{discord.utils.escape_markdown(p['displayname'])}'s Info", colour=color, timestamp=datetime.datetime.utcnow())
 					if nametag:
@@ -575,7 +575,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					else:
 						await msg.edit(content=None, embed=embed)
 		elif arg2 == 'session':
-			msg = await ctx.send(f"Retrieving {discord.utils.clean_mentions(discord.utils.escape_markdown(arg1))}'s session...")
+			msg = await ctx.send(f"Retrieving {discord.utils.escape_mentions(discord.utils.escape_markdown(arg1))}'s session...")
 			try:
 				player = hypixel.Player(arg1)
 			except hypixel.PlayerNotFoundException:

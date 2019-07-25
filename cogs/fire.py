@@ -216,7 +216,7 @@ class fire(commands.Cog, name="Main Commands"):
 			async with session.get(f'http://cowsay.morecode.org/say?message={cow}&format=json') as resp:
 				body = await resp.json()
 		cow = body['cow']
-		await ctx.send(f'```{discord.utils.clean_mentions(discord.utils.escape_markdown(cow))}```')
+		await ctx.send(f'```{discord.utils.escape_mentions(discord.utils.escape_markdown(cow))}```')
 
 	@commands.command(description='ascii text')
 	async def ascii(self, ctx, *, text: str):
@@ -226,7 +226,7 @@ class fire(commands.Cog, name="Main Commands"):
 		async with aiohttp.ClientSession() as session:
 			async with session.get(f'http://artii.herokuapp.com/make?text={text}') as resp:
 				body = await resp.text()
-		await ctx.send(f'```{discord.utils.clean_mentions(discord.utils.escape_markdown(body))}```')
+		await ctx.send(f'```{discord.utils.escape_mentions(discord.utils.escape_markdown(body))}```')
 
 def setup(bot):
 	bot.add_cog(fire(bot))

@@ -686,7 +686,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		try:
 			a = member.activities[0]
 			adict = a.to_dict()
-			await ctx.send(f'```json\n{json.dumps(discord.utils.clean_mentions(discord.utils.escape_markdown(adict)), indent=2)}```')
+			await ctx.send(f'```json\n{json.dumps(discord.utils.escape_mentions(discord.utils.escape_markdown(adict)), indent=2)}```')
 		except Exception:
 			return await ctx.send('I couldn\'t get that member\'s activity...')
 
@@ -709,7 +709,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		'''PFXimgtest [<user>]'''
 		if user == None:
 			user = ctx.author
-		await ctx.send(f'Retrieving {discord.utils.clean_mentions(user)}\'s info')
+		await ctx.send(f'Retrieving {discord.utils.escape_mentions(user)}\'s info')
 		img = Image.open('cogs/infoimgimg.png')
 		draw = ImageDraw.Draw(img)
 		font = ImageFont.truetype('cogs/Modern_Sans_Light.otf', 100)
