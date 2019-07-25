@@ -149,7 +149,7 @@ class fire(commands.Cog, name="Main Commands"):
 			activity = None
 		if activity != None:
 			if activity.name == 'Spotify':
-				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+				embed = discord.Embed(color=activity.color, timestamp=datetime.datetime.utcnow())
 				embed.set_author(name=f'{member}\'s Spotify Info', icon_url='https://cdn.discordapp.com/emojis/471412444716072960.png')
 				embed.add_field(name='Song', value=activity.title, inline=False)
 				embed.add_field(name='Artists', value=', '.join(activity.artists), inline=False)
@@ -157,6 +157,8 @@ class fire(commands.Cog, name="Main Commands"):
 				now = datetime.datetime.utcnow()
 				elapsed = str(now - activity.start).split('.')[0]
 				left = str(activity.end - now).split('.')[0]
+				if 'day' in left:
+					left = '0:00:00'
 				embed.add_field(name='Times', value=f'Duration: {duration}\nElapsed: {elapsed}\nLeft: {left}', inline=False)
 				embed.add_field(name='Listen to this track', value=f'[{activity.title}](https://open.spotify.com/track/{activity.track_id})', inline=False)
 				embed.set_thumbnail(url=activity.album_cover_url)
