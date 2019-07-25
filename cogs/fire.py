@@ -183,13 +183,21 @@ class fire(commands.Cog, name="Main Commands"):
 					embed.set_author(name=f'{member}\'s Game Info')
 				embed.add_field(name='Game', value=activity.name, inline=False)
 				now = datetime.datetime.utcnow()
-				elapsed = str(now - activity.start).split('.')[0]
-				if activity.details != None and activity.state != None:
+				elapsed = None
+				if activity.start:
+					elapsed = str(now - activity.start).split('.')[0]
+				if activity.details != None and activity.state != None and elapsed != None:
 					embed.add_field(name='Details', value=f'{activity.details}\n{activity.state}\n{elapsed} elapsed', inline=False)
-				elif activity.state != None:
+				elif activity.state != None and elapsed != None:
 					embed.add_field(name='Details', value=f'{activity.state}\n{elapsed} elapsed', inline=False)
-				elif activity.details != None:
+				elif activity.details != None and elapsed != None:
 					embed.add_field(name='Details', value=f'{activity.details}\n{elapsed} elapsed', inline=False)
+				elif activity.details != None and activity.state !=None and elapsed == None:
+					embed.add_field(name='Details', value=f'{activity.details}\n{activity.state}', inline=False)
+				elif activity.state != None and elapsed == None:
+					embed.add_field(name='Details', value=f'{activity.state}', inline=False)
+				elif activity.details != None and elapsed == None:
+					embed.add_field(name='Details', value=f'{activity.details}', inline=False)
 				if activity.large_image_url != None:
 					embed.set_thumbnail(url=activity.large_image_url)
 				else:
