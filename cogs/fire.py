@@ -247,5 +247,13 @@ class fire(commands.Cog, name="Main Commands"):
 			if 'Must be 2000 or fewer in length.' in e:
 				return await ctx.send('That message is too long. Try a shorter one!')
 
+	@commands.command(name='👏', aliases=['clap'], description='Emphasize your message with claps')
+	async def clap(self, ctx, *, clappyboi: str = 'You need to provide a message for me to emphasize'):
+		'''PFXclap <message>'''
+		message = discord.utils.escape_mentions(clappyboi)
+		message = message.split(' ')
+		message = ' 👏 '.join(message)
+		await ctx.send(message)
+
 def setup(bot):
 	bot.add_cog(fire(bot))
