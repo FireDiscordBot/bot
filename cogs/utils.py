@@ -9,7 +9,8 @@ import re
 import aiosqlite3
 import functools
 import strgen
-from jishaku.paginators import PaginatorInterface, WrappedPaginator
+from colormap import rgb2hex, hex2rgb
+from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -201,6 +202,39 @@ notifs = {
 	'NotificationLevel.only_mentions': 'Only Mentions'
 }
 
+permissions = {
+	'add_reactions': 'React',
+	'administrator': 'Admin',
+	'attach_files': 'Upload Files',
+	'ban_members': 'Ban',
+	'change_nickname': 'Change Nick',
+	'connect': 'Connect',
+	'create_instant_invite': 'Create Invite',
+	'deafen_members': 'Server Deafen',
+	'embed_links': 'Link Embeds',
+	'external_emojis': 'External Emojis',
+	'kick_members': 'Kick',
+	'manage_channels': 'Manage Channels',
+	'manage_emojis': 'Manage Emojis',
+	'manage_guild': 'Manage Guild',
+	'manage_messages': 'Manage Messages',
+	'manage_nicknames': 'Manage Nicks',
+	'manage_roles': 'Manage Roles',
+	'manage_webhooks': 'Manage Webhooks',
+	'mention_everyone': 'Mention Everyone',
+	'move_members': 'Move Members',
+	'mute_members': 'Mute Members',
+	'priority_speaker': 'Priority Speaker',
+	'read_message_history': 'Read Past Messages',
+	'read_messages': 'Read Messages',
+	'send_messages': 'Send Messages',
+	'send_tts_messages': 'Send TTS Messages',
+	'speak': 'Talk',
+	'stream': 'Screenshare',
+	'use_voice_activation': 'Use Voice Activation',
+	'view_audit_log': 'View Logs'
+}
+
 class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
@@ -257,11 +291,18 @@ class utils(commands.Cog, name='Utility Commands'):
 				await self.bot.conn.commit()
 				await ctx.send(f'{user.mention} is now unblacklisted!')
 
-	@commands.command(description='Check out the server\'s info')
-	async def serverinfo(self, ctx, guild: discord.Guild = None):
-		'''PFXserverinfo'''
-		if not guild:
-			guild = ctx.guild
+	@commands.group(name='info', invoke_without_command=True)
+	@commands.guild_only()
+	async def infogroup(self, ctx):
+		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
+		embed.set_author(name=ctx.guild.name, icon_url=str(ctx.guild.icon_url))
+		embed.add_field(name='Info Commands', value=f'> {ctx.prefix}info guild | Get\'s info about the guild\n> {ctx.prefix}info user [<user>] | Get\'s info about you or another user\n> {ctx.prefix}info role [<role>] | Get\'s info about your top role or another role', inline=False)
+		await ctx.send(embed=embed)
+
+	@infogroup.command(description='Check out the guild\'s info', aliases=['server'])
+	async def guild(self, ctx):
+		'''PFXinfo guild'''
+		guild = ctx.guild
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		embed.set_thumbnail(url=guild.icon_url)
 		embed.add_field(name="» Name", value=guild.name, inline=True)
@@ -281,17 +322,17 @@ class utils(commands.Cog, name='Utility Commands'):
 			else:
 				roles.append(role.mention)
 		roles = ' - '.join(roles)
-		if len(roles) < 1020:
-			embed.add_field(name="» Roles", value=' - '.join(roles), inline=False)
+		if len(roles) <= 1000:
+			embed.add_field(name="» Roles", value=roles, inline=False)
 			await ctx.send(embed=embed)
 		else:
 			rolebed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Roles**\n{roles}')
 			await ctx.send(embed=embed)
 			await ctx.send(embed=rolebed)
 
-	@commands.command(description='Check out a user\'s info')
+	@infogroup.command(description='Check out a user\'s info')
 	async def user(self, ctx, user: typing.Union[discord.User, discord.Member] = None):
-		'''PFXuser [<user>]'''
+		'''PFXinfo user [<user>]'''
 		if not user:
 			user = ctx.author
 		if type(user) == discord.User:
@@ -324,14 +365,33 @@ class utils(commands.Cog, name='Utility Commands'):
 					roles.append(role.mention)
 			embed.add_field(name="» Roles", value=' - '.join(roles), inline=False)
 		await ctx.send(embed=embed)
-		# if user.activity:
-		# 	activity = user.activity
-		# else:
-		# 	return
-		# if type(activity) == discord.Game:
-		# 	return
-		# if type(activity) == discord.Activity:
-			# do things
+
+	@infogroup.command(description='Check out a role\'s info')
+	async def role(self, ctx, *, role: discord.Role = None):
+		'''PFXinfo role [<role>]'''
+		if not role:
+			role = ctx.author.top_role
+		embed = discord.Embed(colour=role.color if role.color != discord.Color.default() else ctx.author.color, timestamp=datetime.datetime.utcnow())
+		embed.add_field(name="» Name", value=role.name, inline=True)
+		embed.add_field(name="» ID", value=role.id, inline=True)
+		embed.add_field(name="» Mention", value=f'`{role.mention}`', inline=True)
+		embed.add_field(name="» Members", value=len(role.members), inline=True)
+		rgbcolor = role.color.to_rgb()
+		hexcolor = rgb2hex(role.color.r, role.color.g, role.color.b).replace('##', '#')
+		embed.add_field(name="» Hoisted?", value='Yes' if role.hoist == True else 'No', inline=True)
+		embed.add_field(name="» Mentionable?", value='Yes' if role.mentionable == True else 'No', inline=True)
+		embed.add_field(name="» Color", value=f'> RGB: {rgbcolor}\n> HEX: {hexcolor}', inline=True)
+		perms = []
+		for perm, value in role.permissions:
+			perms.append(permissions[perm] if perm in permissions else perm.replace('_', '').capitalize())
+		embed.add_field(name="» Permissions", value=', '.join(perms), inline=False)
+		await ctx.send(embed=embed)
+		paginator = WrappedPaginator(prefix='', suffix='', max_size=2000)
+		for member in role.members:
+			paginator.add_line(member.mention)
+		membed = discord.Embed(colour=role.color if role.color != discord.Color.default() else ctx.author.color, timestamp=datetime.datetime.utcnow())
+		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=membed)
+		await interface.send_to(ctx)
 
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)

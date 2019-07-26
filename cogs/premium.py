@@ -289,7 +289,6 @@ class Premium(commands.Cog, name="Premium Commands"):
 			for rank in ranks:
 				role = discord.utils.get(ctx.guild.roles, id=rank)
 				if not role:
-					print(rank)
 					await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {rank};')
 					await self.bot.conn.commit()
 					self.joinroles[ctx.guild.id].remove(rank)
@@ -310,6 +309,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				embed.set_author(name=f'{ctx.guild.name}\'s ranks', icon_url=str(ctx.guild.icon_url))
 				await ctx.send(embed=embed)
 		else:
+			rank = None
 			for r in ctx.guild.roles:
 				if r.name.lower() == role.lower():
 					rank = r
