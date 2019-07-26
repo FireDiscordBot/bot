@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord.ext.commands import has_permissions, bot_has_permissions
 from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
 import aiosqlite3
 import functools
@@ -27,6 +28,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		self.premiumGuilds  = []
 		self.autoroles = {}
 		self.reactroles = {}
+		self.joinroles = {}
 
 	async def loadPremiumGuilds(self):
 		self.premiumGuilds = []
@@ -59,6 +61,16 @@ class Premium(commands.Cog, name="Premium Commands"):
 					"emote": s[9]
 				}
 
+	async def loadJoinRoles(self):
+		self.joinroles = {}
+		await self.bot.db.execute('SELECT * FROM joinableranks;')
+		ranks = await self.bot.db.fetchall()
+		for r in ranks:
+			if r[0] != None:
+				guild = r[1]
+				self.joinroles[guild] = []
+				self.joinroles[guild].append(r[2])
+
 	async def cog_check(self, ctx: commands.Context):
 		"""
 		Local check, makes all commands in this cog premium only
@@ -83,10 +95,11 @@ class Premium(commands.Cog, name="Premium Commands"):
 
 	@commands.Cog.listener()
 	async def on_ready(self):
-		await asyncio.sleep(5)
+		await asyncio.sleep(10)
 		await self.loadPremiumGuilds()
 		await self.loadAutoroles()
 		await self.loadReactroles()
+		await self.loadJoinRoles()
 		print('Premium functions loaded!')
 
 	@commands.command(name='loadpremium', description='Load premium data', hidden=True)
@@ -96,6 +109,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			await self.loadPremiumGuilds()
 			await self.loadAutoroles()
 			await self.loadReactroles()
+			await self.loadJoinRoles()
 			await ctx.send('Loaded data!')
 		else:
 			await ctx.send('no.')
@@ -152,7 +166,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				self.autoroles[ctx.guild.id] = None
 			except KeyError:
 				pass
-			return await ctx.send(f'Successfully disabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}', delete_after=5)
+			return await ctx.send(f'Successfully disabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}')
 		else:
 			roleid = role.id
 			await self.bot.db.execute(f'UPDATE settings SET autorole = {roleid} WHERE gid = {ctx.guild.id}')
@@ -160,7 +174,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			self.autoroles[ctx.guild.id] = {
 				"role": roleid
 			}
-			return await ctx.send(f'Successfully enabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}! All new members will recieve the {role.name} role.', delete_after=5)
+			return await ctx.send(f'Successfully enabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}! All new members will recieve the {role.name} role.')
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
@@ -187,7 +201,11 @@ class Premium(commands.Cog, name="Premium Commands"):
 		if not role:
 			await self.bot.db.execute(f'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = (0, 0, 0) WHERE gid = {ctx.guild.id}')
 			await self.bot.conn.commit()
-			return await ctx.send(f'Successfully disabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}', delete_after=5)
+			try:
+				self.reactroles[ctx.guild.id] = None
+			except KeyError:
+				pass
+			return await ctx.send(f'Successfully disabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}')
 		else:
 			try:
 				msg = await ctx.channel.fetch_message(message)
@@ -225,7 +243,91 @@ class Premium(commands.Cog, name="Premium Commands"):
 				"message": messageid,
 				"emote": emoteid
 			}
-			return await ctx.send(f'Successfully enabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}!', delete_after=5)
+			return await ctx.send(f'Successfully enabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}!')
+
+	@commands.command(name='addrank', description='Add a role that users can join through the rank command.')
+	@has_permissions(manage_roles=True)
+	@bot_has_permissions(manage_roles=True)
+	@commands.guild_only()
+	async def addrank(self, ctx, role: discord.Role):
+		'''PFXaddrank <role>'''
+		await self.bot.db.execute(f'INSERT INTO joinableranks (\"gid\", \"rid\") VALUES ({ctx.guild.id}, {role.id});')
+		await self.bot.conn.commit()
+		try:
+			self.joinroles[ctx.guild.id].append(role.id)
+		except KeyError:
+			self.joinroles[ctx.guild.id] = []
+			self.joinroles[ctx.guild.id].append(role.id)
+		return await ctx.send(f'Successfully added the rank {role.mention}!')
+
+	@commands.command(name='delrank', description='Remove a rank from the list of joinable roles.')
+	@has_permissions(manage_roles=True)
+	@bot_has_permissions(manage_roles=True)
+	@commands.guild_only()
+	async def delrank(self, ctx, role: discord.Role):
+		'''PFXdelrank <role>'''
+		await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {role.id};')
+		await self.bot.conn.commit()
+		try:
+			self.joinroles[ctx.guild.id].remove(role.id) 
+		except KeyError:
+			pass
+		return await ctx.send(f'Successfully removed the rank {role.mention}!')
+
+	@commands.command(name='rank', description='List all available ranks and join a rank', aliases=['ranks'])
+	@bot_has_permissions(manage_roles=True)
+	@commands.guild_only()
+	async def rank(self, ctx, *, role: str = None):
+		'''PFXrank [<rank>]'''
+		if not role:
+			try:
+				ranks = self.joinroles[ctx.guild.id]
+			except KeyError:
+				return await ctx.send('Seems like there\'s no ranks set for this guild :c')
+			roles = []
+			someremoved = 0
+			for rank in ranks:
+				role = discord.utils.get(ctx.guild.roles, id=rank)
+				if not role:
+					print(rank)
+					await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {rank};')
+					await self.bot.conn.commit()
+					self.joinroles[ctx.guild.id].remove(rank)
+					someremoved += 1
+				else:
+					roles.append(role)
+			if roles == []:
+				return await ctx.send('Seems like there\'s no ranks set for this guild :c')
+				if someremoved > 0:
+					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+					embed.add_field(name='Error', value=f'I couldn\'t find some of the ranks. This may be due to the corresponding role being deleted.\n{someremoved} rank(s) have been deleted and may need to be re-added.')
+					await ctx.send(embed=embed)
+			else:
+				ranks = []
+				for role in roles:
+					ranks.append(f'> {role.mention} ({len(role.members)} members)')
+				embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description='\n'.join(ranks))
+				embed.set_author(name=f'{ctx.guild.name}\'s ranks', icon_url=str(ctx.guild.icon_url))
+				await ctx.send(embed=embed)
+		else:
+			for r in ctx.guild.roles:
+				if r.name.lower() == role.lower():
+					rank = r
+					break
+			if not rank:
+				return await ctx.send(f'I cannot find the rank `{role}`. Type \'{ctx.prefix}rank\' to see a list of ranks')
+			try:
+				if rank.id in self.joinroles[ctx.guild.id]:
+					if rank in ctx.author.roles:
+						await ctx.author.remove_roles(rank, reason='Left rank')
+						await ctx.send(f'You successfully left the {rank.name} rank.')
+					else:
+						await ctx.author.add_roles(rank, reason='Joined rank')
+						await ctx.send(f'You successfully joined the {rank.name} rank.')
+				else:
+					return await ctx.send(f'I cannot find the rank `{role}`. Type \'{ctx.prefix}rank\' to see a list of ranks')
+			except KeyError:
+				return await ctx.send(f'I cannot find any ranks for this guild :c')
 
 	@commands.Cog.listener()
 	async def on_reaction_add(self, reaction, user):

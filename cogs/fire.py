@@ -149,10 +149,12 @@ class fire(commands.Cog, name="Main Commands"):
 			activity = None
 		if activity != None:
 			if activity.name == 'Spotify':
+				adict = activity.to_dict()
 				embed = discord.Embed(color=activity.color, timestamp=datetime.datetime.utcnow())
 				embed.set_author(name=f'{member}\'s Spotify Info', icon_url='https://cdn.discordapp.com/emojis/471412444716072960.png')
 				embed.add_field(name='Song', value=activity.title, inline=False)
 				embed.add_field(name='Artists', value=', '.join(activity.artists), inline=False)
+				embed.add_field(name='Album', value=activity.album, inline=False)
 				duration = str(activity.duration).split('.')[0]
 				now = datetime.datetime.utcnow()
 				elapsed = str(now - activity.start).split('.')[0]
@@ -226,7 +228,8 @@ class fire(commands.Cog, name="Main Commands"):
 			async with session.get(f'http://cowsay.morecode.org/say?message={cow}&format=json') as resp:
 				body = await resp.json()
 		cow = body['cow']
-		await ctx.send(f'```{discord.utils.escape_mentions(discord.utils.escape_markdown(cow))}```')
+		cow = discord.utils.escape_mentions(cow).replace('`', '')
+		await ctx.send(f'```{cow}```')
 
 	@commands.command(description='ascii text')
 	async def ascii(self, ctx, *, text: str):
@@ -236,7 +239,13 @@ class fire(commands.Cog, name="Main Commands"):
 		async with aiohttp.ClientSession() as session:
 			async with session.get(f'http://artii.herokuapp.com/make?text={text}') as resp:
 				body = await resp.text()
-		await ctx.send(f'```{discord.utils.escape_mentions(discord.utils.escape_markdown(body))}```')
+		try:
+			asciimsg = discord.utils.escape_mentions(body).replace('`', '')
+			await ctx.send(f'```{asciimsg}```')
+		except discord.HTTPException as e:
+			e = str(e)
+			if 'Must be 2000 or fewer in length.' in e:
+				return await ctx.send('That message is too long. Try a shorter one!')
 
 def setup(bot):
 	bot.add_cog(fire(bot))
