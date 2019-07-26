@@ -383,8 +383,10 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Color", value=f'> RGB: {rgbcolor}\n> HEX: {hexcolor}', inline=True)
 		perms = []
 		for perm, value in role.permissions:
-			perms.append(permissions[perm] if perm in permissions else perm.replace('_', '').capitalize())
-		embed.add_field(name="» Permissions", value=', '.join(perms), inline=False)
+			if value == True:
+				perms.append(permissions[perm] if perm in permissions else perm.replace('_', '').capitalize())
+		if perms != []:
+			embed.add_field(name="» Permissions", value=', '.join(perms), inline=False)
 		await ctx.send(embed=embed)
 		paginator = WrappedPaginator(prefix='', suffix='', max_size=2000)
 		for member in role.members:
