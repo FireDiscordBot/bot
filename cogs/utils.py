@@ -280,8 +280,14 @@ class utils(commands.Cog, name='Utility Commands'):
 				pass
 			else:
 				roles.append(role.mention)
-		embed.add_field(name="» Roles", value=' - '.join(roles), inline=False)
-		await ctx.send(embed=embed)
+		roles = ' - '.join(roles)
+		if len(roles) < 1020:
+			embed.add_field(name="» Roles", value=' - '.join(roles), inline=False)
+			await ctx.send(embed=embed)
+		else:
+			rolebed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Roles**\n{roles}')
+			await ctx.send(embed=embed)
+			await ctx.send(embed=rolebed)
 
 	@commands.command(description='Check out a user\'s info')
 	async def user(self, ctx, user: typing.Union[discord.User, discord.Member] = None):
@@ -565,12 +571,13 @@ class utils(commands.Cog, name='Utility Commands'):
 			return
 
 		try:
-			await ctx.send(f"```json\n{json.dumps(discord.utils.escape_markdown(raw), indent=2)}```")
+			cjson = son.dumps(raw, indent=2).replace('`', '\`')
+			await ctx.send("```json\n{j}```".format(cjson))
 		except discord.HTTPException as e:
 			e = str(e)
 			if 'Must be 2000 or fewer in length' in e:
 				paginator = WrappedPaginator(prefix='```json', suffix='```', max_size=1895)
-				paginator.add_line(json.dumps(discord.utils.escape_markdown(raw), indent=2))
+				paginator.add_line(json.dumps(raw, indent=2).replace('`', '\`'))
 				interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
 				await interface.send_to(ctx)
 
@@ -600,12 +607,13 @@ class utils(commands.Cog, name='Utility Commands'):
 			if message:
 				raw = await ctx.bot.http.get_message(message.channel.id, message.id)
 				try:
-					await ctx.send(f"```json\n{json.dumps(discord.utils.escape_markdown(raw), indent=2)}```")
+					mjson = json.dumps(raw, indent=2).replace('`', '\`')
+					await ctx.send("```json\n{}```".format(mjson))
 				except discord.HTTPException as e:
 					e = str(e)
 					if 'Must be 2000 or fewer in length' in e:
 						paginator = WrappedPaginator(prefix='```json', suffix='```', max_size=1895)
-						paginator.add_line(json.dumps(discord.utils.escape_markdown(raw), indent=2))
+						paginator.add_line(json.dumps(raw, indent=2).replace('`', '\`'))
 						interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
 						await interface.send_to(ctx)
 			else:
@@ -633,12 +641,13 @@ class utils(commands.Cog, name='Utility Commands'):
 			msgid = list_ids[1]
 			raw = await ctx.bot.http.get_message(chanid, msgid)
 			try:
-				await ctx.send(f"```json\n{json.dumps(discord.utils.escape_markdown(raw), indent=2)}```")
+				mjson = json.dumps(raw, indent=2).replace('`', '\`')
+				await ctx.send("```json\n{}```".format(mjson))
 			except discord.HTTPException as e:
 				e = str(e)
 				if 'Must be 2000 or fewer in length' in e:
 					paginator = WrappedPaginator(prefix='```json', suffix='```', max_size=1895)
-					paginator.add_line(json.dumps(discord.utils.escape_markdown(raw), indent=2))
+					paginator.add_line(json.dumps(raw, indent=2).replace('`', '\`'))
 					interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
 					await interface.send_to(ctx)
 		else:
@@ -686,7 +695,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		try:
 			a = member.activities[0]
 			adict = a.to_dict()
-			await ctx.send(f'```json\n{json.dumps(discord.utils.escape_mentions(discord.utils.escape_markdown(adict)), indent=2)}```')
+			ajson = json.dumps(adict, indent=2).replace('`', '\`')
+			await ctx.send('```json\n{}```'.format(ajson)) #i dont want to use format() but im forced to
 		except Exception:
 			return await ctx.send('I couldn\'t get that member\'s activity...')
 

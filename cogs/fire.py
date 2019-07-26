@@ -217,7 +217,7 @@ class fire(commands.Cog, name="Main Commands"):
 	@commands.command(description="idk")
 	async def warm(self, ctx, *, warm: str):
 		"""PFXwarm <item>"""
-		await ctx.send(f'🔥 Warming up {warm}')
+		await ctx.send(f'🔥 Warming up {discord.utils.escape_mentions(discord.utils.escape_markdown(warm))}')
 
 	@commands.command(description='Cow goes moo')
 	async def cowsay(self, ctx, *, cow: str):

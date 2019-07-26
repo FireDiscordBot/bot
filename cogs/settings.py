@@ -163,9 +163,10 @@ class settings(commands.Cog, name="Settings"):
 			if '/' in code:
 				return
 			invalidinvite = False
-			if not message.author.permissions_in(message.channel).manage_messages:
-				if message.guild.me.permissions_in(message.channel).manage_messages:
-					await message.delete()
+			if isinstance(message.author, discord.Member):
+				if not message.author.permissions_in(message.channel).manage_messages:
+					if message.guild.me.permissions_in(message.channel).manage_messages:
+						await message.delete()
 			try:
 				invite = await self.bot.fetch_invite(url=code)
 			except discord.NotFound or discord.HTTPException as e:
