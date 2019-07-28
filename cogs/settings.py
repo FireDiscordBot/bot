@@ -363,17 +363,17 @@ class settings(commands.Cog, name="Settings"):
 					embed.add_field(name='After', value=after.channel.name, inline=False)
 					embed.set_author(name=member, icon_url=str(member.avatar_url))
 					embed.set_footer(text=f"Member ID: {member.id} | Old Channel ID: {before.channel.id} | New Channel ID: {after.channel.id}")
-					await logch.send(embed=embed)
+					return await logch.send(embed=embed)
 				if after.channel:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **joined voice channel {after.channel.name}**')
 					embed.set_author(name=member, icon_url=str(member.avatar_url))
 					embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
-					await logch.send(embed=embed)
+					return await logch.send(embed=embed)
 				elif not after.channel:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **left voice channel {before.channel.name}**')
 					embed.set_author(name=member, icon_url=str(member.avatar_url))
 					embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {before.channel.id}")
-					await logch.send(embed=embed)
+					return await logch.send(embed=embed)
 
 	@commands.Cog.listener()
 	async def on_guild_update(self, before, after):
