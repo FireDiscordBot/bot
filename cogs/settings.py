@@ -94,6 +94,8 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_message_delete(self, message):
 		if message.guild and not message.author.bot:
+			if message.channel.id == 600068336331522079:
+				return
 			logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
 			if logid:
 				logch = message.guild.get_channel(logid['channel'])
