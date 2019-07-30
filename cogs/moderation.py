@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import datetime
 import aiosqlite3
+import asyncio
 
 class StaffCheck(commands.Converter):
 	async def convert(self, ctx, argument):
