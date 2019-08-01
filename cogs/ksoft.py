@@ -27,6 +27,12 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		self.bot = bot
 		self.bot.ksoft = client
 
+	async def cog_check(self, ctx: commands.Context):
+		if ctx.command.name == 'meme' and ctx.guild.id == 411619823445999637:
+			if ctx.channel.id == 577203509863251989:
+				return True
+			return False
+
 	@commands.command(description="Gets a random meme from Reddit")
 	async def meme(self, ctx, sub: str = None):
 		"""PFXmeme [<subreddit>]"""
@@ -98,9 +104,13 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 	async def tags(self, ctx):
 		"""PFXtags"""
 		tags = await self.bot.ksoft.tags()
-		nsfwtags = ', '.join(tags.nsfw_tags)
-		sfwtags = ', '.join(tags.sfw_tags)
-		await ctx.send(f'```Non-NSFW Tags:\n{sfwtags}\n\nNSFW Tags:\n{nsfwtags}```')
+		if ctx.channel.nsfw:
+			nsfwtags = ', '.join(tags.nsfw_tags)
+			sfwtags = ', '.join(tags.sfw_tags)
+			await ctx.send(f'```Non-NSFW Tags:\n{sfwtags}\n\nNSFW Tags:\n{nsfwtags}```')
+		else:
+			sfwtags = ', '.join(tags.sfw_tags)
+			await ctx.send(f'```Tags:\n{sfwtags}```')
 
 	@commands.command(name='baninfo', description='Check the info of a ban on the KSoft.Si API')
 	async def baninfo(self, ctx, bannedboi: int):

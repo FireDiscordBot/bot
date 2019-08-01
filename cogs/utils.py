@@ -335,6 +335,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		'''PFXinfo user [<user>]'''
 		if not user:
 			user = ctx.author
+		if type(user) == discord.ClientUser:
+			user = ctx.guild.me
 		if type(user) == discord.User:
 			color = ctx.author.color
 		elif type(user) == discord.Member:

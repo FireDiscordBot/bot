@@ -76,6 +76,7 @@ async def on_command_error(ctx, error):
 		return
 	
 	ignored = (commands.CommandNotFound, commands.CheckFailure, KeyError)
+	noperms = (commands.BotMissingPermissions, commands.MissingPermissions, discord.Forbidden)
 	saved = error
 	
 	# Allows us to check for original exceptions raised and sent to CommandInvokeError.
@@ -95,10 +96,13 @@ async def on_command_error(ctx, error):
 		await ctx.send(embed=embed)
 		return
 
+	if isinstance(error, noperms):
+		await ctx.send('You don\'t have permission for this!')
+
 	messages = ['Fire did an oopsie!', 'Oh no, it be broke.', 'this was intentional...', 'Well this slipped through quality assurance', 'How did this happen?', 'rip', 'Can we get an L in the chat?', 'Can we get an F in the chat?', 'he do not sing', 'lmao who did this?']
 	chosenmessage = random.choice(messages)
-	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"Here's the error. You might not be able to do anything about it though... I've sent this to my developer!\n```py\n{error}```", timestamp=datetime.datetime.utcnow())
-	embed.set_footer(text="this may or may not be fixed soon. it may not even be broken.")
+	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"I've reported this error to my developer!\n```py\n{error}```", timestamp=datetime.datetime.utcnow())
+	embed.set_footer(text="")
 	await ctx.send(embed=embed)
 	errortb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
 	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!\n```py\n{errortb}```", timestamp=datetime.datetime.utcnow())

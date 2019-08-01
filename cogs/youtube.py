@@ -29,6 +29,12 @@ class youtube(commands.Cog, name="YouTube API"):
 		self.apiver = 'v3'
 		self.loop = bot.loop
 
+	async def cog_check(self, ctx: commands.Context):
+		if ctx.guild.id == 411619823445999637:
+			if ctx.channel.id == 577203509863251989:
+				return True
+			return False
+
 	def popular(self):
 		youtube = googleapiclient.discovery.build(
         self.apiname, self.apiver, developerKey=self.key)
@@ -97,7 +103,7 @@ class youtube(commands.Cog, name="YouTube API"):
 		embed = discord.Embed(title=f"Video info for {video}", color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		embed.add_field(name=videoinfo["snippet"]["title"], value=f"» Link: [{title}](https://youtu.be/{vid} 'Click here to watch the video')\n» Author: [{author}](https://youtube.com/channel/{authorid} 'Click here to checkout {author} channel')\n» Published: {published}\n» Views: {views}\n» Likes: {likes}\n» Dislikes: {dislikes}\n» Comments: {comments}", inline=False)
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
-		await interface.send_to(ctx)
+		return await interface.send_to(ctx)
 		
 
 
