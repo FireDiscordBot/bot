@@ -32,6 +32,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 			if ctx.channel.id == 577203509863251989:
 				return True
 			return False
+		return True
 
 	@commands.command(description="Gets a random meme from Reddit")
 	async def meme(self, ctx, sub: str = None):
@@ -119,7 +120,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		check = ksoftguild.get_member(ctx.author.id)
 		if not check:
 			embed = discord.Embed(title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color, timestamp=datetime.datetime.utcnow())
-			embed.add_field(name='Error', value="You must be in the KSoft.Si guild to use this command!\n[Click here to join](https://discord.gg/RsHqQR9 'Click this to join the KSoft.Si API guild')", inline=False)
+			embed.add_field(name='Error', value="You must be in the KSoft.Si guild to use this command!\n[Click here to join](https://discord.gg/kEf6qXN 'Click this to join the KSoft.Si API guild')", inline=False)
 			return await ctx.send(embed=embed)
 		try:
 			inf = await self.bot.ksoft.bans_info(bannedboi)

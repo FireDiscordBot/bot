@@ -239,6 +239,13 @@ class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
 
+	async def cog_check(self, ctx: commands.Context):
+		if ctx.command.name == 'tts' and ctx.guild.id == 411619823445999637:
+			if ctx.channel.id == 577203509863251989:
+				return True
+			return False
+		return True
+
 	@commands.command(name='errortest', hidden=True)
 	async def errortestboyo(self, ctx):
 		if await commands.is_owner(ctx):
@@ -635,7 +642,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			return
 
 		try:
-			cjson = son.dumps(raw, indent=2).replace('`', '\`')
+			cjson = json.dumps(raw, indent=2).replace('`', '\`')
 			await ctx.send("```json\n{j}```".format(cjson))
 		except discord.HTTPException as e:
 			e = str(e)

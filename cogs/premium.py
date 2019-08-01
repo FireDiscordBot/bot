@@ -152,6 +152,9 @@ class Premium(commands.Cog, name="Premium Commands"):
 		os.remove(filename)
 
 	@commands.command(name='autorole', description='Automatically add a role to a user when they join')
+	@has_permissions(manage_roles=True)
+	@bot_has_permissions(manage_roles=True)
+	@commands.guild_only()
 	async def autorole(self, ctx, role: discord.Role = None):
 		'''PFXautorole [<role name/id/mention>]\nUse command without role argument to disable'''
 		await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {ctx.guild.id}')
@@ -191,6 +194,9 @@ class Premium(commands.Cog, name="Premium Commands"):
 			return
 
 	@commands.command(name='reactrole', description='Automatically add a role to a user when they react to a message')
+	@has_permissions(manage_roles=True)
+	@bot_has_permissions(manage_roles=True)
+	@commands.guild_only()
 	async def reactrole(self, ctx, role: discord.Role = None, message: int = None, emote: typing.Union[int, str] = None):
 		'''PFXautorole [<role name/id/mention> <message id> <emote>]\nUse command without arguments to disable'''
 		await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {ctx.guild.id}')

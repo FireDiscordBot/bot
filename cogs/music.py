@@ -414,6 +414,7 @@ class Music(commands.Cog):
 		pass
 
 	@commands.command(name='connect', aliases=['join'], description="Connect to a voice channel")
+	@commands.bot_has_permissions(connect=True, speak=True)
 	async def connect_(self, ctx, *, channel: discord.VoiceChannel = None):
 		"""PFXconnect <channel>"""
 		try:
@@ -430,18 +431,21 @@ class Music(commands.Cog):
 
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
-		if player.is_connected:
-			try:
-				if ctx.author.voice.channel == ctx.guild.me.voice.channel:
-					return
-			except AttributeError:
-				pass
+		try:
+			if player.is_connected:
+				if ctx.author.voice.channel and ctx.guild.me.voice.channel:
+					if ctx.author.voice.channel == ctx.guild.me.voice.channel:
+						return
+		except AttributeError:
+			await player.connect(channel.id)
+			player.cmdchannel_id = ctx.channel.id
 
 		await player.connect(channel.id)
 		player.cmdchannel_id = ctx.channel.id
 
 	@commands.command(name='play', aliases=['sing'], description="Queue a song or playlist for playback.")
 	@commands.cooldown(1, 2, commands.BucketType.user)
+	@commands.bot_has_permissions(connect=True, speak=True)
 	async def play_(self, ctx, *, query: str):
 		"""PFXplay <search query|url>"""
 		await ctx.trigger_typing()

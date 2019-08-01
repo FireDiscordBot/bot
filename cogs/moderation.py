@@ -204,7 +204,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						await logch.send(embed=embed)
 				await ctx.send(f"{user.mention} has been banished from {ctx.guild.name}")
 		except discord.Forbidden:
-			raise commands.MissingPermissions("Ban failed. Are you trying to ban someone higher than the bot?")
+			raise commands.CommmandError("Ban failed. Are you trying to ban someone higher than the bot?")
 
 	@commands.command(description="Temporarily restricts access to this server.")
 	@commands.has_permissions(ban_members=True)
@@ -253,7 +253,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				await ctx.guild.unban(user, reason="Temporarily Banned")
 			await ctx.send(f"{user.mention} has been temporarily banished from {ctx.guild.name}")
 		except discord.Forbidden:
-			raise commands.MissingPermissions("Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
+			raise commands.CommmandError("Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
 	
 	@commands.command(name='mute', description="Mute a user.")
 	@commands.has_permissions(manage_messages=True)
@@ -306,7 +306,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 						await logch.send(embed=embed)
 		except discord.Forbidden:
-			raise commands.MissingPermissions("Kick failed. Are you trying to kick someone higher than the bot?")
+			raise commands.CommmandError("Kick failed. Are you trying to kick someone higher than the bot?")
 	
 	@commands.command(description="Unmute a muted user.")
 	@commands.has_permissions(manage_messages=True)
