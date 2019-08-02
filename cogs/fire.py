@@ -108,7 +108,8 @@ class fire(commands.Cog, name="Main Commands"):
 				pass
 		users = online + idle + dnd + offline
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
-		embed.set_author(name="Bot made by Geek#9999", url="https://gaminggeek.club", icon_url="https://cdn.discordapp.com/avatars/287698408855044097/7d8707c0556bdbe5e29b2b0788de8ca9.png?size=1024")
+		ownerboi = self.bot.get_user(287698408855044097)
+		embed.set_author(name=f"Bot made by {ownerboi}", url="https://gaminggeek.club", icon_url=str(ownerboi.avatar_url))
 		embed.add_field(name="**Runtime**", value=f"{uptime}", inline=False)
 		embed.add_field(name="**OS**", value=f"{os}", inline=False)
 		embed.add_field(name="**CPU**", value=f"{cpu} ({round(cpustats)}%)", inline=False)
