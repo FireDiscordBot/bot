@@ -97,7 +97,11 @@ async def on_command_error(ctx, error):
 		return
 
 	if isinstance(error, noperms):
-		return await ctx.send(f'<a:fireFailed:603214400748257302> {error}')
+		await ctx.send(f'<a:fireFailed:603214400748257302> {error}')
+		if ctx.guild.id == 411619823445999637:
+			return await ctx.send('æ')
+		else:
+			return
 
 	messages = ['Fire did an oopsie!', 'Oh no, it be broke.', 'this was intentional...', 'Well this slipped through quality assurance', 'How did this happen?', 'rip', 'Can we get an L in the chat?', 'Can we get an F in the chat?', 'he do not sing', 'lmao who did this?']
 	chosenmessage = random.choice(messages)
