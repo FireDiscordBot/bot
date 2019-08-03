@@ -110,6 +110,7 @@ venv.bak/
 api.py
 config.json
 fire.db
+influxdb-1.7.7-1/
 
 # other stuff
 bot.log
