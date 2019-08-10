@@ -8,6 +8,7 @@ import random
 import json
 import re
 import wavelink
+import asyncpg
 from collections import deque
 from discord.ext import commands
 from discord import Webhook, AsyncWebhookAdapter
@@ -358,9 +359,9 @@ class Music(commands.Cog):
 		"""Check whether a member has the given permissions."""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
-		await self.bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {ctx.author.id};')
-		blacklist = await self.bot.db.fetchone()
-		if blacklist != None:
+		query = 'SELECT * FROM blacklist WHERE uid = $1;'
+		blinf = await self.bot.db.fetch(query, ctx.author.id)
+		if blinf != []:
 			return False
 
 		if ctx.author.id == player.dj.id:

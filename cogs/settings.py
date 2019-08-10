@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import datetime
 import json
-import aiosqlite3
+import asyncpg
 import typing
 import asyncio
 from fire.invite import findinvite
@@ -22,15 +22,15 @@ def isadmin(ctx):
 	return admin
 
 def byteify(input):
-    if isinstance(input, dict):
-        return {byteify(key): byteify(value)
-                for key, value in input.iteritems()}
-    elif isinstance(input, list):
-        return [byteify(element) for element in input]
-    elif isinstance(input, unicode):
-        return input.encode('utf-8')
-    else:
-        return input
+	if isinstance(input, dict):
+		return {byteify(key): byteify(value)
+				for key, value in input.iteritems()}
+	elif isinstance(input, list):
+		return [byteify(element) for element in input]
+	elif isinstance(input, unicode):
+		return input.encode('utf-8')
+	else:
+		return input
 
 # byteify example
 # byteify(json.loads(u"[ 'A','B','C' , ' D']".replace('\'','"')))
@@ -67,13 +67,13 @@ class settings(commands.Cog, name="Settings"):
 
 	async def loadLogChannels(self):
 		self.logchannels = {}
-		await self.bot.db.execute('SELECT * FROM settings;')
-		settings = await self.bot.db.fetchall()
+		query = 'SELECT * FROM settings;'
+		settings = await self.bot.db.fetch(query)
 		for s in settings:
-			if s[1] != 0:
-				guild = s[10]
+			if s['logging'] != 0:
+				guild = s['gid']
 				self.logchannels[guild] = {
-					"channel": s[1]
+					"channel": s['logging']
 				}
 
 	@commands.Cog.listener()
@@ -501,49 +501,67 @@ class settings(commands.Cog, name="Settings"):
 	@commands.group(name='gsettings', description='Guild Settings [Work In Progress]', invoke_without_command=True, ignore_extra=False)
 	async def gsettings(self, ctx):
 		'''PFXgsettings [<logs <channel>|another setting <arg>|more settings <arg>]'''
-		await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {ctx.guild.id}')
-		guildsettings = await self.bot.db.fetchone()
-		if guildsettings == None:
+		query = 'SELECT * FROM settings WHERE gid = $1;'
+		guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
+		con = await self.bot.db.acquire()
+		if guildsettings == []:
+			# await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
+			# await self.bot.conn.commit()
 			msg = await ctx.send('Settings not found! Generating settings with default values')
+			async with con.transaction():
+				query = 'INSERT INTO settings (\"gid\") VALUES ($1);'
+				await self.bot.db.execute(query, ctx.guild.id)
+			await self.bot.db.release(con)
 			await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
-			await self.bot.conn.commit()
-			await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {ctx.guild.id}')
-			guildsettings = await self.bot.db.fetchone()
-		logging = guildsettings[1]
+			query = 'SELECT * FROM settings WHERE gid = $1;'
+			guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
+		logging = guildsettings[0]['logging']
 		logchan = None
 		if logging != 0:
 			try:
 				logchan = self.bot.get_channel(logging)
 			except discord.NotFound:
-				await self.bot.db.execute(f'UPDATE settings SET logging = 0 WHERE gid = {ctx.guild.id}')
-				await self.bot.conn.commit()
+				# await self.bot.db.execute(f'UPDATE settings SET logging = 0 WHERE gid = {ctx.guild.id}')
+				# await self.bot.conn.commit()
+				async with con.transaction():
+					query = 'UPDATE settings SET logging = 0 WHERE gid = $1;'
+					await self.bot.db.execute(query, ctx.guild.id)
+				await self.bot.db.release(con)
 				logging = False
 		else:
 			logging = False
-		globalbans = bool(guildsettings[2])
-		welcome = guildsettings[3]
+		globalbans = bool(guildsettings[0]['globalbans'])
+		welcome = guildsettings[0]['welcome']
 		welcomechan = None
 		if welcome != 0:
 			try:
 				welcomechan = self.bot.get_channel(welcome)
 			except discord.NotFound:
-				await self.bot.db.execute(f'UPDATE settings SET welcome = 0 WHERE gid = {ctx.guild.id}')
-				await self.bot.conn.commit()
+				# await self.bot.db.execute(f'UPDATE settings SET welcome = 0 WHERE gid = {ctx.guild.id}')
+				# await self.bot.conn.commit()
+				async with con.transaction():
+					query = 'UPDATE settings SET welcome = 0 WHERE gid = $1;'
+					await self.bot.db.execute(query, ctx.guild.id)
+				await self.bot.db.release(con)
 				welcome = False
 		else:
 			welcome = False
-		goodbye = guildsettings[4]
+		goodbye = guildsettings[0]['goodbye']
 		goodbyechan = None
 		if goodbye != 0:
 			try:
 				goodbyechan = self.bot.get_channel(goodbye)
 			except discord.NotFound:
-				await self.bot.db.execute(f'UPDATE settings SET goodbye = 0 WHERE gid = {ctx.guild.id}')
-				await self.bot.conn.commit()
+				# await self.bot.db.execute(f'UPDATE settings SET goodbye = 0 WHERE gid = {ctx.guild.id}')
+				# await self.bot.conn.commit()
+				async with con.transaction():
+					query = 'UPDATE settings SET goodbye = 0 WHERE gid = $1;'
+					await self.bot.db.execute(query, ctx.guild.id)
+				await self.bot.db.release(con)
 				goodbye = False
 		else:
 			goodbye = False
-		inviteblock = bool(guildsettings[5])
+		inviteblock = bool(guildsettings[0]['inviteblock'])
 		embed = discord.Embed(title=":gear: Guild Settings", colour=ctx.author.color, url="https://discordapp.com", description="Here's a list of the current guild settings", timestamp=datetime.datetime.utcnow())
 		embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
 		if type(logchan) == discord.TextChannel:
@@ -562,10 +580,22 @@ class settings(commands.Cog, name="Settings"):
 	async def settings_logs(self, ctx, newlog: typing.Union[discord.TextChannel, int] = None):
 		'''PFXgsettings logs <channel>'''
 		if newlog == None:
-			raise commands.UserInputError('Missing argument! Provide a channel for me to send logs to or 0 to disable logging')
+			# raise commands.UserInputError('Missing argument! Provide a channel for me to send logs to or 0 to disable logging')
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'UPDATE settings SET logging = 0 WHERE gid = $1;'
+				await self.bot.db.execute(query, ctx.guild.id)
+			await self.bot.db.release(con)
+			await ctx.send(f'Successfully disabled logging in {discord.utils.escape_mentions(ctx.guild.name)}', delete_after=5)
+			await self.loadLogChannels()
 		elif newlog == 0:
-			await self.bot.db.execute(f'UPDATE settings SET logging = 0 WHERE gid = {ctx.guild.id}')
-			await self.bot.conn.commit()
+			# await self.bot.db.execute(f'UPDATE settings SET logging = 0 WHERE gid = {ctx.guild.id}')
+			# await self.bot.conn.commit()
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'UPDATE settings SET logging = 0 WHERE gid = $1;'
+				await self.bot.db.execute(query, ctx.guild.id)
+			await self.bot.db.release(con)
 			await ctx.send(f'Successfully disabled logging in {discord.utils.escape_mentions(ctx.guild.name)}', delete_after=5)
 			await self.loadLogChannels()
 		else:
@@ -574,8 +604,13 @@ class settings(commands.Cog, name="Settings"):
 				if channel == None:
 					await ctx.send(f'Invalid channel ID provided! Use `0` to disable or provide a valid channel')
 					return
-				await self.bot.db.execute(f'UPDATE settings SET logging = {newlog} WHERE gid = {ctx.guild.id}')
-				await self.bot.conn.commit()
+				# await self.bot.db.execute(f'UPDATE settings SET logging = {newlog} WHERE gid = {ctx.guild.id}')
+				# await self.bot.conn.commit()
+				con = await self.bot.db.acquire()
+				async with con.transaction():
+					query = 'UPDATE settings SET logging = $1 WHERE gid = $2;'
+					await self.bot.db.execute(query, newlog, ctx.guild.id)
+				await self.bot.db.release(con)
 				await self.loadLogChannels()
 				await ctx.send(f'Updated logs setting.')
 			elif type(newlog) == discord.TextChannel:
@@ -584,13 +619,15 @@ class settings(commands.Cog, name="Settings"):
 				except discord.NotFound:
 					await ctx.send(f'Invalid channel provided! Use `0` to disable or provide a valid channel')
 					return
-				await self.bot.db.execute(f'UPDATE settings SET logging = {newlog.id} WHERE gid = {ctx.guild.id}')
-				await self.bot.conn.commit()
+				# await self.bot.db.execute(f'UPDATE settings SET logging = {newlog.id} WHERE gid = {ctx.guild.id}')
+				# await self.bot.conn.commit()
+				con = await self.bot.db.acquire()
+				async with con.transaction():
+					query = 'UPDATE settings SET logging = $1 WHERE gid = $2;'
+					await self.bot.db.execute(query, newlog.id, ctx.guild.id)
+				await self.bot.db.release(con)
 				await self.loadLogChannels()
-				await ctx.send(f'Successfully enabled logging in {newlog.mention}', delete_after=5)
-			else:
-				raise commands.BadArgument('Invalid value provided. Use 0 to disable or provide a channel (name, mention, id) to enable')
-		
+				await ctx.send(f'Successfully enabled logging in {newlog.mention}', delete_after=5)		
 
 
 def setup(bot):

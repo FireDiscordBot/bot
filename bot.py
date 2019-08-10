@@ -11,7 +11,8 @@ import json
 import aiohttp
 import asyncio
 import random
-import aiosqlite3
+#import aiosqlite3
+import asyncpg
 import traceback
 from fire.push import pushbullet
 from fire import exceptions
@@ -31,14 +32,12 @@ def isadmin(ctx):
 async def get_pre(bot, message):
 	if not message.guild:
 		return "$"
-	async with aiosqlite3.connect('fire.db', loop=bot.loop) as conn:
-		async with conn.cursor() as cur:
-			await cur.execute(f'SELECT * FROM prefixes WHERE gid = {message.guild.id};')
-			prefixraw = await cur.fetchone()
-			if prefixraw != None:
-				prefix = prefixraw[3]
-			else:
-				prefix = "$"
+	query = 'SELECT * FROM prefixes WHERE gid = $1;'
+	prefixraw = await bot.db.fetch(query, message.guild.id)
+	if prefixraw != []:
+		prefix = prefixraw[0]['prefix']
+	else:
+		prefix = "$"
 	return commands.when_mentioned_or(prefix)(bot, message)
 
 bot = commands.Bot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="Loading..."), case_insensitive=True)
@@ -140,8 +139,8 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_ready():
-	bot.conn = await aiosqlite3.connect('fire.db', loop=bot.loop)
-	bot.db = await bot.conn.cursor()
+	# bot.conn = await aiosqlite3.connect('fire.db', loop=bot.loop)
+	# bot.db = await bot.conn.cursor()
 	print("-------------------------")
 	print(f"Bot: {bot.user}")
 	print(f"ID: {bot.user.id}")
@@ -185,8 +184,13 @@ async def on_message_edit(before,after):
 
 @bot.event
 async def on_guild_join(guild):
-	await bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({guild.id});')
-	await bot.conn.commit()
+	con = await bot.db.acquire()
+	async with con.transaction():
+		query = 'INSERT INTO settings (\"gid\") VALUES ($1);'
+		await bot.db.execute(query, guild.id)
+	await bot.db.release(con)
+	# await bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({guild.id});')
+	# await bot.conn.commit()
 	print(f"Fire joined a new guild! {guild.name}({guild.id}) with {guild.member_count} members")
 	try:
 		await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members", f"https://api.gaminggeek.club/guild/{guild.id}")
@@ -207,10 +211,19 @@ async def on_guild_remove(guild):
 	users = format(len(bot.users), ',d')
 	guilds = format(len(bot.guilds), ',d')
 	await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"{users} users in {guilds} guilds"))
-	await bot.db.execute(f'DELETE FROM prefixes WHERE gid = {guild.id};')
-	await bot.db.execute(f'DELETE FROM settings WHERE gid = {guild.id};')
-	await bot.db.execute(f'DELETE FROM premium WHERE gid = {guild.id};')
-	await bot.conn.commit()
+	con = await bot.db.acquire()
+	async with con.transaction():
+		query = 'DELETE FROM prefixes WHERE gid = $1;'
+		await bot.db.execute(query, guild.id)
+		query = 'DELETE FROM settings WHERE gid = $1;'
+		await bot.db.execute(query, guild.id)
+		query = 'DELETE FROM premium WHERE gid = $1;'
+		await bot.db.execute(query, guild.id)
+	await bot.db.release(con)
+	# await bot.db.execute(f'DELETE FROM prefixes WHERE gid = {guild.id};')
+	# await bot.db.execute(f'DELETE FROM settings WHERE gid = {guild.id};')
+	# await bot.db.execute(f'DELETE FROM premium WHERE gid = {guild.id};')
+	# await bot.conn.commit()
 
 @bot.command(description="Change the prefix for this guild. (For prefixes with a space, surround it in \"\")")
 @has_permissions(administrator=True)
@@ -220,13 +233,24 @@ async def prefix(ctx, pfx: str = None):
 	if pfx == None:
 		await ctx.send("Missing argument for prefix! (Note: For prefixes with a space, surround it in \"\")")
 	else:
-		await bot.db.execute(f'SELECT * FROM prefixes WHERE gid = {ctx.guild.id};')
-		prefixraw = await bot.db.fetchone()
-		if prefixraw == None:
-			await bot.db.execute(f'INSERT INTO prefixes (\"name\", \"gid\", \"prefix\") VALUES (\"{ctx.guild.name}\", {ctx.guild.id}, \"{pfx}\");')
-		else:
-			await bot.db.execute(f'UPDATE prefixes SET prefix = \"{pfx}\" WHERE gid = {ctx.guild.id};')
-		await bot.conn.commit()
+		query = 'SELECT * FROM prefixes WHERE gid = $1;'
+		prefixraw = await bot.db.fetch(query, ctx.guild.id)
+		con = await bot.db.acquire()
+		if prefixraw == []: #INSERT INTO prefixes (\"name\", \"gid\", \"prefix\") VALUES (\"{ctx.guild.name}\", {ctx.guild.id}, \"{pfx}\");
+			async with con.transaction():
+				query = 'INSERT INTO prefixes (\"name\", \"gid\", \"prefix\") VALUES ($1, $2, $3);'
+				await bot.db.execute(query, ctx.guild.name, ctx.guild.id, pfx)
+			await bot.db.release(con)
+		else: #UPDATE prefixes SET prefix = \"{pfx}\" WHERE gid = {ctx.guild.id};
+			async with con.transaction():
+				query = 'UPDATE prefixes SET prefix = $1 WHERE gid = $2;'
+				await bot.db.execute(query, pfx, ctx.guild.id)
+			await bot.db.release(con)
+		# if prefixraw == None:
+		# 	await bot.db.execute(f'INSERT INTO prefixes (\"name\", \"gid\", \"prefix\") VALUES (\"{ctx.guild.name}\", {ctx.guild.id}, \"{pfx}\");')
+		# else:
+		# 	await bot.db.execute(f'UPDATE prefixes SET prefix = \"{pfx}\" WHERE gid = {ctx.guild.id};')
+		# await bot.conn.commit()
 		await ctx.send(f'Ok, {discord.utils.escape_mentions(ctx.guild.name)}\'s prefix is now {pfx}!')
 
 @bot.command(hidden=True)
@@ -242,15 +266,17 @@ async def shutdown(ctx):
 
 @bot.check
 async def blacklist_check(ctx):
-	await bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {ctx.author.id};')
-	blinf = await bot.db.fetchone()
-	if blinf != None:
+	# await bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {ctx.author.id};')
+	# blinf = await bot.db.fetchone()
+	query = 'SELECT * FROM blacklist WHERE uid = $1;'
+	blinf = await bot.db.fetch(query, ctx.author.id)
+	if blinf != []:
 		if ctx.author.id == 287698408855044097:
 			return True
 		if ctx.author.id == 366118780293611520:
 			await ctx.send('If you need help ask in <#412310617442091008>')
 			return False
-		elif ctx.author.id == blinf[2]:
+		elif ctx.author.id == blinf[0]['uid']:
 			return False
 	else:
 		return True
@@ -278,4 +304,14 @@ async def game_changer():
 			await asyncio.sleep(300)
 			return
 				
-bot.run(config['token'])
+async def start_bot():
+	try:
+		login_data = {"user": "postgres", "password": config['pgpassword'], "database": "fire", "host": "127.0.0.1"}
+		bot.db = await asyncpg.create_pool(**login_data)
+		await bot.start(config['token'])
+	except KeyboardInterrupt:
+		await db.close()
+		await bot.logout()
+
+if __name__ == "__main__":
+	asyncio.get_event_loop().run_until_complete(start_bot())

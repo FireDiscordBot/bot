@@ -260,24 +260,34 @@ class utils(commands.Cog, name='Utility Commands'):
 		if user == None:
 			await ctx.send('You need to provide a user to add to the blacklist!')
 		else:
-			await self.bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {user.id};')
-			blraw = await self.bot.db.fetchone()
-			if blraw == None:
+			query = 'SELECT * FROM blacklist WHERE uid = $1;'
+			blraw = await self.bot.db.fetch(query, user.id)
+			if blraw == []:
 				if permanent == True:
 					permanent = 1
 				else:
 					permanent = 0
-				await self.bot.db.execute(f'INSERT INTO blacklist (\"user\", \"uid\", \"reason\", \"perm\") VALUES (\"{user}\", {user.id}, \"{reason}\", {permanent});')
-				await self.bot.conn.commit()
+				# await self.bot.db.execute(f'INSERT INTO blacklist (\"user\", \"uid\", \"reason\", \"perm\") VALUES (\"{user}\", {user.id}, \"{reason}\", {permanent});')
+				# await self.bot.conn.commit()
+				con = await self.bot.db.acquire()
+				async with con.transaction():
+					query = 'INSERT INTO blacklist (\"user\", \"uid\", \"reason\", \"perm\") VALUES ($1, $2, $3, $4);'
+					await self.bot.db.execute(query, str(user), user.id, reason, permanent)
+				await self.bot.db.release(con)
 				await ctx.send(f'{user.mention} was successfully blacklisted!')
 			else:
-				blid = blraw[0]
+				blid = blraw[0]['uid']
 				if permanent == True:
 					permanent = 1
 				else:
 					permanent = 0
-				await self.bot.db.execute(f'UPDATE blacklist SET user = \"{user}\", uid = {user.id}, reason = \"{reason}\", perm = {permanent} WHERE id = {blid};')
-				await self.bot.conn.commit()
+				# await self.bot.db.execute(f'UPDATE blacklist SET user = \"{user}\", uid = {user.id}, reason = \"{reason}\", perm = {permanent} WHERE id = {blid};')
+				# await self.bot.conn.commit()
+				con = await self.bot.db.acquire()
+				async with con.transaction():
+					query = 'UPDATE blacklist SET user = $1, uid = $2, reason = $3, perm = $4 WHERE id = $5;'
+					await self.bot.db.execute(query, str(user), user.id, reason, permanent, blid)
+				await self.bot.db.release(con)
 				await ctx.send(f'Blacklist entry updated for {user.mention}.')
 
 	@commands.command(name='unplonk', description='Remove someone from the blacklist', hidden=True)
@@ -288,14 +298,19 @@ class utils(commands.Cog, name='Utility Commands'):
 		if user == None:
 			await ctx.send('You need to provide a user to remove from the blacklist!')
 		else:
-			await self.bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {user.id};')
-			blraw = await self.bot.db.fetchone()
-			if blraw == None:
+			query = 'SELECT * FROM blacklist WHERE uid = $1;'
+			blraw = await self.bot.db.fetch(query, user.id)
+			if blraw == []:
 				await ctx.send(f'{user.mention} is not blacklisted.')
 				return
 			else:
-				await self.bot.db.execute(f'DELETE FROM blacklist WHERE uid = {user.id};')
-				await self.bot.conn.commit()
+				# await self.bot.db.execute(f'DELETE FROM blacklist WHERE uid = {user.id};')
+				# await self.bot.conn.commit()
+				con = await self.bot.db.acquire()
+				async with con.transaction():
+					query = 'DELETE FROM blacklist WHERE uid = $1;'
+					await self.bot.db.execute(query, user.id)
+				await self.bot.db.release(con)
 				await ctx.send(f'{user.mention} is now unblacklisted!')
 
 	@commands.group(name='info', invoke_without_command=True)
@@ -396,7 +411,15 @@ class utils(commands.Cog, name='Utility Commands'):
 				perms.append(permissions[perm] if perm in permissions else perm.replace('_', '').capitalize())
 		if perms != []:
 			embed.add_field(name="» Permissions", value=', '.join(perms), inline=False)
-		await ctx.send(embed=embed)
+		mask = Image.open('WhiteLogo.png')
+		img = Image.open('WhiteLogo.png')
+		sub_img = Image.new('RGBA', (512, 512), rgbcolor)
+		img.paste(sub_img, (0, 0), mask)
+		img.save(f'{role.id}.png')
+		colorlogo = discord.File(f'{role.id}.png')
+		embed.set_thumbnail(url=f'attachment://{role.id}.png')
+		await ctx.send(embed=embed, file=colorlogo)
+		os.remove(f'{role.id}.png')
 		paginator = WrappedPaginator(prefix='', suffix='', max_size=2000)
 		for member in role.members:
 			paginator.add_line(member.mention)

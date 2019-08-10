@@ -7,6 +7,7 @@ import functools
 import datetime
 import asyncio
 import typing
+import asyncpg
 import json
 import os
 
@@ -23,7 +24,7 @@ def isadmin(ctx):
 
 class Premium(commands.Cog, name="Premium Commands"):
 	def __init__(self, bot):
-		self.bot: commands.Bot = bot
+		self.bot = bot
 		self.loop = bot.loop
 		self.premiumGuilds  = []
 		self.autoroles = {}
@@ -32,52 +33,51 @@ class Premium(commands.Cog, name="Premium Commands"):
 
 	async def loadPremiumGuilds(self):
 		self.premiumGuilds = []
-		await self.bot.db.execute('SELECT * FROM premium;')
-		guilds = await self.bot.db.fetchall()
+		query = 'SELECT * FROM premium;'
+		guilds = await self.bot.db.fetch(query)
 		for guild in guilds:
-			self.premiumGuilds.append(guild[1])
+			self.premiumGuilds.append(guild['gid'])
 
 	async def loadAutoroles(self):
 		self.autoroles = {}
-		await self.bot.db.execute('SELECT * FROM settings;')
-		settings = await self.bot.db.fetchall()
+		query = 'SELECT * FROM settings;'
+		settings = await self.bot.db.fetch(query)
 		for s in settings:
-			if s[6] != 0:
-				guild = s[10]
+			if s['autorole'] != 0:
+				guild = s['gid']
 				self.autoroles[guild] = {
-					"role": s[6]
+					"role": s['autorole']
 				}
 
 	async def loadReactroles(self):
 		self.reactroles = {}
-		await self.bot.db.execute('SELECT * FROM SETTINGS;')
-		settings = await self.bot.db.fetchall()
+		query = 'SELECT * FROM settings;'
+		settings = await self.bot.db.fetch(query)
 		for s in settings:
-			if s[7] != 0:
-				guild = s[10]
+			if s['reactroleid'] != 0:
+				guild = s['gid']
 				self.reactroles[guild] = {
-					"role": s[7],
-					"message": s[8],
-					"emote": s[9]
+					"role": s['reactroleid'],
+					"message": s['reactrolemid'],
+					"emote": s['reactroleeid']
 				}
 
 	async def loadJoinRoles(self):
 		self.joinroles = {}
-		await self.bot.db.execute('SELECT * FROM joinableranks;')
-		ranks = await self.bot.db.fetchall()
+		query = 'SELECT * FROM joinableranks;'
+		ranks = await self.bot.db.fetch(query)
 		for r in ranks:
-			if r[0] != None:
-				guild = r[1]
-				self.joinroles[guild] = []
-				self.joinroles[guild].append(r[2])
+			guild = r['gid']
+			self.joinroles[guild] = []
+			self.joinroles[guild].append(r['rid'])
 
 	async def cog_check(self, ctx: commands.Context):
 		"""
 		Local check, makes all commands in this cog premium only
 		"""
-		if await self.bot.is_owner(ctx.author):
-			return True
 		if ctx.guild.id in self.premiumGuilds:
+			return True
+		if await self.bot.is_owner(ctx.author):
 			return True
 		else:
 			return False
@@ -86,9 +86,9 @@ class Premium(commands.Cog, name="Premium Commands"):
 		"""
 		Check if the guild from a member is premium
 		"""
-		if await self.bot.is_owner(member):
-			return True
 		if member.guild.id in self.premiumGuilds:
+			return True
+		if await self.bot.is_owner(member):
 			return True
 		else:
 			return False
@@ -157,14 +157,24 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@commands.guild_only()
 	async def autorole(self, ctx, role: discord.Role = None):
 		'''PFXautorole [<role name/id/mention>]\nUse command without role argument to disable'''
-		await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {ctx.guild.id}')
-		guildsettings = await self.bot.db.fetchone()
-		if guildsettings == None:
-			await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
-			await self.bot.conn.commit()
+		query = 'SELECT * FROM settings WHERE gid = $1;'
+		guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
+		if guildsettings == []:
+			# await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
+			# await self.bot.conn.commit()
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'INSERT INTO settings (\"gid\") VALUES ($1);'
+				await self.bot.db.execute(query, ctx.guild.id)
+			await self.bot.db.release(con)
 		if not role:
-			await self.bot.db.execute(f'UPDATE settings SET autorole = 0 WHERE gid = {ctx.guild.id}')
-			await self.bot.conn.commit()
+			# await self.bot.db.execute(f'UPDATE settings SET autorole = 0 WHERE gid = {ctx.guild.id}')
+			# await self.bot.conn.commit()
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'UPDATE settings SET autorole = 0 WHERE gid = $1;'
+				await self.bot.db.execute(query, ctx.guild.id)
+			await self.bot.db.release(con)
 			try:
 				self.autoroles[ctx.guild.id] = None
 			except KeyError:
@@ -172,8 +182,13 @@ class Premium(commands.Cog, name="Premium Commands"):
 			return await ctx.send(f'Successfully disabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}')
 		else:
 			roleid = role.id
-			await self.bot.db.execute(f'UPDATE settings SET autorole = {roleid} WHERE gid = {ctx.guild.id}')
-			await self.bot.conn.commit()
+			# await self.bot.db.execute(f'UPDATE settings SET autorole = {roleid} WHERE gid = {ctx.guild.id}')
+			# await self.bot.conn.commit()
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'UPDATE settings SET autorole = $1 WHERE gid = $2'
+				await self.bot.db.execute(query, roleid, ctx.guild.id)
+			await self.bot.db.release(con)
 			self.autoroles[ctx.guild.id] = {
 				"role": roleid
 			}
@@ -199,14 +214,24 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@commands.guild_only()
 	async def reactrole(self, ctx, role: discord.Role = None, message: int = None, emote: typing.Union[int, str] = None):
 		'''PFXautorole [<role name/id/mention> <message id> <emote>]\nUse command without arguments to disable'''
-		await self.bot.db.execute(f'SELECT * FROM settings WHERE gid = {ctx.guild.id}')
-		guildsettings = await self.bot.db.fetchone()
-		if guildsettings == None:
-			await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
-			await self.bot.conn.commit()
+		query = 'SELECT * FROM settings WHERE gid = $1;'
+		guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
+		if guildsettings == []:
+			# await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
+			# await self.bot.conn.commit()
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'INSERT INTO settings (\"gid\") VALUES ($1);'
+				await self.bot.db.execute(query, ctx.guild.id)
+			await self.bot.db.release(con)
 		if not role:
-			await self.bot.db.execute(f'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = (0, 0, 0) WHERE gid = {ctx.guild.id}')
-			await self.bot.conn.commit()
+			# await self.bot.db.execute(f'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = (0, 0, 0) WHERE gid = {ctx.guild.id}')
+			# await self.bot.conn.commit()
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = (0, 0, 0) WHERE gid = $1;'
+				await self.bot.db.execute(query, ctx.guild.id)
+			await self.bot.db.release(con)
 			try:
 				self.reactroles[ctx.guild.id] = None
 			except KeyError:
@@ -241,8 +266,13 @@ class Premium(commands.Cog, name="Premium Commands"):
 					emoteid = emoteid.id
 			elif type(emote) == str:
 				emoteid = emote
-			await self.bot.db.execute(f'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = ({roleid}, {messageid}, \"{emoteid}\") WHERE gid = {ctx.guild.id}')
-			await self.bot.conn.commit()
+			# await self.bot.db.execute(f'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = ({roleid}, {messageid}, \"{emoteid}\") WHERE gid = {ctx.guild.id}')
+			# await self.bot.conn.commit()
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = ($2, $3, $4) WHERE gid = $1;'
+				await self.bot.db.execute(query, ctx.guild.id, roleid, messageid, emoteid)
+			await self.bot.db.release(con)
 			await msg.add_reaction(emote)
 			self.reactroles[ctx.guild.id] = {
 				"role": roleid,
@@ -257,8 +287,13 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@commands.guild_only()
 	async def addrank(self, ctx, role: discord.Role):
 		'''PFXaddrank <role>'''
-		await self.bot.db.execute(f'INSERT INTO joinableranks (\"gid\", \"rid\") VALUES ({ctx.guild.id}, {role.id});')
-		await self.bot.conn.commit()
+		# await self.bot.db.execute(f'INSERT INTO joinableranks (\"gid\", \"rid\") VALUES ({ctx.guild.id}, {role.id});')
+		# await self.bot.conn.commit()
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'INSERT INTO joinableranks (\"gid\", \"rid\") VALUES ($1, $2);'
+			await self.bot.db.execute(query, ctx.guild.id, role.id)
+		await self.bot.db.release(con)
 		try:
 			self.joinroles[ctx.guild.id].append(role.id)
 		except KeyError:
@@ -272,8 +307,13 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@commands.guild_only()
 	async def delrank(self, ctx, role: discord.Role):
 		'''PFXdelrank <role>'''
-		await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {role.id};')
-		await self.bot.conn.commit()
+		# await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {role.id};')
+		# await self.bot.conn.commit()
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'DELETE FROM joinableranks WHERE rid = $1;'
+			await self.bot.db.execute(query, role.id)
+		await self.bot.db.release(con)
 		try:
 			self.joinroles[ctx.guild.id].remove(role.id) 
 		except KeyError:
@@ -295,8 +335,13 @@ class Premium(commands.Cog, name="Premium Commands"):
 			for rank in ranks:
 				role = discord.utils.get(ctx.guild.roles, id=rank)
 				if not role:
-					await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {rank};')
-					await self.bot.conn.commit()
+					# await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {rank};')
+					# await self.bot.conn.commit()
+					con = await self.bot.db.acquire()
+					async with con.transaction():
+						query = 'DELETE FROM joinableranks WHERE rid = $1;'
+						await self.bot.db.execute(query, rank)
+					await self.bot.db.release(con)
 					self.joinroles[ctx.guild.id].remove(rank)
 					someremoved += 1
 				else:

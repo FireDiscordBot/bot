@@ -483,6 +483,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 							tag = f'§2[{tag}]'
 						elif tagcolor == 'YELLOW':
 							tag = f'§e[{tag}]'
+						if not tag:
+							tag = f'§7[{tag}]'
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://api.sk1er.club/player/{arg1}') as resp:
 						b = await resp.read()

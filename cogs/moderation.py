@@ -1,8 +1,42 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import datetime
-import aiosqlite3
+import asyncpg
 import asyncio
+import traceback
+import re
+
+day_regex = re.compile(r'(?:(?P<days>\d+)d)')
+hour_regex = re.compile(r'(?:(?P<hours>\d+)h)')
+min_regex = re.compile(r'(?:(?P<minutes>\d+)m)')
+sec_regex = re.compile(r'(?:(?P<seconds>\d+)s)')
+# _time_regex = re.compile(
+# 	r'(?:(?P<days>\d+)d)? *(?:(?P<hours>\d+)h)? *(?:(?P<minutes>\d+)m)? *(?:(?P<seconds>\d+)s)')
+
+def parseTime(content):
+	days = day_regex.search(content)
+	hours = hour_regex.search(content)
+	minutes = min_regex.search(content)
+	seconds = sec_regex.search(content)
+	time = 0
+	if days or hours or minutes or seconds:
+		days = days.group(1) if days != None else 0
+		hours = hours.group(1) if hours != None else 0
+		minutes = minutes.group(1) if minutes != None else 0
+		seconds = seconds.group(1) if seconds != None else 0
+		days = int(days) if days else 0
+		if not days:
+			days = 0
+		hours = int(hours) if hours else 0
+		if not hours:
+			hours = 0
+		minutes = int(minutes) if minutes else 0
+		if not minutes:
+			minutes = 0
+		seconds = int(seconds) if seconds else 0
+		if not seconds:
+			seconds = 0
+		return days, hours, minutes, seconds
 
 class StaffCheck(commands.Converter):
 	async def convert(self, ctx, argument):
@@ -30,6 +64,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.mutes = {}
+		self.tempmuteChecker.start()
 	
 	async def __error(self, ctx, error):
 		if isinstance(error, commands.BadArgument):
@@ -37,46 +72,137 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 	async def loadMutes(self):
 		self.mutes = {}
-		await self.bot.db.execute('SELECT * FROM mutes;')
-		mutes = await self.bot.db.fetchall()
+		query = 'SELECT * FROM mutes;'
+		mutes = await self.bot.db.fetch(query)
+		# await self.bot.db.execute('SELECT * FROM mutes;')
+		# mutes = await self.bot.db.fetchall()
 		for m in mutes:
-			if m[0] != None:
-				guild = m[1]
-				self.mutes[guild] = []
-				self.mutes[guild].append(m[2])
-		for guild in self.mutes:
-			gmutes = self.mutes[guild]
-			for user in gmutes:
-				guild = self.bot.get_guild(guild)
-				user = guild.get_member(user)
-				muted = discord.utils.get(guild.roles, name="Muted")
-				if guild and user and muted:
-					if muted in user.roles:
+			if m['uid'] != None:
+				guild = m['gid']
+				until = m['until'] if 'until' in m else False
+				user = m['uid']
+				self.mutes[user] = {
+					"uid": user,
+					"gid": guild,
+					"until": until
+				}
+		for mute in self.mutes:
+			mute = self.mutes[mute]
+			guild = self.bot.get_guild(mute['gid'])
+			user = guild.get_member(mute['uid'])
+			until = mute['until'] if 'until' in mute else False
+			muted = discord.utils.get(guild.roles, name="Muted")
+			if guild and user and muted:
+				if muted in user.roles:
+					if until:
+						if datetime.datetime.utcnow().timestamp() > until:
+							try:
+								await user.remove_roles(muted, reason='Times up.')
+								con = await self.bot.db.acquire()
+								async with con.transaction():
+									query = 'DELETE FROM mutes WHERE uid = $1;'
+									await self.bot.db.execute(query, user.id)
+								await self.bot.db.release(con)
+								try:
+									self.mutes[user.id] = None
+								except KeyError:
+									pass
+								logchannels = self.bot.get_cog("Settings").logchannels
+								logid = logchannels[guild.id] if guild.id in logchannels else None
+								if logid:
+									logch = guild.get_channel(logid['channel'])
+									if logch:
+										embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+										embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url))
+										embed.add_field(name='User', value=user.mention, inline=False)
+										embed.add_field(name='Moderator', value=guild.me.mention, inline=False)
+										embed.set_footer(text=f'User ID: {user.id} | Mod ID: {guild.me.id}')
+										await logch.send(embed=embed)
+							except discord.HTTPException:
+								pass
+					else:
 						break
+				else:
+					if until:
+						if datetime.datetime.utcnow().timestamp() < until:
+							try:
+								await user.add_roles(muted, reason='Muted.')
+							except discord.HTTPException:
+								pass
 					else:
 						try:
 							await user.add_roles(muted, reason='Muted.')
 						except discord.HTTPException:
 							pass
 
+	def cog_unload(self):
+		self.tempmuteChecker.cancel()
+
+	@tasks.loop(seconds=5.0)
+	async def tempmuteChecker(self):
+		try:
+			for mute in self.mutes:
+				mute = self.mutes[mute]
+				guild = self.bot.get_guild(mute['gid'])
+				user = guild.get_member(mute['uid'])
+				until = mute['until'] if 'until' in mute else False
+				muted = discord.utils.get(guild.roles, name="Muted")
+				if guild and user and muted:
+					if muted in user.roles:
+						if until:
+							if datetime.datetime.utcnow().timestamp() > until:
+								try:
+									await user.remove_roles(muted, reason='Times up.')
+									con = await self.bot.db.acquire()
+									async with con.transaction():
+										query = 'DELETE FROM mutes WHERE uid = $1;'
+										await self.bot.db.execute(query, user.id)
+									await self.bot.db.release(con)
+									try:
+										self.mutes[user.id] = None
+									except KeyError:
+										pass
+									logchannels = self.bot.get_cog("Settings").logchannels
+									logid = logchannels[guild.id] if guild.id in logchannels else None
+									if logid:
+										logch = guild.get_channel(logid['channel'])
+										if logch:
+											embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+											embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url))
+											embed.add_field(name='User', value=user.mention, inline=False)
+											embed.add_field(name='Moderator', value=guild.me.mention, inline=False)
+											embed.add_field(name='Reason', value='Times up', inline=False)
+											embed.set_footer(text=f'User ID: {user.id} | Mod ID: {guild.me.id}')
+											await logch.send(embed=embed)
+								except discord.HTTPException:
+									pass
+		except Exception:
+			pass
+
+	@tempmuteChecker.after_loop
+	async def after_tempmuteChecker():
+		print('"tempmuteChecker" Task ended.')
+
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
 		guild = member.guild
 		mutes = self.mutes[guild.id] if guild.id in self.mutes else None
 		if mutes:
-			if member.id in mutes:
-				muted = discord.utils.get(guild.roles, name="Muted")
-				if muted:
-					try:
-						await member.add_roles(muted, reason='Muted.')
-					except discord.HTTPException:
-						pass
+			for mute in mutes:
+				if mute['uid'] == member.id:
+					muted = discord.utils.get(guild.roles, name="Muted")
+					if muted:
+						try:
+							await member.add_roles(muted, reason='Muted.')
+						except discord.HTTPException:
+							pass
 
 	@commands.Cog.listener()
 	async def on_ready(self):
 		await asyncio.sleep(15)
 		await self.loadMutes()
 		print('Mutes loaded!')
+
 
 	@commands.command(name='loadmutes', description='Load mutes data', hidden=True)
 	async def loadpremium(self, ctx):
@@ -87,11 +213,14 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		else:
 			await ctx.send('no.')
 
-	async def mute(self, ctx, user, reason, channel: discord.TextChannel = None):
+	async def mute(self, ctx, user, reason, until, channel: discord.TextChannel = None):
 		if not reason:
 			reason = "No reason specified."
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
 		mutedchat = discord.utils.get(ctx.guild.text_channels, name="muted-chat")
+		if until:
+			timeup = datetime.datetime.strftime(until, '%d/%m/%Y @ %I:%M:%S %p')
+			until = until.timestamp()
 		e = False
 		if not muted:
 			try:
@@ -113,37 +242,71 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			if e:
 				await e.delete()
 			await ctx.send(f"{user.mention} has been muted for {discord.utils.escape_mentions(reason)}")
-			await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
-			await self.bot.conn.commit()
-			try:
-				self.mutes[ctx.guild.id].append(user.id)
-			except KeyError:
-				self.mutes[ctx.guild.id] = []
-				self.mutes[ctx.guild.id].append(user.id)
+			# await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
+			# await self.bot.conn.commit()
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				if until:
+					query = 'INSERT INTO mutes (\"gid\", \"uid\", \"until\") VALUES ($1, $2, $3);'
+					await self.bot.db.execute(query, ctx.guild.id, user.id, until)
+				else:
+					query = 'INSERT INTO mutes (\"gid\", \"uid\") VALUES ($1, $2);'
+					await self.bot.db.execute(query, ctx.guild.id, user.id)
+			await self.bot.db.release(con)
+			if until:
+				self.mutes[user.id] = {
+					"uid": user.id,
+					"gid": ctx.guild.id,
+					"until": until
+				}
+			else:
+				self.mutes[user.id] = {
+					"uid": user.id,
+					"gid": ctx.guild.id
+				}
 			if channel:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 				embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url))
 				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
+				if timeup:
+					embed.add_field(name='Until', value=timeup, inline=False)
 				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 				await channel.send(embed=embed)
 		else:
 			await user.add_roles(muted)
 			await ctx.send(f"{user.mention} has been muted for {discord.utils.escape_mentions(reason)}")
-			await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
-			await self.bot.conn.commit()
-			try:
-				self.mutes[ctx.guild.id].append(user.id)
-			except KeyError:
-				self.mutes[ctx.guild.id] = []
-				self.mutes[ctx.guild.id].append(user.id)
+			# await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
+			# await self.bot.conn.commit()
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				if until:
+					query = 'INSERT INTO mutes (\"gid\", \"uid\", \"until\") VALUES ($1, $2, $3);'
+					await self.bot.db.execute(query, ctx.guild.id, user.id, until)
+				else:
+					query = 'INSERT INTO mutes (\"gid\", \"uid\") VALUES ($1, $2);'
+					await self.bot.db.execute(query, ctx.guild.id, user.id)
+			await self.bot.db.release(con)
+			if until:
+				self.mutes[user.id] = {
+					"uid": user.id,
+					"gid": ctx.guild.id,
+					"until": until
+				}
+			else:
+				self.mutes[user.id] = {
+					"uid": user.id,
+					"gid": ctx.guild.id
+				}
 			if channel:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 				embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url))
 				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
+				if timeup:
+					embed.add_field(name='Until', value=timeup, inline=False)
 				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 				await channel.send(embed=embed)
 		
@@ -267,6 +430,24 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if logid:
 			logch = ctx.guild.get_channel(logid['channel'])
 		await self.mute(ctx, user, reason or "No reason provided.", logch)
+
+	@commands.command(name='tempmute', description="Mute a user. Temporarily.")
+	@commands.has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(manage_roles=True)
+	async def tempmutecmd(self, ctx, user: StaffCheck, *, reason: str = None):
+		"""PFXmute <user> [<reason>]"""
+		await ctx.trigger_typing()
+		logchannels = self.bot.get_cog("Settings").logchannels
+		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+		logch = None
+		if logid:
+			logch = ctx.guild.get_channel(logid['channel'])
+		days, hours, minutes, seconds = parseTime(reason)
+		until = datetime.datetime.utcnow() + datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+		reason = reason.replace(f'{days}d ', '').replace(f'{hours}h ', '').replace(f'{minutes}m ', '').replace(f'{seconds}s ', '')
+		if reason == '' or reason == ' ':
+			reason = 'No reason provided.'
+		await self.mute(ctx, user, reason or "No reason provided.", until, logch)
 	
 	@commands.command(description="Kick a user.")
 	@commands.has_permissions(kick_members=True)
@@ -316,10 +497,15 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await ctx.trigger_typing()
 		await user.remove_roles(discord.utils.get(ctx.guild.roles, name="Muted"))
 		await ctx.send(f"{user.mention} has been unmuted")
-		await self.bot.db.execute(f'DELETE FROM mutes WHERE uid = {user.id};')
-		await self.bot.conn.commit()
+		# await self.bot.db.execute(f'DELETE FROM mutes WHERE uid = {user.id};')
+		# await self.bot.conn.commit()
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'DELETE FROM mutes WHERE uid = $1;'
+			await self.bot.db.execute(query, user.id)
+		await self.bot.db.release(con)
 		try:
-			self.mutes[ctx.guild.id].remove(user.id) 
+			self.mutes[user.id] = None
 		except KeyError:
 			pass
 		logchannels = self.bot.get_cog("Settings").logchannels
