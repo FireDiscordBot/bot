@@ -367,7 +367,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						await logch.send(embed=embed)
 				await ctx.send(f"{user.mention} has been banished from {ctx.guild.name}")
 		except discord.Forbidden:
-			await ctx,send("<a:fireFailed:603214400748257302> Ban failed. Are you trying to ban someone higher than the bot?")
+			await ctx.send("<a:fireFailed:603214400748257302> Ban failed. Are you trying to ban someone higher than the bot?")
 
 	@commands.command(description="Temporarily restricts access to this server.")
 	@commands.has_permissions(ban_members=True)
