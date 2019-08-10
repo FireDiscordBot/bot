@@ -47,7 +47,7 @@ class StaffCheck(commands.Converter):
 		if not permission:
 			return argument
 		else:
-			raise commands.BadArgument("You cannot punish other staff members")
+			await ctx.send("<a:fireFailed:603214400748257302> You cannot punish other staff members")
 
 class MuteCheck(commands.Converter):
 	async def convert(self, ctx, argument):
@@ -56,7 +56,7 @@ class MuteCheck(commands.Converter):
 		if muted in argument.roles:
 			return argument
 		else:
-			raise commands.BadArgument("The user was not muted.")
+			await ctx.send("<a:fireFailed:603214400748257302> The user was not muted.")
 						
 class Moderation(commands.Cog, name="Mod Commands"):
 	"""Commands used to moderate your guild"""
@@ -237,7 +237,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 												read_message_history=False,
 												read_messages=False)
 			except discord.Forbidden:
-				return await ctx.send("I have no permissions to make a muted role")
+				return await ctx.send("<a:fireFailed:603214400748257302> I have no permissions to make a muted role")
 			await user.add_roles(muted)
 			if e:
 				await e.delete()
@@ -318,7 +318,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				channel = await ctx.guild.create_text_channel('muted-chat', overwrites=overwrites)
 				await channel.send(f"Welcome {user.mention} to {channel.mention} You will spend your time here until you get unmuted. Enjoy the silence.")
 			except discord.Forbidden:
-				return await ctx.send("I have no permissions to make #muted-chat")
+				return await ctx.send("<a:fireFailed:603214400748257302> I have no permissions to make #muted-chat")
 		else:
 			await mutedchat.set_permissions(muted, send_messages=True,
 												read_message_history=True,
@@ -367,7 +367,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						await logch.send(embed=embed)
 				await ctx.send(f"{user.mention} has been banished from {ctx.guild.name}")
 		except discord.Forbidden:
-			raise commands.CommmandError("Ban failed. Are you trying to ban someone higher than the bot?")
+			await ctx,send("<a:fireFailed:603214400748257302> Ban failed. Are you trying to ban someone higher than the bot?")
 
 	@commands.command(description="Temporarily restricts access to this server.")
 	@commands.has_permissions(ban_members=True)
@@ -416,7 +416,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				await ctx.guild.unban(user, reason="Temporarily Banned")
 			await ctx.send(f"{user.mention} has been temporarily banished from {ctx.guild.name}")
 		except discord.Forbidden:
-			raise commands.CommmandError("Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
+			await ctx.send("<a:fireFailed:603214400748257302> Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
 	
 	@commands.command(name='mute', description="Mute a user.")
 	@commands.has_permissions(manage_messages=True)
@@ -487,7 +487,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 						await logch.send(embed=embed)
 		except discord.Forbidden:
-			raise commands.CommmandError("Kick failed. Are you trying to kick someone higher than the bot?")
+			await ctx.send("<a:fireFailed:603214400748257302> Kick failed. Are you trying to kick someone higher than the bot?")
 	
 	@commands.command(description="Unmute a muted user.")
 	@commands.has_permissions(manage_messages=True)
