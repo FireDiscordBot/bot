@@ -241,7 +241,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await user.add_roles(muted)
 			if e:
 				await e.delete()
-			await ctx.send(f"{user.mention} has been muted for {discord.utils.escape_mentions(reason)}")
+			await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been muted")
 			# await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
 			# await self.bot.conn.commit()
 			con = await self.bot.db.acquire()
@@ -276,7 +276,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				await channel.send(embed=embed)
 		else:
 			await user.add_roles(muted)
-			await ctx.send(f"{user.mention} has been muted for {discord.utils.escape_mentions(reason)}")
+			await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been muted")
 			# await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
 			# await self.bot.conn.commit()
 			con = await self.bot.db.acquire()
@@ -351,7 +351,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						embed.add_field(name='Reason', value=reason, inline=False)
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 						await logch.send(embed=embed)
-				await ctx.send(f"{user.mention} has been banished from {ctx.guild.name} for {discord.utils.escape_mentions(reason)}.")
+				await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been banished from {ctx.guild.name}.")
 			else:
 				await ctx.guild.ban(user, reason=f"Banned by {ctx.author}")
 				logchannels = self.bot.get_cog("Settings").logchannels
@@ -365,7 +365,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 						await logch.send(embed=embed)
-				await ctx.send(f"{user.mention} has been banished from {ctx.guild.name}")
+				await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been banished from {ctx.guild.name}")
 		except discord.Forbidden:
 			await ctx.send("<a:fireFailed:603214400748257302> Ban failed. Are you trying to ban someone higher than the bot?")
 
@@ -414,7 +414,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 						await logch.send(embed=embed)
 				await ctx.guild.unban(user, reason="Temporarily Banned")
-			await ctx.send(f"{user.mention} has been temporarily banished from {ctx.guild.name}")
+			await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been soft-banned.")
 		except discord.Forbidden:
 			await ctx.send("<a:fireFailed:603214400748257302> Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
 	
@@ -486,6 +486,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 						await logch.send(embed=embed)
+			await ctx.send(f'<a:fireSuccess:603214443442077708> **{user}** has been kicked.')
 		except discord.Forbidden:
 			await ctx.send("<a:fireFailed:603214400748257302> Kick failed. Are you trying to kick someone higher than the bot?")
 	
@@ -496,7 +497,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		"""PFXunmute <user>"""
 		await ctx.trigger_typing()
 		await user.remove_roles(discord.utils.get(ctx.guild.roles, name="Muted"))
-		await ctx.send(f"{user.mention} has been unmuted")
+		await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been unmuted")
 		# await self.bot.db.execute(f'DELETE FROM mutes WHERE uid = {user.id};')
 		# await self.bot.conn.commit()
 		con = await self.bot.db.acquire()
@@ -530,7 +531,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			return await ctx.send("You must specify a user")
 		
 		await ctx.channel.set_permissions(user, send_messages=False, reason=reason or 'No reason specified.')
-		await ctx.send(f'Successfully blocked {user.mention} from chatting in {ctx.channel.mention}.')
+		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully blocked **{user}** from chatting in {ctx.channel.mention}.')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:
@@ -554,7 +555,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			return await ctx.send("You must specify a user")
 		
 		await ctx.channel.set_permissions(user, send_messages=True, reason=reason or 'No reason specified.')
-		await ctx.send(f'Successfully unblocked {user.mention}. Welcome back!')
+		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully unblocked **{user}**. Welcome back!')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:

@@ -124,8 +124,8 @@ class settings(commands.Cog, name="Settings"):
 			if logch:
 				embed = discord.Embed(color=after.author.color, timestamp=after.created_at, description=f'{after.author.mention} **edited a message in** {after.channel.mention}')
 				embed.set_author(name=after.author, icon_url=str(after.author.avatar_url))
-				bcontent = before.content [:1020] + (before.content [1020:] and '...')
-				acontent = after.content [:1020] + (after.content [1020:] and '...')
+				bcontent = before.content [:300] + (before.content [300:] and '...')
+				acontent = after.content [:300] + (after.content [300:] and '...')
 				embed.add_field(name='Before', value=bcontent, inline=False)
 				embed.add_field(name='After', value=acontent, inline=False)
 				embed.set_footer(text=f"Author ID: {after.author.id} | Message ID: {after.id} | Channel ID: {after.channel.id}")
