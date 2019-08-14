@@ -235,9 +235,26 @@ permissions = {
 	'view_audit_log': 'View Logs'
 }
 
+dehoistchars = 'abcdefghijklmnopqrstuvwxyz'
 class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
+		self.bot.isascii = lambda s: len(s) == len(s.encode())
+		self.bot.getperms = self.getperms
+		self.bot.ishoisted = self.ishoisted
+
+	def getperms(self, member: discord.Member, channel: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel]):
+		perms = []
+		for perm, value in member.permissions_in(channel):
+			if value == True:
+				perms.append(perm)
+		return perms
+
+	def ishoisted(self, string: str):
+		if string.lower()[0] not in dehoistchars:
+			return True
+		else:
+			return False
 
 	async def cog_check(self, ctx: commands.Context):
 		if ctx.command.name == 'tts' and ctx.guild.id == 411619823445999637:

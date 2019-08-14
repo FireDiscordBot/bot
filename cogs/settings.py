@@ -36,7 +36,7 @@ def byteify(input):
 # byteify(json.loads(u"[ 'A','B','C' , ' D']".replace('\'','"')))
 # may have a use in the future ¯\_(ツ)_/¯
 
-watchedcmds = ['ban', 'softban', 'mute', 'kick', 'unmute', 'block', 'unblock', 'purge']
+watchedcmds = ['purge']
 region = {
 	'amsterdam': '🇳🇱 Amsterdam',
 	'brazil': '🇧🇷 Brazil',

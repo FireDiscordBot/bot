@@ -213,7 +213,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		else:
 			await ctx.send('no.')
 
-	async def mute(self, ctx, user, reason, until, channel: discord.TextChannel = None):
+	async def mute(self, ctx, user, reason, until = None, channel: discord.TextChannel = None):
 		if not reason:
 			reason = "No reason specified."
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
@@ -221,6 +221,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if until:
 			timeup = datetime.datetime.strftime(until, '%d/%m/%Y @ %I:%M:%S %p')
 			until = until.timestamp()
+		else:
+			timeup = None
 		e = False
 		if not muted:
 			try:
@@ -429,7 +431,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		logch = None
 		if logid:
 			logch = ctx.guild.get_channel(logid['channel'])
-		await self.mute(ctx, user, reason or "No reason provided.", logch)
+		await self.mute(ctx, user, reason=reason or "No reason provided.", channel=logch)
 
 	@commands.command(name='tempmute', description="Mute a user. Temporarily.")
 	@commands.has_permissions(manage_messages=True)
@@ -447,7 +449,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		reason = reason.replace(f'{days}d ', '').replace(f'{hours}h ', '').replace(f'{minutes}m ', '').replace(f'{seconds}s ', '')
 		if reason == '' or reason == ' ':
 			reason = 'No reason provided.'
-		await self.mute(ctx, user, reason or "No reason provided.", until, logch)
+		await self.mute(ctx, user, reason=reason or "No reason provided.", until=until, channel=logch)
 	
 	@commands.command(description="Kick a user.")
 	@commands.has_permissions(kick_members=True)
