@@ -15,6 +15,9 @@ class Help(commands.Cog):
 		cmds = {}
 		allcmds = False
 		cmdhelp = False
+		usedprefix = ctx.prefix
+		if usedprefix == f'{ctx.guild.me.mention} ':
+			usedprefix = '@Fire '
 		if item:
 			if item == 'all':
 				allcmds = True
@@ -68,7 +71,7 @@ class Help(commands.Cog):
 			text.append(f'{cog}\n{cmds[cog]}\n')
 		embed = discord.Embed(colour=ctx.author.color, description='\n'.join(text))
 		embed.set_author(name="Help has arrived!", icon_url="https://cdn.discordapp.com/avatars/444871677176709141/1b7beb893e2bf1d2a759d869e7f287dd.webp?size=1024")
-		embed.set_footer(text=f"Do {ctx.prefix}help <command> for more information")
+		embed.set_footer(text=f"Do {usedprefix}help <command> for more information")
 		await ctx.send(embed=embed)
 
 

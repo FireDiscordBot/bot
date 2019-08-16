@@ -14,10 +14,13 @@ sec_regex = re.compile(r'(?:(?P<seconds>\d+)s)')
 # 	r'(?:(?P<days>\d+)d)? *(?:(?P<hours>\d+)h)? *(?:(?P<minutes>\d+)m)? *(?:(?P<seconds>\d+)s)')
 
 def parseTime(content):
-	days = day_regex.search(content)
-	hours = hour_regex.search(content)
-	minutes = min_regex.search(content)
-	seconds = sec_regex.search(content)
+	try:
+		days = day_regex.search(content)
+		hours = hour_regex.search(content)
+		minutes = min_regex.search(content)
+		seconds = sec_regex.search(content)
+	except Exception:
+		return 0, 0, 0, 0
 	time = 0
 	if days or hours or minutes or seconds:
 		days = days.group(1) if days != None else 0
@@ -48,6 +51,7 @@ class StaffCheck(commands.Converter):
 			return argument
 		else:
 			await ctx.send("<a:fireFailed:603214400748257302> You cannot punish other staff members")
+			return False
 
 class MuteCheck(commands.Converter):
 	async def convert(self, ctx, argument):
@@ -57,6 +61,7 @@ class MuteCheck(commands.Converter):
 			return argument
 		else:
 			await ctx.send("<a:fireFailed:603214400748257302> The user was not muted.")
+			return False
 						
 class Moderation(commands.Cog, name="Mod Commands"):
 	"""Commands used to moderate your guild"""
@@ -334,7 +339,9 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def ban(self, ctx, user: StaffCheck = None, *, reason: str = None, ):
 		"""PFXban <user> [<reason>]"""
 		await ctx.trigger_typing()
-		
+		if user == False:
+			return
+
 		if not user:
 			return await ctx.send("You must specify a user")
 		
@@ -377,6 +384,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def softban(self, ctx, user: StaffCheck = None, messages: int = 7, *, reason = None, ):
 		"""PFXsoftban <user> <amount of days: 1-7> [<reason>]"""
 		await ctx.trigger_typing()
+		if user == False:
+			return
 
 		if not user:
 			return await ctx.send("You must specify a user")
@@ -425,6 +434,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def mutecmd(self, ctx, user: StaffCheck, *, reason = None):
 		"""PFXmute <user> [<reason>]"""
+		if user == False:
+			return
+		if not user:
+			return await ctx.send('You must specify a user')
 		await ctx.trigger_typing()
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
@@ -437,7 +450,11 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def tempmutecmd(self, ctx, user: StaffCheck, *, reason: str = None):
-		"""PFXmute <user> [<reason>]"""
+		"""PFXtempmute <user> <time> [<reason>]"""
+		if user == False:
+			return
+		if not user:
+			return await ctx.send('You must specify a user')
 		await ctx.trigger_typing()
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
@@ -457,6 +474,9 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def kick(self, ctx, user: StaffCheck = None, *, reason = None):
 		"""PFXkick <user> [<reason>]"""
 		await ctx.trigger_typing()
+		if user == False:
+			return
+
 		if not user:
 			return await ctx.send("You must specify a user")
 		
@@ -529,6 +549,9 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def block(self, ctx, user: StaffCheck = None, *, reason = 'No reason provided.'):
 		"""PFXblock <user> [<reason>]"""
 		await ctx.trigger_typing()
+		if user == False:
+			return
+
 		if not user:
 			return await ctx.send("You must specify a user")
 		
@@ -553,6 +576,9 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def unblock(self, ctx, user: StaffCheck = None, *, reason = 'No reason provided.'):
 		"""PFXunblock <user> [<reason>]"""
 		await ctx.trigger_typing()
+		if user == False:
+			return
+			
 		if not user:
 			return await ctx.send("You must specify a user")
 		

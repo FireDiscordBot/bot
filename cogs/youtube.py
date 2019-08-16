@@ -34,6 +34,7 @@ class youtube(commands.Cog, name="YouTube API"):
 			if ctx.channel.id == 577203509863251989:
 				return True
 			return False
+		return True
 
 	def popular(self):
 		youtube = googleapiclient.discovery.build(
