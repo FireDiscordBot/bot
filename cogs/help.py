@@ -43,6 +43,8 @@ class Help(commands.Cog):
 							skip = True
 					if cog.qualified_name.lower() == 'discordbotsorgapi':
 						skip = True
+					if cog.qualified_name.lower() == 'fire api':
+						skip = True
 				if not skip:
 					cogs.append(f'**{cog.qualified_name.upper()}**')
 					cmds[f'**{cog.qualified_name.upper()}**'] = []

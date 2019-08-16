@@ -58,14 +58,17 @@ extensions = [
 	"cogs.moderation",
 	"cogs.premium",
 	"cogs.assist",
-	"jishaku"
+	"jishaku",
+	"cogs.api"
 ]
 
 for cog in extensions:
 	try:
 		bot.load_extension(cog)
 	except Exception as e:
-	   print(f"Error while loading {cog}: {e}")
+		errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
+		print(f"Error while loading {cog}")
+		print(errortb)
 
 @bot.event
 async def on_command_error(ctx, error):
