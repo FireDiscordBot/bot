@@ -59,7 +59,7 @@ extensions = [
 	"cogs.premium",
 	"cogs.assist",
 	"jishaku",
-	"cogs.api"
+	"fishin.abucket"
 ]
 
 for cog in extensions:
@@ -290,7 +290,7 @@ async def game_changer():
 		randint = random.randint(1, 3)
 		users = 0
 		for guild in bot.guilds:
-			users = users + guild._member_count
+			users = users + guild.member_count
 		users = format(users, ',d')
 		guilds = format(len(bot.guilds), ',d')
 		if randint == 1:
@@ -313,7 +313,7 @@ async def start_bot():
 		bot.db = await asyncpg.create_pool(**login_data)
 		await bot.start(config['token'])
 	except KeyboardInterrupt:
-		await db.close()
+		await bot.db.close()
 		await bot.logout()
 
 if __name__ == "__main__":

@@ -263,9 +263,15 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					capes.append('[Lego Maestro](https://static.sk1er.club/hyperium/lego_cape.png)')
 				if 'BPS_CAPE' in cosmetics:
 					capes.append('[BlackPlasmaStudios](https://static.sk1er.club/hyperium/bps_cape.png)')
+				if 'TAYBER_CAPE' in cosmetics:
+					capes.append('[Tayber](https://static.sk1er.club/hyperium/tayber_cape.png)')
+				if 'BOSNIE_CAPE' in cosmetics:
+					capes.append('[Bosnie](https://static.sk1er.club/hyperium/bosnie_cape.png)')
 				if 'CUSTOM_CAPE_ANIMATED' in cosmetics:
 					capes.append('Custom Animated Cape')
 				if 'CUSTOM_CAPE_STATIC' in cosmetics:
+					capes.append('Custom Cape')
+				if 'CUSTOM_CAPE_IMAGE' in cosmetics:
 					capes.append('Custom Cape')
 				if framesplus != None:
 					capes.append('Frames+ Cape')

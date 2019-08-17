@@ -325,7 +325,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				channel = await ctx.guild.create_text_channel('muted-chat', overwrites=overwrites)
 				await channel.send(f"Welcome {user.mention} to {channel.mention} You will spend your time here until you get unmuted. Enjoy the silence.")
 			except discord.Forbidden:
-				return await ctx.send("<a:fireFailed:603214400748257302> I have no permissions to make #muted-chat")
+				return
 		else:
 			await mutedchat.set_permissions(muted, send_messages=True,
 												read_message_history=True,
@@ -338,6 +338,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(ban_members=True)
 	async def ban(self, ctx, user: StaffCheck = None, *, reason: str = None, ):
 		"""PFXban <user> [<reason>]"""
+		await ctx.message.delete()
 		await ctx.trigger_typing()
 		if user == False:
 			return
@@ -383,6 +384,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(ban_members=True)
 	async def softban(self, ctx, user: StaffCheck = None, messages: int = 7, *, reason = None, ):
 		"""PFXsoftban <user> <amount of days: 1-7> [<reason>]"""
+		await ctx.message.delete()
 		await ctx.trigger_typing()
 		if user == False:
 			return
@@ -434,6 +436,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def mutecmd(self, ctx, user: StaffCheck, *, reason = None):
 		"""PFXmute <user> [<reason>]"""
+		await ctx.message.delete()
 		if user == False:
 			return
 		if not user:
@@ -451,6 +454,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def tempmutecmd(self, ctx, user: StaffCheck, *, reason: str = None):
 		"""PFXtempmute <user> <time> [<reason>]"""
+		await ctx.message.delete()
 		if user == False:
 			return
 		if not user:
@@ -474,6 +478,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def kick(self, ctx, user: StaffCheck = None, *, reason = None):
 		"""PFXkick <user> [<reason>]"""
 		await ctx.trigger_typing()
+		await ctx.message.delete()
 		if user == False:
 			return
 
@@ -517,6 +522,9 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unmute(self, ctx, user: MuteCheck):
 		"""PFXunmute <user>"""
+		await ctx.message.delete()
+		if not user:
+			return
 		await ctx.trigger_typing()
 		await user.remove_roles(discord.utils.get(ctx.guild.roles, name="Muted"))
 		await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been unmuted")
@@ -548,6 +556,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def block(self, ctx, user: StaffCheck = None, *, reason = 'No reason provided.'):
 		"""PFXblock <user> [<reason>]"""
+		await ctx.message.delete()
 		await ctx.trigger_typing()
 		if user == False:
 			return
@@ -575,6 +584,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unblock(self, ctx, user: StaffCheck = None, *, reason = 'No reason provided.'):
 		"""PFXunblock <user> [<reason>]"""
+		await ctx.message.delete()
 		await ctx.trigger_typing()
 		if user == False:
 			return

@@ -289,6 +289,11 @@ class Premium(commands.Cog, name="Premium Commands"):
 		'''PFXaddrank <role>'''
 		# await self.bot.db.execute(f'INSERT INTO joinableranks (\"gid\", \"rid\") VALUES ({ctx.guild.id}, {role.id});')
 		# await self.bot.conn.commit()
+		try:
+			if role.id in self.joinroles[ctx.guild.id]:
+				return await ctx.send('<a:fireFailed:603214400748257302> You cannot add an existing rank.')
+		except Exception:
+			pass
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'INSERT INTO joinableranks (\"gid\", \"rid\") VALUES ($1, $2);'
