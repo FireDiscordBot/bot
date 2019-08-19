@@ -99,9 +99,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						"gid": guild,
 						"until": until
 					}
-		for guild in self.mutes:
-			mutes = self.mutes[guild]
-			for mute in mutes:
+		for g in self.mutes:
+			mutes = self.mutes[g]
+			for m in mutes:
+				mute = self.mutes[g][m]
 				guild = self.bot.get_guild(mute['gid'])
 				user = guild.get_member(mute['uid'])
 				until = mute['until'] if 'until' in mute else False
@@ -158,9 +159,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@tasks.loop(seconds=5.0)
 	async def tempmuteChecker(self):
 		try:
-			for guild in self.mutes:
-				mutes = self.mutes[guild]
-				for mute in mutes:
+			for g in self.mutes:
+				mutes = self.mutes[g]
+				for m in mutes:
+					mute = self.mutes[g][m]
 					guild = self.bot.get_guild(mute['gid'])
 					user = guild.get_member(mute['uid'])
 					until = mute['until'] if 'until' in mute else False
