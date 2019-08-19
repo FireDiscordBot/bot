@@ -10,7 +10,7 @@ import os
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 from fire.jsontable import table2json
 from PIL import Image
-from . import mcfont
+from . import mcimg
 
 remcolor = r'\u00A7[0-9A-FK-OR]'
 
@@ -79,6 +79,7 @@ picklegames = {
 class pickle(commands.Cog, name="Hypixel Commands"):
 	def __init__(self, bot):
 		self.bot = bot
+		self.bot.hypixelkey = hypixelkey
 
 	# @commands.command(description='Generate a rank image from text, e.g. `&d[PIG&c+&d]`')
 	# async def rankimg(self, ctx, *, arg):
