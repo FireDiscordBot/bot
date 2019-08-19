@@ -33,8 +33,11 @@ class _CharRenderer:
         image.paste(char_img, pos, char_img)
         self.drawer.rectangle((0,0,300,100), (255,255,255,0))
 
+inmcfont = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿŸẞ—‘’‚‛“”„†•…‹›€™ﬁ'
+
 # Load the fonts
 font_regular = ImageFont.truetype(get_path("static/font/regular.ttf"), 30)
+font_arial = ImageFont.truetype(get_path("static/font/arial.ttf"), 30)
 font_bold = ImageFont.truetype(get_path("static/font/bold.ttf"), 30)
 font_italics = ImageFont.truetype(get_path("static/font/italics.ttf"), 30)
 font_bold_italics = ImageFont.truetype(
@@ -42,6 +45,7 @@ font_bold_italics = ImageFont.truetype(
 font_small = ImageFont.truetype(get_path("static/font/regular.ttf"), 18)
 
 renderer_regular = _CharRenderer(font_regular)
+renderer_arial = _CharRenderer(font_arial)
 renderer_bold = _CharRenderer(font_bold)
 renderer_italics = _CharRenderer(font_italics)
 renderer_bold_italics = _CharRenderer(font_bold_italics)
@@ -216,5 +220,7 @@ def render(pos, message, image):
             if newx == 5:
                 x = 5
         renderer = _get_renderer(bold, italics)
+        if char not in inmcfont:
+            renderer = renderer_arial
         renderer.render(image, (x,y), char, color=_get_colour(colour))
         x += width

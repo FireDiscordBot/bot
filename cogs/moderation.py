@@ -122,7 +122,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 										embed.add_field(name='User', value=user.mention, inline=False)
 										embed.add_field(name='Moderator', value=guild.me.mention, inline=False)
 										embed.set_footer(text=f'User ID: {user.id} | Mod ID: {guild.me.id}')
-										await logch.send(embed=embed)
+										try:
+											await logch.send(embed=embed)
+										except Exception:
+											pass
 							except discord.HTTPException:
 								pass
 					else:
@@ -178,7 +181,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 											embed.add_field(name='Moderator', value=guild.me.mention, inline=False)
 											embed.add_field(name='Reason', value='Times up', inline=False)
 											embed.set_footer(text=f'User ID: {user.id} | Mod ID: {guild.me.id}')
-											await logch.send(embed=embed)
+											try:
+												await logch.send(embed=embed)
+											except Exception:
+												pass
 								except discord.HTTPException:
 									pass
 		except Exception:
@@ -360,7 +366,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.add_field(name='Reason', value=reason, inline=False)
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-						await logch.send(embed=embed)
+						try:
+							await logch.send(embed=embed)
+						except Exception:
+							pass
 				await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been banished from {ctx.guild.name}.")
 			else:
 				await ctx.guild.ban(user, reason=f"Banned by {ctx.author}")
@@ -374,7 +383,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-						await logch.send(embed=embed)
+						try:
+							await logch.send(embed=embed)
+						except Exception:
+							pass
 				await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been banished from {ctx.guild.name}")
 		except discord.Forbidden:
 			await ctx.send("<a:fireFailed:603214400748257302> Ban failed. Are you trying to ban someone higher than the bot?")
@@ -411,7 +423,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.add_field(name='Reason', value=reason, inline=False)
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-						await logch.send(embed=embed)
+						try:
+							await logch.send(embed=embed)
+						except Exception:
+							pass
 				await ctx.guild.unban(user, reason="Temporarily Banned")
 			else:
 				await ctx.guild.ban(user, reason=f"Softbanned by {ctx.author}", delete_message_days=messages) 
@@ -425,7 +440,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-						await logch.send(embed=embed)
+						try:
+							await logch.send(embed=embed)
+						except Exception:
+							pass
 				await ctx.guild.unban(user, reason="Temporarily Banned")
 			await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been soft-banned.")
 		except discord.Forbidden:
@@ -499,7 +517,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.add_field(name='Reason', value=reason, inline=False)
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-						await logch.send(embed=embed)
+						try:
+							await logch.send(embed=embed)
+						except Exception:
+							pass
 			else:
 				await ctx.guild.kick(user, reason=f"Kicked by {ctx.author}")
 				logchannels = self.bot.get_cog("Settings").logchannels
@@ -512,7 +533,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-						await logch.send(embed=embed)
+						try:
+							await logch.send(embed=embed)
+						except Exception:
+							pass
 			await ctx.send(f'<a:fireSuccess:603214443442077708> **{user}** has been kicked.')
 		except discord.Forbidden:
 			await ctx.send("<a:fireFailed:603214400748257302> Kick failed. Are you trying to kick someone higher than the bot?")
@@ -549,7 +573,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				embed.add_field(name='User', value=user.mention, inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 
 	@commands.command(description="Mute a user in the current channel.")
 	@commands.has_permissions(manage_messages=True)
@@ -577,7 +604,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
 				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 	
 	@commands.command(description="Unmute a user who has been blocked in the current channel.")
 	@commands.has_permissions(manage_messages=True)
@@ -605,7 +635,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				embed.add_field(name='Moderator', value=user.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
 				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 								
 								
 def setup(bot):

@@ -404,7 +404,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					pass
 				else:
 					roles.append(role.mention)
-			embed.add_field(name="» Roles", value=' - '.join(roles), inline=False)
+			embed.add_field(name="» Roles", value=' - '.join(roles) or 'No roles', inline=False)
 		await ctx.send(embed=embed)
 
 	@infogroup.command(description='Check out a role\'s info')

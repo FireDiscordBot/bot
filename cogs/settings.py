@@ -109,7 +109,10 @@ class settings(commands.Cog, name="Settings"):
 				if message.attachments:
 					embed.add_field(name = 'Attachment(s)', value = '\n'.join([attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
 				embed.set_footer(text=f"Author ID: {message.author.id} | Message ID: {message.id} | Channel ID: {message.channel.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):
@@ -129,7 +132,10 @@ class settings(commands.Cog, name="Settings"):
 				embed.add_field(name='Before', value=bcontent, inline=False)
 				embed.add_field(name='After', value=acontent, inline=False)
 				embed.set_footer(text=f"Author ID: {after.author.id} | Message ID: {after.id} | Channel ID: {after.channel.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 
 	@commands.Cog.listener()
 	async def on_guild_channel_create(self, channel):
@@ -143,7 +149,10 @@ class settings(commands.Cog, name="Settings"):
 				embed = discord.Embed(color=discord.Color.green(), timestamp=channel.created_at, description=f'**New channel created: #{channel.name}**')
 				embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
 				embed.set_footer(text=f"Channel ID: {channel.id} | Guild ID: {channel.guild.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 
 	@commands.Cog.listener()
 	async def on_guild_channel_delete(self, channel):
@@ -157,7 +166,10 @@ class settings(commands.Cog, name="Settings"):
 				embed = discord.Embed(color=discord.Color.red(), timestamp=channel.created_at, description=f'**Channel deleted: #{channel.name}**')
 				embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
 				embed.set_footer(text=f"Channel ID: {channel.id} | Guild ID: {channel.guild.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
@@ -192,7 +204,10 @@ class settings(commands.Cog, name="Settings"):
 						embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
 						embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
 					embed.set_footer(text=f"Author ID: {message.author.id}")
-					await logch.send(embed=embed)
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 
 	@commands.Cog.listener()
 	async def on_command(self, ctx):
@@ -208,7 +223,10 @@ class settings(commands.Cog, name="Settings"):
 					embed.set_author(name=ctx.author, icon_url=str(ctx.author.avatar_url))
 					embed.add_field(name='Message', value=ctx.message.content, inline=False)
 					embed.set_footer(text=f"Author ID: {ctx.author.id} | Channel ID: {ctx.channel.id}")
-					await logch.send(embed=embed)
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
@@ -224,7 +242,10 @@ class settings(commands.Cog, name="Settings"):
 				embed.add_field(name='Before', value=before.nick, inline=False)
 				embed.add_field(name='After', value=after.nick, inline=False)
 				embed.set_footer(text=f"Author ID: {after.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 		if before.roles != after.roles:
 			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
 			if logid:
@@ -248,13 +269,19 @@ class settings(commands.Cog, name="Settings"):
 					embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'s roles were changed\n**{after.name} was given the** {role.mention} **role**')
 					embed.set_author(name=after, icon_url=str(after.avatar_url))
 					embed.set_footer(text=f"Member ID: {after.id} | Role ID: {role.id}")
-					await logch.send(embed=embed)
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 				if len(removed) == 1:
 					role = discord.utils.get(after.guild.roles, name=removed[0])
 					embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'s roles were changed\n**{after.name} was removed from the** {role.mention} **role**')
 					embed.set_author(name=after, icon_url=str(after.avatar_url))
 					embed.set_footer(text=f"Member ID: {after.id} | Role ID: {role.id}")
-					await logch.send(embed=embed)
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 
 	@commands.Cog.listener()
 	async def on_guild_channel_pins_update(self, channel, last_pin = 0):
@@ -267,7 +294,10 @@ class settings(commands.Cog, name="Settings"):
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'{channel.mention}\'**s pinned messages were updated**')
 				embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
 				embed.set_footer(text=f"Channel ID: {channel.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 
 	@commands.Cog.listener()
 	async def on_guild_role_create(self, role):
@@ -280,7 +310,10 @@ class settings(commands.Cog, name="Settings"):
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**A new role was created**\n{role.mention}')
 			embed.set_author(name=role.guild.name, icon_url=str(role.guild.icon_url))
 			embed.set_footer(text=f"Role ID: {role.id}")
-			await logch.send(embed=embed)
+			try:
+				await logch.send(embed=embed)
+			except Exception:
+				pass
 
 	@commands.Cog.listener()
 	async def on_guild_role_delete(self, role):
@@ -293,7 +326,10 @@ class settings(commands.Cog, name="Settings"):
 			embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'**The role** `{role.name}` **was deleted**')
 			embed.set_author(name=role.guild.name, icon_url=str(role.guild.icon_url))
 			embed.set_footer(text=f"Role ID: {role.id}")
-			await logch.send(embed=embed)
+			try:
+				await logch.send(embed=embed)
+			except Exception:
+				pass
 
 	@commands.Cog.listener()
 	async def on_voice_state_update(self, member, before, after):
@@ -311,7 +347,10 @@ class settings(commands.Cog, name="Settings"):
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					else:
 						embed.set_footer(text=f"Member ID: {member.id}")
-					await logch.send(embed=embed)
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 				elif not after.deaf:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **was server undeafened**')
 					embed.set_author(name=member, icon_url=str(member.avatar_url))
@@ -319,7 +358,10 @@ class settings(commands.Cog, name="Settings"):
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					else:
 						embed.set_footer(text=f"Member ID: {member.id}")
-					await logch.send(embed=embed)
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 			if before.mute != after.mute:
 				if after.mute:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **was server muted**')
@@ -328,7 +370,10 @@ class settings(commands.Cog, name="Settings"):
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					else:
 						embed.set_footer(text=f"Member ID: {member.id}")
-					await logch.send(embed=embed)
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 				elif not after.mute:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **was server unmuted**')
 					embed.set_author(name=member, icon_url=str(member.avatar_url))
@@ -336,7 +381,10 @@ class settings(commands.Cog, name="Settings"):
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					else:
 						embed.set_footer(text=f"Member ID: {member.id}")
-					await logch.send(embed=embed)
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 			if before.self_video != after.self_video:
 				if after.self_video:
 					if after.channel:
@@ -346,7 +394,10 @@ class settings(commands.Cog, name="Settings"):
 						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **started sharing video**')
 						embed.set_footer(text=f"Member ID: {member.id}")
 					embed.set_author(name=member, icon_url=str(member.avatar_url))
-					await logch.send(embed=embed)
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 				elif not after.self_video:
 					if after.channel:
 						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **stopped sharing video in {after.channel.name}**')
@@ -355,7 +406,10 @@ class settings(commands.Cog, name="Settings"):
 						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **stopped sharing video**')
 						embed.set_footer(text=f"Member ID: {member.id}")
 					embed.set_author(name=member, icon_url=str(member.avatar_url))
-					await logch.send(embed=embed)
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 			if before.channel != after.channel:
 				if before.channel and after.channel:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **switched voice channel**')
@@ -363,17 +417,26 @@ class settings(commands.Cog, name="Settings"):
 					embed.add_field(name='After', value=after.channel.name, inline=False)
 					embed.set_author(name=member, icon_url=str(member.avatar_url))
 					embed.set_footer(text=f"Member ID: {member.id} | Old Channel ID: {before.channel.id} | New Channel ID: {after.channel.id}")
-					return await logch.send(embed=embed)
+					try:
+						return await logch.send(embed=embed)
+					except Exception:
+						pass
 				if after.channel:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **joined voice channel {after.channel.name}**')
 					embed.set_author(name=member, icon_url=str(member.avatar_url))
 					embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
-					return await logch.send(embed=embed)
+					try:
+						return await logch.send(embed=embed)
+					except Exception:
+						pass
 				elif not after.channel:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **left voice channel {before.channel.name}**')
 					embed.set_author(name=member, icon_url=str(member.avatar_url))
 					embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {before.channel.id}")
-					return await logch.send(embed=embed)
+					try:
+						return await logch.send(embed=embed)
+					except Exception:
+						pass
 
 	@commands.Cog.listener()
 	async def on_guild_update(self, before, after):
@@ -389,35 +452,50 @@ class settings(commands.Cog, name="Settings"):
 				embed.add_field(name='After', value=after.name, inline=False)
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 			if before.region != after.region:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s region was changed**')
 				embed.add_field(name='Before', value=region[str(before.region)], inline=False)
 				embed.add_field(name='After', value=region[str(after.region)], inline=False)
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 			if before.owner != after.owner:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name} was transferred to a new owner**')
 				embed.add_field(name='Before', value=before.owner, inline=False)
 				embed.add_field(name='After', value=after.owner, inline=False)
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id} | Old Owner ID: {before.owner.id} | New Owner ID: {after.owner.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 			if before.verification_level != after.verification_level:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s verification level was changed**')
 				embed.add_field(name='Before', value=str(before.verification_level).capitalize(), inline=False)
 				embed.add_field(name='After', value=str(after.verification_level).capitalize(), inline=False)
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 			if before.explicit_content_filter != after.explicit_content_filter:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s content filter level was changed**')
 				embed.add_field(name='Before', value=str(before.explicit_content_filter).capitalize().replace('_', ''), inline=False)
 				embed.add_field(name='After', value=str(after.explicit_content_filter).capitalize().replace('_', ''), inline=False)
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 			if before.features != after.features:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s features were updated**')
 				s = set(after.features)
@@ -436,7 +514,10 @@ class settings(commands.Cog, name="Settings"):
 					embed.add_field(name='Removed', value='\n'.join(features), inline=False)
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 			if before.banner != after.banner:
 				if after.banner:
 					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s banner was changed**')
@@ -445,7 +526,10 @@ class settings(commands.Cog, name="Settings"):
 					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s banner was removed**')
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 			if before.splash != after.splash:
 				if after.banner:
 					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s splash was changed**')
@@ -454,7 +538,10 @@ class settings(commands.Cog, name="Settings"):
 					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s splash was removed**')
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 			if before.premium_tier != after.premium_tier:
 				if after.premium_tier > before.premium_tier:
 					embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.utcnow(), description=f'**{after.name} got boosted to Tier {after.premium_tier}**')
@@ -462,7 +549,10 @@ class settings(commands.Cog, name="Settings"):
 					embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.utcnow(), description=f'**{after.name} got weakened to Tier {after.premium_tier}**')
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 			if before.system_channel != after.system_channel:
 				if after.system_channel:
 					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s system channel was changed to {after.system_channel.mention}**')
@@ -470,7 +560,10 @@ class settings(commands.Cog, name="Settings"):
 					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s system channel was removed**')
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
-				await logch.send(embed=embed)
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 
 	@commands.Cog.listener()
 	async def on_member_ban(self, guild, member):
@@ -483,7 +576,10 @@ class settings(commands.Cog, name="Settings"):
 			embed = discord.Embed(color=member.color if member.color != discord.Color.default() else discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
 			embed.set_author(name=member, icon_url=str(member.avatar_url))
 			embed.set_footer(text=f"Member ID: {member.id}")
-			await logch.send(embed=embed)
+			try:
+				await logch.send(embed=embed)
+			except Exception:
+				pass
 
 	@commands.Cog.listener()
 	async def on_member_unban(self, guild, member):
@@ -496,7 +592,10 @@ class settings(commands.Cog, name="Settings"):
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{member} was unbanned**')
 			embed.set_author(name=member, icon_url=str(member.avatar_url))
 			embed.set_footer(text=f"Member ID: {member.id}")
-			await logch.send(embed=embed)
+			try:
+				await logch.send(embed=embed)
+			except Exception:
+				pass
 
 	@commands.group(name='gsettings', description='Guild Settings [Work In Progress]', invoke_without_command=True, ignore_extra=False)
 	async def gsettings(self, ctx):

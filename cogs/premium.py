@@ -285,45 +285,53 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@has_permissions(manage_roles=True)
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
-	async def addrank(self, ctx, role: discord.Role):
+	async def addrank(self, ctx, *, role: str):
 		'''PFXaddrank <role>'''
 		# await self.bot.db.execute(f'INSERT INTO joinableranks (\"gid\", \"rid\") VALUES ({ctx.guild.id}, {role.id});')
 		# await self.bot.conn.commit()
+		for r in ctx.guild.roles:
+			if r.name.lower() == role.lower():
+				rank = r
+				break
 		try:
-			if role.id in self.joinroles[ctx.guild.id]:
+			if rank.id in self.joinroles[ctx.guild.id]:
 				return await ctx.send('<a:fireFailed:603214400748257302> You cannot add an existing rank.')
 		except Exception:
 			pass
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'INSERT INTO joinableranks (\"gid\", \"rid\") VALUES ($1, $2);'
-			await self.bot.db.execute(query, ctx.guild.id, role.id)
+			await self.bot.db.execute(query, ctx.guild.id, rank.id)
 		await self.bot.db.release(con)
 		try:
-			self.joinroles[ctx.guild.id].append(role.id)
+			self.joinroles[ctx.guild.id].append(rank.id)
 		except KeyError:
 			self.joinroles[ctx.guild.id] = []
-			self.joinroles[ctx.guild.id].append(role.id)
-		return await ctx.send(f'Successfully added the rank {role.mention}!')
+			self.joinroles[ctx.guild.id].append(rank.id)
+		return await ctx.send(f'Successfully added the rank {rank.mention}!')
 
 	@commands.command(name='delrank', description='Remove a rank from the list of joinable roles.')
 	@has_permissions(manage_roles=True)
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
-	async def delrank(self, ctx, role: discord.Role):
+	async def delrank(self, ctx, *, role: str):
 		'''PFXdelrank <role>'''
 		# await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {role.id};')
 		# await self.bot.conn.commit()
+		for r in ctx.guild.roles:
+			if r.name.lower() == role.lower():
+				rank = r
+				break
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'DELETE FROM joinableranks WHERE rid = $1;'
-			await self.bot.db.execute(query, role.id)
+			await self.bot.db.execute(query, rank.id)
 		await self.bot.db.release(con)
 		try:
-			self.joinroles[ctx.guild.id].remove(role.id) 
+			self.joinroles[ctx.guild.id].remove(rank.id) 
 		except KeyError:
 			pass
-		return await ctx.send(f'Successfully removed the rank {role.mention}!')
+		return await ctx.send(f'Successfully removed the rank {rank.mention}!')
 
 	@commands.command(name='rank', description='List all available ranks and join a rank', aliases=['ranks'])
 	@bot_has_permissions(manage_roles=True)
