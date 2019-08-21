@@ -10,7 +10,7 @@ import os
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 from fire.jsontable import table2json
 from PIL import Image
-from . import mcimg
+from . import mcimg as mcfont
 
 remcolor = r'\u00A7[0-9A-FK-OR]'
 

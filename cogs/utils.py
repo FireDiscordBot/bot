@@ -382,6 +382,12 @@ class utils(commands.Cog, name='Utility Commands'):
 			color = user.color
 		if ctx.guild.get_member(user.id):
 			user = ctx.guild.get_member(user.id)
+		ack = []
+		fireg = self.bot.get_guild(564052798044504084).get_member(user.id)
+		if fireg:
+			for role in fireg.roles:
+				if 'ACK |' in role.name:
+					ack.append(role.name.replace('ACK | ', ''))
 		embed = discord.Embed(colour=color, timestamp=datetime.datetime.utcnow())
 		embed.set_thumbnail(url=str(user.avatar_url))
 		embed.add_field(name="» Name", value=user.name, inline=True)
@@ -405,6 +411,8 @@ class utils(commands.Cog, name='Utility Commands'):
 				else:
 					roles.append(role.mention)
 			embed.add_field(name="» Roles", value=' - '.join(roles) or 'No roles', inline=False)
+		if ack != []:
+			embed.add_field(name='» Recognized User', value=', '.join(ack))
 		await ctx.send(embed=embed)
 
 	@infogroup.command(description='Check out a role\'s info')

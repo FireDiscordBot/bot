@@ -212,6 +212,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		mutes = self.mutes[guild.id] if guild.id in self.mutes else None
 		if mutes:
 			for mute in mutes:
+				mute = self.mutes[guild.id][mute]
 				if mute['uid'] == member.id:
 					muted = discord.utils.get(guild.roles, name="Muted")
 					if muted:
@@ -228,7 +229,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 
 	@commands.command(name='loadmutes', description='Load mutes data', hidden=True)
-	async def loadpremium(self, ctx):
+	async def loadmutescmd(self, ctx):
 		'''PFXloadmutes'''
 		if await self.bot.is_owner(ctx.author):
 			await self.loadMutes()
@@ -370,7 +371,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 			
 	@commands.command(aliases=["banish"], description="Ban a user from the server")
-	@commands.has_permissions(ban_members=True)
+	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(ban_members=True)
 	async def ban(self, ctx, user: StaffCheck = None, *, reason: str = None, ):
 		"""PFXban <user> [<reason>]"""
@@ -422,7 +423,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await ctx.send("<a:fireFailed:603214400748257302> Ban failed. Are you trying to ban someone higher than the bot?")
 
 	@commands.command(description="Temporarily restricts access to this server.")
-	@commands.has_permissions(ban_members=True)
+	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(ban_members=True)
 	async def softban(self, ctx, user: StaffCheck = None, messages: int = 7, *, reason = None, ):
 		"""PFXsoftban <user> <amount of days: 1-7> [<reason>]"""
@@ -521,7 +522,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await self.mute(ctx, user, reason=reason or "No reason provided.", until=until, channel=logch)
 	
 	@commands.command(description="Kick a user.")
-	@commands.has_permissions(kick_members=True)
+	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(kick_members=True)
 	async def kick(self, ctx, user: StaffCheck = None, *, reason = None):
 		"""PFXkick <user> [<reason>]"""

@@ -144,7 +144,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 			embed.add_field(name='Appeal Reason', value=inf.appeal_reason)
 			embed.add_field(name='Appeal Date', value=inf.appeal_date.replace('T', ' ').split('.')[0])
 		await ctx.send(embed=embed)
-		
+
 
 
 def setup(bot):
