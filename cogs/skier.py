@@ -36,8 +36,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			}
 			async with aiohttp.ClientSession(headers=hello) as session:
 				async with session.get(f'https://api.sk1er.club/levelheadv5/{player}/LEVEL') as resp:
-					data = await resp.read()
-					levelhead = json.loads(data)
+					levelhead = await resp.json()
 					status = resp.status
 			try:
 				uuid = levelhead['uuid']
@@ -51,13 +50,11 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				return
 			async with aiohttp.ClientSession(headers=hello) as session:
 				async with session.get(f'https://api.sk1er.club/levelhead_purchase_status/{uuid}') as resp:
-					data = await resp.read()
-					purchase = json.loads(data)
+					purchase = await resp.json()
 					status2 = resp.status
 			async with aiohttp.ClientSession(headers=hello) as session:
 				async with session.get(f'https://api.hyperium.cc/levelhead_propose/{uuid}') as resp:
-					data = await resp.read()
-					proposal = json.loads(data)
+					proposal = await resp.json()
 			if status == 404:
 				await ctx.send("Uh oh, Sk1er's API returned 404... Check capitalization and try again")
 				return
@@ -129,8 +126,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		if player == "stats": 
 			async with aiohttp.ClientSession(headers=hello) as session:
 				async with session.get('https://api.hyperium.cc/users') as resp:
-					data = await resp.read()
-					stats = json.loads(data)
+					stats = await resp.json()
 					status = resp.status
 			if status == 200:
 				embed = discord.Embed(title="Hyperium Stats", colour=ctx.author.color, url="https://hyperium.cc/", timestamp=datetime.datetime.utcnow())
@@ -148,14 +144,12 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		if task == "purchases":
 			async with aiohttp.ClientSession(headers=hello) as session:
 				async with session.get(f'https://api.hyperium.cc/purchases/{player}') as resp:
-					data = await resp.read()
-					purchases = json.loads(data)
+					purchases = await resp.json()
 					status = resp.status
 			uuid = purchases['uuid']
 			async with aiohttp.ClientSession(headers=hello) as session:
 				async with session.get(f'https://api.hyperium.cc/purchaseSettings/{uuid}') as resp:
-					data = await resp.read()
-					settings = json.loads(data)
+					settings = await resp.json()
 			if purchases['success'] == True:
 				try:
 					cosmetics = purchases['hyperium']
@@ -311,8 +305,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		if task == "status":
 			async with aiohttp.ClientSession(headers=hello) as session:
 				async with session.get(f'https://api.hyperium.cc/online/{player}') as resp:
-					data = await resp.read()
-					online = json.loads(data)
+					online = await resp.json()
 					status = resp.status
 			async with aiohttp.ClientSession() as session:
 				async with session.get('https://raw.githubusercontent.com/HyperiumClient/Hyperium-Repo/master/files/staff.json') as resp:

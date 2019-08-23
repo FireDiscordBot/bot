@@ -469,8 +469,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				tag = None
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://api.sk1er.club/guild/player/{arg1}') as resp:
-						b = await resp.read()
-						guild = json.loads(b)
+						guild = await resp.json()
 				if guild['success']:
 					guild = guild['guild']
 					tag = guild['tag'] if 'tag' in guild else None
@@ -490,8 +489,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 							tag = f'§7[{tag}]'
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://api.sk1er.club/player/{arg1}') as resp:
-						b = await resp.read()
-						apiplayer = json.loads(b)
+						apiplayer = await resp.json()
 				if apiplayer['success']:
 					try:
 						nametag = apiplayer['player']['playerdisplay'].replace('§0YOUTUBE', '§fYOUTUBE') if 'playerdisplay' in apiplayer else apiplayer['player']['display'].replace('§0YOUTUBE', '§fYOUTUBE')
@@ -635,8 +633,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			}
 			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.sk1er.club/friends/{arg1}') as resp:
-					b = await resp.read()
-					friends = json.loads(b)
+					friends = await resp.json()
 			paginator = WrappedPaginator(prefix=f'-----------------------------------------------------\n                           Friends ({len(friends)}) >>', suffix='-----------------------------------------------------', max_size=512)
 			for uuid in friends:
 				friend = friends[uuid]
@@ -657,8 +654,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			}
 			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.sk1er.club/guild/player/{arg1}') as resp:
-					b = await resp.read()
-					guild = json.loads(b)
+					guild = await resp.json()
 			if guild['success'] != True:
 				raise commands.ArgumentParsingError('Couldn\'t find a guild. Maybe they aren\'t in one...')
 			guild = guild['guild']
