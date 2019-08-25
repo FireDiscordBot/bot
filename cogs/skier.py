@@ -4,6 +4,8 @@ import datetime
 import json
 import aiohttp
 import re
+from PIL import Image
+from . import mcfont
 
 print("skier.py has been loaded")
 
@@ -42,11 +44,24 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				uuid = levelhead['uuid']
 			except Exception:
 				strlevel = levelhead['strlevel']
+				try:
+					hcolor = levelhead['header_obj']['color']
+					fcolor = levelhead['footer_obj']['color']
+				except KeyError:
+					hcolor = '§b'
+					fcolor = '§e'
+				fulllvlhead = f'{hcolor}Level: {fcolor}{levelhead["level"]}'
+				parsedtxt = mcfont.parse(fulllvlhead)
+				width = mcfont.get_width(parsedtxt)
+				img = Image.new('RGBA', (width+25, 42))
+				mcfont.render((5, 0), parsedtxt, img)
+				img.save('lastlevelhead.png')
+				customlvl = discord.File('lastlevelhead.png')
 				embed = discord.Embed(title=f"{player}'s Levelhead", colour=ctx.author.color, url="https://purchase.sk1er.club/category/1050972", timestamp=datetime.datetime.utcnow())
 				embed.add_field(name="Custom Levelhead?", value="Nope :(", inline=False)
 				embed.add_field(name="IGN", value=player, inline=False)
-				embed.add_field(name="Levelhead", value=f"Level: {levelhead['level']}", inline=False)
-				await ctx.send(embed=embed)
+				embed.set_image(url='attachment://lastlevelhead.png')
+				await ctx.send(embed=embed, file=customlvl)
 				return
 			async with aiohttp.ClientSession(headers=hello) as session:
 				async with session.get(f'https://api.sk1er.club/levelhead_purchase_status/{uuid}') as resp:
