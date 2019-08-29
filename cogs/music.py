@@ -284,6 +284,12 @@ class Music(commands.Cog):
 
 		#bot.loop.create_task(self.initiate_nodes())
 
+	async def cog_check(self, ctx: commands.Context):
+		"""
+		MUSIC COG DISABLED DUE TO ISSUES WITH WAVELINK
+		"""
+		await ctx.send('<a:fireFailed:603214400748257302> Music has been temporarily disabled. My developer is working on a fix!')
+
 	@commands.Cog.listener()
 	async def on_ready(self):
 		main = wavelink.Client.get_node(self.bot.wavelink, identifier='MAIN')
