@@ -125,7 +125,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 									logchannels = self.bot.get_cog("Settings").logchannels
 									logid = logchannels[guild.id] if guild.id in logchannels else None
 									if logid:
-										logch = guild.get_channel(logid['channel'])
+										logch = guild.get_channel(logid['modlogs'])
 										if logch:
 											embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
 											embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url))
@@ -185,7 +185,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 										logchannels = self.bot.get_cog("Settings").logchannels
 										logid = logchannels[guild.id] if guild.id in logchannels else None
 										if logid:
-											logch = guild.get_channel(logid['channel'])
+											logch = guild.get_channel(logid['modlogs'])
 											if logch:
 												embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
 												embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url))
@@ -389,7 +389,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				logchannels = self.bot.get_cog("Settings").logchannels
 				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 				if logid:
-					logch = ctx.guild.get_channel(logid['channel'])
+					logch = ctx.guild.get_channel(logid['modlogs'])
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 						embed.set_author(name=f'Ban | {user}', icon_url=str(user.avatar_url))
@@ -407,7 +407,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				logchannels = self.bot.get_cog("Settings").logchannels
 				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 				if logid:
-					logch = ctx.guild.get_channel(logid['channel'])
+					logch = ctx.guild.get_channel(logid['modlogs'])
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 						embed.set_author(name=f'Ban | {user}', icon_url=str(user.avatar_url))
@@ -446,7 +446,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				logchannels = self.bot.get_cog("Settings").logchannels
 				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 				if logid:
-					logch = ctx.guild.get_channel(logid['channel'])
+					logch = ctx.guild.get_channel(logid['modlogs'])
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 						embed.set_author(name=f'Softban | {user}', icon_url=str(user.avatar_url))
@@ -464,7 +464,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				logchannels = self.bot.get_cog("Settings").logchannels
 				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 				if logid:
-					logch = ctx.guild.get_channel(logid['channel'])
+					logch = ctx.guild.get_channel(logid['modlogs'])
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 						embed.set_author(name=f'Softban | {user}', icon_url=str(user.avatar_url))
@@ -495,7 +495,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		logch = None
 		if logid:
-			logch = ctx.guild.get_channel(logid['channel'])
+			logch = ctx.guild.get_channel(logid['modlogs'])
 		await self.mute(ctx, user, reason=reason or "No reason provided.", channel=logch)
 
 	@commands.command(name='tempmute', description="Mute a user. Temporarily.")
@@ -513,7 +513,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		logch = None
 		if logid:
-			logch = ctx.guild.get_channel(logid['channel'])
+			logch = ctx.guild.get_channel(logid['modlogs'])
 		days, hours, minutes, seconds = parseTime(reason)
 		until = datetime.datetime.utcnow() + datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 		reason = reason.replace(f'{days}d ', '').replace(f'{hours}h ', '').replace(f'{minutes}m ', '').replace(f'{seconds}s ', '')
@@ -540,7 +540,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				logchannels = self.bot.get_cog("Settings").logchannels
 				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 				if logid:
-					logch = ctx.guild.get_channel(logid['channel'])
+					logch = ctx.guild.get_channel(logid['modlogs'])
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 						embed.set_author(name=f'Kick | {user}', icon_url=str(user.avatar_url))
@@ -557,7 +557,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				logchannels = self.bot.get_cog("Settings").logchannels
 				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 				if logid:
-					logch = ctx.guild.get_channel(logid['channel'])
+					logch = ctx.guild.get_channel(logid['modlogs'])
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 						embed.set_author(name=f'Kick | {user}', icon_url=str(user.avatar_url))
@@ -591,13 +591,13 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await self.bot.db.execute(query, user.id)
 		await self.bot.db.release(con)
 		try:
-			self.mutes[ctx.guild.id].pop(user.id)
+			self.mutes[ctx.guild.id].pop(user.id, None)
 		except KeyError:
 			pass
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:
-			logch = ctx.guild.get_channel(logid['channel'])
+			logch = ctx.guild.get_channel(logid['modlogs'])
 			if logch:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
 				embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url))
@@ -627,7 +627,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:
-			logch = ctx.guild.get_channel(logid['channel'])
+			logch = ctx.guild.get_channel(logid['modlogs'])
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 				embed.set_author(name=f'Block | {user}', icon_url=str(user.avatar_url))
@@ -658,7 +658,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:
-			logch = ctx.guild.get_channel(logid['channel'])
+			logch = ctx.guild.get_channel(logid['modlogs'])
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 				embed.set_author(name=f'Unblock | {user}', icon_url=str(user.avatar_url))

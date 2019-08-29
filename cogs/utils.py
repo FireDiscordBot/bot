@@ -230,7 +230,7 @@ permissions = {
 	'send_messages': 'Send Messages',
 	'send_tts_messages': 'Send TTS Messages',
 	'speak': 'Talk',
-	'stream': 'Screenshare',
+	'stream': 'Go Live',
 	'use_voice_activation': 'Use Voice Activation',
 	'view_audit_log': 'View Logs'
 }

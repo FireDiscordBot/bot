@@ -70,11 +70,19 @@ class settings(commands.Cog, name="Settings"):
 		query = 'SELECT * FROM settings;'
 		settings = await self.bot.db.fetch(query)
 		for s in settings:
-			if s['logging'] != 0:
-				guild = s['gid']
-				self.logchannels[guild] = {
-					"channel": s['logging']
-				}
+			guild = s['gid']
+			if s['modlogs'] == 0:
+				modlogs = False
+			else:
+				modlogs = s['modlogs']
+			if s['actionlogs'] == 0:
+				actionlogs = False
+			else:
+				actionlogs = s['actionlogs']
+			self.logchannels[guild] = {
+				"modlogs": modlogs,
+				"actionlogs": actionlogs
+			}
 
 	@commands.Cog.listener()
 	async def on_ready(self):
@@ -98,7 +106,7 @@ class settings(commands.Cog, name="Settings"):
 				return
 			logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
 			if logid:
-				logch = message.guild.get_channel(logid['channel'])
+				logch = message.guild.get_channel(logid['actionlogs'])
 			else:
 				return
 			if logch:
@@ -121,7 +129,7 @@ class settings(commands.Cog, name="Settings"):
 		if after.guild and not after.author.bot:
 			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
 			if logid:
-				logch = after.guild.get_channel(logid['channel'])
+				logch = after.guild.get_channel(logid['actionlogs'])
 			else:
 				return
 			if logch:
@@ -142,7 +150,7 @@ class settings(commands.Cog, name="Settings"):
 		if channel.guild:
 			logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
 			if logid:
-				logch = channel.guild.get_channel(logid['channel'])
+				logch = channel.guild.get_channel(logid['actionlogs'])
 			else:
 				return
 			if logch:
@@ -159,7 +167,7 @@ class settings(commands.Cog, name="Settings"):
 		if channel.guild:
 			logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
 			if logid:
-				logch = channel.guild.get_channel(logid['channel'])
+				logch = channel.guild.get_channel(logid['actionlogs'])
 			else:
 				return
 			if logch:
@@ -189,7 +197,7 @@ class settings(commands.Cog, name="Settings"):
 			if message.guild:
 				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
 				if logid:
-					logch = message.guild.get_channel(logid['channel'])
+					logch = message.guild.get_channel(logid['actionlogs'])
 				else:
 					return
 				if logch:
@@ -215,7 +223,7 @@ class settings(commands.Cog, name="Settings"):
 			if ctx.guild:
 				logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
 				if logid:
-					logch = ctx.guild.get_channel(logid['channel'])
+					logch = ctx.guild.get_channel(logid['actionlogs'])
 				else:
 					return
 				if logch:
@@ -233,7 +241,7 @@ class settings(commands.Cog, name="Settings"):
 		if before.nick != after.nick:
 			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
 			if logid:
-				logch = after.guild.get_channel(logid['channel'])
+				logch = after.guild.get_channel(logid['actionlogs'])
 			else:
 				return
 			if logch:
@@ -249,7 +257,7 @@ class settings(commands.Cog, name="Settings"):
 		if before.roles != after.roles:
 			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
 			if logid:
-				logch = after.guild.get_channel(logid['channel'])
+				logch = after.guild.get_channel(logid['actionlogs'])
 			else:
 				return
 			if logch:
@@ -287,7 +295,7 @@ class settings(commands.Cog, name="Settings"):
 	async def on_guild_channel_pins_update(self, channel, last_pin = 0):
 			logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
 			if logid:
-				logch = channel.guild.get_channel(logid['channel'])
+				logch = channel.guild.get_channel(logid['actionlogs'])
 			else:
 				return
 			if logch:
@@ -303,7 +311,7 @@ class settings(commands.Cog, name="Settings"):
 	async def on_guild_role_create(self, role):
 		logid = self.logchannels[role.guild.id] if role.guild.id in self.logchannels else None
 		if logid:
-			logch = role.guild.get_channel(logid['channel'])
+			logch = role.guild.get_channel(logid['actionlogs'])
 		else:
 			return
 		if logch:
@@ -319,7 +327,7 @@ class settings(commands.Cog, name="Settings"):
 	async def on_guild_role_delete(self, role):
 		logid = self.logchannels[role.guild.id] if role.guild.id in self.logchannels else None
 		if logid:
-			logch = role.guild.get_channel(logid['channel'])
+			logch = role.guild.get_channel(logid['actionlogs'])
 		else:
 			return
 		if logch:
@@ -335,7 +343,7 @@ class settings(commands.Cog, name="Settings"):
 	async def on_voice_state_update(self, member, before, after):
 		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
 		if logid:
-			logch = member.guild.get_channel(logid['channel'])
+			logch = member.guild.get_channel(logid['actionlogs'])
 		else:
 			return
 		if logch:
@@ -442,7 +450,7 @@ class settings(commands.Cog, name="Settings"):
 	async def on_guild_update(self, before, after):
 		logid = self.logchannels[after.id] if after.id in self.logchannels else None
 		if logid:
-			logch = after.get_channel(logid['channel'])
+			logch = after.get_channel(logid['actionlogs'])
 		else:
 			return
 		if logch:
@@ -569,7 +577,7 @@ class settings(commands.Cog, name="Settings"):
 	async def on_member_ban(self, guild, member):
 		logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
 		if logid:
-			logch = guild.get_channel(logid['channel'])
+			logch = guild.get_channel(logid['actionlogs'])
 		else:
 			return
 		if logch:
@@ -585,7 +593,7 @@ class settings(commands.Cog, name="Settings"):
 	async def on_member_unban(self, guild, member):
 		logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
 		if logid:
-			logch = guild.get_channel(logid['channel'])
+			logch = guild.get_channel(logid['actionlogs'])
 		else:
 			return
 		if logch:
@@ -614,21 +622,35 @@ class settings(commands.Cog, name="Settings"):
 			await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
 			query = 'SELECT * FROM settings WHERE gid = $1;'
 			guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
-		logging = guildsettings[0]['logging']
+		modlogs = guildsettings[0]['modlogs']
+		actionlogs = guildsettings[0]['actionlogs']
 		logchan = None
-		if logging != 0:
+		if modlogs != 0:
 			try:
-				logchan = self.bot.get_channel(logging)
+				modlogchan = self.bot.get_channel(modlogs)
 			except discord.NotFound:
 				# await self.bot.db.execute(f'UPDATE settings SET logging = 0 WHERE gid = {ctx.guild.id}')
 				# await self.bot.conn.commit()
 				async with con.transaction():
-					query = 'UPDATE settings SET logging = 0 WHERE gid = $1;'
+					query = 'UPDATE settings SET modlogs = 0 WHERE gid = $1;'
 					await self.bot.db.execute(query, ctx.guild.id)
 				await self.bot.db.release(con)
-				logging = False
+				modlogs = False
 		else:
-			logging = False
+			modlogs = False
+		if actionlogs != 0:
+			try:
+				actionlogchan = self.bot.get_channel(actionlogs)
+			except discord.NotFound:
+				# await self.bot.db.execute(f'UPDATE settings SET logging = 0 WHERE gid = {ctx.guild.id}')
+				# await self.bot.conn.commit()
+				async with con.transaction():
+					query = 'UPDATE settings SET actionlogs = 0 WHERE gid = $1;'
+					await self.bot.db.execute(query, ctx.guild.id)
+				await self.bot.db.release(con)
+				actionlogs = False
+		else:
+			actionlogs = False
 		globalbans = bool(guildsettings[0]['globalbans'])
 		welcome = guildsettings[0]['welcome']
 		welcomechan = None
@@ -663,10 +685,14 @@ class settings(commands.Cog, name="Settings"):
 		inviteblock = bool(guildsettings[0]['inviteblock'])
 		embed = discord.Embed(title=":gear: Guild Settings", colour=ctx.author.color, url="https://discordapp.com", description="Here's a list of the current guild settings", timestamp=datetime.datetime.utcnow())
 		embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
-		if type(logchan) == discord.TextChannel:
-			embed.add_field(name="Logging", value=logchan.mention, inline=False)
-		elif logchan == None:
-			embed.add_field(name="Logging", value=logging, inline=False)
+		if type(modlogchan) == discord.TextChannel:
+			embed.add_field(name="Moderation Logs", value=modlogchan.mention, inline=False)
+		elif modlogchan == None:
+			embed.add_field(name="Moderation Logs", value=modlogchan, inline=False)
+		if type(actionlogchan) == discord.TextChannel:
+			embed.add_field(name="Action Logs", value=actionlogchan.mention, inline=False)
+		elif actionlogchan == None:
+			embed.add_field(name="Action Logs", value=actionlogchan, inline=False)
 		embed.add_field(name="Global Ban Check (KSoft.Si API)", value=globalbans, inline=False)
 		embed.add_field(name="Welcome Messages", value=welcomechan or welcome, inline=False)
 		embed.add_field(name="Goodbye Messages", value=goodbyechan or goodbye, inline=False)
@@ -682,8 +708,10 @@ class settings(commands.Cog, name="Settings"):
 			# raise commands.UserInputError('Missing argument! Provide a channel for me to send logs to or 0 to disable logging')
 			con = await self.bot.db.acquire()
 			async with con.transaction():
-				query = 'UPDATE settings SET logging = 0 WHERE gid = $1;'
-				await self.bot.db.execute(query, ctx.guild.id)
+				mquery = 'UPDATE settings SET modlogs = 0 WHERE gid = $1;'
+				await self.bot.db.execute(mquery, ctx.guild.id)
+				aquery = 'UPDATE settings SET actionlogs = 0 WHERE gid = $1;'
+				await self.bot.db.execute(aquery, ctx.guild.id)
 			await self.bot.db.release(con)
 			await ctx.send(f'Successfully disabled logging in {discord.utils.escape_mentions(ctx.guild.name)}', delete_after=5)
 			await self.loadLogChannels()
@@ -692,8 +720,10 @@ class settings(commands.Cog, name="Settings"):
 			# await self.bot.conn.commit()
 			con = await self.bot.db.acquire()
 			async with con.transaction():
-				query = 'UPDATE settings SET logging = 0 WHERE gid = $1;'
-				await self.bot.db.execute(query, ctx.guild.id)
+				mquery = 'UPDATE settings SET modlogs = 0 WHERE gid = $1;'
+				await self.bot.db.execute(mquery, ctx.guild.id)
+				aquery = 'UPDATE settings SET actionlogs = 0 WHERE gid = $1;'
+				await self.bot.db.execute(aquery, ctx.guild.id)
 			await self.bot.db.release(con)
 			await ctx.send(f'Successfully disabled logging in {discord.utils.escape_mentions(ctx.guild.name)}', delete_after=5)
 			await self.loadLogChannels()
@@ -707,8 +737,10 @@ class settings(commands.Cog, name="Settings"):
 				# await self.bot.conn.commit()
 				con = await self.bot.db.acquire()
 				async with con.transaction():
-					query = 'UPDATE settings SET logging = $1 WHERE gid = $2;'
-					await self.bot.db.execute(query, newlog, ctx.guild.id)
+					mquery = 'UPDATE settings SET modlogs = $1 WHERE gid = $2;'
+					await self.bot.db.execute(mquery, newlog, ctx.guild.id)
+					aquery = 'UPDATE settings SET actionlogs = $1 WHERE gid = $2;'
+					await self.bot.db.execute(aquery, newlog, ctx.guild.id)
 				await self.bot.db.release(con)
 				await self.loadLogChannels()
 				await ctx.send(f'Updated logs setting.')
@@ -722,8 +754,10 @@ class settings(commands.Cog, name="Settings"):
 				# await self.bot.conn.commit()
 				con = await self.bot.db.acquire()
 				async with con.transaction():
-					query = 'UPDATE settings SET logging = $1 WHERE gid = $2;'
-					await self.bot.db.execute(query, newlog.id, ctx.guild.id)
+					mquery = 'UPDATE settings SET modlogs = $1 WHERE gid = $2;'
+					await self.bot.db.execute(mquery, newlog.id, ctx.guild.id)
+					aquery = 'UPDATE settings SET actionlogs = $1 WHERE gid = $2;'
+					await self.bot.db.execute(aquery, newlog.id, ctx.guild.id)
 				await self.bot.db.release(con)
 				await self.loadLogChannels()
 				await ctx.send(f'Successfully enabled logging in {newlog.mention}', delete_after=5)		
