@@ -30,6 +30,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		self.autoroles = {}
 		self.reactroles = {}
 		self.joinroles = {}
+		self.rolepersists = {}
 
 	async def loadPremiumGuilds(self):
 		self.premiumGuilds = []
@@ -68,8 +69,22 @@ class Premium(commands.Cog, name="Premium Commands"):
 		ranks = await self.bot.db.fetch(query)
 		for r in ranks:
 			guild = r['gid']
-			self.joinroles[guild] = []
+			if guild not in self.joinroles:
+				self.joinroles[guild] = []
 			self.joinroles[guild].append(r['rid'])
+
+	async def loadRolePersist(self):
+		self.rolepersists = {}
+		query = 'SELECT * FROM rolepersist;'
+		persists = await self.bot.db.fetch(query)
+		for p in persists:
+			guild = p['gid']
+			user = p['uid']
+			role = p['rid']
+			self.rolepersists[guild] = {}
+			self.rolepersists[guild][user] = {
+				"role": role
+			}
 
 	async def cog_check(self, ctx: commands.Context):
 		"""
@@ -100,6 +115,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		await self.loadAutoroles()
 		await self.loadReactroles()
 		await self.loadJoinRoles()
+		await self.loadRolePersist()
 		print('Premium functions loaded!')
 
 	@commands.command(name='loadpremium', description='Load premium data', hidden=True)
@@ -110,7 +126,8 @@ class Premium(commands.Cog, name="Premium Commands"):
 			await self.loadAutoroles()
 			await self.loadReactroles()
 			await self.loadJoinRoles()
-			await ctx.send('Loaded data!')
+			await self.loadRolePersist()
+			await ctx.send('<a:fireSuccess:603214443442077708> Loaded data!')
 		else:
 			await ctx.send('no.')
 
@@ -179,7 +196,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				self.autoroles[ctx.guild.id] = None
 			except KeyError:
 				pass
-			return await ctx.send(f'Successfully disabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully disabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}')
 		else:
 			roleid = role.id
 			# await self.bot.db.execute(f'UPDATE settings SET autorole = {roleid} WHERE gid = {ctx.guild.id}')
@@ -192,7 +209,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			self.autoroles[ctx.guild.id] = {
 				"role": roleid
 			}
-			return await ctx.send(f'Successfully enabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}! All new members will recieve the {role.name} role.')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}! All new members will recieve the {role.name} role.')
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
@@ -236,7 +253,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				self.reactroles[ctx.guild.id] = None
 			except KeyError:
 				pass
-			return await ctx.send(f'Successfully disabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully disabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}')
 		else:
 			try:
 				msg = await ctx.channel.fetch_message(message)
@@ -279,7 +296,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				"message": messageid,
 				"emote": emoteid
 			}
-			return await ctx.send(f'Successfully enabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}!')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}!')
 
 	@commands.command(name='addrank', description='Add a role that users can join through the rank command.')
 	@has_permissions(manage_roles=True)
@@ -308,7 +325,22 @@ class Premium(commands.Cog, name="Premium Commands"):
 		except KeyError:
 			self.joinroles[ctx.guild.id] = []
 			self.joinroles[ctx.guild.id].append(rank.id)
-		return await ctx.send(f'Successfully added the rank {rank.mention}!')
+		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully added the rank {rank.mention}!')
+		logchannels = self.bot.get_cog("Settings").logchannels
+		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+		if logid:
+			logch = ctx.guild.get_channel(logid['modlogs'])
+			if logch:
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+				embed.set_author(name=f'Rank Added | {rank.name}', icon_url=str(ctx.guild.icon_url))
+				embed.add_field(name='User', value=ctx.author.mention, inline=False)
+				embed.add_field(name='Role', value=f'{rank.mention}', inline=False)
+				embed.set_footer(text=f'User ID: {ctx.author.id} | Role ID: {rank.id}')
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
+		return
 
 	@commands.command(name='delrank', description='Remove a rank from the list of joinable roles.')
 	@has_permissions(manage_roles=True)
@@ -331,7 +363,22 @@ class Premium(commands.Cog, name="Premium Commands"):
 			self.joinroles[ctx.guild.id].remove(rank.id) 
 		except KeyError:
 			pass
-		return await ctx.send(f'Successfully removed the rank {rank.mention}!')
+		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully removed the rank {rank.mention}!')
+		logchannels = self.bot.get_cog("Settings").logchannels
+		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+		if logid:
+			logch = ctx.guild.get_channel(logid['modlogs'])
+			if logch:
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+				embed.set_author(name=f'Rank Removed | {rank.name}', icon_url=str(ctx.guild.icon_url))
+				embed.add_field(name='User', value=ctx.author.mention, inline=False)
+				embed.add_field(name='Role', value=f'{rank.mention}', inline=False)
+				embed.set_footer(text=f'User ID: {ctx.author.id} | Role ID: {rank.id}')
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
+		return
 
 	@commands.command(name='rank', description='List all available ranks and join a rank', aliases=['ranks'])
 	@bot_has_permissions(manage_roles=True)
@@ -342,11 +389,13 @@ class Premium(commands.Cog, name="Premium Commands"):
 			try:
 				ranks = self.joinroles[ctx.guild.id]
 			except KeyError:
-				return await ctx.send('Seems like there\'s no ranks set for this guild :c')
+				return await ctx.send('<a:fireFailed:603214400748257302> Seems like there\'s no ranks set for this guild :c')
 			roles = []
 			someremoved = 0
 			for rank in ranks:
+				print(ranks)
 				role = discord.utils.get(ctx.guild.roles, id=rank)
+				print(role)
 				if not role:
 					# await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {rank};')
 					# await self.bot.conn.commit()
@@ -360,7 +409,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				else:
 					roles.append(role)
 			if roles == []:
-				return await ctx.send('Seems like there\'s no ranks set for this guild :c')
+				return await ctx.send('<a:fireFailed:603214400748257302> Seems like there\'s no ranks set for this guild :c')
 				if someremoved > 0:
 					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 					embed.add_field(name='Error', value=f'I couldn\'t find some of the ranks. This may be due to the corresponding role being deleted.\n{someremoved} rank(s) have been deleted and may need to be re-added.')
@@ -379,25 +428,135 @@ class Premium(commands.Cog, name="Premium Commands"):
 					rank = r
 					break
 			if not rank:
-				return await ctx.send(f'I cannot find the rank `{role}`. Type \'{ctx.prefix}rank\' to see a list of ranks')
+				return await ctx.send(f'<a:fireFailed:603214400748257302> I cannot find the rank `{role}`. Type \'{ctx.prefix}rank\' to see a list of ranks')
 			try:
 				if rank.id in self.joinroles[ctx.guild.id]:
 					if rank in ctx.author.roles:
 						await ctx.author.remove_roles(rank, reason='Left rank')
-						await ctx.send(f'You successfully left the {rank.name} rank.')
+						await ctx.send(f'<a:fireSuccess:603214443442077708> You successfully left the {rank.name} rank.')
 					else:
 						await ctx.author.add_roles(rank, reason='Joined rank')
-						await ctx.send(f'You successfully joined the {rank.name} rank.')
+						await ctx.send(f'<a:fireSuccess:603214443442077708> You successfully joined the {rank.name} rank.')
 				else:
-					return await ctx.send(f'I cannot find the rank `{role}`. Type \'{ctx.prefix}rank\' to see a list of ranks')
+					return await ctx.send(f'<a:fireFailed:603214400748257302> I cannot find the rank `{role}`. Type \'{ctx.prefix}rank\' to see a list of ranks')
 			except KeyError:
 				return await ctx.send(f'I cannot find any ranks for this guild :c')
 
-	@commands.Cog.listener()
-	async def on_reaction_add(self, reaction, user):
-		if type(user) == discord.Member:
+	@commands.command(name='rolepersist', description='Add a role that will stay with the user, even if they leave and rejoin.')
+	@has_permissions(manage_roles=True)
+	@bot_has_permissions(manage_roles=True)
+	@commands.guild_only()
+	async def rolepersist(self, ctx, member: discord.Member, *, role: str):
+		'''PFXrolepersist <member> <role>'''
+		if ctx.guild.id not in self.rolepersists:
+			self.rolepersists[ctx.guild.id] = {}
+		for r in ctx.guild.roles:
+			if r.name.lower() == role.lower():
+				role = r
+				break
+		if member.id not in self.rolepersists[ctx.guild.id]:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'INSERT INTO rolepersist (\"gid\", \"rid\", \"uid\") VALUES ($1, $2, $3);'
+				await self.bot.db.execute(query, ctx.guild.id, role.id, member.id)
+			await self.bot.db.release(con)
 			try:
-				if await self.member_guild_check(user):
+				self.rolepersists[ctx.guild.id][member.id] = {
+					"role": role.id
+				}
+			except KeyError:
+				self.rolepersists[ctx.guild.id] = {}
+				self.rolepersists[ctx.guild.id][member.id] = {
+					"role": role.id
+				}
+			if role not in member.roles:
+				try:
+					await member.add_roles(role, reason='Role Persist')
+				except Exception:
+					pass
+			await ctx.send(f'<a:fireSuccess:603214443442077708> **{member}** will keep the role {role.name}')
+			logchannels = self.bot.get_cog("Settings").logchannels
+			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+			if logid:
+				logch = ctx.guild.get_channel(logid['modlogs'])
+				if logch:
+					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+					embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url))
+					embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
+					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+					embed.add_field(name='Role', value=role.mention, inline=False)
+					embed.set_footer(text=f'User ID: {member.id} | Mod ID: {ctx.author.id} | Role ID: {role.id}')
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
+			return
+		else:
+			current = self.rolepersists[ctx.guild.id][member.id]['role']
+			if role.id != current:
+				con = await self.bot.db.acquire()
+				async with con.transaction():
+					query = 'UPDATE rolepersist SET rid = $1 WHERE gid = $2 AND uid = $3;'
+					await self.bot.db.execute(query, role.id, ctx.guild.id, member.id)
+				await self.bot.db.release(con)
+				self.rolepersists[ctx.guild.id][member.id] = {
+					"role": role.id
+				}
+				try:
+					crole = discord.utils.get(ctx.guild.roles, id=current)
+					await member.remove_roles(crole, reason='Role Persist')
+					await member.add_roles(role, reason='Role Persist Updated')
+				except Exception:
+					pass
+				await ctx.send(f'<a:fireSuccess:603214443442077708> **{member}** will keep the role {role.name}')
+				logchannels = self.bot.get_cog("Settings").logchannels
+				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+				if logid:
+					logch = ctx.guild.get_channel(logid['modlogs'])
+					if logch:
+						embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+						embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url))
+						embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
+						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+						embed.add_field(name='Role', value=role.mention, inline=False)
+						embed.set_footer(text=f'User ID: {member.id} | Mod ID: {ctx.author.id} | Role ID: {role.id}')
+						try:
+							await logch.send(embed=embed)
+						except Exception:
+							pass
+				return
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'DELETE FROM rolepersist WHERE gid = $1 AND uid = $2;'
+				await self.bot.db.execute(query, ctx.guild.id, member.id)
+			await self.bot.db.release(con)
+			try:
+				self.rolepersists[ctx.guild.id].pop(member.id, None)
+				await member.remove_roles(role, reason='Role Persist')
+			except Exception:
+				pass
+			await ctx.send(f'<a:fireSuccess:603214443442077708> **{member}** will no longer keep the role {role.name}')
+			logchannels = self.bot.get_cog("Settings").logchannels
+			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+			if logid:
+				logch = ctx.guild.get_channel(logid['modlogs'])
+				if logch:
+					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+					embed.set_author(name=f'Role Persist Removed | {member}', icon_url=str(member.avatar_url))
+					embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
+					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+					embed.set_footer(text=f'User ID: {member.id} | Mod ID: {ctx.author.id} | Role ID: {role.id}')
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
+			return
+
+	@commands.Cog.listener()
+	async def on_reaction_add(self, reaction, member):
+		if type(member) == discord.Member:
+			try:
+				if await self.member_guild_check(member):
 					guild = user.guild
 					message = reaction.message
 					rr = self.reactroles[guild.id]
@@ -457,6 +616,17 @@ class Premium(commands.Cog, name="Premium Commands"):
 										except Exception:
 											pass
 			except Exception:
+				return
+
+	@commands.Cog.listener()
+	async def on_member_join(self, member):
+		if member.guild.id in self.premiumGuilds:
+			try:
+				role = self.rolepersists[member.guild.id][member.id]['role']
+				r = discord.utils.get(member.guild.roles, id=role)
+				if r:
+					await member.add_roles(r, reason='Role Persist')
+			except Exception as e:
 				return
 			
 
