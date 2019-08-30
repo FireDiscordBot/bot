@@ -5,6 +5,7 @@ import json
 import asyncpg
 import typing
 import asyncio
+from random import randint
 from fire.invite import findinvite
 from fire.youtube import findchannel, findvideo
 
@@ -64,13 +65,29 @@ class settings(commands.Cog, name="Settings"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.logchannels = {}
-
-	async def loadLogChannels(self):
+		self.invitefiltered = []
+		self.gbancheck = []
+		self.autodecancer = []
+		self.autodehoist = []
+	
+	async def loadSettings(self):
 		self.logchannels = {}
+		self.invitefiltered = []
+		self.gbancheck = []
+		self.autodecancer = []
+		self.autodehoist = []
 		query = 'SELECT * FROM settings;'
 		settings = await self.bot.db.fetch(query)
 		for s in settings:
 			guild = s['gid']
+			if s['inviteblock'] == 1:
+				self.invitefiltered.append(guild)
+			if s['globalbans'] == 1:
+				self.gbancheck.append(guild)
+			if s['autodecancer'] == 1:
+				self.autodecancer.append(guild)
+			if s['autodehoist'] == 1:
+				self.autodehoist.append(guild)
 			if s['modlogs'] == 0:
 				modlogs = False
 			else:
@@ -87,14 +104,14 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_ready(self):
 		await asyncio.sleep(5)
-		await self.loadLogChannels()
-		print('Log channels loaded!')
+		await self.loadSettings()
+		print('Settings loaded!')
 
-	@commands.command(name='loadlogch', description='Load log channels', hidden=True)
-	async def loadlogch(self, ctx):
-		'''PFXloadlogch'''
+	@commands.command(name='loadsettings', description='Load settings', hidden=True)
+	async def loadthesettings(self, ctx):
+		'''PFXloadsettings'''
 		if await self.bot.is_owner(ctx.author):
-			await self.loadLogChannels()
+			await self.loadSettings()
 			await ctx.send('Loaded data!')
 		else:
 			await ctx.send('no.')
@@ -189,7 +206,8 @@ class settings(commands.Cog, name="Settings"):
 			if isinstance(message.author, discord.Member):
 				if not message.author.permissions_in(message.channel).manage_messages:
 					if message.guild.me.permissions_in(message.channel).manage_messages:
-						await message.delete()
+						if message.guild.id in self.invitefiltered:
+							await message.delete()
 			try:
 				invite = await self.bot.fetch_invite(url=code)
 			except discord.NotFound or discord.HTTPException as e:
@@ -237,8 +255,55 @@ class settings(commands.Cog, name="Settings"):
 						pass
 
 	@commands.Cog.listener()
+	async def on_member_join(self, member):
+		try:
+			if member.guild.id in self.autodecancer:
+				decancered = False
+				if not self.bot.isascii(member.name):
+					num = member.discriminator
+					decancered = True
+					await member.edit(nick=f'John Doe {num}')
+			if member.guild.id in self.autodehoist:
+				if self.bot.ishoisted(member.name) and not decancered:
+					num = member.discriminator
+					await member.edit(nick=f'John Doe {num}')
+		except Exception:
+			pass
+
+	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
 		if before.nick != after.nick:
+			try:
+				if after.guild.id in self.autodecancer:
+					decancered = False
+					if not after.nick:
+						nick = 'None'
+					else:
+						nick = after.nick
+					if not self.bot.isascii(nick):
+						num = after.discriminator
+						decancered = True
+						await after.edit(nick=f'John Doe {num}')
+					if not self.bot.isascii(after.name):
+						num = after.discriminator
+						decancered = True
+						await after.edit(nick=f'John Doe {num}')
+				if after.guild.id in self.autodehoist:
+					dehoisted = False
+					if not after.nick:
+						nick = 'None'
+					else:
+						nick = after.nick
+					if self.bot.ishoisted(nick) and not decancered:
+						num = after.discriminator
+						dehoisted = True
+						await after.edit(nick=f'John Doe {num}')
+					if self.bot.ishoisted(after.name) and not decancered:
+						num = after.discriminator
+						dehoisted = True
+						await after.edit(nick=f'John Doe {num}')
+			except Exception:
+				pass
 			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
 			if logid:
 				logch = after.guild.get_channel(logid['actionlogs'])
@@ -605,105 +670,220 @@ class settings(commands.Cog, name="Settings"):
 			except Exception:
 				pass
 
-	@commands.group(name='gsettings', description='Guild Settings [Work In Progress]', invoke_without_command=True, ignore_extra=False)
+	@commands.command(name='settings', aliases=['setup'])
+	@commands.has_permissions(manage_guild=True)
+	@commands.guild_only()
 	async def gsettings(self, ctx):
-		'''PFXgsettings [<logs <channel>|another setting <arg>|more settings <arg>]'''
-		query = 'SELECT * FROM settings WHERE gid = $1;'
-		guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
-		con = await self.bot.db.acquire()
-		if guildsettings == []:
-			# await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
-			# await self.bot.conn.commit()
-			msg = await ctx.send('Settings not found! Generating settings with default values')
+		settingslist = {
+			'modlogs': 'Disabled',
+			'actionlogs': 'Disabled',
+			'invfilter': 'Disabled',
+			'globalbans': 'Disabled',
+			'autodecancer': 'Disabled',
+			'autodehoist': 'Disabled'
+		}
+		await ctx.send('Hey, I\'m going to guide you through my settings. This shouldn\'t take long, there\'s only 6 options to configure')
+		await asyncio.sleep(3)
+		await ctx.send('First, we\'ll configure logging. Please give a channel name for moderation logs or say `skip` to disable...')
+
+		def modlog_check(message):
+			if message.author != ctx.author:
+				return False
+			if message.content.lower() == 'skip':
+				return True
+			c = discord.utils.get(message.guild.channels, name=message.content.lower())
+			if c:
+				settingslist['modlogs'] = c.id
+				return True
+			return True
+		try:
+			await self.bot.wait_for('message', timeout=30.0, check=modlog_check)
+			modlogs = settingslist['modlogs']
+			if modlogs == 'Disabled':
+				modlogs = 0
+				await ctx.send('Disabling mod logs...')
+			else:
+				await ctx.send(f'Great! Setting mod logs to <#{modlogs}>')
+			con = await self.bot.db.acquire()
 			async with con.transaction():
-				query = 'INSERT INTO settings (\"gid\") VALUES ($1);'
-				await self.bot.db.execute(query, ctx.guild.id)
+				q = 'UPDATE settings SET modlogs = $1 WHERE gid = $2;'
+				await self.bot.db.execute(q, modlogs, ctx.guild.id)
 			await self.bot.db.release(con)
-			await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
-			query = 'SELECT * FROM settings WHERE gid = $1;'
-			guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
-		modlogs = guildsettings[0]['modlogs']
-		actionlogs = guildsettings[0]['actionlogs']
-		logchan = None
-		if modlogs != 0:
-			try:
-				modlogchan = self.bot.get_channel(modlogs)
-			except discord.NotFound:
-				# await self.bot.db.execute(f'UPDATE settings SET logging = 0 WHERE gid = {ctx.guild.id}')
-				# await self.bot.conn.commit()
-				async with con.transaction():
-					query = 'UPDATE settings SET modlogs = 0 WHERE gid = $1;'
-					await self.bot.db.execute(query, ctx.guild.id)
-				await self.bot.db.release(con)
-				modlogs = False
-		else:
-			modlogs = False
-		if actionlogs != 0:
-			try:
-				actionlogchan = self.bot.get_channel(actionlogs)
-			except discord.NotFound:
-				# await self.bot.db.execute(f'UPDATE settings SET logging = 0 WHERE gid = {ctx.guild.id}')
-				# await self.bot.conn.commit()
-				async with con.transaction():
-					query = 'UPDATE settings SET actionlogs = 0 WHERE gid = $1;'
-					await self.bot.db.execute(query, ctx.guild.id)
-				await self.bot.db.release(con)
-				actionlogs = False
-		else:
-			actionlogs = False
-		globalbans = bool(guildsettings[0]['globalbans'])
-		welcome = guildsettings[0]['welcome']
-		welcomechan = None
-		if welcome != 0:
-			try:
-				welcomechan = self.bot.get_channel(welcome)
-			except discord.NotFound:
-				# await self.bot.db.execute(f'UPDATE settings SET welcome = 0 WHERE gid = {ctx.guild.id}')
-				# await self.bot.conn.commit()
-				async with con.transaction():
-					query = 'UPDATE settings SET welcome = 0 WHERE gid = $1;'
-					await self.bot.db.execute(query, ctx.guild.id)
-				await self.bot.db.release(con)
-				welcome = False
-		else:
-			welcome = False
-		goodbye = guildsettings[0]['goodbye']
-		goodbyechan = None
-		if goodbye != 0:
-			try:
-				goodbyechan = self.bot.get_channel(goodbye)
-			except discord.NotFound:
-				# await self.bot.db.execute(f'UPDATE settings SET goodbye = 0 WHERE gid = {ctx.guild.id}')
-				# await self.bot.conn.commit()
-				async with con.transaction():
-					query = 'UPDATE settings SET goodbye = 0 WHERE gid = $1;'
-					await self.bot.db.execute(query, ctx.guild.id)
-				await self.bot.db.release(con)
-				goodbye = False
-		else:
-			goodbye = False
-		inviteblock = bool(guildsettings[0]['inviteblock'])
-		embed = discord.Embed(title=":gear: Guild Settings", colour=ctx.author.color, url="https://discordapp.com", description="Here's a list of the current guild settings", timestamp=datetime.datetime.utcnow())
-		embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
-		if type(modlogchan) == discord.TextChannel:
-			embed.add_field(name="Moderation Logs", value=modlogchan.mention, inline=False)
-		elif modlogchan == None:
-			embed.add_field(name="Moderation Logs", value=modlogchan, inline=False)
-		if type(actionlogchan) == discord.TextChannel:
-			embed.add_field(name="Action Logs", value=actionlogchan.mention, inline=False)
-		elif actionlogchan == None:
-			embed.add_field(name="Action Logs", value=actionlogchan, inline=False)
-		embed.add_field(name="Global Ban Check (KSoft.Si API)", value=globalbans, inline=False)
-		embed.add_field(name="Welcome Messages", value=welcomechan or welcome, inline=False)
-		embed.add_field(name="Goodbye Messages", value=goodbyechan or goodbye, inline=False)
-		embed.add_field(name="Invite Filter", value=inviteblock, inline=False)
+		except asyncio.TimeoutError:
+			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+		await asyncio.sleep(2)
+		await ctx.send('Ok. Next we\'ll configure action logs. This is where actions such as deleted messages, edited messages etc. are logged.')
+		await asyncio.sleep(2)
+		await ctx.send('Please give a channel name for action logs or say `skip` to disable...')
+		def actionlog_check(message):
+			if message.author != ctx.author:
+				return False
+			if message.content.lower() == 'skip':
+				return True
+			c = discord.utils.get(message.guild.channels, name=message.content.lower())
+			if c:
+				settingslist['actionlogs'] = c.id
+				return True
+			else:
+				return True
+		try:
+			await self.bot.wait_for('message', timeout=30.0, check=actionlog_check)
+			actionlogs = settingslist['actionlogs']
+			if actionlogs == 'Disabled':
+				actionlogs = 0
+				await ctx.send('Disabling action logs...')
+			else:
+				await ctx.send(f'Great! Setting action logs to <#{actionlogs}>')
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				q = 'UPDATE settings SET actionlogs = $1 WHERE gid = $2;'
+				await self.bot.db.execute(q, actionlogs, ctx.guild.id)
+			await self.bot.db.release(con)
+		except asyncio.TimeoutError:
+			await self.loadSettings()
+			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+		await asyncio.sleep(2)
+		await ctx.send('Ok. Next is invite filtering. If a user attempts to send an discord invite, I will delete it (that is, if I have permission to do so)')
+		await asyncio.sleep(2)
+		await ctx.send('Say `yes` to enable or say `no` or `skip` to disable')
+		def invfilter_check(message):
+			if message.author != ctx.author:
+				return False
+			if message.content.lower() == 'skip' or message.content.lower == 'no':
+				return True
+			if message.content.lower() == 'yes':
+				settingslist['invfilter'] = 'Enabled'
+				return True
+		try:
+			await self.bot.wait_for('message', timeout=30.0, check=invfilter_check)
+			invfilter = settingslist['invfilter']
+			if invfilter == 'Disabled':
+				invfilter = 0
+				await ctx.send('Disabling invite filter...')
+			elif invfilter == 'Enabled':
+				invfilter = 1
+				await ctx.send(f'Great! I\'ll enable invite filtering!')
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				q = 'UPDATE settings SET inviteblock = $1 WHERE gid = $2;'
+				await self.bot.db.execute(q, invfilter, ctx.guild.id)
+			await self.bot.db.release(con)
+		except asyncio.TimeoutError:
+			await self.loadSettings()
+			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+		await asyncio.sleep(2)
+		await ctx.send('Ok. Now we\'re onto global bans. Fire uses the KSoft.Si API to check for naughty people. If enabled, I will ban any of these naughty people if they attempt to join.')
+		await asyncio.sleep(2)
+		await ctx.send('Same thing again. Say `yes` to enable or say `no` or `skip` to disable')
+		def gban_check(message):
+			if message.author != ctx.author:
+				return False
+			if message.content.lower() == 'skip' or message.content.lower == 'no':
+				return True
+			if message.content.lower() == 'yes':
+				settingslist['globalbans'] = 'Enabled'
+				return True
+		try:
+			await self.bot.wait_for('message', timeout=30.0, check=gban_check)
+			gbans = settingslist['globalbans']
+			if gbans == 'Disabled':
+				gbans = 0
+				await ctx.send('Disabling global bans...')
+			elif gbans == 'Enabled':
+				gbans = 1
+				await ctx.send(f'Great! I\'ll enable global bans!')
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				q = 'UPDATE settings SET globalbans = $1 WHERE gid = $2;'
+				await self.bot.db.execute(q, gbans, ctx.guild.id)
+			await self.bot.db.release(con)
+		except asyncio.TimeoutError:
+			await self.loadSettings()
+			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+		await asyncio.sleep(2)
+		await ctx.send('The penultimate setting, auto-decancer. No, this setting doesn\'t cure cancer. Instead, it renames users with "cancerous" names (non-ascii) to some form of `John Doe 0000`')
+		await asyncio.sleep(2)
+		await ctx.send('Yeah, you guessed it. Once again, say `yes` to enable or say `no` or `skip` to disable')
+		def dc_check(message):
+			if message.author != ctx.author:
+				return False
+			if message.content.lower() == 'skip' or message.content.lower == 'no':
+				return True
+			if message.content.lower() == 'yes':
+				settingslist['autodecancer'] = 'Enabled'
+				return True
+		try:
+			await self.bot.wait_for('message', timeout=30.0, check=dc_check)
+			decancer = settingslist['autodecancer']
+			if decancer == 'Disabled':
+				decancer = 0
+				await ctx.send('Disabling auto-decancer...')
+			elif decancer == 'Enabled':
+				decancer = 1
+				await ctx.send(f'Great! I\'ll enable auto-decancer!')
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				q = 'UPDATE settings SET autodecancer = $1 WHERE gid = $2;'
+				await self.bot.db.execute(q, decancer, ctx.guild.id)
+			await self.bot.db.release(con)
+		except asyncio.TimeoutError:
+			await self.loadSettings()
+			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+		await asyncio.sleep(2)
+		await ctx.send('Finally, the last setting. Similar to the last one, auto-dehoist renames people with a non A-Z character at the start of their name.')
+		await asyncio.sleep(2)
+		await ctx.send('At this point, do I even need to repeat myself? Just in case, I will. Once again, say `yes` to enable or say `no` or `skip` to disable')
+		def dh_check(message):
+			if message.author != ctx.author:
+				return False
+			if message.content.lower() == 'skip' or message.content.lower == 'no':
+				return True
+			if message.content.lower() == 'yes':
+				settingslist['autodehoist'] = 'Enabled'
+				return True
+		try:
+			await self.bot.wait_for('message', timeout=30.0, check=dh_check)
+			dehoist = settingslist['autodehoist']
+			if dehoist == 'Disabled':
+				dehoist = 0
+				await ctx.send('Disabling auto-dehoist...')
+			elif dehoist == 'Enabled':
+				dehoist = 1
+				await ctx.send(f'Great! I\'ll enable auto-dehoist!')
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				q = 'UPDATE settings SET autodehoist = $1 WHERE gid = $2;'
+				await self.bot.db.execute(q, dehoist, ctx.guild.id)
+			await self.bot.db.release(con)
+		except asyncio.TimeoutError:
+			await self.loadSettings()
+			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+		await asyncio.sleep(2)
+		await ctx.send('Nice! We\'re all good to go. I\'ll send a recap in a moment. I just need to reload settings.')
+		await self.loadSettings()
+		embed = discord.Embed(title=":gear: Guild Settings", colour=ctx.author.color, description="Here's a list of the current guild settings", timestamp=datetime.datetime.utcnow())
+		embed.set_author(name=ctx.guild.name, icon_url=str(ctx.guild.icon_url))
+		modlogsnope = False
+		actionlogsnope = False
+		modlogsid = settingslist['modlogs']
+		if modlogsid == 'Disabled':
+			modlogsnope = 'Disabled'
+		actionlogsid = settingslist['actionlogs']
+		if actionlogsid == 'Disabled':
+			actionlogsnope = 'Disabled'
+		embed.add_field(name="Moderation Logs", value=modlogsnope or f'<#{modlogsid}>', inline=False)
+		embed.add_field(name="Action Logs", value=actionlogsnope or f'<#{actionlogs}>', inline=False)
+		embed.add_field(name="Invite Filter", value=settingslist['invfilter'], inline=False)
+		embed.add_field(name="Global Ban Check (KSoft.Si API)", value=settingslist['globalbans'], inline=False)
+		embed.add_field(name="Welcome Messages (soon)", value='Disabled', inline=False)
+		embed.add_field(name="Goodbye Messages (soon)", value='Disabled', inline=False)
 		await ctx.send(embed=embed)
 
-	@gsettings.command(name='logs', aliases=['logging', 'log'])
+	@commands.command(name='setlogs', aliases=['logging', 'log', 'logs'])
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def settings_logs(self, ctx, newlog: typing.Union[discord.TextChannel, int] = None):
-		'''PFXgsettings logs <channel>'''
+		'''PFXsetlogs <channel>'''
 		if newlog == None:
 			# raise commands.UserInputError('Missing argument! Provide a channel for me to send logs to or 0 to disable logging')
 			con = await self.bot.db.acquire()
@@ -714,7 +894,7 @@ class settings(commands.Cog, name="Settings"):
 				await self.bot.db.execute(aquery, ctx.guild.id)
 			await self.bot.db.release(con)
 			await ctx.send(f'Successfully disabled logging in {discord.utils.escape_mentions(ctx.guild.name)}', delete_after=5)
-			await self.loadLogChannels()
+			await self.loadSettings()
 		elif newlog == 0:
 			# await self.bot.db.execute(f'UPDATE settings SET logging = 0 WHERE gid = {ctx.guild.id}')
 			# await self.bot.conn.commit()
@@ -726,7 +906,7 @@ class settings(commands.Cog, name="Settings"):
 				await self.bot.db.execute(aquery, ctx.guild.id)
 			await self.bot.db.release(con)
 			await ctx.send(f'Successfully disabled logging in {discord.utils.escape_mentions(ctx.guild.name)}', delete_after=5)
-			await self.loadLogChannels()
+			await self.loadSettings()
 		else:
 			if type(newlog) == int:
 				channel = self.bot.get_channel(newlog)
@@ -742,7 +922,7 @@ class settings(commands.Cog, name="Settings"):
 					aquery = 'UPDATE settings SET actionlogs = $1 WHERE gid = $2;'
 					await self.bot.db.execute(aquery, newlog, ctx.guild.id)
 				await self.bot.db.release(con)
-				await self.loadLogChannels()
+				await self.loadSettings()
 				await ctx.send(f'Updated logs setting.')
 			elif type(newlog) == discord.TextChannel:
 				try:
@@ -759,7 +939,7 @@ class settings(commands.Cog, name="Settings"):
 					aquery = 'UPDATE settings SET actionlogs = $1 WHERE gid = $2;'
 					await self.bot.db.execute(aquery, newlog.id, ctx.guild.id)
 				await self.bot.db.release(con)
-				await self.loadLogChannels()
+				await self.loadSettings()
 				await ctx.send(f'Successfully enabled logging in {newlog.mention}', delete_after=5)		
 
 
