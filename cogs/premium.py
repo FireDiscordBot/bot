@@ -211,20 +211,6 @@ class Premium(commands.Cog, name="Premium Commands"):
 			}
 			return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}! All new members will recieve the {role.name} role.')
 
-	@commands.Cog.listener()
-	async def on_member_join(self, member):
-		try:
-			if await self.member_guild_check(member):
-				try:
-					roleid = self.autoroles[member.guild.id]["role"]
-					role = discord.utils.get(member.guild.roles, id=roleid)
-				except Exception:
-					return
-				if role != None:
-					await member.add_roles(role, reason='Auto-Role')
-		except Exception:
-			return
-
 	@commands.command(name='reactrole', description='Automatically add a role to a user when they react to a message')
 	@has_permissions(manage_roles=True)
 	@bot_has_permissions(manage_roles=True)
@@ -621,6 +607,13 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
 		if member.guild.id in self.premiumGuilds:
+			try:
+				roleid = self.autoroles[member.guild.id]["role"]
+				role = discord.utils.get(member.guild.roles, id=roleid)
+				if role != None:
+					await member.add_roles(role, reason='Auto-Role')
+			except Exception:
+				pass
 			try:
 				role = self.rolepersists[member.guild.id][member.id]['role']
 				r = discord.utils.get(member.guild.roles, id=role)
