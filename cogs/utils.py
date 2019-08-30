@@ -34,6 +34,7 @@ def isadmin(ctx):
 	return admin
 
 snipes = {}
+esnipes = {}
 disabled = [264445053596991498, 110373943822540800, 336642139381301249, 458341246453415947]
 
 def snipe_embed(context_channel, message, user):
@@ -495,6 +496,18 @@ class utils(commands.Cog, name='Utility Commands'):
 			except KeyError:
 				snipes[message.guild.id] = {message.author.id: message}
 
+	@commands.Cog.listener()
+	async def on_message_edit(self, before, after):
+		if before.guild and not before.author.bot:
+			try:
+				esnipes[before.guild.id][before.channel.id] = before
+			except KeyError:
+				esnipes[before.guild.id] = {before.channel.id: before}
+			try:
+				esnipes[before.guild.id][before.author.id] = before
+			except KeyError:
+				esnipes[before.guild.id] = {before.author.id: before}
+
 	@commands.command(description='Get the last deleted message')
 	async def snipe(self, ctx, source: typing.Union[discord.TextChannel, discord.Member, int] = None):
 		'''PFXsnipe [<channel|user>]'''
@@ -513,7 +526,29 @@ class utils(commands.Cog, name='Utility Commands'):
 		try:
 			sniped_message = snipes[ctx.guild.id][source.id]
 		except KeyError:
-			return await ctx.send(content = ':x: **No available messages.**')
+			return await ctx.send(content = '<a:fireFailed:603214400748257302> **No available messages.**')
+		else:
+			await ctx.send(embed = snipe_embed(ctx.channel, sniped_message, ctx.author))
+
+	@commands.command(description='Get the last edited message')
+	async def esnipe(self, ctx, source: typing.Union[discord.TextChannel, discord.Member, int] = None):
+		'''PFXesnipe [<channel|user>]'''
+		if type(source) == int:
+			source = self.bot.get_channel(source)
+		if type(source) == discord.Member:
+			if source.guild != ctx.guild:
+				raise commands.ArgumentParsingError('Unable to find Member')
+		if not source:
+			source = ctx.channel
+
+		if type(source) == discord.TextChannel:
+			if not ctx.author.permissions_in(source).read_messages:
+				return
+
+		try:
+			sniped_message = esnipes[ctx.guild.id][source.id]
+		except KeyError:
+			return await ctx.send(content = '<a:fireFailed:603214400748257302> **No available messages.**')
 		else:
 			await ctx.send(embed = snipe_embed(ctx.channel, sniped_message, ctx.author))
 
@@ -675,6 +710,21 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed = discord.Embed(color=ctx.author.color)
 		embed.set_image(url=f'https://http.cat/{error}')
 		await ctx.send(embed=embed)
+
+	@commands.command(description='Get a user\'s avatar', aliases=['av'])
+	async def avatar(self, ctx, user: discord.User = None):
+		if not user:
+			user = ctx.author
+		if ctx.guild:
+			member = ctx.guild.get_member(user.id)
+		if member:
+			embed = discord.Embed(color=member.color)
+			embed.set_image(url=str(member.avatar_url))
+			await ctx.send(embed=embed)
+		else:
+			embed = discord.Embed(color=user.color)
+			embed.set_image(url=str(user.avatar_url))
+			await ctx.send(embed=embed)
 
 	@commands.command(description='Fetch a channel and get some beautiful json')
 	async def fetchchannel(self, ctx, channel: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel] = None):
