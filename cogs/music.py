@@ -39,6 +39,7 @@ class Player(wavelink.Player):
 		super(Player, self).__init__(bot, guild_id, node)
 
 		self.cmdchannel_id = None
+		self.guild_id = guild_id
 
 		self.queue = asyncio.Queue()
 		self.next_event = asyncio.Event()
@@ -284,11 +285,11 @@ class Music(commands.Cog):
 
 		#bot.loop.create_task(self.initiate_nodes())
 
-	async def cog_check(self, ctx: commands.Context):
-		"""
-		MUSIC COG DISABLED DUE TO ISSUES WITH WAVELINK
-		"""
-		await ctx.send('<a:fireFailed:603214400748257302> Music has been temporarily disabled. My developer is working on a fix!')
+	# async def cog_check(self, ctx: commands.Context):
+	# 	"""
+	# 	MUSIC COG DISABLED DUE TO ISSUES WITH WAVELINK
+	# 	"""
+	# 	await ctx.send('<a:fireFailed:603214400748257302> Music has been temporarily disabled. My developer is working on a fix!')
 
 	@commands.Cog.listener()
 	async def on_ready(self):
@@ -369,6 +370,9 @@ class Music(commands.Cog):
 		blinf = await self.bot.db.fetch(query, ctx.author.id)
 		if blinf != []:
 			return False
+		
+		if not player.dj:
+			return True
 
 		if ctx.author.id == player.dj.id:
 			return True
