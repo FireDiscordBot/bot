@@ -385,6 +385,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		
 		try:
 			if reason:
+				await user.send(f'You were banned from {ctx.guild} for "{reason}"')
 				await ctx.guild.ban(user, reason=f"Banned by {ctx.author} for {reason}")
 				logchannels = self.bot.get_cog("Settings").logchannels
 				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
@@ -403,6 +404,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 							pass
 				await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been banished from {ctx.guild.name}.")
 			else:
+				await user.send(f'You were banned from {ctx.guild}')
 				await ctx.guild.ban(user, reason=f"Banned by {ctx.author}")
 				logchannels = self.bot.get_cog("Settings").logchannels
 				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
@@ -536,6 +538,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		
 		try:
 			if reason:
+				await user.send(f'You were kicked from {ctx.guild} for "{reason}"')
 				await ctx.guild.kick(user, reason=f"Kicked by {ctx.author} for {reason}")
 				logchannels = self.bot.get_cog("Settings").logchannels
 				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
@@ -553,6 +556,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						except Exception:
 							pass
 			else:
+				await user.send(f'You were kicked from {ctx.guild}')
 				await ctx.guild.kick(user, reason=f"Kicked by {ctx.author}")
 				logchannels = self.bot.get_cog("Settings").logchannels
 				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
