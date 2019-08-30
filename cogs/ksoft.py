@@ -48,6 +48,8 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 				return
 			else:
 				pass
+		if not meme.title:
+			return await ctx.send(f'<a:fireFailed:603214400748257302> The subreddit **{sub}** doesn\'t exist...')
 		embed = discord.Embed(title="Did someone order a spicy meme?", colour=ctx.message.author.color, url=meme.source, timestamp=datetime.datetime.utcnow())		
 		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url))
 		embed.set_footer(text=f"👍 {meme.upvotes} | 👎 {meme.downvotes} | 💬 {meme.comments} (https://api.ksoft.si)")
