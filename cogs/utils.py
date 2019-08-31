@@ -9,11 +9,14 @@ import re
 import aiosqlite3
 import functools
 import strgen
+import asyncio
 from colormap import rgb2hex, hex2rgb
 from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
 from PIL import Image
+from PIL import ImageFilter
 from PIL import ImageFont
 from PIL import ImageDraw
+from io import BytesIO
 from gtts import gTTS
 
 launchtime = datetime.datetime.utcnow()
@@ -453,6 +456,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=membed)
 		await interface.send_to(ctx)
 
+	
+
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
 	async def purge(self, ctx, amount: int=-1, member: discord.Member=None):
@@ -726,6 +731,31 @@ class utils(commands.Cog, name='Utility Commands'):
 			embed.set_image(url=str(user.avatar_url))
 			await ctx.send(embed=embed)
 
+	@commands.command(description='Totally not a stolen idea from Dyno')
+	async def fireav(self, ctx, u: typing.Union[discord.User, discord.Member] = None):
+		if not u:
+			u = ctx.author
+		if isinstance(u, discord.Member):
+			color = u.color
+		else:
+			color = ctx.author.color
+		mask = Image.open('wfireav.png')
+		img = Image.open('wfireav.png')
+		av_bytes = await u.avatar_url_as(format='png', static_format='png', size=256).read()
+		av_img = Image.open(BytesIO(av_bytes))
+		sub_img = av_img.convert("RGBA")
+		try:
+			img.paste(sub_img, (0, 0), mask)
+		except ValueError:
+			return await ctx.send('I cannot make a Fire avatar with images smaller than 256x256')
+		img.save(f'{u.id}.png')
+		colorlogo = discord.File(f'{u.id}.png')
+		embed = discord.Embed(colour=ctx.author.color)
+		embed.set_image(url=f'attachment://{u.id}.png')
+		await ctx.send(embed=embed, file=colorlogo)
+		await asyncio.sleep(5)
+		os.remove(f'{u.id}.png')
+
 	@commands.command(description='Fetch a channel and get some beautiful json')
 	async def fetchchannel(self, ctx, channel: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel] = None):
 		'''PFXfetchchannel <channel>'''
@@ -741,7 +771,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 		try:
 			cjson = json.dumps(raw, indent=2).replace('`', '\`')
-			await ctx.send("```json\n{j}```".format(cjson))
+			await ctx.send("```json\n{}```".format(cjson))
 		except discord.HTTPException as e:
 			e = str(e)
 			if 'Must be 2000 or fewer in length' in e:
