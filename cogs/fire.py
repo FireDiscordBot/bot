@@ -54,7 +54,10 @@ class fire(commands.Cog, name="Main Commands"):
 	@commands.command(description="Shows you my ping to discord's servers")
 	async def ping(self, ctx):
 		"""PFXping"""
-		latency = round(self.bot.latency * 1000)
+		for l in self.bot.latencies:
+			if l[0] == ctx.guild.shard_id:
+				latency = l[1]
+		latency = round(latency * 1000)
 		start = round(time.time()*1000)
 		msg = await ctx.send(content="Pinging...")
 		end = round(time.time()*1000)
@@ -134,8 +137,8 @@ class fire(commands.Cog, name="Main Commands"):
 				current = ' (HERE)'
 			else:
 				current = ''
-			paginator.add_line(f'[{gcount}] {guild.name}{current} || {guild.owner} || {guild.member_count} Members')
-			#paginator.add_line(f'[{gcount}] {guild.name}{current} || Shard ID: {guild.shard_id} || {guild.owner} || {guild.member_count} Members')
+			#paginator.add_line(f'[{gcount}] {guild.name}{current} || {guild.owner} || {guild.member_count} Members')
+			paginator.add_line(f'[{gcount}] {guild.name}{current} || Shard ID: {guild.shard_id} || {guild.owner} || {guild.member_count} Members')
 			gcount = gcount + 1
 		interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
 		await interface.send_to(ctx)

@@ -37,7 +37,7 @@ snipes = {}
 esnipes = {}
 disabled = [264445053596991498, 110373943822540800, 336642139381301249, 458341246453415947]
 
-def snipe_embed(context_channel, message, user):
+def snipe_embed(context_channel, message, user, edited = False):
 	if message.author not in message.guild.members or message.author.color == discord.Colour.default():
 		lines = []
 		msg = message.content.split('\n')
@@ -51,7 +51,7 @@ def snipe_embed(context_channel, message, user):
 			lines.append(f'> {line}')
 		embed = discord.Embed(description = '\n'.join(lines), color = message.author.color, timestamp = message.created_at)
 	embed.set_author(name = str(message.author), icon_url = str(message.author.avatar_url))
-	if message.attachments:
+	if message.attachments and not edited:
 		embed.add_field(name = 'Attachment(s)', value = '\n'.join([attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
 	if message.channel != context_channel:
 		embed.set_footer(text = 'Sniped by: ' + str(user) + ' | in channel: #' + message.channel.name)
@@ -550,7 +550,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		except KeyError:
 			return await ctx.send(content = '<a:fireFailed:603214400748257302> **No available messages.**')
 		else:
-			await ctx.send(embed = snipe_embed(ctx.channel, sniped_message, ctx.author))
+			await ctx.send(embed = snipe_embed(ctx.channel, sniped_message, ctx.author, True))
 
 	@commands.Cog.listener()
 	async def on_raw_reaction_add(self, payload):
