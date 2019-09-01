@@ -96,6 +96,15 @@ class settings(commands.Cog, name="Settings"):
 				actionlogs = False
 			else:
 				actionlogs = s['actionlogs']
+			guildobj = self.bot.get_guild(guild)
+			if modlogs:
+				cmodlogs = discord.utils.get(guildobj.channels, id=modlogs)
+				if type(cmodlogs) != discord.TextChannel:
+					modlogs = False
+			if actionlogs:
+				cactionlogs = discord.utils.get(guildobj.channels, id=actionlogs)
+				if type(cactionlogs) != discord.TextChannel:
+					actionlogs = False
 			self.logchannels[guild] = {
 				"modlogs": modlogs,
 				"actionlogs": actionlogs
