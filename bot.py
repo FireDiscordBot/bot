@@ -115,11 +115,11 @@ async def on_command_error(ctx, error):
 	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!\n```py\n{errortb}```", timestamp=datetime.datetime.utcnow())
 	embed.add_field(name='User', value=ctx.author, inline=False)
 	embed.add_field(name='Guild', value=ctx.guild, inline=False)
-	embed.add_field(name='Message', value=ctx.message.content, inline=False)
+	embed.add_field(name='Message', value=ctx.message.system_content, inline=False)
 	embednotb = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!", timestamp=datetime.datetime.utcnow())
 	embednotb.add_field(name='User', value=ctx.author, inline=False)
 	embednotb.add_field(name='Guild', value=ctx.guild, inline=False)
-	embednotb.add_field(name='Message', value=ctx.message.content, inline=False)
+	embednotb.add_field(name='Message', value=ctx.message.system_content, inline=False)
 	me = bot.get_user(287698408855044097)
 	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError, commands.MissingRequiredArgument, commands.TooManyArguments)
 	if isinstance(error, nomsg):
@@ -130,8 +130,8 @@ async def on_command_error(ctx, error):
 		await me.send(embed=embednotb)
 		await me.send(f'```py\n{errortb}```')
 	time = datetime.datetime.utcnow().strftime('%d/%b/%Y:%H:%M:%S')
-	message = f'```ini\n[Command Error Logger]\n\n[User] {ctx.author}({ctx.author.id})\n[Guild] {ctx.guild}({ctx.guild.id})\n[Message] {ctx.message.content}\n[Time] {time}\n\n[Traceback]\n{errortb}```'
-	messagenotb = f'```ini\n[Command Error Logger]\n\n[User] {ctx.author}({ctx.author.id})\n[Guild] {ctx.guild}({ctx.guild.id})\n[Message] {ctx.message.content}\n[Time] {time}```'
+	message = f'```ini\n[Command Error Logger]\n\n[User] {ctx.author}({ctx.author.id})\n[Guild] {ctx.guild}({ctx.guild.id})\n[Message] {ctx.message.system_content}\n[Time] {time}\n\n[Traceback]\n{errortb}```'
+	messagenotb = f'```ini\n[Command Error Logger]\n\n[User] {ctx.author}({ctx.author.id})\n[Guild] {ctx.guild}({ctx.guild.id})\n[Message] {ctx.message.system_content}\n[Time] {time}```'
 	tbmessage = f'```ini\n[Traceback]\n{errortb}```'
 	async with aiohttp.ClientSession() as session:
 		webhook = Webhook.from_url(config['logwebhook'], adapter=AsyncWebhookAdapter(session))
@@ -177,17 +177,7 @@ async def on_shard_ready(shard_id):
 async def on_message(message):
 	if message.author.bot == True:
 		return
-	if message.content == "":
-		return
-	if '&&' in message.content:
-		if 'admin sh' in message.content:
-			await bot.process_commands(message)
-			return
-		multicmd = message.content.split(' && ')
-		for cmd in multicmd:
-			msg = message
-			msg.content = cmd
-			await bot.process_commands(msg)
+	if message.system_content == "":
 		return
 	await bot.process_commands(message)
 
