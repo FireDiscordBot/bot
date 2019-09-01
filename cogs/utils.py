@@ -473,7 +473,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			amount -= 1
 		else:
 			await ctx.channel.purge(limit=amount)
-		await ctx.send(f'Sucesfully deleted **{int(amount)}** messages!', delete_after=5)
+		await ctx.send(f'Successfully deleted **{int(amount)}** messages!', delete_after=5)
 
 	@commands.Cog.listener()
 	async def on_guild_remove(self, guild):
