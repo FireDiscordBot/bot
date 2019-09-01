@@ -43,13 +43,13 @@ disabled = [264445053596991498, 110373943822540800, 336642139381301249, 45834124
 def snipe_embed(context_channel, message, user, edited = False):
 	if message.author not in message.guild.members or message.author.color == discord.Colour.default():
 		lines = []
-		msg = message.content.split('\n')
+		msg = message.system_content.split('\n')
 		for line in msg:
 			lines.append(f'> {line}')
 		embed = discord.Embed(description = '\n'.join(lines), timestamp = message.created_at)
 	else:
 		lines = []
-		msg = message.content.split('\n')
+		msg = message.system_content.split('\n')
 		for line in msg:
 			lines.append(f'> {line}')
 		embed = discord.Embed(description = '\n'.join(lines), color = message.author.color, timestamp = message.created_at)
@@ -63,12 +63,12 @@ def snipe_embed(context_channel, message, user, edited = False):
 	return embed
 
 def quote_embed(context_channel, message, user):
-	if not message.content and message.embeds and message.author.bot:
+	if not message.system_content and message.embeds and message.author.bot:
 		embed = message.embeds[0]
 	else:
 		if message.author not in message.guild.members or message.author.color == discord.Colour.default():
 			embed = discord.Embed(timestamp = message.created_at)
-			msg = message.content.split('\n')
+			msg = message.system_content.split('\n')
 			for line in msg:
 				lines.append(f'> {line}')
 			embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
@@ -76,7 +76,7 @@ def quote_embed(context_channel, message, user):
 		else:
 			embed = discord.Embed(color = message.author.color, timestamp = message.created_at)
 			lines = []
-			msg = message.content.split('\n')
+			msg = message.system_content.split('\n')
 			for line in msg:
 				lines.append(f'> {line}')
 			embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
@@ -575,7 +575,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				except discord.Forbidden:
 					return
 				else:
-					if not message.content and message.embeds and message.author.bot:
+					if not message.system_content and message.embeds and message.author.bot:
 						try:
 							await channel.send(content = 'Raw embed from `' + str(message.author).strip('`') + '` in ' + message.channel.mention, embed = quote_embed(channel, message, user))
 						except discord.Forbidden:

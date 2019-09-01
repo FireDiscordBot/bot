@@ -136,9 +136,9 @@ class settings(commands.Cog, name="Settings"):
 			else:
 				return
 			if logch:
-				if message.content == None or message.content  == '':
-					message.content = 'I was unable to get the message that was deleted. Maybe it was a system message?'
-				embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'{message.author.mention}\'**s message in** {message.channel.mention} **was deleted**\n{message.content}')
+				if message.system_content == None or message.system_content  == '':
+					message.system_content = 'I was unable to get the message that was deleted. Maybe it was a system message?'
+				embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'{message.author.mention}\'**s message in** {message.channel.mention} **was deleted**\n{message.system_content}')
 				embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
 				if message.attachments:
 					embed.add_field(name = 'Attachment(s)', value = '\n'.join([attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
@@ -150,7 +150,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):
-		if before.content == after.content:
+		if before.system_content == after.system_content:
 			return
 		if after.guild and not after.author.bot:
 			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
@@ -161,8 +161,8 @@ class settings(commands.Cog, name="Settings"):
 			if logch:
 				embed = discord.Embed(color=after.author.color, timestamp=after.created_at, description=f'{after.author.mention} **edited a message in** {after.channel.mention}')
 				embed.set_author(name=after.author, icon_url=str(after.author.avatar_url))
-				bcontent = before.content [:300] + (before.content [300:] and '...')
-				acontent = after.content [:300] + (after.content [300:] and '...')
+				bcontent = before.system_content [:300] + (before.system_content [300:] and '...')
+				acontent = after.system_content [:300] + (after.system_content [300:] and '...')
 				embed.add_field(name='Before', value=bcontent, inline=False)
 				embed.add_field(name='After', value=acontent, inline=False)
 				embed.set_footer(text=f"Author ID: {after.author.id} | Message ID: {after.id} | Channel ID: {after.channel.id}")
@@ -207,7 +207,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
-		code = findinvite(message.content)
+		code = findinvite(message.system_content)
 		if code:
 			if '/' in code:
 				return
@@ -256,7 +256,7 @@ class settings(commands.Cog, name="Settings"):
 				if logch:
 					embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'`{ctx.command.name}` **was used in** {ctx.channel.mention} **by {ctx.author.name}**')
 					embed.set_author(name=ctx.author, icon_url=str(ctx.author.avatar_url))
-					embed.add_field(name='Message', value=ctx.message.content, inline=False)
+					embed.add_field(name='Message', value=ctx.message.system_content, inline=False)
 					embed.set_footer(text=f"Author ID: {ctx.author.id} | Channel ID: {ctx.channel.id}")
 					try:
 						await logch.send(embed=embed)
@@ -698,9 +698,9 @@ class settings(commands.Cog, name="Settings"):
 		def modlog_check(message):
 			if message.author != ctx.author:
 				return False
-			if message.content.lower() == 'skip':
+			if message.system_content.lower() == 'skip':
 				return True
-			c = discord.utils.get(message.guild.channels, name=message.content.lower())
+			c = discord.utils.get(message.guild.channels, name=message.system_content.lower())
 			if c:
 				settingslist['modlogs'] = c.id
 				return True
@@ -727,9 +727,9 @@ class settings(commands.Cog, name="Settings"):
 		def actionlog_check(message):
 			if message.author != ctx.author:
 				return False
-			if message.content.lower() == 'skip':
+			if message.system_content.lower() == 'skip':
 				return True
-			c = discord.utils.get(message.guild.channels, name=message.content.lower())
+			c = discord.utils.get(message.guild.channels, name=message.system_content.lower())
 			if c:
 				settingslist['actionlogs'] = c.id
 				return True
@@ -758,9 +758,9 @@ class settings(commands.Cog, name="Settings"):
 		def invfilter_check(message):
 			if message.author != ctx.author:
 				return False
-			if message.content.lower() == 'skip' or message.content.lower == 'no':
+			if message.system_content.lower() == 'skip' or message.system_content.lower == 'no':
 				return True
-			if message.content.lower() == 'yes':
+			if message.system_content.lower() == 'yes':
 				settingslist['invfilter'] = 'Enabled'
 				return True
 		try:
@@ -787,9 +787,9 @@ class settings(commands.Cog, name="Settings"):
 		def gban_check(message):
 			if message.author != ctx.author:
 				return False
-			if message.content.lower() == 'skip' or message.content.lower == 'no':
+			if message.system_content.lower() == 'skip' or message.system_content.lower == 'no':
 				return True
-			if message.content.lower() == 'yes':
+			if message.system_content.lower() == 'yes':
 				settingslist['globalbans'] = 'Enabled'
 				return True
 		try:
@@ -816,9 +816,9 @@ class settings(commands.Cog, name="Settings"):
 		def dc_check(message):
 			if message.author != ctx.author:
 				return False
-			if message.content.lower() == 'skip' or message.content.lower == 'no':
+			if message.system_content.lower() == 'skip' or message.system_content.lower == 'no':
 				return True
-			if message.content.lower() == 'yes':
+			if message.system_content.lower() == 'yes':
 				settingslist['autodecancer'] = 'Enabled'
 				return True
 		try:
@@ -845,9 +845,9 @@ class settings(commands.Cog, name="Settings"):
 		def dh_check(message):
 			if message.author != ctx.author:
 				return False
-			if message.content.lower() == 'skip' or message.content.lower == 'no':
+			if message.system_content.lower() == 'skip' or message.system_content.lower == 'no':
 				return True
-			if message.content.lower() == 'yes':
+			if message.system_content.lower() == 'yes':
 				settingslist['autodehoist'] = 'Enabled'
 				return True
 		try:
