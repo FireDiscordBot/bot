@@ -237,7 +237,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		else:
 			await ctx.send('no.')
 
-	async def mute(self, ctx, user, reason, until = None, channel: discord.TextChannel = None):
+	async def mute(self, ctx, user, reason, until = None, timedelta = None, channel: discord.TextChannel = None):
 		if not reason:
 			reason = "No reason specified."
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
@@ -306,7 +306,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
 				if timeup:
-					embed.add_field(name='Until', value=timeup, inline=False)
+					embed.add_field(name='Until', value=f'{timeup} UTC ({timedelta})', inline=False)
 				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 				await channel.send(embed=embed)
 		else:
@@ -350,7 +350,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
 				if timeup:
-					embed.add_field(name='Until', value=timeup, inline=False)
+					embed.add_field(name='Until', value=f'{timeup} UTC ({timedelta})', inline=False)
 				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 				await channel.send(embed=embed)
 		
@@ -517,11 +517,12 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if logid:
 			logch = ctx.guild.get_channel(logid['modlogs'])
 		days, hours, minutes, seconds = parseTime(reason)
+		td = datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 		until = datetime.datetime.utcnow() + datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 		reason = reason.replace(f'{days}d ', '').replace(f'{hours}h ', '').replace(f'{minutes}m ', '').replace(f'{seconds}s ', '')
 		if reason == '' or reason == ' ':
 			reason = 'No reason provided.'
-		await self.mute(ctx, user, reason=reason or "No reason provided.", until=until, channel=logch)
+		await self.mute(ctx, user, reason=reason or "No reason provided.", until=until, timedelta=str(td), channel=logch)
 	
 	@commands.command(description="Kick a user.")
 	@commands.has_permissions(manage_messages=True)
