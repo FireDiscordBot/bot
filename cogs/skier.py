@@ -34,7 +34,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		else:
 			hello = {
 				'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-				'CONTENT-TYPE': 'text/json' 
+				'CONTENT-TYPE': 'application/json' 
 			}
 			async with aiohttp.ClientSession(headers=hello) as session:
 				async with session.get(f'https://api.sk1er.club/levelheadv5/{player}/LEVEL') as resp:
@@ -136,7 +136,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			return
 		hello = {
 			'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-			'CONTENT-TYPE': 'text/json' 
+			'CONTENT-TYPE': 'application/json' 
 		}
 		if player == "stats": 
 			async with aiohttp.ClientSession(headers=hello) as session:

@@ -128,7 +128,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			color = ctx.author.color
 			embed = discord.Embed(title="My API Key Stats", colour=color, timestamp=datetime.datetime.utcnow())
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
-			embed.add_field(name="Owner", value="GamingGeeek (4686e7b58815485d8bc4a45445abb984)", inline=False)
+			embed.add_field(name="Owner", value="1ju (4686e7b58815485d8bc4a45445abb984)", inline=False)
 			embed.add_field(name="Total Requests", value=format(key['record']['totalQueries'], ',d'), inline=False)
 			embed.add_field(name="Requests in the past minute", value=lastmin, inline=False)
 			await ctx.send(embed=embed)
@@ -141,7 +141,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				msg = await ctx.send(f"Generating Network Level leaderboard...")
 				headers = {
 					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'text/json' 
+					'CONTENT-TYPE': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/LEVEL') as resp:
@@ -164,7 +164,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				msg = await ctx.send(f"Generating Karma leaderboard...")
 				headers = {
 					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'text/json' 
+					'CONTENT-TYPE': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/KARMA') as resp:
@@ -187,7 +187,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				msg = await ctx.send(f"Generating Coins leaderboard...")
 				headers = {
 					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'text/json' 
+					'CONTENT-TYPE': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/COINS') as resp:
@@ -210,7 +210,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				msg = await ctx.send(f"Generating Total Kills leaderboard...")
 				headers = {
 					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'text/json' 
+					'CONTENT-TYPE': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/TOTAL_KILLS') as resp:
@@ -233,7 +233,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				msg = await ctx.send(f"Generating Total Wins leaderboard...")
 				headers = {
 					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'text/json' 
+					'CONTENT-TYPE': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/TOTAL_WINS') as resp:
@@ -256,7 +256,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				msg = await ctx.send(f"Generating Guild Level leaderboard...")
 				headers = {
 					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'text/json' 
+					'CONTENT-TYPE': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/GUILD_LEVEL') as resp:
@@ -279,7 +279,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				msg = await ctx.send(f"Generating Guild Experience leaderboard...")
 				headers = {
 					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'text/json' 
+					'CONTENT-TYPE': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/GUILD_LEVEL') as resp:
@@ -302,7 +302,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				msg = await ctx.send(f"Generating Guild Wins leaderboard...")
 				headers = {
 					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'text/json' 
+					'CONTENT-TYPE': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/GUILD_WINS') as resp:
@@ -338,7 +338,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				p = player.JSON
 				headers = {
 					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'text/json' 
+					'CONTENT-TYPE': 'application/json' 
 				}
 				try:
 					tributes = p['tourney']['total_tributes'] # TOURNAMENT TRIBUTES
@@ -629,7 +629,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		elif arg2 == 'friends':
 			headers = {
 				'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-				'CONTENT-TYPE': 'text/json' 
+				'CONTENT-TYPE': 'application/json' 
 			}
 			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.sk1er.club/friends/{arg1}') as resp:
@@ -650,7 +650,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		elif arg2 == 'guild':
 			headers = {
 				'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-				'CONTENT-TYPE': 'text/json' 
+				'CONTENT-TYPE': 'application/json' 
 			}
 			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.sk1er.club/guild/player/{arg1}') as resp:
