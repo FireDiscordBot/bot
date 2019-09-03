@@ -81,10 +81,15 @@ class Premium(commands.Cog, name="Premium Commands"):
 			guild = p['gid']
 			user = p['uid']
 			role = p['rid']
-			self.rolepersists[guild] = {}
-			self.rolepersists[guild][user] = {
-				"role": role
-			}
+			try:
+				self.rolepersists[guild][user] = {
+					"role": role
+				}
+			except KeyError:
+				self.rolepersists[guild] = {}
+				self.rolepersists[guild][user] = {
+					"role": role
+				}
 
 	async def cog_check(self, ctx: commands.Context):
 		"""
