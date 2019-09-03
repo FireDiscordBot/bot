@@ -272,10 +272,40 @@ class settings(commands.Cog, name="Settings"):
 					num = member.discriminator
 					decancered = True
 					await member.edit(nick=f'John Doe {num}')
+					logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
+					if logid:
+						logch = member.guild.get_channel(logid['modlogs'])
+					else:
+						return
+					if logch:
+						embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+						embed.set_author(name=f'Auto-Decancer | {member}', icon_url=str(member.avatar_url))
+						embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
+						embed.add_field(name='Reason', value='Username contains non-ascii characters', inline=False)
+						embed.set_footer(text=f'User ID: {member.id}')
+						try:
+							await logch.send(embed=embed)
+						except Exception:
+							pass
 			if member.guild.id in self.autodehoist:
 				if self.bot.ishoisted(member.name) and not decancered:
 					num = member.discriminator
 					await member.edit(nick=f'John Doe {num}')
+					logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
+					if logid:
+						logch = member.guild.get_channel(logid['modlogs'])
+					else:
+						return
+					if logch:
+						embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+						embed.set_author(name=f'Auto-Dehoist | {member}', icon_url=str(member.avatar_url))
+						embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
+						embed.add_field(name='Reason', value='Username starts with a non A-Z character', inline=False)
+						embed.set_footer(text=f'User ID: {member.id}')
+						try:
+							await logch.send(embed=embed)
+						except Exception:
+							pass
 		except Exception:
 			pass
 
@@ -286,31 +316,57 @@ class settings(commands.Cog, name="Settings"):
 				if after.guild.id in self.autodecancer:
 					decancered = False
 					if not after.nick:
-						nick = 'None'
+						nick = after.name
+						tochange = 'Username'
 					else:
 						nick = after.nick
+						tochange = 'Nickname'
 					if not self.bot.isascii(nick):
 						num = after.discriminator
 						decancered = True
 						await after.edit(nick=f'John Doe {num}')
-					if not self.bot.isascii(after.name):
-						num = after.discriminator
-						decancered = True
-						await after.edit(nick=f'John Doe {num}')
+						logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
+						if logid:
+							logch = after.guild.get_channel(logid['modlogs'])
+						else:
+							return
+						if logch:
+							embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+							embed.set_author(name=f'Auto-Decancer | {after}', icon_url=str(after.avatar_url))
+							embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
+							embed.add_field(name='Reason', value=f'{tochange} contains non-ascii characters', inline=False)
+							embed.set_footer(text=f'User ID: {after.id}')
+							try:
+								return await logch.send(embed=embed)
+							except Exception:
+								pass
 				if after.guild.id in self.autodehoist:
 					dehoisted = False
 					if not after.nick:
-						nick = 'None'
+						nick = after.name
+						tochange = 'Username'
 					else:
 						nick = after.nick
+						tochange = 'Nickname'
 					if self.bot.ishoisted(nick) and not decancered:
 						num = after.discriminator
 						dehoisted = True
 						await after.edit(nick=f'John Doe {num}')
-					if self.bot.ishoisted(after.name) and not decancered:
-						num = after.discriminator
-						dehoisted = True
-						await after.edit(nick=f'John Doe {num}')
+						logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
+						if logid:
+							logch = after.guild.get_channel(logid['modlogs'])
+						else:
+							return
+						if logch:
+							embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+							embed.set_author(name=f'Auto-Dehoist | {after}', icon_url=str(after.avatar_url))
+							embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
+							embed.add_field(name='Reason', value=f'{tochange} starts with a non A-Z character', inline=False)
+							embed.set_footer(text=f'User ID: {after.id}')
+							try:
+								return await logch.send(embed=embed)
+							except Exception:
+								pass
 			except Exception:
 				pass
 			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
