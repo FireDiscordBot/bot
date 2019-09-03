@@ -18,6 +18,7 @@ from PIL import ImageFont
 from PIL import ImageDraw
 from io import BytesIO
 from gtts import gTTS
+from fire.push import pushover
 
 launchtime = datetime.datetime.utcnow()
 
@@ -246,6 +247,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.bot.isascii = lambda s: len(s) == len(s.encode())
 		self.bot.getperms = self.getperms
 		self.bot.ishoisted = self.ishoisted
+		self.bot.vanity_urls = {}
+		self.bot.getvanity = self.getvanity
 
 	def getperms(self, member: discord.Member, channel: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel]):
 		perms = []
@@ -259,6 +262,73 @@ class utils(commands.Cog, name='Utility Commands'):
 			return True
 		else:
 			return False
+
+	async def getvanity(self, code: str):
+		if code in self.bot.vanity_urls:
+			return self.bot.vanity_urls[code]
+		else:
+			return False
+
+	async def createvanity(self, ctx: commands.Context, code: str, inv: discord.Invite):
+		query = 'SELECT * FROM vanity WHERE gid = $1;'
+		current = await self.bot.db.fetch(query, ctx.guild.id)
+		if current == []:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'INSERT INTO vanity (\"gid\", \"code\", \"invite\") VALUES ($1, $2, $3);'
+				await self.bot.db.execute(query, ctx.guild.id, code, inv.code)
+			await self.bot.db.release(con)
+		else:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'UPDATE vanity SET (\"code\", \"invite\") = ($2, $3) WHERE gid = $1;'
+				await self.bot.db.execute(query, ctx.guild.id, code, inv.code)
+			await self.bot.db.release(con)
+		await self.loadvanitys()
+		try:
+			return self.bot.vanity_urls[code]
+		except KeyError:
+			return False
+
+	async def deletevanity(self, ctx: commands.Context):
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'DELETE FROM vanity WHERE gid = $1;'
+			await self.bot.db.execute(query, ctx.guild.id)
+		await self.bot.db.release(con)
+
+	async def loadvanitys(self):
+		self.bot.vanity_urls = {}
+		query = 'SELECT * FROM vanity;'
+		vanitys = await self.bot.db.fetch(query)
+		for v in vanitys:
+			guild = v['gid']
+			code = v['code']
+			invite = v['invite']
+			inviteurl = f'https://discord.gg/{invite}'
+			url = f'https://oh-my-god.wtf/{code}'
+			self.bot.vanity_urls[code] = {
+				'gid': guild,
+				'invite': invite,
+				'inviteurl': inviteurl,
+				'code': code,
+				'url': url
+			}
+
+	@commands.Cog.listener()
+	async def on_ready(self):
+		await asyncio.sleep(5)
+		await self.loadvanitys()
+		print('Settings loaded!')
+
+	@commands.command(name='loadvanity', description='Load Vanity URLs', hidden=True)
+	async def loadvurls(self, ctx):
+		'''PFXloadvanity'''
+		if await self.bot.is_owner(ctx.author):
+			await self.loadvanitys()
+			await ctx.send('Loaded data!')
+		else:
+			await ctx.send('no.')
 
 	async def cog_check(self, ctx: commands.Context):
 		if ctx.command.name == 'tts' and ctx.guild.id == 411619823445999637:
@@ -755,6 +825,47 @@ class utils(commands.Cog, name='Utility Commands'):
 		await ctx.send(embed=embed, file=colorlogo)
 		await asyncio.sleep(5)
 		os.remove(f'{u.id}.png')
+
+	@commands.command(description='Make a role mentionable for 60 seconds or until you mention it')
+	@commands.bot_has_permissions(manage_roles=True)
+	@commands.has_permissions(manage_roles=True)
+	async def tempmention(self, ctx, role: discord.Role):
+		await role.edit(mentionable=True)
+		await ctx.send(f'Successfully made **{role.name}** mentionable. It will stay mentionable until you mention it or 60 seconds go by', delete_after=5)
+		def check(m):
+			return m.author == ctx.author
+
+		try:
+			m = await self.bot.wait_for('message', timeout=60.0, check=check)
+			await role.edit(mentionable=False)
+		except asyncio.TimeoutError:
+			await role.edit(mentionable=False)
+			await ctx.send(f'**{role.name}** is no longer mentionable. 60 seconds have passed')
+
+	@commands.command(description='Creates a vanity invite for your Discord using https://oh-my-god.wtf/')
+	@commands.bot_has_permissions(create_instant_invite=True)
+	@commands.has_permissions(manage_guild=True)
+	async def vanityurl(self, ctx, code: str = None):
+		if not code:
+			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide a code!')
+		if code == 'disable':
+			await self.deletevanity(ctx)
+			return await ctx.send('<a:fireSuccess:603214443442077708> Vanity URL deleted!')
+		if not self.bot.isascii(code):
+			return await ctx.send('<a:fireFailed:603214400748257302> Vanity URLs can only contain ASCII characters!')
+		if len(code) < 3 or len(code) > 10:
+			return await ctx.send('<a:fireFailed:603214400748257302> The code needs to be 3-10 characters!')
+		exists = await self.bot.getvanity(code)
+		if exists:
+			return await ctx.send('<a:fireFailed:603214400748257302> This code is already in use!')
+		createdinv = await ctx.channel.create_invite(reason='Creating invite for Vanity URL')
+		vanity = await self.createvanity(ctx, code, createdinv)
+		if vanity:
+			author = str(ctx.author).replace('#', '%23')
+			await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url='https://api.gaminggeek.dev/currentvanity', url_title='Check current Vanity URLs')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Your Vanity URL is {vanity["url"]}')
+		else:
+			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
 
 	@commands.command(description='Fetch a channel and get some beautiful json')
 	async def fetchchannel(self, ctx, channel: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel] = None):
