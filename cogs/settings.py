@@ -5,6 +5,7 @@ import json
 import asyncpg
 import typing
 import asyncio
+import humanfriendly
 from random import randint
 from fire.invite import findinvite
 from fire.youtube import findchannel, findvideo
@@ -265,6 +266,21 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
+		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
+		if logid:
+			logch = member.guild.get_channel(logid['modlogs'])
+		else:
+			return
+		if logch:
+			#https://giphy.com/gifs/pepsi-5C0a8IItAWRebylDRX
+			embed = discord.Embed(title='Member Joined', url='https://media.giphy.com/media/Nx0rz3jtxtEre/giphy.gif', color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url))
+			embed.add_field(name='Account Created', value=humanfriendly.format_timespan(datetime.datetime.utcnow() - member.created_at) + ' ago', inline=False)
+			embed.set_footer(text=f'User ID: {member.id}')
+			try:
+				await logch.send(embed=embed)
+			except Exception:
+				pass
 		try:
 			if member.guild.id in self.autodecancer:
 				decancered = False
@@ -308,6 +324,25 @@ class settings(commands.Cog, name="Settings"):
 							pass
 		except Exception:
 			pass
+
+	@commands.Cog.listener()
+	async def on_member_remove(self, member):
+		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
+		if logid:
+			logch = member.guild.get_channel(logid['modlogs'])
+		else:
+			return
+		if logch:
+			embed = discord.Embed(title='Member Left', url='https://media.giphy.com/media/5C0a8IItAWRebylDRX/source.gif', color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url))
+			embed.add_field(name='Nickname', value=member.nick or member.name, inline=False)
+			roles = [role.mention for role in member.roles if role != member.guild.default_role]
+			embed.add_field(name='Roles', value=', '.join(roles) if roles != [] else 'No roles', inline=False)
+			embed.set_footer(text=f'User ID: {member.id}')
+			try:
+				await logch.send(embed=embed)
+			except Exception:
+				pass
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
