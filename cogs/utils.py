@@ -26,8 +26,8 @@ print('utils.py has been loaded')
 
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
-	error_string = config['response_string']['error']
-	success_string = config['response_string']['success']
+	error_string = '<a:fireFailed:603214400748257302>'
+	success_string = '<a:fireSuccess:603214443442077708>'
 
 def isadmin(ctx):
 	'''Checks if the author is an admin'''
@@ -295,6 +295,14 @@ class utils(commands.Cog, name='Utility Commands'):
 		async with con.transaction():
 			query = 'DELETE FROM vanity WHERE gid = $1;'
 			await self.bot.db.execute(query, ctx.guild.id)
+		await self.bot.db.release(con)
+
+	@commands.Cog.listener()
+	async def on_guild_remove(self, guild):
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'DELETE FROM vanity WHERE gid = $1;'
+			await self.bot.db.execute(query, guild.id)
 		await self.bot.db.release(con)
 
 	async def loadvanitys(self):
