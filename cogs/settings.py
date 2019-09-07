@@ -151,6 +151,74 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):
+		message = after
+		code = findinvite(message.system_content)
+		invite = None
+		if code:
+			if '/' in code:
+				return
+			invalidinvite = False
+			if isinstance(message.author, discord.Member):
+				if not message.author.permissions_in(message.channel).manage_messages:
+					if message.guild.me.permissions_in(message.channel).manage_messages:
+						if message.guild.id in self.invitefiltered:
+							try:
+								invite = await self.bot.fetch_invite(url=code)
+								if invite.guild.id == message.guild.id:
+									pass
+								else:
+									await message.delete()
+							except Exception:
+								pass
+			try:
+				ohmygod = False
+				if code.lower() in self.bot.vanity_urls:
+					invite = self.bot.vanity_urls[code]
+					ohmygod = True
+					if isinstance(message.author, discord.Member):
+						if not message.author.permissions_in(message.channel).manage_messages:
+							if message.guild.me.permissions_in(message.channel).manage_messages:
+								if message.guild.id in self.invitefiltered:
+									if invite['gid'] != message.guild.id:
+										await message.delete()
+				else:
+					if not invite or type(invite) != discord.Invite:
+						invite = await self.bot.fetch_invite(url=code)
+			except discord.NotFound or discord.HTTPException as e:
+				invalidinvite = True
+			if message.guild:
+				if message.author.bot:
+					return
+				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+				if logid:
+					logch = message.guild.get_channel(logid['actionlogs'])
+				else:
+					return
+				if logch:
+					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
+					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+					if invalidinvite:
+						if '.png' in code:
+							return
+						embed.add_field(name='Invite Code', value=code, inline=False)
+						embed.add_field(name='Valid?', value='false', inline=False)
+					elif ohmygod:
+						invite = await self.bot.fetch_invite(url=invite['invite'])
+						embed.add_field(name='Invite Code', value=code, inline=False)
+						embed.add_field(name='Vanity URL', value=f'[oh-my-god.wtf/{code}](https://oh-my-god.wtf/{code})', inline=False)
+						embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
+						embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
+						embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
+					elif invite and not ohmygod:
+						embed.add_field(name='Invite Code', value=code, inline=False)
+						embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
+						embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
+						embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
+					embed.set_footer(text=f"Author ID: {message.author.id}")
+					try:
+						return await logch.send(embed=embed)
+					except Exception:
+						pass
 		if before.system_content == after.system_content:
 			return
 		if after.guild and not after.author.bot:
@@ -209,6 +277,7 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_message(self, message):
 		code = findinvite(message.system_content)
+		invite = None
 		if code:
 			if '/' in code:
 				return
@@ -217,12 +286,33 @@ class settings(commands.Cog, name="Settings"):
 				if not message.author.permissions_in(message.channel).manage_messages:
 					if message.guild.me.permissions_in(message.channel).manage_messages:
 						if message.guild.id in self.invitefiltered:
-							await message.delete()
+							try:
+								invite = await self.bot.fetch_invite(url=code)
+								if invite.guild.id == message.guild.id:
+									pass
+								else:
+									await message.delete()
+							except Exception:
+								pass
 			try:
-				invite = await self.bot.fetch_invite(url=code)
+				ohmygod = False
+				if code.lower() in self.bot.vanity_urls:
+					invite = self.bot.vanity_urls[code]
+					ohmygod = True
+					if isinstance(message.author, discord.Member):
+						if not message.author.permissions_in(message.channel).manage_messages:
+							if message.guild.me.permissions_in(message.channel).manage_messages:
+								if message.guild.id in self.invitefiltered:
+									if invite['gid'] != message.guild.id:
+										await message.delete()
+				else:
+					if not invite or type(invite) != discord.Invite:
+						invite = await self.bot.fetch_invite(url=code)
 			except discord.NotFound or discord.HTTPException as e:
 				invalidinvite = True
 			if message.guild:
+				if message.author.bot:
+					return
 				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
 				if logid:
 					logch = message.guild.get_channel(logid['actionlogs'])
@@ -232,9 +322,18 @@ class settings(commands.Cog, name="Settings"):
 					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
 					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
 					if invalidinvite:
+						if '.png' in code:
+							return
 						embed.add_field(name='Invite Code', value=code, inline=False)
 						embed.add_field(name='Valid?', value='false', inline=False)
-					elif invite:
+					elif ohmygod:
+						invite = await self.bot.fetch_invite(url=invite['invite'])
+						embed.add_field(name='Invite Code', value=code, inline=False)
+						embed.add_field(name='Vanity URL', value=f'[oh-my-god.wtf/{code}](https://oh-my-god.wtf/{code})', inline=False)
+						embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
+						embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
+						embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
+					elif invite and not ohmygod:
 						embed.add_field(name='Invite Code', value=code, inline=False)
 						embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
 						embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
@@ -346,62 +445,70 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
+		if after.nick != None and f'John Doe {after.discriminator}' in after.nick:
+			return
 		if before.nick != after.nick:
 			try:
 				if after.guild.id in self.autodecancer:
-					decancered = False
-					if not after.nick:
-						nick = after.name
-						tochange = 'Username'
+					if after.guild_permissions.manage_nicknames:
+						pass
 					else:
-						nick = after.nick
-						tochange = 'Nickname'
-					if not self.bot.isascii(nick):
-						num = after.discriminator
-						decancered = True
-						await after.edit(nick=f'John Doe {num}')
-						logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
-						if logid:
-							logch = after.guild.get_channel(logid['modlogs'])
+						decancered = False
+						if not after.nick:
+							nick = after.name
+							tochange = 'Username'
 						else:
-							return
-						if logch:
-							embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-							embed.set_author(name=f'Auto-Decancer | {after}', icon_url=str(after.avatar_url))
-							embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
-							embed.add_field(name='Reason', value=f'{tochange} contains non-ascii characters', inline=False)
-							embed.set_footer(text=f'User ID: {after.id}')
-							try:
-								return await logch.send(embed=embed)
-							except Exception:
-								pass
+							nick = after.nick
+							tochange = 'Nickname'
+						if not self.bot.isascii(nick):
+							num = after.discriminator
+							decancered = True
+							await after.edit(nick=f'John Doe {num}')
+							logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
+							if logid:
+								logch = after.guild.get_channel(logid['modlogs'])
+							else:
+								return
+							if logch:
+								embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+								embed.set_author(name=f'Auto-Decancer | {after}', icon_url=str(after.avatar_url))
+								embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
+								embed.add_field(name='Reason', value=f'{tochange} contains non-ascii characters', inline=False)
+								embed.set_footer(text=f'User ID: {after.id}')
+								try:
+									return await logch.send(embed=embed)
+								except Exception:
+									pass
 				if after.guild.id in self.autodehoist:
-					dehoisted = False
-					if not after.nick:
-						nick = after.name
-						tochange = 'Username'
+					if after.guild_permissions.manage_nicknames:
+						pass
 					else:
-						nick = after.nick
-						tochange = 'Nickname'
-					if self.bot.ishoisted(nick) and not decancered:
-						num = after.discriminator
-						dehoisted = True
-						await after.edit(nick=f'John Doe {num}')
-						logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
-						if logid:
-							logch = after.guild.get_channel(logid['modlogs'])
+						dehoisted = False
+						if not after.nick:
+							nick = after.name
+							tochange = 'Username'
 						else:
-							return
-						if logch:
-							embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-							embed.set_author(name=f'Auto-Dehoist | {after}', icon_url=str(after.avatar_url))
-							embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
-							embed.add_field(name='Reason', value=f'{tochange} starts with a non A-Z character', inline=False)
-							embed.set_footer(text=f'User ID: {after.id}')
-							try:
-								return await logch.send(embed=embed)
-							except Exception:
-								pass
+							nick = after.nick
+							tochange = 'Nickname'
+						if self.bot.ishoisted(nick) and not decancered:
+							num = after.discriminator
+							dehoisted = True
+							await after.edit(nick=f'John Doe {num}')
+							logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
+							if logid:
+								logch = after.guild.get_channel(logid['modlogs'])
+							else:
+								return
+							if logch:
+								embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+								embed.set_author(name=f'Auto-Dehoist | {after}', icon_url=str(after.avatar_url))
+								embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
+								embed.add_field(name='Reason', value=f'{tochange} starts with a non A-Z character', inline=False)
+								embed.set_footer(text=f'User ID: {after.id}')
+								try:
+									return await logch.send(embed=embed)
+								except Exception:
+									pass
 			except Exception:
 				pass
 			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
