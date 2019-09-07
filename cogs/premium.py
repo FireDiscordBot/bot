@@ -384,9 +384,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			roles = []
 			someremoved = 0
 			for rank in ranks:
-				print(ranks)
 				role = discord.utils.get(ctx.guild.roles, id=rank)
-				print(role)
 				if not role:
 					# await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {rank};')
 					# await self.bot.conn.commit()
