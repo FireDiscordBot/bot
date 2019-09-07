@@ -622,7 +622,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def block(self, ctx, user: StaffCheck = None, *, reason = 'No reason provided.'):
 		"""PFXblock <user> [<reason>]"""
-		await ctx.message.delete()
+		try:
+			await ctx.message.delete()
+		except Exception:
+			pass
 		await ctx.trigger_typing()
 		if user == False:
 			return
@@ -653,7 +656,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unblock(self, ctx, user: StaffCheck = None, *, reason = 'No reason provided.'):
 		"""PFXunblock <user> [<reason>]"""
-		await ctx.message.delete()
+		try:
+			await ctx.message.delete()
+		except Exception:
+			pass
 		await ctx.trigger_typing()
 		if user == False:
 			return
