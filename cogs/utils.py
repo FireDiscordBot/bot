@@ -303,7 +303,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		vanitys = await self.bot.db.fetch(query)
 		for v in vanitys:
 			guild = v['gid']
-			code = v['code']
+			code = v['code'].lower()
 			invite = v['invite']
 			inviteurl = f'https://discord.gg/{invite}'
 			url = f'https://oh-my-god.wtf/{code}'
@@ -859,7 +859,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if exists:
 			return await ctx.send('<a:fireFailed:603214400748257302> This code is already in use!')
 		createdinv = await ctx.channel.create_invite(reason='Creating invite for Vanity URL')
-		vanity = await self.createvanity(ctx, code, createdinv)
+		vanity = await self.createvanity(ctx, code.lower(), createdinv)
 		if vanity:
 			author = str(ctx.author).replace('#', '%23')
 			await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url='https://api.gaminggeek.dev/currentvanity', url_title='Check current Vanity URLs')
