@@ -4,6 +4,7 @@ import datetime
 import asyncpg
 import asyncio
 import traceback
+import humanfriendly
 import re
 
 day_regex = re.compile(r'(?:(?P<days>\d+)d)')
@@ -306,6 +307,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
 				if timeup:
+					timedelta = humanfriendly.format_timespan(timedelta)
 					embed.add_field(name='Until', value=f'{timeup} UTC ({timedelta})', inline=False)
 				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 				await channel.send(embed=embed)
@@ -350,6 +352,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
 				if timeup:
+					timedelta = humanfriendly.format_timespan(timedelta)
 					embed.add_field(name='Until', value=f'{timeup} UTC ({timedelta})', inline=False)
 				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 				await channel.send(embed=embed)
@@ -522,7 +525,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		reason = reason.replace(f'{days}d ', '').replace(f'{hours}h ', '').replace(f'{minutes}m ', '').replace(f'{seconds}s ', '')
 		if reason == '' or reason == ' ':
 			reason = 'No reason provided.'
-		await self.mute(ctx, user, reason=reason or "No reason provided.", until=until, timedelta=str(td), channel=logch)
+		await self.mute(ctx, user, reason=reason or "No reason provided.", until=until, timedelta=td, channel=logch)
 	
 	@commands.command(description="Kick a user.")
 	@commands.has_permissions(manage_messages=True)
