@@ -138,7 +138,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
 			player = self.bot.wavelink.get_player(ctx.guild.id, cls=MusicPlayer)
 			player.gassist = True
 		if player:
-			if player.is_playing:
+			if isinstance(player.current, MusicTrack):
 				uploadresp = True
 				#return await ctx.send('I\'m currently playing music so I can\'t play the response.')
 		try:
