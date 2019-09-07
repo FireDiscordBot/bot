@@ -151,6 +151,8 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):
+		if before.content == after.content:
+			return
 		message = after
 		code = findinvite(message.system_content)
 		invite = None
