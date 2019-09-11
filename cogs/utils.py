@@ -296,6 +296,15 @@ class utils(commands.Cog, name='Utility Commands'):
 			query = 'DELETE FROM vanity WHERE gid = $1;'
 			await self.bot.db.execute(query, ctx.guild.id)
 		await self.bot.db.release(con)
+		await self.loadvanitys()
+
+	async def deletevanitycode(self, code: str):
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'DELETE FROM vanity WHERE code = $1;'
+			await self.bot.db.execute(query, code)
+		await self.bot.db.release(con)
+		await self.loadvanitys()
 
 	@commands.Cog.listener()
 	async def on_guild_remove(self, guild):
@@ -527,14 +536,12 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.set_thumbnail(url=f'attachment://{role.id}.png')
 		await ctx.send(embed=embed, file=colorlogo)
 		os.remove(f'{role.id}.png')
-		paginator = WrappedPaginator(prefix='', suffix='', max_size=2000)
+		paginator = WrappedPaginator(prefix='', suffix='', max_size=250)
 		for member in role.members:
 			paginator.add_line(member.mention)
 		membed = discord.Embed(colour=role.color if role.color != discord.Color.default() else ctx.author.color, timestamp=datetime.datetime.utcnow())
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=membed)
 		await interface.send_to(ctx)
-
-	
 
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
@@ -796,6 +803,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Get a user\'s avatar', aliases=['av'])
 	async def avatar(self, ctx, user: discord.User = None):
+		'''PFXavatar [<user>]'''
 		if not user:
 			user = ctx.author
 		if ctx.guild:
@@ -811,6 +819,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Totally not a stolen idea from Dyno')
 	async def fireav(self, ctx, u: typing.Union[discord.User, discord.Member] = None):
+		'''PFXfireav [<user>]'''
 		if not u:
 			u = ctx.author
 		if isinstance(u, discord.Member):
@@ -1011,9 +1020,11 @@ class utils(commands.Cog, name='Utility Commands'):
 		if not member:
 			member = ctx.author
 		try:
-			a = member.activities[0]
-			adict = a.to_dict()
-			ajson = json.dumps(adict, indent=2).replace('`', '\`')
+			a = member.activities
+			activities = []
+			for act in a:
+				activities.append(act.to_dict())
+			ajson = json.dumps(activities, indent=2).replace('`', '\`')
 			await ctx.send('```json\n{}```'.format(ajson)) #i dont want to use format() but im forced to
 		except Exception:
 			return await ctx.send('I couldn\'t get that member\'s activity...')
