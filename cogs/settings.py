@@ -958,7 +958,7 @@ class settings(commands.Cog, name="Settings"):
 		def invfilter_check(message):
 			if message.author != ctx.author:
 				return False
-			if message.system_content.lower() == 'skip' or message.system_content.lower == 'no':
+			if message.system_content.lower() == 'skip' or message.system_content.lower() == 'no':
 				return True
 			if message.system_content.lower() == 'yes':
 				settingslist['invfilter'] = 'Enabled'
@@ -987,7 +987,7 @@ class settings(commands.Cog, name="Settings"):
 		def gban_check(message):
 			if message.author != ctx.author:
 				return False
-			if message.system_content.lower() == 'skip' or message.system_content.lower == 'no':
+			if message.system_content.lower() == 'skip' or message.system_content.lower() == 'no':
 				return True
 			if message.system_content.lower() == 'yes':
 				settingslist['globalbans'] = 'Enabled'
@@ -1016,7 +1016,7 @@ class settings(commands.Cog, name="Settings"):
 		def dc_check(message):
 			if message.author != ctx.author:
 				return False
-			if message.system_content.lower() == 'skip' or message.system_content.lower == 'no':
+			if message.system_content.lower() == 'skip' or message.system_content.lower() == 'no':
 				return True
 			if message.system_content.lower() == 'yes':
 				settingslist['autodecancer'] = 'Enabled'
@@ -1045,7 +1045,7 @@ class settings(commands.Cog, name="Settings"):
 		def dh_check(message):
 			if message.author != ctx.author:
 				return False
-			if message.system_content.lower() == 'skip' or message.system_content.lower == 'no':
+			if message.system_content.lower() == 'skip' or message.system_content.lower() == 'no':
 				return True
 			if message.system_content.lower() == 'yes':
 				settingslist['autodehoist'] = 'Enabled'
