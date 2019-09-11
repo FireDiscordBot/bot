@@ -485,29 +485,29 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		except discord.Forbidden:
 			await ctx.send("<a:fireFailed:603214400748257302> Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
 	
-	@commands.command(name='mute', description="Mute a user.")
-	@commands.has_permissions(manage_messages=True)
-	@commands.bot_has_permissions(manage_roles=True)
-	async def mutecmd(self, ctx, user: StaffCheck, *, reason = None):
-		"""PFXmute <user> [<reason>]"""
-		await ctx.message.delete()
-		if user == False:
-			return
-		if not user:
-			return await ctx.send('You must specify a user')
-		await ctx.trigger_typing()
-		logchannels = self.bot.get_cog("Settings").logchannels
-		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-		logch = None
-		if logid:
-			logch = ctx.guild.get_channel(logid['modlogs'])
-		await self.mute(ctx, user, reason=reason or "No reason provided.", channel=logch)
+	# @commands.command(name='mute', description="Mute a user.")
+	# @commands.has_permissions(manage_messages=True)
+	# @commands.bot_has_permissions(manage_roles=True)
+	# async def mutecmd(self, ctx, user: StaffCheck, *, reason = None):
+	# 	"""PFXmute <user> [<reason>]"""
+	# 	await ctx.message.delete()
+	# 	if user == False:
+	# 		return
+	# 	if not user:
+	# 		return await ctx.send('You must specify a user')
+	# 	await ctx.trigger_typing()
+	# 	logchannels = self.bot.get_cog("Settings").logchannels
+	# 	logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+	# 	logch = None
+	# 	if logid:
+	# 		logch = ctx.guild.get_channel(logid['modlogs'])
+	# 	await self.mute(ctx, user, reason=reason or "No reason provided.", channel=logch)
 
-	@commands.command(name='tempmute', description="Mute a user. Temporarily.")
+	@commands.command(name='mute', description="Mute a user.", aliases=['silence', 'tempmute'])
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def tempmutecmd(self, ctx, user: StaffCheck, *, reason: str = None):
-		"""PFXtempmute <user> <time> [<reason>]"""
+	async def mutecmd(self, ctx, user: StaffCheck, *, reason: str = None):
+		"""PFXmute <user> [<time> <reason>]\n\nTime format: `1d 2h 3m 4s` == `1 day, 2 hours, 3 minutes and 4 seconds`"""
 		await ctx.message.delete()
 		if user == False:
 			return
@@ -519,13 +519,24 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		logch = None
 		if logid:
 			logch = ctx.guild.get_channel(logid['modlogs'])
-		days, hours, minutes, seconds = parseTime(reason)
-		td = datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
-		until = datetime.datetime.utcnow() + datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
-		reason = reason.replace(f'{days}d ', '').replace(f'{hours}h ', '').replace(f'{minutes}m ', '').replace(f'{seconds}s ', '')
-		if reason == '' or reason == ' ':
-			reason = 'No reason provided.'
-		await self.mute(ctx, user, reason=reason or "No reason provided.", until=until, timedelta=td, channel=logch)
+		if reason:
+			if parseTime(reason):
+				days, hours, minutes, seconds = parseTime(reason)
+			else:
+				days, hours, minutes, seconds = 0, 0, 0, 0
+		else:
+			days, hours, minutes, seconds = 0, 0, 0, 0
+		if days == 0 and hours == 0 and minutes == 0 and seconds == 0:
+			if reason == '' or reason == ' ':
+				reason = 'No reason provided.'
+			await self.mute(ctx, user, reason=reason or "No reason provided.", channel=logch)
+		else:
+			td = datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+			until = datetime.datetime.utcnow() + datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+			reason = reason.replace(f'{days}d ', '').replace(f'{hours}h ', '').replace(f'{minutes}m ', '').replace(f'{seconds}s ', '')
+			if reason == '' or reason == ' ':
+				reason = 'No reason provided.'
+			await self.mute(ctx, user, reason=reason or "No reason provided.", until=until, timedelta=td, channel=logch)
 	
 	@commands.command(description="Kick a user.")
 	@commands.has_permissions(manage_messages=True)
@@ -644,6 +655,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				embed.set_author(name=f'Block | {user}', icon_url=str(user.avatar_url))
 				embed.add_field(name='User', value=user.mention, inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+				embed.add_field(name='Channel', value=ctx.channel.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
 				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 				try:
@@ -667,7 +679,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not user:
 			return await ctx.send("You must specify a user")
 		
-		await ctx.channel.set_permissions(user, send_messages=True, reason=reason or 'No reason specified.')
+		await ctx.channel.set_permissions(user, send_messages=None, reason=reason or 'No reason specified.')
 		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully unblocked **{user}**. Welcome back!')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
@@ -678,6 +690,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				embed.set_author(name=f'Unblock | {user}', icon_url=str(user.avatar_url))
 				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 				embed.add_field(name='Moderator', value=user.mention, inline=False)
+				embed.add_field(name='Channel', value=ctx.channel.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
 				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 				try:
