@@ -443,6 +443,8 @@ class Premium(commands.Cog, name="Premium Commands"):
 			if r.name.lower() == role.lower():
 				role = r
 				break
+		if type(role) == str:
+			return await ctx.send(f'<a:fireFailed:603214400748257302> Couldn\'t find the role {role}.')
 		if member.id not in self.rolepersists[ctx.guild.id]:
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -625,6 +627,46 @@ class Premium(commands.Cog, name="Premium Commands"):
 			except Exception as e:
 				return
 			
+	@commands.Cog.listener()
+	async def on_member_update(self, before, after):
+		broles = []
+		aroles = []
+		changed = []
+		for role in before.roles:
+			broles.append(role)
+		for role in after.roles:
+			aroles.append(role)
+		s = set(aroles)
+		removed = [x for x in broles if x not in s]
+		try:
+			role = self.rolepersists[after.guild.id][after.id]['role']
+		except KeyError:
+			return
+		r = discord.utils.get(after.guild.roles, id=role)
+		if r in removed:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'DELETE FROM rolepersist WHERE gid = $1 AND uid = $2;'
+				await self.bot.db.execute(query, after.guild.id, after.id)
+			await self.bot.db.release(con)
+			try:
+				self.rolepersists[after.guild.id].pop(after.id, None)
+			except Exception:
+				pass
+			logchannels = self.bot.get_cog("Settings").logchannels
+			logid = logchannels[after.guild.id] if after.guild.id in logchannels else None
+			if logid:
+				logch = after.guild.get_channel(logid['modlogs'])
+				if logch:
+					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+					embed.set_author(name=f'Role Persist Removed | {after}', icon_url=str(after.avatar_url))
+					embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
+					embed.add_field(name='Moderator', value=after.guild.me.mention, inline=False)
+					embed.set_footer(text=f'User ID: {after.id} | Mod ID: {after.guild.me.id} | Role ID: {r.id}')
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 
 def setup(bot):
 	bot.add_cog(Premium(bot))
