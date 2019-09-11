@@ -1,4 +1,4 @@
-![Fire](http://join-the.gaminggeek.club/images/5vOJx3lc0N.png)
+![Fire](https://repository-images.githubusercontent.com/172268367/737ddb80-a685-11e9-87f8-2b68b29a04b2)
 
 <h1 align="center">Fire</h1>
 <h3 align="center">A Discord bot for all your needs.<br>
