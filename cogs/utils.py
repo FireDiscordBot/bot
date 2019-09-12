@@ -42,6 +42,9 @@ esnipes = {}
 disabled = [264445053596991498, 110373943822540800, 336642139381301249, 458341246453415947]
 
 def snipe_embed(context_channel, message, user, edited = False):
+	if not message.system_content and message.embeds and message.author.bot:
+		sembed = message.embeds[0]
+		return sembed
 	if message.author not in message.guild.members or message.author.color == discord.Colour.default():
 		lines = []
 		msg = message.system_content.split('\n')
@@ -68,6 +71,7 @@ def quote_embed(context_channel, message, user):
 		embed = message.embeds[0]
 	else:
 		if message.author not in message.guild.members or message.author.color == discord.Colour.default():
+			lines = []
 			embed = discord.Embed(timestamp = message.created_at)
 			msg = message.system_content.split('\n')
 			for line in msg:
@@ -549,7 +553,10 @@ class utils(commands.Cog, name='Utility Commands'):
 		'''PFXpurge <amount> [<user>]'''
 		if amount>500 or amount<0:
 			return await ctx.send('Invalid amount. Minumum is 1, Maximum is 500')
-		await ctx.message.delete()
+		try:
+			await ctx.message.delete()
+		except Exception:
+			pass
 		if member != None:
 			def checkmember(m):
 				return m.author == member
@@ -576,15 +583,15 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.Cog.listener()
 	async def on_message_delete(self, message):
+		try:
+			snipes[message.guild.id][message.author.id] = message
+		except KeyError:
+			snipes[message.guild.id] = {message.author.id: message}
 		if message.guild and not message.author.bot:
 			try:
 				snipes[message.guild.id][message.channel.id] = message
 			except KeyError:
 				snipes[message.guild.id] = {message.channel.id: message}
-			try:
-				snipes[message.guild.id][message.author.id] = message
-			except KeyError:
-				snipes[message.guild.id] = {message.author.id: message}
 
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):
