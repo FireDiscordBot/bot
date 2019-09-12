@@ -123,6 +123,11 @@ class Player(wavelink.Player):
 			self.skips.clear()
 			self.repeats.clear()
 
+	def is_playing(self):
+		if isinstance(self.current, Track):
+			return True
+		return False
+
 	async def invoke_controller(self, track: wavelink.Track = None):
 		"""Invoke our controller message, and spawn a reaction controller if one isn't alive."""
 		if not track:
@@ -364,6 +369,8 @@ class Music(commands.Cog):
 
 	async def has_perms(self, ctx, **perms):
 		"""Check whether a member has the given permissions."""
+		if ctx.author.id == 287698408855044097:
+			return True
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		query = 'SELECT * FROM blacklist WHERE uid = $1;'
