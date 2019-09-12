@@ -29,8 +29,6 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 	async def cog_check(self, ctx: commands.Context):
 		if ctx.command.name == 'meme' and ctx.guild.id == 411619823445999637:
-			if ctx.channel.id == 577203509863251989:
-				return True
 			return False
 		return True
 
