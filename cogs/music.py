@@ -123,6 +123,7 @@ class Player(wavelink.Player):
 			self.skips.clear()
 			self.repeats.clear()
 
+	@property
 	def is_playing(self):
 		if isinstance(self.current, Track):
 			return True
