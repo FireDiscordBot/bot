@@ -258,7 +258,7 @@ class fire(commands.Cog, name="Main Commands"):
 		message = discord.utils.escape_mentions(clappyboi)
 		message = message.split(' ')
 		message = ' 👏 '.join(message)
-		await ctx.send(message)
+		await ctx.send(message + ' 👏')
 
 def setup(bot):
 	bot.add_cog(fire(bot))
