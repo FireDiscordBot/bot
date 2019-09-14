@@ -38,7 +38,7 @@ async def get_pre(bot, message):
 		prefix = prefixraw[0]['prefix']
 	else:
 		prefix = "$"
-	return commands.when_mentioned_or(prefix)(bot, message)
+	return commands.when_mentioned_or(prefix, 'fire ')(bot, message)
 
 bot = commands.AutoShardedBot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="Loading..."), case_insensitive=True, shard_count=5)
 bot.shardstatus = []
@@ -130,8 +130,10 @@ async def on_command_error(ctx, error):
 		await me.send(embed=embednotb)
 		await me.send(f'```py\n{errortb}```')
 	time = datetime.datetime.utcnow().strftime('%d/%b/%Y:%H:%M:%S')
-	message = f'```ini\n[Command Error Logger]\n\n[User] {ctx.author}({ctx.author.id})\n[Guild] {ctx.guild}({ctx.guild.id})\n[Message] {ctx.message.system_content}\n[Time] {time}\n\n[Traceback]\n{errortb}```'
-	messagenotb = f'```ini\n[Command Error Logger]\n\n[User] {ctx.author}({ctx.author.id})\n[Guild] {ctx.guild}({ctx.guild.id})\n[Message] {ctx.message.system_content}\n[Time] {time}```'
+	guild = ctx.guild or 'None'
+	gid = ctx.guild.id if guild != 'None' else 0
+	message = f'```ini\n[Command Error Logger]\n\n[User] {ctx.author}({ctx.author.id})\n[Guild] {guild}({gid})\n[Message] {ctx.message.system_content}\n[Time] {time}\n\n[Traceback]\n{errortb}```'
+	messagenotb = f'```ini\n[Command Error Logger]\n\n[User] {ctx.author}({ctx.author.id})\n[Guild] {guild}({gid}))\n[Message] {ctx.message.system_content}\n[Time] {time}```'
 	tbmessage = f'```ini\n[Traceback]\n{errortb}```'
 	async with aiohttp.ClientSession() as session:
 		webhook = Webhook.from_url(config['logwebhook'], adapter=AsyncWebhookAdapter(session))
