@@ -636,6 +636,8 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='followable', description='Make the current channel followable.')
 	async def followable(self, ctx, canfollow: bool = False):
+		if not await self.bot.is_team_owner():
+			return
 		if canfollow and ctx.channel.id not in self.channelfollowable:
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -656,6 +658,8 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.command(name='follow', description='Follow a channel and recieve messages from it in your own server', aliases=['cfollow', 'channelfollow'], hidden=True)
 	async def follow(self, ctx, follow: typing.Union[discord.TextChannel, str]):
 		'''PFXfollow <channel|link>'''
+		if not await self.bot.is_team_owner():
+			return
 		if isinstance(follow, discord.TextChannel):
 			if follow.id in self.channelfollowable:
 				return await ctx.send(f'Use this command in the channel you want to recieve messages from {follow.mention} in;\n`fire follow https://discordapp.com/channels/{ctx.guild.id}/{follow.id}`')
@@ -700,6 +704,8 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='unfollow', description='Unfollow the channel that has been followed', hidden=True)
 	async def unfollow(self, ctx):
+		if not await self.bot.is_team_owner():
+			return
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'DELETE FROM channelfollow WHERE cid = $1;'
