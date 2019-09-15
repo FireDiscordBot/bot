@@ -400,6 +400,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
+		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
 		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
 		if logid:
 			logch = member.guild.get_channel(logid['modlogs'])
@@ -461,6 +462,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):
+		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.leave'))
 		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
 		if logid:
 			logch = member.guild.get_channel(logid['modlogs'])
