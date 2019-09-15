@@ -157,9 +157,11 @@ class Assistant(commands.Cog, name='Google Assistant'):
 			if os.path.exists(f'{ctx.author.id}.mp3'):
 				if uploadresp == True:
 					file = discord.File(f'{ctx.author.id}.mp3', 'gassist.mp3')
+					await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'gassist.uploaded'))
 					return await ctx.send(file=file)
 				alt_ctx = await copy_context_with(ctx, content=ctx.prefix + f'play {ctx.author.id}.mp3')
 				await alt_ctx.command.reinvoke(alt_ctx)
+				await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'gassist.played'))
 				await asyncio.sleep(3)
 				track = player.current
 				if track == None:

@@ -4,6 +4,7 @@ import datetime
 import asyncpg
 import asyncio
 import traceback
+import functools
 import humanfriendly
 import re
 
@@ -269,6 +270,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			if e:
 				await e.delete()
 			await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been muted")
+			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.mutes'))
 			# await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
 			# await self.bot.conn.commit()
 			con = await self.bot.db.acquire()
@@ -314,6 +316,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		else:
 			await user.add_roles(muted)
 			await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been muted")
+			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.mutes'))
 			# await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
 			# await self.bot.conn.commit()
 			con = await self.bot.db.acquire()
@@ -406,6 +409,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						except Exception:
 							pass
 				await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been banished from {ctx.guild.name}.")
+				await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.bans'))
 			else:
 				await user.send(f'You were banned from {ctx.guild}')
 				await ctx.guild.ban(user, reason=f"Banned by {ctx.author}")
@@ -424,6 +428,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						except Exception:
 							pass
 				await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been banished from {ctx.guild.name}")
+				await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.bans'))
 		except discord.Forbidden:
 			await ctx.send("<a:fireFailed:603214400748257302> Ban failed. Are you trying to ban someone higher than the bot?")
 
@@ -482,6 +487,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 							pass
 				await ctx.guild.unban(user, reason="Temporarily Banned")
 			await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been soft-banned.")
+			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.softbans'))
 		except discord.Forbidden:
 			await ctx.send("<a:fireFailed:603214400748257302> Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
 	
@@ -588,6 +594,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						except Exception:
 							pass
 			await ctx.send(f'<a:fireSuccess:603214443442077708> **{user}** has been kicked.')
+			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.kicks'))
 		except discord.Forbidden:
 			await ctx.send("<a:fireFailed:603214400748257302> Kick failed. Are you trying to kick someone higher than the bot?")
 	

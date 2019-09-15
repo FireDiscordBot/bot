@@ -7,6 +7,7 @@ import typing
 import asyncio
 import aiohttp
 import humanfriendly
+import functools
 from random import randint
 from fire.invite import findinvite
 from fire.youtube import findchannel, findvideo
@@ -139,7 +140,7 @@ class settings(commands.Cog, name="Settings"):
 				return
 			if logch:
 				if message.system_content == None or message.system_content  == '':
-					message.system_content = 'I was unable to get the message that was deleted. Maybe it was a system message?'
+					message.content = 'I was unable to get the message that was deleted. Maybe it was a system message?'
 				embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'{message.author.mention}\'**s message in** {message.channel.mention} **was deleted**\n{message.system_content}')
 				embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
 				if message.attachments:
@@ -368,6 +369,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_command_completion(self, ctx):
+		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'commands.used'))
 		if ctx.command.name in watchedcmds:
 			if ctx.guild:
 				logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
@@ -386,12 +388,9 @@ class settings(commands.Cog, name="Settings"):
 						except KeyError as e:
 							purged = None
 						if purged:
-							print('channel in recent purge')
 							async with aiohttp.ClientSession() as s:
-								print(s)
 								async with s.post('https://hasteb.in/documents', data=json.dumps(self.bot.recentpurge[ctx.channel.id], indent=4)) as r:
 									j = await r.json()
-									print(j)
 									key = j['key'] + '.json'
 									embed.add_field(name='Purged Messages', value=f'https://hasteb.in/{key}', inline=False)
 					try:
@@ -408,7 +407,7 @@ class settings(commands.Cog, name="Settings"):
 			return
 		if logch:
 			#https://giphy.com/gifs/pepsi-5C0a8IItAWRebylDRX
-			embed = discord.Embed(title='Member Joined', url='https://media.giphy.com/media/Nx0rz3jtxtEre/giphy.gif', color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(title='Member Joined', url='https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif', color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
 			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url))
 			embed.add_field(name='Account Created', value=humanfriendly.format_timespan(datetime.datetime.utcnow() - member.created_at) + ' ago', inline=False)
 			embed.set_footer(text=f'User ID: {member.id}')
@@ -468,7 +467,7 @@ class settings(commands.Cog, name="Settings"):
 		else:
 			return
 		if logch:
-			embed = discord.Embed(title='Member Left', url='https://media.giphy.com/media/5C0a8IItAWRebylDRX/source.gif', color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(title='Member Left', url='https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif', color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url))
 			embed.add_field(name='Nickname', value=member.nick or member.name, inline=False)
 			roles = [role.mention for role in member.roles if role != member.guild.default_role]

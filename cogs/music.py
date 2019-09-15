@@ -3,6 +3,7 @@ import datetime
 import discord
 import humanize
 import itertools
+import functools
 import math
 import random
 import json
@@ -17,7 +18,6 @@ from typing import Union
 RURL = re.compile(r'https?:\/\/(?:www\.)?.+')
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
-
 class Track(wavelink.Track):
 	__slots__ = ('requester', 'channel', 'message')
 
@@ -507,6 +507,8 @@ class Music(commands.Cog):
 		if isinstance(tracks, wavelink.TrackPlaylist):
 			for t in tracks.tracks:
 				await player.queue.put(Track(t.id, t.info, ctx=ctx))
+
+			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'music.songplay'))
 
 			await ctx.send(f'```ini\nAdded the playlist {tracks.data["playlistInfo"]["name"]}'
 						   f' with {len(tracks.tracks)} songs to the queue.\n```')

@@ -15,13 +15,24 @@ import typing
 #import aiosqlite3
 import asyncpg
 import traceback
+import functools
 from fire.push import pushbullet
 from fire import exceptions
+import sentry_sdk
+from datadog import initialize, statsd, ThreadStats
+
 
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
 logging.basicConfig(filename='bot.log',level=logging.INFO)
+sentry_sdk.init(config['sentry'])
+datadogopt = {
+    'api_key':config['datadogapi'],
+    'app_key':config['datadogapp']
+}
+
+initialize(**datadogopt)
 
 def isadmin(ctx):
 	if str(ctx.author.id) not in config['admins']:
@@ -43,6 +54,9 @@ async def get_pre(bot, message):
 
 bot = commands.AutoShardedBot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="Loading..."), case_insensitive=True, shard_count=5)
 bot.shardstatus = []
+
+bot.datadog = ThreadStats()
+bot.datadog.start()
 
 async def is_team_owner(user: typing.Union[discord.User, discord.Member]):
 	owner_id = 287698408855044097 # i hate dev license for requiring the app to be on a team. it broke everything
@@ -81,6 +95,9 @@ for cog in extensions:
 		print(f"Error while loading {cog}")
 		print(errortb)
 
+def sentry_exc(error):
+	sentry_sdk.capture_exception(error)
+
 @bot.event
 async def on_command_error(ctx, error):
 
@@ -92,6 +109,8 @@ async def on_command_error(ctx, error):
 	noperms = (commands.BotMissingPermissions, commands.MissingPermissions, discord.Forbidden)
 	saved = error
 	
+	if not isinstance(error, noperms):
+		await bot.loop.run_in_executor(None, func=functools.partial(sentry_exc, error))
 	# Allows us to check for original exceptions raised and sent to CommandInvokeError.
 	# If nothing is found. We keep the exception passed to on_command_error.
 	error = getattr(error, 'original', error)
@@ -102,6 +121,7 @@ async def on_command_error(ctx, error):
 			pass
 		else:
 			return
+
 	
 	if isinstance(error, commands.CommandOnCooldown):
 		embed = discord.Embed(title='Command on cooldown...', colour=ctx.author.color, url="https://http.cat/429", description=f"Here's what happened\n```py\n{error}```", timestamp=datetime.datetime.utcnow())
@@ -188,7 +208,10 @@ async def on_shard_ready(shard_id):
 @bot.event
 async def on_message(message):
 	if message.author.bot == True:
+		await bot.loop.run_in_executor(None, func=functools.partial(bot.datadog.increment, 'messages.bot'))
 		return
+	else:
+		await bot.loop.run_in_executor(None, func=functools.partial(bot.datadog.increment, 'messages.user'))
 	if message.system_content == "":
 		return
 	await bot.process_commands(message)
@@ -196,11 +219,15 @@ async def on_message(message):
 @bot.event
 async def on_message_edit(before,after):
 	if after.author.bot == True:
+		await bot.loop.run_in_executor(None, func=functools.partial(bot.datadog.increment, 'messageedit.bot'))
 		return
+	else:
+		await bot.loop.run_in_executor(None, func=functools.partial(bot.datadog.increment, 'messageedit.user'))
 	await bot.process_commands(after)
 
 @bot.event
 async def on_guild_join(guild):
+	await bot.loop.run_in_executor(None, func=functools.partial(bot.datadog.increment, 'guilds.join'))
 	con = await bot.db.acquire()
 	async with con.transaction():
 		query = 'INSERT INTO settings (\"gid\") VALUES ($1);'
@@ -220,6 +247,7 @@ async def on_guild_join(guild):
 
 @bot.event
 async def on_guild_remove(guild):
+	await bot.loop.run_in_executor(None, func=functools.partial(bot.datadog.increment, 'guilds.leave'))
 	print(f"Fire left the guild {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/")
 	try:
 		await pushbullet("link", "Fire left a guild!", f"Fire left {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/", f"https://api.gaminggeek.club/guild/{guild.id}")

@@ -28,7 +28,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		self.bot.ksoft = client
 
 	async def cog_check(self, ctx: commands.Context):
-		if ctx.command.name == 'meme' and ctx.guild.id == 411619823445999637:
+		if ctx.command.name == 'meme' and ctx.guild and ctx.guild.id == 411619823445999637:
 			return False
 		return True
 
