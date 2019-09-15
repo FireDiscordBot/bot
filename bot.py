@@ -11,6 +11,7 @@ import json
 import aiohttp
 import asyncio
 import random
+import typing
 #import aiosqlite3
 import asyncpg
 import traceback
@@ -42,6 +43,15 @@ async def get_pre(bot, message):
 
 bot = commands.AutoShardedBot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="Loading..."), case_insensitive=True, shard_count=5)
 bot.shardstatus = []
+
+async def is_team_owner(user: typing.Union[discord.User, discord.Member]):
+	owner_id = 287698408855044097 # i hate dev license for requiring the app to be on a team. it broke everything
+	if user.id == owner_id:
+		return True
+	else:
+		return False
+
+bot.is_team_owner = is_team_owner
 
 changinggame = False
 

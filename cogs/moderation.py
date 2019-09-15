@@ -232,7 +232,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(name='loadmutes', description='Load mutes data', hidden=True)
 	async def loadmutescmd(self, ctx):
 		'''PFXloadmutes'''
-		if await self.bot.is_owner(ctx.author):
+		if await self.bot.is_team_owner(ctx.author):
 			await self.loadMutes()
 			await ctx.send('Loaded data!')
 		else:

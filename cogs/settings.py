@@ -5,6 +5,7 @@ import json
 import asyncpg
 import typing
 import asyncio
+import aiohttp
 import humanfriendly
 from random import randint
 from fire.invite import findinvite
@@ -115,12 +116,12 @@ class settings(commands.Cog, name="Settings"):
 	async def on_ready(self):
 		await asyncio.sleep(5)
 		await self.loadSettings()
-		print('Settings loaded!')
+		print('Settings loaded (on_ready)!')
 
 	@commands.command(name='loadsettings', description='Load settings', hidden=True)
 	async def loadthesettings(self, ctx):
 		'''PFXloadsettings'''
-		if await self.bot.is_owner(ctx.author):
+		if await self.bot.is_team_owner(ctx.author):
 			await self.loadSettings()
 			await ctx.send('Loaded data!')
 		else:
@@ -151,6 +152,22 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):
+		if after.channel.type == discord.ChannelType.news and after.author.permissions_in(after.channel).manage_messages and 'edited_timestamp' not in dir(after) and before.content == after.content:
+			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
+			if logid:
+				logch = after.guild.get_channel(logid['actionlogs'])
+			else:
+				return
+			if logch:
+				embed = discord.Embed(color=discord.Color.green(), timestamp=after.created_at, description=f'**A message was published in** {after.channel.mention}')
+				embed.set_author(name=after.guild.name, icon_url=str(after.guild.icon_url))
+				embed.add_field(name='Message Author', value=after.author.mention, inline=False)
+				embed.add_field(name='Message', value=f'[Click Here]({after.jump_url})', inline=False)
+				embed.set_footer(text=f"Author ID: {after.author.id} | Message ID: {after.id} | Channel ID: {after.channel.id}")
+				try:
+					return await logch.send(embed=embed)
+				except Exception:
+					pass
 		if before.content == after.content:
 			return
 		message = after
@@ -174,7 +191,7 @@ class settings(commands.Cog, name="Settings"):
 								pass
 			try:
 				ohmygod = False
-				if code.lower() in self.bot.vanity_urls:
+				if code.lower() in self.bot.vanity_urls and 'oh-my-god.wtf' in message.system_content:
 					invite = self.bot.vanity_urls[code]
 					ohmygod = True
 					if isinstance(message.author, discord.Member):
@@ -182,7 +199,10 @@ class settings(commands.Cog, name="Settings"):
 							if message.guild.me.permissions_in(message.channel).manage_messages:
 								if message.guild.id in self.invitefiltered:
 									if invite['gid'] != message.guild.id:
-										await message.delete()
+										try:
+											await message.delete()
+										except Exception:
+											pass
 				else:
 					if not invite or type(invite) != discord.Invite:
 						invite = await self.bot.fetch_invite(url=code)
@@ -347,7 +367,7 @@ class settings(commands.Cog, name="Settings"):
 						pass
 
 	@commands.Cog.listener()
-	async def on_command(self, ctx):
+	async def on_command_completion(self, ctx):
 		if ctx.command.name in watchedcmds:
 			if ctx.guild:
 				logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
@@ -360,6 +380,20 @@ class settings(commands.Cog, name="Settings"):
 					embed.set_author(name=ctx.author, icon_url=str(ctx.author.avatar_url))
 					embed.add_field(name='Message', value=ctx.message.system_content, inline=False)
 					embed.set_footer(text=f"Author ID: {ctx.author.id} | Channel ID: {ctx.channel.id}")
+					if ctx.command.name == 'purge':
+						try:
+							purged = self.bot.recentpurge[ctx.channel.id]
+						except KeyError as e:
+							purged = None
+						if purged:
+							print('channel in recent purge')
+							async with aiohttp.ClientSession() as s:
+								print(s)
+								async with s.post('https://hasteb.in/documents', data=json.dumps(self.bot.recentpurge[ctx.channel.id], indent=4)) as r:
+									j = await r.json()
+									print(j)
+									key = j['key'] + '.json'
+									embed.add_field(name='Purged Messages', value=f'https://hasteb.in/{key}', inline=False)
 					try:
 						await logch.send(embed=embed)
 					except Exception:
@@ -452,7 +486,8 @@ class settings(commands.Cog, name="Settings"):
 		if before.nick != after.nick:
 			try:
 				if after.guild.id in self.autodecancer:
-					if after.guild_permissions.manage_nicknames:
+					nitroboosters = discord.utils.get(after.guild.roles, name='Nitro Booster')
+					if after.guild_permissions.manage_nicknames or nitroboosters in after.roles:
 						pass
 					else:
 						decancered = False
@@ -482,7 +517,8 @@ class settings(commands.Cog, name="Settings"):
 								except Exception:
 									pass
 				if after.guild.id in self.autodehoist:
-					if after.guild_permissions.manage_nicknames:
+					nitroboosters = discord.utils.get(after.guild.roles, name='Nitro Booster')
+					if after.guild_permissions.manage_nicknames or nitroboosters in after.roles:
 						pass
 					else:
 						dehoisted = False
@@ -547,6 +583,9 @@ class settings(commands.Cog, name="Settings"):
 				s = set(broles)
 				added = [x for x in aroles if x not in s]
 				if len(added) == 1:
+					joinedat = datetime.datetime.utcnow() - after.joined_at
+					if joinedat < datetime.timedelta(minutes=1):
+						return
 					role = discord.utils.get(after.guild.roles, name=added[0])
 					embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'s roles were changed\n**{after.name} was given the** {role.mention} **role**')
 					embed.set_author(name=after, icon_url=str(after.avatar_url))

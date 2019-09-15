@@ -97,7 +97,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		"""
 		if ctx.guild.id in self.premiumGuilds:
 			return True
-		if await self.bot.is_owner(ctx.author):
+		if await self.bot.is_team_owner(ctx.author):
 			return True
 		else:
 			return False
@@ -108,7 +108,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		"""
 		if member.guild.id in self.premiumGuilds:
 			return True
-		if await self.bot.is_owner(member):
+		if await self.bot.is_team_owner(member):
 			return True
 		else:
 			return False
@@ -126,7 +126,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@commands.command(name='loadpremium', description='Load premium data', hidden=True)
 	async def loadpremium(self, ctx):
 		'''PFXloadpremium'''
-		if await self.bot.is_owner(ctx.author):
+		if await self.bot.is_team_owner(ctx.author):
 			await self.loadPremiumGuilds()
 			await self.loadAutoroles()
 			await self.loadReactroles()
@@ -154,7 +154,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@commands.command(name='crabrave', description='Make a Crab Rave meme!', hidden=True)
 	async def crabmeme(self, ctx, *, text: str):
 		'''Limited to owner only (for now, it may return) due to this command using like 90% CPU'''
-		if not await self.bot.is_owner(ctx.author):
+		if not await self.bot.is_team_owner(ctx.author):
 			return
 		if not '|' in text:
 			raise commands.ArgumentParsingError('Text should be separated by |')
