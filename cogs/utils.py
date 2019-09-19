@@ -397,9 +397,8 @@ class utils(commands.Cog, name='Utility Commands'):
 			await ctx.send('no.')
 
 	async def cog_check(self, ctx: commands.Context):
-		if ctx.command.name == 'tts' and ctx.guild.id == 411619823445999637:
-			if ctx.channel.id == 577203509863251989:
-				return True
+		if ctx.command.name == 'tts'  and ctx.guild.id == 411619823445999637 or ctx.command.name == 'snipe' and ctx.guild.id == 411619823445999637:
+			await ctx.send('<a:fireFailed:603214400748257302> This command has been disabled due to abuse.')
 			return False
 		return True
 
@@ -470,9 +469,26 @@ class utils(commands.Cog, name='Utility Commands'):
 				await self.bot.db.release(con)
 				await ctx.send(f'{user.mention} is now unblacklisted!')
 
+	featureslist = {
+		'PARTNERED': '[Partnered](https://dis.gd/partners)',
+		'VERIFIED': '[Verified](https://dis.gd/verified)',
+		'COMMERCE': '[Store Channels](https://dis.gd/sell-your-game)',
+		'NEWS': '[Announcement Channels](https://support.discordapp.com/hc/en-us/articles/360032008192)',
+		'FEATUREABLE': '[Featurable](https://discordapp.com/activity)',
+		'DISCOVERABLE': '[Discoverable](https://discordapp.com/guild-discovery)',
+		'LURKABLE': '[Lurkable](https://bit.ly/2kV6ogn)',
+		'VANITY_URL': '[Vanity URL](INSERT_VANITY_HERE)',
+		'ANIMATED_ICON': 'Animated Icon',
+		'BANNER': 'Banner',
+		'INVITE_SPLASH': 'Invite Splash',
+		'MORE_EMOJI': 'More Emoji',
+		'VIP_REGIONS': 'VIP Regions'
+	}
+
 	@commands.group(name='info', invoke_without_command=True)
 	@commands.guild_only()
 	async def infogroup(self, ctx):
+		'''PFXinfo'''
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		embed.set_author(name=ctx.guild.name, icon_url=str(ctx.guild.icon_url))
 		embed.add_field(name='Info Commands', value=f'> {ctx.prefix}info guild | Get\'s info about the guild\n> {ctx.prefix}info user [<user>] | Get\'s info about you or another user\n> {ctx.prefix}info role [<role>] | Get\'s info about your top role or another role', inline=False)
@@ -499,6 +515,13 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Notifications", value=notifs[str(guild.default_notifications)], inline=True)
 		embed.add_field(name="» Multi-Factor Auth", value=bool(guild.mfa_level), inline=True)
 		embed.add_field(name="» Created", value=str(guild.created_at).split('.')[0], inline=True)
+		try:
+			vanityurl = await guild.vanity_invite()
+			vanityurlcode = vanityurl.code
+		except Exception:
+			vanityurlcode = None
+		features = ', '.join([self.featureslist[f] for f in guild.features if f in self.featureslist]).replace('INSERT_VANITY_HERE', f'https://discord.gg/{vanityurlcode}')
+		embed.add_field(name="» Features", value=features, inline=False)
 		roles = []
 		for role in guild.roles:
 			if role.is_default() == True:
@@ -1035,6 +1058,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.bot_has_permissions(manage_roles=True)
 	@commands.has_permissions(manage_roles=True)
 	async def tempmention(self, ctx, role: discord.Role):
+		'''PFXtempmention <role>'''
 		await role.edit(mentionable=True)
 		await ctx.send(f'Successfully made **{role.name}** mentionable. It will stay mentionable until you mention it or 60 seconds go by', delete_after=5)
 		def check(m):
@@ -1051,6 +1075,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.bot_has_permissions(create_instant_invite=True)
 	@commands.has_permissions(manage_guild=True)
 	async def vanityurl(self, ctx, code: str = None):
+		'''PFXvanityurl [<code>|"disable"]'''
 		if not code:
 			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide a code!')
 		if code == 'disable':
