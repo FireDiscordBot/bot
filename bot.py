@@ -19,6 +19,8 @@ import functools
 from fire.push import pushbullet
 from fire import exceptions
 import sentry_sdk
+from sentry_sdk import configure_scope
+from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 from datadog import initialize, statsd, ThreadStats
 
 
@@ -26,7 +28,7 @@ with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
 logging.basicConfig(filename='bot.log',level=logging.INFO)
-sentry_sdk.init(config['sentry'])
+sentry_sdk.init(config['sentry'], integrations=[AioHttpIntegration()])
 datadogopt = {
     'api_key':config['datadogapi'],
     'app_key':config['datadogapp']
@@ -52,7 +54,7 @@ async def get_pre(bot, message):
 		prefix = "$"
 	return commands.when_mentioned_or(prefix, 'fire ')(bot, message)
 
-bot = commands.AutoShardedBot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="Loading..."), case_insensitive=True, shard_count=5)
+bot = commands.AutoShardedBot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="fire.gaminggeek.dev"), case_insensitive=True, shard_count=5)
 bot.shardstatus = []
 
 bot.datadog = ThreadStats()
@@ -106,10 +108,23 @@ async def on_command_error(ctx, error):
 		return
 	
 	ignored = (commands.CommandNotFound, commands.CheckFailure, KeyError)
+	sentryignored = (commands.CommandNotFound, commands.CheckFailure)
 	noperms = (commands.BotMissingPermissions, commands.MissingPermissions, discord.Forbidden)
 	saved = error
 	
 	if not isinstance(error, noperms):
+		with configure_scope() as scope:
+			scope.user = {
+				"id": ctx.author.id,
+				"username": str(ctx.author),
+				"guild": ctx.guild.__repr__(),
+				"user": ctx.author.__repr__(),
+				"avatar": str(ctx.author.avatar_url)
+			}
+			if isinstance(error, sentryignored):
+				scope.level = 'warning'
+			if isinstance(error, commands.CommandOnCooldown):
+				scope.level = 'info'
 		await bot.loop.run_in_executor(None, func=functools.partial(sentry_exc, error))
 	# Allows us to check for original exceptions raised and sent to CommandInvokeError.
 	# If nothing is found. We keep the exception passed to on_command_error.
@@ -191,8 +206,6 @@ async def on_ready():
 	logging.info("-------------------------")
 	print("Loaded!")
 	logging.info(f"LOGGING START ON {datetime.datetime.utcnow()}")
-	if not changinggame:
-		await game_changer()
 
 @bot.event
 async def on_shard_ready(shard_id):
@@ -325,29 +338,6 @@ async def blacklist_check(ctx):
 			return False
 	else:
 		return True
-
-async def game_changer():
-	changinggame = True
-	while True:
-		randint = random.randint(1, 3)
-		users = 0
-		for guild in bot.guilds:
-			users = users + guild.member_count
-		users = format(users, ',d')
-		guilds = format(len(bot.guilds), ',d')
-		if randint == 1:
-			await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"{users} users in {guilds} guilds"))
-			await asyncio.sleep(300)
-			return
-		if randint == 2:
-			await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="Fire is currently in BETA"))
-			await asyncio.sleep(300)
-			return
-		if randint == 3:
-			me = bot.get_user(287698408855044097)
-			await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"Created by {me}"))
-			await asyncio.sleep(300)
-			return
 				
 async def start_bot():
 	try:
