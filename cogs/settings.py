@@ -153,22 +153,24 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):
-		if after.channel.type == discord.ChannelType.news and after.author.permissions_in(after.channel).manage_messages and 'edited_timestamp' not in dir(after) and before.content == after.content:
-			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
-			if logid:
-				logch = after.guild.get_channel(logid['actionlogs'])
-			else:
-				return
-			if logch:
-				embed = discord.Embed(color=discord.Color.green(), timestamp=after.created_at, description=f'**A message was published in** {after.channel.mention}')
-				embed.set_author(name=after.guild.name, icon_url=str(after.guild.icon_url))
-				embed.add_field(name='Message Author', value=after.author.mention, inline=False)
-				embed.add_field(name='Message', value=f'[Click Here]({after.jump_url})', inline=False)
-				embed.set_footer(text=f"Author ID: {after.author.id} | Message ID: {after.id} | Channel ID: {after.channel.id}")
-				try:
-					return await logch.send(embed=embed)
-				except Exception:
-					pass
+		if after.channel.type == discord.ChannelType.news and after.author.permissions_in(after.channel).manage_messages:
+			raw = await ctx.bot.http.get_message(after.channel.id, after.id)
+			if raw['flags'] == 2:
+				logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
+				if logid:
+					logch = after.guild.get_channel(logid['actionlogs'])
+				else:
+					return
+				if logch:
+					embed = discord.Embed(color=discord.Color.green(), timestamp=after.created_at, description=f'**A message was published in** {after.channel.mention}')
+					embed.set_author(name=after.guild.name, icon_url=str(after.guild.icon_url))
+					embed.add_field(name='Message Author', value=after.author.mention, inline=False)
+					embed.add_field(name='Message', value=f'[Click Here]({after.jump_url})', inline=False)
+					embed.set_footer(text=f"Author ID: {after.author.id} | Message ID: {after.id} | Channel ID: {after.channel.id}")
+					try:
+						return await logch.send(embed=embed)
+					except Exception:
+						pass
 		if before.content == after.content:
 			return
 		message = after
@@ -919,10 +921,11 @@ class settings(commands.Cog, name="Settings"):
 			except Exception:
 				pass
 
-	@commands.command(name='settings', aliases=['setup'])
+	@commands.command(name='settings', aliases=['setup'], description='Configure my settings')
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def gsettings(self, ctx):
+		'''PFXsettings'''
 		settingslist = {
 			'modlogs': 'Disabled',
 			'actionlogs': 'Disabled',
