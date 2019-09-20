@@ -19,10 +19,9 @@ import functools
 from fire.push import pushbullet
 from fire import exceptions
 import sentry_sdk
-from sentry_sdk import configure_scope
+from sentry_sdk import push_scope
 from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 from datadog import initialize, statsd, ThreadStats
-
 
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
@@ -97,8 +96,13 @@ for cog in extensions:
 		print(f"Error while loading {cog}")
 		print(errortb)
 
-def sentry_exc(error):
-	sentry_sdk.capture_exception(error)
+def sentry_exc(error, userscope, exclevel, extra):
+	with push_scope() as scope:
+		scope.user = userscope
+		scope.level = exclevel
+		for key in extra:
+			scope.set_tag(key, extra[key])
+		sentry_sdk.capture_exception(error)
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -113,19 +117,27 @@ async def on_command_error(ctx, error):
 	saved = error
 	
 	if not isinstance(error, noperms):
-		with configure_scope() as scope:
-			scope.user = {
-				"id": ctx.author.id,
-				"username": str(ctx.author),
-				"guild": ctx.guild.__repr__(),
-				"user": ctx.author.__repr__(),
-				"avatar": str(ctx.author.avatar_url)
-			}
-			if isinstance(error, sentryignored):
-				scope.level = 'warning'
-			if isinstance(error, commands.CommandOnCooldown):
-				scope.level = 'info'
-		await bot.loop.run_in_executor(None, func=functools.partial(sentry_exc, error))
+		# print(f'Error User ID: {ctx.author.id}')
+		# print(f'Error Username: {ctx.author}')
+		# print(f'Error Guild: {ctx.guild.__repr__()}')
+		# print(f'Error User: {ctx.author.__repr__()}')
+		# print(f'Error User Avatar: {ctx.author.avatar_url}')
+		userscope = {
+			"id": str(ctx.author.id),
+			"username": str(ctx.author)
+		}
+		extra = {
+			"guild.name": ctx.guild.name if ctx.guild else 'N/A',
+			"guild.id": ctx.guild.id if ctx.guild else 'N/A',
+			"server_name": "FIRE-WINSERVER-2016"
+		}
+		if isinstance(error, sentryignored):
+			exclevel = 'warning'
+		elif isinstance(error, commands.CommandOnCooldown):
+			exclevel = 'info'
+		else:
+			exclevel = 'error'
+		await bot.loop.run_in_executor(None, func=functools.partial(sentry_exc, error, userscope, exclevel, extra))
 	# Allows us to check for original exceptions raised and sent to CommandInvokeError.
 	# If nothing is found. We keep the exception passed to on_command_error.
 	error = getattr(error, 'original', error)
