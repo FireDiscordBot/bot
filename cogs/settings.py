@@ -923,9 +923,12 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.command(name='settings', aliases=['setup'], description='Configure my settings')
 	@commands.has_permissions(manage_guild=True)
+	@commands.bot_has_permissions(add_reactions=True, external_emojis=True)
 	@commands.guild_only()
 	async def gsettings(self, ctx):
 		'''PFXsettings'''
+		firesuccess = discord.utils.get(self.bot.emojis, id=603214443442077708)
+		firefailed = discord.utils.get(self.bot.emojis, id=603214400748257302)
 		settingslist = {
 			'modlogs': 'Disabled',
 			'actionlogs': 'Disabled',
@@ -936,7 +939,7 @@ class settings(commands.Cog, name="Settings"):
 		}
 		await ctx.send('Hey, I\'m going to guide you through my settings. This shouldn\'t take long, there\'s only 6 options to configure')
 		await asyncio.sleep(3)
-		await ctx.send('First, we\'ll configure logging. Please give a channel name for moderation logs or say `skip` to disable...')
+		await ctx.send('First, we\'ll configure logging. Please give a channel name (must be an existing channel) for moderation logs or say `skip` to disable...')
 
 		def modlog_check(message):
 			if message.author != ctx.author:
@@ -966,7 +969,7 @@ class settings(commands.Cog, name="Settings"):
 		await asyncio.sleep(2)
 		await ctx.send('Ok. Next we\'ll configure action logs. This is where actions such as deleted messages, edited messages etc. are logged.')
 		await asyncio.sleep(2)
-		await ctx.send('Please give a channel name for action logs or say `skip` to disable...')
+		await ctx.send('Please give a channel name for action logs (must be an existing channel) or say `skip` to disable...')
 		def actionlog_check(message):
 			if message.author != ctx.author:
 				return False
@@ -997,17 +1000,19 @@ class settings(commands.Cog, name="Settings"):
 		await asyncio.sleep(2)
 		await ctx.send('Ok. Next is invite filtering. If a user attempts to send an discord invite, I will delete it (that is, if I have permission to do so)')
 		await asyncio.sleep(2)
-		await ctx.send('Say `yes` to enable or say `no` or `skip` to disable')
-		def invfilter_check(message):
-			if message.author != ctx.author:
+		invfiltermsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
+		await invfiltermsg.add_reaction(firesuccess)
+		await invfiltermsg.add_reaction(firefailed)
+		def invfilter_check(reaction, user):
+			if user != ctx.author:
 				return False
-			if message.system_content.lower() == 'skip' or message.system_content.lower() == 'no':
+			if reaction.emoji == firefailed and reaction.message.id == invfiltermsg.id:
 				return True
-			if message.system_content.lower() == 'yes':
+			if reaction.emoji == firesuccess and reaction.message.id == invfiltermsg.id:
 				settingslist['invfilter'] = 'Enabled'
 				return True
 		try:
-			await self.bot.wait_for('message', timeout=30.0, check=invfilter_check)
+			await self.bot.wait_for('reaction_add', timeout=30.0, check=invfilter_check)
 			invfilter = settingslist['invfilter']
 			if invfilter == 'Disabled':
 				invfilter = 0
@@ -1026,17 +1031,19 @@ class settings(commands.Cog, name="Settings"):
 		await asyncio.sleep(2)
 		await ctx.send('Ok. Now we\'re onto global bans. Fire uses the KSoft.Si API to check for naughty people. If enabled, I will ban any of these naughty people if they attempt to join.')
 		await asyncio.sleep(2)
-		await ctx.send('Same thing again. Say `yes` to enable or say `no` or `skip` to disable')
-		def gban_check(message):
-			if message.author != ctx.author:
+		gbansmsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
+		await gbansmsg.add_reaction(firesuccess)
+		await gbansmsg.add_reaction(firefailed)
+		def gban_check(reaction, user):
+			if user != ctx.author:
 				return False
-			if message.system_content.lower() == 'skip' or message.system_content.lower() == 'no':
+			if reaction.emoji == firefailed and reaction.message.id == gbansmsg.id:
 				return True
-			if message.system_content.lower() == 'yes':
+			if reaction.emoji == firesuccess and reaction.message.id == gbansmsg.id:
 				settingslist['globalbans'] = 'Enabled'
 				return True
 		try:
-			await self.bot.wait_for('message', timeout=30.0, check=gban_check)
+			await self.bot.wait_for('reaction_add', timeout=30.0, check=gban_check)
 			gbans = settingslist['globalbans']
 			if gbans == 'Disabled':
 				gbans = 0
@@ -1055,17 +1062,19 @@ class settings(commands.Cog, name="Settings"):
 		await asyncio.sleep(2)
 		await ctx.send('The penultimate setting, auto-decancer. No, this setting doesn\'t cure cancer. Instead, it renames users with "cancerous" names (non-ascii) to some form of `John Doe 0000`')
 		await asyncio.sleep(2)
-		await ctx.send('Yeah, you guessed it. Once again, say `yes` to enable or say `no` or `skip` to disable')
-		def dc_check(message):
-			if message.author != ctx.author:
+		autodcmsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
+		await autodcmsg.add_reaction(firesuccess)
+		await autodcmsg.add_reaction(firefailed)
+		def dc_check(reaction, user):
+			if user != ctx.author:
 				return False
-			if message.system_content.lower() == 'skip' or message.system_content.lower() == 'no':
+			if reaction.emoji == firefailed and reaction.message.id == autodcmsg.id:
 				return True
-			if message.system_content.lower() == 'yes':
+			if reaction.emoji == firesuccess and reaction.message.id == autodcmsg.id:
 				settingslist['autodecancer'] = 'Enabled'
 				return True
 		try:
-			await self.bot.wait_for('message', timeout=30.0, check=dc_check)
+			await self.bot.wait_for('reaction_add', timeout=30.0, check=dc_check)
 			decancer = settingslist['autodecancer']
 			if decancer == 'Disabled':
 				decancer = 0
@@ -1084,17 +1093,19 @@ class settings(commands.Cog, name="Settings"):
 		await asyncio.sleep(2)
 		await ctx.send('Finally, the last setting. Similar to the last one, auto-dehoist renames people with a non A-Z character at the start of their name.')
 		await asyncio.sleep(2)
-		await ctx.send('At this point, do I even need to repeat myself? Just in case, I will. Once again, say `yes` to enable or say `no` or `skip` to disable')
-		def dh_check(message):
-			if message.author != ctx.author:
+		autodhmsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
+		await autodhmsg.add_reaction(firesuccess)
+		await autodhmsg.add_reaction(firefailed)
+		def dh_check(reaction, user):
+			if user != ctx.author:
 				return False
-			if message.system_content.lower() == 'skip' or message.system_content.lower() == 'no':
+			if reaction.emoji == firefailed and reaction.message.id == autodhmsg.id:
 				return True
-			if message.system_content.lower() == 'yes':
+			if reaction.emoji == firesuccess and reaction.message.id == autodhmsg.id:
 				settingslist['autodehoist'] = 'Enabled'
 				return True
 		try:
-			await self.bot.wait_for('message', timeout=30.0, check=dh_check)
+			await self.bot.wait_for('reaction_add', timeout=30.0, check=dh_check)
 			dehoist = settingslist['autodehoist']
 			if dehoist == 'Disabled':
 				dehoist = 0
