@@ -477,7 +477,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		'FEATUREABLE': '[Featurable](https://discordapp.com/activity)',
 		'DISCOVERABLE': '[Discoverable](https://discordapp.com/guild-discovery)',
 		'LURKABLE': '[Lurkable](https://bit.ly/2kV6ogn)',
-		'VANITY_URL': '[Vanity URL](INSERT_VANITY_HERE)',
+		'VANITY_URL': 'Vanity URL',
 		'ANIMATED_ICON': 'Animated Icon',
 		'BANNER': 'Banner',
 		'INVITE_SPLASH': 'Invite Splash',
@@ -515,12 +515,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Notifications", value=notifs[str(guild.default_notifications)], inline=True)
 		embed.add_field(name="» Multi-Factor Auth", value=bool(guild.mfa_level), inline=True)
 		embed.add_field(name="» Created", value=str(guild.created_at).split('.')[0], inline=True)
-		try:
-			vanityurl = await guild.vanity_invite()
-			vanityurlcode = vanityurl.code
-		except Exception:
-			vanityurlcode = None
-		features = ', '.join([self.featureslist[f] for f in guild.features if f in self.featureslist]).replace('INSERT_VANITY_HERE', f'https://discord.gg/{vanityurlcode}')
+		features = ', '.join([self.featureslist[f] for f in guild.features if f in self.featureslist])
 		embed.add_field(name="» Features", value=features, inline=False)
 		roles = []
 		for role in guild.roles:
