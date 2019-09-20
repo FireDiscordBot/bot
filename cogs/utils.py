@@ -524,7 +524,9 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Features", value=features, inline=False)
 		roles = []
 		for role in guild.roles:
-			if role.is_default() == True:
+			if 'ACK' in role.name and guild.id == 564052798044504084:
+				pass
+			elif role.is_default():
 				pass
 			else:
 				roles.append(role.mention)
@@ -574,7 +576,9 @@ class utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name="» Color", value=f'rgb{rgbcolor}', inline=True)
 			roles = []
 			for role in user.roles:
-				if role.is_default() == True:
+				if 'ACK' in role.name and ctx.guild.id == 564052798044504084:
+					pass
+				elif role.is_default():
 					pass
 				else:
 					roles.append(role.mention)
