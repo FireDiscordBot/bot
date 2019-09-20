@@ -106,6 +106,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			for m in mutes:
 				mute = self.mutes[g][m]
 				guild = self.bot.get_guild(mute['gid'])
+				if not guild:
+					continue
 				user = guild.get_member(mute['uid'])
 				until = mute['until'] if 'until' in mute else False
 				muted = discord.utils.get(guild.roles, name="Muted")
