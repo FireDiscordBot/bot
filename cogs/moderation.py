@@ -272,6 +272,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			if e:
 				await e.delete()
 			await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been muted")
+			await user.send(f'You were muted in {ctx.guild} for "{reason}"')
 			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.mutes'))
 			# await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
 			# await self.bot.conn.commit()
@@ -318,6 +319,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		else:
 			await user.add_roles(muted)
 			await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been muted")
+			await user.send(f'You were muted in {ctx.guild} for "{reason}"')
 			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.mutes'))
 			# await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
 			# await self.bot.conn.commit()
