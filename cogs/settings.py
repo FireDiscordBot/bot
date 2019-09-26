@@ -514,6 +514,8 @@ class settings(commands.Cog, name="Settings"):
 								embed.set_author(name=f'Auto-Decancer | {after}', icon_url=str(after.avatar_url))
 								embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
 								embed.add_field(name='Reason', value=f'{tochange} contains non-ascii characters', inline=False)
+								if tochange == 'Nickname':
+									embed.add_field(name='Nickname', value=after.nick, inline=False)
 								embed.set_footer(text=f'User ID: {after.id}')
 								try:
 									return await logch.send(embed=embed)
@@ -545,6 +547,8 @@ class settings(commands.Cog, name="Settings"):
 								embed.set_author(name=f'Auto-Dehoist | {after}', icon_url=str(after.avatar_url))
 								embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
 								embed.add_field(name='Reason', value=f'{tochange} starts with a non A-Z character', inline=False)
+								if tochange == 'Nickname':
+									embed.add_field(name='Nickname', value=after.nick, inline=False)
 								embed.set_footer(text=f'User ID: {after.id}')
 								try:
 									return await logch.send(embed=embed)
