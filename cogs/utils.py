@@ -11,6 +11,7 @@ import functools
 import strgen
 import asyncio
 from colormap import rgb2hex, hex2rgb
+from emoji import UNICODE_EMOJI
 from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
 from PIL import Image
 from PIL import ImageFilter
@@ -249,6 +250,8 @@ class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
 		self.bot.recentpurge = {}
+		self.bot.is_emoji = self.is_emoji
+		self.bot.len_emoji = self.len_emoji
 		self.bot.isascii = lambda s: len(s) == len(s.encode())
 		self.bot.getperms = self.getperms
 		self.bot.ishoisted = self.ishoisted
@@ -256,6 +259,16 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.channelfollows = {}
 		self.bot.vanity_urls = {}
 		self.bot.getvanity = self.getvanity
+
+	def is_emoji(self, s):
+		return s in UNICODE_EMOJI
+
+	def len_emoji(self, s):
+		count = 0
+		for c in s:
+			if self.is_emoji(c):
+				count += 1
+		return count
 
 	def getperms(self, member: discord.Member, channel: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel]):
 		perms = []
