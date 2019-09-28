@@ -14,7 +14,7 @@ from fire.youtube import findchannel, findvideo
 
 print("settings.py has been loaded")
 
-with open('config_prod.json', 'r') as cfg:
+with open('config_dev.json', 'r') as cfg:
 	config = json.load(cfg)
 
 def isadmin(ctx):
@@ -156,7 +156,7 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):
 		if after.channel.type == discord.ChannelType.news and after.author.permissions_in(after.channel).manage_messages:
-			raw = await ctx.bot.http.get_message(after.channel.id, after.id)
+			raw = await self.bot.http.get_message(after.channel.id, after.id)
 			if raw['flags'] == 2:
 				logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
 				if logid:
