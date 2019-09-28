@@ -108,7 +108,8 @@ venv.bak/
 
 #secret stuff
 api.py
-config.json
+config_prod.json
+config_dev.json
 fire.db
 
 # other stuff
