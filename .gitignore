@@ -119,6 +119,5 @@ lavalink.jar
 bfg.jar
 *.png
 *.mp3
-fishin/*
-*.mp4
 fishin
+*.mp4
