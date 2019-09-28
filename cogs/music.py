@@ -16,7 +16,7 @@ from discord import Webhook, AsyncWebhookAdapter
 from typing import Union
 
 RURL = re.compile(r'https?:\/\/(?:www\.)?.+')
-with open('config_prod.json', 'r') as cfg:
+with open('config_dev.json', 'r') as cfg:
 	config = json.load(cfg)
 class Track(wavelink.Track):
 	__slots__ = ('requester', 'channel', 'message')
@@ -308,9 +308,13 @@ class Music(commands.Cog):
 				pass
 
 	async def initiate_nodes(self):
+		if self.bot.dev:
+			port = 2334
+		else:
+			port = 2333
 		nodes = {'MAIN': {'host': '127.0.0.1',
-						  'port': 2333,
-						  'rest_url': 'http://127.0.0.1:2333',
+						  'port': port,
+						  'rest_url': f'http://127.0.0.1:{port}',
 						  'password': "restfulapi",
 						  'identifier': 'MAIN',
 						  'region': 'eu_west'}}
