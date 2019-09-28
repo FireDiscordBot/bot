@@ -55,6 +55,7 @@ async def get_pre(bot, message):
 
 bot = commands.AutoShardedBot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="fire.gaminggeek.dev"), case_insensitive=True, shard_count=5)
 bot.shardstatus = []
+bot.dev = False
 
 bot.datadog = ThreadStats()
 bot.datadog.start()
@@ -265,10 +266,6 @@ async def on_guild_join(guild):
 		await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members", f"https://api.gaminggeek.club/guild/{guild.id}")
 	except exceptions.PushError as e:
 		print(e)
-	users = format(len(bot.users), ',d')
-	guilds = format(len(bot.guilds), ',d')
-	await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"{users} users in {guilds} guilds"))
-
 
 @bot.event
 async def on_guild_remove(guild):
@@ -278,9 +275,6 @@ async def on_guild_remove(guild):
 		await pushbullet("link", "Fire left a guild!", f"Fire left {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/", f"https://api.gaminggeek.club/guild/{guild.id}")
 	except exceptions.PushError as e:
 		print(e)
-	users = format(len(bot.users), ',d')
-	guilds = format(len(bot.guilds), ',d')
-	await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name=f"{users} users in {guilds} guilds"))
 	con = await bot.db.acquire()
 	async with con.transaction():
 		query = 'DELETE FROM prefixes WHERE gid = $1;'
