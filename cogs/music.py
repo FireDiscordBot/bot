@@ -468,7 +468,7 @@ class Music(commands.Cog):
 		await player.connect(channel.id)
 		player.cmdchannel_id = ctx.channel.id
 
-	@commands.command(name='play', aliases=['sing'], description="Queue a song or playlist for playback.")
+	@commands.command(name='play', aliases=['sing', 'p'], description="Queue a song or playlist for playback.")
 	@commands.cooldown(1, 2, commands.BucketType.user)
 	#@commands.bot_has_permissions(connect=True, speak=True)
 	async def play_(self, ctx, *, query: str):
