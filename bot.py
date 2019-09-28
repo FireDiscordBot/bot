@@ -23,7 +23,7 @@ from sentry_sdk import push_scope
 from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 from datadog import initialize, statsd, ThreadStats
 
-with open('config_dev.json', 'r') as cfg:
+with open('config_prod.json', 'r') as cfg:
 	config = json.load(cfg)
 
 logging.basicConfig(filename='bot.log',level=logging.INFO)

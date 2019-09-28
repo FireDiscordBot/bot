@@ -14,7 +14,7 @@ from fire.youtube import findchannel, findvideo
 
 print("settings.py has been loaded")
 
-with open('config.json', 'r') as cfg:
+with open('config_prod.json', 'r') as cfg:
 	config = json.load(cfg)
 
 def isadmin(ctx):
@@ -100,6 +100,8 @@ class settings(commands.Cog, name="Settings"):
 			else:
 				actionlogs = s['actionlogs']
 			guildobj = self.bot.get_guild(guild)
+			if not guildobj:
+				pass
 			if modlogs:
 				cmodlogs = discord.utils.get(guildobj.channels, id=modlogs)
 				if type(cmodlogs) != discord.TextChannel:

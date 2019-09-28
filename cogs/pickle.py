@@ -21,7 +21,7 @@ logging.basicConfig(filename='bot.log',level=logging.INFO)
 
 print("hypixel.py has been loaded")
 
-with open('config.json', 'r') as cfg:
+with open('config_prod.json', 'r') as cfg:
 	config = json.load(cfg)
 
 hypixelkey = config['hypixel']

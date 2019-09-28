@@ -24,7 +24,7 @@ process = psutil.Process(os.getpid())
 print("fire.py has been loaded")
 
 def config(path: str = None):
-	with open('config.json', 'r') as cfg:
+	with open('config_prod.json', 'r') as cfg:
 		config = json.load(cfg)
 	if path != None:
 		return config[path]

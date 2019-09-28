@@ -11,7 +11,7 @@ import asyncpg
 import json
 import os
 
-with open('config.json', 'r') as cfg:
+with open('config_prod.json', 'r') as cfg:
 	config = json.load(cfg)
 
 def isadmin(ctx):
