@@ -25,7 +25,7 @@ launchtime = datetime.datetime.utcnow()
 
 print('utils.py has been loaded')
 
-with open('config_prod.json', 'r') as cfg:
+with open('config_dev.json', 'r') as cfg:
 	config = json.load(cfg)
 	error_string = '<a:fireFailed:603214400748257302>'
 	success_string = '<a:fireSuccess:603214443442077708>'
@@ -489,7 +489,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		'NEWS': '[Announcement Channels](https://support.discordapp.com/hc/en-us/articles/360032008192)',
 		'FEATUREABLE': '[Featurable](https://discordapp.com/activity)',
 		'DISCOVERABLE': '[Discoverable](https://discordapp.com/guild-discovery)',
-		'LURKABLE': '[Lurkable](https://bit.ly/2kV6ogn)',
+		'PUBLIC': '[Public](https://bit.ly/2kV6ogn)',
 		'VANITY_URL': 'Vanity URL',
 		'ANIMATED_ICON': 'Animated Icon',
 		'BANNER': 'Banner',
@@ -529,7 +529,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Multi-Factor Auth", value=bool(guild.mfa_level), inline=True)
 		embed.add_field(name="» Created", value=str(guild.created_at).split('.')[0], inline=True)
 		features = ', '.join([self.featureslist[f] for f in guild.features if f in self.featureslist])
-		embed.add_field(name="» Features", value=features, inline=False)
+		if features and features != '':
+			embed.add_field(name="» Features", value=features, inline=False)
 		roles = []
 		for role in guild.roles:
 			if 'ACK' in role.name and guild.id == 564052798044504084:
