@@ -85,8 +85,8 @@ class fire(commands.Cog, name="Main Commands"):
 		minutes, seconds = divmod(remainder, 60)
 		days, hours = divmod(hours, 24)
 		uptime = f"{days}d, {hours}h, {minutes}m, {seconds}s"
-		os = "Windows Server 2016"
-		cpu = "Intel™ Dual Xeon E5-2630"
+		os = "Windows Server 2019"
+		cpu = "Intel(R) Xeon(R) E5-2673 v4"
 		cpustats = psutil.cpu_percent()
 		ramuse = (process.memory_info().rss / 1024) / 1000
 		online = 0
@@ -113,12 +113,12 @@ class fire(commands.Cog, name="Main Commands"):
 		users = online + idle + dnd + offline
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		ownerboi = self.bot.get_user(287698408855044097)
-		embed.set_author(name=f"Bot made by {ownerboi}", url="https://gaminggeek.club", icon_url=str(ownerboi.avatar_url))
+		embed.set_author(name=f"Bot made by {ownerboi}", url="https://gaminggeek.dev", icon_url=str(ownerboi.avatar_url))
 		embed.add_field(name="**Runtime**", value=f"{uptime}", inline=False)
 		embed.add_field(name="**OS**", value=f"{os}", inline=False)
 		embed.add_field(name="**CPU**", value=f"{cpu} ({round(cpustats)}%)", inline=False)
-		embed.add_field(name="**RAM**", value=f"{ramuse} MB / 6024 MB", inline=False)
-		embed.add_field(name="**Version Info**", value=f"discord.py {discord.__version__} | Python: 3.7.2", inline=False)
+		embed.add_field(name="**RAM**", value=f"{ramuse} MB / 8192 MB", inline=False)
+		embed.add_field(name="**Version Info**", value=f"discord.py {discord.__version__} | Python: 3.7.4", inline=False)
 		embed.add_field(name="**Guilds**", value=f"{len(self.bot.guilds)}", inline=True)
 		embed.add_field(name="**Prefix**", value=f"{ctx.prefix}", inline=True)
 		embed.add_field(name="**Commands**", value=len(self.bot.commands), inline=True)
