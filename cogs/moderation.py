@@ -7,6 +7,7 @@ import traceback
 import functools
 import humanfriendly
 import re
+from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 
 day_regex = re.compile(r'(?:(?P<days>\d+)d)')
 hour_regex = re.compile(r'(?:(?P<hours>\d+)h)')
@@ -71,6 +72,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.mutes = {}
+		self.warns = {}
+		self.modlogs = {}
 		self.tempmuteChecker.start()
 	
 	async def __error(self, ctx, error):
@@ -157,6 +160,60 @@ class Moderation(commands.Cog, name="Mod Commands"):
 							except discord.HTTPException:
 								pass
 
+	async def loadwarns(self):
+		self.warns = {}
+		query = 'SELECT * FROM modlogs WHERE type = $1;'
+		warns = await self.bot.db.fetch(query, 'warn')
+		for w in warns:
+			guild = w['gid']
+			user = w['uid']
+			try:
+				self.warns[guild][user].append({						
+					"uid": user,
+					"gid": guild,
+					"reason": w['reason'],
+					"date": w['date'],
+					"caseid": w['caseid']
+				})
+			except KeyError:
+				self.warns[guild] = {}
+				self.warns[guild][user] = []
+				self.warns[guild][user].append({						
+					"uid": user,
+					"gid": guild,
+					"reason": w['reason'],
+					"date": w['date'],
+					"caseid": w['caseid']
+				})
+			
+	async def loadmodlogs(self):
+		self.modlogs = {}
+		query = 'SELECT * FROM modlogs;'
+		logs = await self.bot.db.fetch(query)
+		for l in logs:
+			guild = l['gid']
+			user = l['uid']
+			try:
+				self.modlogs[guild][user].append({						
+					"uid": user,
+					"gid": guild,
+					"type": l['type'],
+					"reason": l['reason'],
+					"date": l['date'],
+					"caseid": l['caseid']
+				})
+			except KeyError:
+				self.modlogs[guild] = {}
+				self.modlogs[guild][user] = []
+				self.modlogs[guild][user].append({						
+					"uid": user,
+					"gid": guild,
+					"type": l['type'],
+					"reason": l['reason'],
+					"date": l['date'],
+					"caseid": l['caseid']
+				})
+
 	def cog_unload(self):
 		self.tempmuteChecker.cancel()
 
@@ -229,14 +286,17 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def on_ready(self):
 		await asyncio.sleep(15)
 		await self.loadMutes()
-		print('Mutes loaded!')
+		await self.loadwarns()
+		await self.loadmodlogs()
+		print('Moderation loaded!')
 
-
-	@commands.command(name='loadmutes', description='Load mutes data', hidden=True)
-	async def loadmutescmd(self, ctx):
-		'''PFXloadmutes'''
+	@commands.command(name='loadmod', description='Load moderation data', hidden=True)
+	async def loadmod(self, ctx):
+		'''PFXloadmod'''
 		if await self.bot.is_team_owner(ctx.author):
 			await self.loadMutes()
+			await self.loadwarns()
+			await self.loadmodlogs()
 			await ctx.send('Loaded data!')
 		else:
 			await ctx.send('no.')
@@ -284,7 +344,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				else:
 					query = 'INSERT INTO mutes (\"gid\", \"uid\") VALUES ($1, $2);'
 					await self.bot.db.execute(query, ctx.guild.id, user.id)
+				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
+				await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'mute', datetime.datetime.utcnow().timestamp() + user.id)
 			await self.bot.db.release(con)
+			await self.loadmodlogs()
 			if until:
 				if ctx.guild.id in self.mutes:
 					self.mutes[ctx.guild.id][user.id] = {
@@ -331,7 +394,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				else:
 					query = 'INSERT INTO mutes (\"gid\", \"uid\") VALUES ($1, $2);'
 					await self.bot.db.execute(query, ctx.guild.id, user.id)
+				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
+				await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'mute', datetime.datetime.utcnow().timestamp() + user.id)
 			await self.bot.db.release(con)
+			await self.loadmodlogs()
 			if until:
 				if ctx.guild.id in self.mutes:
 					self.mutes[ctx.guild.id][user.id] = {
@@ -433,6 +499,12 @@ class Moderation(commands.Cog, name="Mod Commands"):
 							pass
 				await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been banished from {ctx.guild.name}")
 				await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.bans'))
+				con = await self.bot.db.acquire()
+				async with con.transaction():
+					query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
+					await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'ban', datetime.datetime.utcnow().timestamp() + user.id)
+				await self.bot.db.release(con)
+				await self.loadmodlogs()
 		except discord.Forbidden:
 			await ctx.send("<a:fireFailed:603214400748257302> Ban failed. Are you trying to ban someone higher than the bot?")
 
@@ -492,6 +564,12 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				await ctx.guild.unban(user, reason="Temporarily Banned")
 			await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been soft-banned.")
 			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.softbans'))
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
+				await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'softban', datetime.datetime.utcnow().timestamp() + user.id)
+			await self.bot.db.release(con)
+			await self.loadmodlogs()
 		except discord.Forbidden:
 			await ctx.send("<a:fireFailed:603214400748257302> Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
 	
@@ -548,6 +626,128 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				reason = 'No reason provided.'
 			await self.mute(ctx, user, reason=reason or "No reason provided.", until=until, timedelta=td, channel=logch)
 	
+	@commands.command(description="Warn a user.")
+	@commands.has_permissions(manage_messages=True)
+	@commands.bot_has_permissions(manage_messages=True)
+	async def warn(self, ctx, user: discord.Member = None, *, reason = None):
+		"""PFXwarn <user> <reason>"""
+		await ctx.trigger_typing()
+		await ctx.message.delete()
+
+		if not user:
+			return await ctx.send("You must specify a user")
+		if not reason:
+			return await ctx.send("You must specify a reason")
+
+		try:
+			await user.send(f'You were warned in {ctx.guild.name} for "{reason}"')
+			await ctx.send(f'<a:fireSuccess:603214443442077708> **{user}** has been warned.')
+			logchannels = self.bot.get_cog("Settings").logchannels
+			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+			if logid:
+				logch = ctx.guild.get_channel(logid['modlogs'])
+				if logch:
+					embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.utcnow())
+					embed.set_author(name=f'Warn | {user}', icon_url=str(user.avatar_url))
+					embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+					embed.add_field(name='Reason', value=reason, inline=False)
+					embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
+		except discord.Forbidden:
+			await ctx.send(f'<a:fireFailed:603214400748257302> **{user}** was not warned, unable to dm.')
+			logchannels = self.bot.get_cog("Settings").logchannels
+			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+			if logid:
+				logch = ctx.guild.get_channel(logid['modlogs'])
+				if logch:
+					embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.utcnow())
+					embed.set_author(name=f'Warn | {user}', icon_url=str(user.avatar_url))
+					embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+					embed.add_field(name='Reason', value=reason, inline=False)
+					embed.add_field(name='Error', value='Unable to send DM, user was not warned.', inline=False)
+					embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
+			await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'warn', datetime.datetime.utcnow().timestamp() + user.id)
+		await self.bot.db.release(con)
+		await self.loadwarns()
+		await self.loadmodlogs()
+
+	@commands.command(description="View warnings for a user")
+	@commands.has_permissions(manage_messages=True)
+	async def warnings(self, ctx, user: discord.User = None):
+		"""PFXwarnings <user>"""
+		if not user:
+			user = ctx.author
+		try:
+			warnings = self.warns[ctx.guild.id][user.id]
+		except KeyError:
+			return await ctx.send(f'<a:fireFailed:603214400748257302> No warnings found.')
+		paginator = WrappedPaginator(prefix='', suffix='')
+		for warn in warnings:
+			paginator.add_line(f'**Case ID**: {warn["caseid"]}\n**User**: {user}\n**Reason**: {warn["reason"]}\n**Date**: {warn["date"]}\n**-----------------**')
+		embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.utcnow())
+		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
+		await interface.send_to(ctx)
+
+	@commands.command(description="Clear a users warnings", aliases=['clearwarnings'])
+	@commands.has_permissions(manage_guild=True)
+	async def clearwarns(self, ctx, user: discord.Member = None):
+		"""PFXclearwarns <user>"""
+		if not user:
+			return await ctx.send(f'<a:fireFailed:603214400748257302> You must specify a user')
+
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'DELETE FROM modlogs WHERE type = $1 AND uid = $2 AND gid = $3;'
+			await self.bot.db.execute(query, 'warn', user.id, ctx.guild.id)
+		await self.bot.db.release(con)
+		await self.loadwarns()
+		await self.loadmodlogs()
+		await ctx.send(f'<a:fireSuccess:603214443442077708> **{user}**\'s warns have been cleared')
+
+	@commands.command(description="Clear a single warning", aliases=['clearwarning'])
+	@commands.has_permissions(manage_guild=True)
+	async def clearwarn(self, ctx, case: int = None):
+		"""PFXclearwarn <case id>"""
+		if not case:
+			return await ctx.send(f'<a:fireFailed:603214400748257302> You must specify a case id')
+
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'DELETE FROM modlogs WHERE type = $1 AND gid = $2 AND caseid = $3;'
+			await self.bot.db.execute(query, 'warn', ctx.guild.id, case)
+		await self.bot.db.release(con)
+		await self.loadwarns()
+		await self.loadmodlogs()
+		await ctx.send(f'<a:fireSuccess:603214443442077708> Cleared warn!')
+
+	@commands.command(description="View moderation logs for a user")
+	@commands.has_permissions(manage_messages=True)
+	async def modlogs(self, ctx, user: discord.User = None):
+		if not user:
+			user = ctx.author
+		try:
+			mlogs = self.modlogs[ctx.guild.id][user.id]
+		except KeyError:
+			return await ctx.send(f'<a:fireFailed:603214400748257302> No logs found.')
+		paginator = WrappedPaginator(prefix='', suffix='')
+		for log in mlogs:
+			paginator.add_line(f'**Case ID**: {log["caseid"]}\n**Type**: {log["type"].capitalize()}\n**User**: {user}\n**Reason**: {log["reason"]}\n**Date**: {log["date"]}\n**-----------------**')
+		embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.utcnow())
+		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
+		await interface.send_to(ctx)
+
 	@commands.command(description="Kick a user.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(kick_members=True)
@@ -599,6 +799,12 @@ class Moderation(commands.Cog, name="Mod Commands"):
 							pass
 			await ctx.send(f'<a:fireSuccess:603214443442077708> **{user}** has been kicked.')
 			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.kicks'))
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
+				await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'kick', datetime.datetime.utcnow().timestamp() + user.id)
+			await self.bot.db.release(con)
+			await self.loadmodlogs()
 		except discord.Forbidden:
 			await ctx.send("<a:fireFailed:603214400748257302> Kick failed. Are you trying to kick someone higher than the bot?")
 	
