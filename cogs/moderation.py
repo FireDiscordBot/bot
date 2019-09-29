@@ -735,6 +735,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(description="View moderation logs for a user")
 	@commands.has_permissions(manage_messages=True)
 	async def modlogs(self, ctx, user: discord.User = None):
+		"""PFXmodlogs <user>"""
 		if not user:
 			user = ctx.author
 		try:
