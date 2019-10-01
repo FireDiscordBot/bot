@@ -14,7 +14,7 @@ from fire.youtube import findchannel, findvideo
 
 print("settings.py has been loaded")
 
-with open('config_dev.json', 'r') as cfg:
+with open('config_prod.json', 'r') as cfg:
 	config = json.load(cfg)
 
 def isadmin(ctx):
@@ -861,7 +861,7 @@ class settings(commands.Cog, name="Settings"):
 				except Exception:
 					pass
 			if before.splash != after.splash:
-				if after.banner:
+				if after.splash:
 					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s splash was changed**')
 					embed.set_image(url=str(after.splash_url))
 				else:
@@ -875,7 +875,7 @@ class settings(commands.Cog, name="Settings"):
 			if before.premium_tier != after.premium_tier:
 				if after.premium_tier > before.premium_tier:
 					embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.utcnow(), description=f'**{after.name} got boosted to Tier {after.premium_tier}**')
-				if after.premium_tier > before.premium_tier:
+				if after.premium_tier < before.premium_tier:
 					embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.utcnow(), description=f'**{after.name} got weakened to Tier {after.premium_tier}**')
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
