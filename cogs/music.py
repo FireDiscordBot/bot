@@ -16,7 +16,7 @@ from discord import Webhook, AsyncWebhookAdapter
 from typing import Union
 
 RURL = re.compile(r'https?:\/\/(?:www\.)?.+')
-with open('config_dev.json', 'r') as cfg:
+with open('config_prod.json', 'r') as cfg:
 	config = json.load(cfg)
 class Track(wavelink.Track):
 	__slots__ = ('requester', 'channel', 'message')

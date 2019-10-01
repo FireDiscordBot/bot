@@ -25,7 +25,7 @@ launchtime = datetime.datetime.utcnow()
 
 print('utils.py has been loaded')
 
-with open('config_dev.json', 'r') as cfg:
+with open('config_prod.json', 'r') as cfg:
 	config = json.load(cfg)
 	error_string = '<a:fireFailed:603214400748257302>'
 	success_string = '<a:fireSuccess:603214443442077708>'
