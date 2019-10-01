@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands, tasks
+import typing
 import datetime
 import asyncpg
 import asyncio
@@ -473,6 +474,12 @@ class Moderation(commands.Cog, name="Mod Commands"):
 							pass
 				await ctx.send(f"<a:fireSuccess:603214443442077708> **{user}** has been banished from {ctx.guild.name}.")
 				await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.bans'))
+				con = await self.bot.db.acquire()
+				async with con.transaction():
+					query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
+					await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'ban', datetime.datetime.utcnow().timestamp() + user.id)
+				await self.bot.db.release(con)
+				await self.loadmodlogs()
 			else:
 				await user.send(f'You were banned from {ctx.guild}')
 				await ctx.guild.ban(user, reason=f"Banned by {ctx.author}")
@@ -495,7 +502,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				con = await self.bot.db.acquire()
 				async with con.transaction():
 					query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
-					await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'ban', datetime.datetime.utcnow().timestamp() + user.id)
+					await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'ban', datetime.datetime.utcnow().timestamp() + user.id)
 				await self.bot.db.release(con)
 				await self.loadmodlogs()
 		except discord.Forbidden:
@@ -678,12 +685,15 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 	@commands.command(description="View warnings for a user")
 	@commands.has_permissions(manage_messages=True)
-	async def warnings(self, ctx, user: discord.User = None):
+	async def warnings(self, ctx, user: typing.Union[discord.User, int] = None):
 		"""PFXwarnings <user>"""
 		if not user:
 			user = ctx.author
 		try:
-			warnings = self.warns[ctx.guild.id][user.id]
+			if type(user) == discord.User:
+				warnings = self.warns[ctx.guild.id][user.id]
+			elif type(user) == int:
+				warnings = self.warns[ctx.guild.id][user]
 		except KeyError:
 			return await ctx.send(f'<a:fireFailed:603214400748257302> No warnings found.')
 		paginator = WrappedPaginator(prefix='', suffix='')
@@ -727,12 +737,15 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 	@commands.command(description="View moderation logs for a user")
 	@commands.has_permissions(manage_messages=True)
-	async def modlogs(self, ctx, user: discord.User = None):
+	async def modlogs(self, ctx, user: typing.Union[discord.User, int] = None):
 		"""PFXmodlogs <user>"""
 		if not user:
 			user = ctx.author
 		try:
-			mlogs = self.modlogs[ctx.guild.id][user.id]
+			if type(user) == discord.User or type(user) == discord.Member:
+				mlogs = self.modlogs[ctx.guild.id][user.id]
+			elif type(user) == int:
+				mlogs = self.modlogs[ctx.guild.id][user]
 		except KeyError:
 			return await ctx.send(f'<a:fireFailed:603214400748257302> No logs found.')
 		paginator = WrappedPaginator(prefix='', suffix='')
