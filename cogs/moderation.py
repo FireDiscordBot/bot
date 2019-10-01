@@ -168,23 +168,20 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			guild = w['gid']
 			user = w['uid']
 			try:
-				self.warns[guild][user].append({						
-					"uid": user,
-					"gid": guild,
-					"reason": w['reason'],
-					"date": w['date'],
-					"caseid": w['caseid']
-				})
+				currentguildwarns = self.warns[guild]
 			except KeyError:
 				self.warns[guild] = {}
+			try:
+				currentuserwarns = self.warns[guild][user]
+			except KeyError:
 				self.warns[guild][user] = []
-				self.warns[guild][user].append({						
-					"uid": user,
-					"gid": guild,
-					"reason": w['reason'],
-					"date": w['date'],
-					"caseid": w['caseid']
-				})
+			self.warns[guild][user].append({						
+				"uid": user,
+				"gid": guild,
+				"reason": w['reason'],
+				"date": w['date'],
+				"caseid": w['caseid']
+			})
 			
 	async def loadmodlogs(self):
 		self.modlogs = {}
@@ -194,25 +191,21 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			guild = l['gid']
 			user = l['uid']
 			try:
-				self.modlogs[guild][user].append({						
-					"uid": user,
-					"gid": guild,
-					"type": l['type'],
-					"reason": l['reason'],
-					"date": l['date'],
-					"caseid": l['caseid']
-				})
+				currentguildlogs = self.modlogs[guild]
 			except KeyError:
 				self.modlogs[guild] = {}
+			try:
+				currentuserlogs = self.modlogs[guild][user]
+			except KeyError:
 				self.modlogs[guild][user] = []
-				self.modlogs[guild][user].append({						
-					"uid": user,
-					"gid": guild,
-					"type": l['type'],
-					"reason": l['reason'],
-					"date": l['date'],
-					"caseid": l['caseid']
-				})
+			self.modlogs[guild][user].append({						
+				"uid": user,
+				"gid": guild,
+				"type": l['type'],
+				"reason": l['reason'],
+				"date": l['date'],
+				"caseid": l['caseid']
+			})
 
 	def cog_unload(self):
 		self.tempmuteChecker.cancel()
