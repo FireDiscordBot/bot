@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions, bot_has_permissions
 from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
-from fire.converters import Member
+from fire.converters import Member, Role
 import aiosqlite3
 import functools
 import datetime
@@ -178,7 +178,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@has_permissions(manage_roles=True)
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
-	async def autorole(self, ctx, role: discord.Role = None):
+	async def autorole(self, ctx, role: Role = None):
 		'''PFXautorole [<role name/id/mention>]\nUse command without role argument to disable'''
 		query = 'SELECT * FROM settings WHERE gid = $1;'
 		guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
@@ -221,7 +221,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@has_permissions(manage_roles=True)
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
-	async def reactrole(self, ctx, role: discord.Role = None, message: int = None, emote: typing.Union[int, str] = None):
+	async def reactrole(self, ctx, role: Role = None, message: int = None, emote: typing.Union[int, str] = None):
 		'''PFXautorole [<role name/id/mention> <message id> <emote>]\nUse command without arguments to disable'''
 		query = 'SELECT * FROM settings WHERE gid = $1;'
 		guildsettings = await self.bot.db.fetch(query, ctx.guild.id)

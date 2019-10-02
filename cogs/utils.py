@@ -19,7 +19,7 @@ from PIL import ImageFont
 from PIL import ImageDraw
 from io import BytesIO
 from gtts import gTTS
-from fire.converters import User, UserWithFallback, Member, TextChannel, VoiceChannel, Category
+from fire.converters import User, UserWithFallback, Member, TextChannel, VoiceChannel, Category, Role
 from fire.push import pushover
 
 launchtime = datetime.datetime.utcnow()
@@ -598,7 +598,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		await ctx.send(embed=embed)
 
 	@infogroup.command(description='Check out a role\'s info')
-	async def role(self, ctx, *, role: discord.Role = None):
+	async def role(self, ctx, *, role: Role = None):
 		'''PFXinfo role [<role>]'''
 		if not role:
 			role = ctx.author.top_role
@@ -1071,7 +1071,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.command(description='Make a role mentionable for 60 seconds or until you mention it')
 	@commands.bot_has_permissions(manage_roles=True)
 	@commands.has_permissions(manage_roles=True)
-	async def tempmention(self, ctx, role: discord.Role):
+	async def tempmention(self, ctx, role: Role):
 		'''PFXtempmention <role>'''
 		await role.edit(mentionable=True)
 		await ctx.send(f'Successfully made **{role.name}** mentionable. It will stay mentionable until you mention it or 60 seconds go by', delete_after=5)
