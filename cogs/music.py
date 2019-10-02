@@ -14,10 +14,13 @@ from collections import deque
 from discord.ext import commands
 from discord import Webhook, AsyncWebhookAdapter
 from typing import Union
+from fire.converters import VoiceChannel
 
 RURL = re.compile(r'https?:\/\/(?:www\.)?.+')
+
 with open('config_prod.json', 'r') as cfg:
 	config = json.load(cfg)
+	
 class Track(wavelink.Track):
 	__slots__ = ('requester', 'channel', 'message')
 
@@ -438,7 +441,7 @@ class Music(commands.Cog):
 
 	@commands.command(name='connect', aliases=['join'], description="Connect to a voice channel")
 	#@commands.bot_has_permissions(connect=True, speak=True)
-	async def connect_(self, ctx, *, channel: discord.VoiceChannel = None):
+	async def connect_(self, ctx, *, channel: VoiceChannel = None):
 		"""PFXconnect <channel>"""
 		try:
 			await ctx.message.delete()

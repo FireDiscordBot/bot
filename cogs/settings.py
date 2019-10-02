@@ -9,6 +9,7 @@ import aiohttp
 import humanfriendly
 import functools
 from random import randint
+from fire.converters import TextChannel
 from fire.invite import findinvite
 from fire.youtube import findchannel, findvideo
 
@@ -1151,7 +1152,7 @@ class settings(commands.Cog, name="Settings"):
 	@commands.command(name='setlogs', aliases=['logging', 'log', 'logs'])
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
-	async def settings_logs(self, ctx, newlog: typing.Union[discord.TextChannel, int] = None):
+	async def settings_logs(self, ctx, newlog: typing.Union[TextChannel, int] = None):
 		'''PFXsetlogs <channel>'''
 		if newlog == None:
 			# raise commands.UserInputError('Missing argument! Provide a channel for me to send logs to or 0 to disable logging')

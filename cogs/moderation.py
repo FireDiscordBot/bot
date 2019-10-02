@@ -8,6 +8,7 @@ import traceback
 import functools
 import humanfriendly
 import re
+from fire.converters import UserWithFallback, Member, TextChannel
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 
 day_regex = re.compile(r'(?:(?P<days>\d+)d)')
@@ -295,7 +296,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		else:
 			await ctx.send('no.')
 
-	async def mute(self, ctx, user, reason, until = None, timedelta = None, channel: discord.TextChannel = None):
+	async def mute(self, ctx, user, reason, until = None, timedelta = None, channel: TextChannel = None):
 		if not reason:
 			reason = "No reason specified."
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
@@ -629,7 +630,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(description="Warn a user.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
-	async def warn(self, ctx, user: discord.Member = None, *, reason = None):
+	async def warn(self, ctx, user: Member = None, *, reason = None):
 		"""PFXwarn <user> <reason>"""
 		await ctx.trigger_typing()
 		await ctx.message.delete()
@@ -685,7 +686,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 	@commands.command(description="View warnings for a user")
 	@commands.has_permissions(manage_messages=True)
-	async def warnings(self, ctx, user: typing.Union[discord.User, int] = None):
+	async def warnings(self, ctx, user: UserWithFallback = None):
 		"""PFXwarnings <user>"""
 		if not user:
 			user = ctx.author
@@ -705,7 +706,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 	@commands.command(description="Clear a users warnings", aliases=['clearwarnings'])
 	@commands.has_permissions(manage_guild=True)
-	async def clearwarns(self, ctx, user: discord.Member = None):
+	async def clearwarns(self, ctx, user: Member = None):
 		"""PFXclearwarns <user>"""
 		if not user:
 			return await ctx.send(f'<a:fireFailed:603214400748257302> You must specify a user')
@@ -737,7 +738,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 	@commands.command(description="View moderation logs for a user")
 	@commands.has_permissions(manage_messages=True)
-	async def modlogs(self, ctx, user: typing.Union[discord.User, int] = None):
+	async def modlogs(self, ctx, user: UserWithFallback = None):
 		"""PFXmodlogs <user>"""
 		if not user:
 			user = ctx.author

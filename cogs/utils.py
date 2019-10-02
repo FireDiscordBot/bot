@@ -19,6 +19,7 @@ from PIL import ImageFont
 from PIL import ImageDraw
 from io import BytesIO
 from gtts import gTTS
+from fire.converters import User, UserWithFallback, Member, TextChannel, VoiceChannel, Category
 from fire.push import pushover
 
 launchtime = datetime.datetime.utcnow()
@@ -270,7 +271,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				count += 1
 		return count
 
-	def getperms(self, member: discord.Member, channel: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel]):
+	def getperms(self, member: Member, channel: typing.Union[TextChannel, VoiceChannel, Category]):
 		perms = []
 		for perm, value in member.permissions_in(channel):
 			if value == True:
@@ -422,7 +423,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			return test[2]
 
 	@commands.command(name='plonk', description='Add someone to the blacklist', hidden=True)
-	async def blacklist_add(self, ctx, user: discord.User = None, reason: str = 'bad boi', permanent: bool = False):
+	async def blacklist_add(self, ctx, user: UserWithFallback = None, reason: str = 'bad boi', permanent: bool = False):
 		'''PFXbl.add <user> [<reason>] <perm: true/false>'''
 		if isadmin(ctx) == False:
 			return
@@ -460,7 +461,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await ctx.send(f'Blacklist entry updated for {user.mention}.')
 
 	@commands.command(name='unplonk', description='Remove someone from the blacklist', hidden=True)
-	async def blacklist_remove(self, ctx, user: discord.User = None):
+	async def blacklist_remove(self, ctx, user: UserWithFallback = None):
 		'''PFXbl.remove <user>'''
 		if isadmin(ctx) == False:
 			return
@@ -549,7 +550,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			await ctx.send(embed=rolebed)
 
 	@infogroup.command(description='Check out a user\'s info')
-	async def user(self, ctx, user: typing.Union[discord.User, discord.Member] = None):
+	async def user(self, ctx, user: typing.Union[Member, UserWithFallback] = None):
 		'''PFXinfo user [<user>]'''
 		if not user:
 			user = ctx.author
@@ -635,7 +636,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
-	async def purge(self, ctx, amount: int=-1, member: discord.Member=None):
+	async def purge(self, ctx, amount: int=-1, member: Member=None):
 		'''PFXpurge <amount> [<user>]'''
 		if amount>500 or amount<0:
 			return await ctx.send('Invalid amount. Minumum is 1, Maximum is 500')
@@ -692,7 +693,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			return await ctx.send('<a:fireSuccess:603214443442077708> This channel is no longer followable')
 
 	@commands.command(name='follow', description='Follow a channel and recieve messages from it in your own server', aliases=['cfollow', 'channelfollow'], hidden=True)
-	async def follow(self, ctx, follow: typing.Union[discord.TextChannel, str]):
+	async def follow(self, ctx, follow: typing.Union[TextChannel, str]):
 		'''PFXfollow <channel|link>'''
 		if not await self.bot.is_team_owner():
 			return
@@ -789,7 +790,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				esnipes[before.guild.id] = {before.author.id: before}
 
 	@commands.command(description='Get the last deleted message')
-	async def snipe(self, ctx, source: typing.Union[discord.TextChannel, discord.Member, int] = None):
+	async def snipe(self, ctx, source: typing.Union[TextChannel, Member, int] = None):
 		'''PFXsnipe [<channel|user>]'''
 		if type(source) == int:
 			source = self.bot.get_channel(source)
@@ -811,7 +812,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			await ctx.send(embed = snipe_embed(ctx.channel, sniped_message, ctx.author))
 
 	@commands.command(description='Get the last edited message')
-	async def esnipe(self, ctx, source: typing.Union[discord.TextChannel, discord.Member, int] = None):
+	async def esnipe(self, ctx, source: typing.Union[TextChannel, Member, int] = None):
 		'''PFXesnipe [<channel|user>]'''
 		if type(source) == int:
 			source = self.bot.get_channel(source)
@@ -1026,7 +1027,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		await ctx.send(embed=embed)
 
 	@commands.command(description='Get a user\'s avatar', aliases=['av'])
-	async def avatar(self, ctx, user: discord.User = None):
+	async def avatar(self, ctx, user: UserWithFallback = None):
 		'''PFXavatar [<user>]'''
 		if not user:
 			user = ctx.author
@@ -1042,7 +1043,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			await ctx.send(embed=embed)
 
 	@commands.command(description='Totally not a stolen idea from Dyno')
-	async def fireav(self, ctx, u: typing.Union[discord.User, discord.Member] = None):
+	async def fireav(self, ctx, u: Member = None):
 		'''PFXfireav [<user>]'''
 		if not u:
 			u = ctx.author
@@ -1111,7 +1112,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
 
 	@commands.command(description='Fetch a channel and get some beautiful json')
-	async def fetchchannel(self, ctx, channel: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel] = None):
+	async def fetchchannel(self, ctx, channel: typing.Union[TextChannel, VoiceChannel, Category] = None):
 		'''PFXfetchchannel <channel>'''
 		if channel is None:
 			channel = ctx.channel
@@ -1241,7 +1242,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		await ctx.send(embed=embed)
 
 	@commands.command(name='fetchactivity', description='Get a member\'s activity in json')
-	async def fetchactivity(self, ctx, member: discord.Member = None):
+	async def fetchactivity(self, ctx, member: Member = None):
 		"""PFXfetchactivity [<member>]"""
 		if not member:
 			member = ctx.author
@@ -1270,7 +1271,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		os.remove(f'{fp}.mp3')
 	
 	@commands.command(description='Get user info in an image. (proof of concept)')
-	async def imgtest(self, ctx, user: discord.Member = None):
+	async def imgtest(self, ctx, user: Member = None):
 		'''PFXimgtest [<user>]'''
 		if user == None:
 			user = ctx.author

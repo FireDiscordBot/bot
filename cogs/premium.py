@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions, bot_has_permissions
 from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
+from fire.converters import Member
 import aiosqlite3
 import functools
 import datetime
@@ -435,7 +436,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@has_permissions(manage_roles=True)
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
-	async def rolepersist(self, ctx, member: discord.Member, *, role: str):
+	async def rolepersist(self, ctx, member: Member, *, role: str):
 		'''PFXrolepersist <member> <role>'''
 		if ctx.guild.id not in self.rolepersists:
 			self.rolepersists[ctx.guild.id] = {}

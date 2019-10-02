@@ -16,6 +16,7 @@ from typing import Union
 import aiohttp
 import subprocess
 import random
+from fire.converters import Member
 from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
 
 launchtime = datetime.datetime.utcnow()
@@ -39,7 +40,7 @@ def isadmin(ctx):
 		admin = True
 	return admin
 
-class fire(commands.Cog, name="Main Commands"):
+class firecog(commands.Cog, name="Main Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.launchtime = launchtime
@@ -144,7 +145,7 @@ class fire(commands.Cog, name="Main Commands"):
 		await interface.send_to(ctx)
 
 	@commands.command(name='rpc', description='View someone\'s rich presence')
-	async def rpc(self, ctx, member: discord.Member = None):
+	async def rpc(self, ctx, member: Member = None):
 		"""PFXrpc [<member>]"""
 		if not member:
 			member = ctx.author
@@ -261,4 +262,4 @@ class fire(commands.Cog, name="Main Commands"):
 		await ctx.send(message + ' 👏')
 
 def setup(bot):
-	bot.add_cog(fire(bot))
+	bot.add_cog(firecog(bot))
