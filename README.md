@@ -7,7 +7,7 @@ Fire is the only bot you'll need.</h3>
 
 ## Help
 
-The default prefix is `$` but you can change this by doing `$prefix <new prefix>` (surround it in "" if you want spaces). You can also mention the bot to use commands `@Fire#0682 meme`. Use the `help` command to see a list of commands and do `$help <command>` for more info and usage. Fire is currently in beta so things may break from time to time
+The default prefix is `$` but you can change this by doing `$prefix <new prefix>` (surround it in "" if you want spaces). You can also mention the bot to use commands `@Fire#0682 meme`. Use the `help` command to see a list of commands and do `$help <command>` for more info and usage. Fire is currently in beta so things may break from time to time.
 
 ## Support
 
