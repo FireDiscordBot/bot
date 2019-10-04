@@ -53,8 +53,7 @@ async def get_pre(bot, message):
 		prefix = "$"
 	return commands.when_mentioned_or(prefix, 'fire ')(bot, message)
 
-bot = commands.AutoShardedBot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="fire.gaminggeek.dev"), case_insensitive=True, shard_count=5)
-bot.shardstatus = []
+bot = commands.Bot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="fire.gaminggeek.dev"), case_insensitive=True)
 bot.dev = False
 
 bot.datadog = ThreadStats()
@@ -221,17 +220,6 @@ async def on_ready():
 	logging.info(f"LOGGING START ON {datetime.datetime.utcnow()}")
 
 @bot.event
-async def on_shard_ready(shard_id):
-	for shard in bot.shardstatus:
-		if shard['id'] == shard_id:
-			shard['state'] = 'ready'
-			return
-	bot.shardstatus.append({
-		'id': shard_id,
-		'state': 'ready'
-	})
-
-@bot.event
 async def on_message(message):
 	if message.author.bot == True:
 		await bot.loop.run_in_executor(None, func=functools.partial(bot.datadog.increment, 'messages.bot'))
@@ -353,13 +341,6 @@ async def start_bot():
 	except KeyboardInterrupt:
 		await bot.db.close()
 		await bot.logout()
-	except discord.ConnectionClosed as e:
-		try:
-			for shard in bot.shardstatus:
-				if shard['id'] == e.shard_id:
-					shard['state'] = 'closed'
-		except AttributeError:
-			pass
 
 if __name__ == "__main__":
 	asyncio.get_event_loop().run_until_complete(start_bot())
