@@ -53,7 +53,7 @@ async def get_pre(bot, message):
 		prefix = "$"
 	return commands.when_mentioned_or(prefix, 'fire ')(bot, message)
 
-bot = commands.AutoShardedBot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="fire.gaminggeek.dev"), case_insensitive=True, shard_count=5)
+bot = commands.AutoShardedBot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="fire.gaminggeek.dev"), case_insensitive=True, shard_count=1)
 bot.shardstatus = []
 bot.dev = False
 
