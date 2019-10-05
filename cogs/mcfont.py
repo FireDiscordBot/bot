@@ -1,4 +1,3 @@
-# Package: dmcb
 from PIL import Image, ImageDraw, ImageFont
 
 import os
