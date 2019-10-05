@@ -1051,8 +1051,8 @@ class utils(commands.Cog, name='Utility Commands'):
 			color = u.color
 		else:
 			color = ctx.author.color
-		mask = Image.open('wfireav.png')
-		img = Image.open('wfireav.png')
+		mask = Image.open('fireavbase.png')
+		img = Image.open('fireavbase.png')
 		av_bytes = await u.avatar_url_as(format='png', static_format='png', size=256).read()
 		av_img = Image.open(BytesIO(av_bytes))
 		sub_img = av_img.convert("RGBA")
