@@ -31,6 +31,9 @@ For support, join our support discord server.
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FGamingGeek%2FFire.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FGamingGeek%2FFire?ref=badge_large)
+
 ## Acknowledgments
 
 * K.Soft API - if you need an image api, KSoft is what you need. [API](https://api.ksoft.si)
