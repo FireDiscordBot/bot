@@ -1,4 +1,5 @@
-![Fire](https://github.com/GamingGeek/Fire/blob/master/Fire%20Banner%20(Inner%20Gradient).png?raw=true)
+![Fire](https://github.com/GamingGeek/Fire/blob/master/Fire%20Banner%20(Inner%20Gradient)[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FGamingGeek%2FFire.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FGamingGeek%2FFire?ref=badge_shield)
+.png?raw=true)
 
 <h3 align="center">A Discord bot for all your needs.<br>
 With memes, music, moderation & more,<br>
@@ -30,6 +31,9 @@ For support, join our support discord server.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FGamingGeek%2FFire.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FGamingGeek%2FFire?ref=badge_large)
 
 ## Acknowledgments
 
