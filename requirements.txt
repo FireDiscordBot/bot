@@ -4,7 +4,6 @@ aiohttp-session==2.7.0
 aiosqlite3==0.3.0
 alembic==1.0.8
 ansicolors==1.1.8
-aqualink==1.0.0
 asn1crypto==0.24.0
 astroid==2.2.5
 async-timeout==3.0.1
@@ -29,7 +28,6 @@ DateTime==4.3
 dateutils==0.6.6
 dblpy==0.1.6
 decorator==4.4.0
-discord==1.0.1
 discord.py==1.2.3
 dnspython==1.16.0
 easydev==0.9.37
