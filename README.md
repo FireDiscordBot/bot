@@ -1,6 +1,5 @@
-![Fire](https://repository-images.githubusercontent.com/172268367/737ddb80-a685-11e9-87f8-2b68b29a04b2)
+![Fire](https://github.com/GamingGeek/Fire/blob/master/Fire%20Banner%20(Inner%20Gradient).png?raw=true)
 
-<h1 align="center">Fire</h1>
 <h3 align="center">A Discord bot for all your needs.<br>
 With memes, music, moderation & more,<br>
 Fire is the only bot you'll need.</h3>
@@ -19,7 +18,7 @@ For support, join our support discord server.
 
 ## Built With
 
-* [Python 3.7.2](https://www.python.org/downloads/) - The language used
+* [Python 3.7.4](https://www.python.org/downloads/) - The language used
 * [discord.py](https://github.com/Rapptz/discord.py) - Used to run the bot
 * [Lavalink](https://github.com/Frederikam/Lavalink) - For the audio side of the bot
 
@@ -27,7 +26,6 @@ For support, join our support discord server.
 
 * **Geek** *aka GamingGeek* - *Main Developer* - [GamingGeek](https://github.com/GamingGeek)
 * **Ender** *aka EnderDev* - *Main Developer* - [EnderDev](https://github.com/EnderDev)
-* **Blizma** - *Friend* - [Blizma](https://github.com/blizma/)
 
 ## License
 
