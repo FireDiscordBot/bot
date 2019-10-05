@@ -691,7 +691,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not user:
 			user = ctx.author
 		try:
-			if type(user) == discord.User:
+			if type(user) == discord.User or type(user) == discord.Member:
 				warnings = self.warns[ctx.guild.id][user.id]
 			elif type(user) == int:
 				warnings = self.warns[ctx.guild.id][user]
