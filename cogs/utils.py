@@ -669,7 +669,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					'system_content': message.system_content if message.content == None else ''
 				})
 			await ctx.channel.purge(limit=amount)
-		await ctx.send(f'Successfully deleted **{int(amount)}** messages!', delete_after=5)
+		await ctx.send(f'Successfully deleted **{amount}** messages!', delete_after=5)
 
 	@commands.command(name='followable', description='Make the current channel followable.')
 	async def followable(self, ctx, canfollow: bool = False):
