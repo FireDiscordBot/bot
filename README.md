@@ -18,7 +18,7 @@ For support, join our support discord server.
 
 ## Built With
 
-* [Python 3.7.2](https://www.python.org/downloads/) - The language used
+* [Python 3.7.4](https://www.python.org/downloads/) - The language used
 * [discord.py](https://github.com/Rapptz/discord.py) - Used to run the bot
 * [Lavalink](https://github.com/Frederikam/Lavalink) - For the audio side of the bot
 
@@ -26,7 +26,6 @@ For support, join our support discord server.
 
 * **Geek** *aka GamingGeek* - *Main Developer* - [GamingGeek](https://github.com/GamingGeek)
 * **Ender** *aka EnderDev* - *Main Developer* - [EnderDev](https://github.com/EnderDev)
-* **Blizma** - *Friend* - [Blizma](https://github.com/blizma/)
 
 ## License
 
