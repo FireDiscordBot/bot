@@ -6,7 +6,7 @@ Fire is the only bot you'll need.</h3>
 
 ## Help
 
-The default prefix is `$` but you can change this by doing `$prefix <new prefix>` (surround it in "" if you want spaces). You can also mention the bot to use commands `@Fire#0682 meme`. Use the `help` command to see a list of commands and do `$help <command>` for more info and usage. Fire is currently in beta so things may break from time to time.
+The default prefix is `$` but you can change this by doing `$prefix <new prefix>` (surround it in `""` if you want spaces). You can also mention the bot to use commands `@Fire#0682 meme`. Use the `help` command to see a list of commands and do `$help <command>` for more info and usage. Fire is currently in beta so things may break from time to time.
 
 ## Support
 
@@ -14,7 +14,7 @@ For support, join our support discord server.
 
 [![Discord](https://api.gaminggeek.dev/guildstats)](https://discord.gg/mKDWeSA)
 
-* NOTE: Support will not be provided if you attempt to self-host Fire. It is NOT recommended!
+> **NOTE**: Support will not be provided if you attempt to self-host Fire. It is NOT recommended!
 
 ## Built With
 
@@ -36,5 +36,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* K.Soft API - if you need an image api, KSoft is what you need. [API](https://api.ksoft.si)
-* OpenSSL - Used in the `grpcio` pip module which is required by Fire for Google Assistant features
+* **K.Soft API**: If you need an image api, KSoft is what you need. [API](https://api.ksoft.si)
+* **OpenSSL**: Used in the `grpcio` pip module which is required by Fire for Google Assistant features
