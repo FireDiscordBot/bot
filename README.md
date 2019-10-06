@@ -12,7 +12,7 @@ The default prefix is `$` but you can change this by doing `$prefix <new prefix>
 
 For support, join our support discord server.
 
-[![Discord](https://discordapp.com/api/guilds/564052798044504084/widget.png?style=banner2)](https://discord.gg/mKDWeSA)
+[![Discord](https://api.gaminggeek.dev/guildstats)](https://discord.gg/mKDWeSA)
 
 * NOTE: Support will not be provided if you attempt to self-host Fire. It is NOT recommended!
 
