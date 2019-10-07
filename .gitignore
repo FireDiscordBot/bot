@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+#NodeJS
+node_modules/
+package-lock.json
+
 # Distribution / packaging
 .Python
 build/
