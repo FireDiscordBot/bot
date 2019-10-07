@@ -1,20 +1,3 @@
-"""
-MIT License
-Copyright (c) 2019 GamingGeek
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software without restriction, 
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-"""
-
 import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions, bot_has_permissions
@@ -199,7 +182,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		'''PFXautorole [<role name/id/mention>]\nUse command without role argument to disable'''
 		query = 'SELECT * FROM settings WHERE gid = $1;'
 		guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
-		if not guildsettings:
+		if guildsettings == []:
 			# await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
 			# await self.bot.conn.commit()
 			con = await self.bot.db.acquire()
@@ -242,7 +225,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		'''PFXautorole [<role name/id/mention> <message id> <emote>]\nUse command without arguments to disable'''
 		query = 'SELECT * FROM settings WHERE gid = $1;'
 		guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
-		if not guildsettings:
+		if guildsettings == []:
 			# await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
 			# await self.bot.conn.commit()
 			con = await self.bot.db.acquire()
@@ -311,40 +294,36 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@has_permissions(manage_roles=True)
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
-	async def addrank(self, ctx, *, role: str):
+	async def addrank(self, ctx, *, role: Role):
 		'''PFXaddrank <role>'''
 		# await self.bot.db.execute(f'INSERT INTO joinableranks (\"gid\", \"rid\") VALUES ({ctx.guild.id}, {role.id});')
 		# await self.bot.conn.commit()
-		for r in ctx.guild.roles:
-			if r.name.lower() == role.lower():
-				rank = r
-				break
 		try:
-			if rank.id in self.joinroles[ctx.guild.id]:
+			if role.id in self.joinroles[ctx.guild.id]:
 				return await ctx.send('<a:fireFailed:603214400748257302> You cannot add an existing rank.')
 		except Exception:
 			pass
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'INSERT INTO joinableranks (\"gid\", \"rid\") VALUES ($1, $2);'
-			await self.bot.db.execute(query, ctx.guild.id, rank.id)
+			await self.bot.db.execute(query, ctx.guild.id, role.id)
 		await self.bot.db.release(con)
 		try:
-			self.joinroles[ctx.guild.id].append(rank.id)
+			self.joinroles[ctx.guild.id].append(role.id)
 		except KeyError:
 			self.joinroles[ctx.guild.id] = []
-			self.joinroles[ctx.guild.id].append(rank.id)
-		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully added the rank {rank.mention}!')
+			self.joinroles[ctx.guild.id].append(role.id)
+		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully added the rank {role.mention}!')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:
 			logch = ctx.guild.get_channel(logid['modlogs'])
 			if logch:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Rank Added | {rank.name}', icon_url=str(ctx.guild.icon_url))
+				embed.set_author(name=f'Rank Added | {role.name}', icon_url=str(ctx.guild.icon_url))
 				embed.add_field(name='User', value=ctx.author.mention, inline=False)
-				embed.add_field(name='Role', value=f'{rank.mention}', inline=False)
-				embed.set_footer(text=f'User ID: {ctx.author.id} | Role ID: {rank.id}')
+				embed.add_field(name='Role', value=f'{role.mention}', inline=False)
+				embed.set_footer(text=f'User ID: {ctx.author.id} | Role ID: {role.id}')
 				try:
 					await logch.send(embed=embed)
 				except Exception:
@@ -355,34 +334,30 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@has_permissions(manage_roles=True)
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
-	async def delrank(self, ctx, *, role: str):
+	async def delrank(self, ctx, *, role: Role):
 		'''PFXdelrank <role>'''
 		# await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {role.id};')
 		# await self.bot.conn.commit()
-		for r in ctx.guild.roles:
-			if r.name.lower() == role.lower():
-				rank = r
-				break
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'DELETE FROM joinableranks WHERE rid = $1;'
-			await self.bot.db.execute(query, rank.id)
+			await self.bot.db.execute(query, role.id)
 		await self.bot.db.release(con)
 		try:
-			self.joinroles[ctx.guild.id].remove(rank.id) 
+			self.joinroles[ctx.guild.id].remove(role.id) 
 		except KeyError:
 			pass
-		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully removed the rank {rank.mention}!')
+		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully removed the rank {role.mention}!')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:
 			logch = ctx.guild.get_channel(logid['modlogs'])
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Rank Removed | {rank.name}', icon_url=str(ctx.guild.icon_url))
+				embed.set_author(name=f'Rank Removed | {role.name}', icon_url=str(ctx.guild.icon_url))
 				embed.add_field(name='User', value=ctx.author.mention, inline=False)
-				embed.add_field(name='Role', value=f'{rank.mention}', inline=False)
-				embed.set_footer(text=f'User ID: {ctx.author.id} | Role ID: {rank.id}')
+				embed.add_field(name='Role', value=f'{role.mention}', inline=False)
+				embed.set_footer(text=f'User ID: {ctx.author.id} | Role ID: {role.id}')
 				try:
 					await logch.send(embed=embed)
 				except Exception:
@@ -392,7 +367,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@commands.command(name='rank', description='List all available ranks and join a rank', aliases=['ranks'])
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
-	async def rank(self, ctx, *, role: str = None):
+	async def rank(self, ctx, *, role: Role = None):
 		'''PFXrank [<rank>]'''
 		if not role:
 			try:
@@ -415,7 +390,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 					someremoved += 1
 				else:
 					roles.append(role)
-			if not roles:
+			if roles == []:
 				return await ctx.send('<a:fireFailed:603214400748257302> Seems like there\'s no ranks set for this guild :c')
 				if someremoved > 0:
 					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
@@ -429,21 +404,16 @@ class Premium(commands.Cog, name="Premium Commands"):
 				embed.set_author(name=f'{ctx.guild.name}\'s ranks', icon_url=str(ctx.guild.icon_url))
 				await ctx.send(embed=embed)
 		else:
-			rank = None
-			for r in ctx.guild.roles:
-				if r.name.lower() == role.lower():
-					rank = r
-					break
-			if not rank:
+			if not role:
 				return await ctx.send(f'<a:fireFailed:603214400748257302> I cannot find the rank `{role}`. Type \'{ctx.prefix}rank\' to see a list of ranks')
 			try:
-				if rank.id in self.joinroles[ctx.guild.id]:
-					if rank in ctx.author.roles:
+				if role.id in self.joinroles[ctx.guild.id]:
+					if role in ctx.author.roles:
 						await ctx.author.remove_roles(rank, reason='Left rank')
-						await ctx.send(f'<a:fireSuccess:603214443442077708> You successfully left the {rank.name} rank.')
+						await ctx.send(f'<a:fireSuccess:603214443442077708> You successfully left the {role.name} rank.')
 					else:
 						await ctx.author.add_roles(rank, reason='Joined rank')
-						await ctx.send(f'<a:fireSuccess:603214443442077708> You successfully joined the {rank.name} rank.')
+						await ctx.send(f'<a:fireSuccess:603214443442077708> You successfully joined the {role.name} rank.')
 				else:
 					return await ctx.send(f'<a:fireFailed:603214400748257302> I cannot find the rank `{role}`. Type \'{ctx.prefix}rank\' to see a list of ranks')
 			except KeyError:
@@ -453,16 +423,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@has_permissions(manage_roles=True)
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
-	async def rolepersist(self, ctx, member: Member, *, role: str):
+	async def rolepersist(self, ctx, member: Member, *, role: Role):
 		'''PFXrolepersist <member> <role>'''
 		if ctx.guild.id not in self.rolepersists:
 			self.rolepersists[ctx.guild.id] = {}
-		for r in ctx.guild.roles:
-			if r.name.lower() == role.lower():
-				role = r
-				break
-		if type(role) == str:
-			return await ctx.send(f'<a:fireFailed:603214400748257302> Couldn\'t find the role {role}.')
 		if member.id not in self.rolepersists[ctx.guild.id]:
 			con = await self.bot.db.acquire()
 			async with con.transaction():
