@@ -458,7 +458,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				# await self.bot.conn.commit()
 				con = await self.bot.db.acquire()
 				async with con.transaction():
-					query = 'INSERT INTO blacklist (\"user\", \"uid\", \"reason\", \"perm\") VALUES ($1, $2, $3, $4);'
+					query = 'INSERT INTO blacklist (\'user\', \'uid\', \'reason\', \'perm\') VALUES ($1, $2, $3, $4);'
 					await self.bot.db.execute(query, str(user), user.id, reason, permanent)
 				await self.bot.db.release(con)
 				await ctx.send(f'{user.mention} was successfully blacklisted!')
@@ -472,7 +472,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				# await self.bot.conn.commit()
 				con = await self.bot.db.acquire()
 				async with con.transaction():
-					query = 'UPDATE blacklist SET user = $1, uid = $2, reason = $3, perm = $4 WHERE id = $5;'
+					query = 'UPDATE blacklist SET "user"=$1, uid=$2, reason=$3, perm=$4 WHERE uid=$5;'
 					await self.bot.db.execute(query, str(user), user.id, reason, permanent, blid)
 				await self.bot.db.release(con)
 				await ctx.send(f'Blacklist entry updated for {user.mention}.')
