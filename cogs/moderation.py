@@ -248,8 +248,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 										await user.remove_roles(muted, reason='Times up.')
 										con = await self.bot.db.acquire()
 										async with con.transaction():
-											query = 'DELETE FROM mutes WHERE uid = $1;'
-											await self.bot.db.execute(query, user.id)
+											query = 'DELETE FROM mutes WHERE uid = $1 AND gid = $2;'
+											await self.bot.db.execute(query, user.id, guild.id)
 										await self.bot.db.release(con)
 										try:
 											self.mutes[user.id] = None
