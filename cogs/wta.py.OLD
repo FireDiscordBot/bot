@@ -27,7 +27,7 @@ class winnertakesall(commands.Cog, name="Winner Takes All S2"):
 				async with session.get(f'https://winnertakesall.io/api/donationinfo') as resp:
 					data = await resp.read()
 					info = json.loads(data)
-			if info['success'] == False:
+			if not info['success']:
 				raise commands.CommandError('Something went wrong while trying to contact the Winner Takes All API.')
 			try:
 				raised = info['raised']

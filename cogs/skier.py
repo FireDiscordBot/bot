@@ -106,15 +106,15 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			header.replace('\""', '')
 			strlevel.replace('/""', '')
 			strlevel.replace('\""', '')
-			if purchase['tab'] == True:
+			if purchase['tab']:
 				tab = "Purchased!"
 			else:
 				tab = "Not Purchased."
-			if purchase['chat'] == True:
+			if purchase['chat']:
 				chat = "Purchased!"
 			else:
 				chat = "Not Purchased."
-			if purchase['mediahead'] == True:
+			if purchase['mediahead']:
 				mediahead = "Purchased!"
 			else:
 				mediahead = "Not Purchased."
@@ -124,7 +124,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				head = "Not Purchased!"
 			embed = discord.Embed(title=f"{player}'s Levelhead", colour=ctx.author.color, url="https://purchase.sk1er.club/category/1050972", timestamp=datetime.datetime.utcnow())
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
-			if nocustom == True:
+			if nocustom:
 				embed.add_field(name="Custom Levelhead?", value="Nope :(", inline=False)
 				embed.add_field(name="IGN", value=player, inline=False)
 				embed.add_field(name="Levelhead", value=f"Level: {levelhead['level']}", inline=False)
@@ -182,7 +182,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			async with aiohttp.ClientSession(headers=hello) as session:
 				async with session.get(f'https://api.hyperium.cc/purchaseSettings/{uuid}') as resp:
 					settings = await resp.json()
-			if purchases['success'] == True:
+			if purchases['success']:
 				try:
 					cosmetics = purchases['hyperium']
 				except Exception:
@@ -197,7 +197,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					framesplus = purchases['frames_plus_cape']
 				except Exception:
 					framesplus = None
-				if nocosmetics == True:
+				if nocosmetics:
 					embed = discord.Embed(title=f"Hyperium Purchases for {player}", colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 					embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/471405283562881073.png")
 					embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
@@ -317,17 +317,17 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				except Exception:
 					creditlvl = 0
 				embed.add_field(name="Credits", value=f"Total: {credittotal}\nRemaining: {creditremain}\nLevelhead Credits: {creditlvl}", inline=False)
-				if c != []:
+				if c:
 					embed.add_field(name="Purchased Cosmetics", value=', '.join(c), inline=False)
 				else:
 					embed.add_field(name="Purchased Cosmetics", value='No Cosmetics', inline=False)
-				if nocosmetics == True:
+				if nocosmetics:
 					embed.add_field(name="Purchased Cosmetics", value='No Cosmetics', inline=False)
-				if p != []:
+				if p:
 					embed.add_field(name="Purchased Particles", value=', '.join(p), inline=False)
 				else:
 					embed.add_field(name="Purchased Particles", value='No Particles', inline=False)
-				if capes != []:
+				if capes:
 					embed.add_field(name="Purchased Capes", value=', '.join(capes), inline=False)
 				else:
 					embed.add_field(name="Purchased Capes", value='No Capes', inline=False)
@@ -348,7 +348,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					pstaff = True
 					pdot = value['color'].lower()
 			try:
-				pstaff == True
+				pstaff
 			except Exception:
 				pstaff = False
 			try:
@@ -360,7 +360,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/471405283562881073.png")
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 			embed.add_field(name="Online?", value=online['status'], inline=False)
-			if pstaff == True:
+			if pstaff:
 				embed.add_field(name="Dot Color", value=pdot, inline=False)
 			await ctx.send(embed=embed)
 		if task == None:

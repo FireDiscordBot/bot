@@ -291,7 +291,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	def getperms(self, member: Member, channel: typing.Union[TextChannel, VoiceChannel, Category]):
 		perms = []
 		for perm, value in member.permissions_in(channel):
-			if value == True:
+			if value:
 				perms.append(perm)
 		return perms
 
@@ -310,7 +310,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def createvanity(self, ctx: commands.Context, code: str, inv: discord.Invite):
 		query = 'SELECT * FROM vanity WHERE gid = $1;'
 		current = await self.bot.db.fetch(query, ctx.guild.id)
-		if current == []:
+		if not current:
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				query = 'INSERT INTO vanity (\"gid\", \"code\", \"invite\") VALUES ($1, $2, $3);'
@@ -442,15 +442,15 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.command(name='plonk', description='Add someone to the blacklist', hidden=True)
 	async def blacklist_add(self, ctx, user: UserWithFallback = None, reason: str = 'bad boi', permanent: bool = False):
 		'''PFXbl.add <user> [<reason>] <perm: true/false>'''
-		if isadmin(ctx) == False:
+		if not isadmin(ctx):
 			return
 		if user == None:
 			await ctx.send('You need to provide a user to add to the blacklist!')
 		else:
 			query = 'SELECT * FROM blacklist WHERE uid = $1;'
 			blraw = await self.bot.db.fetch(query, user.id)
-			if blraw == []:
-				if permanent == True:
+			if not blraw:
+				if permanent:
 					permanent = 1
 				else:
 					permanent = 0
@@ -464,7 +464,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await ctx.send(f'{user.mention} was successfully blacklisted!')
 			else:
 				blid = blraw[0]['uid']
-				if permanent == True:
+				if permanent:
 					permanent = 1
 				else:
 					permanent = 0
@@ -480,14 +480,14 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.command(name='unplonk', description='Remove someone from the blacklist', hidden=True)
 	async def blacklist_remove(self, ctx, user: UserWithFallback = None):
 		'''PFXbl.remove <user>'''
-		if isadmin(ctx) == False:
+		if not isadmin(ctx):
 			return
 		if user == None:
 			await ctx.send('You need to provide a user to remove from the blacklist!')
 		else:
 			query = 'SELECT * FROM blacklist WHERE uid = $1;'
 			blraw = await self.bot.db.fetch(query, user.id)
-			if blraw == []:
+			if not blraw:
 				await ctx.send(f'{user.mention} is not blacklisted.')
 				return
 			else:
@@ -610,7 +610,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				else:
 					roles.append(role.mention)
 			embed.add_field(name="» Roles", value=' - '.join(roles) or 'No roles', inline=False)
-		if ack != []:
+		if ack:
 			embed.add_field(name='» Recognized User', value=', '.join(ack))
 		await ctx.send(embed=embed)
 
@@ -626,14 +626,14 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Members", value=len(role.members), inline=True)
 		rgbcolor = role.color.to_rgb()
 		hexcolor = rgb2hex(role.color.r, role.color.g, role.color.b).replace('##', '#')
-		embed.add_field(name="» Hoisted?", value='Yes' if role.hoist == True else 'No', inline=True)
-		embed.add_field(name="» Mentionable?", value='Yes' if role.mentionable == True else 'No', inline=True)
+		embed.add_field(name="» Hoisted?", value='Yes' if role.hoist else 'No', inline=True)
+		embed.add_field(name="» Mentionable?", value='Yes' if role.mentionable else 'No', inline=True)
 		embed.add_field(name="» Color", value=f'> RGB: {rgbcolor}\n> HEX: {hexcolor}', inline=True)
 		perms = []
 		for perm, value in role.permissions:
-			if value == True:
+			if value:
 				perms.append(permissions[perm] if perm in permissions else perm.replace('_', '').capitalize())
-		if perms != []:
+		if perms:
 			embed.add_field(name="» Permissions", value=', '.join(perms), inline=False)
 		mask = Image.open('WhiteLogo.png')
 		img = Image.open('WhiteLogo.png')

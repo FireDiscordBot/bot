@@ -623,12 +623,12 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				embed = discord.Embed(title=f"Session of {discord.utils.escape_markdown(arg1)}", colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 				embed.add_field(name="Playing", value=f"{session['session']['gameType']}", inline=False)
-				if hidden == True:
+				if hidden:
 					embed.add_field(name="Server", value="Hidden", inline=False)
 				else:
 					embed.add_field(name="Server", value=f"{session['session']['server']}", inline=False)
 				playingWith = []
-				if hidden == True:
+				if hidden:
 					embed.add_field(name="Playing With", value="Hidden", inline=False)
 				else:
 					for player in session['session']['players']:

@@ -199,7 +199,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		'''PFXautorole [<role name/id/mention>]\nUse command without role argument to disable'''
 		query = 'SELECT * FROM settings WHERE gid = $1;'
 		guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
-		if guildsettings == []:
+		if not guildsettings:
 			# await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
 			# await self.bot.conn.commit()
 			con = await self.bot.db.acquire()
@@ -242,7 +242,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		'''PFXautorole [<role name/id/mention> <message id> <emote>]\nUse command without arguments to disable'''
 		query = 'SELECT * FROM settings WHERE gid = $1;'
 		guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
-		if guildsettings == []:
+		if not guildsettings:
 			# await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
 			# await self.bot.conn.commit()
 			con = await self.bot.db.acquire()
@@ -415,7 +415,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 					someremoved += 1
 				else:
 					roles.append(role)
-			if roles == []:
+			if not roles:
 				return await ctx.send('<a:fireFailed:603214400748257302> Seems like there\'s no ranks set for this guild :c')
 				if someremoved > 0:
 					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())

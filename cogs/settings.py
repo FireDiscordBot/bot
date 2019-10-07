@@ -495,7 +495,7 @@ class settings(commands.Cog, name="Settings"):
 			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url))
 			embed.add_field(name='Nickname', value=member.nick or member.name, inline=False)
 			roles = [role.mention for role in member.roles if role != member.guild.default_role]
-			embed.add_field(name='Roles', value=', '.join(roles) if roles != [] else 'No roles', inline=False)
+			embed.add_field(name='Roles', value=', '.join(roles) if roles else 'No roles', inline=False)
 			embed.set_footer(text=f'User ID: {member.id}')
 			try:
 				await logch.send(embed=embed)
@@ -850,12 +850,12 @@ class settings(commands.Cog, name="Settings"):
 				removed = [x for x in before.features if x not in s]
 				s = set(before.features)
 				added = [x for x in after.features if x not in s]
-				if added != []:
+				if added:
 					features = []
 					for feature in added:
 						features.append(f'> {feature}')
 					embed.add_field(name='Added', value='\n'.join(features), inline=False)
-				if removed != []:
+				if removed:
 					features = []
 					for feature in removed:
 						features.append(f'> {feature}')

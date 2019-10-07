@@ -121,7 +121,7 @@ class namemc(commands.Cog, name="NameMC"):
 			if 'remain' in data and data['remain'] != 'an eternity':
 				embed.add_field(name='Time Remaining', value=data['remain'], inline=False)
 			await ctx.send(embed=embed)
-		if namecount != [] and names != [] and dates != []:
+		if namecount and names and dates:
 			yeet = True
 		else:
 			raise commands.CommandError('I was unable to parse the list of names for that user')

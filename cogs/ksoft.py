@@ -56,9 +56,9 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 			meme = await self.bot.ksoft.random_meme()
 		else:
 			meme = await self.bot.ksoft.random_reddit(sub)
-		if meme.nsfw == True:
+		if meme.nsfw:
 			channel = ctx.message.channel
-			if channel.is_nsfw() == False:
+			if not channel.is_nsfw():
 				await ctx.send("The meme I was given was marked as NSFW but this channel is not. Go into an NSFW channel to see NSFW memes", delete_after=5)
 				return
 			else:
@@ -99,7 +99,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 				await ctx.send('The tag you gave is invalid. Use the tag command to see a list of tags you can use.')
 				return
 		channel = ctx.message.channel
-		if channel.is_nsfw() == False:
+		if not channel.is_nsfw():
 			nsfw = False
 			if tag == 'hentai_gif':
 				tag = 'dog'
@@ -108,8 +108,8 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		if nsfw == None:
 			nsfw = False
 		img = await self.bot.ksoft.random_image(tag = tag, nsfw = nsfw)
-		if img.nsfw == True:
-			if channel.is_nsfw() == False:
+		if img.nsfw:
+			if not channel.is_nsfw():
 				msg = await ctx.send("The image I was given was marked as NSFW but this channel is not. Go into an NSFW channel to see NSFW memes", delete_after=5)
 				return
 		embed = discord.Embed(title="The randomizer machine returned this image!", colour=ctx.message.author.color, url=img.url, timestamp=datetime.datetime.utcnow())

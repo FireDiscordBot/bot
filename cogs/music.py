@@ -392,7 +392,7 @@ class Music(commands.Cog):
 
 		query = 'SELECT * FROM blacklist WHERE uid = $1;'
 		blinf = await self.bot.db.fetch(query, ctx.author.id)
-		if blinf != []:
+		if blinf:
 			return False
 		
 		if not player.dj:

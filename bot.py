@@ -62,7 +62,7 @@ async def get_pre(bot, message):
 		return "$"
 	query = 'SELECT * FROM prefixes WHERE gid = $1;'
 	prefixraw = await bot.db.fetch(query, message.guild.id)
-	if prefixraw != []:
+	if prefixraw:
 		prefix = prefixraw[0]['prefix']
 	else:
 		prefix = "$"
@@ -236,7 +236,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-	if message.author.bot == True:
+	if message.author.bot:
 		await bot.loop.run_in_executor(None, func=functools.partial(bot.datadog.increment, 'messages.bot'))
 		return
 	else:
@@ -247,7 +247,7 @@ async def on_message(message):
 
 @bot.event
 async def on_message_edit(before,after):
-	if after.author.bot == True:
+	if after.author.bot:
 		await bot.loop.run_in_executor(None, func=functools.partial(bot.datadog.increment, 'messageedit.bot'))
 		return
 	else:
@@ -303,7 +303,7 @@ async def prefix(ctx, pfx: str = None):
 		query = 'SELECT * FROM prefixes WHERE gid = $1;'
 		prefixraw = await bot.db.fetch(query, ctx.guild.id)
 		con = await bot.db.acquire()
-		if prefixraw == []: #INSERT INTO prefixes (\"name\", \"gid\", \"prefix\") VALUES (\"{ctx.guild.name}\", {ctx.guild.id}, \"{pfx}\");
+		if not prefixraw: #INSERT INTO prefixes (\"name\", \"gid\", \"prefix\") VALUES (\"{ctx.guild.name}\", {ctx.guild.id}, \"{pfx}\");
 			async with con.transaction():
 				query = 'INSERT INTO prefixes (\"name\", \"gid\", \"prefix\") VALUES ($1, $2, $3);'
 				await bot.db.execute(query, ctx.guild.name, ctx.guild.id, pfx)
@@ -337,7 +337,7 @@ async def blacklist_check(ctx):
 	# blinf = await bot.db.fetchone()
 	query = 'SELECT * FROM blacklist WHERE uid = $1;'
 	blinf = await bot.db.fetch(query, ctx.author.id)
-	if blinf != []:
+	if blinf:
 		if ctx.author.id == 287698408855044097:
 			return True
 		if ctx.author.id == 366118780293611520:
