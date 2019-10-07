@@ -503,6 +503,74 @@ class settings(commands.Cog, name="Settings"):
 				pass
 
 	@commands.Cog.listener()
+	async def on_user_update(self, before, after):
+		for guild in self.bot.guilds:
+			if before.name != after.name:
+				try:
+					member = guild.get_member(after.id)
+					if member:
+						if guild.id in self.autodecancer:
+							nitroboosters = discord.utils.get(member.guild.roles, name='Nitro Booster')
+							if member.guild_permissions.manage_nicknames or nitroboosters in member.roles:
+								pass
+							else:
+								decancered = False
+								nick = after.name
+								tochange = 'Username'
+								if not self.bot.isascii(nick):
+									num = member.discriminator
+									decancered = True
+									await member.edit(nick=f'John Doe {num}')
+									logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
+									if logid:
+										logch = member.guild.get_channel(logid['modlogs'])
+									else:
+										return
+									if logch:
+										embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+										embed.set_author(name=f'Auto-Decancer | {member}', icon_url=str(member.avatar_url))
+										embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
+										embed.add_field(name='Reason', value=f'{tochange} contains non-ascii characters', inline=False)
+										if tochange == 'Nickname':
+											embed.add_field(name='Nickname', value=nick, inline=False)
+										embed.set_footer(text=f'User ID: {member.id}')
+										try:
+											return await logch.send(embed=embed)
+										except Exception:
+											pass
+						if member.guild.id in self.autodehoist:
+							nitroboosters = discord.utils.get(member.guild.roles, name='Nitro Booster')
+							if member.guild_permissions.manage_nicknames or nitroboosters in member.roles:
+								pass
+							else:
+								dehoisted = False
+								nick = after.name
+								tochange = 'Username'
+								if self.bot.ishoisted(nick) and not decancered:
+									num = member.discriminator
+									dehoisted = True
+									await member.edit(nick=f'John Doe {num}')
+									logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
+									if logid:
+										logch = member.guild.get_channel(logid['modlogs'])
+									else:
+										return
+									if logch:
+										embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+										embed.set_author(name=f'Auto-Dehoist | {member}', icon_url=str(member.avatar_url))
+										embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
+										embed.add_field(name='Reason', value=f'{tochange} starts with a non A-Z character', inline=False)
+										if tochange == 'Nickname':
+											embed.add_field(name='Nickname', value=nick, inline=False)
+										embed.set_footer(text=f'User ID: {member.id}')
+										try:
+											return await logch.send(embed=embed)
+										except Exception:
+											pass
+				except Exception:
+					pass
+
+	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
 		if after.nick != None and f'John Doe {after.discriminator}' in after.nick:
 			return
