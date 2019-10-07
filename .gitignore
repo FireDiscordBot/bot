@@ -121,3 +121,7 @@ bfg.jar
 *.mp3
 fishin
 *.mp4
+
+# jetbrains ide
+.idea
+*.iml
