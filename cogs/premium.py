@@ -409,10 +409,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 			try:
 				if role.id in self.joinroles[ctx.guild.id]:
 					if role in ctx.author.roles:
-						await ctx.author.remove_roles(rank, reason='Left rank')
+						await ctx.author.remove_roles(role, reason='Left rank')
 						await ctx.send(f'<a:fireSuccess:603214443442077708> You successfully left the {role.name} rank.')
 					else:
-						await ctx.author.add_roles(rank, reason='Joined rank')
+						await ctx.author.add_roles(role, reason='Joined rank')
 						await ctx.send(f'<a:fireSuccess:603214443442077708> You successfully joined the {role.name} rank.')
 				else:
 					return await ctx.send(f'<a:fireFailed:603214400748257302> I cannot find the rank `{role}`. Type \'{ctx.prefix}rank\' to see a list of ranks')
