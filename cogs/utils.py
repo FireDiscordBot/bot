@@ -613,7 +613,9 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Name", value=user.name, inline=True)
 		embed.add_field(name="» ID", value=user.id, inline=True)
 		embed.add_field(name="» Discriminator", value=user.discriminator, inline=True)
-		embed.add_field(name="» Bot?", value=user.bot, inline=True)
+		if type(user) == discord.Member:
+			members = sorted(ctx.guild.members, key=lambda m: m.joined_at or m.created_at)
+			embed.add_field(name="» Join Position", value=members.index(user) + 1, inline=True)
 		embed.add_field(name="» Created", value=str(user.created_at).split('.')[0], inline=True)
 		embed.add_field(name="» Animated Avatar?", value=user.is_avatar_animated(), inline=True)
 		if type(user) == discord.Member:
