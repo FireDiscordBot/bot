@@ -119,8 +119,8 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		await ctx.send(embed=embed)
 
 	@commands.command(description="List all available tags")
-	async def tags(self, ctx):
-		"""PFXtags"""
+	async def imagetags(self, ctx):
+		"""PFXimagetags"""
 		tags = await self.bot.ksoft.tags()
 		if ctx.channel.nsfw:
 			nsfwtags = ', '.join(tags.nsfw_tags)

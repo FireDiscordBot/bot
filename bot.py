@@ -252,6 +252,8 @@ async def on_message_edit(before,after):
 		return
 	else:
 		await bot.loop.run_in_executor(None, func=functools.partial(bot.datadog.increment, 'messageedit.user'))
+	if before.content == afer.content:
+		return
 	await bot.process_commands(after)
 
 @bot.event

@@ -277,6 +277,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.channelfollows = {}
 		self.bot.vanity_urls = {}
 		self.bot.getvanity = self.getvanity
+		self.tags = {}
 
 	def is_emoji(self, s):
 		return s in UNICODE_EMOJI
@@ -412,10 +413,23 @@ class utils(commands.Cog, name='Utility Commands'):
 				'url': url
 			}
 
+	async def loadtags(self):
+		self.tags = {}
+		query = 'SELECT * FROM tags;'
+		taglist = await self.bot.db.fetch(query)
+		for t in taglist:
+			guild = t['gid']
+			tagname = t['name']
+			content = t['content']
+			if guild not in self.tags:
+				self.tags[guild] = {}
+			self.tags[guild][tagname] = content
+
 	@commands.Cog.listener()
 	async def on_ready(self):
 		await asyncio.sleep(5)
 		await self.loadvanitys()
+		await self.loadtags()
 		print('Settings loaded!')
 
 	@commands.command(name='loadvanity', description='Load Vanity URLs', hidden=True)
@@ -423,6 +437,15 @@ class utils(commands.Cog, name='Utility Commands'):
 		'''PFXloadvanity'''
 		if await self.bot.is_team_owner(ctx.author):
 			await self.loadvanitys()
+			await ctx.send('Loaded data!')
+		else:
+			await ctx.send('no.')
+
+	@commands.command(name='loadtags', description='Load Tags', hidden=True)
+	async def loadthetags(self, ctx):
+		'''PFXloadtags'''
+		if await self.bot.is_team_owner(ctx.author):
+			await self.loadtags()
 			await ctx.send('Loaded data!')
 		else:
 			await ctx.send('no.')
@@ -1127,6 +1150,62 @@ class utils(commands.Cog, name='Utility Commands'):
 			return await ctx.send(f'<a:fireSuccess:603214443442077708> Your Vanity URL is {vanity["url"]}')
 		else:
 			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
+
+	@commands.group(name='tags', aliases=['tag', 'dtag'], invoke_without_command=True)
+	@commands.guild_only()
+	async def tags(self, ctx, tagname: str = None):
+		if not ctx.invoked_subcommand:
+			taglist = self.tags[ctx.guild.id] if ctx.guild.id in self.tags else False
+			if not taglist:
+				return await ctx.send('<a:fireFailed:603214400748257302> No tags found.')
+			if not tagname:
+				taglist = ', '.join(taglist)
+				embed = discord.Embed(title=f'{ctx.guild.name}\'s tags', color=ctx.author.color, description=taglist)
+				return await ctx.send(embed=embed)
+			else:
+				tag = taglist[tagname] if tagname in taglist else False
+				if not tag:
+					return await ctx.send(f'<a:fireFailed:603214400748257302> No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.')
+				else:
+					if ctx.invoked_with == 'dtag':
+						await ctx.message.delete()
+					await ctx.send(content=discord.utils.escape_mentions(tag))
+
+	@commands.has_permissions(manage_messages=True)
+	@tags.command(name='create', aliases=['new', 'add'])
+	async def tagcreate(self, ctx, tagname: str, *, tagcontent: str):
+		'''PFXtag create <name> <tag content>'''
+		currenttags = self.tags[ctx.guild.id] if ctx.guild.id in self.tags else []
+		existing = currenttags[tagname] if tagname in currenttags else False
+		if existing:
+			return await ctx.send(f'<a:fireFailed:603214400748257302> A tag with the name {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} already exists')
+		if len(currenttags) >= 20:
+			premiumguilds = self.bot.get_cog('Premium Commands').premiumGuilds
+			if ctx.guild.id not in premiumguilds:
+				return await ctx.send(f'<a:fireFailed:603214400748257302> You\'ve reached the tag limit! Upgrade to premium for unlimited tags;\n<https://gaminggeek.dev/patreon>')
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'INSERT INTO tags (\"gid\", \"name\", \"content\") VALUES ($1, $2, $3);'
+			await self.bot.db.execute(query, ctx.guild.id, tagname, tagcontent)
+		await self.bot.db.release(con)
+		await self.loadtags()
+		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully created the tag {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))}')
+
+	@commands.has_permissions(manage_messages=True)
+	@tags.command(name='delete', aliases=['del', 'remove'])
+	async def tagdelete(self, ctx, tagname: str):
+		'''PFXtag delete <name>'''
+		currenttags = self.tags[ctx.guild.id] if ctx.guild.id in self.tags else []
+		existing = currenttags[tagname] if tagname in currenttags else False
+		if not existing:
+			return await ctx.send(f'<a:fireFailed:603214400748257302> A tag with the name {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} doesn\'t exist')
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'DELETE FROM tags WHERE name = $1 AND gid = $2'
+			await self.bot.db.execute(query, tagname, ctx.guild.id)
+		await self.bot.db.release(con)
+		await self.loadtags()
+		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully deleted the tag {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))}')
 
 	@commands.command(description='Fetch a channel and get some beautiful json')
 	async def fetchchannel(self, ctx, channel: typing.Union[TextChannel, VoiceChannel, Category] = None):
