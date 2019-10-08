@@ -538,6 +538,9 @@ class settings(commands.Cog, name="Settings"):
 											return await logch.send(embed=embed)
 										except Exception:
 											pass
+								else:
+									if member.nick and 'John Doe' in member.nick:
+										await member.edit(nick=None)
 						if member.guild.id in self.autodehoist:
 							nitroboosters = discord.utils.get(member.guild.roles, name='Nitro Booster')
 							if member.guild_permissions.manage_nicknames or nitroboosters in member.roles:
@@ -567,6 +570,9 @@ class settings(commands.Cog, name="Settings"):
 											return await logch.send(embed=embed)
 										except Exception:
 											pass
+								else:
+									if member.nick and 'John Doe' in member.nick:
+										await member.edit(nick=None)
 				except Exception:
 					pass
 
