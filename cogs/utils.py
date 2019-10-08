@@ -419,7 +419,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		taglist = await self.bot.db.fetch(query)
 		for t in taglist:
 			guild = t['gid']
-			tagname = t['name']
+			tagname = t['name'].lower()
 			content = t['content']
 			if guild not in self.tags:
 				self.tags[guild] = {}
@@ -1163,7 +1163,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				embed = discord.Embed(title=f'{ctx.guild.name}\'s tags', color=ctx.author.color, description=taglist)
 				return await ctx.send(embed=embed)
 			else:
-				tag = taglist[tagname] if tagname in taglist else False
+				tag = taglist[tagname.lower()] if tagname.lower() in taglist else False
 				if not tag:
 					return await ctx.send(f'<a:fireFailed:603214400748257302> No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.')
 				else:
@@ -1186,7 +1186,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'INSERT INTO tags (\"gid\", \"name\", \"content\") VALUES ($1, $2, $3);'
-			await self.bot.db.execute(query, ctx.guild.id, tagname, tagcontent)
+			await self.bot.db.execute(query, ctx.guild.id, tagname.lower(), tagcontent)
 		await self.bot.db.release(con)
 		await self.loadtags()
 		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully created the tag {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))}')
@@ -1196,13 +1196,13 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def tagdelete(self, ctx, tagname: str):
 		'''PFXtag delete <name>'''
 		currenttags = self.tags[ctx.guild.id] if ctx.guild.id in self.tags else []
-		existing = currenttags[tagname] if tagname in currenttags else False
+		existing = currenttags[tagname.lower()] if tagname.lower() in currenttags else False
 		if not existing:
 			return await ctx.send(f'<a:fireFailed:603214400748257302> A tag with the name {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} doesn\'t exist')
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'DELETE FROM tags WHERE name = $1 AND gid = $2'
-			await self.bot.db.execute(query, tagname, ctx.guild.id)
+			await self.bot.db.execute(query, tagname.lower(), ctx.guild.id)
 		await self.bot.db.release(con)
 		await self.loadtags()
 		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully deleted the tag {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))}')
