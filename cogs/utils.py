@@ -661,8 +661,8 @@ class utils(commands.Cog, name='Utility Commands'):
 				perms.append(permissions[perm] if perm in permissions else perm.replace('_', '').capitalize())
 		if perms:
 			embed.add_field(name="» Permissions", value=', '.join(perms), inline=False)
-		mask = Image.open('WhiteLogo.png')
-		img = Image.open('WhiteLogo.png')
+		mask = Image.open('resources/fireavbase512.png')
+		img = Image.open('resources/fireavbase512.png')
 		sub_img = Image.new('RGBA', (512, 512), rgbcolor)
 		img.paste(sub_img, (0, 0), mask)
 		img.save(f'{role.id}.png')
@@ -670,12 +670,13 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.set_thumbnail(url=f'attachment://{role.id}.png')
 		await ctx.send(embed=embed, file=colorlogo)
 		os.remove(f'{role.id}.png')
-		paginator = WrappedPaginator(prefix='', suffix='', max_size=250)
-		for member in role.members:
-			paginator.add_line(member.mention)
-		membed = discord.Embed(colour=role.color if role.color != discord.Color.default() else ctx.author.color, timestamp=datetime.datetime.utcnow())
-		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=membed)
-		await interface.send_to(ctx)
+		if role.members:
+			paginator = WrappedPaginator(prefix='', suffix='', max_size=250)
+			for member in role.members:
+				paginator.add_line(member.mention)
+			membed = discord.Embed(colour=role.color if role.color != discord.Color.default() else ctx.author.color, timestamp=datetime.datetime.utcnow())
+			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=membed)
+			await interface.send_to(ctx)
 
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
@@ -1118,8 +1119,8 @@ class utils(commands.Cog, name='Utility Commands'):
 			color = u.color
 		else:
 			color = ctx.author.color
-		mask = Image.open('fireavbase.png')
-		img = Image.open('fireavbase.png')
+		mask = Image.open('resources/fireavbase.png')
+		img = Image.open('resources/fireavbase.png')
 		av_bytes = await u.avatar_url_as(format='png', static_format='png', size=256).read()
 		av_img = Image.open(BytesIO(av_bytes))
 		sub_img = av_img.convert("RGBA")

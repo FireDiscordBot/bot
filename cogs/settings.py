@@ -133,7 +133,7 @@ class settings(commands.Cog, name="Settings"):
 				actionlogs = s['actionlogs']
 			guildobj = self.bot.get_guild(guild)
 			if not guildobj:
-				pass
+				return
 			if modlogs:
 				cmodlogs = discord.utils.get(guildobj.channels, id=modlogs)
 				if type(cmodlogs) != discord.TextChannel:

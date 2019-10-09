@@ -115,7 +115,7 @@ api.py
 api.bat
 fire.bat
 lavalink.bat
-applicayion.yml
+application.yml
 config_prod.json
 config_dev.json
 fire.db
