@@ -112,6 +112,10 @@ venv.bak/
 
 #secret stuff
 api.py
+api.bat
+fire.bat
+lavalink.bat
+applicayion.yml
 config_prod.json
 config_dev.json
 fire.db
@@ -119,6 +123,7 @@ fire.db
 # other stuff
 bot.log
 logs/
+Soundboard/
 lavalink.jar
 bfg.jar
 *.png
