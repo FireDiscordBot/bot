@@ -1,4 +1,4 @@
-![Fire](https://github.com/GamingGeek/Fire/blob/master/Fire%20Banner%20(Inner%20Gradient).png?raw=true)
+![Fire](https://github.com/GamingGeek/Fire/blob/master/Resources/Fire%20Banner%20(Inner%20Gradient).png?raw=true)
 
 <h3 align="center">A Discord bot for all your needs.<br>
 With memes, music, moderation & more,<br>
