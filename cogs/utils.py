@@ -278,6 +278,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.bot.vanity_urls = {}
 		self.bot.getvanity = self.getvanity
 		self.tags = {}
+		self.quotecooldowns = {}
 
 	def is_emoji(self, s):
 		return s in UNICODE_EMOJI
@@ -951,6 +952,12 @@ class utils(commands.Cog, name='Utility Commands'):
 			if not perms.send_messages or not perms.embed_links or message.author.bot:
 				return
 
+			cooldowns = self.quotecooldowns[message.guild.id] if message.guild.id in self.quotecooldowns else []
+			if not cooldowns:
+				self.quotecooldowns[message.guild.id] = []
+			elif message.author.id in cooldowns and not message.author.permissions_in(message.channel).manage_messages:
+				return
+				
 			for i in message.content.split():
 				word = i.lower().strip('<>')
 				if word.startswith('https://canary.discordapp.com/channels/'):
@@ -984,8 +991,26 @@ class utils(commands.Cog, name='Utility Commands'):
 						else:
 							if not msg_found.content and msg_found.embeds and msg_found.author.bot:
 								await message.channel.send(content = 'Raw embed from `' + str(msg_found.author).strip('`') + '` in ' + msg_found.channel.mention, embed = quote_embed(message.channel, msg_found, message.author))
+								try:
+									self.quotecooldowns[message.guild.id].append(message.author.id)
+									await asyncio.sleep(20)
+									self.quotecooldowns[message.guild.id].remove(message.author.id)
+								except KeyError:
+									self.quotecooldowns[message.guild.id] = []
+									self.quotecooldowns[message.guild.id].append(message.author.id)
+									await asyncio.sleep(20)
+									self.quotecooldowns[message.guild.id].remove(message.author.id)
 							else:
 								await message.channel.send(embed = quote_embed(message.channel, msg_found, message.author))
+								try:
+									self.quotecooldowns[message.guild.id].append(message.author.id)
+									await asyncio.sleep(20)
+									self.quotecooldowns[message.guild.id].remove(message.author.id)
+								except KeyError:
+									self.quotecooldowns[message.guild.id] = []
+									self.quotecooldowns[message.guild.id].append(message.author.id)
+									await asyncio.sleep(20)
+									self.quotecooldowns[message.guild.id].remove(message.author.id)
 
 	@commands.command(description='Quote a message from an id or url')
 	async def quote(self, ctx, msg: typing.Union[str, int] = None):
