@@ -252,7 +252,7 @@ async def on_message_edit(before,after):
 		return
 	else:
 		await bot.loop.run_in_executor(None, func=functools.partial(bot.datadog.increment, 'messageedit.user'))
-	if before.content == afer.content:
+	if before.content == after.content:
 		return
 	await bot.process_commands(after)
 
@@ -268,7 +268,7 @@ async def on_guild_join(guild):
 	# await bot.conn.commit()
 	print(f"Fire joined a new guild! {guild.name}({guild.id}) with {guild.member_count} members")
 	try:
-		await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members", f"https://api.gaminggeek.club/guild/{guild.id}")
+		await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members", f"https://api.gaminggeek.dev/guild/{guild.id}")
 	except exceptions.PushError as e:
 		print(e)
 
@@ -277,18 +277,9 @@ async def on_guild_remove(guild):
 	await bot.loop.run_in_executor(None, func=functools.partial(bot.datadog.increment, 'guilds.leave'))
 	print(f"Fire left the guild {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/")
 	try:
-		await pushbullet("link", "Fire left a guild!", f"Fire left {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/", f"https://api.gaminggeek.club/guild/{guild.id}")
+		await pushbullet("link", "Fire left a guild!", f"Fire left {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/", f"https://api.gaminggeek.dev/guild/{guild.id}")
 	except exceptions.PushError as e:
 		print(e)
-	con = await bot.db.acquire()
-	async with con.transaction():
-		query = 'DELETE FROM prefixes WHERE gid = $1;'
-		await bot.db.execute(query, guild.id)
-		query = 'DELETE FROM settings WHERE gid = $1;'
-		await bot.db.execute(query, guild.id)
-		query = 'DELETE FROM premium WHERE gid = $1;'
-		await bot.db.execute(query, guild.id)
-	await bot.db.release(con)
 	# await bot.db.execute(f'DELETE FROM prefixes WHERE gid = {guild.id};')
 	# await bot.db.execute(f'DELETE FROM settings WHERE gid = {guild.id};')
 	# await bot.db.execute(f'DELETE FROM premium WHERE gid = {guild.id};')
@@ -347,6 +338,22 @@ async def blacklist_check(ctx):
 			return False
 		elif ctx.author.id == blinf[0]['uid']:
 			return False
+	else:
+		return True
+
+@bot.check
+async def cmdperm_check(ctx):
+	settings = ctx.bot.get_cog('Settings')
+	if ctx.guild.id in settings.modonly and ctx.channel.id in settings.modonly[ctx.guild.id]:
+		if not ctx.author.permissions_in(ctx.channel).manage_messages:
+			return False
+		else:
+			return True
+	elif ctx.guild.id in settings.adminonly and ctx.channel.id in settings.adminonly[ctx.guild.id]:
+		if not ctx.author.permissions_in(ctx.channel).manage_guild:
+			return False
+		else:
+			return True
 	else:
 		return True
 				

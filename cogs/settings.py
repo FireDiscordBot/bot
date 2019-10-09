@@ -90,6 +90,8 @@ class settings(commands.Cog, name="Settings"):
 		self.gbancheck = []
 		self.autodecancer = []
 		self.autodehoist = []
+		self.modonly = {}
+		self.adminonly = {}
 	
 	async def loadSettings(self):
 		self.logchannels = {}
@@ -97,6 +99,8 @@ class settings(commands.Cog, name="Settings"):
 		self.gbancheck = []
 		self.autodecancer = []
 		self.autodehoist = []
+		self.modonly = {}
+		self.adminonly = {}
 		query = 'SELECT * FROM settings;'
 		settings = await self.bot.db.fetch(query)
 		for s in settings:
@@ -109,6 +113,16 @@ class settings(commands.Cog, name="Settings"):
 				self.autodecancer.append(guild)
 			if s['autodehoist'] == 1:
 				self.autodehoist.append(guild)
+			if s['modonly']:
+				if guild not in self.modonly:
+					self.modonly[guild] = []
+				for cid in s['modonly']:
+					self.modonly[guild].append(cid)
+			if s['adminonly']:
+				if guild not in self.adminonly:
+					self.adminonly[guild] = []
+				for cid in s['adminonly']:
+					self.adminonly[guild].append(cid)
 			if s['modlogs'] == 0:
 				modlogs = False
 			else:
@@ -1037,26 +1051,34 @@ class settings(commands.Cog, name="Settings"):
 		}
 		await ctx.send('Hey, I\'m going to guide you through my settings. This shouldn\'t take long, there\'s only 6 options to configure')
 		await asyncio.sleep(3)
-		await ctx.send('First, we\'ll configure logging. Please give a channel name (must be an existing channel) for moderation logs or say `skip` to disable...')
+		await ctx.send('First, we\'ll configure logging. Please give a channel for moderation logs or say `skip` to disable...')
 
 		def modlog_check(message):
 			if message.author != ctx.author:
 				return False
-			if message.system_content.lower() == 'skip':
-				return True
-			c = discord.utils.get(message.guild.channels, name=message.system_content.lower())
-			if c:
-				settingslist['modlogs'] = c.id
-				return True
-			return True
-		try:
-			await self.bot.wait_for('message', timeout=30.0, check=modlog_check)
-			modlogs = settingslist['modlogs']
-			if modlogs == 'Disabled':
-				modlogs = 0
-				await ctx.send('Disabling mod logs...')
 			else:
-				await ctx.send(f'Great! Setting mod logs to <#{modlogs}>')
+				return True
+		try:
+			modlogchannel = None
+			modlogsmsg = await self.bot.wait_for('message', timeout=30.0, check=modlog_check)
+			if modlogsmsg.content != 'skip':
+				try:
+					modlogchannel = await TextChannel().convert(ctx, modlogsmsg.content)
+					modlognotfound = False
+					settingslist['modlogs'] = modlogchannel.id
+				except commands.BadArgument:
+					modlognotfound = True
+				modlogs = settingslist['modlogs']
+				if modlogs == 'Disabled':
+					modlogs = 0
+					if modlognotfound:
+						await ctx.send('I couldn\'t find that channel, disabling actimodon logs')
+					else:
+						await ctx.send('Disabling mod logs...')
+				else:
+					await ctx.send(f'Great! Setting mod logs to {modlogchannel.mention}')
+			else:
+				await ctx.send('Skipping mod logs...')
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				q = 'UPDATE settings SET modlogs = $1 WHERE gid = $2;'
@@ -1067,26 +1089,33 @@ class settings(commands.Cog, name="Settings"):
 		await asyncio.sleep(2)
 		await ctx.send('Ok. Next we\'ll configure action logs. This is where actions such as deleted messages, edited messages etc. are logged.')
 		await asyncio.sleep(2)
-		await ctx.send('Please give a channel name for action logs (must be an existing channel) or say `skip` to disable...')
+		await ctx.send('Please give a channel for action logs or say `skip` to disable...')
 		def actionlog_check(message):
 			if message.author != ctx.author:
 				return False
-			if message.system_content.lower() == 'skip':
-				return True
-			c = discord.utils.get(message.guild.channels, name=message.system_content.lower())
-			if c:
-				settingslist['actionlogs'] = c.id
-				return True
 			else:
 				return True
 		try:
-			await self.bot.wait_for('message', timeout=30.0, check=actionlog_check)
-			actionlogs = settingslist['actionlogs']
-			if actionlogs == 'Disabled':
-				actionlogs = 0
-				await ctx.send('Disabling action logs...')
+			actionlogchannel = None
+			actionlogmsg = await self.bot.wait_for('message', timeout=30.0, check=actionlog_check)
+			if actionlogmsg.content != 'skip':
+				try:
+					actionlogchannel = await TextChannel().convert(ctx, actionlogmsg.content)
+					actionlognotfound = False
+					settingslist['actionlogs'] = actionlogchannel.id
+				except commands.BadArgument:
+					actionlognotfound = True
+				actionlogs = settingslist['actionlogs']
+				if actionlogs == 'Disabled':
+					actionlogs = 0
+					if actionlognotfound:
+						await ctx.send('I couldn\'t find that channel, disabling action logs')
+					else:
+						await ctx.send('Disabling action logs...')
+				else:
+					await ctx.send(f'Great! Setting action logs to {actionlogchannel.mention}')
 			else:
-				await ctx.send(f'Great! Setting action logs to <#{actionlogs}>')
+				await ctx.send('Skipping action logs...')
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				q = 'UPDATE settings SET actionlogs = $1 WHERE gid = $2;'
@@ -1224,20 +1253,20 @@ class settings(commands.Cog, name="Settings"):
 		await self.loadSettings()
 		embed = discord.Embed(title=":gear: Guild Settings", colour=ctx.author.color, description="Here's a list of the current guild settings", timestamp=datetime.datetime.utcnow())
 		embed.set_author(name=ctx.guild.name, icon_url=str(ctx.guild.icon_url))
-		modlogsnope = False
-		actionlogsnope = False
-		modlogsid = settingslist['modlogs']
-		if modlogsid == 'Disabled':
-			modlogsnope = 'Disabled'
-		actionlogsid = settingslist['actionlogs']
-		if actionlogsid == 'Disabled':
-			actionlogsnope = 'Disabled'
-		embed.add_field(name="Moderation Logs", value=modlogsnope or f'<#{modlogsid}>', inline=False)
-		embed.add_field(name="Action Logs", value=actionlogsnope or f'<#{actionlogs}>', inline=False)
+		if modlogchannel:
+			modlogs = modlogchannel.mention
+		else:
+			modlogs = 'Disabled'
+		if actionlogchannel:
+			actionlogs = actionlogchannel.mention
+		else:
+			actionlogs = 'Disabled'
+		embed.add_field(name="Moderation Logs", value=modlogs, inline=False)
+		embed.add_field(name="Action Logs", value=actionlogs, inline=False)
 		embed.add_field(name="Invite Filter", value=settingslist['invfilter'], inline=False)
 		embed.add_field(name="Global Ban Check (KSoft.Si API)", value=settingslist['globalbans'], inline=False)
-		embed.add_field(name="Welcome Messages (soon)", value='Disabled', inline=False)
-		embed.add_field(name="Goodbye Messages (soon)", value='Disabled', inline=False)
+		embed.add_field(name="Auto-Decancer", value=settingslist['autodecancer'], inline=False)
+		embed.add_field(name="Auto-Dehoist", value=settingslist['autodehoist'], inline=False)
 		await ctx.send(embed=embed)
 
 	@commands.command(name='setlogs', aliases=['logging', 'log', 'logs'])
@@ -1301,7 +1330,55 @@ class settings(commands.Cog, name="Settings"):
 					await self.bot.db.execute(aquery, newlog.id, ctx.guild.id)
 				await self.bot.db.release(con)
 				await self.loadSettings()
-				await ctx.send(f'Successfully enabled logging in {newlog.mention}', delete_after=5)		
+				await ctx.send(f'Successfully enabled logging in {newlog.mention}', delete_after=5)
+
+	@commands.command(name='modonly', description='Set channels to be moderator only (users with `Manage Messages` are moderators')
+	@commands.has_permissions(manage_guild=True)
+	@commands.guild_only()
+	async def modonly(self, ctx, channels: commands.Greedy[TextChannel] = None):
+		if not channels:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				mquery = 'UPDATE settings SET modonly = $1 WHERE gid = $2;'
+				await self.bot.db.execute(mquery, [], ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			return await ctx.send(f'I\'ve reset the mod only channels. Commands can now be executed in any channels.')
+		else:
+			channelids = [c.id for c in channels]
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				mquery = 'UPDATE settings SET modonly = $1 WHERE gid = $2;'
+				await self.bot.db.execute(mquery, channelids, ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			channelmentions = [c.mention for c in channels]
+			channellist = ', '.join(channelmentions)
+			return await ctx.send(f'Commands can now only be run by moderators in {channellist}.')
+
+	@commands.command(name='adminonly', description='Set channels to be admin only (users with `Manage Server` are admins')
+	@commands.has_permissions(manage_guild=True)
+	@commands.guild_only()
+	async def adminonly(self, ctx, channels: commands.Greedy[TextChannel] = None):
+		if not channels:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				mquery = 'UPDATE settings SET adminonly = $1 WHERE gid = $2;'
+				await self.bot.db.execute(mquery, [], ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			return await ctx.send(f'I\'ve reset the admin only channels. Commands can now be executed in any channels.')
+		else:
+			channelids = [c.id for c in channels]
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				mquery = 'UPDATE settings SET adminonly = $1 WHERE gid = $2;'
+				await self.bot.db.execute(mquery, channelids, ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			channelmentions = [c.mention for c in channels]
+			channellist = ', '.join(channelmentions)
+			return await ctx.send(f'Commands can now only be run by admins in {channellist}.')	
 
 
 def setup(bot):
