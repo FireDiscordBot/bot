@@ -458,10 +458,13 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			except discord.Forbidden:
 				return
 		else:
-			await mutedchat.set_permissions(muted, send_messages=True,
-												read_message_history=True,
-												read_messages=True)
-			await mutedchat.send(f"Welcome {user.mention} to {mutedchat.mention} You will spend your time here until you get unmuted. Enjoy the silence.")
+			try:
+				await mutedchat.set_permissions(muted, send_messages=True,
+													read_message_history=True,
+													read_messages=True)
+				await mutedchat.send(f"Welcome {user.mention} to {mutedchat.mention} You will spend your time here until you get unmuted. Enjoy the silence.")
+			except discord.Forbidden:
+				return
 
 			
 	@commands.command(aliases=["banish"], description="Ban a user from the server")
