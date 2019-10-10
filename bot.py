@@ -94,7 +94,7 @@ extensions = [
 	"cogs.utils",
 	"cogs.help",
 	"cogs.dbl",
-	"cogs.youtube",
+	# "cogs.youtube",
 	"cogs.settings",
 	"cogs.moderation",
 	"cogs.premium",
@@ -343,6 +343,8 @@ async def blacklist_check(ctx):
 
 @bot.check
 async def cmdperm_check(ctx):
+	if not ctx.guild:
+		return
 	settings = ctx.bot.get_cog('Settings')
 	if ctx.guild.id in settings.modonly and ctx.channel.id in settings.modonly[ctx.guild.id]:
 		if not ctx.author.permissions_in(ctx.channel).manage_messages:
