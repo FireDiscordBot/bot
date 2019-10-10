@@ -362,127 +362,12 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				except KeyError:
 					tributes = 0
 				level = str(player.getLevel()).split('.')[0]
-				# try:
-				# 	rankcolor = p['rankPlusColor']
-				# except Exception:
-				# 	rankcolor = "RED"
-				# try:
-				# 	prefixcolor = p['monthlyRankColor']
-				# except Exception as e:
-				# 	prefixcolor = "GOLD"
 				lastlogin = p['lastLogin'] if 'lastLogin' in p else 0
 				lastlogout = p['lastLogout'] if 'lastLogout' in p else 1
 				if lastlogin > lastlogout:
 					status = "Online!"
 				else:
 					status = "Offline!"
-				# try:
-				# 	rank = player.getRank()['rank']
-				# except Exception:
-				# 	rank = None
-				# if rank == "MVP+":
-				# 	if rankcolor == "RED":
-				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusone.png"
-				# 	if rankcolor == "GOLD":
-				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplustwo.png"
-				# 	if rankcolor == "GREEN":
-				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusthree.png"
-				# 	if rankcolor == "YELLOW":
-				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusfour.png"
-				# 	if rankcolor == "LIGHT_PURPLE":
-				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusfive.png"
-				# 	if rankcolor == "WHITE":
-				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplussix.png"
-				# 	if rankcolor == "BLUE":
-				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusseven.png"
-				# 	if rankcolor == "DARK_GREEN":
-				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPpluseight.png"
-				# 	if rankcolor == "DARK_RED":
-				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusnine.png"
-				# 	if rankcolor == "DARK_AQUA":
-				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusten.png"
-				# 	if rankcolor == "DARK_PURPLE":
-				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPpluseleven.png"
-				# 	if rankcolor == "DARK_GRAY":
-				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplustwelve.png"
-				# 	if rankcolor == "BLACK":
-				# 		rankimg = "https://gaminggeek.dev/assets/pickleranks/MVPplusthirteen.png"
-				# if rank == "MVP":
-				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/MVP.png"
-				# if rank == "VIP+":
-				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/VIPplus.png"
-				# if rank == "VIP":
-				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/VIP.png"
-				# try:
-				# 	monthlyrank = p['monthlyPackageRank']
-				# except Exception:
-				# 	monthlyrank = None
-				# if monthlyrank == "SUPERSTAR":
-				# 	if prefixcolor == "GOLD":
-				# 		if rankcolor ==  "Default (Red)":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARlred.png"
-				# 		if rankcolor ==  "GOLD":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARgold.png"
-				# 		if rankcolor ==  "GREEN":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARlgreen.png"
-				# 		if rankcolor ==  "YELLOW":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARyellow.png"
-				# 		if rankcolor ==  "LIGHT_PURPLE":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARlpurple.png"
-				# 		if rankcolor ==  "WHITE":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARwhite.png"
-				# 		if rankcolor ==  "BLUE":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARblue.png"
-				# 		if rankcolor ==  "DARK_GREEN":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARdgreen.png"
-				# 		if rankcolor ==  "DARK_RED":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARdred.png"
-				# 		if rankcolor ==  "DARK_AQUA":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARdaqua.png"
-				# 		if rankcolor ==  "DARK_PURPLE":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARdpurple.png"
-				# 		if rankcolor ==  "DARK_GRAY":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARgrey.png"
-				# 		if rankcolor ==  "BLACK":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/SUPERSTARblack.png"
-				# 	if prefixcolor == "AQUA":
-				# 		if rankcolor ==  "Default (Red)":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeRED.png"
-				# 		if rankcolor ==  "GOLD":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeGOLD.png"
-				# 		if rankcolor ==  "GREEN":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeGREEN.png"
-				# 		if rankcolor ==  "YELLOW":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeYELLOW.png"
-				# 		if rankcolor ==  "LIGHT_PURPLE":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threePURPLE.png"
-				# 		if rankcolor ==  "WHITE":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeWHITE.png"
-				# 		if rankcolor ==  "BLUE":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeBLUE.png"
-				# 		if rankcolor ==  "DARK_GREEN":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeDGREEN.png"
-				# 		if rankcolor ==  "DARK_RED":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeDRED.png"
-				# 		if rankcolor ==  "DARK_AQUA":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeDAQUA.png"
-				# 		if rankcolor ==  "DARK_PURPLE":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeDPURPLE.png"
-				# 		if rankcolor ==  "DARK_GRAY":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeGREY.png"
-				# 		if rankcolor ==  "BLACK":
-				# 			rankimg = "https://gaminggeek.dev/assets/pickleranks/threeBLACK.png"
-				# if rank == "Non":
-				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/NON.png"
-				# if rank == "YouTube":
-				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/YOUTUBE.png"
-				# if rank == "Helper":
-				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/HELPER.png"
-				# if rank == "Moderator":
-				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/MOD.png"
-				# if rank == "Admin":
-				# 	rankimg = "https://gaminggeek.dev/assets/pickleranks/ADMIN.png"
-				# customtag = False
 				tag = None
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://api.sk1er.club/guild/player/{arg1}') as resp:
@@ -575,74 +460,60 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					embed.add_field(name="Social Media", value=f"Twitter: {twitter}\nYouTube: {yt}\nInstagram: {insta}\nTwitch: {twitch}\nBeam: {beam}\nDiscord: {dscrd}", inline=True)
 					if tributes != 0:
 						embed.add_field(name="Tournament Tributes", value=tributes, inline=False)
-					# try:
-					# 	parsedtxt = mcfont.parse(p['prefix'])
-					# 	width = mcfont.get_width(parsedtxt)
-					# 	img = Image.new('RGBA', (width+25, 42))
-					# 	mcfont.render((5, 0), parsedtxt, img)
-					# 	img.save('lastrank.png')
-					# 	customtag = discord.File('lastrank.png')
-					# 	embed.set_image(url=f'attachment://lastrank.png')
-					# except Exception:
-					# 	pass
-					# if customtag:
-					# 	embed.add_field(name='Base Rank', value=monthlyrank or rank, inline=False)
-					# elif rankimg != None:
-					# 	embed.set_image(url=rankimg)
 					if customtag:
 						await msg.delete()
 						await ctx.send(embed=embed, file=customtag)
 					else:
 						await msg.edit(content=None, embed=embed)
-		elif arg2 == 'session':
-			msg = await ctx.send(f"Retrieving {discord.utils.escape_mentions(discord.utils.escape_markdown(arg1))}'s session...")
-			try:
-				player = hypixel.Player(arg1)
-			except hypixel.PlayerNotFoundException:
-				raise commands.ArgumentParsingError('Couldn\'t find that player...')
-				return
-			uuid = player.JSON['uuid']
-			rank = player.getRank()['rank']
-			async with aiohttp.ClientSession() as session:
-				async with session.get(f'https://api.hypixel.net/session?uuid={uuid}&key={hypixelkey}') as resp:
-					session = await resp.json()
-			rankhide = ['YouTube', 'Helper', 'Moderator', 'Admin']
-			if rank in rankhide:
-				hidden = True
-				if isadmin(ctx):
-					hidden = False
-			else:
-				hidden = False
-			if session['session'] == None:
-				embed = discord.Embed(title=f"Session of {discord.utils.escape_markdown(arg1)}", colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
-				embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
-				embed.add_field(name="Session", value="undefined", inline=False)
-				embed.add_field(name="Why?", value=f"{discord.utils.escape_markdown(arg1)} is not in a game", inline=False)
-				await msg.edit(content=None, embed=embed)
-			else:
-				embed = discord.Embed(title=f"Session of {discord.utils.escape_markdown(arg1)}", colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
-				embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
-				embed.add_field(name="Playing", value=f"{session['session']['gameType']}", inline=False)
-				if hidden:
-					embed.add_field(name="Server", value="Hidden", inline=False)
-				else:
-					embed.add_field(name="Server", value=f"{session['session']['server']}", inline=False)
-				playingWith = []
-				if hidden:
-					embed.add_field(name="Playing With", value="Hidden", inline=False)
-				else:
-					for player in session['session']['players']:
-						try:
-							playingWith.append(uuidToName[player])
-						except KeyError:
-							async with aiohttp.ClientSession() as session:
-								async with session.get(f'https://sessionserver.mojang.com/session/minecraft/profile/{player}') as resp:
-									jresp = await resp.json()
-									playingWith.append(jresp['name'])
-									uuidToName.update({player: jresp['name']})
-					embed.add_field(name="Playing With", value=discord.utils.escape_markdown('\n'.join(playingWith)), inline=False)
-				await msg.edit(content=None, embed=embed)
-			return
+		# elif arg2 == 'session':
+		# 	msg = await ctx.send(f"Retrieving {discord.utils.escape_mentions(discord.utils.escape_markdown(arg1))}'s session...")
+		# 	try:
+		# 		player = hypixel.Player(arg1)
+		# 	except hypixel.PlayerNotFoundException:
+		# 		raise commands.ArgumentParsingError('Couldn\'t find that player...')
+		# 		return
+		# 	uuid = player.JSON['uuid']
+		# 	rank = player.getRank()['rank']
+		# 	async with aiohttp.ClientSession() as session:
+		# 		async with session.get(f'https://api.hypixel.net/session?uuid={uuid}&key={hypixelkey}') as resp:
+		# 			session = await resp.json()
+		# 	rankhide = ['YouTube', 'Helper', 'Moderator', 'Admin']
+		# 	if rank in rankhide:
+		# 		hidden = True
+		# 		if isadmin(ctx):
+		# 			hidden = False
+		# 	else:
+		# 		hidden = False
+		# 	if session['session'] == None:
+		# 		embed = discord.Embed(title=f"Session of {discord.utils.escape_markdown(arg1)}", colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
+		# 		embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
+		# 		embed.add_field(name="Session", value="undefined", inline=False)
+		# 		embed.add_field(name="Why?", value=f"{discord.utils.escape_markdown(arg1)} is not in a game", inline=False)
+		# 		await msg.edit(content=None, embed=embed)
+		# 	else:
+		# 		embed = discord.Embed(title=f"Session of {discord.utils.escape_markdown(arg1)}", colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
+		# 		embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
+		# 		embed.add_field(name="Playing", value=f"{session['session']['gameType']}", inline=False)
+		# 		if hidden:
+		# 			embed.add_field(name="Server", value="Hidden", inline=False)
+		# 		else:
+		# 			embed.add_field(name="Server", value=f"{session['session']['server']}", inline=False)
+		# 		playingWith = []
+		# 		if hidden:
+		# 			embed.add_field(name="Playing With", value="Hidden", inline=False)
+		# 		else:
+		# 			for player in session['session']['players']:
+		# 				try:
+		# 					playingWith.append(uuidToName[player])
+		# 				except KeyError:
+		# 					async with aiohttp.ClientSession() as session:
+		# 						async with session.get(f'https://sessionserver.mojang.com/session/minecraft/profile/{player}') as resp:
+		# 							jresp = await resp.json()
+		# 							playingWith.append(jresp['name'])
+		# 							uuidToName.update({player: jresp['name']})
+		# 			embed.add_field(name="Playing With", value=discord.utils.escape_markdown('\n'.join(playingWith)), inline=False)
+		# 		await msg.edit(content=None, embed=embed)
+		# 	return
 		elif arg2 == 'friends':
 			headers = {
 				'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
