@@ -732,6 +732,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			return await ctx.send("You must specify a user")
 		if not reason:
 			return await ctx.send("You must specify a reason")
+		if user.id == self.bot.user.id:
+			return await ctx.send("<a:fireFailed:603214400748257302> I cannot warn myself, you fool.")
 
 		try:
 			await user.send(f'You were warned in {ctx.guild.name} for "{reason}"')
