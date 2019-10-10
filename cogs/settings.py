@@ -92,7 +92,6 @@ class settings(commands.Cog, name="Settings"):
 		self.autodehoist = []
 		self.modonly = {}
 		self.adminonly = {}
-		self.deletedroles = []
 	
 	async def loadSettings(self):
 		self.logchannels = {}
@@ -714,13 +713,6 @@ class settings(commands.Cog, name="Settings"):
 						pass
 				if len(removed) == 1:
 					role = discord.utils.get(after.guild.roles, name=removed[0])
-					if role.id in self.deletedroles:
-						return
-					currentroles = await after.guild.fetch_roles()
-					if role not in currentroles:
-						self.bot.dispatch('guild_role_delete', role)
-						self.deletedroles.append(role.id)
-						return
 					embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'s roles were changed\n**{after.name} was removed from the** {role.mention} **role**')
 					embed.set_author(name=after, icon_url=str(after.avatar_url))
 					embed.set_footer(text=f"Member ID: {after.id} | Role ID: {role.id}")
