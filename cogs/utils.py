@@ -661,8 +661,8 @@ class utils(commands.Cog, name='Utility Commands'):
 				perms.append(permissions[perm] if perm in permissions else perm.replace('_', '').capitalize())
 		if perms:
 			embed.add_field(name="» Permissions", value=', '.join(perms), inline=False)
-		mask = Image.open('resources/fireavbase512.png')
-		img = Image.open('resources/fireavbase512.png')
+		mask = Image.open('cogs/static/images/promotional-assets/fireavbase512.png')
+		img = Image.open('cogs/static/images/promotional-assets/fireavbase512.png')
 		sub_img = Image.new('RGBA', (512, 512), rgbcolor)
 		img.paste(sub_img, (0, 0), mask)
 		img.save(f'{role.id}.png')
@@ -1119,8 +1119,8 @@ class utils(commands.Cog, name='Utility Commands'):
 			color = u.color
 		else:
 			color = ctx.author.color
-		mask = Image.open('resources/fireavbase.png')
-		img = Image.open('resources/fireavbase.png')
+		mask = Image.open('cogs/static/images/promotional-assets/fireavbase.png')
+		img = Image.open('cogs/static/images/promotional-assets/fireavbase.png')
 		av_bytes = await u.avatar_url_as(format='png', static_format='png', size=256).read()
 		av_img = Image.open(BytesIO(av_bytes))
 		sub_img = av_img.convert("RGBA")
