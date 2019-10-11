@@ -1392,34 +1392,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		fp = await self.bot.loop.run_in_executor(None, functools.partial(self.gtts, text))
 		ttsfile = discord.File(f'{fp}.mp3', f'{ctx.author}.mp3')
 		await ctx.send(file=ttsfile)
-		os.remove(f'{fp}.mp3')
-	
-	@commands.command(description='Get user info in an image. (proof of concept)')
-	async def imgtest(self, ctx, user: Member = None):
-		'''PFXimgtest [<user>]'''
-		if user == None:
-			user = ctx.author
-		await ctx.send(f'Retrieving {discord.utils.escape_mentions(user)}\'s info')
-		img = Image.open('cogs/infoimgimg.png')
-		draw = ImageDraw.Draw(img)
-		font = ImageFont.truetype('cogs/Modern_Sans_Light.otf', 100)
-		fontbig = ImageFont.truetype('cogs/Fitamint Script.ttf', 400)
-		draw.text((200, 0), 'Information:', (255, 255, 255), font=fontbig)
-		draw.text((50, 500), f'Username: {user.name}', (255, 255, 255), font=font)
-		draw.text((50, 700), f'ID: {user.id}', (255, 255, 255), font=font)
-		draw.text((50, 900), f'User Status: {user.status}', (255, 255, 255), font=font)
-		draw.text((50, 1100), f'Account created: {user.created_at}', (255, 255, 255), font=font)
-		draw.text((50, 1300), f'Nickname: {user.display_name}', (255, 255, 255), font=font)
-		draw.text((50, 1500), f'{user.name}\'s Top Role: {user.top_role}', (255, 255, 255), font=font)
-		draw.text((50, 1700), f'User Joined: {user.joined_at}', (255, 255, 255), font=font)
-		img.save(f'cogs/{user.id}.png')
-		image = discord.File(f'cogs/{user.id}.png', filename=f'{user.id}.png', spoiler=False)
-		await ctx.send(file=image)
-		uid = user.id
-		if os.path.exists(f"cogs/{uid}.png"):
-			os.remove(f'cogs/{uid}.png')
-		else:
-			await ctx.send('error deleting file.')
+		os.remove(f'{fp}.mp3'
 		
 def setup(bot):
 	bot.add_cog(utils(bot))
