@@ -1392,7 +1392,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		fp = await self.bot.loop.run_in_executor(None, functools.partial(self.gtts, text))
 		ttsfile = discord.File(f'{fp}.mp3', f'{ctx.author}.mp3')
 		await ctx.send(file=ttsfile)
-		os.remove(f'{fp}.mp3'
+		os.remove(f'{fp}.mp3')
 		
 def setup(bot):
 	bot.add_cog(utils(bot))
