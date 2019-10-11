@@ -457,7 +457,7 @@ class settings(commands.Cog, name="Settings"):
 		try:
 			if member.guild.id in self.autodecancer:
 				decancered = False
-				if not self.bot.isascii(member.name):
+				if not self.bot.isascii(member.name.replace('‘', '\'')): #fix weird mobile character
 					num = member.discriminator
 					decancered = True
 					await member.edit(nick=f'John Doe {num}')
@@ -533,7 +533,7 @@ class settings(commands.Cog, name="Settings"):
 								decancered = False
 								nick = after.name
 								tochange = 'Username'
-								if not self.bot.isascii(nick):
+								if not self.bot.isascii(nick.replace('‘', '\'')):
 									num = member.discriminator
 									decancered = True
 									await member.edit(nick=f'John Doe {num}')
@@ -610,7 +610,7 @@ class settings(commands.Cog, name="Settings"):
 						else:
 							nick = after.nick
 							tochange = 'Nickname'
-						if not self.bot.isascii(nick):
+						if not self.bot.isascii(nick.replace('‘', '\'')):
 							num = after.discriminator
 							decancered = True
 							await after.edit(nick=f'John Doe {num}')
