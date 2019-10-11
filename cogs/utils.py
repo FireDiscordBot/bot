@@ -1181,7 +1181,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.group(name='tags', aliases=['tag', 'dtag'], invoke_without_command=True)
 	@commands.guild_only()
-	async def tags(self, ctx, tagname: str = None):
+	async def tags(self, ctx, *, tagname: str = None):
 		if not ctx.invoked_subcommand:
 			taglist = self.tags[ctx.guild.id] if ctx.guild.id in self.tags else False
 			if not taglist:
