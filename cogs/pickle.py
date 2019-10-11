@@ -118,6 +118,9 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		if arg1 == None:
 			msg = await ctx.send("I need an IGN, `key` or `watchdog`", delete_after=5)
 			return
+		arg1 = arg1.lower()
+		if arg2:
+			arg2 = arg2.lower()
 		if arg1.lower() == "watchdog":
 			async with aiohttp.ClientSession() as session:
 				async with session.get(f'https://api.hypixel.net/watchdogstats?key={hypixelkey}') as resp:
@@ -340,6 +343,17 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				return await interface.send_to(ctx)
 			else:
 				return await ctx.send('Unknown leaderboard.')
+		elif arg1 == 'skyblock':
+			if not arg2 or arg2 == 'news':
+				async with aiohttp.ClientSession() as session:
+					async with session.get(f'https://api.hypixel.net/skyblock/news?key={hypixelkey}') as resp:
+						sbnews = await resp.json()
+				paginator = WrappedPaginator(prefix='', suffix='', max_size=250)
+				for entry in sbnews['items']:
+					paginator.add_line(f'[{entry["title"]}]({entry["link"]})\n{entry["text"]}\n')
+				embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
+				return await interface.send_to(ctx)
 		if arg2 == None:
 			cleaned = discord.utils.escape_mentions(discord.utils.escape_markdown(arg1))
 			msg = await ctx.send(f"Requesting info about {cleaned} from the Hypixel API!")
