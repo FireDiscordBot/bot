@@ -1081,6 +1081,7 @@ class settings(commands.Cog, name="Settings"):
 					await ctx.send(f'Great! Setting mod logs to {modlogchannel.mention}')
 			else:
 				await ctx.send('Skipping mod logs...')
+				modlogs = 0
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				q = 'UPDATE settings SET modlogs = $1 WHERE gid = $2;'
@@ -1118,6 +1119,7 @@ class settings(commands.Cog, name="Settings"):
 					await ctx.send(f'Great! Setting action logs to {actionlogchannel.mention}')
 			else:
 				await ctx.send('Skipping action logs...')
+				actionlogs = 0
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				q = 'UPDATE settings SET actionlogs = $1 WHERE gid = $2;'
