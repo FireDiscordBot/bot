@@ -755,8 +755,6 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_guild_role_delete(self, role):
-		if role.id in self.deletedroles:
-			return
 		logid = self.logchannels[role.guild.id] if role.guild.id in self.logchannels else None
 		if logid:
 			logch = role.guild.get_channel(logid['actionlogs'])
