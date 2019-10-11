@@ -137,6 +137,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		if vc:
 			player = self.bot.wavelink.get_player(ctx.guild.id, cls=MusicPlayer)
 			player.gassist = True
+			player.current_gassist_query = query
 		if player:
 			if isinstance(player.current, MusicTrack):
 				uploadresp = True

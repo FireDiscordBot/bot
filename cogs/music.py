@@ -31,11 +31,12 @@ with open('config_prod.json', 'r') as cfg:
 	config = json.load(cfg)
 	
 class Track(wavelink.Track):
-	__slots__ = ('requester', 'channel', 'message')
+	__slots__ = ('author', 'requester', 'channel', 'message')
 
 	def __init__(self, id_, info, *, ctx=None):
 		super(Track, self).__init__(id_, info)
 
+		self.author = info.get("author")
 		self.requester = ctx.author
 		self.channel = ctx.channel
 		self.message = ctx.message
@@ -162,7 +163,7 @@ class Player(wavelink.Player):
 			embed.add_field(name='Duration', value='🔴`Streaming`')
 		else:
 			embed.add_field(name='Duration', value=str(datetime.timedelta(milliseconds=int(track.length))))
-		embed.add_field(name='Video URL', value=f'[Click Here!]({track.uri})')
+		embed.add_field(name='Author', value=f'{track.author}')
 		embed.add_field(name='Requested By', value=track.requester.mention)
 		embed.add_field(name='Current DJ', value=self.dj.mention)
 		embed.add_field(name='Queue Length', value=str(len(self.entries)))
