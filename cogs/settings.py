@@ -88,6 +88,7 @@ class settings(commands.Cog, name="Settings"):
 		self.logchannels = {}
 		self.invitefiltered = []
 		self.gbancheck = []
+		self.recentgban = []
 		self.autodecancer = []
 		self.autodehoist = []
 		self.modonly = {}
@@ -151,9 +152,9 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_ready(self):
+		self.bot.ksoft.register_ban_hook(self.ksoft_ban_hook)
 		await asyncio.sleep(5)
 		await self.loadSettings()
-		print('Settings loaded (on_ready)!')
 
 	@commands.command(name='loadsettings', description='Load settings', hidden=True)
 	async def loadthesettings(self, ctx):
@@ -436,6 +437,30 @@ class settings(commands.Cog, name="Settings"):
 					except Exception:
 						pass
 
+	def ksoft_ban_hook(self, event):
+		self.bot.dispatch('ksoft_ban', event)
+
+	@commands.Cog.listener()
+	async def on_ksoft_ban(self, event):
+		for guild in self.bot.guilds:
+			if guild.id in self.gbancheck:
+				logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
+				if logid:
+					logch = guild.get_channel(logid['modlogs'])
+				member = guild.get_member(event.user_id)
+				if member:
+					await guild.ban(member, reason=f'{member} was found on global ban list')
+					self.recentgban.append(f'{member.id}-{guild.id}')
+					if logch:
+						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
+						embed.set_author(name=member, icon_url=str(member.avatar_url))
+						embed.add_field(name='Reason', value=f'{member} was found on global ban list', inline=False)
+						embed.set_footer(text=f"Member ID: {member.id}")
+						try:
+							return await logch.send(embed=embed)
+						except Exception:
+							pass
+
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
@@ -444,6 +469,21 @@ class settings(commands.Cog, name="Settings"):
 			logch = member.guild.get_channel(logid['modlogs'])
 		else:
 			return
+		if member.guild.id in self.gbancheck:
+			banned = await self.bot.ksoft.ban_check(member.id)
+			if banned:
+				try:
+					await guild.ban(member, reason=f'{member} was found on global ban list')
+					self.recentgban.append(f'{member.id}-{member.guild.id}')
+					if logch:
+						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
+						embed.set_author(name=member, icon_url=str(member.avatar_url))
+						embed.add_field(name='Reason', value=f'{member} was found on global ban list', inline=False)
+						embed.set_footer(text=f"Member ID: {member.id}")
+						try:
+							return await logch.send(embed=embed)
+						except Exception:
+							pass
 		if logch:
 			#https://giphy.com/gifs/pepsi-5C0a8IItAWRebylDRX
 			embed = discord.Embed(title='Member Joined', url='https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif', color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
@@ -1005,6 +1045,9 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_member_ban(self, guild, member):
+		if f'{member.id}-{guild.id}' in self.recentgban:
+			self.recentgban.remove(f'{member.id}-{guild.id}')
+			return
 		logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
 		if logid:
 			logch = guild.get_channel(logid['actionlogs'])
