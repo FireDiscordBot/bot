@@ -594,9 +594,9 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
-		if after.nick != None and f'John Doe {after.discriminator}' in after.nick:
-			return
 		if before.nick != after.nick:
+			if after.nick != None and f'John Doe {after.discriminator}' in after.nick:
+				return
 			try:
 				if after.guild.id in self.autodecancer:
 					nitroboosters = discord.utils.get(after.guild.roles, name='Nitro Booster')
