@@ -372,6 +372,7 @@ class Music(commands.Cog):
 	def event_hook(self, event):
 		"""Our event hook. Dispatched when an event occurs on our Node."""
 		if isinstance(event, wavelink.TrackEnd):
+			event.player.current = None
 			event.player.next_event.set()
 		else:
 			asyncio.run_coroutine_threadsafe(self.error_logger(event), self.bot.loop)
