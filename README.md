@@ -36,5 +36,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* **K.Soft API**: If you need an image api, KSoft is what you need. [API](https://api.ksoft.si)
+* **KSoft API**: If you need an image api, KSoft is what you need. [API](https://api.ksoft.si)
 * **OpenSSL**: Used in the `grpcio` pip module which is required by Fire for Google Assistant features
