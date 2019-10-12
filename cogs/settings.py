@@ -449,17 +449,20 @@ class settings(commands.Cog, name="Settings"):
 					logch = guild.get_channel(logid['modlogs'])
 				member = guild.get_member(event.user_id)
 				if member:
-					await guild.ban(member, reason=f'{member} was found on global ban list')
-					self.recentgban.append(f'{member.id}-{guild.id}')
-					if logch:
-						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
-						embed.set_author(name=member, icon_url=str(member.avatar_url))
-						embed.add_field(name='Reason', value=f'{member} was found on global ban list', inline=False)
-						embed.set_footer(text=f"Member ID: {member.id}")
-						try:
-							return await logch.send(embed=embed)
-						except Exception:
-							pass
+					try:
+						await guild.ban(member, reason=f'{member} was found on global ban list')
+						self.recentgban.append(f'{member.id}-{guild.id}')
+						if logch:
+							embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
+							embed.set_author(name=member, icon_url=str(member.avatar_url))
+							embed.add_field(name='Reason', value=f'{member} was found on global ban list', inline=False)
+							embed.set_footer(text=f"Member ID: {member.id}")
+							try:
+								return await logch.send(embed=embed)
+							except Exception:
+								pass
+					except discord.HTTPException:
+						return
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
@@ -484,6 +487,8 @@ class settings(commands.Cog, name="Settings"):
 							return await logch.send(embed=embed)
 						except Exception:
 							pass
+				except discord.HTTPException:
+					return
 		if logch:
 			#https://giphy.com/gifs/pepsi-5C0a8IItAWRebylDRX
 			embed = discord.Embed(title='Member Joined', url='https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif', color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
