@@ -25,6 +25,8 @@ import asyncio
 import aiohttp
 import humanfriendly
 import functools
+from bs4 import BeautifulSoup
+from markdown import markdown
 from random import randint
 from fire.converters import TextChannel
 from fire.invite import findinvite
@@ -53,6 +55,22 @@ def byteify(input):
 		return input.encode('utf-8')
 	else:
 		return input
+
+def markdown_to_text(markdown_string):
+    """ Converts a markdown string to plaintext """
+
+    # md -> html -> text since BeautifulSoup can extract text cleanly
+    html = markdown(markdown_string)
+
+    # remove code snippets
+    html = re.sub(r'<pre>(.*?)</pre>', ' ', html)
+    html = re.sub(r'<code>(.*?)</code >', ' ', html)
+
+    # extract text
+    soup = BeautifulSoup(html, "html.parser")
+    text = ''.join(soup.findAll(text=True))
+
+    return text
 
 # byteify example
 # byteify(json.loads(u"[ 'A','B','C' , ' D']".replace('\'','"')))
@@ -211,7 +229,7 @@ class settings(commands.Cog, name="Settings"):
 		if before.content == after.content:
 			return
 		message = after
-		code = findinvite(message.system_content)
+		code = findinvite(markdown_to_text(message.system_content))
 		invite = None
 		if code:
 			if '/' in code:
