@@ -183,6 +183,13 @@ class settings(commands.Cog, name="Settings"):
 		else:
 			await ctx.send('no.')
 
+	async def getvanitys(self):
+		if not self.bot.dev:
+			return self.bot.vanity_urls
+		async with aiohttp.ClientSession() as s:
+			async with s.get(config['vanityurlapi']) as r:
+				self.bot.vanity_urls = await r.json()
+
 	@commands.Cog.listener()
 	async def on_message_delete(self, message):
 		if message.guild and not message.author.bot:
@@ -249,6 +256,7 @@ class settings(commands.Cog, name="Settings"):
 								pass
 			try:
 				ohmygod = False
+				await self.getvanitys()
 				if code.lower() in self.bot.vanity_urls and 'oh-my-god.wtf' in message.system_content:
 					invite = self.bot.vanity_urls[code]
 					ohmygod = True
