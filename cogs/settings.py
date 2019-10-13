@@ -189,7 +189,8 @@ class settings(commands.Cog, name="Settings"):
 			return self.bot.vanity_urls
 		async with aiohttp.ClientSession() as s:
 			async with s.get(config['vanityurlapi']) as r:
-				self.bot.vanity_urls = await r.json()
+				vanity_urls = await r.json()
+		return vanity_urls
 
 	@commands.Cog.listener()
 	async def on_message_delete(self, message):
@@ -257,7 +258,7 @@ class settings(commands.Cog, name="Settings"):
 								pass
 			try:
 				ohmygod = False
-				await self.getvanitys()
+				self.bot.vanity_urls = await self.getvanitys()
 				if code.lower() in self.bot.vanity_urls and 'oh-my-god.wtf' in message.system_content:
 					invite = self.bot.vanity_urls[code]
 					ohmygod = True
