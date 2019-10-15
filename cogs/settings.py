@@ -501,7 +501,7 @@ class settings(commands.Cog, name="Settings"):
 		else:
 			return
 		if member.guild.id in self.gbancheck:
-			banned = await self.bot.ksoft.ban_check(member.id)
+			banned = await self.bot.ksoft.bans_check(member.id)
 			if banned:
 				try:
 					await guild.ban(member, reason=f'{member} was found on global ban list')
