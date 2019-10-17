@@ -67,12 +67,23 @@ class StaffCheck(commands.Converter):
 	async def convert(self, ctx, argument):
 		argument = await Member().convert(ctx, argument)
 		permission = argument.guild_permissions.manage_messages
-		if ctx.author.id == 287698408855044097:
+		if ctx.author.id == 287698408855044097 and argument.id != 287698408855044097:
 			return argument
 		if not permission:
 			return argument
 		else:
 			await ctx.send("<a:fireFailed:603214400748257302> You cannot punish other staff members")
+			return False
+
+class StaffCheckNoMessage(commands.Converter):
+	async def convert(self, ctx, argument):
+		argument = await Member().convert(ctx, argument)
+		permission = argument.guild_permissions.manage_messages
+		if ctx.author.id == 287698408855044097 and argument.id != 287698408855044097:
+			return argument
+		if not permission:
+			return argument
+		else:
 			return False
 
 class MuteCheck(commands.Converter):
