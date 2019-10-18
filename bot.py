@@ -27,10 +27,10 @@ import aiohttp
 import asyncio
 import random
 import typing
-#import aiosqlite3
 import asyncpg
 import traceback
 import functools
+import humanfriendly
 from fire.push import pushbullet
 from fire import exceptions
 import sentry_sdk
@@ -166,10 +166,8 @@ async def on_command_error(ctx, error):
 
 	
 	if isinstance(error, commands.CommandOnCooldown):
-		embed = discord.Embed(title='Command on cooldown...', colour=ctx.author.color, url="https://http.cat/429", description=f"Here's what happened\n```py\n{error}```", timestamp=datetime.datetime.utcnow())
-		embed.set_footer(text=f"Just wait a bit and it'll be fine!")
-		await ctx.send(embed=embed)
-		return
+		td = datetime.timedelta(seconds=error.retry_after)
+		return await ctx.send(f'<a:fireFailed:603214400748257302> This command is on cooldown, please wait {humanfriendly.format_timespan(td)}', delete_after=5)
 
 	if isinstance(error, noperms):
 		await ctx.send(f'<a:fireFailed:603214400748257302> {error}')
