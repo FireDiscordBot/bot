@@ -38,7 +38,7 @@ logging.basicConfig(filename='bot.log',level=logging.INFO)
 
 print("hypixel.py has been loaded")
 
-with open('config_prod.json', 'r') as cfg:
+with open('config_dev.json', 'r') as cfg:
 	config = json.load(cfg)
 
 hypixelkey = config['hypixel']
@@ -53,17 +53,6 @@ def isadmin(ctx):
 	else:
 		admin = True
 	return admin
-
-async def getprefix(ctx):
-	if not ctx.guild:
-		return "$"
-	with open('prefixes.json', 'r') as pfx:
-		customprefix = json.load(pfx)
-	try:
-		prefix = customprefix[str(ctx.guild.id)]
-	except Exception:
-		prefix = "$"
-	return prefix
 
 picklegames = {
 		'QUAKECRAFT': 'Quake',
@@ -141,10 +130,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			async with aiohttp.ClientSession() as session:
 				async with session.get(f'https://api.hypixel.net/key?key={hypixelkey}') as resp:
 					key = await resp.json()
-			try:
-				lastmin = key['record']['queriesInPastMin']
-			except Exception as e:
-				pass
+			lastmin = key.get('record', {}).get('queriesInPastMin', 0)
 			color = ctx.author.color
 			embed = discord.Embed(title="My API Key Stats", colour=color, timestamp=datetime.datetime.utcnow())
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
@@ -371,13 +357,10 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
 					'CONTENT-TYPE': 'application/json' 
 				}
-				try:
-					tributes = p['tourney']['total_tributes'] # TOURNAMENT TRIBUTES
-				except KeyError:
-					tributes = 0
+				tributes = p.get('tourney', {}).get('total_tributes', 0) # TOURNAMENT TRIBUTES
 				level = str(player.getLevel()).split('.')[0]
-				lastlogin = p['lastLogin'] if 'lastLogin' in p else 0
-				lastlogout = p['lastLogout'] if 'lastLogout' in p else 1
+				lastlogin = p.get('lastLogin', 0)
+				lastlogout = p.get('lastLogout', 1)
 				if lastlogin > lastlogout:
 					status = "Online!"
 				else:
@@ -430,47 +413,21 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					embed.set_thumbnail(url=f"https://crafatar.com/avatars/{uuid}?overlay=true")
 					embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 					embed.add_field(name="Online Status", value=status, inline=True)
-					try:
-						language = p['userLanguage']
-					except Exception:
-						language = "Not Set"
+					language = p.get('userLanguage', 'Not Set')
 					embed.add_field(name="Language", value=language, inline=True)
-					try:
-						channel = p['channel']
-					except Exception:
-						channel = "ALL"
+					channel = p.get('channel', 'ALL')
 					embed.add_field(name="Chat Channel", value=channel, inline=True)
-					try:
-						ver = p['mcVersionRp']
-					except Exception:
-						ver = "Unknown"
-					embed.add_field(name="Version", value=ver, inline=True)
 					embed.add_field(name="Level", value=level, inline=True)
-					embed.add_field(name="Karma", value=format(p['karma'] if 'karma' in p else 0, ',d'), inline=True)
-					try:
-						twitter = p['socialMedia']['TWITTER']
-					except Exception:
-						twitter = "Not Set"
-					try:
-						yt = p['socialMedia']['links']['YOUTUBE']
-					except Exception:
-						yt = "Not Set"
-					try:
-						insta = p['socialMedia']['INSTAGRAM']
-					except Exception:
-						insta = "Not Set"
-					try:
-						twitch = p['socialMedia']['TWITCH']
-					except Exception:
-						twitch = "Not Set"
-					try:
-						beam = p['socialMedia']['BEAM']
-					except Exception:
-						beam = "Not Set"
-					try:
-						dscrd = p['socialMedia']['links']['DISCORD']
-					except Exception:
-						dscrd = "Not Set"
+					embed.add_field(name="Karma", value=format(p.get('karma', 0), ',d'), inline=True)
+					twitter = p.get('socialMedia', {}).get('TWITTER', 'Not Set')
+					yt = p.get('socialMedia', {}).get('links', {}).get('YOUTUBE', 'Not Set')
+					insta = p.get('socialMedia', {}).get('INSTAGRAM', 'Not Set')
+					twitch = p.get('socialMedia', {}).get('TWITCH', 'Not Set')
+					beam = p.get('socialMedia', {}).get('BEAM', 'Not Set')
+					if ctx.guild.id not in self.bot.get_cog('Settings').invitefiltered:
+						dscrd = p.get('socialMedia', {}).get('links', {}).get('DISCORD', 'Not Set')
+					else:
+						dscrd = 'Hidden'
 					embed.add_field(name="Social Media", value=f"Twitter: {twitter}\nYouTube: {yt}\nInstagram: {insta}\nTwitch: {twitch}\nBeam: {beam}\nDiscord: {dscrd}", inline=True)
 					if tributes != 0:
 						embed.add_field(name="Tournament Tributes", value=tributes, inline=False)
@@ -562,48 +519,28 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			guild = guild['guild']
 			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
-			try:
-				gtagcolor = guild['tagColor'].lower().replace('_', ' ').capitalize()
-				gtag = guild['tag']
+			gtagcolor = guild['tagColor'].lower().replace('_', ' ').capitalize()
+			gtag = guild.get('tag', '')
+			if gtag:
 				gtag = f'[{gtag}] ({gtagcolor})'
-			except KeyError:
-				gtag = ''
-			try:
-				desc = guild['description']
-			except KeyError:
-				desc = 'No Description Set.'
+			desc = guild.get('description', 'No Description Set.')
 			embed.add_field(name=f"{arg1}'s guild", value=f"{guild['name']} {gtag}\n{desc}\n\nLevel: {guild['level_calc']}")
-			try:
-				embed.add_field(name="Joinable?", value=guild['joinable'], inline=False)
-			except KeyError:
-				embed.add_field(name="Joinable?", value=False, inline=False)
-			try:
-				embed.add_field(name="Publicly Listed?", value=guild['publiclyListed'], inline=False)
-			except KeyError:
-				pass
-			try:
-				embed.add_field(name="Legacy Rank", value=format(guild['legacyRanking'], ',d'), inline=False)
-			except KeyError:
-				pass
+			embed.add_field(name="Joinable?", value=guild.get('joinable', 'False'), inline=False)
+			embed.add_field(name="Publicly Listed?", value=guild.get('publiclyListed', 'False'), inline=False)
+			embed.add_field(name="Legacy Rank", value=format(guild.get('legacyRanking', 'Not Ranked'), ',d'), inline=False)
 			games = []
-			try:
-				for game in guild['preferredGames']:
-					games.append(picklegames[game])
-			except KeyError:
-				games.append('Preferred Games not set.')
+			for game in guild.get('preferredGames', ['this is a placeholder']):
+				games.append(picklegames.get(game, 'Preferred Games not set.'))
 			embed.add_field(name="Preferred Games", value=', '.join(games), inline=False)
 			ranks = []
-			try:
-				for rank in guild['ranks']:
-					name = rank['name']
-					if rank['tag'] == None:
-						tag = ''
-					else:
-						tag = rank['tag']
-						tag = f'[{tag}]'
-					ranks.append(f'{name} {tag}')
-			except KeyError:
-				ranks.append('No custom ranks.')
+			for rank in guild.get('ranks', {'name': 'No custom ranks'}):
+				name = rank['name']
+				if not rank.get('tag', ''):
+					tag = ''
+				else:
+					tag = rank['tag']
+					tag = f'[{tag}]'
+				ranks.append(f'{name} {tag}')
 			embed.add_field(name="Ranks", value='\n'.join(ranks), inline=False)
 			await ctx.send(embed=embed)
 			gname = guild['name']
