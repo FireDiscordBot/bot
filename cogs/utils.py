@@ -207,6 +207,7 @@ region = {
 	'brazil': '🇧🇷 Brazil',
 	'eu-central': '🇪🇺 Central Europe',
 	'eu-west': '🇪🇺 Western Europe',
+	'europe': '🇪🇺 Europe',
 	'frakfurt': '🇩🇪 Frankfurt',
 	'hongkong': '🇭🇰 Hong Kong',
 	'india': '🇮🇳 India',

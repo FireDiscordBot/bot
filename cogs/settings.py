@@ -83,6 +83,7 @@ region = {
 	'brazil': '🇧🇷 Brazil',
 	'eu-central': '🇪🇺 Central Europe',
 	'eu-west': '🇪🇺 Western Europe',
+	'europe': '🇪🇺 Europe',
 	'frakfurt': '🇩🇪 Frankfurt',
 	'hongkong': '🇭🇰 Hong Kong',
 	'india': '🇮🇳 India',
@@ -599,8 +600,10 @@ class settings(commands.Cog, name="Settings"):
 					member = guild.get_member(after.id)
 					if member:
 						if guild.id in self.autodecancer:
-							nitroboosters = discord.utils.get(member.guild.roles, name='Nitro Booster')
-							if member.guild_permissions.manage_nicknames or nitroboosters in member.roles:
+							nitroboosters = discord.utils.get(member.guild.roles, id=585534346551754755)
+							if member.guild_permissions.manage_nicknames:
+								pass
+							if nitroboosters and nitroboosters in member.roles:
 								pass
 							else:
 								decancered = False
@@ -631,8 +634,10 @@ class settings(commands.Cog, name="Settings"):
 									if member.nick and 'John Doe' in member.nick:
 										await member.edit(nick=None)
 						if member.guild.id in self.autodehoist:
-							nitroboosters = discord.utils.get(member.guild.roles, name='Nitro Booster')
-							if member.guild_permissions.manage_nicknames or nitroboosters in member.roles:
+							nitroboosters = discord.utils.get(member.guild.roles, id=585534346551754755)
+							if member.guild_permissions.manage_nicknames:
+								pass
+							if nitroboosters and nitroboosters in member.roles:
 								pass
 							else:
 								dehoisted = False
