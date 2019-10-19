@@ -27,7 +27,7 @@ from fire.converters import Member
 
 print("ksoft.py has been loaded")
 
-with open('config_dev.json', 'r') as cfg:
+with open('config_prod.json', 'r') as cfg:
 	config = json.load(cfg)
 
 client = ksoftapi.Client(api_key=config['ksoft'])
