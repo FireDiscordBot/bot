@@ -20,11 +20,14 @@ from discord.ext import commands
 import datetime
 import json
 import ksoftapi
+import typing
 import random
+from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
+from fire.converters import Member
 
 print("ksoft.py has been loaded")
 
-with open('config_prod.json', 'r') as cfg:
+with open('config_dev.json', 'r') as cfg:
 	config = json.load(cfg)
 
 client = ksoftapi.Client(api_key=config['ksoft'])
@@ -162,6 +165,27 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 			embed.add_field(name='Appeal Date', value=inf.appeal_date.replace('T', ' ').split('.')[0])
 		await ctx.send(embed=embed)
 
+	@commands.command(name='lyrics')
+	async def lyrics(self, ctx, *, query: typing.Union[Member, str] = None):
+		query = ctx.author if not query else query
+		if type(query) == discord.Member:
+			for activity in query.activities:
+				if type(activity) == discord.Spotify:
+					lyrics = await self.bot.ksoft.lyrics_search(f'{", ".join(activity.artists)} {activity.title}')
+		elif type(query) == discord.User:
+			raise commands.BadArgument('Missing search query')
+		else:
+			lyrics = await self.bot.ksoft.lyrics_search(query)
+		if len(lyrics.results) < 1:
+			return await ctx.send('<a:fireFailed:603214400748257302> No lyrics found')
+		lyrics: ksoftapi.LyricsSearchResp = lyrics.results[0]
+		paginator = WrappedPaginator(prefix='', suffix='', max_size=1000)
+		for line in lyrics.lyrics.split('\n'):
+			paginator.add_line(line)
+		embed = discord.Embed(color=ctx.author.color, title=f'{lyrics.name} by {lyrics.artist}')
+		footer = {'text': 'Powered by KSoft.Si API', 'icon_url': 'https://cdn.ksoft.si/images/Logo128.png'}
+		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed, _footer=footer)
+		await interface.send_to(ctx)
 
 
 def setup(bot):
