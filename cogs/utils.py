@@ -38,6 +38,8 @@ from io import BytesIO
 from gtts import gTTS
 from fire.converters import User, UserWithFallback, Member, TextChannel, VoiceChannel, Category, Role
 from fire.push import pushover
+from fire.exceptions import PushError
+from fire import slack
 
 launchtime = datetime.datetime.utcnow()
 
@@ -277,6 +279,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.channelfollowable = []
 		self.channelfollows = {}
 		self.bot.vanity_urls = {}
+		if 'slack_messages' not in dir(self.bot):
+ 			self.bot.slack_messages = {}
 		self.bot.getvanity = self.getvanity
 		self.tags = {}
 		self.quotecooldowns = {}
@@ -344,6 +348,14 @@ class utils(commands.Cog, name='Utility Commands'):
 		async with con.transaction():
 			query = 'DELETE FROM vanity WHERE code = $1;'
 			await self.bot.db.execute(query, code)
+		await self.bot.db.release(con)
+		await self.loadvanitys()
+
+	async def deletevanitygid(self, gid: int):
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'DELETE FROM vanity WHERE gid = $1;'
+			await self.bot.db.execute(query, gid)
 		await self.bot.db.release(con)
 		await self.loadvanitys()
 
@@ -1161,7 +1173,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		'''PFXvanityurl [<code>|"disable"]'''
 		if not code:
 			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide a code!')
-		if code == 'disable':
+		if code.lower() == 'disable':
 			await self.deletevanity(ctx)
 			return await ctx.send('<a:fireSuccess:603214443442077708> Vanity URL deleted!')
 		if not self.bot.isascii(code):
@@ -1175,7 +1187,17 @@ class utils(commands.Cog, name='Utility Commands'):
 		vanity = await self.createvanity(ctx, code.lower(), createdinv)
 		if vanity:
 			author = str(ctx.author).replace('#', '%23')
-			await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url='https://api.gaminggeek.dev/currentvanity', url_title='Check current Vanity URLs')
+			if not self.bot.dev:
+				try:
+					slackmsg = await slack.sendvanity(f'/{code}', ctx.author, ctx.guild)
+					self.bot.slack_messages[f'vanity_{ctx.guild.id}'] = slackmsg
+				except PushError as e:
+					print(e)
+					if 'vanityapiurl' not in config:
+						config['vanityurlapi'] = 'https://http.cat/404'
+					await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
+			else:
+				await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
 			return await ctx.send(f'<a:fireSuccess:603214443442077708> Your Vanity URL is {vanity["url"]}')
 		else:
 			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
