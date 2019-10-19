@@ -172,6 +172,8 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 			for activity in query.activities:
 				if type(activity) == discord.Spotify:
 					lyrics = await self.bot.ksoft.lyrics_search(f'{", ".join(activity.artists)} {activity.title}')
+			if not lyrics:
+				raise commands.BadArgument('That member isn\'t listening to Spotify!')
 		elif type(query) == discord.User:
 			raise commands.BadArgument('Missing search query')
 		else:
