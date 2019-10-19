@@ -27,6 +27,7 @@ import asyncpg
 import functools
 import strgen
 import asyncio
+import aiohttp
 from colormap import rgb2hex, hex2rgb
 from emoji import UNICODE_EMOJI
 from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
@@ -690,6 +691,30 @@ class utils(commands.Cog, name='Utility Commands'):
 			membed = discord.Embed(colour=role.color if role.color != discord.Color.default() else ctx.author.color, timestamp=datetime.datetime.utcnow())
 			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=membed)
 			await interface.send_to(ctx)
+
+	@commands.command(name='dstatus')
+	async def dstatus(self, ctx):
+		colors = {
+			'none': ctx.author.color,
+			'minor': discord.Color.orange(),
+			'major': discord.Color.red()
+		}
+		summary = await aiohttp.ClientSession().get('https://status.discordapp.com/api/v2/summary.json')
+		summary = await summary.json()
+		incidents = await aiohttp.ClientSession().get('https://status.discordapp.com/api/v2/incidents.json')
+		incidents = await incidents.json()
+		desc = []
+		for c in summary['components']:
+			if c['group_id']:
+				continue
+			if c['status'] == 'operational':
+				desc.append(f'<a:fireSuccess:603214443442077708> **{c["name"]}**: {c["status"].capitalize()}')
+			else:
+				desc.append(f'<a:fireFailed:603214400748257302> **{c["name"]}**: {c["status"].capitalize()}')
+		embed = discord.Embed(color=colors[str(summary['status']['indicator'])], timestamp=datetime.datetime.utcnow(), description='\n'.join(desc))
+		incident = incidents['incidents'][0]
+		embed.add_field(name='Latest Incident', value=f'[{incident["name"]}]({incident["shortlink"]})\nStatus: **{incident["status"].capitalize()}**')
+		await ctx.send(embed=embed)
 
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
