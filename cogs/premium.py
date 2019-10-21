@@ -148,7 +148,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 
 		video = CompositeVideoClip([clip, text.crossfadein(1), text2.crossfadein(1), text3.crossfadein(1)]).set_duration(15.4)
 
-		video.write_videofile(filename, threads=25, preset='superfast', verbose=False)
+		video.write_videofile(filename, preset='superfast', verbose=False)
 		clip.close()
 		video.close()
 
