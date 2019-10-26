@@ -134,4 +134,3 @@ fishin
 # jetbrains ide
 .idea
 *.iml
-.vscode/settings.json
