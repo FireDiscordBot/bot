@@ -614,6 +614,9 @@ class Music(commands.Cog):
 		if not player.is_connected:
 			return await ctx.send('I am not currently connected to voice!')
 
+		if not player.current:
+			return await ctx.send('I am not currently playing music!')
+
 		if await self.has_perms(ctx, manage_guild=True):
 			await ctx.send(f'{ctx.author.mention} has skipped the song as an admin or DJ.', delete_after=25)
 			return await self.do_skip(ctx)

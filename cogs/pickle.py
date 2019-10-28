@@ -86,6 +86,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.bot.hypixelkey = hypixelkey
+		self.uuidcache = {}
 
 	# @commands.command(description='Generate a rank image from text, e.g. `&d[PIG&c+&d]`')
 	# async def rankimg(self, ctx, *, arg):
@@ -100,7 +101,18 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 	# 	embed = discord.Embed(color=ctx.author.color)
 	# 	embed.set_image(url=f'attachment://lastrank.png')
 	# 	await ctx.send(embed=embed, file=file)
-  
+
+	async def nameToUUID(self, player: str):
+		try:
+			uuid = self.uuidcache[player]
+		except KeyError:
+			async with aiohttp.ClientSession() as session:
+				async with session.get(f'https://api.mojang.com/users/profiles/minecraft/{player}') as resp:
+					json = await resp.json()
+					uuid = json['id']
+					self.uuidcache.update({player: json['id']})
+		return uuid or None
+	
 	@commands.command(description="Get hypixel stats")
 	async def hypixel(self, ctx, arg1: str = None, arg2: str = None):
 		"""PFXhypixel <IGN [<guild|friends|session>]|key|watchdog>"""
@@ -367,7 +379,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					status = "Offline!"
 				tag = None
 				async with aiohttp.ClientSession(headers=headers) as session:
-					async with session.get(f'https://api.sk1er.club/guild/player/{arg1}') as resp:
+					async with session.get(f'https://api.sk1er.club/guild/player/{player.UUID}') as resp:
 						guild = await resp.json()
 				if guild['success']:
 					guild = guild['guild']
@@ -507,12 +519,13 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 			await interface.send_to(ctx)
 		elif arg2 == 'guild':
+			uuid = await self.nameToUUID(arg1)
 			headers = {
 				'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
 				'CONTENT-TYPE': 'application/json' 
 			}
 			async with aiohttp.ClientSession(headers=headers) as session:
-				async with session.get(f'https://api.sk1er.club/guild/player/{arg1}') as resp:
+				async with session.get(f'https://api.sk1er.club/guild/player/{uuid}') as resp:
 					guild = await resp.json()
 			if guild['success'] != True:
 				raise commands.ArgumentParsingError('Couldn\'t find a guild. Maybe they aren\'t in one...')
