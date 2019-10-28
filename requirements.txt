@@ -62,7 +62,7 @@ opengraph==0.5
 opengraph-py3==0.71
 pathlib2==2.3.3
 pexpect==4.7.0
-Pillow==5.4.1
+Pillow==6.2.0
 proglog==0.1.9
 protobuf==3.7.1
 psutil==5.6.0
