@@ -480,7 +480,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				return
 
 			
-	@commands.command(aliases=["banish", "begone", "gtfo"], description="Ban a user from the server")
+	@commands.command(aliases=["banish", "begone", "gtfo", "410"], description="Ban a user from the server")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(ban_members=True)
 	async def ban(self, ctx, user: typing.Union[StaffCheck, UserWithFallback] = None, *, reason: str = None, ):
@@ -698,7 +698,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	# 		logch = ctx.guild.get_channel(logid['modlogs'])
 	# 	await self.mute(ctx, user, reason=reason or "No reason provided.", channel=logch)
 
-	@commands.command(name='mute', description="Mute a user.", aliases=['silence', 'tempmute'])
+	@commands.command(name='mute', description="Mute a user.", aliases=["silence", "tempmute", "403"])
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def mutecmd(self, ctx, user: StaffCheck, *, reason: str = None):
@@ -864,7 +864,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 		await interface.send_to(ctx)
 
-	@commands.command(description="Kick a user.", aliases=["yeet"])
+	@commands.command(description="Kick a user.", aliases=["yeet", "409"])
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(kick_members=True)
 	async def kick(self, ctx, user: StaffCheck = None, *, reason = None):
