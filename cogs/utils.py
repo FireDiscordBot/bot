@@ -595,11 +595,14 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Mentionable?", value='Yes' if role.mentionable else 'No', inline=True)
 		embed.add_field(name="» Color", value=f'> RGB: {rgbcolor}\n> HEX: {hexcolor}', inline=True)
 		perms = []
-		for perm, value in role.permissions:
-			if value:
-				perms.append(permissions[perm] if perm in permissions else perm.replace('_', '').capitalize())
-		if perms:
-			embed.add_field(name="» Permissions", value=', '.join(perms), inline=False)
+		if not role.permissions.administrator:
+			for perm, value in role.permissions:
+				if value:
+					perms.append(permissions[perm] if perm in permissions else perm.replace('_', '').capitalize())
+			if perms:
+				embed.add_field(name="» Permissions", value=', '.join(perms), inline=False)
+		else:
+			embed.add_field(name="» Permissions", value='Administrator', inline=False)
 		mask = Image.open('cogs/static/images/promotional-assets/fireavbase512.png')
 		img = Image.open('cogs/static/images/promotional-assets/fireavbase512.png')
 		sub_img = Image.new('RGBA', (512, 512), rgbcolor)
