@@ -440,7 +440,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 						dscrd = p.get('socialMedia', {}).get('links', {}).get('DISCORD', 'Not Set')
 					else:
 						dscrd = 'Hidden'
-					embed.add_field(name="Social Media", value=f"Twitter: {twitter}\nYouTube: {yt}\nInstagram: {insta}\nTwitch: {twitch}\nBeam: {beam}\nDiscord: {dscrd}", inline=True)
+					embed.add_field(name="Social Media", value=f"Twitter: {twitter}\nYouTube: {yt}\nInstagram: {insta}\nTwitch: {twitch}\nBeam: {beam}\nDiscord: {dscrd}", inline=False)
 					if tributes != 0:
 						embed.add_field(name="Tournament Tributes", value=tributes, inline=False)
 					if customtag:
