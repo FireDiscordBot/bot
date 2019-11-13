@@ -230,8 +230,8 @@ class utils(commands.Cog, name='Utility Commands'):
 			return False
 
 	async def getvanity(self, code: str):
-		if code in self.bot.vanity_urls:
-			return self.bot.vanity_urls[code]
+		if code.lower() in self.bot.vanity_urls:
+			return self.bot.vanity_urls[code.lower()]
 		else:
 			return False
 
@@ -1160,7 +1160,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			return await ctx.send('<a:fireFailed:603214400748257302> Vanity URLs can only contain ASCII characters!')
 		if len(code) < 3 or len(code) > 10:
 			return await ctx.send('<a:fireFailed:603214400748257302> The code needs to be 3-10 characters!')
-		exists = await self.bot.getvanity(code)
+		exists = await self.bot.getvanity(code.lower())
 		if exists:
 			return await ctx.send('<a:fireFailed:603214400748257302> This code is already in use!')
 		createdinv = await ctx.channel.create_invite(reason='Creating invite for Vanity URL')
