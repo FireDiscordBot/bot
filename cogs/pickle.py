@@ -146,7 +146,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			color = ctx.author.color
 			embed = discord.Embed(title="My API Key Stats", colour=color, timestamp=datetime.datetime.utcnow())
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
-			embed.add_field(name="Owner", value="1ju (4686e7b58815485d8bc4a45445abb984)", inline=False)
+			embed.add_field(name="Owner", value="GamingGeeek (4686e7b58815485d8bc4a45445abb984)", inline=False)
 			embed.add_field(name="Total Requests", value=format(key['record']['totalQueries'], ',d'), inline=False)
 			embed.add_field(name="Requests in the past minute", value=lastmin, inline=False)
 			await ctx.send(embed=embed)

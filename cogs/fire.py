@@ -131,7 +131,7 @@ class firecog(commands.Cog, name="Main Commands"):
 		embed.set_author(name=f"Bot made by {ownerboi}", url="https://gaminggeek.dev", icon_url=str(ownerboi.avatar_url))
 		embed.add_field(name="Runtime", value=f"{uptime}", inline=False)
 		embed.add_field(name="CPU", value=f"{cpu} ({round(cpustats)}%)", inline=False)
-		embed.add_field(name="RAM", value=f"{ramuse} MB / 8192 MB", inline=False)
+		embed.add_field(name="RAM", value=f"{ramuse} MB / 16000 MB", inline=False)
 		embed.add_field(name="Version Info", value=f"discord.py {discord.__version__} | Python: 3.7.4", inline=False)
 		embed.add_field(name="Guilds", value=f"{len(self.bot.guilds)}", inline=True)
 		embed.add_field(name="Prefix", value=f"{ctx.prefix}", inline=True)
