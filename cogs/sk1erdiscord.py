@@ -59,7 +59,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 						if resp.status != 200:
 							return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
 						text = await resp.text()
-						current = json.load(text)
+						current = json.loads(text)
 				try:
 					user = next(i for i in current if i["id"] == str(after.id))
 					current.remove(user)
@@ -106,7 +106,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				if resp.status != 200:
 					return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
 				text = await resp.text()
-				current = json.load(text)
+				current = json.loads(text)
 		try:
 			user = next(i for i in current if i["id"] == str(ctx.author.id))
 			current.remove(user)
