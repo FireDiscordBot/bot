@@ -59,9 +59,9 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 						if resp.status != 200:
 							return
 						gist = await resp.json()
-						text = gist.get('files', {}).get('boosters.json', {}).get('content', {'error': 'yes'})
+						text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
 						current = json.loads(text)
-				if current.get('error', '') == 'yes':
+				if 'error' in current:
 					return
 				try:
 					user = next(i for i in current if i["id"] == str(after.id))
@@ -109,9 +109,9 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				if resp.status != 200:
 					return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
 				gist = await resp.json()
-				text = gist.get('files', {}).get('boosters.json', {}).get('content', {'error': 'yes'})
+				text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
 				current = json.loads(text)
-		if current.get('error', '') == 'yes':
+		if 'error' in current:
 			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
 		try:
 			user = next(i for i in current if i["id"] == str(ctx.author.id))
