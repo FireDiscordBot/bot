@@ -26,7 +26,7 @@ print("sk1erdiscord.py has been loaded")
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
-class sk1er(commands.Cog, name="Sk1er's Epic Cog"):
+class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.guild = self.bot.get_guild(411619823445999637)
@@ -137,4 +137,4 @@ class sk1er(commands.Cog, name="Sk1er's Epic Cog"):
 
 
 def setup(bot):
-	bot.add_cog(ksoft(bot))
+	bot.add_cog(sk1ercog(bot))
