@@ -30,7 +30,8 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.guild = self.bot.get_guild(411619823445999637)
-		self.role = discord.utils.get(self.guild.roles, id=585534346551754755)
+		self.nitro = discord.utils.get(self.guild.roles, id=585534346551754755)
+		self.staffteam = discord.utils.get(self.guild.roles, id=411817645436960768)
 		self.gist = 'b070e7f75a9083d2e211caffa0c772cc'
 		self.raw = 'https://gist.githubusercontent.com/GamingGeek/b070e7f75a9083d2e211caffa0c772cc/raw/e93da0f4e86c46b0c8510276e049df1c5a09c6ca/boosters.json'
 		self.headers = {'Authorization': f'token {config["github"]}'}
@@ -52,7 +53,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				aroles.append(role.name)
 			s = set(aroles)
 			removed = [x for x in broles if x not in s]
-			if self.role in removed:
+			if self.nitro in removed:
 				async with aiohttp.ClientSession() as session:
 					async with session.get(self.raw) as resp:
 						if resp.status != 200:
@@ -92,8 +93,9 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		return False
 
 	@commands.command(description='Makes a PR to add a pink dot for nitro boosters')
-	@commands.has_any_role([585534346551754755, 411817645436960768])
 	async def nitrodot(self, ctx, ign: str = None):
+		if self.nitro not in ctx.author.roles or self.staffteam not in ctx.author.roles:
+			return await ctx.send('no')
 		if not ign:
 			return await ctx.send('<a:fireFailed:603214400748257302> You must provide your Minecraft name!')
 		uuid = 	await self.nameToUUID(ign)
