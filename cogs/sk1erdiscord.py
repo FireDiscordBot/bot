@@ -53,7 +53,8 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				aroles.append(role.name)
 			s = set(aroles)
 			removed = [x for x in broles if x not in s]
-			if self.nitro in removed:
+			test = discord.utils.get(self.guild.roles, id=645029907977601034)
+			if self.nitro in removed or test in removed:
 				async with aiohttp.ClientSession(headers=self.headers) as session:
 					async with session.get(f'https://api.github.com/gists/{self.gist}') as resp:
 						if resp.status != 200:
