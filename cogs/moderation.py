@@ -1053,12 +1053,20 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not user:
 			return await ctx.send("You must specify a user")
 
-		roles = [r.mention for r in user.roles]
-		
+		roles = []
+		cantrem = []
+
 		for role in user.roles:
 			if not role.is_default():
-				await user.remove_roles(role, reason=f'Deranking by {ctx.author} for "{reason}"')
-		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully removed all ranks from **{user}**.')
+				try:
+					await user.remove_roles(role, reason=f'Deranking by {ctx.author} for "{reason}"')
+					roles.append(role.mention)
+				except discord.Forbidden:
+					cantrem.append(role.name)
+		if len(cantrem) >= 1:
+			await ctx.send(f'<a:fireFailed:603214400748257302> I wasn\'t able to remove the roles {", ".join(cantrem)} from **{user}**.')
+		else:
+			await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully removed all roles from **{user}**.')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:
