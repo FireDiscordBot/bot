@@ -1036,6 +1036,44 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					await logch.send(embed=embed)
 				except Exception:
 					pass
+
+	@commands.command(description="Remove all ranks from a user. You're welcome Sk1er", aliases=['dethrone'])
+	@commands.has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True)
+	async def derank(self, ctx, user: StaffCheck = None, *, reason = 'No reason provided.'):
+		"""PFXderank <user> [<reason>]"""
+		try:
+			await ctx.message.delete()
+		except Exception:
+			pass
+		await ctx.trigger_typing()
+		if user == False:
+			return
+			
+		if not user:
+			return await ctx.send("You must specify a user")
+
+		roles = [r.mention for r in user.roles]
+		
+		for role in user.roles:
+			await user.remove_roles(role, reason=f'Deranking by {ctx.author} for "{reason}"')
+		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully removed all ranks from **{user}**.')
+		logchannels = self.bot.get_cog("Settings").logchannels
+		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+		if logid:
+			logch = ctx.guild.get_channel(logid['modlogs'])
+			if logch:
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+				embed.set_author(name=f'Derank | {user}', icon_url=str(user.avatar_url))
+				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+				embed.add_field(name='Moderator', value=user.mention, inline=False)
+				embed.add_field(name='Roles', value=', '.join(roles), inline=False)
+				embed.add_field(name='Reason', value=reason, inline=False)
+				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 								
 								
 def setup(bot):
