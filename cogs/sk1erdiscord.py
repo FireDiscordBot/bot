@@ -131,7 +131,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			}
 		}
 		async with aiohttp.ClientSession(headers=self.headers) as session:
-			async with session.patch(f'https://api.github.com/gists/{self.gist}', data=payload) as resp:
+			async with session.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as resp:
 				if resp.status == 200:
 					return await ctx.send('<a:fireSuccess:603214443442077708> Successfully gave you a dot!')
 				else:
