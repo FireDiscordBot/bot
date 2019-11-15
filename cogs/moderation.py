@@ -68,6 +68,8 @@ class StaffCheck(commands.Converter):
 		argument = await Member().convert(ctx, argument)
 		if type(argument) != discord.Member:
 			return False
+		if ctx.guild.owner_id == ctx.author.id:
+			return argument
 		permission = argument.guild_permissions.manage_messages
 		if ctx.author.id == 287698408855044097 and argument.id != 287698408855044097:
 			return argument
