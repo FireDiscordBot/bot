@@ -57,7 +57,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				async with aiohttp.ClientSession() as session:
 					async with session.get(self.raw) as resp:
 						if resp.status != 200:
-							return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
+							return
 						text = await resp.text()
 						current = json.loads(text)
 				try:
@@ -104,6 +104,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		async with aiohttp.ClientSession() as session:
 			async with session.get(self.raw) as resp:
 				if resp.status != 200:
+					await ctx.send('raw status: ' + str(resp.status))
 					return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
 				text = await resp.text()
 				current = json.loads(text)
@@ -134,6 +135,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				if resp.status == 200:
 					return await ctx.send('<a:fireSuccess:603214443442077708> Successfully gave you a dot!')
 				else:
+					await ctx.send('status for the patchy boi: ' + str(resp.status))
 					return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
 	
 
