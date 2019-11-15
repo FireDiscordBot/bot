@@ -43,30 +43,21 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
-		if after.id == 287698408855044097 and after.guild == self.guild:
-			print('gek update')
 		if before.roles != after.roles:
-			print('role update')
 			broles = []
 			aroles = []
 			changed = []
 			for role in before.roles:
-				broles.append(role.name)
+				broles.append(role)
 			for role in after.roles:
-				aroles.append(role.name)
+				aroles.append(role)
 			s = set(aroles)
 			removed = [x for x in broles if x not in s]
-			removedclean = [x.name for x in removed]
-			print(removedclean)
 			test = discord.utils.get(self.guild.roles, id=645029907977601034)
-			print('test role:')
-			print(test)
 			if self.nitro in removed or test in removed:
-				print('removing dot')
 				async with aiohttp.ClientSession(headers=self.headers) as session:
 					async with session.get(f'https://api.github.com/gists/{self.gist}') as resp:
 						if resp.status != 200:
-							print('gist status: ' + str(resp.status))
 							return
 						gist = await resp.json()
 						text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
