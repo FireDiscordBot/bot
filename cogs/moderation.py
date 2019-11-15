@@ -1056,7 +1056,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		roles = [r.mention for r in user.roles]
 		
 		for role in user.roles:
-			await user.remove_roles(role, reason=f'Deranking by {ctx.author} for "{reason}"')
+			if not role.is_default():
+				await user.remove_roles(role, reason=f'Deranking by {ctx.author} for "{reason}"')
 		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully removed all ranks from **{user}**.')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
