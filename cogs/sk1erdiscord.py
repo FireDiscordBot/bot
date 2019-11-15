@@ -94,7 +94,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 
 	@commands.command(description='Makes a PR to add a pink dot for nitro boosters')
 	async def nitrodot(self, ctx, ign: str = None):
-		if self.nitro not in ctx.author.roles or self.staffteam not in ctx.author.roles:
+		if self.nitro not in ctx.author.roles and self.staffteam not in ctx.author.roles:
 			return await ctx.send('no')
 		if not ign:
 			return await ctx.send('<a:fireFailed:603214400748257302> You must provide your Minecraft name!')
