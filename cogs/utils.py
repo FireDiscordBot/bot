@@ -187,6 +187,7 @@ permissions = {
 }
 
 dehoistchars = 'abcdefghijklmnopqrstuvwxyz'
+
 class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
