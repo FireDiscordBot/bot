@@ -20,6 +20,7 @@ from discord.ext import commands
 import datetime
 import aiohttp
 import json
+import uuid
 
 print("sk1erdiscord.py has been loaded")
 
@@ -88,8 +89,8 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 					return False
 				elif resp.status == 200:
 					json = await resp.json()
-					uuid = json['id']
-					return uuid
+					mid = json['id']
+					return str(uuid.UUID(mid))
 		return False
 
 	@commands.command(description='Makes a PR to add a pink dot for nitro boosters')
@@ -98,8 +99,8 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			return await ctx.send('no')
 		if not ign:
 			return await ctx.send('<a:fireFailed:603214400748257302> You must provide your Minecraft name!')
-		uuid = 	await self.nameToUUID(ign)
-		if not uuid:
+		mid = 	await self.nameToUUID(ign)
+		if not mid:
 			return await ctx.send('<a:fireFailed:603214400748257302> No UUID found!')
 		async with aiohttp.ClientSession() as session:
 			async with session.get(self.raw) as resp:
@@ -111,11 +112,11 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		try:
 			user = next(i for i in current if i["id"] == str(ctx.author.id))
 			current.remove(user)
-			user['uuid'] = uuid
+			user['uuid'] = mid
 			user['ign'] = ign
 		except Exception:
 			user = {
-				"uuid": uuid,
+				"uuid": mid,
 				"ign": ign,
 				"id": str(ctx.author.id),
 				"color": "LIGHT_PURPLE"
