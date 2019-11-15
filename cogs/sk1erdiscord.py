@@ -54,7 +54,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			s = set(aroles)
 			removed = [x for x in broles if x not in s]
 			if self.nitro in removed:
-				async with aiohttp.ClientSession() as session:
+				async with aiohttp.ClientSession(headers=self.headers) as session:
 					async with session.get(f'https://api.github.com/gists/{self.gist}') as resp:
 						if resp.status != 200:
 							return
@@ -104,7 +104,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		mid = 	await self.nameToUUID(ign)
 		if not mid:
 			return await ctx.send('<a:fireFailed:603214400748257302> No UUID found!')
-		async with aiohttp.ClientSession() as session:
+		async with aiohttp.ClientSession(headers=self.headers) as session:
 			async with session.get(f'https://api.github.com/gists/{self.gist}') as resp:
 				if resp.status != 200:
 					return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
