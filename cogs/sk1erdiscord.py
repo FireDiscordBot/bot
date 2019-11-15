@@ -54,10 +54,14 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			s = set(aroles)
 			removed = [x for x in broles if x not in s]
 			test = discord.utils.get(self.guild.roles, id=645029907977601034)
+			if test in removed:
+				print(test.mention)
 			if self.nitro in removed or test in removed:
+				print('removing dot')
 				async with aiohttp.ClientSession(headers=self.headers) as session:
 					async with session.get(f'https://api.github.com/gists/{self.gist}') as resp:
 						if resp.status != 200:
+							print('gist status: ' + str(resp.status))
 							return
 						gist = await resp.json()
 						text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
@@ -68,6 +72,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 					user = next(i for i in current if i["id"] == str(after.id))
 					current.remove(user)
 				except Exception:
+					print('user not found in current')
 					return
 				payload = {
 					'description': 'Nitro Booster dots for the Hyperium Client!',
@@ -79,6 +84,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				}
 				async with aiohttp.ClientSession(headers=self.headers) as session:
 					async with session.patch(f'https://api.github.com/gists/{self.gist}', data=payload) as resp:
+						print('edit status: ' + str(resp.status))
 						if resp.status == 200:
 							general = self.guild.get_channel(411620457754787841)
 							await general.send(f'{after.mention} Your custom dot in Hyperium has been removed. Boost the server to get it back :)')
