@@ -34,7 +34,6 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		self.nitro = discord.utils.get(self.guild.roles, id=585534346551754755)
 		self.staffteam = discord.utils.get(self.guild.roles, id=411817645436960768)
 		self.gist = 'b070e7f75a9083d2e211caffa0c772cc'
-		self.raw = 'https://gist.githubusercontent.com/GamingGeek/b070e7f75a9083d2e211caffa0c772cc/raw/e93da0f4e86c46b0c8510276e049df1c5a09c6ca/boosters.json'
 		self.headers = {'Authorization': f'token {config["github"]}'}
 
 	async def cog_check(self, ctx: commands.Context):
@@ -56,11 +55,14 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			removed = [x for x in broles if x not in s]
 			if self.nitro in removed:
 				async with aiohttp.ClientSession() as session:
-					async with session.get(self.raw) as resp:
+					async with session.get(f'https://api.github.com/gists/{self.gist}') as resp:
 						if resp.status != 200:
 							return
-						text = await resp.text()
+						gist = await resp.json()
+						text = gist.get('files', {}).get('boosters.json', {}).get('content', {'error': 'yes'})
 						current = json.loads(text)
+				if current.get('error', '') == 'yes':
+					return
 				try:
 					user = next(i for i in current if i["id"] == str(after.id))
 					current.remove(user)
@@ -103,12 +105,14 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		if not mid:
 			return await ctx.send('<a:fireFailed:603214400748257302> No UUID found!')
 		async with aiohttp.ClientSession() as session:
-			async with session.get(self.raw) as resp:
+			async with session.get(f'https://api.github.com/gists/{self.gist}') as resp:
 				if resp.status != 200:
-					await ctx.send('raw status: ' + str(resp.status))
 					return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
-				text = await resp.text()
+				gist = await resp.json()
+				text = gist.get('files', {}).get('boosters.json', {}).get('content', {'error': 'yes'})
 				current = json.loads(text)
+		if current.get('error', '') == 'yes':
+			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
 		try:
 			user = next(i for i in current if i["id"] == str(ctx.author.id))
 			current.remove(user)
@@ -136,7 +140,6 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				if resp.status == 200:
 					return await ctx.send('<a:fireSuccess:603214443442077708> Successfully gave you a dot!')
 				else:
-					await ctx.send('status for the patchy boi: ' + str(resp.status))
 					return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
 	
 
