@@ -72,8 +72,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 					'description': 'Nitro Booster dots for the Hyperium Client!',
 					'files': {
 						'boosters.json': {
-							'content': json.dumps(current, indent=2),
-							'filename': 'boosters.json'
+							'content': json.dumps(current, indent=2)
 						}
 					}
 				}
@@ -130,8 +129,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			'description': 'Nitro Booster dots for the Hyperium Client!',
 			'files': {
 				'boosters.json': {
-					'content': json.dumps(current, indent=2),
-					'filename': 'boosters.json'
+					'content': json.dumps(current, indent=2)
 				}
 			}
 		}
