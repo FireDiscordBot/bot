@@ -47,7 +47,7 @@ class mcs(commands.Cog, name="Minecraft Saturdays"):
 		for team in teams:
 			players = [f'[{x["name"]}]({x["link"]})\n⭐ Points: {x["score"]}' for x in team["players"]]
 			players = "\n".join(players)
-			t.append(f'**Team {teams.index(team) + 1}:**\n{players}\n🏅 Wins: {team["players"][0]["wins"]}')
+			t.append(f'**Team {teams.index(team) + 1}:**\n{players}\n\n🏅 Wins: {team["players"][0]["wins"]}\n')
 		paginator = WrappedPaginator(prefix='**Minecraft Saturdays Teams**', suffix='', max_size=800)
 		for team in t:
 			paginator.add_line(team)
