@@ -45,7 +45,7 @@ class mcs(commands.Cog, name="Minecraft Saturdays"):
 				teams = p['teams']
 		t = {}
 		for team in teams:
-   			team["score"] = 0
+			team["score"] = 0
 			for x in team["players"]:
 				team["score"] += x["score"]
 			players = [f'[{x["name"]}]({x["link"]})\n⭐ Points: {x["score"]}' for x in team["players"]]
