@@ -45,10 +45,13 @@ class mcs(commands.Cog, name="Minecraft Saturdays"):
 				teams = p['teams']
 		t = []
 		for team in teams:
+			team["score"] = 0
+			[team["score"].append(x["score"]) for x in team["players"]]
 			players = [f'[{x["name"]}]({x["link"]})\n⭐ Points: {x["score"]}' for x in team["players"]]
 			players = "\n".join(players)
-			t.append(f'**Team {teams.index(team) + 1}:**\n{players}\n\n🏅 Wins: {team["players"][0]["wins"]}\n')
-		paginator = WrappedPaginator(prefix='**Minecraft Saturdays Teams**', suffix='', max_size=800)
+			t.append(f'**Team {teams.index(team) + 1}:**\n{players}\n\n🏅 Wins: {team["players"][0]["wins"]}\n⭐ Total Points: {team["score"]}\n')
+		teams = sorted(teams, key=lambda t: t["score"])
+		paginator = WrappedPaginator(prefix='**Minecraft Saturdays Teams**', suffix='', max_size=650)
 		for team in t:
 			paginator.add_line(team)
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
