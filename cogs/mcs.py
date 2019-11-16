@@ -26,8 +26,9 @@ class mcs(commands.Cog, name="Minecraft Saturdays"):
 	@mcsat.command(name='games')
 	async def mcsgames(self, ctx):
 		async with aiohttp.ClientSession() as s:
-			async with s.get('https://api.gaminggeek.dev/mcs/games') as r: #mcs api returns text/html so my api returns it as application/json
-				g = await r.json() #this wouldn't work with text/html
+			async with s.get('https://minecraftsaturdays.net/api/games') as r:
+				g = await r.text()
+				g = json.loads(g)
 				games = g['games']
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow(), description='**Minecraft Saturdays Games**')
 		for game in games:
@@ -38,8 +39,9 @@ class mcs(commands.Cog, name="Minecraft Saturdays"):
 	@mcsat.command(name='teams', aliases=['players'])
 	async def mcsteams(self, ctx):
 		async with aiohttp.ClientSession() as s:
-			async with s.get('https://api.gaminggeek.dev/mcs/roster') as r: #mcs api returns text/html so my api returns it as application/json
-				p = await r.json() #this wouldn't work with text/html
+			async with s.get('https://minecraftsaturdays.net/api/roster') as r:
+				p = await r.text()
+				p = json.loads(p)
 				teams = p['teams']
 		t = []
 		for team in teams:
