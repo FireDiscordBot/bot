@@ -43,18 +43,22 @@ class mcs(commands.Cog, name="Minecraft Saturdays"):
 				p = await r.text()
 				p = json.loads(p)
 				teams = p['teams']
-		t = []
+		t = {}
 		for team in teams:
-			team["score"] = 0
+   			team["score"] = 0
 			for x in team["players"]:
 				team["score"] += x["score"]
 			players = [f'[{x["name"]}]({x["link"]})\n⭐ Points: {x["score"]}' for x in team["players"]]
 			players = "\n".join(players)
-			t.append(f'**Team {teams.index(team) + 1}:**\n{players}\n\n🏅 Wins: {team["players"][0]["wins"]}\n⭐ Total Points: {team["score"]}\n')
-		teams = sorted(teams, key=lambda t: t["score"])
+			t.append({
+				'text': f'**Team {teams.index(team) + 1}:**\n{players}\n\n🏅 Wins: {team["players"][0]["wins"]}\n⭐ Total Points: {team["score"]}\n',
+				'score': team["score"]
+			})
+		t = sorted(t, key=lambda t: t["score"])
+		t.reverse()
 		paginator = WrappedPaginator(prefix='**Minecraft Saturdays Teams**', suffix='', max_size=650)
 		for team in t:
-			paginator.add_line(team)
+			paginator.add_line(team["text"])
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		footer = {'text': 'https://minecraftsaturdays.net/', 'icon_url': 'https://cdn.discordapp.com/icons/618826436299456533/6dfe2d224d8d919cac6bd71dcf7b0955.png'}
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed, _footer=footer)
