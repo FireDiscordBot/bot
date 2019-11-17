@@ -43,7 +43,7 @@ class mcs(commands.Cog, name="Minecraft Saturdays"):
 				p = await r.text()
 				p = json.loads(p)
 				teams = p['teams']
-		t = {}
+		t = []
 		for team in teams:
 			team["score"] = 0
 			for x in team["players"]:
