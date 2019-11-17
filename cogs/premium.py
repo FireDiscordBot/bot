@@ -92,16 +92,16 @@ class Premium(commands.Cog, name="Premium Commands"):
 					"role": role
 				}
 
-	# async def cog_check(self, ctx: commands.Context):
-	# 	"""
-	# 	Local check, makes all commands in this cog premium only
-	# 	"""
-	# 	if ctx.guild.id in self.premiumGuilds:
-	# 		return True
-	# 	if await self.bot.is_team_owner(ctx.author):
-	# 		return True
-	# 	else:
-	# 		return False
+	async def cog_check(self, ctx: commands.Context):
+		"""
+		Local check, makes all commands in this cog premium only
+		"""
+		if ctx.guild.id in self.premiumGuilds:
+			return True
+		if await self.bot.is_team_owner(ctx.author):
+			return True
+		else:
+			return False
 
 	async def member_guild_check(self, member: discord.Member):
 		return True
