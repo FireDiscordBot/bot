@@ -1157,8 +1157,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		if code.lower() == 'disable':
 			await self.deletevanity(ctx)
 			return await ctx.send('<a:fireSuccess:603214443442077708> Vanity URL deleted!')
-		if not self.bot.isascii(code):
-			return await ctx.send('<a:fireFailed:603214400748257302> Vanity URLs can only contain ASCII characters!')
+		if not re.match(r'[a-zA-Z0-9]+', code):
+			return await ctx.send('<a:fireFailed:603214400748257302> Vanity URLs can only contain characters A-Z0-9')
 		if len(code) < 3 or len(code) > 10:
 			return await ctx.send('<a:fireFailed:603214400748257302> The code needs to be 3-10 characters!')
 		exists = await self.bot.getvanity(code.lower())

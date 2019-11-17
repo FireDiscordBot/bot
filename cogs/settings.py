@@ -26,8 +26,6 @@ import aiohttp
 import humanfriendly
 import functools
 import re
-from bs4 import BeautifulSoup
-from markdown import markdown
 from random import randint
 from fire.converters import TextChannel
 from fire.invite import findinvite
@@ -56,22 +54,6 @@ def byteify(input):
 		return input.encode('utf-8')
 	else:
 		return input
-
-def markdown_to_text(markdown_string):
-    """ Converts a markdown string to plaintext """
-
-    # md -> html -> text since BeautifulSoup can extract text cleanly
-    html = markdown(markdown_string)
-
-    # remove code snippets
-    html = re.sub(r'<pre>(.*?)</pre>', ' ', html)
-    html = re.sub(r'<code>(.*?)</code >', ' ', html)
-
-    # extract text
-    soup = BeautifulSoup(html, "html.parser")
-    text = ''.join(soup.findAll(text=True))
-
-    return text
 
 # byteify example
 # byteify(json.loads(u"[ 'A','B','C' , ' D']".replace('\'','"')))
@@ -239,11 +221,10 @@ class settings(commands.Cog, name="Settings"):
 		if before.content == after.content:
 			return
 		message = after
-		code = findinvite(markdown_to_text(message.system_content))
+		code = findinvite(message.system_content)
 		invite = None
+		nodel = False
 		if code:
-			if '/' in code:
-				return
 			invalidinvite = False
 			if isinstance(message.author, discord.Member):
 				if not message.author.permissions_in(message.channel).manage_messages:
@@ -252,11 +233,14 @@ class settings(commands.Cog, name="Settings"):
 							try:
 								invite = await self.bot.fetch_invite(url=code)
 								if invite.guild.id == message.guild.id:
-									pass
-								else:
-									await message.delete()
+									nodel = True
 							except Exception:
 								pass
+			if not nodel:
+				try:
+					await message.delete()
+				except Exception:
+					pass
 			try:
 				ohmygod = False
 				self.bot.vanity_urls = await self.getvanitys()
@@ -292,19 +276,11 @@ class settings(commands.Cog, name="Settings"):
 						if '.png' in code:
 							return
 						embed.add_field(name='Invite Code', value=code, inline=False)
-						embed.add_field(name='Valid?', value='false', inline=False)
-					elif ohmygod:
-						invite = await self.bot.fetch_invite(url=invite['invite'])
-						embed.add_field(name='Invite Code', value=code, inline=False)
-						embed.add_field(name='Vanity URL', value=f'[oh-my-god.wtf/{code}](https://oh-my-god.wtf/{code})', inline=False)
-						embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
-						embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
-						embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
-					elif invite and not ohmygod:
-						embed.add_field(name='Invite Code', value=code, inline=False)
-						embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
-						embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
-						embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
+					invite = await self.bot.fetch_invite(url=invite['invite'])
+					embed.add_field(name='Invite Code', value=code, inline=False)
+					embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
+					embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
+					embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
 					embed.set_footer(text=f"Author ID: {message.author.id}")
 					try:
 						return await logch.send(embed=embed)
@@ -369,9 +345,8 @@ class settings(commands.Cog, name="Settings"):
 	async def on_message(self, message):
 		code = findinvite(message.system_content)
 		invite = None
+		nodel = False
 		if code:
-			if '/' in code:
-				return
 			invalidinvite = False
 			if isinstance(message.author, discord.Member):
 				if not message.author.permissions_in(message.channel).manage_messages:
@@ -380,14 +355,18 @@ class settings(commands.Cog, name="Settings"):
 							try:
 								invite = await self.bot.fetch_invite(url=code)
 								if invite.guild.id == message.guild.id:
-									pass
-								else:
-									await message.delete()
+									nodel = True
 							except Exception:
 								pass
+			if not nodel:
+				try:
+					await message.delete()
+				except Exception:
+					pass
 			try:
 				ohmygod = False
-				if code.lower() in self.bot.vanity_urls:
+				self.bot.vanity_urls = await self.getvanitys()
+				if code.lower() in self.bot.vanity_urls and 'oh-my-god.wtf' in message.system_content:
 					invite = self.bot.vanity_urls[code]
 					ohmygod = True
 					if isinstance(message.author, discord.Member):
@@ -395,7 +374,10 @@ class settings(commands.Cog, name="Settings"):
 							if message.guild.me.permissions_in(message.channel).manage_messages:
 								if message.guild.id in self.invitefiltered:
 									if invite['gid'] != message.guild.id:
-										await message.delete()
+										try:
+											await message.delete()
+										except Exception:
+											pass
 				else:
 					if not invite or type(invite) != discord.Invite:
 						invite = await self.bot.fetch_invite(url=code)
@@ -416,22 +398,14 @@ class settings(commands.Cog, name="Settings"):
 						if '.png' in code:
 							return
 						embed.add_field(name='Invite Code', value=code, inline=False)
-						embed.add_field(name='Valid?', value='false', inline=False)
-					elif ohmygod:
-						invite = await self.bot.fetch_invite(url=invite['invite'])
-						embed.add_field(name='Invite Code', value=code, inline=False)
-						embed.add_field(name='Vanity URL', value=f'[oh-my-god.wtf/{code}](https://oh-my-god.wtf/{code})', inline=False)
-						embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
-						embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
-						embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
-					elif invite and not ohmygod:
-						embed.add_field(name='Invite Code', value=code, inline=False)
-						embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
-						embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
-						embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
+					invite = await self.bot.fetch_invite(url=invite['invite'])
+					embed.add_field(name='Invite Code', value=code, inline=False)
+					embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
+					embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
+					embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
 					embed.set_footer(text=f"Author ID: {message.author.id}")
 					try:
-						await logch.send(embed=embed)
+						return await logch.send(embed=embed)
 					except Exception:
 						pass
 
