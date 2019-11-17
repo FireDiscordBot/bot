@@ -320,6 +320,20 @@ class Music(commands.Cog):
 			except wavelink.errors.NodeOccupied:
 				pass
 
+	@commands.Cog.listener()
+	async def on_voice_state_update(self, member, before, after):
+		guild = member.guild
+		player = self.bot.wavelink.get_player(guild.id, cls=Player)
+		channel = discord.utils.get(guild.voice_channels, id=player.channel_id)
+		if channel and len(channel.members) == 0:
+			await asyncio.sleep(300)
+			channel = discord.utils.get(guild.voice_channels, id=player.channel_id)
+			if len(channel.members) == 0:
+				await player.destroy_controller()
+				await player.destroy()
+				await player.disconnect()
+
+
 	async def initiate_nodes(self):
 		if self.bot.dev:
 			port = 2334
