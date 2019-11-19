@@ -974,6 +974,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def block(self, ctx, blocked: commands.Greedy[typing.Union[StaffCheck, Role]] = None, *, reason = 'No reason provided.'):
 		"""PFXblock <user|role> [<reason>]"""
+		await ctx.send(f'Block type: {type(blocked)}')
 		try:
 			await ctx.message.delete()
 		except Exception:
@@ -1013,7 +1014,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unblock(self, ctx, blocked: commands.Greedy[typing.Union[StaffCheck, Role]] = None, *, reason = 'No reason provided.'):
 		"""PFXunblock <user|role> [<reason>]"""
-		await ctx.send(f'Block type: {type(blocked)}')
 		try:
 			await ctx.message.delete()
 		except Exception:
