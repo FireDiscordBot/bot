@@ -974,7 +974,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def block(self, ctx, blocked: typing.Union[StaffCheck, Role] = None, *, reason = 'No reason provided.'):
 		"""PFXblock <user|role> [<reason>]"""
-		await ctx.send(f'Block type: {type(blocked)}')
 		try:
 			await ctx.message.delete()
 		except Exception:
