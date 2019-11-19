@@ -25,7 +25,7 @@ import traceback
 import functools
 import humanfriendly
 import re
-from fire.converters import UserWithFallback, Member, TextChannel
+from fire.converters import UserWithFallback, Member, TextChannel, Role
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 
 day_regex = re.compile(r'(?:(?P<days>\d+)d)')
@@ -969,71 +969,79 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				except Exception:
 					pass
 
-	@commands.command(description="Mute a user in the current channel.")
+	@commands.command(description="Mute a user/role in the current channel.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def block(self, ctx, user: StaffCheck = None, *, reason = 'No reason provided.'):
-		"""PFXblock <user> [<reason>]"""
+	async def block(self, ctx, blocked: commands.Greedy[typing.Union[StaffCheck, Role]] = None, *, reason = 'No reason provided.'):
+		"""PFXblock <user|role> [<reason>]"""
 		try:
 			await ctx.message.delete()
 		except Exception:
 			pass
 		await ctx.trigger_typing()
-		if user == False:
+		if isinstance(blocked, discord.Member):
+			blocktype = 'User'
+		elif isinstance(blocked, discord.Role):
+			blocktype = 'Role'
+		if blocked == False:
 			return
 
-		if not user:
+		if not blocked:
 			return await ctx.send("You must specify a user")
 		
-		await ctx.channel.set_permissions(user, send_messages=False, reason=reason or 'No reason specified.')
-		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully blocked **{user}** from chatting in {ctx.channel.mention}.')
+		await ctx.channel.set_permissions(blocked, send_messages=False, reason=reason or 'No reason specified.')
+		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully blocked **{blocked}** from chatting in {ctx.channel.mention}.')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:
 			logch = ctx.guild.get_channel(logid['modlogs'])
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Block | {user}', icon_url=str(user.avatar_url))
-				embed.add_field(name='User', value=user.mention, inline=False)
+				embed.set_author(name=f'Block | {blocked}', icon_url=str(blocked.avatar_url) if blocktype == 'User' else str(ctx.guild.icon_url))
+				embed.add_field(name=blocktype, value=f'{blocked}({blocked.id})', inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.add_field(name='Channel', value=ctx.channel.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
-				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+				embed.set_footer(text=f'{blocktype} ID: {blocked.id} | Mod ID: {ctx.author.id}')
 				try:
 					await logch.send(embed=embed)
 				except Exception:
 					pass
 	
-	@commands.command(description="Unmute a user who has been blocked in the current channel.")
+	@commands.command(description="Unmute a user/role who has been blocked in the current channel.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def unblock(self, ctx, user: StaffCheck = None, *, reason = 'No reason provided.'):
-		"""PFXunblock <user> [<reason>]"""
+	async def unblock(self, ctx, blocked: commands.Greedy[typing.Union[StaffCheck, Role]] = None, *, reason = 'No reason provided.'):
+		"""PFXunblock <user|role> [<reason>]"""
 		try:
 			await ctx.message.delete()
 		except Exception:
 			pass
 		await ctx.trigger_typing()
-		if user == False:
+		if isinstance(blocked, discord.Member):
+			blocktype = 'User'
+		elif isinstance(blocked, discord.Role):
+			blocktype = 'Role'
+		if blocked == False:
 			return
 			
-		if not user:
+		if not blocked:
 			return await ctx.send("You must specify a user")
 		
-		await ctx.channel.set_permissions(user, send_messages=None, reason=reason or 'No reason specified.')
-		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully unblocked **{user}**. Welcome back!')
+		await ctx.channel.set_permissions(blocked, send_messages=None, reason=reason or 'No reason specified.')
+		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully unblocked **{blocked}**. Welcome back!')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:
 			logch = ctx.guild.get_channel(logid['modlogs'])
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Unblock | {user}', icon_url=str(user.avatar_url))
-				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
-				embed.add_field(name='Moderator', value=user.mention, inline=False)
+				embed.set_author(name=f'Unblock | {blocked}', icon_url=str(blocked.avatar_url) if blocktype == 'User' else str(ctx.guild.icon_url))
+				embed.add_field(name=blocktype, value=f'{blocked}({blocked.id})', inline=False)
+				embed.add_field(name='Moderator', value=blocked.mention, inline=False)
 				embed.add_field(name='Channel', value=ctx.channel.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
-				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+				embed.set_footer(text=f'User ID: {blocked.id} | Mod ID: {ctx.author.id}')
 				try:
 					await logch.send(embed=embed)
 				except Exception:
