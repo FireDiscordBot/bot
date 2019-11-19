@@ -236,11 +236,11 @@ class settings(commands.Cog, name="Settings"):
 									nodel = True
 							except Exception:
 								pass
-			if not nodel:
-				try:
-					await message.delete()
-				except Exception:
-					pass
+							if not nodel:
+								try:
+									await message.delete()
+								except Exception:
+									pass
 			try:
 				ohmygod = False
 				self.bot.vanity_urls = await self.getvanitys()
@@ -358,11 +358,11 @@ class settings(commands.Cog, name="Settings"):
 									nodel = True
 							except Exception:
 								pass
-			if not nodel:
-				try:
-					await message.delete()
-				except Exception:
-					pass
+							if not nodel:
+								try:
+									await message.delete()
+								except Exception:
+									pass
 			try:
 				ohmygod = False
 				self.bot.vanity_urls = await self.getvanitys()
@@ -395,8 +395,6 @@ class settings(commands.Cog, name="Settings"):
 					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
 					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
 					if invalidinvite:
-						if '.png' in code:
-							return
 						embed.add_field(name='Invite Code', value=code, inline=False)
 					invite = await self.bot.fetch_invite(url=invite['invite'])
 					embed.add_field(name='Invite Code', value=code, inline=False)
