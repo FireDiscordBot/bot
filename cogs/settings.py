@@ -269,7 +269,7 @@ class settings(commands.Cog, name="Settings"):
 					logch = message.guild.get_channel(logid['actionlogs'])
 				else:
 					return
-				if logch and invite:
+				if logch:
                                         embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
                                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
                                         if isinstance(invite, dict):
@@ -389,7 +389,7 @@ class settings(commands.Cog, name="Settings"):
 					logch = message.guild.get_channel(logid['actionlogs'])
 				else:
 					return
-				if logch and invite:
+				if logch:
 					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
 					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
 					if isinstance(invite, dict):
