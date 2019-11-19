@@ -554,7 +554,7 @@ class settings(commands.Cog, name="Settings"):
 									return await member.edit(nick=f'John Doe {num}')
 								else:
 									if member.nick and 'John Doe' in member.nick:
-										reutrn await member.edit(nick=None)
+										return await member.edit(nick=None)
 						if member.guild.id in self.autodehoist:
 							nitroboosters = discord.utils.get(member.guild.roles, id=585534346551754755)
 							if member.guild_permissions.manage_nicknames:
