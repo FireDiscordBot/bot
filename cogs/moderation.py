@@ -972,7 +972,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(description="Mute a user/role in the current channel.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def block(self, ctx, blocked: typing.Union[commands.Greedy[StaffCheck], commands.Greedy[Role]] = None, *, reason = 'No reason provided.'):
+	async def block(self, ctx, blocked: typing.Union[StaffCheck, Role] = None, *, reason = 'No reason provided.'):
 		"""PFXblock <user|role> [<reason>]"""
 		await ctx.send(f'Block type: {type(blocked)}')
 		try:
@@ -1012,7 +1012,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(description="Unmute a user/role who has been blocked in the current channel.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def unblock(self, ctx, blocked: typing.Union[commands.Greedy[StaffCheck], commands.Greedy[Role]] = None, *, reason = 'No reason provided.'):
+	async def unblock(self, ctx, blocked: typing.Union[StaffCheck, Role] = None, *, reason = 'No reason provided.'):
 		"""PFXunblock <user|role> [<reason>]"""
 		try:
 			await ctx.message.delete()
