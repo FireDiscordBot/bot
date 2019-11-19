@@ -580,7 +580,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 	async def skin(self, ctx, *, ign: str = None):
 		if not ign:
 			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a username or UUID!')
-		embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+		embed = discord.Embed(color=ctx.author.color)
 		embed.set_image(url=f'https://mc-heads.net/body/{ign}')
 		embed.set_footer(text=f'Requested by {ctx.author}', icon_url=str(ctx.author.avatar_url))
 		await ctx.send(embed=embed)
