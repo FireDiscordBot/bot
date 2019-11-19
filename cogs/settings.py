@@ -269,23 +269,21 @@ class settings(commands.Cog, name="Settings"):
 					logch = message.guild.get_channel(logid['actionlogs'])
 				else:
 					return
-				if logch:
-					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
-					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-					if invalidinvite:
-						if '.png' in code:
-							return
-						embed.add_field(name='Invite Code', value=code, inline=False)
-					invite = await self.bot.fetch_invite(url=invite['invite'])
-					embed.add_field(name='Invite Code', value=code, inline=False)
-					embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
-					embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
-					embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
-					embed.set_footer(text=f"Author ID: {message.author.id}")
-					try:
-						return await logch.send(embed=embed)
-					except Exception:
-						pass
+				if logch and invite:
+                                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
+                                        embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+                                        if isinstance(invite, dict):
+                                                invite = await self.bot.fetch_invite(url=invite['invite'])
+                                        embed.add_field(name='Invite Code', value=code, inline=False)
+                                        if isinstance(invite, discord.Invite):
+                                                embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
+                                                embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
+                                                embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
+                                                embed.set_footer(text=f"Author ID: {message.author.id}")
+                                        try:
+                                                return await logch.send(embed=embed)
+                                        except Exception:
+                                                pass
 		if before.system_content == after.system_content:
 			return
 		if after.guild and not after.author.bot:
@@ -391,17 +389,17 @@ class settings(commands.Cog, name="Settings"):
 					logch = message.guild.get_channel(logid['actionlogs'])
 				else:
 					return
-				if logch:
+				if logch and invite:
 					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
 					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-					if invalidinvite:
-						embed.add_field(name='Invite Code', value=code, inline=False)
-					invite = await self.bot.fetch_invite(url=invite['invite'])
+					if isinstance(invite, dict):
+						invite = await self.bot.fetch_invite(url=invite['invite'])
 					embed.add_field(name='Invite Code', value=code, inline=False)
-					embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
-					embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
-					embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
-					embed.set_footer(text=f"Author ID: {message.author.id}")
+					if isinstance(invite, discord.Invite):
+						embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
+						embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
+						embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
+						embed.set_footer(text=f"Author ID: {message.author.id}")
 					try:
 						return await logch.send(embed=embed)
 					except Exception:
