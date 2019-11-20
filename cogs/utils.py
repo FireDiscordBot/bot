@@ -1215,6 +1215,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			desc = self.bot.descriptions[ctx.guild.id] if ctx.guild.id in self.bot.descriptions else f'Check out {ctx.guild} on Discord'
 			desc = f'{desc}\n\n{gonline} & {gmembers}'
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=desc)
+			embed.set_thumbnail(url=str(ctx.guild.icon_url))
 			embed.add_field(name='Clicks', value=current['clicks'])
 			embed.add_field(name='Links', value=current['links'])
 			return await ctx.send(embed=embed)
