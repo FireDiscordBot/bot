@@ -1209,10 +1209,10 @@ class utils(commands.Cog, name='Utility Commands'):
 		elif not code:
 			current = self.bot.getvanitygid(ctx.guild.id)
 			statuses = ['online', 'idle', 'dnd']
-			online = len([m for m in guild.members if str(m.status) in statuses])
+			online = len([m for m in ctx.guild.members if str(m.status) in statuses])
 			gonline = f'⬤ {online:,d} Online'
-			gmembers = f'⭘ {len(guild.members):,d} Members'
-			desc = self.bot.descriptions[guild.id] if guild.id in self.bot.descriptions else f'Check out {gname} on Discord'
+			gmembers = f'⭘ {len(ctx.guild.members):,d} Members'
+			desc = self.bot.descriptions[ctx.guild.id] if ctx.guild.id in self.bot.descriptions else f'Check out {ctx.guild} on Discord'
 			desc = f'{desc}\n\n{gonline} & {gmembers}'
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=desc)
 			embed.add_field(name='Clicks', value=current['clicks'])
