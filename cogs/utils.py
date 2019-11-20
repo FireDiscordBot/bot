@@ -1215,7 +1215,14 @@ class utils(commands.Cog, name='Utility Commands'):
 			desc = self.bot.descriptions[ctx.guild.id] if ctx.guild.id in self.bot.descriptions else f'Check out {ctx.guild} on Discord'
 			desc = f'{desc}\n\n{gonline} & {gmembers}'
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=desc)
-			embed.set_thumbnail(url=str(ctx.guild.icon_url))
+			if not ctx.guild.splash_url or ctx.guild.banner_url:
+				embed.set_thumbnail(url=str(ctx.guild.icon_url))
+			else:
+				image = ctx.guild.splash_url or ctx.guild.banner_url
+				if ctx.guild.id == 564052798044504084:
+					image = 'https://cdn.discordapp.com/app-assets/444871677176709141/store/630360840251506742.png?size=320'
+					#please join my discord and boost so I can get an invite splash, https://oh-my-god.wtf/fire thank
+				embed.set_image(url=str(image))
 			embed.add_field(name='Clicks', value=current['clicks'])
 			embed.add_field(name='Links', value=current['links'])
 			return await ctx.send(embed=embed)
