@@ -20,7 +20,7 @@ import re
 import wavelink
 import asyncpg
 from collections import deque
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import Webhook, AsyncWebhookAdapter
 from typing import Union
 from fire.converters import VoiceChannel
@@ -298,6 +298,7 @@ class Music(commands.Cog):
 
 	def __init__(self, bot: Union[commands.Bot, commands.AutoShardedBot]):
 		self.bot = bot
+		self.deadvccheck.start()
 
 		if not hasattr(bot, 'wavelink'):
 			self.bot.wavelink = wavelink.Client(bot)
@@ -320,18 +321,23 @@ class Music(commands.Cog):
 			except wavelink.errors.NodeOccupied:
 				pass
 
-	@commands.Cog.listener()
-	async def on_voice_state_update(self, member, before, after):
-		guild = member.guild
-		player = self.bot.wavelink.get_player(guild.id, cls=Player)
-		channel = discord.utils.get(guild.voice_channels, id=player.channel_id)
-		if channel and len(channel.members) == 0:
-			await asyncio.sleep(300)
-			channel = discord.utils.get(guild.voice_channels, id=player.channel_id)
-			if len(channel.members) == 0:
-				await player.destroy_controller()
-				await player.destroy()
-				await player.disconnect()
+	def cog_unload(self):
+		self.deadvccheck.cancel()
+
+	@tasks.loop(minutes=1)
+	async def deadvccheck(self):
+		vcs = [g.voice_channels for g in self.bot.guilds]
+		for vc in vcs:
+			if vc.guild.me not in vc.members:
+				return
+			player = self.bot.wavelink.get_player(vc.guild_id, cls=Player)
+			if player and len(channel.members) == 1:
+				if player.connected:
+					await asyncio.sleep(120)
+					if len(channel.members) == 1:
+						await player.destroy_controller()
+						await player.destroy()
+						await player.disconnect()
 
 
 	async def initiate_nodes(self):
