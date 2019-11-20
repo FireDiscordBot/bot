@@ -71,6 +71,8 @@ def isadmin(ctx):
 async def get_pre(bot, message):
 	if not message.guild:
 		return "$"
+	if not hasattr(bot, 'prefixes'):
+		return commands.when_mentioned_or("$", "fire")(bot, message)
 	prefix = bot.prefixes[message.guild.id] if message.guild.id in bot.prefixes else "$"
 	return commands.when_mentioned_or(prefix, 'fire ')(bot, message)
 
@@ -92,6 +94,7 @@ bot.is_team_owner = is_team_owner
 changinggame = False
 
 extensions = [
+	"cogs.misc",
 	"cogs.fire",
 	"cogs.music",
 	"cogs.pickle",
@@ -212,25 +215,12 @@ async def on_command_error(ctx, error):
 			await webhook.send(messagenotb, username='Command Error Logger')
 			await webhook.send(tbmessage, username='Command Error Logger')
 
-async def loadprefixes():
-	bot.prefixes = {}
-	query = 'SELECT * FROM prefixes;'
-	prefixes = await bot.db.fetch(query)
-	for p in prefixes:
-		bot.prefixes[p['gid']] = p['prefix']
-
-async def loadplonked():
-	bot.plonked = []
-	query = 'SELECT * FROM blacklist;'
-	plonked = await bot.db.fetch(query)
-	for p in plonked:
-		bot.plonked.append(p['uid'])
-
 @bot.event
 async def on_ready():
-	bot.load_extension("cogs.sk1erdiscord")
-	await loadprefixes()
-	await loadplonked()
+	try:
+		bot.load_extension("cogs.sk1erdiscord")
+	except Exception:
+		pass
 	print("-------------------------")
 	print(f"Bot: {bot.user}")
 	print(f"ID: {bot.user.id}")
@@ -326,6 +316,8 @@ async def prefix(ctx, pfx: str = None):
 		# else:
 		# 	await bot.db.execute(f'UPDATE prefixes SET prefix = \"{pfx}\" WHERE gid = {ctx.guild.id};')
 		# await bot.conn.commit()
+		misc = bot.get_cog("Miscellaneous")
+		await misc.loadprefixes()
 		await ctx.send(f'Ok, {discord.utils.escape_mentions(ctx.guild.name)}\'s prefix is now {pfx}!')
 
 @bot.command(hidden=True)
