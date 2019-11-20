@@ -576,10 +576,6 @@ class utils(commands.Cog, name='Utility Commands'):
 			await ctx.send(embed=embed)
 			await ctx.send(embed=rolebed)
 
-	@commands.command(name='serverinfo')
-	async def serverinfo(self, ctx):
-		await self.guild(ctx)
-
 	@infogroup.command(description='Check out a user\'s info')
 	async def user(self, ctx, user: typing.Union[Member, UserWithFallback] = None):
 		'''PFXinfo user [<user>]'''
