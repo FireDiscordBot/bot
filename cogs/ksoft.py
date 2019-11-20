@@ -70,9 +70,10 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 			return await ctx.send(f'<a:fireFailed:603214400748257302> The subreddit **{sub}** doesn\'t exist...')
 		embed = discord.Embed(title="Did someone order a spicy meme?", colour=ctx.message.author.color, url=meme.source, timestamp=datetime.datetime.utcnow())		
 		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url))
-		embed.set_footer(text=f"👍 {meme.upvotes} | 👎 {meme.downvotes} | 💬 {meme.comments} (https://api.ksoft.si)")
+		embed.set_footer(text=f"Memes provided by https://api.ksoft.si")
 		embed.add_field(name="Title", value=meme.title, inline=False)
 		embed.add_field(name="Subreddit", value=f"[{meme.subreddit}](https://reddit.com/{meme.subreddit})", inline=False)
+		embed.add_field(name="Stats", value=f"<:upvote:646857470345478184> {meme.upvotes:,d} | <:downvote:646857487353380867> {meme.downvotes:,d} | 💬 {meme.comments:,d}", inline=False)
 		if meme.url:
 			if meme.url.endswith(imgext):
 				embed.set_image(url=meme.url)
