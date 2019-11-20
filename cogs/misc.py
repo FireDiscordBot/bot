@@ -26,9 +26,9 @@ class misc(commands.Cog, name="Miscellaneous"):
 		self.bot = bot
 		self.bot.prefixes = {}
 		self.bot.plonked = []
-		asyncio.get_event_loop().create_task(self._loadutils())
+		asyncio.get_event_loop().create_task(self.loadutils())
 
-	async def _loadutils(self):
+	async def loadutils(self):
 		self.bot.prefixes = await self.loadprefixes()
 		self.bot.plonked = await self.loadplonked()
 

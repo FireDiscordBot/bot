@@ -217,6 +217,8 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_ready():
+	misc = bot.get_cog("Miscellaneous")
+	await misc.loadutils()
 	try:
 		bot.load_extension("cogs.sk1erdiscord")
 	except Exception:
