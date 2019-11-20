@@ -242,11 +242,18 @@ class utils(commands.Cog, name='Utility Commands'):
 		else:
 			return False
 
-	async def getvanity(self, code: str):
+	def getvanity(self, code: str):
 		if code.lower() in self.bot.vanity_urls:
 			return self.bot.vanity_urls[code.lower()]
 		else:
 			return False
+
+	def getvanitygid(self, gid: int):
+		for v in self.bot.vanity_urls:
+			v = self.bot.vanity_urls[v]
+			if v['gid'] == gid:
+				return v
+		return False
 
 	async def createvanity(self, ctx: commands.Context, code: str, inv: discord.Invite):
 		code = code.lower()
@@ -1195,8 +1202,12 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.has_permissions(manage_guild=True)
 	async def vanityurl(self, ctx, code: str = None):
 		'''PFXvanityurl [<code>|"disable"]'''
-		if not code:
+		premiumguilds = self.bot.get_cog('Premium Commands').premiumGuilds
+		if not code and not ctx.guild.id in premiumguilds:
 			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide a code!')
+		elif not code:
+			current = self.bot.getvanity(ctx.guild.id)
+			return #add tracking info embed
 		if code.lower() == 'disable':
 			await self.deletevanity(ctx)
 			return await ctx.send('<a:fireSuccess:603214443442077708> Vanity URL deleted!')
@@ -1204,7 +1215,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			return await ctx.send('<a:fireFailed:603214400748257302> Vanity URLs can only contain characters A-Z0-9')
 		if len(code) < 3 or len(code) > 10:
 			return await ctx.send('<a:fireFailed:603214400748257302> The code needs to be 3-10 characters!')
-		exists = await self.bot.getvanity(code.lower())
+		exists = self.bot.getvanity(code.lower())
 		if exists:
 			return await ctx.send('<a:fireFailed:603214400748257302> This code is already in use!')
 		createdinv = await ctx.channel.create_invite(reason='Creating invite for Vanity URL')
