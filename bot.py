@@ -100,7 +100,7 @@ extensions = [
 	"cogs.utils",
 	"cogs.help",
 	"cogs.dbl",
-	"cogs.youtube",
+	# "cogs.youtube",
 	"cogs.settings",
 	"cogs.moderation",
 	"cogs.premium",
@@ -228,6 +228,7 @@ async def loadplonked():
 
 @bot.event
 async def on_ready():
+	bot.load_extension("cogs.sk1erdiscord")
 	await loadprefixes()
 	await loadplonked()
 	print("-------------------------")
