@@ -1207,7 +1207,16 @@ class utils(commands.Cog, name='Utility Commands'):
 			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide a code!')
 		elif not code:
 			current = self.bot.getvanity(ctx.guild.id)
-			return #add tracking info embed
+			statuses = ['online', 'idle', 'dnd']
+			online = len([m for m in guild.members if str(m.status) in statuses])
+			gonline = f'⬤ {online:,d} Online'
+			gmembers = f'⭘ {len(guild.members):,d} Members'
+			desc = self.bot.descriptions[guild.id] if guild.id in self.bot.descriptions else f'Check out {gname} on Discord'
+			desc = f'{desc}\n\n{gonline} & {gmembers}'
+			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=desc)
+			embed.add_field(name='Clicks', value=current['clicks'])
+			embed.add_field(name='Links', value=current['links'])
+			return await ctx.send(embed=embed)
 		if code.lower() == 'disable':
 			await self.deletevanity(ctx)
 			return await ctx.send('<a:fireSuccess:603214443442077708> Vanity URL deleted!')
