@@ -1206,7 +1206,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if not code and not ctx.guild.id in premiumguilds:
 			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide a code!')
 		elif not code:
-			current = self.bot.getvanity(ctx.guild.id)
+			current = self.bot.getvanitygid(ctx.guild.id)
 			statuses = ['online', 'idle', 'dnd']
 			online = len([m for m in guild.members if str(m.status) in statuses])
 			gonline = f'⬤ {online:,d} Online'
