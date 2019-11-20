@@ -1225,6 +1225,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				embed.set_image(url=str(image))
 			embed.add_field(name='Clicks', value=current['clicks'])
 			embed.add_field(name='Links', value=current['links'])
+			embed.add_field(name='URL', value=current['url'], inline=True)
 			return await ctx.send(embed=embed)
 		if code.lower() == 'disable':
 			await self.deletevanity(ctx)
