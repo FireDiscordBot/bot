@@ -57,15 +57,21 @@ def isadmin(ctx):
 		admin = True
 	return admin
 
+# async def get_pre(bot, message):
+# 	if not message.guild:
+# 		return "$"
+# 	query = 'SELECT * FROM prefixes WHERE gid = $1;'
+# 	prefixraw = await bot.db.fetch(query, message.guild.id)
+# 	if prefixraw:
+# 		prefix = prefixraw[0]['prefix']
+# 	else:
+# 		prefix = "$"
+# 	return commands.when_mentioned_or(prefix, 'fire ')(bot, message)
+
 async def get_pre(bot, message):
 	if not message.guild:
 		return "$"
-	query = 'SELECT * FROM prefixes WHERE gid = $1;'
-	prefixraw = await bot.db.fetch(query, message.guild.id)
-	if prefixraw:
-		prefix = prefixraw[0]['prefix']
-	else:
-		prefix = "$"
+	prefix = bot.prefixes[message.guild.id] if message.guild.id in bot.prefixes else "$"
 	return commands.when_mentioned_or(prefix, 'fire ')(bot, message)
 
 bot = commands.Bot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="fire.gaminggeek.dev"), case_insensitive=True)
@@ -145,7 +151,7 @@ async def on_command_error(ctx, error):
 		extra = {
 			"guild.name": ctx.guild.name if ctx.guild else 'N/A',
 			"guild.id": ctx.guild.id if ctx.guild else 'N/A',
-			"server_name": "FIRE-WINSERVER-2016"
+			"server_name": "Fire"
 		}
 		if isinstance(error, sentryignored):
 			exclevel = 'warning'
@@ -171,17 +177,12 @@ async def on_command_error(ctx, error):
 		return await ctx.send(f'<a:fireFailed:603214400748257302> This command is on cooldown, please wait {humanfriendly.format_timespan(td)}', delete_after=5)
 
 	if isinstance(error, noperms):
-		await ctx.send(f'<a:fireFailed:603214400748257302> {error}')
-		if ctx.guild.id == 411619823445999637:
-			return await ctx.send('æ')
-		else:
-			return
+		return await ctx.send(f'<a:fireFailed:603214400748257302> {error}')
 
-	messages = ['Fire did an oopsie!', 'Oh no, it be broke.', 'this was intentional...', 'Well this slipped through quality assurance', 'How did this happen?', 'rip', 'Can we get an L in the chat?', 'Can we get an F in the chat?', 'he do not sing', 'lmao who did this?']
-	chosenmessage = random.choice(messages)
-	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"I've reported this error to my developer!\n```py\n{error}```", timestamp=datetime.datetime.utcnow())
-	embed.set_footer(text="")
-	await ctx.send(embed=embed)
+	await ctx.send(f'<a:fireFailed:603214400748257302> {error}')
+	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError, commands.MissingRequiredArgument, commands.TooManyArguments)
+	if isinstance(error, nomsg):
+		return
 	errortb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
 	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!\n```py\n{errortb}```", timestamp=datetime.datetime.utcnow())
 	embed.add_field(name='User', value=ctx.author, inline=False)
@@ -192,9 +193,6 @@ async def on_command_error(ctx, error):
 	embednotb.add_field(name='Guild', value=ctx.guild, inline=False)
 	embednotb.add_field(name='Message', value=ctx.message.system_content, inline=False)
 	me = bot.get_user(287698408855044097)
-	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError, commands.MissingRequiredArgument, commands.TooManyArguments)
-	if isinstance(error, nomsg):
-		return
 	try:
 		await me.send(embed=embed)
 	except discord.HTTPException:
@@ -214,10 +212,24 @@ async def on_command_error(ctx, error):
 			await webhook.send(messagenotb, username='Command Error Logger')
 			await webhook.send(tbmessage, username='Command Error Logger')
 
+async def loadprefixes():
+	bot.prefixes = {}
+	query = 'SELECT * FROM prefixes;'
+	prefixes = await bot.db.fetch(query)
+	for p in prefixes:
+		bot.prefixes[p['gid']] = p['prefix']
+
+async def loadplonked():
+	bot.plonked = []
+	query = 'SELECT * FROM blacklist;'
+	plonked = await bot.db.fetch(query)
+	for p in plonked:
+		bot.plonked.append(p['uid'])
+
 @bot.event
 async def on_ready():
-	# bot.conn = await aiosqlite3.connect('fire.db', loop=bot.loop)
-	# bot.db = await bot.conn.cursor()
+	await loadprefixes()
+	await loadplonked()
 	print("-------------------------")
 	print(f"Bot: {bot.user}")
 	print(f"ID: {bot.user.id}")
@@ -328,18 +340,10 @@ async def shutdown(ctx):
 
 @bot.check
 async def blacklist_check(ctx):
-	# await bot.db.execute(f'SELECT * FROM blacklist WHERE uid = {ctx.author.id};')
-	# blinf = await bot.db.fetchone()
-	query = 'SELECT * FROM blacklist WHERE uid = $1;'
-	blinf = await bot.db.fetch(query, ctx.author.id)
-	if blinf:
-		if ctx.author.id == 287698408855044097:
-			return True
-		if ctx.author.id == 366118780293611520:
-			await ctx.send('If you need help ask in <#412310617442091008>')
-			return False
-		elif ctx.author.id == blinf[0]['uid']:
-			return False
+	if ctx.author.id == 287698408855044097:
+		return True
+	elif ctx.author.id in ctx.bot.plonked:
+		return False
 	else:
 		return True
 
