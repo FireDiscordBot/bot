@@ -207,6 +207,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if 'slack_messages' not in dir(self.bot):
  			self.bot.slack_messages = {}
 		self.bot.getvanity = self.getvanity
+		self.bot.getvanitygid = self.getvanitygid
 		self.bot.vanityclick = self.vanityclick
 		self.bot.vanitylink = self.vanitylink
 		self.tags = {}
