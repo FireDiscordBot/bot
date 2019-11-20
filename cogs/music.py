@@ -298,6 +298,8 @@ class Music(commands.Cog):
 
 	def __init__(self, bot: Union[commands.Bot, commands.AutoShardedBot]):
 		self.bot = bot
+		if not hasattr(bot, 'deadvcs'):
+			self.bot.deadvcs = []
 		self.deadvccheck.start()
 
 		if not hasattr(bot, 'wavelink'):
@@ -324,20 +326,25 @@ class Music(commands.Cog):
 	def cog_unload(self):
 		self.deadvccheck.cancel()
 
-	@tasks.loop(minutes=1)
+	@tasks.loop(minutes=2)
 	async def deadvccheck(self):
-		vcs = [g.voice_channels for g in self.bot.guilds]
-		for vc in vcs:
-			if vc.guild.me not in vc.members:
-				return
-			player = self.bot.wavelink.get_player(vc.guild_id, cls=Player)
-			if player and len(channel.members) == 1:
-				if player.connected:
-					await asyncio.sleep(120)
-					if len(channel.members) == 1:
+		try:
+			vcs = [g.voice_channels for g in self.bot.guilds]
+			for l in vcs:
+				for vc in l:
+					if vc.guild.me not in vc.members:
+						continue
+					player = self.bot.wavelink.get_player(vc.guild.id, cls=Player)
+					if vc.id in self.bot.deadvcs and len(vc.members) == 1:
+						self.bot.deadvcs.remove(vc.id)
 						await player.destroy_controller()
 						await player.destroy()
 						await player.disconnect()
+					if player and len(vc.members) == 1:
+						if player.is_connected:
+							self.bot.deadvcs.append(vc.id)
+		except Exception as e:
+			print(f'dead vc check encountered an exception, {e}')
 
 
 	async def initiate_nodes(self):
