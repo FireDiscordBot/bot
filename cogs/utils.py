@@ -1213,7 +1213,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			gonline = f'⬤ {online:,d} Online'
 			gmembers = f'⭘ {len(ctx.guild.members):,d} Members'
 			desc = self.bot.descriptions[ctx.guild.id] if ctx.guild.id in self.bot.descriptions else f'Check out {ctx.guild} on Discord'
-			desc = f'[{gname}]({current["url"]})\n{desc}\n\n{gonline} & {gmembers}'
+			desc = f'[{ctx.guild}]({current["url"]})\n{desc}\n\n{gonline} & {gmembers}'
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=desc)
 			if not ctx.guild.splash_url or not ctx.guild.banner_url or not ctx.guild.id == 564052798044504084:
 				embed.set_thumbnail(url=str(ctx.guild.icon_url))
