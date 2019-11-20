@@ -96,18 +96,20 @@ def quote_embed(context_channel, message, user):
 		if message.author not in message.guild.members or message.author.color == discord.Colour.default():
 			lines = []
 			embed = discord.Embed(timestamp = message.created_at)
-			msg = message.system_content.split('\n')
-			for line in msg:
-				lines.append(f'> {line}')
-			embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
+			if message.system_content:
+				msg = message.system_content.split('\n')
+				for line in msg:
+					lines.append(f'> {line}')
+				embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
 			embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
 		else:
 			embed = discord.Embed(color = message.author.color, timestamp = message.created_at)
 			lines = []
-			msg = message.system_content.split('\n')
-			for line in msg:
-				lines.append(f'> {line}')
-			embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
+			if message.system_content:
+				msg = message.system_content.split('\n')
+				for line in msg:
+					lines.append(f'> {line}')
+				embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
 			embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
 		if message.attachments:
 			if message.channel.is_nsfw() and not context_channel.is_nsfw():
@@ -196,6 +198,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.bot.len_emoji = self.len_emoji
 		self.bot.isascii = lambda s: len(s) == len(s.encode())
 		self.bot.getperms = self.getperms
+		self.bot.getguildperms = self.getguildperms
 		self.bot.ishoisted = self.ishoisted
 		self.channelfollowable = []
 		self.channelfollows = {}
@@ -204,6 +207,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		if 'slack_messages' not in dir(self.bot):
  			self.bot.slack_messages = {}
 		self.bot.getvanity = self.getvanity
+		self.bot.vanityclick = self.vanityclick
+		self.bot.vanitylink = self.vanitylink
 		self.tags = {}
 		self.quotecooldowns = {}
 
@@ -217,9 +222,16 @@ class utils(commands.Cog, name='Utility Commands'):
 				count += 1
 		return count
 
-	def getperms(self, member: Member, channel: typing.Union[TextChannel, VoiceChannel, Category]):
+	def getperms(self, member: discord.Member, channel: typing.Union[discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel]):
 		perms = []
 		for perm, value in member.permissions_in(channel):
+			if value:
+				perms.append(perm)
+		return perms
+
+	def getguildperms(self, member: discord.Member):
+		perms = []
+		for perm, value in member.guild_permissions:
 			if value:
 				perms.append(perm)
 		return perms
@@ -237,6 +249,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			return False
 
 	async def createvanity(self, ctx: commands.Context, code: str, inv: discord.Invite):
+		code = code.lower()
 		query = 'SELECT * FROM vanity WHERE gid = $1;'
 		current = await self.bot.db.fetch(query, ctx.guild.id)
 		if not current:
@@ -256,6 +269,32 @@ class utils(commands.Cog, name='Utility Commands'):
 			return self.bot.vanity_urls[code]
 		except KeyError:
 			return False
+
+	async def vanityclick(self, code: str):
+		code = code.lower()
+		query = 'SELECT * FROM vanity WHERE code = $1;'
+		current = await self.bot.db.fetch(query, code)
+		if not current:
+			return
+		clicks = current[0]['clicks'] + 1
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'UPDATE vanity SET clicks = $2 WHERE code = $1;'
+			await self.bot.db.execute(query, code, clicks)
+		await self.bot.db.release(con)
+
+	async def vanitylink(self, code: str):
+		code = code.lower()
+		query = 'SELECT * FROM vanity WHERE code = $1;'
+		current = await self.bot.db.fetch(query, code)
+		if not current:
+			return
+		links = current[0]['links'] + 1
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'UPDATE vanity SET links = $2 WHERE code = $1;'
+			await self.bot.db.execute(query, code, links)
+		await self.bot.db.release(con)
 
 	async def deletevanity(self, ctx: commands.Context):
 		con = await self.bot.db.acquire()
@@ -339,14 +378,14 @@ class utils(commands.Cog, name='Utility Commands'):
 			guild = v['gid']
 			code = v['code'].lower()
 			invite = v['invite']
-			inviteurl = f'https://discord.gg/{invite}'
-			url = f'https://oh-my-god.wtf/{code}'
+			clicks = v['clicks']
+			links = v['links']
 			self.bot.vanity_urls[code] = {
 				'gid': guild,
 				'invite': invite,
-				'inviteurl': inviteurl,
 				'code': code,
-				'url': url
+				'clicks': clicks,
+				'links': links
 			}
 
 	async def loadtags(self):
@@ -425,7 +464,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				# await self.bot.conn.commit()
 				con = await self.bot.db.acquire()
 				async with con.transaction():
-					query = 'INSERT INTO blacklist("user", uid, reason, perm) VALUES ($1, $2, $3, $4);'
+					query = 'INSERT INTO blacklist ("user", uid, reason, perm) VALUES ($1, $2, $3, $4);'
 					await self.bot.db.execute(query, user.name, user.id, reason, permanent)
 				await self.bot.db.release(con)
 				await ctx.send(f'{user.mention} was successfully blacklisted!')
