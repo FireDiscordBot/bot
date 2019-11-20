@@ -24,12 +24,16 @@ print("misc.py has been loaded")
 class misc(commands.Cog, name="Miscellaneous"):
 	def __init__(self, bot):
 		self.bot = bot
-		self.bot.prefixes = {}
-		self.bot.plonked = []
+		if not hasattr(bot, 'prefixes'):
+			self.bot.prefixes = {}
+		if not hasattr(bot, 'plonked'):
+			self.bot.plonked = []
 		asyncio.get_event_loop().create_task(self.loadutils())
 
 	async def loadutils(self):
+		print('Loading prefixes')
 		self.bot.prefixes = await self.loadprefixes()
+		print('Loading blacklist')
 		self.bot.plonked = await self.loadplonked()
 
 	async def loadprefixes(self):

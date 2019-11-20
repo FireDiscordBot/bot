@@ -319,7 +319,7 @@ async def prefix(ctx, pfx: str = None):
 		# 	await bot.db.execute(f'UPDATE prefixes SET prefix = \"{pfx}\" WHERE gid = {ctx.guild.id};')
 		# await bot.conn.commit()
 		misc = bot.get_cog("Miscellaneous")
-		await misc.loadprefixes()
+		await misc.loadutils()
 		await ctx.send(f'Ok, {discord.utils.escape_mentions(ctx.guild.name)}\'s prefix is now {pfx}!')
 
 @bot.command(hidden=True)
