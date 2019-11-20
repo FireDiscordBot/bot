@@ -282,6 +282,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			query = 'UPDATE vanity SET clicks = $2 WHERE code = $1;'
 			await self.bot.db.execute(query, code, clicks)
 		await self.bot.db.release(con)
+		self.bot.vanity_urls[code]['clicks'] += 1
 
 	async def vanitylink(self, code: str):
 		code = code.lower()
@@ -295,6 +296,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			query = 'UPDATE vanity SET links = $2 WHERE code = $1;'
 			await self.bot.db.execute(query, code, links)
 		await self.bot.db.release(con)
+		self.bot.vanity_urls[code]['links'] += 1
 
 	async def deletevanity(self, ctx: commands.Context):
 		con = await self.bot.db.acquire()
@@ -385,7 +387,9 @@ class utils(commands.Cog, name='Utility Commands'):
 				'invite': invite,
 				'code': code,
 				'clicks': clicks,
-				'links': links
+				'links': links,
+				'url': f'https://oh-my-god.wtf/{code}',
+				'inviteurl': f'https://discord.gg/{invite}'
 			}
 
 	async def loadtags(self):
@@ -571,6 +575,10 @@ class utils(commands.Cog, name='Utility Commands'):
 			rolebed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Roles**\n{roles}')
 			await ctx.send(embed=embed)
 			await ctx.send(embed=rolebed)
+
+	@commands.command(name='serverinfo')
+	async def serverinfo(self, ctx):
+		await self.guild(ctx)
 
 	@infogroup.command(description='Check out a user\'s info')
 	async def user(self, ctx, user: typing.Union[Member, UserWithFallback] = None):
