@@ -69,7 +69,11 @@ class firecog(commands.Cog, name="Main Commands"):
 			return '\n'.join(content.split('\n')[1:-1])
 
 		return content.strip('` \n')
-  
+
+	@commands.command(name="invite")
+	async def inviteme(self, ctx):
+		return await ctx.send("https://gaminggeek.dev/fire")
+
 	@commands.command(description="Shows you my ping to discord's servers")
 	async def ping(self, ctx):
 		"""PFXping"""
@@ -91,6 +95,16 @@ class firecog(commands.Cog, name="Main Commands"):
 			await ctx.send("Thanks! Your suggestions help improve Fire.")
 			me = self.bot.get_user(287698408855044097)
 			await me.send(f"{ctx.message.author} suggested: {suggestion}")
+
+	@commands.command(name="8ball")
+	async def eightball(self, ctx, *, q: str = None):
+		if not q:
+			return await ctx.send(f'<a:fireFailed:603214400748257302> You need to ask a question!')
+		possible = ["It is certain.", "It is decidedly so.", "Without a doubt.", "Yes - definitely.", "You may rely on it.", "As I see it, yes.", "Most likely.", "Outlook good.", "Yes.", "Signs point to yes.", 
+			"Reply hazy, try again.", "Ask again later.", "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again.",
+			"Don't count on it.", "My reply is no.", "My sources say no.", "Outlook not so good.", "Very doubtful."]
+		answer = random.choice(possible)
+		await ctx.send(answer)
 
 	@commands.command(description="Shows you some stats about me.", aliases=['about'])
 	async def stats(self, ctx):
