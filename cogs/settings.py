@@ -893,7 +893,7 @@ class settings(commands.Cog, name="Settings"):
 					await logch.send(embed=embed)
 				except Exception:
 					pass
-			if before.features != after.features:
+			if set(before.features) != set(after.features):
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s features were updated**')
 				s = set(after.features)
 				removed = [x for x in before.features if x not in s]
