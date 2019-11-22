@@ -96,6 +96,7 @@ class settings(commands.Cog, name="Settings"):
 		self.modonly = {}
 		self.adminonly = {}
 		self.joinleave = {}
+		self.invites = {}
 	
 	async def loadSettings(self):
 		self.logchannels = {}
@@ -163,6 +164,24 @@ class settings(commands.Cog, name="Settings"):
 				'joinmsg': jl.get('joinmsg', False),
 				'leavemsg': jl.get('leavemsg', False)
 			}
+
+	async def loadInvites(self):
+		self.invites = {}
+		for guild in self.bot.guilds:
+				invites = []
+				try:
+					invites = await guild.invites()
+					if 'VANITY_URL' in guild.features:
+						vanity = await guild.vanity_invite()
+						invites.append(vanity)
+				except (discord.Forbidden, discord.HTTPException) as e:
+					if isinstance(e, discord.Forbidden):
+						continue
+					if isinstance(e, discord.HTTPException) and invites == []:
+						continue
+				self.invites[guild.id] = {}
+				for invite in invites:
+					self.invites[guild.id][invite.code] = invite.uses
 
 	@commands.Cog.listener()
 	async def on_ready(self):
@@ -478,6 +497,14 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
+		before = self.invites[member.guild.id].copy()
+		await self.loadInvites()
+		after = self.invites[member.guild.id]
+		for inv in before:
+			a = after[inv]
+			b = before[inv]
+			if b != a:
+				usedinvite = inv
 		joinleave = self.joinleave.get(member.guild.id, False)
 		if joinleave:
 			joinchan = joinleave.get('joinchan', False)
@@ -513,6 +540,9 @@ class settings(commands.Cog, name="Settings"):
 			embed = discord.Embed(title='Member Joined', url='https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif', color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
 			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url))
 			embed.add_field(name='Account Created', value=humanfriendly.format_timespan(datetime.datetime.utcnow() - member.created_at) + ' ago', inline=False)
+			premium = self.bot.get_cog('Premium Commands')
+			if member.guild.id in premium.premiumGuilds:
+				embed.add_field(name='Invite Used', value=usedinvite, inline=False)
 			embed.set_footer(text=f'User ID: {member.id}')
 			try:
 				await logch.send(embed=embed)
