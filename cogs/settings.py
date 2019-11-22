@@ -96,8 +96,8 @@ class settings(commands.Cog, name="Settings"):
 		self.modonly = {}
 		self.adminonly = {}
 		self.joinleave = {}
-		self.invites = {}
-	
+		self.bot.invites = {}
+
 	async def loadSettings(self):
 		self.logchannels = {}
 		self.invitefiltered = []
@@ -166,8 +166,8 @@ class settings(commands.Cog, name="Settings"):
 			}
 
 	async def loadInvites(self, gid: int = None):
-		self.invites = {}
 		if not gid:
+			self.bot.invites = {}
 			for guild in self.bot.guilds:
 				invites = []
 				try:
@@ -184,6 +184,7 @@ class settings(commands.Cog, name="Settings"):
 				for invite in invites:
 					self.invites[guild.id][invite.code] = invite.uses
 		else:
+			self.bot.invites[gid] = {}
 			guild = self.bot.get_guild(gid)
 			if guild:
 				invites = []
@@ -204,8 +205,8 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_ready(self):
 		self.bot.ksoft.register_ban_hook(self.ksoft_ban_hook)
-		await asyncio.sleep(5)
 		await self.loadSettings()
+		await self.loadInvites()
 
 	@commands.command(name='loadsettings', description='Load settings', hidden=True)
 	async def loadthesettings(self, ctx):
@@ -516,10 +517,10 @@ class settings(commands.Cog, name="Settings"):
 	async def on_member_join(self, member):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
 		usedinvite = 'Unknown'
-		if member.guild.id in self.invites:
-			before = self.invites[member.guild.id].copy()
+		if member.guild.id in self.bot.invites:
+			before = self.bot.invites[member.guild.id].copy()
 			await self.loadInvites(member.guild.id)
-			after = self.invites[member.guild.id]
+			after = self.bot.invites[member.guild.id]
 			for inv in before:
 				a = after[inv]
 				b = before[inv]
