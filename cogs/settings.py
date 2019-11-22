@@ -1379,8 +1379,8 @@ class settings(commands.Cog, name="Settings"):
 	@commands.guild_only()
 	async def joinmsg(self, ctx, channel: typing.Union[TextChannel, str] = None, *, message: str = None):
 		if not channel:
-			current = self.joinleave.get(ctx.guild.id, {}).get('joinmsg')
-			if not current:
+			current = self.joinleave.get(ctx.guild.id, {})
+			if not current.get('joinmsg', False):
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'<a:fireFailed:603214400748257302> Please provide a channel and message for join messages.')
 				variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
 				embed.add_field(name='Variables', value=variables, inline=False)
@@ -1440,8 +1440,8 @@ class settings(commands.Cog, name="Settings"):
 	@commands.guild_only()
 	async def leavemsg(self, ctx, channel: typing.Union[TextChannel, str] = None, *, message: str = None):
 		if not channel:
-			current = self.joinleave.get(ctx.guild.id, {}).get('leavemsg')
-			if not current:
+			current = self.joinleave.get(ctx.guild.id, {})
+			if not current.get('leavemsg', False):
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'<a:fireFailed:603214400748257302> Please provide a channel and message for leave messages.')
 				variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
 				embed.add_field(name='Variables', value=variables, inline=False)
