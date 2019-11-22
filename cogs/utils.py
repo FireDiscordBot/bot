@@ -551,12 +551,12 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.set_thumbnail(url=guild.icon_url)
 		nameemote = ''
 		if 'PARTNERED' in guild.features:
-			nameemote = discord.utils.get(self.bot.emojis, name='PartnerShine')
+			nameemote = discord.utils.get(self.bot.emojis, id=647400542775279629)
 		elif 'VERIFIED' in guild.features:
-			nameemote = discord.utils.get(self.bot.emojis, name='verified')
-		embed.add_field(name="» Name", value=f'{guild.name} {nameemote}', inline=True)
-		embed.add_field(name="» ID", value=guild.id, inline=True)
-		embed.add_field(name="» Members", value=guild.member_count, inline=True)
+			nameemote = discord.utils.get(self.bot.emojis, name=647400543018287114)
+		embed.add_field(name="» Name", value=f'{guild.name} {nameemote}', inline=False)
+		embed.add_field(name="» ID", value=guild.id, inline=False)
+		embed.add_field(name="» Members", value=format(guild.member_count, ',d'), inline=False)
 		embed.add_field(name="» Channels", value=f"Text: {len(guild.text_channels)} | Voice: {len(guild.voice_channels)}", inline=True)
 		embed.add_field(name="» Owner", value=str(guild.owner), inline=True)
 		embed.add_field(name="» Region", value=region[str(guild.region)], inline=True)
@@ -569,7 +569,9 @@ class utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name="» Features", value=features, inline=False)
 		roles = []
 		for role in guild.roles:
-			if 'ACK' in role.name and guild.id == 564052798044504084:
+			if role.managed:
+				pass
+			elif 'ACK' in role.name and guild.id == 564052798044504084:
 				pass
 			elif role.is_default():
 				pass
@@ -603,9 +605,13 @@ class utils(commands.Cog, name='Utility Commands'):
 			for role in fireg.roles:
 				if 'ACK |' in role.name:
 					ack.append(role.name.replace('ACK | ', ''))
+		badge = ''
+		for guild in self.bot.guilds:
+			if guild.owner_id == user.id and 'PARTNERED' in guild.features:
+				badge = discord.utils.get(self.bot.emojis, name='PartnerShine')
 		embed = discord.Embed(colour=color, timestamp=datetime.datetime.utcnow())
 		embed.set_thumbnail(url=str(user.avatar_url))
-		embed.add_field(name="» Name", value=f'{user.name}#{user.discriminator}', inline=False)
+		embed.add_field(name="» Name", value=f'{user.name}#{user.discriminator} {badge}', inline=False)
 		embed.add_field(name="» ID", value=user.id, inline=False)
 		if type(user) == discord.Member:
 			members = sorted(ctx.guild.members, key=lambda m: m.joined_at or m.created_at)
