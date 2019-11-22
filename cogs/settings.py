@@ -96,7 +96,8 @@ class settings(commands.Cog, name="Settings"):
 		self.modonly = {}
 		self.adminonly = {}
 		self.joinleave = {}
-		self.bot.invites = {}
+		if not hasattr(self.bot, 'invites'):
+			self.bot.invites = {}
 
 	async def loadSettings(self):
 		self.logchannels = {}
