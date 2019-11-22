@@ -524,7 +524,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		'COMMERCE': '[Store Channels](https://dis.gd/sell-your-game)',
 		'NEWS': '[Announcement Channels](https://support.discordapp.com/hc/en-us/articles/360032008192)',
 		'FEATUREABLE': '[Featurable](https://discordapp.com/activity)',
-		'DISCOVERABLE': '[Discoverable](https://discordapp.com/guild-discovery)',
+		'DISCOVERABLE': '[Discoverable](https://discordapp.com/guild-discovery) [(Discoverable Guidelines)](https://support.discordapp.com/hc/en-us/articles/360035969312)',
 		'PUBLIC': '[Public](https://bit.ly/2kV6ogn)',
 		'VANITY_URL': 'Vanity URL',
 		'ANIMATED_ICON': 'Animated Icon',
@@ -552,8 +552,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		nameemote = ''
 		if 'PARTNERED' in guild.features:
 			nameemote = discord.utils.get(self.bot.emojis, id=647400542775279629)
-		elif 'VERIFIED' in guild.features:
-			nameemote = discord.utils.get(self.bot.emojis, name=647400543018287114)
+		if 'VERIFIED' in guild.features:
+			nameemote = discord.utils.get(self.bot.emojis, id=647400543018287114)
 		embed.add_field(name="» Name", value=f'{guild.name} {nameemote}', inline=False)
 		embed.add_field(name="» ID", value=guild.id, inline=False)
 		embed.add_field(name="» Members", value=format(guild.member_count, ',d'), inline=False)
