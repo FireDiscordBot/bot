@@ -484,7 +484,7 @@ class settings(commands.Cog, name="Settings"):
 			joinmsg = joinleave.get('joinmsg', False)
 			if joinchan and joinmsg:
 				channel = member.guild.get_channel(joinchan)
-				message = joinmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+				message = joinmsg.replace('{user.mention}', member.mention).replace('{user}', str(member)).replace('{user.name}', member.name).replace('{user.discrim}', member.discriminator).replace('{server}', member.guild.name).replace('{guild}', member.guild.name)
 				await channel.send(message)
 		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
 		if logid:
@@ -539,7 +539,7 @@ class settings(commands.Cog, name="Settings"):
 			leavemsg = joinleave.get('leavemsg', False)
 			if leavechan and leavemsg:
 				channel = member.guild.get_channel(leavechan)
-				message = leavemsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+				message = leavemsg.replace('{user.mention}', member.mention).replace('{user}', str(member)).replace('{user.name}', member.name).replace('{user.discrim}', member.discriminator).replace('{server}', member.guild.name).replace('{guild}', member.guild.name)
 				await channel.send(message)
 		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
 		if logid:
