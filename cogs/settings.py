@@ -181,9 +181,9 @@ class settings(commands.Cog, name="Settings"):
 						continue
 					if isinstance(e, discord.HTTPException) and invites == []:
 						continue
-				self.invites[guild.id] = {}
+				self.bot.invites[guild.id] = {}
 				for invite in invites:
-					self.invites[guild.id][invite.code] = invite.uses
+					self.bot.invites[guild.id][invite.code] = invite.uses
 		else:
 			self.bot.invites[gid] = {}
 			guild = self.bot.get_guild(gid)
@@ -199,9 +199,9 @@ class settings(commands.Cog, name="Settings"):
 						return
 					if isinstance(e, discord.HTTPException) and invites == []:
 						return
-				self.invites[guild.id] = {}
+				self.bot.invites[guild.id] = {}
 				for invite in invites:
-					self.invites[guild.id][invite.code] = invite.uses
+					self.bot.invites[guild.id][invite.code] = invite.uses
 
 	@commands.Cog.listener()
 	async def on_ready(self):
