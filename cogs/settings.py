@@ -165,9 +165,10 @@ class settings(commands.Cog, name="Settings"):
 				'leavemsg': jl.get('leavemsg', False)
 			}
 
-	async def loadInvites(self):
+	async def loadInvites(self, gid: int = None):
 		self.invites = {}
-		for guild in self.bot.guilds:
+		if not gid:
+			for guild in self.bot.guilds:
 				invites = []
 				try:
 					invites = await guild.invites()
@@ -179,6 +180,23 @@ class settings(commands.Cog, name="Settings"):
 						continue
 					if isinstance(e, discord.HTTPException) and invites == []:
 						continue
+				self.invites[guild.id] = {}
+				for invite in invites:
+					self.invites[guild.id][invite.code] = invite.uses
+		else:
+			guild = self.bot.get_guild(gid)
+			if guild:
+				invites = []
+				try:
+					invites = await guild.invites()
+					if 'VANITY_URL' in guild.features:
+						vanity = await guild.vanity_invite()
+						invites.append(vanity)
+				except (discord.Forbidden, discord.HTTPException) as e:
+					if isinstance(e, discord.Forbidden):
+						return
+					if isinstance(e, discord.HTTPException) and invites == []:
+						return
 				self.invites[guild.id] = {}
 				for invite in invites:
 					self.invites[guild.id][invite.code] = invite.uses
@@ -500,7 +518,7 @@ class settings(commands.Cog, name="Settings"):
 		usedinvite = 'Unknown'
 		if member.guild.id in self.invites:
 			before = self.invites[member.guild.id].copy()
-			await self.loadInvites()
+			await self.loadInvites(member.guild.id)
 			after = self.invites[member.guild.id]
 			for inv in before:
 				a = after[inv]
