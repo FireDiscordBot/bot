@@ -1421,7 +1421,7 @@ class settings(commands.Cog, name="Settings"):
 			await self.bot.db.release(con)
 			await self.loadSettings()
 			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Join messages will show in {channel.mention}!\Example: {message}')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Join messages will show in {channel.mention}!\nExample: {message}')
 		else:
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -1433,7 +1433,7 @@ class settings(commands.Cog, name="Settings"):
 			await self.bot.db.release(con)
 			await self.loadSettings()
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Join messages will show in {channel.mention}!\Example: {message}')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Join messages will show in {channel.mention}!\nExample: {message}')
 
 	@commands.command(name='leavemsg', description='Set the channel and message for leave messages')
 	@commands.has_permissions(manage_guild=True)
@@ -1482,7 +1482,7 @@ class settings(commands.Cog, name="Settings"):
 			await self.bot.db.release(con)
 			await self.loadSettings()
 			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Leave messages will show in {channel.mention}!\Example: {message}')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Leave messages will show in {channel.mention}!\nExample: {message}')
 		else:
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -1494,7 +1494,7 @@ class settings(commands.Cog, name="Settings"):
 			await self.bot.db.release(con)
 			await self.loadSettings()
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Leave messages will show in {channel.mention}!\Example: {message}')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Leave messages will show in {channel.mention}!\nExample: {message}')
 
 
 def setup(bot):
