@@ -95,6 +95,7 @@ class settings(commands.Cog, name="Settings"):
 		self.autodehoist = []
 		self.modonly = {}
 		self.adminonly = {}
+		self.joinleave = {}
 	
 	async def loadSettings(self):
 		self.logchannels = {}
@@ -104,6 +105,7 @@ class settings(commands.Cog, name="Settings"):
 		self.autodehoist = []
 		self.modonly = {}
 		self.adminonly = {}
+		self.joinleave = {}
 		query = 'SELECT * FROM settings;'
 		settings = await self.bot.db.fetch(query)
 		for s in settings:
@@ -150,6 +152,16 @@ class settings(commands.Cog, name="Settings"):
 			self.logchannels[guild] = {
 				"modlogs": modlogs,
 				"actionlogs": actionlogs
+			}
+		query = 'SELECT * FROM joinleave;'
+		joinleave = await self.bot.db.fetch(query)
+		for jl in joinleave:
+			guild = jl['gid']
+			self.joinleave[guild] = {
+				'joinchan': jl.get('joinchan', False),
+				'leavechan': jl.get('leavechan', False),
+				'joinmsg': jl.get('joinmsg', False),
+				'leavemsg': jl.get('leavemsg', False)
 			}
 
 	@commands.Cog.listener()
@@ -466,6 +478,14 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
+		joinleave = self.joinleave.get(member.guild.id, False)
+		if joinleave:
+			joinchan = joinleave.get('joinchan', False)
+			joinmsg = joinleave.get('joinmsg', False)
+			if joinchan and joinmsg:
+				channel = member.guild.get_channel(joinchan)
+				message = joinmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+				await channel.send(message)
 		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
 		if logid:
 			logch = member.guild.get_channel(logid['modlogs'])
@@ -513,6 +533,14 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.leave'))
+		joinleave = self.joinleave.get(member.guild.id, False)
+		if joinleave:
+			leavechan = joinleave.get('leavechan', False)
+			leavemsg = joinleave.get('leavemsg', False)
+			if leavechan and leavemsg:
+				channel = member.guild.get_channel(leavechan)
+				message = leavemsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+				await channel.send(message)
 		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
 		if logid:
 			logch = member.guild.get_channel(logid['modlogs'])
@@ -1344,7 +1372,123 @@ class settings(commands.Cog, name="Settings"):
 			await self.loadSettings()
 			channelmentions = [c.mention for c in channels]
 			channellist = ', '.join(channelmentions)
-			return await ctx.send(f'Commands can now only be run by admins in {channellist}.')	
+			return await ctx.send(f'Commands can now only be run by admins in {channellist}.')
+
+	@commands.command(name='joinmsg', description='Set the channel and message for join messages')
+	@commands.has_permissions(manage_guild=True)
+	@commands.guild_only()
+	async def joinmsg(self, ctx, channel: typing.Union[TextChannel, str] = None, *, message: str = None):
+		if not channel:
+			current = self.joinleave.get(ctx.guild.id, False)
+			if not current:
+				return await ctx.send('<a:fireFailed:603214400748257302> Please provide a channel and message for join messages.')
+			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Current Join Message Settings**\nDo __{ctx.prefix}joinmsg disable__ to disable join messages')
+			currentchan = ctx.guild.get_channel(current.get('joinchan', 0))
+			embed.add_field(name='Channel', value=currentchan.mention if currentchan else 'Not Set (Not sure how you managed to do this)', inline=False)
+			message = current.get('joinmsg', 'Not Set')
+			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+			embed.add_field(name='Message', value=message, inline=False)
+			variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
+			embed.add_field(name='Variables', value=variables, inline=False)
+			return await ctx.send(embed=embed)
+		if channel == 'disable':
+			current = self.joinleave.get(ctx.guild.id, {}).get('joinmsg', False)
+			if not current:
+				return await ctx.send('<a:fireFailed:603214400748257302> Can\'t disable something that wasn\'t enabled. ¯\_(ツ)_/¯')
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'UPDATE joinleave SET (joinchan, joinmsg) = (NULL, NULL) WHERE gid = $1;'
+				await self.bot.db.execute(query, ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			current = self.joinleave.get(ctx.guild.id, {}).get('joinmsg', False)
+			if not current:
+				return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully disabled join messages!')
+		if not message:
+			currentmsg = self.joinleave.get(ctx.guild.id, {}).get('joinmsg', False)
+			if not currentmsg:
+				return await ctx.send('<a:fireFailed:603214400748257302> You can\'t set a channel without setting a message.')
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				if ctx.guild.id in self.joinleave:
+					query = 'UPDATE joinleave SET joinchan = $1 WHERE gid = $2;'
+				else:
+					query = 'INSERT INTO joinleave (\"joinchan\", \"gid\") VALUES ($1, $2);'
+				await self.bot.db.execute(query, channel.id, ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Join messages will show in {channel.mention}!\Example: {message}')
+		else:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				if ctx.guild.id in self.joinleave:
+					query = 'UPDATE joinleave SET joinchan = $1, joinmsg = $2 WHERE gid = $3;'
+				else:
+					query = 'INSERT INTO joinleave (\"joinchan\", \"joinmsg\", \"gid\") VALUES ($1, $2, $3);'
+				await self.bot.db.execute(query, channel.id, message, ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Join messages will show in {channel.mention}!\Example: {message}')
+
+	@commands.command(name='leavemsg', description='Set the channel and message for leave messages')
+	@commands.has_permissions(manage_guild=True)
+	@commands.guild_only()
+	async def leavemsg(self, ctx, channel: typing.Union[TextChannel, str] = None, *, message: str = None):
+		if not channel:
+			current = self.joinleave.get(ctx.guild.id, False)
+			if not current:
+				return await ctx.send('<a:fireFailed:603214400748257302> Please provide a channel and message for leave messages.')
+			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Current Leave Message Settings**\nDo __{ctx.prefix}leavemsg disable__ to disable leave messages')
+			currentchan = ctx.guild.get_channel(current.get('leavechan', 0))
+			embed.add_field(name='Channel', value=currentchan.mention if currentchan else 'Not Set (Not sure how you managed to do this)', inline=False)
+			message = current.get('leavemsg', 'Not Set')
+			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+			embed.add_field(name='Message', value=message, inline=False)
+			variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
+			embed.add_field(name='Variables', value=variables, inline=False)
+			return await ctx.send(embed=embed)
+		if channel == 'disable':
+			current = self.joinleave.get(ctx.guild.id, {}).get('leavemsg', False)
+			if not current:
+				return await ctx.send('<a:fireFailed:603214400748257302> Can\'t disable something that wasn\'t enabled. ¯\_(ツ)_/¯')
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'UPDATE joinleave SET (leavechan, leavemsg) = (NULL, NULL) WHERE gid = $1;'
+				await self.bot.db.execute(query, ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			current = self.joinleave.get(ctx.guild.id, {}).get('leavemsg', False)
+			if not current:
+				return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully disabled leave messages!')
+		if not message:
+			currentmsg = self.joinleave.get(ctx.guild.id, {}).get('leavemsg', False)
+			if not currentmsg:
+				return await ctx.send('<a:fireFailed:603214400748257302> You can\'t set a channel without setting a message.')
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				if ctx.guild.id in self.joinleave:
+					query = 'UPDATE joinleave SET leavechan = $1 WHERE gid = $2;'
+				else:
+					query = 'INSERT INTO joinleave (\"leavechan\", \"gid\") VALUES ($1, $2);'
+				await self.bot.db.execute(query, channel.id, ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Leave messages will show in {channel.mention}!\Example: {message}')
+		else:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				if ctx.guild.id in self.joinleave:
+					query = 'UPDATE joinleave SET leavechan = $1, leavemsg = $2 WHERE gid = $3;'
+				else:
+					query = 'INSERT INTO joinleave (\"leavechan\", \"leavemsg\", \"gid\") VALUES ($1, $2, $3);'
+				await self.bot.db.execute(query, channel.id, message, ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Leave messages will show in {channel.mention}!\Example: {message}')
 
 
 def setup(bot):
