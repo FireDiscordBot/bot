@@ -517,7 +517,7 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
-		usedinvite = 'Unknown'
+		usedinvite = None
 		if member.guild.id in self.bot.invites:
 			before = self.bot.invites[member.guild.id].copy()
 			await self.loadInvites(member.guild.id)
@@ -563,7 +563,7 @@ class settings(commands.Cog, name="Settings"):
 			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url))
 			embed.add_field(name='Account Created', value=humanfriendly.format_timespan(datetime.datetime.utcnow() - member.created_at) + ' ago', inline=False)
 			premium = self.bot.get_cog('Premium Commands')
-			if member.guild.id in premium.premiumGuilds:
+			if usedinvite and member.guild.id in premium.premiumGuilds:
 				embed.add_field(name='Invite Used', value=usedinvite, inline=False)
 			embed.set_footer(text=f'User ID: {member.id}')
 			try:
