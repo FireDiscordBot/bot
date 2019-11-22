@@ -518,7 +518,8 @@ class settings(commands.Cog, name="Settings"):
 	async def on_member_join(self, member):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
 		usedinvite = None
-		if member.guild.id in self.bot.invites:
+		premium = self.bot.get_cog('Premium Commands').premiumGuilds
+		if member.guild.id in self.bot.invites and member.guild.id in premium:
 			before = self.bot.invites[member.guild.id].copy()
 			await self.loadInvites(member.guild.id)
 			after = self.bot.invites[member.guild.id]
@@ -562,8 +563,7 @@ class settings(commands.Cog, name="Settings"):
 			embed = discord.Embed(title='Member Joined', url='https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif', color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
 			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url))
 			embed.add_field(name='Account Created', value=humanfriendly.format_timespan(datetime.datetime.utcnow() - member.created_at) + ' ago', inline=False)
-			premium = self.bot.get_cog('Premium Commands')
-			if usedinvite and member.guild.id in premium.premiumGuilds:
+			if usedinvite and member.guild.id in premium:
 				embed.add_field(name='Invite Used', value=usedinvite, inline=False)
 			embed.set_footer(text=f'User ID: {member.id}')
 			try:
