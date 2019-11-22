@@ -497,14 +497,16 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
-		before = self.invites[member.guild.id].copy()
-		await self.loadInvites()
-		after = self.invites[member.guild.id]
-		for inv in before:
-			a = after[inv]
-			b = before[inv]
-			if b != a:
-				usedinvite = inv
+		usedinvite = 'Unknown'
+		if member.guild.id in self.invites:
+			before = self.invites[member.guild.id].copy()
+			await self.loadInvites()
+			after = self.invites[member.guild.id]
+			for inv in before:
+				a = after[inv]
+				b = before[inv]
+				if b != a:
+					usedinvite = inv
 		joinleave = self.joinleave.get(member.guild.id, False)
 		if joinleave:
 			joinchan = joinleave.get('joinchan', False)
