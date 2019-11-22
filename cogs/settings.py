@@ -1379,9 +1379,12 @@ class settings(commands.Cog, name="Settings"):
 	@commands.guild_only()
 	async def joinmsg(self, ctx, channel: typing.Union[TextChannel, str] = None, *, message: str = None):
 		if not channel:
-			current = self.joinleave.get(ctx.guild.id, False)
+			current = self.joinleave.get(ctx.guild.id, {}).get('joinmsg')
 			if not current:
-				return await ctx.send('<a:fireFailed:603214400748257302> Please provide a channel and message for join messages.')
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'<a:fireFailed:603214400748257302> Please provide a channel and message for join messages.')
+				variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
+				embed.add_field(name='Variables', value=variables, inline=False)
+				return await ctx.send(embed=embed)
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Current Join Message Settings**\nDo __{ctx.prefix}joinmsg disable__ to disable join messages')
 			currentchan = ctx.guild.get_channel(current.get('joinchan', 0))
 			embed.add_field(name='Channel', value=currentchan.mention if currentchan else 'Not Set (Not sure how you managed to do this)', inline=False)
@@ -1437,9 +1440,12 @@ class settings(commands.Cog, name="Settings"):
 	@commands.guild_only()
 	async def leavemsg(self, ctx, channel: typing.Union[TextChannel, str] = None, *, message: str = None):
 		if not channel:
-			current = self.joinleave.get(ctx.guild.id, False)
+			current = self.joinleave.get(ctx.guild.id, {}).get('leavemsg')
 			if not current:
-				return await ctx.send('<a:fireFailed:603214400748257302> Please provide a channel and message for leave messages.')
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'<a:fireFailed:603214400748257302> Please provide a channel and message for leave messages.')
+				variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
+				embed.add_field(name='Variables', value=variables, inline=False)
+				return await ctx.send(embed=embed)
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Current Leave Message Settings**\nDo __{ctx.prefix}leavemsg disable__ to disable leave messages')
 			currentchan = ctx.guild.get_channel(current.get('leavechan', 0))
 			embed.add_field(name='Channel', value=currentchan.mention if currentchan else 'Not Set (Not sure how you managed to do this)', inline=False)
