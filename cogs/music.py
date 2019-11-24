@@ -185,7 +185,15 @@ class Player(wavelink.Player):
 			self.controller_message = await track.channel.send(embed=embed)
 		else:
 			self.updating = False
-			return await self.controller_message.edit(embed=embed, content=None)
+			await self.controller_message.edit(embed=embed, content=None)
+
+		try:
+			await self.controller_message.pin()
+		except discord.HTTPException:
+			pass
+
+		if not self.updating:
+			return
 
 		try:
 			self.reaction_task.cancel()
