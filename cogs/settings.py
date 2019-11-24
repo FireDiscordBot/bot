@@ -524,7 +524,9 @@ class settings(commands.Cog, name="Settings"):
 			await self.loadInvites(member.guild.id)
 			after = self.bot.invites[member.guild.id]
 			for inv in before:
-				a = after[inv]
+				a = after.get(inv, False)
+				if not a:
+					usedinvite = inv
 				b = before[inv]
 				if b != a:
 					usedinvite = inv
@@ -1459,6 +1461,8 @@ class settings(commands.Cog, name="Settings"):
 			current = self.joinleave.get(ctx.guild.id, {}).get('joinmsg', False)
 			if not current:
 				return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully disabled join messages!')
+		if type(channel) == str:
+			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide a valid channel')
 		if not message:
 			currentmsg = self.joinleave.get(ctx.guild.id, {}).get('joinmsg', False)
 			if not currentmsg:
@@ -1520,6 +1524,8 @@ class settings(commands.Cog, name="Settings"):
 			current = self.joinleave.get(ctx.guild.id, {}).get('leavemsg', False)
 			if not current:
 				return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully disabled leave messages!')
+		if type(channel) == str:
+			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide a valid channel')
 		if not message:
 			currentmsg = self.joinleave.get(ctx.guild.id, {}).get('leavemsg', False)
 			if not currentmsg:
