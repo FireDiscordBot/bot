@@ -762,7 +762,7 @@ class Music(commands.Cog):
 
 		player.update = True
 
-	@commands.command(name='repeat', description="Repeat the currently playing song.")
+	@commands.command(name='repeat', description="Repeat the currently playing song.", aliases=["loop"])
 	async def repeat_(self, ctx):
 		"""PFXrepeat"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
