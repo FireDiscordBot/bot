@@ -525,8 +525,6 @@ class settings(commands.Cog, name="Settings"):
 			after = self.bot.invites[member.guild.id]
 			for inv in before:
 				a = after.get(inv, False)
-				if not a:
-					usedinvite = inv
 				b = before[inv]
 				if b != a:
 					usedinvite = inv
