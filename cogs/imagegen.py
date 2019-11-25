@@ -150,6 +150,7 @@ class imagegen(commands.Cog, name='Image Generation'):
 		# img.save(f'ttbt{ctx.author.id}.png')
 		buf = BytesIO()
 		img.save(buf, format='PNG')
+		buf.seek(0)
 		# raw = buf.getvalue()
 		file = discord.File(buf, f'spicymeme.png')
 		await ctx.send(file=file)
