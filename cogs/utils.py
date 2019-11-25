@@ -1226,6 +1226,26 @@ class utils(commands.Cog, name='Utility Commands'):
 				embed.set_thumbnail(url=str(ctx.guild.icon_url))
 			else:
 				image = ctx.guild.splash_url or ctx.guild.banner_url
+				if 'PARTNERED' in guild.features or 'VERIFIED' in guild.features:
+					if ctx.guild.splash_url:
+						splashraw = await ctx.guild.splash_url.read()
+					elif ctx.guild.banner_url:
+						splashraw = await ctx.guild.banner_url.read()
+					if 'PARTNERED' in guild.features:
+						badge = await aiohttp.ClientSession().get('https://cdn.discordapp.com/emojis/647415490226159617.png?size=16')
+						badgeraw = await badge.read()
+					elif 'VERIFIED' in guild.features:
+						badge = await aiohttp.ClientSession().get('https://cdn.discordapp.com/emojis/647415489764524062.png?size=16')
+						badgeraw = await badge.read()
+					s = Image.open(BytesIO(splashraw))
+					if badgeraw:
+						b = Image.open(BytesIO(badgeraw))
+						s.paste(b, (6, 6), b)
+					buf = BytesIO()
+					s.save(buf, format='PNG')
+					buf.seek(0)
+					attach = discord.File(buf, 'splashyboi.png')
+					image = 'attachment://splashyboi.png'
 				if ctx.guild.id == 564052798044504084:
 					image = 'https://cdn.discordapp.com/app-assets/444871677176709141/store/630360840251506742.png?size=320'
 					#please join my discord and boost so I can get an invite splash, https://oh-my-god.wtf/fire thank
@@ -1233,7 +1253,10 @@ class utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name='Clicks', value=current['clicks'])
 			embed.add_field(name='Links', value=current['links'])
 			embed.add_field(name='URL', value=current['url'], inline=False)
-			return await ctx.send(embed=embed)
+			if attach:
+				return await ctx.send(embed=embed, file=attach)
+			else:
+				return await ctx.send(embed=embed)
 		if code.lower() == 'disable':
 			await self.deletevanity(ctx)
 			return await ctx.send('<a:fireSuccess:603214443442077708> Vanity URL deleted!')
