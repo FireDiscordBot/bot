@@ -1238,6 +1238,7 @@ class utils(commands.Cog, name='Utility Commands'):
 						badge = await aiohttp.ClientSession().get('https://cdn.discordapp.com/emojis/647415489764524062.png?size=16')
 						badgeraw = await badge.read()
 					s = Image.open(BytesIO(splashraw))
+					s = s.resize((320, 180))
 					if badgeraw:
 						b = Image.open(BytesIO(badgeraw))
 						s.paste(b, (6, 6), b)
