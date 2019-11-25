@@ -683,8 +683,8 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def dstatus(self, ctx):
 		colors = {
 			'none': ctx.author.color,
-			'minor': discord.Color.orange(),
-			'major': discord.Color.red()
+			'minor_outage': discord.Color.orange(),
+			'major_outage': discord.Color.red()
 		}
 		summary = await aiohttp.ClientSession().get('https://status.discordapp.com/api/v2/summary.json')
 		summary = await summary.json()
@@ -1234,10 +1234,10 @@ class utils(commands.Cog, name='Utility Commands'):
 						splashraw = await ctx.guild.banner_url.read()
 					if splashraw:
 						if 'PARTNERED' in ctx.guild.features:
-							badge = await aiohttp.ClientSession().get('https://cdn.discordapp.com/emojis/647415490226159617.png?size=16')
+							badge = await aiohttp.ClientSession().get('https://cdn.discordapp.com/emojis/647415490226159617.png?size=32')
 							badgeraw = await badge.read()
 						elif 'VERIFIED' in ctx.guild.features:
-							badge = await aiohttp.ClientSession().get('https://cdn.discordapp.com/emojis/647415489764524062.png?size=16')
+							badge = await aiohttp.ClientSession().get('https://cdn.discordapp.com/emojis/647415489764524062.png?size=32')
 							badgeraw = await badge.read()
 						s = Image.open(BytesIO(splashraw))
 						s = s.resize((320, 180))
