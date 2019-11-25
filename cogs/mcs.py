@@ -13,6 +13,7 @@ with open('config.json', 'r') as cfg:
 class mcs(commands.Cog, name="Minecraft Saturdays"):
 	def __init__(self, bot):
 		self.bot = bot
+		self.season = 3
 
 	@commands.group(name='mcs', description='Minecraft Saturdays Commands', aliases=['minecraftsaturdays', 'mcsaturdays'], invoke_without_command=True)
 	async def mcsat(self, ctx):
@@ -26,7 +27,7 @@ class mcs(commands.Cog, name="Minecraft Saturdays"):
 	@mcsat.command(name='games')
 	async def mcsgames(self, ctx):
 		async with aiohttp.ClientSession() as s:
-			async with s.get('https://minecraftsaturdays.net/api/games') as r:
+			async with s.get(f'https://minecraftsaturdays.net/api/games/{self.season}') as r:
 				g = await r.text()
 				g = json.loads(g)
 				games = g['games']
@@ -39,7 +40,7 @@ class mcs(commands.Cog, name="Minecraft Saturdays"):
 	@mcsat.command(name='teams', aliases=['players'])
 	async def mcsteams(self, ctx):
 		async with aiohttp.ClientSession() as s:
-			async with s.get('https://minecraftsaturdays.net/api/roster') as r:
+			async with s.get(f'https://minecraftsaturdays.net/api/roster/{self.season}') as r:
 				p = await r.text()
 				p = json.loads(p)
 				teams = p['teams']
