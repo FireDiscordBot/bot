@@ -414,14 +414,16 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					width = mcfont.get_width(parsedtxt)
 					img = Image.new('RGBA', (width+25, 42))
 					mcfont.render((5, 0), parsedtxt, img)
-					img.save('lastrank.png')
-					customtag = discord.File('lastrank.png')
+					buf = BytesIO()
+					img.save(buf, format='PNG')
+					buf.seek(0)
+					customtag = discord.File(buf, 'imaginereadingthefilename.png')
 				if arg2 == None:
 					msg = await ctx.send(f"Retrieving {discord.utils.escape_mentions(discord.utils.escape_markdown(p['displayname']))}'s info...")
 					uuid = player.UUID
 					embed = discord.Embed(title=f"{discord.utils.escape_markdown(p['displayname'])}'s Info", colour=color, timestamp=datetime.datetime.utcnow())
 					if nametag:
-						embed.set_image(url=f'attachment://lastrank.png')
+						embed.set_image(url=f'attachment://imaginereadingthefilename.png')
 					embed.set_thumbnail(url=f"https://crafatar.com/avatars/{uuid}?overlay=true")
 					embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 					embed.add_field(name="Online Status", value=status, inline=True)

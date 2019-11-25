@@ -72,12 +72,14 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				width = mcfont.get_width(parsedtxt)
 				img = Image.new('RGBA', (width+25, 42))
 				mcfont.render((5, 0), parsedtxt, img)
-				img.save('lastlevelhead.png')
-				customlvl = discord.File('lastlevelhead.png')
+				buf = BytesIO()
+				img.save(buf, format='PNG')
+				buf.seek(0)
+				customlvl = discord.File(buf, 'mitchplshireme.png')
 				embed = discord.Embed(title=f"{player}'s Levelhead", colour=ctx.author.color, url="https://purchase.sk1er.club/category/1050972", timestamp=datetime.datetime.utcnow())
 				embed.add_field(name="Custom Levelhead?", value="Nope :(", inline=False)
 				embed.add_field(name="IGN", value=player, inline=False)
-				embed.set_image(url='attachment://lastlevelhead.png')
+				embed.set_image(url='attachment://mitchplshireme.png')
 				await ctx.send(embed=embed, file=customlvl)
 				return
 			async with aiohttp.ClientSession(headers=hello) as session:
