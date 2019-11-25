@@ -1231,10 +1231,10 @@ class utils(commands.Cog, name='Utility Commands'):
 						splashraw = await ctx.guild.splash_url.read()
 					elif ctx.guild.banner_url:
 						splashraw = await ctx.guild.banner_url.read()
-					if 'PARTNERED' in guild.features:
+					if 'PARTNERED' in ctx.guild.features:
 						badge = await aiohttp.ClientSession().get('https://cdn.discordapp.com/emojis/647415490226159617.png?size=16')
 						badgeraw = await badge.read()
-					elif 'VERIFIED' in guild.features:
+					elif 'VERIFIED' in ctx.guild.features:
 						badge = await aiohttp.ClientSession().get('https://cdn.discordapp.com/emojis/647415489764524062.png?size=16')
 						badgeraw = await badge.read()
 					s = Image.open(BytesIO(splashraw))
