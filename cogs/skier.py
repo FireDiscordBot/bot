@@ -22,6 +22,7 @@ import json
 import aiohttp
 import re
 from PIL import Image
+from io import BytesIO
 from . import mcfont
 
 print("skier.py has been loaded")
