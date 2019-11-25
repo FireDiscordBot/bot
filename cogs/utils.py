@@ -1226,6 +1226,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				embed.set_thumbnail(url=str(ctx.guild.icon_url))
 			else:
 				image = ctx.guild.splash_url or ctx.guild.banner_url
+				attach = None
 				if 'PARTNERED' in ctx.guild.features or 'VERIFIED' in ctx.guild.features:
 					if ctx.guild.splash_url:
 						splashraw = await ctx.guild.splash_url.read()
