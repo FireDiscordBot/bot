@@ -147,13 +147,10 @@ class imagegen(commands.Cog, name='Image Generation'):
 		except Exception:
 			return await ctx.send('<a:fireFailed:603214400748257302> Invalid image!')
 
-		# img.save(f'ttbt{ctx.author.id}.png')
-		buf = BytesIO()
-		img.save(buf, format='PNG')
-		raw = buf.getvalue()
-		file = discord.File(raw, f'spicymeme.png')
+		img.save(f'ttbt{ctx.author.id}.png')
+		file = discord.File(f'ttbt{ctx.author.id}.png')
 		await ctx.send(file=file)
-		# os.remove(f'ttbt{ctx.author.id}.png')
+		os.remove(f'ttbt{ctx.author.id}.png')
 
 	@commands.command(name='deepfry', aliases=['df'])
 	async def df(self, ctx, image: typing.Union[Member, str] = None):
@@ -169,11 +166,11 @@ class imagegen(commands.Cog, name='Image Generation'):
 		if imgraw.status != 200:
 			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
 		imgraw = await imgraw.read()
-		# img = Image.open(BytesIO(imgraw))
-		# img.save(f'deepfry{ctx.author.id}.png')
-		file = discord.File(BytesIO(imgraw), f'deepfried.png')
+		img = Image.open(BytesIO(imgraw))
+		img.save(f'deepfry{ctx.author.id}.png')
+		file = discord.File(f'deepfry{ctx.author.id}.png')
 		await ctx.send(file=file)
-		# os.remove(f'deepfry{ctx.author.id}.png')
+		os.remove(f'deepfry{ctx.author.id}.png')
 
 
 def setup(bot):
