@@ -671,7 +671,6 @@ class utils(commands.Cog, name='Utility Commands'):
 		colorlogo = discord.File(buf, f'istolethisideafromdyno.png')
 		embed.set_thumbnail(url=f'attachment://istolethisideafromdyno.png')
 		await ctx.send(embed=embed, file=colorlogo)
-		os.remove(f'{role.id}.png')
 		if role.members:
 			paginator = WrappedPaginator(prefix='', suffix='', max_size=250)
 			for member in role.members:
@@ -1161,8 +1160,6 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed = discord.Embed(colour=ctx.author.color)
 		embed.set_image(url=f'attachment://istolethisideafromdyno.png')
 		await ctx.send(embed=embed, file=colorlogo)
-		await asyncio.sleep(5)
-		os.remove(f'{u.id}.png')
 
 	@commands.command(description='Make a role mentionable for 60 seconds or until you mention it')
 	@commands.bot_has_permissions(manage_roles=True)
