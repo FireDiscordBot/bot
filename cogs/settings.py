@@ -1271,9 +1271,9 @@ class settings(commands.Cog, name="Settings"):
 		def dupemsg_check(reaction, user):
 			if user != ctx.author:
 				return False
-			if reaction.emoji == firefailed and reaction.message.id == invfiltermsg.id:
+			if reaction.emoji == firefailed and reaction.message.id == dupemsg.id:
 				return True
-			if reaction.emoji == firesuccess and reaction.message.id == invfiltermsg.id:
+			if reaction.emoji == firesuccess and reaction.message.id == dupemsg.id:
 				settingslist['dupecheck'] = 'Enabled'
 				return True
 		try:
