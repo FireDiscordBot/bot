@@ -616,7 +616,7 @@ class settings(commands.Cog, name="Settings"):
 				if doi.emoji == firefailed:
 					await potential.delete()
 					return await channel.send('Ok, I will ignore it.')
-			except Exception a:
+			except Exception:
 				try:
 					await channel.send('Something went wrong')
 				except Exception:
