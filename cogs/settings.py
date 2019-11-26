@@ -418,9 +418,9 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
-		lastmsg = self.uuidgobyebye(self.dupecheck[message.author.id])
+		lastmsg = self.uuidgobyebye(self.dupecheck.get(message.author.id, 'send this message and it will get yeeted'))
 		thismsg = self.uuidgobyebye(message.content)
-		if message.content == lastmsg and message.guild.id in self.dupecheck['guilds']:
+		if message.content == lastmsg and message.guild.id in self.dupecheck['guilds'] and not message.author.permissions_in(message.channel).manage_messages:
 			await message.delete()
 		self.dupecheck[message.author.id] = message.content
 		code = findinvite(message.system_content)
