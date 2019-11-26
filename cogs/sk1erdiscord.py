@@ -3,15 +3,15 @@ MIT License
 Copyright (c) 2019 GamingGeek
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software without restriction, 
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+and associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
@@ -34,7 +34,8 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		self.nitro = discord.utils.get(self.guild.roles, id=585534346551754755)
 		self.testrole = discord.utils.get(self.guild.roles, id=645067429067751436)
 		self.gist = 'b070e7f75a9083d2e211caffa0c772cc'
-		self.headers = {'Authorization': f'token {config["github"]}'}
+		self.gistheaders = {'Authorization': f'token {config["github"]}'}
+		self.modcoreheaders = {'secret': config['modcore']}
 
 	async def cog_check(self, ctx: commands.Context):
 		if ctx.guild.id == 411619823445999637:
@@ -55,17 +56,18 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			removed = [x for x in broles if x not in s]
 			test = discord.utils.get(self.guild.roles, id=645067429067751436)
 			if self.nitro in removed or test in removed:
-				async with aiohttp.ClientSession(headers=self.headers) as session:
-					async with session.get(f'https://api.github.com/gists/{self.gist}') as resp:
-						if resp.status != 200:
+				async with aiohttp.ClientSession(headers=self.gistheaders) as s:
+					async with s.get(f'https://api.github.com/gists/{self.gist}') as r:
+						if r.status != 200:
 							return
-						gist = await resp.json()
+						gist = await r.json()
 						text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
 						current = json.loads(text)
 				if 'error' in current:
 					return
 				try:
 					user = next(i for i in current if i["id"] == str(after.id))
+					mcuuid = user['uuid']
 					current.remove(user)
 				except Exception:
 					return
@@ -77,20 +79,20 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 						}
 					}
 				}
-				async with aiohttp.ClientSession(headers=self.headers) as session:
-					async with session.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as resp:
-						if resp.status == 200:
+				await aiohttp.ClientSession(headers=self.modcoreheaders).get(f'{config["modcoreapi"]}nitro/{mcuuid}/false')
+				async with aiohttp.ClientSession(headers=self.gistheaders) as s:
+					async with s.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as r:
+						if r.status == 200:
 							general = self.guild.get_channel(411620457754787841)
-							await general.send(f'{after.mention} Your dot & cape in Hyperium have been removed. Boost the server to get them back :)')
-				
+							await general.send(f'{after.mention} Your nitro perks in Hyperium & Modcore have been removed. Boost the server to get them back :)')
 
 	async def nameToUUID(self, player: str):
-		async with aiohttp.ClientSession() as session:
-			async with session.get(f'https://api.mojang.com/users/profiles/minecraft/{player}') as resp:
-				if resp.status == 204:
+		async with aiohttp.ClientSession() as s:
+			async with s.get(f'https://api.mojang.com/users/profiles/minecraft/{player}') as r:
+				if r.status == 204:
 					return False
-				elif resp.status == 200:
-					json = await resp.json()
+				elif r.status == 200:
+					json = await r.json()
 					mid = json['id']
 					return str(uuid.UUID(mid))
 		return False
@@ -101,20 +103,24 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			return await ctx.send('no')
 		if not ign:
 			return await ctx.send('<a:fireFailed:603214400748257302> You must provide your Minecraft name!')
-		mid = 	await self.nameToUUID(ign)
+		mid = await self.nameToUUID(ign)
 		if not mid:
 			return await ctx.send('<a:fireFailed:603214400748257302> No UUID found!')
-		async with aiohttp.ClientSession(headers=self.headers) as session:
-			async with session.get(f'https://api.github.com/gists/{self.gist}') as resp:
-				if resp.status != 200:
+		async with aiohttp.ClientSession(headers=self.gistheaders) as s:
+			async with s.get(f'https://api.github.com/gists/{self.gist}') as r:
+				if r.status != 200:
 					return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
-				gist = await resp.json()
+				gist = await r.json()
 				text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
 				current = json.loads(text)
 		if 'error' in current:
 			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
 		try:
 			user = next(i for i in current if i["id"] == str(ctx.author.id))
+			async with aiohttp.ClientSession(headers=self.modcoreheaders) as s:
+				async with s.get(f'{config["modcoreapi"]}nitro/{user["uuid"]}/false') as r:
+					if r.status != 200:
+						await ctx.send('<a:fireFailed:603214400748257302> Modcore didn\'t respond correctly')
 			current.remove(user)
 			user['uuid'] = mid
 			user['ign'] = ign
@@ -134,13 +140,16 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				}
 			}
 		}
-		async with aiohttp.ClientSession(headers=self.headers) as session:
-			async with session.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as resp:
-				if resp.status == 200:
+		async with aiohttp.ClientSession(headers=self.modcoreheaders) as s:
+			async with s.get(f'{config["modcoreapi"]}nitro/{user["uuid"]}/true') as r:
+				if r.status != 200:
+					await ctx.send('<a:fireFailed:603214400748257302> Modcore didn\'t respond correctly')
+		async with aiohttp.ClientSession(headers=self.gistheaders) as s:
+			async with s.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as r:
+				if r.status == 200:
 					return await ctx.send('<a:fireSuccess:603214443442077708> Successfully gave you the perks!')
 				else:
 					return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
-	
 
 
 def setup(bot):
