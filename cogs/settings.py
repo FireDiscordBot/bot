@@ -96,6 +96,10 @@ class settings(commands.Cog, name="Settings"):
 		self.modonly = {}
 		self.adminonly = {}
 		self.joinleave = {}
+		self.antiraid = {}
+		self.joincache = {}
+		self.dupecheck = {}
+		self.uuidregex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
 		if not hasattr(self.bot, 'invites'):
 			self.bot.invites = {}
 
@@ -108,6 +112,12 @@ class settings(commands.Cog, name="Settings"):
 		self.modonly = {}
 		self.adminonly = {}
 		self.joinleave = {}
+		self.antiraid = {}
+		self.joincache = {}
+		self.dupecheck = {}
+		self.dupecheck['guilds'] = []
+		for g in self.bot.guilds:
+			self.joincache[g.id] = []
 		query = 'SELECT * FROM settings;'
 		settings = await self.bot.db.fetch(query)
 		for s in settings:
@@ -120,6 +130,8 @@ class settings(commands.Cog, name="Settings"):
 				self.autodecancer.append(guild)
 			if s['autodehoist'] == 1:
 				self.autodehoist.append(guild)
+			if s['dupecheck'] == 1:
+				self.dupecheck['guilds'].append(guild)
 			if s['modonly']:
 				if guild not in self.modonly:
 					self.modonly[guild] = []
@@ -138,10 +150,15 @@ class settings(commands.Cog, name="Settings"):
 				actionlogs = False
 			else:
 				actionlogs = s['actionlogs']
+			if s['antiraid'] == 0:
+				antiraid = False
+			else:
+				antiraid = s['antiraid']
 			guildobj = self.bot.get_guild(guild)
 			if not guildobj:
 				modlogs = False
 				actionlogs = False
+				antiraid = False
 			else:
 				if modlogs:
 					cmodlogs = discord.utils.get(guildobj.channels, id=modlogs)
@@ -151,10 +168,16 @@ class settings(commands.Cog, name="Settings"):
 					cactionlogs = discord.utils.get(guildobj.channels, id=actionlogs)
 					if type(cactionlogs) != discord.TextChannel:
 						actionlogs = False
+				if antiraid:
+					cantiraid = discord.utils.get(guildobj.channels, id=antiraid)
+					if type(cantiraid) != discord.TextChannel:
+						antiraid = False
 			self.logchannels[guild] = {
 				"modlogs": modlogs,
 				"actionlogs": actionlogs
 			}
+			if antiraid:
+				self.antiraid[guild] = antiraid
 		query = 'SELECT * FROM joinleave;'
 		joinleave = await self.bot.db.fetch(query)
 		for jl in joinleave:
@@ -390,8 +413,16 @@ class settings(commands.Cog, name="Settings"):
 				except Exception:
 					pass
 
+	def uuidgobyebye(self, text: str):
+		return re.sub(self.uuidregex, '', text, 0, re.MULTILINE)
+
 	@commands.Cog.listener()
 	async def on_message(self, message):
+		lastmsg = self.uuidgobyebye(self.dupecheck[message.author.id])
+		thismsg = self.uuidgobyebye(message.content)
+		if message.content == lastmsg and message.guild.id in self.dupecheck['guilds']:
+			await message.delete()
+		self.dupecheck[message.author.id] = message.content
 		code = findinvite(message.system_content)
 		invite = None
 		nodel = False
@@ -514,9 +545,38 @@ class settings(commands.Cog, name="Settings"):
 					except discord.HTTPException:
 						return
 
+	async def _membercacheadd(self, id: int):
+		self.joincache.append(id)
+		await asyncio.sleep(20)
+		self.joincache.remove(id)
+
+	@commands.Cog.listener()
+	async def on_raid_attempt(self, guild: discord.Guild, raiders: list):
+		channel = guild.get_channel(self.antiraid.get(guild.id, 0))
+		if channel:
+			potential = await channel.send(f'There seems to be a raid going on. If that is correct, click the tick to ban.')
+			firesuccess = discord.utils.get(self.bot.emojis, id=603214443442077708)
+			firefailed = discord.utils.get(self.bot.emojis, id=603214400748257302)
+			await potential.add_reaction(firesuccess)
+			await potential.add_reaction(firefailed)
+			def ban_check(r, u):
+				return u.permissions_in(channel).ban_members
+			doi, ban = await self.bot.wait_for('reaction_add', check=ban_check)
+			if doi.emoji == firesuccess and ban:
+				[await guild.ban(x, reason=f'Automatic raid prevention, confirmed by {ban}') for x in raiders]
+				return await channel.send('I have banned all raiders I found!')
+			if doi.emoji == firefailed:
+				await potential.delete()
+				return await channel.send('Ok, I will ignore it.')
+		else:
+			return
+
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
+		asyncio.get_event_loop().create_task(self._membercacheadd(member.id))
+		if len(self.joincache) >= 50:
+			self.bot.dispatch('raid_attempt', member.guild, self.joincache)
 		usedinvite = None
 		premium = self.bot.get_cog('Premium Commands').premiumGuilds
 		if member.guild.id in self.bot.invites and member.guild.id in premium:
@@ -1089,6 +1149,7 @@ class settings(commands.Cog, name="Settings"):
 			'modlogs': 'Disabled',
 			'actionlogs': 'Disabled',
 			'invfilter': 'Disabled',
+			'dupecheck': 'Disabled',
 			'globalbans': 'Disabled',
 			'autodecancer': 'Disabled',
 			'autodehoist': 'Disabled'
@@ -1197,6 +1258,37 @@ class settings(commands.Cog, name="Settings"):
 			async with con.transaction():
 				q = 'UPDATE settings SET inviteblock = $1 WHERE gid = $2;'
 				await self.bot.db.execute(q, invfilter, ctx.guild.id)
+			await self.bot.db.release(con)
+		except asyncio.TimeoutError:
+			await self.loadSettings()
+			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+		await asyncio.sleep(2)
+		await ctx.send('Ok. Next is dupe checking. If a user attempts to send the same message again, I will delete it (that is, if I have permission to do so)')
+		await asyncio.sleep(2)
+		dupemsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
+		await dupemsg.add_reaction(firesuccess)
+		await dupemsg.add_reaction(firefailed)
+		def dupemsg_check(reaction, user):
+			if user != ctx.author:
+				return False
+			if reaction.emoji == firefailed and reaction.message.id == invfiltermsg.id:
+				return True
+			if reaction.emoji == firesuccess and reaction.message.id == invfiltermsg.id:
+				settingslist['dupecheck'] = 'Enabled'
+				return True
+		try:
+			await self.bot.wait_for('reaction_add', timeout=30.0, check=invfilter_check)
+			dupecheck = settingslist['dupecheck']
+			if dupecheck == 'Disabled':
+				dupecheck = 0
+				await ctx.send('Disabling dupe checking...')
+			elif dupecheck == 'Enabled':
+				dupecheck = 1
+				await ctx.send(f'Great! I\'ll enable dupe checking!')
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				q = 'UPDATE settings SET dupecheck = $1 WHERE gid = $2;'
+				await self.bot.db.execute(q, dupecheck, ctx.guild.id)
 			await self.bot.db.release(con)
 		except asyncio.TimeoutError:
 			await self.loadSettings()
@@ -1425,6 +1517,27 @@ class settings(commands.Cog, name="Settings"):
 			channelmentions = [c.mention for c in channels]
 			channellist = ', '.join(channelmentions)
 			return await ctx.send(f'Commands can now only be run by admins in {channellist}.')
+
+	@commands.command(name='antiraid', description='Configure the channel for antiraid alerts')
+	@commands.has_permissions(manage_channels=True)
+	@commands.guild_only()
+	async def adminonly(self, ctx, channel: TextChannel = None):
+		if not channel:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				mquery = 'UPDATE settings SET antiraid = $1 WHERE gid = $2;'
+				await self.bot.db.execute(mquery, 0, ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			return await ctx.send(f'I\'ve reset the antiraid alert channel.')
+		else:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				mquery = 'UPDATE settings SET antiraid = $1 WHERE gid = $2;'
+				await self.bot.db.execute(mquery, channel.id, ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			return await ctx.send(f'Antiraid alerts will now be sent in {channel.mention}')
 
 	@commands.command(name='joinmsg', description='Set the channel and message for join messages')
 	@commands.has_permissions(manage_guild=True)
