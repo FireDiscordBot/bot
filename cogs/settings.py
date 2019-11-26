@@ -575,7 +575,10 @@ class settings(commands.Cog, name="Settings"):
 					return u.permissions_in(channel).ban_members and u.id != guild.me.id
 				doi, ban = await self.bot.wait_for('reaction_add', check=ban_check)
 				if doi.emoji == firesuccess and ban:
-					[await guild.ban(x, reason=f'Automatic raid prevention, confirmed by {ban}') for x in raiders]
+					try:
+						[await guild.ban(x, reason=f'Automatic raid prevention, confirmed by {ban}') for x in raiders if guild.get_member(x.id)]
+					except Exception:
+						pass
 					return await channel.send('I have banned all raiders I found!')
 				if doi.emoji == firefailed:
 					await potential.delete()
@@ -605,12 +608,15 @@ class settings(commands.Cog, name="Settings"):
 					return u.permissions_in(channel).ban_members and u.id != guild.me.id
 				doi, ban = await self.bot.wait_for('reaction_add', check=ban_check)
 				if doi.emoji == firesuccess and ban:
-					[await guild.ban(x, reason=f'Automatic raid prevention, confirmed by {ban}') for x in raiders]
+					try:
+						[await guild.ban(x, reason=f'Automatic raid prevention, confirmed by {ban}') for x in raiders if guild.get_member(x.id)]
+					except Exception:
+						pass
 					return await channel.send('I have banned all raiders I found!')
 				if doi.emoji == firefailed:
 					await potential.delete()
 					return await channel.send('Ok, I will ignore it.')
-			except Exception:
+			except Exception a:
 				try:
 					await channel.send('Something went wrong')
 				except Exception:
@@ -1569,6 +1575,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.command(name='antiraid', description='Configure the channel for antiraid alerts')
 	@commands.has_permissions(manage_channels=True)
+	@commands.bot_has_permissions(ban_members=True)
 	@commands.guild_only()
 	async def antiraid(self, ctx, channel: TextChannel = None):
 		if not channel:
