@@ -32,7 +32,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		self.bot = bot
 		self.guild = self.bot.get_guild(411619823445999637)
 		self.nitro = discord.utils.get(self.guild.roles, id=585534346551754755)
-		self.staffteam = discord.utils.get(self.guild.roles, id=411817645436960768)
+		self.testrole = discord.utils.get(self.guild.roles, id=645067429067751436)
 		self.gist = 'b070e7f75a9083d2e211caffa0c772cc'
 		self.headers = {'Authorization': f'token {config["github"]}'}
 
@@ -96,8 +96,8 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		return False
 
 	@commands.command(description='Makes a PR to add a pink dot for nitro boosters')
-	async def nitrodot(self, ctx, ign: str = None):
-		if self.nitro not in ctx.author.roles and self.staffteam not in ctx.author.roles:
+	async def nitroperks(self, ctx, ign: str = None):
+		if self.nitro not in ctx.author.roles and self.testrole not in ctx.author.roles:
 			return await ctx.send('no')
 		if not ign:
 			return await ctx.send('<a:fireFailed:603214400748257302> You must provide your Minecraft name!')
