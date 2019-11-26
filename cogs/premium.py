@@ -29,7 +29,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		self.loop = bot.loop
 		self.premiumGuilds  = []
 		self.autoroles = {}
-		self.reactroles = {}
+		# self.reactroles = {}
 		self.joinroles = {}
 		self.rolepersists = {}
 
@@ -51,18 +51,18 @@ class Premium(commands.Cog, name="Premium Commands"):
 					"role": s['autorole']
 				}
 
-	async def loadReactroles(self):
-		self.reactroles = {}
-		query = 'SELECT * FROM settings;'
-		settings = await self.bot.db.fetch(query)
-		for s in settings:
-			if s['reactroleid'] != 0:
-				guild = s['gid']
-				self.reactroles[guild] = {
-					"role": s['reactroleid'],
-					"message": s['reactrolemid'],
-					"emote": s['reactroleeid']
-				}
+	# async def loadReactroles(self):
+	# 	self.reactroles = {}
+	# 	query = 'SELECT * FROM settings;'
+	# 	settings = await self.bot.db.fetch(query)
+	# 	for s in settings:
+	# 		if s['reactroleid'] != 0:
+	# 			guild = s['gid']
+	# 			self.reactroles[guild] = {
+	# 				"role": s['reactroleid'],
+	# 				"message": s['reactrolemid'],
+	# 				"emote": s['reactroleeid']
+	# 			}
 
 	async def loadJoinRoles(self):
 		self.joinroles = {}
@@ -120,7 +120,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		await asyncio.sleep(10)
 		await self.loadPremiumGuilds()
 		await self.loadAutoroles()
-		await self.loadReactroles()
+		# await self.loadReactroles()
 		await self.loadJoinRoles()
 		await self.loadRolePersist()
 		print('Premium functions loaded!')
@@ -131,7 +131,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		if await self.bot.is_team_owner(ctx.author):
 			await self.loadPremiumGuilds()
 			await self.loadAutoroles()
-			await self.loadReactroles()
+			# await self.loadReactroles()
 			await self.loadJoinRoles()
 			await self.loadRolePersist()
 			await ctx.send('<a:fireSuccess:603214443442077708> Loaded data!')
@@ -218,79 +218,117 @@ class Premium(commands.Cog, name="Premium Commands"):
 			}
 			return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}! All new members will recieve the {role.name} role.')
 
-	@commands.command(name='reactrole', description='Automatically add a role to a user when they react to a message')
-	@has_permissions(manage_roles=True)
-	@bot_has_permissions(manage_roles=True)
-	@commands.guild_only()
-	async def reactrole(self, ctx, role: Role = None, message: int = None, emote: typing.Union[int, str] = None):
-		'''PFXautorole [<role name/id/mention> <message id> <emote>]\nUse command without arguments to disable'''
-		query = 'SELECT * FROM settings WHERE gid = $1;'
-		guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
-		if guildsettings == []:
-			# await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
-			# await self.bot.conn.commit()
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'INSERT INTO settings (\"gid\") VALUES ($1);'
-				await self.bot.db.execute(query, ctx.guild.id)
-			await self.bot.db.release(con)
-		if not role:
-			# await self.bot.db.execute(f'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = (0, 0, 0) WHERE gid = {ctx.guild.id}')
-			# await self.bot.conn.commit()
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = (0, 0, 0) WHERE gid = $1;'
-				await self.bot.db.execute(query, ctx.guild.id)
-			await self.bot.db.release(con)
-			try:
-				self.reactroles[ctx.guild.id] = None
-			except KeyError:
-				pass
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully disabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}')
-		else:
-			try:
-				msg = await ctx.channel.fetch_message(message)
-			except:
-				for channel in ctx.guild.text_channels:
-					perms = ctx.guild.me.permissions_in(channel)
-					try:
-						msg = await channel.fetch_message(message)
-					except:
-						continue
-			if not msg:
-				raise commands.ArgumentParsingError('Missing Message ID')
-			if not emote:
-				raise commands.ArgumentParsingError('Missing Emote')
-			roleid = role.id
-			messageid = msg.id
-			try:
-				emote = int(emote)
-			except Exception:
-				emote = str(emote)
-			if type(emote) == int:
-				emoteid = discord.utils.get(self.bot.emojis, id=emote)
-				if emoteid == None:
-					raise commands.ArgumentParsingError('Can\'t find emote from ID.')
-				else:
-					emote = emoteid
-					emoteid = emoteid.id
-			elif type(emote) == str:
-				emoteid = emote
-			# await self.bot.db.execute(f'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = ({roleid}, {messageid}, \"{emoteid}\") WHERE gid = {ctx.guild.id}')
-			# await self.bot.conn.commit()
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = ($2, $3, $4) WHERE gid = $1;'
-				await self.bot.db.execute(query, ctx.guild.id, roleid, messageid, emoteid)
-			await self.bot.db.release(con)
-			await msg.add_reaction(emote)
-			self.reactroles[ctx.guild.id] = {
-				"role": roleid,
-				"message": messageid,
-				"emote": emoteid
-			}
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}!')
+	# @commands.command(name='reactrole', description='Automatically add a role to a user when they react to a message')
+	# @has_permissions(manage_roles=True)
+	# @bot_has_permissions(manage_roles=True)
+	# @commands.guild_only()
+	# async def reactrole(self, ctx, role: Role = None, message: int = None, emote: typing.Union[int, str] = None):
+	# 	'''PFXautorole [<role name/id/mention> <message id> <emote>]\nUse command without arguments to disable'''
+	# 	query = 'SELECT * FROM settings WHERE gid = $1;'
+	# 	guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
+	# 	if guildsettings == []:
+	# 		# await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
+	# 		# await self.bot.conn.commit()
+	# 		con = await self.bot.db.acquire()
+	# 		async with con.transaction():
+	# 			query = 'INSERT INTO settings (\"gid\") VALUES ($1);'
+	# 			await self.bot.db.execute(query, ctx.guild.id)
+	# 		await self.bot.db.release(con)
+	# 	if not role:
+	# 		# await self.bot.db.execute(f'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = (0, 0, 0) WHERE gid = {ctx.guild.id}')
+	# 		# await self.bot.conn.commit()
+	# 		con = await self.bot.db.acquire()
+	# 		async with con.transaction():
+	# 			query = 'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = (0, 0, 0) WHERE gid = $1;'
+	# 			await self.bot.db.execute(query, ctx.guild.id)
+	# 		await self.bot.db.release(con)
+	# 		try:
+	# 			self.reactroles[ctx.guild.id] = None
+	# 		except KeyError:
+	# 			pass
+	# 		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully disabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}')
+	# 	else:
+	# 		try:
+	# 			msg = await ctx.channel.fetch_message(message)
+	# 		except:
+	# 			for channel in ctx.guild.text_channels:
+	# 				perms = ctx.guild.me.permissions_in(channel)
+	# 				try:
+	# 					msg = await channel.fetch_message(message)
+	# 				except:
+	# 					continue
+	# 		if not msg:
+	# 			raise commands.ArgumentParsingError('Missing Message ID')
+	# 		if not emote:
+	# 			raise commands.ArgumentParsingError('Missing Emote')
+	# 		roleid = role.id
+	# 		messageid = msg.id
+	# 		try:
+	# 			emote = int(emote)
+	# 		except Exception:
+	# 			emote = str(emote)
+	# 		if type(emote) == int:
+	# 			emoteid = discord.utils.get(self.bot.emojis, id=emote)
+	# 			if emoteid == None:
+	# 				raise commands.ArgumentParsingError('Can\'t find emote from ID.')
+	# 			else:
+	# 				emote = emoteid
+	# 				emoteid = emoteid.id
+	# 		elif type(emote) == str:
+	# 			emoteid = emote
+	# 		# await self.bot.db.execute(f'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = ({roleid}, {messageid}, \"{emoteid}\") WHERE gid = {ctx.guild.id}')
+	# 		# await self.bot.conn.commit()
+	# 		con = await self.bot.db.acquire()
+	# 		async with con.transaction():
+	# 			query = 'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = ($2, $3, $4) WHERE gid = $1;'
+	# 			await self.bot.db.execute(query, ctx.guild.id, roleid, messageid, emoteid)
+	# 		await self.bot.db.release(con)
+	# 		await msg.add_reaction(emote)
+	# 		self.reactroles[ctx.guild.id] = {
+	# 			"role": roleid,
+	# 			"message": messageid,
+	# 			"emote": emoteid
+	# 		}
+	# 		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}!')
 
+	@commands.command(name='antiraid', description='Configure the channel for antiraid alerts')
+	@commands.has_permissions(manage_channels=True)
+	@commands.bot_has_permissions(ban_members=True)
+	@commands.guild_only()
+	async def antiraid(self, ctx, channel: TextChannel = None):
+		if not channel:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				mquery = 'UPDATE settings SET antiraid = $1 WHERE gid = $2;'
+				await self.bot.db.execute(mquery, 0, ctx.guild.id)
+			await self.bot.db.release(con)
+			settings = self.bot.get_cog('Settings')
+			await settings.loadSettings()
+			return await ctx.send(f'I\'ve reset the antiraid alert channel.')
+		else:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				mquery = 'UPDATE settings SET antiraid = $1 WHERE gid = $2;'
+				await self.bot.db.execute(mquery, channel.id, ctx.guild.id)
+			await self.bot.db.release(con)
+			settings = self.bot.get_cog('Settings')
+			await settings.loadSettings()
+			return await ctx.send(f'Antiraid alerts will now be sent in {channel.mention}')
+
+	async def _setraidmsg(self, id: int, message: str):
+		self.raidmsgs[id] = message
+		await asyncio.sleep(300)
+		self.raidmsgs[id] = None
+		self.bot.dispatch('msgraid_attempt', self.bot.get_guild(id), self.msgraiders[id])
+
+	@commands.command(name='raidmsg', description='Set the raid message for the server. Anyone who says it will get banned')
+	@commands.has_permissions(ban_members=True)
+	@commands.bot_has_permissions(ban_members=True)
+	async def raidmsg(self, ctx, *, msg: str):
+		await ctx.message.delete()
+		await ctx.send(f'Raid message set! Anyone who sends that message in the next 5 minutes will be added to the list.\nI will alert you in your raid alerts channel with the list of raiders :)')
+		asyncio.get_event_loop().create_task(self._setraidmsg(ctx.guild.id, msg))
+	
 	@commands.command(name='addrank', description='Add a role that users can join through the rank command.')
 	@has_permissions(manage_roles=True)
 	@bot_has_permissions(manage_roles=True)
@@ -526,71 +564,71 @@ class Premium(commands.Cog, name="Premium Commands"):
 						pass
 			return
 
-	@commands.Cog.listener()
-	async def on_reaction_add(self, reaction, member):
-		if type(member) == discord.Member:
-			try:
-				if await self.member_guild_check(member):
-					guild = user.guild
-					message = reaction.message
-					rr = self.reactroles[guild.id]
-					roleid = rr["role"]
-					msgid = rr["message"]
-					emote = rr["emote"]
-					if roleid != None:
-						if msgid != None:
-							if emote != None:
-								emotecheck = None
-								try:
-									emote = int(emote)
-									if emote == reaction.emoji.id:
-										emotecheck = True
-								except Exception:
-									emote = str(emote)
-									if emote == reaction.emoji:
-										emotecheck = True
-								if emotecheck:
-									role = discord.utils.get(guild.roles, id=roleid)
-									if role != None:
-										try:
-											await user.add_roles(role, reason='Reaction Role')
-										except Exception:
-											pass
-			except Exception:
-				return
+	# @commands.Cog.listener()
+	# async def on_reaction_add(self, reaction, member):
+	# 	if type(member) == discord.Member:
+	# 		try:
+	# 			if await self.member_guild_check(member):
+	# 				guild = user.guild
+	# 				message = reaction.message
+	# 				rr = self.reactroles[guild.id]
+	# 				roleid = rr["role"]
+	# 				msgid = rr["message"]
+	# 				emote = rr["emote"]
+	# 				if roleid != None:
+	# 					if msgid != None:
+	# 						if emote != None:
+	# 							emotecheck = None
+	# 							try:
+	# 								emote = int(emote)
+	# 								if emote == reaction.emoji.id:
+	# 									emotecheck = True
+	# 							except Exception:
+	# 								emote = str(emote)
+	# 								if emote == reaction.emoji:
+	# 									emotecheck = True
+	# 							if emotecheck:
+	# 								role = discord.utils.get(guild.roles, id=roleid)
+	# 								if role != None:
+	# 									try:
+	# 										await user.add_roles(role, reason='Reaction Role')
+	# 									except Exception:
+	# 										pass
+	# 		except Exception:
+	# 			return
 	
-	@commands.Cog.listener()
-	async def on_reaction_remove(self, reaction, user):
-		if type(user) == discord.Member:
-			try:
-				if await self.member_guild_check(user):
-					guild = user.guild
-					message = reaction.message
-					rr = self.reactroles[guild.id]
-					roleid = rr["role"]
-					msgid = rr["message"]
-					emote = rr["emote"]
-					if roleid != None:
-						if msgid != None:
-							if emote != None:
-								emotecheck = None
-								try:
-									emote = int(emote)
-									if emote == reaction.emoji.id:
-										emotecheck = True
-								except Exception:
-									emote = str(emote)
-									if emote == reaction.emoji:
-										emotecheck = True
-								if emotecheck:
-									role = discord.utils.get(guild.roles, id=roleid)
-									if role != None:
-										try:
-											await user.remove_roles(role, reason='Reaction Role')
-										except Exception:
-											pass
-			except Exception:
-				return
+	# @commands.Cog.listener()
+	# async def on_reaction_remove(self, reaction, user):
+	# 	if type(user) == discord.Member:
+	# 		try:
+	# 			if await self.member_guild_check(user):
+	# 				guild = user.guild
+	# 				message = reaction.message
+	# 				rr = self.reactroles[guild.id]
+	# 				roleid = rr["role"]
+	# 				msgid = rr["message"]
+	# 				emote = rr["emote"]
+	# 				if roleid != None:
+	# 					if msgid != None:
+	# 						if emote != None:
+	# 							emotecheck = None
+	# 							try:
+	# 								emote = int(emote)
+	# 								if emote == reaction.emoji.id:
+	# 									emotecheck = True
+	# 							except Exception:
+	# 								emote = str(emote)
+	# 								if emote == reaction.emoji:
+	# 									emotecheck = True
+	# 							if emotecheck:
+	# 								role = discord.utils.get(guild.roles, id=roleid)
+	# 								if role != None:
+	# 									try:
+	# 										await user.remove_roles(role, reason='Reaction Role')
+	# 									except Exception:
+	# 										pass
+	# 		except Exception:
+	# 			return
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):

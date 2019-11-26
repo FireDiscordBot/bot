@@ -429,9 +429,11 @@ class settings(commands.Cog, name="Settings"):
 		if message.content == lastmsg and message.guild.id in self.dupecheck['guilds'] and not message.author.permissions_in(message.channel).manage_messages:
 			await message.delete()
 		self.dupecheck[message.author.id] = message.content
-		raidmsg = self.raidmsgs.get(message.guild.id, False)
-		if raidmsg and raidmsg in message.content:
-			self.msgraiders.get(message.guild.id, []).append(message.author)
+		premium = self.bot.get_cog('Premium Commands').premiumGuilds
+		if message.guild.id in premium:
+			raidmsg = self.raidmsgs.get(message.guild.id, False)
+			if raidmsg and raidmsg in message.content:
+				self.msgraiders.get(message.guild.id, []).append(message.author)
 		code = findinvite(message.system_content)
 		invite = None
 		nodel = False
@@ -627,11 +629,12 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
-		asyncio.get_event_loop().create_task(self._membercacheadd(member.id))
-		if len(self.joincache[member.guild.id]) >= 50:
-			self.bot.dispatch('raid_attempt', member.guild, self.joincache[member.guild.id])
-		usedinvite = None
 		premium = self.bot.get_cog('Premium Commands').premiumGuilds
+		if member.guild.id in premium:
+			asyncio.get_event_loop().create_task(self._membercacheadd(member.id))
+			if len(self.joincache[member.guild.id]) >= 50:
+				self.bot.dispatch('raid_attempt', member.guild, self.joincache[member.guild.id])
+		usedinvite = None
 		if member.guild.id in self.bot.invites and member.guild.id in premium:
 			before = self.bot.invites[member.guild.id].copy()
 			await self.loadInvites(member.guild.id)
@@ -1572,42 +1575,6 @@ class settings(commands.Cog, name="Settings"):
 			channelmentions = [c.mention for c in channels]
 			channellist = ', '.join(channelmentions)
 			return await ctx.send(f'Commands can now only be run by admins in {channellist}.')
-
-	@commands.command(name='antiraid', description='Configure the channel for antiraid alerts')
-	@commands.has_permissions(manage_channels=True)
-	@commands.bot_has_permissions(ban_members=True)
-	@commands.guild_only()
-	async def antiraid(self, ctx, channel: TextChannel = None):
-		if not channel:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				mquery = 'UPDATE settings SET antiraid = $1 WHERE gid = $2;'
-				await self.bot.db.execute(mquery, 0, ctx.guild.id)
-			await self.bot.db.release(con)
-			await self.loadSettings()
-			return await ctx.send(f'I\'ve reset the antiraid alert channel.')
-		else:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				mquery = 'UPDATE settings SET antiraid = $1 WHERE gid = $2;'
-				await self.bot.db.execute(mquery, channel.id, ctx.guild.id)
-			await self.bot.db.release(con)
-			await self.loadSettings()
-			return await ctx.send(f'Antiraid alerts will now be sent in {channel.mention}')
-
-	async def _setraidmsg(self, id: int, message: str):
-		self.raidmsgs[id] = message
-		await asyncio.sleep(300)
-		self.raidmsgs[id] = None
-		self.bot.dispatch('msgraid_attempt', self.bot.get_guild(id), self.msgraiders[id])
-
-	@commands.command(name='raidmsg', description='Set the raid message for the server. Anyone who says it will get banned')
-	@commands.has_permissions(ban_members=True)
-	@commands.bot_has_permissions(ban_members=True)
-	async def raidmsg(self, ctx, *, msg: str):
-		await ctx.message.delete()
-		await ctx.send(f'Raid message set! Anyone who sends that message in the next 5 minutes will be added to the list.\nI will alert you in your raid alerts channel with the list of raiders :)')
-		asyncio.get_event_loop().create_task(self._setraidmsg(ctx.guild.id, msg))
 
 	@commands.command(name='joinmsg', description='Set the channel and message for join messages')
 	@commands.has_permissions(manage_guild=True)
