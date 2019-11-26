@@ -708,9 +708,11 @@ class settings(commands.Cog, name="Settings"):
 		if logch:
 			embed = discord.Embed(title='Member Left', url='https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif', color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url))
-			embed.add_field(name='Nickname', value=member.nick or member.name, inline=False)
+			if member.nick:
+				embed.add_field(name='Nickname', value=member.nick, inline=False)
 			roles = [role.mention for role in member.roles if role != member.guild.default_role]
-			embed.add_field(name='Roles', value=', '.join(roles) if roles else 'No roles', inline=False)
+			if roles:
+				embed.add_field(name='Roles', value=', '.join(roles), inline=False)
 			embed.set_footer(text=f'User ID: {member.id}')
 			try:
 				await logch.send(embed=embed)
