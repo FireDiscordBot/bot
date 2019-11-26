@@ -81,7 +81,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 					async with session.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as resp:
 						if resp.status == 200:
 							general = self.guild.get_channel(411620457754787841)
-							await general.send(f'{after.mention} Your custom dot in Hyperium has been removed. Boost the server to get it back :)')
+							await general.send(f'{after.mention} Your dot & cape in Hyperium have been removed. Boost the server to get them back :)')
 				
 
 	async def nameToUUID(self, player: str):
