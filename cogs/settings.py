@@ -1277,7 +1277,7 @@ class settings(commands.Cog, name="Settings"):
 				settingslist['dupecheck'] = 'Enabled'
 				return True
 		try:
-			await self.bot.wait_for('reaction_add', timeout=30.0, check=invfilter_check)
+			await self.bot.wait_for('reaction_add', timeout=30.0, check=dupemsg_check)
 			dupecheck = settingslist['dupecheck']
 			if dupecheck == 'Disabled':
 				dupecheck = 0
