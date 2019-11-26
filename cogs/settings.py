@@ -97,6 +97,8 @@ class settings(commands.Cog, name="Settings"):
 		self.adminonly = {}
 		self.joinleave = {}
 		self.antiraid = {}
+		self.raidmsgs = {}
+		self.msgraiders = {}
 		self.joincache = {}
 		self.dupecheck = {}
 		self.uuidregex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
@@ -113,11 +115,15 @@ class settings(commands.Cog, name="Settings"):
 		self.adminonly = {}
 		self.joinleave = {}
 		self.antiraid = {}
+		self.raidmsgs = {}
+		self.msgraiders = {}
 		self.joincache = {}
 		self.dupecheck = {}
 		self.dupecheck['guilds'] = []
 		for g in self.bot.guilds:
 			self.joincache[g.id] = []
+			self.raidmsgs[g.id] = None
+			self.msgraiders[g.id] = []
 		query = 'SELECT * FROM settings;'
 		settings = await self.bot.db.fetch(query)
 		for s in settings:
@@ -423,6 +429,9 @@ class settings(commands.Cog, name="Settings"):
 		if message.content == lastmsg and message.guild.id in self.dupecheck['guilds'] and not message.author.permissions_in(message.channel).manage_messages:
 			await message.delete()
 		self.dupecheck[message.author.id] = message.content
+		raidmsg = self.raidmsgs.get(message.guild.id, False)
+		if raidmsg and raidmsg in message.content:
+			self.msgraiders.get(message.guild.id, []).append(message.author)
 		code = findinvite(message.system_content)
 		invite = None
 		nodel = False
@@ -551,23 +560,61 @@ class settings(commands.Cog, name="Settings"):
 		self.joincache.remove(id)
 
 	@commands.Cog.listener()
-	async def on_raid_attempt(self, guild: discord.Guild, raiders: list):
+	async def on_raid_attempt(self, guild: discord.Guild, raiders: list = list):
+		if not guild:
+			return
 		channel = guild.get_channel(self.antiraid.get(guild.id, 0))
 		if channel:
-			potential = await channel.send(f'There seems to be a raid going on. If that is correct, click the tick to ban.')
-			firesuccess = discord.utils.get(self.bot.emojis, id=603214443442077708)
-			firefailed = discord.utils.get(self.bot.emojis, id=603214400748257302)
-			await potential.add_reaction(firesuccess)
-			await potential.add_reaction(firefailed)
-			def ban_check(r, u):
-				return u.permissions_in(channel).ban_members
-			doi, ban = await self.bot.wait_for('reaction_add', check=ban_check)
-			if doi.emoji == firesuccess and ban:
-				[await guild.ban(x, reason=f'Automatic raid prevention, confirmed by {ban}') for x in raiders]
-				return await channel.send('I have banned all raiders I found!')
-			if doi.emoji == firefailed:
-				await potential.delete()
-				return await channel.send('Ok, I will ignore it.')
+			try:
+				potential = await channel.send(f'There seems to be a raid going on. If that is correct, click the tick to ban.')
+				firesuccess = discord.utils.get(self.bot.emojis, id=603214443442077708)
+				firefailed = discord.utils.get(self.bot.emojis, id=603214400748257302)
+				await potential.add_reaction(firesuccess)
+				await potential.add_reaction(firefailed)
+				def ban_check(r, u):
+					return u.permissions_in(channel).ban_members and u.id != guild.me.id
+				doi, ban = await self.bot.wait_for('reaction_add', check=ban_check)
+				if doi.emoji == firesuccess and ban:
+					[await guild.ban(x, reason=f'Automatic raid prevention, confirmed by {ban}') for x in raiders]
+					return await channel.send('I have banned all raiders I found!')
+				if doi.emoji == firefailed:
+					await potential.delete()
+					return await channel.send('Ok, I will ignore it.')
+			except Exception:
+				try:
+					await channel.send('Something went wrong')
+				except Exception:
+					return
+		else:
+			return
+
+	@commands.Cog.listener()
+	async def on_msgraid_attempt(self, guild: discord.Guild, raiders: list = list):
+		if not guild:
+			return
+		channel = guild.get_channel(self.antiraid.get(guild.id, 0))
+		if channel:
+			try:
+				raidmentions = ', '.join([x.mention for x in raiders])
+				potential = await channel.send(f'There seems to be a raid going on. Here\'s the raiders I found\n{raidmentions}\n\nClick the tick to ban.')
+				firesuccess = discord.utils.get(self.bot.emojis, id=603214443442077708)
+				firefailed = discord.utils.get(self.bot.emojis, id=603214400748257302)
+				await potential.add_reaction(firesuccess)
+				await potential.add_reaction(firefailed)
+				def ban_check(r, u):
+					return u.permissions_in(channel).ban_members and u.id != guild.me.id
+				doi, ban = await self.bot.wait_for('reaction_add', check=ban_check)
+				if doi.emoji == firesuccess and ban:
+					[await guild.ban(x, reason=f'Automatic raid prevention, confirmed by {ban}') for x in raiders]
+					return await channel.send('I have banned all raiders I found!')
+				if doi.emoji == firefailed:
+					await potential.delete()
+					return await channel.send('Ok, I will ignore it.')
+			except Exception:
+				try:
+					await channel.send('Something went wrong')
+				except Exception:
+					return
 		else:
 			return
 
@@ -575,8 +622,8 @@ class settings(commands.Cog, name="Settings"):
 	async def on_member_join(self, member):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
 		asyncio.get_event_loop().create_task(self._membercacheadd(member.id))
-		if len(self.joincache) >= 50:
-			self.bot.dispatch('raid_attempt', member.guild, self.joincache)
+		if len(self.joincache[member.guild.id]) >= 50:
+			self.bot.dispatch('raid_attempt', member.guild, self.joincache[member.guild.id])
 		usedinvite = None
 		premium = self.bot.get_cog('Premium Commands').premiumGuilds
 		if member.guild.id in self.bot.invites and member.guild.id in premium:
@@ -1521,7 +1568,7 @@ class settings(commands.Cog, name="Settings"):
 	@commands.command(name='antiraid', description='Configure the channel for antiraid alerts')
 	@commands.has_permissions(manage_channels=True)
 	@commands.guild_only()
-	async def adminonly(self, ctx, channel: TextChannel = None):
+	async def antiraid(self, ctx, channel: TextChannel = None):
 		if not channel:
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -1538,6 +1585,20 @@ class settings(commands.Cog, name="Settings"):
 			await self.bot.db.release(con)
 			await self.loadSettings()
 			return await ctx.send(f'Antiraid alerts will now be sent in {channel.mention}')
+
+	async def _setraidmsg(self, id: int, message: str):
+		self.raidmsgs[id] = message
+		await asyncio.sleep(300)
+		self.raidmsgs[id] = None
+		self.bot.dispatch('msgraid_attempt', self.bot.get_guild(id), self.msgraiders[id])
+
+	@commands.command(name='raidmsg', description='Set the raid message for the server. Anyone who says it will get banned')
+	@commands.has_permissions(ban_members=True)
+	@commands.bot_has_permissions(ban_members=True)
+	async def raidmsg(self, ctx, *, msg: str):
+		await ctx.message.delete()
+		await ctx.send(f'Raid message set! Anyone who sends that message in the next 5 minutes will be added to the list.\nI will alert you in your raid alerts channel with the list of raiders :)')
+		asyncio.get_event_loop().create_task(self._setraidmsg(ctx.guild.id, msg))
 
 	@commands.command(name='joinmsg', description='Set the channel and message for join messages')
 	@commands.has_permissions(manage_guild=True)
