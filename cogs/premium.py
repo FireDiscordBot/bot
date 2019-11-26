@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions, bot_has_permissions
 #from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
-from fire.converters import Member, Role
+from fire.converters import Member, Role, TextChannel
 import aiosqlite3
 import functools
 import datetime
