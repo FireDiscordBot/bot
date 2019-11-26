@@ -1220,13 +1220,13 @@ class utils(commands.Cog, name='Utility Commands'):
 			gonline = f'⬤ {online:,d} Online'
 			gmembers = f'⭘ {len(ctx.guild.members):,d} Members'
 			desc = self.bot.descriptions[ctx.guild.id] if ctx.guild.id in self.bot.descriptions else f'Check out {ctx.guild} on Discord'
-			desc = f'[{ctx.guild}]({current["url"]})\n{desc}\n\n{gonline} & {gmembers}'
+			desc = f'[{ctx.guild}]({current.get("url", "https://oh-my-god.wtf/")})\n{desc}\n\n{gonline} & {gmembers}'
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=desc)
+			attach = None
 			if not ctx.guild.splash_url and not ctx.guild.banner_url and not ctx.guild.id == 564052798044504084:
 				embed.set_thumbnail(url=str(ctx.guild.icon_url))
 			else:
 				image = ctx.guild.splash_url or ctx.guild.banner_url
-				attach = None
 				if 'PARTNERED' in ctx.guild.features or 'VERIFIED' in ctx.guild.features:
 					if ctx.guild.splash_url:
 						splashraw = await ctx.guild.splash_url.read()
