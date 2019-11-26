@@ -106,21 +106,22 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		mid = await self.nameToUUID(ign)
 		if not mid:
 			return await ctx.send('<a:fireFailed:603214400748257302> No UUID found!')
+		progress = await ctx.send('Give me a moment.')
 		async with aiohttp.ClientSession(headers=self.gistheaders) as s:
 			async with s.get(f'https://api.github.com/gists/{self.gist}') as r:
 				if r.status != 200:
-					return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
+					return await progress.edit('<a:fireFailed:603214400748257302> Something went wrong when getting the list of boosters')
 				gist = await r.json()
 				text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
 				current = json.loads(text)
 		if 'error' in current:
-			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
+			return await progress.edit('<a:fireFailed:603214400748257302> Something went wrong when getting the list of boosters')
 		try:
 			user = next(i for i in current if i["id"] == str(ctx.author.id))
 			async with aiohttp.ClientSession(headers=self.modcoreheaders) as s:
 				async with s.get(f'{config["modcoreapi"]}nitro/{user["uuid"]}/false') as r:
 					if r.status != 200:
-						await ctx.send('<a:fireFailed:603214400748257302> Modcore didn\'t respond correctly')
+						await progress.edit('<a:fireFailed:603214400748257302> Modcore didn\'t respond correctly')
 			current.remove(user)
 			user['uuid'] = mid
 			user['ign'] = ign
@@ -147,9 +148,9 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		async with aiohttp.ClientSession(headers=self.gistheaders) as s:
 			async with s.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as r:
 				if r.status == 200:
-					return await ctx.send('<a:fireSuccess:603214443442077708> Successfully gave you the perks!')
+					return await progress.edit('<a:fireSuccess:603214443442077708> Successfully gave you the perks!')
 				else:
-					return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
+					return await progress.edit('<a:fireFailed:603214400748257302> Something went wrong when updating the list')
 
 
 def setup(bot):
