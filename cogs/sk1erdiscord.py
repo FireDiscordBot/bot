@@ -95,7 +95,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 					return str(uuid.UUID(mid))
 		return False
 
-	@commands.command(description='Makes a PR to add a pink dot for nitro boosters')
+	@commands.command(description='Adds perks for Nitro Boosters')
 	async def nitroperks(self, ctx, ign: str = None):
 		if self.nitro not in ctx.author.roles and self.testrole not in ctx.author.roles:
 			return await ctx.send('no')
@@ -137,7 +137,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		async with aiohttp.ClientSession(headers=self.headers) as session:
 			async with session.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as resp:
 				if resp.status == 200:
-					return await ctx.send('<a:fireSuccess:603214443442077708> Successfully gave you a dot!')
+					return await ctx.send('<a:fireSuccess:603214443442077708> Successfully gave you the perks!')
 				else:
 					return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong')
 	
