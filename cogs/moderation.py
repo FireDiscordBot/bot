@@ -71,7 +71,7 @@ class StaffCheck(commands.Converter):
 		if ctx.guild.owner_id == ctx.author.id:
 			return argument
 		permission = argument.guild_permissions.manage_messages
-		if ctx.author.id == 287698408855044097 and argument.id != 287698408855044097:
+		if ctx.author.id == 287698408855044097:
 			return argument
 		if not permission:
 			return argument
@@ -123,6 +123,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		for m in mutes:
 			if m['uid'] != None:
 				guild = m['gid']
+				if not self.bot.get_guild(guild):
+					continue
 				until = m['until'] if 'until' in m else False
 				user = m['uid']
 				if guild in self.mutes:
@@ -244,7 +246,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	def cog_unload(self):
 		self.tempmuteChecker.cancel()
 
-	@tasks.loop(seconds=5.0)
+	@tasks.loop(seconds=1)
 	async def tempmuteChecker(self):
 		try:
 			for g in self.mutes:
@@ -252,6 +254,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				for m in mutes:
 					mute = self.mutes[g][m]
 					guild = self.bot.get_guild(mute['gid'])
+					if not guild:
+						continue
 					user = guild.get_member(mute['uid'])
 					until = mute['until'] if 'until' in mute else False
 					muted = discord.utils.get(guild.roles, name="Muted")
@@ -287,7 +291,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 													pass
 									except discord.HTTPException:
 										pass
-		except Exception:
+		except Exception as e:
 			pass
 
 	@tempmuteChecker.after_loop

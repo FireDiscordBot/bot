@@ -426,11 +426,12 @@ class settings(commands.Cog, name="Settings"):
 	async def on_message(self, message):
 		lastmsg = self.uuidgobyebye(self.dupecheck.get(message.author.id, 'send this message and it will get yeeted'))
 		thismsg = self.uuidgobyebye(message.content)
-		if message.content == lastmsg and message.guild.id in self.dupecheck['guilds'] and not message.author.permissions_in(message.channel).manage_messages:
-			await message.delete()
+		if message.content != "" and len(message.attachments) < 1:
+			if message.content == lastmsg and message.guild.id in self.dupecheck['guilds'] and not message.author.permissions_in(message.channel).manage_messages:
+				await message.delete()
 		self.dupecheck[message.author.id] = message.content
 		premium = self.bot.get_cog('Premium Commands').premiumGuilds
-		if message.guild.id in premium:
+		if message.guild and message.guild.id in premium:
 			raidmsg = self.raidmsgs.get(message.guild.id, False)
 			if raidmsg and raidmsg in message.content:
 				self.msgraiders.get(message.guild.id, []).append(message.author)
@@ -661,7 +662,7 @@ class settings(commands.Cog, name="Settings"):
 			banned = await self.bot.ksoft.bans_check(member.id)
 			if banned:
 				try:
-					await guild.ban(member, reason=f'{member} was found on global ban list')
+					await member.guild.ban(member, reason=f'{member} was found on global ban list')
 					self.recentgban.append(f'{member.id}-{member.guild.id}')
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
