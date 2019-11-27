@@ -498,7 +498,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 		if not user:
 			return await ctx.send("You must specify a user")
-		
+
+		current = await ctx.guild.bans()
+		if len([b for b in current if b.user.id == user.id]) >= 1:
+			return await ctx.send('<a:fireFailed:603214400748257302> That user is already banned!')
 		try:
 			if reason:
 				try:
