@@ -216,7 +216,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			self.autoroles[ctx.guild.id] = {
 				"role": roleid
 			}
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}! All new members will recieve the {role.name} role.')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}! All new members will recieve the {discord.utils.escape_mentions(role.name)} role.')
 
 	# @commands.command(name='reactrole', description='Automatically add a role to a user when they react to a message')
 	# @has_permissions(manage_roles=True)
@@ -352,7 +352,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		except KeyError:
 			self.joinroles[ctx.guild.id] = []
 			self.joinroles[ctx.guild.id].append(role.id)
-		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully added the rank {role.mention}!')
+		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully added the rank {discord.utils.escape_mentions(role.name)}!')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:
@@ -386,7 +386,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			self.joinroles[ctx.guild.id].remove(role.id) 
 		except KeyError:
 			pass
-		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully removed the rank {role.mention}!')
+		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully removed the rank {discord.utils.escape_mentions(role.name)}!')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:
@@ -444,7 +444,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				await ctx.send(embed=embed)
 		else:
 			if not role:
-				return await ctx.send(f'<a:fireFailed:603214400748257302> I cannot find the rank `{role}`. Type \'{ctx.prefix}rank\' to see a list of ranks')
+				return await ctx.send(f'<a:fireFailed:603214400748257302> I cannot find the rank **{discord.utils.escape_mentions(discord.utils.escape_markdown(role))}**. Type \'{ctx.prefix}rank\' to see a list of ranks')
 			try:
 				if role.id in self.joinroles[ctx.guild.id]:
 					if role in ctx.author.roles:
@@ -454,7 +454,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 						await ctx.author.add_roles(role, reason='Joined rank')
 						await ctx.send(f'<a:fireSuccess:603214443442077708> You successfully joined the {role.name} rank.')
 				else:
-					return await ctx.send(f'<a:fireFailed:603214400748257302> I cannot find the rank `{role}`. Type \'{ctx.prefix}rank\' to see a list of ranks')
+					return await ctx.send(f'<a:fireFailed:603214400748257302> I cannot find the rank **{discord.utils.escape_mentions(discord.utils.escape_markdown(role))}**. Type \'{ctx.prefix}rank\' to see a list of ranks')
 			except KeyError:
 				return await ctx.send(f'I cannot find any ranks for this guild :c')
 
@@ -486,7 +486,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 					await member.add_roles(role, reason='Role Persist')
 				except Exception:
 					pass
-			await ctx.send(f'<a:fireSuccess:603214443442077708> **{member}** will keep the role {role.name}')
+			await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(member))}** will keep the role {role.name}')
 			logchannels = self.bot.get_cog("Settings").logchannels
 			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 			if logid:
@@ -520,7 +520,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 					await member.add_roles(role, reason='Role Persist Updated')
 				except Exception:
 					pass
-				await ctx.send(f'<a:fireSuccess:603214443442077708> **{member}** will keep the role {role.name}')
+				await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(member))}** will keep the role {role.name}')
 				logchannels = self.bot.get_cog("Settings").logchannels
 				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 				if logid:
@@ -547,7 +547,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				await member.remove_roles(role, reason='Role Persist')
 			except Exception:
 				pass
-			await ctx.send(f'<a:fireSuccess:603214443442077708> **{member}** will no longer keep the role {role.name}')
+			await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(member))}** will no longer keep the role {role.name}')
 			logchannels = self.bot.get_cog("Settings").logchannels
 			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 			if logid:

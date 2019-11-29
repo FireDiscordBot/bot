@@ -268,9 +268,9 @@ class firecog(commands.Cog, name="Main Commands"):
 						await MSG.remove_reaction('▶', ctx.author)
 						await ctx.invoke(self.bot.get_command('rpc'), member=member, MSG=MSG, ACT=ACT+1)
 			else:
-				await ctx.send(f'{member} doesn\'t seem to be playing something with rich presence integration...')
+				await ctx.send(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(member))} doesn\'t seem to be playing something with rich presence integration...')
 		else:
-			await ctx.send(f'{member} doesn\'t seem to be playing something with rich presence integration...')
+			await ctx.send(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(member))} doesn\'t seem to be playing something with rich presence integration...')
 				
 
 	@commands.command(description="dab")

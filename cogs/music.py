@@ -563,7 +563,7 @@ class Music(commands.Cog):
 
 			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'music.songplay'))
 
-			await ctx.send(f'```ini\nAdded the playlist {tracks.data["playlistInfo"]["name"]}'
+			await ctx.send(f'```ini\nAdded the playlist {discord.utils.escape_mentions(discord.utils.escape_markdown(tracks.data["playlistInfo"]["name"]))}'
 						   f' with {len(tracks.tracks)} songs to the queue.\n```')
 		else:
 			track = tracks[0]
