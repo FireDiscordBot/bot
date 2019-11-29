@@ -600,7 +600,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await self.bot.db.release(con)
 			await self.loadmodlogs()
 		else:
-			await ctx.guild.ban(user, reason=f"Unbanned by {ctx.author}")
+			await ctx.guild.ban(discord.Object(user.id), reason=f"Unbanned by {ctx.author}")
 			logchannels = self.bot.get_cog("Settings").logchannels
 			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 			if logid:

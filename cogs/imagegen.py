@@ -65,7 +65,10 @@ class imagegen(commands.Cog, name='Image Generation'):
 		if imgraw.status != 200:
 			return await ctx.send('<a:fireFailed:603214400748257302> Invalid image!')
 		imgraw = await imgraw.read()
-		img = Image.open(BytesIO(imgraw))
+		try:
+			img = Image.open(BytesIO(imgraw))
+		except Exception:
+			return await ctx.send('<a:fireFailed:603214400748257302> Invalid image!')
 		img.seek(0)
 		factor = int(img.height / 10)
 		color = 'white'

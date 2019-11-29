@@ -409,7 +409,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 						displayname = p['displayname']
 						nametag = f'§f{displayname}'
 				if tag:
-					nametag = f'{nametag} {tag}'					
+					nametag = f'{nametag} {tag}'
 				if nametag:
 					parsedtxt = mcfont.parse(nametag)
 					width = mcfont.get_width(parsedtxt)
