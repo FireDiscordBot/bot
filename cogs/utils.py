@@ -723,8 +723,9 @@ class utils(commands.Cog, name='Utility Commands'):
 					self.bot.recentpurge[ctx.channel.id].append({
 						'author': str(message.author),
 						'author_id': message.author.id,
-						'content': message.content or '',
-						'system_content': message.system_content if message.content == None else ''
+						'content': message.system_content or '',
+						'bot': message.author.bot,
+						'embeds': [e.to_dict() for e in message.embeds]
 					})
 			await ctx.channel.purge(limit=amount, check=checkmember)
 			amount -= 1
@@ -734,8 +735,9 @@ class utils(commands.Cog, name='Utility Commands'):
 				self.bot.recentpurge[ctx.channel.id].append({
 					'author': str(message.author),
 					'author_id': message.author.id,
-					'content': message.content or '',
-					'system_content': message.system_content if message.content == None else ''
+					'content': message.system_content or '',
+					'bot': message.author.bot,
+					'embeds': [e.to_dict() for e in message.embeds]
 				})
 			await ctx.channel.purge(limit=amount)
 		await ctx.send(f'Successfully deleted **{amount}** messages!', delete_after=5)
