@@ -103,7 +103,7 @@ extensions = [
 	"cogs.utils",
 	"cogs.help",
 	"cogs.dbl",
-	# "cogs.youtube",
+	"cogs.youtube",
 	"cogs.settings",
 	"cogs.moderation",
 	"cogs.premium",

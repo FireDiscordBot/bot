@@ -65,7 +65,7 @@ class youtube(commands.Cog, name="YouTube API"):
 		)
 		response = request.execute()
 		videos = []
-		for video in response["items"]:
+		for video in response.get("items", []):
 			videos.append(video)
 		return videos
 	
@@ -92,10 +92,10 @@ class youtube(commands.Cog, name="YouTube API"):
 			authorid = video['snippet']['channelId']
 			published = video['snippet']['publishedAt'].replace('T', ' ').split('.')[0]
 			duration = video['contentDetails']['duration'].replace('PT', '').replace('H', ' Hrs ').replace('M', ' Mins ').replace('S', 'Secs')
-			views = format(int(video['statistics']['viewCount']), ',d')
-			likes = format(int(video['statistics']['likeCount']), ',d')
-			dislikes = format(int(video['statistics']['dislikeCount']), ',d')
-			comments = format(int(video['statistics']['commentCount']), ',d')
+			views = format(int(video['statistics'].get('viewCount', 0)), ',d')
+			likes = format(int(video['statistics'].get('likeCount', 0)), ',d')
+			dislikes = format(int(video['statistics'].get('dislikeCount', 0)), ',d')
+			comments = format(int(video['statistics'].get('commentCount', 0)), ',d')
 			embed.add_field(name=video["snippet"]["title"], value=f"» Link: [{title}](https://youtu.be/{vid} 'Click here to watch the video')\n» Author: [{author}](https://youtube.com/channel/{authorid} 'Click here to checkout {author} channel')\n» Published: {published}\n» Views: {views}\n» Likes: {likes}\n» Dislikes: {dislikes}\n» Comments: {comments}", inline=False)
 		await ctx.send(embed=embed)
 
@@ -115,15 +115,14 @@ class youtube(commands.Cog, name="YouTube API"):
 		paginator = WrappedPaginator(prefix='```\nDescription (Use controls to change page)\n', suffix='```', max_size=1895)
 		for line in description.split('\n'):
 			paginator.add_line(line)
-		views = format(int(videoinfo['statistics']['viewCount']), ',d')
-		likes = format(int(videoinfo['statistics']['likeCount']), ',d')
-		dislikes = format(int(videoinfo['statistics']['dislikeCount']), ',d')
-		comments = format(int(videoinfo['statistics']['commentCount']), ',d')
+		views = format(int(video['statistics'].get('viewCount', 0)), ',d')
+		likes = format(int(video['statistics'].get('likeCount', 0)), ',d')
+		dislikes = format(int(video['statistics'].get('dislikeCount', 0)), ',d')
+		comments = format(int(video['statistics'].get('commentCount', 0)), ',d')
 		embed = discord.Embed(title=f"Video info for {video}", color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		embed.add_field(name=videoinfo["snippet"]["title"], value=f"» Link: [{title}](https://youtu.be/{vid} 'Click here to watch the video')\n» Author: [{author}](https://youtube.com/channel/{authorid} 'Click here to checkout {author} channel')\n» Published: {published}\n» Views: {views}\n» Likes: {likes}\n» Dislikes: {dislikes}\n» Comments: {comments}", inline=False)
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 		return await interface.send_to(ctx)
-		
 
 
 def setup(bot):
