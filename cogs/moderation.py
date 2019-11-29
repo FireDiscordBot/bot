@@ -364,7 +364,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				await e.delete()
 			await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been muted")
 			try:
-				await user.send(f'You were muted in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild))} for "{reason}"')
+				await user.send(f'You were muted in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
 			except discord.HTTPException:
 				pass
 			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.mutes'))
@@ -417,7 +417,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await user.add_roles(muted)
 			await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been muted")
 			try:
-				await user.send(f'You were muted in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild))} for "{reason}"')
+				await user.send(f'You were muted in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
 			except discord.HTTPException:
 				pass
 			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.mutes'))
@@ -505,7 +505,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		try:
 			if reason:
 				try:
-					await user.send(f'You were banned from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild))} for "{reason}"')
+					await user.send(f'You were banned from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
 				except discord.HTTPException:
 					pass
 				await ctx.guild.ban(user, reason=f"Banned by {ctx.author} for {reason}")
@@ -534,7 +534,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				await self.loadmodlogs()
 			else:
 				try:
-					await user.send(f'You were banned from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild))}')
+					await user.send(f'You were banned from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}')
 				except discord.HTTPException:
 					pass
 				await ctx.guild.ban(user, reason=f"Banned by {ctx.author}")
@@ -889,7 +889,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		try:
 			if reason:
 				try:
-					await user.send(f'You were kicked from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild))} for "{reason}"')
+					await user.send(f'You were kicked from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
 				except discord.HTTPException:
 					pass
 				await ctx.guild.kick(user, reason=f"Kicked by {ctx.author} for {reason}")
@@ -910,7 +910,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 							pass
 			else:
 				try:
-					await user.send(f'You were kicked from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild))}')
+					await user.send(f'You were kicked from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}')
 				except discord.HTTPException:
 					pass
 				await ctx.guild.kick(user, reason=f"Kicked by {ctx.author}")
