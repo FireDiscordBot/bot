@@ -202,7 +202,7 @@ class settings(commands.Cog, name="Settings"):
 			self.linkfilter[guild] = f['enabled'] or []
 		malware = await aiohttp.ClientSession().get('https://mirror.cedia.org.ec/malwaredomains/justdomains')
 		malware = await malware.text()
-		self.malware = malware.split('\n')
+		self.malware = filter(None, malware.split('\n'))
 
 	async def loadInvites(self, gid: int = None):
 		if not gid:
