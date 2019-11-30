@@ -1169,7 +1169,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def tempmention(self, ctx, *, role: Role):
 		'''PFXtempmention <role>'''
 		await role.edit(mentionable=True)
-		await ctx.send(f'Successfully made **{role.name}** mentionable. It will stay mentionable until you mention it or 60 seconds go by', delete_after=5)
+		await ctx.send(f'Successfully made **{discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}** mentionable. It will stay mentionable until you mention it or 60 seconds go by', delete_after=5)
 		def check(m):
 			return m.author == ctx.author
 
@@ -1178,7 +1178,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			await role.edit(mentionable=False)
 		except asyncio.TimeoutError:
 			await role.edit(mentionable=False)
-			await ctx.send(f'**{role.name}** is no longer mentionable. 60 seconds have passed')
+			await ctx.send(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}** is no longer mentionable. 60 seconds have passed')
 
 	@commands.command(aliases=['desc'], description='Sets the guild\'s description')
 	@commands.has_permissions(manage_guild=True)

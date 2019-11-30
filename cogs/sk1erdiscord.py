@@ -43,6 +43,39 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		return False
 
 	@commands.Cog.listener()
+	async def on_member_remove(self, member):
+		if self.nitro in removed or self.testrole in member.roles:
+			async with aiohttp.ClientSession(headers=self.gistheaders) as s:
+				async with s.get(f'https://api.github.com/gists/{self.gist}') as r:
+					if r.status != 200:
+						return
+					gist = await r.json()
+					text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
+					current = json.loads(text)
+			if 'error' in current:
+				return
+			try:
+				user = next(i for i in current if i["id"] == str(member.id))
+				mcuuid = user['uuid']
+				current.remove(user)
+			except Exception:
+				return
+			payload = {
+				'description': 'Nitro Booster dots for the Hyperium Client!',
+					'files': {
+					'boosters.json': {
+							'content': json.dumps(current, indent=2)
+					}
+				}
+			}
+			await aiohttp.ClientSession(headers=self.modcoreheaders).get(f'{config["modcoreapi"]}nitro/{mcuuid}/false')
+			async with aiohttp.ClientSession(headers=self.gistheaders) as s:
+				async with s.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as r:
+					if r.status == 200:
+						general = self.guild.get_channel(411620457754787841)
+						await general.send(f'{member} left and their nitro perks in Hyperium & Modcore have been removed.')
+
+	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
 		if before.roles != after.roles:
 			broles = []
@@ -54,8 +87,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				aroles.append(role)
 			s = set(aroles)
 			removed = [x for x in broles if x not in s]
-			test = discord.utils.get(self.guild.roles, id=645067429067751436)
-			if self.nitro in removed or test in removed:
+			if self.nitro in removed or self.testrole in removed:
 				async with aiohttp.ClientSession(headers=self.gistheaders) as s:
 					async with s.get(f'https://api.github.com/gists/{self.gist}') as r:
 						if r.status != 200:
