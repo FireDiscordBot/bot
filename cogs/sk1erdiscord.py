@@ -44,7 +44,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):
-		if self.nitro in removed or self.testrole in member.roles:
+		if self.nitro in member.roles or self.testrole in member.roles:
 			async with aiohttp.ClientSession(headers=self.gistheaders) as s:
 				async with s.get(f'https://api.github.com/gists/{self.gist}') as r:
 					if r.status != 200:
