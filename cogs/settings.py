@@ -562,15 +562,14 @@ class settings(commands.Cog, name="Settings"):
 				self.msgraiders.get(message.guild.id, []).append(message.author)
 		if any(l in message.system_content for l in self.malware):
 			if isinstance(message.author, discord.Member):
-				if message.guild.me.permissions_in(message.channel).manage_messages:
-					if 'malware' in self.linkfilter.get(message.guild.id, []):
+				if 'malware' in self.linkfilter.get(message.guild.id, []):
+					try:
+						await message.delete()
+					except Exception:
 						try:
-							await message.delete()
+							await message.channel.send(f'A blacklisted link was found in a message send by {message.author} and I was unable to delete it!')
 						except Exception:
-							try:
-								await message.channel.send(f'A blacklisted link was found in a message send by {message.author} and I was unable to delete it!')
-							except Exception:
-								pass
+							pass
 		code = findinvite(message.system_content)
 		invite = None
 		nodel = False
