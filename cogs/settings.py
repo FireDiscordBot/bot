@@ -1787,10 +1787,11 @@ class settings(commands.Cog, name="Settings"):
 	@commands.command(name='linkfilter', description='Configure the link filter for this server')
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
-	async def linkfiltercmd(self, ctx, enabled: commands.Greedy[str] = None):
+	async def linkfiltercmd(self, ctx, *, enabled: str = None):
 		options = ['discord', 'youtube']
 		if not enabled:
 			return await ctx.send(f'<a:fireFailed:603214400748257302> You must provide valid filters. You can choose from {", ".join(options)}')
+		enabled = enabled.split(' ')
 		if len([f for f in enabled if f not in options]) >= 1:
 			return await ctx.send(f'<a:fireFailed:603214400748257302> {", ".join([f for f in enabled if f not in options])} aren\'t valid filter(s)')
 		con = await self.bot.db.acquire()
