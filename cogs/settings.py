@@ -89,8 +89,8 @@ class settings(commands.Cog, name="Settings"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.logchannels = {}
-		self.invitefiltered = []
 		self.linkfilter = {}
+		self.malware = []
 		self.gbancheck = []
 		self.recentgban = []
 		self.autodecancer = []
@@ -109,7 +109,8 @@ class settings(commands.Cog, name="Settings"):
 
 	async def loadSettings(self):
 		self.logchannels = {}
-		self.invitefiltered = []
+		self.linkfilter = {}
+		self.malware = []
 		self.gbancheck = []
 		self.autodecancer = []
 		self.autodehoist = []
@@ -130,8 +131,6 @@ class settings(commands.Cog, name="Settings"):
 		settings = await self.bot.db.fetch(query)
 		for s in settings:
 			guild = s['gid']
-			if s['inviteblock'] == 1:
-				self.invitefiltered.append(guild)
 			if s['globalbans'] == 1:
 				self.gbancheck.append(guild)
 			if s['autodecancer'] == 1:
@@ -201,6 +200,9 @@ class settings(commands.Cog, name="Settings"):
 		for f in filtered:
 			guild = f['gid']
 			self.linkfilter[guild] = f['enabled'] or []
+		malware = await aiohttp.ClientSession().get('https://mirror.cedia.org.ec/malwaredomains/justdomains')
+		malware = await malware.text()
+		self.malware = malware.split('\n')
 
 	async def loadInvites(self, gid: int = None):
 		if not gid:
@@ -558,6 +560,17 @@ class settings(commands.Cog, name="Settings"):
 			raidmsg = self.raidmsgs.get(message.guild.id, False)
 			if raidmsg and raidmsg in message.content:
 				self.msgraiders.get(message.guild.id, []).append(message.author)
+		if any(l in message.system_content for l in self.malware):
+			if isinstance(message.author, discord.Member):
+				if message.guild.me.permissions_in(message.channel).manage_messages:
+					if 'malware' in self.linkfilter.get(message.guild.id, []):
+						try:
+							await message.delete()
+						except Exception:
+							try:
+								await message.channel.send(f'A blacklisted link was found in a message send by {message.author} and I was unable to delete it!')
+							except Exception:
+								pass
 		code = findinvite(message.system_content)
 		invite = None
 		nodel = False
@@ -1948,7 +1961,7 @@ class settings(commands.Cog, name="Settings"):
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def linkfiltercmd(self, ctx, *, enabled: str = None):
-		options = ['discord', 'youtube', 'paypal']
+		options = ['discord', 'youtube', 'paypal', 'malware']
 		if not enabled:
 			return await ctx.send(f'<a:fireFailed:603214400748257302> You must provide valid filters. You can choose from {", ".join(options)}')
 		enabled = enabled.split(' ')
