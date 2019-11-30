@@ -104,8 +104,12 @@ class settings(commands.Cog, name="Settings"):
 		self.joincache = {}
 		self.dupecheck = {}
 		self.uuidregex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
+		self._MARKDOWN_ESCAPE_REGEX = '|'.join(r'\{0}(?=([\s\S]*((?<!\{0})\{0})))'.format(c) for c in ('*', '`', '_', '~', '|'))
 		if not hasattr(self.bot, 'invites'):
 			self.bot.invites = {}
+
+	def replace_markdown(self, text: str):
+		return re.sub(self._MARKDOWN_ESCAPE_REGEX, '', text, 0, re.MULTILINE)
 
 	async def loadSettings(self):
 		self.logchannels = {}
@@ -312,6 +316,16 @@ class settings(commands.Cog, name="Settings"):
 		if before.content == after.content:
 			return
 		message = after
+		if any(l in self.replace_markdown(message.system_content) for l in self.malware):
+			if isinstance(message.author, discord.Member):
+				if 'malware' in self.linkfilter.get(message.guild.id, []):
+					try:
+						await message.delete()
+					except Exception:
+						try:
+							await message.channel.send(f'A blacklisted link was found in a message send by {message.author} and I was unable to delete it!')
+						except Exception:
+							pass
 		code = findinvite(message.system_content)
 		invite = None
 		nodel = False
@@ -560,7 +574,7 @@ class settings(commands.Cog, name="Settings"):
 			raidmsg = self.raidmsgs.get(message.guild.id, False)
 			if raidmsg and raidmsg in message.content:
 				self.msgraiders.get(message.guild.id, []).append(message.author)
-		if any(l in message.system_content for l in self.malware):
+		if any(l in self.replace_markdown(message.system_content) for l in self.malware):
 			if isinstance(message.author, discord.Member):
 				if 'malware' in self.linkfilter.get(message.guild.id, []):
 					try:
