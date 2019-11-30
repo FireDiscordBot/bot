@@ -508,6 +508,8 @@ class settings(commands.Cog, name="Settings"):
 						pass
 		ytcog = self.bot.get_cog('YouTube API')
 		video = findvideo(message.system_content)
+		if video == 'c' or video == 'channel' or video == 'user':
+			video = None
 		invalidvid = False
 		if video:
 			if isinstance(message.author, discord.Member):
