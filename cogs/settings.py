@@ -89,6 +89,7 @@ class settings(commands.Cog, name="Settings"):
 		self.bot = bot
 		self.logchannels = {}
 		self.invitefiltered = []
+		self.linkfilter = {}
 		self.gbancheck = []
 		self.recentgban = []
 		self.autodecancer = []
@@ -194,6 +195,11 @@ class settings(commands.Cog, name="Settings"):
 				'joinmsg': jl.get('joinmsg', False),
 				'leavemsg': jl.get('leavemsg', False)
 			}
+		query = 'SELECT * FROM linkfilter;'
+		filtered = await self.bot.db.fetch(query)
+		for f in filtered:
+			guild = f['gid']
+			self.linkfilter[guild] = f['enabled'] or []
 
 	async def loadInvites(self, gid: int = None):
 		if not gid:
@@ -280,6 +286,8 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):
+		if type(after.author) != discord.Member:
+			return
 		if after.channel.type == discord.ChannelType.news and after.author.permissions_in(after.channel).manage_messages:
 			raw = await self.bot.http.get_message(after.channel.id, after.id)
 			if raw.get('flags') == 1:
@@ -309,7 +317,7 @@ class settings(commands.Cog, name="Settings"):
 			if isinstance(message.author, discord.Member):
 				if not message.author.permissions_in(message.channel).manage_messages:
 					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if message.guild.id in self.invitefiltered:
+						if 'discord' in self.linkfilter.get(message.guild.id, []):
 							try:
 								invite = await self.bot.fetch_invite(url=code)
 								if invite.guild.id == message.guild.id:
@@ -443,7 +451,7 @@ class settings(commands.Cog, name="Settings"):
 			if isinstance(message.author, discord.Member):
 				if not message.author.permissions_in(message.channel).manage_messages:
 					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if message.guild.id in self.invitefiltered:
+						if 'discord' in self.linkfilter.get(message.guild.id, []):
 							try:
 								invite = await self.bot.fetch_invite(url=code)
 								if invite.guild.id == message.guild.id:
@@ -494,6 +502,75 @@ class settings(commands.Cog, name="Settings"):
 						embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
 						embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
+					try:
+						return await logch.send(embed=embed)
+					except Exception:
+						pass
+		channel = findchannel(message.system_content)
+		if channel:
+			if isinstance(message.author, discord.Member):
+				if not message.author.permissions_in(message.channel).manage_messages:
+					if message.guild.me.permissions_in(message.channel).manage_messages:
+						if 'youtube' in self.linkfilter.get(message.guild.id, []):
+							try:
+								await message.delete()
+							except Exception:
+								pass
+			if message.guild:
+				if message.author.bot:
+					return
+				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+				if logid:
+					logch = message.guild.get_channel(logid['actionlogs'])
+				else:
+					return
+				if logch:
+					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
+					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+					embed.set_footer(text=f"Author ID: {message.author.id} (Channel info coming soon)")
+					try:
+						return await logch.send(embed=embed)
+					except Exception:
+						pass
+		video = findvideo(message.system_content)
+		invalidvid = False
+		if video:
+			if isinstance(message.author, discord.Member):
+				if not message.author.permissions_in(message.channel).manage_messages:
+					if message.guild.me.permissions_in(message.channel).manage_messages:
+						if 'youtube' in self.linkfilter.get(message.guild.id, []):
+							try:
+								await message.delete()
+							except Exception:
+								pass
+			ytcog = self.bot.get_cog('YouTube API')
+			videoinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.video_info, video))
+			videoinfo = videoinfo.get('items', [])
+			if len(videoinfo) < 1:
+				invalidvid = True
+			else:
+				videoinfo = videoinfo[0]
+			if message.guild:
+				if message.author.bot:
+					return
+				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+				if logid:
+					logch = message.guild.get_channel(logid['actionlogs'])
+				else:
+					return
+				if logch:
+					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
+					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+					embed.add_field(name='Video ID', value=video, inline=False)
+					if not invalidvid:
+						embed.add_field(name='Title', value=f'[{videoinfo.get("snippet", {}).get("title", "Unknown")}](https://youtu.be/{video})', inline=False)
+						embed.add_field(name='Channel', value=f'[{videoinfo.get("snippet", {}).get("channelTitle", "Unknown")}](https://youtube.com/channel/{videoinfo.get("snippet", {}).get("channelId", "Unknown")})', inline=False)
+						views = format(int(videoinfo['statistics'].get('viewCount', 0)), ',d')
+						likes = format(int(videoinfo['statistics'].get('likeCount', 0)), ',d')
+						dislikes = format(int(videoinfo['statistics'].get('dislikeCount', 0)), ',d')
+						comments = format(int(videoinfo['statistics'].get('commentCount', 0)), ',d')
+						embed.add_field(name='Stats', value=f'{views} views, {likes} likes, {dislikes} dislikes, {comments} comments', inline=False)
+					embed.set_footer(text=f"Author ID: {message.author.id}")
 					try:
 						return await logch.send(embed=embed)
 					except Exception:
@@ -1207,7 +1284,7 @@ class settings(commands.Cog, name="Settings"):
 		settingslist = {
 			'modlogs': 'Disabled',
 			'actionlogs': 'Disabled',
-			'invfilter': 'Disabled',
+			'linkfilter': 'Disabled',
 			'dupecheck': 'Disabled',
 			'globalbans': 'Disabled',
 			'autodecancer': 'Disabled',
@@ -1291,32 +1368,36 @@ class settings(commands.Cog, name="Settings"):
 			await self.loadSettings()
 			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
 		await asyncio.sleep(2)
-		await ctx.send('Ok. Next is invite filtering. If a user attempts to send an discord invite, I will delete it (that is, if I have permission to do so)')
+		await ctx.send('Ok. Next is link deletion. Discord invites are enabled by default but you can enable more with `$linkfilter`')
 		await asyncio.sleep(2)
-		invfiltermsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
-		await invfiltermsg.add_reaction(firesuccess)
-		await invfiltermsg.add_reaction(firefailed)
-		def invfilter_check(reaction, user):
+		linkfiltermsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
+		await linkfiltermsg.add_reaction(firesuccess)
+		await linkfiltermsg.add_reaction(firefailed)
+		def linkfilter_check(reaction, user):
 			if user != ctx.author:
 				return False
-			if reaction.emoji == firefailed and reaction.message.id == invfiltermsg.id:
+			if reaction.emoji == firefailed and reaction.message.id == linkfiltermsg.id:
 				return True
-			if reaction.emoji == firesuccess and reaction.message.id == invfiltermsg.id:
-				settingslist['invfilter'] = 'Enabled'
+			if reaction.emoji == firesuccess and reaction.message.id == linkfiltermsg.id:
+				settingslist['linkfilter'] = 'Enabled'
 				return True
 		try:
-			await self.bot.wait_for('reaction_add', timeout=30.0, check=invfilter_check)
-			invfilter = settingslist['invfilter']
-			if invfilter == 'Disabled':
-				invfilter = 0
-				await ctx.send('Disabling invite filter...')
-			elif invfilter == 'Enabled':
-				invfilter = 1
-				await ctx.send(f'Great! I\'ll enable invite filtering!')
+			await self.bot.wait_for('reaction_add', timeout=30.0, check=linkfilter_check)
+			linkfilter = settingslist['linkfilter']
+			if linkfilter == 'Disabled':
+				linkfilter = []
+				await ctx.send('Disabling link filter...')
+			elif linkfilter == 'Enabled':
+				linkfilter = ['discord']
+				await ctx.send(f'Great! I\'ll enable link filtering! (If it was already enabled, your configuration won\'t change)')
 			con = await self.bot.db.acquire()
 			async with con.transaction():
-				q = 'UPDATE settings SET inviteblock = $1 WHERE gid = $2;'
-				await self.bot.db.execute(q, invfilter, ctx.guild.id)
+				if ctx.guild.id in self.linkfilter and linkfilter == []:
+					q = 'DELETE FROM linkfilter WHERE gid = $1;'
+					await self.bot.db.execute(q, ctx.guild.id)
+				if ctx.guild.id not in self.linkfilter and linkfilter == ['discord']:
+					q = 'INSERT INTO linkfilter (\"gid\", \"enabled\") VALUES ($1, $2);'
+					await self.bot.db.execute(q, ctx.guild.id, linkfilter)
 			await self.bot.db.release(con)
 		except asyncio.TimeoutError:
 			await self.loadSettings()
@@ -1460,7 +1541,7 @@ class settings(commands.Cog, name="Settings"):
 			actionlogs = 'Disabled'
 		embed.add_field(name="Moderation Logs", value=modlogs, inline=False)
 		embed.add_field(name="Action Logs", value=actionlogs, inline=False)
-		embed.add_field(name="Invite Filter", value=settingslist['invfilter'], inline=False)
+		embed.add_field(name="Invite Filter", value=settingslist['linkfilter'], inline=False)
 		embed.add_field(name="Global Ban Check (KSoft.Si API)", value=settingslist['globalbans'], inline=False)
 		embed.add_field(name="Auto-Decancer", value=settingslist['autodecancer'], inline=False)
 		embed.add_field(name="Auto-Dehoist", value=settingslist['autodehoist'], inline=False)
@@ -1702,6 +1783,26 @@ class settings(commands.Cog, name="Settings"):
 			await self.loadSettings()
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
 			return await ctx.send(f'<a:fireSuccess:603214443442077708> Leave messages will show in {channel.mention}!\nExample: {message}')
+
+	@commands.command(name='linkfilter', description='Configure the link filter for this server')
+	@commands.has_permissions(manage_guild=True)
+	@commands.guild_only()
+	async def linkfiltercmd(self, ctx, enabled: commands.Greedy[str] = None):
+		options = ['discord', 'youtube']
+		if not enabled:
+			return await ctx.send(f'<a:fireFailed:603214400748257302> You must provide valid filters. You can choose from {", ".join(options)}')
+		if len([f for f in enabled if f not in options]) >= 1:
+			return await ctx.send(f'<a:fireFailed:603214400748257302> {", ".join([f for f in enabled if f not in options])} aren\'t valid filter(s)')
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			if ctx.guild.id in self.linkfilter:
+				query = 'UPDATE linkfilter SET enabled = $1 WHERE gid = $2'
+			else:
+				query = 'INSERT INTO linkfilter (\"enabled\", \"gid\") VALUES ($1, $2);'
+			await self.bot.db.execute(query, enabled, ctx.guild.id)
+		await self.bot.db.release(con)
+		await self.loadSettings()
+		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled filtering for {", ".join(enabled)} links')
 
 
 def setup(bot):
