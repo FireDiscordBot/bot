@@ -508,9 +508,9 @@ class settings(commands.Cog, name="Settings"):
 						pass
 		ytcog = self.bot.get_cog('YouTube API')
 		video = findvideo(message.system_content)
-		if video == 'c' or video == 'channel' or video == 'user':
-			video = None
+		channel = findchannel(message.system_content)
 		invalidvid = False
+		invalidchannel = False
 		if video:
 			if isinstance(message.author, discord.Member):
 				if not message.author.permissions_in(message.channel).manage_messages:
@@ -523,36 +523,34 @@ class settings(commands.Cog, name="Settings"):
 			videoinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.video_info, video))
 			videoinfo = videoinfo.get('items', [])
 			if len(videoinfo) < 1:
-				invalidvid = True
+				pass
 			else:
 				videoinfo = videoinfo[0]
-			if message.guild:
-				if message.author.bot:
-					return
-				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-				if logid:
-					logch = message.guild.get_channel(logid['actionlogs'])
-				else:
-					return
-				if logch:
-					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
-					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-					embed.add_field(name='Video ID', value=video, inline=False)
-					if not invalidvid:
-						embed.add_field(name='Title', value=f'[{videoinfo.get("snippet", {}).get("title", "Unknown")}](https://youtu.be/{video})', inline=False)
-						embed.add_field(name='Channel', value=f'[{videoinfo.get("snippet", {}).get("channelTitle", "Unknown")}](https://youtube.com/channel/{videoinfo.get("snippet", {}).get("channelId", "Unknown")})', inline=False)
-						views = format(int(videoinfo['statistics'].get('viewCount', 0)), ',d')
-						likes = format(int(videoinfo['statistics'].get('likeCount', 0)), ',d')
-						dislikes = format(int(videoinfo['statistics'].get('dislikeCount', 0)), ',d')
-						comments = format(int(videoinfo['statistics'].get('commentCount', 0)), ',d')
-						embed.add_field(name='Stats', value=f'{views} views, {likes} likes, {dislikes} dislikes, {comments} comments', inline=False)
-					embed.set_footer(text=f"Author ID: {message.author.id}")
-					try:
-						return await logch.send(embed=embed)
-					except Exception:
-						pass
-		channel = findchannel(message.system_content)
-		invalidchannel = False
+				if message.guild:
+					if message.author.bot:
+						return
+					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+					if logid:
+						logch = message.guild.get_channel(logid['actionlogs'])
+					else:
+						return
+					if logch:
+						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.add_field(name='Video ID', value=video, inline=False)
+						if not invalidvid:
+							embed.add_field(name='Title', value=f'[{videoinfo.get("snippet", {}).get("title", "Unknown")}](https://youtu.be/{video})', inline=False)
+							embed.add_field(name='Channel', value=f'[{videoinfo.get("snippet", {}).get("channelTitle", "Unknown")}](https://youtube.com/channel/{videoinfo.get("snippet", {}).get("channelId", "Unknown")})', inline=False)
+							views = format(int(videoinfo['statistics'].get('viewCount', 0)), ',d')
+							likes = format(int(videoinfo['statistics'].get('likeCount', 0)), ',d')
+							dislikes = format(int(videoinfo['statistics'].get('dislikeCount', 0)), ',d')
+							comments = format(int(videoinfo['statistics'].get('commentCount', 0)), ',d')
+							embed.add_field(name='Stats', value=f'{views} views, {likes} likes, {dislikes} dislikes, {comments} comments', inline=False)
+						embed.set_footer(text=f"Author ID: {message.author.id}")
+						try:
+							return await logch.send(embed=embed)
+						except Exception:
+							pass
 		if channel:
 			if isinstance(message.author, discord.Member):
 				if not message.author.permissions_in(message.channel).manage_messages:
@@ -565,35 +563,35 @@ class settings(commands.Cog, name="Settings"):
 			channelinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.channel_info, channel))
 			channelinfo = channelinfo.get('items', [])
 			if len(channelinfo) < 1:
-				invalidchannel = True
+				pass
 			else:
 				channelinfo = channelinfo[0]
-			if message.guild:
-				if message.author.bot:
-					return
-				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-				if logid:
-					logch = message.guild.get_channel(logid['actionlogs'])
-				else:
-					return
-				if logch:
-					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
-					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-					embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
-					if invalidchannel:
-						embed.add_field(name='More Info', value=f'I was unable to find info about this channel.', inline=False)
+				if message.guild:
+					if message.author.bot:
+						return
+					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+					if logid:
+						logch = message.guild.get_channel(logid['actionlogs'])
 					else:
-						embed.add_field(name='Name', value=f'{channelinfo.get("snippet", {}).get("title", "Unknown")}', inline=False)
-						embed.add_field(name='Custom URL', value=f'https://youtube.com/{channelinfo.get("snippet", {}).get("customUrl", "N/A")}', inline=False)
-						subs = format(int(channelinfo['statistics'].get('subscriberCount', 0)), ',d') if not channelinfo['statistics'].get('hiddenSubscriberCount', False) else 'Hidden'
-						views = format(int(channelinfo['statistics'].get('viewCount', 0)), ',d')
-						videos = format(int(channelinfo['statistics'].get('videoCount', 0)), ',d')
-						embed.add_field(name='Stats', value=f'{subs} subscribers, {views} total views, {videos} videos', inline=False)
-					embed.set_footer(text=f"Author ID: {message.author.id}")
-					try:
-						return await logch.send(embed=embed)
-					except Exception:
-						pass
+						return
+					if logch:
+						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
+						if invalidchannel:
+							embed.add_field(name='More Info', value=f'I was unable to find info about this channel.', inline=False)
+						else:
+							embed.add_field(name='Name', value=f'{channelinfo.get("snippet", {}).get("title", "Unknown")}', inline=False)
+							embed.add_field(name='Custom URL', value=f'https://youtube.com/{channelinfo.get("snippet", {}).get("customUrl", "N/A")}', inline=False)
+							subs = format(int(channelinfo['statistics'].get('subscriberCount', 0)), ',d') if not channelinfo['statistics'].get('hiddenSubscriberCount', False) else 'Hidden'
+							views = format(int(channelinfo['statistics'].get('viewCount', 0)), ',d')
+							videos = format(int(channelinfo['statistics'].get('videoCount', 0)), ',d')
+							embed.add_field(name='Stats', value=f'{subs} subscribers, {views} total views, {videos} videos', inline=False)
+						embed.set_footer(text=f"Author ID: {message.author.id}")
+						try:
+							return await logch.send(embed=embed)
+						except Exception:
+							pass
 
 	@commands.Cog.listener()
 	async def on_command_completion(self, ctx):
