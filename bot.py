@@ -180,9 +180,9 @@ async def on_command_error(ctx, error):
 		return await ctx.send(f'<a:fireFailed:603214400748257302> This command is on cooldown, please wait {humanfriendly.format_timespan(td)}', delete_after=5)
 
 	if isinstance(error, noperms):
-		return await ctx.send(f'<a:fireFailed:603214400748257302> {discord.utils.escape_mentions(discord.utils.escape_markdown(error))}')
+		return await ctx.send(f'<a:fireFailed:603214400748257302> {discord.utils.escape_mentions(discord.utils.escape_markdown(str(error)))}')
 
-	await ctx.send(f'<a:fireFailed:603214400748257302> {discord.utils.escape_mentions(discord.utils.escape_markdown(error))}')
+	await ctx.send(f'<a:fireFailed:603214400748257302> {discord.utils.escape_mentions(discord.utils.escape_markdown(str(error)))}')
 	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError, commands.MissingRequiredArgument, commands.TooManyArguments)
 	if isinstance(error, nomsg):
 		return

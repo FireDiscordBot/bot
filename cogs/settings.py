@@ -31,6 +31,7 @@ from fire.converters import TextChannel
 from fire.invite import findinvite
 from fire.youtube import findchannel, findvideo
 from fire.paypal import findpaypal
+from fire.twitch import findtwitch
 
 print("settings.py has been loaded")
 
@@ -503,6 +504,33 @@ class settings(commands.Cog, name="Settings"):
 							await logch.send(embed=embed)
 						except Exception:
 							pass
+		twitch = findtwitch(message.system_content)
+		if twitch:
+			if isinstance(message.author, discord.Member):
+				if not message.author.permissions_in(message.channel).manage_messages:
+					if message.guild.me.permissions_in(message.channel).manage_messages:
+						if 'twitch' in self.linkfilter.get(message.guild.id, []):
+							try:
+								await message.delete()
+							except Exception:
+								pass
+			if message.guild:
+				if message.author.bot:
+					return
+				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+				if logid:
+					logch = message.guild.get_channel(logid['actionlogs'])
+				else:
+					return
+				if logch:
+					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
+					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+					embed.add_field(name='Link', value=f'[{twitch}](https://twitch.tv/{twitch})', inline=False)
+					embed.set_footer(text=f"Author ID: {message.author.id}")
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 		if before.system_content == after.system_content:
 			return
 		if after.guild and not after.author.bot:
@@ -761,6 +789,33 @@ class settings(commands.Cog, name="Settings"):
 							await logch.send(embed=embed)
 						except Exception:
 							pass
+		twitch = findtwitch(message.system_content)
+		if twitch:
+			if isinstance(message.author, discord.Member):
+				if not message.author.permissions_in(message.channel).manage_messages:
+					if message.guild.me.permissions_in(message.channel).manage_messages:
+						if 'twitch' in self.linkfilter.get(message.guild.id, []):
+							try:
+								await message.delete()
+							except Exception:
+								pass
+			if message.guild:
+				if message.author.bot:
+					return
+				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+				if logid:
+					logch = message.guild.get_channel(logid['actionlogs'])
+				else:
+					return
+				if logch:
+					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
+					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+					embed.add_field(name='Link', value=f'[{twitch}](https://twitch.tv/{twitch})', inline=False)
+					embed.set_footer(text=f"Author ID: {message.author.id}")
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 
 	@commands.Cog.listener()
 	async def on_command_completion(self, ctx):
@@ -1974,7 +2029,7 @@ class settings(commands.Cog, name="Settings"):
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def linkfiltercmd(self, ctx, *, enabled: str = None):
-		options = ['discord', 'youtube', 'paypal', 'malware']
+		options = ['discord', 'youtube', 'twitch', 'paypal', 'malware']
 		if not enabled:
 			return await ctx.send(f'<a:fireFailed:603214400748257302> You must provide valid filters. You can choose from {", ".join(options)}')
 		enabled = enabled.split(' ')
