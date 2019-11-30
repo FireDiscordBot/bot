@@ -30,6 +30,7 @@ from random import randint
 from fire.converters import TextChannel
 from fire.invite import findinvite
 from fire.youtube import findchannel, findvideo
+from fire.paypal import findpaypal
 
 print("settings.py has been loaded")
 
@@ -303,7 +304,7 @@ class settings(commands.Cog, name="Settings"):
 					embed.add_field(name='Message', value=f'[Click Here]({after.jump_url})', inline=False)
 					embed.set_footer(text=f"Author ID: {after.author.id} | Message ID: {after.id} | Channel ID: {after.channel.id}")
 					try:
-						return await logch.send(embed=embed)
+						await logch.send(embed=embed)
 					except Exception:
 						pass
 		if before.content == after.content:
@@ -369,9 +370,36 @@ class settings(commands.Cog, name="Settings"):
 							embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
 							embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
-							return await logch.send(embed=embed)
+							await logch.send(embed=embed)
 						except Exception:
 							pass
+		paypal = findpaypal(message.system_content)
+		if paypal:
+			if isinstance(message.author, discord.Member):
+				if not message.author.permissions_in(message.channel).manage_messages:
+					if message.guild.me.permissions_in(message.channel).manage_messages:
+						if 'paypal' in self.linkfilter.get(message.guild.id, []):
+							try:
+								await message.delete()
+							except Exception:
+								pass
+			if message.guild:
+				if message.author.bot:
+					return
+				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+				if logid:
+					logch = message.guild.get_channel(logid['actionlogs'])
+				else:
+					return
+				if logch:
+					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
+					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+					embed.add_field(name='Link', value=f'[{paypal}](https://paypal.me/{paypal})', inline=False)
+					embed.set_footer(text=f"Author ID: {message.author.id}")
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 		ytcog = self.bot.get_cog('YouTube API')
 		video = findvideo(message.system_content)
 		channel = findchannel(message.system_content)
@@ -414,7 +442,7 @@ class settings(commands.Cog, name="Settings"):
 							embed.add_field(name='Stats', value=f'{views} views, {likes} likes, {dislikes} dislikes, {comments} comments', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
-							return await logch.send(embed=embed)
+							await logch.send(embed=embed)
 						except Exception:
 							pass
 		if channel:
@@ -456,9 +484,9 @@ class settings(commands.Cog, name="Settings"):
 							embed.add_field(name='Stats', value=f'{subs} subscribers, {views} total views, {videos} videos', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
-							return await logch.send(embed=embed)
+							await logch.send(embed=embed)
 						except Exception:
-							pass					
+							pass
 		if before.system_content == after.system_content:
 			return
 		if after.guild and not after.author.bot:
@@ -590,7 +618,34 @@ class settings(commands.Cog, name="Settings"):
 						embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 					try:
-						return await logch.send(embed=embed)
+						await logch.send(embed=embed)
+					except Exception:
+						pass
+		paypal = findpaypal(message.system_content)
+		if paypal:
+			if isinstance(message.author, discord.Member):
+				if not message.author.permissions_in(message.channel).manage_messages:
+					if message.guild.me.permissions_in(message.channel).manage_messages:
+						if 'paypal' in self.linkfilter.get(message.guild.id, []):
+							try:
+								await message.delete()
+							except Exception:
+								pass
+			if message.guild:
+				if message.author.bot:
+					return
+				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+				if logid:
+					logch = message.guild.get_channel(logid['actionlogs'])
+				else:
+					return
+				if logch:
+					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
+					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+					embed.add_field(name='Link', value=f'[{paypal}](https://paypal.me/{paypal})', inline=False)
+					embed.set_footer(text=f"Author ID: {message.author.id}")
+					try:
+						await logch.send(embed=embed)
 					except Exception:
 						pass
 		ytcog = self.bot.get_cog('YouTube API')
@@ -635,7 +690,7 @@ class settings(commands.Cog, name="Settings"):
 							embed.add_field(name='Stats', value=f'{views} views, {likes} likes, {dislikes} dislikes, {comments} comments', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
-							return await logch.send(embed=embed)
+							await logch.send(embed=embed)
 						except Exception:
 							pass
 		if channel:
@@ -677,7 +732,7 @@ class settings(commands.Cog, name="Settings"):
 							embed.add_field(name='Stats', value=f'{subs} subscribers, {views} total views, {videos} videos', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
-							return await logch.send(embed=embed)
+							await logch.send(embed=embed)
 						except Exception:
 							pass
 
@@ -1893,7 +1948,7 @@ class settings(commands.Cog, name="Settings"):
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def linkfiltercmd(self, ctx, *, enabled: str = None):
-		options = ['discord', 'youtube']
+		options = ['discord', 'youtube', 'paypal']
 		if not enabled:
 			return await ctx.send(f'<a:fireFailed:603214400748257302> You must provide valid filters. You can choose from {", ".join(options)}')
 		enabled = enabled.split(' ')
