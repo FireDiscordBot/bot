@@ -80,6 +80,23 @@ class youtube(commands.Cog, name="YouTube API"):
 		response = request.execute()
 		return response
 
+	def channel_info(self, channel):
+		youtube = googleapiclient.discovery.build(
+        self.apiname, self.apiver, developerKey=self.key)
+
+		if channel.startswith('UC'):
+			request = youtube.videos().list(
+				part="snippet,contentDetails,statistics",
+				id=channel
+			)
+		else:
+			request = youtube.videos().list(
+				part="snippet,statistics",
+				forUsername=channel
+			)
+		response = request.execute()
+		return response
+
 	@commands.group(name="yt", aliases=['youtube'], invoke_without_command=True, description='YouTube commands.')
 	async def yt(self, ctx):
 		'''PFXyt [<info <video id>>]'''

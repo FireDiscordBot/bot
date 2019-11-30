@@ -506,32 +506,7 @@ class settings(commands.Cog, name="Settings"):
 						return await logch.send(embed=embed)
 					except Exception:
 						pass
-		channel = findchannel(message.system_content)
-		if channel:
-			if isinstance(message.author, discord.Member):
-				if not message.author.permissions_in(message.channel).manage_messages:
-					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if 'youtube' in self.linkfilter.get(message.guild.id, []):
-							try:
-								await message.delete()
-							except Exception:
-								pass
-			if message.guild:
-				if message.author.bot:
-					return
-				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-				if logid:
-					logch = message.guild.get_channel(logid['actionlogs'])
-				else:
-					return
-				if logch:
-					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
-					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-					embed.set_footer(text=f"Author ID: {message.author.id} (Channel info coming soon)")
-					try:
-						return await logch.send(embed=embed)
-					except Exception:
-						pass
+		ytcog = self.bot.get_cog('YouTube API')
 		video = findvideo(message.system_content)
 		invalidvid = False
 		if video:
@@ -543,7 +518,6 @@ class settings(commands.Cog, name="Settings"):
 								await message.delete()
 							except Exception:
 								pass
-			ytcog = self.bot.get_cog('YouTube API')
 			videoinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.video_info, video))
 			videoinfo = videoinfo.get('items', [])
 			if len(videoinfo) < 1:
@@ -570,6 +544,49 @@ class settings(commands.Cog, name="Settings"):
 						dislikes = format(int(videoinfo['statistics'].get('dislikeCount', 0)), ',d')
 						comments = format(int(videoinfo['statistics'].get('commentCount', 0)), ',d')
 						embed.add_field(name='Stats', value=f'{views} views, {likes} likes, {dislikes} dislikes, {comments} comments', inline=False)
+					embed.set_footer(text=f"Author ID: {message.author.id}")
+					try:
+						return await logch.send(embed=embed)
+					except Exception:
+						pass
+		channel = findchannel(message.system_content)
+		invalidchannel = False
+		if channel:
+			if isinstance(message.author, discord.Member):
+				if not message.author.permissions_in(message.channel).manage_messages:
+					if message.guild.me.permissions_in(message.channel).manage_messages:
+						if 'youtube' in self.linkfilter.get(message.guild.id, []):
+							try:
+								await message.delete()
+							except Exception:
+								pass
+			channelinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.channel_info, channel))
+			channelinfo = channelinfo.get('items', [])
+			if len(channelinfo) < 1:
+				invalidchannel = True
+			else:
+				channelinfo = channelinfo[0]
+			if message.guild:
+				if message.author.bot:
+					return
+				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+				if logid:
+					logch = message.guild.get_channel(logid['actionlogs'])
+				else:
+					return
+				if logch:
+					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
+					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+					embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
+					if invalidchannel:
+						embed.add_field(name='More Info', value=f'I was unable to find info about this channel.', inline=False)
+					else:
+						embed.add_field(name='Name', value=f'{channelinfo.get("snippet", {}).get("title", "Unknown")}', inline=False)
+						embed.add_field(name='Custom URL', value=f'https://youtube.com/{channelinfo.get("snippet", {}).get("customUrl", "N/A")}', inline=False)
+						subs = format(int(channelinfo['statistics'].get('subscriberCount', 0)), ',d') if not channelinfo['statistics'].get('hiddenSubscriberCount', False) else 'Hidden'
+						views = format(int(channelinfo['statistics'].get('viewCount', 0)), ',d')
+						videos = format(int(channelinfo['statistics'].get('videoCount', 0)), ',d')
+						embed.add_field(name='Stats', value=f'{subs} subscribers, {views} total views, {videos} videos', inline=False)
 					embed.set_footer(text=f"Author ID: {message.author.id}")
 					try:
 						return await logch.send(embed=embed)
@@ -1787,11 +1804,12 @@ class settings(commands.Cog, name="Settings"):
 	@commands.command(name='linkfilter', description='Configure the link filter for this server')
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
-	async def linkfiltercmd(self, ctx, enabled: commands.Greedy[str] = None):
+	async def linkfiltercmd(self, ctx, *, enabled: str = None):
 		options = ['discord', 'youtube']
 		if not enabled:
 			return await ctx.send(f'<a:fireFailed:603214400748257302> You must provide valid filters. You can choose from {", ".join(options)}')
-		if len([f for f in enabled if f not in options]) >= 1:
+		enabled = enabled.split(' ')
+		if len([f.lower() for f in enabled if f not in options]) >= 1:
 			return await ctx.send(f'<a:fireFailed:603214400748257302> {", ".join([f for f in enabled if f not in options])} aren\'t valid filter(s)')
 		con = await self.bot.db.acquire()
 		async with con.transaction():
@@ -1799,7 +1817,7 @@ class settings(commands.Cog, name="Settings"):
 				query = 'UPDATE linkfilter SET enabled = $1 WHERE gid = $2'
 			else:
 				query = 'INSERT INTO linkfilter (\"enabled\", \"gid\") VALUES ($1, $2);'
-			await self.bot.db.execute(query, enabled, ctx.guild.id)
+			await self.bot.db.execute(query, [e.lower() for e in enabled], ctx.guild.id)
 		await self.bot.db.release(con)
 		await self.loadSettings()
 		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled filtering for {", ".join(enabled)} links')
