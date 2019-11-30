@@ -577,11 +577,12 @@ class settings(commands.Cog, name="Settings"):
 					if logch:
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-						embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
 						if invalidchannel:
+							embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
 							embed.add_field(name='More Info', value=f'I was unable to find info about this channel.', inline=False)
 						else:
 							embed.add_field(name='Name', value=f'{channelinfo.get("snippet", {}).get("title", "Unknown")}', inline=False)
+							embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
 							embed.add_field(name='Custom URL', value=f'https://youtube.com/{channelinfo.get("snippet", {}).get("customUrl", "N/A")}', inline=False)
 							subs = format(int(channelinfo['statistics'].get('subscriberCount', 0)), ',d') if not channelinfo['statistics'].get('hiddenSubscriberCount', False) else 'Hidden'
 							views = format(int(channelinfo['statistics'].get('viewCount', 0)), ',d')
