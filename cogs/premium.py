@@ -486,7 +486,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 					await member.add_roles(role, reason='Role Persist')
 				except Exception:
 					pass
-			await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(member))}** will keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
+			await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
 			logchannels = self.bot.get_cog("Settings").logchannels
 			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 			if logid:
@@ -520,7 +520,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 					await member.add_roles(role, reason='Role Persist Updated')
 				except Exception:
 					pass
-				await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(member))}** will keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
+				await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
 				logchannels = self.bot.get_cog("Settings").logchannels
 				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 				if logid:
@@ -547,7 +547,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				await member.remove_roles(role, reason='Role Persist')
 			except Exception:
 				pass
-			await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(member))}** will no longer keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
+			await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will no longer keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
 			logchannels = self.bot.get_cog("Settings").logchannels
 			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 			if logid:
