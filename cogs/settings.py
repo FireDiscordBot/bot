@@ -358,20 +358,107 @@ class settings(commands.Cog, name="Settings"):
 				else:
 					return
 				if logch:
-                                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
-                                        embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-                                        if isinstance(invite, dict):
-                                                invite = await self.bot.fetch_invite(url=invite['invite'])
-                                        embed.add_field(name='Invite Code', value=code, inline=False)
-                                        if isinstance(invite, discord.Invite):
-                                                embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
-                                                embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
-                                                embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
-                                                embed.set_footer(text=f"Author ID: {message.author.id}")
-                                        try:
-                                                return await logch.send(embed=embed)
-                                        except Exception:
-                                                pass
+						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						if isinstance(invite, dict):
+							invite = await self.bot.fetch_invite(url=invite['invite'])
+						embed.add_field(name='Invite Code', value=code, inline=False)
+						if isinstance(invite, discord.Invite):
+							embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
+							embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
+							embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
+							embed.set_footer(text=f"Author ID: {message.author.id}")
+						try:
+							return await logch.send(embed=embed)
+						except Exception:
+							pass
+		ytcog = self.bot.get_cog('YouTube API')
+		video = findvideo(message.system_content)
+		channel = findchannel(message.system_content)
+		invalidvid = False
+		invalidchannel = False
+		if video:
+			if isinstance(message.author, discord.Member):
+				if not message.author.permissions_in(message.channel).manage_messages:
+					if message.guild.me.permissions_in(message.channel).manage_messages:
+						if 'youtube' in self.linkfilter.get(message.guild.id, []):
+							try:
+								await message.delete()
+							except Exception:
+								pass
+			videoinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.video_info, video))
+			videoinfo = videoinfo.get('items', [])
+			if len(videoinfo) < 1:
+				pass
+			else:
+				videoinfo = videoinfo[0]
+				if message.guild:
+					if message.author.bot:
+						return
+					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+					if logid:
+						logch = message.guild.get_channel(logid['actionlogs'])
+					else:
+						return
+					if logch:
+						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.add_field(name='Video ID', value=video, inline=False)
+						if not invalidvid:
+							embed.add_field(name='Title', value=f'[{videoinfo.get("snippet", {}).get("title", "Unknown")}](https://youtu.be/{video})', inline=False)
+							embed.add_field(name='Channel', value=f'[{videoinfo.get("snippet", {}).get("channelTitle", "Unknown")}](https://youtube.com/channel/{videoinfo.get("snippet", {}).get("channelId", "Unknown")})', inline=False)
+							views = format(int(videoinfo['statistics'].get('viewCount', 0)), ',d')
+							likes = format(int(videoinfo['statistics'].get('likeCount', 0)), ',d')
+							dislikes = format(int(videoinfo['statistics'].get('dislikeCount', 0)), ',d')
+							comments = format(int(videoinfo['statistics'].get('commentCount', 0)), ',d')
+							embed.add_field(name='Stats', value=f'{views} views, {likes} likes, {dislikes} dislikes, {comments} comments', inline=False)
+						embed.set_footer(text=f"Author ID: {message.author.id}")
+						try:
+							return await logch.send(embed=embed)
+						except Exception:
+							pass
+		if channel:
+			if isinstance(message.author, discord.Member):
+				if not message.author.permissions_in(message.channel).manage_messages:
+					if message.guild.me.permissions_in(message.channel).manage_messages:
+						if 'youtube' in self.linkfilter.get(message.guild.id, []):
+							try:
+								await message.delete()
+							except Exception:
+								pass
+			channelinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.channel_info, channel))
+			channelinfo = channelinfo.get('items', [])
+			if len(channelinfo) < 1:
+				pass
+			else:
+				channelinfo = channelinfo[0]
+				if message.guild:
+					if message.author.bot:
+						return
+					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+					if logid:
+						logch = message.guild.get_channel(logid['actionlogs'])
+					else:
+						return
+					if logch:
+						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						if invalidchannel:
+							embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
+							embed.add_field(name='More Info', value=f'I was unable to find info about this channel.', inline=False)
+						else:
+							embed.add_field(name='Name', value=f'{channelinfo.get("snippet", {}).get("title", "Unknown")}', inline=False)
+							embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
+							embed.add_field(name='Custom URL', value=f'https://youtube.com/{channelinfo.get("snippet", {}).get("customUrl", "N/A")}', inline=False)
+							subs = format(int(channelinfo['statistics'].get('subscriberCount', 0)), ',d') if not channelinfo['statistics'].get('hiddenSubscriberCount', False) else 'Hidden'
+							views = format(int(channelinfo['statistics'].get('viewCount', 0)), ',d')
+							videos = format(int(channelinfo['statistics'].get('videoCount', 0)), ',d')
+							embed.add_field(name='Stats', value=f'{subs} subscribers, {views} total views, {videos} videos', inline=False)
+						embed.set_footer(text=f"Author ID: {message.author.id}")
+						try:
+							return await logch.send(embed=embed)
+						except Exception:
+							pass					
 		if before.system_content == after.system_content:
 			return
 		if after.guild and not after.author.bot:
