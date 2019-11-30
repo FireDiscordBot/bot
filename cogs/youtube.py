@@ -85,12 +85,12 @@ class youtube(commands.Cog, name="YouTube API"):
         self.apiname, self.apiver, developerKey=self.key)
 
 		if channel.startswith('UC'):
-			request = youtube.videos().list(
+			request = youtube.channels().list(
 				part="snippet,contentDetails,statistics",
 				id=channel
 			)
 		else:
-			request = youtube.videos().list(
+			request = youtube.channels().list(
 				part="snippet,statistics",
 				forUsername=channel
 			)
