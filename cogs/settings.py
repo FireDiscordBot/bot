@@ -104,12 +104,11 @@ class settings(commands.Cog, name="Settings"):
 		self.joincache = {}
 		self.dupecheck = {}
 		self.uuidregex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
-		self._MARKDOWN_ESCAPE_REGEX = '|'.join(r'\{0}(?=([\s\S]*((?<!\{0})\{0})))'.format(c) for c in ('*', '`', '_', '~', '|'))
 		if not hasattr(self.bot, 'invites'):
 			self.bot.invites = {}
 
-	def replace_markdown(self, text: str):
-		return re.sub(self._MARKDOWN_ESCAPE_REGEX, '', text, 0, re.MULTILINE)
+	def clean(self, text: str):
+		return re.sub(r'[^A-Za-z0-9.\/ ]', '', text, 0, re.MULTILINE)
 
 	async def loadSettings(self):
 		self.logchannels = {}
@@ -316,7 +315,8 @@ class settings(commands.Cog, name="Settings"):
 		if before.content == after.content:
 			return
 		message = after
-		if any(l in message.system_content.strip('<>\\') for l in self.malware):
+		# cleaned = self.clean(message.system_content)
+		if any(l in message.system_content for l in self.malware):
 			if isinstance(message.author, discord.Member):
 				if 'malware' in self.linkfilter.get(message.guild.id, []):
 					try:
@@ -350,7 +350,7 @@ class settings(commands.Cog, name="Settings"):
 				ohmygod = False
 				self.bot.vanity_urls = await self.getvanitys()
 				if code.lower() in self.bot.vanity_urls and 'oh-my-god.wtf' in message.system_content:
-					invite = self.bot.vanity_urls[code]
+					invite = self.bot.getvanity(code)
 					ohmygod = True
 					if isinstance(message.author, discord.Member):
 						if not message.author.permissions_in(message.channel).manage_messages:
@@ -574,7 +574,7 @@ class settings(commands.Cog, name="Settings"):
 			raidmsg = self.raidmsgs.get(message.guild.id, False)
 			if raidmsg and raidmsg in message.content:
 				self.msgraiders.get(message.guild.id, []).append(message.author)
-		if any(l in message.system_content.replace('\\', '') for l in self.malware):
+		if any(l in message.system_content for l in self.malware):
 			if isinstance(message.author, discord.Member):
 				if 'malware' in self.linkfilter.get(message.guild.id, []):
 					try:
@@ -608,7 +608,7 @@ class settings(commands.Cog, name="Settings"):
 				ohmygod = False
 				self.bot.vanity_urls = await self.getvanitys()
 				if code.lower() in self.bot.vanity_urls and 'oh-my-god.wtf' in message.system_content:
-					invite = self.bot.vanity_urls[code]
+					invite = self.bot.getvanity(code)
 					ohmygod = True
 					if isinstance(message.author, discord.Member):
 						if not message.author.permissions_in(message.channel).manage_messages:
