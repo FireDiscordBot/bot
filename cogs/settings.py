@@ -316,7 +316,7 @@ class settings(commands.Cog, name="Settings"):
 		if before.content == after.content:
 			return
 		message = after
-		if any(l in self.replace_markdown(message.system_content) for l in self.malware):
+		if any(l in message.system_content.strip('<>\\') for l in self.malware):
 			if isinstance(message.author, discord.Member):
 				if 'malware' in self.linkfilter.get(message.guild.id, []):
 					try:
@@ -574,7 +574,7 @@ class settings(commands.Cog, name="Settings"):
 			raidmsg = self.raidmsgs.get(message.guild.id, False)
 			if raidmsg and raidmsg in message.content:
 				self.msgraiders.get(message.guild.id, []).append(message.author)
-		if any(l in self.replace_markdown(message.system_content) for l in self.malware):
+		if any(l in message.system_content.strip('<>\\') for l in self.malware):
 			if isinstance(message.author, discord.Member):
 				if 'malware' in self.linkfilter.get(message.guild.id, []):
 					try:
