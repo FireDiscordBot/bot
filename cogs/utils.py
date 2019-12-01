@@ -1437,6 +1437,8 @@ class utils(commands.Cog, name='Utility Commands'):
 			msgid = list_ids[1]
 			raw = await ctx.bot.http.get_message(chanid, msgid)
 			chan = self.bot.get_channel(chanid)
+			if not chan:
+				return
 			user = chan.guild.get_member(ctx.author.id)
 			if not user:
 				return
