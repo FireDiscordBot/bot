@@ -157,14 +157,14 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			raise commands.UserInputError('Couldn\'t find that player\'s UUID')
 		hello = {
 			'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-			'CONTENT-TYPE': 'application/json' 
-		} 
+			'CONTENT-TYPE': 'application/json'
+		}
 		async with aiohttp.ClientSession(headers=hello) as session:
 			async with session.get(f'{config["modcoreapi"]}profile/{uuid}') as resp:
 				if resp.status != 200:
 					raise commands.CommandError('Modcore API responded incorrectly')
 				profile = await resp.json()
-		purchases = profile.get('purchase_profile', ['No Cosmetics'])
+		purchases = [c for c, e in profile.get('purchase_profile', {'No Cosmetics': True}).items() if e]
 		for c, s in profile.get('cosmetic_settings', {}).items():
 			if s['enabled']:
 				purchases = [p.replace(c, f'**{c}**') for p in purchases]
