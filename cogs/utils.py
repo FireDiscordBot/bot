@@ -1006,7 +1006,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					except:
 						continue
 				
-					user = channel.guild.get_member(ctx.author.id)
+					user = channel.guild.get_member(message.author.id)
 					uperms = user.permissions_in(channel)
 					if not uperms.read_messages:
 						return
