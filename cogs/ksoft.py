@@ -138,12 +138,6 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 	@commands.command(name='baninfo', description='Check the info of a ban on the KSoft.Si API')
 	async def baninfo(self, ctx, bannedboi: int):
 		'''PFXbaninfo <userid>'''
-		ksoftguild: discord.Guild = self.bot.get_guild(458341246453415947)
-		check = ksoftguild.get_member(ctx.author.id)
-		if not check:
-			embed = discord.Embed(title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color, timestamp=datetime.datetime.utcnow())
-			embed.add_field(name='Error', value="You must be in the KSoft.Si guild to use this command!\n[Click here to join](https://discord.gg/kEf6qXN 'Click this to join the KSoft.Si API guild')", inline=False)
-			return await ctx.send(embed=embed)
 		try:
 			inf = await self.bot.ksoft.bans_info(bannedboi)
 		except ksoftapi.APIError as e:
@@ -151,10 +145,9 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 			embed.add_field(name='Error', value=e.message, inline=False)
 			embed.add_field(name='Code', value=e.code, inline=False)
 			return await ctx.send(embed=embed)
-		nothingtoseehere = self.bot.get_user(270235302071762945)
 		embed = discord.Embed(title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color, timestamp=datetime.datetime.utcnow())
 		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url))
-		embed.set_footer(text='Ban info from KSoft.Si API (https://api.ksoft.si/)', icon_url=str(nothingtoseehere.avatar_url))
+		embed.set_footer(text='Ban info from KSoft.Si API (https://api.ksoft.si/)', icon_url='https://cdn.ksoft.si/images/Logo128.png')
 		embed.add_field(name='User', value=f'{inf.name}#{inf.discriminator}' if inf.name != 'Unknown' else 'Unknown#0000')
 		embed.add_field(name='Mod ID', value=inf.moderator_id)
 		embed.add_field(name='Active', value=inf.is_ban_active)
