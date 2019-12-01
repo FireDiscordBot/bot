@@ -152,7 +152,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 	async def modcore(self, ctx, player: str = None):
 		if player == None:
 			await ctx.send("What user should I check?")
-		uuid = self.bot.get_cog('Hypixel Commands').nameToUUID(player)
+		uuid = await self.bot.get_cog('Hypixel Commands').nameToUUID(player)
 		if not uuid:
 			raise commands.UserInputError('Couldn\'t find that player\'s UUID')
 		hello = {
