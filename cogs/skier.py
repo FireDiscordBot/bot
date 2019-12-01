@@ -148,6 +148,9 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				embed.add_field(name="Other items", value=f"Tab: {tab} \nChat: {chat} \nAddon Head Layers: {head} \nMediahead: {mediahead}", inline=False)
 			await ctx.send(embed=embed)
 
+	def modcoref(self, text):
+		return text.replace('_', ' ').replace('STATIC', '(Static)').replace('DYNAMIC', '(Dynamic)').lower().title()
+
 	@commands.command(description="Get a player's modcore profile")
 	async def modcore(self, ctx, player: str = None):
 		if player == None:
@@ -164,11 +167,16 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				if resp.status != 200:
 					raise commands.CommandError('Modcore API responded incorrectly')
 				profile = await resp.json()
-		purchases = [c for c, e in profile.get('purchase_profile', {'No Cosmetics': True}).items() if e]
+		purchases = [self.modcoref(c) for c, e in profile.get('purchase_profile', {'No Cosmetics': True}).items() if e]
 		for c, s in profile.get('cosmetic_settings', {}).items():
 			if s['enabled']:
-				purchases = [p.replace(c, f'**{c}**') for p in purchases]
-		purchases = ', '.join([i.replace('_', ' ').replace('STATIC', '(Static)').replace('DYNAMIC', '(Dynamic)').lower().title() for i in purchases])
+				if 'STATIC' in c:
+					cid = s['id']
+					purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}](https://api.modcore.sk1er.club/serve/cape/static/{cid}.png)**') for p in purchases]
+				elif 'DYNAMIC' in c:
+					cid = s['id']
+					purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}](https://api.modcore.sk1er.club/serve/cape/dynamic/{cid}.gif)**') for p in purchases]
+		purchases = ', '.join([i for i in purchases])
 		embed = discord.Embed(title=f'{player}\'s Modcore Profile', color=ctx.author.color)
 		embed.add_field(name='Name', value=player, inline=False)
 		embed.add_field(name='UUID', value=uuid, inline=False)
