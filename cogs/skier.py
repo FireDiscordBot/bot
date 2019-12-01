@@ -48,7 +48,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 	async def levelhead(self, ctx, player: str = None):
 		"""PFXlevelhead <IGN>"""
 		if player == None:
-			await ctx.send("What user should I check? (IGNs must be exact capitalization!)")
+			await ctx.send("What user should I check?")
 		else:
 			hello = {
 				'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
@@ -147,6 +147,33 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					embed.add_field(name='Denied?', value=denied, inline=False)
 				embed.add_field(name="Other items", value=f"Tab: {tab} \nChat: {chat} \nAddon Head Layers: {head} \nMediahead: {mediahead}", inline=False)
 			await ctx.send(embed=embed)
+
+	@commands.command(description="Get a player's modcore profile")
+	async def modcore(self, ctx, player: str = None):
+		if player == None:
+			await ctx.send("What user should I check?")
+		uuid = self.bot.get_cog('Hypixel Commands').nameToUUID(player)
+		if not uuid:
+			raise commands.UserInputError('Couldn\'t find that player\'s UUID')
+		hello = {
+			'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+			'CONTENT-TYPE': 'application/json' 
+		} 
+		async with aiohttp.ClientSession(headers=hello) as session:
+			async with session.get(f'{config["modcoreapi"]}profile/{uuid}') as resp:
+				if resp.status != 200:
+					raise commands.CommandError('Modcore API responded incorrectly')
+				profile = await resp.json()
+		purchases = profile.get('purchase_profile', ['No Cosmetics'])
+		for c, s in profile.get('cosmetic_settings', {}):
+			if s['enabled']:
+				[p.replace(c, f'**{c}**') for p in purchases]
+		purchases = ', '.join([i.replace('_', ' ').replace('STATIC', '(Static)').replace('DYNAMIC', '(Dynamic)').lower().title() for i in profile.get('purchase_profile', ['No Cosmetics'])])
+		embed = discord.Embed(title=f'{player}\'s Modcore Profile', color=ctx.author.color)
+		embed.add_field(name='Name', value=player, inline=False)
+		embed.add_field(name='UUID', value=uuid, inline=False)
+		embed.add_field(name='Purchases', value=purchases, inline=False)
+		return await ctx.send(embed=embed)
 
 	@commands.command(description="Check stuff related to Hyperium")
 	async def hyperium(self, ctx, player: str = None, task: str = None):
