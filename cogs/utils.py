@@ -1387,7 +1387,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			message = None
 			try:
 				message = await ctx.channel.fetch_message(msg)
-				uperms = ctx.author.permissions_in(channel)
+				uperms = ctx.author.permissions_in(ctx.channel)
 				if not uperms.read_messages:
 					return
 			except:
@@ -1435,7 +1435,6 @@ class utils(commands.Cog, name='Utility Commands'):
 				test = list_ids[1]
 			except IndexError:
 				raise commands.UserInputError(f'Unable to retrieve a message from {msg}')
-				return
 			if len(list_ids) == 3:
 				del list_ids[0]
 			chanid = list_ids[0]
