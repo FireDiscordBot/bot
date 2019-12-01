@@ -1126,6 +1126,15 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.set_image(url=f'https://http.cat/{error}')
 		await ctx.send(embed=embed)
 
+	@commands.command(description='Get the amount of members in the server', aliases=['members'])
+	async def membercount(self, ctx):
+		embed = discord.Embed(color=ctx.author.color)
+		embed.set_author(name=ctx.guild.name, icon_url=str(ctx.guild.icon_url))
+		embed.add_field(name='Total', value=format(len(ctx.guild.members), ',d'), inline=False)
+		embed.add_field(name='Humans', value=format(len([m for m in ctx.guild.members if not m.bot]), ',d'), inline=False)
+		embed.add_field(name='Bots', value=format(len([m for m in ctx.guild.members if m.bot]), ',d'), inline=False)
+		await ctx.send(embed=embed)
+
 	@commands.command(description='Get a user\'s avatar', aliases=['av'])
 	async def avatar(self, ctx, user: UserWithFallback = None):
 		'''PFXavatar [<user>]'''
