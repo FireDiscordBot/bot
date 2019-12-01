@@ -1005,6 +1005,11 @@ class utils(commands.Cog, name='Utility Commands'):
 						channel = self.bot.get_channel(int(list_ids[0]))
 					except:
 						continue
+				
+					user = channel.guild.get_member(ctx.author.id)
+					uperms = user.permissions_in(channel)
+					if not uperms.read_messages:
+						return
 
 					if channel and isinstance(channel, discord.TextChannel):
 						try:
