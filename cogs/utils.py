@@ -1382,6 +1382,9 @@ class utils(commands.Cog, name='Utility Commands'):
 			message = None
 			try:
 				message = await ctx.channel.fetch_message(msg)
+				uperms = ctx.author.permissions_in(channel)
+				if not uperms.read_messages:
+					return
 			except:
 				for channel in ctx.guild.text_channels:
 					perms = ctx.guild.me.permissions_in(channel)
@@ -1395,6 +1398,9 @@ class utils(commands.Cog, name='Utility Commands'):
 					else:
 						break
 			if message:
+				uperms = ctx.author.permissions_in(message.channel)
+				if not uperms.read_messages:
+					return
 				raw = await ctx.bot.http.get_message(message.channel.id, message.id)
 				try:
 					mjson = json.dumps(raw, indent=2).replace('`', '\`')
@@ -1430,6 +1436,10 @@ class utils(commands.Cog, name='Utility Commands'):
 			chanid = list_ids[0]
 			msgid = list_ids[1]
 			raw = await ctx.bot.http.get_message(chanid, msgid)
+			chan = self.bot.get_channel(chanid)
+			uperms = ctx.author.permissions_in(chan)
+			if not uperms.read_messages:
+				return
 			try:
 				mjson = json.dumps(raw, indent=2).replace('`', '\`')
 				await ctx.send("```json\n{}```".format(mjson))
