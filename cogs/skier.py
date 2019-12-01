@@ -165,9 +165,10 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					raise commands.CommandError('Modcore API responded incorrectly')
 				profile = await resp.json()
 		purchases = profile.get('purchase_profile', ['No Cosmetics'])
+		print(purchases)
 		for c, s in profile.get('cosmetic_settings', {}).items():
 			if s['enabled']:
-				[p.replace(c, f'**{c}**') for p in purchases]
+				print([p.replace(c, f'**{c}**') for p in purchases])
 		purchases = ', '.join([i.replace('_', ' ').replace('STATIC', '(Static)').replace('DYNAMIC', '(Dynamic)').lower().title() for i in profile.get('purchase_profile', ['No Cosmetics'])])
 		embed = discord.Embed(title=f'{player}\'s Modcore Profile', color=ctx.author.color)
 		embed.add_field(name='Name', value=player, inline=False)
