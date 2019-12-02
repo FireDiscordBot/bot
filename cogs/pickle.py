@@ -116,7 +116,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					uuid = json['id']
 					self.uuidcache.update({player: json['id']})
 		return uuid or None
-	
+
 	@commands.command(description="Get hypixel stats")
 	async def hypixel(self, ctx, arg1: str = None, arg2: str = None):
 		"""PFXhypixel <IGN [<guild|friends|session>]|key|watchdog>"""
