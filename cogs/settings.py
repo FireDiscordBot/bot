@@ -27,7 +27,7 @@ import humanfriendly
 import functools
 import re
 from random import randint
-from fire.converters import TextChannel
+from fire.converters import TextChannel, Role, Member
 from fire.invite import findinvite
 from fire.youtube import findchannel, findvideo
 from fire.paypal import findpaypal
@@ -2100,6 +2100,11 @@ class settings(commands.Cog, name="Settings"):
 		await self.bot.db.release(con)
 		await self.loadSettings()
 		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled filtering for {", ".join(enabled)} links')
+
+	@commands.command(name='argtest')
+	async def argtest(self, ctx, *ids: typing.Union[TextChannel, Role, Member]):
+		ids = [a.id for a in ids]
+		await ctx.send(ids)
 
 
 def setup(bot):
