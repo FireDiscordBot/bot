@@ -2115,7 +2115,7 @@ class settings(commands.Cog, name="Settings"):
 		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled filtering for {", ".join(enabled)} links')
 
 	@commands.command(name='filterexcl', description='Exclude channels, roles and members from the filter')
-	async def filterexclcmd(self, ctx, *ids: typing.Union[TextChannel, Role, Member] = None):
+	async def filterexclcmd(self, ctx, *ids: typing.Union[TextChannel, Role, Member]):
 		if not ids:
 			con = await self.bot.db.acquire()
 			async with con.transaction():
