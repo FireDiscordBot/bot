@@ -722,7 +722,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			await ctx.message.delete()
 		except Exception:
 			pass
-		if not isinstance(opt, flags.EmptyFlags):
+		if isinstance(opt, dict):
 			user = opt['user']
 			match = opt['match']
 			startswith = opt['startswith']
