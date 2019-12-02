@@ -705,21 +705,23 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
-	async def purge(self, ctx, amount: int=-1, member: Member=None):
-		'''PFXpurge <amount> [<user>]'''
+	async def purge(self, ctx, amount: int = -1, *, topurge: typing.Union[Member, str] = None):
+		'''PFXpurge <amount> [<user|string>]'''
 		if amount>500 or amount<0:
 			return await ctx.send('Invalid amount. Minumum is 1, Maximum is 500')
 		try:
 			await ctx.message.delete()
 		except Exception:
 			pass
-		if member != None:
+		if topurge != None:
 			def checkmember(m):
-				return m.author == member
+				return m.author == topurge
+			def checkstring(m):
+				return topurge in m.content
 			amount += 1
 			self.bot.recentpurge[ctx.channel.id] = []
 			async for message in ctx.channel.history(limit=amount):
-				if message.author == member:
+				if type(topurge) == discord.Member and message.author == topurge or type(topurge) == str and topurge in message.content:
 					self.bot.recentpurge[ctx.channel.id].append({
 						'author': str(message.author),
 						'author_id': message.author.id,
@@ -727,7 +729,10 @@ class utils(commands.Cog, name='Utility Commands'):
 						'bot': message.author.bot,
 						'embeds': [e.to_dict() for e in message.embeds]
 					})
-			await ctx.channel.purge(limit=amount, check=checkmember)
+			if isinstance(topurge, discord.Member):
+				await ctx.channel.purge(limit=amount, check=checkmember)
+			elif isinstance(topurge, str):
+				await ctx.channel.purge(limit=amount, check=checkstring)
 			amount -= 1
 		else:
 			self.bot.recentpurge[ctx.channel.id] = []
@@ -740,7 +745,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					'embeds': [e.to_dict() for e in message.embeds]
 				})
 			await ctx.channel.purge(limit=amount)
-		await ctx.send(f'Successfully deleted **{amount}** messages!', delete_after=5)
+		await ctx.send(f'Successfully deleted **{len(self.bot.recentpurge[ctx.channel.id])}** messages!', delete_after=5)
 
 	@commands.command(name='followable', description='Make the current channel followable.')
 	async def followable(self, ctx, canfollow: bool = False):
