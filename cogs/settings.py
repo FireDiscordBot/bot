@@ -92,6 +92,7 @@ class settings(commands.Cog, name="Settings"):
 		self.bot = bot
 		self.logchannels = {}
 		self.linkfilter = {}
+		self.filterexcl = {}
 		self.malware = []
 		self.gbancheck = []
 		self.recentgban = []
@@ -115,8 +116,10 @@ class settings(commands.Cog, name="Settings"):
 	async def loadSettings(self):
 		self.logchannels = {}
 		self.linkfilter = {}
+		self.filterexcl = {}
 		self.malware = []
 		self.gbancheck = []
+		self.recentgban = []
 		self.autodecancer = []
 		self.autodehoist = []
 		self.modonly = {}
@@ -136,6 +139,8 @@ class settings(commands.Cog, name="Settings"):
 		settings = await self.bot.db.fetch(query)
 		for s in settings:
 			guild = s['gid']
+			if s['filterexcl']:
+				self.filterexcl[guild] = s['filterexcl']
 			if s['globalbans'] == 1:
 				self.gbancheck.append(guild)
 			if s['autodecancer'] == 1:
@@ -318,126 +323,92 @@ class settings(commands.Cog, name="Settings"):
 			return
 		message = after
 		# cleaned = self.clean(message.system_content)
-		if any(l in message.system_content for l in self.malware):
-			if isinstance(message.author, discord.Member):
-				if 'malware' in self.linkfilter.get(message.guild.id, []):
-					try:
-						await message.delete()
-					except Exception:
+		excluded = self.filterexcl[message.guild.id]
+		roleids = [r.id for r in message.author.roles]
+		if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
+			if any(l in message.system_content for l in self.malware):
+				if isinstance(message.author, discord.Member):
+					if 'malware' in self.linkfilter.get(message.guild.id, []):
 						try:
-							await message.channel.send(f'A blacklisted link was found in a message send by {message.author} and I was unable to delete it!')
+							await message.delete()
 						except Exception:
-							pass
-		code = findinvite(message.system_content)
-		invite = None
-		nodel = False
-		if code:
-			invalidinvite = False
-			if isinstance(message.author, discord.Member):
-				if not message.author.permissions_in(message.channel).manage_messages:
-					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if 'discord' in self.linkfilter.get(message.guild.id, []):
 							try:
-								invite = await self.bot.fetch_invite(url=code)
-								if invite.guild.id == message.guild.id:
-									nodel = True
+								await message.channel.send(f'A blacklisted link was found in a message send by {message.author} and I was unable to delete it!')
 							except Exception:
 								pass
-							if not nodel:
+			code = findinvite(message.system_content)
+			invite = None
+			nodel = False
+			if code:
+				invalidinvite = False
+				if isinstance(message.author, discord.Member):
+					if not message.author.permissions_in(message.channel).manage_messages:
+						if message.guild.me.permissions_in(message.channel).manage_messages:
+							if 'discord' in self.linkfilter.get(message.guild.id, []):
+								try:
+									invite = await self.bot.fetch_invite(url=code)
+									if invite.guild.id == message.guild.id:
+										nodel = True
+								except Exception:
+									pass
+								if not nodel:
+									try:
+										await message.delete()
+									except Exception:
+										pass
+				try:
+					ohmygod = False
+					self.bot.vanity_urls = await self.getvanitys()
+					if code.lower() in self.bot.vanity_urls and 'oh-my-god.wtf' in message.system_content:
+						invite = self.bot.getvanity(code)
+						ohmygod = True
+						if isinstance(message.author, discord.Member):
+							if not message.author.permissions_in(message.channel).manage_messages:
+								if message.guild.me.permissions_in(message.channel).manage_messages:
+									if message.guild.id in self.invitefiltered:
+										if invite['gid'] != message.guild.id:
+											try:
+												await message.delete()
+											except Exception:
+												pass
+					else:
+						if not invite or type(invite) != discord.Invite:
+							invite = await self.bot.fetch_invite(url=code)
+				except discord.NotFound or discord.HTTPException as e:
+					invalidinvite = True
+				if message.guild:
+					if message.author.bot:
+						return
+					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+					if logid:
+						logch = message.guild.get_channel(logid['actionlogs'])
+					else:
+						return
+					if logch:
+							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
+							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+							if isinstance(invite, dict):
+								invite = await self.bot.fetch_invite(url=invite['invite'])
+							embed.add_field(name='Invite Code', value=code, inline=False)
+							if isinstance(invite, discord.Invite):
+								embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
+								embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
+								embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
+								embed.set_footer(text=f"Author ID: {message.author.id}")
+							try:
+								await logch.send(embed=embed)
+							except Exception:
+								pass
+			paypal = findpaypal(message.system_content)
+			if paypal:
+				if isinstance(message.author, discord.Member):
+					if not message.author.permissions_in(message.channel).manage_messages:
+						if message.guild.me.permissions_in(message.channel).manage_messages:
+							if 'paypal' in self.linkfilter.get(message.guild.id, []):
 								try:
 									await message.delete()
 								except Exception:
 									pass
-			try:
-				ohmygod = False
-				self.bot.vanity_urls = await self.getvanitys()
-				if code.lower() in self.bot.vanity_urls and 'oh-my-god.wtf' in message.system_content:
-					invite = self.bot.getvanity(code)
-					ohmygod = True
-					if isinstance(message.author, discord.Member):
-						if not message.author.permissions_in(message.channel).manage_messages:
-							if message.guild.me.permissions_in(message.channel).manage_messages:
-								if message.guild.id in self.invitefiltered:
-									if invite['gid'] != message.guild.id:
-										try:
-											await message.delete()
-										except Exception:
-											pass
-				else:
-					if not invite or type(invite) != discord.Invite:
-						invite = await self.bot.fetch_invite(url=code)
-			except discord.NotFound or discord.HTTPException as e:
-				invalidinvite = True
-			if message.guild:
-				if message.author.bot:
-					return
-				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-				if logid:
-					logch = message.guild.get_channel(logid['actionlogs'])
-				else:
-					return
-				if logch:
-						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
-						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-						if isinstance(invite, dict):
-							invite = await self.bot.fetch_invite(url=invite['invite'])
-						embed.add_field(name='Invite Code', value=code, inline=False)
-						if isinstance(invite, discord.Invite):
-							embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
-							embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
-							embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
-							embed.set_footer(text=f"Author ID: {message.author.id}")
-						try:
-							await logch.send(embed=embed)
-						except Exception:
-							pass
-		paypal = findpaypal(message.system_content)
-		if paypal:
-			if isinstance(message.author, discord.Member):
-				if not message.author.permissions_in(message.channel).manage_messages:
-					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if 'paypal' in self.linkfilter.get(message.guild.id, []):
-							try:
-								await message.delete()
-							except Exception:
-								pass
-			if message.guild:
-				if message.author.bot:
-					return
-				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-				if logid:
-					logch = message.guild.get_channel(logid['actionlogs'])
-				else:
-					return
-				if logch:
-					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
-					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-					embed.add_field(name='Link', value=f'[{paypal}](https://paypal.me/{paypal})', inline=False)
-					embed.set_footer(text=f"Author ID: {message.author.id}")
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
-		ytcog = self.bot.get_cog('YouTube API')
-		video = findvideo(message.system_content)
-		channel = findchannel(message.system_content)
-		invalidvid = False
-		invalidchannel = False
-		if video:
-			if isinstance(message.author, discord.Member):
-				if not message.author.permissions_in(message.channel).manage_messages:
-					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if 'youtube' in self.linkfilter.get(message.guild.id, []):
-							try:
-								await message.delete()
-							except Exception:
-								pass
-			videoinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.video_info, video))
-			videoinfo = videoinfo.get('items', [])
-			if len(videoinfo) < 1:
-				pass
-			else:
-				videoinfo = videoinfo[0]
 				if message.guild:
 					if message.author.bot:
 						return
@@ -447,118 +418,155 @@ class settings(commands.Cog, name="Settings"):
 					else:
 						return
 					if logch:
-						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
+						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-						embed.add_field(name='Video ID', value=video, inline=False)
-						if not invalidvid:
-							embed.add_field(name='Title', value=f'[{videoinfo.get("snippet", {}).get("title", "Unknown")}](https://youtu.be/{video})', inline=False)
-							embed.add_field(name='Channel', value=f'[{videoinfo.get("snippet", {}).get("channelTitle", "Unknown")}](https://youtube.com/channel/{videoinfo.get("snippet", {}).get("channelId", "Unknown")})', inline=False)
-							views = format(int(videoinfo['statistics'].get('viewCount', 0)), ',d')
-							likes = format(int(videoinfo['statistics'].get('likeCount', 0)), ',d')
-							dislikes = format(int(videoinfo['statistics'].get('dislikeCount', 0)), ',d')
-							comments = format(int(videoinfo['statistics'].get('commentCount', 0)), ',d')
-							embed.add_field(name='Stats', value=f'{views} views, {likes} likes, {dislikes} dislikes, {comments} comments', inline=False)
+						embed.add_field(name='Link', value=f'[{paypal}](https://paypal.me/{paypal})', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
 							await logch.send(embed=embed)
 						except Exception:
 							pass
-		if channel:
-			if isinstance(message.author, discord.Member):
-				if not message.author.permissions_in(message.channel).manage_messages:
-					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if 'youtube' in self.linkfilter.get(message.guild.id, []):
-							try:
-								await message.delete()
-							except Exception:
-								pass
-			channelinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.channel_info, channel))
-			channelinfo = channelinfo.get('items', [])
-			if len(channelinfo) < 1:
-				pass
-			else:
-				channelinfo = channelinfo[0]
-				if message.guild:
-					if message.author.bot:
-						return
-					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-					if logid:
-						logch = message.guild.get_channel(logid['actionlogs'])
-					else:
-						return
-					if logch:
-						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
-						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-						if invalidchannel:
-							embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
-							embed.add_field(name='More Info', value=f'I was unable to find info about this channel.', inline=False)
+			ytcog = self.bot.get_cog('YouTube API')
+			video = findvideo(message.system_content)
+			channel = findchannel(message.system_content)
+			invalidvid = False
+			invalidchannel = False
+			if video:
+				if isinstance(message.author, discord.Member):
+					if not message.author.permissions_in(message.channel).manage_messages:
+						if message.guild.me.permissions_in(message.channel).manage_messages:
+							if 'youtube' in self.linkfilter.get(message.guild.id, []):
+								try:
+									await message.delete()
+								except Exception:
+									pass
+				videoinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.video_info, video))
+				videoinfo = videoinfo.get('items', [])
+				if len(videoinfo) < 1:
+					pass
+				else:
+					videoinfo = videoinfo[0]
+					if message.guild:
+						if message.author.bot:
+							return
+						logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+						if logid:
+							logch = message.guild.get_channel(logid['actionlogs'])
 						else:
-							embed.add_field(name='Name', value=f'{channelinfo.get("snippet", {}).get("title", "Unknown")}', inline=False)
-							embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
-							embed.add_field(name='Custom URL', value=f'https://youtube.com/{channelinfo.get("snippet", {}).get("customUrl", "N/A")}', inline=False)
-							subs = format(int(channelinfo['statistics'].get('subscriberCount', 0)), ',d') if not channelinfo['statistics'].get('hiddenSubscriberCount', False) else 'Hidden'
-							views = format(int(channelinfo['statistics'].get('viewCount', 0)), ',d')
-							videos = format(int(channelinfo['statistics'].get('videoCount', 0)), ',d')
-							embed.add_field(name='Stats', value=f'{subs} subscribers, {views} total views, {videos} videos', inline=False)
+							return
+						if logch:
+							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
+							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+							embed.add_field(name='Video ID', value=video, inline=False)
+							if not invalidvid:
+								embed.add_field(name='Title', value=f'[{videoinfo.get("snippet", {}).get("title", "Unknown")}](https://youtu.be/{video})', inline=False)
+								embed.add_field(name='Channel', value=f'[{videoinfo.get("snippet", {}).get("channelTitle", "Unknown")}](https://youtube.com/channel/{videoinfo.get("snippet", {}).get("channelId", "Unknown")})', inline=False)
+								views = format(int(videoinfo['statistics'].get('viewCount', 0)), ',d')
+								likes = format(int(videoinfo['statistics'].get('likeCount', 0)), ',d')
+								dislikes = format(int(videoinfo['statistics'].get('dislikeCount', 0)), ',d')
+								comments = format(int(videoinfo['statistics'].get('commentCount', 0)), ',d')
+								embed.add_field(name='Stats', value=f'{views} views, {likes} likes, {dislikes} dislikes, {comments} comments', inline=False)
+							embed.set_footer(text=f"Author ID: {message.author.id}")
+							try:
+								await logch.send(embed=embed)
+							except Exception:
+								pass
+			if channel:
+				if isinstance(message.author, discord.Member):
+					if not message.author.permissions_in(message.channel).manage_messages:
+						if message.guild.me.permissions_in(message.channel).manage_messages:
+							if 'youtube' in self.linkfilter.get(message.guild.id, []):
+								try:
+									await message.delete()
+								except Exception:
+									pass
+				channelinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.channel_info, channel))
+				channelinfo = channelinfo.get('items', [])
+				if len(channelinfo) < 1:
+					pass
+				else:
+					channelinfo = channelinfo[0]
+					if message.guild:
+						if message.author.bot:
+							return
+						logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+						if logid:
+							logch = message.guild.get_channel(logid['actionlogs'])
+						else:
+							return
+						if logch:
+							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
+							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+							if invalidchannel:
+								embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
+								embed.add_field(name='More Info', value=f'I was unable to find info about this channel.', inline=False)
+							else:
+								embed.add_field(name='Name', value=f'{channelinfo.get("snippet", {}).get("title", "Unknown")}', inline=False)
+								embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
+								embed.add_field(name='Custom URL', value=f'https://youtube.com/{channelinfo.get("snippet", {}).get("customUrl", "N/A")}', inline=False)
+								subs = format(int(channelinfo['statistics'].get('subscriberCount', 0)), ',d') if not channelinfo['statistics'].get('hiddenSubscriberCount', False) else 'Hidden'
+								views = format(int(channelinfo['statistics'].get('viewCount', 0)), ',d')
+								videos = format(int(channelinfo['statistics'].get('videoCount', 0)), ',d')
+								embed.add_field(name='Stats', value=f'{subs} subscribers, {views} total views, {videos} videos', inline=False)
+							embed.set_footer(text=f"Author ID: {message.author.id}")
+							try:
+								await logch.send(embed=embed)
+							except Exception:
+								pass
+			twitch = findtwitch(message.system_content)
+			if twitch:
+				if isinstance(message.author, discord.Member):
+					if not message.author.permissions_in(message.channel).manage_messages:
+						if message.guild.me.permissions_in(message.channel).manage_messages:
+							if 'twitch' in self.linkfilter.get(message.guild.id, []):
+								try:
+									await message.delete()
+								except Exception:
+									pass
+				if message.guild:
+					if message.author.bot:
+						return
+					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+					if logid:
+						logch = message.guild.get_channel(logid['actionlogs'])
+					else:
+						return
+					if logch:
+						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.add_field(name='Link', value=f'[{twitch}](https://twitch.tv/{twitch})', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
 							await logch.send(embed=embed)
 						except Exception:
 							pass
-		twitch = findtwitch(message.system_content)
-		if twitch:
-			if isinstance(message.author, discord.Member):
-				if not message.author.permissions_in(message.channel).manage_messages:
-					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if 'twitch' in self.linkfilter.get(message.guild.id, []):
-							try:
-								await message.delete()
-							except Exception:
-								pass
-			if message.guild:
-				if message.author.bot:
-					return
-				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-				if logid:
-					logch = message.guild.get_channel(logid['actionlogs'])
-				else:
-					return
-				if logch:
-					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
-					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-					embed.add_field(name='Link', value=f'[{twitch}](https://twitch.tv/{twitch})', inline=False)
-					embed.set_footer(text=f"Author ID: {message.author.id}")
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
-		twitter = findtwitter(message.system_content)
-		if twitter:
-			if isinstance(message.author, discord.Member):
-				if not message.author.permissions_in(message.channel).manage_messages:
-					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if 'twitter' in self.linkfilter.get(message.guild.id, []):
-							try:
-								await message.delete()
-							except Exception:
-								pass
-			if message.guild:
-				if message.author.bot:
-					return
-				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-				if logid:
-					logch = message.guild.get_channel(logid['actionlogs'])
-				else:
-					return
-				if logch:
-					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
-					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-					embed.add_field(name='Link', value=f'[{twitter}](https://twitter.com/{twitter})', inline=False)
-					embed.set_footer(text=f"Author ID: {message.author.id}")
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
+			twitter = findtwitter(message.system_content)
+			if twitter:
+				if isinstance(message.author, discord.Member):
+					if not message.author.permissions_in(message.channel).manage_messages:
+						if message.guild.me.permissions_in(message.channel).manage_messages:
+							if 'twitter' in self.linkfilter.get(message.guild.id, []):
+								try:
+									await message.delete()
+								except Exception:
+									pass
+				if message.guild:
+					if message.author.bot:
+						return
+					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+					if logid:
+						logch = message.guild.get_channel(logid['actionlogs'])
+					else:
+						return
+					if logch:
+						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.add_field(name='Link', value=f'[{twitter}](https://twitter.com/{twitter})', inline=False)
+						embed.set_footer(text=f"Author ID: {message.author.id}")
+						try:
+							await logch.send(embed=embed)
+						except Exception:
+							pass
 		if before.system_content == after.system_content:
 			return
 		if after.guild and not after.author.bot:
@@ -619,6 +627,8 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
+		if not message.author.guild:
+			return
 		lastmsg = self.uuidgobyebye(self.dupecheck.get(message.author.id, 'send this message and it will get yeeted'))
 		thismsg = self.uuidgobyebye(message.content)
 		if message.content != "" and len(message.attachments) < 1:
@@ -630,126 +640,92 @@ class settings(commands.Cog, name="Settings"):
 			raidmsg = self.raidmsgs.get(message.guild.id, False)
 			if raidmsg and raidmsg in message.content:
 				self.msgraiders.get(message.guild.id, []).append(message.author)
-		if any(l in message.system_content for l in self.malware):
-			if isinstance(message.author, discord.Member):
-				if 'malware' in self.linkfilter.get(message.guild.id, []):
-					try:
-						await message.delete()
-					except Exception:
+		excluded = self.filterexcl[message.guild.id]
+		roleids = [r.id for r in message.author.roles]
+		if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
+			if any(l in message.system_content for l in self.malware):
+				if isinstance(message.author, discord.Member):
+					if 'malware' in self.linkfilter.get(message.guild.id, []):
 						try:
-							await message.channel.send(f'A blacklisted link was found in a message send by {message.author} and I was unable to delete it!')
+							await message.delete()
 						except Exception:
-							pass
-		code = findinvite(message.system_content)
-		invite = None
-		nodel = False
-		if code:
-			invalidinvite = False
-			if isinstance(message.author, discord.Member):
-				if not message.author.permissions_in(message.channel).manage_messages:
-					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if 'discord' in self.linkfilter.get(message.guild.id, []):
 							try:
-								invite = await self.bot.fetch_invite(url=code)
-								if invite.guild.id == message.guild.id:
-									nodel = True
+								await message.channel.send(f'A blacklisted link was found in a message send by {message.author} and I was unable to delete it!')
 							except Exception:
 								pass
-							if not nodel:
+			code = findinvite(message.system_content)
+			invite = None
+			nodel = False
+			if code:
+				invalidinvite = False
+				if isinstance(message.author, discord.Member):
+					if not message.author.permissions_in(message.channel).manage_messages:
+						if message.guild.me.permissions_in(message.channel).manage_messages:
+							if 'discord' in self.linkfilter.get(message.guild.id, []):
+								try:
+									invite = await self.bot.fetch_invite(url=code)
+									if invite.guild.id == message.guild.id:
+										nodel = True
+								except Exception:
+									pass
+								if not nodel:
+									try:
+										await message.delete()
+									except Exception:
+										pass
+				try:
+					ohmygod = False
+					self.bot.vanity_urls = await self.getvanitys()
+					if code.lower() in self.bot.vanity_urls and 'oh-my-god.wtf' in message.system_content:
+						invite = self.bot.getvanity(code)
+						ohmygod = True
+						if isinstance(message.author, discord.Member):
+							if not message.author.permissions_in(message.channel).manage_messages:
+								if message.guild.me.permissions_in(message.channel).manage_messages:
+									if message.guild.id in self.invitefiltered:
+										if invite['gid'] != message.guild.id:
+											try:
+												await message.delete()
+											except Exception:
+												pass
+					else:
+						if not invite or type(invite) != discord.Invite:
+							invite = await self.bot.fetch_invite(url=code)
+				except discord.NotFound or discord.HTTPException as e:
+					invalidinvite = True
+				if message.guild:
+					if message.author.bot:
+						return
+					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+					if logid:
+						logch = message.guild.get_channel(logid['actionlogs'])
+					else:
+						return
+					if logch:
+						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						if isinstance(invite, dict):
+							invite = await self.bot.fetch_invite(url=invite['invite'])
+						embed.add_field(name='Invite Code', value=code, inline=False)
+						if isinstance(invite, discord.Invite):
+							embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
+							embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
+							embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
+							embed.set_footer(text=f"Author ID: {message.author.id}")
+						try:
+							await logch.send(embed=embed)
+						except Exception:
+							pass
+			paypal = findpaypal(message.system_content)
+			if paypal:
+				if isinstance(message.author, discord.Member):
+					if not message.author.permissions_in(message.channel).manage_messages:
+						if message.guild.me.permissions_in(message.channel).manage_messages:
+							if 'paypal' in self.linkfilter.get(message.guild.id, []):
 								try:
 									await message.delete()
 								except Exception:
 									pass
-			try:
-				ohmygod = False
-				self.bot.vanity_urls = await self.getvanitys()
-				if code.lower() in self.bot.vanity_urls and 'oh-my-god.wtf' in message.system_content:
-					invite = self.bot.getvanity(code)
-					ohmygod = True
-					if isinstance(message.author, discord.Member):
-						if not message.author.permissions_in(message.channel).manage_messages:
-							if message.guild.me.permissions_in(message.channel).manage_messages:
-								if message.guild.id in self.invitefiltered:
-									if invite['gid'] != message.guild.id:
-										try:
-											await message.delete()
-										except Exception:
-											pass
-				else:
-					if not invite or type(invite) != discord.Invite:
-						invite = await self.bot.fetch_invite(url=code)
-			except discord.NotFound or discord.HTTPException as e:
-				invalidinvite = True
-			if message.guild:
-				if message.author.bot:
-					return
-				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-				if logid:
-					logch = message.guild.get_channel(logid['actionlogs'])
-				else:
-					return
-				if logch:
-					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
-					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-					if isinstance(invite, dict):
-						invite = await self.bot.fetch_invite(url=invite['invite'])
-					embed.add_field(name='Invite Code', value=code, inline=False)
-					if isinstance(invite, discord.Invite):
-						embed.add_field(name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
-						embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
-						embed.add_field(name='Members', value=f'{invite.approximate_member_count} ({invite.approximate_presence_count} active)', inline=False)
-						embed.set_footer(text=f"Author ID: {message.author.id}")
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
-		paypal = findpaypal(message.system_content)
-		if paypal:
-			if isinstance(message.author, discord.Member):
-				if not message.author.permissions_in(message.channel).manage_messages:
-					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if 'paypal' in self.linkfilter.get(message.guild.id, []):
-							try:
-								await message.delete()
-							except Exception:
-								pass
-			if message.guild:
-				if message.author.bot:
-					return
-				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-				if logid:
-					logch = message.guild.get_channel(logid['actionlogs'])
-				else:
-					return
-				if logch:
-					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
-					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-					embed.add_field(name='Link', value=f'[{paypal}](https://paypal.me/{paypal})', inline=False)
-					embed.set_footer(text=f"Author ID: {message.author.id}")
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
-		ytcog = self.bot.get_cog('YouTube API')
-		video = findvideo(message.system_content)
-		channel = findchannel(message.system_content)
-		invalidvid = False
-		invalidchannel = False
-		if video:
-			if isinstance(message.author, discord.Member):
-				if not message.author.permissions_in(message.channel).manage_messages:
-					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if 'youtube' in self.linkfilter.get(message.guild.id, []):
-							try:
-								await message.delete()
-							except Exception:
-								pass
-			videoinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.video_info, video))
-			videoinfo = videoinfo.get('items', [])
-			if len(videoinfo) < 1:
-				pass
-			else:
-				videoinfo = videoinfo[0]
 				if message.guild:
 					if message.author.bot:
 						return
@@ -759,118 +735,155 @@ class settings(commands.Cog, name="Settings"):
 					else:
 						return
 					if logch:
-						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
+						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-						embed.add_field(name='Video ID', value=video, inline=False)
-						if not invalidvid:
-							embed.add_field(name='Title', value=f'[{videoinfo.get("snippet", {}).get("title", "Unknown")}](https://youtu.be/{video})', inline=False)
-							embed.add_field(name='Channel', value=f'[{videoinfo.get("snippet", {}).get("channelTitle", "Unknown")}](https://youtube.com/channel/{videoinfo.get("snippet", {}).get("channelId", "Unknown")})', inline=False)
-							views = format(int(videoinfo['statistics'].get('viewCount', 0)), ',d')
-							likes = format(int(videoinfo['statistics'].get('likeCount', 0)), ',d')
-							dislikes = format(int(videoinfo['statistics'].get('dislikeCount', 0)), ',d')
-							comments = format(int(videoinfo['statistics'].get('commentCount', 0)), ',d')
-							embed.add_field(name='Stats', value=f'{views} views, {likes} likes, {dislikes} dislikes, {comments} comments', inline=False)
+						embed.add_field(name='Link', value=f'[{paypal}](https://paypal.me/{paypal})', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
 							await logch.send(embed=embed)
 						except Exception:
 							pass
-		if channel:
-			if isinstance(message.author, discord.Member):
-				if not message.author.permissions_in(message.channel).manage_messages:
-					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if 'youtube' in self.linkfilter.get(message.guild.id, []):
-							try:
-								await message.delete()
-							except Exception:
-								pass
-			channelinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.channel_info, channel))
-			channelinfo = channelinfo.get('items', [])
-			if len(channelinfo) < 1:
-				pass
-			else:
-				channelinfo = channelinfo[0]
-				if message.guild:
-					if message.author.bot:
-						return
-					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-					if logid:
-						logch = message.guild.get_channel(logid['actionlogs'])
-					else:
-						return
-					if logch:
-						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
-						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-						if invalidchannel:
-							embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
-							embed.add_field(name='More Info', value=f'I was unable to find info about this channel.', inline=False)
+			ytcog = self.bot.get_cog('YouTube API')
+			video = findvideo(message.system_content)
+			channel = findchannel(message.system_content)
+			invalidvid = False
+			invalidchannel = False
+			if video:
+				if isinstance(message.author, discord.Member):
+					if not message.author.permissions_in(message.channel).manage_messages:
+						if message.guild.me.permissions_in(message.channel).manage_messages:
+							if 'youtube' in self.linkfilter.get(message.guild.id, []):
+								try:
+									await message.delete()
+								except Exception:
+									pass
+				videoinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.video_info, video))
+				videoinfo = videoinfo.get('items', [])
+				if len(videoinfo) < 1:
+					pass
+				else:
+					videoinfo = videoinfo[0]
+					if message.guild:
+						if message.author.bot:
+							return
+						logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+						if logid:
+							logch = message.guild.get_channel(logid['actionlogs'])
 						else:
-							embed.add_field(name='Name', value=f'{channelinfo.get("snippet", {}).get("title", "Unknown")}', inline=False)
-							embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
-							embed.add_field(name='Custom URL', value=f'https://youtube.com/{channelinfo.get("snippet", {}).get("customUrl", "N/A")}', inline=False)
-							subs = format(int(channelinfo['statistics'].get('subscriberCount', 0)), ',d') if not channelinfo['statistics'].get('hiddenSubscriberCount', False) else 'Hidden'
-							views = format(int(channelinfo['statistics'].get('viewCount', 0)), ',d')
-							videos = format(int(channelinfo['statistics'].get('videoCount', 0)), ',d')
-							embed.add_field(name='Stats', value=f'{subs} subscribers, {views} total views, {videos} videos', inline=False)
+							return
+						if logch:
+							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
+							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+							embed.add_field(name='Video ID', value=video, inline=False)
+							if not invalidvid:
+								embed.add_field(name='Title', value=f'[{videoinfo.get("snippet", {}).get("title", "Unknown")}](https://youtu.be/{video})', inline=False)
+								embed.add_field(name='Channel', value=f'[{videoinfo.get("snippet", {}).get("channelTitle", "Unknown")}](https://youtube.com/channel/{videoinfo.get("snippet", {}).get("channelId", "Unknown")})', inline=False)
+								views = format(int(videoinfo['statistics'].get('viewCount', 0)), ',d')
+								likes = format(int(videoinfo['statistics'].get('likeCount', 0)), ',d')
+								dislikes = format(int(videoinfo['statistics'].get('dislikeCount', 0)), ',d')
+								comments = format(int(videoinfo['statistics'].get('commentCount', 0)), ',d')
+								embed.add_field(name='Stats', value=f'{views} views, {likes} likes, {dislikes} dislikes, {comments} comments', inline=False)
+							embed.set_footer(text=f"Author ID: {message.author.id}")
+							try:
+								await logch.send(embed=embed)
+							except Exception:
+								pass
+			if channel:
+				if isinstance(message.author, discord.Member):
+					if not message.author.permissions_in(message.channel).manage_messages:
+						if message.guild.me.permissions_in(message.channel).manage_messages:
+							if 'youtube' in self.linkfilter.get(message.guild.id, []):
+								try:
+									await message.delete()
+								except Exception:
+									pass
+				channelinfo = await self.bot.loop.run_in_executor(None, func=functools.partial(ytcog.channel_info, channel))
+				channelinfo = channelinfo.get('items', [])
+				if len(channelinfo) < 1:
+					pass
+				else:
+					channelinfo = channelinfo[0]
+					if message.guild:
+						if message.author.bot:
+							return
+						logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+						if logid:
+							logch = message.guild.get_channel(logid['actionlogs'])
+						else:
+							return
+						if logch:
+							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
+							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+							if invalidchannel:
+								embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
+								embed.add_field(name='More Info', value=f'I was unable to find info about this channel.', inline=False)
+							else:
+								embed.add_field(name='Name', value=f'{channelinfo.get("snippet", {}).get("title", "Unknown")}', inline=False)
+								embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
+								embed.add_field(name='Custom URL', value=f'https://youtube.com/{channelinfo.get("snippet", {}).get("customUrl", "N/A")}', inline=False)
+								subs = format(int(channelinfo['statistics'].get('subscriberCount', 0)), ',d') if not channelinfo['statistics'].get('hiddenSubscriberCount', False) else 'Hidden'
+								views = format(int(channelinfo['statistics'].get('viewCount', 0)), ',d')
+								videos = format(int(channelinfo['statistics'].get('videoCount', 0)), ',d')
+								embed.add_field(name='Stats', value=f'{subs} subscribers, {views} total views, {videos} videos', inline=False)
+							embed.set_footer(text=f"Author ID: {message.author.id}")
+							try:
+								await logch.send(embed=embed)
+							except Exception:
+								pass
+			twitch = findtwitch(message.system_content)
+			if twitch:
+				if isinstance(message.author, discord.Member):
+					if not message.author.permissions_in(message.channel).manage_messages:
+						if message.guild.me.permissions_in(message.channel).manage_messages:
+							if 'twitch' in self.linkfilter.get(message.guild.id, []):
+								try:
+									await message.delete()
+								except Exception:
+									pass
+				if message.guild:
+					if message.author.bot:
+						return
+					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+					if logid:
+						logch = message.guild.get_channel(logid['actionlogs'])
+					else:
+						return
+					if logch:
+						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.add_field(name='Link', value=f'[{twitch}](https://twitch.tv/{twitch})', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
 							await logch.send(embed=embed)
 						except Exception:
 							pass
-		twitch = findtwitch(message.system_content)
-		if twitch:
-			if isinstance(message.author, discord.Member):
-				if not message.author.permissions_in(message.channel).manage_messages:
-					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if 'twitch' in self.linkfilter.get(message.guild.id, []):
-							try:
-								await message.delete()
-							except Exception:
-								pass
-			if message.guild:
-				if message.author.bot:
-					return
-				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-				if logid:
-					logch = message.guild.get_channel(logid['actionlogs'])
-				else:
-					return
-				if logch:
-					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
-					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-					embed.add_field(name='Link', value=f'[{twitch}](https://twitch.tv/{twitch})', inline=False)
-					embed.set_footer(text=f"Author ID: {message.author.id}")
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
-		twitter = findtwitter(message.system_content)
-		if twitter:
-			if isinstance(message.author, discord.Member):
-				if not message.author.permissions_in(message.channel).manage_messages:
-					if message.guild.me.permissions_in(message.channel).manage_messages:
-						if 'twitter' in self.linkfilter.get(message.guild.id, []):
-							try:
-								await message.delete()
-							except Exception:
-								pass
-			if message.guild:
-				if message.author.bot:
-					return
-				logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-				if logid:
-					logch = message.guild.get_channel(logid['actionlogs'])
-				else:
-					return
-				if logch:
-					embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
-					embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
-					embed.add_field(name='Link', value=f'[{twitter}](https://twitter.com/{twitter})', inline=False)
-					embed.set_footer(text=f"Author ID: {message.author.id}")
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
+			twitter = findtwitter(message.system_content)
+			if twitter:
+				if isinstance(message.author, discord.Member):
+					if not message.author.permissions_in(message.channel).manage_messages:
+						if message.guild.me.permissions_in(message.channel).manage_messages:
+							if 'twitter' in self.linkfilter.get(message.guild.id, []):
+								try:
+									await message.delete()
+								except Exception:
+									pass
+				if message.guild:
+					if message.author.bot:
+						return
+					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
+					if logid:
+						logch = message.guild.get_channel(logid['actionlogs'])
+					else:
+						return
+					if logch:
+						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.add_field(name='Link', value=f'[{twitter}](https://twitter.com/{twitter})', inline=False)
+						embed.set_footer(text=f"Author ID: {message.author.id}")
+						try:
+							await logch.send(embed=embed)
+						except Exception:
+							pass
 
 	@commands.Cog.listener()
 	async def on_command_completion(self, ctx):
@@ -2101,10 +2114,30 @@ class settings(commands.Cog, name="Settings"):
 		await self.loadSettings()
 		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled filtering for {", ".join(enabled)} links')
 
-	@commands.command(name='argtest')
-	async def argtest(self, ctx, *ids: typing.Union[TextChannel, Role, Member]):
-		ids = [a.id for a in ids]
-		await ctx.send(ids)
+	@commands.command(name='filterexcl', description='Exclude channels, roles and members from the filter')
+	async def filterexclcmd(self, ctx, *ids: typing.Union[TextChannel, Role, Member] = None):
+		if not ids:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'UPDATE settings SET filterexcl = $1 WHERE gid = $2;'
+				await self.bot.db.execute(query, [], ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			return await ctx.send(f'I\'ve reset the filter exclusion list. Only users with **Manage Mesages** are excluded.')
+		else:
+			idlist = [a.id for a in ids]
+			if ctx.guild.id in self.filterexcl:
+				idlist = idlist + self.filterexcl[ctx.guild.id]
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'UPDATE settings SET filterexcl = $1 WHERE gid = $2;'
+				await self.bot.db.execute(query, idlist, ctx.guild.id)
+			await self.bot.db.release(con)
+			await self.loadSettings()
+			names = [a.name for a in ids]
+			namelist = ', '.join(names)
+			return await ctx.send(f'{namelist} are now excluded from the filter')
+		
 
 
 def setup(bot):
