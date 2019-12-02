@@ -116,7 +116,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					uuid = json['id']
 					self.uuidcache.update({player: json['id']})
 		return uuid or None
-	
+
 	@commands.command(description="Get hypixel stats")
 	async def hypixel(self, ctx, arg1: str = None, arg2: str = None):
 		"""PFXhypixel <IGN [<guild|friends|session>]|key|watchdog>"""
@@ -437,12 +437,21 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					embed.add_field(name="Chat Channel", value=channel, inline=True)
 					embed.add_field(name="Level", value=level, inline=True)
 					embed.add_field(name="Karma", value=format(p.get('karma', 0), ',d'), inline=True)
-					twitter = p.get('socialMedia', {}).get('TWITTER', 'Not Set')
-					yt = p.get('socialMedia', {}).get('links', {}).get('YOUTUBE', 'Not Set')
+					if 'twitter' not in self.bot.get_cog('Settings').linkfilter.get(ctx.guild.id, []):
+						twitter = p.get('socialMedia', {}).get('TWITTER', 'Not Set')
+					else:
+						twitter = 'Hidden'
+					if 'youtube' not in self.bot.get_cog('Settings').linkfilter.get(ctx.guild.id, []):
+						yt = p.get('socialMedia', {}).get('links', {}).get('YOUTUBE', 'Not Set')
+					else:
+						yt = 'Hidden'
 					insta = p.get('socialMedia', {}).get('INSTAGRAM', 'Not Set')
-					twitch = p.get('socialMedia', {}).get('TWITCH', 'Not Set')
+					if 'twitch' not in self.bot.get_cog('Settings').linkfilter.get(ctx.guild.id, []):
+						twitch = p.get('socialMedia', {}).get('TWITCH', 'Not Set')
+					else:
+						twitch = 'Hidden'
 					beam = p.get('socialMedia', {}).get('BEAM', 'Not Set')
-					if ctx.guild.id not in self.bot.get_cog('Settings').invitefiltered:
+					if 'discord' not in self.bot.get_cog('Settings').linkfilter.get(ctx.guild.id, []):
 						dscrd = p.get('socialMedia', {}).get('links', {}).get('DISCORD', 'Not Set')
 					else:
 						dscrd = 'Hidden'
