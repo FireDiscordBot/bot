@@ -1286,7 +1286,10 @@ class utils(commands.Cog, name='Utility Commands'):
 		exists = self.bot.getvanity(code.lower())
 		if exists:
 			return await ctx.send('<a:fireFailed:603214400748257302> This code is already in use!')
-		createdinv = await ctx.channel.create_invite(reason='Creating invite for Vanity URL')
+		if ctx.guild.me.guild_permissions.manage_guild and 'VANITY_URL' in ctx.guild.features:
+			createdinv = await ctx.guild.vanity_invite()
+		else:
+			createdinv = await ctx.channel.create_invite(reason='Creating invite for Vanity URL')
 		vanity = await self.createvanity(ctx, code.lower(), createdinv)
 		if vanity:
 			author = str(ctx.author).replace('#', '%23')
