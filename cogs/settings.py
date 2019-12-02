@@ -323,7 +323,7 @@ class settings(commands.Cog, name="Settings"):
 			return
 		message = after
 		# cleaned = self.clean(message.system_content)
-		excluded = self.filterexcl[message.guild.id]
+		excluded = self.filterexcl.get(message.guild.id, [])
 		roleids = [r.id for r in message.author.roles]
 		if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
 			if any(l in message.system_content for l in self.malware):
@@ -640,7 +640,7 @@ class settings(commands.Cog, name="Settings"):
 			raidmsg = self.raidmsgs.get(message.guild.id, False)
 			if raidmsg and raidmsg in message.content:
 				self.msgraiders.get(message.guild.id, []).append(message.author)
-		excluded = self.filterexcl[message.guild.id]
+		excluded = self.filterexcl.get(message.guild.id, [])
 		roleids = [r.id for r in message.author.roles]
 		if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
 			if any(l in message.system_content for l in self.malware):
