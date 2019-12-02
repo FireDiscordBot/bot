@@ -16,7 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, flags
 import datetime
 import json
 import time
@@ -39,6 +39,7 @@ from PIL import ImageDraw
 from io import BytesIO
 from gtts import gTTS
 from fire.converters import User, UserWithFallback, Member, TextChannel, VoiceChannel, Category, Role
+from fire.invite import findinvite
 from fire.push import pushover
 from fire.exceptions import PushError
 from fire import slack
@@ -705,23 +706,54 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
-	async def purge(self, ctx, amount: int = -1, *, topurge: typing.Union[Member, str] = None):
-		'''PFXpurge <amount> [<user|string>]'''
+	async def purge(self, ctx, amount: int = -1, *, opt: flags.FlagParser(
+		user=User,
+		match=str,
+		startswith=str,
+		endswith=str,
+		attachments=bool,
+		bot=bool,
+		invite=bool,
+		text=bool
+	) = flags.EmptyFlags):
 		if amount>500 or amount<0:
 			return await ctx.send('Invalid amount. Minumum is 1, Maximum is 500')
 		try:
 			await ctx.message.delete()
 		except Exception:
 			pass
-		if topurge != None:
-			def checkmember(m):
-				return m.author == topurge
-			def checkstring(m):
-				return topurge in m.content
+		if not isinstance(opt, flags.EmptyFlags):
+			user = opt['user']
+			match = opt['match']
+			startswith = opt['startswith']
+			endswith = opt['endswith']
+			attachments = opt['attachments']
+			bot = opt['bot']
+			invite = opt['invite']
+			text = opt['text']
+			def purgecheck(m):
+				completed = []
+				if user:
+					completed.append(m.author.id == user.id)
+				if match:
+					completed.append(match in m.content)
+				if startswith:
+					completed.append(m.content.startswith(startswith))
+				if endswith:
+					completed.append(m.content.endswith(endswith))
+				if attachments:
+					completed.append(len(m.attachments) >= 1)
+				if bot:
+					completed.append(m.author.bot)
+				if invite:
+					completed.append(findinvite(m.content))
+				if text:
+					completed.append(not m.content)
+				return len([c for c in completed if not c]) == 0
 			amount += 1
 			self.bot.recentpurge[ctx.channel.id] = []
 			async for message in ctx.channel.history(limit=amount):
-				if type(topurge) == discord.Member and message.author == topurge or type(topurge) == str and topurge in message.content:
+				if purgecheck(message):
 					self.bot.recentpurge[ctx.channel.id].append({
 						'author': str(message.author),
 						'author_id': message.author.id,
@@ -729,10 +761,7 @@ class utils(commands.Cog, name='Utility Commands'):
 						'bot': message.author.bot,
 						'embeds': [e.to_dict() for e in message.embeds]
 					})
-			if isinstance(topurge, discord.Member):
-				await ctx.channel.purge(limit=amount, check=checkmember)
-			elif isinstance(topurge, str):
-				await ctx.channel.purge(limit=amount, check=checkstring)
+			await ctx.channel.purge(limit=amount, check=purgecheck)
 			amount -= 1
 		else:
 			self.bot.recentpurge[ctx.channel.id] = []
