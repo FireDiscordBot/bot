@@ -745,9 +745,11 @@ class utils(commands.Cog, name='Utility Commands'):
 					completed.append(len(m.attachments) >= 1)
 				if bot:
 					completed.append(m.author.bot)
+				elif bot == False: # not includes None meaning "not bot" would be triggered if not included
+					completed.append(not m.author.bot)
 				if invite:
 					completed.append(findinvite(m.content))
-				if text:
+				if text == False: # same as bot
 					completed.append(not m.content)
 				return len([c for c in completed if not c]) == 0
 			amount += 1
