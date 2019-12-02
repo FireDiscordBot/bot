@@ -109,7 +109,10 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		except KeyError:
 			async with aiohttp.ClientSession() as session:
 				async with session.get(f'https://api.mojang.com/users/profiles/minecraft/{player}') as resp:
-					json = await resp.json()
+					try:
+						json = await resp.json()
+					except Exception:
+						return None
 					uuid = json['id']
 					self.uuidcache.update({player: json['id']})
 		return uuid or None
