@@ -446,12 +446,6 @@ class utils(commands.Cog, name='Utility Commands'):
 		else:
 			await ctx.send('no.')
 
-	async def cog_check(self, ctx: commands.Context):
-		if ctx.command.name == 'tts'  and ctx.guild.id == 411619823445999637 or ctx.command.name == 'snipe' and ctx.guild.id == 411619823445999637:
-			await ctx.send('<a:fireFailed:603214400748257302> This command has been disabled due to abuse.')
-			return False
-		return True
-
 	@commands.command(name='errortest', hidden=True)
 	async def errortestboyo(self, ctx):
 		if await commands.is_owner(ctx):

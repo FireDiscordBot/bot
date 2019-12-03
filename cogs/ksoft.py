@@ -47,11 +47,6 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		self.bot = bot
 		self.bot.ksoft = client
 
-	async def cog_check(self, ctx: commands.Context):
-		if ctx.command.name == 'meme' and ctx.guild and ctx.guild.id == 411619823445999637:
-			return False
-		return True
-
 	@commands.command(description="Gets a random meme from Reddit")
 	async def meme(self, ctx, sub: str = None):
 		"""PFXmeme [<subreddit>]"""

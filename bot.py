@@ -187,11 +187,11 @@ async def on_command_error(ctx, error):
 	if isinstance(error, nomsg):
 		return
 	errortb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-	embed = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!\n```py\n{errortb}```", timestamp=datetime.datetime.utcnow())
+	embed = discord.Embed(colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!\n```py\n{errortb}```", timestamp=datetime.datetime.utcnow())
 	embed.add_field(name='User', value=ctx.author, inline=False)
 	embed.add_field(name='Guild', value=ctx.guild, inline=False)
 	embed.add_field(name='Message', value=ctx.message.system_content, inline=False)
-	embednotb = discord.Embed(title=chosenmessage, colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!", timestamp=datetime.datetime.utcnow())
+	embednotb = discord.Embed(colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!", timestamp=datetime.datetime.utcnow())
 	embednotb.add_field(name='User', value=ctx.author, inline=False)
 	embednotb.add_field(name='Guild', value=ctx.guild, inline=False)
 	embednotb.add_field(name='Message', value=ctx.message.system_content, inline=False)
@@ -347,18 +347,24 @@ async def cmdperm_check(ctx):
 	if not ctx.guild:
 		return
 	settings = ctx.bot.get_cog('Settings')
+	if not settings:
+		return True
+	if ctx.command.name in settings.disabledcmds[ctx.guild.id]:
+		if not ctx.author.permissions_in(ctx.channel).manage_messages:
+			return False
+		else:
+			return True
 	if ctx.guild.id in settings.modonly and ctx.channel.id in settings.modonly[ctx.guild.id]:
 		if not ctx.author.permissions_in(ctx.channel).manage_messages:
 			return False
 		else:
 			return True
-	elif ctx.guild.id in settings.adminonly and ctx.channel.id in settings.adminonly[ctx.guild.id]:
+	if ctx.guild.id in settings.adminonly and ctx.channel.id in settings.adminonly[ctx.guild.id]:
 		if not ctx.author.permissions_in(ctx.channel).manage_guild:
 			return False
 		else:
 			return True
-	else:
-		return True
+	return True
 				
 async def start_bot():
 	try:

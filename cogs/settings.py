@@ -106,6 +106,7 @@ class settings(commands.Cog, name="Settings"):
 		self.msgraiders = {}
 		self.joincache = {}
 		self.dupecheck = {}
+		self.disabledcmds = {}
 		self.uuidregex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
 		if not hasattr(self.bot, 'invites'):
 			self.bot.invites = {}
@@ -131,16 +132,20 @@ class settings(commands.Cog, name="Settings"):
 		self.joincache = {}
 		self.dupecheck = {}
 		self.dupecheck['guilds'] = []
+		self.disabledcmds = {}
 		for g in self.bot.guilds:
 			self.joincache[g.id] = []
 			self.raidmsgs[g.id] = None
 			self.msgraiders[g.id] = []
+			self.disabledcmds[g.id] = []
 		query = 'SELECT * FROM settings;'
 		settings = await self.bot.db.fetch(query)
 		for s in settings:
 			guild = s['gid']
 			if s['filterexcl']:
 				self.filterexcl[guild] = s['filterexcl']
+			if s['disabledcmds']:
+				self.disabledcmds[guild] = s['disabledcmds']
 			if s['globalbans'] == 1:
 				self.gbancheck.append(guild)
 			if s['autodecancer'] == 1:
@@ -627,11 +632,11 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
-		if not message.author.guild:
+		if type(message.author) != discord.Member:
 			return
 		lastmsg = self.uuidgobyebye(self.dupecheck.get(message.author.id, 'send this message and it will get yeeted'))
 		thismsg = self.uuidgobyebye(message.content)
-		if message.content != "" and len(message.attachments) < 1:
+		if message.content != "" and len(message.attachments) < 1 and not message.author.bot:
 			if message.content == lastmsg and message.guild.id in self.dupecheck['guilds'] and not message.author.permissions_in(message.channel).manage_messages:
 				await message.delete()
 		self.dupecheck[message.author.id] = message.content
@@ -2111,7 +2116,7 @@ class settings(commands.Cog, name="Settings"):
 				query = 'INSERT INTO linkfilter (\"enabled\", \"gid\") VALUES ($1, $2);'
 			await self.bot.db.execute(query, [e.lower() for e in enabled], ctx.guild.id)
 		await self.bot.db.release(con)
-		await self.loadSettings()
+		self.linkfilter[ctx.guild.id] = [e.lower() for e in enabled]
 		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled filtering for {", ".join(enabled)} links')
 
 	@commands.command(name='filterexcl', description='Exclude channels, roles and members from the filter')
@@ -2122,7 +2127,7 @@ class settings(commands.Cog, name="Settings"):
 				query = 'UPDATE settings SET filterexcl = $1 WHERE gid = $2;'
 				await self.bot.db.execute(query, [], ctx.guild.id)
 			await self.bot.db.release(con)
-			await self.loadSettings()
+			self.filterexcl[ctx.guild.id] = []
 			return await ctx.send(f'I\'ve reset the filter exclusion list. Only users with **Manage Mesages** are excluded.')
 		else:
 			idlist = [a.id for a in ids]
@@ -2133,10 +2138,34 @@ class settings(commands.Cog, name="Settings"):
 				query = 'UPDATE settings SET filterexcl = $1 WHERE gid = $2;'
 				await self.bot.db.execute(query, idlist, ctx.guild.id)
 			await self.bot.db.release(con)
-			await self.loadSettings()
+			self.filterexcl[ctx.guild.id] = idlist
 			names = [a.name for a in ids]
 			namelist = ', '.join(names)
-			return await ctx.send(f'{namelist} are now excluded from the filter')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> {namelist} are now excluded from the filter')
+
+	@commands.command(name='command', description='Enable and disable commands')
+	@commands.has_permissions(manage_guild=True)
+	@commands.guild_only()
+	async def cmd(self, ctx, command: str = None):
+		if not command:
+			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a command name')
+		command = self.bot.get_command(command)
+		if not command:
+			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a valid command')
+		disabled = self.disabledcmds[ctx.guild.id]
+		if command.name in disabled:
+			toggle = 'enabled'
+			disabled.remove(command.name)
+		else:
+			toggle = 'disabled'
+			disabled.append(command.name)
+		self.disabledcmds[ctx.guild.id] = disabled
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'UPDATE settings SET disabledcmds = $1 WHERE gid = $2;'
+			await self.bot.db.execute(query, disabled, ctx.guild.id)
+		await self.bot.db.release(con)
+		return await ctx.send(f'<a:fireSuccess:603214443442077708> {command.name} has been {toggle}.')
 		
 
 
