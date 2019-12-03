@@ -532,7 +532,9 @@ class utils(commands.Cog, name='Utility Commands'):
 		'BANNER': 'Banner',
 		'INVITE_SPLASH': 'Invite Splash',
 		'MORE_EMOJI': 'More Emoji',
-		'VIP_REGIONS': 'VIP Regions'
+		'VIP_REGIONS': 'VIP Regions',
+		# CUSTOM FEATURES
+		'PREMIUM': '<:firelogo:651524415380652053> [Premium](https://gaminggeek.dev/patreon)'
 	}
 
 	@commands.group(name='info', invoke_without_command=True)
