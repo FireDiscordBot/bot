@@ -705,12 +705,14 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def purge(self, ctx, amount: int = -1, *, opt: flags.FlagParser(
 		user=User,
 		match=str,
+		nomatch=str,
 		startswith=str,
 		endswith=str,
 		attachments=bool,
 		bot=bool,
 		invite=bool,
-		text=bool
+		text=bool,
+		channel=TextChannel
 	) = flags.EmptyFlags):
 		if amount>500 or amount<0:
 			return await ctx.send('Invalid amount. Minumum is 1, Maximum is 500')
@@ -718,21 +720,26 @@ class utils(commands.Cog, name='Utility Commands'):
 			await ctx.message.delete()
 		except Exception:
 			pass
+		channel = ctx.channel
 		if isinstance(opt, dict):
 			user = opt['user']
 			match = opt['match']
+			nomatch = opt['nomatch']
 			startswith = opt['startswith']
 			endswith = opt['endswith']
 			attachments = opt['attachments']
 			bot = opt['bot']
 			invite = opt['invite']
 			text = opt['text']
+			channel = opt['channel'] or ctx.channel
 			def purgecheck(m):
 				completed = []
 				if user:
 					completed.append(m.author.id == user.id)
 				if match:
 					completed.append(match in m.content)
+				if nomatch:
+					completed.append(nomatch not in m.content)
 				if startswith:
 					completed.append(m.content.startswith(startswith))
 				if endswith:
@@ -749,18 +756,17 @@ class utils(commands.Cog, name='Utility Commands'):
 					completed.append(not m.content)
 				return len([c for c in completed if not c]) == 0
 			amount += 1
-			self.bot.recentpurge[ctx.channel.id] = []
-			async for message in ctx.channel.history(limit=amount):
+			self.bot.recentpurge[channel.id] = []
+			async for message in channel.history(limit=amount):
 				if purgecheck(message):
-					self.bot.recentpurge[ctx.channel.id].append({
+					self.bot.recentpurge[channel.id].append({
 						'author': str(message.author),
 						'author_id': message.author.id,
 						'content': message.system_content or '',
 						'bot': message.author.bot,
 						'embeds': [e.to_dict() for e in message.embeds]
 					})
-			await ctx.channel.purge(limit=amount, check=purgecheck)
-			amount -= 1
+			await channel.purge(limit=amount, check=purgecheck)
 		else:
 			self.bot.recentpurge[ctx.channel.id] = []
 			async for message in ctx.channel.history(limit=amount):
@@ -772,7 +778,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					'embeds': [e.to_dict() for e in message.embeds]
 				})
 			await ctx.channel.purge(limit=amount)
-		await ctx.send(f'Successfully deleted **{len(self.bot.recentpurge[ctx.channel.id])}** messages!', delete_after=5)
+		await channel.send(f'Successfully deleted **{len(self.bot.recentpurge[channel.id])}** messages!', delete_after=5)
 
 	@commands.command(name='followable', description='Make the current channel followable.')
 	async def followable(self, ctx, canfollow: bool = False):
