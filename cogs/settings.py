@@ -908,6 +908,7 @@ class settings(commands.Cog, name="Settings"):
 					if ctx.command.name == 'purge':
 						try:
 							purged = self.bot.recentpurge[ctx.channel.id]
+							embed.add_field(name='Reason', value=self.bot.recentpurge[f'{ctx.channel.id}-reason'], inline=False)
 						except KeyError as e:
 							purged = None
 						if purged:
@@ -948,10 +949,11 @@ class settings(commands.Cog, name="Settings"):
 					except discord.HTTPException:
 						return
 
-	async def _membercacheadd(self, id: int):
-		self.joincache.append(id)
+	@commands.Cog.listener()
+	async def on_membercacheadd(self, gid: int, mid: int):
+		self.joincache[gid].append(mid)
 		await asyncio.sleep(20)
-		self.joincache.remove(id)
+		self.joincache[gid].remove(mid)
 
 	@commands.Cog.listener()
 	async def on_raid_attempt(self, guild: discord.Guild, raiders: list = list):
@@ -970,7 +972,7 @@ class settings(commands.Cog, name="Settings"):
 				doi, ban = await self.bot.wait_for('reaction_add', check=ban_check)
 				if doi.emoji == firesuccess and ban:
 					try:
-						[await guild.ban(x, reason=f'Automatic raid prevention, confirmed by {ban}') for x in raiders if guild.get_member(x.id)]
+						[await guild.ban(discord.Object(x), reason=f'Automatic raid prevention, confirmed by {ban}') for x in raiders if guild.get_member(x)]
 					except Exception:
 						pass
 					return await channel.send('I have banned all raiders I found!')
@@ -1023,7 +1025,7 @@ class settings(commands.Cog, name="Settings"):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
 		premium = self.bot.get_cog('Premium Commands').premiumGuilds
 		if member.guild.id in premium:
-			asyncio.get_event_loop().create_task(self._membercacheadd(member.id))
+			self.bot.dispatch('membercacheadd', member.guild.id, member.id)
 			if len(self.joincache[member.guild.id]) >= 50:
 				self.bot.dispatch('raid_attempt', member.guild, self.joincache[member.guild.id])
 		usedinvite = None

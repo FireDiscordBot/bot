@@ -712,7 +712,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		bot=bool,
 		invite=bool,
 		text=bool,
-		channel=TextChannel
+		channel=TextChannel,
+		reason=str
 	) = flags.EmptyFlags):
 		if amount>500 or amount<0:
 			return await ctx.send('Invalid amount. Minumum is 1, Maximum is 500')
@@ -732,6 +733,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			invite = opt['invite']
 			text = opt['text']
 			channel = opt['channel'] or ctx.channel
+			reason = opt['reason'] or 'No Reason Provided'
 			def purgecheck(m):
 				completed = []
 				if user:
@@ -757,6 +759,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				return len([c for c in completed if not c]) == 0
 			amount += 1
 			self.bot.recentpurge[channel.id] = []
+			self.bot.recentpurge[f'{channel.id}-reason'] = reason
 			async for message in channel.history(limit=amount):
 				if purgecheck(message):
 					self.bot.recentpurge[channel.id].append({
