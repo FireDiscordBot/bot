@@ -758,11 +758,11 @@ class utils(commands.Cog, name='Utility Commands'):
 					completed.append(not m.content)
 				return len([c for c in completed if not c]) == 0
 			amount += 1
-			self.bot.recentpurge[channel.id] = []
-			self.bot.recentpurge[f'{channel.id}-reason'] = reason
+			self.bot.recentpurge[ctx.channel.id] = []
+			self.bot.recentpurge[f'{ctx.channel.id}-reason'] = reason
 			async for message in channel.history(limit=amount):
 				if purgecheck(message):
-					self.bot.recentpurge[channel.id].append({
+					self.bot.recentpurge[ctx.channel.id].append({
 						'author': str(message.author),
 						'author_id': message.author.id,
 						'content': message.system_content or '',
@@ -781,7 +781,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					'embeds': [e.to_dict() for e in message.embeds]
 				})
 			await ctx.channel.purge(limit=amount)
-		await channel.send(f'Successfully deleted **{len(self.bot.recentpurge[channel.id])}** messages!', delete_after=5)
+		await channel.send(f'Successfully deleted **{len(self.bot.recentpurge[ctx.channel.id])}** messages!', delete_after=5)
 
 	@commands.command(name='followable', description='Make the current channel followable.')
 	async def followable(self, ctx, canfollow: bool = False):
