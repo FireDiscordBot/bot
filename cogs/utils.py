@@ -3,15 +3,15 @@ MIT License
 Copyright (c) 2019 GamingGeek
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software without restriction, 
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+and associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
@@ -680,8 +680,8 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def dstatus(self, ctx):
 		colors = {
 			'none': ctx.author.color,
-			'minor_outage': discord.Color.orange(),
-			'major_outage': discord.Color.red()
+			'minor': discord.Color.orange(),
+			'major': discord.Color.red()
 		}
 		summary = await aiohttp.ClientSession().get('https://status.discordapp.com/api/v2/summary.json')
 		summary = await summary.json()
@@ -692,9 +692,9 @@ class utils(commands.Cog, name='Utility Commands'):
 			if c['group_id']:
 				continue
 			if c['status'] == 'operational':
-				desc.append(f'<a:fireSuccess:603214443442077708> **{c["name"]}**: {c["status"].capitalize()}')
+				desc.append(f'<a:fireSuccess:603214443442077708> **{c["name"]}**: {c["status"].replace("_", " ").title()}')
 			else:
-				desc.append(f'<a:fireFailed:603214400748257302> **{c["name"]}**: {c["status"].capitalize()}')
+				desc.append(f'<a:fireFailed:603214400748257302> **{c["name"]}**: {c["status"].replace("_", " ").title()}')
 		embed = discord.Embed(color=colors[str(summary['status']['indicator'])], timestamp=datetime.datetime.utcnow(), description='\n'.join(desc))
 		incident = incidents['incidents'][0]
 		embed.add_field(name='Latest Incident', value=f'[{incident["name"]}]({incident["shortlink"]})\nStatus: **{incident["status"].capitalize()}**')
