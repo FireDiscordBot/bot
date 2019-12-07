@@ -97,12 +97,12 @@ class firecog(commands.Cog, name="Main Commands"):
 		if suggestion == None:
 			await ctx.send("You can't suggest nothing!")
 		else:
-			board = await self.trello.get_board(lambda b: b.id == "5dec07eaeb59240386db00a71")
+			board = await self.trello.get_board(lambda b: b.name == "Fire")
 			suggestions = await board.get_list(lambda l: l.name == "Suggestions")
-			card = await suggestions.create_card(suggestion, f"Suggested by {ctx.author} ({ctx.author.id})")
+			card = await suggestions.create_card(suggestion, f"Suggested by {ctx.author.name} ({ctx.author.id})")
 			now = datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p')
-			await card.add_comment(f"Suggested in #{ctx.channel} ({ctx.channel.id}) in guild {ctx.guild.name} ({ctx.guild.id}) at {now} UTC")
-			await ctx.send(f"Thanks! Your suggestion was added to the Trello @ {card.url}")
+			await card.add_comment(f"Suggested in channel {ctx.channel.name} ({ctx.channel.id}) in guild {ctx.guild.name} ({ctx.guild.id}) at {now} UTC")
+			await ctx.send(f"Thanks! Your suggestion was added to the Trello @ <{card.url}>. Any abuse will lead to being blacklisted from Fire!")
 
 	@commands.command(description="Shows you some stats about me.", aliases=['about'])
 	async def stats(self, ctx):
