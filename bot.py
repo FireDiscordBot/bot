@@ -349,7 +349,7 @@ async def cmdperm_check(ctx):
 	settings = ctx.bot.get_cog('Settings')
 	if not settings:
 		return True
-	if ctx.command.name in settings.disabledcmds[ctx.guild.id]:
+	if ctx.command.name in settings.disabledcmds.get(ctx.guild.id, []):
 		if not ctx.author.permissions_in(ctx.channel).manage_messages:
 			return False
 		else:
@@ -365,7 +365,7 @@ async def cmdperm_check(ctx):
 		else:
 			return True
 	return True
-				
+
 async def start_bot():
 	try:
 		login_data = {"user": "postgres", "password": config['pgpassword'], "database": "fire", "host": "127.0.0.1"}
