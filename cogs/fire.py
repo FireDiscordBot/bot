@@ -18,6 +18,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
 from fire.converters import Member
 from discord.ext import commands
+from aiotrello import Trello
+from typing import Union
 import discord
 import datetime
 import os
@@ -32,7 +34,6 @@ import inspect
 import textwrap
 import io
 import copy
-from typing import Union
 import aiohttp
 import subprocess
 import random
@@ -50,6 +51,8 @@ def config(path: str = None):
 	else:
 		return config
 
+config = config()
+
 def isadmin(ctx):
 	"""Checks if the author is an admin"""
 	if str(ctx.author.id) not in config('admins'):
@@ -61,6 +64,7 @@ def isadmin(ctx):
 class firecog(commands.Cog, name="Main Commands"):
 	def __init__(self, bot):
 		self.bot = bot
+		self.trello = Trello(key=config['trellokey'], token=config['trellotoken'])
 		self.launchtime = launchtime
 		self._last_result = None
 
@@ -87,14 +91,18 @@ class firecog(commands.Cog, name="Main Commands"):
 		await msg.edit(content="`Pong!`", embed=embed)
 
 	@commands.command(description="Suggest a feature")
+	@commands.cooldown(1, 300, commands.BucketType.user)
 	async def suggest(self, ctx, *, suggestion: str):
 		"""PFXsuggest <suggestion>"""
 		if suggestion == None:
 			await ctx.send("You can't suggest nothing!")
 		else:
-			await ctx.send("Thanks! Your suggestions help improve Fire.")
-			me = self.bot.get_user(287698408855044097)
-			await me.send(f"{ctx.message.author} suggested: {suggestion}")
+			board = await self.trello.get_board(lambda b: b.id == "5dec07eaeb59240386db00a71")
+			suggestions = await board.get_list(lambda l: l.name == "Suggestions")
+			card = await suggestions.create_card(suggestion, f"Suggested by {ctx.author} ({ctx.author.id})")
+			now = datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p')
+			await card.add_comment(f"Suggested in #{ctx.channel} ({ctx.channel.id}) in guild {ctx.guild.name} ({ctx.guild.id}) at {now} UTC")
+			await ctx.send(f"Thanks! Your suggestion was added to the Trello @ {card.url}")
 
 	@commands.command(description="Shows you some stats about me.", aliases=['about'])
 	async def stats(self, ctx):
