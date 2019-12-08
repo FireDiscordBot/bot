@@ -556,7 +556,9 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Name", value=f'{guild.name} {nameemote}', inline=False)
 		embed.add_field(name="» ID", value=guild.id, inline=False)
 		embed.add_field(name="» Members", value=format(guild.member_count, ',d'), inline=False)
-		embed.add_field(name="» Channels", value=f"Text: {len(guild.text_channels)} | Voice: {len(guild.voice_channels)}", inline=True)
+		announcech = [c for c in guild.text_channels if c.is_news()]
+		storech = [c for c in guild.channels if str(c.type) == 'store']
+		embed.add_field(name="» Channels", value=f"Text: {len(guild.text_channels) - len(announcech)} | Voice: {len(guild.voice_channels)}\nAnnouncement: {len(announcech)}\nStore: {len(storech)}", inline=True)
 		embed.add_field(name="» Owner", value=str(guild.owner), inline=True)
 		embed.add_field(name="» Region", value=region[str(guild.region)], inline=True)
 		embed.add_field(name="» Verification", value=str(guild.verification_level).capitalize(), inline=True)
