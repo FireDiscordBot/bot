@@ -1533,9 +1533,9 @@ class settings(commands.Cog, name="Settings"):
 					pass
 			if before.premium_tier != after.premium_tier:
 				if after.premium_tier > before.premium_tier:
-					embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.utcnow(), description=f'**{after.name} got boosted to Tier {after.premium_tier}**')
+					embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.utcnow(), description=f'**{after.name} got boosted to Level {after.premium_tier}**')
 				if after.premium_tier < before.premium_tier:
-					embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.utcnow(), description=f'**{after.name} got weakened to Tier {after.premium_tier}**')
+					embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.utcnow(), description=f'**{after.name} got weakened to Level {after.premium_tier}**')
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
 				try:
