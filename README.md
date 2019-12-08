@@ -10,9 +10,7 @@ The default prefix is `$` but you can change this by doing `$prefix <new prefix>
 
 ## Support
 
-For support, join our support discord server.
-
-[![Discord](https://api.gaminggeek.dev/guildstats)](https://discord.gg/mKDWeSA)
+For support, join our [support discord](https://oh-my-god.wtf/fire).
 
 > **NOTE**: Support will not be provided if you attempt to self-host Fire. It is NOT recommended!
 
