@@ -69,10 +69,10 @@ def isadmin(ctx):
 # 	return commands.when_mentioned_or(prefix, 'fire ')(bot, message)
 
 async def get_pre(bot, message):
-	if not message.guild:
-		return "$"
+	if isinstance(message.channel, discord.DMChannel):
+		return commands.when_mentioned_or('$', 'fire ')(bot, message)
 	if not hasattr(bot, 'prefixes'):
-		return commands.when_mentioned_or("$", "fire")(bot, message)
+		return commands.when_mentioned_or('$', 'fire ')(bot, message)
 	prefix = bot.prefixes[message.guild.id] if message.guild.id in bot.prefixes else "$"
 	return commands.when_mentioned_or(prefix, 'fire ')(bot, message)
 
@@ -135,12 +135,12 @@ async def on_command_error(ctx, error):
 	# This prevents any commands with local handlers being handled here in on_command_error.
 	if hasattr(ctx.command, 'on_error'):
 		return
-	
+
 	ignored = (commands.CommandNotFound, commands.CheckFailure, KeyError)
 	sentryignored = (commands.CommandNotFound, commands.CheckFailure)
 	noperms = (commands.BotMissingPermissions, commands.MissingPermissions, discord.Forbidden)
 	saved = error
-	
+
 	if not isinstance(error, noperms):
 		# print(f'Error User ID: {ctx.author.id}')
 		# print(f'Error Username: {ctx.author}')
@@ -174,7 +174,7 @@ async def on_command_error(ctx, error):
 		else:
 			return
 
-	
+
 	if isinstance(error, commands.CommandOnCooldown):
 		td = datetime.timedelta(seconds=error.retry_after)
 		return await ctx.send(f'<a:fireFailed:603214400748257302> This command is on cooldown, please wait {humanfriendly.format_timespan(td)}', delete_after=5)
@@ -240,6 +240,8 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+	if isinstance(message.channel, discord.DMChannel):
+		return await bot.process_commands(message)
 	if message.author.bot:
 		await bot.loop.run_in_executor(None, func=functools.partial(bot.datadog.increment, 'messages.bot'))
 		return
@@ -344,8 +346,8 @@ async def blacklist_check(ctx):
 
 @bot.check
 async def cmdperm_check(ctx):
-	if not ctx.guild:
-		return
+	if isinstance(ctx.channel, discord.DMChannel):
+		return True
 	settings = ctx.bot.get_cog('Settings')
 	if not settings:
 		return True

@@ -881,6 +881,8 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.Cog.listener()
 	async def on_message_delete(self, message):
+		if isinstance(message.channel, discord.DMChannel):
+			return
 		try:
 			snipes[message.guild.id][message.author.id] = message
 		except KeyError:
@@ -893,6 +895,8 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):
+		if isinstance(message.channel, discord.DMChannel):
+			return
 		if before.guild and not before.author.bot:
 			try:
 				esnipes[before.guild.id][before.channel.id] = before
