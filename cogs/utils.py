@@ -489,6 +489,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					await self.bot.db.execute(query, user.name, user.id, reason, permanent, blid)
 				await self.bot.db.release(con)
 				await ctx.send(f'Blacklist entry updated for {user.mention}.')
+			self.bot.plonked = await self.bot.get_cog("Miscellaneous").loadplonked()
 
 	@commands.command(name='unplonk', description='Remove someone from the blacklist', hidden=True)
 	async def blacklist_remove(self, ctx, user: UserWithFallback = None):
@@ -512,6 +513,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					await self.bot.db.execute(query, user.id)
 				await self.bot.db.release(con)
 				await ctx.send(f'{user.mention} is now unblacklisted!')
+			self.bot.plonked = await self.bot.get_cog("Miscellaneous").loadplonked()
 
 	featureslist = {
 		'PARTNERED': '[Partnered](https://dis.gd/partners)',
