@@ -1489,6 +1489,8 @@ class settings(commands.Cog, name="Settings"):
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s features were updated**')
 				s = set(after.features)
 				removed = [x for x in before.features if x not in s]
+				ignored = ['PREMIUM']
+				[removed.remove(f) for f in ignored if f in removed]
 				s = set(before.features)
 				added = [x for x in after.features if x not in s]
 				if added:
