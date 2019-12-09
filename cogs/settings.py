@@ -1507,10 +1507,11 @@ class settings(commands.Cog, name="Settings"):
 					embed.add_field(name='Removed', value='\n'.join(features), inline=False)
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
-				try:
-					await logch.send(embed=embed)
-				except Exception:
-					pass
+				if added or removed:
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 			if before.banner != after.banner:
 				if after.banner:
 					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s banner was changed**')
