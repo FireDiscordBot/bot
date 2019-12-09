@@ -180,7 +180,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		embed = discord.Embed(title=f'{player}\'s Modcore Profile', color=ctx.author.color)
 		embed.add_field(name='Name', value=player, inline=False)
 		embed.add_field(name='UUID', value=uuid, inline=False)
-		embed.add_field(name='Purchases', value=purchases, inline=False)
+		embed.add_field(name='Cosmetics', value=purchases or 'No Cosmetics', inline=False)
 		return await ctx.send(embed=embed)
 
 	@commands.command(description="Check stuff related to Hyperium")
