@@ -908,7 +908,9 @@ class settings(commands.Cog, name="Settings"):
 					if ctx.command.name == 'purge':
 						try:
 							purged = self.bot.recentpurge[ctx.channel.id]
-							embed.add_field(name='Reason', value=self.bot.recentpurge[f'{ctx.channel.id}-reason'], inline=False)
+							reason = self.bot.recentpurge[f'{ctx.channel.id}-reason']
+							embed.add_field(name='Reason', value=reason, inline=False)
+							embed.set_field_at(0, name='Message', value=ctx.message.system_content.replace(f'--reason {reason}', ''), inline=False)
 						except KeyError as e:
 							purged = None
 						if purged:
