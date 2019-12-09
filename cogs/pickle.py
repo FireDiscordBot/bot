@@ -555,7 +555,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			embed.add_field(name=f"{arg1}'s guild", value=f"{guild['name']} {gtag}\n{desc}\n\nLevel: {guild['level_calc']}")
 			embed.add_field(name="Joinable?", value=guild.get('joinable', 'False'), inline=False)
 			embed.add_field(name="Publicly Listed?", value=guild.get('publiclyListed', 'False'), inline=False)
-			embed.add_field(name="Legacy Rank", value=format(guild.get('legacyRanking', 'Not Ranked'), ',d'), inline=False)
+			embed.add_field(name="Legacy Rank", value=format(guild.get('legacyRanking', -1), ',d'), inline=False)
 			games = []
 			for game in guild.get('preferredGames', ['this is a placeholder']):
 				games.append(picklegames.get(game, 'Preferred Games not set.'))
