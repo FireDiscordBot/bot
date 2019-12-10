@@ -1046,7 +1046,7 @@ class settings(commands.Cog, name="Settings"):
 			joinmsg = joinleave.get('joinmsg', False)
 			if joinchan and joinmsg:
 				channel = member.guild.get_channel(joinchan)
-				message = joinmsg.replace('{user.mention}', member.mention).replace('{user}', str(member)).replace('{user.name}', member.name).replace('{user.discrim}', member.discriminator).replace('{server}', member.guild.name).replace('{guild}', member.guild.name)
+				message = joinmsg.replace('{user.mention}', member.mention).replace('{user}', str(member)).replace('{user.name}', member.name).replace('{user.discrim}', member.discriminator).replace('{server}', member.guild.name).replace('{guild}', member.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 				await channel.send(message)
 		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
 		if logid:
@@ -1103,7 +1103,7 @@ class settings(commands.Cog, name="Settings"):
 			leavemsg = joinleave.get('leavemsg', False)
 			if leavechan and leavemsg:
 				channel = member.guild.get_channel(leavechan)
-				message = leavemsg.replace('{user.mention}', member.mention).replace('{user}', str(member)).replace('{user.name}', member.name).replace('{user.discrim}', member.discriminator).replace('{server}', member.guild.name).replace('{guild}', member.guild.name)
+				message = leavemsg.replace('{user.mention}', member.mention).replace('{user}', str(member)).replace('{user.name}', member.name).replace('{user.discrim}', member.discriminator).replace('{server}', member.guild.name).replace('{guild}', member.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 				await channel.send(message)
 		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
 		if logid:
@@ -2027,7 +2027,7 @@ class settings(commands.Cog, name="Settings"):
 				await self.bot.db.execute(query, channel.id, ctx.guild.id)
 			await self.bot.db.release(con)
 			await self.loadSettings()
-			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 			return await ctx.send(f'<a:fireSuccess:603214443442077708> Join messages will show in {channel.mention}!\nExample: {message}')
 		else:
 			con = await self.bot.db.acquire()
@@ -2039,7 +2039,7 @@ class settings(commands.Cog, name="Settings"):
 				await self.bot.db.execute(query, channel.id, message, ctx.guild.id)
 			await self.bot.db.release(con)
 			await self.loadSettings()
-			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 			return await ctx.send(f'<a:fireSuccess:603214443442077708> Join messages will show in {channel.mention}!\nExample: {message}')
 
 	@commands.command(name='leavemsg', description='Set the channel and message for leave messages')
@@ -2090,7 +2090,7 @@ class settings(commands.Cog, name="Settings"):
 				await self.bot.db.execute(query, channel.id, ctx.guild.id)
 			await self.bot.db.release(con)
 			await self.loadSettings()
-			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 			return await ctx.send(f'<a:fireSuccess:603214443442077708> Leave messages will show in {channel.mention}!\nExample: {message}')
 		else:
 			con = await self.bot.db.acquire()
@@ -2102,7 +2102,7 @@ class settings(commands.Cog, name="Settings"):
 				await self.bot.db.execute(query, channel.id, message, ctx.guild.id)
 			await self.bot.db.release(con)
 			await self.loadSettings()
-			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
+			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 			return await ctx.send(f'<a:fireSuccess:603214443442077708> Leave messages will show in {channel.mention}!\nExample: {message}')
 
 	@commands.command(name='linkfilter', description='Configure the link filter for this server')
@@ -2114,7 +2114,7 @@ class settings(commands.Cog, name="Settings"):
 			return await ctx.send(f'<a:fireFailed:603214400748257302> You must provide valid filters. You can choose from {", ".join(options)}')
 		enabled = enabled.split(' ')
 		if len([f.lower() for f in enabled if f not in options]) >= 1:
-			return await ctx.send(f'<a:fireFailed:603214400748257302> {", ".join([f for f in enabled if f not in options])} aren\'t valid filter(s)')
+			return await ctx.send(f'<a:fireFailed:603214400748257302> {", ".join([discord.utils.escape_mentions(discord.utils.escape_markdown(f)) for f in enabled if f not in options])} aren\'t valid filter(s)')
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			if ctx.guild.id in self.linkfilter:
@@ -2173,7 +2173,7 @@ class settings(commands.Cog, name="Settings"):
 			await self.bot.db.execute(query, disabled, ctx.guild.id)
 		await self.bot.db.release(con)
 		return await ctx.send(f'<a:fireSuccess:603214443442077708> {command.name} has been {toggle}.')
-		
+
 
 
 def setup(bot):
