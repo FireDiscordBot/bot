@@ -897,7 +897,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.Cog.listener()
 	async def on_message_edit(self, before, after):
-		if isinstance(message.channel, discord.DMChannel):
+		if isinstance(after.channel, discord.DMChannel):
 			return
 		if before.guild and not before.author.bot:
 			try:
