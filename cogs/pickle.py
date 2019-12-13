@@ -572,13 +572,13 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			embed.add_field(name="Ranks", value='\n'.join(ranks), inline=False)
 			await ctx.send(embed=embed)
 			gname = guild['name']
-			paginatorembed = discord.Embed(title=f'{gname}\'s Members', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+			paginatorembed = discord.Embed(title=f'{gname}\'s Members ({len(guild["members"])})', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			ranktags = {}
 			for rank in ranks:
 				ranktags[rank.split(' ')[0]] = rank.split(' ')[1]
 			paginator = WrappedPaginator(prefix='', suffix='', max_size=380)
 			for member in guild['members']:
-				name = re.sub(remcolor, '', member['displayname'], 0, re.IGNORECASE)
+				name = re.sub(remcolor, '', member.get('displayname', member.get('name', 'Unknown Player')), 0, re.IGNORECASE)
 				joined = str(datetime.datetime.utcfromtimestamp(member['joined']/1000)).split('.')[0]
 				try:
 					ranktag = ranktags[member['rank']]
