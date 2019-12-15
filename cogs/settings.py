@@ -906,13 +906,15 @@ class settings(commands.Cog, name="Settings"):
 					embed.add_field(name='Message', value=ctx.message.system_content, inline=False)
 					embed.set_footer(text=f"Author ID: {ctx.author.id} | Channel ID: {ctx.channel.id}")
 					if ctx.command.name == 'purge':
+						purged = None
+						reason = 'No Reason Provided'
 						try:
 							purged = self.bot.recentpurge[ctx.channel.id]
-							reason = self.bot.recentpurge[f'{ctx.channel.id}-reason']
+							reason = self.bot.recentpurge.get(f'{ctx.channel.id}-reason', 'No Reason Provided')
 							embed.add_field(name='Reason', value=reason, inline=False)
 							embed.set_field_at(0, name='Message', value=ctx.message.system_content.replace(f'--reason {reason}', ''), inline=False)
 						except KeyError as e:
-							purged = None
+							pass
 						if purged:
 							async with aiohttp.ClientSession() as s:
 								async with s.post('https://hasteb.in/documents', data=json.dumps(self.bot.recentpurge[ctx.channel.id], indent=4)) as r:

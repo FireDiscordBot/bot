@@ -136,8 +136,11 @@ async def on_command_error(ctx, error):
 	if hasattr(ctx.command, 'on_error'):
 		return
 
-	ignored = (commands.CommandNotFound, commands.CheckFailure, KeyError)
-	sentryignored = (commands.CommandNotFound, commands.CheckFailure)
+	if isinstance(error, commands.CommandNotFound):
+		return
+
+	ignored = (commands.CheckFailure, KeyError)
+	sentryignored = (commands.CheckFailure)
 	noperms = (commands.BotMissingPermissions, commands.MissingPermissions, discord.Forbidden)
 	saved = error
 
