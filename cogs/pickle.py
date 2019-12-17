@@ -559,9 +559,9 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			games = []
 			for game in guild.get('preferredGames', ['this is a placeholder']):
 				games.append(picklegames.get(game, 'Preferred Games not set.'))
-			embed.add_field(name="Preferred Games", value=', '.join(games), inline=False)
+			embed.add_field(name="Preferred Games", value=', '.join(games) if games else 'Preferred Games not set., inline=False)
 			ranks = []
-			for rank in guild.get('ranks', {'name': 'No custom ranks'}):
+			for rank in guild.get('ranks', {'name': 'No custom ranks', 'tag': ''}):
 				name = rank['name']
 				if not rank.get('tag', ''):
 					tag = ''
@@ -569,7 +569,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					tag = rank['tag']
 					tag = f'[{tag}]'
 				ranks.append(f'{name} {tag}')
-			embed.add_field(name="Ranks", value='\n'.join(ranks), inline=False)
+			embed.add_field(name="Ranks", value='\n'.join(ranks) if ranks else 'No custom ranks', inline=False)
 			await ctx.send(embed=embed)
 			gname = guild['name']
 			paginatorembed = discord.Embed(title=f'{gname}\'s Members ({len(guild["members"])})', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
