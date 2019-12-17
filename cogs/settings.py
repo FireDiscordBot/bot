@@ -913,6 +913,7 @@ class settings(commands.Cog, name="Settings"):
 						try:
 							purged = self.bot.recentpurge[ctx.channel.id]
 							reason = self.bot.recentpurge.get(f'{ctx.channel.id}-reason', 'No Reason Provided')
+							self.bot.recentpurge[f'{ctx.channel.id}-reason'] = None
 							embed.add_field(name='Reason', value=reason, inline=False)
 							embed.set_field_at(0, name='Message', value=ctx.message.system_content.replace(f'--reason {reason}', ''), inline=False)
 						except KeyError as e:
