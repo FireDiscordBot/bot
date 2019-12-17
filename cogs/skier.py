@@ -117,10 +117,6 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				chat = "Purchased!"
 			else:
 				chat = "Not Purchased."
-			if purchase['mediahead']:
-				mediahead = "Purchased!"
-			else:
-				mediahead = "Not Purchased."
 			if purchase['head'] > 0:
 				head = purchase['head']
 			else:
@@ -131,7 +127,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				embed.add_field(name="Custom Levelhead?", value="Nope :(", inline=False)
 				embed.add_field(name="IGN", value=player, inline=False)
 				embed.add_field(name="Levelhead", value=f"Level: {levelhead['level']}", inline=False)
-				embed.add_field(name="Other items", value=f"Tab: {tab} \nChat: {chat} \nAddon Head Layers: {head} \nMediahead: {mediahead}", inline=False)
+				embed.add_field(name="Other items", value=f"Tab: {tab} \nChat: {chat} \nAddon Head Layers: {head}", inline=False)
 			else:
 				embed.add_field(name="Custom Levelhead?", value="Yeah!", inline=False)
 				embed.add_field(name="IGN", value=player, inline=False)
@@ -145,7 +141,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				if denied != None:
 					embed.add_field(name='Proposed Levelhead', value=f'{nheader}:{nstrlevel}', inline=False)
 					embed.add_field(name='Denied?', value=denied, inline=False)
-				embed.add_field(name="Other items", value=f"Tab: {tab} \nChat: {chat} \nAddon Head Layers: {head} \nMediahead: {mediahead}", inline=False)
+				embed.add_field(name="Other items", value=f"Tab: {tab} \nChat: {chat} \nAddon Head Layers: {head}", inline=False)
 			await ctx.send(embed=embed)
 
 	def modcoref(self, text):
