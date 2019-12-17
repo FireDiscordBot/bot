@@ -559,7 +559,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			games = []
 			for game in guild.get('preferredGames', ['this is a placeholder']):
 				games.append(picklegames.get(game, 'Preferred Games not set.'))
-			embed.add_field(name="Preferred Games", value=', '.join(games) if games else 'Preferred Games not set., inline=False)
+			embed.add_field(name="Preferred Games", value=', '.join(games) if games else 'Preferred Games not set.', inline=False)
 			ranks = []
 			for rank in guild.get('ranks', {'name': 'No custom ranks', 'tag': ''}):
 				name = rank['name']
