@@ -618,7 +618,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		}
 		services = {
 			'minecraft.net': '**Website**',
-			'sessionserver.minecraft.net': '**Sessions**',
+			'sessionserver.mojang.com': '**Sessions**',
 			'authserver.mojang.com': '**Auth**',
 			'textures.minecraft.net': '**Skins**',
 			'api.mojang.com': '**API**'
