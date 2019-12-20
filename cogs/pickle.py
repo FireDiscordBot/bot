@@ -625,7 +625,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		}
 		async with aiohttp.ClientSession().get('https://status.mojang.com/check') as r:
 			if r.status == 200:
-				status = r.json()
+				status = await r.json()
 			else:
 				return await ctx.send('<a:fireFailed:603214400748257302> Failed to check status')
 		s = []
