@@ -139,7 +139,7 @@ class firecog(commands.Cog, name="Main Commands"):
 		users = online + idle + dnd + offline
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		ownerboi = self.bot.get_user(287698408855044097)
-		embed.set_author(name=f"Bot made by {ownerboi}", url="https://gaminggeek.dev", icon_url=str(ownerboi.avatar_url))
+		embed.set_author(name=f"Bot made by {ownerboi}", url="https://gaminggeek.dev", icon_url=str(ownerboi.avatar_url_as(static_format='png', size=2048)))
 		embed.add_field(name="Runtime", value=f"{uptime}", inline=False)
 		embed.add_field(name="CPU", value=f"{round(cpustats)}%", inline=False)
 		embed.add_field(name="RAM", value=f"{ramuse} MB", inline=False)

@@ -83,7 +83,7 @@ def snipe_embed(context_channel, message, user, edited = False):
 		for line in msg:
 			lines.append(f'> {line}')
 		embed = discord.Embed(description = '\n'.join(lines), color = message.author.color, timestamp = message.created_at)
-	embed.set_author(name = str(message.author), icon_url = str(message.author.avatar_url))
+	embed.set_author(name = str(message.author), icon_url = str(message.author.avatar_url_as(static_format='png', size=2048)))
 	if message.attachments and not edited:
 		embed.add_field(name = 'Attachment(s)', value = '\n'.join([attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
 	if message.channel != context_channel:
@@ -122,7 +122,7 @@ def quote_embed(context_channel, message, user):
 			else:
 				for attachment in message.attachments:
 					embed.add_field(name = 'Attachment', value = '[' + attachment.filename + '](' + attachment.url + ')', inline = False)
-		embed.set_author(name = str(message.author), icon_url = str(message.author.avatar_url), url = 'https://discordapp.com/channels/' + str(message.guild.id) + '/' + str(message.channel.id) + '/' + str(message.id))
+		embed.set_author(name = str(message.author), icon_url = str(message.author.avatar_url_as(static_format='png', size=2048)), url = 'https://discordapp.com/channels/' + str(message.guild.id) + '/' + str(message.channel.id) + '/' + str(message.id))
 		if message.channel != context_channel:
 			embed.set_footer(text = 'Quoted by: ' + str(user) + ' | #' + message.channel.name)
 		else:
@@ -450,7 +450,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='errortest', hidden=True)
 	async def errortestboyo(self, ctx):
-		if await commands.is_owner(ctx):
+		if await self.bot.is_team_owner(ctx.author):
 			test = [1, 2]
 			return test[2]
 
@@ -613,7 +613,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			if guild.owner_id == user.id and 'PARTNERED' in guild.features:
 				badge = discord.utils.get(self.bot.emojis, name='PartnerShine')
 		embed = discord.Embed(colour=color, timestamp=datetime.datetime.utcnow())
-		embed.set_thumbnail(url=str(user.avatar_url))
+		embed.set_thumbnail(url=str(user.avatar_url_as(static_format='png', size=2048)))
 		embed.add_field(name="» Name", value=f'{user.name}#{user.discriminator} {badge}', inline=False)
 		embed.add_field(name="» ID", value=user.id, inline=False)
 		if type(user) == discord.Member:
@@ -1166,7 +1166,7 @@ class utils(commands.Cog, name='Utility Commands'):
 							continue
 						else:
 							if not msg_found.content and msg_found.embeds and msg_found.author.bot:
-								await ctx.send(content = 'Raw embed from `' + str(msg_found.author).strip('`') + '` in ' + msg_found.channel.mention, embed = quote_embed(ctx.channel, msg_found, ctx.author))
+								await ctx.send(content = 'Raw embed from `' + str(msg_found.author).replace('`', '\`') + '` in ' + msg_found.channel.mention, embed = quote_embed(ctx.channel, msg_found, ctx.author))
 							else:
 								await ctx.send(embed = quote_embed(ctx.channel, msg_found, ctx.author))
 
@@ -1195,12 +1195,10 @@ class utils(commands.Cog, name='Utility Commands'):
 			member = ctx.guild.get_member(user.id)
 		if member:
 			embed = discord.Embed(color=member.color)
-			embed.set_image(url=str(member.avatar_url_as(static_format='png', size=2048)))
-			await ctx.send(embed=embed)
 		else:
-			embed = discord.Embed(color=user.color)
-			embed.set_image(url=str(user.avatar_url))
-			await ctx.send(embed=embed)
+			embed = discord.Embed(color=ctx.author.color)
+		embed.set_image(url=str(user.avatar_url_as(static_format='png', size=2048)))
+		await ctx.send(embed=embed)
 
 	@commands.command(description='Totally not a stolen idea from Dyno')
 	async def fireav(self, ctx, u: Member = None):

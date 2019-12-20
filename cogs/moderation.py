@@ -171,7 +171,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 										logch = guild.get_channel(logid['modlogs'])
 										if logch:
 											embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-											embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url))
+											embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 											embed.add_field(name='User', value=user.mention, inline=False)
 											embed.add_field(name='Moderator', value=guild.me.mention, inline=False)
 											embed.set_footer(text=f'User ID: {user.id} | Mod ID: {guild.me.id}')
@@ -280,7 +280,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 											logch = guild.get_channel(logid['modlogs'])
 											if logch:
 												embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-												embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url))
+												embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 												embed.add_field(name='User', value=user.mention, inline=False)
 												embed.add_field(name='Moderator', value=guild.me.mention, inline=False)
 												embed.add_field(name='Reason', value='Times up', inline=False)
@@ -404,7 +404,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					}
 			if channel:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url))
+				embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
@@ -457,7 +457,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					}
 			if channel:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url))
+				embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
@@ -515,7 +515,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					logch = ctx.guild.get_channel(logid['modlogs'])
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Ban | {user}', icon_url=str(user.avatar_url))
+						embed.set_author(name=f'Ban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.add_field(name='Reason', value=reason, inline=False)
@@ -544,7 +544,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					logch = ctx.guild.get_channel(logid['modlogs'])
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Ban | {user}', icon_url=str(user.avatar_url))
+						embed.set_author(name=f'Ban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
@@ -582,7 +582,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				logch = ctx.guild.get_channel(logid['modlogs'])
 				if logch:
 					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-					embed.set_author(name=f'Unban | {user}', icon_url=str(user.avatar_url))
+					embed.set_author(name=f'Unban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 					embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 					embed.add_field(name='Reason', value=reason, inline=False)
@@ -607,7 +607,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				logch = ctx.guild.get_channel(logid['modlogs'])
 				if logch:
 					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-					embed.set_author(name=f'Unban | {user}', icon_url=str(user.avatar_url))
+					embed.set_author(name=f'Unban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 					embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 					embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
@@ -651,7 +651,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					logch = ctx.guild.get_channel(logid['modlogs'])
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Softban | {user}', icon_url=str(user.avatar_url))
+						embed.set_author(name=f'Softban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.add_field(name='Reason', value=reason, inline=False)
@@ -669,7 +669,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					logch = ctx.guild.get_channel(logid['modlogs'])
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Softban | {user}', icon_url=str(user.avatar_url))
+						embed.set_author(name=f'Softban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
@@ -766,7 +766,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				logch = ctx.guild.get_channel(logid['modlogs'])
 				if logch:
 					embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.utcnow())
-					embed.set_author(name=f'Warn | {user}', icon_url=str(user.avatar_url))
+					embed.set_author(name=f'Warn | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 					embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 					embed.add_field(name='Reason', value=reason, inline=False)
@@ -783,7 +783,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				logch = ctx.guild.get_channel(logid['modlogs'])
 				if logch:
 					embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.utcnow())
-					embed.set_author(name=f'Warn | {user}', icon_url=str(user.avatar_url))
+					embed.set_author(name=f'Warn | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 					embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 					embed.add_field(name='Reason', value=reason, inline=False)
@@ -899,7 +899,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					logch = ctx.guild.get_channel(logid['modlogs'])
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Kick | {user}', icon_url=str(user.avatar_url))
+						embed.set_author(name=f'Kick | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.add_field(name='Reason', value=reason, inline=False)
@@ -920,7 +920,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					logch = ctx.guild.get_channel(logid['modlogs'])
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Kick | {user}', icon_url=str(user.avatar_url))
+						embed.set_author(name=f'Kick | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
@@ -967,7 +967,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			logch = ctx.guild.get_channel(logid['modlogs'])
 			if logch:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url))
+				embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='User', value=user.mention, inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
@@ -1004,7 +1004,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			logch = ctx.guild.get_channel(logid['modlogs'])
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Block | {blocked}', icon_url=str(blocked.avatar_url) if blocktype == 'User' else str(ctx.guild.icon_url))
+				embed.set_author(name=f'Block | {blocked}', icon_url=str(blocked.avatar_url_as(static_format='png', size=2048)) if blocktype == 'User' else str(ctx.guild.icon_url))
 				embed.add_field(name=blocktype, value=f'{blocked}({blocked.id})', inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.add_field(name='Channel', value=ctx.channel.mention, inline=False)
@@ -1043,7 +1043,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			logch = ctx.guild.get_channel(logid['modlogs'])
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Unblock | {blocked}', icon_url=str(blocked.avatar_url) if blocktype == 'User' else str(ctx.guild.icon_url))
+				embed.set_author(name=f'Unblock | {blocked}', icon_url=str(blocked.avatar_url_as(static_format='png', size=2048)) if blocktype == 'User' else str(ctx.guild.icon_url))
 				embed.add_field(name=blocktype, value=f'{blocked}({blocked.id})', inline=False)
 				embed.add_field(name='Moderator', value=blocked.mention, inline=False)
 				embed.add_field(name='Channel', value=ctx.channel.mention, inline=False)
@@ -1090,7 +1090,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			logch = ctx.guild.get_channel(logid['modlogs'])
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Derank | {user}', icon_url=str(user.avatar_url))
+				embed.set_author(name=f'Derank | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 				embed.add_field(name='Moderator', value=user.mention, inline=False)
 				embed.add_field(name='Roles', value=', '.join(roles), inline=False)

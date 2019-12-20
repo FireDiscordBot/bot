@@ -599,7 +599,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		# timestamp = str(datetime.datetime.utcnow().timestamp()).split('.')[0]
 		embed = discord.Embed(color=ctx.author.color)
 		embed.set_image(url=f'https://mc-heads.net/body/{uid}')
-		embed.set_footer(text=f'Requested by {ctx.author}', icon_url=str(ctx.author.avatar_url))
+		embed.set_footer(text=f'Requested by {ctx.author}', icon_url=str(ctx.author.avatar_url_as(static_format='png', size=2048)))
 		await ctx.send(embed=embed)
 
 

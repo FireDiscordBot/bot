@@ -493,7 +493,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				logch = ctx.guild.get_channel(logid['modlogs'])
 				if logch:
 					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-					embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url))
+					embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
 					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 					embed.add_field(name='Role', value=role.mention, inline=False)
@@ -527,7 +527,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 					logch = ctx.guild.get_channel(logid['modlogs'])
 					if logch:
 						embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url))
+						embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
 						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 						embed.add_field(name='Role', value=role.mention, inline=False)
@@ -554,7 +554,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				logch = ctx.guild.get_channel(logid['modlogs'])
 				if logch:
 					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-					embed.set_author(name=f'Role Persist Removed | {member}', icon_url=str(member.avatar_url))
+					embed.set_author(name=f'Role Persist Removed | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
 					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 					embed.set_footer(text=f'User ID: {member.id} | Mod ID: {ctx.author.id} | Role ID: {role.id}')
@@ -680,7 +680,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				logch = after.guild.get_channel(logid['modlogs'])
 				if logch:
 					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-					embed.set_author(name=f'Role Persist Removed | {after}', icon_url=str(after.avatar_url))
+					embed.set_author(name=f'Role Persist Removed | {after}', icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
 					embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
 					embed.add_field(name='Moderator', value=after.guild.me.mention, inline=False)
 					embed.set_footer(text=f'User ID: {after.id} | Mod ID: {after.guild.me.id} | Role ID: {r.id}')

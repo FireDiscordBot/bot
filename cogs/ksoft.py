@@ -64,7 +64,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		if not meme.title:
 			return await ctx.send(f'<a:fireFailed:603214400748257302> The subreddit **{discord.utils.escape_mentions(discord.utils.escape_markdown(sub))}** couldn\'t be found...')
 		embed = discord.Embed(title="Did someone order a spicy meme?", colour=ctx.message.author.color, url=meme.source, timestamp=datetime.datetime.utcnow())		
-		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url))
+		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url_as(static_format='png', size=2048)))
 		embed.set_footer(text=f"Memes provided by https://api.ksoft.si")
 		embed.add_field(name="Title", value=meme.title, inline=False)
 		embed.add_field(name="Subreddit", value=f"[{meme.subreddit}](https://reddit.com/{meme.subreddit})", inline=False)
@@ -114,7 +114,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 				return
 		embed = discord.Embed(title="The randomizer machine returned this image!", colour=ctx.message.author.color, url=img.url, timestamp=datetime.datetime.utcnow())
 		embed.set_image(url=img.url)
-		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url))
+		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url_as(static_format='png', size=2048)))
 		embed.set_footer(text=f"🏷️ {tag} (https://api.ksoft.si)")
 		await ctx.send(embed=embed)
 
@@ -141,7 +141,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 			embed.add_field(name='Code', value=e.code, inline=False)
 			return await ctx.send(embed=embed)
 		embed = discord.Embed(title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color, timestamp=datetime.datetime.utcnow())
-		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url))
+		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url_as(static_format='png', size=2048)))
 		embed.set_footer(text='Ban info from KSoft.Si API (https://api.ksoft.si/)', icon_url='https://cdn.ksoft.si/images/Logo128.png')
 		embed.add_field(name='User', value=f'{inf.name}#{inf.discriminator}' if inf.name != 'Unknown' else 'Unknown#0000')
 		embed.add_field(name='Mod ID', value=inf.moderator_id)

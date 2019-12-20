@@ -29,7 +29,7 @@ class Help(commands.Cog):
 	@commands.command(name='help', description='Provides help for those who need it')
 	async def help(self, ctx):
 		embed = discord.Embed(colour=ctx.author.color, description='Here\'s some helpful links\n\n[Commands](https://gaminggeek.dev/commands)\n[Support Server](https://gaminggeek.dev/discord)\n[Invite Me](https://gaminggeek.dev/fire)\n[Donate](https://gaminggeek.dev/patreon)')
-		embed.set_author(name='Help has arrived', icon_url=str(ctx.guild.me.avatar_url))
+		embed.set_author(name='Help has arrived', icon_url=str(ctx.guild.me.avatar_url_as(static_format='png', size=2048)))
 		await ctx.send(embed=embed)
 
 

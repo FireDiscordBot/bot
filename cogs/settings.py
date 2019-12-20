@@ -293,7 +293,7 @@ class settings(commands.Cog, name="Settings"):
 				if message.system_content == None or message.system_content  == '':
 					message.content = 'I was unable to get the message that was deleted. Maybe it was a system message?'
 				embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'{message.author.mention}\'**s message in** {message.channel.mention} **was deleted**\n{message.system_content}')
-				embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+				embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 				if message.attachments:
 					embed.add_field(name = 'Attachment(s)', value = '\n'.join([attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
 				embed.set_footer(text=f"Author ID: {message.author.id} | Message ID: {message.id} | Channel ID: {message.channel.id}")
@@ -392,7 +392,7 @@ class settings(commands.Cog, name="Settings"):
 						return
 					if logch:
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
-							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							if isinstance(invite, dict):
 								invite = await self.bot.fetch_invite(url=invite['invite'])
 							embed.add_field(name='Invite Code', value=code, inline=False)
@@ -425,7 +425,7 @@ class settings(commands.Cog, name="Settings"):
 						return
 					if logch:
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
-						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{paypal}](https://paypal.me/{paypal})', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
@@ -462,7 +462,7 @@ class settings(commands.Cog, name="Settings"):
 							return
 						if logch:
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
-							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							embed.add_field(name='Video ID', value=video, inline=False)
 							if not invalidvid:
 								embed.add_field(name='Title', value=f'[{videoinfo.get("snippet", {}).get("title", "Unknown")}](https://youtu.be/{video})', inline=False)
@@ -502,7 +502,7 @@ class settings(commands.Cog, name="Settings"):
 							return
 						if logch:
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
-							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							if invalidchannel:
 								embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
 								embed.add_field(name='More Info', value=f'I was unable to find info about this channel.', inline=False)
@@ -539,7 +539,7 @@ class settings(commands.Cog, name="Settings"):
 						return
 					if logch:
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
-						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{twitch}](https://twitch.tv/{twitch})', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
@@ -566,7 +566,7 @@ class settings(commands.Cog, name="Settings"):
 						return
 					if logch:
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
-						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{twitter}](https://twitter.com/{twitter})', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
@@ -583,7 +583,7 @@ class settings(commands.Cog, name="Settings"):
 				return
 			if logch:
 				embed = discord.Embed(color=after.author.color, timestamp=after.created_at, description=f'{after.author.mention} **edited a message in** {after.channel.mention}')
-				embed.set_author(name=after.author, icon_url=str(after.author.avatar_url))
+				embed.set_author(name=after.author, icon_url=str(after.author.avatar_url_as(static_format='png', size=2048)))
 				bcontent = before.system_content [:300] + (before.system_content [300:] and '...')
 				acontent = after.system_content [:300] + (after.system_content [300:] and '...')
 				embed.add_field(name='Before', value=bcontent, inline=False)
@@ -710,7 +710,7 @@ class settings(commands.Cog, name="Settings"):
 						return
 					if logch:
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
-						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						if isinstance(invite, dict):
 							invite = await self.bot.fetch_invite(url=invite['invite'])
 						embed.add_field(name='Invite Code', value=code, inline=False)
@@ -743,7 +743,7 @@ class settings(commands.Cog, name="Settings"):
 						return
 					if logch:
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
-						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{paypal}](https://paypal.me/{paypal})', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
@@ -780,7 +780,7 @@ class settings(commands.Cog, name="Settings"):
 							return
 						if logch:
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
-							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							embed.add_field(name='Video ID', value=video, inline=False)
 							if not invalidvid:
 								embed.add_field(name='Title', value=f'[{videoinfo.get("snippet", {}).get("title", "Unknown")}](https://youtu.be/{video})', inline=False)
@@ -820,7 +820,7 @@ class settings(commands.Cog, name="Settings"):
 							return
 						if logch:
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
-							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							if invalidchannel:
 								embed.add_field(name='Channel', value=f'https://youtube.com/channel/{channel}')
 								embed.add_field(name='More Info', value=f'I was unable to find info about this channel.', inline=False)
@@ -857,7 +857,7 @@ class settings(commands.Cog, name="Settings"):
 						return
 					if logch:
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
-						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{twitch}](https://twitch.tv/{twitch})', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
@@ -884,7 +884,7 @@ class settings(commands.Cog, name="Settings"):
 						return
 					if logch:
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
-						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url))
+						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{twitter}](https://twitter.com/{twitter})', inline=False)
 						embed.set_footer(text=f"Author ID: {message.author.id}")
 						try:
@@ -904,7 +904,7 @@ class settings(commands.Cog, name="Settings"):
 					return
 				if logch:
 					embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'`{ctx.command.name}` **was used in** {ctx.channel.mention} **by {ctx.author.name}**')
-					embed.set_author(name=ctx.author, icon_url=str(ctx.author.avatar_url))
+					embed.set_author(name=ctx.author, icon_url=str(ctx.author.avatar_url_as(static_format='png', size=2048)))
 					embed.add_field(name='Message', value=ctx.message.system_content, inline=False)
 					embed.set_footer(text=f"Author ID: {ctx.author.id} | Channel ID: {ctx.channel.id}")
 					if ctx.command.name == 'purge':
@@ -946,7 +946,7 @@ class settings(commands.Cog, name="Settings"):
 						self.recentgban.append(f'{member.id}-{guild.id}')
 						if logch:
 							embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
-							embed.set_author(name=member, icon_url=str(member.avatar_url))
+							embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 							embed.add_field(name='Reason', value=f'{member} was found on global ban list', inline=False)
 							embed.set_footer(text=f"Member ID: {member.id}")
 							try:
@@ -1066,7 +1066,7 @@ class settings(commands.Cog, name="Settings"):
 					self.recentgban.append(f'{member.id}-{member.guild.id}')
 					if logch:
 						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
-						embed.set_author(name=member, icon_url=str(member.avatar_url))
+						embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Reason', value=f'{member} was found on global ban list', inline=False)
 						embed.set_footer(text=f"Member ID: {member.id}")
 						try:
@@ -1078,7 +1078,7 @@ class settings(commands.Cog, name="Settings"):
 		if logch:
 			#https://giphy.com/gifs/pepsi-5C0a8IItAWRebylDRX
 			embed = discord.Embed(title='Member Joined', url='https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif', color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url))
+			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 			embed.add_field(name='Account Created', value=humanfriendly.format_timespan(datetime.datetime.utcnow() - member.created_at) + ' ago', inline=False)
 			if usedinvite and member.guild.id in premium:
 				embed.add_field(name='Invite Used', value=usedinvite, inline=False)
@@ -1117,7 +1117,7 @@ class settings(commands.Cog, name="Settings"):
 			return
 		if logch:
 			embed = discord.Embed(title='Member Left', url='https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif', color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url))
+			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 			if member.nick:
 				embed.add_field(name='Nickname', value=member.nick, inline=False)
 			roles = [role.mention for role in member.roles if role != member.guild.default_role]
@@ -1206,7 +1206,7 @@ class settings(commands.Cog, name="Settings"):
 				return
 			if logch and after.nick:
 				embed = discord.Embed(color=after.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'**s nickname was changed**')
-				embed.set_author(name=after, icon_url=str(after.avatar_url))
+				embed.set_author(name=after, icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='Before', value=before.nick, inline=False)
 				embed.add_field(name='After', value=after.nick, inline=False)
 				embed.set_footer(text=f"Author ID: {after.id}")
@@ -1238,7 +1238,7 @@ class settings(commands.Cog, name="Settings"):
 						return
 					role = discord.utils.get(after.guild.roles, name=added[0])
 					embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'s roles were changed\n**{after.name} was given the** {role.mention} **role**')
-					embed.set_author(name=after, icon_url=str(after.avatar_url))
+					embed.set_author(name=after, icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
 					embed.set_footer(text=f"Member ID: {after.id} | Role ID: {role.id}")
 					try:
 						await logch.send(embed=embed)
@@ -1247,7 +1247,7 @@ class settings(commands.Cog, name="Settings"):
 				if len(removed) == 1:
 					role = discord.utils.get(after.guild.roles, name=removed[0])
 					embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'s roles were changed\n**{after.name} was removed from the** {role.mention} **role**')
-					embed.set_author(name=after, icon_url=str(after.avatar_url))
+					embed.set_author(name=after, icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
 					embed.set_footer(text=f"Member ID: {after.id} | Role ID: {role.id}")
 					try:
 						await logch.send(embed=embed)
@@ -1313,7 +1313,7 @@ class settings(commands.Cog, name="Settings"):
 			if before.deaf != after.deaf:
 				if after.deaf:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **was server deafened**')
-					embed.set_author(name=member, icon_url=str(member.avatar_url))
+					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					if after.channel:
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					else:
@@ -1324,7 +1324,7 @@ class settings(commands.Cog, name="Settings"):
 						pass
 				elif not after.deaf:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **was server undeafened**')
-					embed.set_author(name=member, icon_url=str(member.avatar_url))
+					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					if after.channel:
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					else:
@@ -1336,7 +1336,7 @@ class settings(commands.Cog, name="Settings"):
 			if before.mute != after.mute:
 				if after.mute:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **was server muted**')
-					embed.set_author(name=member, icon_url=str(member.avatar_url))
+					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					if after.channel:
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					else:
@@ -1347,7 +1347,7 @@ class settings(commands.Cog, name="Settings"):
 						pass
 				elif not after.mute:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **was server unmuted**')
-					embed.set_author(name=member, icon_url=str(member.avatar_url))
+					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					if after.channel:
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					else:
@@ -1364,7 +1364,7 @@ class settings(commands.Cog, name="Settings"):
 					else:
 						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **started sharing video**')
 						embed.set_footer(text=f"Member ID: {member.id}")
-					embed.set_author(name=member, icon_url=str(member.avatar_url))
+					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					try:
 						await logch.send(embed=embed)
 					except Exception:
@@ -1376,7 +1376,7 @@ class settings(commands.Cog, name="Settings"):
 					else:
 						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **stopped sharing video**')
 						embed.set_footer(text=f"Member ID: {member.id}")
-					embed.set_author(name=member, icon_url=str(member.avatar_url))
+					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					try:
 						await logch.send(embed=embed)
 					except Exception:
@@ -1389,7 +1389,7 @@ class settings(commands.Cog, name="Settings"):
 			# 		else:
 			# 			embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **went live**')
 			# 			embed.set_footer(text=f"Member ID: {member.id}")
-			# 		embed.set_author(name=member, icon_url=str(member.avatar_url))
+			# 		embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 			# 		try:
 			# 			await logch.send(embed=embed)
 			# 		except Exception:
@@ -1401,7 +1401,7 @@ class settings(commands.Cog, name="Settings"):
 			# 		else:
 			# 			embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **stopped being live**')
 			# 			embed.set_footer(text=f"Member ID: {member.id}")
-			# 		embed.set_author(name=member, icon_url=str(member.avatar_url))
+			# 		embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 			# 		try:
 			# 			await logch.send(embed=embed)
 			# 		except Exception:
@@ -1411,7 +1411,7 @@ class settings(commands.Cog, name="Settings"):
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **switched voice channel**')
 					embed.add_field(name='Before', value=before.channel.name, inline=False)
 					embed.add_field(name='After', value=after.channel.name, inline=False)
-					embed.set_author(name=member, icon_url=str(member.avatar_url))
+					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					embed.set_footer(text=f"Member ID: {member.id} | Old Channel ID: {before.channel.id} | New Channel ID: {after.channel.id}")
 					try:
 						return await logch.send(embed=embed)
@@ -1419,7 +1419,7 @@ class settings(commands.Cog, name="Settings"):
 						pass
 				if after.channel:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **joined voice channel {after.channel.name}**')
-					embed.set_author(name=member, icon_url=str(member.avatar_url))
+					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					try:
 						return await logch.send(embed=embed)
@@ -1427,7 +1427,7 @@ class settings(commands.Cog, name="Settings"):
 						pass
 				elif not after.channel:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **left voice channel {before.channel.name}**')
-					embed.set_author(name=member, icon_url=str(member.avatar_url))
+					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {before.channel.id}")
 					try:
 						return await logch.send(embed=embed)
@@ -1577,7 +1577,7 @@ class settings(commands.Cog, name="Settings"):
 			return
 		if logch:
 			embed = discord.Embed(color=member.color if member.color != discord.Color.default() else discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
-			embed.set_author(name=member, icon_url=str(member.avatar_url))
+			embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 			embed.set_footer(text=f"Member ID: {member.id}")
 			try:
 				await logch.send(embed=embed)
@@ -1593,7 +1593,7 @@ class settings(commands.Cog, name="Settings"):
 			return
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{member} was unbanned**')
-			embed.set_author(name=member, icon_url=str(member.avatar_url))
+			embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 			embed.set_footer(text=f"Member ID: {member.id}")
 			try:
 				await logch.send(embed=embed)
