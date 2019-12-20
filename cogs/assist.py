@@ -164,7 +164,8 @@ class Assistant(commands.Cog, name='Google Assistant'):
 
 	def assistToImg(self, ctx, query):
 		text, html = gassistant.assist_text(query)
-		imgkit.from_string(html, f'{ctx.author.id}assist.png', options={"xvfb": "", "format": "png"})
+		html = html.decode('utf-8').replace('background:transparent;', 'background-image:url(https://picsum.photos/1920/1080);')
+		imgkit.from_string(html, f'{ctx.author.id}assist.png', options={"xvfb": "", "format": "png", "height": 1080, "width": 1920})
 
 	@commands.command(description="Ask the Google Assistant a question and hear the response in your voice channel!")
 	# @commands.cooldown(1, 12, commands.BucketType.user)
@@ -205,7 +206,8 @@ class Assistant(commands.Cog, name='Google Assistant'):
 				sample_width=2,
 			)
 			if self.debug:
-				await asyncio.gather(loop.create_task(self.assistToImg(ctx, query)))
+				# await loop.run_in_executor(None, func=functools.partial(self.assistToImg, ctx, query))
+				self.assistToImg(ctx, query)
 				file = discord.File(f'{ctx.author.id}assist.png', 'gassist.png')
 				await asyncio.get_event_loop().run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'gassist.uploaded'))
 				return await ctx.send(file=file)
