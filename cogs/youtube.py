@@ -46,13 +46,6 @@ class youtube(commands.Cog, name="YouTube API"):
 		self.apiver = 'v3'
 		self.loop = bot.loop
 
-	async def cog_check(self, ctx: commands.Context):
-		if ctx.guild.id == 411619823445999637:
-			if ctx.channel.id == 577203509863251989:
-				return True
-			return False
-		return True
-
 	def popular(self):
 		youtube = googleapiclient.discovery.build(
         self.apiname, self.apiver, developerKey=self.key)
