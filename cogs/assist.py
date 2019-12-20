@@ -164,9 +164,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
 
 	def assistToImg(self, ctx, query):
 		text, html = gassistant.assist_text(query)
-		with open(f'{ctx.author.id}.html', 'wb') as h:
-			h.write(html)
-			imgkit.from_file(f, f'{ctx.author.id}assist.png', options={"xvfb": "", "format": "png"})
+		imgkit.from_string(html, f'{ctx.author.id}assist.png', options={"xvfb": "", "format": "png"})
 
 	@commands.command(description="Ask the Google Assistant a question and hear the response in your voice channel!")
 	# @commands.cooldown(1, 12, commands.BucketType.user)
