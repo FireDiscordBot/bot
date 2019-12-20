@@ -205,7 +205,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
 				sample_width=2,
 			)
 			if self.debug:
-				await loop.run_in_executor(None, func=functools.partial(self.assistToImg, ctx, query))
+				await asyncio.gather(loop.create_task(self.assistToImg(ctx, query)))
 				file = discord.File(f'{ctx.author.id}assist.png', 'gassist.png')
 				await asyncio.get_event_loop().run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'gassist.uploaded'))
 				return await ctx.send(file=file)
