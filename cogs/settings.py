@@ -1045,6 +1045,11 @@ class settings(commands.Cog, name="Settings"):
 				b = before[inv]
 				if b != a:
 					usedinvite = inv
+		if not usedinvite and 'PUBLIC' in member.guild.features:
+			if 'DISCOVERABLE' in member.guild.features:
+				usedinvite = 'Joined without invite. Potentially from Server Discovery'
+			else:
+				usedinvite = 'Joined without invite. Potentially from lurking'
 		joinleave = self.joinleave.get(member.guild.id, False)
 		if joinleave:
 			joinchan = joinleave.get('joinchan', False)
