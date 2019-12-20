@@ -1271,7 +1271,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 
 	@commands.command(description='Creates a vanity invite for your Discord using https://oh-my-god.wtf/')
-	@commands.bot_has_permissions(create_instant_invite=True)
 	@commands.has_permissions(manage_guild=True)
 	async def vanityurl(self, ctx, code: str = None):
 		'''PFXvanityurl [<code>|"disable"]'''
@@ -1335,6 +1334,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		exists = self.bot.getvanity(code.lower())
 		if exists:
 			return await ctx.send('<a:fireFailed:603214400748257302> This code is already in use!')
+		if not ctx.guild.me.guild_permissions.create_instant_invite:
+			raise commands.BotMissingPermissions(['create_instant_invite'])
 		if ctx.guild.me.guild_permissions.manage_guild and 'VANITY_URL' in ctx.guild.features:
 			createdinv = await ctx.guild.vanity_invite()
 		else:

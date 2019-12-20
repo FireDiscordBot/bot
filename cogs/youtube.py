@@ -46,13 +46,6 @@ class youtube(commands.Cog, name="YouTube API"):
 		self.apiver = 'v3'
 		self.loop = bot.loop
 
-	async def cog_check(self, ctx: commands.Context):
-		if ctx.guild.id == 411619823445999637:
-			if ctx.channel.id == 577203509863251989:
-				return True
-			return False
-		return True
-
 	def popular(self):
 		youtube = googleapiclient.discovery.build(
         self.apiname, self.apiver, developerKey=self.key)
@@ -68,7 +61,7 @@ class youtube(commands.Cog, name="YouTube API"):
 		for video in response.get("items", []):
 			videos.append(video)
 		return videos
-	
+
 	def video_info(self, vid):
 		youtube = googleapiclient.discovery.build(
         self.apiname, self.apiver, developerKey=self.key)
@@ -132,10 +125,10 @@ class youtube(commands.Cog, name="YouTube API"):
 		paginator = WrappedPaginator(prefix='```\nDescription (Use controls to change page)\n', suffix='```', max_size=1895)
 		for line in description.split('\n'):
 			paginator.add_line(line)
-		views = format(int(video['statistics'].get('viewCount', 0)), ',d')
-		likes = format(int(video['statistics'].get('likeCount', 0)), ',d')
-		dislikes = format(int(video['statistics'].get('dislikeCount', 0)), ',d')
-		comments = format(int(video['statistics'].get('commentCount', 0)), ',d')
+		views = format(int(videoinfo.get('statistics', {}).get('viewCount', 0)), ',d')
+		likes = format(int(videoinfo.get('statistics', {}).get('likeCount', 0)), ',d')
+		dislikes = format(int(videoinfo.get('statistics', {}).get('dislikeCount', 0)), ',d')
+		comments = format(int(videoinfo.get('statistics', {}).get('commentCount', 0)), ',d')
 		embed = discord.Embed(title=f"Video info for {video}", color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		embed.add_field(name=videoinfo["snippet"]["title"], value=f"» Link: [{title}](https://youtu.be/{vid} 'Click here to watch the video')\n» Author: [{author}](https://youtube.com/channel/{authorid} 'Click here to checkout {author} channel')\n» Published: {published}\n» Views: {views}\n» Likes: {likes}\n» Dislikes: {dislikes}\n» Comments: {comments}", inline=False)
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
