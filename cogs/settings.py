@@ -1500,6 +1500,7 @@ class settings(commands.Cog, name="Settings"):
 				[removed.remove(f) for f in ignored if f in removed]
 				s = set(before.features)
 				added = [x for x in after.features if x not in s]
+				[added.remove(f) for f in ignored if f in added]
 				if added:
 					features = []
 					for feature in added:
