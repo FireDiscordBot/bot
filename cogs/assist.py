@@ -101,47 +101,47 @@ class GoogleAssistant(object):
 		return text_response, html_response
 
 	def assist_text(self, text_query):
-        """Send a text request to the Assistant and playback the response.
-        """
-        def iter_assist_requests():
-            config = embedded_assistant_pb2.AssistConfig(
-                audio_out_config=embedded_assistant_pb2.AudioOutConfig(
-                    encoding='LINEAR16',
-                    sample_rate_hertz=16000,
-                    volume_percentage=0,
-                ),
-                dialog_state_in=embedded_assistant_pb2.DialogStateIn(
-                    language_code=self.language_code,
-                    conversation_state=self.conversation_state,
-                    is_new_conversation=self.is_new_conversation,
-                ),
-                device_config=embedded_assistant_pb2.DeviceConfig(
-                    device_id=self.device_id,
-                    device_model_id=self.device_model_id,
-                ),
-                text_query=text_query,
-            )
-            # Continue current conversation with later requests.
-            self.is_new_conversation = False
-            if self.display:
-                config.screen_out_config.screen_mode = PLAYING
-            req = embedded_assistant_pb2.AssistRequest(config=config)
-            assistant_helpers.log_assist_request_without_audio(req)
-            yield req
+		"""Send a text request to the Assistant and playback the response.
+		"""
+		def iter_assist_requests():
+			config = embedded_assistant_pb2.AssistConfig(
+				audio_out_config=embedded_assistant_pb2.AudioOutConfig(
+					encoding='LINEAR16',
+					sample_rate_hertz=16000,
+					volume_percentage=0,
+				),
+				dialog_state_in=embedded_assistant_pb2.DialogStateIn(
+					language_code=self.language_code,
+					conversation_state=self.conversation_state,
+					is_new_conversation=self.is_new_conversation,
+				),
+				device_config=embedded_assistant_pb2.DeviceConfig(
+					device_id=self.device_id,
+					device_model_id=self.device_model_id,
+				),
+				text_query=text_query,
+			)
+			# Continue current conversation with later requests.
+			self.is_new_conversation = False
+			if self.display:
+				config.screen_out_config.screen_mode = PLAYING
+			req = embedded_assistant_pb2.AssistRequest(config=config)
+			assistant_helpers.log_assist_request_without_audio(req)
+			yield req
 
-        text_response = None
-        html_response = None
-        for resp in self.assistant.Assist(iter_assist_requests(),
-                                          self.deadline):
-            assistant_helpers.log_assist_response_without_audio(resp)
-            if resp.screen_out.data:
-                html_response = resp.screen_out.data
-            if resp.dialog_state_out.conversation_state:
-                conversation_state = resp.dialog_state_out.conversation_state
-                self.conversation_state = conversation_state
-            if resp.dialog_state_out.supplemental_display_text:
-                text_response = resp.dialog_state_out.supplemental_display_text
-        return text_response, html_response
+		text_response = None
+		html_response = None
+		for resp in self.assistant.Assist(iter_assist_requests(),
+										  self.deadline):
+			assistant_helpers.log_assist_response_without_audio(resp)
+			if resp.screen_out.data:
+				html_response = resp.screen_out.data
+			if resp.dialog_state_out.conversation_state:
+				conversation_state = resp.dialog_state_out.conversation_state
+				self.conversation_state = conversation_state
+			if resp.dialog_state_out.supplemental_display_text:
+				text_response = resp.dialog_state_out.supplemental_display_text
+		return text_response, html_response
 
 try:
 	with open(os.path.join(click.get_app_dir('google-oauthlib-tool'), 'credentials.json'), 'r') as f:
