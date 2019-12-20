@@ -211,7 +211,8 @@ class Assistant(commands.Cog, name='Google Assistant'):
 				file = discord.File(f'{ctx.author.id}assist.png', 'gassist.png')
 				await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'gassist.uploaded'))
 				return await ctx.send(file=file)
-			await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query, stream))
+			else:
+				await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query, stream))
 			if os.path.exists(f'{ctx.author.id}.mp3'):
 				if uploadresp:
 					file = discord.File(f'{ctx.author.id}.mp3', 'gassist.mp3')
