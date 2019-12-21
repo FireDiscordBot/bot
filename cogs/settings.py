@@ -1036,20 +1036,21 @@ class settings(commands.Cog, name="Settings"):
 			if len(self.joincache[member.guild.id]) >= 50:
 				self.bot.dispatch('raid_attempt', member.guild, self.joincache[member.guild.id])
 		usedinvite = None
-		if member.guild.id in self.bot.invites and member.guild.id in premium:
-			before = self.bot.invites[member.guild.id].copy()
-			await self.loadInvites(member.guild.id)
-			after = self.bot.invites[member.guild.id]
-			for inv in before:
-				a = after.get(inv, False)
-				b = before[inv]
-				if b != a:
-					usedinvite = inv
-		if not usedinvite and 'PUBLIC' in member.guild.features:
-			if 'DISCOVERABLE' in member.guild.features:
-				usedinvite = 'Joined without invite. Potentially from Server Discovery'
-			else:
-				usedinvite = 'Joined without invite. Potentially from lurking'
+		if not member.bot:
+			if member.guild.id in self.bot.invites and member.guild.id in premium:
+				before = self.bot.invites[member.guild.id].copy()
+				await self.loadInvites(member.guild.id)
+				after = self.bot.invites[member.guild.id]
+				for inv in before:
+					a = after.get(inv, False)
+					b = before[inv]
+					if b != a:
+						usedinvite = inv
+			if not usedinvite and 'PUBLIC' in member.guild.features:
+				if 'DISCOVERABLE' in member.guild.features:
+					usedinvite = 'Joined without invite. Potentially from Server Discovery'
+				else:
+					usedinvite = 'Joined without invite. Potentially from lurking'
 		joinleave = self.joinleave.get(member.guild.id, False)
 		if joinleave:
 			joinchan = joinleave.get('joinchan', False)
@@ -1064,22 +1065,25 @@ class settings(commands.Cog, name="Settings"):
 		else:
 			return
 		if member.guild.id in self.gbancheck:
-			banned = await self.bot.ksoft.bans_check(member.id)
-			if banned:
-				try:
-					await member.guild.ban(member, reason=f'{member} was found on global ban list')
-					self.recentgban.append(f'{member.id}-{member.guild.id}')
-					if logch:
-						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
-						embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-						embed.add_field(name='Reason', value=f'{member} was found on global ban list', inline=False)
-						embed.set_footer(text=f"Member ID: {member.id}")
-						try:
-							return await logch.send(embed=embed)
-						except Exception:
-							pass
-				except discord.HTTPException:
-					return
+			try:
+				banned = await self.bot.ksoft.bans_check(member.id)
+				if banned:
+					try:
+						await member.guild.ban(member, reason=f'{member} was found on global ban list')
+						self.recentgban.append(f'{member.id}-{member.guild.id}')
+						if logch:
+							embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
+							embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
+							embed.add_field(name='Reason', value=f'{member} was found on global ban list', inline=False)
+							embed.set_footer(text=f"Member ID: {member.id}")
+							try:
+								return await logch.send(embed=embed)
+							except Exception:
+								pass
+					except discord.HTTPException:
+						return
+			except Exception:
+				pass
 		if logch:
 			#https://giphy.com/gifs/pepsi-5C0a8IItAWRebylDRX
 			embed = discord.Embed(title='Member Joined', url='https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif', color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
@@ -1087,6 +1091,14 @@ class settings(commands.Cog, name="Settings"):
 			embed.add_field(name='Account Created', value=humanfriendly.format_timespan(datetime.datetime.utcnow() - member.created_at) + ' ago', inline=False)
 			if usedinvite and member.guild.id in premium:
 				embed.add_field(name='Invite Used', value=usedinvite, inline=False)
+			if member.bot:
+				try:
+					async for e in member.guild.audit_logs(limit=10):
+						if e.action == 28 and e.target.id == member.id:
+							embed.add_field(name='Invited By', value=f'{e.user} ({e.user.id})', inline=False)
+							break
+				except Exception as e:
+					pass
 			embed.set_footer(text=f'User ID: {member.id}')
 			try:
 				await logch.send(embed=embed)
