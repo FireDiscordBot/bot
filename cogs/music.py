@@ -671,7 +671,7 @@ class Music(commands.Cog):
 
 		await player.stop()
 
-	@commands.command(name='stop', description="Stop the player, disconnect and clear the queue.")
+	@commands.command(name='stop', description="Stop the player, disconnect and clear the queue.", aliases=['goaway', 'disconnect'])
 	@commands.cooldown(3, 30, commands.BucketType.guild)
 	async def stop_(self, ctx):
 		"""PFXstop"""
