@@ -547,7 +547,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			guild = guild['guild']
 			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
-			gtagcolor = guild['tagColor'].lower().replace('_', ' ').capitalize()
+			gtagcolor = guild.get('tagColor', 'GRAY').lower().replace('_', ' ').capitalize()
 			gtag = guild.get('tag', '')
 			if gtag:
 				gtag = f'[{gtag}] ({gtagcolor})'
