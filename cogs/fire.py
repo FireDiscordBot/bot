@@ -78,6 +78,10 @@ class firecog(commands.Cog, name="Main Commands"):
 	async def inviteme(self, ctx):
 		return await ctx.send("https://gaminggeek.dev/fire")
 
+	@commands.command(name='shut')
+	async def shut(self, ctx):
+		await ctx.send('https://shutplea.se/')
+
 	@commands.command(description="Shows you my ping to discord's servers")
 	async def ping(self, ctx):
 		"""PFXping"""
