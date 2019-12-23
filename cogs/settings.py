@@ -1091,6 +1091,8 @@ class settings(commands.Cog, name="Settings"):
 			embed.add_field(name='Account Created', value=humanfriendly.format_timespan(datetime.datetime.utcnow() - member.created_at) + ' ago', inline=False)
 			if usedinvite and member.guild.id in premium:
 				embed.add_field(name='Invite Used', value=usedinvite, inline=False)
+			if member.guild.id not in premium and randint(0, 100) == 69:
+				embed.add_field(name='Want to see what invite they used?', value='Fire Premium allows you to do that and more.\n[Get Premium](https://gaminggeek.dev/patreon)\n[Premium Commands](https://gaminggeek.dev/commands#premium-commands)', inline=False)
 			if member.bot:
 				try:
 					async for e in member.guild.audit_logs(limit=10):
