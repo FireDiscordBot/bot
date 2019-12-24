@@ -29,7 +29,7 @@ class conor(commands.Cog, name="ConorTheDev's Custom Features"):
 
 	@commands.command(name='conorswear')
 	async def stopswearingconor(self, ctx, state: bool = True):
-		if not ctx.author.id == 509078480655351820 or not ctx.author.id == 287698408855044097:
+		if ctx.author.id != 509078480655351820 or ctx.author.id != 287698408855044097:
 			return
 		self.bot.conorantiswear = state
 		state = 'enabled' if self.bot.conorantiswear else 'disabled'
