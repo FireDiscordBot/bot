@@ -486,7 +486,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				return
 
 			
-	@commands.command(aliases=["banish", "begone", "gtfo", "410"], description="Ban a user from the server")
+	@commands.command(aliases=["banish", "begone", "gtfo", "410", "perish"], description="Ban a user from the server")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(ban_members=True)
 	async def ban(self, ctx, user: typing.Union[StaffCheck, UserWithFallback] = None, *, reason: str = None, ):
