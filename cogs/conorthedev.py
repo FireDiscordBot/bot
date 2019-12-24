@@ -32,8 +32,8 @@ class conor(commands.Cog, name="ConorTheDev's Custom Features"):
 		if ctx.author.id != 509078480655351820 or ctx.author.id != 287698408855044097:
 			return
 		self.bot.conorantiswear = state
-		state = 'enabled' if self.bot.conorantiswear else 'disabled'
-		return await ctx.send(f'Antiswear is now {state}')
+		e = 'enabled' if self.bot.conorantiswear else 'disabled'
+		return await ctx.send(f'Antiswear is now {e}')
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
