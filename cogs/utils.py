@@ -1319,7 +1319,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				embed.set_image(url=str(image))
 			embed.add_field(name='Clicks', value=current['clicks'])
 			embed.add_field(name='Links', value=current['links'])
-			embed.add_field(name='URL', value=current['url'], inline=False)
+			embed.add_field(name='URL', value=current['url'].replace('oh-my-god', 'inv'), inline=False)
 			if attach:
 				return await ctx.send(embed=embed, file=attach)
 			else:

@@ -25,7 +25,7 @@ class conor(commands.Cog, name="ConorTheDev's Custom Features"):
 		self.bot = bot
 		if not hasattr(self.bot, 'conorantiswear'):
 			self.bot.conorantiswear = True
-		self.swear = ['fuck', 'shit', 'bollocks', 'cunt', 'retard']
+		self.swear = ['fuck', 'shit', 'bollocks', 'cunt', 'retard', 'cum']
 
 	@commands.command(name='conorswear')
 	async def stopswearingconor(self, ctx, state: bool = True):
