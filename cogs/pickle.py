@@ -608,7 +608,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 	async def mcstatus(self, ctx):
 		emotes = {
 			'green': '<a:fireSuccess:603214443442077708>',
-			'yellow': '<:fireWarning:657560798276878346>',
+			'yellow': '<a:fireWarning:660148304486727730>',
 			'red': '<a:fireFailed:603214400748257302>'
 		}
 		statuses = {
