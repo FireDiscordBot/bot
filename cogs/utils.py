@@ -1407,7 +1407,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if url.lower() in ['delete', 'true', 'yeet']:
 			delete = True
 		if delete:
-			curent = self.getredirect(slug.lower())
+			current = self.getredirect(slug.lower())
 			if current['uid'] != ctx.author.id:
 				return await ctx.send('<a:fireFailed:603214400748257302> You can only delete your own redirects!')
 			await self.deletevanitycode(slug.lower())
