@@ -334,7 +334,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 	async def mute(self, ctx, user, reason, until = None, timedelta = None, channel: TextChannel = None):
 		if not reason:
-			reason = "No reason specified."
+			reason = "No Reason Provided."
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
 		mutedchat = discord.utils.get(ctx.guild.text_channels, name="muted-chat")
 		if until:
@@ -362,110 +362,62 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await user.add_roles(muted)
 			if e:
 				await e.delete()
-			await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been muted")
-			try:
-				await user.send(f'You were muted in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
-			except discord.HTTPException:
-				pass
-			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.mutes'))
-			# await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
-			# await self.bot.conn.commit()
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				if until:
-					query = 'INSERT INTO mutes (\"gid\", \"uid\", \"until\") VALUES ($1, $2, $3);'
-					await self.bot.db.execute(query, ctx.guild.id, user.id, until)
-				else:
-					query = 'INSERT INTO mutes (\"gid\", \"uid\") VALUES ($1, $2);'
-					await self.bot.db.execute(query, ctx.guild.id, user.id)
-				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
-				await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'mute', datetime.datetime.utcnow().timestamp() + user.id)
-			await self.bot.db.release(con)
-			await self.loadmodlogs()
-			if until:
-				if ctx.guild.id in self.mutes:
-					self.mutes[ctx.guild.id][user.id] = {
-						"uid": user.id,
-						"gid": ctx.guild.id,
-						"until": until
-					}
-				else:
-					self.mutes[ctx.guild.id] = {}
-					self.mutes[ctx.guild.id][user.id] = {
-						"uid": user.id,
-						"gid": ctx.guild.id,
-						"until": until
-					}
-			else:
-				if ctx.guild.id in self.mutes:
-					self.mutes[ctx.guild.id][user.id] = {
-						"uid": user.id,
-						"gid": ctx.guild.id
-					}
-			if channel:
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
-				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-				embed.add_field(name='Reason', value=reason, inline=False)
-				if timeup:
-					timedelta = humanfriendly.format_timespan(timedelta)
-					embed.add_field(name='Until', value=f'{timeup} UTC ({timedelta})', inline=False)
-				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-				await channel.send(embed=embed)
 		else:
 			await user.add_roles(muted)
-			await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been muted")
-			try:
-				await user.send(f'You were muted in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
-			except discord.HTTPException:
-				pass
-			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.mutes'))
-			# await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
-			# await self.bot.conn.commit()
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				if until:
-					query = 'INSERT INTO mutes (\"gid\", \"uid\", \"until\") VALUES ($1, $2, $3);'
-					await self.bot.db.execute(query, ctx.guild.id, user.id, until)
-				else:
-					query = 'INSERT INTO mutes (\"gid\", \"uid\") VALUES ($1, $2);'
-					await self.bot.db.execute(query, ctx.guild.id, user.id)
-				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
-				await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'mute', datetime.datetime.utcnow().timestamp() + user.id)
-			await self.bot.db.release(con)
-			await self.loadmodlogs()
+		await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been muted")
+		try:
+			await user.send(f'You were muted in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
+			nodm = False
+		except discord.HTTPException:
+			nodm = True
+		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.mutes'))
+		# await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
+		# await self.bot.conn.commit()
+		con = await self.bot.db.acquire()
+		async with con.transaction():
 			if until:
-				if ctx.guild.id in self.mutes:
-					self.mutes[ctx.guild.id][user.id] = {
-						"uid": user.id,
-						"gid": ctx.guild.id,
-						"until": until
-					}
-				else:
-					self.mutes[ctx.guild.id] = {}
-					self.mutes[ctx.guild.id][user.id] = {
-						"uid": user.id,
-						"gid": ctx.guild.id,
-						"until": until
-					}
+				query = 'INSERT INTO mutes (\"gid\", \"uid\", \"until\") VALUES ($1, $2, $3);'
+				await self.bot.db.execute(query, ctx.guild.id, user.id, until)
 			else:
-				if ctx.guild.id in self.mutes:
-					self.mutes[ctx.guild.id][user.id] = {
-						"uid": user.id,
-						"gid": ctx.guild.id
-					}
-			if channel:
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
-				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-				embed.add_field(name='Reason', value=reason, inline=False)
-				if timeup:
-					timedelta = humanfriendly.format_timespan(timedelta)
-					embed.add_field(name='Until', value=f'{timeup} UTC ({timedelta})', inline=False)
-				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-				await channel.send(embed=embed)
+				query = 'INSERT INTO mutes (\"gid\", \"uid\") VALUES ($1, $2);'
+				await self.bot.db.execute(query, ctx.guild.id, user.id)
+			query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
+			await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'mute', datetime.datetime.utcnow().timestamp() + user.id)
+		await self.bot.db.release(con)
+		await self.loadmodlogs()
+		if until:
+			if ctx.guild.id in self.mutes:
+				self.mutes[ctx.guild.id][user.id] = {
+					"uid": user.id,
+					"gid": ctx.guild.id,
+					"until": until
+				}
+			else:
+				self.mutes[ctx.guild.id] = {}
+				self.mutes[ctx.guild.id][user.id] = {
+					"uid": user.id,
+					"gid": ctx.guild.id,
+					"until": until
+				}
+		else:
+			if ctx.guild.id in self.mutes:
+				self.mutes[ctx.guild.id][user.id] = {
+					"uid": user.id,
+					"gid": ctx.guild.id
+				}
+		if channel:
+			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+			embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
+			embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+			embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+			embed.add_field(name='Reason', value=reason, inline=False)
+			if timeup:
+				timedelta = humanfriendly.format_timespan(timedelta)
+				embed.add_field(name='Until', value=f'{timeup} UTC ({timedelta})', inline=False)
+			if nodm:
+				embed.add_field(name='DM Received?', value='No, user has DMs off or has blocked me.', inline=False)
+			embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+			await channel.send(embed=embed)
 		
 		if not mutedchat:
 			overwrites = {ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
@@ -489,7 +441,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(aliases=["banish", "begone", "gtfo", "410", "perish"], description="Ban a user from the server")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(ban_members=True)
-	async def ban(self, ctx, user: typing.Union[StaffCheck, UserWithFallback] = None, *, reason: str = None, ):
+	async def ban(self, ctx, user: typing.Union[StaffCheck, UserWithFallback] = None, *, reason: str = "No Reason Provided.", ):
 		"""PFXban <user> [<reason>]"""
 		await ctx.message.delete()
 		await ctx.trigger_typing()
@@ -503,70 +455,44 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if len([b for b in current if b.user.id == user.id]) >= 1:
 			return await ctx.send('<a:fireFailed:603214400748257302> That user is already banned!')
 		try:
-			if reason:
-				try:
-					await user.send(f'You were banned from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
-				except discord.HTTPException:
-					pass
-				await ctx.guild.ban(user, reason=f"Banned by {ctx.author} for {reason}")
-				logchannels = self.bot.get_cog("Settings").logchannels
-				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-				if logid:
-					logch = ctx.guild.get_channel(logid['modlogs'])
-					if logch:
-						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Ban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
-						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-						embed.add_field(name='Reason', value=reason, inline=False)
-						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-						try:
-							await logch.send(embed=embed)
-						except Exception:
-							pass
-				await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been banished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
-				await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.bans'))
-				con = await self.bot.db.acquire()
-				async with con.transaction():
-					query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
-					await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'ban', datetime.datetime.utcnow().timestamp() + user.id)
-				await self.bot.db.release(con)
-				await self.loadmodlogs()
-			else:
-				try:
-					await user.send(f'You were banned from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}')
-				except discord.HTTPException:
-					pass
-				await ctx.guild.ban(user, reason=f"Banned by {ctx.author}")
-				logchannels = self.bot.get_cog("Settings").logchannels
-				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-				if logid:
-					logch = ctx.guild.get_channel(logid['modlogs'])
-					if logch:
-						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Ban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
-						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-						try:
-							await logch.send(embed=embed)
-						except Exception:
-							pass
-				await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been banished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}")
-				await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.bans'))
-				con = await self.bot.db.acquire()
-				async with con.transaction():
-					query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
-					await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'ban', datetime.datetime.utcnow().timestamp() + user.id)
-				await self.bot.db.release(con)
-				await self.loadmodlogs()
+			try:
+				await user.send(f'You were banned from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
+				nodm = False
+			except discord.HTTPException:
+				nodm = True
+			await ctx.guild.ban(user, reason=f"Banned by {ctx.author} for {reason}")
+			logchannels = self.bot.get_cog("Settings").logchannels
+			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+			if logid:
+				logch = ctx.guild.get_channel(logid['modlogs'])
+				if logch:
+					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+					embed.set_author(name=f'Ban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
+					embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+					embed.add_field(name='Reason', value=reason, inline=False)
+					if nodm:
+						embed.add_field(name='DM Received?', value='No, user has DMs off or has blocked me.', inline=False)
+					embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
+			await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been banished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
+			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.bans'))
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
+				await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'ban', datetime.datetime.utcnow().timestamp() + user.id)
+			await self.bot.db.release(con)
+			await self.loadmodlogs()
 		except discord.Forbidden:
 			await ctx.send("<a:fireFailed:603214400748257302> Ban failed. Are you trying to ban someone higher than the bot?")
 
 	@commands.command(aliases=["unbanish"], description="Unban a user from the server")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(ban_members=True)
-	async def unban(self, ctx, user: UserWithFallback = None, *, reason: str = None, ):
+	async def unban(self, ctx, user: UserWithFallback = None, *, reason: str = "No Reason Provided."):
 		"""PFXunban <user> [<reason>]"""
 		await ctx.message.delete()
 		await ctx.trigger_typing()
@@ -574,60 +500,35 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not user:
 			return await ctx.send("You must specify a user")
 		
-		if reason:
-			await ctx.guild.unban(discord.Object(user.id), reason=f"Unbanned by {ctx.author} for {reason}")
-			logchannels = self.bot.get_cog("Settings").logchannels
-			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-			if logid:
-				logch = ctx.guild.get_channel(logid['modlogs'])
-				if logch:
-					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-					embed.set_author(name=f'Unban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-					embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
-					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-					embed.add_field(name='Reason', value=reason, inline=False)
-					embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
-			await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unbanished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
-			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.unbans'))
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
-				await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'unban', datetime.datetime.utcnow().timestamp() + user.id)
-			await self.bot.db.release(con)
-			await self.loadmodlogs()
-		else:
-			await ctx.guild.ban(discord.Object(user.id), reason=f"Unbanned by {ctx.author}")
-			logchannels = self.bot.get_cog("Settings").logchannels
-			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-			if logid:
-				logch = ctx.guild.get_channel(logid['modlogs'])
-				if logch:
-					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-					embed.set_author(name=f'Unban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-					embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
-					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-					embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
-			await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unbanished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}")
-			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.unbans'))
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
-				await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'unban', datetime.datetime.utcnow().timestamp() + user.id)
-			await self.bot.db.release(con)
-			await self.loadmodlogs()
+		await ctx.guild.unban(discord.Object(user.id), reason=f"Unbanned by {ctx.author} for {reason}")
+		logchannels = self.bot.get_cog("Settings").logchannels
+		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+		if logid:
+			logch = ctx.guild.get_channel(logid['modlogs'])
+			if logch:
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+				embed.set_author(name=f'Unban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
+				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+				embed.add_field(name='Reason', value=reason, inline=False)
+				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
+		await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unbanished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
+		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.unbans'))
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
+			await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'unban', datetime.datetime.utcnow().timestamp() + user.id)
+		await self.bot.db.release(con)
+		await self.loadmodlogs()
 	
 	@commands.command(description="Temporarily restricts access to this server.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(ban_members=True)
-	async def softban(self, ctx, user: StaffCheck = None, messages: int = 7, *, reason = None, ):
+	async def softban(self, ctx, user: StaffCheck = None, messages: int = 7, *, reason = "No Reason Provided."):
 		"""PFXsoftban <user> <amount of days: 1-7> [<reason>]"""
 		await ctx.message.delete()
 		await ctx.trigger_typing()
@@ -643,41 +544,23 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			raise commands.ArgumentParsingError('That\'s not a valid number of days. It should be 1-7')
 
 		try:
-			if reason:
-				await ctx.guild.ban(user, reason=f"Softbanned by {ctx.author} for {reason}", delete_message_days=messages) 
-				logchannels = self.bot.get_cog("Settings").logchannels
-				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-				if logid:
-					logch = ctx.guild.get_channel(logid['modlogs'])
-					if logch:
-						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Softban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
-						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-						embed.add_field(name='Reason', value=reason, inline=False)
-						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-						try:
-							await logch.send(embed=embed)
-						except Exception:
-							pass
-				await ctx.guild.unban(user, reason="Temporarily Banned")
-			else:
-				await ctx.guild.ban(user, reason=f"Softbanned by {ctx.author}", delete_message_days=messages) 
-				logchannels = self.bot.get_cog("Settings").logchannels
-				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-				if logid:
-					logch = ctx.guild.get_channel(logid['modlogs'])
-					if logch:
-						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Softban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
-						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-						try:
-							await logch.send(embed=embed)
-						except Exception:
-							pass
-				await ctx.guild.unban(user, reason="Temporarily Banned")
+			await ctx.guild.ban(user, reason=f"Softbanned by {ctx.author} for {reason}", delete_message_days=messages) 
+			logchannels = self.bot.get_cog("Settings").logchannels
+			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+			if logid:
+				logch = ctx.guild.get_channel(logid['modlogs'])
+				if logch:
+					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+					embed.set_author(name=f'Softban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
+					embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+					embed.add_field(name='Reason', value=reason, inline=False)
+					embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
+			await ctx.guild.unban(user, reason="Temporarily Banned")
 			await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been soft-banned.")
 			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.softbans'))
 			con = await self.bot.db.acquire()
@@ -710,7 +593,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(name='mute', description="Mute a user.", aliases=["silence", "tempmute", "403"])
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def mutecmd(self, ctx, user: StaffCheck, *, reason: str = None):
+	async def mutecmd(self, ctx, user: StaffCheck, *, reason: str = "No Reason Provided."):
 		"""PFXmute <user> [<time> <reason>]\n\nTime format: `1d 2h 3m 4s` == `1 day, 2 hours, 3 minutes and 4 seconds`"""
 		await ctx.message.delete()
 		if user == False:
@@ -731,16 +614,12 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		else:
 			days, hours, minutes, seconds = 0, 0, 0, 0
 		if days == 0 and hours == 0 and minutes == 0 and seconds == 0:
-			if reason == '' or reason == ' ':
-				reason = 'No reason provided.'
-			await self.mute(ctx, user, reason=reason or "No reason provided.", channel=logch)
+			await self.mute(ctx, user, reason=reason, channel=logch)
 		else:
 			td = datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 			until = datetime.datetime.utcnow() + datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 			reason = reason.replace(f'{days}d ', '').replace(f'{hours}h ', '').replace(f'{minutes}m ', '').replace(f'{seconds}s ', '')
-			if reason == '' or reason == ' ':
-				reason = 'No reason provided.'
-			await self.mute(ctx, user, reason=reason or "No reason provided.", until=until, timedelta=td, channel=logch)
+			await self.mute(ctx, user, reason=reason, until=until, timedelta=td, channel=logch)
 	
 	@commands.command(description="Warn a user.")
 	@commands.has_permissions(manage_messages=True)
@@ -758,7 +637,11 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			return await ctx.send("<a:fireFailed:603214400748257302> I cannot warn myself, you fool.")
 
 		try:
-			await user.send(f'You were warned in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
+			try:
+				await user.send(f'You were warned in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
+				nodm = False
+			except discord.Forbidden:
+				nodm = True
 			await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been warned.')
 			logchannels = self.bot.get_cog("Settings").logchannels
 			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
@@ -770,29 +653,15 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 					embed.add_field(name='Reason', value=reason, inline=False)
+					if nodm:
+						embed.add_field(name='Error', value='Unable to send DM, user was not warned.', inline=False)
 					embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 					try:
 						await logch.send(embed=embed)
 					except Exception:
 						pass
-		except discord.Forbidden:
-			await ctx.send(f'<a:fireFailed:603214400748257302> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** was not warned, unable to dm.')
-			logchannels = self.bot.get_cog("Settings").logchannels
-			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-			if logid:
-				logch = ctx.guild.get_channel(logid['modlogs'])
-				if logch:
-					embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.utcnow())
-					embed.set_author(name=f'Warn | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-					embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
-					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-					embed.add_field(name='Reason', value=reason, inline=False)
-					embed.add_field(name='Error', value='Unable to send DM, user was not warned.', inline=False)
-					embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
+		except Exception:
+			return
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
@@ -876,7 +745,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(description="Kick a user.", aliases=["yeet", "409"])
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(kick_members=True)
-	async def kick(self, ctx, user: StaffCheck = None, *, reason = None):
+	async def kick(self, ctx, user: StaffCheck = None, *, reason = "No Reason Provided."):
 		"""PFXkick <user> [<reason>]"""
 		await ctx.trigger_typing()
 		await ctx.message.delete()
@@ -887,47 +756,29 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			return await ctx.send("You must specify a user")
 		
 		try:
-			if reason:
-				try:
-					await user.send(f'You were kicked from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
-				except discord.HTTPException:
-					pass
-				await ctx.guild.kick(user, reason=f"Kicked by {ctx.author} for {reason}")
-				logchannels = self.bot.get_cog("Settings").logchannels
-				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-				if logid:
-					logch = ctx.guild.get_channel(logid['modlogs'])
-					if logch:
-						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Kick | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
-						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-						embed.add_field(name='Reason', value=reason, inline=False)
-						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-						try:
-							await logch.send(embed=embed)
-						except Exception:
-							pass
-			else:
-				try:
-					await user.send(f'You were kicked from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}')
-				except discord.HTTPException:
-					pass
-				await ctx.guild.kick(user, reason=f"Kicked by {ctx.author}")
-				logchannels = self.bot.get_cog("Settings").logchannels
-				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-				if logid:
-					logch = ctx.guild.get_channel(logid['modlogs'])
-					if logch:
-						embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Kick | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-						embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
-						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-						embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-						try:
-							await logch.send(embed=embed)
-						except Exception:
-							pass
+			try:
+				await user.send(f'You were kicked from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
+				nodm = False
+			except discord.HTTPException:
+				nodm = True
+			await ctx.guild.kick(user, reason=f"Kicked by {ctx.author} for {reason}")
+			logchannels = self.bot.get_cog("Settings").logchannels
+			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
+			if logid:
+				logch = ctx.guild.get_channel(logid['modlogs'])
+				if logch:
+					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+					embed.set_author(name=f'Kick | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
+					embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
+					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+					embed.add_field(name='Reason', value=reason, inline=False)
+					if nodm:
+						embed.add_field(name='DM Received?', value='No, user has DMs off or has blocked me.', inline=False)
+					embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 			await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been kicked.')
 			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.kicks'))
 			con = await self.bot.db.acquire()
@@ -979,7 +830,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(description="Mute a user/role in the current channel.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def block(self, ctx, blocked: typing.Union[StaffCheck, Role] = None, *, reason = 'No reason provided.'):
+	async def block(self, ctx, blocked: typing.Union[StaffCheck, Role] = None, *, reason = 'No Reason Provided.'):
 		"""PFXblock <user|role> [<reason>]"""
 		try:
 			await ctx.message.delete()
@@ -996,7 +847,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not blocked:
 			return await ctx.send("You must specify a user")
 		
-		await ctx.channel.set_permissions(blocked, send_messages=False, reason=reason or 'No reason specified.')
+		await ctx.channel.set_permissions(blocked, send_messages=False, reason=reason)
 		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully blocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}** from chatting in {ctx.channel.mention}.')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
@@ -1018,7 +869,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(description="Unmute a user/role who has been blocked in the current channel.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def unblock(self, ctx, blocked: typing.Union[StaffCheck, Role] = None, *, reason = 'No reason provided.'):
+	async def unblock(self, ctx, blocked: typing.Union[StaffCheck, Role] = None, *, reason = 'No Reason Provided.'):
 		"""PFXunblock <user|role> [<reason>]"""
 		try:
 			await ctx.message.delete()
@@ -1035,7 +886,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not blocked:
 			return await ctx.send("You must specify a user")
 		
-		await ctx.channel.set_permissions(blocked, send_messages=None, reason=reason or 'No reason specified.')
+		await ctx.channel.set_permissions(blocked, send_messages=None, reason=reason)
 		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully unblocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}**. Welcome back!')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
@@ -1057,7 +908,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(description="Remove all ranks from a user. You're welcome Sk1er", aliases=['dethrone'])
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
-	async def derank(self, ctx, user: StaffCheck = None, *, reason = 'No reason provided.'):
+	async def derank(self, ctx, user: StaffCheck = None, *, reason = 'No Reason Provided.'):
 		"""PFXderank <user> [<reason>]"""
 		try:
 			await ctx.message.delete()
