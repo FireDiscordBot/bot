@@ -1417,7 +1417,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if len(slug) < 3 or len(slug) > 20:
 			return await ctx.send('<a:fireFailed:603214400748257302> The slug needs to be 3-20 characters!')
 		exists = self.bot.getvanity(slug.lower())
-		if exists['gid'] not in premiumguilds:
+		if exists and exists['gid'] not in premiumguilds:
 			exists = False
 		redirexists = self.bot.getredirect(slug.lower())
 		if exists or redirexists:
