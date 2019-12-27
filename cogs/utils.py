@@ -1412,6 +1412,8 @@ class utils(commands.Cog, name='Utility Commands'):
 				return await ctx.send('<a:fireFailed:603214400748257302> You can only delete your own redirects!')
 			await self.deletevanitycode(slug.lower())
 			return await ctx.send('<a:fireSuccess:603214443442077708> Redirect deleted!')
+		if 'https://' not in url:
+			return await ctx.send('<a:fireFailed:603214400748257302> URL must include "https://"')
 		if not re.fullmatch(r'[a-zA-Z0-9]+', slug):
 			return await ctx.send('<a:fireFailed:603214400748257302> Redirect slugs can only contain characters A-Z0-9')
 		if len(slug) < 3 or len(slug) > 20:
