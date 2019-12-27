@@ -291,16 +291,11 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	async def createredirect(self, code: str, url: str, uid: int):
 		code = code.lower()
-		query = 'SELECT * FROM vanity WHERE code = $1;'
-		current = await self.bot.db.fetch(query, code)
-		if not current:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'INSERT INTO vanity (\"code\", \"redirect\", \"uid\") VALUES ($1, $2, $3);'
-				await self.bot.db.execute(query, code, url, uid)
-			await self.bot.db.release(con)
-		else:
-			return False
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'INSERT INTO vanity (\"code\", \"redirect\", \"uid\") VALUES ($1, $2, $3);'
+			await self.bot.db.execute(query, code, url, uid)
+		await self.bot.db.release(con)
 		await self.loadvanitys()
 		try:
 			return self.bot.redirects[code]
