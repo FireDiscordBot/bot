@@ -206,10 +206,12 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.channelfollowable = []
 		self.channelfollows = {}
 		self.bot.vanity_urls = {}
+		self.bot.redirects = {}
 		self.bot.descriptions = {}
 		if 'slack_messages' not in dir(self.bot):
  			self.bot.slack_messages = {}
 		self.bot.getvanity = self.getvanity
+		self.bot.getredirect = self.getredirect
 		self.bot.getvanitygid = self.getvanitygid
 		self.bot.vanityclick = self.vanityclick
 		self.bot.vanitylink = self.vanitylink
@@ -252,6 +254,12 @@ class utils(commands.Cog, name='Utility Commands'):
 		else:
 			return False
 
+	def getredirect(self, code: str):
+		if code.lower() in self.bot.redirects:
+			return self.bot.redirects[code.lower()]
+		else:
+			return False
+
 	def getvanitygid(self, gid: int):
 		for v in self.bot.vanity_urls:
 			v = self.bot.vanity_urls[v]
@@ -278,6 +286,24 @@ class utils(commands.Cog, name='Utility Commands'):
 		await self.loadvanitys()
 		try:
 			return self.bot.vanity_urls[code]
+		except KeyError:
+			return False
+
+	async def createredirect(self, code: str, url: str, uid: int):
+		code = code.lower()
+		query = 'SELECT * FROM vanity WHERE code = $1;'
+		current = await self.bot.db.fetch(query, code)
+		if not current:
+			con = await self.bot.db.acquire()
+			async with con.transaction():
+				query = 'INSERT INTO vanity (\"code\", \"redirect\", \"uid\") VALUES ($1, $2, $3);'
+				await self.bot.db.execute(query, code, url, uid)
+			await self.bot.db.release(con)
+		else:
+			return False
+		await self.loadvanitys()
+		try:
+			return self.bot.redirects[code]
 		except KeyError:
 			return False
 
@@ -385,23 +411,30 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	async def loadvanitys(self):
 		self.bot.vanity_urls = {}
+		self.bot.redirects = {}
 		query = 'SELECT * FROM vanity;'
 		vanitys = await self.bot.db.fetch(query)
 		for v in vanitys:
-			guild = v['gid']
-			code = v['code'].lower()
-			invite = v['invite']
-			clicks = v['clicks']
-			links = v['links']
-			self.bot.vanity_urls[code] = {
-				'gid': guild,
-				'invite': invite,
-				'code': code,
-				'clicks': clicks,
-				'links': links,
-				'url': f'https://oh-my-god.wtf/{code}',
-				'inviteurl': f'https://discord.gg/{invite}'
-			}
+			if v['redirect']:
+				self.bot.redirects[v['code'].lower()] = {
+					'url': v['redirect'],
+					'uid': v['uid']
+				}
+			else:
+				guild = v['gid']
+				code = v['code'].lower()
+				invite = v['invite']
+				clicks = v['clicks']
+				links = v['links']
+				self.bot.vanity_urls[code] = {
+					'gid': guild,
+					'invite': invite,
+					'code': code,
+					'clicks': clicks,
+					'links': links,
+					'url': f'https://oh-my-god.wtf/{code}',
+					'inviteurl': f'https://discord.gg/{invite}'
+				}
 
 	async def loadtags(self):
 		self.tags = {}
@@ -1272,6 +1305,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Creates a vanity invite for your Discord using https://oh-my-god.wtf/')
 	@commands.has_permissions(manage_guild=True)
+	@commands.guild_only()
 	async def vanityurl(self, ctx, code: str = None):
 		'''PFXvanityurl [<code>|"disable"]'''
 		premiumguilds = self.bot.get_cog('Premium Commands').premiumGuilds
@@ -1332,7 +1366,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		if len(code) < 3 or len(code) > 10:
 			return await ctx.send('<a:fireFailed:603214400748257302> The code needs to be 3-10 characters!')
 		exists = self.bot.getvanity(code.lower())
-		if exists:
+		redirexists = self.bot.getredirect(code.lower())
+		if exists or redirexists:
 			return await ctx.send('<a:fireFailed:603214400748257302> This code is already in use!')
 		if not ctx.guild.me.guild_permissions.create_instant_invite:
 			raise commands.BotMissingPermissions(['create_instant_invite'])
@@ -1355,6 +1390,47 @@ class utils(commands.Cog, name='Utility Commands'):
 			else:
 				await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
 			return await ctx.send(f'<a:fireSuccess:603214443442077708> Your Vanity URL is {vanity["url"]}')
+		else:
+			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
+
+	@commands.command(name='redirect', description='Creates a custom redirect for a URL using https://inv.wtf/')
+	@commands.has_permissions(administrator=True)
+	@commands.guild_only()
+	async def makeredirect(self, ctx, slug: str = None, url: str = None, delete: bool = False):
+		premiumguilds = self.bot.get_cog('Premium Commands').premiumGuilds
+		if not ctx.guild.id in premiumguilds:
+			return await ctx.send('<a:fireFailed:603214400748257302> This feature is premium only! You can learn more at <https://gaminggeek.dev/premium>')
+		if not code:
+			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a slug!')
+		if not url:
+			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a url!')
+		if url.lower() in ['delete', 'true', 'yeet']:
+			delete = True
+		if delete:
+			curent = self.getredirect(code.lower())
+			if current['uid'] != ctx.author.id:
+				return await ctx.send('<a:fireFailed:603214400748257302> You can only delete your own redirects!')
+			await self.deletevanitycode(code.lower())
+			return await ctx.send('<a:fireSuccess:603214443442077708> Redirect deleted!')
+		if not re.fullmatch(r'[a-zA-Z0-9]+', code):
+			return await ctx.send('<a:fireFailed:603214400748257302> Redirect slugs can only contain characters A-Z0-9')
+		if len(code) < 3 or len(code) > 20:
+			return await ctx.send('<a:fireFailed:603214400748257302> The code needs to be 3-20 characters!')
+		exists = self.bot.getvanity(code.lower())
+		if exists['gid'] not in premiumguilds:
+			exists = False
+		redirexists = self.bot.getredirect(code.lower())
+		if exists or redirexists:
+			return await ctx.send('<a:fireFailed:603214400748257302> This slug is already in use!')
+		redir = await self.createredirect(code.lower(), url, ctx.author.id)
+		if redir:
+			author = str(ctx.author).replace('#', '%23')
+			if not self.bot.dev:
+				# setup slack
+				await pushover(f'{author} ({ctx.author.id}) has created the redirect `{redir["url"]}` for {url}', url=url, url_title='Check out redirect')
+			else:
+				await pushover(f'{author} ({ctx.author.id}) has created the redirect `{redir["url"]}` for {url}', url=url, url_title='Check out redirect')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Your rediect is https://inv.wtf/{code.lower()}')
 		else:
 			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
 
