@@ -1400,29 +1400,29 @@ class utils(commands.Cog, name='Utility Commands'):
 		premiumguilds = self.bot.get_cog('Premium Commands').premiumGuilds
 		if not ctx.guild.id in premiumguilds:
 			return await ctx.send('<a:fireFailed:603214400748257302> This feature is premium only! You can learn more at <https://gaminggeek.dev/premium>')
-		if not code:
+		if not slug:
 			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a slug!')
 		if not url:
 			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a url!')
 		if url.lower() in ['delete', 'true', 'yeet']:
 			delete = True
 		if delete:
-			curent = self.getredirect(code.lower())
+			curent = self.getredirect(slug.lower())
 			if current['uid'] != ctx.author.id:
 				return await ctx.send('<a:fireFailed:603214400748257302> You can only delete your own redirects!')
-			await self.deletevanitycode(code.lower())
+			await self.deletevanitycode(slug.lower())
 			return await ctx.send('<a:fireSuccess:603214443442077708> Redirect deleted!')
-		if not re.fullmatch(r'[a-zA-Z0-9]+', code):
+		if not re.fullmatch(r'[a-zA-Z0-9]+', slug):
 			return await ctx.send('<a:fireFailed:603214400748257302> Redirect slugs can only contain characters A-Z0-9')
-		if len(code) < 3 or len(code) > 20:
-			return await ctx.send('<a:fireFailed:603214400748257302> The code needs to be 3-20 characters!')
-		exists = self.bot.getvanity(code.lower())
+		if len(slug) < 3 or len(slug) > 20:
+			return await ctx.send('<a:fireFailed:603214400748257302> The slug needs to be 3-20 characters!')
+		exists = self.bot.getvanity(slug.lower())
 		if exists['gid'] not in premiumguilds:
 			exists = False
-		redirexists = self.bot.getredirect(code.lower())
+		redirexists = self.bot.getredirect(slug.lower())
 		if exists or redirexists:
 			return await ctx.send('<a:fireFailed:603214400748257302> This slug is already in use!')
-		redir = await self.createredirect(code.lower(), url, ctx.author.id)
+		redir = await self.createredirect(slug.lower(), url, ctx.author.id)
 		if redir:
 			author = str(ctx.author).replace('#', '%23')
 			if not self.bot.dev:
@@ -1430,7 +1430,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await pushover(f'{author} ({ctx.author.id}) has created the redirect `{redir["url"]}` for {url}', url=url, url_title='Check out redirect')
 			else:
 				await pushover(f'{author} ({ctx.author.id}) has created the redirect `{redir["url"]}` for {url}', url=url, url_title='Check out redirect')
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Your rediect is https://inv.wtf/{code.lower()}')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Your rediect is https://inv.wtf/{slug.lower()}')
 		else:
 			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
 
