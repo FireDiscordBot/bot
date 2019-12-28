@@ -434,6 +434,9 @@ class utils(commands.Cog, name='Utility Commands'):
 					'url': f'https://oh-my-god.wtf/{code}',
 					'inviteurl': f'https://discord.gg/{invite}'
 				}
+		api = self.bot.get_cog('Fire API')
+		if api:
+			self.bot.loop.create_task(api.loadredirembed(self.bot.redirects))
 
 	async def loadtags(self):
 		self.tags = {}
