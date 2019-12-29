@@ -76,7 +76,7 @@ async def get_pre(bot, message):
 	prefix = bot.prefixes[message.guild.id] if message.guild.id in bot.prefixes else "$"
 	return commands.when_mentioned_or(prefix, 'fire ')(bot, message)
 
-bot = commands.Bot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="fire.gaminggeek.dev"), case_insensitive=True)
+bot = commands.Bot(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="inv.wtf/fire"), case_insensitive=True)
 bot.dev = False
 
 bot.datadog = ThreadStats()

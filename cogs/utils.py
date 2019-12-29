@@ -1434,7 +1434,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await pushover(f'{author} ({ctx.author.id}) has created the redirect `{slug}` for {url}', url=url, url_title='Check out redirect')
 			else:
 				await pushover(f'{author} ({ctx.author.id}) has created the redirect `{slug}` for {url}', url=url, url_title='Check out redirect')
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Your rediect is https://inv.wtf/{slug.lower()}')
+			return await ctx.send(f'<a:fireSuccess:603214443442077708> Your redirect is https://inv.wtf/{slug.lower()}')
 		else:
 			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
 
