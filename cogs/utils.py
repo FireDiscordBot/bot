@@ -293,7 +293,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def createredirect(self, code: str, url: str, uid: int):
 		code = code.lower()
 		currentuser = [r for r in self.bot.redirects if self.bot.redirects[r]['uid'] == uid]
-		if len(currentuser) > 5:
+		if len(currentuser) >= 5 and uid != 287698408855044097:
 			raise commands.CommandError('You can only have 5 redirects!')
 		con = await self.bot.db.acquire()
 		async with con.transaction():

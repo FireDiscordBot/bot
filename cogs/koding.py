@@ -17,37 +17,41 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import discord
 from discord.ext import commands
+import json
+import re
 
-print("conorthedev.py has been loaded")
+print("koding.py has been loaded")
 
-class conor(commands.Cog, name="ConorTheDev's Custom Features"):
+class koding(commands.Cog, name="Koding's Custom Features"):
 	def __init__(self, bot):
 		self.bot = bot
-		self.config = json.load(open('conor.json', 'r'))
-		if not hasattr(self.bot, 'conorantiswear'):
-			self.bot.conorantiswear = self.config.get('antiswear', True)
+		self.konfig = json.load(open('koding.json', 'r'))
+		if not hasattr(self.bot, 'kodingantiswear'):
+			self.bot.kodingantiswear = self.konfig.get('antiswear', True)
 		self.swear = self.config.get('words', [])
+		self.urlregex = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
 
-	@commands.command(name='conorswear')
-	async def stopswearingconor(self, ctx, state: bool = True):
-		if ctx.author.id != 509078480655351820:
+	@commands.command(name='kodingswear')
+	async def stopswearingkoding(self, ctx, state: bool = True):
+		if ctx.author.id != 341841981074309121:
 			return await ctx.send('no')
-		self.bot.conorantiswear = state
-		self.config['antiswear'] = True
-		json.dump(self.config, open('conor.json', 'w'), indent=4)
-		e = 'enabled' if self.bot.conorantiswear else 'disabled'
+		self.bot.kodingantiswear = state
+		self.konfig['antiswear'] = True
+		json.dump(self.konfig, open('koding.json', 'w'), indent=4)
+		e = 'enabled' if self.bot.kodingantiswear else 'disabled'
 		return await ctx.send(f'Antiswear is now {e}')
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
-		if message.author.id != 509078480655351820:
+		if message.author.id != 341841981074309121:
 			return
-		if any(swear in message.content.lower() for swear in self.swear) and self.bot.conorantiswear:
+		tocheck = re.sub(self.urlregex, 'URL', message.content, 0, re.MULTILINE)
+		if any(swear in tocheck.lower() for swear in self.swear) and self.bot.kodingantiswear:
 			try:
 				await message.delete()
 			except Exception:
-				await message.author.send('Stop fucking swearing you cunt')
+				await message.author.send('uh oh, you did a naughty! don\'t do that!')
 		
 
 def setup(bot):
-	bot.add_cog(conor(bot))
+	bot.add_cog(koding(bot))
