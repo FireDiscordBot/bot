@@ -28,7 +28,7 @@ class koding(commands.Cog, name="Koding's Custom Features"):
 		self.konfig = json.load(open('koding.json', 'r'))
 		if not hasattr(self.bot, 'kodingantiswear'):
 			self.bot.kodingantiswear = self.konfig.get('antiswear', True)
-		self.swear = self.config.get('words', [])
+		self.swear = self.konfig.get('words', [])
 		self.urlregex = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
 
 	@commands.command(name='kodingswear')

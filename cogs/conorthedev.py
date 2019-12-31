@@ -17,6 +17,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import discord
 from discord.ext import commands
+import json
 
 print("conorthedev.py has been loaded")
 
