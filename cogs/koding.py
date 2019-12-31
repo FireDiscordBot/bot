@@ -64,6 +64,7 @@ class koding(commands.Cog, name="Koding's Custom Features"):
 		if message.author.id != 341841981074309121:
 			return
 		tocheck = re.sub(self.urlregex, 'URL', message.content, 0, re.MULTILINE)
+		tocheck = re.sub(r'\W', '', tocheck, 0, re.MULTILINE)
 		if any(swear in tocheck.lower().split(' ') for swear in self.swear) and self.bot.kodingantiswear:
 			try:
 				await message.delete()
