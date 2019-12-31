@@ -16,7 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, flags
 import json
 import re
 
@@ -36,22 +36,40 @@ class koding(commands.Cog, name="Koding's Custom Features"):
 		if ctx.author.id != 341841981074309121:
 			return await ctx.send('no')
 		self.bot.kodingantiswear = state
-		self.konfig['antiswear'] = True
+		self.konfig['antiswear'] = state
 		json.dump(self.konfig, open('koding.json', 'w'), indent=4)
 		e = 'enabled' if self.bot.kodingantiswear else 'disabled'
 		return await ctx.send(f'Antiswear is now {e}')
+
+	@commands.command(name='kaddswear', aliases=['kswearadd'])
+	async def addswear(self, ctx, word: str, f: flags.FlagParser(remove=bool) = flags.EmptyFlags):
+		if ctx.author.id != 341841981074309121:
+                        return await ctx.send('no')
+		remove = False
+		if isinstance(f, dict):
+			remove = f['remove']
+		if not remove:
+			self.konfig['words'].append(word)
+			json.dump(self.konfig, open('koding.json', 'w'), indent=4)
+			self.swear = self.konfig['words']
+			return await ctx.send(f'Added {word} to the naughty list')
+		elif word in self.swear:
+			self.konfig['words'].remove(word)
+			json.dump(self.konfig, open('koding.json', 'w'), indent=4)
+			self.swear = self.konfig['words']
+			return await ctx.send(f'Removed {word} from the naughty list')
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
 		if message.author.id != 341841981074309121:
 			return
 		tocheck = re.sub(self.urlregex, 'URL', message.content, 0, re.MULTILINE)
-		if any(swear in tocheck.lower() for swear in self.swear) and self.bot.kodingantiswear:
+		if any(swear in tocheck.lower().split(' ') for swear in self.swear) and self.bot.kodingantiswear:
 			try:
 				await message.delete()
 			except Exception:
 				await message.author.send('uh oh, you did a naughty! don\'t do that!')
-		
+
 
 def setup(bot):
 	bot.add_cog(koding(bot))

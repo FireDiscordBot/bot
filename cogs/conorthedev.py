@@ -34,21 +34,30 @@ class conor(commands.Cog, name="ConorTheDev's Custom Features"):
 		if ctx.author.id != 509078480655351820:
 			return await ctx.send('no')
 		self.bot.conorantiswear = state
-		self.config['antiswear'] = True
+		self.config['antiswear'] = state
 		json.dump(self.config, open('conor.json', 'w'), indent=4)
 		e = 'enabled' if self.bot.conorantiswear else 'disabled'
 		return await ctx.send(f'Antiswear is now {e}')
+
+	@commands.command(name='caddswear')
+	async def addswear(self, ctx, *, word: str):
+		if ctx.author.id != 509078480655351820:
+			return await ctx.send('no')
+		self.config['words'].append(word)
+		json.dump(self.config, open('conor.json', 'w'), indent=4)
+		self.swear = self.config['words']
+		return await ctx.send(f'Added {word} to the naughty list')
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
 		if message.author.id != 509078480655351820:
 			return
-		if any(swear in message.content.lower() for swear in self.swear) and self.bot.conorantiswear:
+		if any(swear in message.content.lower().split(' ') for swear in self.swear) and self.bot.conorantiswear:
 			try:
 				await message.delete()
 			except Exception:
 				await message.author.send('Stop fucking swearing you cunt')
-		
+
 
 def setup(bot):
 	bot.add_cog(conor(bot))
