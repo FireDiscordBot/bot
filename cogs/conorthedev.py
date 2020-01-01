@@ -18,6 +18,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import discord
 from discord.ext import commands
 import json
+import re
 
 print("conorthedev.py has been loaded")
 
@@ -39,20 +40,30 @@ class conor(commands.Cog, name="ConorTheDev's Custom Features"):
 		e = 'enabled' if self.bot.conorantiswear else 'disabled'
 		return await ctx.send(f'Antiswear is now {e}')
 
-	@commands.command(name='caddswear')
-	async def addswear(self, ctx, *, word: str):
+	@commands.command(name='caddswear', aliases=['cswearadd'])
+	async def addswear(self, ctx, word: str, f: flags.FlagParser(remove=bool) = flags.EmptyFlags):
 		if ctx.author.id != 509078480655351820:
-			return await ctx.send('no')
-		self.config['words'].append(word)
-		json.dump(self.config, open('conor.json', 'w'), indent=4)
-		self.swear = self.config['words']
-		return await ctx.send(f'Added {word} to the naughty list')
+            return await ctx.send('no')
+		remove = False
+		if isinstance(f, dict):
+			remove = f['remove']
+		if not remove:
+			self.config['words'].append(word)
+			json.dump(self.config, open('conor.json', 'w'), indent=4)
+			self.swear = self.config['words']
+			return await ctx.send(f'Added {word} to the naughty list')
+		elif word in self.swear:
+			self.config['words'].remove(word)
+			json.dump(self.config, open('conor.json', 'w'), indent=4)
+			self.swear = self.config['words']
+			return await ctx.send(f'Removed {word} from the naughty list')
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
 		if message.author.id != 509078480655351820:
 			return
-		if any(swear in message.content.lower().split(' ') for swear in self.swear) and self.bot.conorantiswear:
+		tocheck = re.sub(r'[^A-Za-z0-9 ]', '', message.content, 0, re.MULTILINE)
+		if any(swear in tocheck.lower().split(' ') for swear in self.swear) and self.bot.conorantiswear:
 			try:
 				await message.delete()
 			except Exception:

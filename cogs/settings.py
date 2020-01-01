@@ -596,37 +596,40 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_guild_channel_create(self, channel):
-		if channel.guild:
-			logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
-			if logid:
-				logch = channel.guild.get_channel(logid['actionlogs'])
-			else:
-				return
-			if logch:
-				embed = discord.Embed(color=discord.Color.green(), timestamp=channel.created_at, description=f'**New channel created: #{channel.name}**')
-				embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
-				embed.set_footer(text=f"Channel ID: {channel.id} | Guild ID: {channel.guild.id}")
-				try:
-					await logch.send(embed=embed)
-				except Exception:
-					pass
+		muted = discord.utils.get(channel.guild.roles, name='Muted')
+		if muted and channel.guild.me.permissions.manage_roles:
+			await channel.set_permissions(muted, send_messages=False,
+												read_message_history=False,
+												read_messages=False)
+		logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
+		if logid:
+			logch = channel.guild.get_channel(logid['actionlogs'])
+		else:
+			return
+		if logch:
+			embed = discord.Embed(color=discord.Color.green(), timestamp=channel.created_at, description=f'**New channel created: #{channel.name}**')
+			embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
+			embed.set_footer(text=f"Channel ID: {channel.id} | Guild ID: {channel.guild.id}")
+			try:
+				await logch.send(embed=embed)
+			except Exception:
+				pass
 
 	@commands.Cog.listener()
 	async def on_guild_channel_delete(self, channel):
-		if channel.guild:
-			logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
-			if logid:
-				logch = channel.guild.get_channel(logid['actionlogs'])
-			else:
-				return
-			if logch:
-				embed = discord.Embed(color=discord.Color.red(), timestamp=channel.created_at, description=f'**Channel deleted: #{channel.name}**')
-				embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
-				embed.set_footer(text=f"Channel ID: {channel.id} | Guild ID: {channel.guild.id}")
-				try:
-					await logch.send(embed=embed)
-				except Exception:
-					pass
+		logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
+		if logid:
+			logch = channel.guild.get_channel(logid['actionlogs'])
+		else:
+			return
+		if logch:
+			embed = discord.Embed(color=discord.Color.red(), timestamp=channel.created_at, description=f'**Channel deleted: #{channel.name}**')
+			embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
+			embed.set_footer(text=f"Channel ID: {channel.id} | Guild ID: {channel.guild.id}")
+			try:
+				await logch.send(embed=embed)
+			except Exception:
+				pass
 
 	def uuidgobyebye(self, text: str):
 		return re.sub(self.uuidregex, '', text, 0, re.MULTILINE)

@@ -337,6 +337,8 @@ class Premium(commands.Cog, name="Premium Commands"):
 		'''PFXaddrank <role>'''
 		# await self.bot.db.execute(f'INSERT INTO joinableranks (\"gid\", \"rid\") VALUES ({ctx.guild.id}, {role.id});')
 		# await self.bot.conn.commit()
+		if role.position > ctx.guild.me.top_role.position:
+			return await ctx.send('<a:fireFailed:603214400748257302> You cannot add a role that is above my top role.')
 		try:
 			if role.id in self.joinroles[ctx.guild.id]:
 				return await ctx.send('<a:fireFailed:603214400748257302> You cannot add an existing rank.')

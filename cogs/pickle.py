@@ -604,6 +604,13 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		embed.set_footer(text=f'Requested by {ctx.author}', icon_url=str(ctx.author.avatar_url_as(static_format='png', size=2048)))
 		await ctx.send(embed=embed)
 
+	@commands.command(description='View the UUID for a Minecraft player')
+	async def mcuuid(self, ctx, *, ign: str = None):
+		if not ign:
+			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a name!')
+		uid = await self.nameToUUID(ign)
+		await ctx.send(f'{ign} has the UUID	{uid}')
+
 	@commands.command(description='View the current status of Minecraft services')
 	async def mcstatus(self, ctx):
 		emotes = {

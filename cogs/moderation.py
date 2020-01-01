@@ -419,16 +419,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 			await channel.send(embed=embed)
 		
-		if not mutedchat:
-			overwrites = {ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
-						ctx.guild.me: discord.PermissionOverwrite(send_messages=True),
-						muted: discord.PermissionOverwrite(read_message_history=True, read_messages=True, send_messages=True)}
-			try:
-				channel = await ctx.guild.create_text_channel('muted-chat', overwrites=overwrites)
-				await channel.send(f"Welcome {user.mention} to {channel.mention} You will spend your time here until you get unmuted. Enjoy the silence.")
-			except discord.Forbidden:
-				return
-		else:
+		if mutedchat:
 			try:
 				await mutedchat.set_permissions(muted, send_messages=True,
 													read_message_history=True,
