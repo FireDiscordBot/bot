@@ -1,6 +1,6 @@
 """
 MIT License
-Copyright (c) 2019 GamingGeek
+Copyright (c) 2020 GamingGeek
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -43,7 +43,7 @@ class conor(commands.Cog, name="ConorTheDev's Custom Features"):
 	@commands.command(name='caddswear', aliases=['cswearadd'])
 	async def addswear(self, ctx, word: str, f: flags.FlagParser(remove=bool) = flags.EmptyFlags):
 		if ctx.author.id != 509078480655351820:
-            return await ctx.send('no')
+			return await ctx.send('no')
 		remove = False
 		if isinstance(f, dict):
 			remove = f['remove']

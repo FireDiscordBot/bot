@@ -1,7 +1,7 @@
 """
 Myst Open License - Version 0.1.
 =====================================
-Copyright (c) 2019 GamingGeek
+Copyright (c) 2020 GamingGeek
 This Source Code Form is subject to the terms of the Myst Open License, v. 0.1.
 If a copy of the MOL was not distributed with this file, You can obtain one at
 https://gist.github.com/EvieePy/bfe0332ad7bff98691f51686ded083ea.
