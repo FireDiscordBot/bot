@@ -43,7 +43,7 @@ process = psutil.Process(os.getpid())
 
 print("fire.py has been loaded")
 
-def config(path: str = None):
+def getconfig(path: str = None):
 	with open('config.json', 'r') as cfg:
 		config = json.load(cfg)
 	if path != None:
@@ -51,11 +51,11 @@ def config(path: str = None):
 	else:
 		return config
 
-config = config()
+config = getconfig()
 
 def isadmin(ctx):
 	"""Checks if the author is an admin"""
-	if str(ctx.author.id) not in config('admins'):
+	if str(ctx.author.id) not in getconfig('admins'):
 		admin = False
 	else:
 		admin = True
