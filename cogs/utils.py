@@ -77,20 +77,20 @@ def snipe_embed(context_channel, message, user, edited = False):
 		msg = message.system_content.split('\n')
 		for line in msg:
 			lines.append(f'> {line}')
-		embed = discord.Embed(description = '\n'.join(lines), timestamp = message.created_at)
+		embed = discord.Embed(description='\n'.join(lines), timestamp=message.created_at)
 	else:
 		lines = []
 		msg = message.system_content.split('\n')
 		for line in msg:
 			lines.append(f'> {line}')
-		embed = discord.Embed(description = '\n'.join(lines), color = message.author.color, timestamp = message.created_at)
-	embed.set_author(name = str(message.author), icon_url = str(message.author.avatar_url_as(static_format='png', size=2048)))
+		embed = discord.Embed(description='\n'.join(lines), color=message.author.color, timestamp=message.created_at)
+	embed.set_author(name=str(message.author), icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 	if message.attachments and not edited:
-		embed.add_field(name = 'Attachment(s)', value = '\n'.join([attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
+		embed.add_field(name='Attachment(s)', value='\n'.join([attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
 	if message.channel != context_channel:
-		embed.set_footer(text = 'Sniped by: ' + str(user) + ' | in channel: #' + message.channel.name)
+		embed.set_footer(text='Sniped by: ' + str(user) + ' | in channel: #' + message.channel.name)
 	else:
-		embed.set_footer(text = 'Sniped by: ' + str(user))
+		embed.set_footer(text='Sniped by: ' + str(user))
 	return embed
 
 def quote_embed(context_channel, message, user):
@@ -99,7 +99,7 @@ def quote_embed(context_channel, message, user):
 	else:
 		if message.author not in message.guild.members or message.author.color == discord.Colour.default():
 			lines = []
-			embed = discord.Embed(timestamp = message.created_at)
+			embed = discord.Embed(timestamp=message.created_at)
 			if message.system_content:
 				msg = message.system_content.split('\n')
 				for line in msg:
@@ -107,7 +107,7 @@ def quote_embed(context_channel, message, user):
 				embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
 			embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
 		else:
-			embed = discord.Embed(color = message.author.color, timestamp = message.created_at)
+			embed = discord.Embed(color=message.author.color, timestamp=message.created_at)
 			lines = []
 			if message.system_content:
 				msg = message.system_content.split('\n')
@@ -117,17 +117,20 @@ def quote_embed(context_channel, message, user):
 			embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
 		if message.attachments:
 			if message.channel.is_nsfw() and not context_channel.is_nsfw():
-				embed.add_field(name = 'Attachments', value = ':underage: Quoted message is from an NSFW channel.')
+				embed.add_field(name='Attachments', value=':underage: Quoted message is from an NSFW channel.')
 			elif len(message.attachments) == 1 and message.attachments[0].url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')):
-				embed.set_image(url = message.attachments[0].url)
+				embed.set_image(url=message.attachments[0].url)
 			else:
 				for attachment in message.attachments:
-					embed.add_field(name = 'Attachment', value = '[' + attachment.filename + '](' + attachment.url + ')', inline = False)
-		embed.set_author(name = str(message.author), icon_url = str(message.author.avatar_url_as(static_format='png', size=2048)), url = 'https://discordapp.com/channels/' + str(message.guild.id) + '/' + str(message.channel.id) + '/' + str(message.id))
+					embed.add_field(name='Attachment', value='[' + attachment.filename + '](' + attachment.url + ')', inline=False)
+		embed.set_author(name=str(message.author), icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)), url='https://discordapp.com/channels/' + str(message.guild.id) + '/' + str(message.channel.id) + '/' + str(message.id))
 		if message.channel != context_channel:
-			embed.set_footer(text = 'Quoted by: ' + str(user) + ' | #' + message.channel.name)
+			if message.channel.guild != context_channel.guild:
+				embed.set_footer(text=f'Quoted by: {user} | #{message.channel} | {message.channel.guild}')
+			else:
+				embed.set_footer(text=f'Quoted by: {user} | #{message.channel}')
 		else:
-			embed.set_footer(text = 'Quoted by: ' + str(user))
+			embed.set_footer(text=f'Quoted by: {user}')
 	return embed
 
 region = {
@@ -1120,7 +1123,11 @@ class utils(commands.Cog, name='Utility Commands'):
 									await asyncio.sleep(20)
 									self.quotecooldowns[message.guild.id].remove(message.author.id)
 							else:
-								await message.channel.send(embed = quote_embed(message.channel, msg_found, message.author))
+								try:
+									await message.channel.send(embed=quote_embed(message.channel, msg_found, message.author))
+								except discord.HTTPException as e:
+									if 'Must be 1024 or fewer in length.' in str(e):
+										return await message.channel.send('<a:fireFailed:603214400748257302> Failed to quote message, content too long')
 								try:
 									self.quotecooldowns[message.guild.id].append(message.author.id)
 									await asyncio.sleep(20)
