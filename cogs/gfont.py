@@ -77,7 +77,7 @@ def parse(message):
             newx += 1
         width, height = font_regular.getsize(message[i])
         total_width += width
-        result.append(((width, height), lastColour, bold, italics, 
+        result.append(((width, height), 'f', bold, italics, 
                         message[i], newx, posheight, newline))
     return result
  
@@ -136,5 +136,5 @@ def render(pos, message, image):
             if newx == 5:
                 x = 5
         renderer = renderer_regular(bold, italics, char)
-        renderer.render(image, (x,y), char, color=_get_colour(colour))
+        renderer.render(image, (x,y), char, color=(255, 255, 255))
         x += width
