@@ -88,6 +88,8 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			s = set(aroles)
 			removed = [x for x in broles if x not in s]
 			if self.nitro in removed or self.testrole in removed:
+				if not self.bot.isascii(after.nick or after.name) or self.bot.ishoisted(after.nick or after.name):
+					await after.edit(nick=f'John Doe {after.discriminator}')
 				async with aiohttp.ClientSession(headers=self.gistheaders) as s:
 					async with s.get(f'https://api.github.com/gists/{self.gist}') as r:
 						if r.status != 200:
