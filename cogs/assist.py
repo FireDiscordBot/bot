@@ -25,7 +25,6 @@ import click
 import functools
 import datetime
 import wavelink
-import imgkit
 from jishaku.cog import copy_context_with
 from cogs.music import Player as MusicPlayer
 from cogs.music import Track as MusicTrack
@@ -178,12 +177,6 @@ class Assistant(commands.Cog, name='Google Assistant'):
 	def __init__(self, bot):
 		self.bot = bot
 		self.gassistant = gassistant
-		self.debug = False
-
-	def assistToImg(self, ctx, query):
-		text, html = gassistant.assist_text(query)
-		html = html.decode('utf-8').replace('background:transparent;', 'background-image:url(https://picsum.photos/1920/1080);')
-		imgkit.from_string(html, f'{ctx.author.id}assist.png', options={"xvfb": "", "format": "png", "height": 1080, "width": 1920})
 
 	@commands.command(description="Ask the Google Assistant a question and hear the response in your voice channel!")
 	# @commands.cooldown(1, 12, commands.BucketType.user)
@@ -223,14 +216,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
 				iter_size=3200,
 				sample_width=2,
 			)
-			if self.debug:
-				# await loop.run_in_executor(None, func=functools.partial(self.assistToImg, ctx, query))
-				self.assistToImg(ctx, query)
-				file = discord.File(f'{ctx.author.id}assist.png', 'gassist.png')
-				await asyncio.get_event_loop().run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'gassist.uploaded'))
-				return await ctx.send(file=file)
-			else:
-				await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query, stream))
+			await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query, stream))
 			if os.path.exists(f'{ctx.author.id}.mp3'):
 				if uploadresp:
 					file = discord.File(f'{ctx.author.id}.mp3', 'gassist.mp3')
