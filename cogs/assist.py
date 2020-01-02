@@ -171,7 +171,7 @@ except Exception as e:
 	credentials = None
 
 grpc_channel = google.auth.transport.grpc.secure_authorized_channel(credentials, http_request, ASSISTANT_API_ENDPOINT)
-gassistant = GoogleAssistant('en-us', 'fire0682-444871677176709141', '287698408855044097', True, grpc_channel, DEFAULT_GRPC_DEADLINE)
+gassistant = GoogleAssistant('en-us', 'fire0682-444871677176709141', '287698408855044097', False, grpc_channel, DEFAULT_GRPC_DEADLINE)
 
 class Assistant(commands.Cog, name='Google Assistant'):
 	def __init__(self, bot):
