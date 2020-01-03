@@ -41,6 +41,12 @@ class koding(commands.Cog, name="Koding's Custom Features"):
 		e = 'enabled' if self.bot.kodingantiswear else 'disabled'
 		return await ctx.send(f'Antiswear is now {e}')
 
+	@commands.command(name='klistswear', aliases=['kswearlist'])
+	async def stopswearingkoding(self, ctx, state: bool = True):
+		if ctx.author.id != 341841981074309121:
+			return await ctx.send('no')
+		return await ctx.send('\n'.join(self.swear))
+
 	@commands.command(name='kaddswear', aliases=['kswearadd'])
 	async def addswear(self, ctx, word: str, f: flags.FlagParser(remove=bool) = flags.EmptyFlags):
 		if ctx.author.id != 341841981074309121:

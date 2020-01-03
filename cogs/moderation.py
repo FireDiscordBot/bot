@@ -888,7 +888,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 				embed.set_author(name=f'Unblock | {blocked}', icon_url=str(blocked.avatar_url_as(static_format='png', size=2048)) if blocktype == 'User' else str(ctx.guild.icon_url))
 				embed.add_field(name=blocktype, value=f'{blocked}({blocked.id})', inline=False)
-				embed.add_field(name='Moderator', value=blocked.mention, inline=False)
+				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.add_field(name='Channel', value=ctx.channel.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
 				embed.set_footer(text=f'User ID: {blocked.id} | Mod ID: {ctx.author.id}')

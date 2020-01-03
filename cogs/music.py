@@ -52,6 +52,7 @@ class Player(wavelink.Player):
 		super(Player, self).__init__(bot, guild_id, node)
 
 		self.cmdchannel_id = None
+		self.connected_channel = None
 		self.guild_id = guild_id
 
 		self.queue = asyncio.Queue()
@@ -516,9 +517,11 @@ class Music(commands.Cog):
 						return
 		except AttributeError:
 			await player.connect(channel.id)
+			player.connected_channel = channel
 			player.cmdchannel_id = ctx.channel.id
 
 		await player.connect(channel.id)
+		player.connected_channel = channel
 		player.cmdchannel_id = ctx.channel.id
 
 	@commands.command(name='play', aliases=['sing', 'p'], description="Queue a song or playlist for playback.")

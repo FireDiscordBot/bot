@@ -109,6 +109,8 @@ extensions = [
 	"cogs.premium",
 	"cogs.assist",
 	"cogs.imagegen",
+	"cogs.koding",
+	"cogs.conorthedev"
 	"jishaku",
 	"fishin.abucket"
 ]
