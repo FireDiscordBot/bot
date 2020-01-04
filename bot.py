@@ -110,7 +110,7 @@ extensions = [
 	"cogs.assist",
 	"cogs.imagegen",
 	"cogs.koding",
-	"cogs.conorthedev"
+	"cogs.conorthedev",
 	"jishaku",
 	"fishin.abucket"
 ]

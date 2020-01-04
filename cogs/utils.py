@@ -1074,7 +1074,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				self.quotecooldowns[message.guild.id] = []
 			elif message.author.id in cooldowns and not message.author.permissions_in(message.channel).manage_messages:
 				return
-				
+
 			for i in message.content.split():
 				word = i.lower().strip('<>')
 				if word.startswith('https://canary.discordapp.com/channels/'):
@@ -1093,8 +1093,10 @@ class utils(commands.Cog, name='Utility Commands'):
 					try:
 						channel = self.bot.get_channel(int(list_ids[0]))
 					except:
-						continue
-				
+						if not channel:
+							return
+
+
 					user = channel.guild.get_member(message.author.id)
 					uperms = user.permissions_in(channel)
 					if not uperms.read_messages:
