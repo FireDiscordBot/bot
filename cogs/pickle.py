@@ -609,7 +609,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		if not ign:
 			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a name!')
 		uid = await self.nameToUUID(ign)
-		await ctx.send(f'{ign} has the UUID	{uid}')
+		await ctx.send(f'{ign} has the UUID {uid}')
 
 	@commands.command(description='View the current status of Minecraft services')
 	async def mcstatus(self, ctx):
