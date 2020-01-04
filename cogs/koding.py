@@ -45,7 +45,7 @@ class koding(commands.Cog, name="Koding's Custom Features"):
 	async def swearlist(self, ctx):
 		if ctx.author.id != 341841981074309121:
 			return await ctx.send('no')
-		return await ctx.send('\n'.join(self.swear))
+		return await ctx.send('```\n' + ', '.join(self.swear) + '```')
 
 	@commands.command(name='kaddswear', aliases=['kswearadd'])
 	async def addswear(self, ctx, word: str, f: flags.FlagParser(remove=bool) = flags.EmptyFlags):
@@ -68,6 +68,8 @@ class koding(commands.Cog, name="Koding's Custom Features"):
 	@commands.Cog.listener()
 	async def on_message(self, message):
 		if message.author.id != 341841981074309121:
+			return
+		if message.content.endswith('/i'):
 			return
 		tocheck = re.sub(self.urlregex, 'URL', message.content, 0, re.MULTILINE)
 		tocheck = re.sub(r'[^A-Za-z0-9 ]', '', tocheck, 0, re.MULTILINE)
