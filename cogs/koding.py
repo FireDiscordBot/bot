@@ -42,7 +42,7 @@ class koding(commands.Cog, name="Koding's Custom Features"):
 		return await ctx.send(f'Antiswear is now {e}')
 
 	@commands.command(name='klistswear', aliases=['kswearlist'])
-	async def stopswearingkoding(self, ctx, state: bool = True):
+	async def swearlist(self, ctx, state: bool = True):
 		if ctx.author.id != 341841981074309121:
 			return await ctx.send('no')
 		return await ctx.send('\n'.join(self.swear))
