@@ -597,7 +597,7 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_guild_channel_create(self, channel):
 		muted = discord.utils.get(channel.guild.roles, name='Muted')
-		if muted and channel.guild.me.permissions.manage_roles:
+		if muted and channel.guild.me.guild_permissions.manage_roles:
 			await channel.set_permissions(muted, send_messages=False,
 												read_message_history=False,
 												read_messages=False)
