@@ -163,16 +163,9 @@ notifs = {
 }
 
 permissions = {
-	'add_reactions': 'React',
 	'administrator': 'Admin',
-	'attach_files': 'Upload Files',
 	'ban_members': 'Ban',
 	'change_nickname': 'Change Nick',
-	'connect': 'Connect',
-	'create_instant_invite': 'Create Invite',
-	'deafen_members': 'Server Deafen',
-	'embed_links': 'Link Embeds',
-	'external_emojis': 'External Emojis',
 	'kick_members': 'Kick',
 	'manage_channels': 'Manage Channels',
 	'manage_emojis': 'Manage Emojis',
@@ -182,16 +175,6 @@ permissions = {
 	'manage_roles': 'Manage Roles',
 	'manage_webhooks': 'Manage Webhooks',
 	'mention_everyone': 'Mention Everyone',
-	'move_members': 'Move Members',
-	'mute_members': 'Mute Members',
-	'priority_speaker': 'Priority Speaker',
-	'read_message_history': 'Read Past Messages',
-	'read_messages': 'Read Messages',
-	'send_messages': 'Send Messages',
-	'send_tts_messages': 'Send TTS Messages',
-	'speak': 'Talk',
-	'stream': 'Go Live',
-	'use_voice_activation': 'Use Voice Activation',
 	'view_audit_log': 'View Logs'
 }
 
@@ -696,10 +679,10 @@ class utils(commands.Cog, name='Utility Commands'):
 		perms = []
 		if not role.permissions.administrator:
 			for perm, value in role.permissions:
-				if value:
-					perms.append(permissions[perm] if perm in permissions else perm.replace('_', '').capitalize())
+				if value and perm in permissions:
+					perms.append(permissions[perm])
 			if perms:
-				embed.add_field(name="» Permissions", value=', '.join(perms), inline=False)
+				embed.add_field(name="» Key Permissions", value=', '.join(perms), inline=False)
 		else:
 			embed.add_field(name="» Permissions", value='Administrator', inline=False)
 		mask = Image.open('cogs/static/images/promotional-assets/fireavbase512.png')
