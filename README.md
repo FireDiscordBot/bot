@@ -1,4 +1,4 @@
-![Fire](https://github.com/GamingGeek/Fire/blob/master/cogs/static/images/promotional-assets/fire_white.png?raw=true)
+![Fire](https://github.com/GamingGeek/Fire/blob/master/cogs/static/images/promotional-assets/fire_inner.png?raw=true)
 
 <h3 align="center">A Discord bot for all your needs.<br>
 With memes, music, moderation & more,<br>
