@@ -684,16 +684,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				embed.add_field(name="» Key Permissions", value=', '.join(perms), inline=False)
 		else:
 			embed.add_field(name="» Permissions", value='Administrator', inline=False)
-		mask = Image.open('cogs/static/images/promotional-assets/fireavbase512.png')
-		img = Image.open('cogs/static/images/promotional-assets/fireavbase512.png')
-		sub_img = Image.new('RGBA', (512, 512), rgbcolor)
-		img.paste(sub_img, (0, 0), mask)
-		buf = BytesIO()
-		img.save(buf, format='PNG')
-		buf.seek(0)
-		colorlogo = discord.File(buf, f'istolethisideafromdyno.png')
-		embed.set_thumbnail(url=f'attachment://istolethisideafromdyno.png')
-		await ctx.send(embed=embed, file=colorlogo)
+		await ctx.send(embed=embed)
 		if role.members:
 			paginator = WrappedPaginator(prefix='', suffix='', max_size=250)
 			for member in role.members:
@@ -1226,31 +1217,30 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.set_image(url=str(user.avatar_url_as(static_format='png', size=2048)))
 		await ctx.send(embed=embed)
 
-	@commands.command(description='Totally not a stolen idea from Dyno')
-	async def fireav(self, ctx, u: Member = None):
-		'''PFXfireav [<user>]'''
-		if not u:
-			u = ctx.author
-		if isinstance(u, discord.Member):
-			color = u.color
-		else:
-			color = ctx.author.color
-		mask = Image.open('cogs/static/images/promotional-assets/fireavbase.png')
-		img = Image.open('cogs/static/images/promotional-assets/fireavbase.png')
-		av_bytes = await u.avatar_url_as(format='png', static_format='png', size=256).read()
-		av_img = Image.open(BytesIO(av_bytes))
-		sub_img = av_img.convert("RGBA")
-		try:
-			img.paste(sub_img, (0, 0), mask)
-		except ValueError:
-			return await ctx.send('I cannot make a Fire avatar with images smaller than 256x256')
-		buf = BytesIO()
-		img.save(buf, format='PNG')
-		buf.seek(0)
-		colorlogo = discord.File(buf, f'istolethisideafromdyno.png')
-		embed = discord.Embed(colour=ctx.author.color)
-		embed.set_image(url=f'attachment://istolethisideafromdyno.png')
-		await ctx.send(embed=embed, file=colorlogo)
+	# @commands.command(description='Totally not a stolen idea from Dyno')
+	# async def fireav(self, ctx, u: Member = None):
+		# if not u:
+		#	u = ctx.author
+		# if isinstance(u, discord.Member):
+		#	color = u.color
+		# else:
+		#	color = ctx.author.color
+		# mask = Image.open('cogs/static/images/promotional-assets/fireavbase.png')
+		# img = Image.open('cogs/static/images/promotional-assets/fireavbase.png')
+		# av_bytes = await u.avatar_url_as(format='png', static_format='png', size=256).read()
+		# av_img = Image.open(BytesIO(av_bytes))
+		# sub_img = av_img.convert("RGBA")
+		# try:
+		#	img.paste(sub_img, (0, 0), mask)
+		# except ValueError:
+		#	return await ctx.send('I cannot make a Fire avatar with images smaller than 256x256')
+		# buf = BytesIO()
+		# img.save(buf, format='PNG')
+		# buf.seek(0)
+		# colorlogo = discord.File(buf, f'istolethisideafromdyno.png')
+		# embed = discord.Embed(colour=ctx.author.color)
+		# embed.set_image(url=f'attachment://istolethisideafromdyno.png')
+		# await ctx.send(embed=embed, file=colorlogo)
 
 	@commands.command(description='Make a role mentionable for 60 seconds or until you mention it')
 	@commands.bot_has_permissions(manage_roles=True)
