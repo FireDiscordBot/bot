@@ -22,6 +22,7 @@ import discord
 import logging
 import datetime
 import os
+import re
 import json
 import aiohttp
 import asyncio
@@ -184,10 +185,14 @@ async def on_command_error(ctx, error):
 		td = datetime.timedelta(seconds=error.retry_after)
 		return await ctx.send(f'<a:fireFailed:603214400748257302> This command is on cooldown, please wait {humanfriendly.format_timespan(td)}', delete_after=5)
 
-	if isinstance(error, noperms):
-		return await ctx.send(f'<a:fireFailed:603214400748257302> {discord.utils.escape_mentions(discord.utils.escape_markdown(str(error)))}')
+	errorstr = str(error)
+	if 'http://' in str(error) or 'https://' in str(error):
+		errorstr = re.sub(r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)', 'BLOCKED URL', str(error), 0, re.MULTILINE)
 
-	await ctx.send(f'<a:fireFailed:603214400748257302> {discord.utils.escape_mentions(discord.utils.escape_markdown(str(error)))}')
+	if isinstance(error, noperms):
+		return await ctx.send(f'<a:fireFailed:603214400748257302> {discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
+
+	await ctx.send(f'<a:fireFailed:603214400748257302> {discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
 	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError, commands.MissingRequiredArgument, commands.TooManyArguments)
 	if isinstance(error, nomsg):
 		return
