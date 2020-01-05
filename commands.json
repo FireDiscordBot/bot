@@ -1,6 +1,8 @@
 [
     {
-        "Main": {
+        "id": 0,
+        "name": "Main",
+        "commands": {
             "ping": {
                 "Description": "Shows you my ping to discord's servers",
                 "Usage": "$ping",
@@ -59,7 +61,9 @@
         }
     },
     {
-        "Hypixel": {
+        "id": 1,
+        "name": "Hypixel",
+        "commands": {
             "key": {
                 "Description": "See my API key usage",
                 "Usage": "$hypixel key",
@@ -93,7 +97,9 @@
         }
     },
     {
-        "Minecraft": {
+        "id": 2,
+        "name": "Minecraft",
+        "commands": {
             "skin": {
                 "Description": "See a player's Minecraft skin",
                 "Usage": "$skin <ign/UUID>",
@@ -107,7 +113,9 @@
         }
     },
     {
-        "KSoft.Si API": {
+        "id": 3,
+        "name": "KSoft.Si API",
+        "commands": {
             "meme": {
                 "Description": "Get a random meme",
                 "Usage": "$meme [<subreddit>]",
@@ -136,7 +144,9 @@
         }
     },
     {
-        "Sk1er": {
+        "id": 4,
+        "name": "Sk1er",
+        "commands": {
             "levelhead": {
                 "Description": "Get a player's levelhead info",
                 "Usage": "$levelhead <player>",
@@ -150,7 +160,9 @@
         }
     },
     {
-        "Hyperium": {
+        "id": 5,
+        "name": "Hyperium",
+        "commands": {
             "stats": {
                 "Description": "Get Hyperium's statistics",
                 "Usage": "$hyperium stats",
@@ -169,7 +181,9 @@
         }
     },
     {
-        "YouTube": {
+        "id": 6,
+        "name": "YouTube",
+        "commands": {
             "yt": {
                 "Description": "Get the top 5 trending videos in the US",
                 "Usage": "$yt",
@@ -183,7 +197,9 @@
         }
     },
     {
-        "Music": {
+        "id": 7,
+        "name": "Music",
+        "commands": {
             "connect": {
                 "Description": "Connect to a voice channel",
                 "Usage": "$connect <channel>",
@@ -247,7 +263,9 @@
         }
     },
     {
-        "Image Manipulation": {
+        "id": 8,
+        "name": "Image Manipulation",
+        "commands": {
             "makeameme": {
                 "Description": "Make your own meme using the \"top text, bottom text\" format",
                 "Usage": "$makeameme <member/image url> <top text>/<bottom text>",
@@ -261,7 +279,9 @@
         }
     },
     {
-        "Configuration": {
+        "id": 9,
+        "name": "Configuration",
+        "commands": {
             "settings": {
                 "Description": "Run through my setup process to configure a few settings",
                 "Usage": "$settings",
@@ -315,8 +335,10 @@
         }
     },
     {
-        "Moderation": {
-            "Note": "Users with the \"Manage Messages\" permission are considered moderators! This will most likely change in the future.",
+        "id": 10,
+        "name": "Moderation",
+        "Note": "Users with the \"Manage Messages\" permission are considered moderators! This will most likely change in the future.",
+        "commands": {
             "ban": {
                 "Description": "Ban a user from the server",
                 "Usage": "$ban <user> [<reason>]",
@@ -390,7 +412,9 @@
         }
     },
     {
-        "Info": {
+        "id": 11,
+        "name": "Info",
+        "commands": {
             "user": {
                 "Description": "Get a general overview of a user",
                 "Usage": "$info user <user>",
@@ -409,8 +433,10 @@
         }
     },
     {
-        "Tags": {
-            "Note": "Creating/deleting tags requires \"Manage Messages\" permission. Tag names can only be one word.",
+        "id": 12,
+        "name": "Tags",
+        "Note": "Creating/deleting tags requires \"Manage Messages\" permission. Tag names can only be one word.",
+        "commands": {
             "tag": {
                 "Description": "See a list of all tags or view a tag",
                 "Usage": "$tag [<tag name>]",
@@ -429,7 +455,9 @@
         }
     },
     {
-        "Utilities": {
+        "id": 13,
+        "name": "Utilities",
+        "commands": {
             "dstatus": {
                 "Description": "Get Discord's status (Made with help from ravy, https://ravy.xyz/)",
                 "Usage": "$dstatus",
@@ -513,59 +541,63 @@
         }
     },
     {
-        "Purge": {
-            "Note": "The purge command makes use of a flag system for different options. \nFor example, \"$purge 10 --user Geek --match oof\" would purge the last 10 messages from the user Geek if it contains oof",
-            "command": {
+        "id": 14,
+        "name": "Purge",
+        "Note": "The purge command makes use of a flag system for different options. \nFor example, \"$purge 10 --user Geek --match oof\" would purge the last 10 messages from the user Geek if it contains oof",
+        "commands": {
+            "purge": {
                 "Description": "Bulk delete messages",
                 "Usage": "$purge <amount> [<flags>]",
                 "Aliases": null
-            },
-            "user flag": {
+            }
+        },
+        "flags": {
+            "user": {
                 "Description": "Purge messages from this user",
                 "Usage": "--user <name/mention/id>",
                 "Aliases": null
             },
-            "channel flag": {
+            "channel": {
                 "Description": "Purge messages in this channel",
                 "Usage": "--channel <name/mention/id>",
                 "Aliases": null
             },
-            "match flag": {
+            "match": {
                 "Description": "Purge messages containing a string",
                 "Usage": "--match <string>",
                 "Aliases": null
             },
-            "nomatch flag": {
+            "nomatch": {
                 "Description": "Purge messages that do not contain a string",
                 "Usage": "--nomatch <string>",
                 "Aliases": null
             },
-            "startswith flag": {
+            "startswith": {
                 "Description": "Purge messages starting with a string",
                 "Usage": "--startswith <string>",
                 "Aliases": null
             },
-            "endswith flag": {
+            "endswith": {
                 "Description": "Purge messages ending with a string",
                 "Usage": "--endswith <string>",
                 "Aliases": null
             },
-            "attachments flag": {
+            "attachments": {
                 "Description": "Purge messages with attachments (true = with, false = without)",
                 "Usage": "--attachments <true/false>",
                 "Aliases": null
             },
-            "bot flag": {
+            "bot": {
                 "Description": "Purge messages from bots (true = bot, false = not bot)",
                 "Usage": "--bot <true/false>",
                 "Aliases": null
             },
-            "invite flag": {
+            "invite": {
                 "Description": "Purge messages containing invites (true = with invites, false = without invites)",
                 "Usage": "--invite <true/false>",
                 "Aliases": null
             },
-            "text flag": {
+            "text": {
                 "Description": "Purge messages containing only text (true = only text, false = attachments, embeds etc.)",
                 "Usage": "--text <true/false>",
                 "Aliases": null
@@ -573,7 +605,9 @@
         }
     },
     {
-        "Premium": {
+        "id": 15,
+        "name": "Premium",
+        "commands": {
             "autorole": {
                 "Description": "Automatically add a role to a user when they join",
                 "Usage": "$autorole [<role name/id/mention>] Use command without role argument to disable",
