@@ -641,6 +641,7 @@ class settings(commands.Cog, name="Settings"):
 		if '- manga game 18+ - limited time offer - free lifetime access!' in message.content.lower():
 			try:
 				await message.guild.ban(message.author, reason='Attempted to post a malicious link')
+				await message.channel.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(message.author)))}** has been banished from {discord.utils.escape_mentions(discord.utils.escape_markdown(message.guild.name))}.")
 			except Exception:
 				pass
 		lastmsg = self.uuidgobyebye(self.dupecheck.get(message.author.id, 'send this message and it will get yeeted'))
