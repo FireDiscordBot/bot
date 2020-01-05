@@ -611,7 +611,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			await ctx.send(embed=rolebed)
 
 	@infogroup.command(description='Check out a user\'s info')
-	async def user(self, ctx, user: typing.Union[Member, UserWithFallback] = None):
+	async def user(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
 		'''PFXinfo user [<user>]'''
 		if not user:
 			user = ctx.author
