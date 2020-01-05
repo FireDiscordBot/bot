@@ -638,6 +638,11 @@ class settings(commands.Cog, name="Settings"):
 	async def on_message(self, message):
 		if type(message.author) != discord.Member:
 			return
+		if '- manga game 18+ - limited time offer - free lifetime access!' in message.content.lower():
+			try:
+				await message.guild.ban(message.author, reason='Attempted to post a malicious link')
+			except Exception:
+				pass
 		lastmsg = self.uuidgobyebye(self.dupecheck.get(message.author.id, 'send this message and it will get yeeted'))
 		thismsg = self.uuidgobyebye(message.content)
 		if message.content != "" and len(message.attachments) < 1 and not message.author.bot:
