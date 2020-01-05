@@ -472,8 +472,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.command(name='errortest', hidden=True)
 	async def errortestboyo(self, ctx):
 		if await self.bot.is_team_owner(ctx.author):
-			test = [1, 2]
-			return test[2]
+			raise commands.CommandError('https://someurl.wtf/api?key=API_KEY')
 
 	@commands.command(name='plonk', description='Add someone to the blacklist', hidden=True)
 	async def blacklist_add(self, ctx, user: UserWithFallback = None, reason: str = 'bad boi', permanent: bool = False):
