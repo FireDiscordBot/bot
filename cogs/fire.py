@@ -65,7 +65,8 @@ class firecog(commands.Cog, name="Main Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.trello = Trello(key=config['trellokey'], token=config['trellotoken'])
-		self.launchtime = launchtime
+		if not hasattr(self.bot, 'launchtime'):
+			self.bot.launchtime = launchtime
 		self._last_result = None
 
 	def cleanup_code(self, content):
@@ -112,7 +113,7 @@ class firecog(commands.Cog, name="Main Commands"):
 	async def stats(self, ctx):
 		"""PFXstats"""
 		msg = await ctx.send('Gathering info...')
-		delta_uptime = datetime.datetime.utcnow() - launchtime
+		delta_uptime = datetime.datetime.utcnow() - self.bot.launchtime
 		hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
 		minutes, seconds = divmod(remainder, 60)
 		days, hours = divmod(hours, 24)
