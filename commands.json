@@ -447,7 +447,7 @@
                 "Usage": "$tag create <name> <content>",
                 "Aliases": "tags create, dtag create"
             },
-            "guild": {
+            "delete": {
                 "Description": "Delete a tag",
                 "Usage": "$tag delete <name>",
                 "Aliases": "tags delete, dtag delete"
