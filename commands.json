@@ -549,7 +549,7 @@
                 "Description": "Bulk delete messages",
                 "Usage": "$purge <amount> [<flags>]",
                 "Aliases": null
-            }
+            },
             "user flag": {
                 "Description": "Purge messages from this user",
                 "Usage": "--user <name/mention/id>",
