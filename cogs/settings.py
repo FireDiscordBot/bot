@@ -16,7 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import datetime
 import json
 import asyncpg
@@ -110,9 +110,18 @@ class settings(commands.Cog, name="Settings"):
 		self.uuidregex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
 		if not hasattr(self.bot, 'invites'):
 			self.bot.invites = {}
+		self.refreshInvites.start()
 
 	def clean(self, text: str):
 		return re.sub(r'[^A-Za-z0-9.\/ ]', '', text, 0, re.MULTILINE)
+
+	@tasks.loop(minutes=2)
+	async def refreshInvites(self):
+		for gid in self.bot.get_cog('Premium Commands').premiumGuilds:
+			await self.loadInvites(gid)
+
+	def cog_unload(self):
+		self.refreshInvites.cancel()
 
 	async def loadSettings(self):
 		self.logchannels = {}
@@ -222,7 +231,8 @@ class settings(commands.Cog, name="Settings"):
 	async def loadInvites(self, gid: int = None):
 		if not gid:
 			self.bot.invites = {}
-			for guild in self.bot.guilds:
+			for gid in self.bot.get_cog('Premium Commands').premiumGuilds:
+				guild = self.bot.get_guild(gid)
 				invites = []
 				try:
 					invites = await guild.invites()
