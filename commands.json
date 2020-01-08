@@ -550,54 +550,52 @@
                 "Usage": "$purge <amount> [<flags>]",
                 "Aliases": null
             }
-        },
-        "flags": {
-            "user": {
+            "user flag": {
                 "Description": "Purge messages from this user",
                 "Usage": "--user <name/mention/id>",
                 "Aliases": null
             },
-            "channel": {
+            "channel flag": {
                 "Description": "Purge messages in this channel",
                 "Usage": "--channel <name/mention/id>",
                 "Aliases": null
             },
-            "match": {
+            "match flag": {
                 "Description": "Purge messages containing a string",
                 "Usage": "--match <string>",
                 "Aliases": null
             },
-            "nomatch": {
+            "nomatch flag": {
                 "Description": "Purge messages that do not contain a string",
                 "Usage": "--nomatch <string>",
                 "Aliases": null
             },
-            "startswith": {
+            "startswith flag": {
                 "Description": "Purge messages starting with a string",
                 "Usage": "--startswith <string>",
                 "Aliases": null
             },
-            "endswith": {
+            "endswith flag": {
                 "Description": "Purge messages ending with a string",
                 "Usage": "--endswith <string>",
                 "Aliases": null
             },
-            "attachments": {
+            "attachments flag": {
                 "Description": "Purge messages with attachments (true = with, false = without)",
                 "Usage": "--attachments <true/false>",
                 "Aliases": null
             },
-            "bot": {
+            "bot flag": {
                 "Description": "Purge messages from bots (true = bot, false = not bot)",
                 "Usage": "--bot <true/false>",
                 "Aliases": null
             },
-            "invite": {
+            "invite flag": {
                 "Description": "Purge messages containing invites (true = with invites, false = without invites)",
                 "Usage": "--invite <true/false>",
                 "Aliases": null
             },
-            "text": {
+            "text flag": {
                 "Description": "Purge messages containing only text (true = only text, false = attachments, embeds etc.)",
                 "Usage": "--text <true/false>",
                 "Aliases": null
