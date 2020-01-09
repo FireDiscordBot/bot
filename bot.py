@@ -260,11 +260,6 @@ async def on_message(message):
 	if message.system_content == "":
 		return
 	await bot.process_commands(message)
-	if message.content.endswith('--silent'):
-		try:
-			await message.delete()
-		except Exception:
-			pass
 
 @bot.event
 async def on_message_edit(before,after):
