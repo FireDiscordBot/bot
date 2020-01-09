@@ -227,12 +227,15 @@ class settings(commands.Cog, name="Settings"):
 		malware = await aiohttp.ClientSession().get('https://mirror.cedia.org.ec/malwaredomains/justdomains')
 		malware = await malware.text()
 		self.malware = list(filter(None, malware.split('\n')))
+		await self.loadInvites()
 
 	async def loadInvites(self, gid: int = None):
 		if not gid:
 			self.bot.invites = {}
 			for gid in self.bot.get_cog('Premium Commands').premiumGuilds:
 				guild = self.bot.get_guild(gid)
+				if not guild:
+					continue
 				invites = []
 				try:
 					invites = await guild.invites()
