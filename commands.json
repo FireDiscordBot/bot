@@ -642,7 +642,7 @@
                 "Aliases": null
             },
             "redirect": {
-                "Description": "Create a redirect to ny website using inv.wtf, e.g. inv.wtf/fire. Use `$redirect <slug> delete` to delete the redirect.",
+                "Description": "Create a redirect to any website using inv.wtf, e.g. inv.wtf/fire. Use `$redirect <slug> delete` to delete the redirect.",
                 "Usage": "$redirect <slug> <url>",
                 "Aliases": null
             }
