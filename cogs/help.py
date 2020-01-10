@@ -31,7 +31,7 @@ class Help(commands.Cog):
 	@commands.command(name='help', description='Provides help for those who need it')
 	async def help(self, ctx):
 		cmdurl = 'https://gaminggeek.dev/commands'
-		prefix = ctx.prefix.replace(ctx.me.mention, '@Fire ')
+		prefix = ctx.prefix.replace('<@444871677176709141> ', '@Fire ').replace('<@!444871677176709141>', '@Fire ')
 		if randint(1, 100) == 69 or ctx.author.id == 287698408855044097:
 			cmdurl = f'https://fire.gaminggeek.space/commands?prefix={quote(prefix)}'
 		embed = discord.Embed(colour=ctx.author.color, description=f'Here\'s some helpful links\n\n[Commands]({cmdurl})\n[Support Server](https://gaminggeek.dev/discord)\n[Invite Me](https://gaminggeek.dev/fire)\n[Donate](https://gaminggeek.dev/patreon)')
