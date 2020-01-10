@@ -313,7 +313,7 @@ async def prefix(ctx, pfx: str = None):
 		return await ctx.send("Missing argument for prefix! (Note: For prefixes with a space, surround it in \"\")")
 	if ctx.me.mention in pfx:
 		return await ctx.send(f'{ctx.me.mention} is a global prefix, you can use it anywhere. There\'s no need to set the server prefix to it')
-	if len(prefix) > 10:
+	if len(pfx) > 10:
 		return await ctx.send(f'Short prefixes are usually better. Try setting a prefix that\'s less than 10 characters')
 	else:
 		query = 'SELECT * FROM prefixes WHERE gid = $1;'
