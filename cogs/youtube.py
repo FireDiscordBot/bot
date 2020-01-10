@@ -116,7 +116,7 @@ class youtube(commands.Cog, name="YouTube API"):
 		videoinfo = await self.loop.run_in_executor(None, func=functools.partial(self.video_info, video))
 		try:
 			videoinfo = videoinfo['items'][0]
-		except KeyError:
+		except (KeyError, IndexError):
 			await ctx.send(f'<a:fireFailed:603214400748257302> Couldn\'t find a video. Please provide a valid YouTube video URL')
 		title = videoinfo['snippet']['title']
 		vid = videoinfo['id']

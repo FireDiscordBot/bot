@@ -716,7 +716,7 @@ class Music(commands.Cog):
 		await player.set_volume(value)
 		await ctx.send(f'Set the volume to **{value}**%', delete_after=7)
 
-		if not player.updating and not player.update:
+		if player.current and not player.updating and not player.update:
 			await player.invoke_controller()
 		player.cmdchannel_id = ctx.channel.id
 
