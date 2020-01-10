@@ -109,7 +109,12 @@
                 "Description": "Check the status of Minecraft services",
                 "Usage": "$mcstatus",
                 "Aliases": null
-            }
+            },
+            "mcuuid": {
+                "Description": "Get a player's UUID (without dashes)",
+                "Usage": "$mcuuid <ign>",
+                "Aliases": null
+           }
         }
     },
     {
