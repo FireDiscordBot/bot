@@ -33,8 +33,8 @@ class Help(commands.Cog):
 		cmdurl = 'https://gaminggeek.dev/commands'
 		prefix = ctx.prefix.replace(ctx.me.mention, '@Fire ')
 		if randint(1, 100) == 69 or ctx.author.id == 287698408855044097:
-			cmdurl = f'https://fire.gaminggeek.space/commands?prefix={quote(prefix)}'3
-		embed = discord.Embed(colour=ctx.author.color, description='Here\'s some helpful links\n\n[Commands](https://gaminggeek.dev/commands)\n[Support Server](https://gaminggeek.dev/discord)\n[Invite Me](https://gaminggeek.dev/fire)\n[Donate](https://gaminggeek.dev/patreon)')
+			cmdurl = f'https://fire.gaminggeek.space/commands?prefix={quote(prefix)}'
+		embed = discord.Embed(colour=ctx.author.color, description=f'Here\'s some helpful links\n\n[Commands]({cmdurl})\n[Support Server](https://gaminggeek.dev/discord)\n[Invite Me](https://gaminggeek.dev/fire)\n[Donate](https://gaminggeek.dev/patreon)')
 		embed.set_author(name='Help has arrived', icon_url=str(ctx.me.avatar_url_as(static_format='png', size=2048)))
 		await ctx.send(embed=embed)
 
