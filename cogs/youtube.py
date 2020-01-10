@@ -114,14 +114,17 @@ class youtube(commands.Cog, name="YouTube API"):
 		if findvideo(video):
 			video = findvideo(video)
 		videoinfo = await self.loop.run_in_executor(None, func=functools.partial(self.video_info, video))
-		videoinfo = videoinfo['items'][0]
+		try:
+			videoinfo = videoinfo['items'][0]
+		except KeyError:
+			await ctx.send(f'<a:fireFailed:603214400748257302> Couldn\'t find a video. Please provide a valid YouTube video URL')
 		title = videoinfo['snippet']['title']
 		vid = videoinfo['id']
 		author = videoinfo['snippet']['channelTitle']
 		authorid = videoinfo['snippet']['channelId']
 		published = videoinfo['snippet']['publishedAt'].replace('T', ' ').split('.')[0]
 		duration = videoinfo['contentDetails']['duration'].replace('PT', '').replace('H', ' Hrs ').replace('M', ' Mins ').replace('S', 'Secs')
-		description: str = videoinfo['snippet']['description']
+		description = videoinfo['snippet']['description']
 		paginator = WrappedPaginator(prefix='```\nDescription (Use controls to change page)\n', suffix='```', max_size=1895)
 		for line in description.split('\n'):
 			paginator.add_line(line)
