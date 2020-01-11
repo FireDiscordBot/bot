@@ -83,10 +83,10 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		"""PFXimage [<tag> <nsfw: true/false>]"""
 		taglist = await self.bot.ksoft.tags()
 		tags = str(taglist).split(', ')
-		if not bool(tag):
+		if tag.lower() == 'false':
 			nsfw = False
 			tag = random.choice(tags)
-		else:
+		elif tag.lower() == 'true':
 			nsfw = True
 			tag = random.choice(tags)
 		if tag == None:
@@ -95,7 +95,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 				tag = 'dog'
 		else:
 			if tag not in tags:
-				await ctx.send('The tag you gave is invalid. Use the tag command to see a list of tags you can use.')
+				await ctx.send('The tag you gave is invalid. Use the imagetags command to see a list of tags you can use.')
 				return
 		channel = ctx.message.channel
 		if not channel.is_nsfw():
@@ -117,7 +117,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		embed.set_footer(text=f"🏷️ {tag} (https://api.ksoft.si)")
 		await ctx.send(embed=embed)
 
-	@commands.command(description="List all available tags")
+	@commands.command(description="List all available tags", aliases=['imagetag'])
 	async def imagetags(self, ctx):
 		"""PFXimagetags"""
 		tags = await self.bot.ksoft.tags()
