@@ -549,8 +549,9 @@ class utils(commands.Cog, name='Utility Commands'):
 												reminder = reminder.replace(fullurl, f'{message["content"]} (<{fullurl}>)').replace(f'{message["content"]}/', message["content"]) # remove trailing slash too
 									except Exception as e:
 										if isinstance(e, discord.HTTPException):
-											return
-										print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
+											pass
+										else:
+											print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
 						tosend = self.bot.get_user(u)
 						await self.deleteremind(u, r['for'])
 						try:
@@ -1144,6 +1145,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		if 'fetchmsg' in message.content.lower():
 			return
 		if 'quote' in message.content.lower():
+			return
+		if 'remind' in message.content.lower():
 			return
 		if message.guild != None:
 			if message.guild.id in disabled:
