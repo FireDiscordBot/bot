@@ -291,6 +291,10 @@ class firecog(commands.Cog, name="Main Commands"):
 		"""PFXdab"""
 		await ctx.send(f"{ctx.message.author.mention}, <o/")
 
+	@commands.command(description='you\'re welcome', aliases=['thank you', 'thanks'])
+	async def thank(self, ctx):
+		return await ctx.send('You\'re Welcome! I don\'t know what you\'re thanking me for but I\'ll just go along with it')
+
 	@commands.command(description="idk")
 	async def warm(self, ctx, *, warm: str):
 		"""PFXwarm <item>"""
