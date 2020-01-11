@@ -81,7 +81,6 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 	@commands.command(description="Gets a random image from a specified tag", name="image")
 	async def randimage(self, ctx, tag: str = None, nsfw: bool = None):
 		"""PFXimage [<tag> <nsfw: true/false>]"""
-		return await ctx.send('<a:fireFailed:603214400748257302> This command is currently unavailable.')
 		taglist = await self.bot.ksoft.tags()
 		tags = str(taglist).split(', ')
 		if tag == 'False':
