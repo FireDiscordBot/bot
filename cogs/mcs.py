@@ -68,7 +68,7 @@ class mcs(commands.Cog, name="Minecraft Saturdays"):
 			team["score"] = 0
 			for x in team["players"]:
 				team["score"] += x["score"]
-			players = [f'[{x["name"]}]({x["link"]})\n⭐ Points: {x["score"]}' for x in team["players"]]
+			players = [f'[{x["name"]}]({x.get("link", "https://minecraftsaturdays.net/")})\n⭐ Points: {x["score"]}' for x in team["players"]]
 			players = "\n".join(players)
 			t.append({
 				'text': f'**Team {teams.index(team) + 1}:**\n{players}\n\n🏅 Wins: {team["players"][0]["wins"]}\n⭐ Total Points: {team["score"]}\n',
