@@ -564,52 +564,52 @@
 	"flags": {
             "user": {
                 "Description": "Purge messages from this user",
-                "Usage": "{prefix}--user <name/mention/id>",
+                "Usage": "--user <name/mention/id>",
                 "Aliases": null
             },
             "channel": {
                 "Description": "Purge messages in this channel",
-                "Usage": "{prefix}--channel <name/mention/id>",
+                "Usage": "--channel <name/mention/id>",
                 "Aliases": null
             },
             "match": {
                 "Description": "Purge messages containing a string",
-                "Usage": "{prefix}--match <string>",
+                "Usage": "--match <string>",
                 "Aliases": null
             },
             "nomatch": {
                 "Description": "Purge messages that do not contain a string",
-                "Usage": "{prefix}--nomatch <string>",
+                "Usage": "--nomatch <string>",
                 "Aliases": null
             },
             "startswith": {
                 "Description": "Purge messages starting with a string",
-                "Usage": "{prefix}--startswith <string>",
+                "Usage": "--startswith <string>",
                 "Aliases": null
             },
             "endswith": {
                 "Description": "Purge messages ending with a string",
-                "Usage": "{prefix}--endswith <string>",
+                "Usage": "--endswith <string>",
                 "Aliases": null
             },
             "attachments": {
                 "Description": "Purge messages with attachments (true = with, false = without)",
-                "Usage": "{prefix}--attachments <true/false>",
+                "Usage": "--attachments <true/false>",
                 "Aliases": null
             },
             "bot": {
                 "Description": "Purge messages from bots (true = bot, false = not bot)",
-                "Usage": "{prefix}--bot <true/false>",
+                "Usage": "--bot <true/false>",
                 "Aliases": null
             },
             "invite": {
                 "Description": "Purge messages containing invites (true = with invites, false = without invites)",
-                "Usage": "{prefix}--invite <true/false>",
+                "Usage": "--invite <true/false>",
                 "Aliases": null
             },
             "text": {
                 "Description": "Purge messages containing only text (true = only text, false = attachments, embeds etc.)",
-                "Usage": "{prefix}--text <true/false>",
+                "Usage": "--text <true/false>",
                 "Aliases": null
             }
         }
