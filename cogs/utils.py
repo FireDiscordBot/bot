@@ -19,7 +19,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # 🦀
 
 import discord
-from discord.ext import commands, flags
+from fire.converters import User, UserWithFallback, Member, TextChannel, VoiceChannel, Category, Role
+from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
+from discord.ext import commands, flags, tasks
+from jishaku.models import copy_context_with
 import datetime
 import json
 import time
@@ -32,16 +35,15 @@ import strgen
 import asyncio
 import aiohttp
 import humanfriendly
+import traceback
 from colormap import rgb2hex, hex2rgb
 from emoji import UNICODE_EMOJI
-from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
 from PIL import Image
 from PIL import ImageFilter
 from PIL import ImageFont
 from PIL import ImageDraw
 from io import BytesIO
 from gtts import gTTS
-from fire.converters import User, UserWithFallback, Member, TextChannel, VoiceChannel, Category, Role
 from fire.invite import findinvite
 from fire.push import pushover
 from fire.exceptions import PushError
@@ -180,6 +182,45 @@ permissions = {
 
 dehoistchars = 'abcdefghijklmnopqrstuvwxyz'
 
+day_regex = re.compile(r'(?:(?P<days>\d+)d)')
+hour_regex = re.compile(r'(?:(?P<hours>\d+)h)')
+min_regex = re.compile(r'(?:(?P<minutes>\d+)m)')
+sec_regex = re.compile(r'(?:(?P<seconds>\d+)s)')
+# _time_regex = re.compile(
+# 	r'(?:(?P<days>\d+)d)? *(?:(?P<hours>\d+)h)? *(?:(?P<minutes>\d+)m)? *(?:(?P<seconds>\d+)s)')
+
+def parseTime(content, replace: bool = False):
+	if replace:
+		for regex in [day_regex, hour_regex, min_regex, sec_regex]:
+			content = re.sub(regex, '', content, 0, re.MULTILINE)
+		return content
+	try:
+		days = day_regex.search(content)
+		hours = hour_regex.search(content)
+		minutes = min_regex.search(content)
+		seconds = sec_regex.search(content)
+	except Exception:
+		return 0, 0, 0, 0
+	time = 0
+	if days or hours or minutes or seconds:
+		days = days.group(1) if days != None else 0
+		hours = hours.group(1) if hours != None else 0
+		minutes = minutes.group(1) if minutes != None else 0
+		seconds = seconds.group(1) if seconds != None else 0
+		days = int(days) if days else 0
+		if not days:
+			days = 0
+		hours = int(hours) if hours else 0
+		if not hours:
+			hours = 0
+		minutes = int(minutes) if minutes else 0
+		if not minutes:
+			minutes = 0
+		seconds = int(seconds) if seconds else 0
+		if not seconds:
+			seconds = 0
+		return days, hours, minutes, seconds
+
 class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
@@ -203,6 +244,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.bot.vanityclick = self.vanityclick
 		self.bot.vanitylink = self.vanitylink
 		self.tags = {}
+		self.reminders = {}
+		self.remindcheck.start()
 		self.quotecooldowns = {}
 
 	def is_emoji(self, s):
@@ -443,31 +486,80 @@ class utils(commands.Cog, name='Utility Commands'):
 		for d in descs:
 			self.bot.descriptions[d['gid']] = d['desc']
 
+	async def loadremind(self):
+		self.reminders = {}
+		query = 'SELECT * FROM remind;'
+		reminders = await self.bot.db.fetch(query)
+		for r in reminders:
+			user = r['uid']
+			forwhen = r['forwhen']
+			reminder = r['reminder']
+			if user not in self.reminders:
+				self.reminders[user] = []
+			self.reminders[user].append({'for': forwhen, 'reminder': reminder})
+
+	async def deleteremind(self, uid: int, forwhen: int):
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'DELETE FROM remind WHERE uid = $1 AND forwhen = $2;'
+			await self.bot.db.execute(query, uid, forwhen)
+		await self.bot.db.release(con)
+		await self.loadremind()
+
+	def cog_unload(self):
+		self.remindcheck.cancel()
+
+	@tasks.loop(seconds=1)
+	async def remindcheck(self):
+		fornow = datetime.datetime.utcnow().timestamp()
+		for u in self.reminders:
+			user = self.reminders[u]
+			for r in user:
+				reminder = r['reminder']
+				if r['forwhen'] <= fornow:
+					if 'discordapp.com/channels/' in reminder:
+						for i in reminder.split():
+							word = i.lower().strip('<>')
+							if word.startswith('https://canary.discordapp.com/channels/'):
+								urlbranch = 'canary.'
+								word = word.strip('https://canary.discordapp.com/channels/')
+							elif word.startswith('https://ptb.discordapp.com/channels/'):
+								urlbranch = 'ptb.'
+								word = word.strip('https://ptb.discordapp.com/channels/')
+							elif word.startswith('https://discordapp.com/channels/'):
+								urlbranch = ''
+								word = word.strip('https://discordapp.com/channels/')
+							list_ids = word.split('/')
+							if len(list_ids) == 3:
+								try:
+									message = await self.bot.http.get_message(list_ids[1], list_ids[3])
+									if isinstance(message.channel, discord.TextChannel):
+										m = message.channel.guild.get_member(u)
+										if not m:
+											pass
+										if m.permissions_in(message.channel).read_messages:
+											fullurl = f'https://{urlbranch}discordapp.com/channels/{list_ids[0]}/{list_ids[1]}/{list_ids[2]}'
+											reminder = reminder.replace(fullurl, f'{message.content} ({fullurl})').replace(f'{message.content}/', message.content) # remove trailing slash too
+								except Exception:
+									pass
+					tosend = self.bot.get_user(u)
+					await self.deleteremind(u, r['forwhen'])
+					try:
+						await tosend.send(f'You wanted me to remind you about "{reminder}"')
+					except discord.Forbidden:
+						continue # How sad, no reminder for you.
+					except Exception as e:
+						print(f'Tried to send reminder to {tosend} but an exception occured (and no, it wasn\'t forbidden)')
+						print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__))
+
 	@commands.Cog.listener()
 	async def on_ready(self):
 		await asyncio.sleep(5)
 		await self.loadvanitys()
 		await self.loadtags()
 		await self.loaddescs()
-		print('Settings loaded!')
-
-	@commands.command(name='loadvanity', description='Load Vanity URLs', hidden=True)
-	async def loadvurls(self, ctx):
-		'''PFXloadvanity'''
-		if await self.bot.is_team_owner(ctx.author):
-			await self.loadvanitys()
-			await ctx.send('Loaded data!')
-		else:
-			await ctx.send('no.')
-
-	@commands.command(name='loadtags', description='Load Tags', hidden=True)
-	async def loadthetags(self, ctx):
-		'''PFXloadtags'''
-		if await self.bot.is_team_owner(ctx.author):
-			await self.loadtags()
-			await ctx.send('Loaded data!')
-		else:
-			await ctx.send('no.')
+		await self.loadremind()
+		print('Utilities loaded!')
 
 	@commands.command(name='errortest', hidden=True)
 	async def errortestboyo(self, ctx):
@@ -802,7 +894,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='followable', description='Make the current channel followable.')
 	async def followable(self, ctx, canfollow: bool = False):
-		if not await self.bot.is_team_owner():
+		if not await self.bot.is_team_owner(ctx.author):
 			return
 		if canfollow and ctx.channel.id not in self.channelfollowable:
 			con = await self.bot.db.acquire()
@@ -824,7 +916,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.command(name='follow', description='Follow a channel and recieve messages from it in your own server', aliases=['cfollow', 'channelfollow'], hidden=True)
 	async def follow(self, ctx, follow: typing.Union[TextChannel, str]):
 		'''PFXfollow <channel|link>'''
-		if not await self.bot.is_team_owner():
+		if not await self.bot.is_team_owner(ctx.author):
 			return
 		if isinstance(follow, discord.TextChannel):
 			if follow.id in self.channelfollowable:
@@ -870,7 +962,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='unfollow', description='Unfollow the channel that has been followed', hidden=True)
 	async def unfollow(self, ctx):
-		if not await self.bot.is_team_owner():
+		if not await self.bot.is_team_owner(ctx.author):
 			return
 		con = await self.bot.db.acquire()
 		async with con.transaction():
@@ -1031,10 +1123,17 @@ class utils(commands.Cog, name='Utility Commands'):
 					pass
 			except Exception:
 				pass
-		if 'fetchmsg' in message.content:
+		if 'fetchmsg' in message.content.lower():
 			return
-		if 'quote' in message.content:
+		if 'quote' in message.content.lower():
 			return
+		if '--remind' in message.content.lower():
+			content = message.content.lower().replace(' --remind', '').replace('--remind ', '').replace('--remind', '') # Make sure --remind is replaced with space before, after, both or none
+			ctx = await self.bot.get_context(message)
+			if not ctx.valid:
+				return
+			alt_ctx = await copy_context_with(ctx, content=ctx.prefix + f'remind {content}')
+			return await alt_ctx.command.reinvoke(alt_ctx)
 		if message.guild != None:
 			if message.guild.id in disabled:
 				return
@@ -1285,6 +1384,31 @@ class utils(commands.Cog, name='Utility Commands'):
 		await self.loaddescs()
 		return await ctx.send('<a:fireSuccess:603214443442077708> Set guild description!')
 
+	@commands.command(aliases=['remind', 'reminder'], description='Sets a reminder for a time in the future')
+	async def remindme(self, ctx, reminder: str):
+		if parseTime(reminder):
+			days, hours, minutes, seconds = parseTime(reminder)
+			reminder = parseTime(reminder, True)
+			if not reminder.replace(' ', '') or not reminder:
+				return await ctx.send('<a:fireFailed:603214400748257302> Invalid format. Please provide a reminder along with the time')
+		else:
+			return await ctx.send('<a:fireFailed:603214400748257302> Invalid format. Please use the format "DAYSd HOURSh MINUTESm SECONDSs" along with your reminder')
+		forwhen = datetime.datetime.utcnow() + datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours)
+		limit = datetime.datetime.utcnow() + datetime.timedelta(days=8):
+		if forwhen > limit and not await self.bot.is_team_owner(ctx.author):
+			return await ctx.send('<a:fireFailed:603214400748257302> Reminders currently cannot be set for more than 7 days')
+		if ctx.author.id not in self.reminders:
+			try:
+				await ctx.author.send('Hey, I\'m just checking to see if I can DM you as this is where I will send your reminder :)')
+			except discord.Forbidden:
+				return await ctx.send('<a:fireFailed:603214400748257302> I was unable to DM you.\nI send reminders in DMs so you must make sure "Allow direct messages from server members." is enabled in at least one mutual server')
+		con = await self.bot.db.acquire()
+		async with con.transaction():
+			query = 'INSERT INTO remind (\"uid\", \"forwhen\", \"reminder\") VALUES ($1, $2, $3);'
+			await self.bot.db.execute(query, ctx.author.id, forwhen.timestamp(), reminder)
+		await self.bot.db.release(con)
+		await self.loadremind()
+		return await ctx.send('<a:fireSuccess:603214443442077708> Reminder set!')
 
 	@commands.command(description='Creates a vanity invite for your Discord using https://oh-my-god.wtf/')
 	@commands.has_permissions(manage_guild=True)
