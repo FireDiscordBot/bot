@@ -488,6 +488,11 @@
                 "Usage": "{prefix}quote <message id/message url>",
                 "Aliases": null
             },
+            "remind": {
+                "Description": "Set a reminder and get reminded because that's what reminders are for. (Uses the same time format as tempmutes, DAYSd HOURSh etc.)",
+                "Usage": "{prefix}remind <time + reminder>",
+                "Aliases": "remindme, reminder"
+            },
             "http.cat": {
                 "Description": "Got a HTTP Error Code? My cat knows what it means.",
                 "Usage": "{prefix}http.cat <error code>",
@@ -564,53 +569,43 @@
 	"flags": {
             "user": {
                 "Description": "Purge messages from this user",
-                "Usage": "--user <name/mention/id>",
-                "Aliases": null
+                "Usage": "--user <name/mention/id>"
             },
             "channel": {
                 "Description": "Purge messages in this channel",
-                "Usage": "--channel <name/mention/id>",
-                "Aliases": null
+                "Usage": "--channel <name/mention/id>"
             },
             "match": {
                 "Description": "Purge messages containing a string",
-                "Usage": "--match <string>",
-                "Aliases": null
+                "Usage": "--match <string>"
             },
             "nomatch": {
                 "Description": "Purge messages that do not contain a string",
-                "Usage": "--nomatch <string>",
-                "Aliases": null
+                "Usage": "--nomatch <string>"
             },
             "startswith": {
                 "Description": "Purge messages starting with a string",
-                "Usage": "--startswith <string>",
-                "Aliases": null
+                "Usage": "--startswith <string>"
             },
             "endswith": {
                 "Description": "Purge messages ending with a string",
-                "Usage": "--endswith <string>",
-                "Aliases": null
+                "Usage": "--endswith <string>"
             },
             "attachments": {
                 "Description": "Purge messages with attachments (true = with, false = without)",
-                "Usage": "--attachments <true/false>",
-                "Aliases": null
+                "Usage": "--attachments <true/false>"
             },
             "bot": {
                 "Description": "Purge messages from bots (true = bot, false = not bot)",
-                "Usage": "--bot <true/false>",
-                "Aliases": null
+                "Usage": "--bot <true/false>"
             },
             "invite": {
                 "Description": "Purge messages containing invites (true = with invites, false = without invites)",
-                "Usage": "--invite <true/false>",
-                "Aliases": null
+                "Usage": "--invite <true/false>"
             },
             "text": {
                 "Description": "Purge messages containing only text (true = only text, false = attachments, embeds etc.)",
-                "Usage": "--text <true/false>",
-                "Aliases": null
+                "Usage": "--text <true/false>"
             }
         }
     },
