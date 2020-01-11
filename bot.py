@@ -33,6 +33,7 @@ import traceback
 import functools
 import humanfriendly
 from fire.push import pushbullet
+from fire.invite import replaceinvite
 from fire import exceptions
 import sentry_sdk
 from sentry_sdk import push_scope
@@ -185,7 +186,7 @@ async def on_command_error(ctx, error):
 		td = datetime.timedelta(seconds=error.retry_after)
 		return await ctx.send(f'<a:fireFailed:603214400748257302> This command is on cooldown, please wait {humanfriendly.format_timespan(td)}', delete_after=5)
 
-	errorstr = str(error)
+	errorstr = replaceinvite(str(error))
 	if 'http://' in str(error) or 'https://' in str(error):
 		errorstr = re.sub(r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)', 'BLOCKED URL', str(error), 0, re.MULTILINE)
 
