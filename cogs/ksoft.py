@@ -83,10 +83,10 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		"""PFXimage [<tag> <nsfw: true/false>]"""
 		taglist = await self.bot.ksoft.tags()
 		tags = str(taglist).split(', ')
-		if tag == 'False':
+		if not bool(tag):
 			nsfw = False
 			tag = random.choice(tags)
-		elif tag == 'True':
+		else:
 			nsfw = True
 			tag = random.choice(tags)
 		if tag == None:
