@@ -191,7 +191,7 @@ sec_regex = re.compile(r'(?:(?P<seconds>\d+)s)')
 
 def parseTime(content, replace: bool = False):
 	if replace:
-		for regex in [day_regex, hour_regex, min_regex, sec_regex]:
+		for regex in [r'(?:(?P<days>\d+)d)', r'(?:(?P<hours>\d+)h)', r'(?:(?P<minutes>\d+)m)', r'(?:(?P<seconds>\d+)s)']:
 			content = re.sub(regex, '', content, 0, re.MULTILINE)
 		return content
 	try:
@@ -220,6 +220,7 @@ def parseTime(content, replace: bool = False):
 		if not seconds:
 			seconds = 0
 		return days, hours, minutes, seconds
+	return 0, 0, 0, 0
 
 class utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
@@ -511,46 +512,56 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@tasks.loop(seconds=1)
 	async def remindcheck(self):
+		reminders = self.reminders.copy()
 		fornow = datetime.datetime.utcnow().timestamp()
-		for u in self.reminders:
-			user = self.reminders[u]
-			for r in user:
-				reminder = r['reminder']
-				if r['forwhen'] <= fornow:
-					if 'discordapp.com/channels/' in reminder:
-						for i in reminder.split():
-							word = i.lower().strip('<>')
-							if word.startswith('https://canary.discordapp.com/channels/'):
-								urlbranch = 'canary.'
-								word = word.strip('https://canary.discordapp.com/channels/')
-							elif word.startswith('https://ptb.discordapp.com/channels/'):
-								urlbranch = 'ptb.'
-								word = word.strip('https://ptb.discordapp.com/channels/')
-							elif word.startswith('https://discordapp.com/channels/'):
-								urlbranch = ''
-								word = word.strip('https://discordapp.com/channels/')
-							list_ids = word.split('/')
-							if len(list_ids) == 3:
-								try:
-									message = await self.bot.http.get_message(list_ids[1], list_ids[3])
-									if isinstance(message.channel, discord.TextChannel):
-										m = message.channel.guild.get_member(u)
-										if not m:
-											pass
-										if m.permissions_in(message.channel).read_messages:
-											fullurl = f'https://{urlbranch}discordapp.com/channels/{list_ids[0]}/{list_ids[1]}/{list_ids[2]}'
-											reminder = reminder.replace(fullurl, f'{message.content} ({fullurl})').replace(f'{message.content}/', message.content) # remove trailing slash too
-								except Exception:
-									pass
-					tosend = self.bot.get_user(u)
-					await self.deleteremind(u, r['forwhen'])
-					try:
-						await tosend.send(f'You wanted me to remind you about "{reminder}"')
-					except discord.Forbidden:
-						continue # How sad, no reminder for you.
-					except Exception as e:
-						print(f'Tried to send reminder to {tosend} but an exception occured (and no, it wasn\'t forbidden)')
-						print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__))
+		try:
+			for u in reminders:
+				user = self.reminders[u]
+				for r in user:
+					reminder = r['reminder']
+					if r['for'] <= fornow:
+						if 'discordapp.com/channels/' in reminder:
+							for i in reminder.split():
+								word = i.lower().strip('<>')
+								urlbranch = None
+								if word.startswith('https://canary.discordapp.com/channels/'):
+									urlbranch = 'canary.'
+									word = word.strip('https://canary.discordapp.com/channels/')
+								elif word.startswith('https://ptb.discordapp.com/channels/'):
+									urlbranch = 'ptb.'
+									word = word.strip('https://ptb.discordapp.com/channels/')
+								elif word.startswith('https://discordapp.com/channels/'):
+									urlbranch = ''
+									word = word.strip('https://discordapp.com/channels/')
+								else:
+									continue
+								list_ids = word.split('/')
+								if len(list_ids) == 3 and urlbranch != None:
+									try:
+										message = await self.bot.http.get_message(list_ids[1], list_ids[2])
+										channel = self.bot.get_channel(int(message["channel_id"]))
+										if isinstance(channel, discord.TextChannel):
+											m = channel.guild.get_member(u)
+											if not m:
+												pass
+											if m.permissions_in(channel).read_messages:
+												fullurl = f'https://{urlbranch}discordapp.com/channels/{list_ids[0]}/{list_ids[1]}/{list_ids[2]}'
+												reminder = reminder.replace(fullurl, f'{message["content"]} (<{fullurl}>)').replace(f'{message["content"]}/', message["content"]) # remove trailing slash too
+									except Exception as e:
+										if isinstance(e, discord.HTTPException):
+											return
+										print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
+						tosend = self.bot.get_user(u)
+						await self.deleteremind(u, r['for'])
+						try:
+							await tosend.send(f'You wanted me to remind you about "{reminder}"')
+						except discord.Forbidden:
+							continue # How sad, no reminder for you.
+						except Exception as e:
+							print(f'Tried to send reminder to {tosend} but an exception occured (and no, it wasn\'t forbidden)')
+							print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
+		except Exception as e:
+			print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
 
 	@commands.Cog.listener()
 	async def on_ready(self):
@@ -1089,6 +1100,13 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
+		if '--remind' in message.content.lower():
+			content = message.content.lower().replace(' --remind', '').replace('--remind ', '').replace('--remind', '') # Make sure --remind is replaced with space before, after, both or none
+			ctx = await self.bot.get_context(message)
+			alt_ctx = await copy_context_with(ctx, content=self.bot.prefixes[message.guild.id] + f'remind {content} (<{message.jump_url}>)')
+			if not alt_ctx.valid:
+				return
+			return await alt_ctx.command.reinvoke(alt_ctx)
 		if message.channel.id in self.channelfollows and message.channel.id in self.channelfollowable and not message.author.bot:
 			def pub_check(msg):
 				if msg.system_content.lower() == 'yes' and msg.author.id == message.author.id:
@@ -1127,13 +1145,6 @@ class utils(commands.Cog, name='Utility Commands'):
 			return
 		if 'quote' in message.content.lower():
 			return
-		if '--remind' in message.content.lower():
-			content = message.content.lower().replace(' --remind', '').replace('--remind ', '').replace('--remind', '') # Make sure --remind is replaced with space before, after, both or none
-			ctx = await self.bot.get_context(message)
-			if not ctx.valid:
-				return
-			alt_ctx = await copy_context_with(ctx, content=ctx.prefix + f'remind {content}')
-			return await alt_ctx.command.reinvoke(alt_ctx)
 		if message.guild != None:
 			if message.guild.id in disabled:
 				return
@@ -1385,7 +1396,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		return await ctx.send('<a:fireSuccess:603214443442077708> Set guild description!')
 
 	@commands.command(aliases=['remind', 'reminder'], description='Sets a reminder for a time in the future')
-	async def remindme(self, ctx, reminder: str):
+	async def remindme(self, ctx, *, reminder: str):
 		if parseTime(reminder):
 			days, hours, minutes, seconds = parseTime(reminder)
 			reminder = parseTime(reminder, True)
@@ -1393,8 +1404,10 @@ class utils(commands.Cog, name='Utility Commands'):
 				return await ctx.send('<a:fireFailed:603214400748257302> Invalid format. Please provide a reminder along with the time')
 		else:
 			return await ctx.send('<a:fireFailed:603214400748257302> Invalid format. Please use the format "DAYSd HOURSh MINUTESm SECONDSs" along with your reminder')
+		if not days and not hours and not minutes and not seconds:
+			return await ctx.send('<a:fireFailed:603214400748257302> Invalid format. Please provide a time')
 		forwhen = datetime.datetime.utcnow() + datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours)
-		limit = datetime.datetime.utcnow() + datetime.timedelta(days=8):
+		limit = datetime.datetime.utcnow() + datetime.timedelta(days=8)
 		if forwhen > limit and not await self.bot.is_team_owner(ctx.author):
 			return await ctx.send('<a:fireFailed:603214400748257302> Reminders currently cannot be set for more than 7 days')
 		if ctx.author.id not in self.reminders:
@@ -1402,6 +1415,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await ctx.author.send('Hey, I\'m just checking to see if I can DM you as this is where I will send your reminder :)')
 			except discord.Forbidden:
 				return await ctx.send('<a:fireFailed:603214400748257302> I was unable to DM you.\nI send reminders in DMs so you must make sure "Allow direct messages from server members." is enabled in at least one mutual server')
+		reminder = reminder.lstrip()
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'INSERT INTO remind (\"uid\", \"forwhen\", \"reminder\") VALUES ($1, $2, $3);'
