@@ -521,8 +521,9 @@ class utils(commands.Cog, name='Utility Commands'):
 					reminder = r['reminder']
 					if r['for'] <= fornow:
 						if 'discordapp.com/channels/' in reminder:
+							quotes = []
 							for i in reminder.split():
-								word = i.lower().strip('<>')
+								word = i.lower()
 								urlbranch = None
 								if word.startswith('https://canary.discordapp.com/channels/'):
 									urlbranch = 'canary.'
@@ -546,7 +547,8 @@ class utils(commands.Cog, name='Utility Commands'):
 												pass
 											if m.permissions_in(channel).read_messages:
 												fullurl = f'https://{urlbranch}discordapp.com/channels/{list_ids[0]}/{list_ids[1]}/{list_ids[2]}'
-												reminder = reminder.replace(fullurl, f'{message["content"]} (<{fullurl}>)').replace(f'{message["content"]}/', message["content"]) # remove trailing slash too
+												reminder = reminder.replace(f'{fullurl}/', '').replace(fullurl, '').replace('<>', '')
+												quotes.append(f'"{message["content"]}" (<{fullurl}>)'.replace(f'{message["content"]}/', message["content"])
 									except Exception as e:
 										if isinstance(e, discord.HTTPException):
 											pass
@@ -555,7 +557,11 @@ class utils(commands.Cog, name='Utility Commands'):
 						tosend = self.bot.get_user(u)
 						await self.deleteremind(u, r['for'])
 						try:
-							await tosend.send(f'You wanted me to remind you about "{reminder}"')
+							if quotes:
+								quotes = '\n'.join([f'You also quoted {q}' for q in quotes])
+								await tosend.send(f'You wanted me to remind you about "{reminder}"\n{quotes}')
+							else:
+								await tosend.send(f'You wanted me to remind you about "{reminder}"')
 						except discord.Forbidden:
 							continue # How sad, no reminder for you.
 						except Exception as e:
