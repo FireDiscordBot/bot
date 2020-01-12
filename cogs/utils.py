@@ -182,16 +182,14 @@ permissions = {
 
 dehoistchars = 'abcdefghijklmnopqrstuvwxyz'
 
-day_regex = re.compile(r'(?:(?P<days>\d+)d)')
-hour_regex = re.compile(r'(?:(?P<hours>\d+)h)')
-min_regex = re.compile(r'(?:(?P<minutes>\d+)m)')
-sec_regex = re.compile(r'(?:(?P<seconds>\d+)s)')
-# _time_regex = re.compile(
-# 	r'(?:(?P<days>\d+)d)? *(?:(?P<hours>\d+)h)? *(?:(?P<minutes>\d+)m)? *(?:(?P<seconds>\d+)s)')
+day_regex = re.compile(r'(?:(?P<days>\d+)(?:d|days|day| days| day))')
+hour_regex = re.compile(r'(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))')
+min_regex = re.compile(r'(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))')
+sec_regex = re.compile(r'(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))')
 
 def parseTime(content, replace: bool = False):
 	if replace:
-		for regex in [r'(?:(?P<days>\d+)d)', r'(?:(?P<hours>\d+)h)', r'(?:(?P<minutes>\d+)m)', r'(?:(?P<seconds>\d+)s)']:
+		for regex in [r'(?:(?P<days>\d+)(?:d|days|day| days| day))', r'(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))', r'(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))', r'(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))']:
 			content = re.sub(regex, '', content, 0, re.MULTILINE)
 		return content
 	try:

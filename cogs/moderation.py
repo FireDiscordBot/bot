@@ -28,14 +28,18 @@ import re
 from fire.converters import UserWithFallback, Member, TextChannel, Role
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 
-day_regex = re.compile(r'(?:(?P<days>\d+)d)')
-hour_regex = re.compile(r'(?:(?P<hours>\d+)h)')
-min_regex = re.compile(r'(?:(?P<minutes>\d+)m)')
-sec_regex = re.compile(r'(?:(?P<seconds>\d+)s)')
+day_regex = re.compile(r'(?:(?P<days>\d+)(?:d|days|day| days| day))')
+hour_regex = re.compile(r'(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))')
+min_regex = re.compile(r'(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))')
+sec_regex = re.compile(r'(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))')
 # _time_regex = re.compile(
 # 	r'(?:(?P<days>\d+)d)? *(?:(?P<hours>\d+)h)? *(?:(?P<minutes>\d+)m)? *(?:(?P<seconds>\d+)s)')
 
-def parseTime(content):
+def parseTime(content, replace: bool = False):
+	if replace:
+		for regex in [r'(?:(?P<days>\d+)(?:d|days|day| days| day))', r'(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))', r'(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))', r'(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))']:
+			content = re.sub(regex, '', content, 0, re.MULTILINE)
+		return content
 	try:
 		days = day_regex.search(content)
 		hours = hour_regex.search(content)
@@ -609,9 +613,9 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		else:
 			td = datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 			until = datetime.datetime.utcnow() + datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
-			reason = reason.replace(f'{days}d ', '').replace(f'{hours}h ', '').replace(f'{minutes}m ', '').replace(f'{seconds}s ', '')
+			reason = parseTime(reason, True)
 			await self.mute(ctx, user, reason=reason, until=until, timedelta=td, channel=logch)
-	
+
 	@commands.command(description="Warn a user.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
