@@ -520,8 +520,8 @@ class utils(commands.Cog, name='Utility Commands'):
 				for r in user:
 					reminder = r['reminder']
 					if r['for'] <= fornow:
+						quotes = []
 						if 'discordapp.com/channels/' in reminder:
-							quotes = []
 							for i in reminder.split():
 								word = i.lower()
 								urlbranch = None
@@ -548,7 +548,7 @@ class utils(commands.Cog, name='Utility Commands'):
 											if m.permissions_in(channel).read_messages:
 												fullurl = f'https://{urlbranch}discordapp.com/channels/{list_ids[0]}/{list_ids[1]}/{list_ids[2]}'
 												reminder = reminder.replace(f'{fullurl}/', '').replace(fullurl, '').replace('<>', '')
-												quotes.append(f'"{message["content"]}" (<{fullurl}>)'.replace(f'{message["content"]}/', message["content"])
+												quotes.append(f'"{message["content"]}" (<{fullurl}>)'.replace(f'{message["content"]}/', message["content"]))
 									except Exception as e:
 										if isinstance(e, discord.HTTPException):
 											pass
@@ -558,8 +558,11 @@ class utils(commands.Cog, name='Utility Commands'):
 						await self.deleteremind(u, r['for'])
 						try:
 							if quotes:
-								quotes = '\n'.join([f'You also quoted {q}' for q in quotes])
-								await tosend.send(f'You wanted me to remind you about "{reminder}"\n{quotes}')
+								if len(quotes) == 1:
+									quotes = f'You also quoted {quotes[0]}'
+								else:
+									quotes = 'You also quoted these messages...\n' + '\n'.join(quotes)
+								await tosend.send(f'You wanted me to remind you about "{reminder}"\n\n{quotes}')
 							else:
 								await tosend.send(f'You wanted me to remind you about "{reminder}"')
 						except discord.Forbidden:
@@ -1110,7 +1113,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if '--remind' in message.content.lower():
 			content = message.content.lower().replace(' --remind', '').replace('--remind ', '').replace('--remind', '') # Make sure --remind is replaced with space before, after, both or none
 			ctx = await self.bot.get_context(message)
-			alt_ctx = await copy_context_with(ctx, content=self.bot.prefixes[message.guild.id] + f'remind {content} (<{message.jump_url}>)')
+			alt_ctx = await copy_context_with(ctx, content=self.bot.prefixes[message.guild.id] + f'remind {content}')
 			if not alt_ctx.valid:
 				return
 			return await alt_ctx.command.reinvoke(alt_ctx)
@@ -1424,7 +1427,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await ctx.author.send('Hey, I\'m just checking to see if I can DM you as this is where I will send your reminder :)')
 			except discord.Forbidden:
 				return await ctx.send('<a:fireFailed:603214400748257302> I was unable to DM you.\nI send reminders in DMs so you must make sure "Allow direct messages from server members." is enabled in at least one mutual server')
-		reminder = reminder.lstrip()
+		reminder = reminder.strip()
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'INSERT INTO remind (\"uid\", \"forwhen\", \"reminder\") VALUES ($1, $2, $3);'
