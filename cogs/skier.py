@@ -101,7 +101,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			header = re.sub(remcolor, '', levelhead.get('header', 'Level'), 0, re.IGNORECASE)
 			strlevel = re.sub(remcolor, '', levelhead['strlevel'], 0, re.IGNORECASE)
 			level = levelhead['level']
-			if strlevel == level:
+			if header == "Level":
 				nocustom = True
 			else:
 				nocustom = False
