@@ -24,6 +24,7 @@ import typing
 import random
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 from fire.converters import Member
+from chatwatch.cw import ChatWatch
 
 print("ksoft.py has been loaded")
 
@@ -31,6 +32,7 @@ with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
 client = ksoftapi.Client(api_key=config['ksoft'])
+# cwclient = ChatWatch(config['chatwatch'])
 
 def isadmin(ctx):
 	"""Checks if the author is an admin"""
@@ -46,6 +48,29 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.bot.ksoft = client
+		# if not hasattr(self.bot, 'chatwatch'):
+		#	self.bot.chatwatch = cwclient
+		#	self.bot.chatwatch.register_listener(self.handle_chatwatch)
+		# self.lastcw = None
+
+	# async def handle_chatwatch(self, payload):
+	#	self.lastcw = payload.data
+
+	# @commands.Cog.listener()
+	# async def on_message(self, message):
+	#	if not message.guild:
+	#		return
+	#	payload = {
+	#		"event": "msg_ingest",
+	#		"data": {
+	#			"guild": message.guild.id,
+	#			"channel": message.channel.id,
+	#			"message": message.content,
+	#			"message_id": message.id,
+	#			"user": message.author.id
+	#		}
+	#	}
+	#	await self.bot.chatwatch.send(payload)
 
 	@commands.command(description="Gets a random meme from Reddit")
 	async def meme(self, ctx, sub: str = None):
