@@ -1417,7 +1417,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if not days and not hours and not minutes and not seconds:
 			return await ctx.send('<a:fireFailed:603214400748257302> Invalid format. Please provide a time')
 		forwhen = datetime.datetime.utcnow() + datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours)
-		limit = datetime.datetime.utcnow() + datetime.timedelta(days=8)
+		limit = datetime.datetime.utcnow() + datetime.timedelta(days=15)
 		if forwhen > limit and not await self.bot.is_team_owner(ctx.author):
 			return await ctx.send('<a:fireFailed:603214400748257302> Reminders currently cannot be set for more than 7 days')
 		if ctx.author.id not in self.reminders:
