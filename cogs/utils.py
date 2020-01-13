@@ -1110,7 +1110,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			if not alt_ctx.valid:
 				return
 			return await alt_ctx.command.reinvoke(alt_ctx)
-		if 'qr code' in message.content.lower() and 'discord' in message.content.lower() and message.guild.id in [564052798044504084, 411619823445999637, 525056817399726102] and not message.author.bot:
+		if all(ae in message.content.lower() for ae in ['qr code', 'discord', 'exploit']) and message.guild.id in [564052798044504084, 411619823445999637, 525056817399726102] and not message.author.bot:
 			await message.delete()
 			ctx = await self.bot.get_context(message)
 			gek = message.guild.get_member(287698408855044097)
