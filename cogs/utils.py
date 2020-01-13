@@ -733,7 +733,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			color = user.color
 		if ctx.guild.get_member(user.id):
 			user = ctx.guild.get_member(user.id)
-		ack = self.bot.acknowledgements[user.id] if hasattr(self.bot, 'acknowledgements') else []
+		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		badge = ''
 		for guild in self.bot.guilds:
 			if guild.owner_id == user.id and 'PARTNERED' in guild.features:
