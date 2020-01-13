@@ -143,7 +143,7 @@ async def on_command_error(ctx, error):
 	if isinstance(error, commands.CommandNotFound):
 		return
 
-	ignored = (commands.CheckFailure, KeyError)
+	ignored = (commands.CheckFailure)
 	sentryignored = (commands.CheckFailure)
 	noperms = (commands.BotMissingPermissions, commands.MissingPermissions, discord.Forbidden)
 	saved = error
@@ -192,6 +192,9 @@ async def on_command_error(ctx, error):
 
 	if isinstance(error, noperms):
 		return await ctx.send(f'<a:fireFailed:603214400748257302> {discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
+
+	if isinstance(error, KeyError):
+		errorstr = f'Key not found: {errorstr}. This is something that should be reported in my support server, discord.gg/mKDWeSA'
 
 	await ctx.send(f'<a:fireFailed:603214400748257302> {discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
 	nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError, commands.MissingRequiredArgument, commands.TooManyArguments)
