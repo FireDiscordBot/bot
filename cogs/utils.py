@@ -771,9 +771,25 @@ class utils(commands.Cog, name='Utility Commands'):
 			else:
 				gban = '<a:fireSuccess:603214443442077708> Not banned on KSoft.Si'
 			if hasattr(self.bot, 'chatwatch'):
+				cwbl = ''
 				cwprofile = await self.bot.chatwatch.profile(user.id)
-				print(cwprofile)
-			embed.add_field(name=f'Trust - {trust}', value='\n'.join([lban, gban]), inline=False)
+				if cwprofile['score'] > 50:
+					if trust != 'Low':
+						trust = 'Moderate'
+					cwbl = f'<a:fireWarning:660148304486727730> Chatwatch score of **{cwprofile["score"]}%**'
+				elif cwprofile['score'] > 80:
+					trust = 'Low'
+					cwbl = f'<a:fireFailed:603214400748257302> Chatwatch score of **{cwprofile["score"]}%**'
+				elif cwprofile['score'] == 50:
+					cwbl = '<:neutral:667128324107272192> Chatwatch score of **50%**'
+				if cwprofile['whitelisted']:
+					 cwbl = f'<a:fireSuccess:603214443442077708> **Whitelisted** on Chatwatch'
+				elif cwprofile['blacklisted_reason']:
+					trust = 'Low'
+					cwbl = f'<a:fireFailed:603214400748257302> Blacklisted on Chatwatch for **{cwprofile["blacklisted_reason"]}**'
+				if not cwbl:
+					cwbl = f'<a:fireSuccess:603214443442077708> Chatwatch score of **{cwprofile["score"]}%**'
+			embed.add_field(name=f'Trust - {trust}', value='\n'.join([lban, gban, cwbl]), inline=False)
 		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		if ack:
 			embed.add_field(name='» Recognized User', value=', '.join(ack))
@@ -1202,9 +1218,10 @@ class utils(commands.Cog, name='Utility Commands'):
 					try:
 						channel = self.bot.get_channel(int(list_ids[0]))
 					except:
-						if not channel:
-							return
+						pass
 
+					if not channel:
+						return
 
 					user = channel.guild.get_member(message.author.id)
 					uperms = user.permissions_in(channel)

@@ -27,26 +27,29 @@ config = json.load(open('config.json'))
 class chatwatch(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.responses = {}
         if not hasattr(self.bot, 'chatwatch'):
             self.bot.chatwatch = ChatWatch(config['chatwatch'])
             self.bot.chatwatch.register_listener(self.handle_message)
 
     async def handle_message(self, message):
+        # print(json.dumps(message.data, indent=2))
+        self.responses[int(message.data['user']['user'])] = message.data
         if message.data['user']['blacklisted']:
             print(f'{message.data["user"]["user"]} is blacklisted for {message.data["user"]["blacklisted_reason"]}')
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if not message.guild:
+        if not message.guild or not message.content or message.author.bot:
             return
         payload = {
-            "event": "msg_ingest",
+            "event": "message_ingest",
             "data": {
-                "guild": message.guild.id,
-                "channel": message.channel.id,
+                "guild": str(message.guild.id),
+                "channel": str(message.channel.id),
                 "message": message.content,
-                "message_id": message.id,
-                "user": message.author.id
+                "message_id": str(message.id),
+                "user": str(message.author.id)
             }
         }
         await self.bot.chatwatch.send(payload)

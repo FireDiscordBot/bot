@@ -35,10 +35,10 @@ class Context(commands.Context):
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, nonce=None):
         if content:
             content = content.replace('@everyone', u'@\u200beveryone').replace('@here', u'@\u200bhere')
-        await super().send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after, nonce=nonce)
+        return await super().send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after, nonce=nonce)
 
     async def dm(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, nonce=None):
-        await self.author.send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after, nonce=nonce)
+        return await self.author.send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after, nonce=nonce)
 
     # Unfinished permissions system
 
