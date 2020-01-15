@@ -28,10 +28,10 @@ class Ready(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        misc = bot.get_cog("Miscellaneous")
+        misc = self.bot.get_cog("Miscellaneous")
         await misc.loadutils()
         try:
-            bot.load_extension("cogs.sk1erdiscord")
+            self.bot.load_extension("cogs.sk1erdiscord")
         except Exception:
             pass
         print("-------------------------")
