@@ -63,7 +63,7 @@ class commandError(commands.Cog):
                 exclevel = 'info'
             else:
                 exclevel = 'error'
-            await bot.loop.run_in_executor(None, func=functools.partial(self.bot.sentry_exc, error, userscope, exclevel, extra))
+            await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.sentry_exc, error, userscope, exclevel, extra))
         # Allows us to check for original exceptions raised and sent to CommandInvokeError.
         # If nothing is found. We keep the exception passed to on_command_error.
         error = getattr(error, 'original', error)
@@ -102,7 +102,7 @@ class commandError(commands.Cog):
         embednotb.add_field(name='User', value=ctx.author, inline=False)
         embednotb.add_field(name='Guild', value=ctx.guild, inline=False)
         embednotb.add_field(name='Message', value=ctx.message.system_content, inline=False)
-        me = bot.get_user(287698408855044097)
+        me = self.bot.get_user(287698408855044097)
         try:
             await me.send(embed=embed)
         except discord.HTTPException:

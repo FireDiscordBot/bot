@@ -29,9 +29,9 @@ class Message(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if isinstance(message.channel, discord.DMChannel):
-            ctx = await self.bot.get_context(message)
-            return await self.bot.invoke(ctx)
+        # if isinstance(message.channel, discord.DMChannel):
+        #    ctx = await self.bot.get_context(message)
+        #    return await self.bot.invoke(ctx)
         if message.author.bot:
             await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'messages.bot'))
             return
@@ -39,8 +39,8 @@ class Message(commands.Cog):
             await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'messages.user'))
         if message.system_content == "":
             return
-        ctx = await self.bot.get_context(message)
-        await self.bot.invoke(ctx)
+        # ctx = await self.bot.get_context(message)
+        # await self.bot.invoke(ctx)
 
 
 def setup(bot):

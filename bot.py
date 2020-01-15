@@ -67,7 +67,7 @@ for cog in extensions:
 
 
 @bot.command(description="Change the prefix for this guild. (For prefixes with a space, surround it in \"\")")
-@has_permissions(administrator=True)
+@commands.has_permissions(administrator=True)
 @commands.guild_only()
 async def prefix(ctx, pfx: str = None):
     """PFXprefix <prefix>"""
