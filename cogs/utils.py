@@ -755,22 +755,25 @@ class utils(commands.Cog, name='Utility Commands'):
 				else:
 					roles.append(role.mention)
 			embed.add_field(name="» Roles", value=' - '.join(roles) or 'No roles', inline=False)
-		trust = 'High' # yes ravy I'm stealing your trust thing. go check out ravy, https://ravy.xyz/
-		current = await ctx.guild.bans()
-		if len([b for b in current if b.user.id == user.id]) >= 1:
-			trust = 'Moderate'
-			lban = f'<a:fireWarning:660148304486727730> Banned in {ctx.guild.name}'
-		else:
-			lban = f'<a:fireSuccess:603214443442077708> Not banned in {ctx.guild.name}'
-		ksoftban = await self.bot.ksoft.bans_check(user.id)
-		if ksoftban:
-			trust = 'Low'
-			ksoftban = await self.bot.ksoft.bans_info(user.id)
-			gban = f'<a:fireFailed:603214400748257302> Banned on KSoft.Si for {ksoftban.reason} - [Proof]({ksoftban.proof})'
-		else:
-			gban = '<a:fireSuccess:603214443442077708> Not banned on KSoft.Si'
-		# TODO: Add chatwatch
-		embed.add_field(name=f'Trust - {trust}', value='\n'.join([lban, gban]))
+		if not user.bot:
+			trust = 'High' # yes ravy I'm stealing your trust thing. go check out ravy, https://ravy.xyz/
+			current = await ctx.guild.bans()
+			if len([b for b in current if b.user.id == user.id]) >= 1:
+				trust = 'Moderate'
+				lban = f'<a:fireWarning:660148304486727730> Banned in {ctx.guild.name}'
+			else:
+				lban = f'<a:fireSuccess:603214443442077708> Not banned in {ctx.guild.name}'
+			ksoftban = await self.bot.ksoft.bans_check(user.id)
+			if ksoftban:
+				trust = 'Low'
+				ksoftban = await self.bot.ksoft.bans_info(user.id)
+				gban = f'<a:fireFailed:603214400748257302> Banned on KSoft.Si for {ksoftban.reason} - [Proof]({ksoftban.proof})'
+			else:
+				gban = '<a:fireSuccess:603214443442077708> Not banned on KSoft.Si'
+			if hasattr(self.bot, 'chatwatch'):
+				cwprofile = await self.bot.chatwatch.profile(user.id)
+				print(cwprofile)
+			embed.add_field(name=f'Trust - {trust}', value='\n'.join([lban, gban]), inline=False)
 		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		if ack:
 			embed.add_field(name='» Recognized User', value=', '.join(ack))

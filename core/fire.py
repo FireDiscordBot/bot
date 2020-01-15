@@ -74,7 +74,12 @@ class Fire(commands.Bot):
     # Commands will soon have their own separate files, but for now this just loads jishaku
 
     def loadCommands(self):
-        # self.load_extension('core.chatwatch')
+        try:
+            self.load_extension('core.chatwatch')
+        except Exception as e:
+            errortb = ''.join(traceback.format_exception(
+                type(e), e, e.__traceback__))
+            print(f'Error while loading Chatwatch;\n{errortb}')
         try:
             self.load_extension('jishaku')
         except Exception as e:

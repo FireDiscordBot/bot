@@ -32,14 +32,13 @@ class Context(commands.Context):
     async def error(self, message: str):
         await super().send(f'<a:fireFailed:603214400748257302> {message}')
 
-    # Don't replace until testing works
-    async def newsend(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, nonce=None):
+    async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, nonce=None):
         if content:
             content = content.replace('@everyone', u'@\u200beveryone').replace('@here', u'@\u200bhere')
-        await super().send(content, tts, embed, file, files, delete_after, nonce)
+        await super().send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after, nonce=nonce)
 
     async def dm(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, nonce=None):
-        await self.author.send(content, tts, embed, file, files, delete_after, nonce)
+        await self.author.send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after, nonce=nonce)
 
     # Unfinished permissions system
 

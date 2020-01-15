@@ -32,7 +32,8 @@ class chatwatch(commands.Cog):
             self.bot.chatwatch.register_listener(self.handle_message)
 
     async def handle_message(self, message):
-        print(message.data)
+        if message.data['user']['blacklisted']:
+            print(f'{message.data["user"]["user"]} is blacklisted for {message.data["user"]["blacklisted_reason"]}')
 
     @commands.Cog.listener()
     async def on_message(self, message):
