@@ -733,15 +733,12 @@ class utils(commands.Cog, name='Utility Commands'):
 			color = user.color
 		if ctx.guild.get_member(user.id):
 			user = ctx.guild.get_member(user.id)
-		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		badge = ''
 		for guild in self.bot.guilds:
 			if guild.owner_id == user.id and 'PARTNERED' in guild.features:
 				badge = discord.utils.get(self.bot.emojis, name='PartnerShine')
-		embed = discord.Embed(colour=color, timestamp=datetime.datetime.utcnow())
+		embed = discord.Embed(title=f'{user} ({user.id})', colour=color, timestamp=datetime.datetime.utcnow())
 		embed.set_thumbnail(url=str(user.avatar_url_as(static_format='png', size=2048)))
-		embed.add_field(name="» Name", value=f'{user.name}#{user.discriminator} {badge}', inline=False)
-		embed.add_field(name="» ID", value=user.id, inline=False)
 		if type(user) == discord.Member:
 			members = sorted(ctx.guild.members, key=lambda m: m.joined_at or m.created_at)
 			embed.add_field(name="» Join Position", value=members.index(user) + 1, inline=False)
@@ -751,17 +748,30 @@ class utils(commands.Cog, name='Utility Commands'):
 				embed.add_field(name="» Nickname", value=user.nick, inline=False)
 			if user.premium_since:
 				embed.add_field(name="» Boosting Since", value=str(user.premium_since).split('.')[0], inline=False)
-			rgbcolor = user.color.to_rgb()
-			embed.add_field(name="» Color", value=f'rgb{rgbcolor}', inline=False)
 			roles = []
 			for role in user.roles:
-				if 'ACK' in role.name and ctx.guild.id == 564052798044504084:
-					pass
-				elif role.is_default():
+				if role.is_default():
 					pass
 				else:
 					roles.append(role.mention)
 			embed.add_field(name="» Roles", value=' - '.join(roles) or 'No roles', inline=False)
+		trust = 'High' # yes ravy I'm stealing your trust thing. go check out ravy, https://ravy.xyz/
+		current = await ctx.guild.bans()
+		if len([b for b in current if b.user.id == user.id]) >= 1:
+			trust = 'Moderate'
+			lban = f'<a:fireWarning:660148304486727730> Banned in {ctx.guild.name}'
+		else:
+			lban = f'<a:fireSuccess:603214443442077708> Not banned in {ctx.guild.name}'
+		ksoftban = await self.bot.ksoft.bans_check(user.id)
+		if ksoftban:
+			trust = 'Low'
+			ksoftban = await self.bot.ksoft.bans_info(user.id)
+			gban = f'<a:fireFailed:603214400748257302> Banned on KSoft.Si for {ksoftban.reason} - [Proof]({ksoftban.proof})'
+		else:
+			gban = '<a:fireSuccess:603214443442077708> Not banned on KSoft.Si'
+		# TODO: Add chatwatch
+		embed.add_field(name=f'Trust - {trust}', value='\n'.join([lban, gban]))
+		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		if ack:
 			embed.add_field(name='» Recognized User', value=', '.join(ack))
 		await ctx.send(embed=embed)
@@ -1743,22 +1753,13 @@ class utils(commands.Cog, name='Utility Commands'):
 		if user == None:
 			user = ctx.message.author.id
 		try:
-			fetched = self.bot.get_user(user)
-		except Exception as e:
-			raise commands.UserInputError('Oops, couldn\'t find that user. I need to be in a server with them')
-		if fetched == None:
-			if isadmin(ctx):
-				try:
-					fetched = await self.bot.fetch_user(user)
-				except discord.NotFound:
-					raise commands.UserInputError('Hmm.... I can\'t seem to find that user')
-					return
-				except discord.HTTPException:
-					raise commands.UserInputError('Something went wrong when trying to find that user...')
-					return
-			else:
-				raise commands.UserInputError('Hmm.... I can\'t seem to find that user')
-				return
+			fetched = await self.bot.fetch_user(user)
+		except discord.NotFound:
+			raise commands.UserInputError('Hmm.... I can\'t seem to find that user')
+			return
+		except discord.HTTPException:
+			raise commands.UserInputError('Something went wrong when trying to find that user...')
+			return
 		userInfo = {
 			'name': fetched.name,
 			'discrim': fetched.discriminator,
