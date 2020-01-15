@@ -116,7 +116,7 @@ class commandError(commands.Cog):
         messagenotb = f'```ini\n[Command Error Logger]\n\n[User] {ctx.author}({ctx.author.id})\n[Guild] {guild}({gid}))\n[Message] {ctx.message.system_content}\n[Time] {time}```'
         tbmessage = f'```ini\n[Traceback]\n{errortb}```'
         async with aiohttp.ClientSession() as session:
-            webhook = Webhook.from_url(config['logwebhook'], adapter=AsyncWebhookAdapter(session))
+            webhook = Webhook.from_url(self.bot.config['logwebhook'], adapter=AsyncWebhookAdapter(session))
             try:
                 await webhook.send(message, username='Command Error Logger')
             except discord.HTTPException:
