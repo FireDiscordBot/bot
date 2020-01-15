@@ -194,7 +194,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		else:
 			lyrics = await self.bot.ksoft.lyrics_search(query)
 		if len(lyrics.results) < 1:
-			return await ctx.send('<a:fireFailed:603214400748257302> No lyrics found')
+			return await ctx.error('No lyrics found')
 		lyrics: ksoftapi.LyricsSearchResp = lyrics.results[0]
 		paginator = WrappedPaginator(prefix='', suffix='', max_size=1000)
 		for line in lyrics.lyrics.split('\n'):

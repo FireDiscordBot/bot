@@ -152,7 +152,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			# await self.loadReactroles()
 			await self.loadJoinRoles()
 			await self.loadRolePersist()
-			await ctx.send('<a:fireSuccess:603214443442077708> Loaded data!')
+			await ctx.success('Loaded data!')
 		else:
 			await ctx.send('no.')
 
@@ -356,10 +356,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 		# await self.bot.db.execute(f'INSERT INTO joinableranks (\"gid\", \"rid\") VALUES ({ctx.guild.id}, {role.id});')
 		# await self.bot.conn.commit()
 		if role.position > ctx.guild.me.top_role.position:
-			return await ctx.send('<a:fireFailed:603214400748257302> You cannot add a role that is above my top role.')
+			return await ctx.error('You cannot add a role that is above my top role.')
 		try:
 			if role.id in self.joinroles[ctx.guild.id]:
-				return await ctx.send('<a:fireFailed:603214400748257302> You cannot add an existing rank.')
+				return await ctx.error('You cannot add an existing rank.')
 		except Exception:
 			pass
 		con = await self.bot.db.acquire()
@@ -432,7 +432,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			try:
 				ranks = self.joinroles[ctx.guild.id]
 			except KeyError:
-				return await ctx.send('<a:fireFailed:603214400748257302> Seems like there\'s no ranks set for this guild :c')
+				return await ctx.error('Seems like there\'s no ranks set for this guild :c')
 			roles = []
 			someremoved = 0
 			for rank in ranks:
@@ -450,7 +450,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				else:
 					roles.append(role)
 			if roles == []:
-				return await ctx.send('<a:fireFailed:603214400748257302> Seems like there\'s no ranks set for this guild :c')
+				return await ctx.error('Seems like there\'s no ranks set for this guild :c')
 				if someremoved > 0:
 					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 					embed.add_field(name='Error', value=f'I couldn\'t find some of the ranks. This may be due to the corresponding role being deleted.\n{someremoved} rank(s) have been deleted and may need to be re-added.')

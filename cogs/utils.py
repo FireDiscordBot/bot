@@ -917,7 +917,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await self.bot.db.execute(query, ctx.channel.id)
 			await self.bot.db.release(con)
 			await self.loadfollowable()
-			return await ctx.send('<a:fireSuccess:603214443442077708> This channel can now be followed!')
+			return await ctx.success('This channel can now be followed!')
 		else:
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -925,7 +925,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await self.bot.db.execute(query, ctx.channel.id)
 			await self.bot.db.release(con)
 			await self.loadfollowable()
-			return await ctx.send('<a:fireSuccess:603214443442077708> This channel is no longer followable')
+			return await ctx.success('This channel is no longer followable')
 
 	@commands.command(name='follow', description='Follow a channel and recieve messages from it in your own server', aliases=['cfollow', 'channelfollow'], hidden=True)
 	async def follow(self, ctx, follow: typing.Union[TextChannel, str]):
@@ -936,20 +936,20 @@ class utils(commands.Cog, name='Utility Commands'):
 			if follow.id in self.channelfollowable:
 				return await ctx.send(f'Use this command in the channel you want to recieve messages from {follow.mention} in;\n`fire follow https://discordapp.com/channels/{ctx.guild.id}/{follow.id}`')
 			else:
-				return await ctx.send('<a:fireFailed:603214400748257302> This channel has not been made followable!')
+				return await ctx.error('This channel has not been made followable!')
 		elif isinstance(follow, str):
 			if 'https://discordapp.com/channels' not in follow:
 				getchan = discord.utils.get(ctx.guild.channels, name=follow)
 				if not getchan:
-					return await ctx.send('<a:fireFailed:603214400748257302> Invalid argument! Please provide a channel or a link to follow')
+					return await ctx.error('Invalid argument! Please provide a channel or a link to follow')
 				if isinstance(getchan, discord.TextChannel):
 					follow = getchan
 					if follow.id in self.channelfollowable:
 						return await ctx.send(f'Use this command in the channel you want to recieve messages from {follow.mention} in;\n`fire follow https://discordapp.com/channels/{ctx.guild.id}/{follow.id}`')
 					else:
-						return await ctx.send('<a:fireFailed:603214400748257302> This channel has not been made followable!')
+						return await ctx.error('This channel has not been made followable!')
 				elif isinstance(getchan, discord.VoiceChannel) or isinstance(getchan, discord.CategoryChannel):
-					return await ctx.send('<a:fireFailed:603214400748257302> Invalid argument! Please provide a **text** channel or a link to follow')
+					return await ctx.error('Invalid argument! Please provide a **text** channel or a link to follow')
 			chanurl = follow.lower().strip('<>')
 			if chanurl.startswith('https://canary.discordapp.com/channels/'):
 				ids = chanurl.strip('https://canary.discordapp.com/channels/')
@@ -1392,7 +1392,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await self.bot.db.execute(query, ctx.guild.id)
 			await self.bot.db.release(con)
 			await self.loaddescs()
-			return await ctx.send('<a:fireSuccess:603214443442077708> Reset guild description!')
+			return await ctx.success('Reset guild description!')
 		if ctx.guild.id not in self.bot.descriptions:
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -1406,7 +1406,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await self.bot.db.execute(query, ctx.guild.id, desc)
 			await self.bot.db.release(con)
 		await self.loaddescs()
-		return await ctx.send('<a:fireSuccess:603214443442077708> Set guild description!')
+		return await ctx.success('Set guild description!')
 
 	@commands.command(aliases=['remind', 'reminder'], description='Sets a reminder for a time in the future')
 	async def remindme(self, ctx, *, reminder: str):
@@ -1414,20 +1414,20 @@ class utils(commands.Cog, name='Utility Commands'):
 			days, hours, minutes, seconds = parseTime(reminder)
 			reminder = parseTime(reminder, True)
 			if not reminder.replace(' ', '') or not reminder:
-				return await ctx.send('<a:fireFailed:603214400748257302> Invalid format. Please provide a reminder along with the time')
+				return await ctx.error('Invalid format. Please provide a reminder along with the time')
 		else:
-			return await ctx.send('<a:fireFailed:603214400748257302> Invalid format. Please use the format "DAYSd HOURSh MINUTESm SECONDSs" along with your reminder')
+			return await ctx.error('Invalid format. Please use the format "DAYSd HOURSh MINUTESm SECONDSs" along with your reminder')
 		if not days and not hours and not minutes and not seconds:
-			return await ctx.send('<a:fireFailed:603214400748257302> Invalid format. Please provide a time')
+			return await ctx.error('Invalid format. Please provide a time')
 		forwhen = datetime.datetime.utcnow() + datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours)
 		limit = datetime.datetime.utcnow() + datetime.timedelta(days=15)
 		if forwhen > limit and not await self.bot.is_team_owner(ctx.author):
-			return await ctx.send('<a:fireFailed:603214400748257302> Reminders currently cannot be set for more than 7 days')
+			return await ctx.error('Reminders currently cannot be set for more than 7 days')
 		if ctx.author.id not in self.reminders:
 			try:
 				await ctx.author.send('Hey, I\'m just checking to see if I can DM you as this is where I will send your reminder :)')
 			except discord.Forbidden:
-				return await ctx.send('<a:fireFailed:603214400748257302> I was unable to DM you.\nI send reminders in DMs so you must make sure "Allow direct messages from server members." is enabled in at least one mutual server')
+				return await ctx.error('I was unable to DM you.\nI send reminders in DMs so you must make sure "Allow direct messages from server members." is enabled in at least one mutual server')
 		reminder = reminder.strip()
 		con = await self.bot.db.acquire()
 		async with con.transaction():
@@ -1435,7 +1435,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			await self.bot.db.execute(query, ctx.author.id, forwhen.timestamp(), reminder)
 		await self.bot.db.release(con)
 		await self.loadremind()
-		return await ctx.send('<a:fireSuccess:603214443442077708> Reminder set!')
+		return await ctx.success('Reminder set!')
 
 	@commands.command(description='Creates a vanity invite for your Discord using https://oh-my-god.wtf/')
 	@commands.has_permissions(manage_guild=True)
@@ -1444,7 +1444,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		'''PFXvanityurl [<code>|"disable"]'''
 		premiumguilds = self.bot.get_cog('Premium Commands').premiumGuilds
 		if not code and not ctx.guild.id in premiumguilds:
-			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide a code!')
+			return await ctx.error('You need to provide a code!')
 		elif not code:
 			current = self.bot.getvanitygid(ctx.guild.id)
 			statuses = ['online', 'idle', 'dnd']
@@ -1494,15 +1494,15 @@ class utils(commands.Cog, name='Utility Commands'):
 				return await ctx.send(embed=embed)
 		if code.lower() == 'disable':
 			await self.deletevanity(ctx)
-			return await ctx.send('<a:fireSuccess:603214443442077708> Vanity URL deleted!')
+			return await ctx.success('Vanity URL deleted!')
 		if not re.fullmatch(r'[a-zA-Z0-9]+', code):
-			return await ctx.send('<a:fireFailed:603214400748257302> Vanity URLs can only contain characters A-Z0-9')
+			return await ctx.error('Vanity URLs can only contain characters A-Z0-9')
 		if len(code) < 3 or len(code) > 10:
-			return await ctx.send('<a:fireFailed:603214400748257302> The code needs to be 3-10 characters!')
+			return await ctx.error('The code needs to be 3-10 characters!')
 		exists = self.bot.getvanity(code.lower())
 		redirexists = self.bot.getredirect(code.lower())
 		if exists or redirexists:
-			return await ctx.send('<a:fireFailed:603214400748257302> This code is already in use!')
+			return await ctx.error('This code is already in use!')
 		if not ctx.guild.me.guild_permissions.create_instant_invite:
 			raise commands.BotMissingPermissions(['create_instant_invite'])
 		if ctx.guild.me.guild_permissions.manage_guild and 'VANITY_URL' in ctx.guild.features:
@@ -1525,7 +1525,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
 			return await ctx.success(f'Your Vanity URL is {vanity["url"]}')
 		else:
-			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
+			return await ctx.error('Something went wrong...')
 
 	@commands.command(name='redirect', description='Creates a custom redirect for a URL using https://inv.wtf/')
 	@commands.has_permissions(administrator=True)
@@ -1533,31 +1533,31 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def makeredirect(self, ctx, slug: str = None, url: str = None, delete: bool = False):
 		premiumguilds = self.bot.get_cog('Premium Commands').premiumGuilds
 		if not ctx.guild.id in premiumguilds:
-			return await ctx.send('<a:fireFailed:603214400748257302> This feature is premium only! You can learn more at <https://gaminggeek.dev/premium>')
+			return await ctx.error('This feature is premium only! You can learn more at <https://gaminggeek.dev/premium>')
 		if not slug:
-			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a slug!')
+			return await ctx.error('You must provide a slug!')
 		if not url:
-			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a url!')
+			return await ctx.error('You must provide a url!')
 		if url.lower() in ['delete', 'true', 'yeet']:
 			delete = True
 		if delete:
 			current = self.getredirect(slug.lower())
 			if current['uid'] != ctx.author.id:
-				return await ctx.send('<a:fireFailed:603214400748257302> You can only delete your own redirects!')
+				return await ctx.error('You can only delete your own redirects!')
 			await self.deletevanitycode(slug.lower())
-			return await ctx.send('<a:fireSuccess:603214443442077708> Redirect deleted!')
+			return await ctx.success('Redirect deleted!')
 		if 'https://' not in url:
-			return await ctx.send('<a:fireFailed:603214400748257302> URL must include "https://"')
+			return await ctx.error('URL must include "https://"')
 		if not re.fullmatch(r'[a-zA-Z0-9]+', slug):
-			return await ctx.send('<a:fireFailed:603214400748257302> Redirect slugs can only contain characters A-Z0-9')
+			return await ctx.error('Redirect slugs can only contain characters A-Z0-9')
 		if len(slug) < 3 or len(slug) > 20:
-			return await ctx.send('<a:fireFailed:603214400748257302> The slug needs to be 3-20 characters!')
+			return await ctx.error('The slug needs to be 3-20 characters!')
 		exists = self.bot.getvanity(slug.lower())
 		if exists and exists['gid'] not in premiumguilds:
 			exists = False
 		redirexists = self.bot.getredirect(slug.lower())
 		if exists or redirexists:
-			return await ctx.send('<a:fireFailed:603214400748257302> This slug is already in use!')
+			return await ctx.error('This slug is already in use!')
 		redir = await self.createredirect(slug.lower(), url, ctx.author.id)
 		if redir:
 			author = str(ctx.author).replace('#', '%23')
@@ -1568,7 +1568,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await pushover(f'{author} ({ctx.author.id}) has created the redirect `{slug}` for {url}', url=url, url_title='Check out redirect')
 			return await ctx.success(f'Your redirect is https://inv.wtf/{slug.lower()}')
 		else:
-			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
+			return await ctx.error('Something went wrong...')
 
 	@commands.group(name='tags', aliases=['tag', 'dtag'], invoke_without_command=True)
 	@commands.guild_only()
@@ -1576,7 +1576,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if not ctx.invoked_subcommand:
 			taglist = self.tags[ctx.guild.id] if ctx.guild.id in self.tags else False
 			if not taglist:
-				return await ctx.send('<a:fireFailed:603214400748257302> No tags found.')
+				return await ctx.error('No tags found.')
 			if not tagname:
 				taglist = ', '.join(taglist)
 				embed = discord.Embed(title=f'{ctx.guild.name}\'s tags', color=ctx.author.color, description=taglist)

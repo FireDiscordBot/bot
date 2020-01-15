@@ -596,7 +596,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 	@commands.command(description='View a player\'s Minecraft skin')
 	async def skin(self, ctx, *, ign: str = None):
 		if not ign:
-			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a name!')
+			return await ctx.error('You must provide a name!')
 		uid = await self.nameToUUID(ign)
 		# timestamp = str(datetime.datetime.utcnow().timestamp()).split('.')[0]
 		embed = discord.Embed(color=ctx.author.color)
@@ -607,7 +607,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 	@commands.command(description='View the UUID for a Minecraft player')
 	async def mcuuid(self, ctx, *, ign: str = None):
 		if not ign:
-			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a name!')
+			return await ctx.error('You must provide a name!')
 		uid = await self.nameToUUID(ign)
 		await ctx.send(f'{ign} has the UUID {uid}')
 
@@ -634,7 +634,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			if r.status == 200:
 				status = await r.json()
 			else:
-				return await ctx.send('<a:fireFailed:603214400748257302> Failed to check status')
+				return await ctx.error('Failed to check status')
 		s = []
 		for service in status:
 			for name, state in service.items():

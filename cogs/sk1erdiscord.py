@@ -136,10 +136,10 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		if self.nitro not in ctx.author.roles and self.testrole not in ctx.author.roles:
 			return await ctx.send('no')
 		if not ign:
-			return await ctx.send('<a:fireFailed:603214400748257302> You must provide your Minecraft name!')
+			return await ctx.error('You must provide your Minecraft name!')
 		mid = await self.nameToUUID(ign)
 		if not mid:
-			return await ctx.send('<a:fireFailed:603214400748257302> No UUID found!')
+			return await ctx.error('No UUID found!')
 		progress = await ctx.send('Give me a moment.')
 		async with aiohttp.ClientSession(headers=self.gistheaders) as s:
 			async with s.get(f'https://api.github.com/gists/{self.gist}') as r:
@@ -178,7 +178,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		async with aiohttp.ClientSession(headers=self.modcoreheaders) as s:
 			async with s.get(f'{config["modcoreapi"]}nitro/{user["uuid"]}/true') as r:
 				if r.status != 200:
-					await ctx.send('<a:fireFailed:603214400748257302> Modcore didn\'t respond correctly')
+					await ctx.error('Modcore didn\'t respond correctly')
 		async with aiohttp.ClientSession(headers=self.gistheaders) as s:
 			async with s.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as r:
 				if r.status == 200:

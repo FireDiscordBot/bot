@@ -448,7 +448,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 		current = await ctx.guild.bans()
 		if len([b for b in current if b.user.id == user.id]) >= 1:
-			return await ctx.send('<a:fireFailed:603214400748257302> That user is already banned!')
+			return await ctx.error('That user is already banned!')
 		try:
 			try:
 				await user.send(f'You were banned from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')

@@ -46,29 +46,29 @@ class imagegen(commands.Cog, name='Image Generation'):
 			text = f'{image} {text}'
 			image = ctx.message.attachments[0].url
 		if not image:
-			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide an image')
+			return await ctx.error('You need to provide an image')
 		if type(image) == discord.Member:
 			image = str(image.avatar_url_as(format='png'))
 		image = image.strip('<>')
 		if 'cdn.discordapp.com' in image and not '?size=' in image:
 			image = image + '?size=2048'
 		if '.gif' in image:
-			return await ctx.send('<a:fireFailed:603214400748257302> Animated images are not supported!')
+			return await ctx.error('Animated images are not supported!')
 		if not text:
-			return await ctx.send('<a:fireFailed:603214400748257302> You must provide text seperated by **|**')
+			return await ctx.error('You must provide text seperated by **|**')
 		if len(text.split('|')) <= 1:
-			return await ctx.send('<a:fireFailed:603214400748257302> You must provide text seperated by **|**')
+			return await ctx.error('You must provide text seperated by **|**')
 		try:
 			imgraw = await aiohttp.ClientSession().get(image)
 		except Exception:
-			return await ctx.send('<a:fireFailed:603214400748257302> Invalid image!')
+			return await ctx.error('Invalid image!')
 		if imgraw.status != 200:
-			return await ctx.send('<a:fireFailed:603214400748257302> Invalid image!')
+			return await ctx.error('Invalid image!')
 		imgraw = await imgraw.read()
 		try:
 			img = Image.open(BytesIO(imgraw))
 		except Exception:
-			return await ctx.send('<a:fireFailed:603214400748257302> Invalid image!')
+			return await ctx.error('Invalid image!')
 		img.seek(0)
 		factor = int(img.height / 10)
 		color = 'white'
@@ -148,7 +148,7 @@ class imagegen(commands.Cog, name='Image Generation'):
 			draw_text(text[0], "top")
 			draw_text(text[1], "bottom")
 		except Exception:
-			return await ctx.send('<a:fireFailed:603214400748257302> Invalid image!')
+			return await ctx.error('Invalid image!')
 
 		# img.save(f'ttbt{ctx.author.id}.png')
 		buf = BytesIO()
@@ -171,7 +171,7 @@ class imagegen(commands.Cog, name='Image Generation'):
 		image = image.strip('<>')
 		imgraw = await aiohttp.ClientSession(headers={'Authorization': f'{config["dankmemer"]}'}).get(f'https://dankmemer.services/api/deepfry?avatar1={image}')
 		if imgraw.status != 200:
-			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
+			return await ctx.error('Something went wrong...')
 		imgraw = await imgraw.read()
 		# img = Image.open(BytesIO(imgraw))
 		# img.save(f'deepfry{ctx.author.id}.png')

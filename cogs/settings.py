@@ -2049,7 +2049,7 @@ class settings(commands.Cog, name="Settings"):
 		if channel == 'disable':
 			current = self.joinleave.get(ctx.guild.id, {}).get('joinmsg', False)
 			if not current:
-				return await ctx.send('<a:fireFailed:603214400748257302> Can\'t disable something that wasn\'t enabled. ¯\_(ツ)_/¯')
+				return await ctx.error('Can\'t disable something that wasn\'t enabled. ¯\_(ツ)_/¯')
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				query = 'UPDATE joinleave SET (joinchan, joinmsg) = (NULL, NULL) WHERE gid = $1;'
@@ -2060,11 +2060,11 @@ class settings(commands.Cog, name="Settings"):
 			if not current:
 				return await ctx.success(f'Successfully disabled join messages!')
 		if type(channel) == str:
-			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide a valid channel')
+			return await ctx.error('You need to provide a valid channel')
 		if not message:
 			currentmsg = self.joinleave.get(ctx.guild.id, {}).get('joinmsg', False)
 			if not currentmsg:
-				return await ctx.send('<a:fireFailed:603214400748257302> You can\'t set a channel without setting a message.')
+				return await ctx.error('You can\'t set a channel without setting a message.')
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				if ctx.guild.id in self.joinleave:
@@ -2112,7 +2112,7 @@ class settings(commands.Cog, name="Settings"):
 		if channel == 'disable':
 			current = self.joinleave.get(ctx.guild.id, {}).get('leavemsg', False)
 			if not current:
-				return await ctx.send('<a:fireFailed:603214400748257302> Can\'t disable something that wasn\'t enabled. ¯\_(ツ)_/¯')
+				return await ctx.error('Can\'t disable something that wasn\'t enabled. ¯\_(ツ)_/¯')
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				query = 'UPDATE joinleave SET (leavechan, leavemsg) = (NULL, NULL) WHERE gid = $1;'
@@ -2123,11 +2123,11 @@ class settings(commands.Cog, name="Settings"):
 			if not current:
 				return await ctx.success(f'Successfully disabled leave messages!')
 		if type(channel) == str:
-			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide a valid channel')
+			return await ctx.error('You need to provide a valid channel')
 		if not message:
 			currentmsg = self.joinleave.get(ctx.guild.id, {}).get('leavemsg', False)
 			if not currentmsg:
-				return await ctx.send('<a:fireFailed:603214400748257302> You can\'t set a channel without setting a message.')
+				return await ctx.error('You can\'t set a channel without setting a message.')
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				if ctx.guild.id in self.joinleave:
@@ -2202,10 +2202,10 @@ class settings(commands.Cog, name="Settings"):
 	@commands.guild_only()
 	async def cmd(self, ctx, command: str = None):
 		if not command:
-			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a command name')
+			return await ctx.error('You must provide a command name')
 		command = self.bot.get_command(command)
 		if not command:
-			return await ctx.send('<a:fireFailed:603214400748257302> You must provide a valid command')
+			return await ctx.error('You must provide a valid command')
 		disabled = self.disabledcmds[ctx.guild.id]
 		if command.name in disabled:
 			toggle = 'enabled'
