@@ -2058,7 +2058,7 @@ class settings(commands.Cog, name="Settings"):
 			await self.loadSettings()
 			current = self.joinleave.get(ctx.guild.id, {}).get('joinmsg', False)
 			if not current:
-				return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully disabled join messages!')
+				return await ctx.success(f'Successfully disabled join messages!')
 		if type(channel) == str:
 			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide a valid channel')
 		if not message:
@@ -2075,7 +2075,7 @@ class settings(commands.Cog, name="Settings"):
 			await self.bot.db.release(con)
 			await self.loadSettings()
 			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Join messages will show in {channel.mention}!\nExample: {message}')
+			return await ctx.success(f'Join messages will show in {channel.mention}!\nExample: {message}')
 		else:
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -2087,7 +2087,7 @@ class settings(commands.Cog, name="Settings"):
 			await self.bot.db.release(con)
 			await self.loadSettings()
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Join messages will show in {channel.mention}!\nExample: {message}')
+			return await ctx.success(f'Join messages will show in {channel.mention}!\nExample: {message}')
 
 	@commands.command(name='leavemsg', description='Set the channel and message for leave messages')
 	@commands.has_permissions(manage_guild=True)
@@ -2121,7 +2121,7 @@ class settings(commands.Cog, name="Settings"):
 			await self.loadSettings()
 			current = self.joinleave.get(ctx.guild.id, {}).get('leavemsg', False)
 			if not current:
-				return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully disabled leave messages!')
+				return await ctx.success(f'Successfully disabled leave messages!')
 		if type(channel) == str:
 			return await ctx.send('<a:fireFailed:603214400748257302> You need to provide a valid channel')
 		if not message:
@@ -2138,7 +2138,7 @@ class settings(commands.Cog, name="Settings"):
 			await self.bot.db.release(con)
 			await self.loadSettings()
 			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Leave messages will show in {channel.mention}!\nExample: {message}')
+			return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {message}')
 		else:
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -2150,7 +2150,7 @@ class settings(commands.Cog, name="Settings"):
 			await self.bot.db.release(con)
 			await self.loadSettings()
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Leave messages will show in {channel.mention}!\nExample: {message}')
+			return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {message}')
 
 	@commands.command(name='linkfilter', description='Configure the link filter for this server')
 	@commands.has_permissions(manage_guild=True)
@@ -2158,10 +2158,10 @@ class settings(commands.Cog, name="Settings"):
 	async def linkfiltercmd(self, ctx, *, enabled: str = None):
 		options = ['discord', 'youtube', 'twitch', 'twitter', 'paypal', 'malware']
 		if not enabled:
-			return await ctx.send(f'<a:fireFailed:603214400748257302> You must provide valid filters. You can choose from {", ".join(options)}')
+			return await ctx.error(f'You must provide valid filters. You can choose from {", ".join(options)}')
 		enabled = enabled.split(' ')
 		if len([f.lower() for f in enabled if f not in options]) >= 1:
-			return await ctx.send(f'<a:fireFailed:603214400748257302> {", ".join([discord.utils.escape_mentions(discord.utils.escape_markdown(f)) for f in enabled if f not in options])} aren\'t valid filter(s)')
+			return await ctx.error(f'{", ".join([discord.utils.escape_mentions(discord.utils.escape_markdown(f)) for f in enabled if f not in options])} aren\'t valid filter(s)')
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			if ctx.guild.id in self.linkfilter:
@@ -2171,7 +2171,7 @@ class settings(commands.Cog, name="Settings"):
 			await self.bot.db.execute(query, [e.lower() for e in enabled], ctx.guild.id)
 		await self.bot.db.release(con)
 		self.linkfilter[ctx.guild.id] = [e.lower() for e in enabled]
-		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully enabled filtering for {", ".join(enabled)} links')
+		return await ctx.success(f'Successfully enabled filtering for {", ".join(enabled)} links')
 
 	@commands.command(name='filterexcl', description='Exclude channels, roles and members from the filter')
 	async def filterexclcmd(self, ctx, *ids: typing.Union[TextChannel, Role, Member]):
@@ -2195,7 +2195,7 @@ class settings(commands.Cog, name="Settings"):
 			self.filterexcl[ctx.guild.id] = idlist
 			names = [a.name for a in ids]
 			namelist = ', '.join(names)
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> {namelist} are now excluded from the filter')
+			return await ctx.success(f'{namelist} are now excluded from the filter')
 
 	@commands.command(name='command', description='Enable and disable commands')
 	@commands.has_permissions(manage_guild=True)
@@ -2219,7 +2219,7 @@ class settings(commands.Cog, name="Settings"):
 			query = 'UPDATE settings SET disabledcmds = $1 WHERE gid = $2;'
 			await self.bot.db.execute(query, disabled, ctx.guild.id)
 		await self.bot.db.release(con)
-		return await ctx.send(f'<a:fireSuccess:603214443442077708> {command.name} has been {toggle}.')
+		return await ctx.success(f'{command.name} has been {toggle}.')
 
 
 

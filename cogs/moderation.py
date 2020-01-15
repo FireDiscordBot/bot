@@ -635,7 +635,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			try:
 				await user.send(f'You were warned in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
 				nodm = False
-				await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been warned.')
+				await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been warned.')
 			except discord.Forbidden:
 				nodm = True
 				await ctx.send(f'<a:fireWarning:660148304486727730> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** was not warned due to having DMs off. The warning has been logged.')
@@ -678,7 +678,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			elif type(user) == int:
 				warnings = self.warns[ctx.guild.id][user]
 		except KeyError:
-			return await ctx.send(f'<a:fireFailed:603214400748257302> No warnings found.')
+			return await ctx.error(f'No warnings found.')
 		paginator = WrappedPaginator(prefix='', suffix='')
 		for warn in warnings:
 			paginator.add_line(f'**Case ID**: {warn["caseid"]}\n**User**: {user}\n**Reason**: {warn["reason"]}\n**Date**: {warn["date"]}\n**-----------------**')
@@ -691,7 +691,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def clearwarns(self, ctx, user: Member = None):
 		"""PFXclearwarns <user>"""
 		if not user:
-			return await ctx.send(f'<a:fireFailed:603214400748257302> You must specify a user')
+			return await ctx.error(f'You must specify a user')
 
 		con = await self.bot.db.acquire()
 		async with con.transaction():
@@ -700,14 +700,14 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await self.bot.db.release(con)
 		await self.loadwarns()
 		await self.loadmodlogs()
-		await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**\'s warns have been cleared')
+		await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**\'s warns have been cleared')
 
 	@commands.command(description="Clear a single warning", aliases=['clearwarning'])
 	@commands.has_permissions(manage_guild=True)
 	async def clearwarn(self, ctx, case: int = None):
 		"""PFXclearwarn <case id>"""
 		if not case:
-			return await ctx.send(f'<a:fireFailed:603214400748257302> You must specify a case id')
+			return await ctx.error(f'You must specify a case id')
 
 		con = await self.bot.db.acquire()
 		async with con.transaction():
@@ -716,7 +716,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await self.bot.db.release(con)
 		await self.loadwarns()
 		await self.loadmodlogs()
-		await ctx.send(f'<a:fireSuccess:603214443442077708> Cleared warn!')
+		await ctx.success(f'Cleared warn!')
 
 	@commands.command(description="View moderation logs for a user")
 	@commands.has_permissions(manage_messages=True)
@@ -730,7 +730,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			elif type(user) == int:
 				mlogs = self.modlogs[ctx.guild.id][user]
 		except KeyError:
-			return await ctx.send(f'<a:fireFailed:603214400748257302> No logs found.')
+			return await ctx.error(f'No logs found.')
 		paginator = WrappedPaginator(prefix='', suffix='')
 		for log in mlogs:
 			paginator.add_line(f'**Case ID**: {log["caseid"]}\n**Type**: {log["type"].capitalize()}\n**User**: {user}\n**Reason**: {log["reason"]}\n**Date**: {log["date"]}\n**-----------------**')
@@ -775,7 +775,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						await logch.send(embed=embed)
 					except Exception:
 						pass
-			await ctx.send(f'<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been kicked.')
+			await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been kicked.')
 			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.kicks'))
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -844,7 +844,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			return await ctx.send("You must specify a user")
 		
 		await ctx.channel.set_permissions(blocked, send_messages=False, reason=reason)
-		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully blocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}** from chatting in {ctx.channel.mention}.')
+		await ctx.success(f'Successfully blocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}** from chatting in {ctx.channel.mention}.')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:
@@ -883,7 +883,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			return await ctx.send("You must specify a user")
 		
 		await ctx.channel.set_permissions(blocked, send_messages=None, reason=reason)
-		await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully unblocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}**. Welcome back!')
+		await ctx.success(f'Successfully unblocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}**. Welcome back!')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:
@@ -928,9 +928,9 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				except discord.Forbidden:
 					cantrem.append(role.name)
 		if len(cantrem) >= 1:
-			await ctx.send(f'<a:fireFailed:603214400748257302> I wasn\'t able to remove the roles {", ".join(cantrem)} from **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**.')
+			await ctx.error(f'I wasn\'t able to remove the roles {", ".join(cantrem)} from **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**.')
 		else:
-			await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully removed all roles from **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**.')
+			await ctx.success(f'Successfully removed all roles from **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**.')
 		logchannels = self.bot.get_cog("Settings").logchannels
 		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
 		if logid:

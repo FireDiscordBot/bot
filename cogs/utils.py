@@ -959,7 +959,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				ids = chanurl.strip('https://discordapp.com/channels/')
 			id_list = ids.split('/')
 			if len(id_list) != 2:
-				return await ctx.send(f'<a:fireFailed:603214400748257302> Invalid argument! Make sure the link follows this format; https://discordapp.com/channels/{ctx.guild.id}/{ctx.channel.id}')
+				return await ctx.error(f'Invalid argument! Make sure the link follows this format; https://discordapp.com/channels/{ctx.guild.id}/{ctx.channel.id}')
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				query = 'INSERT INTO channelfollow (\"following\", \"gid\", \"cid\") VALUES ($1, $2, $3);'
@@ -967,12 +967,12 @@ class utils(commands.Cog, name='Utility Commands'):
 					await self.bot.db.execute(query, chanurl, ctx.guild.id, ctx.channel.id)
 				except asyncpg.exceptions.UniqueViolationError:
 					try:
-						return await ctx.send(f'<a:fireFailed:603214400748257302> Already following a channel here!')
+						return await ctx.error(f'Already following a channel here!')
 					except Exception:
 						return
 			await self.bot.db.release(con)
 			await self.loadfollows()
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Now following <#{id_list[-1]}>')
+			return await ctx.success(f'Now following <#{id_list[-1]}>')
 
 	@commands.command(name='unfollow', description='Unfollow the channel that has been followed', hidden=True)
 	async def unfollow(self, ctx):
@@ -984,7 +984,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			await self.bot.db.execute(query, ctx.channel.id)
 		await self.bot.db.release(con)
 		await self.loadfollows()
-		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully unfollowed all followed channels')
+		return await ctx.success(f'Successfully unfollowed all followed channels')
 
 	@commands.Cog.listener()
 	async def on_guild_remove(self, guild):
@@ -1523,7 +1523,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
 			else:
 				await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Your Vanity URL is {vanity["url"]}')
+			return await ctx.success(f'Your Vanity URL is {vanity["url"]}')
 		else:
 			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
 
@@ -1566,7 +1566,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await pushover(f'{author} ({ctx.author.id}) has created the redirect `{slug}` for {url}', url=url, url_title='Check out redirect')
 			else:
 				await pushover(f'{author} ({ctx.author.id}) has created the redirect `{slug}` for {url}', url=url, url_title='Check out redirect')
-			return await ctx.send(f'<a:fireSuccess:603214443442077708> Your redirect is https://inv.wtf/{slug.lower()}')
+			return await ctx.success(f'Your redirect is https://inv.wtf/{slug.lower()}')
 		else:
 			return await ctx.send('<a:fireFailed:603214400748257302> Something went wrong...')
 
@@ -1584,7 +1584,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			else:
 				tag = taglist[tagname.lower()] if tagname.lower() in taglist else False
 				if not tag:
-					return await ctx.send(f'<a:fireFailed:603214400748257302> No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.')
+					return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.')
 				else:
 					if ctx.invoked_with == 'dtag':
 						await ctx.message.delete()
@@ -1597,18 +1597,18 @@ class utils(commands.Cog, name='Utility Commands'):
 		currenttags = self.tags[ctx.guild.id] if ctx.guild.id in self.tags else []
 		existing = currenttags[tagname] if tagname in currenttags else False
 		if existing:
-			return await ctx.send(f'<a:fireFailed:603214400748257302> A tag with the name {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} already exists')
+			return await ctx.error(f'A tag with the name {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} already exists')
 		if len(currenttags) >= 20:
 			premiumguilds = self.bot.get_cog('Premium Commands').premiumGuilds
 			if ctx.guild.id not in premiumguilds:
-				return await ctx.send(f'<a:fireFailed:603214400748257302> You\'ve reached the tag limit! Upgrade to premium for unlimited tags;\n<https://gaminggeek.dev/patreon>')
+				return await ctx.error(f'You\'ve reached the tag limit! Upgrade to premium for unlimited tags;\n<https://gaminggeek.dev/patreon>')
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'INSERT INTO tags (\"gid\", \"name\", \"content\") VALUES ($1, $2, $3);'
 			await self.bot.db.execute(query, ctx.guild.id, tagname.lower(), tagcontent)
 		await self.bot.db.release(con)
 		await self.loadtags()
-		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully created the tag {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))}')
+		return await ctx.success(f'Successfully created the tag {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))}')
 
 	@commands.has_permissions(manage_messages=True)
 	@tags.command(name='delete', aliases=['del', 'remove'])
@@ -1617,14 +1617,14 @@ class utils(commands.Cog, name='Utility Commands'):
 		currenttags = self.tags[ctx.guild.id] if ctx.guild.id in self.tags else []
 		existing = currenttags[tagname.lower()] if tagname.lower() in currenttags else False
 		if not existing:
-			return await ctx.send(f'<a:fireFailed:603214400748257302> A tag with the name {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} doesn\'t exist')
+			return await ctx.error(f'A tag with the name {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} doesn\'t exist')
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'DELETE FROM tags WHERE name = $1 AND gid = $2'
 			await self.bot.db.execute(query, tagname.lower(), ctx.guild.id)
 		await self.bot.db.release(con)
 		await self.loadtags()
-		return await ctx.send(f'<a:fireSuccess:603214443442077708> Successfully deleted the tag {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))}')
+		return await ctx.success(f'Successfully deleted the tag {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))}')
 
 	@commands.command(description='Fetch a channel and get some beautiful json')
 	async def fetchchannel(self, ctx, channel: typing.Union[TextChannel, VoiceChannel, Category] = None):

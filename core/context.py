@@ -23,6 +23,15 @@ class Context(commands.Context):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+    async def success(self, message: str):
+        await super().send(f'<a:fireSuccess:603214443442077708> {message}')
+
+    async def warning(self, message: str):
+        await super().send(f'<a:fireWarning:660148304486727730> {message}')
+
+    async def error(self, message: str):
+        await super().send(f'<a:fireFailed:603214400748257302> {message}')
+
     # Unfinished permissions system
 
     # def has_permission(self, permission: str):
