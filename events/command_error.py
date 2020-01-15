@@ -16,6 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from discord import Webhook, AsyncWebhookAdapter
+from fire.invite import replaceinvite
 from core.context import Context
 from discord.ext import commands
 import humanfriendly
