@@ -21,6 +21,7 @@ import discord
 import aiohttp
 import asyncio
 import asyncpg
+import logging
 import json
 
 
@@ -34,7 +35,8 @@ async def get_pre(bot, message):
 
 
 bot = Fire(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="inv.wtf/fire"), case_insensitive=True, owner_id=287698408855044097)
-
+LOGGER = bot.logger
+LOGGER.info("Starting Fire...")
 
 extensions = [
     "cogs.misc",
@@ -61,9 +63,7 @@ for cog in extensions:
     try:
         bot.load_extension(cog)
     except Exception as e:
-        errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        print(f"Error while loading {cog}")
-        print(errortb)
+        LOGGER.error(f"Error while loading {cog}", exc_info=e)
 
 
 @bot.command(description="Change the prefix for this guild. (For prefixes with a space, surround it in \"\")")
