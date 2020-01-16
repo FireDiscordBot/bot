@@ -15,8 +15,10 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+from logging.handlers import TimedRotatingFileHandler
 from datadog import initialize, statsd, ThreadStats
 from jishaku.modules import resolve_extensions
+import core.coloredformat as colorformat
 from sentry_sdk import push_scope
 from discord.ext import commands
 from .context import Context
@@ -24,8 +26,10 @@ import traceback
 import sentry_sdk
 import discord
 import asyncpg
+import logging
 import typing
 import json
+import sys
 
 # fuck it, crab in the code
 # 🦀
@@ -38,6 +42,18 @@ class Fire(commands.Bot):
         self.config: dict = json.load(open('config.json', 'r'))
         self.db: asyncpg.pool.Pool = None
         self.dev = False
+
+        # LOGGING
+        self.logger = logging.getLogger('Fire')
+        stdout = logging.StreamHandler(sys.stdout)
+        stdout.setLevel(logging.INFO)
+        COLOR_FORMAT = colorformat.formatter_message("[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)", True)
+        stdout.setFormatter(ColoredFormatter(COLOR_FORMAT))
+        self.logger.addHandler(stdout)
+        fileout = TimedRotatingFileHandler(filename='bot.log', when='midnight', backupCount=30)
+        fileout.setLevel(logging.DEBUG)
+        fileout.setFormatter(logging.Formatter("[%(name)-20s][%(levelname)-18s]  %(message)s (%(filename)s:%(lineno)d)"))
+        self.logger.addHandler(fileout)
 
         # SENTRY AND DATADOG
         self.datadog: ThreadStats = None
@@ -74,7 +90,7 @@ class Fire(commands.Bot):
             admin = True
         return admin
 
-    # Commands will soon have their own separate files, but for now this just loads jishaku
+    # Commands will soon have their own separate files, but for now this just loads jishaku and chatwatch
 
     def loadCommands(self):
         try:

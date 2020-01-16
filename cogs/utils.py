@@ -770,7 +770,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				gban = f'<a:fireFailed:603214400748257302> Banned on KSoft.Si for {ksoftban.reason} - [Proof]({ksoftban.proof})'
 			else:
 				gban = '<a:fireSuccess:603214443442077708> Not banned on KSoft.Si'
-			if hasattr(self.bot, 'chatwatch'):
+			if hasattr(self.bot, 'chatwatch') and self.bot.chatwatch.connected:
 				cwbl = ''
 				cwprofile = await self.bot.chatwatch.profile(user.id)
 				if cwprofile['score'] > 50:
