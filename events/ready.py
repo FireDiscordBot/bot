@@ -17,7 +17,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 import datetime
-import logging
 import discord
 import traceback
 
@@ -34,20 +33,13 @@ class Ready(commands.Cog):
             self.bot.load_extension("cogs.sk1erdiscord")
         except Exception:
             pass
-        print("-------------------------")
-        print(f"Bot: {self.bot.user}")
-        print(f"ID: {self.bot.user.id}")
-        print(f"Guilds: {len(self.bot.guilds)}")
-        print(f"Users: {len(self.bot.users)}")
-        print("-------------------------")
-        logging.info("-------------------------")
-        logging.info(f"Bot: {self.bot.user}")
-        logging.info(f"ID: {self.bot.user.id}")
-        logging.info(f"Guilds: {len(self.bot.guilds)}")
-        logging.info(f"Users: {len(self.bot.users)}")
-        logging.info("-------------------------")
-        print("Loaded!")
-        logging.info(f"LOGGING START ON {datetime.datetime.utcnow()}")
+        self.bot.logger.info("$GREEN-------------------------")
+        self.bot.logger.info(f"$GREENBot: {self.bot.user}")
+        self.bot.logger.info(f"$GREENID: {self.bot.user.id}")
+        self.bot.logger.info(f"$GREENGuilds: {len(self.bot.guilds)}")
+        self.bot.logger.info(f"$GREENUsers: {len(self.bot.users)}")
+        self.bot.logger.info("$GREEN-------------------------")
+        self.bot.logger.info(f"$BLUELOGGING START ON {datetime.datetime.utcnow()}")
 
 
 def setup(bot):

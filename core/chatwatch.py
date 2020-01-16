@@ -35,8 +35,6 @@ class chatwatch(commands.Cog):
     async def handle_message(self, message):
         # print(json.dumps(message.data, indent=2))
         self.responses[int(message.data['user']['user'])] = message.data
-        if message.data['user']['blacklisted']:
-            print(f'{message.data["user"]["user"]} is blacklisted for {message.data["user"]["blacklisted_reason"]}')
 
     @commands.Cog.listener()
     async def on_message(self, message):

@@ -47,12 +47,12 @@ class Fire(commands.Bot):
         self.logger = logging.getLogger('Fire')
         stdout = logging.StreamHandler(sys.stdout)
         stdout.setLevel(logging.INFO)
-        COLOR_FORMAT = colorformat.formatter_message("[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)", True)
-        stdout.setFormatter(ColoredFormatter(COLOR_FORMAT))
+        COLOR_FORMAT = colorformat.formatter_message("[$BOLD%(name)s$RESET][%(levelname)s] %(message)s $RESET($BOLD%(filename)s$RESET:%(lineno)d)", True)
+        stdout.setFormatter(colorformat.ColoredFormatter(COLOR_FORMAT))
         self.logger.addHandler(stdout)
         fileout = TimedRotatingFileHandler(filename='bot.log', when='midnight', backupCount=30)
         fileout.setLevel(logging.DEBUG)
-        fileout.setFormatter(logging.Formatter("[%(name)-20s][%(levelname)-18s]  %(message)s (%(filename)s:%(lineno)d)"))
+        fileout.setFormatter(logging.Formatter("[%(name)s][%(levelname)s] %(message)s (%(filename)s:%(lineno)d)"))
         self.logger.addHandler(fileout)
 
         # SENTRY AND DATADOG

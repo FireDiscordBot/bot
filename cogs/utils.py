@@ -777,18 +777,20 @@ class utils(commands.Cog, name='Utility Commands'):
 					if trust != 'Low':
 						trust = 'Moderate'
 					cwbl = f'<a:fireWarning:660148304486727730> Chatwatch score of **{cwprofile["score"]}%**'
-				elif cwprofile['score'] > 80:
+				if cwprofile['score'] > 80:
 					trust = 'Low'
 					cwbl = f'<a:fireFailed:603214400748257302> Chatwatch score of **{cwprofile["score"]}%**'
-				elif cwprofile['score'] == 50:
+				if cwprofile['score'] == 50:
 					cwbl = '<:neutral:667128324107272192> Chatwatch score of **50%**'
 				if cwprofile['whitelisted']:
 					 cwbl = f'<a:fireSuccess:603214443442077708> **Whitelisted** on Chatwatch'
-				elif cwprofile['blacklisted_reason']:
+				elif cwprofile['blacklisted_reason'] and cwprofile['blacklisted']:
 					trust = 'Low'
 					cwbl = f'<a:fireFailed:603214400748257302> Blacklisted on Chatwatch for **{cwprofile["blacklisted_reason"]}**'
 				if not cwbl:
 					cwbl = f'<a:fireSuccess:603214443442077708> Chatwatch score of **{cwprofile["score"]}%**'
+				elif cwprofile['blacklisted_reason'] and cwprofile['score'] > 80 and not cwprofile['blacklisted']:
+					cwbl = cwbl + f' and was previously blacklisted for **{cwprofile["blacklisted_reason"]}**'
 			embed.add_field(name=f'Trust - {trust}', value='\n'.join([lban, gban, cwbl]), inline=False)
 		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		if ack:
