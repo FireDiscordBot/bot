@@ -499,6 +499,13 @@ class utils(commands.Cog, name='Utility Commands'):
 			bans = await g.bans()
 			self.bans[g.id] = [b.user.id for b in bans]
 
+	@commands.Cog.listener()
+	async def on_member_ban(self, guild, member):
+		if guild.id in self.bans:
+			self.bans[guild.id].append(member.id)
+		else:
+			self.bans[guild.id] = [member.id]
+
 	async def loadremind(self):
 		self.reminders = {}
 		query = 'SELECT * FROM remind;'
@@ -784,6 +791,9 @@ class utils(commands.Cog, name='Utility Commands'):
 				elif guildbans >= 5:
 					trust = 'Low'
 					lban = f'<a:fireFailed:603214400748257302> Banned in **{guildbans}** guilds with Fire'
+				if self.bot.isadmin(user):
+					trust = 'High'
+					lban = '<a:fireSuccess:603214443442077708> Hidden from guild ban check'
 			else:
 				lban = f'<:neutral:667128324107272192> Guild bans not loaded'
 			ksoftban = await self.bot.ksoft.bans_check(user.id)

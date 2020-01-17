@@ -82,8 +82,8 @@ class Fire(commands.Bot):
             return super().get_context(message, cls=Context, **kwargs)
         return super().get_context(message, **kwargs)
 
-    def isadmin(self, ctx: Context) -> bool:
-        if str(ctx.author.id) not in self.config['admins']:
+    def isadmin(self, user: typing.Union[discord.User, discord.Member]) -> bool:
+        if str(user.id) not in self.config['admins']:
             admin = False
         else:
             admin = True
