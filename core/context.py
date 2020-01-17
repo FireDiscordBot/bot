@@ -24,13 +24,13 @@ class Context(commands.Context):
         super().__init__(**kwargs)
 
     async def success(self, message: str):
-        await super().send(f'<a:fireSuccess:603214443442077708> {message}')
+        await self.send(f'<a:fireSuccess:603214443442077708> {message}')
 
     async def warning(self, message: str):
-        await super().send(f'<a:fireWarning:660148304486727730> {message}')
+        await self.send(f'<a:fireWarning:660148304486727730> {message}')
 
     async def error(self, message: str):
-        await super().send(f'<a:fireFailed:603214400748257302> {message}')
+        await self.send(f'<a:fireFailed:603214400748257302> {message}')
 
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, nonce=None):
         if content:
