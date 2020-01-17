@@ -780,10 +780,10 @@ class utils(commands.Cog, name='Utility Commands'):
 					lban = '<a:fireSuccess:603214443442077708> Banned in **0** guilds with Fire'
 				elif guildbans < 5:
 					trust = 'Moderate'
-					lban = f'<a:fireWarning:660148304486727730> Banned in {guildbans} guilds with Fire'
+					lban = f'<a:fireWarning:660148304486727730> Banned in **{guildbans}** guilds with Fire'
 				elif guildbans >= 5:
 					trust = 'Low'
-					lban = f'<a:fireFailed:603214400748257302> Banned in {guildbans} guilds with Fire'
+					lban = f'<a:fireFailed:603214400748257302> Banned in **{guildbans}** guilds with Fire'
 			else:
 				lban = f'<:neutral:667128324107272192> Guild bans not loaded'
 			ksoftban = await self.bot.ksoft.bans_check(user.id)
