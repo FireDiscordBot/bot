@@ -819,7 +819,7 @@ class utils(commands.Cog, name='Utility Commands'):
 						cwbl = cwbl + f' and was previously blacklisted for **{cwprofile["blacklisted_reason"]}**'
 			elif not hasattr(self.bot, 'chatwatch') or not self.bot.chatwatch.connected:
 				cwbl = '<:neutral:667128324107272192> Not connected to chatwatch'
-			embed.add_field(name=f'Trust - {trust}', value='\n'.join([lban, gban, cwbl]), inline=False)
+			embed.add_field(name=f'» Trust - {trust}', value='\n'.join([lban, gban, cwbl]), inline=False)
 		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		if ack:
 			embed.add_field(name='» Recognized User', value=', '.join(ack))
