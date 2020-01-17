@@ -26,6 +26,7 @@ import datetime
 import discord
 import aiohttp
 import random
+import re
 
 
 class commandError(commands.Cog):
