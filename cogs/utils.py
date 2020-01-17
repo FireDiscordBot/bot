@@ -243,9 +243,17 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.bot.vanityclick = self.vanityclick
 		self.bot.vanitylink = self.vanitylink
 		self.tags = {}
+		self.bans = {}
 		self.reminders = {}
-		self.remindcheck.start()
 		self.quotecooldowns = {}
+		asyncio.get_event_loop().create_task(self.loadvanitys())
+		asyncio.get_event_loop().create_task(self.loadfollowable())
+		asyncio.get_event_loop().create_task(self.loadfollows())
+		asyncio.get_event_loop().create_task(self.loadtags())
+		asyncio.get_event_loop().create_task(self.loaddescs())
+		asyncio.get_event_loop().create_task(self.loadbans())
+		asyncio.get_event_loop().create_task(self.loadremind())
+		self.remindcheck.start()
 
 	def is_emoji(self, s):
 		return s in UNICODE_EMOJI
@@ -484,6 +492,12 @@ class utils(commands.Cog, name='Utility Commands'):
 		descs = await self.bot.db.fetch(query)
 		for d in descs:
 			self.bot.descriptions[d['gid']] = d['desc']
+
+	async def loadbans(self):
+		self.bans = {}
+		for g in [guild for guild in self.bot.guilds if guild.me.guild_permissions.ban_members]:
+			bans = await g.bans()
+			self.bans[g.id] = [b.user.id for b in bans]
 
 	async def loadremind(self):
 		self.reminders = {}
@@ -757,12 +771,21 @@ class utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name="» Roles", value=' - '.join(roles) or 'No roles', inline=False)
 		if not user.bot:
 			trust = 'High' # yes ravy I'm stealing your trust thing. go check out ravy, https://ravy.xyz/
-			current = await ctx.guild.bans()
-			if len([b for b in current if b.user.id == user.id]) >= 1:
-				trust = 'Moderate'
-				lban = f'<a:fireWarning:660148304486727730> Banned in {ctx.guild.name}'
+			if self.bans:
+				guildbans = 0
+				for g in self.bans:
+					if user.id in self.bans[g]:
+						guildbans += 1
+				if guildbans == 0:
+					lban = '<a:fireSuccess:603214443442077708> Banned in **0** guilds with Fire'
+				elif guildbans < 5:
+					trust = 'Moderate'
+					lban = f'<a:fireWarning:660148304486727730> Banned in {guildbans} guilds with Fire'
+				elif guildbans >= 5:
+					trust = 'Low'
+					lban = f'<a:fireFailed:603214400748257302> Banned in {guildbans} guilds with Fire'
 			else:
-				lban = f'<a:fireSuccess:603214443442077708> Not banned in {ctx.guild.name}'
+				lban = f'<:neutral:667128324107272192> Guild bans not loaded'
 			ksoftban = await self.bot.ksoft.bans_check(user.id)
 			if ksoftban:
 				trust = 'Low'
@@ -773,26 +796,29 @@ class utils(commands.Cog, name='Utility Commands'):
 			if hasattr(self.bot, 'chatwatch') and self.bot.chatwatch.connected:
 				cwbl = ''
 				cwprofile = await self.bot.chatwatch.profile(user.id)
-				if cwprofile['score'] > 50:
-					if trust != 'Low':
-						trust = 'Moderate'
-					cwbl = f'<a:fireWarning:660148304486727730> Chatwatch score of **{cwprofile["score"]}%**'
-				if cwprofile['score'] > 80:
-					trust = 'Low'
-					cwbl = f'<a:fireFailed:603214400748257302> Chatwatch score of **{cwprofile["score"]}%**'
-				if cwprofile['score'] == 50:
-					cwbl = '<:neutral:667128324107272192> Chatwatch score of **50%**'
-				if cwprofile['whitelisted']:
-					 cwbl = f'<a:fireSuccess:603214443442077708> **Whitelisted** on Chatwatch'
-				elif cwprofile['blacklisted_reason'] and cwprofile['blacklisted']:
-					trust = 'Low'
-					cwbl = f'<a:fireFailed:603214400748257302> Blacklisted on Chatwatch for **{cwprofile["blacklisted_reason"]}**'
-				if not cwbl:
-					cwbl = f'<a:fireSuccess:603214443442077708> Chatwatch score of **{cwprofile["score"]}%**'
-				elif cwprofile['blacklisted_reason'] and cwprofile['score'] > 80 and not cwprofile['blacklisted']:
-					cwbl = cwbl + f' and was previously blacklisted for **{cwprofile["blacklisted_reason"]}**'
+				if not cwprofile:
+					cwbl = '<:neutral:667128324107272192> Failed to retrieve chatwatch profile'
+				else:
+					if cwprofile['score'] > 80:
+						trust = 'Low'
+						cwbl = f'<a:fireFailed:603214400748257302> Chatwatch score of **{cwprofile["score"]}%**'
+					elif cwprofile['score'] > 50:
+						if trust != 'Low':
+							trust = 'Moderate'
+						cwbl = f'<a:fireWarning:660148304486727730> Chatwatch score of **{cwprofile["score"]}%**'
+					elif cwprofile['score'] == 50:
+						cwbl = '<:neutral:667128324107272192> Chatwatch score of **50%**'
+					if cwprofile['whitelisted']:
+						cwbl = f'<a:fireSuccess:603214443442077708> **Whitelisted** on Chatwatch'
+					elif cwprofile['blacklisted_reason'] and cwprofile['blacklisted']:
+						trust = 'Low'
+						cwbl = f'<a:fireFailed:603214400748257302> Blacklisted on Chatwatch for **{cwprofile["blacklisted_reason"]}**'
+					if not cwbl:
+						cwbl = f'<a:fireSuccess:603214443442077708> Chatwatch score of **{cwprofile["score"]}%**'
+					elif cwprofile['blacklisted_reason'] and cwprofile['score'] > 80 and not cwprofile['blacklisted']:
+						cwbl = cwbl + f' and was previously blacklisted for **{cwprofile["blacklisted_reason"]}**'
 			elif not hasattr(self.bot, 'chatwatch') or not self.bot.chatwatch.connected:
-				cwbl = '<:neutral:667128324107272192>  Not connected to chatwatch'	
+				cwbl = '<:neutral:667128324107272192> Not connected to chatwatch'
 			embed.add_field(name=f'Trust - {trust}', value='\n'.join([lban, gban, cwbl]), inline=False)
 		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		if ack:

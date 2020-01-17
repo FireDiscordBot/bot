@@ -50,6 +50,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 		# self.reactroles = {}
 		self.joinroles = {}
 		self.rolepersists = {}
+		asyncio.get_event_loop().create_task(self.loadPremiumGuilds())
+		asyncio.get_event_loop().create_task(self.loadAutoroles())
+		asyncio.get_event_loop().create_task(self.loadJoinRoles())
+		asyncio.get_event_loop().create_task(self.loadRolePersist())
 
 	async def loadPremiumGuilds(self):
 		self.premiumGuilds = []
