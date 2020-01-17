@@ -506,6 +506,11 @@ class utils(commands.Cog, name='Utility Commands'):
 		else:
 			self.bans[guild.id] = [member.id]
 
+	@commands.Cog.listener()
+	async def on_member_unban(self, guild, member):
+		if guild.id in self.bans:
+			self.bans[guild.id].remove(member.id)
+
 	async def loadremind(self):
 		self.reminders = {}
 		query = 'SELECT * FROM remind;'
@@ -718,7 +723,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Verification", value=str(guild.verification_level).capitalize(), inline=True)
 		embed.add_field(name="» Notifications", value=notifs[str(guild.default_notifications)], inline=True)
 		embed.add_field(name="» Multi-Factor Auth", value=bool(guild.mfa_level), inline=True)
-		embed.add_field(name="» Created", value=str(guild.created_at).split('.')[0], inline=True)
+		embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - guild.created_at, max_units=2) + ' ago', inline=True)
 		features = ', '.join([self.featureslist[f] for f in guild.features if f in self.featureslist])
 		if features and features != '':
 			embed.add_field(name="» Features", value=features, inline=False)
@@ -768,7 +773,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			if user.nick:
 				embed.add_field(name="» Nickname", value=user.nick, inline=False)
 			if user.premium_since:
-				embed.add_field(name="» Boosting Since", value=str(user.premium_since).split('.')[0], inline=False)
+				embed.add_field(name="» Boosting For", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - user.premium_since), inline=False)
 			roles = []
 			for role in user.roles:
 				if role.is_default():
@@ -1660,6 +1665,20 @@ class utils(commands.Cog, name='Utility Commands'):
 						await ctx.message.delete()
 					await ctx.send(content=discord.utils.escape_mentions(tag))
 
+	@tags.command(name='raw')
+	async def tagraw(self, ctx, *, tagname: str = None):
+		taglist = self.tags[ctx.guild.id] if ctx.guild.id in self.tags else False
+		if not taglist:
+			return await ctx.error('No tags found.')
+		if not tagname:
+			return await ctx.error(f'No tag provided. Use {ctx.prefix}tags to view all tags')
+		else:
+			tag = taglist[tagname.lower()] if tagname.lower() in taglist else False
+			if not tag:
+				return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.')
+			else:
+				await ctx.send(content=discord.utils.escape_markdown(discord.utils.escape_mentions(tag)))
+
 	@commands.has_permissions(manage_messages=True)
 	@tags.command(name='create', aliases=['new', 'add'])
 	async def tagcreate(self, ctx, tagname: str, *, tagcontent: str):
@@ -1671,7 +1690,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if len(currenttags) >= 20:
 			premiumguilds = self.bot.get_cog('Premium Commands').premiumGuilds
 			if ctx.guild.id not in premiumguilds:
-				return await ctx.error(f'You\'ve reached the tag limit! Upgrade to premium for unlimited tags;\n<https://gaminggeek.dev/patreon>')
+				return await ctx.error(f'You\'ve reached the tag limit! Upgrade to premium for unlimited tags;\n<https://inv.wtf/premium>')
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'INSERT INTO tags (\"gid\", \"name\", \"content\") VALUES ($1, $2, $3);'

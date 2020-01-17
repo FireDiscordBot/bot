@@ -38,6 +38,11 @@
                 "Usage": "{prefix}thanks",
                 "Aliases": "thank, thank you"
             },
+            "shut": {
+                "Description": "shut please",
+                "Usage": "{prefix}shut",
+                "Aliases": null
+            },
             "warm": {
                 "Description": "warm something up",
                 "Usage": "{prefix}warm <something>",
@@ -451,6 +456,11 @@
                 "Description": "See a list of all tags or view a tag",
                 "Usage": "{prefix}tag [<tag name>]",
                 "Aliases": "dtag, tags"
+            },
+            "raw": {
+                "Description": "View the raw content of a tag",
+                "Usage": "{prefix}tag raw [<tag name>]",
+                "Aliases": null
             },
             "create": {
                 "Description": "Create a new tag",
