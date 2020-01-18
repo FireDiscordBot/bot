@@ -248,7 +248,7 @@
             "stop": {
                 "Description": "Stop the player, disconnect and clear the queue.",
                 "Usage": "{prefix}stop",
-                "Aliases": null
+                "Aliases": "goaway"
             },
             "volume": {
                 "Description": "Change the player volume.",
@@ -289,7 +289,7 @@
             "deepfry": {
                 "Description": "Deepfry an image or your avatar (your avatar is used if no argument is provided)",
                 "Usage": "{prefix}deepfry [<member/image url>]",
-                "Aliases": null
+                "Aliases": "df"
             }
         }
     },
@@ -357,7 +357,7 @@
             "ban": {
                 "Description": "Ban a user from the server",
                 "Usage": "{prefix}ban <user> [<reason>]",
-                "Aliases": "banish, begone, gtfo, 410"
+                "Aliases": "banish, begone, gtfo, 410, perish, bonk, bean"
             },
             "unban": {
                 "Description": "Unban a user from the server",
