@@ -978,6 +978,26 @@ class settings(commands.Cog, name="Settings"):
 								pass
 					except discord.HTTPException:
 						return
+	@commands.Cog.listener()
+	async def on_chatwatch_blacklist(self, data: dict):
+		for guild in [g for g in self.bot.guilds if g.get_member(int(data['user']['user']))]:
+			logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
+			if logid:
+				logch = guild.get_channel(logid['modlogs'])
+			else:
+				continue
+			if logch:
+				member = guild.get_member(int(data['user']['user']))
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was blacklisted on Chatwatch**')
+				embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
+				embed.add_field(name='Reason', value=data['user']['blacklisted_reason'], inline=False)
+				embed.add_field(name='Message Classifications', value=', '.join(data['classifications']), inline=False)
+				embed.set_footer(text=f"Member ID: {member.id}")
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
+
 
 	@commands.Cog.listener()
 	async def on_membercacheadd(self, gid: int, mid: int):
