@@ -786,7 +786,8 @@ class utils(commands.Cog, name='Utility Commands'):
 			if self.bans:
 				guildbans = 0
 				for g in self.bans:
-					if user.id in self.bans[g]:
+					guild = self.bot.get_guild(g)
+					if user.id in self.bans[g] and guild.member_count >= 50:
 						guildbans += 1
 				if guildbans == 0:
 					lban = '<a:fireSuccess:603214443442077708> Banned in **0** guilds with Fire'
@@ -818,8 +819,10 @@ class utils(commands.Cog, name='Utility Commands'):
 						trust = 'Low'
 						cwbl = f'<a:fireFailed:603214400748257302> Chatwatch score of **{cwprofile["score"]}%**'
 					elif cwprofile['score'] > 50:
-						if trust != 'Low':
+						if trust == 'High':
 							trust = 'Moderate'
+						elif trust == 'Moderate':
+							trust = 'Low'
 						cwbl = f'<a:fireWarning:660148304486727730> Chatwatch score of **{cwprofile["score"]}%**'
 					elif cwprofile['score'] == 50:
 						cwbl = '<:neutral:667128324107272192> Chatwatch score of **50%**'
