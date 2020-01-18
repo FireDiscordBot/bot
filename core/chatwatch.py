@@ -34,6 +34,10 @@ class chatwatch(commands.Cog):
 
     async def handle_message(self, message):
         # print(json.dumps(message.data, indent=2))
+        previous = self.responses.get(int(message.data['user']['user']), {})
+        if previous.get('user', None):
+            if not previous['user']['blacklisted'] and message.data['user']['blacklisted']:
+                self.bot.dispatch('chatwatch_blacklist', message.data)
         self.responses[int(message.data['user']['user'])] = message.data
 
     @commands.Cog.listener()
