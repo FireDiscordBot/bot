@@ -30,7 +30,8 @@ class chatwatch(commands.Cog):
         self.responses = {}
         if not hasattr(self.bot, 'chatwatch'):
             self.bot.chatwatch = ChatWatch(config['chatwatch'])
-            self.bot.chatwatch.register_listener(self.handle_message)
+        self.bot.chatwatch.clear_listeners()
+        self.bot.chatwatch.register_listener(self.handle_message)
 
     async def handle_message(self, message):
         # print(json.dumps(message.data, indent=2))
