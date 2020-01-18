@@ -107,17 +107,12 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-#vscode
+# vscode
 .vscode/
 
-#secret stuff
-api.py
-api.bat
-fire.bat
-lavalink.bat
+# secret stuff
 application.yml
-config.json
-fire.db
+*.json
 
 # other stuff
 bot.log
@@ -128,6 +123,8 @@ bfg.jar
 *.mp3
 fishin
 *.mp4
+serverimgbase.png
+serverimgstats.png
 
 # jetbrains ide
 .idea
