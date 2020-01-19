@@ -45,6 +45,9 @@ class chatwatch(commands.Cog):
     async def on_message(self, message):
         if not message.guild or not message.content or message.author.bot:
             return
+        ctx = await self.bot.get_context(message)
+        if ctx.valid:
+            return
         payload = {
             "event": "message_ingest",
             "data": {
@@ -56,6 +59,10 @@ class chatwatch(commands.Cog):
             }
         }
         await self.bot.chatwatch.send(payload)
+
+    @commands.command(name='cwdebug')
+    async def cwdebug(self, ctx):
+        return await ctx.send(f'```json\n{json.dumps(self.responses.get(ctx.author.id, {"error":"No response found"}))}```')
 
 
 def setup(bot):
