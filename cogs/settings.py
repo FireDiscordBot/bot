@@ -385,7 +385,7 @@ class settings(commands.Cog, name="Settings"):
 						if isinstance(message.author, discord.Member):
 							if not message.author.permissions_in(message.channel).manage_messages:
 								if message.guild.me.permissions_in(message.channel).manage_messages:
-									if message.guild.id in self.invitefiltered:
+									if 'discord' in self.linkfilter.get(message.guild.id, []):
 										if invite['gid'] != message.guild.id:
 											try:
 												await message.delete()
@@ -404,7 +404,7 @@ class settings(commands.Cog, name="Settings"):
 						logch = message.guild.get_channel(logid['actionlogs'])
 					else:
 						return
-					if logch:
+					if logch and 'discord' in self.linkfilter.get(message.guild.id, []):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							if isinstance(invite, dict):
@@ -437,7 +437,7 @@ class settings(commands.Cog, name="Settings"):
 						logch = message.guild.get_channel(logid['actionlogs'])
 					else:
 						return
-					if logch:
+					if logch and 'paypal' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{paypal}](https://paypal.me/{paypal})', inline=False)
@@ -474,7 +474,7 @@ class settings(commands.Cog, name="Settings"):
 							logch = message.guild.get_channel(logid['actionlogs'])
 						else:
 							return
-						if logch:
+						if logch and 'youtube' in self.linkfilter.get(message.guild.id, []):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							embed.add_field(name='Video ID', value=video, inline=False)
@@ -514,7 +514,7 @@ class settings(commands.Cog, name="Settings"):
 							logch = message.guild.get_channel(logid['actionlogs'])
 						else:
 							return
-						if logch:
+						if logch and 'youtube' in self.linkfilter.get(message.guild.id, []):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							if invalidchannel:
@@ -551,7 +551,7 @@ class settings(commands.Cog, name="Settings"):
 						logch = message.guild.get_channel(logid['actionlogs'])
 					else:
 						return
-					if logch:
+					if logch and 'twitch' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{twitch}](https://twitch.tv/{twitch})', inline=False)
@@ -578,7 +578,7 @@ class settings(commands.Cog, name="Settings"):
 						logch = message.guild.get_channel(logid['actionlogs'])
 					else:
 						return
-					if logch:
+					if logch and 'twitter' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{twitter}](https://twitter.com/{twitter})', inline=False)
@@ -712,7 +712,7 @@ class settings(commands.Cog, name="Settings"):
 						if isinstance(message.author, discord.Member):
 							if not message.author.permissions_in(message.channel).manage_messages:
 								if message.guild.me.permissions_in(message.channel).manage_messages:
-									if message.guild.id in self.invitefiltered:
+									if 'discord' in self.linkfilter.get(message.guild.id, []):
 										if invite['gid'] != message.guild.id:
 											try:
 												await message.delete()
@@ -731,7 +731,7 @@ class settings(commands.Cog, name="Settings"):
 						logch = message.guild.get_channel(logid['actionlogs'])
 					else:
 						return
-					if logch:
+					if logch and 'discord' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						if isinstance(invite, dict):
@@ -764,7 +764,7 @@ class settings(commands.Cog, name="Settings"):
 						logch = message.guild.get_channel(logid['actionlogs'])
 					else:
 						return
-					if logch:
+					if logch and 'paypal' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{paypal}](https://paypal.me/{paypal})', inline=False)
@@ -801,7 +801,7 @@ class settings(commands.Cog, name="Settings"):
 							logch = message.guild.get_channel(logid['actionlogs'])
 						else:
 							return
-						if logch:
+						if logch and 'youtube' in self.linkfilter.get(message.guild.id, []):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							embed.add_field(name='Video ID', value=video, inline=False)
@@ -841,7 +841,7 @@ class settings(commands.Cog, name="Settings"):
 							logch = message.guild.get_channel(logid['actionlogs'])
 						else:
 							return
-						if logch:
+						if logch and 'youtube' in self.linkfilter.get(message.guild.id, []):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							if invalidchannel:
@@ -878,7 +878,7 @@ class settings(commands.Cog, name="Settings"):
 						logch = message.guild.get_channel(logid['actionlogs'])
 					else:
 						return
-					if logch:
+					if logch and 'twitch' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{twitch}](https://twitch.tv/{twitch})', inline=False)
@@ -905,7 +905,7 @@ class settings(commands.Cog, name="Settings"):
 						logch = message.guild.get_channel(logid['actionlogs'])
 					else:
 						return
-					if logch:
+					if logch and 'twitter' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{twitter}](https://twitter.com/{twitter})', inline=False)
