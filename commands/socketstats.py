@@ -28,14 +28,13 @@ class socketStats(commands.Cog):
 
     @commands.command()
     async def socketstats(self, ctx):
-        socketresp = self.bot.get_cog('socketResponse')
-        if not socketresp:
+        if not hasattr(self.bot, 'socketstats'):
             return await ctx.error(f'Socket stats are not loaded')
         delta = datetime.datetime.utcnow() - self.bot.launchtime
         minutes = delta.total_seconds() / 60
-        total = len(socketresp.stats)
+        total = sum(socketresp.stats.values())
         cpm = total / minutes
-        stats = [f'[{k}] {v}' for k, v in socketresp.stats.items()]
+        stats = [f'[{k}] {v}' for k, v in sored(self.bot.socketstats.items(), key=lambda t: self.bot.socketstats[t])]
         paginator = WrappedPaginator(prefix='```ini', suffix='```', max_size=1000)
         paginator.add_line(f'{total} events seen, {cpm:.2f} events per minute')
         for ln in stats:

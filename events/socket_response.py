@@ -24,19 +24,22 @@ import traceback
 class socketResponse(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.stats = {}
+        self.bot.socketstats = {}
 
     @commands.Cog.listener()
     async def on_socket_response(self, payload):
         t = payload['t']
         if not t:
-            self.bot.logger.warning(f'$REDUnknown event, $BLUE{t}\n$REDPayload: $BLUE{payload}')
-            return
-        if t not in self.stats:
+            if payload['op'] == 11:
+                t = 'HEARTBEAT'
+            else:
+                self.bot.logger.warning(f'$REDUnknown event, $BLUE{t}\n$REDPayload: $BLUE{payload}')
+                return
+        if t not in self.bot.socketstats:
             self.bot.logger.info(f'$GREENFound new event, $BLUE{t}')
-            self.stats[t] = 1
+            self.bot.socketstats[t] = 1
         else:
-            self.stats[t] += 1
+            self.bot.socketstats[t] += 1
 
 
 def setup(bot):
