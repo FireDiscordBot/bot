@@ -817,22 +817,22 @@ class utils(commands.Cog, name='Utility Commands'):
 				else:
 					if cwprofile['score'] > 80:
 						trust = 'Low'
-						cwbl = f'<a:fireFailed:603214400748257302> Chatwatch score of **{cwprofile["score"]}%**'
+						cwbl = f'<a:fireFailed:603214400748257302> Spam likeliness of **{cwprofile["score"]}%**'
 					elif cwprofile['score'] > 50:
 						if trust == 'High':
 							trust = 'Moderate'
 						elif trust == 'Moderate':
 							trust = 'Low'
-						cwbl = f'<a:fireWarning:660148304486727730> Chatwatch score of **{cwprofile["score"]}%**'
+						cwbl = f'<a:fireWarning:660148304486727730> Spam likeliness of **{cwprofile["score"]}%**'
 					elif cwprofile['score'] == 50:
-						cwbl = '<:neutral:667128324107272192> Chatwatch score of **50%**'
+						cwbl = '<:neutral:667128324107272192> Spam likeliness of **50%**'
 					if cwprofile['whitelisted']:
 						cwbl = f'<a:fireSuccess:603214443442077708> **Whitelisted** on Chatwatch'
 					elif cwprofile['blacklisted_reason'] and cwprofile['blacklisted']:
 						trust = 'Low'
 						cwbl = f'<a:fireFailed:603214400748257302> Blacklisted on Chatwatch for **{cwprofile["blacklisted_reason"]}**'
 					if not cwbl:
-						cwbl = f'<a:fireSuccess:603214443442077708> Chatwatch score of **{cwprofile["score"]}%**'
+						cwbl = f'<a:fireSuccess:603214443442077708> Spam likeliness of **{cwprofile["score"]}%**'
 					elif cwprofile['blacklisted_reason'] and cwprofile['score'] > 80 and not cwprofile['blacklisted']:
 						cwbl = cwbl + f' and was previously blacklisted for **{cwprofile["blacklisted_reason"]}**'
 			elif not hasattr(self.bot, 'chatwatch') or not self.bot.chatwatch.connected:
