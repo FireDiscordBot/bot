@@ -29,6 +29,9 @@ class socketResponse(commands.Cog):
     @commands.Cog.listener()
     async def on_socket_response(self, payload):
         t = payload['t']
+        if not t:
+            self.bot.logger.warning(f'$REDUnknown event, $BLUE{t}\n$REDPayload: $BLUE{payload}')
+            return
         if t not in self.stats:
             self.bot.logger.info(f'$GREENFound new event, $BLUE{t}')
             self.stats[t] = 1
