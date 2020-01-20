@@ -89,8 +89,6 @@ class Fire(commands.Bot):
             admin = True
         return admin
 
-    # Commands will soon have their own separate files, but for now this just loads jishaku and chatwatch
-
     def loadCommands(self):
         try:
             self.load_extension('core.chatwatch')
@@ -104,13 +102,13 @@ class Fire(commands.Bot):
             errortb = ''.join(traceback.format_exception(
                 type(e), e, e.__traceback__))
             print(f'Error while loading Jishaku;\n{errortb}')
-        # for ext in resolve_extensions(self, 'commands.*'):
-        #     try:
-        #         self.load_extension(ext)
-        #     except Exception as e:
-        #         errortb = ''.join(traceback.format_exception(
-        #             type(e), e, e.__traceback__))
-        #         print(f'Error while loading {ext};\n{errortb}')
+        for ext in resolve_extensions(self, 'commands.*'):
+            try:
+                self.load_extension(ext)
+            except Exception as e:
+                errortb = ''.join(traceback.format_exception(
+                    type(e), e, e.__traceback__))
+                print(f'Error while loading {ext};\n{errortb}')
 
     def loadEvents(self):
         for ext in resolve_extensions(self, 'events.*'):
