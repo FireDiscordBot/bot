@@ -46,7 +46,7 @@ class socketStats(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(sockketResponse(bot))
+        bot.add_cog(socketStats(bot))
     except Exception as e:
         errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         print(f'Error while adding command "socketstats";\n{errortb}')
