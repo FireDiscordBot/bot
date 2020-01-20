@@ -32,9 +32,10 @@ class socketStats(commands.Cog):
             return await ctx.error(f'Socket stats are not loaded')
         delta = datetime.datetime.utcnow() - self.bot.launchtime
         minutes = delta.total_seconds() / 60
-        total = sum(socketresp.stats.values())
+        total = sum(self.bot.socketstats.values())
         cpm = total / minutes
-        stats = [f'[{k}] {v}' for k, v in sored(self.bot.socketstats.items(), key=lambda t: self.bot.socketstats[t])]
+        stats = [f'[{k}] {v}' for k, v in sorted(self.bot.socketstats.items(), key=lambda t: self.bot.socketstats[t[0]])]
+        stats.reverse()
         paginator = WrappedPaginator(prefix='```ini', suffix='```', max_size=1000)
         paginator.add_line(f'{total} events seen, {cpm:.2f} events per minute')
         for ln in stats:
