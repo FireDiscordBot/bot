@@ -35,8 +35,6 @@ async def get_pre(bot, message):
 
 
 bot = Fire(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="inv.wtf/fire"), case_insensitive=True, owner_id=287698408855044097)
-LOGGER = bot.logger
-LOGGER.info("Starting Fire...")
 
 extensions = [
     "cogs.misc",
@@ -61,9 +59,10 @@ extensions = [
 
 for cog in extensions:
     try:
+        bot.logger.info(f'$GREENLoading cog $BLUE{cog}')
         bot.load_extension(cog)
     except Exception as e:
-        LOGGER.error(f"Error while loading {cog}", exc_info=e)
+        bot.logger.error(f"$REDError while loading $BLUE{cog}", exc_info=e)
 
 
 @bot.command(description="Change the prefix for this guild. (For prefixes with a space, surround it in \"\")")
