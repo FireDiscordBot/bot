@@ -20,7 +20,6 @@ from discord.ext import commands, flags
 import json
 import re
 
-print("conorthedev.py has been loaded")
 
 class conor(commands.Cog, name="ConorTheDev's Custom Features"):
 	def __init__(self, bot):
@@ -72,3 +71,4 @@ class conor(commands.Cog, name="ConorTheDev's Custom Features"):
 
 def setup(bot):
 	bot.add_cog(conor(bot))
+	bot.logger.info(f'$GREENLoaded ConorTheDev\'s custom features!')

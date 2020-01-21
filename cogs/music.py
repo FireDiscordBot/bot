@@ -328,9 +328,9 @@ class Music(commands.Cog):
 		if not main:
 			try:
 				await self.initiate_nodes()
-				print('Initiaded Lavalink nodes.')
+				self.bot.logger.info('$GREENInitiated Lavalink nodes.')
 			except wavelink.errors.NodeOccupied:
-				pass
+				self.bot.logger.warning('$YELLOW"MAIN" Lavalink node occupied!')
 
 	def cog_unload(self):
 		self.deadvccheck.cancel()
@@ -353,7 +353,7 @@ class Music(commands.Cog):
 						if player.is_connected:
 							self.bot.deadvcs.append(vc.id)
 		except Exception as e:
-			print(f'dead vc check encountered an exception, {e}')
+			self.bot.logger.error(f'$REDDead VC Check encountered an error!', exc_info=e)
 
 
 	async def initiate_nodes(self):
@@ -839,3 +839,4 @@ class Music(commands.Cog):
 
 def setup(bot):
 	bot.add_cog(Music(bot))
+	bot.logger.info(f'$GREENLoaded Music cog!')

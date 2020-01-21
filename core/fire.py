@@ -93,31 +93,31 @@ class Fire(commands.Bot):
         try:
             self.load_extension('core.chatwatch')
         except Exception as e:
-            errortb = ''.join(traceback.format_exception(
-                type(e), e, e.__traceback__))
-            print(f'Error while loading Chatwatch;\n{errortb}')
+            # errortb = ''.join(traceback.format_exception(
+            #     type(e), e, e.__traceback__))
+            self.bot.logger.error(f'$REDError while loading $BLUEChatwatch', exc_info=e)
         try:
             self.load_extension('jishaku')
         except Exception as e:
-            errortb = ''.join(traceback.format_exception(
-                type(e), e, e.__traceback__))
-            print(f'Error while loading Jishaku;\n{errortb}')
+            # errortb = ''.join(traceback.format_exception(
+            #     type(e), e, e.__traceback__))
+            self.bot.logger.error(f'$REDError while loading $BLUEJishaku', exc_info=e)
         for ext in resolve_extensions(self, 'commands.*'):
             try:
                 self.load_extension(ext)
             except Exception as e:
-                errortb = ''.join(traceback.format_exception(
-                    type(e), e, e.__traceback__))
-                print(f'Error while loading {ext};\n{errortb}')
+                # errortb = ''.join(traceback.format_exception(
+                #     type(e), e, e.__traceback__))
+                self.bot.logger.error(f'Error while loading $BLUE{ext}', exc_info=e)
 
     def loadEvents(self):
         for ext in resolve_extensions(self, 'events.*'):
             try:
                 self.load_extension(ext)
             except Exception as e:
-                errortb = ''.join(traceback.format_exception(
-                    type(e), e, e.__traceback__))
-                print(f'Error while loading {ext};\n{errortb}')
+                # errortb = ''.join(traceback.format_exception(
+                #     type(e), e, e.__traceback__))
+                self.bot.logger.error(f'$REDError while loading {ext}', exc_info=e)
 
     def sentry_exc(self, error: commands.CommandError, userscope: dict, exclevel: str, extra: dict):
         with push_scope() as scope:

@@ -37,16 +37,17 @@ class guildAdd(commands.Cog):
             query = 'INSERT INTO settings (\"gid\") VALUES ($1);'
             await self.bot.db.execute(query, guild.id)
         await self.bot.db.release(con)
-        print(f"Fire joined a new guild! {guild.name}({guild.id}) with {guild.member_count} members")
+        self.bot.logger.info(f"$GREENFire joined a new guild! $BLUE{guild.name}({guild.id}) $GREENwith $BLUE{guild.member_count} $GREENmembers")
         try:
             await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members", f"https://api.gaminggeek.dev/guild/{guild.id}")
         except exceptions.PushError as e:
-            print(e)
+            self.bot.logger.warn(f'$YELLOWFailed to send guild join notification!', exc_info=e)
 
 
 def setup(bot):
     try:
         bot.add_cog(guildAdd(bot))
+        bot.logger.info(f'$GREENLoaded event $BLUEguildAdd!')
     except Exception as e:
-        errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        print(f'Error while adding cog "guildAdd";\n{errortb}')
+        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
+        bot.logger.error(f'$REDError while adding event $BLUE"guildAdd"', exc_info)

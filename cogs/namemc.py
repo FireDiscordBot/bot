@@ -23,7 +23,6 @@ import datetime
 import aiohttp
 import json
 
-print("namemc.py has been loaded")
 
 async def getnames(html: str, name: str):
 	if '<div>Available*</div>' in html or '<div>Available Later*</div>' in html:
@@ -146,3 +145,4 @@ class namemc(commands.Cog, name="NameMC"):
 
 def setup(bot):
 	bot.add_cog(namemc(bot))
+	bot.logger.info(f'$GREENLoaded NameMC cog!')

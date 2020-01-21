@@ -25,7 +25,6 @@ from PIL import Image
 from io import BytesIO
 from . import mcfont
 
-print("skier.py has been loaded")
 
 remcolor = r'&[0-9A-FK-OR]'
 
@@ -402,3 +401,4 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
   
 def setup(bot):
 	bot.add_cog(skier(bot))
+	bot.logger.info(f'$GREENLoaded Sk1er cog!')

@@ -54,6 +54,7 @@ class socketResponse(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(socketResponse(bot))
+        bot.logger.info(f'$GREENLoaded event $BLUEsocketResponse!')
     except Exception as e:
-        errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        print(f'Error while adding cog "socketResponse";\n{errortb}')
+        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
+        bot.logger.error(f'$REDError while loading event $BLUE"socketResponse"', exc_info=e)

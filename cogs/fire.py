@@ -41,7 +41,6 @@ import random
 launchtime = datetime.datetime.utcnow()
 process = psutil.Process(os.getpid())
 
-print("fire.py has been loaded")
 
 def getconfig(path: str = None):
 	with open('config.json', 'r') as cfg:
@@ -346,3 +345,4 @@ class firecog(commands.Cog, name="Main Commands"):
 
 def setup(bot):
 	bot.add_cog(firecog(bot))
+	bot.logger.info(f'$GREENLoaded Main cog!')

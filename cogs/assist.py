@@ -47,7 +47,6 @@ except (SystemError, ImportError):
 	import browser_helpers
 	import audio_helpers
 
-print('assist.py has been loaded.')
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
 PLAYING = embedded_assistant_pb2.ScreenOutConfig.PLAYING
@@ -167,7 +166,7 @@ try:
 		http_request = google.auth.transport.requests.Request()
 		credentials.refresh(http_request)
 except Exception as e:
-	print('Failed to connect to Google Assistant. ')
+	print('Failed to connect to Google Assistant. ') # Before cog is loaded so no bot.logger :(
 	credentials = None
 
 grpc_channel = google.auth.transport.grpc.secure_authorized_channel(credentials, http_request, ASSISTANT_API_ENDPOINT)
@@ -244,5 +243,6 @@ class Assistant(commands.Cog, name='Google Assistant'):
 def setup(bot):
 	if credentials:
 		bot.add_cog(Assistant(bot))
+		bot.logger.info(f'$GREENLoaded Google Assistant cog!')
 	else:
-		raise commands.DiscordException('Coudln\'t connect to Google Assistant! Unloading cog.')
+		bot.logger.error('$REDCoudln\'t connect to Google Assistant!')

@@ -20,7 +20,6 @@ from discord.ext import commands
 from fire.converters import TextChannel
 import asyncio
 
-print("config.py has been loaded")
 
 class configuration(commands.Cog, name="Configuration"):
 	def __init__(self, bot):
@@ -64,3 +63,4 @@ class configuration(commands.Cog, name="Configuration"):
 
 def setup(bot):
 	bot.add_cog(configuration(bot))
+	bot.logger.info(f'$GREENLoaded Config cog!')

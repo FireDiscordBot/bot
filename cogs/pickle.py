@@ -19,7 +19,6 @@ import discord
 from discord.ext import commands
 import datetime
 import json
-import logging
 import aiohttp
 import hypixel
 import re
@@ -34,10 +33,6 @@ remcolor = r'\u00A7[0-9A-FK-OR]'
 
 now = datetime.datetime.utcnow()
 launchtime = datetime.datetime.utcnow()
-
-logging.basicConfig(filename='bot.log',level=logging.INFO)
-
-print("hypixel.py has been loaded")
 
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
@@ -646,3 +641,4 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 
 def setup(bot):
 	bot.add_cog(pickle(bot))
+	bot.logger.info(f'$GREENLoaded Hypixel cog!')

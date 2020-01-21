@@ -31,16 +31,17 @@ class guildRemove(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
         await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'guilds.leave'))
-        print(f"Fire left the guild {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/")
+        self.bot.logger.info(f"$REDFire left the guild $BLUE{guild.name}({guild.id}) $REDwith $BLUE{guild.member_count} $REDmembers! Goodbye o/")
         try:
             await pushbullet("link", "Fire left a guild!", f"Fire left {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/", f"https://api.gaminggeek.dev/guild/{guild.id}")
         except exceptions.PushError as e:
-            print(e)
+            self.bot.logger.warn(f'$YELLOWFailed to send guild leave notification!')
 
 
 def setup(bot):
     try:
         bot.add_cog(guildRemove(bot))
+        bot.logger.info(f'$GREENLoaded event $BLUEguildRemove!')
     except Exception as e:
-        errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        print(f'Error while adding cog "guildRemove";\n{errortb}')
+        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
+        bot.logger.error(f'$REDError while loading event $BLUE"guildRemove"', exc_info=e)

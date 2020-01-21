@@ -137,15 +137,15 @@ class Premium(commands.Cog, name="Premium Commands"):
 		# else:
 		# 	return False
 
-	@commands.Cog.listener()
-	async def on_ready(self):
-		await asyncio.sleep(10)
-		await self.loadPremiumGuilds()
-		await self.loadAutoroles()
-		# await self.loadReactroles()
-		await self.loadJoinRoles()
-		await self.loadRolePersist()
-		print('Premium functions loaded!')
+	# @commands.Cog.listener()
+	# async def on_ready(self):
+	# 	await asyncio.sleep(10)
+	# 	await self.loadPremiumGuilds()
+	# 	await self.loadAutoroles()
+	# 	# await self.loadReactroles()
+	# 	await self.loadJoinRoles()
+	# 	await self.loadRolePersist()
+	# 	print('Premium functions loaded!')
 
 	@commands.command(name='loadpremium', description='Load premium data', hidden=True)
 	async def loadpremium(self, ctx):
@@ -715,3 +715,4 @@ class Premium(commands.Cog, name="Premium Commands"):
 
 def setup(bot):
 	bot.add_cog(Premium(bot))
+	bot.logger.info(f'$GREENLoaded Premium cog!')

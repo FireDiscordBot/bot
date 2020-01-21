@@ -25,7 +25,6 @@ import random
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 from fire.converters import Member
 
-print("ksoft.py has been loaded")
 
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
@@ -182,3 +181,4 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 def setup(bot):
 	bot.add_cog(ksoft(bot))
+	bot.logger.info(f'$GREENLoaded KSoft.Si cog!')

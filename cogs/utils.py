@@ -51,7 +51,6 @@ from fire import slack
 
 launchtime = datetime.datetime.utcnow()
 
-print('utils.py has been loaded')
 
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
@@ -577,7 +576,8 @@ class utils(commands.Cog, name='Utility Commands'):
 										if isinstance(e, discord.HTTPException):
 											pass
 										else:
-											print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
+											self.bot.logger.warn(f'$YELLOWSomething went wrong when trying to remind someone', exc_info=e)
+											# print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
 						tosend = self.bot.get_user(u)
 						await self.deleteremind(u, r['for'])
 						try:
@@ -592,19 +592,20 @@ class utils(commands.Cog, name='Utility Commands'):
 						except discord.Forbidden:
 							continue # How sad, no reminder for you.
 						except Exception as e:
-							print(f'Tried to send reminder to {tosend} but an exception occured (and no, it wasn\'t forbidden)')
-							print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
+							self.bot.logger.warn(f'$YELLOWTried to send reminder to {tosend} but an exception occured (and no, it wasn\'t forbidden)', exc_info=e)
+							# print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
 		except Exception as e:
-			print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
+			self.bot.logger.warn(f'$YELLOWSomething went wrong in the reminder check', exc_info=e)
+			# print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
 
-	@commands.Cog.listener()
-	async def on_ready(self):
-		await asyncio.sleep(5)
-		await self.loadvanitys()
-		await self.loadtags()
-		await self.loaddescs()
-		await self.loadremind()
-		print('Utilities loaded!')
+	# @commands.Cog.listener()
+	# async def on_ready(self):
+	# 	await asyncio.sleep(5)
+	# 	await self.loadvanitys()
+	# 	await self.loadtags()
+	# 	await self.loaddescs()
+	# 	await self.loadremind()
+	# 	print('Utilities loaded!')
 
 	@commands.command(name='errortest', hidden=True)
 	async def errortestboyo(self, ctx):
@@ -817,22 +818,22 @@ class utils(commands.Cog, name='Utility Commands'):
 				else:
 					if cwprofile['score'] > 80:
 						trust = 'Low'
-						cwbl = f'<a:fireFailed:603214400748257302> Spam likeliness of **{cwprofile["score"]}%**'
+						cwbl = f'<a:fireFailed:603214400748257302> **High** spam likeliness'
 					elif cwprofile['score'] > 50:
 						if trust == 'High':
 							trust = 'Moderate'
 						elif trust == 'Moderate':
 							trust = 'Low'
-						cwbl = f'<a:fireWarning:660148304486727730> Spam likeliness of **{cwprofile["score"]}%**'
+						cwbl = f'<a:fireWarning:660148304486727730> **Moderate** spam likeliness'
 					elif cwprofile['score'] == 50:
-						cwbl = '<:neutral:667128324107272192> Spam likeliness of **50%**'
+						cwbl = '<:neutral:667128324107272192> **Neutral** spam likeliness'
 					if cwprofile['whitelisted']:
 						cwbl = f'<a:fireSuccess:603214443442077708> **Whitelisted** on Chatwatch'
 					elif cwprofile['blacklisted_reason'] and cwprofile['blacklisted']:
 						trust = 'Low'
 						cwbl = f'<a:fireFailed:603214400748257302> Blacklisted on Chatwatch for **{cwprofile["blacklisted_reason"]}**'
 					if not cwbl:
-						cwbl = f'<a:fireSuccess:603214443442077708> Spam likeliness of **{cwprofile["score"]}%**'
+						cwbl = f'<a:fireSuccess:603214443442077708> **Low** spam likeliness'
 					elif cwprofile['blacklisted_reason'] and cwprofile['score'] > 80 and not cwprofile['blacklisted']:
 						cwbl = cwbl + f' and was previously blacklisted for **{cwprofile["blacklisted_reason"]}**'
 			elif not hasattr(self.bot, 'chatwatch') or not self.bot.chatwatch.connected:
@@ -1600,7 +1601,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					slackmsg = await slack.sendvanity(f'/{code}', ctx.author, ctx.guild)
 					self.bot.slack_messages[f'vanity_{ctx.guild.id}'] = slackmsg
 				except PushError as e:
-					print(e)
+					self.bot.logger.error(f'$REDUnable to send Vanity URL to Slack!', exc_info=e)
 					if 'vanityapiurl' not in config:
 						config['vanityurlapi'] = 'https://http.cat/404'
 					await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
@@ -1889,3 +1890,4 @@ class utils(commands.Cog, name='Utility Commands'):
 		
 def setup(bot):
 	bot.add_cog(utils(bot))
+	bot.logger.info(f'$GREENLoaded Utilities cog!')

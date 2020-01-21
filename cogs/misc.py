@@ -19,7 +19,6 @@ import discord
 from discord.ext import commands
 import asyncio
 
-print("misc.py has been loaded")
 
 class misc(commands.Cog, name="Miscellaneous"):
 	def __init__(self, bot):
@@ -31,9 +30,9 @@ class misc(commands.Cog, name="Miscellaneous"):
 		asyncio.get_event_loop().create_task(self.loadutils())
 
 	async def loadutils(self):
-		print('Loading prefixes')
+		self.bot.logger.info(f'$GREENLoading prefixes...')
 		self.bot.prefixes = await self.loadprefixes()
-		print('Loading blacklist')
+		self.bot.logger.info(f'$GREENLoading blacklist...')
 		self.bot.plonked = await self.loadplonked()
 
 	async def loadprefixes(self):
@@ -54,3 +53,4 @@ class misc(commands.Cog, name="Miscellaneous"):
 
 def setup(bot):
 	bot.add_cog(misc(bot))
+	bot.logger.info(f'$GREENLoaded Misc cog!')

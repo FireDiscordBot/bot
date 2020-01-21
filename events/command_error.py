@@ -128,7 +128,8 @@ class commandError(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(commandError(bot))
+        bot.logger.info(f'$GREENLoaded event $BLUEcommandError!')
     except Exception as e:
-        errortb = ''.join(traceback.format_exception(
-            type(e), e, e.__traceback__))
-        print(f'Error while adding cog "commandError";\n{errortb}')
+        # errortb = ''.join(traceback.format_exception(
+        #     type(e), e, e.__traceback__))
+        bot.logger.error(f'$REDError while loading event $BLUE"commandError"', exc_info=e)

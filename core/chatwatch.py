@@ -70,6 +70,7 @@ class chatwatch(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(chatwatch(bot))
+        bot.logger.info(f'$GREENLoaded Chatwatch!')
     except Exception as e:
-        errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        print(f'Error while adding cog "chatwatch";\n{errortb}')
+        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
+        bot.logger.error(f'$REDError while loading $BLUEChatwatch', exc_info=e)

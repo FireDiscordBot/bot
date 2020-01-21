@@ -25,8 +25,6 @@ import functools
 import datetime
 import json
 
-print("youtube.py has been loaded")
-
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
@@ -140,3 +138,4 @@ class youtube(commands.Cog, name="YouTube API"):
 
 def setup(bot):
 	bot.add_cog(youtube(bot))
+	bot.logger.info(f'$GREENLoaded YouTube cog!')

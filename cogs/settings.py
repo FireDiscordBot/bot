@@ -34,8 +34,6 @@ from fire.paypal import findpaypal
 from fire.twitch import findtwitch
 from fire.twitter import findtwitter
 
-print("settings.py has been loaded")
-
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
@@ -110,6 +108,7 @@ class settings(commands.Cog, name="Settings"):
 		self.uuidregex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
 		if not hasattr(self.bot, 'invites'):
 			self.bot.invites = {}
+		self.bot.aliases = {}
 		asyncio.get_event_loop().create_task(self.loadSettings())
 		self.refreshInvites.start()
 
@@ -143,6 +142,7 @@ class settings(commands.Cog, name="Settings"):
 		self.dupecheck = {}
 		self.dupecheck['guilds'] = []
 		self.disabledcmds = {}
+		self.bot.aliases = {}
 		for g in self.bot.guilds:
 			self.joincache[g.id] = []
 			self.raidmsgs[g.id] = None
@@ -225,9 +225,20 @@ class settings(commands.Cog, name="Settings"):
 		for f in filtered:
 			guild = f['gid']
 			self.linkfilter[guild] = f['enabled'] or []
-		malware = await aiohttp.ClientSession().get('https://mirror.cedia.org.ec/malwaredomains/justdomains')
-		malware = await malware.text()
-		self.malware = list(filter(None, malware.split('\n')))
+		query = 'SELECT * FROM aliases;'
+		aliases = await self.bot.db.fetch(query)
+		self.bot.aliases['hasalias'] = []
+		for a in aliases:
+			self.bot.aliases['hasalias'].append(a['uid'])
+			for al in a['aliases']:
+				self.bot.aliases[al] = a['uid']
+		try:
+			malware = await aiohttp.ClientSession().get('https://mirror.cedia.org.ec/malwaredomains/justdomains')
+			malware = await malware.text()
+			self.malware = list(filter(None, malware.split('\n')))
+		except Exception as e:
+			self.bot.logger.error(f'$REDFailed to fetch malware domains!', exc_info=e)
+			self.malware = []
 		await self.loadInvites()
 
 	async def loadInvites(self, gid: int = None):
@@ -273,8 +284,8 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_ready(self):
 		self.bot.ksoft.register_ban_hook(self.ksoft_ban_hook)
-		await self.loadSettings()
-		await self.loadInvites()
+		# await self.loadSettings()
+		# await self.loadInvites()
 
 	@commands.command(name='loadsettings', description='Load settings', hidden=True)
 	async def loadthesettings(self, ctx):
@@ -2246,3 +2257,4 @@ class settings(commands.Cog, name="Settings"):
 
 def setup(bot):
 	bot.add_cog(settings(bot))
+	bot.logger.info(f'$GREENLoaded Settings/Events cog!')

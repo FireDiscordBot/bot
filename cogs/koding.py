@@ -20,7 +20,6 @@ from discord.ext import commands, flags
 import json
 import re
 
-print("koding.py has been loaded")
 
 class koding(commands.Cog, name="Koding's Custom Features"):
 	def __init__(self, bot):
@@ -82,3 +81,4 @@ class koding(commands.Cog, name="Koding's Custom Features"):
 
 def setup(bot):
 	bot.add_cog(koding(bot))
+	bot.logger.info(f'$GREENLoaded Koding\'s custom features!')

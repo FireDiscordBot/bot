@@ -23,7 +23,6 @@ import discord
 import aiohttp
 import json
 
-print("wta.py has been loaded")
 
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
@@ -88,3 +87,4 @@ class mcs(commands.Cog, name="Minecraft Saturdays"):
 
 def setup(bot):
 	bot.add_cog(mcs(bot))
+	bot.logger.info(f'$GREENLoaded Minecraft Saturdays cog!')

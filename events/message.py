@@ -46,6 +46,7 @@ class Message(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(Message(bot))
+        bot.logger.info(f'$GREENLoaded event $BLUEMessage!')
     except Exception as e:
-        errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        print(f'Error while adding cog "Message";\n{errortb}')
+        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
+        bot.logger.error(f'$REDError while loading event $BLUE"Message"', exc_info=e)

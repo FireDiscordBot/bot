@@ -303,7 +303,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 	@tempmuteChecker.after_loop
 	async def after_tempmuteChecker(self):
-		print('"tempmuteChecker" Task ended.')
+		self.bot.logger.warn(f'$YELLOWTempmute checker has stopped!')
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
@@ -320,13 +320,13 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						except discord.HTTPException:
 							pass
 
-	@commands.Cog.listener()
-	async def on_ready(self):
-		await asyncio.sleep(15)
-		await self.loadMutes()
-		await self.loadwarns()
-		await self.loadmodlogs()
-		print('Moderation loaded!')
+	# @commands.Cog.listener()
+	# async def on_ready(self):
+	# 	await asyncio.sleep(15)
+	# 	await self.loadMutes()
+	# 	await self.loadwarns()
+	# 	await self.loadmodlogs()
+	# 	print('Moderation loaded!')
 
 	@commands.command(name='loadmod', description='Load moderation data', hidden=True)
 	async def loadmod(self, ctx):
@@ -954,3 +954,4 @@ class Moderation(commands.Cog, name="Mod Commands"):
 								
 def setup(bot):
 	bot.add_cog(Moderation(bot))
+	bot.logger.info(f'$GREENLoaded Moderation cog!')

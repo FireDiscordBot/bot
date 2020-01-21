@@ -22,7 +22,6 @@ import aiohttp
 import json
 import uuid
 
-print("sk1erdiscord.py has been loaded")
 
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
@@ -189,3 +188,4 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 
 def setup(bot):
 	bot.add_cog(sk1ercog(bot))
+	bot.logger.info(f'$GREENLoaded cog for discord.gg/sk1er!')
