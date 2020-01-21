@@ -56,5 +56,7 @@ class ColoredFormatter(logging.Formatter):
         if self.use_color and levelname in COLORS:
             levelname_color = COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
             record.levelname = levelname_color
-            record.msg = record.msg.replace("$BOLD", BOLD_SEQ).replace("$GREEN", getcolor("GREEN")).replace("$BLUE", getcolor("BLUE")).replace("$RED", getcolor("RED")).replace("$YELLOW", getcolor("YELLOW"))
+            record.msg = record.msg.replace("$BOLD", BOLD_SEQ).replace("$RESET", RESET_SEQ).replace("$GREEN", getcolor("GREEN")).replace("$BLUE", getcolor("BLUE")).replace("$RED", getcolor("RED")).replace("$YELLOW", getcolor("YELLOW"))
+        elif not self.use_color:
+            record.msg = record.msg.replace("$BOLD", "").replace("$RESET", "").replace("$GREEN", "").replace("$BLUE", "").replace("$RED", "").replace("$YELLOW", "")
         return logging.Formatter.format(self, record)
