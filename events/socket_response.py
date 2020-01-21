@@ -15,16 +15,17 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from discord.ext import commands
+from discord.ext import commands, tasks
 import datetime
 import discord
 import traceback
+import json
 
 
 class socketResponse(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.bot.socketstats = {}
+        self.bot.socketstats = json.load(open('socketstats.json'))
 
     @commands.Cog.listener()
     async def on_socket_response(self, payload):
@@ -40,6 +41,11 @@ class socketResponse(commands.Cog):
             self.bot.socketstats[t] = 1
         else:
             self.bot.socketstats[t] += 1
+
+    @tasks.loop(minutes=2)
+    async def saveSocketStats(self):
+        with open('socketstats.json', 'w') as f:
+            f.write(json.dumps(self.bot.socketstats))
 
 
 def setup(bot):
