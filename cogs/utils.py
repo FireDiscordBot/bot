@@ -702,8 +702,12 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name='Info Commands', value=f'> {ctx.prefix}info guild | Get\'s info about the guild\n> {ctx.prefix}info user [<user>] | Get\'s info about you or another user\n> {ctx.prefix}info role [<role>] | Get\'s info about your top role or another role', inline=False)
 		await ctx.send(embed=embed)
 
-	@infogroup.command(description='Check out the guild\'s info', aliases=['server'])
+	@commands.command(description='Check out the guild\'s info', aliases=['server'])
 	async def guild(self, ctx):
+		await self.infoguild.invoke(ctx)
+
+	@infogroup.command(description='Check out the guild\'s info', aliases=['server'])
+	async def infoguild(self, ctx):
 		'''PFXinfo guild'''
 		guild = ctx.guild
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
@@ -747,8 +751,12 @@ class utils(commands.Cog, name='Utility Commands'):
 			await ctx.send(embed=embed)
 			await ctx.send(embed=rolebed)
 
-	@infogroup.command(description='Check out a user\'s info')
+	@commands.command(description='Check out a user\'s info')
 	async def user(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
+		await self.infouser.invoke(ctx)
+
+	@infogroup.command(description='Check out a user\'s info')
+	async def infouser(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
 		'''PFXinfo user [<user>]'''
 		if not user:
 			user = ctx.author
