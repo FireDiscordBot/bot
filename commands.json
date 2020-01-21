@@ -431,7 +431,7 @@
         "name": "Info",
         "commands": {
             "user": {
-                "Description": "Get a general overview of a user",
+                "Description": "Get a general overview of a user. (Trust idea taken from Aero, https://aero.bot/ created by Ravy, https://ravy.xyz/)",
                 "Usage": "{prefix}info user <user>",
                 "Aliases": null
             },

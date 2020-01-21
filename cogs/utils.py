@@ -790,7 +790,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					if user.id in self.bans[g] and guild.member_count >= 50:
 						guildbans += 1
 				if guildbans == 0:
-					lban = '<a:fireSuccess:603214443442077708> Banned in **0** guilds with Fire'
+					lban = '<a:fireSuccess:603214443442077708> Not banned in any guilds with Fire'
 				elif guildbans < 5:
 					trust = 'Moderate'
 					lban = f'<a:fireWarning:660148304486727730> Banned in **{guildbans}** guilds with Fire'
@@ -842,7 +842,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				plonk = f'<a:fireFailed:603214400748257302> Blacklisted from Fire'
 			else:
 				plonk = ''
-			embed.add_field(name=f'» Trust - {trust}', value='\n'.join([lban, gban, cwbl, plonk]), inline=False)
+			embed.add_field(name=f'» Trust - {trust} (Idea from Aero, aero.bot)', value='\n'.join([lban, gban, cwbl, plonk]), inline=False)
 		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		if ack:
 			embed.add_field(name='» Recognized User', value=', '.join(ack))
