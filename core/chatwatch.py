@@ -45,6 +45,8 @@ class chatwatch(commands.Cog):
     async def on_message(self, message):
         if not message.guild or not message.content or message.author.bot:
             return
+        if message.author.id == 478958908212379655: # amp
+            return
         ctx = await self.bot.get_context(message)
         if ctx.valid:
             return
