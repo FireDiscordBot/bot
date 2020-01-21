@@ -27,6 +27,7 @@ class socketResponse(commands.Cog):
         self.bot = bot
         if not hasattr(self.bot, 'socketstats'):
             self.bot.socketstats = json.load(open('socketstats.json'))
+        self.saveSocketStats.start()
 
     @commands.Cog.listener()
     async def on_socket_response(self, payload):
@@ -45,6 +46,7 @@ class socketResponse(commands.Cog):
 
     @tasks.loop(minutes=2)
     async def saveSocketStats(self):
+        self.bot.logger.info(f'$GREENSaving socket stats at $BLUE{datetime.datetime.utcnow()}')
         with open('socketstats.json', 'w') as f:
             f.write(json.dumps(self.bot.socketstats))
 
