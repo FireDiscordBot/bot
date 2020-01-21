@@ -25,7 +25,8 @@ import json
 class socketResponse(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.bot.socketstats = json.load(open('socketstats.json'))
+        if not hasattr(self.bot, 'socketstats'):
+            self.bot.socketstats = json.load(open('socketstats.json'))
 
     @commands.Cog.listener()
     async def on_socket_response(self, payload):
