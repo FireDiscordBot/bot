@@ -116,6 +116,7 @@ application.yml
 
 # other stuff
 bot.log
+bot.log.*
 logs/
 Soundboard/
 lavalink.jar
