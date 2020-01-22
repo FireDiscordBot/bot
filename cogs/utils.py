@@ -704,9 +704,12 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Check out the guild\'s info', aliases=['server'])
 	async def guild(self, ctx):
-		await self.infoguild.invoke(ctx)
+		alt_ctx = await copy_context_with(ctx, content=ctx.message.content.replace('guild ', 'info guild ')
+		if not alt_ctx.valid:
+			return
+		return await alt_ctx.command.reinvoke(alt_ctx)
 
-	@infogroup.command(description='Check out the guild\'s info', aliases=['server'])
+	@infogroup.command(name='guild', description='Check out the guild\'s info', aliases=['server'])
 	async def infoguild(self, ctx):
 		'''PFXinfo guild'''
 		guild = ctx.guild
@@ -753,9 +756,12 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Check out a user\'s info')
 	async def user(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
-		await self.infouser.invoke(ctx)
+		alt_ctx = await copy_context_with(ctx, content=ctx.message.content.replace('user ', 'info user ')
+		if not alt_ctx.valid:
+			return
+		return await alt_ctx.command.reinvoke(alt_ctx)
 
-	@infogroup.command(description='Check out a user\'s info')
+	@infogroup.command(name='user', description='Check out a user\'s info')
 	async def infouser(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
 		'''PFXinfo user [<user>]'''
 		if not user:
