@@ -319,7 +319,7 @@
             },
             "adminonly": {
                 "Description": "Set channels to restrict commands for admins",
-                "Usage": "{prefix}modonly [<**channels>]",
+                "Usage": "{prefix}adminonly [<**channels>]",
                 "Aliases": null
             },
             "joinmsg": {
