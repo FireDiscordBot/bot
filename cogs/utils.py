@@ -262,8 +262,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.reminders = {}
 		self.quotecooldowns = {}
 		asyncio.get_event_loop().create_task(self.loadvanitys())
-		asyncio.get_event_loop().create_task(self.loadfollowable())
-		asyncio.get_event_loop().create_task(self.loadfollows())
+		# asyncio.get_event_loop().create_task(self.loadfollowable())
+		# asyncio.get_event_loop().create_task(self.loadfollows())
 		asyncio.get_event_loop().create_task(self.loadtags())
 		asyncio.get_event_loop().create_task(self.loaddescs())
 		asyncio.get_event_loop().create_task(self.loadbans())
@@ -460,6 +460,8 @@ class utils(commands.Cog, name='Utility Commands'):
 
 
 	async def loadvanitys(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading vanity urls & redirects...')
 		self.bot.vanity_urls = {}
 		self.bot.redirects = {}
 		query = 'SELECT * FROM vanity;'
@@ -485,11 +487,15 @@ class utils(commands.Cog, name='Utility Commands'):
 					'url': f'https://oh-my-god.wtf/{code}',
 					'inviteurl': f'https://discord.gg/{invite}'
 				}
+		self.bot.logger.info(f'$GREENLoaded vanity urls & redirects!')
 		api = self.bot.get_cog('Fire API')
 		if api:
+			self.bot.logger.info(f'$YELLOWLoading redirect embeds...')
 			self.bot.loop.create_task(api.loadredirembed(self.bot.redirects))
 
 	async def loadtags(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading tags...')
 		self.tags = {}
 		query = 'SELECT * FROM tags;'
 		taglist = await self.bot.db.fetch(query)
@@ -500,19 +506,26 @@ class utils(commands.Cog, name='Utility Commands'):
 			if guild not in self.tags:
 				self.tags[guild] = {}
 			self.tags[guild][tagname] = content
+		self.bot.logger.info(f'$GREENLoaded tags!')
 
 	async def loaddescs(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading descriptions...')
 		self.bot.descriptions = {}
 		query = 'SELECT * FROM descriptions;'
 		descs = await self.bot.db.fetch(query)
 		for d in descs:
 			self.bot.descriptions[d['gid']] = d['desc']
+		self.bot.logger.info(f'$GREENLoaded descriptions!')
 
 	async def loadbans(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading bans...')
 		self.bans = {}
 		for g in [guild for guild in self.bot.guilds if guild.me.guild_permissions.ban_members]:
 			bans = await g.bans()
 			self.bans[g.id] = [b.user.id for b in bans]
+		self.bot.logger.info(f'$GREENLoaded bans!')
 
 	@commands.Cog.listener()
 	async def on_member_ban(self, guild, member):
@@ -527,6 +540,8 @@ class utils(commands.Cog, name='Utility Commands'):
 			self.bans[guild.id].remove(member.id)
 
 	async def loadremind(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading reminders...')
 		self.reminders = {}
 		query = 'SELECT * FROM remind;'
 		reminders = await self.bot.db.fetch(query)
@@ -537,6 +552,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			if user not in self.reminders:
 				self.reminders[user] = []
 			self.reminders[user].append({'for': forwhen, 'reminder': reminder})
+		self.bot.logger.info(f'$GREENLoaded reminders!')
 
 	async def deleteremind(self, uid: int, forwhen: int):
 		con = await self.bot.db.acquire()

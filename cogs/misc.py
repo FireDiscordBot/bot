@@ -30,9 +30,9 @@ class misc(commands.Cog, name="Miscellaneous"):
 		asyncio.get_event_loop().create_task(self.loadutils())
 
 	async def loadutils(self):
-		self.bot.logger.info(f'$GREENLoading prefixes...')
+		self.bot.logger.info(f'$YELLOWLoading prefixes...')
 		self.bot.prefixes = await self.loadprefixes()
-		self.bot.logger.info(f'$GREENLoading blacklist...')
+		self.bot.logger.info(f'$YELLOWLoading blacklist...')
 		self.bot.plonked = await self.loadplonked()
 
 	async def loadprefixes(self):
