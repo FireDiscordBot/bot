@@ -239,7 +239,7 @@ class settings(commands.Cog, name="Settings"):
 		self.bot.logger.info(f'$GREENFinished loading settings!')
 
 	async def loadAliases(self):
-		await self.bot.wait_intil_ready()
+		await self.bot.wait_until_ready()
 		self.bot.logger.info(f'$YELLOWLoading aliases...')
 		query = 'SELECT * FROM aliases;'
 		aliases = await self.bot.db.fetch(query)
