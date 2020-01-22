@@ -109,7 +109,6 @@ class settings(commands.Cog, name="Settings"):
 		if not hasattr(self.bot, 'invites'):
 			self.bot.invites = {}
 		self.bot.aliases = {}
-		self.bot.logger.info(f'$GREENLoading settings...')
 		asyncio.get_event_loop().create_task(self.loadSettings())
 		self.refreshInvites.start()
 
@@ -126,6 +125,7 @@ class settings(commands.Cog, name="Settings"):
 
 	async def loadSettings(self):
 		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading settings...')
 		self.logchannels = {}
 		self.linkfilter = {}
 		self.filterexcl = {}
@@ -227,13 +227,6 @@ class settings(commands.Cog, name="Settings"):
 		for f in filtered:
 			guild = f['gid']
 			self.linkfilter[guild] = f['enabled'] or []
-		query = 'SELECT * FROM aliases;'
-		aliases = await self.bot.db.fetch(query)
-		self.bot.aliases['hasalias'] = []
-		for a in aliases:
-			self.bot.aliases['hasalias'].append(a['uid'])
-			for al in a['aliases']:
-				self.bot.aliases[al.lower()] = a['uid']
 		try:
 			malware = await aiohttp.ClientSession().get('https://mirror.cedia.org.ec/malwaredomains/justdomains')
 			malware = await malware.text()
@@ -242,7 +235,20 @@ class settings(commands.Cog, name="Settings"):
 			self.bot.logger.error(f'$REDFailed to fetch malware domains!', exc_info=e)
 			self.malware = []
 		await self.loadInvites()
+		await self.loadAliases()
 		self.bot.logger.info(f'$GREENFinished loading settings!')
+
+	async def loadAliases(self):
+		await self.bot.wait_intil_ready()
+		self.bot.logger.info(f'$YELLOWLoading aliases...')
+		query = 'SELECT * FROM aliases;'
+		aliases = await self.bot.db.fetch(query)
+		self.bot.aliases['hasalias'] = []
+		for a in aliases:
+			self.bot.aliases['hasalias'].append(a['uid'])
+			for al in a['aliases']:
+				self.bot.aliases[al.lower()] = a['uid']
+		self.bot.logger.info(f'$GREENLoaded aliases!')
 
 	async def loadInvites(self, gid: int = None):
 		if not gid:
