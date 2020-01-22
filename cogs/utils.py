@@ -102,19 +102,35 @@ def quote_embed(context_channel, message, user):
 			lines = []
 			embed = discord.Embed(timestamp=message.created_at)
 			if message.system_content:
-				msg = message.system_content.split('\n')
+				urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg)))'
+				search = re.search(urlre, message.system_content)
+				if search and not message.attachments:
+					msg = message.system_content.replace(search.group(0), '').split('\n')
+					embed.set_image(url=search.group(0))
+				else:
+					msg = message.system_content.split('\n')
 				for line in msg:
-					lines.append(f'> {line}')
-				embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
+					if line:
+						lines.append(f'> {line}')
+				if lines:
+					embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
 			embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
 		else:
 			embed = discord.Embed(color=message.author.color, timestamp=message.created_at)
 			lines = []
 			if message.system_content:
-				msg = message.system_content.split('\n')
+				urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg)))'
+				search = re.search(urlre, message.system_content)
+				if search and not message.attachments:
+					msg = message.system_content.replace(search.group(0), '').split('\n')
+					embed.set_image(url=search.group(0))
+				else:
+					msg = message.system_content.split('\n')
 				for line in msg:
-					lines.append(f'> {line}')
-				embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
+					if line:
+						lines.append(f'> {line}')
+				if lines:
+					embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
 			embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
 		if message.attachments:
 			if message.channel.is_nsfw() and not context_channel.is_nsfw():
