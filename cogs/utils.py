@@ -102,7 +102,7 @@ def quote_embed(context_channel, message, user):
 			lines = []
 			embed = discord.Embed(timestamp=message.created_at)
 			if message.system_content:
-				urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg)))'
+				urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.gif)))'
 				search = re.search(urlre, message.system_content)
 				if search and not message.attachments:
 					msg = message.system_content.replace(search.group(0), '').split('\n')
@@ -119,7 +119,7 @@ def quote_embed(context_channel, message, user):
 			embed = discord.Embed(color=message.author.color, timestamp=message.created_at)
 			lines = []
 			if message.system_content:
-				urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg)))'
+				urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.gif)))'
 				search = re.search(urlre, message.system_content)
 				if search and not message.attachments:
 					msg = message.system_content.replace(search.group(0), '').split('\n')
