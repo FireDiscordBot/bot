@@ -875,7 +875,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		if ack:
 			embed.add_field(name='» Recognized User', value=', '.join(ack), inline=False)
-		if user.id in self.bot.aliases.get('hasalias', []) and any(a in ctx.message.content for a in [b for b in self.bot.aliases if b != 'hasalias' and self.bot.aliases[b] == user.id]):
+		if user.id in self.bot.aliases.get('hasalias', []) and any(ctx.message.content.endswith(f'info user {a}') for a in [b for b in self.bot.aliases if b != 'hasalias' and self.bot.aliases[b] == user.id]):
 			aliases = [a for a in self.bot.aliases if a != 'hasalias' and self.bot.aliases[a] == user.id]
 			embed.add_field(name='» Aliases', value=', '.join(aliases) + '\n\nNot the right user? Use their name and discriminator, id or mention to bypass aliases', inline=False)
 		await ctx.send(embed=embed)
