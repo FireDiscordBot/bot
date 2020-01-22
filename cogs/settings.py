@@ -231,7 +231,7 @@ class settings(commands.Cog, name="Settings"):
 		for a in aliases:
 			self.bot.aliases['hasalias'].append(a['uid'])
 			for al in a['aliases']:
-				self.bot.aliases[al] = a['uid']
+				self.bot.aliases[al.lower()] = a['uid']
 		try:
 			malware = await aiohttp.ClientSession().get('https://mirror.cedia.org.ec/malwaredomains/justdomains')
 			malware = await malware.text()

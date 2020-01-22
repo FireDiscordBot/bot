@@ -730,7 +730,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name="» Features", value=features, inline=False)
 		roles = []
 		for role in guild.roles:
-			elif role.is_default():
+			if role.is_default():
 				pass
 			else:
 				roles.append(role.mention)
@@ -754,7 +754,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			color = ctx.author.color
 		elif type(user) == discord.Member:
 			color = user.color
-		if ctx.guild.get_member(user.id):
+		if ctx.guild and ctx.guild.get_member(user.id):
 			user = ctx.guild.get_member(user.id)
 		badge = ''
 		for guild in self.bot.guilds:
@@ -762,7 +762,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				badge = discord.utils.get(self.bot.emojis, name='PartnerShine')
 		embed = discord.Embed(title=f'{user} ({user.id})', colour=color, timestamp=datetime.datetime.utcnow())
 		embed.set_thumbnail(url=str(user.avatar_url_as(static_format='png', size=2048)))
-		if type(user) == discord.Member:
+		if ctx.guild and type(user) == discord.Member:
 			members = sorted(ctx.guild.members, key=lambda m: m.joined_at or m.created_at)
 			embed.add_field(name="» Join Position", value=members.index(user) + 1, inline=False)
 		embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - user.created_at, max_units=2) + ' ago', inline=False)
@@ -842,7 +842,10 @@ class utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name=f'» Trust - {trust} (Idea from Aero, aero.bot)', value='\n'.join([lban, gban, cwbl, plonk]), inline=False)
 		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		if ack:
-			embed.add_field(name='» Recognized User', value=', '.join(ack))
+			embed.add_field(name='» Recognized User', value=', '.join(ack), inline=False)
+		if user.id in self.bot.aliases['hasalias'] and any(a in ctx.message.content for a in [b for b in self.bot.aliases if b != 'hasalias' and self.bot.aliases[b] == user.id]):
+			aliases = [a for a in self.bot.aliases if a != 'hasalias' and self.bot.aliases[a] == user.id]
+			embed.add_field(name='» Aliases', value=', '.join(aliases) + '\n\nNot the right user? Use their name and discriminator, id or mention to bypass aliases', inline=False)
 		await ctx.send(embed=embed)
 
 	@infogroup.command(description='Check out a role\'s info')
