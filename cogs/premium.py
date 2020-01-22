@@ -56,13 +56,18 @@ class Premium(commands.Cog, name="Premium Commands"):
 		asyncio.get_event_loop().create_task(self.loadRolePersist())
 
 	async def loadPremiumGuilds(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading premium guilds...')
 		self.premiumGuilds = []
 		query = 'SELECT * FROM premium;'
 		guilds = await self.bot.db.fetch(query)
 		for guild in guilds:
 			self.premiumGuilds.append(guild['gid'])
+		self.bot.logger.info(f'$GREENLoaded premium guilds!')
 
 	async def loadAutoroles(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading autoroles...')
 		self.autoroles = {}
 		query = 'SELECT * FROM settings;'
 		settings = await self.bot.db.fetch(query)
@@ -72,6 +77,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				self.autoroles[guild] = {
 					"role": s['autorole']
 				}
+		self.bot.logger.info(f'$GREENLoaded autoroles!')
 
 	# async def loadReactroles(self):
 	# 	self.reactroles = {}
@@ -87,6 +93,8 @@ class Premium(commands.Cog, name="Premium Commands"):
 	# 			}
 
 	async def loadJoinRoles(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading ranks...')
 		self.joinroles = {}
 		query = 'SELECT * FROM joinableranks;'
 		ranks = await self.bot.db.fetch(query)
@@ -95,8 +103,11 @@ class Premium(commands.Cog, name="Premium Commands"):
 			if guild not in self.joinroles:
 				self.joinroles[guild] = []
 			self.joinroles[guild].append(r['rid'])
+		self.bot.logger.info(f'$GREENLoaded ranks!')
 
 	async def loadRolePersist(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading role persists...')
 		self.rolepersists = {}
 		query = 'SELECT * FROM rolepersist;'
 		persists = await self.bot.db.fetch(query)
@@ -113,6 +124,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				self.rolepersists[guild][user] = {
 					"role": role
 				}
+		self.bot.logger.info(f'$GREENLoaded role persists!')
 
 	async def cog_check(self, ctx: commands.Context):
 		"""
