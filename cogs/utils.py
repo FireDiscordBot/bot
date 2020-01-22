@@ -704,7 +704,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Check out the guild\'s info', aliases=['server'])
 	async def guild(self, ctx):
-		alt_ctx = await copy_context_with(ctx, content=ctx.message.content.replace('guild ', 'info guild ')
+		alt_ctx = await copy_context_with(ctx, content=ctx.message.content.replace('guild ', 'info guild '))
 		if not alt_ctx.valid:
 			return
 		return await alt_ctx.command.reinvoke(alt_ctx)
@@ -756,7 +756,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Check out a user\'s info')
 	async def user(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
-		alt_ctx = await copy_context_with(ctx, content=ctx.message.content.replace('user ', 'info user ')
+		alt_ctx = await copy_context_with(ctx, content=ctx.message.content.replace('user ', 'info user '))
 		if not alt_ctx.valid:
 			return
 		return await alt_ctx.command.reinvoke(alt_ctx)
