@@ -319,7 +319,7 @@
             },
             "adminonly": {
                 "Description": "Set channels to restrict commands for admins",
-                "Usage": "{prefix}modonly [<**channels>]",
+                "Usage": "{prefix}adminonly [<**channels>]",
                 "Aliases": null
             },
             "joinmsg": {
@@ -443,7 +443,7 @@
             "guild": {
                 "Description": "Get a general overview of the guild",
                 "Usage": "{prefix}info guild",
-                "Aliases": "server"
+                "Aliases": "info server"
             }
         }
     },

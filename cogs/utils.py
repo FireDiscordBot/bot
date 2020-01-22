@@ -102,19 +102,35 @@ def quote_embed(context_channel, message, user):
 			lines = []
 			embed = discord.Embed(timestamp=message.created_at)
 			if message.system_content:
-				msg = message.system_content.split('\n')
+				urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.gif)))'
+				search = re.search(urlre, message.system_content)
+				if search and not message.attachments:
+					msg = message.system_content.replace(search.group(0), '').split('\n')
+					embed.set_image(url=search.group(0))
+				else:
+					msg = message.system_content.split('\n')
 				for line in msg:
-					lines.append(f'> {line}')
-				embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
+					if line:
+						lines.append(f'> {line}')
+				if lines:
+					embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
 			embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
 		else:
 			embed = discord.Embed(color=message.author.color, timestamp=message.created_at)
 			lines = []
 			if message.system_content:
-				msg = message.system_content.split('\n')
+				urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.gif)))'
+				search = re.search(urlre, message.system_content)
+				if search and not message.attachments:
+					msg = message.system_content.replace(search.group(0), '').split('\n')
+					embed.set_image(url=search.group(0))
+				else:
+					msg = message.system_content.split('\n')
 				for line in msg:
-					lines.append(f'> {line}')
-				embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
+					if line:
+						lines.append(f'> {line}')
+				if lines:
+					embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
 			embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
 		if message.attachments:
 			if message.channel.is_nsfw() and not context_channel.is_nsfw():
@@ -246,8 +262,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.reminders = {}
 		self.quotecooldowns = {}
 		asyncio.get_event_loop().create_task(self.loadvanitys())
-		asyncio.get_event_loop().create_task(self.loadfollowable())
-		asyncio.get_event_loop().create_task(self.loadfollows())
+		# asyncio.get_event_loop().create_task(self.loadfollowable())
+		# asyncio.get_event_loop().create_task(self.loadfollows())
 		asyncio.get_event_loop().create_task(self.loadtags())
 		asyncio.get_event_loop().create_task(self.loaddescs())
 		asyncio.get_event_loop().create_task(self.loadbans())
@@ -444,6 +460,8 @@ class utils(commands.Cog, name='Utility Commands'):
 
 
 	async def loadvanitys(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading vanity urls & redirects...')
 		self.bot.vanity_urls = {}
 		self.bot.redirects = {}
 		query = 'SELECT * FROM vanity;'
@@ -469,11 +487,15 @@ class utils(commands.Cog, name='Utility Commands'):
 					'url': f'https://oh-my-god.wtf/{code}',
 					'inviteurl': f'https://discord.gg/{invite}'
 				}
+		self.bot.logger.info(f'$GREENLoaded vanity urls & redirects!')
 		api = self.bot.get_cog('Fire API')
 		if api:
+			self.bot.logger.info(f'$YELLOWLoading redirect embeds...')
 			self.bot.loop.create_task(api.loadredirembed(self.bot.redirects))
 
 	async def loadtags(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading tags...')
 		self.tags = {}
 		query = 'SELECT * FROM tags;'
 		taglist = await self.bot.db.fetch(query)
@@ -484,19 +506,26 @@ class utils(commands.Cog, name='Utility Commands'):
 			if guild not in self.tags:
 				self.tags[guild] = {}
 			self.tags[guild][tagname] = content
+		self.bot.logger.info(f'$GREENLoaded tags!')
 
 	async def loaddescs(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading descriptions...')
 		self.bot.descriptions = {}
 		query = 'SELECT * FROM descriptions;'
 		descs = await self.bot.db.fetch(query)
 		for d in descs:
 			self.bot.descriptions[d['gid']] = d['desc']
+		self.bot.logger.info(f'$GREENLoaded descriptions!')
 
 	async def loadbans(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading bans...')
 		self.bans = {}
 		for g in [guild for guild in self.bot.guilds if guild.me.guild_permissions.ban_members]:
 			bans = await g.bans()
 			self.bans[g.id] = [b.user.id for b in bans]
+		self.bot.logger.info(f'$GREENLoaded bans!')
 
 	@commands.Cog.listener()
 	async def on_member_ban(self, guild, member):
@@ -511,6 +540,8 @@ class utils(commands.Cog, name='Utility Commands'):
 			self.bans[guild.id].remove(member.id)
 
 	async def loadremind(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading reminders...')
 		self.reminders = {}
 		query = 'SELECT * FROM remind;'
 		reminders = await self.bot.db.fetch(query)
@@ -521,6 +552,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			if user not in self.reminders:
 				self.reminders[user] = []
 			self.reminders[user].append({'for': forwhen, 'reminder': reminder})
+		self.bot.logger.info(f'$GREENLoaded reminders!')
 
 	async def deleteremind(self, uid: int, forwhen: int):
 		con = await self.bot.db.acquire()
@@ -702,8 +734,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name='Info Commands', value=f'> {ctx.prefix}info guild | Get\'s info about the guild\n> {ctx.prefix}info user [<user>] | Get\'s info about you or another user\n> {ctx.prefix}info role [<role>] | Get\'s info about your top role or another role', inline=False)
 		await ctx.send(embed=embed)
 
-	@infogroup.command(description='Check out the guild\'s info', aliases=['server'])
-	async def guild(self, ctx):
+	@infogroup.command(name='guild', description='Check out the guild\'s info', aliases=['server'])
+	async def infoguild(self, ctx):
 		'''PFXinfo guild'''
 		guild = ctx.guild
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
@@ -730,11 +762,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name="» Features", value=features, inline=False)
 		roles = []
 		for role in guild.roles:
-			if role.managed:
-				pass
-			elif 'ACK' in role.name and guild.id == 564052798044504084:
-				pass
-			elif role.is_default():
+			if role.is_default():
 				pass
 			else:
 				roles.append(role.mention)
@@ -747,8 +775,8 @@ class utils(commands.Cog, name='Utility Commands'):
 			await ctx.send(embed=embed)
 			await ctx.send(embed=rolebed)
 
-	@infogroup.command(description='Check out a user\'s info')
-	async def user(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
+	@infogroup.command(name='user', description='Check out a user\'s info')
+	async def infouser(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
 		'''PFXinfo user [<user>]'''
 		if not user:
 			user = ctx.author
@@ -758,7 +786,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			color = ctx.author.color
 		elif type(user) == discord.Member:
 			color = user.color
-		if ctx.guild.get_member(user.id):
+		if ctx.guild and ctx.guild.get_member(user.id):
 			user = ctx.guild.get_member(user.id)
 		badge = ''
 		for guild in self.bot.guilds:
@@ -766,7 +794,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				badge = discord.utils.get(self.bot.emojis, name='PartnerShine')
 		embed = discord.Embed(title=f'{user} ({user.id})', colour=color, timestamp=datetime.datetime.utcnow())
 		embed.set_thumbnail(url=str(user.avatar_url_as(static_format='png', size=2048)))
-		if type(user) == discord.Member:
+		if ctx.guild and type(user) == discord.Member:
 			members = sorted(ctx.guild.members, key=lambda m: m.joined_at or m.created_at)
 			embed.add_field(name="» Join Position", value=members.index(user) + 1, inline=False)
 		embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - user.created_at, max_units=2) + ' ago', inline=False)
@@ -846,7 +874,10 @@ class utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name=f'» Trust - {trust} (Idea from Aero, aero.bot)', value='\n'.join([lban, gban, cwbl, plonk]), inline=False)
 		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		if ack:
-			embed.add_field(name='» Recognized User', value=', '.join(ack))
+			embed.add_field(name='» Recognized User', value=', '.join(ack), inline=False)
+		if user.id in self.bot.aliases.get('hasalias', []) and any(a in ctx.message.content for a in [b for b in self.bot.aliases if b != 'hasalias' and self.bot.aliases[b] == user.id]):
+			aliases = [a for a in self.bot.aliases if a != 'hasalias' and self.bot.aliases[a] == user.id]
+			embed.add_field(name='» Aliases', value=', '.join(aliases) + '\n\nNot the right user? Use their name and discriminator, id or mention to bypass aliases', inline=False)
 		await ctx.send(embed=embed)
 
 	@infogroup.command(description='Check out a role\'s info')

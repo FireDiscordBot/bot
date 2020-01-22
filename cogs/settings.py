@@ -109,6 +109,7 @@ class settings(commands.Cog, name="Settings"):
 		if not hasattr(self.bot, 'invites'):
 			self.bot.invites = {}
 		self.bot.aliases = {}
+		self.bot.logger.info(f'$GREENLoading settings...')
 		asyncio.get_event_loop().create_task(self.loadSettings())
 		self.refreshInvites.start()
 
@@ -124,6 +125,7 @@ class settings(commands.Cog, name="Settings"):
 		self.refreshInvites.cancel()
 
 	async def loadSettings(self):
+		await self.bot.wait_until_ready()
 		self.logchannels = {}
 		self.linkfilter = {}
 		self.filterexcl = {}
@@ -231,7 +233,7 @@ class settings(commands.Cog, name="Settings"):
 		for a in aliases:
 			self.bot.aliases['hasalias'].append(a['uid'])
 			for al in a['aliases']:
-				self.bot.aliases[al] = a['uid']
+				self.bot.aliases[al.lower()] = a['uid']
 		try:
 			malware = await aiohttp.ClientSession().get('https://mirror.cedia.org.ec/malwaredomains/justdomains')
 			malware = await malware.text()
@@ -240,6 +242,7 @@ class settings(commands.Cog, name="Settings"):
 			self.bot.logger.error(f'$REDFailed to fetch malware domains!', exc_info=e)
 			self.malware = []
 		await self.loadInvites()
+		self.bot.logger.info(f'$GREENFinished loading settings!')
 
 	async def loadInvites(self, gid: int = None):
 		if not gid:

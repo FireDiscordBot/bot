@@ -245,4 +245,4 @@ def setup(bot):
 		bot.add_cog(Assistant(bot))
 		bot.logger.info(f'$GREENLoaded Google Assistant cog!')
 	else:
-		bot.logger.error('$REDCoudln\'t connect to Google Assistant!')
+		bot.logger.error('$REDCouldn\'t connect to Google Assistant!')
