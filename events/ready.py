@@ -27,8 +27,6 @@ class Ready(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        misc = self.bot.get_cog("Miscellaneous")
-        await misc.loadutils()
         try:
             self.bot.load_extension("cogs.sk1erdiscord")
         except Exception:

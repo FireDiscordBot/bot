@@ -9,8 +9,6 @@ import logging
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
-logging.basicConfig(filename='bot.log',level=logging.INFO)
-
 class DiscordBotsOrgAPI(commands.Cog):
 	"""Handles interactions with the discordbots.org API"""
 
