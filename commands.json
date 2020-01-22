@@ -433,7 +433,7 @@
             "user": {
                 "Description": "Get a general overview of a user. (Trust idea taken from Aero, https://aero.bot/ created by Ravy, https://ravy.xyz/)",
                 "Usage": "{prefix}info user <user>",
-                "Aliases": "{alias}user"
+                "Aliases": null
             },
             "role": {
                 "Description": "Get a general overview of a role",
@@ -443,7 +443,7 @@
             "guild": {
                 "Description": "Get a general overview of the guild",
                 "Usage": "{prefix}info guild",
-                "Aliases": "{alias}info server, server"
+                "Aliases": "{alias}info server"
             }
         }
     },

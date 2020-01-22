@@ -702,13 +702,6 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name='Info Commands', value=f'> {ctx.prefix}info guild | Get\'s info about the guild\n> {ctx.prefix}info user [<user>] | Get\'s info about you or another user\n> {ctx.prefix}info role [<role>] | Get\'s info about your top role or another role', inline=False)
 		await ctx.send(embed=embed)
 
-	@commands.command(description='Check out the guild\'s info', aliases=['server'])
-	async def guild(self, ctx):
-		alt_ctx = await copy_context_with(ctx, content=ctx.message.content.replace('guild ', 'info guild '))
-		if not alt_ctx.valid:
-			return
-		return await alt_ctx.command.reinvoke(alt_ctx)
-
 	@infogroup.command(name='guild', description='Check out the guild\'s info', aliases=['server'])
 	async def infoguild(self, ctx):
 		'''PFXinfo guild'''
@@ -737,10 +730,6 @@ class utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name="» Features", value=features, inline=False)
 		roles = []
 		for role in guild.roles:
-			if role.managed:
-				pass
-			elif 'ACK' in role.name and guild.id == 564052798044504084:
-				pass
 			elif role.is_default():
 				pass
 			else:
@@ -753,13 +742,6 @@ class utils(commands.Cog, name='Utility Commands'):
 			rolebed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Roles**\n{roles}')
 			await ctx.send(embed=embed)
 			await ctx.send(embed=rolebed)
-
-	@commands.command(description='Check out a user\'s info')
-	async def user(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
-		alt_ctx = await copy_context_with(ctx, content=ctx.message.content.replace('user ', 'info user '))
-		if not alt_ctx.valid:
-			return
-		return await alt_ctx.command.reinvoke(alt_ctx)
 
 	@infogroup.command(name='user', description='Check out a user\'s info')
 	async def infouser(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
