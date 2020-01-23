@@ -1220,7 +1220,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if '--remind' in message.content.lower():
 			content = message.content.lower().replace(' --remind', '').replace('--remind ', '').replace('--remind', '') # Make sure --remind is replaced with space before, after, both or none
 			ctx = await self.bot.get_context(message)
-			alt_ctx = await copy_context_with(ctx, content=self.bot.prefixes[message.guild.id] + f'remind {content}')
+			alt_ctx = await copy_context_with(ctx, content=self.bot.prefixes.get(message.guild.id, 'fire ') + f'remind {content}')
 			if not alt_ctx.valid:
 				return
 			return await alt_ctx.command.reinvoke(alt_ctx)
