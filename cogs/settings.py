@@ -1001,7 +1001,7 @@ class settings(commands.Cog, name="Settings"):
 						return
 	@commands.Cog.listener()
 	async def on_chatwatch_blacklist(self, data: dict):
-		for guild in [g for g in self.bot.guilds if g.get_member(int(data['user']['user']))]:
+		for guild in [g for g in self.bot.guilds if g.get_member(int(data['user']['user'])) or g.id == 564052798044504084]:
 			logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
 			if logid:
 				logch = guild.get_channel(logid['modlogs'])
