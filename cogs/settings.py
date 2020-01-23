@@ -241,6 +241,7 @@ class settings(commands.Cog, name="Settings"):
 	async def loadAliases(self):
 		await self.bot.wait_until_ready()
 		self.bot.logger.info(f'$YELLOWLoading aliases...')
+		self.bot.aliases = {}
 		query = 'SELECT * FROM aliases;'
 		aliases = await self.bot.db.fetch(query)
 		self.bot.aliases['hasalias'] = []
