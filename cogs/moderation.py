@@ -103,10 +103,10 @@ class MuteCheck(commands.Converter):
 		else:
 			await ctx.send("<a:fireFailed:603214400748257302> The user was not muted.")
 			return False
-						
+
 class Moderation(commands.Cog, name="Mod Commands"):
 	"""Commands used to moderate your guild"""
-	
+
 	def __init__(self, bot):
 		self.bot = bot
 		self.mutes = {}
@@ -116,12 +116,14 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		asyncio.get_event_loop().create_task(self.loadwarns())
 		asyncio.get_event_loop().create_task(self.loadmodlogs())
 		self.tempmuteChecker.start()
-	
+
 	async def __error(self, ctx, error):
 		if isinstance(error, commands.BadArgument):
 			await ctx.send(discord.utils.escape_mentions(discord.utils.escape_markdown(error)))
 
 	async def loadMutes(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading mutes...')
 		self.mutes = {}
 		query = 'SELECT * FROM mutes;'
 		mutes = await self.bot.db.fetch(query)
@@ -135,7 +137,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				until = m['until'] if 'until' in m else False
 				user = m['uid']
 				if guild in self.mutes:
-					self.mutes[guild][user] = {						
+					self.mutes[guild][user] = {
 						"uid": user,
 						"gid": guild,
 						"until": until
@@ -202,8 +204,11 @@ class Moderation(commands.Cog, name="Mod Commands"):
 								await user.add_roles(muted, reason='Muted.')
 							except discord.HTTPException:
 								pass
+		self.bot.logger.info(f'$GREENLoaded mutes!')
 
 	async def loadwarns(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading warns...')
 		self.warns = {}
 		query = 'SELECT * FROM modlogs WHERE type = $1;'
 		warns = await self.bot.db.fetch(query, 'warn')
@@ -218,15 +223,18 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				currentuserwarns = self.warns[guild][user]
 			except KeyError:
 				self.warns[guild][user] = []
-			self.warns[guild][user].append({						
+			self.warns[guild][user].append({
 				"uid": user,
 				"gid": guild,
 				"reason": w['reason'],
 				"date": w['date'],
 				"caseid": w['caseid']
 			})
-			
+		self.bot.logger.info(f'$GREENLoaded warns!')
+
 	async def loadmodlogs(self):
+		await self.bot.wait_until_ready()
+		self.bot.logger.info(f'$YELLOWLoading modlogs...')
 		self.modlogs = {}
 		query = 'SELECT * FROM modlogs;'
 		logs = await self.bot.db.fetch(query)
@@ -241,7 +249,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				currentuserlogs = self.modlogs[guild][user]
 			except KeyError:
 				self.modlogs[guild][user] = []
-			self.modlogs[guild][user].append({						
+			self.modlogs[guild][user].append({
 				"uid": user,
 				"gid": guild,
 				"type": l['type'],
@@ -249,6 +257,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				"date": l['date'],
 				"caseid": l['caseid']
 			})
+		self.bot.logger.info(f'$GREENLoaded modlogs')
 
 	def cog_unload(self):
 		self.tempmuteChecker.cancel()
