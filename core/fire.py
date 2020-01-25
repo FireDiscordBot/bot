@@ -88,24 +88,25 @@ class Fire(commands.Bot):
 
     def loadCommands(self):
         try:
-            self.load_extension('core.chatwatch')
+            raise Exception('Chatwatch is temporarily disabled')
+            # self.load_extension('core.chatwatch')
         except Exception as e:
             # errortb = ''.join(traceback.format_exception(
             #     type(e), e, e.__traceback__))
-            self.bot.logger.error(f'$REDError while loading $BLUEChatwatch', exc_info=e)
+            self.logger.error(f'$REDError while loading $BLUEChatwatch', exc_info=e)
         try:
             self.load_extension('jishaku')
         except Exception as e:
             # errortb = ''.join(traceback.format_exception(
             #     type(e), e, e.__traceback__))
-            self.bot.logger.error(f'$REDError while loading $BLUEJishaku', exc_info=e)
+            self.logger.error(f'$REDError while loading $BLUEJishaku', exc_info=e)
         for ext in resolve_extensions(self, 'commands.*'):
             try:
                 self.load_extension(ext)
             except Exception as e:
                 # errortb = ''.join(traceback.format_exception(
                 #     type(e), e, e.__traceback__))
-                self.bot.logger.error(f'Error while loading $BLUE{ext}', exc_info=e)
+                self.logger.error(f'Error while loading $BLUE{ext}', exc_info=e)
 
     def loadEvents(self):
         for ext in resolve_extensions(self, 'events.*'):
@@ -114,7 +115,7 @@ class Fire(commands.Bot):
             except Exception as e:
                 # errortb = ''.join(traceback.format_exception(
                 #     type(e), e, e.__traceback__))
-                self.bot.logger.error(f'$REDError while loading {ext}', exc_info=e)
+                self.logger.error(f'$REDError while loading {ext}', exc_info=e)
 
     def sentry_exc(self, error: commands.CommandError, userscope: dict, exclevel: str, extra: dict):
         with push_scope() as scope:
@@ -135,7 +136,7 @@ class Fire(commands.Bot):
     # async def loadPermissions(self):
     #     self.permissions = {}
     #     query = 'SELECT * FROM permissions;'
-    #     perms = await self.bot.db.fetch(query)
+    #     perms = await self.db.fetch(query)
     #     for p in perms:
     #         permcat = p['category']
     #         if permcat == 'guild':
