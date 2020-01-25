@@ -34,7 +34,7 @@ async def get_pre(bot, message):
     return commands.when_mentioned_or(prefix, 'fire ')(bot, message)
 
 
-bot = Fire(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="inv.wtf/fire"), case_insensitive=True, owner_id=287698408855044097)
+bot = Fire(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="inv.wtf/fire"), case_insensitive=True, owner_id=287698408855044097, max_messages=8000)
 
 extensions = [
     "cogs.misc",

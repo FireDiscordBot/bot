@@ -1464,31 +1464,31 @@ class settings(commands.Cog, name="Settings"):
 						await logch.send(embed=embed)
 					except Exception:
 						pass
-			# if before.self_stream != after.self_stream:
-			# 	if after.self_stream:
-			# 		if after.channel:
-			# 			embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **went live in {after.channel.name}**')
-			# 			embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
-			# 		else:
-			# 			embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **went live**')
-			# 			embed.set_footer(text=f"Member ID: {member.id}")
-			# 		embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-			# 		try:
-			# 			await logch.send(embed=embed)
-			# 		except Exception:
-			# 			pass
-			# 	elif not after.self_stream:
-			# 		if after.channel:
-			# 			embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **stopped being live in {after.channel.name}**')
-			# 			embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
-			# 		else:
-			# 			embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **stopped being live**')
-			# 			embed.set_footer(text=f"Member ID: {member.id}")
-			# 		embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-			# 		try:
-			# 			await logch.send(embed=embed)
-			# 		except Exception:
-			# 			pass
+			if before.self_stream != after.self_stream:
+				if after.self_stream:
+					if after.channel:
+						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **went live in {after.channel.name}**')
+						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
+					else:
+						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **went live**')
+						embed.set_footer(text=f"Member ID: {member.id}")
+					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
+				elif not after.self_stream:
+					if after.channel:
+						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **stopped being live in {after.channel.name}**')
+						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
+					else:
+						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **stopped being live**')
+						embed.set_footer(text=f"Member ID: {member.id}")
+					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 			if before.channel != after.channel:
 				if before.channel and after.channel:
 					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **switched voice channel**')
