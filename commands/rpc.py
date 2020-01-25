@@ -16,11 +16,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from jishaku.paginators import WrappedPaginator, PaginatorInterface
+from fire.converters import Member
 from discord.ext import commands
 from core.context import Context
+import humanfriendly
+import traceback
 import datetime
 import discord
-import traceback
+import asyncio
 
 
 class richPresence(commands.Cog):
@@ -143,7 +146,7 @@ class richPresence(commands.Cog):
             elif isinstance(activity, discord.CustomActivity):
                 embed = self.getCustomStatus(member, activity)
             elif type(activity) == discord.Activity:
-                embed = self.getGenericActivity(member, activity):
+                embed = self.getGenericActivity(member, activity)
             if embed:
                 if MSG:
                     await MSG.edit(embed=embed)
