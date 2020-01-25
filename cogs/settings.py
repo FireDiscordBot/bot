@@ -110,9 +110,22 @@ class settings(commands.Cog, name="Settings"):
 			self.bot.invites = {}
 		self.bot.aliases = {}
 		asyncio.get_event_loop().create_task(self.loadSettings())
+		self.refreshInvites.start()
 
 	def clean(self, text: str):
 		return re.sub(r'[^A-Za-z0-9.\/ ]', '', text, 0, re.MULTILINE)
+
+	@tasks.loop(minutes=2)
+	async def refreshInvites(self):
+		for gid in self.bot.get_cog('Premium Commands').premiumGuilds:
+			await self.loadInvites(gid)
+
+	def cog_unload(self):
+		self.refreshInvites.cancel()
+
+	@refreshInvites.after_loop
+	async def after_refreshInvites(self):
+		self.bot.logger.warn(f'$YELLOWInvite refresher has stopped!')
 
 	async def loadSettings(self):
 		await self.bot.wait_until_ready()
@@ -1676,6 +1689,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_invite_create(self, invite: discord.Invite):
+		self.bot.logger.info(f'$GREENInvite created, $BLUE{invite}')
 		guild = invite.guild
 		if guild.id in self.bot.get_cog('Premium Commands').premiumGuilds:
 			self.bot.invites.get(guild.id, {})[invite.code] = 0
