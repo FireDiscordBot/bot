@@ -88,8 +88,8 @@ class Fire(commands.Bot):
 
     def loadCommands(self):
         try:
-            raise Exception('Chatwatch is temporarily disabled')
-            # self.load_extension('core.chatwatch')
+            # raise Exception('Chatwatch is temporarily disabled')
+            self.load_extension('core.chatwatch')
         except Exception as e:
             # errortb = ''.join(traceback.format_exception(
             #     type(e), e, e.__traceback__))
