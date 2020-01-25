@@ -982,6 +982,9 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_ksoft_ban(self, event):
+		user = self.bot.get_user(event.user_id)
+		mod = self.bot.get_user(event.moderator_id)
+		self.bot.logger.warn(f'$BLUE{event.user_id} ({user}) $YELLOWwas banned on KSoft for $BLUE{event.reason} $YELLOWby $BLUE{event.moderator_id} ({mod})$YELLOW. Proof: $BLUE{event.proof}')
 		for guild in self.bot.guilds:
 			if guild.id in self.gbancheck:
 				logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
@@ -1005,6 +1008,8 @@ class settings(commands.Cog, name="Settings"):
 						return
 	@commands.Cog.listener()
 	async def on_chatwatch_blacklist(self, data: dict):
+		user = self.bot.get_user(int(data['user']['user']))
+		self.bot.logger.warn(f'$BLUE{user} $YELLOWwas blacklisted on Chatwatch for $BLUE{data["user"]["blacklisted_reason"]}')
 		for guild in [g for g in self.bot.guilds if g.get_member(int(data['user']['user'])) or g.id == 564052798044504084]:
 			logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
 			if logid:
