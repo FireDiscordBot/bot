@@ -3,15 +3,15 @@ MIT License
 Copyright (c) 2020 GamingGeek
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software without restriction, 
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
+and associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
 subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
@@ -110,18 +110,9 @@ class settings(commands.Cog, name="Settings"):
 			self.bot.invites = {}
 		self.bot.aliases = {}
 		asyncio.get_event_loop().create_task(self.loadSettings())
-		self.refreshInvites.start()
 
 	def clean(self, text: str):
 		return re.sub(r'[^A-Za-z0-9.\/ ]', '', text, 0, re.MULTILINE)
-
-	@tasks.loop(minutes=2)
-	async def refreshInvites(self):
-		for gid in self.bot.get_cog('Premium Commands').premiumGuilds:
-			await self.loadInvites(gid)
-
-	def cog_unload(self):
-		self.refreshInvites.cancel()
 
 	async def loadSettings(self):
 		await self.bot.wait_until_ready()
@@ -673,6 +664,7 @@ class settings(commands.Cog, name="Settings"):
 		if type(message.author) != discord.Member:
 			return
 		if '- manga game 18+ - limited time offer - free lifetime access!' in message.content.lower():
+			# bye stupid idot losers who keep posting this shit in Sk1er's Discord
 			try:
 				await message.guild.ban(message.author, reason='Attempted to post a malicious link')
 				await message.channel.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(message.author)))}** has been banished from {discord.utils.escape_mentions(discord.utils.escape_markdown(message.guild.name))}.")
@@ -1677,6 +1669,66 @@ class settings(commands.Cog, name="Settings"):
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{member} was unbanned**')
 			embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 			embed.set_footer(text=f"Member ID: {member.id}")
+			try:
+				await logch.send(embed=embed)
+			except Exception:
+				pass
+
+	@commands.Cog.listener()
+	async def on_invite_create(self, invite: discord.Invite):
+		guild = invite.guild
+		if guild.id in self.bot.get_cog('Premium Commands').premiumGuilds:
+			self.bot.invites.get(guild.id, {})[invite.code] = 0
+		if not isinstance(guild, discord.Guild):
+			return
+		logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
+		if logid:
+			logch = guild.get_channel(logid['actionlogs'])
+		else:
+			return
+		if logch:
+			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**An invite was created**')
+			embed.set_author(name=guild.name, icon_url=str(guild.icon_url_as(static_format='png', size=2048)))
+			embed.add_field(name='Invite Code', value=invite.code, inline=False)
+			embed.add_field(name='Max Uses', value=invite.max_uses, inline=False)
+			embed.add_field(name='Temporary', value=invite.temporary, inline=False)
+			if invite.temporary:
+				delta = datetime.datetime.utcnow() + datetime.timedelta(seconds=invite.max_age)
+				if isinstance(delta, datetime.timedelta):
+					embed.add_field(name='Expires in', value=humanfriendly.format_timespan(delta), inline=False)
+			if isinstance(invite.channel, discord.abc.GuildChannel):
+				embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
+			if invite.inviter:
+				embed.set_footer(text=f'Created by: {invite.inviter} ({invite.inviter.id})')
+			try:
+				await logch.send(embed=embed)
+			except Exception:
+				pass
+
+	@commands.Cog.listener()
+	async def on_invite_delete(self, invite: discord.Invite):
+		guild = invite.guild
+		if guild.id in self.bot.get_cog('Premium Commands').premiumGuilds:
+			self.bot.invites.get(guild.id, {}).pop(invite.code, 'lmao')
+		if not isinstance(guild, discord.Guild):
+			return
+		whodidit = None
+		async for a in guild.audit_logs(limit=10):
+			if isinstace(a.action, discord.AuditLogAction.invite_delete) and a.target.code == invite.code:
+				whodidit = a.user
+		logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
+		if logid:
+			logch = guild.get_channel(logid['actionlogs'])
+		else:
+			return
+		if logch:
+			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**An invite was deleted**')
+			embed.set_author(name=guild.name, icon_url=str(guild.icon_url_as(static_format='png', size=2048)))
+			embed.add_field(name='Invite Code', value=invite.code, inline=False)
+			if isinstance(invite.channel, discord.abc.GuildChannel):
+				embed.add_field(name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
+			if whodidit:
+				embed.set_footer(text=f'Deleted by: {whodidit} ({whodidit.id})')
 			try:
 				await logch.send(embed=embed)
 			except Exception:
