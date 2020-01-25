@@ -56,7 +56,7 @@ class richPresence(commands.Cog):
         else:
             embed.add_field(name='Title', value=activity.name, inline=False)
             embed.add_field(name='Twitch Name', value=activity.twitch_name, inline=False)
-            if activity.details != None:
+            if activity.details is not None:
                 embed.add_field(name='Game', value=activity.game or 'Unknown', inline=False)
             embed.add_field(name='URL', value=f'[{activity.twitch_name}]({activity.url})', inline=False)
         return embed
@@ -95,7 +95,7 @@ class richPresence(commands.Cog):
 
     def getGenericActivity(self, member: discord.Member, activity: discord.Activity):
         embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow())
-        if activity.small_image_url != None:
+        if activity.small_image_url is not None:
             embed.set_author(name=f'{member}\'s Game Info', icon_url=activity.small_image_url)
         else:
             embed.set_author(name=f'{member}\'s Game Info')
@@ -104,19 +104,19 @@ class richPresence(commands.Cog):
         elapsed = None
         if activity.start:
             elapsed = humanfriendly.format_timespan(now - activity.start)
-        if activity.details != None and activity.state != None and elapsed != None:
+        if activity.details is not None and activity.state is not None and elapsed is not None:
             embed.add_field(name='Details', value=f'{activity.details}\n{activity.state}\n{elapsed} elapsed', inline=False)
-        elif activity.state != None and elapsed != None:
+        elif activity.state is not None and elapsed is not None:
             embed.add_field(name='Details', value=f'{activity.state}\n{elapsed} elapsed', inline=False)
-        elif activity.details != None and elapsed != None:
+        elif activity.details is not None and elapsed is not None:
             embed.add_field(name='Details', value=f'{activity.details}\n{elapsed} elapsed', inline=False)
-        elif activity.details != None and activity.state != None and elapsed == None:
+        elif activity.details is not None and activity.state is not None and elapsed is None:
             embed.add_field(name='Details', value=f'{activity.details}\n{activity.state}', inline=False)
-        elif activity.state != None and elapsed == None:
+        elif activity.state is not None and elapsed is None:
             embed.add_field(name='Details', value=f'{activity.state}', inline=False)
-        elif activity.details != None and elapsed == None:
+        elif activity.details is not None and elapsed is None:
             embed.add_field(name='Details', value=f'{activity.details}', inline=False)
-        if activity.large_image_url != None:
+        if activity.large_image_url is not None:
             embed.set_thumbnail(url=activity.large_image_url)
         return embed
 
@@ -133,7 +133,7 @@ class richPresence(commands.Cog):
                 await self.rpcReactController(ctx, member, MSG, ACT - 1)
             activity = None
         embed = None
-        if activity != None:
+        if activity is not None:
             if isinstance(activity, discord.Spotify):
                 embed = self.getSpotify(member, activity)
             elif isinstance(activity, discord.Streaming):
@@ -153,17 +153,21 @@ class richPresence(commands.Cog):
                     await self.rpcReactController(ctx, member, MSG, ACT)
                 else:
                     MSG = await ctx.send(embed=embed)
+                    try:
+                        await MSG.add_reaction('⏹')
+                        await MSG.add_reaction('◀')
+                        await MSG.add_reaction('▶')
+                    except discord.HTTPException:
+                        return
                     await self.rpcReactController(ctx, member, MSG, ACT)
             else:
-                await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))} doesn\'t seem to be playing something with rich presence integration...')
+                if ACT == 0:
+                    await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))} doesn\'t seem to be playing something with rich presence integration...')
         else:
-            await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))} doesn\'t seem to be playing something with rich presence integration...')
+            if ACT == 0:
+                await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))} doesn\'t seem to be playing something with rich presence integration...')
 
     async def rpcReactController(self, ctx: Context, member: discord.Member, MSG: discord.Message, ACT: int):
-        await MSG.add_reaction('⏹')
-        await MSG.add_reaction('◀')
-        await MSG.add_reaction('▶')
-
         def react_check(reaction, user):
             return user.id == ctx.author.id
         try:
@@ -171,7 +175,7 @@ class richPresence(commands.Cog):
         except asyncio.TimeoutError:
             return
         if reaction.emoji == '⏹':
-            await MSG.delete()
+            return await MSG.delete()
         elif reaction.emoji == '◀':
             try:
                 await MSG.remove_reaction('◀', ctx.author)
