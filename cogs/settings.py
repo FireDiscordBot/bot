@@ -342,8 +342,7 @@ class settings(commands.Cog, name="Settings"):
 		if type(after.author) != discord.Member:
 			return
 		if after.channel.type == discord.ChannelType.news and after.author.permissions_in(after.channel).manage_messages:
-			raw = await self.bot.http.get_message(after.channel.id, after.id)
-			if raw.get('flags') == 1:
+			if before.flags.crossposted != after.flags.crossposted:
 				logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
 				if logid:
 					logch = after.guild.get_channel(logid['actionlogs'])
@@ -1160,7 +1159,7 @@ class settings(commands.Cog, name="Settings"):
 			if member.bot:
 				try:
 					async for e in member.guild.audit_logs(limit=10):
-						if e.action == 28 and e.target.id == member.id:
+						if isinstance(e.action, discord.AuditLogAction.bot_add) and e.target.id == member.id:
 							embed.add_field(name='Invited By', value=f'{e.user} ({e.user.id})', inline=False)
 							break
 				except Exception as e:
