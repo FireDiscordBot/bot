@@ -1018,6 +1018,8 @@ class settings(commands.Cog, name="Settings"):
 				continue
 			if logch:
 				member = guild.get_member(int(data['user']['user']))
+				if not member and guild.id == 564052798044504084:
+					member = user
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was blacklisted on Chatwatch**')
 				embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='Reason', value=data['user']['blacklisted_reason'], inline=False)
