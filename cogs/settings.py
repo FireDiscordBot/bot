@@ -37,14 +37,6 @@ from fire.twitter import findtwitter
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
-def isadmin(ctx):
-	"""Checks if the author is an admin"""
-	if str(ctx.author.id) not in config['admins']:
-		admin = False
-	else:
-		admin = True
-	return admin
-
 def byteify(input):
 	if isinstance(input, dict):
 		return {byteify(key): byteify(value)
@@ -59,6 +51,7 @@ def byteify(input):
 # byteify example
 # byteify(json.loads(u"[ 'A','B','C' , ' D']".replace('\'','"')))
 # may have a use in the future ¯\_(ツ)_/¯
+# I forget what I added this for lmao, should've put a usecase in this comment
 
 watchedcmds = ['purge']
 region = {
