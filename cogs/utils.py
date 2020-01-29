@@ -189,6 +189,7 @@ permissions = {
 
 dehoistchars = 'abcdefghijklmnopqrstuvwxyz'
 
+month_regex = re.compile(r'(?:me in |in )?(?:(?P<months>\d+)(?:mo|months|month| months| month))(?: about | that )?')
 day_regex = re.compile(r'(?:me in |in )?(?:(?P<days>\d+)(?:d|days|day| days| day))(?: about | that )?')
 hour_regex = re.compile(r'(?:me in |in )?(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))(?: about | that )?')
 min_regex = re.compile(r'(?:me in |in )?(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))(?: about | that )?')
@@ -196,10 +197,11 @@ sec_regex = re.compile(r'(?:me in |in )?(?:(?P<seconds>\d+)(?:s|seconds|second| 
 
 def parseTime(content, replace: bool = False):
 	if replace:
-		for regex in [r'(?:me in |in )?(?:(?P<days>\d+)(?:d|days|day| days| day))(?: about | that )?', r'(?:me in |in )?(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))(?: about | that )?', r'(?:me in |in )?(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))(?: about | that )?', r'(?:me in |in )?(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))(?: about | that )?']:
+		for regex in [r'(?:me in |in )?(?:(?P<months>\d+)(?:mo|months|month| months| month))(?: about | that )?', r'(?:me in |in )?(?:(?P<days>\d+)(?:d|days|day| days| day))(?: about | that )?', r'(?:me in |in )?(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))(?: about | that )?', r'(?:me in |in )?(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))(?: about | that )?', r'(?:me in |in )?(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))(?: about | that )?']:
 			content = re.sub(regex, '', content, 0, re.MULTILINE)
 		return content
 	try:
+		months = month_regex.search(content)
 		days = day_regex.search(content)
 		hours = hour_regex.search(content)
 		minutes = min_regex.search(content)
@@ -207,7 +209,8 @@ def parseTime(content, replace: bool = False):
 	except Exception:
 		return 0, 0, 0, 0
 	time = 0
-	if days or hours or minutes or seconds:
+	if months or days or hours or minutes or seconds:
+		months = months.group(1) if months != None else 0
 		days = days.group(1) if days != None else 0
 		hours = hours.group(1) if hours != None else 0
 		minutes = minutes.group(1) if minutes != None else 0
@@ -215,6 +218,8 @@ def parseTime(content, replace: bool = False):
 		days = int(days) if days else 0
 		if not days:
 			days = 0
+		if months:
+			days += int(months)*30 if months else 0
 		hours = int(hours) if hours else 0
 		if not hours:
 			hours = 0
@@ -1530,9 +1535,9 @@ class utils(commands.Cog, name='Utility Commands'):
 		if not days and not hours and not minutes and not seconds:
 			return await ctx.error('Invalid format. Please provide a time')
 		forwhen = datetime.datetime.utcnow() + datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours)
-		limit = datetime.datetime.utcnow() + datetime.timedelta(days=15)
+		limit = datetime.datetime.utcnow() + datetime.timedelta(days=32) # 32 to account for extra time on 31st day, e.g. 31 days 2 hours
 		if forwhen > limit and not await self.bot.is_team_owner(ctx.author):
-			return await ctx.error('Reminders currently cannot be set for more than 7 days')
+			return await ctx.error('Reminders currently cannot be set for more than 1 month (31 days)')
 		if ctx.author.id not in self.reminders:
 			try:
 				await ctx.author.send('Hey, I\'m just checking to see if I can DM you as this is where I will send your reminder :)')
@@ -1545,7 +1550,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			await self.bot.db.execute(query, ctx.author.id, forwhen.timestamp(), reminder)
 		await self.bot.db.release(con)
 		await self.loadremind()
-		return await ctx.success('Reminder set!')
+		return await ctx.success(f'Reminder set for {humanfriendly.format_timespan(datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours))} from now')
 
 	@commands.command(description='Creates a vanity invite for your Discord using https://oh-my-god.wtf/')
 	@commands.has_permissions(manage_guild=True)
