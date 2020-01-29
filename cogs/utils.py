@@ -788,11 +788,16 @@ class utils(commands.Cog, name='Utility Commands'):
 			color = user.color
 		if ctx.guild and ctx.guild.get_member(user.id):
 			user = ctx.guild.get_member(user.id)
-		badge = ''
+		badges = [u'\u200b']
 		for guild in self.bot.guilds:
 			if guild.owner_id == user.id and 'PARTNERED' in guild.features:
-				badge = discord.utils.get(self.bot.emojis, name='PartnerShine')
-		embed = discord.Embed(title=f'{user} ({user.id})', colour=color, timestamp=datetime.datetime.utcnow())
+				badges.append(str(discord.utils.get(self.bot.emojis, id=631831109575114752)))
+		if self.bot.isadmin(user):
+			badges.append(str(discord.utils.get(self.bot.emojis, id=671243744774848512)))
+		if len(badges) > 1:
+			embed = discord.Embed(title=f'{user} ({user.id})', colour=color, timestamp=datetime.datetime.utcnow(), description=''.join(badges))
+		else:
+			embed = discord.Embed(title=f'{user} ({user.id})', colour=color, timestamp=datetime.datetime.utcnow())
 		embed.set_thumbnail(url=str(user.avatar_url_as(static_format='png', size=2048)))
 		if ctx.guild and type(user) == discord.Member:
 			members = sorted(ctx.guild.members, key=lambda m: m.joined_at or m.created_at)
