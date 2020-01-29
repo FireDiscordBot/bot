@@ -693,7 +693,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await self.loadwarns()
 		await self.loadmodlogs()
 
-	@commands.command(description="View warnings for a user")
+	@commands.command(description="View warnings for a user", aliases=['warns'])
 	@commands.has_permissions(manage_messages=True)
 	async def warnings(self, ctx, user: UserWithFallback = None):
 		"""PFXwarnings <user>"""
