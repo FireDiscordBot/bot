@@ -125,12 +125,18 @@ class richPresence(commands.Cog):
         if not member:
             member = ctx.author
         if ACT == -1:
-            await self.rpcReactController(ctx, member, MSG, 0)
+            try:
+                await self.rpcReactController(ctx, member, MSG, 0)
+            except discord.NotFound:
+                return
         try:
             activity = member.activities[ACT]
         except IndexError:
             if ACT != 0:
-                await self.rpcReactController(ctx, member, MSG, ACT - 1)
+                try:
+                    await self.rpcReactController(ctx, member, MSG, ACT - 1)
+                except discord.NotFound:
+                    return
             activity = None
         embed = None
         if activity is not None:
@@ -150,7 +156,10 @@ class richPresence(commands.Cog):
             if embed:
                 if MSG:
                     await MSG.edit(embed=embed)
-                    await self.rpcReactController(ctx, member, MSG, ACT)
+                    try:
+                        await self.rpcReactController(ctx, member, MSG, ACT)
+                    except discord.NotFound:
+                        return
                 else:
                     MSG = await ctx.send(embed=embed)
                     try:
@@ -159,7 +168,10 @@ class richPresence(commands.Cog):
                         await MSG.add_reaction('▶')
                     except discord.HTTPException:
                         return
-                    await self.rpcReactController(ctx, member, MSG, ACT)
+                    try:
+                        await self.rpcReactController(ctx, member, MSG, ACT)
+                    except discord.NotFound:
+                        return
             else:
                 if ACT == 0:
                     await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))} doesn\'t seem to be playing something with rich presence integration...')
@@ -173,7 +185,7 @@ class richPresence(commands.Cog):
         try:
             reaction, user = await self.bot.wait_for('reaction_add', check=react_check, timeout=120)
         except asyncio.TimeoutError:
-            return
+            return await MSG.clear_reactions()
         if reaction.emoji == '⏹':
             return await MSG.delete()
         elif reaction.emoji == '◀':

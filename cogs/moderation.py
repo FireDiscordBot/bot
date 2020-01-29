@@ -444,13 +444,16 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			except discord.Forbidden:
 				return
 
-			
+
 	@commands.command(aliases=["banish", "begone", "gtfo", "410", "perish", "bonk", "bean"], description="Ban a user from the server")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(ban_members=True)
 	async def ban(self, ctx, user: typing.Union[StaffCheck, UserWithFallback] = None, *, reason: str = "No Reason Provided.", ):
 		"""PFXban <user> [<reason>]"""
-		await ctx.message.delete()
+		try:
+			await ctx.message.delete()
+		except Exception:
+			pass
 		await ctx.trigger_typing()
 		if user == False:
 			return
@@ -501,7 +504,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(ban_members=True)
 	async def unban(self, ctx, user: UserWithFallback = None, *, reason: str = "No Reason Provided."):
 		"""PFXunban <user> [<reason>]"""
-		await ctx.message.delete()
+		try:
+			await ctx.message.delete()
+		except Exception:
+			pass
 		await ctx.trigger_typing()
 
 		if not user:
@@ -537,7 +543,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(ban_members=True)
 	async def softban(self, ctx, user: StaffCheck = None, messages: int = 7, *, reason = "No Reason Provided."):
 		"""PFXsoftban <user> <amount of days: 1-7> [<reason>]"""
-		await ctx.message.delete()
+		try:
+			await ctx.message.delete()
+		except Exception:
+			pass
 		await ctx.trigger_typing()
 		if user == False:
 			return
@@ -602,7 +611,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def mutecmd(self, ctx, user: StaffCheck, *, reason: str = "No Reason Provided."):
 		"""PFXmute <user> [<time> <reason>]\n\nTime format: `1d 2h 3m 4s` == `1 day, 2 hours, 3 minutes and 4 seconds`"""
-		await ctx.message.delete()
+		try:
+			await ctx.message.delete()
+		except Exception:
+			pass
 		if user == False:
 			return
 		if not user:
@@ -634,7 +646,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def warn(self, ctx, user: Member = None, *, reason = None):
 		"""PFXwarn <user> <reason>"""
 		await ctx.trigger_typing()
-		await ctx.message.delete()
+		try:
+			await ctx.message.delete()
+		except Exception:
+			pass
 
 		if not user:
 			return await ctx.send("You must specify a user")
@@ -678,7 +693,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await self.loadwarns()
 		await self.loadmodlogs()
 
-	@commands.command(description="View warnings for a user")
+	@commands.command(description="View warnings for a user", aliases=['warns'])
 	@commands.has_permissions(manage_messages=True)
 	async def warnings(self, ctx, user: UserWithFallback = None):
 		"""PFXwarnings <user>"""
@@ -756,7 +771,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def kick(self, ctx, user: StaffCheck = None, *, reason = "No Reason Provided."):
 		"""PFXkick <user> [<reason>]"""
 		await ctx.trigger_typing()
-		await ctx.message.delete()
+		try:
+			await ctx.message.delete()
+		except Exception:
+			pass
 		if user == False:
 			return
 
@@ -803,7 +821,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unmute(self, ctx, user: MuteCheck):
 		"""PFXunmute <user>"""
-		await ctx.message.delete()
+		try:
+			await ctx.message.delete()
+		except Exception:
+			pass
 		if not user:
 			return
 		await ctx.trigger_typing()
