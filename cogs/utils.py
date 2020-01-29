@@ -57,14 +57,6 @@ with open('config.json', 'r') as cfg:
 	error_string = '<a:fireFailed:603214400748257302>'
 	success_string = '<a:fireSuccess:603214443442077708>'
 
-def isadmin(ctx):
-	'''Checks if the author is an admin'''
-	if str(ctx.author.id) not in config['admins']:
-		admin = False
-	else:
-		admin = True
-	return admin
-
 snipes = {}
 esnipes = {}
 disabled = [264445053596991498, 110373943822540800, 336642139381301249, 458341246453415947]
@@ -646,8 +638,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='plonk', description='Add someone to the blacklist', hidden=True)
 	async def blacklist_add(self, ctx, user: UserWithFallback = None, reason: str = 'bad boi', permanent: bool = False):
-		'''PFXbl.add <user> [<reason>] <perm: true/false>'''
-		if not isadmin(ctx):
+		if not self.bot.isadmin(ctx.author):
 			return
 		if user == None:
 			await ctx.send('You need to provide a user to add to the blacklist!')
@@ -685,8 +676,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='unplonk', description='Remove someone from the blacklist', hidden=True)
 	async def blacklist_remove(self, ctx, user: UserWithFallback = None):
-		'''PFXbl.remove <user>'''
-		if not isadmin(ctx):
+		if not self.bot.isadmin(ctx.author):
 			return
 		if user == None:
 			await ctx.send('You need to provide a user to remove from the blacklist!')

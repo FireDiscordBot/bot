@@ -33,14 +33,6 @@ import os
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
-def isadmin(ctx):
-	"""Checks if the author is an admin"""
-	if str(ctx.author.id) not in config['admins']:
-		admin = False
-	else:
-		admin = True
-	return admin
-
 class Premium(commands.Cog, name="Premium Commands"):
 	def __init__(self, bot):
 		self.bot = bot
@@ -132,10 +124,9 @@ class Premium(commands.Cog, name="Premium Commands"):
 		"""
 		if ctx.guild.id in self.premiumGuilds:
 			return True
-		if await self.bot.is_team_owner(ctx.author):
+		if self.bot.isadmin(ctx.author):
 			return True
-		else:
-			return False
+		return False
 
 	async def member_guild_check(self, member: discord.Member):
 		return True

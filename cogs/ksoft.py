@@ -31,14 +31,6 @@ with open('config.json', 'r') as cfg:
 
 client = ksoftapi.Client(api_key=config['ksoft'])
 
-def isadmin(ctx):
-	"""Checks if the author is an admin"""
-	if str(ctx.author.id) not in config['admins']:
-		admin = False
-	else:
-		admin = True
-	return admin
-
 imgext = ('.png', '.jpg', '.jpeg', '.gif')
 
 class ksoft(commands.Cog, name="KSoft.SI API"):

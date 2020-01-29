@@ -52,14 +52,6 @@ def getconfig(path: str = None):
 
 config = getconfig()
 
-def isadmin(ctx):
-	"""Checks if the author is an admin"""
-	if str(ctx.author.id) not in getconfig('admins'):
-		admin = False
-	else:
-		admin = True
-	return admin
-
 class firecog(commands.Cog, name="Main Commands"):
 	def __init__(self, bot):
 		self.bot = bot
@@ -157,7 +149,7 @@ class firecog(commands.Cog, name="Main Commands"):
 	@commands.command(description="Shows you all the guilds I'm in.")
 	async def listguilds(self, ctx):
 		"""PFXlistguilds"""
-		if not isadmin(ctx):
+		if not self.bot.isadmin(ctx.author):
 			return
 		paginator = WrappedPaginator(prefix='```vbs', suffix='```', max_size=1500)
 		gcount = 1
