@@ -76,6 +76,8 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
+		if self.testrole in after.roles and after.id != 287698408855044097:
+			await after.remove_roles(self.testrole, reason='not geek')
 		if before.roles != after.roles:
 			broles = []
 			aroles = []
@@ -86,7 +88,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				aroles.append(role)
 			s = set(aroles)
 			removed = [x for x in broles if x not in s]
-			if self.nitro in removed or self.testrole in removed:
+			if self.nitro in removed or (self.testrole in removed and after.id == 287698408855044097):
 				if not self.bot.isascii(after.nick or after.name) or self.bot.ishoisted(after.nick or after.name):
 					await after.edit(nick=f'John Doe {after.discriminator}')
 				async with aiohttp.ClientSession(headers=self.gistheaders) as s:
