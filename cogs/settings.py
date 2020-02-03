@@ -395,7 +395,7 @@ class settings(commands.Cog, name="Settings"):
 				try:
 					ohmygod = False
 					self.bot.vanity_urls = await self.getvanitys()
-					vanitydomains = ['oh-my-god.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
+					vanitydomains = ['oh-my-god.wtf', 'inv.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
 					if code.lower() in self.bot.vanity_urls and any(d in message.system_content for d in vanitydomains):
 						invite = self.bot.getvanity(code)
 						ohmygod = True
@@ -723,7 +723,7 @@ class settings(commands.Cog, name="Settings"):
 				try:
 					ohmygod = False
 					self.bot.vanity_urls = await self.getvanitys()
-					vanitydomains = ['oh-my-god.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
+					vanitydomains = ['oh-my-god.wtf', 'inv.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
 					if code.lower() in self.bot.vanity_urls and any(d in message.system_content for d in vanitydomains):
 						invite = self.bot.getvanity(code)
 						ohmygod = True
