@@ -1037,7 +1037,8 @@ class settings(commands.Cog, name="Settings"):
 		channel = guild.get_channel(self.antiraid.get(guild.id, 0))
 		if channel:
 			try:
-				potential = await channel.send(f'There seems to be a raid going on. If that is correct, click the tick to ban.')
+				raidmentions = ', '.join([x.mention for x in raiders])
+				potential = await channel.send(f'There seems to be a raid going on. Here\'s the raiders I found\n{raidmentions}\n\nClick the tick to ban.')
 				firesuccess = discord.utils.get(self.bot.emojis, id=603214443442077708)
 				firefailed = discord.utils.get(self.bot.emojis, id=603214400748257302)
 				await potential.add_reaction(firesuccess)
