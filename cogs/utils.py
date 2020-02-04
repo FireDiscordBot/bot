@@ -54,8 +54,8 @@ launchtime = datetime.datetime.utcnow()
 
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
-	error_string = '<a:fireFailed:603214400748257302>'
-	success_string = '<a:fireSuccess:603214443442077708>'
+	error_string = '<:xmark:674359427830382603>'
+	success_string = '<:check:674359197378281472>'
 
 snipes = {}
 esnipes = {}
@@ -819,34 +819,34 @@ class utils(commands.Cog, name='Utility Commands'):
 					if user.id in self.bans[g] and guild.member_count >= 50:
 						guildbans += 1
 				if guildbans == 0:
-					lban = '<a:fireSuccess:603214443442077708> Not banned in any guilds with Fire'
+					lban = '<:check:674359197378281472> Not banned in any guilds with Fire'
 				elif guildbans < 5:
 					trust = 'Moderate'
 					lban = f'<a:fireWarning:660148304486727730> Banned in **{guildbans}** guilds with Fire'
 				elif guildbans >= 5:
 					trust = 'Low'
-					lban = f'<a:fireFailed:603214400748257302> Banned in **{guildbans}** guilds with Fire'
+					lban = f'<:xmark:674359427830382603> Banned in **{guildbans}** guilds with Fire'
 				if self.bot.isadmin(user):
 					trust = 'High'
-					lban = '<a:fireSuccess:603214443442077708> Hidden from guild ban check'
+					lban = '<:check:674359197378281472> Hidden from guild ban check'
 			else:
-				lban = f'<:neutral:667128324107272192> Guild bans not loaded'
+				lban = f'<:neutral:674359530074669076> Guild bans not loaded'
 			ksoftban = await self.bot.ksoft.bans_check(user.id)
 			if ksoftban:
 				trust = 'Low'
 				ksoftban = await self.bot.ksoft.bans_info(user.id)
-				gban = f'<a:fireFailed:603214400748257302> Banned on KSoft.Si for {ksoftban.reason} - [Proof]({ksoftban.proof})'
+				gban = f'<:xmark:674359427830382603> Banned on KSoft.Si for {ksoftban.reason} - [Proof]({ksoftban.proof})'
 			else:
-				gban = '<a:fireSuccess:603214443442077708> Not banned on KSoft.Si'
+				gban = '<:check:674359197378281472> Not banned on KSoft.Si'
 			if hasattr(self.bot, 'chatwatch') and self.bot.chatwatch.connected:
 				cwbl = ''
 				cwprofile = await self.bot.chatwatch.profile(user.id)
 				if not cwprofile:
-					cwbl = '<:neutral:667128324107272192> Failed to retrieve chatwatch profile'
+					cwbl = '<:neutral:674359530074669076> Failed to retrieve chatwatch profile'
 				else:
 					if cwprofile['score'] > 80:
 						trust = 'Low'
-						cwbl = f'<a:fireFailed:603214400748257302> **High** chance of spam'
+						cwbl = f'<:xmark:674359427830382603> **High** chance of spam'
 					elif cwprofile['score'] > 50:
 						if trust == 'High':
 							trust = 'Moderate'
@@ -854,21 +854,21 @@ class utils(commands.Cog, name='Utility Commands'):
 							trust = 'Low'
 						cwbl = f'<a:fireWarning:660148304486727730> **Moderate** chance of spam'
 					elif cwprofile['score'] == 50:
-						cwbl = '<:neutral:667128324107272192> **Neutral** chance of spam'
+						cwbl = '<:neutral:674359530074669076> **Neutral** chance of spam'
 					if cwprofile['whitelisted']:
-						cwbl = f'<a:fireSuccess:603214443442077708> **Whitelisted** on Chatwatch'
+						cwbl = f'<:check:674359197378281472> **Whitelisted** on Chatwatch'
 					elif cwprofile['blacklisted_reason'] and cwprofile['blacklisted']:
 						trust = 'Low'
-						cwbl = f'<a:fireFailed:603214400748257302> Blacklisted on Chatwatch for **{cwprofile["blacklisted_reason"]}**'
+						cwbl = f'<:xmark:674359427830382603> Blacklisted on Chatwatch for **{cwprofile["blacklisted_reason"]}**'
 					if not cwbl:
-						cwbl = f'<a:fireSuccess:603214443442077708> **Low** chance of spam'
+						cwbl = f'<:check:674359197378281472> **Low** chance of spam'
 					elif cwprofile['blacklisted_reason'] and not cwprofile['blacklisted']:
 						cwbl = cwbl + f' and was previously blacklisted for **{cwprofile["blacklisted_reason"]}**'
 			elif not hasattr(self.bot, 'chatwatch') or not self.bot.chatwatch.connected:
-				cwbl = '<:neutral:667128324107272192> Not connected to chatwatch'
+				cwbl = '<:neutral:674359530074669076> Not connected to chatwatch'
 			if hasattr(self.bot, 'plonked') and user.id in self.bot.plonked:
 				trust = 'Low'
-				plonk = f'<a:fireFailed:603214400748257302> Blacklisted from Fire'
+				plonk = f'<:xmark:674359427830382603> Blacklisted from Fire'
 			else:
 				plonk = ''
 			embed.add_field(name=f'» Trust - {trust} (Idea from Aero, aero.bot)', value='\n'.join([lban, gban, cwbl, plonk]), inline=False)
@@ -929,9 +929,9 @@ class utils(commands.Cog, name='Utility Commands'):
 			if c['group_id']:
 				continue
 			if c['status'] == 'operational':
-				desc.append(f'<a:fireSuccess:603214443442077708> **{c["name"]}**: {c["status"].replace("_", " ").title()}')
+				desc.append(f'<:check:674359197378281472> **{c["name"]}**: {c["status"].replace("_", " ").title()}')
 			else:
-				desc.append(f'<a:fireFailed:603214400748257302> **{c["name"]}**: {c["status"].replace("_", " ").title()}')
+				desc.append(f'<:xmark:674359427830382603> **{c["name"]}**: {c["status"].replace("_", " ").title()}')
 		embed = discord.Embed(color=colors[str(summary['status']['indicator'])], timestamp=datetime.datetime.utcnow(), description='\n'.join(desc))
 		incident = incidents['incidents'][0]
 		embed.add_field(name='Latest Incident', value=f'[{incident["name"]}]({incident["shortlink"]})\nStatus: **{incident["status"].capitalize()}**')
@@ -1160,7 +1160,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		try:
 			sniped_message = snipes[ctx.guild.id][source.id]
 		except KeyError:
-			return await ctx.send(content = '<a:fireFailed:603214400748257302> **No available messages.**')
+			return await ctx.send(content = '<:xmark:674359427830382603> **No available messages.**')
 		else:
 			await ctx.send(embed = snipe_embed(ctx.channel, sniped_message, ctx.author))
 
@@ -1182,7 +1182,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		try:
 			sniped_message = esnipes[ctx.guild.id][source.id]
 		except KeyError:
-			return await ctx.send(content = '<a:fireFailed:603214400748257302> **No available messages.**')
+			return await ctx.send(content = '<:xmark:674359427830382603> **No available messages.**')
 		else:
 			await ctx.send(embed = snipe_embed(ctx.channel, sniped_message, ctx.author, True))
 
@@ -1258,7 +1258,7 @@ class utils(commands.Cog, name='Utility Commands'):
 								await c.send(message.system_content)
 						await qmsg.delete()
 						await yee.delete()
-						return await message.channel.send('<a:fireSuccess:603214443442077708> Successfully sent your message to all followers!', delete_after=5)
+						return await message.channel.send('<:check:674359197378281472> Successfully sent your message to all followers!', delete_after=5)
 			except asyncio.TimeoutError:
 				try:
 					await qmsg.delete()
@@ -1340,7 +1340,7 @@ class utils(commands.Cog, name='Utility Commands'):
 									await message.channel.send(embed=quote_embed(message.channel, msg_found, message.author))
 								except discord.HTTPException as e:
 									if 'Must be 1024 or fewer in length.' in str(e):
-										return await message.channel.send('<a:fireFailed:603214400748257302> Failed to quote message, content too long')
+										return await message.channel.send('<:xmark:674359427830382603> Failed to quote message, content too long')
 								try:
 									self.quotecooldowns[message.guild.id].append(message.author.id)
 									await asyncio.sleep(20)

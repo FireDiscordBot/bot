@@ -80,7 +80,7 @@ class StaffCheck(commands.Converter):
 		if not permission:
 			return argument
 		else:
-			await ctx.send("<a:fireFailed:603214400748257302> You cannot punish other staff members")
+			await ctx.error("You cannot punish other staff members")
 			return False
 
 class StaffCheckNoMessage(commands.Converter):
@@ -101,7 +101,7 @@ class MuteCheck(commands.Converter):
 		if muted in argument.roles:
 			return argument
 		else:
-			await ctx.send("<a:fireFailed:603214400748257302> The user was not muted.")
+			await ctx.error("The user was not muted.")
 			return False
 
 class Moderation(commands.Cog, name="Mod Commands"):
@@ -374,13 +374,13 @@ class Moderation(commands.Cog, name="Mod Commands"):
 												read_message_history=False,
 												read_messages=False)
 			except discord.Forbidden:
-				return await ctx.send("<a:fireFailed:603214400748257302> I have no permissions to make a muted role")
+				return await ctx.error("I have no permissions to make a muted role")
 			await user.add_roles(muted)
 			if e:
 				await e.delete()
 		else:
 			await user.add_roles(muted)
-		await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been muted")
+		await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been muted")
 		try:
 			await user.send(f'You were muted in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
 			nodm = False
@@ -488,7 +488,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						await logch.send(embed=embed)
 					except Exception:
 						pass
-			await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been banished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
+			await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been banished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
 			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.bans'))
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -497,7 +497,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await self.bot.db.release(con)
 			await self.loadmodlogs()
 		except discord.Forbidden:
-			await ctx.send("<a:fireFailed:603214400748257302> Ban failed. Are you trying to ban someone higher than the bot?")
+			await ctx.error("Ban failed. Are you trying to ban someone higher than the bot?")
 
 	@commands.command(aliases=["unbanish"], description="Unban a user from the server")
 	@commands.has_permissions(manage_messages=True)
@@ -529,7 +529,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					await logch.send(embed=embed)
 				except Exception:
 					pass
-		await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unbanished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
+		await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unbanished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.unbans'))
 		con = await self.bot.db.acquire()
 		async with con.transaction():
@@ -577,7 +577,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					except Exception:
 						pass
 			await ctx.guild.unban(user, reason="Temporarily Banned")
-			await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been soft-banned.")
+			await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been soft-banned.")
 			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.softbans'))
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -586,7 +586,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await self.bot.db.release(con)
 			await self.loadmodlogs()
 		except discord.Forbidden:
-			await ctx.send("<a:fireFailed:603214400748257302> Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
+			await ctx.error("Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
 	
 	# @commands.command(name='mute', description="Mute a user.")
 	# @commands.has_permissions(manage_messages=True)
@@ -656,7 +656,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not reason:
 			return await ctx.send("You must specify a reason")
 		if user.id == self.bot.user.id:
-			return await ctx.send("<a:fireFailed:603214400748257302> I cannot warn myself, you fool.")
+			return await ctx.error("I cannot warn myself, you fool.")
 
 		try:
 			try:
@@ -814,7 +814,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await self.bot.db.release(con)
 			await self.loadmodlogs()
 		except discord.Forbidden:
-			await ctx.send("<a:fireFailed:603214400748257302> Kick failed. Are you trying to kick someone higher than the bot?")
+			await ctx.error("Kick failed. Are you trying to kick someone higher than the bot?")
 	
 	@commands.command(description="Unmute a muted user.")
 	@commands.has_permissions(manage_messages=True)
@@ -829,7 +829,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			return
 		await ctx.trigger_typing()
 		await user.remove_roles(discord.utils.get(ctx.guild.roles, name="Muted"))
-		await ctx.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unmuted")
+		await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unmuted")
 		# await self.bot.db.execute(f'DELETE FROM mutes WHERE uid = {user.id};')
 		# await self.bot.conn.commit()
 		con = await self.bot.db.acquire()

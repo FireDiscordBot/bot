@@ -697,7 +697,7 @@ class settings(commands.Cog, name="Settings"):
 			# bye stupid idot losers who keep posting this shit in Sk1er's Discord
 			try:
 				await message.guild.ban(message.author, reason='Attempted to post a malicious link')
-				await message.channel.send(f"<a:fireSuccess:603214443442077708> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(message.author)))}** has been banished from {discord.utils.escape_mentions(discord.utils.escape_markdown(message.guild.name))}.")
+				await message.channel.send(f"<:check:674359197378281472> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(message.author)))}** has been banished from {discord.utils.escape_mentions(discord.utils.escape_markdown(message.guild.name))}.")
 			except Exception:
 				pass
 		lastmsg = self.uuidgobyebye(self.dupecheck.get(message.author.id, 'send this message and it will get yeeted'))
@@ -2180,7 +2180,7 @@ class settings(commands.Cog, name="Settings"):
 		if not channel:
 			current = self.joinleave.get(ctx.guild.id, {})
 			if not current.get('joinmsg', False):
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'<a:fireFailed:603214400748257302> Please provide a channel and message for join messages.')
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'<:xmark:674359427830382603> Please provide a channel and message for join messages.')
 				variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
 				embed.add_field(name='Variables', value=variables, inline=False)
 				return await ctx.send(embed=embed)
@@ -2243,7 +2243,7 @@ class settings(commands.Cog, name="Settings"):
 		if not channel:
 			current = self.joinleave.get(ctx.guild.id, {})
 			if not current.get('leavemsg', False):
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'<a:fireFailed:603214400748257302> Please provide a channel and message for leave messages.')
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'<:xmark:674359427830382603> Please provide a channel and message for leave messages.')
 				variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
 				embed.add_field(name='Variables', value=variables, inline=False)
 				return await ctx.send(embed=embed)

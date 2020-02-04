@@ -553,9 +553,9 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 	@commands.command(description='View the current status of Minecraft services')
 	async def mcstatus(self, ctx):
 		emotes = {
-			'green': '<a:fireSuccess:603214443442077708>',
+			'green': '<:check:674359197378281472>',
 			'yellow': '<a:fireWarning:660148304486727730>',
-			'red': '<a:fireFailed:603214400748257302>'
+			'red': '<:xmark:674359427830382603>'
 		}
 		statuses = {
 			'green': 'No Issues',
