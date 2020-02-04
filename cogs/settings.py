@@ -322,12 +322,20 @@ class settings(commands.Cog, name="Settings"):
 			else:
 				return
 			if logch:
+				deletedby = None
+				if message.guild.me.guild_permissions.view_audit_log:
+					async for e in message.guild.audit_logs(action=discord.AuditLogAction.message_delete, limit=5):
+						if e.target == message.author:
+							deletedby = e.user
+							break
 				if message.system_content == None or message.system_content  == '':
 					message.content = 'I was unable to get the message that was deleted. Maybe it was a system message?'
 				embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'{message.author.mention}\'**s message in** {message.channel.mention} **was deleted**\n{message.system_content}')
 				embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 				if message.attachments:
-					embed.add_field(name = 'Attachment(s)', value = '\n'.join([attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
+					embed.add_field(name='Attachment(s)', value='\n'.join([attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
+				if deletedby:
+					embed.add_field(name='Potentially Deleted By', value=f'{deletedby} ({deletedby.id})', inline=False)
 				embed.set_footer(text=f"Author ID: {message.author.id} | Message ID: {message.id} | Channel ID: {message.channel.id}")
 				try:
 					await logch.send(embed=embed)
@@ -395,7 +403,7 @@ class settings(commands.Cog, name="Settings"):
 				try:
 					ohmygod = False
 					self.bot.vanity_urls = await self.getvanitys()
-					vanitydomains = ['oh-my-god.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
+					vanitydomains = ['oh-my-god.wtf', 'inv.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
 					if code.lower() in self.bot.vanity_urls and any(d in message.system_content for d in vanitydomains):
 						invite = self.bot.getvanity(code)
 						ohmygod = True
@@ -638,7 +646,15 @@ class settings(commands.Cog, name="Settings"):
 		else:
 			return
 		if logch:
+			createdby = None
+			if channel.guild.me.guild_permissions.view_audit_log:
+				async for e in channel.guild.audit_logs(action=discord.AuditLogAction.channel_create, limit=5):
+					if e.target.id == channel.id:
+						createdby = e.user
+						break
 			embed = discord.Embed(color=discord.Color.green(), timestamp=channel.created_at, description=f'**New channel created: #{channel.name}**')
+			if createdby:
+				embed.add_field(name='Created By', value=f'{createdby} ({createdby.id})', inline=False)
 			embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
 			embed.set_footer(text=f"Channel ID: {channel.id} | Guild ID: {channel.guild.id}")
 			try:
@@ -654,7 +670,15 @@ class settings(commands.Cog, name="Settings"):
 		else:
 			return
 		if logch:
+			deletedby = None
+			if channel.guild.me.guild_permissions.view_audit_log:
+				async for e in channel.guild.audit_logs(action=discord.AuditLogAction.channel_delete, limit=5):
+					if e.target.id == channel.id:
+						deletedby = e.user
+						break
 			embed = discord.Embed(color=discord.Color.red(), timestamp=channel.created_at, description=f'**Channel deleted: #{channel.name}**')
+			if deletedby:
+				embed.add_field(name='Deleted By', value=f'{deletedby} ({deletedby.id})', inline=False)
 			embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
 			embed.set_footer(text=f"Channel ID: {channel.id} | Guild ID: {channel.guild.id}")
 			try:
@@ -723,7 +747,7 @@ class settings(commands.Cog, name="Settings"):
 				try:
 					ohmygod = False
 					self.bot.vanity_urls = await self.getvanitys()
-					vanitydomains = ['oh-my-god.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
+					vanitydomains = ['oh-my-god.wtf', 'inv.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
 					if code.lower() in self.bot.vanity_urls and any(d in message.system_content for d in vanitydomains):
 						invite = self.bot.getvanity(code)
 						ohmygod = True
@@ -1164,8 +1188,8 @@ class settings(commands.Cog, name="Settings"):
 				embed.add_field(name='Want to see what invite they used?', value='Fire Premium allows you to do that and more.\n[Get Premium](https://gaminggeek.dev/patreon)\n[Premium Commands](https://gaminggeek.dev/commands#premium-commands)', inline=False)
 			if member.bot:
 				try:
-					async for e in member.guild.audit_logs(limit=10):
-						if isinstance(e.action, discord.AuditLogAction.bot_add) and e.target.id == member.id:
+					async for e in member.guild.audit_logs(action=discord.AuditLogAction.bot_add, limit=10):
+						if e.target.id == member.id:
 							embed.add_field(name='Invited By', value=f'{e.user} ({e.user.id})', inline=False)
 							break
 				except Exception as e:
@@ -1204,6 +1228,19 @@ class settings(commands.Cog, name="Settings"):
 		else:
 			return
 		if logch:
+			moderator = None
+			action = None
+			if member.guild.me.guild_permissions.view_audit_log:
+				async for e in member.guild.audit_logs(limit=5):
+					if e.action in [discord.AuditLogAction.kick, discord.AuditLogAction.ban] and e.target.id == member.id:
+						moderator = e.user
+						if moderator == member.guild.me:
+							return
+						if e.action == discord.AuditLogAction.kick:
+							action = 'Kicked'
+						if e.action == discord.AuditLogAction.ban:
+							action = 'Banned'
+						break
 			embed = discord.Embed(title='Member Left', url='https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif', color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 			if member.nick:
@@ -1211,6 +1248,8 @@ class settings(commands.Cog, name="Settings"):
 			roles = [role.mention for role in member.roles if role != member.guild.default_role]
 			if roles:
 				embed.add_field(name='Roles', value=', '.join(roles), inline=False)
+			if moderator and action:
+				embed.add_field(name=f'{action} By', value=f'{moderator} ({moderator.id})', inline=False)
 			embed.set_footer(text=f'User ID: {member.id}')
 			try:
 				await logch.send(embed=embed)
@@ -1728,8 +1767,8 @@ class settings(commands.Cog, name="Settings"):
 		if not isinstance(guild, discord.Guild):
 			return
 		whodidit = None
-		async for a in guild.audit_logs(limit=10):
-			if isinstace(a.action, discord.AuditLogAction.invite_delete) and a.target.code == invite.code:
+		async for a in guild.audit_logs(action=discord.AuditLogAction.invite_delete, limit=10):
+			if a.target.code == invite.code:
 				whodidit = a.user
 		logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
 		if logid:
