@@ -76,10 +76,18 @@ class Fire(commands.Bot):
         # CUSTOM PERMISSIONS
         # self.permissions = {}
 
-    def get_context(self, message: discord.Message, **kwargs):
+    async def get_context(self, message: discord.Message, **kwargs):
+        silent = False
+        if message.content and message.content.endswith(' --silent'):
+            message.content = message.content[:-9]
+            silent = True
         if 'cls' not in kwargs:
-            return super().get_context(message, cls=Context, **kwargs)
-        return super().get_context(message, **kwargs)
+            ctx = await super().get_context(message, cls=Context, **kwargs)
+        else:
+            ctx = await super().get_context(message, **kwargs)
+        if ctx.valid and silent:
+            await message.delete()
+        return ctx
 
     def isadmin(self, user: typing.Union[discord.User, discord.Member]) -> bool:
         if str(user.id) not in self.config['admins']:
