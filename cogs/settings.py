@@ -324,7 +324,7 @@ class settings(commands.Cog, name="Settings"):
 			if logch:
 				deletedby = None
 				if message.guild.me.guild_permissions.view_audit_log:
-					async for e in message.guild.audit_logs(action=discord.AuditLogAction.message_delete, limit=5):
+					async for e in message.guild.audit_logs(action=discord.AuditLogAction.message_delete, limit=2):
 						if e.target == message.author:
 							deletedby = e.user
 							break
