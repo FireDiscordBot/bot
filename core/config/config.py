@@ -54,8 +54,12 @@ class config:
             raise Exception  # Change this to custom exception
         if reset:
             value = option['default']
-        if not isinstance(value, option['accepts']):
+        if not isinstance(option['accepts'], list) and not isinstance(value, option['accepts']):
             raise Exception  # Change this to custom exception
+        elif isinstance(option['accepts'], list):
+            accepts = option['accepts'][0]
+            if not isinstance(value, list) or any(v for v in value if not isinstance(v, accepts)):
+                raise Exception
         await setter(self, value)
         return self.get(option)
 
