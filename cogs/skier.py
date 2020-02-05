@@ -164,7 +164,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				profile = await resp.json()
 		purchases = [self.modcoref(c) for c, e in profile.get('purchase_profile', {'No Cosmetics': True}).items() if e]
 		for c, s in profile.get('cosmetic_settings', {}).items():
-			if s != {} and s['enabled']:
+			if s != {} and s.get('enabled', False):
 				if 'STATIC' in c:
 					cid = s['id']
 					purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}]({config["modcoreapi"]}serve/cape/static/{cid}.png)**') for p in purchases]
@@ -175,7 +175,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		embed = discord.Embed(title=f'{player}\'s Modcore Profile', color=ctx.author.color)
 		embed.add_field(name='Name', value=player, inline=False)
 		embed.add_field(name='UUID', value=uuid, inline=False)
-		embed.add_field(name='Cosmetics', value=purchases or 'No Cosmetics', inline=False)
+		embed.add_field(name='Enabled Cosmetics', value=purchases or 'No Cosmetics', inline=False)
 		return await ctx.send(embed=embed)
 
 	@commands.command(description="Check stuff related to Hyperium")
