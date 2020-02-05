@@ -22,7 +22,7 @@ import core.coloredformat as colorformat
 from sentry_sdk import push_scope
 from discord.ext import commands
 from .context import Context
-from .config import config
+from .config import Config
 import traceback
 import sentry_sdk
 import datetime
@@ -44,6 +44,7 @@ class Fire(commands.Bot):
         # COMMON ATTRIBUTES
         self.config: dict = json.load(open('config.json', 'r'))
         self.configs = {}
+        self.premiumGuilds = []
         self.db: asyncpg.pool.Pool = None
         self.dev = False
 

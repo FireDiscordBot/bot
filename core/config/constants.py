@@ -18,17 +18,16 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import functools
 import inspect
+import discord
 
-DEFAULT_CONFIG = {}
-
-
-def get_class_that_defined_method(meth):
-    # meth must be a bound method
-    if inspect.ismethod(meth):
-        for cls in inspect.getmro(meth.__self__.__class__):
-            if cls.__dict__.get(meth.__name__) is meth:
-                return cls
-    return None  # not required since None would have been implicitly returned anyway
+from discord.ext.commands.converter import (
+    MemberConverter,
+    UserConverter,
+    RoleConverter,
+    TextChannelConverter,
+    VoiceChannelConverter,
+    CategoryChannelConverter
+)
 
 
 class Options:
@@ -38,10 +37,15 @@ class Options:
         self.accepts = kwargs.pop('accepts', str)
         self.default = kwargs.pop('default', '')
         self.options = kwargs.pop('options')
+        self.restricted = kwargs.pop('restrict', [])
+        self.premium = kwargs.pop('premium', False)
         self.options[self.name] = {
             'setter': self.func,
+            'description': sef.func.__doc__ or 'No Description Set',
             'accepts': self.accepts,
-            'default': self.default
+            'default': self.default,
+            'restricted': self.restricted,
+            'premium': self.premium
         }
 
     def __call__(self, value):
@@ -56,3 +60,17 @@ def ConfigOpt(**kwargs):
     def wrapper(func):
         return Options(func, **kwargs)
     return wrapper
+
+
+DISCORD_CONVERTERS = {
+    'bot': {
+        discord.TextChannel: 'get_channel',
+        discord.VoiceChannel: 'get_channel',
+        discord.CategoryChannel: 'get_channel',
+        discord.User: 'get_user'
+    },
+    'guild': {
+        discord.Member: 'get_member',
+        discord.Role: 'get_role'
+    }
+}

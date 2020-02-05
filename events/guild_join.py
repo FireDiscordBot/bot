@@ -17,7 +17,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 from fire.push import pushbullet
-from core.config import config
+from core.config import Config
 from fire import exceptions
 import functools
 import asyncio
@@ -39,7 +39,7 @@ class guildAdd(commands.Cog):
             await self.bot.db.execute(query, guild.id)
         await self.bot.db.release(con)
         if guild.id not in self.bot.configs:
-            self.bot.configs[guild.id] = config(guild.id, bot=self.bot, db=self.bot.db)
+            self.bot.configs[guild.id] = Config(guild.id, bot=self.bot, db=self.bot.db)
             await self.bot.configs[guild.id].load()
         self.bot.logger.info(f"$GREENFire joined a new guild! $BLUE{guild.name}({guild.id}) $GREENwith $BLUE{guild.member_count} $GREENmembers")
         try:
