@@ -18,7 +18,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
 from fire.converters import Member
 from discord.ext import commands
-from aiotrello import Trello
 from typing import Union
 import discord
 import datetime
@@ -52,12 +51,9 @@ def getconfig(path: str = None):
 
 config = getconfig()
 
-class firecog(commands.Cog, name="Main Commands"):
+class firecog(commands.Cog, name="Main Commands"):  # this cog will soon be gone
 	def __init__(self, bot):
 		self.bot = bot
-		self.trello = Trello(key=config['trellokey'], token=config['trellotoken'])
-		if not hasattr(self.bot, 'launchtime'):
-			self.bot.launchtime = launchtime
 		self._last_result = None
 
 	def cleanup_code(self, content):
@@ -65,40 +61,6 @@ class firecog(commands.Cog, name="Main Commands"):
 			return '\n'.join(content.split('\n')[1:-1])
 
 		return content.strip('` \n')
-
-	@commands.command(name="invite")
-	async def inviteme(self, ctx):
-		return await ctx.send("https://gaminggeek.dev/fire")
-
-	@commands.command(name='shut')
-	async def shut(self, ctx):
-		await ctx.send('https://shutplea.se/')
-
-	@commands.command(description="Shows you my ping to discord's servers")
-	async def ping(self, ctx):
-		"""PFXping"""
-		latency = round(self.bot.latency * 1000)
-		start = round(time.time()*1000)
-		msg = await ctx.send(content="Pinging...")
-		end = round(time.time()*1000)
-		elapsed = round(end - start)
-		color = ctx.author.color
-		embed = discord.Embed(title=f":ping_pong: {elapsed}ms.\n:heartpulse: {latency}ms.", colour=color, timestamp=datetime.datetime.utcnow())
-		await msg.edit(content="`Pong!`", embed=embed)
-
-	@commands.command(description="Suggest a feature")
-	@commands.cooldown(1, 300, commands.BucketType.user)
-	async def suggest(self, ctx, *, suggestion: str):
-		"""PFXsuggest <suggestion>"""
-		if suggestion == None:
-			await ctx.send("You can't suggest nothing!")
-		else:
-			board = await self.trello.get_board(lambda b: b.name == "Fire")
-			suggestions = await board.get_list(lambda l: l.name == "Suggestions")
-			card = await suggestions.create_card(suggestion, f"Suggested by {ctx.author.name} ({ctx.author.id})")
-			now = datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p')
-			await card.add_comment(f"Suggested in channel {ctx.channel.name} ({ctx.channel.id}) in guild {ctx.guild.name} ({ctx.guild.id}) at {now} UTC")
-			await ctx.send(f"Thanks! Your suggestion was added to the Trello @ <{card.url}>. Any abuse will lead to being blacklisted from Fire!")
 
 	@commands.command(description="Shows you some stats about me.", aliases=['about'])
 	async def stats(self, ctx):
@@ -163,64 +125,6 @@ class firecog(commands.Cog, name="Main Commands"):
 			gcount = gcount + 1
 		interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
 		await interface.send_to(ctx)
-
-	@commands.command(description="dab")
-	async def dab(self, ctx):
-		"""PFXdab"""
-		await ctx.send(f"{ctx.message.author.mention}, <o/")
-
-	@commands.command(description='you\'re welcome', aliases=['thank you', 'thanks'])
-	async def thank(self, ctx):
-		return await ctx.send('You\'re Welcome! I don\'t know what you\'re thanking me for but I\'ll just go along with it')
-
-	@commands.command(description="idk")
-	async def warm(self, ctx, *, warm: str):
-		"""PFXwarm <item>"""
-		await ctx.send(f'🔥 Warming up {discord.utils.escape_mentions(discord.utils.escape_markdown(warm))}')
-
-	@commands.command(description='Cow goes moo')
-	async def cowsay(self, ctx, *, cow: str):
-		"""PFXcowsay <text>"""
-		async with aiohttp.ClientSession() as session:
-			async with session.get(f'http://cowsay.morecode.org/say?message={cow}&format=json') as resp:
-				body = await resp.json()
-		cow = body['cow']
-		cow = discord.utils.escape_mentions(cow).replace('`', '')
-		await ctx.send(f'```{cow}```')
-
-	@commands.command(description='ascii text')
-	async def ascii(self, ctx, *, text: str):
-		"""PFXascii <text>"""
-		textsplit = text.split(' ')
-		text = '+'.join(textsplit)
-		async with aiohttp.ClientSession() as session:
-			async with session.get(f'http://artii.herokuapp.com/make?text={text}') as resp:
-				body = await resp.text()
-		try:
-			asciimsg = discord.utils.escape_mentions(body).replace('`', '')
-			await ctx.send(f'```{asciimsg}```')
-		except discord.HTTPException as e:
-			e = str(e)
-			if 'Must be 2000 or fewer in length.' in e:
-				return await ctx.send('That message is too long. Try a shorter one!')
-
-	@commands.command(name='👏', aliases=['clap'], description='Emphasize your message with claps')
-	async def clap(self, ctx, *, clappyboi: str = 'You need to provide a message for me to emphasize'):
-		'''PFXclap <message>'''
-		message = discord.utils.escape_mentions(clappyboi)
-		message = message.split(' ')
-		message = ' 👏 '.join(message)
-		await ctx.send(message + ' 👏')
-
-	@commands.command(name="8ball")
-	async def eightball(self, ctx, *, q: str = None):
-		if not q:
-			return await ctx.error(f'You need to ask a question!')
-		possible = ["It is certain.", "It is decidedly so.", "Without a doubt.", "Yes - definitely.", "You may rely on it.", "As I see it, yes.", "Most likely.", "Outlook good.", "Yes.", "Signs point to yes.", 
-			"Reply hazy, try again.", "Ask again later.", "Better not tell you now.", "Cannot predict now.", "Concentrate and ask again.",
-			"Don't count on it.", "My reply is no.", "My sources say no.", "Outlook not so good.", "Very doubtful."]
-		answer = random.choice(possible)
-		await ctx.send(answer)
 
 def setup(bot):
 	bot.add_cog(firecog(bot))

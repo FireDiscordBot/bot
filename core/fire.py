@@ -24,6 +24,7 @@ from discord.ext import commands
 from .context import Context
 import traceback
 import sentry_sdk
+import datetime
 import discord
 import asyncpg
 import logging
@@ -38,6 +39,7 @@ import sys
 class Fire(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.launchtime = datetime.datetime.utcnow()
         # COMMON ATTRIBUTES
         self.config: dict = json.load(open('config.json', 'r'))
         self.db: asyncpg.pool.Pool = None
