@@ -16,5 +16,5 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-from constants import ConfigOpt
-from config import config
+from .constants import ConfigOpt
+from .config import config

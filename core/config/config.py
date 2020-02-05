@@ -16,7 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-from constants import ConfigOpt
+from .constants import ConfigOpt
 import discord
 import inspect
 import json
@@ -33,35 +33,33 @@ class config:
         self._data: dict
         self.options = options
 
-    @ConfigOpt(name='log.moderation', accepts=int, default=0, options=options)
-    async def modlogs(self, value: int):
-        channel = self._bot.get_channel(value)
-        if not channel or not isinstance(channel, discord.TextChannel):
-            raise Exception  # Change this to custom exception
-        await self.update('log.moderation', value)
+    @ConfigOpt(name='log.moderation', accepts=discord.TextChannel, default=None, options=options)
+    async def modlogs(self, value: discord.TextChannel):
+        self._bot.logger.info(f'$GREENSetting $BLUElog.moderation $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('log.moderation', value.id)
 
-    async def get(self, option):
+    def get(self, option):
         if option not in self.options:
             raise Exception  # Change this to custom exception
         return self._data[option]
 
-    async def set(self, option: str, value, reset: bool = False):
-        if option not in self.options:
+    async def set(self, opt: str, value, reset: bool = False):
+        if opt not in self.options:
             raise Exception  # Change this to custom exception
-        option = self.options[option]
+        option = self.options[opt]
         setter = option['setter']
         if not inspect.isfunction(setter):
             raise Exception  # Change this to custom exception
         if reset:
             value = option['default']
-        if not isinstance(option['accepts'], list) and not isinstance(value, option['accepts']):
+        if not isinstance(option['accepts'], list) and not isinstance(value, option['accepts']) and value is not None:
             raise Exception  # Change this to custom exception
         elif isinstance(option['accepts'], list):
             accepts = option['accepts'][0]
             if not isinstance(value, list) or any(v for v in value if not isinstance(v, accepts)):
                 raise Exception
         await setter(self, value)
-        return self.get(option)
+        return self.get(opt)
 
     async def update(self, option: str, value):
         self._data[option] = value
@@ -74,23 +72,23 @@ class config:
             self._data = await self.init()
             return
         self._data = json.loads(conf[0]['data'])
-        self._bot.logger(f'$GREENLoaded config for $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENLoaded config for $BLUE{self._guild}')
 
     async def save(self):
         con = await self._db.acquire()
         async with con.transaction():
-            q = 'UPDATE config SET data = $1 WHERE gid = $2;'
-            await self._db.execute(q, json.dumps(self._data), self._guild.id)
+            query = 'UPDATE config SET data = $1 WHERE gid = $2;'
+            await self._db.execute(query, json.dumps(self._data), self._guild.id)
         await self._db.release(con)
-        self._bot.logger(f'$GREENSaved config for $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSaved config for $BLUE{self._guild}')
 
     async def init(self):
         con = await self._db.acquire()
         async with con.transaction():
             query = 'INSERT INTO config (\"gid\", \"data\") VALUES ($1, $2);'
-            await self._db.execute(q, self._guild.id, json.dumps(self.getDefaultConfig()))
+            await self._db.execute(query, self._guild.id, json.dumps(self.getDefaultConfig()))
         await self._db.release(con)
-        self._bot.logger(f'$GREENInitiated config for $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENInitiated config for $BLUE{self._guild}')
         return self.getDefaultConfig()
 
     def getDefaultConfig(self):

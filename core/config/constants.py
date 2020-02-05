@@ -26,7 +26,6 @@ def get_class_that_defined_method(meth):
     # meth must be a bound method
     if inspect.ismethod(meth):
         for cls in inspect.getmro(meth.__self__.__class__):
-            print(cls)
             if cls.__dict__.get(meth.__name__) is meth:
                 return cls
     return None  # not required since None would have been implicitly returned anyway
@@ -44,7 +43,6 @@ class Options:
             'accepts': self.accepts,
             'default': self.default
         }
-        print(self.options)
 
     def __call__(self, value):
         f = self.func(self.parent, value)
