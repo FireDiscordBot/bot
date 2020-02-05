@@ -15,8 +15,9 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-import discord
+from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 from discord.ext import commands
+import discord
 import datetime
 import json
 import aiohttp
@@ -31,6 +32,7 @@ remcolor = r'&[0-9A-FK-OR]'
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
+
 def isadmin(ctx):
 	"""Checks if the author is an admin"""
 	if str(ctx.author.id) not in config['admins']:
@@ -38,6 +40,7 @@ def isadmin(ctx):
 	else:
 		admin = True
 	return admin
+
 
 class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 	def __init__(self, bot):
@@ -49,11 +52,11 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		if player == None:
 			await ctx.send("What user should I check?")
 		else:
-			hello = {
+			headers = {
 				'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-				'CONTENT-TYPE': 'application/json' 
+				'CONTENT-TYPE': 'application/json'
 			}
-			async with aiohttp.ClientSession(headers=hello) as session:
+			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.sk1er.club/levelheadv5/{player}/LEVEL') as resp:
 					levelhead = await resp.json()
 					status = resp.status
@@ -70,7 +73,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				fulllvlhead = f'{hcolor}Level: {fcolor}{levelhead["level"]}'
 				parsedtxt = mcfont.parse(fulllvlhead)
 				width = mcfont.get_width(parsedtxt)
-				img = Image.new('RGBA', (width+25, 42))
+				img = Image.new('RGBA', (width + 25, 42))
 				mcfont.render((5, 0), parsedtxt, img)
 				buf = BytesIO()
 				img.save(buf, format='PNG')
@@ -82,11 +85,11 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				embed.set_image(url='attachment://mitchplshireme.png')
 				await ctx.send(embed=embed, file=customlvl)
 				return
-			async with aiohttp.ClientSession(headers=hello) as session:
+			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.sk1er.club/levelhead_purchase_status/{uuid}') as resp:
 					purchase = await resp.json()
 					status2 = resp.status
-			async with aiohttp.ClientSession(headers=hello) as session:
+			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.hyperium.cc/levelhead_propose/{uuid}') as resp:
 					proposal = await resp.json()
 			if status == 404:
@@ -153,14 +156,14 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		uuid = await self.bot.get_cog('Hypixel Commands').nameToUUID(player)
 		if not uuid:
 			raise commands.UserInputError('Couldn\'t find that player\'s UUID')
-		hello = {
+		headers = {
 			'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
 			'CONTENT-TYPE': 'application/json'
 		}
-		async with aiohttp.ClientSession(headers=hello) as session:
+		async with aiohttp.ClientSession(headers=headers) as session:
 			async with session.get(f'{config["modcoreapi"]}profile/{uuid}') as resp:
 				if resp.status != 200:
-					raise commands.CommandError('Modcore API responded incorrectly')
+					return await ctx.error('Modcore API responded incorrectly')
 				profile = await resp.json()
 		purchases = [self.modcoref(c) for c, e in profile.get('purchase_profile', {'No Cosmetics': True}).items() if e]
 		for c, s in profile.get('cosmetic_settings', {}).items():
@@ -184,12 +187,12 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		if player == None:
 			await ctx.send("I can either check a player's info or `stats`")
 			return
-		hello = {
+		headers = {
 			'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-			'CONTENT-TYPE': 'application/json' 
+			'CONTENT-TYPE': 'application/json'
 		}
-		if player == "stats": 
-			async with aiohttp.ClientSession(headers=hello) as session:
+		if player == "stats":
+			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get('https://api.hyperium.cc/users') as resp:
 					stats = await resp.json()
 					status = resp.status
@@ -207,12 +210,12 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				await ctx.send("The Hyperium API returned a status code other than 200, which isn't right...")
 				return
 		if task == "purchases":
-			async with aiohttp.ClientSession(headers=hello) as session:
+			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.hyperium.cc/purchases/{player}') as resp:
 					purchases = await resp.json()
 					status = resp.status
 			uuid = purchases['uuid']
-			async with aiohttp.ClientSession(headers=hello) as session:
+			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.hyperium.cc/purchaseSettings/{uuid}') as resp:
 					settings = await resp.json()
 			if purchases['success']:
@@ -222,6 +225,13 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					nocosmetics = True
 				else:
 					nocosmetics = None
+				if nocosmetics:
+					embed = discord.Embed(title=f"Hyperium Purchases for {player}", colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
+					embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/471405283562881073.png")
+					embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
+					embed.add_field(name="Purchased Cosmetics", value='No Cosmetics! Purchase some [here](https://purchase.sk1er.club/)', inline=False)
+					await ctx.send(embed=embed)
+					return
 				try:
 					currentcape = settings['cape']['url']
 				except Exception:
@@ -230,13 +240,6 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					framesplus = purchases['frames_plus_cape']
 				except Exception:
 					framesplus = None
-				if nocosmetics:
-					embed = discord.Embed(title=f"Hyperium Purchases for {player}", colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
-					embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/471405283562881073.png")
-					embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
-					embed.add_field(name="Purchased Cosmetics", value='No Cosmetics! Purchase some [here](https://purchase.sk1er.club/)', inline=False)
-					await ctx.send(embed=embed)
-					return
 				c = []
 				if 'PARTICLE_BACKGROUND' in cosmetics:
 					c.append('Particle Background')
@@ -368,7 +371,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					embed.add_field(name="Current Cape", value=f'[{player}\'s Cape]({currentcape})', inline=False)
 				await ctx.send(embed=embed)
 		if task == "status":
-			async with aiohttp.ClientSession(headers=hello) as session:
+			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.hyperium.cc/online/{player}') as resp:
 					online = await resp.json()
 					status = resp.status
@@ -376,18 +379,12 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 				async with session.get('https://raw.githubusercontent.com/HyperiumClient/Hyperium-Repo/master/files/staff.json') as resp:
 					data = await resp.read()
 					staff = json.loads(data)
+			pstaff = False
+			pdot = "None"
 			for value in staff:
 				if value['ign'] == player:
 					pstaff = True
 					pdot = value['color'].lower()
-			try:
-				pstaff
-			except Exception:
-				pstaff = False
-			try:
-				pdot != None
-			except Exception:
-				pdot = "None"
 			pdot = pdot.replace('_', ' ').title()
 			embed = discord.Embed(title=f"Hyperium Status for {player}", colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/471405283562881073.png")
@@ -398,7 +395,48 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			await ctx.send(embed=embed)
 		if task == None:
 			await ctx.send("What should I do? I can check `status` or `purchases`")
-  
+
+	@commands.command(description="Get info about a Sk1er mod")
+	async def mod(self, ctx, *, mod: str = None):
+		if mod == None:
+			await ctx.send("What mod do you want to see?")
+		headers = {
+			'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+			'CONTENT-TYPE': 'application/json'
+		}
+		async with aiohttp.ClientSession(headers=headers) as session:
+			async with session.get(f'https://api.sk1er.club/mods') as resp:
+				if resp.status != 200:
+					return await ctx.error('Sk1er\'s API responded incorrectly')
+				mods = await resp.json()
+		names = {}
+		for m in mods:
+			names[mods[m]['display'].lower()] = m
+			for mod_id in mods[m]['mod_ids']
+			names[mod_id.lower()] = m
+		if mod.lower() not in names:
+			return await ctx.error(f'Unknown mod.')
+		else:
+			mod = mods[names[mod]]
+		embed = discord.Embed(title="Levelhead", colour=ctx.author.color, url=f"https://sk1er.club/mods/{mod['mod_ids'][0]}", description=mod['short'], timestamp=datetime.datetime.utcnow())
+		embed.add_field(name="Versions", value='\n'.join([f'**{k}**: {v}' for k, v in mod['latest']]))
+		embed.add_field(name="Creator", value=f"**__{mod['vendor']['name']}__**\n[Website]({mod['vendor']['website']})"
+																				f"[Twitter]({mod['vendor']['twitter']})"
+																				f"[YouTube]({mod['vendor']['youtube']})")
+		await ctx.send(embed=embed)
+		paginator = WrappedPaginator(prefix='', suffix='', max_size=2000)
+		for mcv in mod['changelog']
+			paginator.add_line(f'**__{mcv}__**')
+			for v in mod['changelog'][mcv]:
+				changelog = mod["changelog"][mcv][v][0]
+				time = datetime.datetime.utcfromtimestamp(changelog["time"] / 1000).strftime('%d/%m/%Y @ %I:%M:%S %p')
+				paginator.add_line(f'**{v}**: {changelog["text"]} ({time})')
+			paginator.add_line('-----------------')
+		embed = discord.Embed(color=ctx.author.color, title='Changelogs', timestamp=datetime.datetime.utcnow())
+		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
+		await interface.send_to(ctx)
+
+
 def setup(bot):
 	bot.add_cog(skier(bot))
 	bot.logger.info(f'$GREENLoaded Sk1er cog!')
