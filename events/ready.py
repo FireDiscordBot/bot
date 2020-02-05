@@ -15,7 +15,9 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+
 from discord.ext import commands
+from core.config import config
 import datetime
 import discord
 import traceback
@@ -31,6 +33,10 @@ class Ready(commands.Cog):
             self.bot.load_extension("cogs.sk1erdiscord")
         except Exception:
             pass
+        for guild in self.bot.guilds:
+            if guild.id not in self.bot.configs:
+                self.bot.configs[guild.id] = config(guild.id, bot=self.bot, db=self.bot.db)
+            await self.bot.configs[guild.id].load()
         self.bot.logger.info("$GREEN-------------------------")
         self.bot.logger.info(f"$GREENBot: {self.bot.user}")
         self.bot.logger.info(f"$GREENID: {self.bot.user.id}")

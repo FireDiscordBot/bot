@@ -17,6 +17,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 from fire.push import pushbullet
+from core.config import config
 from fire import exceptions
 import functools
 import asyncio
@@ -37,6 +38,9 @@ class guildAdd(commands.Cog):
             query = 'INSERT INTO settings (\"gid\") VALUES ($1);'
             await self.bot.db.execute(query, guild.id)
         await self.bot.db.release(con)
+        if guild.id not in self.bot.configs:
+            self.bot.configs[guild.id] = config(guild.id, bot=self.bot, db=self.bot.db)
+            await self.bot.configs[guild.id].load()
         self.bot.logger.info(f"$GREENFire joined a new guild! $BLUE{guild.name}({guild.id}) $GREENwith $BLUE{guild.member_count} $GREENmembers")
         try:
             await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members", f"https://api.gaminggeek.dev/guild/{guild.id}")
