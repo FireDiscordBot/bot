@@ -159,7 +159,7 @@ class Config:
         if opt not in self.options:
             raise Exception  # Change this to custom exception
         option = self.options[opt]
-        if option['premium'] and guild.id not in self._bot.premiumGuild:
+        if option['premium'] and self._guild.id not in self._bot.premiumGuilds:
             raise Exception  # Change this to custom exception
         if value == option['default']:  # Bypass all checks if default
             await self.update(opt, value)

@@ -41,7 +41,7 @@ class Options:
         self.premium = kwargs.pop('premium', False)
         self.options[self.name] = {
             'setter': self.func,
-            'description': sef.func.__doc__ or 'No Description Set',
+            'description': self.func.__doc__ or 'No Description Set',
             'accepts': self.accepts,
             'default': self.default,
             'restricted': self.restricted,
