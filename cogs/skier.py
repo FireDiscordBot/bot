@@ -396,8 +396,8 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		if task == None:
 			await ctx.send("What should I do? I can check `status` or `purchases`")
 
-	@commands.command(description="Get info about a Sk1er mod")
-	async def mod(self, ctx, *, mod: str = None):
+	@commands.command(name='mod', description="Get info about a Sk1er mod", aliases=['mods'])
+	async def skiermod(self, ctx, *, mod: str = None):
 		if mod == None:
 			await ctx.send("What mod do you want to see?")
 		headers = {
@@ -412,20 +412,20 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		names = {}
 		for m in mods:
 			names[mods[m]['display'].lower()] = m
-			for mod_id in mods[m]['mod_ids']
-			names[mod_id.lower()] = m
+			for mod_id in mods[m]['mod_ids']:
+				names[mod_id.lower()] = m
 		if mod.lower() not in names:
 			return await ctx.error(f'Unknown mod.')
 		else:
 			mod = mods[names[mod]]
 		embed = discord.Embed(title="Levelhead", colour=ctx.author.color, url=f"https://sk1er.club/mods/{mod['mod_ids'][0]}", description=mod['short'], timestamp=datetime.datetime.utcnow())
-		embed.add_field(name="Versions", value='\n'.join([f'**{k}**: {v}' for k, v in mod['latest']]))
+		embed.add_field(name="Versions", value='\n'.join([f'**{k}**: {v}' for k, v in mod['latest'].items()]), inline=False)
 		embed.add_field(name="Creator", value=f"**__{mod['vendor']['name']}__**\n[Website]({mod['vendor']['website']})"
-																				f"[Twitter]({mod['vendor']['twitter']})"
-																				f"[YouTube]({mod['vendor']['youtube']})")
+											f"\n[Twitter]({mod['vendor']['twitter']})"
+											f"\n[YouTube]({mod['vendor']['youtube']})", inline=False)
 		await ctx.send(embed=embed)
-		paginator = WrappedPaginator(prefix='', suffix='', max_size=2000)
-		for mcv in mod['changelog']
+		paginator = WrappedPaginator(prefix='', suffix='', max_size=490)
+		for mcv in mod['changelog']:
 			paginator.add_line(f'**__{mcv}__**')
 			for v in mod['changelog'][mcv]:
 				changelog = mod["changelog"][mcv][v][0]
