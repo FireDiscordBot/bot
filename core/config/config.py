@@ -16,7 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-from constants import DEFAULT_CONFIG, ConfigOpt
+from constants import ConfigOpt
 import discord
 import inspect
 import json
@@ -84,7 +84,13 @@ class config:
         con = await self._db.acquire()
         async with con.transaction():
             query = 'INSERT INTO config (\"gid\", \"data\") VALUES ($1, $2);'
-            await self._db.execute(q, self._guild.id, json.dumps(DEFAULT_CONFIG))
+            await self._db.execute(q, self._guild.id, json.dumps(self.getDefaultConfig()))
         await self._db.release(con)
         self._bot.logger(f'$GREENInitiated config for $BLUE{self._guild}')
-        return DEFAULT_CONFIG
+        return self.getDefaultConfig()
+
+    def getDefaultConfig(self):
+        conf = {}
+        for opt in self.options:
+            conf[opt] = self.options[opt]['default']
+        return conf
