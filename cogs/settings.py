@@ -1063,8 +1063,8 @@ class settings(commands.Cog, name="Settings"):
 			try:
 				raidmentions = ', '.join([x.mention for x in raiders])
 				potential = await channel.send(f'There seems to be a raid going on. Here\'s the raiders I found\n{raidmentions}\n\nClick the tick to ban.')
-				firesuccess = discord.utils.get(self.bot.emojis, id=603214443442077708)
-				firefailed = discord.utils.get(self.bot.emojis, id=603214400748257302)
+				firesuccess = discord.utils.get(self.bot.emojis, id=674359197378281472)
+				firefailed = discord.utils.get(self.bot.emojis, id=674359427830382603)
 				await potential.add_reaction(firesuccess)
 				await potential.add_reaction(firefailed)
 				def ban_check(r, u):
@@ -1096,8 +1096,8 @@ class settings(commands.Cog, name="Settings"):
 			try:
 				raidmentions = ', '.join([x.mention for x in raiders])
 				potential = await channel.send(f'There seems to be a raid going on. Here\'s the raiders I found\n{raidmentions}\n\nClick the tick to ban.')
-				firesuccess = discord.utils.get(self.bot.emojis, id=603214443442077708)
-				firefailed = discord.utils.get(self.bot.emojis, id=603214400748257302)
+				firesuccess = discord.utils.get(self.bot.emojis, id=674359197378281472)
+				firefailed = discord.utils.get(self.bot.emojis, id=674359427830382603)
 				await potential.add_reaction(firesuccess)
 				await potential.add_reaction(firefailed)
 				def ban_check(r, u):
@@ -1793,8 +1793,8 @@ class settings(commands.Cog, name="Settings"):
 	@commands.guild_only()
 	async def gsettings(self, ctx):
 		'''PFXsettings'''
-		firesuccess = discord.utils.get(self.bot.emojis, id=603214443442077708)
-		firefailed = discord.utils.get(self.bot.emojis, id=603214400748257302)
+		firesuccess = discord.utils.get(self.bot.emojis, id=674359197378281472)
+		firefailed = discord.utils.get(self.bot.emojis, id=674359427830382603)
 		settingslist = {
 			'modlogs': 'Disabled',
 			'actionlogs': 'Disabled',
