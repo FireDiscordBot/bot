@@ -418,7 +418,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			return await ctx.error(f'Unknown mod.')
 		else:
 			mod = mods[names[mod]]
-		embed = discord.Embed(title="Levelhead", colour=ctx.author.color, url=f"https://sk1er.club/mods/{mod['mod_ids'][0]}", description=mod['short'], timestamp=datetime.datetime.utcnow())
+		embed = discord.Embed(title=mod['display'], colour=ctx.author.color, url=f"https://sk1er.club/mods/{mod['mod_ids'][0]}", description=mod['short'], timestamp=datetime.datetime.utcnow())
 		embed.add_field(name="Versions", value='\n'.join([f'**{k}**: {v}' for k, v in mod['latest'].items()]), inline=False)
 		embed.add_field(name="Creator", value=f"**__{mod['vendor']['name']}__**\n[Website]({mod['vendor']['website']})"
 											f"\n[Twitter]({mod['vendor']['twitter']})"
