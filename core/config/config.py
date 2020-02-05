@@ -72,7 +72,8 @@ class config:
             self._data = await self.init()
             return
         self._data = json.loads(conf[0]['data'])
-        self._bot.logger.info(f'$GREENLoaded config for $BLUE{self._guild}')
+        # self._bot.logger.info(f'$GREENLoaded config for $BLUE{self._guild}')
+        # this would be spammy boi every time ready is dispatched
 
     async def save(self):
         con = await self._db.acquire()
