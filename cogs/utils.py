@@ -1557,7 +1557,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.guild_only()
 	async def vanityurl(self, ctx, code: str = None):
 		'''PFXvanityurl [<code>|"disable"]'''
-		premiumguilds = self.bot.get_cog('Premium Commands').premiumGuilds
+		premiumguilds = self.bot.premiumGuilds
 		if not code and not ctx.guild.id in premiumguilds:
 			return await ctx.error('You need to provide a code!')
 		elif not code:
@@ -1646,7 +1646,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.has_permissions(administrator=True)
 	@commands.guild_only()
 	async def makeredirect(self, ctx, slug: str = None, url: str = None, delete: bool = False):
-		premiumguilds = self.bot.get_cog('Premium Commands').premiumGuilds
+		premiumguilds = self.bot.premiumGuilds
 		if not ctx.guild.id in premiumguilds:
 			return await ctx.error('This feature is premium only! You can learn more at <https://gaminggeek.dev/premium>')
 		if not slug:
@@ -1728,7 +1728,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if existing:
 			return await ctx.error(f'A tag with the name {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} already exists')
 		if len(currenttags) >= 20:
-			premiumguilds = self.bot.get_cog('Premium Commands').premiumGuilds
+			premiumguilds = self.bot.premiumGuilds
 			if ctx.guild.id not in premiumguilds:
 				return await ctx.error(f'You\'ve reached the tag limit! Upgrade to premium for unlimited tags;\n<https://inv.wtf/premium>')
 		con = await self.bot.db.acquire()

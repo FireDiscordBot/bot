@@ -110,7 +110,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@tasks.loop(minutes=2)
 	async def refreshInvites(self):
-		for gid in self.bot.get_cog('Premium Commands').premiumGuilds:
+		for gid in self.bot.premiumGuilds:
 			await self.loadInvites(gid)
 
 	def cog_unload(self):
@@ -251,7 +251,7 @@ class settings(commands.Cog, name="Settings"):
 	async def loadInvites(self, gid: int = None):
 		if not gid:
 			self.bot.invites = {}
-			for gid in self.bot.get_cog('Premium Commands').premiumGuilds:
+			for gid in self.bot.premiumGuilds:
 				guild = self.bot.get_guild(gid)
 				if not guild:
 					continue
@@ -706,7 +706,7 @@ class settings(commands.Cog, name="Settings"):
 			if message.content == lastmsg and message.guild.id in self.dupecheck['guilds'] and not message.author.permissions_in(message.channel).manage_messages:
 				await message.delete()
 		self.dupecheck[message.author.id] = message.content
-		premium = self.bot.get_cog('Premium Commands').premiumGuilds
+		premium = self.bot.premiumGuilds
 		if message.guild and message.guild.id in premium:
 			raidmsg = self.raidmsgs.get(message.guild.id, False)
 			if raidmsg and raidmsg in message.content:
@@ -1123,7 +1123,7 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
-		premium = self.bot.get_cog('Premium Commands').premiumGuilds
+		premium = self.bot.premiumGuilds
 		if member.guild.id in premium:
 			self.bot.dispatch('membercacheadd', member.guild.id, member.id)
 			if len(self.joincache[member.guild.id]) >= 50:
@@ -1730,7 +1730,7 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_invite_create(self, invite: discord.Invite):
 		guild = invite.guild
-		if guild.id in self.bot.get_cog('Premium Commands').premiumGuilds:
+		if guild.id in self.bot.premiumGuilds:
 			self.bot.invites.get(guild.id, {})[invite.code] = 0
 		if not isinstance(guild, discord.Guild):
 			return
@@ -1761,7 +1761,7 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_invite_delete(self, invite: discord.Invite):
 		guild = invite.guild
-		if guild.id in self.bot.get_cog('Premium Commands').premiumGuilds:
+		if guild.id in self.bot.premiumGuilds:
 			self.bot.invites.get(guild.id, {}).pop(invite.code, 'lmao')
 		if not isinstance(guild, discord.Guild):
 			return
