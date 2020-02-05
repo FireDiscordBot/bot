@@ -103,7 +103,7 @@ class settings(commands.Cog, name="Settings"):
 			self.bot.invites = {}
 		self.bot.aliases = {}
 		asyncio.get_event_loop().create_task(self.loadSettings())
-		self.refreshInvites.start()
+		# self.refreshInvites.start()
 
 	def clean(self, text: str):
 		return re.sub(r'[^A-Za-z0-9.\/ ]', '', text, 0, re.MULTILINE)
@@ -1729,7 +1729,6 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_invite_create(self, invite: discord.Invite):
-		self.bot.logger.info(f'$GREENInvite created, $BLUE{invite}')
 		guild = invite.guild
 		if guild.id in self.bot.get_cog('Premium Commands').premiumGuilds:
 			self.bot.invites.get(guild.id, {})[invite.code] = 0
@@ -1767,7 +1766,7 @@ class settings(commands.Cog, name="Settings"):
 		if not isinstance(guild, discord.Guild):
 			return
 		whodidit = None
-		async for a in guild.audit_logs(action=discord.AuditLogAction.invite_delete, limit=10):
+		async for a in guild.audit_logs(action=discord.AuditLogAction.invite_delete, limit=1):
 			if a.target.code == invite.code:
 				whodidit = a.user
 		logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
