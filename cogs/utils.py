@@ -871,7 +871,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				plonk = f'<:xmark:674359427830382603> Blacklisted from Fire'
 			else:
 				plonk = ''
-			embed.add_field(name=f'» Trust - {trust} (Idea from Aero, aero.bot)', value='\n'.join([lban, gban, cwbl, plonk]), inline=False)
+			embed.add_field(name=f'» Trust - {trust} (Idea from aero.bot)', value='\n'.join([lban, gban, cwbl, plonk]), inline=False)
 		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		if ack:
 			embed.add_field(name='» Recognized User', value=', '.join(ack), inline=False)
