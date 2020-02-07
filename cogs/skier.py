@@ -430,7 +430,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 											f"\n[Twitter]({mod['vendor']['twitter']})"
 											f"\n[YouTube]({mod['vendor']['youtube']})", inline=False)
 		if analytics:
-			embed.add_field(name="Analytics", value=f"Total: {analytics['total']}, Online: {analytics['online']}, Last Day: {analytics['day']}, Last Week: {analytics['week']}, Total Days Used: {analytics['days']}", inline=False)
+			embed.add_field(name="Analytics", value=f"Total: {analytics['total']:,d}, Online: {analytics['online']:,d}, Last Day: {analytics['day']:,d}, Last Week: {analytics['week']:,d}", inline=False)
 		await ctx.send(embed=embed)
 		paginator = WrappedPaginator(prefix='', suffix='', max_size=490)
 		for mcv in mod['changelog']:
