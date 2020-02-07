@@ -17,6 +17,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from .constants import ConfigOpt, DISCORD_CONVERTERS
+from .errors import *
 import discord
 import inspect
 import json
@@ -62,7 +63,7 @@ class Config:
         '''The filters of which any links found will be deleted unless a user has Manage Messages permission'''
         valid = ['discord', 'youtube', 'twitch', 'twitter', 'paypal', 'malware']
         if any(v not in valid for v in value):
-            raise Exception  # Change this to custom exception
+            raise TypeMismatchError(type=', '.join([v for v in value if v not in valid]), accepted=', '.join(valid), option='mod.linkfilter')
         self._bot.logger.info(f'$GREENSetting $BLUEmod.linkfilter $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('mod.linkfilter', value)
 
@@ -130,7 +131,7 @@ class Config:
     async def disabled_commands(self, value: list):
         '''Commands that can only be ran by moderators (those with Manage Messages permission)'''
         if [v for v in value if not self._bot.get_command(v)]:
-            raise Exception  # Change this to custom exception
+            raise TypeMismatchError(type=', '.join([v for v in value if not self._bot.get_command(v)]), accepted=', '.join([cmd.name for cmd in self._bot.commands if not cmd.hidden]), option='disabled.commands')
         self._bot.logger.info(f'$GREENSetting $BLUEdisabled.commands $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('disabled.commands', value)
 
@@ -138,13 +139,13 @@ class Config:
     async def disabled_cogs(self, value: list):
         '''Modules that can only be ran by moderators (those with Manage Messages permission)'''
         if [v for v in value if not self._bot.get_cog(v)]:
-            raise Exception  # Change this to custom exception
+            raise TypeMismatchError(type=', '.join([v for v in value if not self._bot.get_cog(v)]), accepted=', '.join([cog.name for cog in self._bot.cogs if not cog.hidden]), option='disabled.cogs')
         self._bot.logger.info(f'$GREENSetting $BLUEdisabled.cogs $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('disabled.cogs', value)
 
     def get(self, option):
         if option not in self.options:
-            raise Exception  # Change this to custom exception
+            raise InvalidOptionError(option)
         accept = self.options[option]['accepts']
         converter = None
         if accept in DISCORD_CONVERTERS['bot']:
@@ -157,22 +158,24 @@ class Config:
 
     async def set(self, opt: str, value):
         if opt not in self.options:
-            raise Exception  # Change this to custom exception
+            raise InvalidOptionError(opt)
         option = self.options[opt]
         if option['premium'] and self._guild.id not in self._bot.premiumGuilds:
-            raise Exception  # Change this to custom exception
+            raise RestrictedOptionError(option, 'premium guilds only')
+        if option['restricted'] and self._guild.id not in option['restricted']:
+            raise RestrictedOptionError(option, 'select guilds only')
         if value == option['default']:  # Bypass all checks if default
             await self.update(opt, value)
             return self.get(opt)
         setter = option['setter']
         if not inspect.isfunction(setter):
-            raise Exception  # Change this to custom exception
+            raise OptionConfigError(option)
         if not isinstance(value, option['accepts']) and value is not None:
-            raise Exception  # Change this to custom exception
+            raise TypeMismatchError(type=str(type(value)), accepted=str(option['accepts']), option=option)
         if isinstance(option['accepts'], list):
             accepts = option['accepts'][0]
             if not isinstance(value, list) or any(v for v in value if not isinstance(v, accepts)):
-                raise Exception  # Change this to custom exception
+                raise TypeMismatchError(type=str(type(value)), accepted=str(option['accepts']), option=option)
         await setter(self, value)
         return self.get(opt)
 

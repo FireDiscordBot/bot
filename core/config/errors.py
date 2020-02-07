@@ -15,12 +15,34 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+class TypeMismatchError(Exception):
+    def __init__(self, **kwargs):
+        self.type = kwargs.pop('type', str)
+        self.accepted = kwargs.pop('accepted', str)
+        self.option = kwargs.pop('option', 'Unknown Option')
 
-from .constants import ConfigOpt
-from .config import Config
-from .errors import (
-    TypeMismatchError,
-    InvalidOptionError,
-    RestrictedOptionError,
-    OptionConfigError
-)
+    def __str__(self):
+        return f'{self.type} is not an accepted type for {self.option}. {self.accepted} is required.'
+
+class InvalidOptionError(Exception):
+    def __init__(self, *args):
+        self.option = args[0]
+
+    def __str__(self):
+        return f'{self.option} is not a valid option.'
+
+class RestrictedOptionError(Exception):
+    def __init__(self, *args):
+        self.option = args[0]
+        self.restriction = args[1]
+
+    def __str__(self):
+        return f'{self.option} is restricted to {self.restriction}.'
+
+class OptionConfigError(Exception):
+    def __init__(self, *args):
+        self.option = args[0]
+
+    def __str__(self):
+        return f'{self.option} has an invalid config.'
+
