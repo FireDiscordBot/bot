@@ -418,11 +418,19 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			return await ctx.error(f'Unknown mod.')
 		else:
 			mod = mods[names[mod.lower()]]
+		async with aiohttp.ClientSession(headers=headers) as session:
+			async with session.get(f'https://api.sk1er.club/mods_analytics') as resp:
+				if resp.status != 200:
+					return await ctx.error('Sk1er\'s API responded incorrectly')
+				analytics = await resp.json()
+				analytics = analytics.get(mod['mod_ids'][0], {})
 		embed = discord.Embed(title=mod['display'], colour=ctx.author.color, url=f"https://sk1er.club/mods/{mod['mod_ids'][0]}", description=mod['short'], timestamp=datetime.datetime.utcnow())
 		embed.add_field(name="Versions", value='\n'.join([f'**{k}**: {v}' for k, v in mod['latest'].items()]), inline=False)
 		embed.add_field(name="Creator", value=f"**__{mod['vendor']['name']}__**\n[Website]({mod['vendor']['website']})"
 											f"\n[Twitter]({mod['vendor']['twitter']})"
 											f"\n[YouTube]({mod['vendor']['youtube']})", inline=False)
+		if analytics:
+			embed.add_field(name="Analytics", value=f"Total: {analytics['total']}, Online: {analytics['online']}, Last Day: {analytics['day']}, Last Week: {analytics['week']}, Total Days Used: {analytics['days']}", inline=False)
 		await ctx.send(embed=embed)
 		paginator = WrappedPaginator(prefix='', suffix='', max_size=490)
 		for mcv in mod['changelog']:
