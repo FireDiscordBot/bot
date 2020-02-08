@@ -99,6 +99,18 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $BLUEmod.autodehoist $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('mod.autodehoist', value)
 
+    @ConfigOpt(name='commands.modonly', accepts=[discord.TextChannel], default=[], options=options)
+    async def mod_only(self, value: list):
+        '''The channels where only moderators can run commands'''
+        self._bot.logger.info(f'$GREENSetting $BLUEcommands.modonly $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('commands.modonly', [c.id for c in value])
+
+    @ConfigOpt(name='commands.adminonly', accepts=[discord.TextChannel], default=[], options=options)
+    async def mod_only(self, value: list):
+        '''The channels where only admins can run commands'''
+        self._bot.logger.info(f'$GREENSetting $BLUEcommands.adminonly $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('commands.adminonly', [c.id for c in value])
+
     @ConfigOpt(name='mod.antiraid', accepts=discord.TextChannel, default=None, options=options, premium=True)
     async def anti_raid(self, value: discord.TextChannel):
         '''The channel where raid alerts are sent'''
@@ -155,12 +167,18 @@ class Config:
         if option not in self.options:
             raise InvalidOptionError(option)
         accept = self.options[option]['accepts']
+        acceptlist = False
         converter = None
+        if isinstance(accept, list):
+            accept = accept[0]
+            acceptlist = True
         if accept in DISCORD_CONVERTERS['bot']:
             converter = getattr(self._bot, DISCORD_CONVERTERS['bot'][accept])
         elif accept in DISCORD_CONVERTERS['guild']:
             converter = getattr(self._guild, DISCORD_CONVERTERS['guild'][accept])
         if converter and inspect.ismethod(converter):
+            if acceptlist:
+                return [converter(d) for d in self._data[option]]
             return converter(self._data[option])
         return self._data[option]
 
@@ -178,7 +196,7 @@ class Config:
         setter = option['setter']
         if not inspect.isfunction(setter):
             raise OptionConfigError(option)
-        if not isinstance(value, option['accepts']) and value is not None:
+        if not isinstance(option['accepts'], list) and not isinstance(value, option['accepts']) and value is not None:
             raise TypeMismatchError(type=str(type(value)), accepted=str(option['accepts']), option=option)
         if isinstance(option['accepts'], list):
             accepts = option['accepts'][0]
