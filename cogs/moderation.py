@@ -280,7 +280,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 							if until:
 								if datetime.datetime.utcnow().timestamp() > until:
 									try:
-										await user.remove_roles(muted, reason='Times up.')
 										con = await self.bot.db.acquire()
 										async with con.transaction():
 											query = 'DELETE FROM mutes WHERE uid = $1 AND gid = $2;'
@@ -290,6 +289,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 											self.mutes[user.id] = None
 										except KeyError:
 											pass
+									except Exception:
+										self.bot.logger.error(f'$REDFailed to delete mute for {user} in {guild}')
+									try:
+										await user.remove_roles(muted, reason='Times up.')
 										logchannels = self.bot.get_cog("Settings").logchannels
 										logid = logchannels[guild.id] if guild.id in logchannels else None
 										if logid:
