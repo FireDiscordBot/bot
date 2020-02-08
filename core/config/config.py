@@ -43,6 +43,8 @@ class Config:
     @ConfigOpt(name='main.description', accepts=str, default=None, options=options)
     async def description(self, value: str):
         '''The server description, shown in the embed for Vanity URLs'''
+        if len(value) > 240:
+            raise InvalidValueError('main.description', value, 'Descriptions must be 240 characters or less.')
         self._bot.logger.info(f'$GREENSetting $BLUEmain.description $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('main.description', value)
 

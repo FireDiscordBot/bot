@@ -22,5 +22,6 @@ from .errors import (
     TypeMismatchError,
     InvalidOptionError,
     RestrictedOptionError,
-    OptionConfigError
+    OptionConfigError,
+    InvalidValueError
 )

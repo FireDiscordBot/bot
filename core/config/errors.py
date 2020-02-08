@@ -46,3 +46,12 @@ class OptionConfigError(Exception):
     def __str__(self):
         return f'{self.option} has an invalid config.'
 
+class InvalidValueError(Exception):
+    def __init__(self, *args):
+        self.option = args[0]
+        self.value = args[1]
+        self.reason = args[2]
+
+    def __str__(self):
+        return f'{self.value} is not a valid value for {self.option}. {self.reason}'
+
