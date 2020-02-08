@@ -15,6 +15,8 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+
+from core.config import TypeMismatchError, RestrictedOptionError, InvalidValueError
 from discord import Webhook, AsyncWebhookAdapter
 from fire.invite import replaceinvite
 from core.context import Context
@@ -92,7 +94,7 @@ class commandError(commands.Cog):
             errorstr = f'Key not found: {errorstr}. This is something that should be reported in my support server, discord.gg/mKDWeSA'
 
         await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
-        nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError, commands.MissingRequiredArgument, commands.TooManyArguments)
+        nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError, commands.MissingRequiredArgument, commands.TooManyArguments, TypeMismatchError, RestrictedOptionError, InvalidValueError)
         if isinstance(error, nomsg):
             return
         errortb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
