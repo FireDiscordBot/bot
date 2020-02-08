@@ -735,7 +735,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if gid and gid != ctx.guild.id:
 			preview = await aiohttp.ClientSession().get(f'https://api.gaminggeek.dev/preview/{gid}')
 			if preview.status != 200:
-				return await ctx.error(f'That guild could not be found! It must be public for me to show it.')
+				return await ctx.error(f'HTTP ERROR {preview.status}: That guild could not be found! It must be public for me to show it.')
 			preview = await preview.json()
 			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 			embed.set_thumbnail(url=preview['icon'])
@@ -744,18 +744,18 @@ class utils(commands.Cog, name='Utility Commands'):
 				nameemote = discord.utils.get(self.bot.emojis, id=647400542775279629)
 			if 'VERIFIED' in preview['features']:
 				nameemote = discord.utils.get(self.bot.emojis, id=647400543018287114)
-			embed.add_field(name="» Name", value=f'{guild["name"]} {nameemote}', inline=False)
+			embed.add_field(name="» Name", value=f'{preview["name"]} {nameemote}', inline=False)
 			embed.add_field(name="» ID", value=gid, inline=False)
-			embed.add_field(name="» Members", value=f'⬤ {guild["approximate_presence_count"]:,d} Online & ⭘ {guild["approximate_member_count"]:,d} Members', inline=False)
-			embed.add_field(name="» Description", value=guild['description'] or 'No description set.', inline=False)
+			embed.add_field(name="» Members", value=f'⬤ {preview["approximate_presence_count"]:,d} Online & ⭘ {preview["approximate_member_count"]:,d} Members', inline=False)
+			embed.add_field(name="» Description", value=preview['description'] or 'No description set.', inline=False)
 			embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - discord.utils.snowflake_time(gid), max_units=2) + ' ago', inline=True)
 			features = ', '.join([self.featureslist[f] for f in preview['features'] if f in self.featureslist])
 			if features and features != '':
 				embed.add_field(name="» Features", value=features, inline=False)
-			embed.add_field(name="» Splash", value=preview['discovery_splash'] or preview['splash'], inline=False)
 			if preview['discovery_splash'] or preview['splash']:
+				embed.add_field(name="» Splash", value=preview['discovery_splash'] or preview['splash'], inline=False)
 				embed.set_image(url=preview['discovery_splash'] or preview['splash'])
-			await ctx.send(embed=embed)
+			return await ctx.send(embed=embed)
 		guild = ctx.guild
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		embed.set_thumbnail(url=guild.icon_url)
