@@ -1543,12 +1543,9 @@ class settings(commands.Cog, name="Settings"):
 	async def gsettings(self, ctx):
 		firesuccess = discord.utils.get(self.bot.emojis, id=674359197378281472)
 		firefailed = discord.utils.get(self.bot.emojis, id=674359427830382603)
-		setupmsgs = []
-		m = await ctx.send('Hey, I\'m going to guide you through my settings. This shouldn\'t take long, there\'s only 6 options to configure'))
-		setupmsgs.append(m)
+		await ctx.send('Hey, I\'m going to guide you through my settings. This shouldn\'t take long, there\'s only 6 options to configure')
 		await asyncio.sleep(3)
-		m = await ctx.send('First, we\'ll configure logging. Please give a channel for moderation logs or say `skip` to disable...')
-		setupmsgs.append(m)
+		await ctx.send('First, we\'ll configure logging. Please give a channel for moderation logs or say `skip` to disable...')
 
 		def modlog_check(message):
 			if message.author != ctx.author:
@@ -1557,35 +1554,24 @@ class settings(commands.Cog, name="Settings"):
 				return True
 		try:
 			modlogsmsg = await self.bot.wait_for('message', timeout=30.0, check=modlog_check)
-			setupmsgs.append(modlogsmsg)
 			if modlogsmsg.content.lower() != 'skip':
 				try:
 					modlogs = await TextChannel().convert(ctx, modlogsmsg.content)
 				except commands.BadArgument:
-					m = await ctx.error('Channel not found, moderation logs are now disabled.')
-					setupmsgs.append(m)
+					await ctx.error('Channel not found, moderation logs are now disabled.')
 					modlogs = None
 				else:
-					m = await ctx.success(f'Setting moderation logs to {modlogs.mention}')
-					setupmsgs.append(m)
+					await ctx.success(f'Setting moderation logs to {modlogs.mention}')
 			else:
-				m = await ctx.success('Skipping moderation logs...')
-				setupmsgs.append(m)
+				await ctx.success('Skipping moderation logs...')
 				modlogs = None
 			await self.bot.configs[ctx.guild.id].set('log.moderation', modlogs)
 		except asyncio.TimeoutError:
-			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
-			try:
-				[await m.delete() for m in setupmsgs]
-				return
-			except Exception:
-				return
+			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
 		await asyncio.sleep(2)
-		m = await ctx.send('Ok. Next we\'ll configure action logs. This is where actions such as deleted messages, edited messages etc. are logged.')
-		setupmsgs.append(m)
+		await ctx.send('Ok. Next we\'ll configure action logs. This is where actions such as deleted messages, edited messages etc. are logged.')
 		await asyncio.sleep(2)
-		m = await ctx.send('Please give a channel for action logs or say `skip` to disable...')
-		setupmsgs.append(m)
+		await ctx.send('Please give a channel for action logs or say `skip` to disable...')
 		def actionlog_check(message):
 			if message.author != ctx.author:
 				return False
@@ -1593,35 +1579,29 @@ class settings(commands.Cog, name="Settings"):
 				return True
 		try:
 			actionlogsmsg = await self.bot.wait_for('message', timeout=30.0, check=modlog_check)
-			setupmsgs.append(actionlogsmsg)
 			if actionlogsmsg.content.lower() != 'skip':
 				try:
 					actionlogs = await TextChannel().convert(ctx, actionlogsmsg.content)
 				except commands.BadArgument:
-					m = await ctx.error('Channel not found, action logs are now disabled.')
-					setupmsgs.append(m)
+					await ctx.error('Channel not found, action logs are now disabled.')
 					actionlogs = None
 				else:
-					m = await ctx.success(f'Setting action logs to {actionlogs.mention}')
-					setupmsgs.append(m)
+					await ctx.success(f'Setting action logs to {actionlogs.mention}')
 			else:
-				m = await ctx.success('Skipping action logs...')
-				setupmsgs.append(m)
+				await ctx.success('Skipping action logs...')
 				actionlogs = None
 			await self.bot.configs[ctx.guild.id].set('log.action', actionlogs)
 		except asyncio.TimeoutError:
-			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
 			try:
 				[await m.delete() for m in setupmsgs]
 				return
 			except Exception:
 				return
 		await asyncio.sleep(2)
-		m = await ctx.send('Ok. Next is link deletion. Discord invites are enabled by default but you can enable more with `$linkfilter`')
-		setupmsgs.append(m)
+		await ctx.send('Ok. Next is link deletion. Discord invites are enabled by default but you can enable more with `$linkfilter`')
 		await asyncio.sleep(2)
 		linkfiltermsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
-		setupmsgs.append(linkfiltermsg)
 		await linkfiltermsg.add_reaction(firesuccess)
 		await linkfiltermsg.add_reaction(firefailed)
 		def linkfilter_check(reaction, user):
@@ -1635,28 +1615,24 @@ class settings(commands.Cog, name="Settings"):
 			reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=linkfilter_check)
 			if reaction.emoji == firefailed:
 				linkfilter = []
-				m = await ctx.success('Disabling link filter...')
-				setupmsgs.append(m)
+				await ctx.success('Disabling link filter...')
 			elif reaction.emoji == firesuccess:
 				linkfilter = self.bot.configs[ctx.guild.id].get('mod.linkfilter')
 				if not linkfilter:
 					linkfilter = ['discord']
-				m = await ctx.success(f'Enabling link filter. (If it was already enabled, your configuration won\'t change)')
-				setupmsgs.append(m)
+				await ctx.success(f'Enabling link filter. (If it was already enabled, your configuration won\'t change)')
 			await self.bot.configs[ctx.guild.id].set('mod.linkfilter', linkfilter)
 		except asyncio.TimeoutError:
-			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
 			try:
 				[await m.delete() for m in setupmsgs]
 				return
 			except Exception:
 				return
 		await asyncio.sleep(2)
-		m = await ctx.send('Ok. Next is dupe checking. If a user attempts to send the same message again, I will delete it (that is, if I have permission to do so)')
-		setupmsgs.append(m)
+		await ctx.send('Ok. Next is dupe checking. If a user attempts to send the same message again, I will delete it (that is, if I have permission to do so)')
 		await asyncio.sleep(2)
 		dupemsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
-		setupmsgs.append(dupemsg)
 		await dupemsg.add_reaction(firesuccess)
 		await dupemsg.add_reaction(firefailed)
 		def dupemsg_check(reaction, user):
@@ -1670,26 +1646,22 @@ class settings(commands.Cog, name="Settings"):
 			reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=dupemsg_check)
 			if reaction.emoji == firefailed:
 				dupecheck = False
-				m = await ctx.success('Disabling duplicate message filter...')
-				setupmsgs.append(m)
+				await ctx.success('Disabling duplicate message filter...')
 			elif reaction.emoji == firesuccess:
 				dupecheck = True
-				m = await ctx.success(f'Enabling duplicate message filter')
-				setupmsgs.append(m)
+				await ctx.success(f'Enabling duplicate message filter')
 			await self.bot.configs[ctx.guild.id].set('mod.dupecheck', dupecheck)
 		except asyncio.TimeoutError:
-			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
 			try:
 				[await m.delete() for m in setupmsgs]
 				return
 			except Exception:
 				return
 		await asyncio.sleep(2)
-		m = await ctx.send('Ok. Now we\'re onto global bans. Fire uses the KSoft.Si API to check for naughty people. If enabled, I will ban any of these naughty people if they attempt to join.')
-		setupmsgs.append(m)
+		await ctx.send('Ok. Now we\'re onto global bans. Fire uses the KSoft.Si API to check for naughty people. If enabled, I will ban any of these naughty people if they attempt to join.')
 		await asyncio.sleep(2)
 		gbansmsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
-		setupmsgs.append(gbanmsg)
 		await gbansmsg.add_reaction(firesuccess)
 		await gbansmsg.add_reaction(firefailed)
 		def gban_check(reaction, user):
@@ -1703,26 +1675,22 @@ class settings(commands.Cog, name="Settings"):
 			reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=gban_check)
 			if reaction.emoji == firefailed:
 				globalbans = False
-				m = await ctx.success('Disabling global ban check...')
-				setupmsgs.append(m)
+				await ctx.success('Disabling global ban check...')
 			elif reaction.emoji == firesuccess:
 				globalbans = True
-				m = await ctx.success(f'Enabling global ban check')
-				setupmsgs.append(m)
+				await ctx.success(f'Enabling global ban check')
 			await self.bot.configs[ctx.guild.id].set('mod.globalbans', globalbans)
 		except asyncio.TimeoutError:
-			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
 			try:
 				[await m.delete() for m in setupmsgs]
 				return
 			except Exception:
 				return
 		await asyncio.sleep(2)
-		m = await ctx.send('The penultimate setting, auto-decancer. No, this setting doesn\'t cure cancer. Instead, it renames users with "cancerous" names (non-ascii) to some form of `John Doe 0000`')
-		setupmsgs.append(m)
+		await ctx.send('The penultimate setting, auto-decancer. No, this setting doesn\'t cure cancer. Instead, it renames users with "cancerous" names (non-ascii) to some form of `John Doe 0000`')
 		await asyncio.sleep(2)
 		autodcmsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
-		setupmsgs.append(autodcmsg)
 		await autodcmsg.add_reaction(firesuccess)
 		await autodcmsg.add_reaction(firefailed)
 		def dc_check(reaction, user):
@@ -1736,26 +1704,17 @@ class settings(commands.Cog, name="Settings"):
 			reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=dc_check)
 			if reaction.emoji == firefailed:
 				audodc = False
-				m = await ctx.success('Disabling auto decancer...')
-				setupmsgs.append(m)
+				await ctx.success('Disabling auto decancer...')
 			elif reaction.emoji == firesuccess:
 				audodc = True
-				m = await ctx.success(f'Enabling auto decancer')
-				setupmsgs.append(m)
+				await ctx.success(f'Enabling auto decancer')
 			await self.bot.configs[ctx.guild.id].set('mod.autodecancer', audodc)
 		except asyncio.TimeoutError:
-			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
-			try:
-				[await m.delete() for m in setupmsgs]
-				return
-			except Exception:
-				return
+			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
 		await asyncio.sleep(2)
-		m = await ctx.send('Finally, the last setting. Similar to the last one, auto-dehoist renames people with a non A-Z character at the start of their name.')
-		setupmsgs.append(m)
+		await ctx.send('Finally, the last setting. Similar to the last one, auto-dehoist renames people with a non A-Z character at the start of their name.')
 		await asyncio.sleep(2)
 		autodhmsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
-		setupmsgs.append(autodhmsg)
 		await autodhmsg.add_reaction(firesuccess)
 		await autodhmsg.add_reaction(firefailed)
 		def dh_check(reaction, user):
@@ -1769,37 +1728,25 @@ class settings(commands.Cog, name="Settings"):
 			reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=dh_check)
 			if reaction.emoji == firefailed:
 				audodh = False
-				m = await ctx.success('Disabling auto dehoist...')
-				setupmsgs.append(m)
+				await ctx.success('Disabling auto dehoist...')
 			elif reaction.emoji == firesuccess:
 				audodh = True
-				m = await ctx.success(f'Enabling auto dehoist')
-				setupmsgs.append(m)
+				await ctx.success(f'Enabling auto dehoist')
 			await self.bot.configs[ctx.guild.id].set('mod.autodehoist', audodh)
 		except asyncio.TimeoutError:
-			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
-			try:
-				[await m.delete() for m in setupmsgs]
-				return
-			except Exception:
-				return
+			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
 		await asyncio.sleep(2)
-		m = await ctx.send('Nice! We\'re all good to go. I\'ll send a recap in a moment. I just need to reload settings.')
-		setupmsgs.append(m)
+		await ctx.send('Nice! We\'re all good to go. I\'ll send a recap in a moment. I just need to reload settings.')
 		config = self.bot.configs[ctx.guild.id]
 		embed = discord.Embed(title=":gear: Guild Settings", colour=ctx.author.color, description="Here's a list of the current guild settings", timestamp=datetime.datetime.utcnow())
 		embed.set_author(name=ctx.guild.name, icon_url=str(ctx.guild.icon_url))
-		embed.add_field(name="Moderation Logs", value=config.get('log.moderation').mention, inline=False)
-		embed.add_field(name="Action Logs", value=config.get('log.moderation').mention, inline=False)
-		embed.add_field(name="Invite Filter", value=",".join(config.get('mod.linkfilter')), inline=False)
+		embed.add_field(name="Moderation Logs", value=config.get('log.moderation').mention if config.get('log.moderation') else 'Not set.', inline=False)
+		embed.add_field(name="Action Logs", value=config.get('log.action').mention if config.get('log.action') else 'Not set.', inline=False)
+		embed.add_field(name="Link Filter", value=",".join(config.get('mod.linkfilter')) or 'No filters enabled.', inline=False)
 		embed.add_field(name="Global Ban Check (KSoft.Si API)", value=config.get('mod.globalbans'), inline=False)
 		embed.add_field(name="Auto-Decancer", value=config.get('mod.autodecancer'), inline=False)
 		embed.add_field(name="Auto-Dehoist", value=config.get('mod.autodehoist'), inline=False)
 		await ctx.send(embed=embed)
-		try:
-			[await m.delete() for m in setupmsgs]
-		except Exception:
-			pass
 
 	@commands.command(name='setlogs', aliases=['logging', 'log', 'logs'])
 	@commands.has_permissions(manage_guild=True)
@@ -1958,7 +1905,10 @@ class settings(commands.Cog, name="Settings"):
 			else:
 				filtered.append(f)
 		new = await self.bot.configs[ctx.guild.id].set('mod.linkfilter', filtered)
-		return await ctx.success(f'Now filtering {", ".join(new)} links.')
+		if new:
+			return await ctx.success(f'Now filtering {", ".join(new)} links.')
+		else:
+			return await ctx.success(f'No longer filtering links')
 
 	@commands.command(name='filterexcl', description='Exclude channels, roles and members from the filter')
 	async def filterexclcmd(self, ctx, *ids: typing.Union[TextChannel, Role, Member]):
