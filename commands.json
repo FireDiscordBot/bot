@@ -171,6 +171,11 @@
                 "Description": "Get a player's modcore profile",
                 "Usage": "{prefix}modcore <player>",
                 "Aliases": null
+            },
+            "mod": {
+                "Description": "Get information about a Sk1er LLC mod",
+                "Usage": "{prefix}mod <mod name>",
+                "Aliases": "mods"
             }
         }
     },

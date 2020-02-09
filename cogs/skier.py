@@ -397,7 +397,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 	@commands.command(name='mod', description="Get info about a Sk1er mod", aliases=['mods'])
 	async def skiermod(self, ctx, *, mod: str = None):
 		if mod == None:
-			await ctx.send("What mod do you want to see?")
+			return await ctx.send("What mod do you want to see?")
 		headers = {
 			'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
 			'CONTENT-TYPE': 'application/json'
