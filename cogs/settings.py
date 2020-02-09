@@ -245,7 +245,7 @@ class settings(commands.Cog, name="Settings"):
 		if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
 			if any(l in message.system_content for l in self.malware):
 				if isinstance(message.author, discord.Member):
-					if 'malware' in self.linkfilter.get(message.guild.id, []):
+					if 'malware' in self.bot.configs[message.guild.id].get('excluded.filter'):
 						try:
 							await message.delete()
 						except Exception:
@@ -261,7 +261,7 @@ class settings(commands.Cog, name="Settings"):
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
 						if message.guild.me.permissions_in(message.channel).manage_messages:
-							if 'discord' in self.linkfilter.get(message.guild.id, []):
+							if 'discord' in self.bot.configs[message.guild.id].get('excluded.filter'):
 								try:
 									invite = await self.bot.fetch_invite(url=code)
 									if invite.guild.id == message.guild.id:
@@ -283,7 +283,7 @@ class settings(commands.Cog, name="Settings"):
 						if isinstance(message.author, discord.Member):
 							if not message.author.permissions_in(message.channel).manage_messages:
 								if message.guild.me.permissions_in(message.channel).manage_messages:
-									if 'discord' in self.linkfilter.get(message.guild.id, []):
+									if 'discord' in self.bot.configs[message.guild.id].get('excluded.filter'):
 										if invite['gid'] != message.guild.id:
 											try:
 												await message.delete()
@@ -298,7 +298,7 @@ class settings(commands.Cog, name="Settings"):
 					if message.author.bot:
 						return
 					logch = self.bot.configs[message.guild.id].get('log.action')
-					if logch and 'discord' in self.linkfilter.get(message.guild.id, []):
+					if logch and 'discord' in self.bot.configs[message.guild.id].get('excluded.filter'):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							if isinstance(invite, dict):
@@ -318,7 +318,7 @@ class settings(commands.Cog, name="Settings"):
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
 						if message.guild.me.permissions_in(message.channel).manage_messages:
-							if 'paypal' in self.linkfilter.get(message.guild.id, []):
+							if 'paypal' in self.bot.configs[message.guild.id].get('excluded.filter'):
 								try:
 									await message.delete()
 								except Exception:
@@ -327,7 +327,7 @@ class settings(commands.Cog, name="Settings"):
 					if message.author.bot:
 						return
 					logch = self.bot.configs[message.guild.id].get('log.action')
-					if logch and 'paypal' in self.linkfilter.get(message.guild.id, []):
+					if logch and 'paypal' in self.bot.configs[message.guild.id].get('excluded.filter'):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{paypal}](https://paypal.me/{paypal})', inline=False)
@@ -345,7 +345,7 @@ class settings(commands.Cog, name="Settings"):
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
 						if message.guild.me.permissions_in(message.channel).manage_messages:
-							if 'youtube' in self.linkfilter.get(message.guild.id, []):
+							if 'youtube' in self.bot.configs[message.guild.id].get('excluded.filter'):
 								try:
 									await message.delete()
 								except Exception:
@@ -360,7 +360,7 @@ class settings(commands.Cog, name="Settings"):
 						if message.author.bot:
 							return
 						logch = self.bot.configs[message.guild.id].get('log.action')
-						if logch and 'youtube' in self.linkfilter.get(message.guild.id, []):
+						if logch and 'youtube' in self.bot.configs[message.guild.id].get('excluded.filter'):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							embed.add_field(name='Video ID', value=video, inline=False)
@@ -381,7 +381,7 @@ class settings(commands.Cog, name="Settings"):
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
 						if message.guild.me.permissions_in(message.channel).manage_messages:
-							if 'youtube' in self.linkfilter.get(message.guild.id, []):
+							if 'youtube' in self.bot.configs[message.guild.id].get('excluded.filter'):
 								try:
 									await message.delete()
 								except Exception:
@@ -396,7 +396,7 @@ class settings(commands.Cog, name="Settings"):
 						if message.author.bot:
 							return
 						logch = self.bot.configs[message.guild.id].get('log.action')
-						if logch and 'youtube' in self.linkfilter.get(message.guild.id, []):
+						if logch and 'youtube' in self.bot.configs[message.guild.id].get('excluded.filter'):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							if invalidchannel:
@@ -420,7 +420,7 @@ class settings(commands.Cog, name="Settings"):
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
 						if message.guild.me.permissions_in(message.channel).manage_messages:
-							if 'twitch' in self.linkfilter.get(message.guild.id, []):
+							if 'twitch' in self.bot.configs[message.guild.id].get('excluded.filter'):
 								try:
 									await message.delete()
 								except Exception:
@@ -429,7 +429,7 @@ class settings(commands.Cog, name="Settings"):
 					if message.author.bot:
 						return
 					logch = self.bot.configs[message.guild.id].get('log.action')
-					if logch and 'twitch' in self.linkfilter.get(message.guild.id, []):
+					if logch and 'twitch' in self.bot.configs[message.guild.id].get('excluded.filter'):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{twitch}](https://twitch.tv/{twitch})', inline=False)
@@ -443,7 +443,7 @@ class settings(commands.Cog, name="Settings"):
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
 						if message.guild.me.permissions_in(message.channel).manage_messages:
-							if 'twitter' in self.linkfilter.get(message.guild.id, []):
+							if 'twitter' in self.bot.configs[message.guild.id].get('excluded.filter'):
 								try:
 									await message.delete()
 								except Exception:
@@ -452,7 +452,7 @@ class settings(commands.Cog, name="Settings"):
 					if message.author.bot:
 						return
 					logch = self.bot.configs[message.guild.id].get('log.action')
-					if logch and 'twitter' in self.linkfilter.get(message.guild.id, []):
+					if logch and 'twitter' in self.bot.configs[message.guild.id].get('excluded.filter'):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{twitter}](https://twitter.com/{twitter})', inline=False)
@@ -553,7 +553,7 @@ class settings(commands.Cog, name="Settings"):
 		if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
 			if any(l in message.system_content for l in self.malware):
 				if isinstance(message.author, discord.Member):
-					if 'malware' in self.linkfilter.get(message.guild.id, []):
+					if 'malware' in self.bot.configs[message.guild.id].get('excluded.filter'):
 						try:
 							await message.delete()
 						except Exception:
@@ -569,7 +569,7 @@ class settings(commands.Cog, name="Settings"):
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
 						if message.guild.me.permissions_in(message.channel).manage_messages:
-							if 'discord' in self.linkfilter.get(message.guild.id, []):
+							if 'discord' in self.bot.configs[message.guild.id].get('excluded.filter'):
 								try:
 									invite = await self.bot.fetch_invite(url=code)
 									if invite.guild.id == message.guild.id:
@@ -591,7 +591,7 @@ class settings(commands.Cog, name="Settings"):
 						if isinstance(message.author, discord.Member):
 							if not message.author.permissions_in(message.channel).manage_messages:
 								if message.guild.me.permissions_in(message.channel).manage_messages:
-									if 'discord' in self.linkfilter.get(message.guild.id, []):
+									if 'discord' in self.bot.configs[message.guild.id].get('excluded.filter'):
 										if invite['gid'] != message.guild.id:
 											try:
 												await message.delete()
@@ -606,7 +606,7 @@ class settings(commands.Cog, name="Settings"):
 					if message.author.bot:
 						return
 					logch = self.bot.configs[message.guild.id].get('log.action')
-					if logch and 'discord' in self.linkfilter.get(message.guild.id, []):
+					if logch and 'discord' in self.bot.configs[message.guild.id].get('excluded.filter'):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						if isinstance(invite, dict):
@@ -626,7 +626,7 @@ class settings(commands.Cog, name="Settings"):
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
 						if message.guild.me.permissions_in(message.channel).manage_messages:
-							if 'paypal' in self.linkfilter.get(message.guild.id, []):
+							if 'paypal' in self.bot.configs[message.guild.id].get('excluded.filter'):
 								try:
 									await message.delete()
 								except Exception:
@@ -635,7 +635,7 @@ class settings(commands.Cog, name="Settings"):
 					if message.author.bot:
 						return
 					logch = self.bot.configs[message.guild.id].get('log.action')
-					if logch and 'paypal' in self.linkfilter.get(message.guild.id, []):
+					if logch and 'paypal' in self.bot.configs[message.guild.id].get('excluded.filter'):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{paypal}](https://paypal.me/{paypal})', inline=False)
@@ -653,7 +653,7 @@ class settings(commands.Cog, name="Settings"):
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
 						if message.guild.me.permissions_in(message.channel).manage_messages:
-							if 'youtube' in self.linkfilter.get(message.guild.id, []):
+							if 'youtube' in self.bot.configs[message.guild.id].get('excluded.filter'):
 								try:
 									await message.delete()
 								except Exception:
@@ -668,7 +668,7 @@ class settings(commands.Cog, name="Settings"):
 						if message.author.bot:
 							return
 						logch = self.bot.configs[message.guild.id].get('log.action')
-						if logch and 'youtube' in self.linkfilter.get(message.guild.id, []):
+						if logch and 'youtube' in self.bot.configs[message.guild.id].get('excluded.filter'):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							embed.add_field(name='Video ID', value=video, inline=False)
@@ -689,7 +689,7 @@ class settings(commands.Cog, name="Settings"):
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
 						if message.guild.me.permissions_in(message.channel).manage_messages:
-							if 'youtube' in self.linkfilter.get(message.guild.id, []):
+							if 'youtube' in self.bot.configs[message.guild.id].get('excluded.filter'):
 								try:
 									await message.delete()
 								except Exception:
@@ -704,7 +704,7 @@ class settings(commands.Cog, name="Settings"):
 						if message.author.bot:
 							return
 						logch = self.bot.configs[message.guild.id].get('log.action')
-						if logch and 'youtube' in self.linkfilter.get(message.guild.id, []):
+						if logch and 'youtube' in self.bot.configs[message.guild.id].get('excluded.filter'):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 							if invalidchannel:
@@ -728,7 +728,7 @@ class settings(commands.Cog, name="Settings"):
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
 						if message.guild.me.permissions_in(message.channel).manage_messages:
-							if 'twitch' in self.linkfilter.get(message.guild.id, []):
+							if 'twitch' in self.bot.configs[message.guild.id].get('excluded.filter'):
 								try:
 									await message.delete()
 								except Exception:
@@ -737,7 +737,7 @@ class settings(commands.Cog, name="Settings"):
 					if message.author.bot:
 						return
 					logch = self.bot.configs[message.guild.id].get('log.action')
-					if logch and 'twitch' in self.linkfilter.get(message.guild.id, []):
+					if logch and 'twitch' in self.bot.configs[message.guild.id].get('excluded.filter'):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{twitch}](https://twitch.tv/{twitch})', inline=False)
@@ -751,7 +751,7 @@ class settings(commands.Cog, name="Settings"):
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
 						if message.guild.me.permissions_in(message.channel).manage_messages:
-							if 'twitter' in self.linkfilter.get(message.guild.id, []):
+							if 'twitter' in self.bot.configs[message.guild.id].get('excluded.filter'):
 								try:
 									await message.delete()
 								except Exception:
@@ -760,7 +760,7 @@ class settings(commands.Cog, name="Settings"):
 					if message.author.bot:
 						return
 					logch = self.bot.configs[message.guild.id].get('log.action')
-					if logch and 'twitter' in self.linkfilter.get(message.guild.id, []):
+					if logch and 'twitter' in self.bot.configs[message.guild.id].get('excluded.filter'):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 						embed.add_field(name='Link', value=f'[{twitter}](https://twitter.com/{twitter})', inline=False)
