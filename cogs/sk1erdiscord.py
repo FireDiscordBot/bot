@@ -183,6 +183,8 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		async with aiohttp.ClientSession(headers=self.gistheaders) as s:
 			async with s.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as r:
 				if r.status == 200:
+					if ctx.author.id == 202666531111436288:
+						return await ctx.success('Successfully gave you the perks!')
 					return await progress.edit(content='<:check:674359197378281472> Successfully gave you the perks!')
 				else:
 					return await progress.edit(content='<:xmark:674359427830382603> Something went wrong when updating the list')
