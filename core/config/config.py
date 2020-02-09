@@ -114,8 +114,14 @@ class Config:
     @ConfigOpt(name='mod.antiraid', accepts=discord.TextChannel, default=None, options=options, premium=True)
     async def anti_raid(self, value: discord.TextChannel):
         '''The channel where raid alerts are sent'''
-        self._bot.logger.info(f'$GREENSetting $BLUElog.antiraid $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
-        await self.update('log.antiraid', value.id)
+        self._bot.logger.info(f'$GREENSetting $BLUEmod.antiraid $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('mod.antiraid', value.id)
+
+    @ConfigOpt(name='mod.autorole', accepts=discord.Role, default=None, options=options, premium=True)
+    async def auto_role(self, value: discord.Role):
+        '''The role given to users upon joining the server'''
+        self._bot.logger.info(f'$GREENSetting $BLUEmod.autorole $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('mod.antiraid', value.id)
 
     @ConfigOpt(name='greet.joinchannel', accepts=discord.TextChannel, default=None, options=options)
     async def join_channel(self, value: discord.TextChannel):
