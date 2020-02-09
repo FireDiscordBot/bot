@@ -163,11 +163,11 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $BLUEdisabled.cogs $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('disabled.cogs', value)
 
-    @ConfigOpt(name='util.autoquote', accepts=bool, default=False, options=options)
+    @ConfigOpt(name='utils.autoquote', accepts=bool, default=False, options=options)
     async def auto_quote(self, value: bool):
         '''Automatically quotes messages when a message link is sent'''
-        self._bot.logger.info(f'$GREENSetting $BLUEutil.autoquote $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
-        await self.update('util.autoquote', value)
+        self._bot.logger.info(f'$GREENSetting $BLUEutils.autoquote $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('utils.autoquote', value)
 
     def get(self, option):
         if option not in self.options:

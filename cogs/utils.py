@@ -1290,8 +1290,14 @@ class utils(commands.Cog, name='Utility Commands'):
 		if 'remind' in message.content.lower():
 			return
 		if message.guild != None:
-			if message.guild.id in disabled:
+			if not self.bot.configs[message.guild.id].get('utils.autoquote'):
 				return
+			if message.channel.id in self.bot.configs[message.guild.id].get('commands.modonly'):
+				if not message.author.permissions_in(message.channel).manage_messages:
+					return
+			if message.channel.id in self.bot.configs[message.guild.id].get('commands.adminonly'):
+				if not message.author.permissions_in(message.channel).manage_guild:
+					return
 			perms = message.guild.me.permissions_in(message.channel)
 			if not perms.send_messages or not perms.embed_links or message.author.bot:
 				return
@@ -1371,7 +1377,11 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.command(description='Quote a message from an id or url')
 	async def quote(self, ctx, msg: typing.Union[str, int] = None):
 		if not msg:
-			return await ctx.send(content = error_string + ' Please specify a message ID/URL to quote.')
+			return await ctx.error('Please specify a message ID/URL to quote. Use `auto` to toggle auto message quotes.')
+		if isinstance(msg, str) and msg.lower() == 'auto':
+			current = self.bot.configs[ctx.guild.id].get('utils.autoquote')
+			new = await self.bot.configs[ctx.guild.id].set('utils.autoquote', not current)
+			return await ctx.success(f'Auto message quoting: {new}')
 		try:
 			msg_id = int(msg)
 		except Exception:
