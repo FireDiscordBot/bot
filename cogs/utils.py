@@ -1514,27 +1514,10 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.has_permissions(manage_guild=True)
 	async def description(self, ctx, *, desc: str = None):
 		if not desc:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'DELETE FROM descriptions WHERE gid = $1;'
-				await self.bot.db.execute(query, ctx.guild.id)
-			await self.bot.db.release(con)
-			await self.loaddescs()
-			return await ctx.success('Reset guild description!')
-		if ctx.guild.id not in self.bot.descriptions:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'INSERT INTO descriptions (\"gid\", \"desc\") VALUES ($1, $2);'
-				await self.bot.db.execute(query, ctx.guild.id, desc)
-			await self.bot.db.release(con)
-		else:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'UPDATE descriptions SET \"desc\"=$2 WHERE gid = $1;'
-				await self.bot.db.execute(query, ctx.guild.id, desc)
-			await self.bot.db.release(con)
-		await self.loaddescs()
-		return await ctx.success('Set guild description!')
+			await self.bot.configs[ctx.guild.id].set('main.description', '')
+			return await ctx.success(f'Successfully reset guild description!')
+		await self.bot.configs[ctx.guild.id].set('main.description', desc)
+		return await ctx.success(f'Successfully set guild description!')
 
 	@commands.command(aliases=['remind', 'reminder'], description='Sets a reminder for a time in the future')
 	async def remindme(self, ctx, *, reminder: str):
