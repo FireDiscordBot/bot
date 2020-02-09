@@ -40,7 +40,6 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 	@commands.command(description="Gets a random meme from Reddit")
 	async def meme(self, ctx, sub: str = None):
-		"""PFXmeme [<subreddit>]"""
 		if sub == None:
 			meme = await self.bot.ksoft.random_meme()
 		else:
@@ -71,7 +70,6 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 	@commands.command(description="Gets a random image from a specified tag", name="image")
 	async def randimage(self, ctx, tag: str = None, nsfw: bool = None):
-		"""PFXimage [<tag> <nsfw: true/false>]"""
 		taglist = await self.bot.ksoft.tags()
 		tags = str(taglist).split(', ')
 		if tag.lower() == 'false':
@@ -110,7 +108,6 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 	@commands.command(description="List all available tags", aliases=['imagetag'])
 	async def imagetags(self, ctx):
-		"""PFXimagetags"""
 		tags = await self.bot.ksoft.tags()
 		if ctx.channel.nsfw:
 			nsfwtags = ', '.join(tags.nsfw_tags)
@@ -122,7 +119,6 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 	@commands.command(name='baninfo', description='Check the info of a ban on the KSoft.Si API')
 	async def baninfo(self, ctx, bannedboi: int):
-		'''PFXbaninfo <userid>'''
 		try:
 			inf = await self.bot.ksoft.bans_info(bannedboi)
 		except ksoftapi.APIError as e:

@@ -249,9 +249,9 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.bot.descriptions = {}
 		if 'slack_messages' not in dir(self.bot):
  			self.bot.slack_messages = {}
-		self.bot.getvanity = self.getvanity
-		self.bot.getredirect = self.getredirect
-		self.bot.getvanitygid = self.getvanitygid
+		self.bot.get_vanity = self.get_vanity
+		self.bot.get_redirect = self.get_redirect
+		self.bot.get_vanity_gid = self.get_vanity_gid
 		self.bot.vanityclick = self.vanityclick
 		self.bot.vanitylink = self.vanitylink
 		self.tags = {}
@@ -297,19 +297,19 @@ class utils(commands.Cog, name='Utility Commands'):
 		else:
 			return False
 
-	def getvanity(self, code: str):
+	def get_vanity(self, code: str):
 		if code.lower() in self.bot.vanity_urls:
 			return self.bot.vanity_urls[code.lower()]
 		else:
 			return False
 
-	def getredirect(self, code: str):
+	def get_redirect(self, code: str):
 		if code.lower() in self.bot.redirects:
 			return self.bot.redirects[code.lower()]
 		else:
 			return False
 
-	def getvanitygid(self, gid: int):
+	def get_vanity_gid(self, gid: int):
 		for v in self.bot.vanity_urls:
 			v = self.bot.vanity_urls[v]
 			if v['gid'] == gid:
@@ -723,7 +723,6 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.group(name='info', invoke_without_command=True)
 	@commands.guild_only()
 	async def infogroup(self, ctx):
-		'''PFXinfo'''
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		embed.set_author(name=ctx.guild.name, icon_url=str(ctx.guild.icon_url))
 		embed.add_field(name='Info Commands', value=f'> {ctx.prefix}info guild | Get\'s info about the guild\n> {ctx.prefix}info user [<user>] | Get\'s info about you or another user\n> {ctx.prefix}info role [<role>] | Get\'s info about your top role or another role', inline=False)
@@ -731,7 +730,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@infogroup.command(name='guild', description='Check out the guild\'s info', aliases=['server'])
 	async def infoguild(self, ctx, gid: int = None):
-		'''PFXinfo guild'''
 		if gid and gid != ctx.guild.id:
 			preview = await aiohttp.ClientSession().get(f'https://api.gaminggeek.dev/preview/{gid}')
 			if preview.status != 200:
@@ -796,7 +794,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@infogroup.command(name='user', description='Check out a user\'s info')
 	async def infouser(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
-		'''PFXinfo user [<user>]'''
 		if not user:
 			user = ctx.author
 		if type(user) == discord.ClientUser:
@@ -906,7 +903,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@infogroup.command(description='Check out a role\'s info')
 	async def role(self, ctx, *, role: Role = None):
-		'''PFXinfo role [<role>]'''
 		if not role:
 			role = ctx.author.top_role
 		embed = discord.Embed(colour=role.color if role.color != discord.Color.default() else ctx.author.color, timestamp=datetime.datetime.utcnow())
@@ -1067,7 +1063,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='follow', description='Follow a channel and recieve messages from it in your own server', aliases=['cfollow', 'channelfollow'], hidden=True)
 	async def follow(self, ctx, follow: typing.Union[TextChannel, str]):
-		'''PFXfollow <channel|link>'''
 		if not await self.bot.is_team_owner(ctx.author):
 			return
 		if isinstance(follow, discord.TextChannel):
@@ -1168,7 +1163,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Get the last deleted message')
 	async def snipe(self, ctx, source: typing.Union[TextChannel, Member, int] = None):
-		'''PFXsnipe [<channel|user>]'''
 		if type(source) == int:
 			source = self.bot.get_channel(source)
 		if type(source) == discord.Member:
@@ -1190,7 +1184,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Get the last edited message')
 	async def esnipe(self, ctx, source: typing.Union[TextChannel, Member, int] = None):
-		'''PFXesnipe [<channel|user>]'''
 		if type(source) == int:
 			source = self.bot.get_channel(source)
 		if type(source) == discord.Member:
@@ -1377,7 +1370,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Quote a message from an id or url')
 	async def quote(self, ctx, msg: typing.Union[str, int] = None):
-		'''PFXquote <message id|message url>'''
 		if not msg:
 			return await ctx.send(content = error_string + ' Please specify a message ID/URL to quote.')
 		try:
@@ -1451,7 +1443,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Got a HTTP Error Code? My cat knows what it means.', name='http.cat')
 	async def httpcat(self, ctx, error: int = 200):
-		'''PFXhttp.cat <error code>'''
 		embed = discord.Embed(color=ctx.author.color)
 		embed.set_image(url=f'https://http.cat/{error}')
 		await ctx.send(embed=embed)
@@ -1467,7 +1458,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Get a user\'s avatar', aliases=['av'])
 	async def avatar(self, ctx, user: UserWithFallback = None):
-		'''PFXavatar [<user>]'''
 		if not user:
 			user = ctx.author
 		if ctx.guild:
@@ -1508,7 +1498,6 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.bot_has_permissions(manage_roles=True)
 	@commands.has_permissions(manage_roles=True)
 	async def tempmention(self, ctx, *, role: Role):
-		'''PFXtempmention <role>'''
 		await role.edit(mentionable=True)
 		await ctx.send(f'Successfully made **{discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}** mentionable. It will stay mentionable until you mention it or 60 seconds go by', delete_after=5)
 		def check(m):
@@ -1580,12 +1569,11 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def vanityurl(self, ctx, code: str = None):
-		'''PFXvanityurl [<code>|"disable"]'''
 		premiumguilds = self.bot.premiumGuilds
 		if not code and not ctx.guild.id in premiumguilds:
 			return await ctx.error('You need to provide a code!')
 		elif not code:
-			current = self.bot.getvanitygid(ctx.guild.id)
+			current = self.bot.get_vanity_gid(ctx.guild.id)
 			statuses = ['online', 'idle', 'dnd']
 			online = len([m for m in ctx.guild.members if str(m.status) in statuses])
 			gonline = f'⬤ {online:,d} Online'
@@ -1638,8 +1626,8 @@ class utils(commands.Cog, name='Utility Commands'):
 			return await ctx.error('Vanity URLs can only contain characters A-Z0-9')
 		if len(code) < 3 or len(code) > 10:
 			return await ctx.error('The code needs to be 3-10 characters!')
-		exists = self.bot.getvanity(code.lower())
-		redirexists = self.bot.getredirect(code.lower())
+		exists = self.bot.get_vanity(code.lower())
+		redirexists = self.bot.get_redirect(code.lower())
 		if exists or redirexists:
 			return await ctx.error('This code is already in use!')
 		if not ctx.guild.me.guild_permissions.create_instant_invite:
@@ -1680,7 +1668,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		if url.lower() in ['delete', 'true', 'yeet']:
 			delete = True
 		if delete:
-			current = self.getredirect(slug.lower())
+			current = self.get_redirect(slug.lower())
 			if current['uid'] != ctx.author.id:
 				return await ctx.error('You can only delete your own redirects!')
 			await self.deletevanitycode(slug.lower())
@@ -1691,10 +1679,10 @@ class utils(commands.Cog, name='Utility Commands'):
 			return await ctx.error('Redirect slugs can only contain characters A-Z0-9')
 		if len(slug) < 3 or len(slug) > 20:
 			return await ctx.error('The slug needs to be 3-20 characters!')
-		exists = self.bot.getvanity(slug.lower())
+		exists = self.bot.get_vanity(slug.lower())
 		if exists and exists['gid'] not in premiumguilds:
 			exists = False
-		redirexists = self.bot.getredirect(slug.lower())
+		redirexists = self.bot.get_redirect(slug.lower())
 		if exists or redirexists:
 			return await ctx.error('This slug is already in use!')
 		redir = await self.createredirect(slug.lower(), url, ctx.author.id)
@@ -1746,7 +1734,6 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.has_permissions(manage_messages=True)
 	@tags.command(name='create', aliases=['new', 'add'])
 	async def tagcreate(self, ctx, tagname: str, *, tagcontent: str):
-		'''PFXtag create <name> <tag content>'''
 		currenttags = self.tags[ctx.guild.id] if ctx.guild.id in self.tags else []
 		existing = currenttags[tagname] if tagname in currenttags else False
 		if existing:
@@ -1766,7 +1753,6 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.has_permissions(manage_messages=True)
 	@tags.command(name='delete', aliases=['del', 'remove'])
 	async def tagdelete(self, ctx, tagname: str):
-		'''PFXtag delete <name>'''
 		currenttags = self.tags[ctx.guild.id] if ctx.guild.id in self.tags else []
 		existing = currenttags[tagname.lower()] if tagname.lower() in currenttags else False
 		if not existing:
@@ -1781,7 +1767,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Fetch a channel and get some beautiful json')
 	async def fetchchannel(self, ctx, channel: typing.Union[TextChannel, VoiceChannel, Category] = None):
-		'''PFXfetchchannel <channel>'''
 		if channel is None:
 			channel = ctx.channel
 
@@ -1805,7 +1790,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Fetch a channel from it\'s id or link')
 	async def fetchmsg(self, ctx, msg: typing.Union[str, int] = None):
-		'''PFXfetchmsg <message id|message url>'''
 		try:
 			msg = int(msg)
 		except Exception:
@@ -1892,7 +1876,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(description='Find a user from their id')
 	async def fetchuser(self, ctx, user: int = None):
-		'''PFXfetchuser <id>'''
 		if user == None:
 			user = ctx.message.author.id
 		try:
@@ -1937,7 +1920,6 @@ class utils(commands.Cog, name='Utility Commands'):
 	
 	@commands.command(description='Make Google TTS say something!')
 	async def tts(self, ctx, *, text: str):
-		'''PFXtts <text>'''
 		fp = await self.bot.loop.run_in_executor(None, functools.partial(self.gtts, text))
 		ttsfile = discord.File(f'{fp}.mp3', f'{ctx.author}.mp3')
 		await ctx.send(file=ttsfile)

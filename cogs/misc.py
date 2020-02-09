@@ -31,19 +31,8 @@ class misc(commands.Cog, name="Miscellaneous"):
 
 	async def loadutils(self):
 		await self.bot.wait_until_ready()
-		self.bot.logger.info(f'$YELLOWLoading prefixes & blacklist...')
-		self.bot.prefixes = await self.loadprefixes()
-		self.bot.logger.info(f'$GREENLoaded prefixes!')
 		self.bot.plonked = await self.loadplonked()
 		self.bot.logger.info(f'$GREENLoaded blacklist!')
-
-	async def loadprefixes(self):
-		prefixes = {}
-		query = 'SELECT * FROM prefixes;'
-		prefix = await self.bot.db.fetch(query)
-		for p in prefix:
-			prefixes[p['gid']] = p['prefix']
-		return prefixes
 
 	async def loadplonked(self):
 		plonked = []

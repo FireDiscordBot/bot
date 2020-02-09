@@ -489,7 +489,6 @@ class Music(commands.Cog):
 	@commands.command(name='connect', aliases=['join'], description="Connect to a voice channel")
 	#@commands.bot_has_permissions(connect=True, speak=True)
 	async def connect_(self, ctx, *, channel: VoiceChannel = None):
-		"""PFXconnect <channel>"""
 		try:
 			await ctx.message.delete()
 		except discord.HTTPException:
@@ -528,7 +527,6 @@ class Music(commands.Cog):
 	@commands.cooldown(1, 2, commands.BucketType.user)
 	#@commands.bot_has_permissions(connect=True, speak=True)
 	async def play_(self, ctx, *, query: str):
-		"""PFXplay <search query|url>"""
 		await ctx.trigger_typing()
 
 		await ctx.invoke(self.connect_)
@@ -583,7 +581,6 @@ class Music(commands.Cog):
 	@commands.command(name='np', aliases=['now_playing', 'current', 'currentsong'], description="Sends the music controller message which contains various information about the current and upcoming songs.")
 	@commands.cooldown(2, 15, commands.BucketType.user)
 	async def now_playing(self, ctx):
-		"""PFXnp"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 		if not player:
 			return
@@ -601,7 +598,6 @@ class Music(commands.Cog):
 
 	@commands.command(name='pause', description="Pause the currently playing song.")
 	async def pause_(self, ctx):
-		"""PFXpause"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 		if not player:
 			return
@@ -626,7 +622,6 @@ class Music(commands.Cog):
 
 	@commands.command(name='resume', description="Resume a currently paused song.")
 	async def resume_(self, ctx):
-		"""PFXresume"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -649,7 +644,6 @@ class Music(commands.Cog):
 	@commands.command(name='skip', description="Skip the current song.")
 	@commands.cooldown(5, 10, commands.BucketType.user)
 	async def skip_(self, ctx):
-		"""PFXskip"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -677,7 +671,6 @@ class Music(commands.Cog):
 	@commands.command(name='stop', description="Stop the player, disconnect and clear the queue.", aliases=['goaway', 'disconnect'])
 	@commands.cooldown(3, 30, commands.BucketType.guild)
 	async def stop_(self, ctx):
-		"""PFXstop"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -700,7 +693,6 @@ class Music(commands.Cog):
 	@commands.command(name='volume', aliases=['vol'], description="Change the player volume.")
 	@commands.cooldown(1, 2, commands.BucketType.guild)
 	async def volume_(self, ctx, *, value: int):
-		"""PFXvolume <number: 1-100>"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -723,7 +715,6 @@ class Music(commands.Cog):
 	@commands.command(name='queue', aliases=['q', 'que'], description="Retrieve a list of currently queued songs.")
 	@commands.cooldown(1, 10, commands.BucketType.user)
 	async def queue_(self, ctx):
-		"""PFXqueue"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -743,7 +734,6 @@ class Music(commands.Cog):
 	@commands.command(name='shuffle', aliases=['mix'], description="Shuffle the current queue.")
 	@commands.cooldown(2, 10, commands.BucketType.user)
 	async def shuffle_(self, ctx):
-		"""PFXshuffle"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -767,7 +757,6 @@ class Music(commands.Cog):
 
 	@commands.command(name='repeat', description="Repeat the currently playing song.", aliases=["loop"])
 	async def repeat_(self, ctx):
-		"""PFXrepeat"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if not player.is_connected:
@@ -826,7 +815,6 @@ class Music(commands.Cog):
 
 	@commands.command(name='seteq', description="Pick from one of the equalizer presets to change your music.")
 	async def set_eq(self, ctx, *, eq: str):
-		"""PFXseteq <Flat|Boost|Metal|Piano>"""
 		player = self.bot.wavelink.get_player(ctx.guild.id, cls=Player)
 
 		if eq.upper() not in player.equalizers:

@@ -64,7 +64,6 @@ class firecog(commands.Cog, name="Main Commands"):  # this cog will soon be gone
 
 	@commands.command(description="Shows you some stats about me.", aliases=['about'])
 	async def stats(self, ctx):
-		"""PFXstats"""
 		msg = await ctx.send('Gathering info...')
 		delta_uptime = datetime.datetime.utcnow() - self.bot.launchtime
 		hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
@@ -110,7 +109,6 @@ class firecog(commands.Cog, name="Main Commands"):  # this cog will soon be gone
 
 	@commands.command(description="Shows you all the guilds I'm in.")
 	async def listguilds(self, ctx):
-		"""PFXlistguilds"""
 		if not self.bot.isadmin(ctx.author):
 			return
 		paginator = WrappedPaginator(prefix='```vbs', suffix='```', max_size=1500)

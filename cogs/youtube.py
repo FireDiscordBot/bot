@@ -90,7 +90,6 @@ class youtube(commands.Cog, name="YouTube API"):
 
 	@commands.group(name="yt", aliases=['youtube'], invoke_without_command=True, description='YouTube commands.')
 	async def yt(self, ctx):
-		'''PFXyt [<info <video id>>]'''
 		videos = await self.loop.run_in_executor(None, func=self.popular)
 		embed = discord.Embed(title="Trending on YouTube (US)", color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		for video in videos:

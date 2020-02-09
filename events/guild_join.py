@@ -33,11 +33,6 @@ class guildAdd(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'guilds.join'))
-        con = await self.bot.db.acquire()
-        async with con.transaction():
-            query = 'INSERT INTO settings (\"gid\") VALUES ($1);'
-            await self.bot.db.execute(query, guild.id)
-        await self.bot.db.release(con)
         if guild.id not in self.bot.configs:
             self.bot.configs[guild.id] = Config(guild.id, bot=self.bot, db=self.bot.db)
             await self.bot.configs[guild.id].load()

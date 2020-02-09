@@ -81,149 +81,43 @@ region = {
 class settings(commands.Cog, name="Settings"):
 	def __init__(self, bot):
 		self.bot = bot
-		self.logchannels = {}
-		self.linkfilter = {}
-		self.filterexcl = {}
 		self.malware = []
-		self.gbancheck = []
 		self.recentgban = []
-		self.autodecancer = []
-		self.autodehoist = []
-		self.modonly = {}
-		self.adminonly = {}
-		self.joinleave = {}
-		self.antiraid = {}
 		self.raidmsgs = {}
 		self.msgraiders = {}
 		self.joincache = {}
 		self.dupecheck = {}
-		self.disabledcmds = {}
 		self.uuidregex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
 		if not hasattr(self.bot, 'invites'):
 			self.bot.invites = {}
 		self.bot.aliases = {}
-		asyncio.get_event_loop().create_task(self.loadSettings())
-		# self.refreshInvites.start()
+		asyncio.get_event_loop().create_task(self.load_data())
+		asyncio.get_event_loop().create_task(self.load_invites())
+		asyncio.get_event_loop().create_task(self.load_aliases())
+		self.refresh_invites.start()
 
 	def clean(self, text: str):
 		return re.sub(r'[^A-Za-z0-9.\/ ]', '', text, 0, re.MULTILINE)
 
 	@tasks.loop(minutes=2)
-	async def refreshInvites(self):
+	async def refresh_invites(self):
 		for gid in self.bot.premiumGuilds:
-			await self.loadInvites(gid)
+			await self.load_invites(gid)
 
 	def cog_unload(self):
-		self.refreshInvites.cancel()
+		self.refresh_invites.cancel()
 
-	@refreshInvites.after_loop
-	async def after_refreshInvites(self):
+	@refresh_invites.after_loop
+	async def after_refresh_invites(self):
 		self.bot.logger.warn(f'$YELLOWInvite refresher has stopped!')
 
-	async def loadSettings(self):
+	async def load_data(self):
 		await self.bot.wait_until_ready()
-		self.bot.logger.info(f'$YELLOWLoading settings...')
-		self.logchannels = {}
-		self.linkfilter = {}
-		self.filterexcl = {}
-		self.malware = []
-		self.gbancheck = []
-		self.recentgban = []
-		self.autodecancer = []
-		self.autodehoist = []
-		self.modonly = {}
-		self.adminonly = {}
-		self.joinleave = {}
-		self.antiraid = {}
-		self.raidmsgs = {}
-		self.msgraiders = {}
-		self.joincache = {}
-		self.dupecheck = {}
-		self.dupecheck['guilds'] = []
-		self.disabledcmds = {}
-		self.bot.aliases = {}
+		self.bot.logger.info(f'$YELLOWLoading common data...')
 		for g in self.bot.guilds:
 			self.joincache[g.id] = []
 			self.raidmsgs[g.id] = None
 			self.msgraiders[g.id] = []
-			self.disabledcmds[g.id] = []
-		query = 'SELECT * FROM settings;'
-		settings = await self.bot.db.fetch(query)
-		for s in settings:
-			guild = s['gid']
-			if s['filterexcl']:
-				self.filterexcl[guild] = s['filterexcl']
-			if s['disabledcmds']:
-				self.disabledcmds[guild] = s['disabledcmds']
-			if s['globalbans'] == 1:
-				self.gbancheck.append(guild)
-			if s['autodecancer'] == 1:
-				self.autodecancer.append(guild)
-			if s['autodehoist'] == 1:
-				self.autodehoist.append(guild)
-			if s['dupecheck'] == 1:
-				self.dupecheck['guilds'].append(guild)
-			if s['modonly']:
-				if guild not in self.modonly:
-					self.modonly[guild] = []
-				for cid in s['modonly']:
-					self.modonly[guild].append(cid)
-			if s['adminonly']:
-				if guild not in self.adminonly:
-					self.adminonly[guild] = []
-				for cid in s['adminonly']:
-					self.adminonly[guild].append(cid)
-			if s['modlogs'] == 0:
-				modlogs = False
-			else:
-				modlogs = s['modlogs']
-			if s['actionlogs'] == 0:
-				actionlogs = False
-			else:
-				actionlogs = s['actionlogs']
-			if s['antiraid'] == 0:
-				antiraid = False
-			else:
-				antiraid = s['antiraid']
-			guildobj = self.bot.get_guild(guild)
-			if not guildobj:
-				modlogs = False
-				actionlogs = False
-				antiraid = False
-			else:
-				if modlogs:
-					cmodlogs = discord.utils.get(guildobj.channels, id=modlogs)
-					if type(cmodlogs) != discord.TextChannel:
-						modlogs = False
-				if actionlogs:
-					cactionlogs = discord.utils.get(guildobj.channels, id=actionlogs)
-					if type(cactionlogs) != discord.TextChannel:
-						actionlogs = False
-				if antiraid:
-					cantiraid = discord.utils.get(guildobj.channels, id=antiraid)
-					if type(cantiraid) != discord.TextChannel:
-						antiraid = False
-			self.logchannels[guild] = {
-				"modlogs": modlogs,
-				"actionlogs": actionlogs
-			}
-			if antiraid:
-				self.antiraid[guild] = antiraid
-		query = 'SELECT * FROM joinleave;'
-		joinleave = await self.bot.db.fetch(query)
-		for jl in joinleave:
-			guild = jl['gid']
-			self.joinleave[guild] = {
-				'joinchan': jl.get('joinchan', False),
-				'leavechan': jl.get('leavechan', False),
-				'joinmsg': jl.get('joinmsg', False),
-				'leavemsg': jl.get('leavemsg', False)
-			}
-		query = 'SELECT * FROM linkfilter;'
-		filtered = await self.bot.db.fetch(query)
-		for f in filtered:
-			guild = f['gid']
-			self.linkfilter[guild] = f['enabled'] or []
 		try:
 			malware = await aiohttp.ClientSession().get('https://mirror.cedia.org.ec/malwaredomains/justdomains')
 			malware = await malware.text()
@@ -231,11 +125,9 @@ class settings(commands.Cog, name="Settings"):
 		except Exception as e:
 			self.bot.logger.error(f'$REDFailed to fetch malware domains!', exc_info=e)
 			self.malware = []
-		await self.loadInvites()
-		await self.loadAliases()
-		self.bot.logger.info(f'$GREENFinished loading settings!')
+		self.bot.logger.info(f'$GREENFinished loading common data!')
 
-	async def loadAliases(self):
+	async def load_aliases(self):
 		await self.bot.wait_until_ready()
 		self.bot.logger.info(f'$YELLOWLoading aliases...')
 		self.bot.aliases = {}
@@ -248,7 +140,7 @@ class settings(commands.Cog, name="Settings"):
 				self.bot.aliases[al.lower()] = a['uid']
 		self.bot.logger.info(f'$GREENLoaded aliases!')
 
-	async def loadInvites(self, gid: int = None):
+	async def load_invites(self, gid: int = None):
 		if not gid:
 			self.bot.invites = {}
 			for gid in self.bot.premiumGuilds:
@@ -291,19 +183,8 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_ready(self):
 		self.bot.ksoft.register_ban_hook(self.ksoft_ban_hook)
-		# await self.loadSettings()
-		# await self.loadInvites()
 
-	@commands.command(name='loadsettings', description='Load settings', hidden=True)
-	async def loadthesettings(self, ctx):
-		'''PFXloadsettings'''
-		if await self.bot.is_team_owner(ctx.author):
-			await self.loadSettings()
-			await ctx.send('Loaded data!')
-		else:
-			await ctx.send('no.')
-
-	async def getvanitys(self):
+	async def get_vanitys(self):
 		if not self.bot.dev:
 			return self.bot.vanity_urls
 		async with aiohttp.ClientSession() as s:
@@ -316,11 +197,7 @@ class settings(commands.Cog, name="Settings"):
 		if message.guild and not message.author.bot:
 			if message.channel.id == 600068336331522079:
 				return
-			logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-			if logid:
-				logch = message.guild.get_channel(logid['actionlogs'])
-			else:
-				return
+			logch = self.bot.configs[message.guild.id].get('log.action')
 			if logch:
 				deletedby = None
 				if message.guild.me.guild_permissions.view_audit_log:
@@ -348,11 +225,7 @@ class settings(commands.Cog, name="Settings"):
 			return
 		if after.channel.type == discord.ChannelType.news and after.author.permissions_in(after.channel).manage_messages:
 			if before.flags.crossposted != after.flags.crossposted:
-				logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
-				if logid:
-					logch = after.guild.get_channel(logid['actionlogs'])
-				else:
-					return
+				logch = self.bot.configs[after.guild.id].get('log.action')
 				if logch:
 					embed = discord.Embed(color=discord.Color.green(), timestamp=after.created_at, description=f'**A message was published in** {after.channel.mention}')
 					embed.set_author(name=after.guild.name, icon_url=str(after.guild.icon_url))
@@ -367,7 +240,7 @@ class settings(commands.Cog, name="Settings"):
 			return
 		message = after
 		# cleaned = self.clean(message.system_content)
-		excluded = self.filterexcl.get(message.guild.id, [])
+		excluded = self.bot.configs[message.guild.id].get('excluded.filter')
 		roleids = [r.id for r in message.author.roles]
 		if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
 			if any(l in message.system_content for l in self.malware):
@@ -402,7 +275,7 @@ class settings(commands.Cog, name="Settings"):
 										pass
 				try:
 					ohmygod = False
-					self.bot.vanity_urls = await self.getvanitys()
+					self.bot.vanity_urls = await self.get_vanitys()
 					vanitydomains = ['oh-my-god.wtf', 'inv.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
 					if code.lower() in self.bot.vanity_urls and any(d in message.system_content for d in vanitydomains):
 						invite = self.bot.getvanity(code)
@@ -424,11 +297,7 @@ class settings(commands.Cog, name="Settings"):
 				if message.guild:
 					if message.author.bot:
 						return
-					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-					if logid:
-						logch = message.guild.get_channel(logid['actionlogs'])
-					else:
-						return
+					logch = self.bot.configs[message.guild.id].get('log.action')
 					if logch and 'discord' in self.linkfilter.get(message.guild.id, []):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -457,11 +326,7 @@ class settings(commands.Cog, name="Settings"):
 				if message.guild:
 					if message.author.bot:
 						return
-					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-					if logid:
-						logch = message.guild.get_channel(logid['actionlogs'])
-					else:
-						return
+					logch = self.bot.configs[message.guild.id].get('log.action')
 					if logch and 'paypal' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -494,11 +359,7 @@ class settings(commands.Cog, name="Settings"):
 					if message.guild:
 						if message.author.bot:
 							return
-						logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-						if logid:
-							logch = message.guild.get_channel(logid['actionlogs'])
-						else:
-							return
+						logch = self.bot.configs[message.guild.id].get('log.action')
 						if logch and 'youtube' in self.linkfilter.get(message.guild.id, []):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -534,11 +395,7 @@ class settings(commands.Cog, name="Settings"):
 					if message.guild:
 						if message.author.bot:
 							return
-						logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-						if logid:
-							logch = message.guild.get_channel(logid['actionlogs'])
-						else:
-							return
+						logch = self.bot.configs[message.guild.id].get('log.action')
 						if logch and 'youtube' in self.linkfilter.get(message.guild.id, []):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -571,11 +428,7 @@ class settings(commands.Cog, name="Settings"):
 				if message.guild:
 					if message.author.bot:
 						return
-					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-					if logid:
-						logch = message.guild.get_channel(logid['actionlogs'])
-					else:
-						return
+					logch = self.bot.configs[message.guild.id].get('log.action')
 					if logch and 'twitch' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -598,11 +451,7 @@ class settings(commands.Cog, name="Settings"):
 				if message.guild:
 					if message.author.bot:
 						return
-					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-					if logid:
-						logch = message.guild.get_channel(logid['actionlogs'])
-					else:
-						return
+					logch = self.bot.configs[message.guild.id].get('log.action')
 					if logch and 'twitter' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -615,11 +464,7 @@ class settings(commands.Cog, name="Settings"):
 		if before.system_content == after.system_content:
 			return
 		if after.guild and not after.author.bot:
-			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
-			if logid:
-				logch = after.guild.get_channel(logid['actionlogs'])
-			else:
-				return
+			logch = self.bot.configs[after.guild.id].get('log.action')
 			if logch:
 				embed = discord.Embed(color=after.author.color, timestamp=after.created_at, description=f'{after.author.mention} **edited a message in** {after.channel.mention}')
 				embed.set_author(name=after.author, icon_url=str(after.author.avatar_url_as(static_format='png', size=2048)))
@@ -640,11 +485,7 @@ class settings(commands.Cog, name="Settings"):
 			await channel.set_permissions(muted, send_messages=False,
 												read_message_history=False,
 												read_messages=False)
-		logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
-		if logid:
-			logch = channel.guild.get_channel(logid['actionlogs'])
-		else:
-			return
+		logch = self.bot.configs[channel.guild.id].get('log.action')
 		if logch:
 			createdby = None
 			if channel.guild.me.guild_permissions.view_audit_log:
@@ -664,11 +505,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_guild_channel_delete(self, channel):
-		logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
-		if logid:
-			logch = channel.guild.get_channel(logid['actionlogs'])
-		else:
-			return
+		logch = self.bot.configs[channel.guild.id].get('log.action')
 		if logch:
 			deletedby = None
 			if channel.guild.me.guild_permissions.view_audit_log:
@@ -703,7 +540,7 @@ class settings(commands.Cog, name="Settings"):
 		lastmsg = self.uuidgobyebye(self.dupecheck.get(message.author.id, 'send this message and it will get yeeted'))
 		thismsg = self.uuidgobyebye(message.content)
 		if message.content != "" and len(message.attachments) < 1 and not message.author.bot:
-			if message.content == lastmsg and message.guild.id in self.dupecheck['guilds'] and not message.author.permissions_in(message.channel).manage_messages:
+			if message.content == lastmsg and self.bot.configs[message.guild.id].get('mod.dupecheck') and not message.author.permissions_in(message.channel).manage_messages:
 				await message.delete()
 		self.dupecheck[message.author.id] = message.content
 		premium = self.bot.premiumGuilds
@@ -711,7 +548,7 @@ class settings(commands.Cog, name="Settings"):
 			raidmsg = self.raidmsgs.get(message.guild.id, False)
 			if raidmsg and raidmsg in message.content:
 				self.msgraiders.get(message.guild.id, []).append(message.author)
-		excluded = self.filterexcl.get(message.guild.id, [])
+		excluded = self.bot.configs[message.guild.id].get('excluded.filter')
 		roleids = [r.id for r in message.author.roles]
 		if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
 			if any(l in message.system_content for l in self.malware):
@@ -746,7 +583,7 @@ class settings(commands.Cog, name="Settings"):
 										pass
 				try:
 					ohmygod = False
-					self.bot.vanity_urls = await self.getvanitys()
+					self.bot.vanity_urls = await self.get_vanitys()
 					vanitydomains = ['oh-my-god.wtf', 'inv.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
 					if code.lower() in self.bot.vanity_urls and any(d in message.system_content for d in vanitydomains):
 						invite = self.bot.getvanity(code)
@@ -768,11 +605,7 @@ class settings(commands.Cog, name="Settings"):
 				if message.guild:
 					if message.author.bot:
 						return
-					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-					if logid:
-						logch = message.guild.get_channel(logid['actionlogs'])
-					else:
-						return
+					logch = self.bot.configs[message.guild.id].get('log.action')
 					if logch and 'discord' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -801,11 +634,7 @@ class settings(commands.Cog, name="Settings"):
 				if message.guild:
 					if message.author.bot:
 						return
-					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-					if logid:
-						logch = message.guild.get_channel(logid['actionlogs'])
-					else:
-						return
+					logch = self.bot.configs[message.guild.id].get('log.action')
 					if logch and 'paypal' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -838,11 +667,7 @@ class settings(commands.Cog, name="Settings"):
 					if message.guild:
 						if message.author.bot:
 							return
-						logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-						if logid:
-							logch = message.guild.get_channel(logid['actionlogs'])
-						else:
-							return
+						logch = self.bot.configs[message.guild.id].get('log.action')
 						if logch and 'youtube' in self.linkfilter.get(message.guild.id, []):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -878,11 +703,7 @@ class settings(commands.Cog, name="Settings"):
 					if message.guild:
 						if message.author.bot:
 							return
-						logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-						if logid:
-							logch = message.guild.get_channel(logid['actionlogs'])
-						else:
-							return
+						logch = self.bot.configs[message.guild.id].get('log.action')
 						if logch and 'youtube' in self.linkfilter.get(message.guild.id, []):
 							embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
 							embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -915,11 +736,7 @@ class settings(commands.Cog, name="Settings"):
 				if message.guild:
 					if message.author.bot:
 						return
-					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-					if logid:
-						logch = message.guild.get_channel(logid['actionlogs'])
-					else:
-						return
+					logch = self.bot.configs[message.guild.id].get('log.action')
 					if logch and 'twitch' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -942,11 +759,7 @@ class settings(commands.Cog, name="Settings"):
 				if message.guild:
 					if message.author.bot:
 						return
-					logid = self.logchannels[message.guild.id] if message.guild.id in self.logchannels else None
-					if logid:
-						logch = message.guild.get_channel(logid['actionlogs'])
-					else:
-						return
+					logch = self.bot.configs[message.guild.id].get('log.action')
 					if logch and 'twitter' in self.linkfilter.get(message.guild.id, []):
 						embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
 						embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -962,11 +775,7 @@ class settings(commands.Cog, name="Settings"):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'commands.used'))
 		if ctx.command.name in watchedcmds:
 			if ctx.guild:
-				logid = self.logchannels[ctx.guild.id] if ctx.guild.id in self.logchannels else None
-				if logid:
-					logch = ctx.guild.get_channel(logid['actionlogs'])
-				else:
-					return
+				logch = self.bot.configs[ctx.guild.id].get('log.action')
 				if logch:
 					embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'`{ctx.command.name}` **was used in** {ctx.channel.mention} **by {ctx.author.name}**')
 					embed.set_author(name=ctx.author, icon_url=str(ctx.author.avatar_url_as(static_format='png', size=2048)))
@@ -1003,10 +812,8 @@ class settings(commands.Cog, name="Settings"):
 		mod = self.bot.get_user(event.moderator_id)
 		self.bot.logger.warn(f'$BLUE{event.user_id} ({user}) $YELLOWwas banned on KSoft for $BLUE{event.reason} $YELLOWby $BLUE{event.moderator_id} ({mod})$YELLOW. Proof: $BLUE{event.proof}')
 		for guild in self.bot.guilds:
-			if guild.id in self.gbancheck:
-				logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
-				if logid:
-					logch = guild.get_channel(logid['modlogs'])
+			if self.bot.configs[guild.id].get('mod.globalbans'):
+				logch = self.bot.configs[guild.id].get('log.moderation')
 				member = guild.get_member(event.user_id)
 				if member:
 					try:
@@ -1028,11 +835,7 @@ class settings(commands.Cog, name="Settings"):
 		user = self.bot.get_user(int(data['user']['user']))
 		self.bot.logger.warn(f'$BLUE{user} $YELLOWwas blacklisted on Chatwatch for $BLUE{data["user"]["blacklisted_reason"]}')
 		for guild in [g for g in self.bot.guilds if g.get_member(int(data['user']['user'])) or g.id == 564052798044504084]:
-			logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
-			if logid:
-				logch = guild.get_channel(logid['modlogs'])
-			else:
-				continue
+			logch = self.bot.configs[guild.id].get('log.moderation')
 			if logch:
 				member = guild.get_member(int(data['user']['user']))
 				if not member and guild.id == 564052798044504084:
@@ -1132,7 +935,7 @@ class settings(commands.Cog, name="Settings"):
 		if not member.bot:
 			if member.guild.id in self.bot.invites and member.guild.id in premium:
 				before = self.bot.invites[member.guild.id].copy()
-				await self.loadInvites(member.guild.id)
+				await self.load_invites(member.guild.id)
 				after = self.bot.invites[member.guild.id]
 				for inv in before:
 					a = after.get(inv, False)
@@ -1144,20 +947,15 @@ class settings(commands.Cog, name="Settings"):
 					usedinvite = 'Joined without invite. Potentially from Server Discovery'
 				else:
 					usedinvite = 'Joined without invite. Potentially from lurking'
-		joinleave = self.joinleave.get(member.guild.id, False)
-		if joinleave:
-			joinchan = joinleave.get('joinchan', False)
-			joinmsg = joinleave.get('joinmsg', False)
+		if self.bot.configs[member.guild.id].get('greet.joinmsg'):
+			joinchan = self.bot.configs[member.guild.id].get('greet.joinchannel')
+			joinmsg = self.bot.configs[member.guild.id].get('greet.joinmsg')
 			if joinchan and joinmsg:
 				channel = member.guild.get_channel(joinchan)
 				message = joinmsg.replace('{user.mention}', member.mention).replace('{user}', str(member)).replace('{user.name}', member.name).replace('{user.discrim}', member.discriminator).replace('{server}', member.guild.name).replace('{guild}', member.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 				await channel.send(message)
-		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
-		if logid:
-			logch = member.guild.get_channel(logid['modlogs'])
-		else:
-			return
-		if member.guild.id in self.gbancheck:
+		logch = self.bot.configs[member.guild.id].get('log.moderation')
+		if self.bot.configs[member.guild.id].get('mod.globalbans'):
 			try:
 				banned = await self.bot.ksoft.bans_check(member.id)
 				if banned:
@@ -1200,11 +998,11 @@ class settings(commands.Cog, name="Settings"):
 			except Exception:
 				pass
 		try:
-			if member.guild.id in self.autodecancer:
+			if self.bot.configs[member.guild.id].get('mod.autodecancer'):
 				if not self.bot.isascii(member.name.replace('‘', '\'').replace('“', '"').replace('“', '"')): #fix weird mobile characters
 					num = member.discriminator
 					return await member.edit(nick=f'John Doe {num}')
-			if member.guild.id in self.autodehoist:
+			if self.bot.configs[member.guild.id].get('mod.autodehoist'):
 				if self.bot.ishoisted(member.name):
 					num = member.discriminator
 					return await member.edit(nick=f'John Doe {num}')
@@ -1214,19 +1012,14 @@ class settings(commands.Cog, name="Settings"):
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.leave'))
-		joinleave = self.joinleave.get(member.guild.id, False)
-		if joinleave:
-			leavechan = joinleave.get('leavechan', False)
-			leavemsg = joinleave.get('leavemsg', False)
+		if self.bot.configs[member.guild.id].get('greet.leavemsg'):
+			leavechan = self.bot.configs[member.guild.id].get('greet.leavechannel')
+			leavemsg = self.bot.configs[member.guild.id].get('greet.leavemsg')
 			if leavechan and leavemsg:
 				channel = member.guild.get_channel(leavechan)
 				message = leavemsg.replace('{user.mention}', member.mention).replace('{user}', str(member)).replace('{user.name}', member.name).replace('{user.discrim}', member.discriminator).replace('{server}', member.guild.name).replace('{guild}', member.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 				await channel.send(message)
-		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
-		if logid:
-			logch = member.guild.get_channel(logid['modlogs'])
-		else:
-			return
+		logch = self.bot.configs[member.guild.id].get('log.moderation')
 		if logch:
 			moderator = None
 			action = None
@@ -1263,7 +1056,7 @@ class settings(commands.Cog, name="Settings"):
 				try:
 					member = guild.get_member(after.id)
 					if member:
-						if guild.id in self.autodecancer:
+						if self.bot.configs[member.guild.id].get('mod.autodecancer'):
 							nitroboosters = discord.utils.get(member.guild.roles, id=585534346551754755)
 							if member.guild_permissions.manage_nicknames:
 								pass
@@ -1277,7 +1070,7 @@ class settings(commands.Cog, name="Settings"):
 								else:
 									if member.nick and 'John Doe' in member.nick:
 										return await member.edit(nick=None)
-						if member.guild.id in self.autodehoist:
+						if self.bot.configs[member.guild.id].get('mod.autodehoist'):
 							nitroboosters = discord.utils.get(member.guild.roles, id=585534346551754755)
 							if member.guild_permissions.manage_nicknames:
 								pass
@@ -1300,7 +1093,7 @@ class settings(commands.Cog, name="Settings"):
 			if after.nick != None and f'John Doe {after.discriminator}' in after.nick:
 				return
 			try:
-				if after.guild.id in self.autodecancer:
+				if self.bot.configs[after.guild.id].get('mod.autodecancer'):
 					nitroboosters = discord.utils.get(after.guild.roles, id=585534346551754755)
 					if after.guild_permissions.manage_nicknames or nitroboosters in after.roles:
 						pass
@@ -1312,7 +1105,7 @@ class settings(commands.Cog, name="Settings"):
 						if not self.bot.isascii(nick.replace('‘', '\'').replace('“', '"').replace('“', '"')):
 							num = after.discriminator
 							return await after.edit(nick=f'John Doe {num}')
-				if after.guild.id in self.autodehoist:
+				if self.bot.configs[after.guild.id].get('mod.autodehoist'):
 					nitroboosters = discord.utils.get(after.guild.roles, id=585534346551754755)
 					if after.guild_permissions.manage_nicknames or nitroboosters in after.roles:
 						pass
@@ -1326,11 +1119,7 @@ class settings(commands.Cog, name="Settings"):
 							return await after.edit(nick=f'John Doe {num}')
 			except Exception:
 				pass
-			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
-			if logid:
-				logch = after.guild.get_channel(logid['actionlogs'])
-			else:
-				return
+			logch = self.bot.configs[after.guild.id].get('log.action')
 			if logch and after.nick:
 				embed = discord.Embed(color=after.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'**s nickname was changed**')
 				embed.set_author(name=after, icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
@@ -1342,11 +1131,7 @@ class settings(commands.Cog, name="Settings"):
 				except Exception:
 					pass
 		if before.roles != after.roles:
-			logid = self.logchannels[after.guild.id] if after.guild.id in self.logchannels else None
-			if logid:
-				logch = after.guild.get_channel(logid['actionlogs'])
-			else:
-				return
+			logch = self.bot.configs[after.guild.id].get('log.action')
 			if logch:
 				broles = []
 				aroles = []
@@ -1383,11 +1168,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_guild_channel_pins_update(self, channel, last_pin = 0):
-			logid = self.logchannels[channel.guild.id] if channel.guild.id in self.logchannels else None
-			if logid:
-				logch = channel.guild.get_channel(logid['actionlogs'])
-			else:
-				return
+			logch = self.bot.configs[channel.guild.id].get('log.action')
 			if logch:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'{channel.mention}\'**s pinned messages were updated**')
 				embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
@@ -1399,11 +1180,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_guild_role_create(self, role):
-		logid = self.logchannels[role.guild.id] if role.guild.id in self.logchannels else None
-		if logid:
-			logch = role.guild.get_channel(logid['actionlogs'])
-		else:
-			return
+		logch = self.bot.configs[role.guild.id].get('log.action')
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**A new role was created**\n{role.mention}')
 			embed.set_author(name=role.guild.name, icon_url=str(role.guild.icon_url))
@@ -1415,11 +1192,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_guild_role_delete(self, role):
-		logid = self.logchannels[role.guild.id] if role.guild.id in self.logchannels else None
-		if logid:
-			logch = role.guild.get_channel(logid['actionlogs'])
-		else:
-			return
+		logch = self.bot.configs[role.guild.id].get('log.action')
 		if logch:
 			embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'**The role** `{role.name}` **was deleted**')
 			embed.set_author(name=role.guild.name, icon_url=str(role.guild.icon_url))
@@ -1431,11 +1204,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_voice_state_update(self, member, before, after):
-		logid = self.logchannels[member.guild.id] if member.guild.id in self.logchannels else None
-		if logid:
-			logch = member.guild.get_channel(logid['actionlogs'])
-		else:
-			return
+		logch = self.bot.configs[member.guild.id].get('log.action')
 		if logch:
 			if before.deaf != after.deaf:
 				if after.deaf:
@@ -1563,11 +1332,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_guild_update(self, before, after):
-		logid = self.logchannels[after.id] if after.id in self.logchannels else None
-		if logid:
-			logch = after.get_channel(logid['actionlogs'])
-		else:
-			return
+		logch = self.bot.configs[after.id].get('log.action')
 		if logch:
 			if before.name != after.name:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**Guild name was changed**')
@@ -1697,11 +1462,7 @@ class settings(commands.Cog, name="Settings"):
 		if f'{member.id}-{guild.id}' in self.recentgban:
 			self.recentgban.remove(f'{member.id}-{guild.id}')
 			return
-		logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
-		if logid:
-			logch = guild.get_channel(logid['actionlogs'])
-		else:
-			return
+		logch = self.bot.configs[guild.id].get('log.action')
 		if logch:
 			embed = discord.Embed(color=member.color if member.color != discord.Color.default() else discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
 			embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
@@ -1713,11 +1474,7 @@ class settings(commands.Cog, name="Settings"):
 
 	@commands.Cog.listener()
 	async def on_member_unban(self, guild, member):
-		logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
-		if logid:
-			logch = guild.get_channel(logid['actionlogs'])
-		else:
-			return
+		logch = self.bot.configs[guild.id].get('log.action')
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{member} was unbanned**')
 			embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
@@ -1734,11 +1491,7 @@ class settings(commands.Cog, name="Settings"):
 			self.bot.invites.get(guild.id, {})[invite.code] = 0
 		if not isinstance(guild, discord.Guild):
 			return
-		logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
-		if logid:
-			logch = guild.get_channel(logid['actionlogs'])
-		else:
-			return
+		logch = self.bot.configs[guild.id].get('log.action')
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**An invite was created**')
 			embed.set_author(name=guild.name, icon_url=str(guild.icon_url_as(static_format='png', size=2048)))
@@ -1769,11 +1522,7 @@ class settings(commands.Cog, name="Settings"):
 		async for a in guild.audit_logs(action=discord.AuditLogAction.invite_delete, limit=1):
 			if a.target.code == invite.code:
 				whodidit = a.user
-		logid = self.logchannels[guild.id] if guild.id in self.logchannels else None
-		if logid:
-			logch = guild.get_channel(logid['actionlogs'])
-		else:
-			return
+		logch = self.bot.configs[guild.id].get('log.action')
 		if logch:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**An invite was deleted**')
 			embed.set_author(name=guild.name, icon_url=str(guild.icon_url_as(static_format='png', size=2048)))
@@ -1792,21 +1541,14 @@ class settings(commands.Cog, name="Settings"):
 	@commands.bot_has_permissions(add_reactions=True, external_emojis=True)
 	@commands.guild_only()
 	async def gsettings(self, ctx):
-		'''PFXsettings'''
 		firesuccess = discord.utils.get(self.bot.emojis, id=674359197378281472)
 		firefailed = discord.utils.get(self.bot.emojis, id=674359427830382603)
-		settingslist = {
-			'modlogs': 'Disabled',
-			'actionlogs': 'Disabled',
-			'linkfilter': 'Disabled',
-			'dupecheck': 'Disabled',
-			'globalbans': 'Disabled',
-			'autodecancer': 'Disabled',
-			'autodehoist': 'Disabled'
-		}
-		await ctx.send('Hey, I\'m going to guide you through my settings. This shouldn\'t take long, there\'s only 6 options to configure')
+		setupmsgs = []
+		m = await ctx.send('Hey, I\'m going to guide you through my settings. This shouldn\'t take long, there\'s only 6 options to configure'))
+		setupmsgs.append(m)
 		await asyncio.sleep(3)
-		await ctx.send('First, we\'ll configure logging. Please give a channel for moderation logs or say `skip` to disable...')
+		m = await ctx.send('First, we\'ll configure logging. Please give a channel for moderation logs or say `skip` to disable...')
+		setupmsgs.append(m)
 
 		def modlog_check(message):
 			if message.author != ctx.author:
@@ -1814,77 +1556,72 @@ class settings(commands.Cog, name="Settings"):
 			else:
 				return True
 		try:
-			modlogchannel = None
 			modlogsmsg = await self.bot.wait_for('message', timeout=30.0, check=modlog_check)
-			if modlogsmsg.content != 'skip':
+			setupmsgs.append(modlogsmsg)
+			if modlogsmsg.content.lower() != 'skip':
 				try:
-					modlogchannel = await TextChannel().convert(ctx, modlogsmsg.content)
-					modlognotfound = False
-					settingslist['modlogs'] = modlogchannel.id
+					modlogs = await TextChannel().convert(ctx, modlogsmsg.content)
 				except commands.BadArgument:
-					modlognotfound = True
-				modlogs = settingslist['modlogs']
-				if modlogs == 'Disabled':
-					modlogs = 0
-					if modlognotfound:
-						await ctx.send('I couldn\'t find that channel, disabling actimodon logs')
-					else:
-						await ctx.send('Disabling mod logs...')
+					m = await ctx.error('Channel not found, moderation logs are now disabled.')
+					setupmsgs.append(m)
+					modlogs = None
 				else:
-					await ctx.send(f'Great! Setting mod logs to {modlogchannel.mention}')
+					m = await ctx.success(f'Setting moderation logs to {modlogs.mention}')
+					setupmsgs.append(m)
 			else:
-				await ctx.send('Skipping mod logs...')
-				modlogs = 0
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				q = 'UPDATE settings SET modlogs = $1 WHERE gid = $2;'
-				await self.bot.db.execute(q, modlogs, ctx.guild.id)
-			await self.bot.db.release(con)
+				m = await ctx.success('Skipping moderation logs...')
+				setupmsgs.append(m)
+				modlogs = None
+			await self.bot.configs[ctx.guild.id].set('log.moderation', modlogs)
 		except asyncio.TimeoutError:
-			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			try:
+				[await m.delete() for m in setupmsgs]
+				return
+			except Exception:
+				return
 		await asyncio.sleep(2)
-		await ctx.send('Ok. Next we\'ll configure action logs. This is where actions such as deleted messages, edited messages etc. are logged.')
+		m = await ctx.send('Ok. Next we\'ll configure action logs. This is where actions such as deleted messages, edited messages etc. are logged.')
+		setupmsgs.append(m)
 		await asyncio.sleep(2)
-		await ctx.send('Please give a channel for action logs or say `skip` to disable...')
+		m = await ctx.send('Please give a channel for action logs or say `skip` to disable...')
+		setupmsgs.append(m)
 		def actionlog_check(message):
 			if message.author != ctx.author:
 				return False
 			else:
 				return True
 		try:
-			actionlogchannel = None
-			actionlogmsg = await self.bot.wait_for('message', timeout=30.0, check=actionlog_check)
-			if actionlogmsg.content != 'skip':
+			actionlogsmsg = await self.bot.wait_for('message', timeout=30.0, check=modlog_check)
+			setupmsgs.append(actionlogsmsg)
+			if actionlogsmsg.content.lower() != 'skip':
 				try:
-					actionlogchannel = await TextChannel().convert(ctx, actionlogmsg.content)
-					actionlognotfound = False
-					settingslist['actionlogs'] = actionlogchannel.id
+					actionlogs = await TextChannel().convert(ctx, actionlogsmsg.content)
 				except commands.BadArgument:
-					actionlognotfound = True
-				actionlogs = settingslist['actionlogs']
-				if actionlogs == 'Disabled':
-					actionlogs = 0
-					if actionlognotfound:
-						await ctx.send('I couldn\'t find that channel, disabling action logs')
-					else:
-						await ctx.send('Disabling action logs...')
+					m = await ctx.error('Channel not found, action logs are now disabled.')
+					setupmsgs.append(m)
+					actionlogs = None
 				else:
-					await ctx.send(f'Great! Setting action logs to {actionlogchannel.mention}')
+					m = await ctx.success(f'Setting action logs to {actionlogs.mention}')
+					setupmsgs.append(m)
 			else:
-				await ctx.send('Skipping action logs...')
-				actionlogs = 0
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				q = 'UPDATE settings SET actionlogs = $1 WHERE gid = $2;'
-				await self.bot.db.execute(q, actionlogs, ctx.guild.id)
-			await self.bot.db.release(con)
+				m = await ctx.success('Skipping action logs...')
+				setupmsgs.append(m)
+				actionlogs = None
+			await self.bot.configs[ctx.guild.id].set('log.action', actionlogs)
 		except asyncio.TimeoutError:
-			await self.loadSettings()
-			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			try:
+				[await m.delete() for m in setupmsgs]
+				return
+			except Exception:
+				return
 		await asyncio.sleep(2)
-		await ctx.send('Ok. Next is link deletion. Discord invites are enabled by default but you can enable more with `$linkfilter`')
+		m = await ctx.send('Ok. Next is link deletion. Discord invites are enabled by default but you can enable more with `$linkfilter`')
+		setupmsgs.append(m)
 		await asyncio.sleep(2)
 		linkfiltermsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
+		setupmsgs.append(linkfiltermsg)
 		await linkfiltermsg.add_reaction(firesuccess)
 		await linkfiltermsg.add_reaction(firefailed)
 		def linkfilter_check(reaction, user):
@@ -1893,33 +1630,33 @@ class settings(commands.Cog, name="Settings"):
 			if reaction.emoji == firefailed and reaction.message.id == linkfiltermsg.id:
 				return True
 			if reaction.emoji == firesuccess and reaction.message.id == linkfiltermsg.id:
-				settingslist['linkfilter'] = 'Enabled'
 				return True
 		try:
-			await self.bot.wait_for('reaction_add', timeout=30.0, check=linkfilter_check)
-			linkfilter = settingslist['linkfilter']
-			if linkfilter == 'Disabled':
+			reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=linkfilter_check)
+			if reaction.emoji == firefailed:
 				linkfilter = []
-				await ctx.send('Disabling link filter...')
-			elif linkfilter == 'Enabled':
-				linkfilter = ['discord']
-				await ctx.send(f'Great! I\'ll enable link filtering! (If it was already enabled, your configuration won\'t change)')
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				if ctx.guild.id in self.linkfilter and linkfilter == []:
-					q = 'DELETE FROM linkfilter WHERE gid = $1;'
-					await self.bot.db.execute(q, ctx.guild.id)
-				if ctx.guild.id not in self.linkfilter and linkfilter == ['discord']:
-					q = 'INSERT INTO linkfilter (\"gid\", \"enabled\") VALUES ($1, $2);'
-					await self.bot.db.execute(q, ctx.guild.id, linkfilter)
-			await self.bot.db.release(con)
+				m = await ctx.success('Disabling link filter...')
+				setupmsgs.append(m)
+			elif reaction.emoji == firesuccess:
+				linkfilter = self.bot.configs[ctx.guild.id].get('mod.linkfilter')
+				if not linkfilter:
+					linkfilter = ['discord']
+				m = await ctx.success(f'Enabling link filter. (If it was already enabled, your configuration won\'t change)')
+				setupmsgs.append(m)
+			await self.bot.configs[ctx.guild.id].set('mod.linkfilter', linkfilter)
 		except asyncio.TimeoutError:
-			await self.loadSettings()
-			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			try:
+				[await m.delete() for m in setupmsgs]
+				return
+			except Exception:
+				return
 		await asyncio.sleep(2)
-		await ctx.send('Ok. Next is dupe checking. If a user attempts to send the same message again, I will delete it (that is, if I have permission to do so)')
+		m = await ctx.send('Ok. Next is dupe checking. If a user attempts to send the same message again, I will delete it (that is, if I have permission to do so)')
+		setupmsgs.append(m)
 		await asyncio.sleep(2)
 		dupemsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
+		setupmsgs.append(dupemsg)
 		await dupemsg.add_reaction(firesuccess)
 		await dupemsg.add_reaction(firefailed)
 		def dupemsg_check(reaction, user):
@@ -1928,29 +1665,31 @@ class settings(commands.Cog, name="Settings"):
 			if reaction.emoji == firefailed and reaction.message.id == dupemsg.id:
 				return True
 			if reaction.emoji == firesuccess and reaction.message.id == dupemsg.id:
-				settingslist['dupecheck'] = 'Enabled'
 				return True
 		try:
-			await self.bot.wait_for('reaction_add', timeout=30.0, check=dupemsg_check)
-			dupecheck = settingslist['dupecheck']
-			if dupecheck == 'Disabled':
-				dupecheck = 0
-				await ctx.send('Disabling dupe checking...')
-			elif dupecheck == 'Enabled':
-				dupecheck = 1
-				await ctx.send(f'Great! I\'ll enable dupe checking!')
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				q = 'UPDATE settings SET dupecheck = $1 WHERE gid = $2;'
-				await self.bot.db.execute(q, dupecheck, ctx.guild.id)
-			await self.bot.db.release(con)
+			reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=dupemsg_check)
+			if reaction.emoji == firefailed:
+				dupecheck = False
+				m = await ctx.success('Disabling duplicate message filter...')
+				setupmsgs.append(m)
+			elif reaction.emoji == firesuccess:
+				dupecheck = True
+				m = await ctx.success(f'Enabling duplicate message filter')
+				setupmsgs.append(m)
+			await self.bot.configs[ctx.guild.id].set('mod.dupecheck', dupecheck)
 		except asyncio.TimeoutError:
-			await self.loadSettings()
-			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			try:
+				[await m.delete() for m in setupmsgs]
+				return
+			except Exception:
+				return
 		await asyncio.sleep(2)
-		await ctx.send('Ok. Now we\'re onto global bans. Fire uses the KSoft.Si API to check for naughty people. If enabled, I will ban any of these naughty people if they attempt to join.')
+		m = await ctx.send('Ok. Now we\'re onto global bans. Fire uses the KSoft.Si API to check for naughty people. If enabled, I will ban any of these naughty people if they attempt to join.')
+		setupmsgs.append(m)
 		await asyncio.sleep(2)
 		gbansmsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
+		setupmsgs.append(gbanmsg)
 		await gbansmsg.add_reaction(firesuccess)
 		await gbansmsg.add_reaction(firefailed)
 		def gban_check(reaction, user):
@@ -1959,29 +1698,31 @@ class settings(commands.Cog, name="Settings"):
 			if reaction.emoji == firefailed and reaction.message.id == gbansmsg.id:
 				return True
 			if reaction.emoji == firesuccess and reaction.message.id == gbansmsg.id:
-				settingslist['globalbans'] = 'Enabled'
 				return True
 		try:
-			await self.bot.wait_for('reaction_add', timeout=30.0, check=gban_check)
-			gbans = settingslist['globalbans']
-			if gbans == 'Disabled':
-				gbans = 0
-				await ctx.send('Disabling global bans...')
-			elif gbans == 'Enabled':
-				gbans = 1
-				await ctx.send(f'Great! I\'ll enable global bans!')
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				q = 'UPDATE settings SET globalbans = $1 WHERE gid = $2;'
-				await self.bot.db.execute(q, gbans, ctx.guild.id)
-			await self.bot.db.release(con)
+			reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=gban_check)
+			if reaction.emoji == firefailed:
+				globalbans = False
+				m = await ctx.success('Disabling global ban check...')
+				setupmsgs.append(m)
+			elif reaction.emoji == firesuccess:
+				globalbans = True
+				m = await ctx.success(f'Enabling global ban check')
+				setupmsgs.append(m)
+			await self.bot.configs[ctx.guild.id].set('mod.globalbans', globalbans)
 		except asyncio.TimeoutError:
-			await self.loadSettings()
-			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			try:
+				[await m.delete() for m in setupmsgs]
+				return
+			except Exception:
+				return
 		await asyncio.sleep(2)
-		await ctx.send('The penultimate setting, auto-decancer. No, this setting doesn\'t cure cancer. Instead, it renames users with "cancerous" names (non-ascii) to some form of `John Doe 0000`')
+		m = await ctx.send('The penultimate setting, auto-decancer. No, this setting doesn\'t cure cancer. Instead, it renames users with "cancerous" names (non-ascii) to some form of `John Doe 0000`')
+		setupmsgs.append(m)
 		await asyncio.sleep(2)
 		autodcmsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
+		setupmsgs.append(autodcmsg)
 		await autodcmsg.add_reaction(firesuccess)
 		await autodcmsg.add_reaction(firefailed)
 		def dc_check(reaction, user):
@@ -1990,29 +1731,31 @@ class settings(commands.Cog, name="Settings"):
 			if reaction.emoji == firefailed and reaction.message.id == autodcmsg.id:
 				return True
 			if reaction.emoji == firesuccess and reaction.message.id == autodcmsg.id:
-				settingslist['autodecancer'] = 'Enabled'
 				return True
 		try:
-			await self.bot.wait_for('reaction_add', timeout=30.0, check=dc_check)
-			decancer = settingslist['autodecancer']
-			if decancer == 'Disabled':
-				decancer = 0
-				await ctx.send('Disabling auto-decancer...')
-			elif decancer == 'Enabled':
-				decancer = 1
-				await ctx.send(f'Great! I\'ll enable auto-decancer!')
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				q = 'UPDATE settings SET autodecancer = $1 WHERE gid = $2;'
-				await self.bot.db.execute(q, decancer, ctx.guild.id)
-			await self.bot.db.release(con)
+			reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=dc_check)
+			if reaction.emoji == firefailed:
+				audodc = False
+				m = await ctx.success('Disabling auto decancer...')
+				setupmsgs.append(m)
+			elif reaction.emoji == firesuccess:
+				audodc = True
+				m = await ctx.success(f'Enabling auto decancer')
+				setupmsgs.append(m)
+			await self.bot.configs[ctx.guild.id].set('mod.autodecancer', audodc)
 		except asyncio.TimeoutError:
-			await self.loadSettings()
-			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			try:
+				[await m.delete() for m in setupmsgs]
+				return
+			except Exception:
+				return
 		await asyncio.sleep(2)
-		await ctx.send('Finally, the last setting. Similar to the last one, auto-dehoist renames people with a non A-Z character at the start of their name.')
+		m = await ctx.send('Finally, the last setting. Similar to the last one, auto-dehoist renames people with a non A-Z character at the start of their name.')
+		setupmsgs.append(m)
 		await asyncio.sleep(2)
 		autodhmsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
+		setupmsgs.append(autodhmsg)
 		await autodhmsg.add_reaction(firesuccess)
 		await autodhmsg.add_reaction(firefailed)
 		def dh_check(reaction, user):
@@ -2021,217 +1764,137 @@ class settings(commands.Cog, name="Settings"):
 			if reaction.emoji == firefailed and reaction.message.id == autodhmsg.id:
 				return True
 			if reaction.emoji == firesuccess and reaction.message.id == autodhmsg.id:
-				settingslist['autodehoist'] = 'Enabled'
 				return True
 		try:
-			await self.bot.wait_for('reaction_add', timeout=30.0, check=dh_check)
-			dehoist = settingslist['autodehoist']
-			if dehoist == 'Disabled':
-				dehoist = 0
-				await ctx.send('Disabling auto-dehoist...')
-			elif dehoist == 'Enabled':
-				dehoist = 1
-				await ctx.send(f'Great! I\'ll enable auto-dehoist!')
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				q = 'UPDATE settings SET autodehoist = $1 WHERE gid = $2;'
-				await self.bot.db.execute(q, dehoist, ctx.guild.id)
-			await self.bot.db.release(con)
+			reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=dh_check)
+			if reaction.emoji == firefailed:
+				audodh = False
+				m = await ctx.success('Disabling auto dehoist...')
+				setupmsgs.append(m)
+			elif reaction.emoji == firesuccess:
+				audodh = True
+				m = await ctx.success(f'Enabling auto dehoist')
+				setupmsgs.append(m)
+			await self.bot.configs[ctx.guild.id].set('mod.autodehoist', audodh)
 		except asyncio.TimeoutError:
-			await self.loadSettings()
-			return await ctx.send(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+			try:
+				[await m.delete() for m in setupmsgs]
+				return
+			except Exception:
+				return
 		await asyncio.sleep(2)
-		await ctx.send('Nice! We\'re all good to go. I\'ll send a recap in a moment. I just need to reload settings.')
-		await self.loadSettings()
+		m = await ctx.send('Nice! We\'re all good to go. I\'ll send a recap in a moment. I just need to reload settings.')
+		setupmsgs.append(m)
+		config = self.bot.configs[ctx.guild.id]
 		embed = discord.Embed(title=":gear: Guild Settings", colour=ctx.author.color, description="Here's a list of the current guild settings", timestamp=datetime.datetime.utcnow())
 		embed.set_author(name=ctx.guild.name, icon_url=str(ctx.guild.icon_url))
-		if modlogchannel:
-			modlogs = modlogchannel.mention
-		else:
-			modlogs = 'Disabled'
-		if actionlogchannel:
-			actionlogs = actionlogchannel.mention
-		else:
-			actionlogs = 'Disabled'
-		embed.add_field(name="Moderation Logs", value=modlogs, inline=False)
-		embed.add_field(name="Action Logs", value=actionlogs, inline=False)
-		embed.add_field(name="Invite Filter", value=settingslist['linkfilter'], inline=False)
-		embed.add_field(name="Global Ban Check (KSoft.Si API)", value=settingslist['globalbans'], inline=False)
-		embed.add_field(name="Auto-Decancer", value=settingslist['autodecancer'], inline=False)
-		embed.add_field(name="Auto-Dehoist", value=settingslist['autodehoist'], inline=False)
+		embed.add_field(name="Moderation Logs", value=config.get('log.moderation').mention, inline=False)
+		embed.add_field(name="Action Logs", value=config.get('log.moderation').mention, inline=False)
+		embed.add_field(name="Invite Filter", value=",".join(config.get('mod.linkfilter')), inline=False)
+		embed.add_field(name="Global Ban Check (KSoft.Si API)", value=config.get('mod.globalbans'), inline=False)
+		embed.add_field(name="Auto-Decancer", value=config.get('mod.autodecancer'), inline=False)
+		embed.add_field(name="Auto-Dehoist", value=config.get('mod.autodehoist'), inline=False)
 		await ctx.send(embed=embed)
+		try:
+			[await m.delete() for m in setupmsgs]
+		except Exception:
+			pass
 
 	@commands.command(name='setlogs', aliases=['logging', 'log', 'logs'])
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
-	async def settings_logs(self, ctx, newlog: typing.Union[TextChannel, int] = None):
-		'''PFXsetlogs <channel>'''
-		if newlog == None:
-			# raise commands.UserInputError('Missing argument! Provide a channel for me to send logs to or 0 to disable logging')
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				mquery = 'UPDATE settings SET modlogs = 0 WHERE gid = $1;'
-				await self.bot.db.execute(mquery, ctx.guild.id)
-				aquery = 'UPDATE settings SET actionlogs = 0 WHERE gid = $1;'
-				await self.bot.db.execute(aquery, ctx.guild.id)
-			await self.bot.db.release(con)
-			await ctx.send(f'Successfully disabled logging in {discord.utils.escape_mentions(ctx.guild.name)}', delete_after=5)
-			await self.loadSettings()
-		elif newlog == 0:
-			# await self.bot.db.execute(f'UPDATE settings SET logging = 0 WHERE gid = {ctx.guild.id}')
-			# await self.bot.conn.commit()
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				mquery = 'UPDATE settings SET modlogs = 0 WHERE gid = $1;'
-				await self.bot.db.execute(mquery, ctx.guild.id)
-				aquery = 'UPDATE settings SET actionlogs = 0 WHERE gid = $1;'
-				await self.bot.db.execute(aquery, ctx.guild.id)
-			await self.bot.db.release(con)
-			await ctx.send(f'Successfully disabled logging in {discord.utils.escape_mentions(ctx.guild.name)}', delete_after=5)
-			await self.loadSettings()
-		else:
-			if type(newlog) == int:
-				channel = self.bot.get_channel(newlog)
-				if channel == None:
-					await ctx.send(f'Invalid channel ID provided! Use `0` to disable or provide a valid channel')
-					return
-				# await self.bot.db.execute(f'UPDATE settings SET logging = {newlog} WHERE gid = {ctx.guild.id}')
-				# await self.bot.conn.commit()
-				con = await self.bot.db.acquire()
-				async with con.transaction():
-					mquery = 'UPDATE settings SET modlogs = $1 WHERE gid = $2;'
-					await self.bot.db.execute(mquery, newlog, ctx.guild.id)
-					aquery = 'UPDATE settings SET actionlogs = $1 WHERE gid = $2;'
-					await self.bot.db.execute(aquery, newlog, ctx.guild.id)
-				await self.bot.db.release(con)
-				await self.loadSettings()
-				await ctx.send(f'Updated logs setting.')
-			elif type(newlog) == discord.TextChannel:
-				try:
-					self.bot.get_channel(newlog.id)
-				except discord.NotFound:
-					await ctx.send(f'Invalid channel provided! Use `0` to disable or provide a valid channel')
-					return
-				# await self.bot.db.execute(f'UPDATE settings SET logging = {newlog.id} WHERE gid = {ctx.guild.id}')
-				# await self.bot.conn.commit()
-				con = await self.bot.db.acquire()
-				async with con.transaction():
-					mquery = 'UPDATE settings SET modlogs = $1 WHERE gid = $2;'
-					await self.bot.db.execute(mquery, newlog.id, ctx.guild.id)
-					aquery = 'UPDATE settings SET actionlogs = $1 WHERE gid = $2;'
-					await self.bot.db.execute(aquery, newlog.id, ctx.guild.id)
-				await self.bot.db.release(con)
-				await self.loadSettings()
-				await ctx.send(f'Successfully enabled logging in {newlog.mention}', delete_after=5)
+	async def settings_logs(self, ctx, logtype: str = None, channel: TextChannel = None):
+		if not logtype or logtype.lower() not in ['mod', 'moderation', 'action']:
+			await ctx.error(f'You must provide a log type, "moderation" or "action" for the log channel')
+		logtype = logtype.lower()
+		if logtype in ['mod', 'moderation']:
+			if not channel:
+				await self.bot.configs[ctx.guild.id].set('log.moderation', None)
+				return await ctx.success(f'Successfully reset the moderation logs channel.')
+			else:
+				await self.bot.configs[ctx.guild.id].set('log.moderation', channel)
+				return await ctx.success(f'Successfully set the moderation logs channel to {channel.mention}')
+		if logtype == 'action':
+			if not channel:
+				await self.bot.configs[ctx.guild.id].set('log.action', None)
+				return await ctx.success(f'Successfully reset the action logs channel.')
+			else:
+				await self.bot.configs[ctx.guild.id].set('log.action', channel)
+				return await ctx.success(f'Successfully set the action logs channel to {channel.mention}')
 
 	@commands.command(name='modonly', description='Set channels to be moderator only (users with `Manage Messages` are moderators')
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def modonly(self, ctx, channels: commands.Greedy[TextChannel] = None):
-		if not channels:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				mquery = 'UPDATE settings SET modonly = $1 WHERE gid = $2;'
-				await self.bot.db.execute(mquery, [], ctx.guild.id)
-			await self.bot.db.release(con)
-			await self.loadSettings()
-			return await ctx.send(f'I\'ve reset the mod only channels. Commands can now be executed in any channels.')
-		else:
-			channelids = [c.id for c in channels]
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				mquery = 'UPDATE settings SET modonly = $1 WHERE gid = $2;'
-				await self.bot.db.execute(mquery, channelids, ctx.guild.id)
-			await self.bot.db.release(con)
-			await self.loadSettings()
-			channelmentions = [c.mention for c in channels]
-			channellist = ', '.join(channelmentions)
-			return await ctx.send(f'Commands can now only be run by moderators in {channellist}.')
+		current = self.bot.configs[ctx.guild.id].get('commands.modonly')
+		for sf in current:
+			if sf in channels:
+				current.remove(sf)
+		for sf in channels:
+			if sf not in current:
+				current.append(sf)
+		await self.bot.configs[ctx.guild.id].set('commands.modonly', current)
+		channelmentions = [c.mention for c in current]
+		channellist = ', '.join(channelmentions)
+		return await ctx.success(f'Commands can now only be run by moderators (those with Manage Messages permission) in;\n{channellist}.')
 
 	@commands.command(name='adminonly', description='Set channels to be admin only (users with `Manage Server` are admins')
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def adminonly(self, ctx, channels: commands.Greedy[TextChannel] = None):
-		if not channels:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				mquery = 'UPDATE settings SET adminonly = $1 WHERE gid = $2;'
-				await self.bot.db.execute(mquery, [], ctx.guild.id)
-			await self.bot.db.release(con)
-			await self.loadSettings()
-			return await ctx.send(f'I\'ve reset the admin only channels. Commands can now be executed in any channels.')
-		else:
-			channelids = [c.id for c in channels]
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				mquery = 'UPDATE settings SET adminonly = $1 WHERE gid = $2;'
-				await self.bot.db.execute(mquery, channelids, ctx.guild.id)
-			await self.bot.db.release(con)
-			await self.loadSettings()
-			channelmentions = [c.mention for c in channels]
-			channellist = ', '.join(channelmentions)
-			return await ctx.send(f'Commands can now only be run by admins in {channellist}.')
+		current = self.bot.configs[ctx.guild.id].get('commands.adminonly')
+		for sf in current:
+			if sf in channels:
+				current.remove(sf)
+		for sf in channels:
+			if sf not in current:
+				current.append(sf)
+		await self.bot.configs[ctx.guild.id].set('commands.adminonly', current)
+		channelmentions = [c.mention for c in current]
+		channellist = ', '.join(channelmentions)
+		return await ctx.success(f'Commands can now only be run by admins (those with Manage Server permission) in;\n{channellist}.')
+
 
 	@commands.command(name='joinmsg', description='Set the channel and message for join messages')
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def joinmsg(self, ctx, channel: typing.Union[TextChannel, str] = None, *, message: str = None):
 		if not channel:
-			current = self.joinleave.get(ctx.guild.id, {})
-			if not current.get('joinmsg', False):
+			joinmsg = self.bot.configs[ctx.guild.id].get('greet.joinmsg')
+			joinchan =  self.bot.configs[ctx.guild.id].get('greet.joinchannel')
+			if not joinmsg:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'<:xmark:674359427830382603> Please provide a channel and message for join messages.')
 				variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
 				embed.add_field(name='Variables', value=variables, inline=False)
 				return await ctx.send(embed=embed)
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Current Join Message Settings**\nDo __{ctx.prefix}joinmsg disable__ to disable join messages')
-			currentchan = ctx.guild.get_channel(current.get('joinchan', 0))
-			embed.add_field(name='Channel', value=currentchan.mention if currentchan else 'Not Set (Not sure how you managed to do this)', inline=False)
-			message = current.get('joinmsg', 'Not Set')
+			embed.add_field(name='Channel', value=joinchan.mention if currentchan else 'Not Set (Not sure how you managed to do this)', inline=False)
+			message = joinmsg or 'Not set.'
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
 			embed.add_field(name='Message', value=message, inline=False)
 			variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
 			embed.add_field(name='Variables', value=variables, inline=False)
 			return await ctx.send(embed=embed)
-		if channel == 'disable':
-			current = self.joinleave.get(ctx.guild.id, {}).get('joinmsg', False)
-			if not current:
+		if isinstance(channel, str) and channel.lower() in ['off', 'disable', 'false']:
+			joinmsg = self.bot.configs[ctx.guild.id].get('greet.joinmsg')
+			if not joinmsg:
 				return await ctx.error('Can\'t disable something that wasn\'t enabled. ¯\_(ツ)_/¯')
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'UPDATE joinleave SET (joinchan, joinmsg) = (NULL, NULL) WHERE gid = $1;'
-				await self.bot.db.execute(query, ctx.guild.id)
-			await self.bot.db.release(con)
-			await self.loadSettings()
-			current = self.joinleave.get(ctx.guild.id, {}).get('joinmsg', False)
-			if not current:
-				return await ctx.success(f'Successfully disabled join messages!')
-		if type(channel) == str:
+			await self.bot.configs[ctx.guild.id].set('greet.joinmsg', '')
+			await self.bot.configs[ctx.guild.id].set('greet.joinchannel', None)
+			return await ctx.success(f'Successfully disabled join messages!')
+		if isinstance(channel, str):
 			return await ctx.error('You need to provide a valid channel')
 		if not message:
-			currentmsg = self.joinleave.get(ctx.guild.id, {}).get('joinmsg', False)
-			if not currentmsg:
+			joinmsg = self.bot.configs[ctx.guild.id].get('greet.joinmsg')
+			if not joinmsg:
 				return await ctx.error('You can\'t set a channel without setting a message.')
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				if ctx.guild.id in self.joinleave:
-					query = 'UPDATE joinleave SET joinchan = $1 WHERE gid = $2;'
-				else:
-					query = 'INSERT INTO joinleave (\"joinchan\", \"gid\") VALUES ($1, $2);'
-				await self.bot.db.execute(query, channel.id, ctx.guild.id)
-			await self.bot.db.release(con)
-			await self.loadSettings()
+			await self.bot.configs[ctx.guild.id].set('greet.joinchannel', channel)
 			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 			return await ctx.success(f'Join messages will show in {channel.mention}!\nExample: {message}')
 		else:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				if ctx.guild.id in self.joinleave:
-					query = 'UPDATE joinleave SET joinchan = $1, joinmsg = $2 WHERE gid = $3;'
-				else:
-					query = 'INSERT INTO joinleave (\"joinchan\", \"joinmsg\", \"gid\") VALUES ($1, $2, $3);'
-				await self.bot.db.execute(query, channel.id, message, ctx.guild.id)
-			await self.bot.db.release(con)
-			await self.loadSettings()
+			await self.bot.configs[ctx.guild.id].set('greet.joinmsg', message)
+			await self.bot.configs[ctx.guild.id].set('greet.joinchannel', channel)
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 			return await ctx.success(f'Join messages will show in {channel.mention}!\nExample: {message}')
 
@@ -2240,61 +1903,40 @@ class settings(commands.Cog, name="Settings"):
 	@commands.guild_only()
 	async def leavemsg(self, ctx, channel: typing.Union[TextChannel, str] = None, *, message: str = None):
 		if not channel:
-			current = self.joinleave.get(ctx.guild.id, {})
-			if not current.get('leavemsg', False):
+			leavemsg = self.bot.configs[ctx.guild.id].get('greet.leavemsg')
+			leavechan =  self.bot.configs[ctx.guild.id].get('greet.leavechannel')
+			if not leavemsg:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'<:xmark:674359427830382603> Please provide a channel and message for leave messages.')
 				variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
 				embed.add_field(name='Variables', value=variables, inline=False)
 				return await ctx.send(embed=embed)
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Current Leave Message Settings**\nDo __{ctx.prefix}leavemsg disable__ to disable leave messages')
-			currentchan = ctx.guild.get_channel(current.get('leavechan', 0))
-			embed.add_field(name='Channel', value=currentchan.mention if currentchan else 'Not Set (Not sure how you managed to do this)', inline=False)
-			message = current.get('leavemsg', 'Not Set')
+			embed.add_field(name='Channel', value=leavechan.mention if currentchan else 'Not Set (Not sure how you managed to do this)', inline=False)
+			message = leavemsg or 'Not set.'
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
 			embed.add_field(name='Message', value=message, inline=False)
 			variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
 			embed.add_field(name='Variables', value=variables, inline=False)
 			return await ctx.send(embed=embed)
-		if channel == 'disable':
-			current = self.joinleave.get(ctx.guild.id, {}).get('leavemsg', False)
-			if not current:
+		if isinstance(channel, str) and channel.lower() in ['off', 'disable', 'false']:
+			leavemsg = self.bot.configs[ctx.guild.id].get('greet.leavemsg')
+			if not leavemsg:
 				return await ctx.error('Can\'t disable something that wasn\'t enabled. ¯\_(ツ)_/¯')
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'UPDATE joinleave SET (leavechan, leavemsg) = (NULL, NULL) WHERE gid = $1;'
-				await self.bot.db.execute(query, ctx.guild.id)
-			await self.bot.db.release(con)
-			await self.loadSettings()
-			current = self.joinleave.get(ctx.guild.id, {}).get('leavemsg', False)
-			if not current:
-				return await ctx.success(f'Successfully disabled leave messages!')
-		if type(channel) == str:
+			await self.bot.configs[ctx.guild.id].set('greet.leavemsg', '')
+			await self.bot.configs[ctx.guild.id].set('greet.leavechannel', None)
+			return await ctx.success(f'Successfully disabled leave messages!')
+		if isinstance(channel, str):
 			return await ctx.error('You need to provide a valid channel')
 		if not message:
-			currentmsg = self.joinleave.get(ctx.guild.id, {}).get('leavemsg', False)
-			if not currentmsg:
+			leavemsg = self.bot.configs[ctx.guild.id].get('greet.leavemsg')
+			if not leavemsg:
 				return await ctx.error('You can\'t set a channel without setting a message.')
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				if ctx.guild.id in self.joinleave:
-					query = 'UPDATE joinleave SET leavechan = $1 WHERE gid = $2;'
-				else:
-					query = 'INSERT INTO joinleave (\"leavechan\", \"gid\") VALUES ($1, $2);'
-				await self.bot.db.execute(query, channel.id, ctx.guild.id)
-			await self.bot.db.release(con)
-			await self.loadSettings()
+			await self.bot.configs[ctx.guild.id].set('greet.leavechannel', channel)
 			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 			return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {message}')
 		else:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				if ctx.guild.id in self.joinleave:
-					query = 'UPDATE joinleave SET leavechan = $1, leavemsg = $2 WHERE gid = $3;'
-				else:
-					query = 'INSERT INTO joinleave (\"leavechan\", \"leavemsg\", \"gid\") VALUES ($1, $2, $3);'
-				await self.bot.db.execute(query, channel.id, message, ctx.guild.id)
-			await self.bot.db.release(con)
-			await self.loadSettings()
+			await self.bot.configs[ctx.guild.id].set('greet.leavemsg', message)
+			await self.bot.configs[ctx.guild.id].set('greet.leavechannel', channel)
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 			return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {message}')
 
@@ -2304,44 +1946,41 @@ class settings(commands.Cog, name="Settings"):
 	async def linkfiltercmd(self, ctx, *, enabled: str = None):
 		options = ['discord', 'youtube', 'twitch', 'twitter', 'paypal', 'malware']
 		if not enabled:
-			return await ctx.error(f'You must provide valid filters. You can choose from {", ".join(options)}')
+			return await ctx.error(f'You must provide a valid filter(s). You can choose from {", ".join(options)}')
 		enabled = enabled.split(' ')
-		if len([f.lower() for f in enabled if f not in options]) >= 1:
-			return await ctx.error(f'{", ".join([discord.utils.escape_mentions(discord.utils.escape_markdown(f)) for f in enabled if f not in options])} aren\'t valid filter(s)')
-		con = await self.bot.db.acquire()
-		async with con.transaction():
-			if ctx.guild.id in self.linkfilter:
-				query = 'UPDATE linkfilter SET enabled = $1 WHERE gid = $2'
+		if any(e not in options for e in enabled):
+			invalid = [e for e in enabled if e not in options]
+			return await ctx.error(f'{", ".join(invalid)} are not valid filters')
+		filtered = self.bot.configs[ctx.guild.id].get('mod.linkfilter')
+		for f in enabled:
+			if f in filtered:
+				filtered.remove(f)
 			else:
-				query = 'INSERT INTO linkfilter (\"enabled\", \"gid\") VALUES ($1, $2);'
-			await self.bot.db.execute(query, [e.lower() for e in enabled], ctx.guild.id)
-		await self.bot.db.release(con)
-		self.linkfilter[ctx.guild.id] = [e.lower() for e in enabled]
-		return await ctx.success(f'Successfully enabled filtering for {", ".join(enabled)} links')
+				filtered.append(f)
+		new = await self.bot.configs[ctx.guild.id].set('mod.linkfilter', filtered)
+		return await ctx.success(f'Now filtering {", ".join(new)} links.')
 
 	@commands.command(name='filterexcl', description='Exclude channels, roles and members from the filter')
 	async def filterexclcmd(self, ctx, *ids: typing.Union[TextChannel, Role, Member]):
-		if not ids:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'UPDATE settings SET filterexcl = $1 WHERE gid = $2;'
-				await self.bot.db.execute(query, [], ctx.guild.id)
-			await self.bot.db.release(con)
-			self.filterexcl[ctx.guild.id] = []
-			return await ctx.send(f'I\'ve reset the filter exclusion list. Only users with **Manage Mesages** are excluded.')
-		else:
-			idlist = [a.id for a in ids]
-			if ctx.guild.id in self.filterexcl:
-				idlist = idlist + self.filterexcl[ctx.guild.id]
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'UPDATE settings SET filterexcl = $1 WHERE gid = $2;'
-				await self.bot.db.execute(query, idlist, ctx.guild.id)
-			await self.bot.db.release(con)
-			self.filterexcl[ctx.guild.id] = idlist
-			names = [a.name for a in ids]
-			namelist = ', '.join(names)
-			return await ctx.success(f'{namelist} are now excluded from the filter')
+		current = self.bot.configs[ctx.guild.id].get('excluded.filter')
+		for sf in current:
+			if sf in ids:
+				current.remove(sf)
+		for sf in ids:
+			if sf not in current:
+				current.append(sf)
+		await self.bot.configs[ctx.guild.id].set('excluded.filter', current)
+		excl = []
+		for sf in current:
+			if ctx.guild.get_member(sf):
+				excl.append(ctx.guild.get_member(sf))
+			elif ctx.guild.get_role(sf):
+				excl.append(ctx.guild.get_role(sf))
+			elif ctx.guild.get_channel(sf):
+				excl.append(ctx.guild.get_channel(sf))
+			else:
+				excl.append(sf)
+		await ctx.success(f'Successfully set objects excluded from filters (link filter and duplicate message check)\nExcluded: {", ".join([str(e) for e in excl])}')
 
 	@commands.command(name='command', description='Enable and disable commands')
 	@commands.has_permissions(manage_guild=True)
@@ -2352,19 +1991,14 @@ class settings(commands.Cog, name="Settings"):
 		command = self.bot.get_command(command)
 		if not command:
 			return await ctx.error('You must provide a valid command')
-		disabled = self.disabledcmds[ctx.guild.id]
+		disabled = self.bot.configs[ctx.guild.id].get('disabled.commands')
 		if command.name in disabled:
 			toggle = 'enabled'
 			disabled.remove(command.name)
 		else:
 			toggle = 'disabled'
 			disabled.append(command.name)
-		self.disabledcmds[ctx.guild.id] = disabled
-		con = await self.bot.db.acquire()
-		async with con.transaction():
-			query = 'UPDATE settings SET disabledcmds = $1 WHERE gid = $2;'
-			await self.bot.db.execute(query, disabled, ctx.guild.id)
-		await self.bot.db.release(con)
+		await self.bot.configs[ctx.guild.id].set('disabled.commands', disabled)
 		return await ctx.success(f'{command.name} has been {toggle}.')
 
 

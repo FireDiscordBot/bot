@@ -180,7 +180,6 @@ class Assistant(commands.Cog, name='Google Assistant'):
 	@commands.command(description="Ask the Google Assistant a question and hear the response in your voice channel!")
 	# @commands.cooldown(1, 12, commands.BucketType.user)
 	async def gassist(self, ctx, *, query):
-		'''PFXgassist <query>'''
 		await ctx.channel.trigger_typing()
 		loop = self.bot.loop
 		vc = True

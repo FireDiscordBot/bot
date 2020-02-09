@@ -38,12 +38,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 		self.bot = bot
 		self.loop = bot.loop
 		self.bot.premiumGuilds  = []
-		self.autoroles = {}
 		# self.reactroles = {}
 		self.joinroles = {}
 		self.rolepersists = {}
 		asyncio.get_event_loop().create_task(self.loadPremiumGuilds())
-		asyncio.get_event_loop().create_task(self.loadAutoroles())
 		asyncio.get_event_loop().create_task(self.loadJoinRoles())
 		asyncio.get_event_loop().create_task(self.loadRolePersist())
 
@@ -56,33 +54,6 @@ class Premium(commands.Cog, name="Premium Commands"):
 		for guild in guilds:
 			self.bot.premiumGuilds.append(guild['gid'])
 		self.bot.logger.info(f'$GREENLoaded premium guilds!')
-
-	async def loadAutoroles(self):
-		await self.bot.wait_until_ready()
-		self.bot.logger.info(f'$YELLOWLoading autoroles...')
-		self.autoroles = {}
-		query = 'SELECT * FROM settings;'
-		settings = await self.bot.db.fetch(query)
-		for s in settings:
-			if s['autorole'] != 0:
-				guild = s['gid']
-				self.autoroles[guild] = {
-					"role": s['autorole']
-				}
-		self.bot.logger.info(f'$GREENLoaded autoroles!')
-
-	# async def loadReactroles(self):
-	# 	self.reactroles = {}
-	# 	query = 'SELECT * FROM settings;'
-	# 	settings = await self.bot.db.fetch(query)
-	# 	for s in settings:
-	# 		if s['reactroleid'] != 0:
-	# 			guild = s['gid']
-	# 			self.reactroles[guild] = {
-	# 				"role": s['reactroleid'],
-	# 				"message": s['reactrolemid'],
-	# 				"emote": s['reactroleeid']
-	# 			}
 
 	async def loadJoinRoles(self):
 		await self.bot.wait_until_ready()
@@ -152,7 +123,6 @@ class Premium(commands.Cog, name="Premium Commands"):
 
 	@commands.command(name='loadpremium', description='Load premium data', hidden=True)
 	async def loadpremium(self, ctx):
-		'''PFXloadpremium'''
 		if await self.bot.is_team_owner(ctx.author):
 			await self.loadPremiumGuilds()
 			await self.loadAutoroles()
@@ -205,116 +175,12 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
 	async def autorole(self, ctx, role: Role = None):
-		'''PFXautorole [<role name/id/mention>]\nUse command without role argument to disable'''
-		query = 'SELECT * FROM settings WHERE gid = $1;'
-		guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
-		if guildsettings == []:
-			# await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
-			# await self.bot.conn.commit()
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'INSERT INTO settings (\"gid\") VALUES ($1);'
-				await self.bot.db.execute(query, ctx.guild.id)
-			await self.bot.db.release(con)
 		if not role:
-			# await self.bot.db.execute(f'UPDATE settings SET autorole = 0 WHERE gid = {ctx.guild.id}')
-			# await self.bot.conn.commit()
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'UPDATE settings SET autorole = 0 WHERE gid = $1;'
-				await self.bot.db.execute(query, ctx.guild.id)
-			await self.bot.db.release(con)
-			try:
-				self.autoroles[ctx.guild.id] = None
-			except KeyError:
-				pass
+			await self.bot.configs[ctx.guild.id].set('mod.autorole', None)
 			return await ctx.success(f'Successfully disabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}')
 		else:
-			roleid = role.id
-			# await self.bot.db.execute(f'UPDATE settings SET autorole = {roleid} WHERE gid = {ctx.guild.id}')
-			# await self.bot.conn.commit()
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'UPDATE settings SET autorole = $1 WHERE gid = $2'
-				await self.bot.db.execute(query, roleid, ctx.guild.id)
-			await self.bot.db.release(con)
-			self.autoroles[ctx.guild.id] = {
-				"role": roleid
-			}
+			await self.bot.configs[ctx.guild.id].set('mod.autorole', role)
 			return await ctx.success(f'Successfully enabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}! All new members will recieve the {discord.utils.escape_mentions(role.name)} role.')
-
-	# @commands.command(name='reactrole', description='Automatically add a role to a user when they react to a message')
-	# @has_permissions(manage_roles=True)
-	# @bot_has_permissions(manage_roles=True)
-	# @commands.guild_only()
-	# async def reactrole(self, ctx, role: Role = None, message: int = None, emote: typing.Union[int, str] = None):
-	# 	'''PFXautorole [<role name/id/mention> <message id> <emote>]\nUse command without arguments to disable'''
-	# 	query = 'SELECT * FROM settings WHERE gid = $1;'
-	# 	guildsettings = await self.bot.db.fetch(query, ctx.guild.id)
-	# 	if guildsettings == []:
-	# 		# await self.bot.db.execute(f'INSERT INTO settings (\"gid\") VALUES ({ctx.guild.id});')
-	# 		# await self.bot.conn.commit()
-	# 		con = await self.bot.db.acquire()
-	# 		async with con.transaction():
-	# 			query = 'INSERT INTO settings (\"gid\") VALUES ($1);'
-	# 			await self.bot.db.execute(query, ctx.guild.id)
-	# 		await self.bot.db.release(con)
-	# 	if not role:
-	# 		# await self.bot.db.execute(f'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = (0, 0, 0) WHERE gid = {ctx.guild.id}')
-	# 		# await self.bot.conn.commit()
-	# 		con = await self.bot.db.acquire()
-	# 		async with con.transaction():
-	# 			query = 'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = (0, 0, 0) WHERE gid = $1;'
-	# 			await self.bot.db.execute(query, ctx.guild.id)
-	# 		await self.bot.db.release(con)
-	# 		try:
-	# 			self.reactroles[ctx.guild.id] = None
-	# 		except KeyError:
-	# 			pass
-	# 		return await ctx.success(f'Successfully disabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}')
-	# 	else:
-	# 		try:
-	# 			msg = await ctx.channel.fetch_message(message)
-	# 		except:
-	# 			for channel in ctx.guild.text_channels:
-	# 				perms = ctx.guild.me.permissions_in(channel)
-	# 				try:
-	# 					msg = await channel.fetch_message(message)
-	# 				except:
-	# 					continue
-	# 		if not msg:
-	# 			raise commands.ArgumentParsingError('Missing Message ID')
-	# 		if not emote:
-	# 			raise commands.ArgumentParsingError('Missing Emote')
-	# 		roleid = role.id
-	# 		messageid = msg.id
-	# 		try:
-	# 			emote = int(emote)
-	# 		except Exception:
-	# 			emote = str(emote)
-	# 		if type(emote) == int:
-	# 			emoteid = discord.utils.get(self.bot.emojis, id=emote)
-	# 			if emoteid == None:
-	# 				raise commands.ArgumentParsingError('Can\'t find emote from ID.')
-	# 			else:
-	# 				emote = emoteid
-	# 				emoteid = emoteid.id
-	# 		elif type(emote) == str:
-	# 			emoteid = emote
-	# 		# await self.bot.db.execute(f'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = ({roleid}, {messageid}, \"{emoteid}\") WHERE gid = {ctx.guild.id}')
-	# 		# await self.bot.conn.commit()
-	# 		con = await self.bot.db.acquire()
-	# 		async with con.transaction():
-	# 			query = 'UPDATE settings SET (\"reactroleid\", \"reactrolemid\", \"reactroleeid\") = ($2, $3, $4) WHERE gid = $1;'
-	# 			await self.bot.db.execute(query, ctx.guild.id, roleid, messageid, emoteid)
-	# 		await self.bot.db.release(con)
-	# 		await msg.add_reaction(emote)
-	# 		self.reactroles[ctx.guild.id] = {
-	# 			"role": roleid,
-	# 			"message": messageid,
-	# 			"emote": emoteid
-	# 		}
-	# 		return await ctx.success(f'Successfully enabled reaction role in {discord.utils.escape_mentions(ctx.guild.name)}!')
 
 	@commands.command(name='antiraid', description='Configure the channel for antiraid alerts')
 	@commands.has_permissions(manage_channels=True)
@@ -322,22 +188,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@commands.guild_only()
 	async def antiraid(self, ctx, channel: TextChannel = None):
 		if not channel:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				mquery = 'UPDATE settings SET antiraid = $1 WHERE gid = $2;'
-				await self.bot.db.execute(mquery, 0, ctx.guild.id)
-			await self.bot.db.release(con)
-			settings = self.bot.get_cog('Settings')
-			await settings.loadSettings()
+			await self.bot.configs[ctx.guild.id].set('mod.antiraid', None)
 			return await ctx.send(f'I\'ve reset the antiraid alert channel.')
 		else:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				mquery = 'UPDATE settings SET antiraid = $1 WHERE gid = $2;'
-				await self.bot.db.execute(mquery, channel.id, ctx.guild.id)
-			await self.bot.db.release(con)
-			settings = self.bot.get_cog('Settings')
-			await settings.loadSettings()
+			await self.bot.configs[ctx.guild.id].set('mod.antiraid', channel)
 			return await ctx.send(f'Antiraid alerts will now be sent in {channel.mention}')
 
 	async def _setraidmsg(self, id: int, message: str):
@@ -359,9 +213,6 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
 	async def addrank(self, ctx, *, role: Role):
-		'''PFXaddrank <role>'''
-		# await self.bot.db.execute(f'INSERT INTO joinableranks (\"gid\", \"rid\") VALUES ({ctx.guild.id}, {role.id});')
-		# await self.bot.conn.commit()
 		if role.position > ctx.guild.me.top_role.position:
 			return await ctx.error('You cannot add a role that is above my top role.')
 		try:
@@ -380,20 +231,17 @@ class Premium(commands.Cog, name="Premium Commands"):
 			self.joinroles[ctx.guild.id] = []
 			self.joinroles[ctx.guild.id].append(role.id)
 		await ctx.success(f'Successfully added the rank {discord.utils.escape_mentions(role.name)}!')
-		logchannels = self.bot.get_cog("Settings").logchannels
-		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-		if logid:
-			logch = ctx.guild.get_channel(logid['modlogs'])
-			if logch:
-				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Rank Added | {role.name}', icon_url=str(ctx.guild.icon_url))
-				embed.add_field(name='User', value=ctx.author.mention, inline=False)
-				embed.add_field(name='Role', value=f'{role.mention}', inline=False)
-				embed.set_footer(text=f'User ID: {ctx.author.id} | Role ID: {role.id}')
-				try:
-					await logch.send(embed=embed)
-				except Exception:
-					pass
+		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+		if logch:
+			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+			embed.set_author(name=f'Rank Added | {role.name}', icon_url=str(ctx.guild.icon_url))
+			embed.add_field(name='User', value=ctx.author.mention, inline=False)
+			embed.add_field(name='Role', value=f'{role.mention}', inline=False)
+			embed.set_footer(text=f'User ID: {ctx.author.id} | Role ID: {role.id}')
+			try:
+				await logch.send(embed=embed)
+			except Exception:
+				pass
 		return
 
 	@commands.command(name='delrank', description='Remove a rank from the list of joinable roles.')
@@ -401,7 +249,6 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
 	async def delrank(self, ctx, *, role: Role):
-		'''PFXdelrank <role>'''
 		# await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {role.id};')
 		# await self.bot.conn.commit()
 		con = await self.bot.db.acquire()
@@ -414,27 +261,23 @@ class Premium(commands.Cog, name="Premium Commands"):
 		except KeyError:
 			pass
 		await ctx.success(f'Successfully removed the rank {discord.utils.escape_mentions(role.name)}!')
-		logchannels = self.bot.get_cog("Settings").logchannels
-		logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-		if logid:
-			logch = ctx.guild.get_channel(logid['modlogs'])
-			if logch:
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-				embed.set_author(name=f'Rank Removed | {role.name}', icon_url=str(ctx.guild.icon_url))
-				embed.add_field(name='User', value=ctx.author.mention, inline=False)
-				embed.add_field(name='Role', value=f'{role.mention}', inline=False)
-				embed.set_footer(text=f'User ID: {ctx.author.id} | Role ID: {role.id}')
-				try:
-					await logch.send(embed=embed)
-				except Exception:
-					pass
+		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+		if logch:
+			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+			embed.set_author(name=f'Rank Removed | {role.name}', icon_url=str(ctx.guild.icon_url))
+			embed.add_field(name='User', value=ctx.author.mention, inline=False)
+			embed.add_field(name='Role', value=f'{role.mention}', inline=False)
+			embed.set_footer(text=f'User ID: {ctx.author.id} | Role ID: {role.id}')
+			try:
+				await logch.send(embed=embed)
+			except Exception:
+				pass
 		return
 
 	@commands.command(name='rank', description='List all available ranks and join a rank', aliases=['ranks'])
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
 	async def rank(self, ctx, *, role: Role = None):
-		'''PFXrank [<rank>]'''
 		if not role:
 			try:
 				ranks = self.joinroles[ctx.guild.id]
@@ -490,7 +333,6 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
 	async def rolepersist(self, ctx, member: Member, *, role: Role):
-		'''PFXrolepersist <member> <role>'''
 		if ctx.guild.id not in self.rolepersists:
 			self.rolepersists[ctx.guild.id] = {}
 		if member.id not in self.rolepersists[ctx.guild.id]:
@@ -514,21 +356,18 @@ class Premium(commands.Cog, name="Premium Commands"):
 				except Exception:
 					pass
 			await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
-			logchannels = self.bot.get_cog("Settings").logchannels
-			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-			if logid:
-				logch = ctx.guild.get_channel(logid['modlogs'])
-				if logch:
-					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-					embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-					embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
-					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-					embed.add_field(name='Role', value=role.mention, inline=False)
-					embed.set_footer(text=f'User ID: {member.id} | Mod ID: {ctx.author.id} | Role ID: {role.id}')
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
+			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+			if logch:
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+				embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
+				embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
+				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+				embed.add_field(name='Role', value=role.mention, inline=False)
+				embed.set_footer(text=f'User ID: {member.id} | Mod ID: {ctx.author.id} | Role ID: {role.id}')
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 			return
 		else:
 			current = self.rolepersists[ctx.guild.id][member.id]['role']
@@ -548,21 +387,18 @@ class Premium(commands.Cog, name="Premium Commands"):
 				except Exception:
 					pass
 				await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
-				logchannels = self.bot.get_cog("Settings").logchannels
-				logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-				if logid:
-					logch = ctx.guild.get_channel(logid['modlogs'])
-					if logch:
-						embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
-						embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-						embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
-						embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-						embed.add_field(name='Role', value=role.mention, inline=False)
-						embed.set_footer(text=f'User ID: {member.id} | Mod ID: {ctx.author.id} | Role ID: {role.id}')
-						try:
-							await logch.send(embed=embed)
-						except Exception:
-							pass
+				logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+				if logch:
+					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+					embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
+					embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
+					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+					embed.add_field(name='Role', value=role.mention, inline=False)
+					embed.set_footer(text=f'User ID: {member.id} | Mod ID: {ctx.author.id} | Role ID: {role.id}')
+					try:
+						await logch.send(embed=embed)
+					except Exception:
+						pass
 				return
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -575,20 +411,17 @@ class Premium(commands.Cog, name="Premium Commands"):
 			except Exception:
 				pass
 			await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will no longer keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
-			logchannels = self.bot.get_cog("Settings").logchannels
-			logid = logchannels[ctx.guild.id] if ctx.guild.id in logchannels else None
-			if logid:
-				logch = ctx.guild.get_channel(logid['modlogs'])
-				if logch:
-					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-					embed.set_author(name=f'Role Persist Removed | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-					embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
-					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-					embed.set_footer(text=f'User ID: {member.id} | Mod ID: {ctx.author.id} | Role ID: {role.id}')
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
+			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+			if logch:
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+				embed.set_author(name=f'Role Persist Removed | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
+				embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
+				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+				embed.set_footer(text=f'User ID: {member.id} | Mod ID: {ctx.author.id} | Role ID: {role.id}')
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 			return
 
 	# @commands.Cog.listener()
@@ -661,8 +494,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	async def on_member_join(self, member):
 		if member.guild.id in self.bot.premiumGuilds:
 			try:
-				roleid = self.autoroles[member.guild.id]["role"]
-				role = discord.utils.get(member.guild.roles, id=roleid)
+				role = self.bot.configs[member.guild.id].get('mod.autorole')
 				if role != None:
 					await member.add_roles(role, reason='Auto-Role')
 			except Exception:
@@ -701,20 +533,17 @@ class Premium(commands.Cog, name="Premium Commands"):
 				self.rolepersists[after.guild.id].pop(after.id, None)
 			except Exception:
 				pass
-			logchannels = self.bot.get_cog("Settings").logchannels
-			logid = logchannels[after.guild.id] if after.guild.id in logchannels else None
-			if logid:
-				logch = after.guild.get_channel(logid['modlogs'])
-				if logch:
-					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
-					embed.set_author(name=f'Role Persist Removed | {after}', icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
-					embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
-					embed.add_field(name='Moderator', value=after.guild.me.mention, inline=False)
-					embed.set_footer(text=f'User ID: {after.id} | Mod ID: {after.guild.me.id} | Role ID: {r.id}')
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
+			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+			if logch:
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+				embed.set_author(name=f'Role Persist Removed | {after}', icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
+				embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
+				embed.add_field(name='Moderator', value=after.guild.me.mention, inline=False)
+				embed.set_footer(text=f'User ID: {after.id} | Mod ID: {after.guild.me.id} | Role ID: {r.id}')
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 
 def setup(bot):
 	bot.add_cog(Premium(bot))

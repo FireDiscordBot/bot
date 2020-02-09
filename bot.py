@@ -28,9 +28,9 @@ import json
 async def get_pre(bot, message):
     if isinstance(message.channel, discord.DMChannel):
         return commands.when_mentioned_or('$', 'fire ')(bot, message)
-    if not hasattr(bot, 'prefixes'):
+    if message.guild.id not in bot.configs:
         return commands.when_mentioned_or('$', 'fire ')(bot, message)
-    prefix = bot.prefixes[message.guild.id] if message.guild.id in bot.prefixes else "$"
+    prefix = bot.configs[message.guild.id].get('main.prefix')
     return commands.when_mentioned_or(prefix, 'fire ')(bot, message)
 
 
@@ -69,7 +69,6 @@ for cog in extensions:
 @commands.has_permissions(administrator=True)
 @commands.guild_only()
 async def prefix(ctx, pfx: str = None):
-    """PFXprefix <prefix>"""
     if pfx == None:
         return await ctx.error("Missing argument for prefix! (Note: For prefixes with a space, surround it in \"\")")
     if ctx.me.mention in pfx:
@@ -77,26 +76,7 @@ async def prefix(ctx, pfx: str = None):
     if len(pfx) > 10:
         return await ctx.warning(f'Short prefixes are usually better. Try setting a prefix that\'s less than 10 characters')
     else:
-        query = 'SELECT * FROM prefixes WHERE gid = $1;'
-        prefixraw = await bot.db.fetch(query, ctx.guild.id)
-        con = await bot.db.acquire()
-        if not prefixraw:  # INSERT INTO prefixes (\"name\", \"gid\", \"prefix\") VALUES (\"{ctx.guild.name}\", {ctx.guild.id}, \"{pfx}\");
-            async with con.transaction():
-                query = 'INSERT INTO prefixes (\"name\", \"gid\", \"prefix\") VALUES ($1, $2, $3);'
-                await bot.db.execute(query, ctx.guild.name, ctx.guild.id, pfx)
-            await bot.db.release(con)
-        else:  # UPDATE prefixes SET prefix = \"{pfx}\" WHERE gid = {ctx.guild.id};
-            async with con.transaction():
-                query = 'UPDATE prefixes SET prefix = $1 WHERE gid = $2;'
-                await bot.db.execute(query, pfx, ctx.guild.id)
-            await bot.db.release(con)
-        # if prefixraw == None:
-        # 	await bot.db.execute(f'INSERT INTO prefixes (\"name\", \"gid\", \"prefix\") VALUES (\"{ctx.guild.name}\", {ctx.guild.id}, \"{pfx}\");')
-        # else:
-        # 	await bot.db.execute(f'UPDATE prefixes SET prefix = \"{pfx}\" WHERE gid = {ctx.guild.id};')
-        # await bot.conn.commit()
-        misc = bot.get_cog("Miscellaneous")
-        await misc.loadprefixes()
+        await bot.configs[ctx.guild.id].set('main.prefix', pfx)
         await ctx.success(f'Ok, {discord.utils.escape_mentions(ctx.guild.name)}\'s prefix is now {pfx}!')
 
 
@@ -114,20 +94,17 @@ async def blacklist_check(ctx):
 async def cmdperm_check(ctx):
     if isinstance(ctx.channel, discord.DMChannel):
         return True
-    settings = ctx.bot.get_cog('Settings')
-    if not settings:
-        return True
-    if ctx.command.name in settings.disabledcmds.get(ctx.guild.id, []):
+    if ctx.command.name in ctx.bot.configs[ctx.guild.id].get('disabled.commands'):
         if not ctx.author.permissions_in(ctx.channel).manage_messages:
             return False
         else:
             return True
-    if ctx.guild.id in settings.modonly and ctx.channel.id in settings.modonly[ctx.guild.id]:
+    if ctx.channel.id in ctx.bot.configs[ctx.guild.id].get('commands.modonly'):
         if not ctx.author.permissions_in(ctx.channel).manage_messages:
             return False
         else:
             return True
-    if ctx.guild.id in settings.adminonly and ctx.channel.id in settings.adminonly[ctx.guild.id]:
+    if ctx.channel.id in ctx.bot.configs[ctx.guild.id].get('commands.modonly'):
         if not ctx.author.permissions_in(ctx.channel).manage_guild:
             return False
         else:
