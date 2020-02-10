@@ -790,7 +790,10 @@ class utils(commands.Cog, name='Utility Commands'):
 		else:
 			rolebed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Roles**\n{roles}')
 			await ctx.send(embed=embed)
-			await ctx.send(embed=rolebed)
+			try:
+				await ctx.send(embed=rolebed)
+			except Exception:
+				return  # No roles for you : (
 
 	@infogroup.command(name='user', description='Check out a user\'s info')
 	async def infouser(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
