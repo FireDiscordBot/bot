@@ -1775,12 +1775,12 @@ class settings(commands.Cog, name="Settings"):
 	@commands.guild_only()
 	async def modonly(self, ctx, channels: commands.Greedy[TextChannel] = None):
 		current = self.bot.configs[ctx.guild.id].get('commands.modonly')
-		for sf in current:
-			if sf in channels:
-				current.remove(sf)
 		for sf in channels:
 			if sf not in current:
 				current.append(sf)
+		for sf in current:
+			if sf in channels:
+				current.remove(sf)
 		await self.bot.configs[ctx.guild.id].set('commands.modonly', current)
 		channelmentions = [c.mention for c in current]
 		channellist = ', '.join(channelmentions)
@@ -1791,12 +1791,12 @@ class settings(commands.Cog, name="Settings"):
 	@commands.guild_only()
 	async def adminonly(self, ctx, channels: commands.Greedy[TextChannel] = None):
 		current = self.bot.configs[ctx.guild.id].get('commands.adminonly')
-		for sf in current:
-			if sf in channels:
-				current.remove(sf)
 		for sf in channels:
 			if sf not in current:
 				current.append(sf)
+		for sf in current:
+			if sf in channels:
+				current.remove(sf)
 		await self.bot.configs[ctx.guild.id].set('commands.adminonly', current)
 		channelmentions = [c.mention for c in current]
 		channellist = ', '.join(channelmentions)
@@ -1914,12 +1914,12 @@ class settings(commands.Cog, name="Settings"):
 	async def filterexclcmd(self, ctx, *ids: typing.Union[TextChannel, Role, Member]):
 		current = self.bot.configs[ctx.guild.id].get('excluded.filter')
 		ids = [d.id for d in ids]
-		for sf in current:
-			if sf in ids:
-				current.remove(sf)
 		for sf in ids:
 			if sf not in current:
 				current.append(sf)
+		for sf in current:
+			if sf in ids:
+				current.remove(sf)
 		await self.bot.configs[ctx.guild.id].set('excluded.filter', current)
 		excl = []
 		for sf in current:
