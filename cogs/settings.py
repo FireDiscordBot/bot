@@ -257,6 +257,7 @@ class settings(commands.Cog, name="Settings"):
 			invite = None
 			nodel = False
 			if code:
+				print(f'{message.system_content} = {code}')
 				invalidinvite = False
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
@@ -278,7 +279,7 @@ class settings(commands.Cog, name="Settings"):
 					self.bot.vanity_urls = await self.get_vanitys()
 					vanitydomains = ['oh-my-god.wtf', 'inv.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
 					if code.lower() in self.bot.vanity_urls and any(d in message.system_content for d in vanitydomains):
-						invite = self.bot.getvanity(code)
+						invite = self.bot.get_vanity(code)
 						ohmygod = True
 						if isinstance(message.author, discord.Member):
 							if not message.author.permissions_in(message.channel).manage_messages:
@@ -586,7 +587,7 @@ class settings(commands.Cog, name="Settings"):
 					self.bot.vanity_urls = await self.get_vanitys()
 					vanitydomains = ['oh-my-god.wtf', 'inv.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
 					if code.lower() in self.bot.vanity_urls and any(d in message.system_content for d in vanitydomains):
-						invite = self.bot.getvanity(code)
+						invite = self.bot.get_vanity(code)
 						ohmygod = True
 						if isinstance(message.author, discord.Member):
 							if not message.author.permissions_in(message.channel).manage_messages:
