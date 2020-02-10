@@ -1381,7 +1381,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def quote(self, ctx, msg: typing.Union[str, int] = None):
 		if not msg:
 			return await ctx.error('Please specify a message ID/URL to quote. Use `auto` to toggle auto message quotes.')
-		if isinstance(msg, str) and msg.lower() == 'auto':
+		if isinstance(msg, str) and msg.lower() == 'auto' and ctx.author.guild_permissions.manage_guild:
 			current = self.bot.configs[ctx.guild.id].get('utils.autoquote')
 			new = await self.bot.configs[ctx.guild.id].set('utils.autoquote', not current)
 			return await ctx.success(f'Auto message quoting: {new}')
