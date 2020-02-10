@@ -1213,7 +1213,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			channel = guild.get_channel(payload.channel_id)
 			user = guild.get_member(payload.user_id)
 
-			if guild.id in disabled:
+			if not self.bot.configs[guild.id].get('utils.autoquote'):
 				return
 
 			if user.permissions_in(channel).send_messages:
@@ -1223,6 +1223,8 @@ class utils(commands.Cog, name='Utility Commands'):
 					return
 				except discord.Forbidden:
 					return
+				if message.author.system:
+					return await channel.send(f'<:xmark:674359427830382603> Cannot quote messages from system users!')
 				else:
 					if not message.system_content and message.embeds and message.author.bot:
 						try:
@@ -1349,6 +1351,8 @@ class utils(commands.Cog, name='Utility Commands'):
 							msg_found = await channel.fetch_message(msg_id)
 						except:
 							continue
+						if msg_found.author.system:
+							return await message.channel.send(f'<:xmark:674359427830382603> Cannot quote messages from system users!')
 						else:
 							if not msg_found.content and msg_found.embeds and msg_found.author.bot:
 								await message.channel.send(content = 'Raw embed from `' + str(msg_found.author).strip('`') + '` in ' + msg_found.channel.mention, embed = quote_embed(message.channel, msg_found, message.author))
@@ -1407,6 +1411,8 @@ class utils(commands.Cog, name='Utility Commands'):
 						break
 
 			if message:
+				if message.author.system:
+					return await ctx.error(f'Cannot quote messages from system users!')
 				if not message.content and message.embeds and message.author.bot:
 					await ctx.send(content = 'Raw embed from `' + str(message.author).strip('`') + '` in ' + message.channel.mention, embed = quote_embed(ctx.channel, message, ctx.author))
 				else:
@@ -1414,7 +1420,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			else:
 				await ctx.send(content = error_string + ' I couldn\'t find that message...')
 		else:
-			perms =  ctx.guild.me.permissions_in( ctx.channel)
+			perms =  ctx.guild.me.permissions_in(ctx.channel)
 			if not perms.send_messages or not perms.embed_links or  ctx.author.bot:
 				return
 
@@ -1448,6 +1454,8 @@ class utils(commands.Cog, name='Utility Commands'):
 							msg_found = await channel.fetch_message(msg_id)
 						except:
 							continue
+						if msg_found.author.system:
+							return await ctx.error(f'Cannot quote messages from system users!')
 						else:
 							if not msg_found.content and msg_found.embeds and msg_found.author.bot:
 								await ctx.send(content = 'Raw embed from `' + str(msg_found.author).replace('`', '\`') + '` in ' + msg_found.channel.mention, embed = quote_embed(ctx.channel, msg_found, ctx.author))
