@@ -50,7 +50,7 @@ extensions = [
     "cogs.settings",
     "cogs.moderation",
     "cogs.premium",
-    "cogs.assist",
+    # "cogs.assist",
     "cogs.imagegen",
     "cogs.koding",
     "cogs.conorthedev",
