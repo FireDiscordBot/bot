@@ -145,7 +145,7 @@ class GoogleAssistant(object):
 			assistant_helpers.log_assist_request_without_audio(req)
 			yield req
 
-		text_response = None
+		text_response = 'Google Assistant gave no response'
 		html_response = None
 		for resp in self.assistant.Assist(iter_assist_requests(),
 										  self.deadline):
@@ -157,6 +157,8 @@ class GoogleAssistant(object):
 				self.conversation_state = conversation_state
 			if resp.dialog_state_out.supplemental_display_text:
 				text_response = resp.dialog_state_out.supplemental_display_text
+		if any(p in text_response.lower() for p in ['public ip', 'ip address', '::; 1']):
+			text_response = 'I need permission to display that information'
 		return text_response, html_response
 
 try:
@@ -188,7 +190,8 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.assist, ctx.author.id, query))
 		if ctx.author.id not in self.responses:
 			return await ctx.send(f'<a:okaygoogle:661951491082551306> Something went wrong. Try again later')
-		return await ctx.send(f'<a:okaygoogle:661951491082551306> {self.responses[ctx.author.id]}')
+		await ctx.send(f'<a:okaygoogle:661951491082551306> {self.responses[ctx.author.id]}')
+		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'gassist.responses'))
 
 def setup(bot):
 	if credentials:
