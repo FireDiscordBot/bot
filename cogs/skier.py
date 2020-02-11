@@ -151,7 +151,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 	@commands.command(description="Get a player's modcore profile")
 	async def modcore(self, ctx, player: str = None):
 		if player == None:
-			await ctx.send("What user should I check?")
+			return await ctx.error("You must provide a player to check their profile")
 		uuid = await self.bot.get_cog('Hypixel Commands').nameToUUID(player)
 		if not uuid:
 			raise commands.UserInputError('Couldn\'t find that player\'s UUID')
@@ -172,7 +172,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}]({config["modcoreapi"]}serve/cape/static/{cid}.png)**') for p in purchases]
 				elif 'DYNAMIC' in c:
 					cid = s['id']
-					purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}]({config["modcoreapi"]}serve/cape/dynamic/{cid}.gif)**') for p in purchases]
+					purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}]({config["modcoreapi"]}serve/cape/dynamic/{cid})**') for p in purchases]
 		purchases = ', '.join([i for i in purchases])
 		embed = discord.Embed(title=f'{player}\'s Modcore Profile', color=ctx.author.color)
 		embed.add_field(name='Name', value=player, inline=False)
