@@ -117,7 +117,7 @@ class GoogleAssistant(object):
 		return text_response, html_response
 
 	def assist_text(self, text_query):
-		"""Send a text request to the Assistant and playback the response.
+		"""Send a text request to the Assistant and receive text back.
 		"""
 		def iter_assist_requests():
 			config = embedded_assistant_pb2.AssistConfig(
@@ -176,68 +176,19 @@ class Assistant(commands.Cog, name='Google Assistant'):
 	def __init__(self, bot):
 		self.bot = bot
 		self.gassistant = gassistant
+		self.responses = {}
 
-	@commands.command(description="Ask the Google Assistant a question and hear the response in your voice channel!")
-	# @commands.cooldown(1, 12, commands.BucketType.user)
-	async def gassist(self, ctx, *, query):
+	def assist(self, user, query):
+		text, html = gassistant.text_query(query)
+		self.responses[user] = text
+
+	@commands.command(description="Ask the Google Assistant a question.")
+	async def google(self, ctx, *, query):
 		await ctx.channel.trigger_typing()
-		loop = self.bot.loop
-		vc = True
-		uploadresp = False
-		player = False
-		try:
-			if not ctx.author.voice.channel:
-				vc = False
-				uploadresp = True
-				#return await ctx.send('You must be in a voice channel to use this!')
-		except AttributeError:
-			vc = False
-			uploadresp = True
-			#return await ctx.send('You must be in a voice channel to use this!')
-		if vc:
-			player = self.bot.wavelink.get_player(ctx.guild.id, cls=MusicPlayer)
-			player.gassist = True
-			player.current_gassist_query = query
-		if player:
-			if isinstance(player.current, MusicTrack):
-				uploadresp = True
-				#return await ctx.send('I\'m currently playing music so I can\'t play the response.')
-		try:
-			audio_sink = audio_helpers.WaveSink(
-				open(f'{ctx.author.id}.mp3', 'wb'),
-				sample_rate=16000,
-				sample_width=2
-			)
-			stream = audio_helpers.ConversationStream(
-				source=None,
-				sink=audio_sink,
-				iter_size=3200,
-				sample_width=2,
-			)
-			await loop.run_in_executor(None, func=functools.partial(gassistant.assist, query, stream))
-			if os.path.exists(f'{ctx.author.id}.mp3'):
-				if uploadresp:
-					file = discord.File(f'{ctx.author.id}.mp3', 'gassist.mp3')
-					await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'gassist.uploaded'))
-					return await ctx.send(file=file)
-				alt_ctx = await copy_context_with(ctx, content=ctx.prefix + f'play {ctx.author.id}.mp3')
-				await alt_ctx.command.reinvoke(alt_ctx)
-				await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'gassist.played'))
-				await asyncio.sleep(3)
-				track = player.current
-				if track == None:
-					await player.destroy_controller()
-					await player.destroy()
-					await player.disconnect()
-					return
-				if track.title == 'Unknown title':
-					length = track.length / 1000
-					await asyncio.sleep(length)
-					await player.destroy_controller()
-					await player.destroy()
-					await player.disconnect()
-		except Exception as e:
-			raise e
+		await self.bot.loop.run_in_executor(None, func=functools.partial(self.assist, ctx.author.id, query))
+		if ctx.author.id not in self.responses:
+			return await ctx.send(f'<a:okaygoogle:661951491082551306> Something went wrong. Try again later')
+		return await ctx.send(f'<a:okaygoogle:661951491082551306> {self.responses[ctx.author.id]}')
 
 def setup(bot):
 	if credentials:

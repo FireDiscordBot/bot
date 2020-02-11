@@ -417,6 +417,12 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					"uid": user.id,
 					"gid": ctx.guild.id
 				}
+			else:
+				self.mutes[ctx.guild.id] = {}
+				self.mutes[ctx.guild.id][user.id] = {
+					"uid": user.id,
+					"gid": ctx.guild.id
+				}
 		if channel:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 			embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))

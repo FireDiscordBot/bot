@@ -563,9 +563,9 @@
                 "Usage": "{prefix}tts <text>",
                 "Aliases": null
             },
-            "gassist": {
+            "google": {
                 "Description": "Talk to the Google Assistant",
-                "Usage": "{prefix}gassist <query>",
+                "Usage": "{prefix}google <query>",
                 "Aliases": null
             }
         }
