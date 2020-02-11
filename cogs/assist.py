@@ -179,7 +179,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		self.responses = {}
 
 	def assist(self, user, query):
-		text, html = gassistant.text_query(query)
+		text, html = gassistant.assist_text(query)
 		self.responses[user] = text
 
 	@commands.command(description="Ask the Google Assistant a question.")
