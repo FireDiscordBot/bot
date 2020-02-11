@@ -1818,6 +1818,8 @@ class utils(commands.Cog, name='Utility Commands'):
 					else:
 						break
 			if message:
+				if message.author.system:
+					return await ctx.error('Cannot fetch messages from system users')
 				uperms = ctx.author.permissions_in(message.channel)
 				if not uperms.read_messages:
 					return
@@ -1855,6 +1857,8 @@ class utils(commands.Cog, name='Utility Commands'):
 			chanid = list_ids[0]
 			msgid = list_ids[1]
 			raw = await ctx.bot.http.get_message(chanid, msgid)
+			if raw['author']['system']:
+				return await ctx.error('Cannot fetch messages from system users')
 			chan = self.bot.get_channel(int(chanid))
 			if not chan:
 				return
