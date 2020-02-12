@@ -1917,6 +1917,7 @@ class settings(commands.Cog, name="Settings"):
 		ids = [d.id for d in ids]
 		for sf in ids:
 			if sf not in current:
+				ids.remove(sf)
 				current.append(sf)
 		for sf in current:
 			if sf in ids:
