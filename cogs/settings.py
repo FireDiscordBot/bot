@@ -1753,8 +1753,8 @@ class settings(commands.Cog, name="Settings"):
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def settings_logs(self, ctx, logtype: str = None, channel: TextChannel = None):
-		if not logtype or logtype.lower() not in ['mod', 'moderation', 'action']:
-			await ctx.error(f'You must provide a log type, "moderation" or "action" for the log channel')
+		if not logtype or logtype and logtype.lower() not in ['mod', 'moderation', 'action']:
+			return await ctx.error(f'You must provide a log type, "moderation" or "action" for the log channel')
 		logtype = logtype.lower()
 		if logtype in ['mod', 'moderation']:
 			if not channel:
