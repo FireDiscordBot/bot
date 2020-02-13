@@ -1669,7 +1669,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			return await ctx.error('You must provide a slug!')
 		if not url:
 			return await ctx.error('You must provide a url!')
-		if url.lower() in ['delete', 'true', 'yeet']:
+		if url.lower() in ['remove', 'delete', 'true', 'yeet', 'disable']:
 			delete = True
 		if delete:
 			current = self.get_redirect(slug.lower())
@@ -1679,6 +1679,8 @@ class utils(commands.Cog, name='Utility Commands'):
 			return await ctx.success('Redirect deleted!')
 		if 'https://' not in url:
 			return await ctx.error('URL must include "https://"')
+		if findinvite(url):
+			return await ctx.error('Redirects cannot be used for invite links')
 		if not re.fullmatch(r'[a-zA-Z0-9]+', slug):
 			return await ctx.error('Redirect slugs can only contain characters A-Z0-9')
 		if len(slug) < 3 or len(slug) > 20:
