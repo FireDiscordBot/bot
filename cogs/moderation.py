@@ -336,7 +336,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 	@commands.command(name='loadmod', description='Load moderation data', hidden=True)
 	async def loadmod(self, ctx):
-		if await self.bot.is_team_owner(ctx.author):
+		if await self.bot.is_owner(ctx.author):
 			await self.loadMutes()
 			await self.loadwarns()
 			await self.loadmodlogs()

@@ -638,7 +638,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='errortest', hidden=True)
 	async def errortestboyo(self, ctx):
-		if await self.bot.is_team_owner(ctx.author):
+		if await self.bot.is_owner(ctx.author):
 			raise commands.CommandError('https://someurl.wtf/api?key=API_KEY')
 
 	@commands.command(name='plonk', description='Add someone to the blacklist', hidden=True)
@@ -1045,7 +1045,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='followable', description='Make the current channel followable.')
 	async def followable(self, ctx, canfollow: bool = False):
-		if not await self.bot.is_team_owner(ctx.author):
+		if not await self.bot.is_owner(ctx.author):
 			return
 		if canfollow and ctx.channel.id not in self.channelfollowable:
 			con = await self.bot.db.acquire()
@@ -1066,7 +1066,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='follow', description='Follow a channel and recieve messages from it in your own server', aliases=['cfollow', 'channelfollow'], hidden=True)
 	async def follow(self, ctx, follow: typing.Union[TextChannel, str]):
-		if not await self.bot.is_team_owner(ctx.author):
+		if not await self.bot.is_owner(ctx.author):
 			return
 		if isinstance(follow, discord.TextChannel):
 			if follow.id in self.channelfollowable:
@@ -1112,7 +1112,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='unfollow', description='Unfollow the channel that has been followed', hidden=True)
 	async def unfollow(self, ctx):
-		if not await self.bot.is_team_owner(ctx.author):
+		if not await self.bot.is_owner(ctx.author):
 			return
 		con = await self.bot.db.acquire()
 		async with con.transaction():
@@ -1553,7 +1553,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			return await ctx.error('Invalid format. Please provide a time')
 		forwhen = datetime.datetime.utcnow() + datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours)
 		limit = datetime.datetime.utcnow() + datetime.timedelta(days=32) # 32 to account for extra time on 31st day, e.g. 31 days 2 hours
-		if forwhen > limit and not await self.bot.is_team_owner(ctx.author):
+		if forwhen > limit and not await self.bot.is_owner(ctx.author):
 			return await ctx.error('Reminders currently cannot be set for more than 1 month (31 days)')
 		if ctx.author.id not in self.reminders:
 			try:
