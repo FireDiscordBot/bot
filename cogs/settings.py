@@ -540,9 +540,12 @@ class settings(commands.Cog, name="Settings"):
 				pass
 		lastmsg = self.uuidgobyebye(self.dupecheck.get(message.author.id, 'send this message and it will get yeeted'))
 		thismsg = self.uuidgobyebye(message.content)
-		if message.content != "" and len(message.attachments) < 1 and not message.author.bot:
-			if message.content == lastmsg and self.bot.configs[message.guild.id].get('mod.dupecheck') and not message.author.permissions_in(message.channel).manage_messages:
-				await message.delete()
+		excluded = self.bot.configs[message.guild.id].get('excluded.filter')
+		roleids = [r.id for r in message.author.roles]
+		if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
+			if message.content != "" and len(message.attachments) < 1 and not message.author.bot:
+				if message.content == lastmsg and self.bot.configs[message.guild.id].get('mod.dupecheck') and not message.author.permissions_in(message.channel).manage_messages:
+					await message.delete()
 		self.dupecheck[message.author.id] = message.content
 		premium = self.bot.premiumGuilds
 		if message.guild and message.guild.id in premium:
