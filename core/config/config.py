@@ -169,9 +169,23 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $BLUEutils.autoquote $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('utils.autoquote', value)
 
+    @ConfigOpt(name='utils.followable', accepts=[discord.TextChannel], default=[], options=options, premium=True)
+    async def followablwe(self, value: bool):
+        '''Channels that can be followed by users, like Discord\'s channel following.'''
+        self._bot.logger.info(f'$GREENSetting $BLUEutils.followable $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('utils.followable', [v.id for v in value])
+
+    @ConfigOpt(name='utils.autopublish', accepts=bool, default=False, options=options, premium=True)
+    async def auto_publish(self, value: bool):
+        '''Automatically publishes messages in followable channels'''
+        self._bot.logger.info(f'$GREENSetting $BLUEutils.autopublish $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('utils.autopublish', value)
+
     def get(self, option):
         if option not in self.options:
             raise InvalidOptionError(option)
+        if option['premium'] and self._guild.id not in self._bot.premiumGuilds:
+            return option['default']  # Return default value if not premium :)
         accept = self.options[option]['accepts']
         acceptlist = False
         converter = None
