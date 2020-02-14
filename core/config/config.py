@@ -203,11 +203,13 @@ class Config:
         if not inspect.isfunction(setter):
             raise OptionConfigError(option)
         if not isinstance(option['accepts'], list) and not isinstance(value, option['accepts']) and value is not None:
-            raise TypeMismatchError(type=str(type(value)), accepted=str(option['accepts']), option=option)
+            raise TypeMismatchError(type=value.__class__.__name__, accepted=option['accepts'].__name__, option=opt)
         if isinstance(option['accepts'], list):
             accepts = option['accepts'][0]
-            if not isinstance(value, list) or any(v for v in value if not isinstance(v, accepts)):
-                raise TypeMismatchError(type=str(type(value)), accepted=str(option['accepts']), option=option)
+            if not isinstance(value, list) or any(not isinstance(v, accepts) for v in value):
+                if isinstance(value, list) and len(value) >= 1:
+                    raise TypeMismatchError(type=[t.__class__.__name__ for t in value if not isinstance(t, accepts)], accepted=[t.__name__ for t in option['accepts']], option=opt)
+                raise TypeMismatchError(type=value.__class__.__name__, accepted=option['accepts'].__name__, option=opt)
         await setter(self, value)
         return self.get(opt)
 
