@@ -29,7 +29,7 @@ from fire.converters import Member
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
-client = ksoftapi.Client(api_key=config['ksoft'])
+client = ksoftapi.Client(api_key=config['ksoft'] if not bot.dev else config['ksoftalt'])
 
 imgext = ('.png', '.jpg', '.jpeg', '.gif')
 
