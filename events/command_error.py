@@ -56,7 +56,7 @@ class commandError(commands.Cog):
         noperms = (commands.BotMissingPermissions, commands.MissingPermissions, discord.Forbidden)
         saved = error
 
-        if not isinstance(error, noperms) or not isinstance(error, sentryignored):
+        if not isinstance(error, noperms) or isinstance(error, sentryignored):
             userscope = {
                 "id": str(ctx.author.id),
                 "username": str(ctx.author)
