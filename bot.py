@@ -28,10 +28,16 @@ import os
 
 async def get_pre(bot, message):
     if isinstance(message.channel, discord.DMChannel):
+        if bot.dev:
+            return commands.when_mentioned_or('$', 'dev ', 'Dev ')(bot, message)
         return commands.when_mentioned_or('$', 'fire ', 'Fire ')(bot, message)
     if message.guild.id not in bot.configs:
+        if bot.dev:
+            return commands.when_mentioned_or('$', 'dev ', 'Dev ')(bot, message)
         return commands.when_mentioned_or('$', 'fire ', 'Fire ')(bot, message)
     prefix = bot.configs[message.guild.id].get('main.prefix')
+    if bot.dev:
+            return commands.when_mentioned_or(prefix, 'dev ', 'Dev ')(bot, message)
     return commands.when_mentioned_or(prefix, 'fire ', 'Fire ')(bot, message)
 
 
@@ -59,6 +65,9 @@ extensions = [
     "cogs.conorthedev",
     "fishin.abucket"
 ]
+
+if bot.dev:
+    extensions.remove("cogs.music")
 
 for cog in extensions:
     try:
