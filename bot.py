@@ -23,18 +23,21 @@ import asyncio
 import asyncpg
 import logging
 import json
+import os
 
 
 async def get_pre(bot, message):
     if isinstance(message.channel, discord.DMChannel):
-        return commands.when_mentioned_or('$', 'fire ')(bot, message)
+        return commands.when_mentioned_or('$', 'fire ', 'Fire ')(bot, message)
     if message.guild.id not in bot.configs:
-        return commands.when_mentioned_or('$', 'fire ')(bot, message)
+        return commands.when_mentioned_or('$', 'fire ', 'Fire ')(bot, message)
     prefix = bot.configs[message.guild.id].get('main.prefix')
-    return commands.when_mentioned_or(prefix, 'fire ')(bot, message)
+    return commands.when_mentioned_or(prefix, 'fire ', 'Fire ')(bot, message)
 
 
 bot = Fire(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="inv.wtf/fire"), case_insensitive=True, owner_id=287698408855044097, max_messages=8000)
+if os.environ.get("FIRE-ENV", "production") == "dev":
+    bot.dev = True
 
 extensions = [
     "cogs.misc",
@@ -50,7 +53,7 @@ extensions = [
     "cogs.settings",
     "cogs.moderation",
     "cogs.premium",
-    # "cogs.assist",
+    "cogs.assist",
     "cogs.imagegen",
     "cogs.koding",
     "cogs.conorthedev",
@@ -114,7 +117,7 @@ async def cmdperm_check(ctx):
 
 async def start_bot():
     try:
-        login_data = {"user": "postgres", "password": bot.config['pgpassword'], "database": "fire", "host": "127.0.0.1"}
+        login_data = {"user": "postgres", "password": bot.config['pgpassword'], "database": "fire" if not bot.dev else "dev", "host": "127.0.0.1"}
         bot.db = await asyncpg.create_pool(**login_data)
         await bot.start(bot.config['token'])
     except KeyboardInterrupt:
