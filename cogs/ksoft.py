@@ -29,14 +29,12 @@ from fire.converters import Member
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
-client = ksoftapi.Client(api_key=config['ksoft'] if not bot.dev else config['ksoftalt'])
-
 imgext = ('.png', '.jpg', '.jpeg', '.gif')
 
 class ksoft(commands.Cog, name="KSoft.SI API"):
 	def __init__(self, bot):
 		self.bot = bot
-		self.bot.ksoft = client
+		self.bot.ksoft = ksoftapi.Client(api_key=config['ksoft'] if not self.bot.dev else config['ksoftalt'])
 
 	@commands.command(description="Gets a random meme from Reddit")
 	async def meme(self, ctx, sub: str = None):
