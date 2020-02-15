@@ -41,6 +41,8 @@ class guildRemove(commands.Cog):
 
 
 def setup(bot):
+    if bot.dev:
+        return
     try:
         bot.add_cog(guildRemove(bot))
         bot.logger.info(f'$GREENLoaded event $BLUEguildRemove!')
