@@ -862,7 +862,7 @@ class settings(commands.Cog, name="Settings"):
 		self.joincache[gid].remove(mid)
 
 	@commands.Cog.listener()
-	async def on_raid_attempt(self, guild: discord.Guild, raiders: list = list):
+	async def on_raid_attempt(self, guild: discord.Guild, raiders: list = []):
 		if not guild:
 			return
 		channel = guild.get_channel(self.antiraid.get(guild.id, 0))
@@ -895,7 +895,7 @@ class settings(commands.Cog, name="Settings"):
 			return
 
 	@commands.Cog.listener()
-	async def on_msgraid_attempt(self, guild: discord.Guild, raiders: list = list):
+	async def on_msgraid_attempt(self, guild: discord.Guild, raiders: list = []):
 		if not guild:
 			return
 		channel = guild.get_channel(self.antiraid.get(guild.id, 0))
@@ -1777,15 +1777,16 @@ class settings(commands.Cog, name="Settings"):
 	@commands.command(name='modonly', description='Set channels to be moderator only (users with `Manage Messages` are moderators')
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
-	async def modonly(self, ctx, channels: commands.Greedy[TextChannel] = None):
+	async def modonly(self, ctx, channels: commands.Greedy[TextChannel] = []):
 		current = self.bot.configs[ctx.guild.id].get('commands.modonly')
+		modonly = current.copy()
 		for sf in channels:
-			if sf not in current:
-				current.append(sf)
-		for sf in current:
-			if sf in channels:
-				current.remove(sf)
-		await self.bot.configs[ctx.guild.id].set('commands.modonly', current)
+			if sf not in modonly:
+				modonly.append(sf)
+		for sf in channels:
+			if sf in current:
+				modonly.remove(sf)
+		current = await self.bot.configs[ctx.guild.id].set('commands.modonly', modonly)
 		channelmentions = [c.mention for c in current]
 		channellist = ', '.join(channelmentions)
 		return await ctx.success(f'Commands can now only be run by moderators (those with Manage Messages permission) in;\n{channellist}.')
@@ -1793,15 +1794,16 @@ class settings(commands.Cog, name="Settings"):
 	@commands.command(name='adminonly', description='Set channels to be admin only (users with `Manage Server` are admins')
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
-	async def adminonly(self, ctx, channels: commands.Greedy[TextChannel] = None):
+	async def adminonly(self, ctx, channels: commands.Greedy[TextChannel] = []):
 		current = self.bot.configs[ctx.guild.id].get('commands.adminonly')
+		adminonly = current.copy()
 		for sf in channels:
 			if sf not in current:
-				current.append(sf)
-		for sf in current:
-			if sf in channels:
-				current.remove(sf)
-		await self.bot.configs[ctx.guild.id].set('commands.adminonly', current)
+				adminonly.append(sf)
+		for sf in channels:
+			if sf in current:
+				adminonly.remove(sf)
+		current = await self.bot.configs[ctx.guild.id].set('commands.adminonly', adminonly)
 		channelmentions = [c.mention for c in current]
 		channellist = ', '.join(channelmentions)
 		return await ctx.success(f'Commands can now only be run by admins (those with Manage Server permission) in;\n{channellist}.')
