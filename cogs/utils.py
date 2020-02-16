@@ -21,6 +21,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import discord
 from fire.converters import User, UserWithFallback, Member, TextChannel, VoiceChannel, Category, Role
 from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
+from discord import Webhook, AsyncWebhookAdapter
 from discord.ext import commands, flags, tasks
 from jishaku.models import copy_context_with
 import datetime
@@ -242,8 +243,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.bot.getperms = self.getperms
 		self.bot.getguildperms = self.getguildperms
 		self.bot.ishoisted = self.ishoisted
-		self.channelfollowable = []
-		self.channelfollows = {}
+		self.published = {}
 		self.bot.vanity_urls = {}
 		self.bot.redirects = {}
 		self.bot.descriptions = {}
@@ -259,8 +259,6 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.reminders = {}
 		self.quotecooldowns = {}
 		asyncio.get_event_loop().create_task(self.loadvanitys())
-		# asyncio.get_event_loop().create_task(self.loadfollowable())
-		# asyncio.get_event_loop().create_task(self.loadfollows())
 		asyncio.get_event_loop().create_task(self.loadtags())
 		asyncio.get_event_loop().create_task(self.loaddescs())
 		asyncio.get_event_loop().create_task(self.loadbans())
@@ -413,48 +411,6 @@ class utils(commands.Cog, name='Utility Commands'):
 			query = 'DELETE FROM vanity WHERE gid = $1;'
 			await self.bot.db.execute(query, guild.id)
 		await self.bot.db.release(con)
-
-	async def loadfollowable(self):
-		self.channelfollowable = []
-		query = 'SELECT * FROM followable;'
-		follows = await self.bot.db.fetch(query)
-		for c in follows:
-			self.channelfollowable.append(int(c['cid']))
-
-	async def loadfollows(self):
-		self.channelfollows = {}
-		query = 'SELECT * FROM channelfollow;'
-		follows = await self.bot.db.fetch(query)
-		for f in follows:
-			chanurl = f['following']
-			if chanurl.startswith('https://canary.discordapp.com/channels/'):
-				ids = chanurl.strip('https://canary.discordapp.com/channels/')
-			elif chanurl.startswith('https://ptb.discordapp.com/channels/'):
-				ids = chanurl.strip('https://ptb.discordapp.com/channels/')
-			elif chanurl.startswith('https://discordapp.com/channels/'):
-				ids = chanurl.strip('https://discordapp.com/channels/')
-			id_list = ids.split('/')
-			if len(id_list) != 2:
-				pass
-			else:
-				fcid = int(id_list[1])
-				fgid = int(id_list[0])
-				try:
-					self.channelfollows[fcid].append({
-						'fcid': int(fcid),
-						'fgid': int(fgid),
-						'gid': int(f['gid']),
-						'cid': int(f['cid'])
-					})
-				except KeyError:
-					self.channelfollows[fcid] = []
-					self.channelfollows[fcid].append({
-						'fcid': int(fcid),
-						'fgid': int(fgid),
-						'gid': int(f['gid']),
-						'cid': int(f['cid'])
-					})
-
 
 	async def loadvanitys(self):
 		await self.bot.wait_until_ready()
@@ -1043,85 +999,6 @@ class utils(commands.Cog, name='Utility Commands'):
 			await ctx.channel.purge(limit=amount)
 		await channel.send(f'Successfully deleted **{len(self.bot.recentpurge[ctx.channel.id])}** messages!', delete_after=5)
 
-	@commands.command(name='followable', description='Make the current channel followable.')
-	async def followable(self, ctx, canfollow: bool = False):
-		if not await self.bot.is_owner(ctx.author):
-			return
-		if canfollow and ctx.channel.id not in self.channelfollowable:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'INSERT INTO followable (\"cid\") VALUES ($1);'
-				await self.bot.db.execute(query, ctx.channel.id)
-			await self.bot.db.release(con)
-			await self.loadfollowable()
-			return await ctx.success('This channel can now be followed!')
-		else:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'DELETE FROM followable WHERE cid = $1;'
-				await self.bot.db.execute(query, ctx.channel.id)
-			await self.bot.db.release(con)
-			await self.loadfollowable()
-			return await ctx.success('This channel is no longer followable')
-
-	@commands.command(name='follow', description='Follow a channel and recieve messages from it in your own server', aliases=['cfollow', 'channelfollow'], hidden=True)
-	async def follow(self, ctx, follow: typing.Union[TextChannel, str]):
-		if not await self.bot.is_owner(ctx.author):
-			return
-		if isinstance(follow, discord.TextChannel):
-			if follow.id in self.channelfollowable:
-				return await ctx.send(f'Use this command in the channel you want to recieve messages from {follow.mention} in;\n`fire follow https://discordapp.com/channels/{ctx.guild.id}/{follow.id}`')
-			else:
-				return await ctx.error('This channel has not been made followable!')
-		elif isinstance(follow, str):
-			if 'https://discordapp.com/channels' not in follow:
-				getchan = discord.utils.get(ctx.guild.channels, name=follow)
-				if not getchan:
-					return await ctx.error('Invalid argument! Please provide a channel or a link to follow')
-				if isinstance(getchan, discord.TextChannel):
-					follow = getchan
-					if follow.id in self.channelfollowable:
-						return await ctx.send(f'Use this command in the channel you want to recieve messages from {follow.mention} in;\n`fire follow https://discordapp.com/channels/{ctx.guild.id}/{follow.id}`')
-					else:
-						return await ctx.error('This channel has not been made followable!')
-				elif isinstance(getchan, discord.VoiceChannel) or isinstance(getchan, discord.CategoryChannel):
-					return await ctx.error('Invalid argument! Please provide a **text** channel or a link to follow')
-			chanurl = follow.lower().strip('<>')
-			if chanurl.startswith('https://canary.discordapp.com/channels/'):
-				ids = chanurl.strip('https://canary.discordapp.com/channels/')
-			elif chanurl.startswith('https://ptb.discordapp.com/channels/'):
-				ids = chanurl.strip('https://ptb.discordapp.com/channels/')
-			elif chanurl.startswith('https://discordapp.com/channels/'):
-				ids = chanurl.strip('https://discordapp.com/channels/')
-			id_list = ids.split('/')
-			if len(id_list) != 2:
-				return await ctx.error(f'Invalid argument! Make sure the link follows this format; https://discordapp.com/channels/{ctx.guild.id}/{ctx.channel.id}')
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'INSERT INTO channelfollow (\"following\", \"gid\", \"cid\") VALUES ($1, $2, $3);'
-				try:
-					await self.bot.db.execute(query, chanurl, ctx.guild.id, ctx.channel.id)
-				except asyncpg.exceptions.UniqueViolationError:
-					try:
-						return await ctx.error(f'Already following a channel here!')
-					except Exception:
-						return
-			await self.bot.db.release(con)
-			await self.loadfollows()
-			return await ctx.success(f'Now following <#{id_list[-1]}>')
-
-	@commands.command(name='unfollow', description='Unfollow the channel that has been followed', hidden=True)
-	async def unfollow(self, ctx):
-		if not await self.bot.is_owner(ctx.author):
-			return
-		con = await self.bot.db.acquire()
-		async with con.transaction():
-			query = 'DELETE FROM channelfollow WHERE cid = $1;'
-			await self.bot.db.execute(query, ctx.channel.id)
-		await self.bot.db.release(con)
-		await self.loadfollows()
-		return await ctx.success(f'Successfully unfollowed all followed channels')
-
 	@commands.Cog.listener()
 	async def on_guild_remove(self, guild):
 		try:
@@ -1254,40 +1131,6 @@ class utils(commands.Cog, name='Utility Commands'):
 			if not alt_ctx.valid:
 				return
 			return await alt_ctx.command.reinvoke(alt_ctx)
-		if message.channel.id in self.channelfollows and message.channel.id in self.channelfollowable and not message.author.bot:
-			def pub_check(msg):
-				if msg.system_content.lower() == 'yes' and msg.author.id == message.author.id:
-					return True
-				else:
-					return False
-			try:
-				if message.system_content.lower() == 'yes' or ' followable' in message.system_content.lower():
-					pass
-				else:
-					qmsg = await message.channel.send('There are users following this channel. Would you like to publish this message? (Say `yes` to publish)')
-					yee = await self.bot.wait_for('message', timeout=30.0, check=pub_check)
-					if yee:
-						following = self.channelfollows[message.channel.id]
-						for follow in following:
-							g = self.bot.get_guild(follow['gid'])
-							c = g.get_channel(follow['cid'])
-							if message.embeds:
-								for embed in message.embeds:
-									await c.send(f'**Embed from #{message.channel.name}**:**')
-									await c.send(embed=embed)
-							if message.system_content:
-								await c.send(f'**Messsage from #{message.channel.name}:**')
-								await c.send(message.system_content)
-						await qmsg.delete()
-						await yee.delete()
-						return await message.channel.send('<:check:674359197378281472> Successfully sent your message to all followers!', delete_after=5)
-			except asyncio.TimeoutError:
-				try:
-					await qmsg.delete()
-				except Exception:
-					pass
-			except Exception:
-				pass
 		if 'fetchmsg' in message.content.lower():
 			return
 		if 'quote' in message.content.lower():
@@ -1882,30 +1725,6 @@ class utils(commands.Cog, name='Utility Commands'):
 					await interface.send_to(ctx)
 		else:
 			raise commands.UserInputError('Message argument was neither an id or url')
-
-
-	@commands.command(description='Find a user from their id')
-	async def fetchuser(self, ctx, user: int = None):
-		if user == None:
-			user = ctx.message.author.id
-		try:
-			fetched = await self.bot.fetch_user(user)
-		except discord.NotFound:
-			raise commands.UserInputError('Hmm.... I can\'t seem to find that user')
-			return
-		except discord.HTTPException:
-			raise commands.UserInputError('Something went wrong when trying to find that user...')
-			return
-		userInfo = {
-			'name': fetched.name,
-			'discrim': fetched.discriminator,
-			'id': fetched.id,
-			'bot': fetched.bot,
-			'avatar': fetched.avatar
-		}
-		user = json.dumps(userInfo, indent=2)
-		embed = discord.Embed(title=f'Found user {fetched}', description=f'```json\n{user}```')
-		await ctx.send(embed=embed)
 
 	@commands.command(name='fetchactivity', description='Get a member\'s activity in json')
 	async def fetchactivity(self, ctx, member: Member = None):
