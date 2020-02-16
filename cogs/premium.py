@@ -100,38 +100,15 @@ class Premium(commands.Cog, name="Premium Commands"):
 		return False
 
 	async def member_guild_check(self, member: discord.Member):
-		return True
-		# """
-		# Check if the guild from a member is premium
-		# """
-		# if member.guild.id in self.bot.premiumGuilds:
-		# 	return True
-		# if await self.bot.is_owner(member):
-		# 	return True
-		# else:
-		# 	return False
-
-	# @commands.Cog.listener()
-	# async def on_ready(self):
-	# 	await asyncio.sleep(10)
-	# 	await self.loadPremiumGuilds()
-	# 	await self.loadAutoroles()
-	# 	# await self.loadReactroles()
-	# 	await self.loadJoinRoles()
-	# 	await self.loadRolePersist()
-	# 	print('Premium functions loaded!')
-
-	@commands.command(name='loadpremium', description='Load premium data', hidden=True)
-	async def loadpremium(self, ctx):
-		if await self.bot.is_owner(ctx.author):
-			await self.loadPremiumGuilds()
-			await self.loadAutoroles()
-			# await self.loadReactroles()
-			await self.loadJoinRoles()
-			await self.loadRolePersist()
-			await ctx.success('Loaded data!')
+		"""
+		Check if the guild from a member is premium
+		"""
+		if member.guild.id in self.bot.premiumGuilds:
+			return True
+		if await self.bot.is_owner(member):
+			return True
 		else:
-			await ctx.send('no.')
+			return False
 
 #	def gencrabrave(self, t, filename):
 #		clip = VideoFileClip("crabtemplate.mp4")

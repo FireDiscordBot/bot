@@ -15,37 +15,25 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+
 from discord.ext import commands
-from fire.push import pushbullet
-from fire import exceptions
-import functools
-import asyncio
-import discord
 import traceback
+import discord
 
 
-class guildRemove(commands.Cog):
+class oss(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
-    async def on_guild_remove(self, guild):
-        await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'guilds.leave'))
-        fire = self.bot.get_guild(564052798044504084)
-        await fire.edit(description=f'The official server for the Fire Discord bot, used in {len(self.bot.guilds)} servers. Join for support, feature announcements, status updates & more!')
-        self.bot.logger.info(f"$REDFire left the guild $BLUE{guild.name}({guild.id}) $REDwith $BLUE{guild.member_count} $REDmembers! Goodbye o/")
-        try:
-            await pushbullet("link", "Fire left a guild!", f"Fire left {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/", f"https://api.gaminggeek.dev/guild/{guild.id}")
-        except exceptions.PushError as e:
-            self.bot.logger.warn(f'$YELLOWFailed to send guild leave notification!')
+    @commands.command(description='Links to Fire\'s GitHub repo', aliases=['oss'])
+    async def opensource(self, ctx):
+        await ctx.send(f'You can find Fire\'s source code at <https://github.com/GamingGeek/Fire>')
 
 
 def setup(bot):
-    if bot.dev:
-        return
     try:
-        bot.add_cog(guildRemove(bot))
-        bot.logger.info(f'$GREENLoaded event $BLUEguildRemove!')
+        bot.add_cog(oss(bot))
+        bot.logger.info(f'$GREENLoaded "oss" command!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while loading event $BLUE"guildRemove"', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $BLUE"oss', exc_info=e)

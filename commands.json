@@ -18,6 +18,11 @@
                 "Usage": "{prefix}invite",
                 "Aliases": null
             },
+            "oss": {
+                "Description": "Sends my GitHub repo link",
+                "Usage": "{prefix}oss",
+                "Aliases": "opensource"
+            },
             "stats": {
                 "Description": "Shows you some stats about me",
                 "Usage": "{prefix}stats",

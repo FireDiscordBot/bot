@@ -184,7 +184,7 @@ class Config:
     def get(self, option):
         if option not in self.options:
             raise InvalidOptionError(option)
-        if option['premium'] and self._guild.id not in self._bot.premiumGuilds:
+        if self.options[option]['premium'] and self._guild.id not in self._bot.premiumGuilds:
             return option['default']  # Return default value if not premium :)
         accept = self.options[option]['accepts']
         acceptlist = False

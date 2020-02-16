@@ -29,6 +29,7 @@ import discord
 import aiohttp
 import random
 import re
+import os
 
 
 class commandError(commands.Cog):
@@ -47,11 +48,15 @@ class commandError(commands.Cog):
             return
 
         ignored = (commands.CheckFailure)
-        sentryignored = (commands.CheckFailure)
+        sentryignored = (
+            commands.CheckFailure,
+            commands.UserInputError,
+            commands.CommandOnCooldown
+        )
         noperms = (commands.BotMissingPermissions, commands.MissingPermissions, discord.Forbidden)
         saved = error
 
-        if not isinstance(error, noperms):
+        if not isinstance(error, noperms) or not isinstance(error, sentryignored):
             userscope = {
                 "id": str(ctx.author.id),
                 "username": str(ctx.author)
@@ -59,15 +64,9 @@ class commandError(commands.Cog):
             extra = {
                 "guild.name": ctx.guild.name if ctx.guild else 'N/A',
                 "guild.id": ctx.guild.id if ctx.guild else 'N/A',
-                "server_name": "Fire"
+                "environment": os.environ.get("FIREENV", "production")
             }
-            if isinstance(error, sentryignored):
-                exclevel = 'warning'
-            elif isinstance(error, commands.CommandOnCooldown):
-                exclevel = 'info'
-            else:
-                exclevel = 'error'
-            await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.sentry_exc, error, userscope, exclevel, extra))
+            await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.sentry_exc, error, userscope, 'error', extra))
         # Allows us to check for original exceptions raised and sent to CommandInvokeError.
         # If nothing is found. We keep the exception passed to on_command_error.
         error = getattr(error, 'original', error)

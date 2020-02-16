@@ -46,6 +46,8 @@ class guildAdd(commands.Cog):
 
 
 def setup(bot):
+    if bot.dev:
+        return
     try:
         bot.add_cog(guildAdd(bot))
         bot.logger.info(f'$GREENLoaded event $BLUEguildAdd!')
