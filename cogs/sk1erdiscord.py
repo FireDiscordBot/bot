@@ -158,7 +158,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 						return
 					await message.delete()
 					return await message.channel.send(url)
-		if any(t in message.content for t in self.logtext):
+		if message.channel.id == 412310617442091008 and any(t in message.content for t in self.logtext):
 			try:
 				url = await self.haste(txt)
 			except Exception as e:
