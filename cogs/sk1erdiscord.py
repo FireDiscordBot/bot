@@ -27,6 +27,7 @@ import re
 with open('config.json', 'r') as cfg:
 	config = json.load(cfg)
 
+
 class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 	def __init__(self, bot):
 		self.bot = bot
@@ -37,10 +38,16 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		self.gistheaders = {'Authorization': f'token {config["github"]}'}
 		self.modcoreheaders = {'secret': config['modcore']}
 		self.logregex = r'((hyperium-)?crash-\d{4}-\d{2}-\d{2}_\d{2}\.\d{2}\.\d{2}.+\.txt|latest\.log|launcher_log\.txt|hs_err_pid\d{1,8}\.log)'
-		self.jvmcrash = ['net.minecraft.launchwrapper.Launch', '# A fatal error has been detected by the Java Runtime Environment:']
-		self.normalcrash = ['---- Minecraft Crash Report ----', 'A detailed walkthrough of the error']
-		self.launcherlog = ['launchermeta.mojang.com', 'Running launcher core']
-		self.gamelog = ['[Client thread/INFO]: Setting user:', '[Client thread/INFO]: (Session ID is']
+		self.logtext = [
+			'net.minecraft.launchwrapper.Launch',
+			'# A fatal error has been detected by the Java Runtime Environment:',
+			'---- Minecraft Crash Report ----',
+			'A detailed walkthrough of the error',
+			'launchermeta.mojang.com',
+			'Running launcher core',
+			'[Client thread/INFO]: Setting user:',
+			'[Client thread/INFO]: (Session ID is'
+		]
 
 	async def cog_check(self, ctx: commands.Context):
 		if ctx.guild.id == 411619823445999637:
@@ -67,9 +74,9 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				return
 			payload = {
 				'description': 'Nitro Booster dots for the Hyperium Client!',
-					'files': {
+				'files': {
 					'boosters.json': {
-							'content': json.dumps(current, indent=2)
+						'content': json.dumps(current, indent=2)
 					}
 				}
 			}
@@ -128,7 +135,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 							await general.send(f'{after.mention} Your nitro perks in Hyperium & Modcore have been removed. Boost the server to get them back :)')
 
 	async def haste(self, content):
-		async with aiohttp.ClientSession().post('https://hasteb.in/documents', data="\n".join(p)) as r:
+		async with aiohttp.ClientSession().post('https://hasteb.in/documents', data=content) as r:
 			j = await r.json()
 			return j['key']
 
@@ -143,23 +150,14 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 					txt = txt.decode('utf-8')
 				except Exception:
 					return
-				if all(t in txt for t in self.jvmcrash):
+				if all(t in txt for t in self.logtext):
+					try:
+						url = await self.haste(txt)
+					except Exception as e:
+						self.bot.logger.warn(f'$YELLOWFailed to upload log to hastebin', exc_info=e)
+						return
 					await message.delete()
-					url = await self.haste(txt)
 					return await message.channel.send(url)
-				elif all(t in txt for t in self.normalcrash):
-					await message.delete()
-					url = await self.haste(txt)
-					return await message.channel.send(url)
-				elif all(t in txt for t in self.launcherlog):
-					await message.delete()
-					url = await self.haste(txt)
-					return await message.channel.send(url)
-				elif all(t in txt for t in self.gamelog):
-					await message.delete()
-					url = await self.haste(txt)
-					return await message.channel.send(url)
-				return
 
 	async def nameToUUID(self, player: str):
 		async with aiohttp.ClientSession() as s:
