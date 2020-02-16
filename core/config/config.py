@@ -121,7 +121,7 @@ class Config:
     async def auto_role(self, value: discord.Role):
         '''The role given to users upon joining the server'''
         self._bot.logger.info(f'$GREENSetting $BLUEmod.autorole $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
-        await self.update('mod.antiraid', value.id)
+        await self.update('mod.autorole', value.id)
 
     @ConfigOpt(name='greet.joinchannel', accepts=discord.TextChannel, default=None, options=options)
     async def join_channel(self, value: discord.TextChannel):
@@ -168,18 +168,6 @@ class Config:
         '''Automatically quotes messages when a message link is sent'''
         self._bot.logger.info(f'$GREENSetting $BLUEutils.autoquote $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('utils.autoquote', value)
-
-    @ConfigOpt(name='utils.followable', accepts=[discord.TextChannel], default=[], options=options, premium=True)
-    async def followablwe(self, value: bool):
-        '''Channels that can be followed by users, like Discord\'s channel following.'''
-        self._bot.logger.info(f'$GREENSetting $BLUEutils.followable $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
-        await self.update('utils.followable', [v.id for v in value])
-
-    @ConfigOpt(name='utils.autopublish', accepts=bool, default=False, options=options, premium=True)
-    async def auto_publish(self, value: bool):
-        '''Automatically publishes messages in followable channels'''
-        self._bot.logger.info(f'$GREENSetting $BLUEutils.autopublish $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
-        await self.update('utils.autopublish', value)
 
     def get(self, option):
         if option not in self.options:

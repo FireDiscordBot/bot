@@ -955,9 +955,8 @@ class settings(commands.Cog, name="Settings"):
 			joinchan = self.bot.configs[member.guild.id].get('greet.joinchannel')
 			joinmsg = self.bot.configs[member.guild.id].get('greet.joinmsg')
 			if joinchan and joinmsg:
-				channel = member.guild.get_channel(joinchan)
 				message = joinmsg.replace('{user.mention}', member.mention).replace('{user}', str(member)).replace('{user.name}', member.name).replace('{user.discrim}', member.discriminator).replace('{server}', member.guild.name).replace('{guild}', member.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
-				await channel.send(message)
+				await joinchan.send(message)
 		logch = self.bot.configs[member.guild.id].get('log.moderation')
 		if self.bot.configs[member.guild.id].get('mod.globalbans'):
 			try:
@@ -1020,9 +1019,8 @@ class settings(commands.Cog, name="Settings"):
 			leavechan = self.bot.configs[member.guild.id].get('greet.leavechannel')
 			leavemsg = self.bot.configs[member.guild.id].get('greet.leavemsg')
 			if leavechan and leavemsg:
-				channel = member.guild.get_channel(leavechan)
 				message = leavemsg.replace('{user.mention}', member.mention).replace('{user}', str(member)).replace('{user.name}', member.name).replace('{user.discrim}', member.discriminator).replace('{server}', member.guild.name).replace('{guild}', member.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
-				await channel.send(message)
+				await leavechan.send(message)
 		logch = self.bot.configs[member.guild.id].get('log.moderation')
 		if logch:
 			moderator = None
