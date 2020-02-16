@@ -141,7 +141,9 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
-		if message.channel.id == 412310617442091008 and message.attachments:
+		if self.bot.dev:
+			return
+		if message.channel.id in [412310617442091008, 429311217862180867] and message.attachments:
 			for attach in message.attachments:
 				if not re.match(self.logregex, attach.filename) and not attach.filename == 'message.txt':
 					return
