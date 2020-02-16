@@ -165,7 +165,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 					return await message.channel.send(url)
 		if message.channel.id in [412310617442091008, 429311217862180867] and any(t in message.content for t in self.logtext):
 			try:
-				url = await self.haste(txt)
+				url = await self.haste(message.content)
 			except Exception as e:
 				self.bot.logger.warn(f'$YELLOWFailed to upload log to hastebin', exc_info=e)
 				return
