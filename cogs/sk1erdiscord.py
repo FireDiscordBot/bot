@@ -150,7 +150,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 					txt = txt.decode('utf-8')
 				except Exception:
 					return
-				if all(t in txt for t in self.logtext):
+				if any(t in txt for t in self.logtext):
 					try:
 						url = await self.haste(txt)
 					except Exception as e:
@@ -158,6 +158,14 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 						return
 					await message.delete()
 					return await message.channel.send(url)
+		if any(t in message.content for t in self.logtext):
+			try:
+				url = await self.haste(txt)
+			except Exception as e:
+				self.bot.logger.warn(f'$YELLOWFailed to upload log to hastebin', exc_info=e)
+				return
+			await message.delete()
+			return await message.channel.send(url)
 
 	async def nameToUUID(self, player: str):
 		async with aiohttp.ClientSession() as s:
