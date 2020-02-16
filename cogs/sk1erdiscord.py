@@ -137,7 +137,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 	async def haste(self, content):
 		async with aiohttp.ClientSession().post('https://hasteb.in/documents', data=content) as r:
 			j = await r.json()
-			return j['key']
+			return '<https://hasteb.in/' + j['key'] + '>'
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
