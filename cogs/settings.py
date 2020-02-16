@@ -1820,7 +1820,7 @@ class settings(commands.Cog, name="Settings"):
 				embed.add_field(name='Variables', value=variables, inline=False)
 				return await ctx.send(embed=embed)
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Current Join Message Settings**\nDo __{ctx.prefix}joinmsg disable__ to disable join messages')
-			embed.add_field(name='Channel', value=joinchan.mention if currentchan else 'Not Set (Not sure how you managed to do this)', inline=False)
+			embed.add_field(name='Channel', value=joinchan.mention if joinchan else 'Not Set (Not sure how you managed to do this)', inline=False)
 			message = joinmsg or 'Not set.'
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
 			embed.add_field(name='Message', value=message, inline=False)
@@ -1862,7 +1862,7 @@ class settings(commands.Cog, name="Settings"):
 				embed.add_field(name='Variables', value=variables, inline=False)
 				return await ctx.send(embed=embed)
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Current Leave Message Settings**\nDo __{ctx.prefix}leavemsg disable__ to disable leave messages')
-			embed.add_field(name='Channel', value=leavechan.mention if currentchan else 'Not Set (Not sure how you managed to do this)', inline=False)
+			embed.add_field(name='Channel', value=leavechan.mention if leavechan else 'Not Set (Not sure how you managed to do this)', inline=False)
 			message = leavemsg or 'Not set.'
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
 			embed.add_field(name='Message', value=message, inline=False)
