@@ -127,24 +127,39 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 							general = self.guild.get_channel(411620457754787841)
 							await general.send(f'{after.mention} Your nitro perks in Hyperium & Modcore have been removed. Boost the server to get them back :)')
 
+	async def haste(self, content):
+		async with aiohttp.ClientSession().post('https://hasteb.in/documents', data="\n".join(p)) as r:
+			j = await r.json()
+			return j['key']
+
 	@commands.Cog.listener()
 	async def on_message(self, message):
-		if message.channel.id == 678394860209831946 and message.attachments:
+		if message.channel.id == 412310617442091008 and message.attachments:
 			for attach in message.attachments:
-				if re.match(self.logregex, attach.filename):
-					return await message.channel.send('Valid log found, matched file name check')
-				if attach.filename == 'message.txt':
-					txt = await attach.read()
-					if all(t in txt for t in self.jvmcrash):
-						return await message.channel.send('Valid log found, matched jvm crash')
-					elif all(t in txt for t in self.normalcrash):
-						if 'This is just a prompt for computer specs to be printed. THIS IS NOT A ERROR' in txt:
-							return await message.channel.send('Valid log found, log from forge')
-						return await message.channel.send('Valid log found, plain minecraft crash')
-					elif all(t in txt for t in self.launcherlog):
-						return await message.channel.send('Valid log found, matched launcher log')
-					elif all(t in txt for t in self.gamelog):
-						return await message.channel.send('Valid log found, plain game log')
+				if not re.match(self.logregex, attach.filename) and not attach.filename == 'message.txt':
+					return
+				txt = await attach.read()
+				try:
+					txt = txt.decode('utf-8')
+				except Exception:
+					return
+				if all(t in txt for t in self.jvmcrash):
+					await message.delete()
+					url = await self.haste(txt)
+					return await message.channel.send(url)
+				elif all(t in txt for t in self.normalcrash):
+					await message.delete()
+					url = await self.haste(txt)
+					return await message.channel.send(url)
+				elif all(t in txt for t in self.launcherlog):
+					await message.delete()
+					url = await self.haste(txt)
+					return await message.channel.send(url)
+				elif all(t in txt for t in self.gamelog):
+					await message.delete()
+					url = await self.haste(txt)
+					return await message.channel.send(url)
+				return
 
 	async def nameToUUID(self, player: str):
 		async with aiohttp.ClientSession() as s:
