@@ -21,6 +21,7 @@ import datetime
 import aiohttp
 import json
 import uuid
+import re
 
 
 with open('config.json', 'r') as cfg:
@@ -35,6 +36,11 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		self.gist = 'b070e7f75a9083d2e211caffa0c772cc'
 		self.gistheaders = {'Authorization': f'token {config["github"]}'}
 		self.modcoreheaders = {'secret': config['modcore']}
+		self.logregex = r'((hyperium-)?crash-\d{4}-\d{2}-\d{2}_\d{2}\.\d{2}\.\d{2}.+\.txt|latest\.log|launcher_log\.txt|hs_err_pid\d{1,8}\.log)'
+		self.jvmcrash = ['net.minecraft.launchwrapper.Launch', '# A fatal error has been detected by the Java Runtime Environment:']
+		self.normalcrash = ['---- Minecraft Crash Report ----', 'A detailed walkthrough of the error']
+		self.launcherlog = ['launchermeta.mojang.com', 'Running launcher core']
+		self.gamelog = ['[Client thread/INFO]: Setting user:', '[Client thread/INFO]: (Session ID is']
 
 	async def cog_check(self, ctx: commands.Context):
 		if ctx.guild.id == 411619823445999637:
@@ -120,6 +126,25 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 						if r.status == 200:
 							general = self.guild.get_channel(411620457754787841)
 							await general.send(f'{after.mention} Your nitro perks in Hyperium & Modcore have been removed. Boost the server to get them back :)')
+
+	@commands.Cog.listener()
+	async def on_message(self, message):
+		if message.channel.id == 678394860209831946 and message.attachments:
+			for attach in message.attachments:
+				if re.match(self.logregex, attach.filename):
+					return await message.channel.send('Valid log found, matched file name check')
+				if attach.filename == 'message.txt':
+					txt = await attach.read()
+					if all(t in txt for t in self.jvmcrash):
+						return await message.channel.send('Valid log found, matched jvm crash')
+					elif all(t in txt for t in self.normalcrash):
+						if 'This is just a prompt for computer specs to be printed. THIS IS NOT A ERROR' in txt:
+							return await message.channel.send('Valid log found, log from forge')
+						return await message.channel.send('Valid log found, plain minecraft crash')
+					elif all(t in txt for t in self.launcherlog):
+						return await message.channel.send('Valid log found, matched launcher log')
+					elif all(t in txt for t in self.gamelog):
+						return await message.channel.send('Valid log found, plain game log')
 
 	async def nameToUUID(self, player: str):
 		async with aiohttp.ClientSession() as s:
