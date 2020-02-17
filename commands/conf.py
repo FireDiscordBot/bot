@@ -30,7 +30,7 @@ class conf(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def config(self, ctx, option: str = None):
         if not option:
-            paginator = WrappedPaginator(prefix='```ini', suffix='```', max_size=1200)
+            paginator = WrappedPaginator(prefix='```ini', suffix='```', max_size=500)
             gconf = self.bot.configs[ctx.guild.id]
             for opt, data in gconf.options.items():
                 current = gconf.get(opt)
@@ -41,7 +41,7 @@ class conf(commands.Cog):
                     accepted = f'List of {accepted[0].__name__}'
                 else:
                     accepted = accepted.__name__
-                paginator.add_line(f'[{opt}] {data["description"]}\nDefault: {data["default"]}\nCurrent: {gconf.get(opt)}\nAccepts: {accepted}')
+                paginator.add_line(f'[{opt}]\n{data["description"]}\nDefault: {data["default"]}\nCurrent: {gconf.get(opt)}\nAccepts: {accepted}\n')
             interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
             return await interface.send_to(ctx)
 
