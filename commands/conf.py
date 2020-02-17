@@ -41,7 +41,7 @@ class conf(commands.Cog):
                     accepted = f'List of {accepted[0].__name__}'
                 else:
                     accepted = accepted.__name__
-                paginator.add_line(f'[{opt}]\n{data["description"]}\nDefault: {data["default"]}\nCurrent: {gconf.get(opt)}\nAccepts: {accepted}\n')
+                paginator.add_line(f'[{opt}]\n{data["description"].split(" | ")[-1]}\nDefault: {data["default"]}\nCurrent: {gconf.get(opt)}\nAccepts: {accepted}\n')
             interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
             return await interface.send_to(ctx)
 
