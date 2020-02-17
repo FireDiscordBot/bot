@@ -36,13 +36,13 @@ class Config:
 
     @ConfigOpt(name='main.prefix', accepts=str, default='$', options=options)
     async def prefix(self, value: str):
-        '''The prefix used before all Fire commands'''
+        '''Prefix | The prefix used before all Fire commands'''
         self._bot.logger.info(f'$GREENSetting $BLUEmain.prefix $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('main.prefix', value)
 
     @ConfigOpt(name='main.description', accepts=str, default=None, options=options)
     async def description(self, value: str):
-        '''The server description, shown in the embed for Vanity URLs'''
+        '''Description | The server description, shown in the embed for Vanity URLs'''
         if len(value) > 240:
             raise InvalidValueError('main.description', value, 'Descriptions must be 240 characters or less.')
         self._bot.logger.info(f'$GREENSetting $BLUEmain.description $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
@@ -50,19 +50,19 @@ class Config:
 
     @ConfigOpt(name='log.moderation', accepts=discord.TextChannel, default=None, options=options)
     async def mod_logs(self, value: discord.TextChannel):
-        '''The channel where moderation actions are logged'''
+        '''Moderation Logs | The channel where moderation actions are logged'''
         self._bot.logger.info(f'$GREENSetting $BLUElog.moderation $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('log.moderation', value.id)
 
     @ConfigOpt(name='log.action', accepts=discord.TextChannel, default=None, options=options)
     async def action_logs(self, value: discord.TextChannel):
-        '''The channel where miscellaneous actions are logged, e.g. deleted messages'''
+        '''Action Logs | The channel where miscellaneous actions are logged, e.g. deleted messages'''
         self._bot.logger.info(f'$GREENSetting $BLUElog.action $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('log.action', value.id)
 
     @ConfigOpt(name='mod.linkfilter', accepts=[str], default=[], options=options)
     async def link_filter(self, value: list):
-        '''The filters of which any links found will be deleted unless a user has Manage Messages permission'''
+        '''Link Filter | The filters of which any links found will be deleted (unless they have Manage Messages)'''
         valid = ['discord', 'youtube', 'twitch', 'twitter', 'paypal', 'malware']
         if any(v not in valid for v in value):
             raise TypeMismatchError(type=', '.join([v for v in value if v not in valid]), accepted=', '.join(valid), option='mod.linkfilter')
@@ -71,85 +71,85 @@ class Config:
 
     @ConfigOpt(name='mod.dupecheck', accepts=bool, default=False, options=options)
     async def dupe_check(self, value: bool):
-        '''The deletion of duplicate messages'''
+        '''Duplicate Message Deletion | The deletion of duplicate messages'''
         self._bot.logger.info(f'$GREENSetting $BLUEmod.dupecheck $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('mod.dupecheck', value)
 
     @ConfigOpt(name='excluded.filter', accepts=[int], default=[], options=options)
     async def filter_exclude(self, value: list):
-        '''Channel, role and user IDs that are excluded from link filters and duplicate message deletion'''
+        '''Filter Exclusion | Channel, role and user IDs that are excluded from link filters and duplicate message deletion'''
         self._bot.logger.info(f'$GREENSetting $BLUEexcluded.filter $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('excluded.filter', value)
 
     @ConfigOpt(name='mod.globalbans', accepts=bool, default=False, options=options)
     async def global_bans(self, value: bool):
-        '''Global ban checking on member join, powered by KSoft.Si API'''
+        '''Global Bans | Global ban checking on member join, powered by KSoft.Si API'''
         self._bot.logger.info(f'$GREENSetting $BLUEmod.globalbans $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('mod.globalbans', value)
 
     @ConfigOpt(name='mod.autodecancer', accepts=bool, default=False, options=options)
     async def auto_decancer(self, value: bool):
-        '''Renames those with "cancerous" names (non-ascii chars) to John Doe'''
+        '''Auto Decancer | Renames those with "cancerous" names (non-ascii chars) to John Doe'''
         self._bot.logger.info(f'$GREENSetting $BLUEmod.autodecancer $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('mod.autodecancer', value)
 
     @ConfigOpt(name='mod.autodehoist', accepts=bool, default=False, options=options)
     async def auto_dehoist(self, value: bool):
-        '''Renames those with "hoisted" names (starts with non a-z char) to John Doe'''
+        '''Auto Dehoist | Renames those with "hoisted" names (starts with non a-z char) to John Doe'''
         self._bot.logger.info(f'$GREENSetting $BLUEmod.autodehoist $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('mod.autodehoist', value)
 
     @ConfigOpt(name='commands.modonly', accepts=[discord.TextChannel], default=[], options=options)
     async def mod_only(self, value: list):
-        '''The channels where only moderators can run commands'''
+        '''Moderator Channels | The channels where only moderators can run commands'''
         self._bot.logger.info(f'$GREENSetting $BLUEcommands.modonly $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('commands.modonly', [c.id for c in value])
 
     @ConfigOpt(name='commands.adminonly', accepts=[discord.TextChannel], default=[], options=options)
-    async def mod_only(self, value: list):
-        '''The channels where only admins can run commands'''
+    async def admin_only(self, value: list):
+        '''Admin channels | The channels where only admins can run commands'''
         self._bot.logger.info(f'$GREENSetting $BLUEcommands.adminonly $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('commands.adminonly', [c.id for c in value])
 
     @ConfigOpt(name='mod.antiraid', accepts=discord.TextChannel, default=None, options=options, premium=True)
     async def anti_raid(self, value: discord.TextChannel):
-        '''The channel where raid alerts are sent'''
+        '''Anti Raid (Premium) | The channel where raid alerts are sent'''
         self._bot.logger.info(f'$GREENSetting $BLUEmod.antiraid $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('mod.antiraid', value.id)
 
     @ConfigOpt(name='mod.autorole', accepts=discord.Role, default=None, options=options, premium=True)
     async def auto_role(self, value: discord.Role):
-        '''The role given to users upon joining the server'''
+        '''Auto Role (Premium ) | The role given to users upon joining the server'''
         self._bot.logger.info(f'$GREENSetting $BLUEmod.autorole $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('mod.autorole', value.id)
 
     @ConfigOpt(name='greet.joinchannel', accepts=discord.TextChannel, default=None, options=options)
     async def join_channel(self, value: discord.TextChannel):
-        '''The channel where join messages are sent'''
+        '''Join Message Channel | The channel where join messages are sent'''
         self._bot.logger.info(f'$GREENSetting $BLUEgreet.joinchannel $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('greet.joinchannel', value.id)
 
     @ConfigOpt(name='greet.leavechannel', accepts=discord.TextChannel, default=None, options=options)
     async def leave_channel(self, value: discord.TextChannel):
-        '''The channel where leave messages are sent'''
+        '''Leave Message Channel | The channel where leave messages are sent'''
         self._bot.logger.info(f'$GREENSetting $BLUEgreet.leavechannel $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('greet.leavechannel', value.id)
 
     @ConfigOpt(name='greet.joinmsg', accepts=str, default='Welcome {user}!', options=options)
     async def join_message(self, value: str):
-        '''The server's custom join message'''
+        '''Join Message | The server's custom join message'''
         self._bot.logger.info(f'$GREENSetting $BLUEgreet.joinmsg $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('greet.joinmsg', value)
 
     @ConfigOpt(name='greet.leavemsg', accepts=str, default='Goodbye {user}!', options=options)
     async def leave_message(self, value: str):
-        '''The server's custom leave message'''
+        '''Leave Message | The server's custom leave message'''
         self._bot.logger.info(f'$GREENSetting $BLUEgreet.leavemsg $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('greet.leavemsg', value)
 
     @ConfigOpt(name='disabled.commands', accepts=[str], default=[], options=options)
     async def disabled_commands(self, value: list):
-        '''Commands that can only be ran by moderators (those with Manage Messages permission)'''
+        '''Disabled Commands | Commands that can only be ran by moderators (those with Manage Messages permission)'''
         if [v for v in value if not self._bot.get_command(v)]:
             raise TypeMismatchError(type=', '.join([v for v in value if not self._bot.get_command(v)]), accepted=', '.join([cmd.name for cmd in self._bot.commands if not cmd.hidden]), option='disabled.commands')
         self._bot.logger.info(f'$GREENSetting $BLUEdisabled.commands $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
@@ -157,7 +157,7 @@ class Config:
 
     @ConfigOpt(name='disabled.cogs', accepts=[str], default=[], options=options)
     async def disabled_cogs(self, value: list):
-        '''Modules that can only be ran by moderators (those with Manage Messages permission)'''
+        '''Disabled Cogs | Modules that can only be ran by moderators (those with Manage Messages permission)'''
         if [v for v in value if not self._bot.get_cog(v)]:
             raise TypeMismatchError(type=', '.join([v for v in value if not self._bot.get_cog(v)]), accepted=', '.join([cog.name for cog in self._bot.cogs if not cog.hidden]), option='disabled.cogs')
         self._bot.logger.info(f'$GREENSetting $BLUEdisabled.cogs $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
@@ -165,7 +165,7 @@ class Config:
 
     @ConfigOpt(name='utils.autoquote', accepts=bool, default=False, options=options)
     async def auto_quote(self, value: bool):
-        '''Automatically quotes messages when a message link is sent'''
+        '''Automatic Quotes | Automatically quotes messages when a message link is sent'''
         self._bot.logger.info(f'$GREENSetting $BLUEutils.autoquote $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('utils.autoquote', value)
 
