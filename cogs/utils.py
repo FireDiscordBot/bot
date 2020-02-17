@@ -1117,6 +1117,12 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.Cog.listener()
 	async def on_message(self, message):
 		if '--remind' in message.content.lower():
+			if message.channel in self.bot.configs[message.guild.id].get('commands.modonly'):
+				if not message.author.permissions_in(message.channel).manage_messages:
+					return
+			if message.channel in self.bot.configs[message.guild.id].get('commands.adminonly'):
+				if not message.author.permissions_in(message.channel).manage_guild:
+					return
 			content = message.content.lower().replace(' --remind', '').replace('--remind ', '').replace('--remind', '') # Make sure --remind is replaced with space before, after, both or none
 			ctx = await self.bot.get_context(message)
 			alt_ctx = await copy_context_with(ctx, content=self.bot.prefixes.get(message.guild.id, 'fire ') + f'remind {content}')
@@ -1140,10 +1146,10 @@ class utils(commands.Cog, name='Utility Commands'):
 		if message.guild != None:
 			if not self.bot.configs[message.guild.id].get('utils.autoquote'):
 				return
-			if message.channel.id in self.bot.configs[message.guild.id].get('commands.modonly'):
+			if message.channel in self.bot.configs[message.guild.id].get('commands.modonly'):
 				if not message.author.permissions_in(message.channel).manage_messages:
 					return
-			if message.channel.id in self.bot.configs[message.guild.id].get('commands.adminonly'):
+			if message.channel in self.bot.configs[message.guild.id].get('commands.adminonly'):
 				if not message.author.permissions_in(message.channel).manage_guild:
 					return
 			perms = message.guild.me.permissions_in(message.channel)
