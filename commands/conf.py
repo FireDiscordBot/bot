@@ -30,7 +30,7 @@ class conf(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def config(self, ctx, option: str = None):
         if not option:
-            paginator = WrappedPaginator(prefix='```ini', suffix='```', max_size=500)
+            paginator = WrappedPaginator(prefix='```ini', suffix='```', max_size=800)
             gconf = self.bot.configs[ctx.guild.id]
             for opt, data in gconf.options.items():
                 current = gconf.get(opt)
