@@ -169,7 +169,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			if s != {} and s.get('enabled', False):
 				if 'STATIC' in c:
 					cid = s['id']
-					purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}]({config["modcoreapi"]}serve/cape/static/{cid}.png)**') for p in purchases]
+					purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}]({config["modcoreapi"]}serve/cape/static/{cid})**') for p in purchases]
 				elif 'DYNAMIC' in c:
 					cid = s['id']
 					purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}]({config["modcoreapi"]}serve/cape/dynamic/{cid})**') for p in purchases]
