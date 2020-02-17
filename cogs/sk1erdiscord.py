@@ -143,7 +143,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 	async def on_message(self, message):
 		if self.bot.dev:
 			return
-		if message.channel.id in [412310617442091008, 429311217862180867] and message.attachments:
+		if message.channel.id in [412310617442091008, 429311217862180867, 595625113282412564] and message.attachments:
 			for attach in message.attachments:
 				if not re.match(self.logregex, attach.filename) and not attach.filename == 'message.txt':
 					return
@@ -163,7 +163,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 						return
 					await message.delete()
 					return await message.channel.send(url)
-		if message.channel.id in [412310617442091008, 429311217862180867] and any(t in message.content for t in self.logtext):
+		if message.channel.id in [412310617442091008, 429311217862180867, 595625113282412564] and any(t in message.content for t in self.logtext):
 			try:
 				url = await self.haste(message.content)
 			except Exception as e:
