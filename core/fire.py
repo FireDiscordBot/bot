@@ -33,9 +33,6 @@ import typing
 import json
 import sys
 
-# fuck it, crab in the code
-# 🦀
-
 
 class Fire(commands.Bot):
     def __init__(self, *args, **kwargs):
@@ -47,6 +44,9 @@ class Fire(commands.Bot):
         self.premiumGuilds = []
         self.db: asyncpg.pool.Pool = None
         self.dev = False
+
+       # CRAB
+        self.crab = '🦀'
 
         # LOGGING
         logging.basicConfig(filename='bot.log', level=logging.INFO)
