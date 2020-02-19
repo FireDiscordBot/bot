@@ -39,13 +39,15 @@ class Options:
         self.options = kwargs.pop('options')
         self.restricted = kwargs.pop('restrict', [])
         self.premium = kwargs.pop('premium', False)
+        self.hidden = kwargs.pop('hidden', False)
         self.options[self.name] = {
             'setter': self.func,
             'description': self.func.__doc__ or 'No Description Set',
             'accepts': self.accepts,
             'default': self.default,
             'restricted': self.restricted,
-            'premium': self.premium
+            'premium': self.premium,
+            'hidden': self.hidden
         }
 
     def __call__(self, value):

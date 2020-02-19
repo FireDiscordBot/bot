@@ -169,6 +169,35 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $BLUEutils.autoquote $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('utils.autoquote', value)
 
+    @ConfigOpt(name='tickets.parent', accepts=discord.CategoryChannel, default=None, options=options)
+    async def ticket_parent(self, value: discord.CategoryChannel):
+        '''Tickets Category | The category where ticket channels are created. If this is not set, tickets are disabled'''
+        self._bot.logger.info(f'$GREENSetting $BLUEtickets.parent $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('tickets.parent', value.id)
+
+    @ConfigOpt(name='tickets.increment', accepts=int, default=0, options=options)
+    async def ticket_increment(self, value: int):
+        '''Ticket Increment | The number tickets will start incrementing from'''
+        self._bot.logger.info(f'$GREENSetting $BLUEtickets.increment $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('tickets.increment', value)
+
+    @ConfigOpt(name='tickets.limit', accepts=int, default=0, options=options)
+    async def ticket_limit(self, value: int):
+        '''Ticket Limit | The number tickets a user can open, 0 = Unlimited'''
+        self._bot.logger.info(f'$GREENSetting $BLUEtickets.limit $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('tickets.limit', value)
+
+    @ConfigOpt(name='tickets.name', accepts=str, default='ticket-{increment}', options=options)
+    async def ticket_name(self, value: str):
+        '''Ticket Name | The name used for ticket channels'''
+        self._bot.logger.info(f'$GREENSetting $BLUEtickets.name $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('tickets.name', value)
+
+    @ConfigOpt(name='tickets.channels', accepts=[discord.TextChannel], default=[], options=options, hidden=True)
+    async def ticket_channels(self, value: list):
+        '''Ticket Channels | All ticket channels in the guild'''
+        await self.update('tickets.channels', [v.id for v in value])
+
     def get(self, option):
         if option not in self.options:
             raise InvalidOptionError(option)
