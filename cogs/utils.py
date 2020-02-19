@@ -1339,47 +1339,6 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.set_image(url=str(user.avatar_url_as(static_format='png', size=2048)))
 		await ctx.send(embed=embed)
 
-	# @commands.command(description='Totally not a stolen idea from Dyno')
-	# async def fireav(self, ctx, u: Member = None):
-		# if not u:
-		#	u = ctx.author
-		# if isinstance(u, discord.Member):
-		#	color = u.color
-		# else:
-		#	color = ctx.author.color
-		# mask = Image.open('cogs/static/images/promotional-assets/fireavbase.png')
-		# img = Image.open('cogs/static/images/promotional-assets/fireavbase.png')
-		# av_bytes = await u.avatar_url_as(format='png', static_format='png', size=256).read()
-		# av_img = Image.open(BytesIO(av_bytes))
-		# sub_img = av_img.convert("RGBA")
-		# try:
-		#	img.paste(sub_img, (0, 0), mask)
-		# except ValueError:
-		#	return await ctx.send('I cannot make a Fire avatar with images smaller than 256x256')
-		# buf = BytesIO()
-		# img.save(buf, format='PNG')
-		# buf.seek(0)
-		# colorlogo = discord.File(buf, f'istolethisideafromdyno.png')
-		# embed = discord.Embed(colour=ctx.author.color)
-		# embed.set_image(url=f'attachment://istolethisideafromdyno.png')
-		# await ctx.send(embed=embed, file=colorlogo)
-
-	@commands.command(description='Make a role mentionable for 60 seconds or until you mention it')
-	@commands.bot_has_permissions(manage_roles=True)
-	@commands.has_permissions(manage_roles=True)
-	async def tempmention(self, ctx, *, role: Role):
-		await role.edit(mentionable=True)
-		await ctx.send(f'Successfully made **{discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}** mentionable. It will stay mentionable until you mention it or 60 seconds go by', delete_after=5)
-		def check(m):
-			return m.author == ctx.author
-
-		try:
-			m = await self.bot.wait_for('message', timeout=60.0, check=check)
-			await role.edit(mentionable=False)
-		except asyncio.TimeoutError:
-			await role.edit(mentionable=False)
-			await ctx.send(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}** is no longer mentionable. 60 seconds have passed')
-
 	@commands.command(aliases=['desc'], description='Sets the guild\'s description')
 	@commands.has_permissions(manage_guild=True)
 	async def description(self, ctx, *, desc: str = None):

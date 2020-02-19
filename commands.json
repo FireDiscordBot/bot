@@ -317,7 +317,7 @@
                 "Usage": "{prefix}setlogs <channel>",
                 "Aliases": null
             },
-            "desctiption": {
+            "description": {
                 "Description": "Set the description for the server that shows in Vanity URLs",
                 "Usage": "{prefix}description <desccription>",
                 "Aliases": "desc"
@@ -526,16 +526,6 @@
             "avatar": {
                 "Description": "Get a user's avatar",
                 "Usage": "{prefix}avatar [<user>]",
-                "Aliases": null
-            },
-            "fireav": {
-                "Description": "Turns your avatar info the Fire logo",
-                "Usage": "{prefix}fireav [<user>]",
-                "Aliases": null
-            },
-            "tempmention": {
-                "Description": "Make a role mentionable for 60 seconds or until you mention it",
-                "Usage": "{prefix}tempmention <role>",
                 "Aliases": null
             },
             "vanityurl": {
