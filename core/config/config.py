@@ -135,13 +135,13 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $BLUEgreet.leavechannel $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('greet.leavechannel', value.id)
 
-    @ConfigOpt(name='greet.joinmsg', accepts=str, default='Welcome {user}!', options=options)
+    @ConfigOpt(name='greet.joinmsg', accepts=str, default=None, options=options)
     async def join_message(self, value: str):
         '''Join Message | The server's custom join message'''
         self._bot.logger.info(f'$GREENSetting $BLUEgreet.joinmsg $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('greet.joinmsg', value)
 
-    @ConfigOpt(name='greet.leavemsg', accepts=str, default='Goodbye {user}!', options=options)
+    @ConfigOpt(name='greet.leavemsg', accepts=str, default=None, options=options)
     async def leave_message(self, value: str):
         '''Leave Message | The server's custom leave message'''
         self._bot.logger.info(f'$GREENSetting $BLUEgreet.leavemsg $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')

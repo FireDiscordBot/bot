@@ -1863,7 +1863,7 @@ class settings(commands.Cog, name="Settings"):
 			if not joinmsg:
 				return await ctx.error('You can\'t set a channel without setting a message.')
 			await self.bot.configs[ctx.guild.id].set('greet.joinchannel', channel)
-			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
+			message = joinmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 			return await ctx.success(f'Join messages will show in {channel.mention}!\nExample: {message}')
 		else:
 			await self.bot.configs[ctx.guild.id].set('greet.joinmsg', message)
@@ -1905,7 +1905,7 @@ class settings(commands.Cog, name="Settings"):
 			if not leavemsg:
 				return await ctx.error('You can\'t set a channel without setting a message.')
 			await self.bot.configs[ctx.guild.id].set('greet.leavechannel', channel)
-			message = currentmsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
+			message = leavemsg.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 			return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {message}')
 		else:
 			await self.bot.configs[ctx.guild.id].set('greet.leavemsg', message)
