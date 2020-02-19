@@ -1346,6 +1346,16 @@ class settings(commands.Cog, name="Settings"):
 					await logch.send(embed=embed)
 				except Exception:
 					pass
+			if before.description != after.description:
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**Guild description was changed**')
+				embed.add_field(name='Before', value=before.description, inline=False)
+				embed.add_field(name='After', value=after.description, inline=False)
+				embed.set_author(name=after.name, icon_url=str(after.icon_url))
+				embed.set_footer(text=f"Guild ID: {after.id}")
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
 			if before.region != after.region:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s region was changed**')
 				embed.add_field(name='Before', value=region[str(before.region)], inline=False)
@@ -1430,6 +1440,18 @@ class settings(commands.Cog, name="Settings"):
 					embed.set_image(url=str(after.splash_url))
 				else:
 					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s splash was removed**')
+				embed.set_author(name=after.name, icon_url=str(after.icon_url))
+				embed.set_footer(text=f"Guild ID: {after.id}")
+				try:
+					await logch.send(embed=embed)
+				except Exception:
+					pass
+			if before.discovery_splash != after.discovery_splash:
+				if after.discovery_splash:
+					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s discovery splash was changed**')
+					embed.set_image(url=str(after.discovery_splash_url))
+				else:
+					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s discovery splash was removed**')
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
 				try:
