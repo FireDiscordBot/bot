@@ -63,7 +63,7 @@ extensions = [
     "cogs.imagegen",
     "cogs.koding",
     "cogs.conorthedev",
-    "fishin.abucket"
+    "api.main"
 ]
 
 if bot.dev:
