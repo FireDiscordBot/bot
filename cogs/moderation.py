@@ -348,7 +348,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not reason:
 			reason = "No Reason Provided."
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
-		mutedchat = discord.utils.get(ctx.guild.text_channels, name="muted-chat")
 		if until:
 			timeup = datetime.datetime.strftime(until, '%d/%m/%Y @ %I:%M:%S %p')
 			until = until.timestamp()
@@ -367,8 +366,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						pass
 				for channel in ctx.guild.channels:
 					await channel.set_permissions(muted, send_messages=False,
-												read_message_history=False,
-												read_messages=False)
+												read_message_history=True,
+												read_messages=True)
 			except discord.Forbidden:
 				return await ctx.error("I have no permissions to make a muted role")
 			await user.add_roles(muted)
@@ -436,15 +435,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				embed.add_field(name='DM Received?', value='No, user has DMs off or has blocked me.', inline=False)
 			embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 			await channel.send(embed=embed)
-		
-		if mutedchat:
-			try:
-				await mutedchat.set_permissions(muted, send_messages=True,
-													read_message_history=True,
-													read_messages=True)
-				await mutedchat.send(f"Welcome {user.mention} to {mutedchat.mention} You will spend your time here until you get unmuted. Enjoy the silence.")
-			except discord.Forbidden:
-				return
 
 
 	@commands.command(aliases=["banish", "begone", "gtfo", "410", "perish", "bonk", "bean"], description="Ban a user from the server")
