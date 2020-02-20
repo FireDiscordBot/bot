@@ -31,7 +31,6 @@ with open('config.json', 'r') as cfg:
 class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 	def __init__(self, bot):
 		self.bot = bot
-		self.maintenance = False
 		self.guild = self.bot.get_guild(411619823445999637)
 		self.nitro = discord.utils.get(self.guild.roles, id=585534346551754755)
 		self.testrole = discord.utils.get(self.guild.roles, id=645067429067751436)
@@ -144,15 +143,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 	async def on_message(self, message):
 		if self.bot.dev:
 			return
-		if message.channel.id in [412310617442091008, 429311217862180867, 595625113282412564] and message.attachments:
-			if self.maintenance:
-				ctx = await self.bot.get_context(message)
-				noauto = False
-				async for m in message.channel.history(limit=400):
-					if m.author == message.author:
-						noauto = True
-				if not noauto:
-					await ctx.invoke(self.bot.get_command('quote'), msg='https://canary.discordapp.com/channels/411619823445999637/411620385860222977/679824431799205906')
+		if message.channel.id in [412310617442091008, 429311217862180867, 595625113282412564]:
 			for attach in message.attachments:
 				if not re.match(self.logregex, attach.filename) and not attach.filename == 'message.txt':
 					return
