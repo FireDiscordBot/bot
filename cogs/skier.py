@@ -57,7 +57,10 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			}
 			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.sk1er.club/levelheadv5/{player}/LEVEL') as resp:
-					levelhead = await resp.json()
+					try:
+						levelhead = await resp.json()
+					except Exception:
+						return await ctx.error('Sk1er\'s API responsed incorrectly')
 					status = resp.status
 			try:
 				uuid = levelhead['uuid']
@@ -192,7 +195,10 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		if player == "stats":
 			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get('https://api.hyperium.cc/users') as resp:
-					stats = await resp.json()
+					try:
+						stats = await resp.json()
+					except Exception:
+						return await ctx.error('Sk1er\'s API responsed incorrectly')
 					status = resp.status
 			if status == 200:
 				embed = discord.Embed(title="Hyperium Stats", colour=ctx.author.color, url="https://hyperium.cc/", timestamp=datetime.datetime.utcnow())
@@ -210,7 +216,10 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		if task == "purchases":
 			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.hyperium.cc/purchases/{player}') as resp:
-					purchases = await resp.json()
+					try:
+						purchases = await resp.json()
+					except Exception:
+						return await ctx.error('Sk1er\'s API responsed incorrectly')
 					status = resp.status
 			uuid = purchases['uuid']
 			async with aiohttp.ClientSession(headers=headers) as session:
@@ -371,7 +380,10 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		if task == "status":
 			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.hyperium.cc/online/{player}') as resp:
-					online = await resp.json()
+					try:
+						online = await resp.json()
+					except Exception:
+						return await ctx.error('Sk1er\'s API responsed incorrectly')
 					status = resp.status
 			async with aiohttp.ClientSession() as session:
 				async with session.get('https://raw.githubusercontent.com/HyperiumClient/Hyperium-Repo/master/files/staff.json') as resp:
