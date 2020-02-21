@@ -169,6 +169,12 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $BLUEutils.autoquote $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('utils.autoquote', value)
 
+    @ConfigOpt(name='utils.public', accepts=bool, default=False, options=options)
+    async def public_guild(self, value: bool):
+        '''Public Guild | Makes your server viewable on https://fire.gaminggeek.space/discover (and joinable if a vanity url is set)'''
+        self._bot.logger.info(f'$GREENSetting $BLUEutils.public $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('utils.public', value)
+
     @ConfigOpt(name='tickets.parent', accepts=discord.CategoryChannel, default=None, options=options)
     async def ticket_parent(self, value: discord.CategoryChannel):
         '''Tickets Category | The category where ticket channels are created. If this is not set, tickets are disabled'''
