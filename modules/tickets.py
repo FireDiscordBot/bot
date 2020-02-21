@@ -40,7 +40,7 @@ class tickets(commands.Cog, name="Tickets"):
         embed.add_field(
             name=f'{ctx.prefix}ticket category [<category>]',
             value='Set the category were tickets are made. **Setting this enables tickets**'
-                  'Running this command without providing a category resets it, therefore disabling tickets',
+                  '\nRunning this command without providing a category resets it, therefore disabling tickets',
             inline=False
         )
         embed.add_field(
