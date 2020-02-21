@@ -178,7 +178,6 @@ class Config:
     @ConfigOpt(name='tickets.increment', accepts=int, default=0, options=options)
     async def ticket_increment(self, value: int):
         '''Ticket Increment | The number tickets will start incrementing from'''
-        self._bot.logger.info(f'$GREENSetting $BLUEtickets.increment $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('tickets.increment', value)
 
     @ConfigOpt(name='tickets.limit', accepts=int, default=0, options=options)
