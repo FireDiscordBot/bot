@@ -194,8 +194,11 @@ class tickets(commands.Cog, name="Tickets"):
         for m in ctx.channel.members:
             if str(m.id) in ctx.channel.topic:  # they do be the ticket author doe
                 author = m
-                await m.send(f'Your ticket in {ctx.guild} was closed for the reason "{reason}". The transcript is below',
-                             file=discord.File(transcript, filename=f'{ctx.channel}-transcript.txt'))
+                try:
+                    await m.send(f'Your ticket in {ctx.guild} was closed for the reason "{reason}". The transcript is below',
+                                 file=discord.File(transcript, filename=f'{ctx.channel}-transcript.txt'))
+                except Exception:
+                    pass  # no transcript for you, boo hoo :(
         actionlogs = config.get('log.action')
         if actionlogs:
             embed = discord.Embed(
