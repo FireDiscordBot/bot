@@ -696,7 +696,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			nameemote = ''
 			if 'PARTNERED' in preview['features']:
 				nameemote = discord.utils.get(self.bot.emojis, id=647400542775279629)
-			if 'VERIFIED' in preview['features']:
+			elif 'VERIFIED' in preview['features']:
 				nameemote = discord.utils.get(self.bot.emojis, id=647400543018287114)
 			embed.add_field(name="» Name", value=f'{preview["name"]} {nameemote}', inline=False)
 			embed.add_field(name="» ID", value=gid, inline=False)
@@ -716,7 +716,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		nameemote = ''
 		if 'PARTNERED' in guild.features:
 			nameemote = discord.utils.get(self.bot.emojis, id=647400542775279629)
-		if 'VERIFIED' in guild.features:
+		elif 'VERIFIED' in guild.features:
 			nameemote = discord.utils.get(self.bot.emojis, id=647400543018287114)
 		embed.add_field(name="» Name", value=f'{guild.name} {nameemote}', inline=False)
 		embed.add_field(name="» ID", value=guild.id, inline=False)
