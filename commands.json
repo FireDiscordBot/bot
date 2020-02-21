@@ -305,6 +305,47 @@
     },
     {
         "id": 9,
+        "name": "Tickets",
+        "commands": {
+            "ticket": {
+                "Description": "View all the ticket configuration commands",
+                "Usage": "{prefix}ticket",
+                "Aliases": "tickets"
+            },
+            "ticket category": {
+                "Description": "Set the category where tickets are made",
+                "Usage": "{prefix}ticket category [<category>]",
+                "Aliases": null
+            },
+            "ticket name": {
+                "Description": "Set the name for tickets. Run the command without arguments to see all available variables",
+                "Usage": "{prefix}ticket name <name>",
+                "Aliases": null
+            },
+            "new": {
+                "Description": "Makes a new ticket",
+                "Usage": "{prefix}new [<ticket subject>]",
+                "Aliases": null
+            },
+            "add": {
+                "Description": "Add a user to the current ticket",
+                "Usage": "{prefix}add <user>",
+                "Aliases": null
+            },
+            "remove": {
+                "Description": "Remove a user from the current ticket",
+                "Usage": "{prefix}remove <user>",
+                "Aliases": null
+            },
+            "close": {
+                "Description": "Closes a ticket, uploads the transcript to action logs channel and sends to the ticket author",
+                "Usage": "{prefix}close [<close reason>]",
+                "Aliases": null
+            }
+        }
+    },
+    {
+        "id": 9,
         "name": "Configuration",
         "commands": {
             "settings": {
