@@ -483,9 +483,7 @@ class settings(commands.Cog, name="Settings"):
 	async def on_guild_channel_create(self, channel):
 		muted = discord.utils.get(channel.guild.roles, name='Muted')
 		if muted and channel.guild.me.guild_permissions.manage_roles:
-			await channel.set_permissions(muted, send_messages=False,
-												read_message_history=False,
-												read_messages=False)
+			await channel.set_permissions(muted, send_messages=False)
 		logch = self.bot.configs[channel.guild.id].get('log.action')
 		if logch:
 			createdby = None
