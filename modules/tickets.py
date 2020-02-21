@@ -178,8 +178,8 @@ class tickets(commands.Cog, name="Tickets"):
         tchannels = config.get('tickets.channels')
         if ctx.channel not in tchannels:
             return await ctx.error('This command can only be ran in ticket channels!')
-        if not ctx.author.permissions_in(ctx.channel).manage_channels:
-            return await ctx.error('You must have `Manage Channels` permission to close tickets')
+        if not ctx.author.permissions_in(ctx.channel).manage_channels and not str(ctx.author.id) in str(ctx.channel.topic):
+            return await ctx.error('You must own this ticket or have `Manage Channels` permission to close')
         await ctx.error(f'Are you sure you want to close this ticket? Type `close` to confirm')
         try:
             await self.bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel and m.content.lower() == 'close', timeout=10)
