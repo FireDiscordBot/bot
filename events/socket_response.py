@@ -46,7 +46,6 @@ class socketResponse(commands.Cog):
 
     @tasks.loop(minutes=2)
     async def saveSocketStats(self):
-        self.bot.logger.info(f'$GREENSaving socket stats at $BLUE{datetime.datetime.utcnow()}')
         with open('socketstats.json', 'w') as f:
             f.write(json.dumps(self.bot.socketstats))
 
