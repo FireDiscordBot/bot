@@ -67,12 +67,16 @@ class tickets(commands.Cog, name="Tickets"):
     @tickets_group.command(name='limit', description='Set the limit for how many tickets a user can make')
     @commands.has_permissions(manage_channels=True)
     async def tickets_limit(self, ctx, limit: int = 0):
+        if limit < 0 or limit > 20:
+            return await ctx.error('Invalid limit')
         await self.bot.configs[ctx.guild.id].set('tickets.limit', limit)
         return await ctx.success(f'Successfully set the ticket limit to {limit}')
 
     @tickets_group.command(name='name', description='Set the name for tickets')
     @commands.has_permissions(manage_channels=True)
-    async def tickets_name(self, ctx, name: str = None):
+    async def tickets_name(self, ctx, name: str):
+        if len(name) > 50:
+            return await ctx.error('Name is too long, it must be 50 chars or less')
         variables = {
             '{increment}': self.bot.configs[ctx.guild.id].get('tickets.increment'),
             '{name}': ctx.author.name,
@@ -121,7 +125,7 @@ class tickets(commands.Cog, name="Tickets"):
         }
         overwrites.update(parent.overwrites)
         ticket = await parent.create_text_channel(
-            name=name,
+            name=name[:50],
             overwrites=overwrites,
             topic=f'Ticket created by {ctx.author} ({ctx.author.id}) with subject "{subject}"',
             reason=f'Ticket created by {ctx.author} ({ctx.author.id})'
