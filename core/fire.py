@@ -120,6 +120,13 @@ class Fire(commands.Bot):
                 # errortb = ''.join(traceback.format_exception(
                 #     type(e), e, e.__traceback__))
                 self.logger.error(f'Error while loading $BLUE{ext}', exc_info=e)
+        for ext in resolve_extensions(self, 'modules.*'):
+            try:
+                self.load_extension(ext)
+            except Exception as e:
+                # errortb = ''.join(traceback.format_exception(
+                #     type(e), e, e.__traceback__))
+                self.logger.error(f'Error while loading $BLUE{ext}', exc_info=e)
 
     def loadEvents(self):
         for ext in resolve_extensions(self, 'events.*'):
