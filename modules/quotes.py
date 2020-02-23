@@ -20,8 +20,8 @@ from jishaku.models import copy_context_with
 from discord.ext import commands
 import datetime
 import discord
+import typing
 import re
-import io
 
 
 class quotes(commands.Cog, name="Quotes"):
@@ -102,15 +102,14 @@ class quotes(commands.Cog, name="Quotes"):
             if not perms.send_messages or not perms.embed_links or message.author.bot:
                 return
 
-            message_regex = r'https?:\/\/(?:(ptb|canary)\.)?discordapp\.com\/channels\/(?:([0-9]{15,21}))\/(?P<channel_id>[0-9]{15,21})\/(?P<message_id>[0-9]{15,21})\/?'
-            match = re.match(message_regex, message.content, re.MULTILINE)
-            if not match:
-                return
+            message_regex = r'https?:\/\/(?:(?:ptb|canary)\.)?discordapp\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
             url = re.findall(message_regex, message.content, re.MULTILINE)
+            if all(u == url[0] for u in url) and len(url) > 1:  # Checks if it's one url multiple times.
+                return
             for u in url:
-                alt_ctx = await copy_context_with(ctx, content=self.bot.prefixes.get(message.guild.id, 'fire ') + f'quote {url}')
+                alt_ctx = await copy_context_with(ctx, content=self.bot.configs[ctx.guild.id].get('main.prefix') + f'quote {u}')
                 if not alt_ctx.valid:
-                    pass
+                    return
                 await alt_ctx.command.reinvoke(alt_ctx)
 
     @commands.command(description='Quote a message from an id or url')
@@ -134,14 +133,14 @@ class quotes(commands.Cog, name="Quotes"):
                 return  # Don't send an error because auto quoting exists
             if not member.permissions_in(message.channel).read_messages:
                 return  # Don't send an error because auto quoting exists
-        if not ctx.author.permissions_in(message.channel).read_messages:
+        elif not ctx.author.permissions_in(message.channel).read_messages:
             return  # Don't send an error because auto quoting exists
 
         if ctx.guild.me.permissions_in(ctx.channel).manage_webhooks:
             existing = await ctx.channel.webhooks()
             if not existing:
                 try:
-                    avatar = io.BytesIO((await ctx.guild.me.avatar_url_as(static_format='png').read()))
+                    avatar = await ctx.guild.me.avatar_url_as(static_format='png').read()
                     existing = [
                         await ctx.channel.create_webhook(
                             name=f'Fire Quotes #{ctx.channel}',
@@ -149,13 +148,17 @@ class quotes(commands.Cog, name="Quotes"):
                             reason=f'This webhook will be used for quoting messages in #{ctx.channel}'
                         )
                     ]
-                except Exception:
+                except Exception as e:
                     existing = ['hi i am here to prevent a KeyError']
             if existing and isinstance(existing[0], discord.Webhook):
                 try:
+                    content = message.content.replace('@!', '@')
+                    for m in message.mentions:
+                        content = content.replace(m.mention, u'@\u200b' + str(m))
+                    content = discord.utils.escape_mentions(content) if message.content else None
                     return await existing[0].send(
-                        content=message.content,
-                        username=message.author.name,
+                        content=content,
+                        username=str(message.author),
                         avatar_url=str(message.author.avatar_url_as(static_format='png')),
                         embeds=message.embeds,
                         files=message.attachments
