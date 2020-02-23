@@ -137,7 +137,7 @@ class quotes(commands.Cog, name="Quotes"):
             return  # Don't send an error because auto quoting exists
 
         if ctx.guild.me.permissions_in(ctx.channel).manage_webhooks:
-            existing = await ctx.channel.webhooks()
+            existing = [w for w in (await ctx.channel.webhooks()) if w.token]
             if not existing:
                 try:
                     avatar = await ctx.guild.me.avatar_url_as(static_format='png').read()
@@ -149,6 +149,7 @@ class quotes(commands.Cog, name="Quotes"):
                         )
                     ]
                 except Exception as e:
+                    self.bot.logger.error(f'$REDFailed to create webhook for quotes in $BLUE{ctx.channel} ({ctx.guild})', exc_info=e)
                     existing = ['hi i am here to prevent a KeyError']
             if existing and isinstance(existing[0], discord.Webhook):
                 try:
@@ -163,7 +164,8 @@ class quotes(commands.Cog, name="Quotes"):
                         embeds=message.embeds,
                         files=message.attachments
                     )
-                except Exception:
+                except Exception as e:
+                    self.bot.logger.error(f'$REDFailed to use webhook for quotes in $BLUE{ctx.channel} ({ctx.guild})', exc_info=e)
                     pass  # Fallback to normal quoting if webhook fails
 
         if not message.content and message.embeds and message.author.bot:
