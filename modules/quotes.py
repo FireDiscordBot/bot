@@ -123,8 +123,8 @@ class quotes(commands.Cog, name="Quotes"):
         if not isinstance(message, discord.Message):
             return
 
-        if message.author.system:
-            return await ctx.error(f'Cannot quote messages from system users!')
+        if str(message.author) in ['Public Server Updates#0000', 'Discord#0000']:  # Prevent quoting from known system users
+            return await ctx.error(f'Cannot quote messages from that user!')
 
         guild = message.guild
         if guild != ctx.guild:
