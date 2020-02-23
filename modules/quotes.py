@@ -162,7 +162,7 @@ class quotes(commands.Cog, name="Quotes"):
                         username=str(message.author),
                         avatar_url=str(message.author.avatar_url_as(static_format='png')),
                         embeds=message.embeds,
-                        files=message.attachments
+                        files=[(await a.to_file()) for a in message.attachments if a.size < 8388608]
                     )
                 except Exception as e:
                     self.bot.logger.error(f'$REDFailed to use webhook for quotes in $BLUE{ctx.channel} ({ctx.guild})', exc_info=e)
