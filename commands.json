@@ -579,16 +579,6 @@
                 "Usage": "{prefix}fetchchannel <channel>",
                 "Aliases": null
             },
-            "fetchmsg": {
-                "Description": "Fetch a message from its id or link (Returns JSON)",
-                "Usage": "{prefix}fetchmsg <message id/message url>",
-                "Aliases": null
-            },
-            "fetchuser": {
-                "Description": "Find a user from their id (Returns JSON)",
-                "Usage": "{prefix}fetchuser <id>",
-                "Aliases": null
-            },
             "fetchactivity": {
                 "Description": "Get a member's activities (Returns JSON)",
                 "Usage": "{prefix}fetchactivity [<member>]",
