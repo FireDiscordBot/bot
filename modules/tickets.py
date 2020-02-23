@@ -189,18 +189,21 @@ class tickets(commands.Cog, name="Tickets"):
         transcript = []
         async for m in ctx.channel.history(limit=None):
             transcript.append(f'{m.author} ({m.author.id}) at {m.created_at.strftime("%d/%m/%Y @ %I:%M:%S %p")} UTC\n{m.content}')
-        transcript = io.StringIO('\n\n'.join(transcript))
+        transcript.reverse()
+        string = io.StringIO('\n\n'.join(transcript))
         author = ctx.author.id  # If author is not found for some odd reason, fallback to message author for log embed color
         for m in ctx.channel.members:
             if str(m.id) in ctx.channel.topic:  # they do be the ticket author doe
                 author = m
                 try:
                     await m.send(f'Your ticket in {ctx.guild} was closed for the reason "{reason}". The transcript is below',
-                                 file=discord.File(transcript, filename=f'{ctx.channel}-transcript.txt'))
+                                 file=discord.File(string, filename=f'{ctx.channel}-transcript.txt'))
                 except Exception:
                     pass  # no transcript for you, boo hoo :(
         actionlogs = config.get('log.action')
         if actionlogs:
+            transcript.append(f'{len(transcript)} total messages, closed by {ctx.author}')
+            string = io.StringIO('\n\n'.join(transcript))
             embed = discord.Embed(
                 title=f'Ticket {ctx.channel} was closed',
                 timestamp=datetime.datetime.utcnow(),
@@ -210,7 +213,7 @@ class tickets(commands.Cog, name="Tickets"):
             embed.add_field(name='Reason', value=reason, inline=False)
             await actionlogs.send(
                 embed=embed,
-                file=discord.File(transcript, filename=f'{ctx.channel}-transcript.txt')
+                file=discord.File(string, filename=f'transcript.txt')
             )
         return await ctx.channel.delete(reason=f'Ticket closed by {ctx.author} for "{reason}"')
 
