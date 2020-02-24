@@ -229,9 +229,9 @@ class Config:
             raise InvalidOptionError(opt)
         option = self.options[opt]
         if option['premium'] and self._guild.id not in self._bot.premiumGuilds:
-            raise RestrictedOptionError(option, 'premium guilds only')
+            raise RestrictedOptionError(opt, 'premium guilds only')
         if option['restricted'] and self._guild.id not in option['restricted']:
-            raise RestrictedOptionError(option, 'select guilds only')
+            raise RestrictedOptionError(opt, 'select guilds only')
         if value == option['default']:  # Bypass all checks if default
             await self.update(opt, value)
             return self.get(opt)
