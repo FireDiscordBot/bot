@@ -35,7 +35,7 @@ class publiccmd(commands.Cog):
         current = await self.bot.configs[ctx.guild.id].set('utils.public', not current)
         if current:
             return await ctx.success(f'Your guild is now public & visible on <https://fire.gaminggeek.space/discover>.'
-                                     f'\nPeople will be able to use your guild\'s vanity url (<https://oh-my-god.wtf/{vanitys[0]}>)to join')
+                                     f'\nPeople will be able to use your guild\'s vanity url (<https://oh-my-god.wtf/{vanitys[0]}>) to join')
         else:
             return await ctx.success(f'Your guild is no longer public and will no longer show on the Fire website')
 
