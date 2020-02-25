@@ -159,7 +159,7 @@ class quotes(commands.Cog, name="Quotes"):
                     content = discord.utils.escape_mentions(content) if message.content else None
                     return await existing[0].send(
                         content=content,
-                        username=str(message.author),
+                        username=str(message.author).replace('#0000', ''),
                         avatar_url=str(message.author.avatar_url_as(static_format='png')),
                         embeds=message.embeds,
                         files=[(await a.to_file()) for a in message.attachments if a.size < 8388608]
