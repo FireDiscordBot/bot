@@ -106,7 +106,7 @@ class snipes(commands.Cog, name="Snipes"):
                 self.esnipes[before.guild.id] = {before.channel.id: before}
 
     @commands.command(description='Snipe a deleted or edited message', aliases=['esnipe'])
-    async def snipe(self, ctx, target: typing.Union[Member, TextChannel] = None):
+    async def snipe(self, ctx, *, target: typing.Union[Member, TextChannel] = None):
         if not target:
             target = ctx.channel
 
