@@ -30,58 +30,50 @@ class quotes(commands.Cog, name="Quotes"):
 
     def quote_embed(self, context_channel, message, user):
         if not message.system_content and message.embeds and message.author.bot:
-            embed = message.embeds[0]
+            return message.embeds[0]
+        lines = []
+        msg = None
+        color = discord.Color.green()
+        if message.author.color and message.author.color != discord.Color.default():
+            color = message.author.color
+        elif user.color and user.color != discord.Color.default():
+            color = user.color
+        embed = discord.Embed(color=color, timestamp=message.created_at)
+        if message.system_content:
+            if not (message.channel.is_nsfw() and not context_channel.is_nsfw()):
+                urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.jpeg|\.gif|\.gifv|\.webp)))'
+                search = re.search(urlre, message.system_content)
+                if search and not message.attachments:
+                    msg = message.system_content.replace(search.group(0), '').split('\n')
+                    embed.set_image(url=search.group(0))
+            elif not msg:
+                msg = message.system_content.split('\n')
+            for line in msg:
+                if line:
+                    lines.append(f'{line}')
+            if lines:
+                embed.description = '\n'.join(lines)
+        embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
+        if message.attachments:
+            if message.channel.is_nsfw() and not context_channel.is_nsfw():
+                embed.add_field(name='Attachments', value=':underage: Quoted message is from an NSFW channel.')
+            elif len(message.attachments) == 1 and message.attachments[0].url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')):
+                embed.set_image(url=message.attachments[0].url)
+            else:
+                for attachment in message.attachments:
+                    embed.add_field(name='Attachment', value=f'[{attachment.filename}]({attachment.url})', inline=False)
+        embed.set_author(
+            name=str(message.author),
+            icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)),
+            url=f'https://discordapp.com/channels/{message.guild.id}/{message.channel.id}/{message.id}'
+        )
+        if message.channel != context_channel:
+            if message.channel.guild != context_channel.guild:
+                embed.set_footer(text=f'Quoted by: {user} | #{message.channel} | {message.channel.guild}')
+            else:
+                embed.set_footer(text=f'Quoted by: {user} | #{message.channel}')
         else:
-            if message.author not in message.guild.members or message.author.color == discord.Colour.default():
-                lines = []
-                embed = discord.Embed(timestamp=message.created_at)
-                if message.system_content:
-                    urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.gif)))'
-                    search = re.search(urlre, message.system_content)
-                    if search and not message.attachments:
-                        msg = message.system_content.replace(search.group(0), '').split('\n')
-                        embed.set_image(url=search.group(0))
-                    else:
-                        msg = message.system_content.split('\n')
-                    for line in msg:
-                        if line:
-                            lines.append(f'> {line}')
-                    if lines:
-                        embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
-                embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
-            else:
-                embed = discord.Embed(color=message.author.color, timestamp=message.created_at)
-                lines = []
-                if message.system_content:
-                    urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.gif)))'
-                    search = re.search(urlre, message.system_content)
-                    if search and not message.attachments:
-                        msg = message.system_content.replace(search.group(0), '').split('\n')
-                        embed.set_image(url=search.group(0))
-                    else:
-                        msg = message.system_content.split('\n')
-                    for line in msg:
-                        if line:
-                            lines.append(f'> {line}')
-                    if lines:
-                        embed.add_field(name='Message', value='\n'.join(lines) or 'null', inline=False)
-                embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
-            if message.attachments:
-                if message.channel.is_nsfw() and not context_channel.is_nsfw():
-                    embed.add_field(name='Attachments', value=':underage: Quoted message is from an NSFW channel.')
-                elif len(message.attachments) == 1 and message.attachments[0].url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')):
-                    embed.set_image(url=message.attachments[0].url)
-                else:
-                    for attachment in message.attachments:
-                        embed.add_field(name='Attachment', value='[' + attachment.filename + '](' + attachment.url + ')', inline=False)
-            embed.set_author(name=str(message.author), icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)), url='https://discordapp.com/channels/' + str(message.guild.id) + '/' + str(message.channel.id) + '/' + str(message.id))
-            if message.channel != context_channel:
-                if message.channel.guild != context_channel.guild:
-                    embed.set_footer(text=f'Quoted by: {user} | #{message.channel} | {message.channel.guild}')
-                else:
-                    embed.set_footer(text=f'Quoted by: {user} | #{message.channel}')
-            else:
-                embed.set_footer(text=f'Quoted by: {user}')
+            embed.set_footer(text=f'Quoted by: {user}')
         return embed
 
     @commands.Cog.listener()
@@ -170,7 +162,7 @@ class quotes(commands.Cog, name="Quotes"):
 
         if not message.content and message.embeds and message.author.bot:
             await ctx.send(
-                content='Raw embed from ' + str(message.author) + ' in ' + message.channel.mention,
+                content=f'Raw embed from {message.author} in {message.channel.mention}',
                 embed=self.quote_embed(ctx.channel, message, ctx.author)
             )
         else:
