@@ -48,7 +48,7 @@ class snipes(commands.Cog, name="Snipes"):
                 if search and not message.attachments:
                     msg = message.system_content.replace(search.group(0), '').split('\n')
                     embed.set_image(url=search.group(0))
-            elif not msg:
+            if not msg:
                 msg = message.system_content.split('\n')
             for line in msg:
                 lines.append(f'{line}')
