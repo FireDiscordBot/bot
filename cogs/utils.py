@@ -58,34 +58,7 @@ with open('config.json', 'r') as cfg:
 	error_string = '<:xmark:674359427830382603>'
 	success_string = '<:check:674359197378281472>'
 
-snipes = {}
-esnipes = {}
 disabled = [264445053596991498, 110373943822540800, 336642139381301249, 458341246453415947]
-
-def snipe_embed(context_channel, message, user, edited = False):
-	if not message.system_content and message.embeds and message.author.bot:
-		sembed = message.embeds[0]
-		return sembed
-	if message.author not in message.guild.members or message.author.color == discord.Colour.default():
-		lines = []
-		msg = message.system_content.split('\n')
-		for line in msg:
-			lines.append(f'> {line}')
-		embed = discord.Embed(description='\n'.join(lines), timestamp=message.created_at)
-	else:
-		lines = []
-		msg = message.system_content.split('\n')
-		for line in msg:
-			lines.append(f'> {line}')
-		embed = discord.Embed(description='\n'.join(lines), color=message.author.color, timestamp=message.created_at)
-	embed.set_author(name=str(message.author), icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
-	if message.attachments and not edited:
-		embed.add_field(name='Attachment(s)', value='\n'.join([attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
-	if message.channel != context_channel:
-		embed.set_footer(text='Sniped by: ' + str(user) + ' | in channel: #' + message.channel.name)
-	else:
-		embed.set_footer(text='Sniped by: ' + str(user))
-	return embed
 
 region = {
 	'amsterdam': '🇳🇱 Amsterdam',
@@ -941,90 +914,6 @@ class utils(commands.Cog, name='Utility Commands'):
 				})
 			await ctx.channel.purge(limit=amount)
 		await channel.send(f'Successfully deleted **{len(self.bot.recentpurge[ctx.channel.id])}** messages!', delete_after=5)
-
-	@commands.Cog.listener()
-	async def on_guild_remove(self, guild):
-		try:
-			del snipes[guild.id]
-		except KeyError:
-			pass
-
-	@commands.Cog.listener()
-	async def on_guild_channel_delete(self, channel):
-		try:
-			del snipes[channel.guild.id][channel.id]
-		except KeyError:
-			pass
-
-	@commands.Cog.listener()
-	async def on_message_delete(self, message):
-		if isinstance(message.channel, discord.DMChannel):
-			return
-		try:
-			snipes[message.guild.id][message.author.id] = message
-		except KeyError:
-			snipes[message.guild.id] = {message.author.id: message}
-		if message.guild and not message.author.bot:
-			try:
-				snipes[message.guild.id][message.channel.id] = message
-			except KeyError:
-				snipes[message.guild.id] = {message.channel.id: message}
-
-	@commands.Cog.listener()
-	async def on_message_edit(self, before, after):
-		if isinstance(after.channel, discord.DMChannel):
-			return
-		if before.guild and not before.author.bot:
-			try:
-				esnipes[before.guild.id][before.channel.id] = before
-			except KeyError:
-				esnipes[before.guild.id] = {before.channel.id: before}
-			try:
-				esnipes[before.guild.id][before.author.id] = before
-			except KeyError:
-				esnipes[before.guild.id] = {before.author.id: before}
-
-	@commands.command(description='Get the last deleted message')
-	async def snipe(self, ctx, source: typing.Union[TextChannel, Member, int] = None):
-		if type(source) == int:
-			source = self.bot.get_channel(source)
-		if type(source) == discord.Member:
-			if source.guild != ctx.guild:
-				raise commands.ArgumentParsingError('Unable to find Member')
-		if not source:
-			source = ctx.channel
-
-		if type(source) == discord.TextChannel:
-			if not ctx.author.permissions_in(source).read_messages:
-				return
-
-		try:
-			sniped_message = snipes[ctx.guild.id][source.id]
-		except KeyError:
-			return await ctx.send(content = '<:xmark:674359427830382603> **No available messages.**')
-		else:
-			await ctx.send(embed = snipe_embed(ctx.channel, sniped_message, ctx.author))
-
-	@commands.command(description='Get the last edited message')
-	async def esnipe(self, ctx, source: typing.Union[TextChannel, Member, int] = None):
-		if type(source) == int:
-			source = self.bot.get_channel(source)
-		if type(source) == discord.Member:
-			if source.guild != ctx.guild:
-				raise commands.ArgumentParsingError('Unable to find Member')
-		if not source:
-			source = ctx.channel
-
-		if type(source) == discord.TextChannel:
-			if not ctx.author.permissions_in(source).read_messages:
-				return
-
-		try:
-			sniped_message = esnipes[ctx.guild.id][source.id]
-		except KeyError:
-			return await ctx.send(content = '<:xmark:674359427830382603> **No available messages.**')
-		else:
-			await ctx.send(embed = snipe_embed(ctx.channel, sniped_message, ctx.author, True))
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
