@@ -118,15 +118,19 @@ class quotes(commands.Cog, name="Quotes"):
         if str(message.author) in ['Public Server Updates#0000', 'Discord#0000']:  # Prevent quoting from known system users
             return await ctx.error(f'Cannot quote messages from that user!')
 
-        guild = message.guild
-        if guild != ctx.guild:
-            member = guild.get_member(ctx.author.id)
-            if not member:
+        if message.guild:
+            guild = message.guild
+            if guild != ctx.guild:
+                member = guild.get_member(ctx.author.id)
+                if not member:
+                    return  # Don't send an error because auto quoting exists
+                if not member.permissions_in(message.channel).read_messages:
+                    return  # Don't send an error because auto quoting exists
+            elif not ctx.author.permissions_in(message.channel).read_messages:
                 return  # Don't send an error because auto quoting exists
-            if not member.permissions_in(message.channel).read_messages:
-                return  # Don't send an error because auto quoting exists
-        elif not ctx.author.permissions_in(message.channel).read_messages:
-            return  # Don't send an error because auto quoting exists
+        else:
+            if hasattr(ctx.channel, 'recipient') and ctx.channel.recipient.id != ctx.author.id:
+                return
 
         if ctx.guild.me.permissions_in(ctx.channel).manage_webhooks:
             existing = [w for w in (await ctx.channel.webhooks()) if w.token]
@@ -147,7 +151,7 @@ class quotes(commands.Cog, name="Quotes"):
                 try:
                     content = message.content.replace('@!', '@')
                     for m in message.mentions:
-                        content = content.replace(m.mention, u'@\u200b' + str(m))
+                        content = content.replace(m.mention.replace('@!', '@'), u'@\u200b' + str(m))
                     content = discord.utils.escape_mentions(content) if message.content else None
                     return await existing[0].send(
                         content=content,
