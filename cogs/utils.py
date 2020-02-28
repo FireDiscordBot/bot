@@ -163,7 +163,6 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.published = {}
 		self.bot.vanity_urls = {}
 		self.bot.redirects = {}
-		self.bot.descriptions = {}
 		if 'slack_messages' not in dir(self.bot):
  			self.bot.slack_messages = {}
 		self.bot.get_vanity = self.get_vanity
@@ -176,7 +175,6 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.reminders = {}
 		asyncio.get_event_loop().create_task(self.loadvanitys())
 		asyncio.get_event_loop().create_task(self.loadtags())
-		asyncio.get_event_loop().create_task(self.loaddescs())
 		asyncio.get_event_loop().create_task(self.loadbans())
 		asyncio.get_event_loop().create_task(self.loadremind())
 		self.remindcheck.start()
@@ -376,16 +374,6 @@ class utils(commands.Cog, name='Utility Commands'):
 				self.tags[guild] = {}
 			self.tags[guild][tagname] = content
 		self.bot.logger.info(f'$GREENLoaded tags!')
-
-	async def loaddescs(self):
-		await self.bot.wait_until_ready()
-		self.bot.logger.info(f'$YELLOWLoading descriptions...')
-		self.bot.descriptions = {}
-		query = 'SELECT * FROM descriptions;'
-		descs = await self.bot.db.fetch(query)
-		for d in descs:
-			self.bot.descriptions[d['gid']] = d['desc']
-		self.bot.logger.info(f'$GREENLoaded descriptions!')
 
 	async def loadbans(self):
 		await self.bot.wait_until_ready()
@@ -1010,7 +998,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			online = len([m for m in ctx.guild.members if str(m.status) in statuses])
 			gonline = f'⬤ {online:,d} Online'
 			gmembers = f'⭘ {len(ctx.guild.members):,d} Members'
-			desc = self.bot.descriptions[ctx.guild.id] if ctx.guild.id in self.bot.descriptions else f'Check out {ctx.guild} on Discord'
+			desc = self.bot.configs[ctx.guild.id].get('main.description') or f'Check out {ctx.guild} on Discord'
 			desc = f'[{ctx.guild}]({current.get("url", "https://oh-my-god.wtf/")})\n{desc}\n\n{gonline} & {gmembers}'
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=desc)
 			attach = None
