@@ -180,10 +180,6 @@ class settings(commands.Cog, name="Settings"):
 				for invite in invites:
 					self.bot.invites[guild.id][invite.code] = invite.uses
 
-	@commands.Cog.listener()
-	async def on_ready(self):
-		self.bot.ksoft.register_ban_hook(self.ksoft_ban_hook)
-
 	async def get_vanitys(self):
 		if not self.bot.dev:
 			return self.bot.vanity_urls
@@ -805,33 +801,64 @@ class settings(commands.Cog, name="Settings"):
 					except Exception:
 						pass
 
-	def ksoft_ban_hook(self, event):
-		self.bot.dispatch('ksoft_ban', event)
-
 	@commands.Cog.listener()
-	async def on_ksoft_ban(self, event):
-		user = self.bot.get_user(event.user_id)
-		mod = self.bot.get_user(event.moderator_id)
-		self.bot.logger.warn(f'$BLUE{event.user_id} ({user}) $YELLOWwas banned on KSoft for $BLUE{event.reason} $YELLOWby $BLUE{event.moderator_id} ({mod})$YELLOW. Proof: $BLUE{event.proof}')
+	async def on_ksoft_ban(self, event: dict):
+		try:
+			user = await self.bot.fetch_user(int(event['id']))
+			mod = await self.bot.fetch_user(int(event['moderator_id']))
+		except Exception:
+			return
+		self.bot.logger.warn(f'$BLUE{user} ({user.id}) $YELLOWwas banned on KSoft for $BLUE{event["reason"]} $YELLOWby $BLUE{mod} ({mod.id})$YELLOW. Proof: $BLUE{event["proof"]}')
 		for guild in self.bot.guilds:
 			if self.bot.configs[guild.id].get('mod.globalbans'):
 				logch = self.bot.configs[guild.id].get('log.moderation')
-				member = guild.get_member(event.user_id)
+				member = guild.get_member(user.id)
 				if member:
 					try:
 						await guild.ban(member, reason=f'{member} was found on global ban list')
 						self.recentgban.append(f'{member.id}-{guild.id}')
 						if logch:
 							embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
-							embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-							embed.add_field(name='Reason', value=f'{member} was found on global ban list', inline=False)
+							embed.set_author(name=str(member), icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
+							embed.add_field(name='Reason', value=f'{member} was found on global ban list\n\nBanned for: {event["reason"]}', inline=False)
 							embed.set_footer(text=f"Member ID: {member.id}")
 							try:
 								return await logch.send(embed=embed)
 							except Exception:
 								pass
 					except discord.HTTPException:
-						return
+						pass
+
+	@commands.Cog.listener()
+	async def on_ksoft_unban(self, event: dict):
+		try:
+			user = await self.bot.fetch_user(int(event['id']))
+			mod = await self.bot.fetch_user(int(event['moderator_id']))
+		except Exception:
+			return
+		self.bot.logger.warn(f'$BLUE{user} ({user.id}) $YELLOWwas unbanned on KSoft with the reason $BLUE{event["appeal_reason"]}')
+		for guild in self.bot.guilds:
+			if self.bot.configs[guild.id].get('mod.globalbans'):
+				logch = self.bot.configs[guild.id].get('log.moderation')
+				try:
+					ban = await guild.fetch_ban(user)
+				except discord.NotFound:
+					continue
+				if ban:
+					try:
+						await guild.unban(user, reason=f'{user} was unbanned from global ban list')
+						if logch:
+							embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{user.mention} was unbanned**')
+							embed.set_author(name=str(user), icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
+							embed.add_field(name='Reason', value=f'{user} was unbanned from global ban list\n\nAppeal reason: {event["appeal_reason"]}', inline=False)
+							embed.set_footer(text=f"User ID: {user.id}")
+							try:
+								return await logch.send(embed=embed)
+							except Exception:
+								pass
+					except discord.HTTPException:
+						pass
+
 	@commands.Cog.listener()
 	async def on_chatwatch_blacklist(self, data: dict):
 		user = self.bot.get_user(int(data['user']['user']))
