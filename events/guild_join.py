@@ -37,7 +37,7 @@ class guildAdd(commands.Cog):
             self.bot.configs[guild.id] = Config(guild.id, bot=self.bot, db=self.bot.db)
             await self.bot.configs[guild.id].load()
         fire = self.bot.get_guild(564052798044504084)
-        await fire.edit(description=f'The official server for the Fire Discord bot, used in {len(self.bot.guilds)} servers. Join for support, feature announcements, status updates & more!')
+        await fire.edit(description=f'The official server for the Fire Discord bot, used in {len(self.bot.guilds)} servers.')
         self.bot.logger.info(f"$GREENFire joined a new guild! $BLUE{guild.name}({guild.id}) $GREENwith $BLUE{guild.member_count} $GREENmembers")
         try:
             await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members", f"https://api.gaminggeek.dev/guild/{guild.id}")
