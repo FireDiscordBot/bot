@@ -29,7 +29,7 @@ options = dict()
 class Config:
     def __init__(self, guild, **kwargs):
         self._bot = kwargs.pop('bot')
-        self._guild: discord.Guild = self._bot.get_guild(guild)
+        self._guild = self._bot.get_guild(guild) or discord.Object(guild)
         self._db = kwargs.pop('db')
         self._data: dict
         self.options = options
@@ -210,18 +210,19 @@ class Config:
             return self.options[option]['default']  # Return default value if not premium :)
         accept = self.options[option]['accepts']
         acceptlist = False
-        converter = None
-        if isinstance(accept, list):
-            accept = accept[0]
-            acceptlist = True
-        if accept in DISCORD_CONVERTERS['bot']:
-            converter = getattr(self._bot, DISCORD_CONVERTERS['bot'][accept])
-        elif accept in DISCORD_CONVERTERS['guild']:
-            converter = getattr(self._guild, DISCORD_CONVERTERS['guild'][accept])
-        if converter and inspect.ismethod(converter):
-            if acceptlist:
-                return [converter(d) for d in self._data[option]]
-            return converter(self._data[option])
+        if isinstance(self._guild, discord.Guild):
+            converter = None
+            if isinstance(accept, list):
+                accept = accept[0]
+                acceptlist = True
+            if accept in DISCORD_CONVERTERS['bot']:
+                converter = getattr(self._bot, DISCORD_CONVERTERS['bot'][accept])
+            elif accept in DISCORD_CONVERTERS['guild']:
+                converter = getattr(self._guild, DISCORD_CONVERTERS['guild'][accept])
+            if converter and inspect.ismethod(converter):
+                if acceptlist:
+                    return [converter(d) for d in self._data[option]]
+                return converter(self._data[option])
         return self._data[option]
 
     async def set(self, opt: str, value):
