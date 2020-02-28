@@ -35,6 +35,8 @@ class socketResponse(commands.Cog):
         if not t:
             if payload['op'] == 11:
                 t = 'HEARTBEAT'
+            elif payload['op'] == 10:
+                t = 'HELLO'  # hi
             else:
                 self.bot.logger.warning(f'$REDUnknown event, $BLUE{t}\n$REDPayload: $BLUE{payload}')
                 return
