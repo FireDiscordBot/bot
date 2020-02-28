@@ -45,7 +45,7 @@ class Fire(commands.Bot):
         self.db: asyncpg.pool.Pool = None
         self.dev = False
 
-       # CRAB
+        # CRAB
         self.crab = '🦀'
 
         # LOGGING
