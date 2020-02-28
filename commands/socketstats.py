@@ -33,11 +33,10 @@ class socketStats(commands.Cog):
         delta = datetime.datetime.utcnow() - self.bot.launchtime
         minutes = delta.total_seconds() / 60
         total = sum(self.bot.socketstats.values())
-        cpm = total / minutes
         stats = [f'[{k}] {v}' for k, v in sorted(self.bot.socketstats.items(), key=lambda t: self.bot.socketstats[t[0]])]
         stats.reverse()
         paginator = WrappedPaginator(prefix='```ini', suffix='```', max_size=1000)
-        paginator.add_line(f'{total} events seen, {cpm:.2f} events per minute')
+        paginator.add_line(f'{total} events seen since January 20th 2020')
         for ln in stats:
             paginator.add_line(ln)
         interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
