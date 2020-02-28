@@ -23,8 +23,6 @@ import asyncio
 class misc(commands.Cog, name="Miscellaneous"):
 	def __init__(self, bot):
 		self.bot = bot
-		if not hasattr(bot, 'prefixes'):
-			self.bot.prefixes = {}
 		if not hasattr(bot, 'plonked'):
 			self.bot.plonked = []
 		asyncio.get_event_loop().create_task(self.loadutils())
