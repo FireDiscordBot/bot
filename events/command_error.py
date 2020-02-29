@@ -51,6 +51,7 @@ class commandError(commands.Cog):
         ignored = (commands.CheckFailure)
         sentryignored = (
             commands.CheckFailure,
+            MissingOverride,
             commands.UserInputError,
             commands.CommandOnCooldown,
             commands.BadArgument,

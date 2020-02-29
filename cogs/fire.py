@@ -17,6 +17,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
 from fire.converters import Member
+from fire.extras import has_override
 from discord.ext import commands
 from typing import Union
 import discord
@@ -123,6 +124,11 @@ class firecog(commands.Cog, name="Main Commands"):  # this cog will soon be gone
 			gcount = gcount + 1
 		interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
 		await interface.send_to(ctx)
+
+	@commands.command(name='cool')
+	@has_override(build='7580df790d964bf3a3539476d6314dcd')
+	async def cool(self, ctx):
+		return await ctx.success('you are cool')
 
 def setup(bot):
 	bot.add_cog(firecog(bot))
