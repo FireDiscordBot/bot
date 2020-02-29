@@ -517,6 +517,8 @@ class utils(commands.Cog, name='Utility Commands'):
 					query = 'INSERT INTO blacklist ("user", uid, reason, perm) VALUES ($1, $2, $3, $4);'
 					await self.bot.db.execute(query, user.name, user.id, reason, permanent)
 				await self.bot.db.release(con)
+				star_chat = self.bot.get_channel(624304772333436928)
+				await star_chat.send(f'{user} was blacklisted by {ctx.author} with the reason "{reason}". Permanent: {bool(permanent)}')
 				await ctx.send(f'{user.mention} was successfully blacklisted!')
 			else:
 				blid = blraw[0]['uid']
@@ -531,6 +533,8 @@ class utils(commands.Cog, name='Utility Commands'):
 					query = 'UPDATE blacklist SET user=$1, uid=$2, reason=$3, perm=$4 WHERE uid=$5;'
 					await self.bot.db.execute(query, user.name, user.id, reason, permanent, blid)
 				await self.bot.db.release(con)
+				star_chat = self.bot.get_channel(624304772333436928)
+				await star_chat.send(f'{user}\'s blacklist was updated by {ctx.author} to reason "{reason}". Permanent: {bool(permanent)}')
 				await ctx.send(f'Blacklist entry updated for {user.mention}.')
 			self.bot.plonked = await self.bot.get_cog("Miscellaneous").loadplonked()
 
@@ -555,6 +559,8 @@ class utils(commands.Cog, name='Utility Commands'):
 					await self.bot.db.execute(query, user.id)
 				await self.bot.db.release(con)
 				await ctx.send(f'{user.mention} is now unblacklisted!')
+				star_chat = self.bot.get_channel(624304772333436928)
+				await star_chat.send(f'{user} was blacklisted by {ctx.author}')
 			self.bot.plonked = await self.bot.get_cog("Miscellaneous").loadplonked()
 
 	featureslist = {
