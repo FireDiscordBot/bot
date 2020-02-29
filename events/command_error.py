@@ -18,6 +18,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from core.config import TypeMismatchError, RestrictedOptionError, InvalidValueError
 from discord import Webhook, AsyncWebhookAdapter
+from fire.extras import MissingOverride
 from fire.invite import replaceinvite
 from core.context import Context
 from discord.ext import commands
@@ -58,22 +59,9 @@ class commandError(commands.Cog):
             commands.ArgumentParsingError,
             commands.NotOwner
         )
-        noperms = (commands.BotMissingPermissions, commands.MissingPermissions, discord.Forbidden)
+        noperms = (commands.BotMissingPermissions, commands.MissingPermissions, discord.Forbidden, MissingOverride)
         saved = error
 
-        if not isinstance(error, noperms) or not isinstance(error, sentryignored):
-            userscope = {
-                "id": str(ctx.author.id),
-                "username": str(ctx.author)
-            }
-            extra = {
-                "guild.name": ctx.guild.name if ctx.guild else 'N/A',
-                "guild.id": ctx.guild.id if ctx.guild else 'N/A',
-                "channel.name": ctx.channel.name if ctx.guild else 'DM',
-                "channel.id": ctx.channel.id if ctx.guild else 'N/A',
-                "environment": os.environ.get("FIREENV", "production")
-            }
-            await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.sentry_exc, error, userscope, 'error', extra))
         # Allows us to check for original exceptions raised and sent to CommandInvokeError.
         # If nothing is found. We keep the exception passed to on_command_error.
         error = getattr(error, 'original', error)
@@ -99,6 +87,21 @@ class commandError(commands.Cog):
             errorstr = f'Key not found: {errorstr}. This is something that should be reported in my support server, discord.gg/mKDWeSA'
 
         await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
+
+        if not isinstance(error, noperms) and not isinstance(error, sentryignored):
+            userscope = {
+                "id": str(ctx.author.id),
+                "username": str(ctx.author)
+            }
+            extra = {
+                "guild.name": ctx.guild.name if ctx.guild else 'N/A',
+                "guild.id": ctx.guild.id if ctx.guild else 'N/A',
+                "channel.name": ctx.channel.name if ctx.guild else 'DM',
+                "channel.id": ctx.channel.id if ctx.guild else 'N/A',
+                "environment": os.environ.get("FIREENV", "production")
+            }
+            await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.sentry_exc, error, userscope, 'error', extra))
+
         nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError, commands.MissingRequiredArgument, commands.TooManyArguments, TypeMismatchError, RestrictedOptionError, InvalidValueError)
         if isinstance(error, nomsg):
             return
