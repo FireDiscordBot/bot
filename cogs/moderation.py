@@ -365,9 +365,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					except Exception:
 						pass
 				for channel in ctx.guild.channels:
-					await channel.set_permissions(muted, send_messages=False,
-												read_message_history=True,
-												read_messages=True)
+					if ctx.guild.default_role().permissions_in(channel).read_messages:
+						await channel.set_permissions(muted, send_messages=False,
+													read_message_history=True,
+													read_messages=True)
 			except discord.Forbidden:
 				return await ctx.error("I have no permissions to make a muted role")
 			await user.add_roles(muted)
