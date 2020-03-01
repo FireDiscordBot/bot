@@ -365,7 +365,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					except Exception:
 						pass
 				for channel in ctx.guild.channels:
-					if ctx.guild.default_role.permissions_in(channel).read_messages:
+					if channel.overwrites_for(default_role).read_messages:
 						await channel.set_permissions(muted, send_messages=False,
 													read_message_history=True,
 													read_messages=True)
