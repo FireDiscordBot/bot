@@ -344,7 +344,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		else:
 			await ctx.send('no.')
 
-	async def mute(self, ctx, user, reason, until = None, timedelta = None, channel: TextChannel = None):
+	async def mute(self, ctx, user, reason, until = None, timedelta = None, modlogs: TextChannel = None):
 		if not reason:
 			reason = "No Reason Provided."
 		muted = discord.utils.get(ctx.guild.roles, name="Muted")
@@ -365,10 +365,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					except Exception:
 						pass
 				for channel in ctx.guild.channels:
-					if channel.overwrites_for(default_role).read_messages:
-						await channel.set_permissions(muted, send_messages=False,
-													read_message_history=True,
-													read_messages=True)
+					await channel.set_permissions(muted, send_messages=False)
 			except discord.Forbidden:
 				return await ctx.error("I have no permissions to make a muted role")
 			await user.add_roles(muted)
@@ -423,7 +420,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					"uid": user.id,
 					"gid": ctx.guild.id
 				}
-		if channel:
+		if modlogs:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 			embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 			embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
@@ -435,7 +432,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			if nodm:
 				embed.add_field(name='DM Received?', value='No, user has DMs off or has blocked me.', inline=False)
 			embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
-			await channel.send(embed=embed)
+			await modlogs.send(embed=embed)
 
 
 	@commands.command(aliases=["banish", "begone", "gtfo", "410", "perish", "bonk", "bean"], description="Ban a user from the server")
@@ -591,12 +588,12 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		else:
 			days, hours, minutes, seconds = 0, 0, 0, 0
 		if days == 0 and hours == 0 and minutes == 0 and seconds == 0:
-			await self.mute(ctx, user, reason=reason, channel=logch)
+			await self.mute(ctx, user, reason=reason, modlogs=logch)
 		else:
 			td = datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 			until = datetime.datetime.utcnow() + datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 			reason = parseTime(reason, True)
-			await self.mute(ctx, user, reason=reason, until=until, timedelta=td, channel=logch)
+			await self.mute(ctx, user, reason=reason, until=until, timedelta=td, modlogs=logch)
 
 	@commands.command(description="Warn a user.")
 	@commands.has_permissions(manage_messages=True)
