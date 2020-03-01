@@ -560,7 +560,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				await self.bot.db.release(con)
 				await ctx.send(f'{user.mention} is now unblacklisted!')
 				star_chat = self.bot.get_channel(624304772333436928)
-				await star_chat.send(f'{user} was blacklisted by {ctx.author}')
+				await star_chat.send(f'{user} was unblacklisted by {ctx.author}')
 			self.bot.plonked = await self.bot.get_cog("Miscellaneous").loadplonked()
 
 	featureslist = {
