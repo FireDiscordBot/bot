@@ -118,16 +118,18 @@ class quotes(commands.Cog, name="Quotes"):
         if str(message.author) in ['Public Server Updates#0000', 'Discord#0000']:  # Prevent quoting from known system users
             return await ctx.error(f'Cannot quote messages from that user!')
 
-        if message.guild:
+        if message.guild and 'DISCOVERABLE' not in message.guild.features:
+            # You can see the message without being in the guild by just lurking through discovery
+            # so a check for explicit permission to read the message isn't really necessary
             guild = message.guild
             if guild != ctx.guild:
                 member = guild.get_member(ctx.author.id)
                 if not member:
-                    return  # Don't send an error because auto quoting exists
+                    return
                 if not member.permissions_in(message.channel).read_messages:
-                    return  # Don't send an error because auto quoting exists
+                    return
             elif not ctx.author.permissions_in(message.channel).read_messages:
-                return  # Don't send an error because auto quoting exists
+                return
         else:
             if hasattr(ctx.channel, 'recipient') and ctx.channel.recipient.id != ctx.author.id:
                 return
