@@ -253,7 +253,6 @@ class settings(commands.Cog, name="Settings"):
 			invite = None
 			nodel = False
 			if code:
-				print(f'{message.system_content} = {code}')
 				invalidinvite = False
 				if isinstance(message.author, discord.Member):
 					if not message.author.permissions_in(message.channel).manage_messages:
