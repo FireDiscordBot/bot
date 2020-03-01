@@ -41,7 +41,7 @@ async def get_pre(bot, message):
     return commands.when_mentioned_or(prefix, 'fire ', 'Fire ')(bot, message)
 
 
-bot = Fire(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="inv.wtf/fire"), case_insensitive=True, owner_id=287698408855044097, max_messages=8000)
+bot = Fire(command_prefix=get_pre, status=discord.Status.idle, activity=discord.Game(name="with fire | inv.wtf"), case_insensitive=True, owner_id=287698408855044097, max_messages=8000)
 if os.environ.get("FIREENV", "production") == "dev":
     bot.dev = True
 
