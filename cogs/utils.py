@@ -570,15 +570,15 @@ class utils(commands.Cog, name='Utility Commands'):
 		'NEWS': '[Announcement Channels](https://support.discordapp.com/hc/en-us/articles/360032008192)',
 		'FEATUREABLE': '[Featurable](https://discordapp.com/activity)',
 		'DISCOVERABLE': '[Discoverable](https://discordapp.com/guild-discovery) [(Discoverable Guidelines)](https://support.discordapp.com/hc/en-us/articles/360035969312)',
-		'PUBLIC': '[Public](https://bit.ly/2kV6ogn)',
+		'PUBLIC': '[Public](https://support.discordapp.com/hc/en-us/articles/360035969312-Public-Server-Guidelines)',
 		'VANITY_URL': 'Vanity URL',
 		'ANIMATED_ICON': 'Animated Icon',
 		'BANNER': 'Banner',
 		'INVITE_SPLASH': 'Invite Splash',
 		'MORE_EMOJI': 'More Emoji',
-		'VIP_REGIONS': 'VIP Regions',
+		'VIP_REGIONS': 'VIP Regions (Deprecated)',
 		# CUSTOM FEATURES
-		'PREMIUM': '<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/patreon)'
+		'PREMIUM': '<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)'
 	}
 
 	@commands.group(name='info', invoke_without_command=True)
