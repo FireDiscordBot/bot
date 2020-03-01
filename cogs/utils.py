@@ -751,12 +751,7 @@ class utils(commands.Cog, name='Utility Commands'):
 						cwbl = cwbl + f' and was previously blacklisted for **{cwprofile["blacklisted_reason"]}**'
 			elif not hasattr(self.bot, 'chatwatch') or not self.bot.chatwatch.connected:
 				cwbl = '<:neutral:674359530074669076> Not connected to chatwatch'
-			if hasattr(self.bot, 'plonked') and user.id in self.bot.plonked:
-				trust = 'Low'
-				plonk = f'<:xmark:674359427830382603> Blacklisted from Fire'
-			else:
-				plonk = ''
-			embed.add_field(name=f'» Trust - {trust} (Idea from aero.bot)', value='\n'.join([lban, gban, cwbl, plonk]), inline=False)
+			embed.add_field(name=f'» Trust - {trust} (Idea from aero.bot)', value='\n'.join([lban, gban, cwbl]), inline=False)
 		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		if ack:
 			embed.add_field(name='» Recognized User', value=', '.join(ack), inline=False)
