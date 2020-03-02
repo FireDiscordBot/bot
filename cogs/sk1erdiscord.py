@@ -48,6 +48,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			'[Client thread/INFO]: Setting user:',
 			'[Client thread/INFO]: (Session ID is'
 		]
+		self.secrets = r'(club\.sk1er\.mods\.levelhead\.auth\.MojangAuth|api\.sk1er\.club\/auth|LoginPacket|SentryAPI\.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:)'
 
 	async def cog_check(self, ctx: commands.Context):
 		if ctx.guild.id == 411619823445999637:
@@ -143,34 +144,49 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 	async def on_message(self, message):
 		if self.bot.dev:
 			return
-		if message.channel.id in [412310617442091008, 429311217862180867, 595625113282412564]:
-			for attach in message.attachments:
-				if not re.match(self.logregex, attach.filename) and not attach.filename == 'message.txt':
-					return
-				txt = await attach.read()
+		for attach in message.attachments:
+			if not re.match(self.logregex, attach.filename) and not attach.filename == 'message.txt':
+				return
+			txt = await attach.read()
+			try:
+				txt = txt.decode('utf-8')
+			except Exception:
 				try:
-					txt = txt.decode('utf-8')
+					txt = txt.decode('ISO-8859-1')
 				except Exception:
-					try:
-						txt = txt.decode('ISO-8859-1')
-					except Exception:
-						return # give up, leave the file there
-				if any(t in txt for t in self.logtext):
+					return # give up, leave the file there
+			for line in txt.split('\n'):
+				if re.findall(self.secrets, line, re.MULTILINE):
+					txt = txt.replace(line, '[line removed to protect sensitive info]')
+			if any(t in txt for t in self.logtext):
+				if message.channel.id in [412310617442091008, 429311217862180867, 595625113282412564, 637022496750567433]:
 					try:
 						url = await self.haste(txt)
 					except Exception as e:
-						self.bot.logger.warn(f'$YELLOWFailed to upload log to hastebin', exc_info=e)
+						self.bot.logger.error(f'$REDFailed to upload log to hastebin', exc_info=e)
 						return
 					await message.delete()
 					return await message.channel.send(f'{message.author} uploaded a log, {message.content}\n{url}')
-		if message.channel.id in [412310617442091008, 429311217862180867, 595625113282412564] and any(t in message.content for t in self.logtext):
-			try:
-				url = await self.haste(message.content)
-			except Exception as e:
-				self.bot.logger.warn(f'$YELLOWFailed to upload log to hastebin', exc_info=e)
-				return
-			await message.delete()
-			return await message.channel.send(url)
+				elif message.guild.id == 411619823445999637:
+					await message.delete()
+					return await message.channel.send(f'{message.author.mention}, please send logs/crash-reports in <#412310617442091008>.')
+		if not message.attachments:
+			txt = message.content
+			for line in txt.split('\n'):
+				if re.findall(self.secrets, line, re.MULTILINE):
+					txt = txt.replace(line, '[line removed to protect sensitive info]')
+			if any(t in message.content for t in self.logtext):
+				if message.channel.id in [412310617442091008, 429311217862180867, 595625113282412564, 637022496750567433]:
+					try:
+						url = await self.haste(txt)
+					except Exception as e:
+						self.bot.logger.error(f'$REDFailed to upload log to hastebin', exc_info=e)
+						return
+					await message.delete()
+					return await message.channel.send(url)
+				elif message.guild.id == 411619823445999637:
+					await message.delete()
+					return await message.channel.send(f'{message.author.mention}, please only send logs/crash-reports in <#412310617442091008>.')
 
 	async def nameToUUID(self, player: str):
 		async with aiohttp.ClientSession() as s:
