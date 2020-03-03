@@ -41,6 +41,7 @@ class Fire(commands.Bot):
         # COMMON ATTRIBUTES
         self.config: dict = json.load(open('config.json', 'r'))
         self.configs = {}
+        self.overrides: dict = json.load(open('overrides.json', 'r'))
         self.premiumGuilds = []
         self.db: asyncpg.pool.Pool = None
         self.dev = False
