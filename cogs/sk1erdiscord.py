@@ -48,7 +48,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			'[Client thread/INFO]: Setting user:',
 			'[Client thread/INFO]: (Session ID is'
 		]
-		self.secrets = r'(club\.sk1er\.mods\.levelhead\.auth\.MojangAuth|api\.sk1er\.club\/auth|LoginPacket|SentryAPI\.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:)'
+		self.secrets = r'(club\.sk1er\.mods\.levelhead\.auth\.MojangAuth|api\.sk1er\.club\/auth|LoginPacket|SentryAPI\.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :)'
 
 	async def cog_check(self, ctx: commands.Context):
 		if ctx.guild.id == 411619823445999637:
