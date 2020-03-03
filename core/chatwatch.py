@@ -29,7 +29,7 @@ class chatwatch(commands.Cog):
         self.bot = bot
         self.responses = {}
         if not hasattr(self.bot, 'chatwatch'):
-            self.bot.chatwatch = ChatWatch(config['chatwatch'])
+            self.bot.chatwatch = ChatWatch(config['chatwatch'], self.bot.logger)
         self.bot.chatwatch.clear_listeners()
         self.bot.chatwatch.register_listener(self.handle_message)
 
