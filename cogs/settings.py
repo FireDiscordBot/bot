@@ -201,8 +201,6 @@ class settings(commands.Cog, name="Settings"):
 						if e.target == message.author:
 							deletedby = e.user
 							break
-				if message.system_content == None or message.system_content  == '':
-					message.content = 'I was unable to get the message that was deleted. Maybe it was a system message?'
 				embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'{message.author.mention}\'**s message in** {message.channel.mention} **was deleted**\n{message.system_content}')
 				embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
 				if message.attachments:
