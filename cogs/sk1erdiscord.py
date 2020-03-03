@@ -140,7 +140,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			j = await r.json()
 			return '<https://hasteb.in/' + j['key'] + '>'
 
-	def is_allowed_log(channel):
+	def is_allowed_log(self, channel):
 		if channel.id in [412310617442091008, 429311217862180867, 595625113282412564, 637022496750567433]:
 			return True
 		if channel.category and channel.category.id == 431239172179623947:
@@ -166,7 +166,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				if re.findall(self.secrets, line, re.MULTILINE):
 					txt = txt.replace(line, '[line removed to protect sensitive info]')
 			if any(t in txt for t in self.logtext):
-				if is_allowed_log(message.channel):
+				if self.is_allowed_log(message.channel):
 					try:
 						url = await self.haste(txt)
 					except Exception as e:
@@ -183,7 +183,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				if re.findall(self.secrets, line, re.MULTILINE):
 					txt = txt.replace(line, '[line removed to protect sensitive info]')
 			if any(t in message.content for t in self.logtext):
-				if is_allowed_log(message.channel):
+				if self.is_allowed_log(message.channel):
 					try:
 						url = await self.haste(txt)
 					except Exception as e:
