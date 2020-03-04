@@ -140,13 +140,6 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			j = await r.json()
 			return '<https://hasteb.in/' + j['key'] + '>'
 
-	def is_allowed_log(self, channel):
-		if channel.id in [412310617442091008, 429311217862180867, 595625113282412564, 637022496750567433]:
-			return True
-		if channel.category and channel.category.id == 431239172179623947:
-			return True
-		return False
-
 	@commands.Cog.listener()
 	async def on_message(self, message):
 		if self.bot.dev:
@@ -165,35 +158,27 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			for line in txt.split('\n'):
 				if re.findall(self.secrets, line, re.MULTILINE):
 					txt = txt.replace(line, '[line removed to protect sensitive info]')
-			if any(t in txt for t in self.logtext):
-				if self.is_allowed_log(message.channel):
-					try:
-						url = await self.haste(txt)
-					except Exception as e:
-						self.bot.logger.error(f'$REDFailed to upload log to hastebin', exc_info=e)
-						return
-					await message.delete()
-					return await message.channel.send(f'{message.author} uploaded a log, {message.content}\n{url}')
-				elif message.guild.id == 411619823445999637:
-					await message.delete()
-					return await message.channel.send(f'{message.author.mention}, please send logs/crash-reports in <#412310617442091008>.')
+			if any(t in txt for t in self.logtext) and message.guild.id == 411619823445999637:
+				try:
+					url = await self.haste(txt)
+				except Exception as e:
+					self.bot.logger.error(f'$REDFailed to upload log to hastebin', exc_info=e)
+					return
+				await message.delete()
+				return await message.channel.send(f'{message.author} uploaded a log, {message.content}\n{url}')
 		if not message.attachments:
 			txt = message.content
 			for line in txt.split('\n'):
 				if re.findall(self.secrets, line, re.MULTILINE):
 					txt = txt.replace(line, '[line removed to protect sensitive info]')
-			if any(t in message.content for t in self.logtext):
-				if self.is_allowed_log(message.channel):
-					try:
-						url = await self.haste(txt)
-					except Exception as e:
-						self.bot.logger.error(f'$REDFailed to upload log to hastebin', exc_info=e)
-						return
-					await message.delete()
-					return await message.channel.send(url)
-				elif message.guild.id == 411619823445999637:
-					await message.delete()
-					return await message.channel.send(f'{message.author.mention}, please only send logs/crash-reports in <#412310617442091008>.')
+			if any(t in message.content for t in self.logtext) and message.guild.id == 411619823445999637:
+				try:
+					url = await self.haste(txt)
+				except Exception as e:
+					self.bot.logger.error(f'$REDFailed to upload log to hastebin', exc_info=e)
+					return
+				await message.delete()
+				return await message.channel.send(url)
 
 	async def nameToUUID(self, player: str):
 		async with aiohttp.ClientSession() as s:
