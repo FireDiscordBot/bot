@@ -44,6 +44,7 @@ class Fire(commands.Bot):
         self.overrides: dict = json.load(open('overrides.json', 'r'))
         self.premiumGuilds = []
         self.db: asyncpg.pool.Pool = None
+        self.realtime_members = True
         self.dev = False
 
         # CRAB
