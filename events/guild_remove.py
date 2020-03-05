@@ -30,7 +30,7 @@ class guildRemove(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'guilds.leave'))
+        await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.gauge, 'bot.guilds', len(self.bot.guilds)))
         fire = self.bot.get_guild(564052798044504084)
         await fire.edit(description=f'The official server for the Fire Discord bot, used in {len(self.bot.guilds)} servers.')
         self.bot.logger.info(f"$REDFire left the guild $BLUE{guild.name}({guild.id}) $REDwith $BLUE{guild.member_count} $REDmembers! Goodbye o/")

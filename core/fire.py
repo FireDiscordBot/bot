@@ -20,9 +20,10 @@ from datadog import initialize, statsd, ThreadStats
 from jishaku.modules import resolve_extensions
 import core.coloredformat as colorformat
 from sentry_sdk import push_scope
-from discord.ext import commands
+from discord.ext import commands, tasks
 from .context import Context
 from .config import Config
+import functools
 import traceback
 import sentry_sdk
 import datetime
@@ -71,6 +72,7 @@ class Fire(commands.Bot):
             initialize(**datadogopt)
             self.datadog = ThreadStats()
             self.datadog.start()
+            self.datadog_ping.start()
 
         # COMMANDS
         self.loadCommands()
@@ -121,14 +123,14 @@ class Fire(commands.Bot):
             except Exception as e:
                 # errortb = ''.join(traceback.format_exception(
                 #     type(e), e, e.__traceback__))
-                self.logger.error(f'Error while loading $BLUE{ext}', exc_info=e)
+                self.logger.error(f'$REDError while loading $BLUE{ext}', exc_info=e)
         for ext in resolve_extensions(self, 'modules.*'):
             try:
                 self.load_extension(ext)
             except Exception as e:
                 # errortb = ''.join(traceback.format_exception(
                 #     type(e), e, e.__traceback__))
-                self.logger.error(f'Error while loading $BLUE{ext}', exc_info=e)
+                self.logger.error(f'$REDError while loading $BLUE{ext}', exc_info=e)
 
     def loadEvents(self):
         for ext in resolve_extensions(self, 'events.*'):
@@ -146,6 +148,12 @@ class Fire(commands.Bot):
             for key in extra:
                 scope.set_tag(key, extra[key])
             sentry_sdk.capture_exception(error)
+
+    @tasks.loop(seconds=1)
+    async def datadog_ping(self):
+        await self.wait_until_ready()
+        if isinstance(self.latency, float):
+            await self.loop.run_in_executor(None, func=functools.partial(self.datadog.gauge, 'bot.latency', round(self.latency * 1000)))
 
     async def is_team_owner(self, user: typing.Union[discord.User, discord.Member]):
         if user.id == self.owner_id:

@@ -20,6 +20,7 @@ from discord.ext import commands
 from core.config import Config
 import datetime
 import discord
+import functools
 import traceback
 
 
@@ -45,6 +46,7 @@ class Ready(commands.Cog):
         self.bot.logger.info(f"$GREENUsers: {len(self.bot.users)}")
         self.bot.logger.info("$GREEN-------------------------")
         self.bot.logger.info(f"$BLUELOGGING START ON {datetime.datetime.utcnow()}")
+        await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.gauge, 'bot.ready', self.bot.socketstats['READY']))
 
 
 def setup(bot):

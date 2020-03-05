@@ -33,10 +33,8 @@ class Message(commands.Cog):
         #    ctx = await self.bot.get_context(message)
         #    return await self.bot.invoke(ctx)
         if message.author.bot:
-            await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'messages.bot'))
             return
-        else:
-            await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'messages.user'))
+        await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.gauge, 'bot.messages', self.bot.socketstats['MESSAGE_CREATE']))
         if message.system_content == "":
             return
         # ctx = await self.bot.get_context(message)
