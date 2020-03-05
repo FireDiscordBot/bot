@@ -716,13 +716,16 @@ class utils(commands.Cog, name='Utility Commands'):
 					lban = '<:check:674359197378281472> Hidden from guild ban check'
 			else:
 				lban = f'<:neutral:674359530074669076> Guild bans not loaded'
-			ksoftban = await self.bot.ksoft.bans_check(user.id)
-			if ksoftban:
-				trust = 'Low'
-				ksoftban = await self.bot.ksoft.bans_info(user.id)
-				gban = f'<:xmark:674359427830382603> Banned on KSoft.Si for {ksoftban.reason} - [Proof]({ksoftban.proof})'
-			else:
-				gban = '<:check:674359197378281472> Not banned on KSoft.Si'
+			try:
+				ksoftban = await self.bot.ksoft.bans_check(user.id)
+				if ksoftban:
+					trust = 'Low'
+					ksoftban = await self.bot.ksoft.bans_info(user.id)
+					gban = f'<:xmark:674359427830382603> Banned on KSoft.Si for {ksoftban.reason} - [Proof]({ksoftban.proof})'
+				else:
+					gban = '<:check:674359197378281472> Not banned on KSoft.Si'
+			except Exception:
+				gban = '<:neutral:674359530074669076> Failed to retrieve global ban info'
 			if hasattr(self.bot, 'chatwatch') and self.bot.chatwatch.connected:
 				cwbl = ''
 				cwprofile = await self.bot.chatwatch.profile(user.id)
