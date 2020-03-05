@@ -28,7 +28,8 @@ class messageEdit(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
-        await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.gauge, 'bot.message_edits', self.bot.socketstats['MESSAGE_UPDATE']))
+        if not self.bot.dev:
+            await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.gauge, 'bot.message_edits', self.bot.socketstats['MESSAGE_UPDATE']))
         if after.author.bot:
             return
         if before.content == after.content:
