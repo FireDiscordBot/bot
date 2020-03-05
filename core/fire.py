@@ -152,8 +152,11 @@ class Fire(commands.Bot):
     @tasks.loop(seconds=1)
     async def datadog_ping(self):
         await self.wait_until_ready()
-        if isinstance(self.latency, float):
-            await self.loop.run_in_executor(None, func=functools.partial(self.datadog.gauge, 'bot.latency', round(self.latency * 1000)))
+        try:
+            if isinstance(self.latency, float):
+                await self.loop.run_in_executor(None, func=functools.partial(self.datadog.gauge, 'bot.latency', round(self.latency * 1000)))
+        except Exception:
+            pass
 
     async def is_team_owner(self, user: typing.Union[discord.User, discord.Member]):
         if user.id == self.owner_id:
