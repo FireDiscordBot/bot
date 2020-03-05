@@ -151,6 +151,8 @@ class Fire(commands.Bot):
 
     @tasks.loop(seconds=1)
     async def datadog_ping(self):
+        if self.dev:
+            return
         await self.wait_until_ready()
         try:
             if isinstance(self.latency, float):
