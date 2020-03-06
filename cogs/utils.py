@@ -850,13 +850,14 @@ class utils(commands.Cog, name='Utility Commands'):
 		incidents = await incidents.json()
 		desc = []
 		groups = {}
-		for c in summary['components']:
-			if c['group_id']:
-				if c['group_id'] not in groups:
-					groups[c['group_id']] = [c]
-				else:
-					groups[c['group_id']].append(c)
+		for c in [c for c in summary['components'] if c['group_id']]:
+			if c['group_id'] == 'jmsbww1qjnz5' and c['status'] == 'operational':
 				continue
+			if c['group_id'] not in groups:
+				groups[c['group_id']] = [c]
+			else:
+				groups[c['group_id']].append(c)
+		for c in [c for c in summary['components'] if not c['group_id']]:
 			desc.append(f'├{emoji[c["status"]]} **{c["name"]}**: {c["status"].replace("_", " ").title()}')
 			for s in groups.get(c['id'], []):
 				desc.append(f'├─{emoji[s["status"]]} **{s["name"]}**: {s["status"].replace("_", " ").title()}')
