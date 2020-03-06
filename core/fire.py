@@ -157,6 +157,7 @@ class Fire(commands.Bot):
         try:
             if isinstance(self.latency, float):
                 await self.loop.run_in_executor(None, func=functools.partial(self.datadog.gauge, 'bot.latency', round(self.latency * 1000)))
+            await self.loop.run_in_executor(None, func=functools.partial(self.datadog.gauge, 'bot.guilds', len(self.guilds)))
         except Exception:
             pass
 

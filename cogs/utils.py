@@ -819,6 +819,40 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name='Latest Incident', value=f'[{incident["name"]}]({incident["shortlink"]})\nStatus: **{incident["status"].capitalize()}**')
 		await ctx.send(embed=embed)
 
+	@commands.command(name='status')
+	async def status(self, ctx):
+		colors = {
+			'none': ctx.author.color,
+			'minor': discord.Color.orange(),
+			'major': discord.Color.red()
+		}
+		summary = await aiohttp.ClientSession().get('https://status.gaminggeek.dev/api/v2/summary.json')
+		summary = await summary.json()
+		incidents = await aiohttp.ClientSession().get('https://status.gaminggeek.dev/api/v2/incidents.json')
+		incidents = await incidents.json()
+		desc = []
+		groups = {}
+		for c in summary['components']:
+			if c['group_id']:
+				if c['group_id'] not in groups:
+					groups[c['group_id']] = [c]
+				else:
+					groups[c['group_id']].append(c)
+				continue
+			if c['status'] == 'operational':
+				desc.append(f'├<:check:674359197378281472> **{c["name"]}**: {c["status"].replace("_", " ").title()}')
+			else:
+				desc.append(f'├<:xmark:674359427830382603> **{c["name"]}**: {c["status"].replace("_", " ").title()}')
+			for s in  groups.get(c['id'], []):
+				if s['status'] == 'operational':
+					desc.append(f'├─<:check:674359197378281472> **{s["name"]}**: {s["status"].replace("_", " ").title()}')
+				else:
+					desc.append(f'├─<:xmark:674359427830382603> **{s["name"]}**: {s["status"].replace("_", " ").title()}')
+		embed = discord.Embed(color=colors[str(summary['status']['indicator'])], timestamp=datetime.datetime.utcnow(), description='\n'.join(desc))
+		incident = incidents['incidents'][0]
+		embed.add_field(name='Latest Incident', value=f'[{incident["name"]}]({incident["shortlink"]})\nStatus: **{incident["status"].capitalize()}**')
+		await ctx.send(embed=embed)
+
 	@commands.command(description='Bulk delete messages')
 	@commands.has_permissions(manage_messages=True)
 	async def purge(self, ctx, amount: int = -1, *, opt: flags.FlagParser(
