@@ -135,10 +135,15 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 							general = self.guild.get_channel(411620457754787841)
 							await general.send(f'{after.mention} Your nitro perks in Hyperium & Modcore have been removed. Boost the server to get them back :)')
 
-	async def haste(self, content):
-		async with aiohttp.ClientSession().post('https://hasteb.in/documents', data=content) as r:
+	async def haste(self, content, fallback: bool=False):
+		url = 'hst.sh'
+		if fallback:
+			url = 'h.inv.wtf'
+		async with aiohttp.ClientSession().post(f'https://{url}/documents', data=content) as r:
+			if r.status != 200 and not fallback:
+				return await self.haste(content, fallback=True)
 			j = await r.json()
-			return '<https://hasteb.in/' + j['key'] + '>'
+			return f'<https://{url}/' + j['key'] + '>'
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
