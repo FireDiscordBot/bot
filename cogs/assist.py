@@ -24,10 +24,7 @@ import json
 import click
 import functools
 import datetime
-import wavelink
 from jishaku.cog import copy_context_with
-from cogs.music import Player as MusicPlayer
-from cogs.music import Track as MusicTrack
 import google.auth.transport.grpc
 import google.auth.transport.requests
 import google.oauth2.credentials
