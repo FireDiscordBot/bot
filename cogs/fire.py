@@ -81,20 +81,20 @@ class firecog(commands.Cog, name="Main Commands"):  # this cog will soon be gone
 		members = self.bot.get_all_members()
 		for member in members:
 			if str(member.status) == 'online':
-				online = online + 1
+				online += 1
 			if str(member.status) == 'idle':
-				idle = idle + 1
+				idle += 1
 			if str(member.status) == 'dnd':
-				dnd = dnd + 1
+				dnd += 1
 			if str(member.status) == 'offline':
-				offline = offline + 1
+				offline += 1
 			try:
-				activity = member.activities[0]
-				if isinstance(member.activities[0], discord.activity.Streaming):
-					streaming = streaming + 1
+				for a in member.activities:
+					if isinstance(a, discord.Streaming):
+						streaming += 1
 			except Exception:
 				pass
-		users = online + idle + dnd + offline
+		users = len(members)  # thanks cube lmao
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		ownerboi = self.bot.get_user(287698408855044097)
 		embed.set_author(name=f"Bot made by {ownerboi}", url="https://gaminggeek.dev", icon_url=str(ownerboi.avatar_url_as(static_format='png', size=2048)))
