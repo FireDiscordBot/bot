@@ -48,7 +48,6 @@ if os.environ.get("FIREENV", "production") == "dev":
 extensions = [
     "cogs.misc",
     "cogs.fire",
-    "cogs.music",
     "cogs.pickle",
     "cogs.ksoft",
     "cogs.skier",
@@ -65,9 +64,6 @@ extensions = [
     "cogs.conorthedev",
     "api.main"
 ]
-
-if bot.dev:
-    extensions.remove("cogs.music")
 
 for cog in extensions:
     try:

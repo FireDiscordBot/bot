@@ -223,72 +223,6 @@
     },
     {
         "id": 7,
-        "name": "Music",
-        "commands": {
-            "connect": {
-                "Description": "Connect to a voice channel",
-                "Usage": "{prefix}connect <channel>",
-                "Aliases": "join"
-            },
-            "play": {
-                "Description": "Queue a song or playlist for playback.",
-                "Usage": "{prefix}play <search query/url>",
-                "Aliases": "sing, p"
-            },
-            "np": {
-                "Description": "Sends the music controller message which contains various information about the current and upcoming songs.",
-                "Usage": "{prefix}np",
-                "Aliases": "now\\_playing, current, currentsong"
-            },
-            "pause": {
-                "Description": "Pause the currently playing song.",
-                "Usage": "{prefix}pause",
-                "Aliases": null
-            },
-            "resume": {
-                "Description": "Resume a currently paused song.",
-                "Usage": "{prefix}resume",
-                "Aliases": null
-            },
-            "skip": {
-                "Description": "Skip the current song.",
-                "Usage": "{prefix}skip",
-                "Aliases": null
-            },
-            "stop": {
-                "Description": "Stop the player, disconnect and clear the queue.",
-                "Usage": "{prefix}stop",
-                "Aliases": "goaway"
-            },
-            "volume": {
-                "Description": "Change the player volume.",
-                "Usage": "{prefix}volume <number: 1-100>",
-                "Aliases": "vol"
-            },
-            "queue": {
-                "Description": "Retrieve a list of currently queued songs.",
-                "Usage": "{prefix}queue",
-                "Aliases": "q, que"
-            },
-            "shuffle": {
-                "Description": "Shuffle the current queue.",
-                "Usage": "{prefix}shuffle",
-                "Aliases": "mix"
-            },
-            "repeat": {
-                "Description": "Repeat the currently playing song.",
-                "Usage": "{prefix}repeat",
-                "Aliases": "loop"
-            },
-            "seteq": {
-                "Description": "Pick from one of the equalizer presets to change your music.",
-                "Usage": "{prefix}seteq <Flat/Boost/Metal/Piano>",
-                "Aliases": null
-            }
-        }
-    },
-    {
-        "id": 8,
         "name": "Image Manipulation",
         "commands": {
             "makeameme": {
@@ -304,7 +238,7 @@
         }
     },
     {
-        "id": 9,
+        "id": 8,
         "name": "Tickets",
         "commands": {
             "ticket": {
@@ -345,7 +279,7 @@
         }
     },
     {
-        "id": 10,
+        "id": 9,
         "name": "Configuration",
         "commands": {
             "settings": {
@@ -401,7 +335,7 @@
         }
     },
     {
-        "id": 11,
+        "id": 10,
         "name": "Moderation",
         "Note": "Users with the \"Manage Messages\" permission are considered moderators! This will most likely change in the future.",
         "commands": {
@@ -478,7 +412,7 @@
         }
     },
     {
-        "id": 12,
+        "id": 11,
         "name": "Info",
         "commands": {
             "user": {
@@ -499,7 +433,7 @@
         }
     },
     {
-        "id": 13,
+        "id": 12,
         "name": "Tags",
         "Note": "Creating/deleting tags requires \"Manage Messages\" permission. Tag names can only be one word.",
         "commands": {
@@ -526,7 +460,7 @@
         }
     },
     {
-        "id": 14,
+        "id": 13,
         "name": "Utilities",
         "commands": {
             "dstatus": {
@@ -597,7 +531,7 @@
         }
     },
     {
-        "id": 15,
+        "id": 14,
         "name": "Purge",
         "Note": "The purge command makes use of a flag system for different options. \nFor example, \"purge 10 --user Geek --match oof\" would purge the last 10 messages from the user Geek if it contains oof",
         "commands": {
@@ -651,7 +585,7 @@
         }
     },
     {
-        "id": 16,
+        "id": 15,
         "name": "Premium",
         "commands": {
             "autorole": {

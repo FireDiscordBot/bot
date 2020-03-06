@@ -799,14 +799,15 @@ class utils(commands.Cog, name='Utility Commands'):
 		colors = {
 			'none': ctx.author.color,
 			'minor': discord.Color.orange(),
-			'major': discord.Color.red()
+			'major': discord.Color.red(),
+			'maintenance': discord.Color.blue()
 		}
 		emoji = {
 			'operational': '<:operational:685538400639385649>',
 			'degraded_performance': '<:degraded_performance:685538400228343808>',
 			'partial_outage': '<:partial_outage:685538400555499675>',
 			'major_outage': '<:major_outage:685538400639385706>',
-			'maintenance': '<:maintenance:685538400337395743>'
+			'under_maintenance': '<:maintenance:685538400337395743>'
 		}
 		summary = await aiohttp.ClientSession().get('https://status.discordapp.com/api/v2/summary.json')
 		summary = await summary.json()
@@ -833,14 +834,15 @@ class utils(commands.Cog, name='Utility Commands'):
 		colors = {
 			'none': ctx.author.color,
 			'minor': discord.Color.orange(),
-			'major': discord.Color.red()
+			'major': discord.Color.red(),
+			'maintenance': discord.Color.blue()
 		}
 		emoji = {
 			'operational': '<:operational:685538400639385649>',
 			'degraded_performance': '<:degraded_performance:685538400228343808>',
 			'partial_outage': '<:partial_outage:685538400555499675>',
 			'major_outage': '<:major_outage:685538400639385706>',
-			'maintenance': '<:maintenance:685538400337395743>'
+			'under_maintenance': '<:maintenance:685538400337395743>'
 		}
 		summary = await aiohttp.ClientSession().get('https://status.gaminggeek.dev/api/v2/summary.json')
 		summary = await summary.json()
@@ -861,10 +863,10 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed = discord.Embed(color=colors[str(summary['status']['indicator'])], timestamp=datetime.datetime.utcnow(), description='\n'.join(desc))
 		incident = incidents['incidents'][0]
 		embed.add_field(name='Latest Incident', value=f'[{incident["name"]}]({incident["shortlink"]})\nStatus: **{incident["status"].capitalize()}**', inline=False)
-		maintenance = summary['scheduled_maintenances']
+		maintenance = summary.get('scheduled_maintenances', [])
 		if len(maintenance) >= 1:
 			maintenance = maintenance[0]
-			embed.add_field(name='Scheduled Maintenance', value=f'[{maintenance["name"]}]({maintenance["shortlink"]})\nStatus: **{maintenance["status"].capitalize()}**', inline=False)
+			embed.add_field(name='Scheduled Maintenance', value=f'[{maintenance["name"]}]({maintenance["shortlink"]})\nStatus: **{maintenance["status"].replace("_", " ").capitalize()}**', inline=False)
 		await ctx.send(embed=embed)
 
 	@commands.command(description='Bulk delete messages')

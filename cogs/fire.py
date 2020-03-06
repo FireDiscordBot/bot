@@ -94,7 +94,7 @@ class firecog(commands.Cog, name="Main Commands"):  # this cog will soon be gone
 						streaming += 1
 			except Exception:
 				pass
-		users = len(members)  # thanks cube lmao
+		users = len(self.bot.users)
 		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 		ownerboi = self.bot.get_user(287698408855044097)
 		embed.set_author(name=f"Bot made by {ownerboi}", url="https://gaminggeek.dev", icon_url=str(ownerboi.avatar_url_as(static_format='png', size=2048)))
