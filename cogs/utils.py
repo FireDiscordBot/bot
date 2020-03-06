@@ -816,6 +816,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		desc = []
 		groups = {}
 		for c in [c for c in summary['components'] if c['group_id']]:
+			if c['group_id'] == 'jk03xttfcz9b' and c['status'] == 'operational':
+				continue
 			if c['group_id'] not in groups:
 				groups[c['group_id']] = [c]
 			else:
