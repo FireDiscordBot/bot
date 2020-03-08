@@ -798,8 +798,9 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def dstatus(self, ctx):
 		colors = {
 			'none': ctx.author.color,
-			'minor': discord.Color.orange(),
-			'major': discord.Color.red(),
+			'minor': discord.Color.gold(),
+			'major': discord.Color.orange(),
+			'critical': discord.Color.red(),
 			'maintenance': discord.Color.blue()
 		}
 		emoji = {
@@ -826,7 +827,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			desc.append(f'├{emoji[c["status"]]} **{c["name"]}**: {c["status"].replace("_", " ").title()}')
 			for s in groups.get(c['id'], []):
 				desc.append(f'├─{emoji[s["status"]]} **{s["name"]}**: {s["status"].replace("_", " ").title()}')
-		embed = discord.Embed(color=colors[str(summary['status']['indicator'])], timestamp=datetime.datetime.utcnow(), description='\n'.join(desc))
+		embed = discord.Embed(color=colors[str(summary['status']['indicator'])], title=summary['status']['description'], timestamp=datetime.datetime.utcnow(), description='\n'.join(desc))
 		incident = incidents['incidents'][0]
 		embed.add_field(name='Latest Incident', value=f'[{incident["name"]}]({incident["shortlink"]})\nStatus: **{incident["status"].capitalize()}**')
 		await ctx.send(embed=embed)
@@ -835,8 +836,9 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def status(self, ctx):
 		colors = {
 			'none': ctx.author.color,
-			'minor': discord.Color.orange(),
-			'major': discord.Color.red(),
+			'minor': discord.Color.gold(),
+			'major': discord.Color.orange(),
+			'critical': discord.Color.red(),
 			'maintenance': discord.Color.blue()
 		}
 		emoji = {
@@ -863,7 +865,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			desc.append(f'├{emoji[c["status"]]} **{c["name"]}**: {c["status"].replace("_", " ").title()}')
 			for s in groups.get(c['id'], []):
 				desc.append(f'├─{emoji[s["status"]]} **{s["name"]}**: {s["status"].replace("_", " ").title()}')
-		embed = discord.Embed(color=colors[str(summary['status']['indicator'])], timestamp=datetime.datetime.utcnow(), description='\n'.join(desc))
+		embed = discord.Embed(color=colors[str(summary['status']['indicator'])], title=summary['status']['description'], timestamp=datetime.datetime.utcnow(), description='\n'.join(desc))
 		incident = incidents['incidents'][0]
 		embed.add_field(name='Latest Incident', value=f'[{incident["name"]}]({incident["shortlink"]})\nStatus: **{incident["status"].capitalize()}**', inline=False)
 		maintenance = summary.get('scheduled_maintenances', [])
