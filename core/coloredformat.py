@@ -13,6 +13,10 @@ BOLD_SEQ = "\033[1m"
 def getcolor(color=None):
     return COLOR_SEQ % (30 + (color or WHITE))
 
+def formatter_message(message):
+    for k, v in COLORS.items():
+        message = message.replace(k, v)
+    return message
 
 LEVELS = {
     "WARNING": YELLOW,
@@ -38,16 +42,15 @@ COLORS = {
 
 
 class ColoredFormatter(logging.Formatter):
-    def __init__(self, msg, use_color=True):
+    def __init__(self, msg):
         super().__init__(msg)
-        self.use_color = use_color
 
     def format(self, record):
         record = copy(record)
         levelname = record.levelname
-        if self.use_color and levelname in LEVELS:
+        if levelname in LEVELS:
             levelname_color = COLOR_SEQ % (30 + LEVELS[levelname]) + levelname + RESET_SEQ
             record.levelname = levelname_color
             for k, v in COLORS.items():
-                record.message = record.message.replace(k, v)
-        return logging.Formatter.format(self, record)
+                record.msg = record.msg.replace(k, v)
+        return super().format(record)
