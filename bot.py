@@ -47,7 +47,6 @@ if os.environ.get("FIREENV", "production") == "dev":
 
 extensions = [
     "cogs.misc",
-    "cogs.fire",
     "cogs.pickle",
     "cogs.ksoft",
     "cogs.skier",
