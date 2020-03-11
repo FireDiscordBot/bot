@@ -23,6 +23,14 @@ import traceback
 import discord
 
 
+def shorten(text):
+    if not text:
+        return None
+    if len(text) >= 35:
+        return text[:35] + '...'
+    return text
+
+
 class guilds(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -32,13 +40,12 @@ class guilds(commands.Cog):
         if not self.bot.isadmin(ctx.author):
             return await ctx.error('no')
         data = [
-            ['Name', 'ID', 'Owner', 'Members', 'Channels', 'Boosts', 'Locale', 'Public']
+            ['Name', 'ID', 'Members', 'Channels', 'Boosts', 'Locale', 'Public']
         ]
         for guild in sorted(self.bot.guilds, key=lambda g: len(g.members), reverse=True):
             data.append([
-                guild.name,
+                shorten(guild.name),
                 guild.id,
-                str(guild.owner),
                 format(len(guild.members), ',d'),
                 len(guild.channels),
                 guild.premium_subscription_count,
