@@ -32,10 +32,19 @@ class guilds(commands.Cog):
         if not self.bot.isadmin(ctx.author):
             return await ctx.error('no')
         data = [
-            ['Name', 'ID', 'Owner', 'Members']
+            ['Name', 'ID', 'Owner', 'Members', 'Channels', 'Boosts', 'Locale', 'Public']
         ]
-        for guild in sorted(self.bot.guilds, key=lambda g: len(g.members)):
-            data.append([guild.name, guild.id, str(guild.owner), len(guild.members)])
+        for guild in sorted(self.bot.guilds, key=lambda g: len(g.members), reverse=True):
+            data.append([
+                guild.name,
+                guild.id,
+                str(guild.owner),
+                format(len(guild.members), ',d'),
+                len(guild.channels),
+                guild.premium_subscription_count,
+                guild.preferred_locale,
+                'PUBLIC' in guild.features
+            ])
         table = AsciiTable(data)
         header = table.table.split('\n')[:3]
         paginator = WrappedPaginator(prefix='```\n' + '\n'.join(header), suffix='```', max_size=1950)
