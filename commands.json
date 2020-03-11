@@ -23,54 +23,9 @@
                 "Usage": "{prefix}oss",
                 "Aliases": "opensource"
             },
-            "stats": {
-                "Description": "Shows you some stats about me",
-                "Usage": "{prefix}stats",
-                "Aliases": null
-            },
             "rpc": {
                 "Description": "View someone's rich presence",
                 "Usage": "{prefix}rpc [<member>]",
-                "Aliases": null
-            },
-            "dab": {
-                "Description": "dab.",
-                "Usage": "{prefix}dab",
-                "Aliases": null
-            },
-            "thanks": {
-                "Description": "You're welcome?",
-                "Usage": "{prefix}thanks",
-                "Aliases": "thank, thank you"
-            },
-            "shut": {
-                "Description": "shut please",
-                "Usage": "{prefix}shut",
-                "Aliases": null
-            },
-            "warm": {
-                "Description": "warm something up",
-                "Usage": "{prefix}warm <something>",
-                "Aliases": null
-            },
-            "cowsay": {
-                "Description": "Cow goes moo (or whatever really)",
-                "Usage": "{prefix}cowsay <text>",
-                "Aliases": null
-            },
-            "ascii": {
-                "Description": "Make ASCII text",
-                "Usage": "{prefix}ascii <text>",
-                "Aliases": null
-            },
-            "\ud83d\udc4f": {
-                "Description": "Emphasise your text with clapping",
-                "Usage": "{prefix}clap <text>",
-                "Aliases": "clap"
-            },
-            "8ball": {
-                "Description": "Ask the magic 8ball a question",
-                "Usage": "{prefix}8ball <question>",
                 "Aliases": null
             }
         }
@@ -586,6 +541,52 @@
     },
     {
         "id": 15,
+        "name": "Random",
+        "commands": {
+            "dab": {
+                "Description": "dab.",
+                "Usage": "{prefix}dab",
+                "Aliases": null
+            },
+            "thanks": {
+                "Description": "You're welcome?",
+                "Usage": "{prefix}thanks",
+                "Aliases": "thank, thank you"
+            },
+            "shut": {
+                "Description": "shut please",
+                "Usage": "{prefix}shut",
+                "Aliases": null
+            },
+            "warm": {
+                "Description": "warm something up",
+                "Usage": "{prefix}warm <something>",
+                "Aliases": null
+            },
+            "cowsay": {
+                "Description": "Cow goes moo (or whatever really)",
+                "Usage": "{prefix}cowsay <text>",
+                "Aliases": null
+            },
+            "ascii": {
+                "Description": "Make ASCII text",
+                "Usage": "{prefix}ascii <text>",
+                "Aliases": null
+            },
+            "\ud83d\udc4f": {
+                "Description": "Emphasise your text with clapping",
+                "Usage": "{prefix}clap <text>",
+                "Aliases": "clap"
+            },
+            "8ball": {
+                "Description": "Ask the magic 8ball a question",
+                "Usage": "{prefix}8ball <question>",
+                "Aliases": null
+            }
+        }
+    },
+    {
+        "id": 16,
         "name": "Premium",
         "commands": {
             "autorole": {
