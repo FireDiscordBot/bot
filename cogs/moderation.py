@@ -96,7 +96,7 @@ class StaffCheckNoMessage(commands.Converter):
 class MuteCheck(commands.Converter):
 	async def convert(self, ctx, argument):
 		argument = await Member().convert(ctx, argument)
-		muted = ctx.bot.configs[guild.id].get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
+		muted = ctx.bot.configs[ctx.guild.id].get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
 		if muted in argument.roles:
 			return argument
 		else:
@@ -337,7 +337,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def mute(self, ctx, user, reason, until = None, timedelta = None, modlogs: TextChannel = None):
 		if not reason:
 			reason = "No Reason Provided."
-		muted = self.bot.configs[guild.id].get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
+		muted = self.bot.configs[ctx.guild.id].get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
 		if until:
 			timeup = datetime.datetime.strftime(until, '%d/%m/%Y @ %I:%M:%S %p')
 			until = until.timestamp()
@@ -557,11 +557,11 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 	@commands.command(description='Sets the muted role Fire will use', aliases=['mutedrole'])
 	@commands.has_permissions(manage_roles=True)
-        @commands.bot_has_permissions(manage_roles=True)
+	@commands.bot_has_permissions(manage_roles=True)
 	async def muterole(self, ctx, *, role: Role = None):
-		await self.bot.configs[guild.id].set('mod.mutedrole', role)
+		await self.bot.configs[ctx.guild.id].set('mod.mutedrole', role)
 		if role:
-			return await ctx.success('Set the muted role to {role}')
+			return await ctx.success(f'Set the muted role to {role}')
 		return await ctx.success('Reset the muted role.')
 
 
@@ -588,6 +588,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			days, hours, minutes, seconds = 0, 0, 0, 0
 		if days == 0 and hours == 0 and minutes == 0 and seconds == 0:
 			await self.mute(ctx, user, reason=reason, modlogs=logch)
+		if days == 0 and hours == 0 and minutes == 0 and seconds < 60:
+			return await ctx.error('That time is too short, please specify a longer time!')
 		else:
 			td = datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 			until = datetime.datetime.utcnow() + datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
@@ -769,7 +771,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not user:
 			return
 		await ctx.trigger_typing()
-		muted = self.bot.configs[guild.id].get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
+		muted = self.bot.configs[ctx.guild.id].get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
 		await user.remove_roles(muted, reason=f'Unmuted by {ctx.author}')
 		await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unmuted")
 		con = await self.bot.db.acquire()
