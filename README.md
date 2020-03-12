@@ -16,9 +16,8 @@ For support, join our [support discord](https://oh-my-god.wtf/fire).
 
 ## Built With
 
-* [Python 3.7.4](https://www.python.org/downloads/) - The language used
+* [Python 3.7.5](https://www.python.org/downloads/) - The language used
 * [discord.py](https://github.com/Rapptz/discord.py) - Used to run the bot
-* [Lavalink](https://github.com/Frederikam/Lavalink) - For the audio side of the bot
 
 ## Authors
 
