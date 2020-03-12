@@ -309,6 +309,11 @@
                 "Usage": "{prefix}softban <user> <amount of days: 1-7> [<reason>]",
                 "Aliases": null
             },
+            "muterole": {
+                "Description": "Sets the muted role Fire will use",
+                "Usage": "{prefix}muterole [<role>]",
+                "Aliases": "mutedrole"
+            },
             "mute": {
                 "Description": "Mute a user.",
                 "Usage": "{prefix}mute <user> [<time> <reason>] Time format: 1d 2h 3m 4s == 1 day, 2 hours, 3 minutes and 4 seconds",
