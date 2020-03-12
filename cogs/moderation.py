@@ -32,8 +32,7 @@ day_regex = re.compile(r'(?:(?P<days>\d+)(?:d|days|day| days| day))')
 hour_regex = re.compile(r'(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))')
 min_regex = re.compile(r'(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))')
 sec_regex = re.compile(r'(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))')
-# _time_regex = re.compile(
-# 	r'(?:(?P<days>\d+)d)? *(?:(?P<hours>\d+)h)? *(?:(?P<minutes>\d+)m)? *(?:(?P<seconds>\d+)s)')
+
 
 def parseTime(content, replace: bool = False):
 	if replace:
@@ -97,7 +96,7 @@ class StaffCheckNoMessage(commands.Converter):
 class MuteCheck(commands.Converter):
 	async def convert(self, ctx, argument):
 		argument = await Member().convert(ctx, argument)
-		muted = discord.utils.get(ctx.guild.roles, name="Muted")
+		muted = ctx.bot.configs[guild.id].get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
 		if muted in argument.roles:
 			return argument
 		else:
@@ -127,8 +126,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		self.mutes = {}
 		query = 'SELECT * FROM mutes;'
 		mutes = await self.bot.db.fetch(query)
-		# await self.bot.db.execute('SELECT * FROM mutes;')
-		# mutes = await self.bot.db.fetchall()
 		for m in mutes:
 			if m['uid'] != None:
 				guild = m['gid']
@@ -144,7 +141,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					}
 				else:
 					self.mutes[guild] = {}
-					self.mutes[guild][user] = {						
+					self.mutes[guild][user] = {
 						"uid": user,
 						"gid": guild,
 						"until": until
@@ -158,7 +155,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					continue
 				user = guild.get_member(mute['uid'])
 				until = mute['until'] if 'until' in mute else False
-				muted = discord.utils.get(guild.roles, name="Muted")
+				muted = self.bot.configs[guild.id].get('mod.mutedrole') or discord.utils.get(guild.roles, name="Muted")
 				if guild and user and muted:
 					if muted in user.roles:
 						if until:
@@ -271,7 +268,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						continue
 					user = guild.get_member(mute['uid'])
 					until = mute['until'] if 'until' in mute else False
-					muted = discord.utils.get(guild.roles, name="Muted")
+					muted = self.bot.configs[guild.id].get('mod.mutedrole') or discord.utils.get(guild.roles, name="Muted")
 					if guild and user and muted:
 						if muted in user.roles:
 							if until:
@@ -319,20 +316,13 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			for mute in mutes:
 				mute = self.mutes[guild.id][mute]
 				if mute['uid'] == member.id:
-					muted = discord.utils.get(guild.roles, name="Muted")
+					muted = self.bot.configs[guild.id].get('mod.mutedrole') or discord.utils.get(guild.roles, name="Muted")
 					if muted:
 						try:
 							await member.add_roles(muted, reason='Muted.')
 						except discord.HTTPException:
 							pass
 
-	# @commands.Cog.listener()
-	# async def on_ready(self):
-	# 	await asyncio.sleep(15)
-	# 	await self.loadMutes()
-	# 	await self.loadwarns()
-	# 	await self.loadmodlogs()
-	# 	print('Moderation loaded!')
 
 	@commands.command(name='loadmod', description='Load moderation data', hidden=True)
 	async def loadmod(self, ctx):
@@ -347,7 +337,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def mute(self, ctx, user, reason, until = None, timedelta = None, modlogs: TextChannel = None):
 		if not reason:
 			reason = "No Reason Provided."
-		muted = discord.utils.get(ctx.guild.roles, name="Muted")
+		muted = self.bot.configs[guild.id].get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
 		if until:
 			timeup = datetime.datetime.strftime(until, '%d/%m/%Y @ %I:%M:%S %p')
 			until = until.timestamp()
@@ -380,8 +370,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		except discord.HTTPException:
 			nodm = True
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.mutes'))
-		# await self.bot.db.execute(f'INSERT INTO mutes (\"gid\", \"uid\") VALUES ({ctx.guild.id}, {user.id});')
-		# await self.bot.conn.commit()
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			if until:
@@ -565,6 +553,17 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await self.loadmodlogs()
 		except discord.Forbidden:
 			await ctx.error("Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
+
+
+	@commands.command(description='Sets the muted role Fire will use', aliases=['mutedrole'])
+	@commands.has_permissions(manage_roles=True)
+        @commands.bot_has_permissions(manage_roles=True)
+	async def muterole(self, ctx, *, role: Role = None):
+		await self.bot.configs[guild.id].set('mod.mutedrole', role)
+		if role:
+			return await ctx.success('Set the muted role to {role}')
+		return await ctx.success('Reset the muted role.')
+
 
 	@commands.command(name='mute', description="Mute a user.", aliases=["silence", "tempmute", "403"])
 	@commands.has_permissions(manage_messages=True)
@@ -758,7 +757,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await self.loadmodlogs()
 		except discord.Forbidden:
 			await ctx.error("Kick failed. Are you trying to kick someone higher than the bot?")
-	
+
 	@commands.command(description="Unmute a muted user.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
@@ -770,14 +769,13 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not user:
 			return
 		await ctx.trigger_typing()
-		await user.remove_roles(discord.utils.get(ctx.guild.roles, name="Muted"))
+		muted = self.bot.configs[guild.id].get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
+		await user.remove_roles(muted, reason=f'Unmuted by {ctx.author}')
 		await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unmuted")
-		# await self.bot.db.execute(f'DELETE FROM mutes WHERE uid = {user.id};')
-		# await self.bot.conn.commit()
 		con = await self.bot.db.acquire()
 		async with con.transaction():
-			query = 'DELETE FROM mutes WHERE uid = $1;'
-			await self.bot.db.execute(query, user.id)
+			query = 'DELETE FROM mutes WHERE uid = $1 AND gid = $2;'
+			await self.bot.db.execute(query, user.id, guild.id)
 		await self.bot.db.release(con)
 		try:
 			self.mutes[ctx.guild.id].pop(user.id, None)

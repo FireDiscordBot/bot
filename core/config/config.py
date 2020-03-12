@@ -60,6 +60,12 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $BLUElog.action $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('log.action', value.id)
 
+    @ConfigOpt(name='mod.mutedrole', accepts=discord.Role, default=None, options=options)
+    async def muted_role(self, value: discord.Role):
+        '''Muted Role | The role which will be used when muting a user. If not set, it will default to a role called "Muted"'''
+        self._bot.logger.info(f'$GREENSetting $BLUEmod.mutedrole $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('mod.mutedrole', value.id)
+
     @ConfigOpt(name='mod.linkfilter', accepts=[str], default=[], options=options)
     async def link_filter(self, value: list):
         '''Link Filter | The filters of which any links found will be deleted (unless they have Manage Messages)'''
