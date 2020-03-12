@@ -65,7 +65,7 @@ pexpect==4.7.0
 pillow>=6.2.0
 proglog==0.1.9
 protobuf==3.7.1
-psutil==5.6.0
+psutil==5.6.6
 ptyprocess==0.6.0
 pyasn1==0.4.5
 pyasn1-modules==0.2.5
