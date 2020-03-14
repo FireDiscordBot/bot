@@ -283,8 +283,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 											self.mutes[user.id] = None
 										except KeyError:
 											pass
-									except Exception:
-										self.bot.logger.error(f'$REDFailed to delete mute for {user} in {guild}')
+									except Exception as e:
+										self.bot.logger.error(f'$REDFailed to delete mute for {user} in {guild}', exc_info=e)
 									try:
 										await user.remove_roles(muted, reason='Times up.')
 										logch = self.bot.configs[guild.id].get('log.moderation')
