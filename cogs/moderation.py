@@ -777,7 +777,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'DELETE FROM mutes WHERE uid = $1 AND gid = $2;'
-			await self.bot.db.execute(query, user.id, guild.id)
+			await self.bot.db.execute(query, user.id, ctx.guild.id)
 		await self.bot.db.release(con)
 		try:
 			self.mutes[ctx.guild.id].pop(user.id, None)
