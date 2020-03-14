@@ -43,6 +43,7 @@ class Fire(commands.Bot):
         self.config: dict = json.load(open('config.json', 'r'))
         self.configs = {}
         self.overrides: dict = json.load(open('overrides.json', 'r'))
+        self.override_save.start()
         self.premiumGuilds = []
         self.db: asyncpg.pool.Pool = None
         self.realtime_members = True
@@ -159,6 +160,15 @@ class Fire(commands.Bot):
                 await self.loop.run_in_executor(None, func=functools.partial(self.datadog.gauge, 'bot.latency', round(self.latency * 1000)))
             await self.loop.run_in_executor(None, func=functools.partial(self.datadog.gauge, 'bot.guilds', len(self.guilds)))
             await self.loop.run_in_executor(None, func=functools.partial(self.datadog.gauge, 'bot.users', len(self.users)))
+        except Exception:
+            pass
+
+    @tasks.loop(hours=1)
+    async def override_save(self):
+        await self.wait_until_ready()
+        try:
+            with open('overrides.json', 'w') as f:
+                f.write(json.dumps(self.overrides, indent=4))
         except Exception:
             pass
 
