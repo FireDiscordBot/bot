@@ -77,6 +77,7 @@ class Fire(commands.Bot):
 
         # COMMANDS
         self.loadCommands()
+        self.cmdresp = {}
 
         # EVENTS
         self.loadEvents()
@@ -96,6 +97,14 @@ class Fire(commands.Bot):
         if ctx.valid and silent:
             await message.delete()
         return ctx
+
+    def get_message(self, mid: int):
+        if not self.cached_messages:
+            return None
+        found = [m for m in self.cached_messages if m.id == mid]
+        if not found:
+            return None
+        return found[0]
 
     def isadmin(self, user: typing.Union[discord.User, discord.Member]) -> bool:
         if str(user.id) not in self.config['admins']:

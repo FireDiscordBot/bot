@@ -32,13 +32,27 @@ class Context(commands.Context):
     async def error(self, message: str):
         await self.send(f'<:xmark:674359427830382603> {message}')
 
-    async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, nonce=None):
+    async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):
         if content:
             content = str(content).replace('@everyone', u'@\u200beveryone').replace('@here', u'@\u200bhere')
-        return await super().send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after, nonce=nonce)
+        if self.message.id in self.bot.cmdresp and not (file or files) and self.has_override('82c0e0c69cdf44b398beca038c95c021'):
+            resp = self.bot.cmdresp[self.message.id]
+            if resp:
+               try:
+                   return await resp.edit(content=content, tts=tts, embed=embed, delete_after=delete_after)
+               except Exception:
+                   pass
+        resp = await super().send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after)
+        if not delete_after:
+            self.bot.cmdresp[self.message.id] = resp
+        return resp
 
-    async def dm(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, nonce=None):
-        return await self.author.send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after, nonce=nonce)
+    async def dm(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):
+        return await self.author.send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after)
+
+    def has_override(self, build: str = None):
+        build = self.bot.overrides.get(build, {})
+        return self.author.id in build.get('active', [])
 
     # Unfinished permissions system
 
