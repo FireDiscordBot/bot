@@ -16,6 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from discord.ext import commands
+import datetime
 import discord
 
 
@@ -37,7 +38,8 @@ class Context(commands.Context):
             content = str(content).replace('@everyone', u'@\u200beveryone').replace('@here', u'@\u200bhere')
         if self.message.id in self.bot.cmdresp and not (file or files) and self.has_override('82c0e0c69cdf44b398beca038c95c021'):
             resp = self.bot.cmdresp[self.message.id]
-            if resp and self.message.edited_at:
+            edited = self.message.edited_at
+            if resp and edited and edited > (resp.edited_at or self.message.created_at):
                try:
                    await resp.edit(content=content, tts=tts, embed=embed, delete_after=delete_after)
                    return resp
