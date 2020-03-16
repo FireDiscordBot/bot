@@ -34,11 +34,6 @@ class Ready(commands.Cog):
             self.bot.load_extension("cogs.sk1erdiscord")
         except Exception:
             pass
-        configs = await self.bot.db.fetch('SELECT gid FROM config;')
-        for c in configs:
-            if c['gid'] not in self.bot.configs:
-                self.bot.configs[c['gid']] = Config(c['gid'], bot=self.bot, db=self.bot.db)
-            await self.bot.configs[c['gid']].load()
         self.bot.logger.info("$GREEN-------------------------")
         self.bot.logger.info(f"$GREENBot: {self.bot.user}")
         self.bot.logger.info(f"$GREENID: {self.bot.user.id}")

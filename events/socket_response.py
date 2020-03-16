@@ -16,6 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from discord.ext import commands, tasks
+from core.config import Config
 import datetime
 import discord
 import traceback
@@ -32,6 +33,11 @@ class socketResponse(commands.Cog):
     @commands.Cog.listener()
     async def on_socket_response(self, payload):
         t = payload['t']
+        if t == 'GUILD_CREATE':
+            guild = int(payload['d']['id'])
+            if guild not in self.bot.configs:
+                self.bot.configs[guild] = Config(guild, bot=self.bot, db=self.bot.db)
+            await self.bot.configs[guild].load()
         if not t:
             if payload['op'] == 11:
                 t = 'HEARTBEAT'
