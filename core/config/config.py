@@ -29,9 +29,9 @@ options = dict()
 class Config:
     def __init__(self, guild, **kwargs):
         self._bot = kwargs.pop('bot')
-        self._guild = self._bot.get_guild(guild) or discord.Object(guild)
+        self._guild = self._bot.get_guild(guild)
         self._db = kwargs.pop('db')
-        self._data: dict
+        self._data: dict = self.get_default_config()
         self.options = options
 
     @ConfigOpt(name='main.prefix', accepts=str, default='$', options=options)
