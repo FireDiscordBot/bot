@@ -32,7 +32,7 @@ class Help(commands.Cog):
 	async def help(self, ctx):
 		prefix = ctx.prefix.replace('<@444871677176709141> ', '@Fire ').replace('<@!444871677176709141>', '@Fire ')
 		cmdurl = f'https://fire.gaminggeek.space/commands?prefix={quote(prefix)}'
-		embed = discord.Embed(colour=ctx.author.color, description=f'Here\'s some helpful links\n\n[Commands]({cmdurl})\n[Support Server](https://inv.wtf/geek)\n[Invite Me](https://inv.wtf/fire)\n[Donate](https://gaminggeek.dev/patreon)')
+		embed = discord.Embed(colour=ctx.author.color, description=f'Here\'s some helpful links\n\n[Commands]({cmdurl})\n[Support Server](https://inv.wtf/geek)\n[Invite Me](https://inv.wtf/fire)\n[Premium](https://gaminggeek.dev/premium)')
 		embed.set_author(name='Help has arrived', icon_url=str(ctx.me.avatar_url_as(static_format='png', size=2048)))
 		overrides = []
 		for build, override in self.bot.overrides.items():
