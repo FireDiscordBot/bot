@@ -31,8 +31,8 @@ class Config:
         self._bot = kwargs.pop('bot')
         self._guild = self._bot.get_guild(guild)
         self._db = kwargs.pop('db')
-        self._data: dict = self.get_default_config()
         self.options = options
+        self._data: dict = self.get_default_config()
 
     @ConfigOpt(name='main.prefix', accepts=str, default='$', options=options)
     async def prefix(self, value: str):
