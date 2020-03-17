@@ -587,14 +587,14 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		else:
 			days, hours, minutes, seconds = 0, 0, 0, 0
 		if days == 0 and hours == 0 and minutes == 0 and seconds == 0:
-			await self.mute(ctx, user, reason=reason, modlogs=logch)
-		if days == 0 and hours == 0 and minutes == 0 and seconds < 60:
+			return await self.mute(ctx, user, reason=reason, modlogs=logch)
+		elif days == 0 and hours == 0 and minutes == 0 and seconds < 60:
 			return await ctx.error('That time is too short, please specify a longer time!')
 		else:
 			td = datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 			until = datetime.datetime.utcnow() + datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 			reason = parseTime(reason, True)
-			await self.mute(ctx, user, reason=reason, until=until, timedelta=td, modlogs=logch)
+			return await self.mute(ctx, user, reason=reason, until=until, timedelta=td, modlogs=logch)
 
 	@commands.command(description="Warn a user.")
 	@commands.has_permissions(manage_messages=True)
