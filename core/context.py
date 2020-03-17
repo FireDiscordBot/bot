@@ -36,7 +36,7 @@ class Context(commands.Context):
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):
         if content:
             content = str(content).replace('@everyone', u'@\u200beveryone').replace('@here', u'@\u200bhere')
-        if self.message.id in self.bot.cmdresp and not (file or files) and self.has_override('82c0e0c69cdf44b398beca038c95c021'):
+        if self.message.id in self.bot.cmdresp and not (file or files):
             resp = self.bot.cmdresp[self.message.id]
             edited = self.message.edited_at
             if resp and edited and edited > (resp.edited_at or self.message.created_at):
