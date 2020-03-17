@@ -29,17 +29,19 @@ class Message(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        # if isinstance(message.channel, discord.DMChannel):
-        #    ctx = await self.bot.get_context(message)
-        #    return await self.bot.invoke(ctx)
         if message.author.bot:
             return
         if not self.bot.dev:
             await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.gauge, 'bot.messages', self.bot.socketstats['MESSAGE_CREATE']))
         if message.system_content == "":
             return
-        # ctx = await self.bot.get_context(message)
-        # await self.bot.invoke(ctx)
+        cmdresp = self.bot.cmdresp
+        resps = sorted(cmdresp, key=lambda m: cmdresp[m].created_at)
+        while len(cmdresp) > 8000:
+            del cmdresp[resps[0]]
+            del resps[0]
+            if len(cmdresp) <= 8000:
+                break
 
 
 def setup(bot):
