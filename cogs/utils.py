@@ -1046,10 +1046,10 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.guild_only()
 	async def vanityurl(self, ctx, code: str = None):
 		premiumguilds = self.bot.premiumGuilds
-		if not code and not ctx.guild.id in premiumguilds:
+		current = self.bot.get_vanity_gid(ctx.guild.id)
+		if not code and (not ctx.guild.id in premiumguilds or not current):
 			return await ctx.error('You need to provide a code!')
-		elif not code:
-			current = self.bot.get_vanity_gid(ctx.guild.id)
+		elif not code and current:
 			statuses = ['online', 'idle', 'dnd']
 			online = len([m for m in ctx.guild.members if str(m.status) in statuses])
 			gonline = f'⬤ {online:,d} Online'
@@ -1126,7 +1126,8 @@ class utils(commands.Cog, name='Utility Commands'):
 					await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
 			else:
 				await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
-			return await ctx.success(f'Your Vanity URL is {vanity["url"]}')
+			base = 'inv.wtf' if ctx.guild.id in self.bot.premiumGuilds else 'oh-my-god.wtf'
+			return await ctx.success(f'Your Vanity URL is https://{base}/{code}')
 		else:
 			return await ctx.error('Something went wrong...')
 
