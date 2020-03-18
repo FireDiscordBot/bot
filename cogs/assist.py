@@ -19,6 +19,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from discord.ext import commands
 import discord
 import os
+import re
 import asyncio
 import json
 import click
@@ -169,17 +170,22 @@ except Exception as e:
 	credentials = None
 
 grpc_channel = google.auth.transport.grpc.secure_authorized_channel(credentials, http_request, ASSISTANT_API_ENDPOINT)
-gassistant = GoogleAssistant('en-us', 'fire0682-444871677176709141', '287698408855044097', False, grpc_channel, DEFAULT_GRPC_DEADLINE)
+gassistant = GoogleAssistant('en-us', 'fire0682-444871677176709141', '287698408855044097', True, grpc_channel, DEFAULT_GRPC_DEADLINE)
 
 class Assistant(commands.Cog, name='Google Assistant'):
 	def __init__(self, bot):
 		self.bot = bot
 		self.gassistant = gassistant
+		self.htmlre = r'<div class=\"show_text_content\">([\S\s]+?)</div>'
 		self.responses = {}
 
 	def assist(self, user, query):
 		text, html = gassistant.assist_text(query)
-		self.responses[user] = text
+		if html:
+			# with open('gassist.html', 'w') as f:
+			#	f.write(html.decode('utf-8'))
+			html = '\n'.join(re.findall(self.htmlre, html.decode('utf-8'), re.MULTILINE))
+		self.responses[user] = html or text
 
 	@commands.command(description="Ask the Google Assistant a question.")
 	async def google(self, ctx, *, query):
