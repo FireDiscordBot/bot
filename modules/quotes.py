@@ -20,6 +20,7 @@ from jishaku.models import copy_context_with
 from discord.ext import commands
 import datetime
 import discord
+import asyncio
 import typing
 import re
 
@@ -103,6 +104,7 @@ class quotes(commands.Cog, name="Quotes"):
                 if not alt_ctx.valid:
                     return
                 await alt_ctx.command.invoke(alt_ctx)
+                await asyncio.sleep(.5)
 
     @commands.command(description='Quote a message from an id or url')
     async def quote(self, ctx, message: typing.Union[discord.Message, str] = None):
