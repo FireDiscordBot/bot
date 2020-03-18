@@ -959,7 +959,7 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
-		if '--remind' in message.content.lower():
+		if '--remind' in message.content.lower() and not message.author.bot:
 			if message.channel in self.bot.configs[message.guild.id].get('commands.modonly'):
 				if not message.author.permissions_in(message.channel).manage_messages:
 					return
