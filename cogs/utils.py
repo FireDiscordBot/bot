@@ -959,7 +959,9 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
-		if '--remind' in message.content.lower() and not message.author.bot:
+		if self.bot.dev:
+			return
+		if '--remind' in message.content.lower():
 			if message.channel in self.bot.configs[message.guild.id].get('commands.modonly'):
 				if not message.author.permissions_in(message.channel).manage_messages:
 					return
@@ -971,7 +973,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			alt_ctx = await copy_context_with(ctx, content=self.bot.configs[message.guild.id].get('main.prefix') + f'remind {content}')
 			if not alt_ctx.valid:
 				return
-			return await alt_ctx.command.reinvoke(alt_ctx)
+			return await alt_ctx.command.invoke(alt_ctx)
 
 	@commands.command(description='Got a HTTP Error Code? My cat knows what it means.', name='http.cat')
 	async def httpcat(self, ctx, error: int = 200):
