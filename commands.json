@@ -503,7 +503,7 @@
             "purge": {
                 "Description": "Bulk delete messages",
                 "Usage": "{prefix}purge <amount> [<flags>]",
-                "Aliases": null
+                "Aliases": "prune"
             }
 	},
 	"flags": {

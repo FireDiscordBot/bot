@@ -874,7 +874,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name='Scheduled Maintenance', value=f'[{maintenance["name"]}]({maintenance["shortlink"]})\nStatus: **{maintenance["status"].replace("_", " ").capitalize()}**', inline=False)
 		await ctx.send(embed=embed)
 
-	@commands.command(description='Bulk delete messages')
+	@commands.command(description='Bulk delete messages', aliases=['prune'])
 	@commands.has_permissions(manage_messages=True)
 	async def purge(self, ctx, amount: int = -1, *, opt: flags.FlagParser(
 		user=User,
