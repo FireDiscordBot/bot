@@ -44,6 +44,7 @@ class Fire(commands.Bot):
         self.configs = {}
         self.overrides: dict = json.load(open('overrides.json', 'r'))
         self.override_save.start()
+        self.tips = json.load(open('tips.json', 'r'))
         self.premiumGuilds = []
         self.db: asyncpg.pool.Pool = None
         self.realtime_members = True

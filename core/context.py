@@ -18,6 +18,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from discord.ext import commands
 import datetime
 import discord
+import random
 
 
 class Context(commands.Context):
@@ -36,6 +37,8 @@ class Context(commands.Context):
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):
         if content:
             content = str(content).replace('@everyone', u'@\u200beveryone').replace('@here', u'@\u200bhere')
+        if not content and random.randint(0, 25) == 25:
+            content = random.choice(self.bot.tips)
         if self.message.id in self.bot.cmdresp and not (file or files):
             resp = self.bot.cmdresp[self.message.id]
             edited = self.message.edited_at
