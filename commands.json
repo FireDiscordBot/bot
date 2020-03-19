@@ -18,6 +18,11 @@
                 "Usage": "{prefix}invite",
                 "Aliases": null
             },
+            "vote": {
+                "Description": "Sends a link to vote for Fire on top.gg",
+                "Usage": "{prefix}vote",
+                "Aliases": "dbl, top.gg"
+            },
             "oss": {
                 "Description": "Sends my GitHub repo link",
                 "Usage": "{prefix}oss",
