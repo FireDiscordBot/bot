@@ -16,35 +16,39 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from discord.ext import commands
-from fire.push import pushbullet
-from fire import exceptions
-import functools
-import asyncio
 import discord
 import traceback
 
 
-class GuildRemove(commands.Cog):
+class GuildChannelDelete(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_guild_remove(self, guild):
-        fire = self.bot.get_guild(564052798044504084)
-        await fire.edit(description=f'Fire is an open-source, multi-purpose bot with {len(self.bot.commands)} commands and is used in {len(self.bot.guilds)} servers.')
-        self.bot.logger.info(f"$REDFire left the guild $BLUE{guild.name}({guild.id}) $REDwith $BLUE{guild.member_count} $REDmembers! Goodbye o/")
-        try:
-            await pushbullet("link", "Fire left a guild!", f"Fire left {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/", f"https://api.gaminggeek.dev/guild/{guild.id}")
-        except exceptions.PushError as e:
-            self.bot.logger.warn(f'$YELLOWFailed to send guild leave notification!')
+    async def on_guild_channel_delete(self, channel):
+        logch = self.bot.configs[channel.guild.id].get('log.action')
+        if logch:
+            deletedby = None
+            if channel.guild.me.guild_permissions.view_audit_log:
+                async for e in channel.guild.audit_logs(action=discord.AuditLogAction.channel_delete, limit=5):
+                    if e.target.id == channel.id:
+                        deletedby = e.user
+                        break
+            embed = discord.Embed(color=discord.Color.red(), timestamp=channel.created_at, description=f'**Channel deleted: #{channel.name}**')
+            if deletedby:
+                embed.add_field(name='Deleted By', value=f'{deletedby} ({deletedby.id})', inline=False)
+            embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
+            embed.set_footer(text=f"Channel ID: {channel.id} | Guild ID: {channel.guild.id}")
+            try:
+                await logch.send(embed=embed)
+            except Exception:
+                pass
 
 
 def setup(bot):
-    if bot.dev:
-        return
     try:
-        bot.add_cog(GuildRemove(bot))
-        bot.logger.info(f'$GREENLoaded event $BLUEGuildRemove!')
+        bot.add_cog(GuildChannelDelete(bot))
+        bot.logger.info(f'$GREENLoaded event $BLUEGuildChannelDelete!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while loading event $BLUE"GuildRemove"', exc_info=e)
+        bot.logger.error(f'$REDError while adding event $BLUE"GuildChannelDelete"', exc_info=e)

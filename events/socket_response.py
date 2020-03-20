@@ -23,12 +23,12 @@ import traceback
 import json
 
 
-class socketResponse(commands.Cog):
+class SocketRespone(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         if not hasattr(self.bot, 'socketstats'):
             self.bot.socketstats = json.load(open('socketstats.json'))
-        self.saveSocketStats.start()
+        self.save_socket_stats.start()
 
     @commands.Cog.listener()
     async def on_socket_response(self, payload):
@@ -53,15 +53,15 @@ class socketResponse(commands.Cog):
             self.bot.socketstats[t] += 1
 
     @tasks.loop(minutes=2)
-    async def saveSocketStats(self):
+    async def save_socket_stats(self):
         with open('socketstats.json', 'w') as f:
             f.write(json.dumps(self.bot.socketstats))
 
 
 def setup(bot):
     try:
-        bot.add_cog(socketResponse(bot))
-        bot.logger.info(f'$GREENLoaded event $BLUEsocketResponse!')
+        bot.add_cog(SocketRespone(bot))
+        bot.logger.info(f'$GREENLoaded event $BLUESocketRespone!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while loading event $BLUE"socketResponse"', exc_info=e)
+        bot.logger.error(f'$REDError while loading event $BLUE"SocketRespone"', exc_info=e)

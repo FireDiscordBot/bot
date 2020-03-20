@@ -26,7 +26,7 @@ import discord
 import traceback
 
 
-class guildAdd(commands.Cog):
+class GuildAdd(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -48,8 +48,8 @@ def setup(bot):
     if bot.dev:
         return
     try:
-        bot.add_cog(guildAdd(bot))
-        bot.logger.info(f'$GREENLoaded event $BLUEguildAdd!')
+        bot.add_cog(GuildAdd(bot))
+        bot.logger.info(f'$GREENLoaded event $BLUEGuildAdd!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding event $BLUE"guildAdd"', exc_info)
+        bot.logger.error(f'$REDError while adding event $BLUE"GuildAdd"', exc_info=e)

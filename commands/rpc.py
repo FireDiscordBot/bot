@@ -205,7 +205,7 @@ class richPresence(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(richPresence(bot))
-        bot.logger.info(f'$GREENLoaded "richPresence" command!')
+        bot.logger.info(f'$GREENLoaded $BLUE"richPresence" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $BLUE"richPresence"', exc_info=e)
