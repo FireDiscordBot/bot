@@ -36,6 +36,12 @@ class Message(commands.Cog):
     def uuidgobyebye(self, text: str):
         return re.sub(self.uuidregex, '', text, 0, re.MULTILINE)
 
+    async def safe_exc(self, coro, *args, **kwargs):
+        try:
+            await coro(*args, **kwargs)
+        except Exception:
+            pass
+
     @commands.Cog.listener()
     async def on_message(self, message):
         if not self.bot.dev and not message.author.bot:
@@ -63,13 +69,13 @@ class Message(commands.Cog):
         roleids = [r.id for r in message.author.roles]
         if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
             filters = self.bot.get_cog('Filters')
-            with suppress(Exception):
-                await filters.handle_invite(message)
-                await filters.anti_malware(message)
-                await filters.handle_paypal(message)
-                await filters.handle_youtube(message)
-                await filters.handle_twitch(message)
-                await filters.handle_twitter(message)
+            # with suppress(Exception):
+            await self.safe_exc(filters.handle_invite, message)
+            await self.safe_exc(filters.anti_malware, message)
+            await self.safe_exc(filters.handle_paypal, message)
+            await self.safe_exc(filters.handle_youtube, message)
+            await self.safe_exc(filters.handle_twitch, message)
+            await self.safe_exc(filters.handle_twitter, message)
         cmdresp = self.bot.cmdresp
         resps = sorted(cmdresp, key=lambda m: cmdresp[m].created_at)
         while len(cmdresp) > 8000:

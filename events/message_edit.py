@@ -28,6 +28,12 @@ class MessageEdit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    async def safe_exc(self, coro, *args, **kwargs):
+        try:
+            await coro(*args, **kwargs)
+        except Exception:
+            pass
+
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         if not self.bot.dev:
@@ -52,13 +58,13 @@ class MessageEdit(commands.Cog):
         roleids = [r.id for r in message.author.roles]
         if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
             filters = self.bot.get_cog('Filters')
-            with suppress(Exception):
-                await filters.handle_invite(message)
-                await filters.anti_malware(message)
-                await filters.handle_paypal(message)
-                await filters.handle_youtube(message)
-                await filters.handle_twitch(message)
-                await filters.handle_twitter(message)
+            # with suppress(Exception):
+            await self.safe_exc(filters.handle_invite, message)
+            await self.safe_exc(filters.anti_malware, message)
+            await self.safe_exc(filters.handle_paypal, message)
+            await self.safe_exc(filters.handle_youtube, message)
+            await self.safe_exc(filters.handle_twitch, message)
+            await self.safe_exc(filters.handle_twitter, message)
         if logch:
             embed = discord.Embed(color=after.author.color, timestamp=after.created_at, description=f'{after.author.mention} **edited a message in** {after.channel.mention}')
             embed.set_author(name=after.author, icon_url=str(after.author.avatar_url_as(static_format='png', size=2048)))
