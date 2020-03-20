@@ -65,7 +65,6 @@ region = {
 class Settings(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.malware = []
 		self.recentgban = []
 		self.joincache = {}
 		if not hasattr(self.bot, 'invites'):
@@ -96,15 +95,17 @@ class Settings(commands.Cog):
 		self.bot.logger.info(f'$YELLOWLoading common data...')
 		for g in self.bot.guilds:
 			self.joincache[g.id] = []
-			self.raidmsgs[g.id] = None
-			self.msgraiders[g.id] = []
+			message = self.bot.get_cog('Message')
+			message.raidmsgs[g.id] = None
+			message.msgraiders[g.id] = []
+		filters = self.bot.get_cog('Filters')
 		try:
 			malware = await aiohttp.ClientSession().get('https://mirror.cedia.org.ec/malwaredomains/justdomains')
 			malware = await malware.text()
-			self.malware = list(filter(None, malware.split('\n')))
+			filters.malware = list(filter(None, malware.split('\n')))
 		except Exception as e:
 			self.bot.logger.error(f'$REDFailed to fetch malware domains!', exc_info=e)
-			self.malware = []
+			filters.malware = []
 		self.bot.logger.info(f'$GREENFinished loading common data!')
 
 	async def load_aliases(self):
@@ -1285,5 +1286,5 @@ class Settings(commands.Cog):
 		return await ctx.success(f'{command.name} has been {toggle}.')
 
 def setup(bot):
-	bot.add_cog(settings(bot))
+	bot.add_cog(Settings(bot))
 	bot.logger.info(f'$GREENLoaded Settings/Events cog!')

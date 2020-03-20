@@ -22,6 +22,7 @@ from fire.invite import findinvite
 from fire.paypal import findpaypal
 from fire.twitch import findtwitch
 from discord.ext import commands
+import functools
 import datetime
 import discord
 
@@ -49,6 +50,11 @@ class Filters(commands.Cog):
                                     await message.delete()
                                 except Exception:
                                     pass
+                        else:
+                            try:
+                                await message.delete()
+                            except Exception:
+                                pass
                     logch = self.bot.configs[message.guild.id].get('log.action')
                     if logch:
                         embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
