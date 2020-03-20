@@ -152,6 +152,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
 	async def autorole(self, ctx, role: Role = None):
+		if role.position >= ctx.guild.me.top_role.position:
+			return await ctx.error('That role is higher than my top role, I cannot give it to anyone.')
+		if role.managed:
+			return await ctx.error('That role is managed by an integration, I cannot give it to anyone.')
 		if not role:
 			await self.bot.configs[ctx.guild.id].set('mod.autorole', None)
 			return await ctx.success(f'Successfully disabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}')
@@ -184,14 +188,16 @@ class Premium(commands.Cog, name="Premium Commands"):
 		await ctx.message.delete()
 		await ctx.send(f'Raid message set! Anyone who sends that message in the next 5 minutes will be added to the list.\nI will alert you in your raid alerts channel with the list of raiders :)')
 		asyncio.get_event_loop().create_task(self._setraidmsg(ctx.guild.id, msg))
-	
+
 	@commands.command(name='addrank', description='Add a role that users can join through the rank command.')
 	@has_permissions(manage_roles=True)
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
 	async def addrank(self, ctx, *, role: Role):
-		if role.position > ctx.guild.me.top_role.position:
+		if role.position >= ctx.guild.me.top_role.position:
 			return await ctx.error('You cannot add a role that is above my top role.')
+		if role.managed:
+			return await ctx.error('You cannot add a role that is managed by an integration.')
 		try:
 			if role.id in self.joinroles[ctx.guild.id]:
 				return await ctx.error('You cannot add an existing rank.')
@@ -312,6 +318,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 	async def rolepersist(self, ctx, member: Member, *, role: Role):
 		if ctx.guild.id not in self.rolepersists:
 			self.rolepersists[ctx.guild.id] = {}
+		if role.position >= ctx.guild.me.top_role.position:
+			return await ctx.error('That role is higher than my top role, I cannot persist it to anyone')
+		if role.managed:
+			return await ctx.error('That role is managed by an integration, I cannot persist it to anyone')
 		if member.id not in self.rolepersists[ctx.guild.id]:
 			con = await self.bot.db.acquire()
 			async with con.transaction():
@@ -483,7 +493,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 					await member.add_roles(r, reason='Role Persist')
 			except Exception as e:
 				return
-			
+
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
 		broles = []
