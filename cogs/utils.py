@@ -943,7 +943,10 @@ class utils(commands.Cog, name='Utility Commands'):
 						'bot': message.author.bot,
 						'embeds': [e.to_dict() for e in message.embeds]
 					})
-			await channel.purge(limit=amount, check=purgecheck)
+			try:
+				await channel.purge(limit=amount, check=purgecheck)
+			except discord.NotFound:
+				return await ctx.error(f'I couldn\'t delete some messages, maybe you set the amount too high?')
 		else:
 			self.bot.recentpurge[ctx.channel.id] = []
 			async for message in ctx.channel.history(limit=amount):
@@ -954,7 +957,10 @@ class utils(commands.Cog, name='Utility Commands'):
 					'bot': message.author.bot,
 					'embeds': [e.to_dict() for e in message.embeds]
 				})
-			await ctx.channel.purge(limit=amount)
+			try:
+				await ctx.channel.purge(limit=amount)
+			except discord.NotFound:
+				return await ctx.error(f'I couldn\'t delete some messages, maybe you set the amount too high?')
 		await channel.send(f'Successfully deleted **{len(self.bot.recentpurge[ctx.channel.id])}** messages!', delete_after=5)
 
 	@commands.Cog.listener()
