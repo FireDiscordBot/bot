@@ -15,33 +15,76 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+
 from discord.ext import commands
+from contextlib import suppress
 import functools
 import asyncio
 import discord
 import traceback
 
 
-class messageEdit(commands.Cog):
+class MessageEdit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    async def safe_exc(self, coro, *args, **kwargs):
+        try:
+            await coro(*args, **kwargs)
+        except Exception:
+            pass
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         if not self.bot.dev:
             await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.gauge, 'bot.message_edits', self.bot.socketstats['MESSAGE_UPDATE']))
-        if after.author.bot:
+        logch = self.bot.configs[after.guild.id].get('log.action')
+        if after.channel.is_news():
+            if before.flags.crossposted != after.flags.crossposted:
+                if logch:
+                    embed = discord.Embed(color=discord.Color.green(), timestamp=after.created_at, description=f'**A message was published in** {after.channel.mention}')
+                    embed.set_author(name=after.guild.name, icon_url=str(after.guild.icon_url))
+                    embed.add_field(name='Message Author', value=after.author.mention, inline=False)
+                    embed.add_field(name='Message', value=f'[Click Here]({after.jump_url})', inline=False)
+                    embed.set_footer(text=f"Author ID: {after.author.id} | Message ID: {after.id} | Channel ID: {after.channel.id}")
+                    try:
+                        await logch.send(embed=embed)
+                    except Exception:
+                        pass
+        if before.content == after.content or after.author.bot:
             return
-        if before.content == after.content:
-            return
+        message = after
+        excluded = self.bot.configs[message.guild.id].get('excluded.filter')
+        roleids = [r.id for r in message.author.roles]
+        if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
+            filters = self.bot.get_cog('Filters')
+            # with suppress(Exception):
+            await self.safe_exc(filters.handle_invite, message)
+            await self.safe_exc(filters.anti_malware, message)
+            await self.safe_exc(filters.handle_paypal, message)
+            await self.safe_exc(filters.handle_youtube, message)
+            await self.safe_exc(filters.handle_twitch, message)
+            await self.safe_exc(filters.handle_twitter, message)
+        if logch:
+            embed = discord.Embed(color=after.author.color, timestamp=after.created_at, description=f'{after.author.mention} **edited a message in** {after.channel.mention}')
+            embed.set_author(name=after.author, icon_url=str(after.author.avatar_url_as(static_format='png', size=2048)))
+            bcontent = before.system_content[:300] + (before.system_content[300:] and '...')
+            acontent = after.system_content[:300] + (after.system_content[300:] and '...')
+            embed.add_field(name='Before', value=bcontent, inline=False)
+            embed.add_field(name='After', value=acontent, inline=False)
+            embed.set_footer(text=f"Author ID: {after.author.id} | Message ID: {after.id} | Channel ID: {after.channel.id}")
+            try:
+                await logch.send(embed=embed)
+            except Exception:
+                pass
         ctx = await self.bot.get_context(after)
         await self.bot.invoke(ctx)
 
 
 def setup(bot):
     try:
-        bot.add_cog(messageEdit(bot))
-        bot.logger.info(f'$GREENLoaded event $BLUEmessageEdit!')
+        bot.add_cog(MessageEdit(bot))
+        bot.logger.info(f'$GREENLoaded event $BLUEMessageEdit!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while loading event $BLUE"messageEdit"', exc_info=e)
+        bot.logger.error(f'$REDError while loading event $BLUE"MessageEdit"', exc_info=e)

@@ -33,7 +33,7 @@ import re
 import os
 
 
-class commandError(commands.Cog):
+class CommandError(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -125,9 +125,9 @@ class commandError(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(commandError(bot))
-        bot.logger.info(f'$GREENLoaded event $BLUEcommandError!')
+        bot.add_cog(CommandError(bot))
+        bot.logger.info(f'$GREENLoaded event $BLUECommandError!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(
         #     type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while loading event $BLUE"commandError"', exc_info=e)
+        bot.logger.error(f'$REDError while loading event $BLUE"CommandError"', exc_info=e)

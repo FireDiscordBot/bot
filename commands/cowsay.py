@@ -39,7 +39,7 @@ class cowsay(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(cowsay(bot))
-        bot.logger.info(f'$GREENLoaded "cowsay" command!')
+        bot.logger.info(f'$GREENLoaded $BLUE"cowsay" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $BLUE"cowsay"', exc_info=e)

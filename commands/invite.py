@@ -33,7 +33,7 @@ class invite(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(invite(bot))
-        bot.logger.info(f'$GREENLoaded "invite" command!')
+        bot.logger.info(f'$GREENLoaded $BLUE"invite" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $BLUE"invite"', exc_info=e)

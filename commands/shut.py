@@ -33,7 +33,7 @@ class shut(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(shut(bot))
-        bot.logger.info(f'$GREENLoaded "shut" command!')
+        bot.logger.info(f'$GREENLoaded $BLUE"shut" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $BLUE"shut"', exc_info=e)
