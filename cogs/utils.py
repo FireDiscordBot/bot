@@ -720,9 +720,9 @@ class utils(commands.Cog, name='Utility Commands'):
 				if ksoftban:
 					trust = 'Low'
 					ksoftban = await self.bot.ksoft.bans_info(user.id)
-					gban = f'<:xmark:674359427830382603> Banned on [KSoft.Si](https://bans.ksoft.si/user/{user.id}) for {ksoftban.reason} - [Proof]({ksoftban.proof})'
+					gban = f'<:xmark:674359427830382603> Banned on [KSoft.Si](https://bans.ksoft.si/share?user={user.id}) for {ksoftban.reason} - [Proof]({ksoftban.proof})'
 				else:
-					gban = f'<:check:674359197378281472> Not banned on [KSoft.Si](https://bans.ksoft.si/user/{user.id})'
+					gban = f'<:check:674359197378281472> Not banned on [KSoft.Si](https://bans.ksoft.si/share?user={user.id})'
 			except Exception:
 				gban = '<:neutral:674359530074669076> Failed to retrieve global ban info'
 			if hasattr(self.bot, 'chatwatch') and self.bot.chatwatch.connected:
