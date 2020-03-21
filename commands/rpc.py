@@ -185,7 +185,10 @@ class richPresence(commands.Cog):
         try:
             reaction, user = await self.bot.wait_for('reaction_add', check=react_check, timeout=120)
         except asyncio.TimeoutError:
-            return await MSG.clear_reactions()
+            try:
+                return await MSG.clear_reactions()
+            except Exception:
+                return
         if reaction.emoji == '⏹':
             return await MSG.delete()
         elif reaction.emoji == '◀':
