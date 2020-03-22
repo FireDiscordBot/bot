@@ -96,7 +96,10 @@ class Fire(commands.Bot):
         else:
             ctx = await super().get_context(message, **kwargs)
         if ctx.valid and silent:
-            await message.delete()
+            try:
+                await message.delete()
+            except Exception:
+                pass
         return ctx
 
     def get_message(self, mid: int):
