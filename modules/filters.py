@@ -30,6 +30,7 @@ import discord
 class Filters(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.imgext = ['.png', '.jpg', '.gif']
 
     async def handle_invite(self, message):
         codes = findinvite(message.system_content)
@@ -46,15 +47,18 @@ class Filters(commands.Cog):
                         if code.lower() in self.bot.vanity_urls and any(d in message.system_content for d in vanitydomains):
                             invite = self.bot.get_vanity(code)
                             if invite['gid'] != message.guild.id:
-                                try:
-                                    await message.delete()
-                                except Exception:
-                                    pass
+                                if not (any(code + e in message.content for e in self.imgext) and self.bot.isadmin(message.author)):
+                                    try:
+                                        await message.delete()
+                                    except Exception:
+                                        pass
                         else:
                             try:
                                 await message.delete()
                             except Exception:
                                 pass
+                    except discord.Forbidden:
+                        pass
                     logch = self.bot.configs[message.guild.id].get('log.action')
                     if logch:
                         embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
