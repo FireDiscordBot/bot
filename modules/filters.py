@@ -47,16 +47,16 @@ class Filters(commands.Cog):
                         if code.lower() in self.bot.vanity_urls and any(d in message.system_content for d in vanitydomains):
                             invite = self.bot.get_vanity(code)
                             if invite['gid'] != message.guild.id:
-                                if not (any(code + e in message.content for e in self.imgext) and self.bot.isadmin(message.author)):
-                                    try:
-                                        await message.delete()
-                                    except Exception:
-                                        pass
+                                try:
+                                    await message.delete()
+                                except Exception:
+                                    pass
                         else:
-                            try:
-                                await message.delete()
-                            except Exception:
-                                pass
+                            if not (any(f'i.inv.wtf/{code}{e}' in message.content for e in self.imgext) and self.bot.isadmin(message.author)):
+                                try:
+                                    await message.delete()
+                                except Exception:
+                                    pass
                     except discord.Forbidden:
                         pass
                     logch = self.bot.configs[message.guild.id].get('log.action')
