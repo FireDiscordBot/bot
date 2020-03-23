@@ -29,8 +29,8 @@ import os
 async def get_pre(bot, message):
     if isinstance(message.channel, discord.DMChannel):
         if bot.dev:
-            return commands.when_mentioned_or('$', 'dev ', 'Dev ')(bot, message)
-        return commands.when_mentioned_or('$', 'fire ', 'Fire ')(bot, message)
+            return commands.when_mentioned_or('$', 'dev ', 'Dev ', '')(bot, message)
+        return commands.when_mentioned_or('$', 'fire ', 'Fire ', '')(bot, message)
     if message.guild.id not in bot.configs:
         if bot.dev:
             return commands.when_mentioned_or('$', 'dev ', 'Dev ')(bot, message)
