@@ -30,6 +30,7 @@ class GuildRemove(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
+        self.bot.configs.pop(guild.id)
         fire = self.bot.get_guild(564052798044504084)
         await fire.edit(description=f'Fire is an open-source, multi-purpose bot with {len(self.bot.commands)} commands and is used in {len(self.bot.guilds)} servers.')
         self.bot.logger.info(f"$REDFire left the guild $BLUE{guild.name}({guild.id}) $REDwith $BLUE{guild.member_count} $REDmembers! Goodbye o/")
