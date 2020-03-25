@@ -21,7 +21,7 @@ import traceback
 import discord
 
 
-class oss(commands.Cog):
+class OSS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -32,8 +32,8 @@ class oss(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(oss(bot))
-        bot.logger.info(f'$GREENLoaded $BLUE"oss" $GREENcommand!')
+        bot.add_cog(OSS(bot))
+        bot.logger.info(f'$GREENLoaded $BLUE"OSS" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $BLUE"oss', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $BLUE"OSS', exc_info=e)
