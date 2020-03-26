@@ -27,7 +27,7 @@ class Discover(commands.Cog):
 
     @commands.command(name='discover')
     async def discovercmd(self, ctx):
-        await ctx.send(f'You can find Fire\'s public server list at <https://fire.gaminggeek.dev/>\nHint: Use the `public` command to get your server on the list')
+        await ctx.send(f'You can find Fire\'s public server list at <https://fire.gaminggeek.dev/discover>\nHint: Use the `public` command to get your server on the list')
 
 
 def setup(bot):
