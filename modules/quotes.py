@@ -122,8 +122,6 @@ class quotes(commands.Cog, name="Quotes"):
 
         if message.guild:
             if 'DISCOVERABLE' not in message.guild.features:
-                # You can see the message without being in the guild by just lurking through discovery
-                # so a check for explicit permission to read the message isn't really necessary
                 if message.guild != ctx.guild:
                     member = message.guild.get_member(ctx.author.id)
                     if not member:
@@ -137,8 +135,6 @@ class quotes(commands.Cog, name="Quotes"):
                 if not member:
                     return
                 if not member.permissions_in(message.channel).read_messages:
-                    return
-                if not ctx.author.permissions_in(message.channel).read_messages:
                     return
         else:
             if hasattr(ctx.channel, 'recipient') and ctx.channel.recipient.id != ctx.author.id:
