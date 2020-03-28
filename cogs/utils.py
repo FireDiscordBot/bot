@@ -727,35 +727,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					gban = f'<:check:674359197378281472> Not banned on [KSoft.Si](https://bans.ksoft.si/share?user={user.id})'
 			except Exception:
 				gban = '<:neutral:674359530074669076> Failed to retrieve global ban info'
-			if hasattr(self.bot, 'chatwatch') and self.bot.chatwatch.connected:
-				cwbl = ''
-				cwprofile = await self.bot.chatwatch.profile(user.id)
-				if not cwprofile:
-					cwbl = '<:neutral:674359530074669076> Failed to retrieve chatwatch profile'
-				else:
-					if cwprofile['score'] > 80:
-						trust = 'Low'
-						cwbl = f'<:xmark:674359427830382603> **High** chance of spam'
-					if cwprofile['score'] > 50:
-						if trust == 'High':
-							trust = 'Moderate'
-						elif trust == 'Moderate':
-							trust = 'Low'
-						cwbl = f'<a:fireWarning:660148304486727730> **Moderate** chance of spam'
-					if cwprofile['score'] == 50:
-						cwbl = '<:neutral:674359530074669076> **Neutral** chance of spam'
-					else:
-						cwbl = '<:check:674359197378281472> **Low** chance of spam'
-					if cwprofile['whitelisted']:
-						cwbl = f'<:check:674359197378281472> **Whitelisted** on Chatwatch'
-					if cwprofile['blacklisted_reason'] and cwprofile['blacklisted']:
-						trust = 'Low'
-						cwbl = f'<:xmark:674359427830382603> Blacklisted on Chatwatch for **{cwprofile["blacklisted_reason"]}**'
-					if cwprofile['blacklisted_reason'] and not cwprofile['blacklisted']:
-						cwbl = cwbl + f' and was previously blacklisted for **{cwprofile["blacklisted_reason"]}**'
-			elif not hasattr(self.bot, 'chatwatch') or not self.bot.chatwatch.connected:
-				cwbl = '<:neutral:674359530074669076> Not connected to chatwatch'
-			embed.add_field(name=f'» Trust - {trust} (Idea from aero.bot)', value='\n'.join([lban, gban, cwbl]), inline=False)
+			embed.add_field(name=f'» Trust - {trust} (Idea from aero.bot)', value='\n'.join([lban, gban]), inline=False)
 		ack = self.bot.acknowledgements.get(user.id, []) if hasattr(self.bot, 'acknowledgements') else []
 		if ack:
 			embed.add_field(name='» Recognized User', value=', '.join(ack), inline=False)
