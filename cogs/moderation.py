@@ -76,6 +76,9 @@ class StaffCheck(commands.Converter):
 		argument = await Member().convert(ctx, argument)
 		if type(argument) != discord.Member:
 			return False
+		if argument.top_role.position >= ctx.guild.me.top_role.position:
+			await ctx.error('You cannot punish someone with a role higher than or equal to mine')
+			return False
 		if ctx.guild.owner_id == ctx.author.id:
 			return argument
 		permission = argument.guild_permissions.manage_messages
@@ -318,7 +321,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
 			await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'mute', datetime.datetime.utcnow().timestamp() + user.id)
 		await self.bot.db.release(con)
-		await self.loadmodlogs()
 		if until:
 			if ctx.guild.id in self.mutes:
 				self.mutes[ctx.guild.id][user.id] = {
@@ -406,7 +408,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
 				await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'ban', datetime.datetime.utcnow().timestamp() + user.id)
 			await self.bot.db.release(con)
-			await self.loadmodlogs()
 		except discord.Forbidden:
 			await ctx.error("Ban failed. Are you trying to ban someone higher than the bot?")
 
@@ -422,7 +423,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 		if not user:
 			return await ctx.send("You must specify a user")
-		
+
 		await ctx.guild.unban(discord.Object(user.id), reason=f"Unbanned by {ctx.author} for {reason}")
 		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 		if logch:
@@ -443,8 +444,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
 			await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'unban', datetime.datetime.utcnow().timestamp() + user.id)
 		await self.bot.db.release(con)
-		await self.loadmodlogs()
-	
+
 	@commands.command(description="Temporarily restricts access to this server.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(ban_members=True)
@@ -459,14 +459,12 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 		if not user:
 			return await ctx.send("You must specify a user")
-		
+
 		if messages > 7:
-			raise commands.ArgumentParsingError('I can only delete up to 7 days of messages')
-		elif messages < 0:
-			raise commands.ArgumentParsingError('That\'s not a valid number of days. It should be 1-7')
+			messages = 7
 
 		try:
-			await ctx.guild.ban(user, reason=f"Softbanned by {ctx.author} for {reason}", delete_message_days=messages) 
+			await ctx.guild.ban(user, reason=f"Softbanned by {ctx.author} for {reason}", delete_message_days=messages)
 			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
@@ -487,7 +485,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
 				await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'softban', datetime.datetime.utcnow().timestamp() + user.id)
 			await self.bot.db.release(con)
-			await self.loadmodlogs()
 		except discord.Forbidden:
 			await ctx.error("Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
 
@@ -668,7 +665,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 		if not user:
 			return await ctx.send("You must specify a user")
-		
+
 		try:
 			try:
 				await user.send(f'You were kicked from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
@@ -697,7 +694,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
 				await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'kick', datetime.datetime.utcnow().timestamp() + user.id)
 			await self.bot.db.release(con)
-			await self.loadmodlogs()
 		except discord.Forbidden:
 			await ctx.error("Kick failed. Are you trying to kick someone higher than the bot?")
 
@@ -754,7 +750,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 		if not blocked:
 			return await ctx.send("You must specify a user")
-		
+
 		await ctx.channel.set_permissions(blocked, send_messages=False, reason=reason)
 		await ctx.success(f'Successfully blocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}** from chatting in {ctx.channel.mention}.')
 		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
@@ -770,7 +766,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				await logch.send(embed=embed)
 			except Exception:
 				pass
-	
+
 	@commands.command(description="Unmute a user/role who has been blocked in the current channel.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
@@ -786,10 +782,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			blocktype = 'Role'
 		if blocked == False:
 			return
-			
+
 		if not blocked:
 			return await ctx.send("You must specify a user")
-		
+
 		await ctx.channel.set_permissions(blocked, send_messages=None, reason=reason)
 		await ctx.success(f'Successfully unblocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}**. Welcome back!')
 		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
@@ -817,7 +813,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await ctx.trigger_typing()
 		if user == False:
 			return
-			
+
 		if not user:
 			return await ctx.send("You must specify a user")
 
