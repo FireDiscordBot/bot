@@ -27,19 +27,8 @@ config = json.load(open('config.json'))
 class chatwatch(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.responses = {}
         if not hasattr(self.bot, 'chatwatch'):
             self.bot.chatwatch = ChatWatch(config['chatwatch'], self.bot.logger)
-        self.bot.chatwatch.clear_listeners()
-        self.bot.chatwatch.register_listener(self.handle_message)
-
-    async def handle_message(self, message):
-        # print(json.dumps(message.data, indent=2))
-        previous = self.responses.get(int(message.data['user']['user']), {})
-        if previous.get('user', None):
-            if not previous['user']['blacklisted'] and message.data['user']['blacklisted']:
-                self.bot.dispatch('chatwatch_blacklist', message.data)
-        self.responses[int(message.data['user']['user'])] = message.data
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -61,11 +50,6 @@ class chatwatch(commands.Cog):
             }
         }
         await self.bot.chatwatch.send(payload)
-
-    @commands.command(name='cwdebug')
-    async def cwdebug(self, ctx):
-        return await ctx.send(f'```json\n{json.dumps(self.responses.get(ctx.author.id, {"error":"No response found"}))}```')
-
 
 def setup(bot):
     try:
