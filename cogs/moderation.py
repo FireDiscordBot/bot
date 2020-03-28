@@ -36,7 +36,12 @@ sec_regex = re.compile(r'(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second
 
 def parseTime(content, replace: bool = False):
 	if replace:
-		for regex in [r'(?:(?P<days>\d+)(?:d|days|day| days| day))', r'(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))', r'(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))', r'(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))']:
+		for regex in [
+			r'(?:(?P<days>\d+)(?:d|days|day| days| day))',
+			r'(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))',
+			r'(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))',
+			r'(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))'
+		]:
 			content = re.sub(regex, '', content, 0, re.MULTILINE)
 		return content
 	try:
@@ -48,10 +53,10 @@ def parseTime(content, replace: bool = False):
 		return 0, 0, 0, 0
 	time = 0
 	if days or hours or minutes or seconds:
-		days = days.group(1) if days != None else 0
-		hours = hours.group(1) if hours != None else 0
-		minutes = minutes.group(1) if minutes != None else 0
-		seconds = seconds.group(1) if seconds != None else 0
+		days = days.group(1) if days is not None else 0
+		hours = hours.group(1) if hours is not None else 0
+		minutes = minutes.group(1) if minutes is not None else 0
+		seconds = seconds.group(1) if seconds is not None else 0
 		days = int(days) if days else 0
 		if not days:
 			days = 0
@@ -109,11 +114,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.mutes = {}
-		self.warns = {}
-		self.modlogs = {}
 		asyncio.get_event_loop().create_task(self.loadMutes())
-		asyncio.get_event_loop().create_task(self.loadwarns())
-		asyncio.get_event_loop().create_task(self.loadmodlogs())
 		self.tempmuteChecker.start()
 
 	async def __error(self, ctx, error):
@@ -127,7 +128,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		query = 'SELECT * FROM mutes;'
 		mutes = await self.bot.db.fetch(query)
 		for m in mutes:
-			if m['uid'] != None:
+			if m['uid'] is not None:
 				guild = m['gid']
 				if not self.bot.get_guild(guild):
 					continue
@@ -200,59 +201,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 								pass
 		self.bot.logger.info(f'$GREENLoaded mutes!')
 
-	async def loadwarns(self):
-		await self.bot.wait_until_ready()
-		self.bot.logger.info(f'$YELLOWLoading warns...')
-		self.warns = {}
-		query = 'SELECT * FROM modlogs WHERE type = $1;'
-		warns = await self.bot.db.fetch(query, 'warn')
-		for w in warns:
-			guild = w['gid']
-			user = w['uid']
-			try:
-				currentguildwarns = self.warns[guild]
-			except KeyError:
-				self.warns[guild] = {}
-			try:
-				currentuserwarns = self.warns[guild][user]
-			except KeyError:
-				self.warns[guild][user] = []
-			self.warns[guild][user].append({
-				"uid": user,
-				"gid": guild,
-				"reason": w['reason'],
-				"date": w['date'],
-				"caseid": w['caseid']
-			})
-		self.bot.logger.info(f'$GREENLoaded warns!')
-
-	async def loadmodlogs(self):
-		await self.bot.wait_until_ready()
-		self.bot.logger.info(f'$YELLOWLoading modlogs...')
-		self.modlogs = {}
-		query = 'SELECT * FROM modlogs;'
-		logs = await self.bot.db.fetch(query)
-		for l in logs:
-			guild = l['gid']
-			user = l['uid']
-			try:
-				currentguildlogs = self.modlogs[guild]
-			except KeyError:
-				self.modlogs[guild] = {}
-			try:
-				currentuserlogs = self.modlogs[guild][user]
-			except KeyError:
-				self.modlogs[guild][user] = []
-			self.modlogs[guild][user].append({
-				"uid": user,
-				"gid": guild,
-				"type": l['type'],
-				"reason": l['reason'],
-				"date": l['date'],
-				"caseid": l['caseid']
-			})
-		self.bot.logger.info(f'$GREENLoaded modlogs')
-
 	def cog_unload(self):
 		self.tempmuteChecker.cancel()
 
@@ -322,17 +270,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 							await member.add_roles(muted, reason='Muted.')
 						except discord.HTTPException:
 							pass
-
-
-	@commands.command(name='loadmod', description='Load moderation data', hidden=True)
-	async def loadmod(self, ctx):
-		if await self.bot.is_owner(ctx.author):
-			await self.loadMutes()
-			await self.loadwarns()
-			await self.loadmodlogs()
-			await ctx.send('Loaded data!')
-		else:
-			await ctx.send('no.')
 
 	async def mute(self, ctx, user, reason, until = None, timedelta = None, modlogs: TextChannel = None):
 		if not reason:
@@ -642,24 +579,27 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
 			await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'warn', datetime.datetime.utcnow().timestamp() + user.id)
 		await self.bot.db.release(con)
-		await self.loadwarns()
-		await self.loadmodlogs()
 
 	@commands.command(description="View warnings for a user", aliases=['warns'])
 	@commands.has_permissions(manage_messages=True)
 	async def warnings(self, ctx, user: UserWithFallback = None):
 		if not user:
 			user = ctx.author
-		try:
-			if type(user) == discord.User or type(user) == discord.Member:
-				warnings = self.warns[ctx.guild.id][user.id]
-			elif type(user) == int:
-				warnings = self.warns[ctx.guild.id][user]
-		except KeyError:
-			return await ctx.error(f'No warnings found.')
+		warnings = await self.bot.db.fetch(
+			'SELECT * FROM modlogs WHERE uid=$1 AND gid=$2 AND type=$3',
+			user.id,
+			ctx.guild.id,
+			'warn'
+		)
+		if not warnings:
+			return await ctx.error('No warnings found')
 		paginator = WrappedPaginator(prefix='', suffix='')
 		for warn in warnings:
-			paginator.add_line(f'**Case ID**: {warn["caseid"]}\n**User**: {user}\n**Reason**: {warn["reason"]}\n**Date**: {warn["date"]}\n**-----------------**')
+			paginator.add_line(f'**Case ID**: {warn["caseid"]}\n'
+							   f'**User**: {user}\n'
+							   f'**Reason**: {warn["reason"]}\n'
+							   f'**Date**: {warn["date"]}\n'
+							   f'**-----------------**')		
 		embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.utcnow())
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 		await interface.send_to(ctx)
@@ -675,8 +615,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			query = 'DELETE FROM modlogs WHERE type = $1 AND uid = $2 AND gid = $3;'
 			await self.bot.db.execute(query, 'warn', user.id, ctx.guild.id)
 		await self.bot.db.release(con)
-		await self.loadwarns()
-		await self.loadmodlogs()
 		await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**\'s warns have been cleared')
 
 	@commands.command(description="Clear a single warning", aliases=['clearwarning'])
@@ -690,8 +628,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			query = 'DELETE FROM modlogs WHERE type = $1 AND gid = $2 AND caseid = $3;'
 			await self.bot.db.execute(query, 'warn', ctx.guild.id, case)
 		await self.bot.db.release(con)
-		await self.loadwarns()
-		await self.loadmodlogs()
 		await ctx.success(f'Cleared warn!')
 
 	@commands.command(description="View moderation logs for a user")
@@ -699,16 +635,21 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def modlogs(self, ctx, user: UserWithFallback = None):
 		if not user:
 			user = ctx.author
-		try:
-			if type(user) == discord.User or type(user) == discord.Member:
-				mlogs = self.modlogs[ctx.guild.id][user.id]
-			elif type(user) == int:
-				mlogs = self.modlogs[ctx.guild.id][user]
-		except KeyError:
-			return await ctx.error(f'No logs found.')
+		mlogs = await self.bot.db.fetch(
+			'SELECT * FROM modlogs WHERE uid=$1 AND gid=$2',
+			user.id,
+			ctx.guild.id
+		)
+		if not mlogs:
+			return await ctx.error('No modlogs found')
 		paginator = WrappedPaginator(prefix='', suffix='')
 		for log in mlogs:
-			paginator.add_line(f'**Case ID**: {log["caseid"]}\n**Type**: {log["type"].capitalize()}\n**User**: {user}\n**Reason**: {log["reason"]}\n**Date**: {log["date"]}\n**-----------------**')
+			paginator.add_line(f'**Case ID**: {log["caseid"]}\n'
+							   f'**Type**: {log["type"].capitalize()}\n'
+							   f'**User**: {user}\n'
+							   f'**Reason**: {log["reason"]}\n'
+							   f'**Date**: {log["date"]}\n'
+							   f'**-----------------**')
 		embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.utcnow())
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 		await interface.send_to(ctx)

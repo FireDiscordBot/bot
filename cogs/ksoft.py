@@ -38,7 +38,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 	@commands.command(description="Gets a random meme from Reddit")
 	async def meme(self, ctx, sub: str = None):
-		if sub == None:
+		if sub is None:
 			meme = await self.bot.ksoft.random_meme()
 		else:
 			meme = await self.bot.ksoft.random_reddit(sub)
@@ -76,9 +76,9 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 		elif tag.lower() == 'true':
 			nsfw = True
 			tag = random.choice(tags)
-		if tag == None:
+		if tag is None:
 			tag = random.choice(tags)
-			if tag == None:
+			if tag is None:
 				tag = 'dog'
 		else:
 			if tag not in tags:
@@ -91,7 +91,7 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 				tag = 'dog'
 			if tag == 'neko':
 				tag = 'pepe'
-		if nsfw == None:
+		if nsfw is None:
 			nsfw = False
 		img = await self.bot.ksoft.random_image(tag = tag, nsfw = nsfw)
 		if img.nsfw:

@@ -48,7 +48,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 
 	@commands.command(description="Get a player's levelhead info")
 	async def levelhead(self, ctx, player: str = None):
-		if player == None:
+		if player is None:
 			await ctx.send("What user should I check?")
 		else:
 			headers = {
@@ -142,7 +142,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					nstrlevel = re.sub(remcolor, '', proposal['strlevel'], 0, re.IGNORECASE)
 				except Exception:
 					denied = None
-				if denied != None:
+				if denied is not None:
 					embed.add_field(name='Proposed Levelhead', value=f'{nheader}:{nstrlevel}', inline=False)
 					embed.add_field(name='Denied?', value=denied, inline=False)
 				embed.add_field(name="Other items", value=f"Tab: {tab} \nChat: {chat} \nAddon Head Layers: {head}", inline=False)
@@ -153,7 +153,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 
 	@commands.command(description="Get a player's modcore profile")
 	async def modcore(self, ctx, player: str = None):
-		if player == None:
+		if player is None:
 			return await ctx.error("You must provide a player to check their profile")
 		uuid = await self.bot.get_cog('Hypixel Commands').nameToUUID(player)
 		if not uuid:
@@ -185,7 +185,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 
 	@commands.command(description="Check stuff related to Hyperium")
 	async def hyperium(self, ctx, player: str = None, task: str = None):
-		if player == None:
+		if player is None:
 			await ctx.send("I can either check a player's info or `stats`")
 			return
 		headers = {
@@ -342,7 +342,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					capes.append('Custom Cape')
 				if 'CUSTOM_CAPE_IMAGE' in cosmetics:
 					capes.append('Custom Cape')
-				if framesplus != None:
+				if framesplus is not None:
 					capes.append('Frames+ Cape')
 				embed = discord.Embed(title=f"Hyperium Purchases for {player}", colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/471405283562881073.png")
@@ -374,7 +374,7 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 					embed.add_field(name="Purchased Capes", value=', '.join(capes), inline=False)
 				else:
 					embed.add_field(name="Purchased Capes", value='No Capes', inline=False)
-				if currentcape != None:
+				if currentcape is not None:
 					embed.add_field(name="Current Cape", value=f'[{player}\'s Cape]({currentcape})', inline=False)
 				await ctx.send(embed=embed)
 		if task == "status":
@@ -403,12 +403,12 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			if pstaff:
 				embed.add_field(name="Dot Color", value=pdot, inline=False)
 			await ctx.send(embed=embed)
-		if task == None:
+		if task is None:
 			await ctx.send("What should I do? I can check `status` or `purchases`")
 
 	@commands.command(name='mod', description="Get info about a Sk1er mod", aliases=['mods'])
 	async def skiermod(self, ctx, *, mod: str = None):
-		if mod == None:
+		if mod is None:
 			return await ctx.error("You need to provide a mod name")
 		headers = {
 			'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',

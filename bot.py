@@ -76,7 +76,7 @@ for cog in extensions:
 @commands.has_permissions(administrator=True)
 @commands.guild_only()
 async def prefix(ctx, pfx: str = None):
-    if pfx == None:
+    if pfx is None:
         return await ctx.error("Missing argument for prefix! (Note: For prefixes with a space, surround it in \"\")")
     if ctx.me.mention in pfx:
         return await ctx.warning(f'{ctx.me.mention} is a global prefix, you can use it anywhere. There\'s no need to set the server prefix to it')

@@ -422,9 +422,9 @@ class Premium(commands.Cog, name="Premium Commands"):
 	# 				roleid = rr["role"]
 	# 				msgid = rr["message"]
 	# 				emote = rr["emote"]
-	# 				if roleid != None:
-	# 					if msgid != None:
-	# 						if emote != None:
+	# 				if roleid is not None:
+	# 					if msgid is not None:
+	# 						if emote is not None:
 	# 							emotecheck = None
 	# 							try:
 	# 								emote = int(emote)
@@ -436,7 +436,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	# 									emotecheck = True
 	# 							if emotecheck:
 	# 								role = discord.utils.get(guild.roles, id=roleid)
-	# 								if role != None:
+	# 								if role is not None:
 	# 									try:
 	# 										await user.add_roles(role, reason='Reaction Role')
 	# 									except Exception:
@@ -455,9 +455,9 @@ class Premium(commands.Cog, name="Premium Commands"):
 	# 				roleid = rr["role"]
 	# 				msgid = rr["message"]
 	# 				emote = rr["emote"]
-	# 				if roleid != None:
-	# 					if msgid != None:
-	# 						if emote != None:
+	# 				if roleid is not None:
+	# 					if msgid is not None:
+	# 						if emote is not None:
 	# 							emotecheck = None
 	# 							try:
 	# 								emote = int(emote)
@@ -469,7 +469,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	# 									emotecheck = True
 	# 							if emotecheck:
 	# 								role = discord.utils.get(guild.roles, id=roleid)
-	# 								if role != None:
+	# 								if role is not None:
 	# 									try:
 	# 										await user.remove_roles(role, reason='Reaction Role')
 	# 									except Exception:
@@ -482,7 +482,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		if member.guild.id in self.bot.premiumGuilds:
 			try:
 				role = self.bot.configs[member.guild.id].get('mod.autorole')
-				if role != None:
+				if role is not None:
 					await member.add_roles(role, reason='Auto-Role')
 			except Exception:
 				pass

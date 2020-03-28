@@ -398,7 +398,7 @@ class Settings(commands.Cog):
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
 		if before.nick != after.nick:
-			if after.nick != None and f'John Doe {after.discriminator}' in after.nick:
+			if after.nick is not None and f'John Doe {after.discriminator}' in after.nick:
 				return
 			try:
 				if self.bot.configs[after.guild.id].get('mod.autodecancer'):

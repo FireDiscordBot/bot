@@ -127,11 +127,11 @@ def parseTime(content, replace: bool = False):
 		return 0, 0, 0, 0
 	time = 0
 	if months or days or hours or minutes or seconds:
-		months = months.group(1) if months != None else 0
-		days = days.group(1) if days != None else 0
-		hours = hours.group(1) if hours != None else 0
-		minutes = minutes.group(1) if minutes != None else 0
-		seconds = seconds.group(1) if seconds != None else 0
+		months = months.group(1) if months is not None else 0
+		days = days.group(1) if days is not None else 0
+		hours = hours.group(1) if hours is not None else 0
+		minutes = minutes.group(1) if minutes is not None else 0
+		seconds = seconds.group(1) if seconds is not None else 0
 		days = int(days) if days else 0
 		if not days:
 			days = 0
@@ -444,7 +444,7 @@ class utils(commands.Cog, name='Utility Commands'):
 								else:
 									continue
 								list_ids = word.split('/')
-								if len(list_ids) == 3 and urlbranch != None:
+								if len(list_ids) == 3 and urlbranch is not None:
 									try:
 										message = await self.bot.http.get_message(list_ids[1], list_ids[2])
 										channel = self.bot.get_channel(int(message["channel_id"]))
@@ -495,7 +495,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def blacklist_add(self, ctx, user: UserWithFallback = None, reason: str = 'bad boi', permanent: bool = False):
 		if not self.bot.isadmin(ctx.author):
 			return
-		if user == None:
+		if user is None:
 			await ctx.send('You need to provide a user to add to the blacklist!')
 		else:
 			query = 'SELECT * FROM blacklist WHERE uid = $1;'
@@ -537,7 +537,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	async def blacklist_remove(self, ctx, user: UserWithFallback = None):
 		if not self.bot.isadmin(ctx.author):
 			return
-		if user == None:
+		if user is None:
 			await ctx.send('You need to provide a user to remove from the blacklist!')
 		else:
 			query = 'SELECT * FROM blacklist WHERE uid = $1;'

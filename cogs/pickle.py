@@ -106,7 +106,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 
 	@commands.command(description="Get hypixel stats")
 	async def hypixel(self, ctx, arg1: str = None, arg2: str = None):
-		if arg1 == None:
+		if arg1 is None:
 			msg = await ctx.send("I need an IGN, `key` or `watchdog`", delete_after=5)
 			return
 		arg1 = arg1.lower()
@@ -142,7 +142,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			await ctx.send(embed=embed)
 			return
 		if arg1.lower() == 'leaderboard':
-			if arg2 == None:
+			if arg2 is None:
 				return
 				#Make available leaderboards embed
 			elif arg2.lower() == 'level':
@@ -342,7 +342,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow())
 				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 				return await interface.send_to(ctx)
-		if arg2 == None:
+		if arg2 is None:
 			cleaned = discord.utils.escape_mentions(discord.utils.escape_markdown(arg1))
 			msg = await ctx.send(f"Requesting info about {cleaned} from the Hypixel API!")
 			channel = ctx.message.channel
@@ -408,7 +408,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					img.save(buf, format='PNG')
 					buf.seek(0)
 					customtag = discord.File(buf, 'imaginereadingthefilename.png')
-				if arg2 == None:
+				if arg2 is None:
 					msg = await ctx.send(f"Retrieving {discord.utils.escape_mentions(discord.utils.escape_markdown(p['displayname']))}'s info...")
 					uuid = player.UUID
 					embed = discord.Embed(title=f"{discord.utils.escape_markdown(p['displayname'])}'s Info", colour=color, timestamp=datetime.datetime.utcnow())
