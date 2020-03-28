@@ -104,7 +104,7 @@ permissions = {
 	'view_audit_log': 'View Logs'
 }
 
-dehoistchars = 'abcdefghijklmnopqrstuvwxyz'
+dehoistchars = '1234567890abcdefghijklmnopqrstuvwxyz'
 
 month_regex = re.compile(r'(?:me in |in )?(?:(?P<months>\d+)(?:mo|months|month| months| month))(?: about | that )?')
 day_regex = re.compile(r'(?:me in |in )?(?:(?P<days>\d+)(?:d|days|day| days| day))(?: about | that )?')
@@ -350,14 +350,10 @@ class utils(commands.Cog, name='Utility Commands'):
 					'code': code,
 					'clicks': clicks,
 					'links': links,
-					'url': f'https://oh-my-god.wtf/{code}',
+					'url': f'https://inv.wtf/{code}',
 					'inviteurl': f'https://discord.gg/{invite}'
 				}
 		self.bot.logger.info(f'$GREENLoaded vanity urls & redirects!')
-		api = self.bot.get_cog('Fire API')
-		if api:
-			self.bot.logger.info(f'$YELLOWLoading redirect embeds...')
-			self.bot.loop.create_task(api.loadredirembed(self.bot.redirects))
 
 	async def loadtags(self):
 		await self.bot.wait_until_ready()
@@ -567,15 +563,18 @@ class utils(commands.Cog, name='Utility Commands'):
 		'VERIFIED': '[Verified](https://dis.gd/verified)',
 		'COMMERCE': '[Store Channels](https://dis.gd/sell-your-game)',
 		'NEWS': '[Announcement Channels](https://support.discordapp.com/hc/en-us/articles/360032008192)',
-		'FEATUREABLE': '[Featurable](https://discordapp.com/activity)',
+		'FEATURABLE': '[Featurable](https://discordapp.com/activity)',
 		'DISCOVERABLE': '[Discoverable](https://discordapp.com/guild-discovery) [(Discoverable Guidelines)](https://support.discordapp.com/hc/en-us/articles/360035969312)',
+		'ENABLED_DISCOVERABLE_BEFORE': 'Enabled Discoverable Before',
 		'PUBLIC': '[Public](https://support.discordapp.com/hc/en-us/articles/360035969312-Public-Server-Guidelines)',
+		'WELCOME_SCREEN_ENABLED': 'Welcome Screen',
 		'VANITY_URL': 'Vanity URL',
 		'ANIMATED_ICON': 'Animated Icon',
 		'BANNER': 'Banner',
 		'INVITE_SPLASH': 'Invite Splash',
 		'MORE_EMOJI': 'More Emoji',
 		'VIP_REGIONS': 'VIP Regions (Deprecated)',
+		'RELAY_ENABLED': 'Relay Enabled (?)',
 		# CUSTOM FEATURES
 		'PREMIUM': '<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)'
 	}
@@ -607,7 +606,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name="» Members", value=f'⬤ {preview["approximate_presence_count"]:,d} Online & ⭘ {preview["approximate_member_count"]:,d} Members', inline=False)
 			embed.add_field(name="» Description", value=preview['description'] or 'No description set.', inline=False)
 			embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - discord.utils.snowflake_time(gid), max_units=2) + ' ago', inline=True)
-			features = ', '.join([self.featureslist[f] for f in preview['features'] if f in self.featureslist])
+			features = ', '.join([self.featureslist.get(f, f) for f in preview['features']])
 			if features and features != '':
 				embed.add_field(name="» Features", value=features, inline=False)
 			if preview['discovery_splash'] or preview['splash']:
@@ -634,7 +633,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Notifications", value=notifs[str(guild.default_notifications)], inline=True)
 		embed.add_field(name="» Multi-Factor Auth", value=bool(guild.mfa_level), inline=True)
 		embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - guild.created_at, max_units=2) + ' ago', inline=True)
-		features = ', '.join([self.featureslist[f] for f in guild.features if f in self.featureslist])
+		features = ', '.join([self.featureslist.get(f, f) for f in guild.features])
 		if features and features != '':
 			embed.add_field(name="» Features", value=features, inline=False)
 		roles = []
@@ -718,7 +717,10 @@ class utils(commands.Cog, name='Utility Commands'):
 			try:
 				ksoftban = await self.bot.ksoft.bans_check(user.id)
 				if ksoftban:
-					trust = 'Low'
+					if trust == 'Low':
+						trust = 'Very Low'
+					else:
+						trust = 'Low'
 					ksoftban = await self.bot.ksoft.bans_info(user.id)
 					gban = f'<:xmark:674359427830382603> Banned on [KSoft.Si](https://bans.ksoft.si/share?user={user.id}) for {ksoftban.reason} - [Proof]({ksoftban.proof})'
 				else:
@@ -734,22 +736,22 @@ class utils(commands.Cog, name='Utility Commands'):
 					if cwprofile['score'] > 80:
 						trust = 'Low'
 						cwbl = f'<:xmark:674359427830382603> **High** chance of spam'
-					elif cwprofile['score'] > 50:
+					if cwprofile['score'] > 50:
 						if trust == 'High':
 							trust = 'Moderate'
 						elif trust == 'Moderate':
 							trust = 'Low'
 						cwbl = f'<a:fireWarning:660148304486727730> **Moderate** chance of spam'
-					elif cwprofile['score'] == 50:
+					if cwprofile['score'] == 50:
 						cwbl = '<:neutral:674359530074669076> **Neutral** chance of spam'
+					else:
+						cwbl = '<:check:674359197378281472> **Low** chance of spam'
 					if cwprofile['whitelisted']:
 						cwbl = f'<:check:674359197378281472> **Whitelisted** on Chatwatch'
-					elif cwprofile['blacklisted_reason'] and cwprofile['blacklisted']:
+					if cwprofile['blacklisted_reason'] and cwprofile['blacklisted']:
 						trust = 'Low'
 						cwbl = f'<:xmark:674359427830382603> Blacklisted on Chatwatch for **{cwprofile["blacklisted_reason"]}**'
-					if not cwbl:
-						cwbl = f'<:check:674359197378281472> **Low** chance of spam'
-					elif cwprofile['blacklisted_reason'] and not cwprofile['blacklisted']:
+					if cwprofile['blacklisted_reason'] and not cwprofile['blacklisted']:
 						cwbl = cwbl + f' and was previously blacklisted for **{cwprofile["blacklisted_reason"]}**'
 			elif not hasattr(self.bot, 'chatwatch') or not self.bot.chatwatch.connected:
 				cwbl = '<:neutral:674359530074669076> Not connected to chatwatch'
@@ -1047,7 +1049,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		await self.loadremind()
 		return await ctx.success(f'Reminder set for {humanfriendly.format_timespan(datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours))} from now')
 
-	@commands.command(description='Creates a vanity invite for your Discord using https://oh-my-god.wtf/')
+	@commands.command(description='Creates a vanity invite for your Discord using https://inv.wtf/')
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def vanityurl(self, ctx, code: str = None):
@@ -1061,7 +1063,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			gonline = f'⬤ {online:,d} Online'
 			gmembers = f'⭘ {len(ctx.guild.members):,d} Members'
 			desc = self.bot.configs[ctx.guild.id].get('main.description') or f'Check out {ctx.guild} on Discord'
-			desc = f'[{ctx.guild}]({current.get("url", "https://oh-my-god.wtf/")})\n{desc}\n\n{gonline} & {gmembers}'
+			desc = f'[{ctx.guild}]({current.get("url", "https://inv.wtf/")})\n{desc}\n\n{gonline} & {gmembers}'
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=desc)
 			attach = None
 			if not ctx.guild.splash_url and not ctx.guild.banner_url and not ctx.guild.id == 564052798044504084:
@@ -1092,11 +1094,11 @@ class utils(commands.Cog, name='Utility Commands'):
 						image = 'attachment://splashyboi.png'
 				if ctx.guild.id == 564052798044504084:
 					image = 'https://cdn.discordapp.com/app-assets/444871677176709141/store/630360840251506742.png?size=320'
-					#please join my discord and boost so I can get an invite splash, https://oh-my-god.wtf/fire thank
+					#please join my discord and boost so I can get an invite splash, https://inv.wtf/firebot thank
 				embed.set_image(url=str(image))
 			embed.add_field(name='Clicks', value=current['clicks'])
 			embed.add_field(name='Links', value=current['links'])
-			embed.add_field(name='URL', value=current['url'].replace('oh-my-god', 'inv'), inline=False)
+			embed.add_field(name='URL', value=current['url'], inline=False)
 			if attach:
 				return await ctx.send(embed=embed, file=attach)
 			else:
@@ -1132,8 +1134,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
 			else:
 				await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
-			base = 'inv.wtf' if ctx.guild.id in self.bot.premiumGuilds else 'oh-my-god.wtf'
-			return await ctx.success(f'Your Vanity URL is https://{base}/{code}')
+			return await ctx.success(f'Your Vanity URL is https://inv.wtf/{code}')
 		else:
 			return await ctx.error('Something went wrong...')
 

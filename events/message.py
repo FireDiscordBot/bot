@@ -76,13 +76,6 @@ class Message(commands.Cog):
             await self.safe_exc(filters.handle_youtube, message)
             await self.safe_exc(filters.handle_twitch, message)
             await self.safe_exc(filters.handle_twitter, message)
-        cmdresp = self.bot.cmdresp
-        resps = sorted(cmdresp, key=lambda m: cmdresp[m].created_at)
-        while len(cmdresp) > 8000:
-            del cmdresp[resps[0]]
-            del resps[0]
-            if len(cmdresp) <= 8000:
-                break
 
 
 def setup(bot):

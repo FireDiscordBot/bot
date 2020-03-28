@@ -37,10 +37,10 @@ class Context(commands.Context):
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):
         if content:
             content = str(content).replace('@everyone', u'@\u200beveryone').replace('@here', u'@\u200bhere')
-        if not content and random.randint(0, 20) == 10:
+        if not content and random.randint(0, 20) == 10 and self.has_override('ab27d28671a645a9ba40187ddd111488'):
             content = '**PROTIP:** ' + random.choice(self.bot.tips)
-        if self.message.id in self.bot.cmdresp and not (file or files):
-            resp = self.bot.cmdresp[self.message.id]
+        if not (file or files):
+            resp = discord.utils.get(self.bot.cached_messages, id=self.bot.cmdresp.get(self.message.id, 0))
             edited = self.message.edited_at
             if resp and edited and edited > (resp.edited_at or self.message.created_at):
                try:
@@ -48,9 +48,11 @@ class Context(commands.Context):
                    return resp
                except Exception:
                    pass
+            elif not resp:
+                self.bot.cmdresp.pop(self.message.id, 0)
         resp = await super().send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after)
         if not delete_after and not (file or files):
-            self.bot.cmdresp[self.message.id] = resp
+            self.bot.cmdresp[self.message.id] = resp.id
         return resp
 
     async def dm(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):

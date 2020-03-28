@@ -25,7 +25,7 @@ class publiccmd(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(description='Makes the guild visible on https://fire.gaminggeek.space/discover')
+    @commands.command(description='Makes the guild visible on https://fire.gaminggeek.dev/discover')
     @commands.has_permissions(manage_guild=True)
     async def public(self, ctx):
         current = self.bot.configs[ctx.guild.id].get('utils.public')
@@ -34,8 +34,8 @@ class publiccmd(commands.Cog):
             return await ctx.error(f'You must set a vanity url before your guild can be public')
         current = await self.bot.configs[ctx.guild.id].set('utils.public', not current)
         if current:
-            return await ctx.success(f'Your guild is now public & visible on <https://fire.gaminggeek.space/discover>.'
-                                     f'\nPeople will be able to use your guild\'s vanity url (<https://oh-my-god.wtf/{vanitys[0]}>) to join')
+            return await ctx.success(f'Your guild is now public & visible on <https://fire.gaminggeek.dev/discover>.'
+                                     f'\nPeople will be able to use your guild\'s vanity url (<https://inv.wtf/{vanitys[0]}>) to join')
         else:
             return await ctx.success(f'Your guild is no longer public and will no longer show on the Fire website')
 

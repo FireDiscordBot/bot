@@ -28,6 +28,11 @@
                 "Usage": "{prefix}oss",
                 "Aliases": "opensource"
             },
+            "discover": {
+                "Description": "Links to Fire's public servers page",
+                "Usage": "{prefix}discover",
+                "Aliases": null
+            },
             "rpc": {
                 "Description": "View someone's rich presence",
                 "Usage": "{prefix}rpc [<member>]",
@@ -247,9 +252,9 @@
                 "Usage": "{prefix}settings",
                 "Aliases": "setup"
             },
-            "setlogs": {
-                "Description": "Set a channel for logging",
-                "Usage": "{prefix}setlogs <channel>",
+            "logs": {
+                "Description": "Set the channel(s) for logging",
+                "Usage": "{prefix}logs <type> <channel>",
                 "Aliases": null
             },
             "description": {
@@ -469,7 +474,7 @@
                 "Aliases": null
             },
             "vanityurl": {
-                "Description": "Creates a vanity invite for your Discord using [https://oh-my-god.wtf/](https://oh-my-god.wtf/)",
+                "Description": "Creates a vanity invite for your Discord using inv.wtf",
                 "Usage": "{prefix}vanityurl [<code>/\"disable\"]",
                 "Aliases": null
             },
@@ -635,7 +640,7 @@
                 "Aliases": null
             },
             "redirect": {
-                "Description": "Create a redirect to any website using inv.wtf, e.g. inv.wtf/fire. Use `$redirect <slug> delete` to delete the redirect.",
+                "Description": "Create a redirect to any website using inv.wtf, e.g. inv.wtf/bot. Use `$redirect <slug> delete` to delete the redirect.",
                 "Usage": "{prefix}redirect <slug> <url>",
                 "Aliases": null
             }
