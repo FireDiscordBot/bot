@@ -37,8 +37,6 @@ class chatwatch(commands.Cog):
         ctx = await self.bot.get_context(message)
         if ctx.valid:
             return
-        if message.author.id in self.responses and self.responses[message.author.id]['user']['whitelisted']:
-            return
         payload = {
             "event": "message_ingest",
             "data": {
