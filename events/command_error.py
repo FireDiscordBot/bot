@@ -78,6 +78,10 @@ class CommandError(commands.Cog):
             td = datetime.timedelta(seconds=error.retry_after)
             return await ctx.error(f'This command is on cooldown, please wait {humanfriendly.format_timespan(td)}', delete_after=5)
 
+        if isinstance(error, commands.MaxConcurrencyReached):
+            # this is an epic gamer feature, perfect for the google command
+            return await ctx.error('You must wait for the command to finish before you can run it again!')
+
         errorstr = replaceinvite(str(error))
         errorstr = re.sub(r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)', 'BLOCKED URL', errorstr, 0, re.MULTILINE)
 
