@@ -19,13 +19,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from discord.ext import commands
 import discord
 import os
-import re
 import asyncio
 import json
 import click
 import functools
-import datetime
-from jishaku.cog import copy_context_with
+from arsenic import get_session
+from arsenic import browsers
+from arsenic import services
 import google.auth.transport.grpc
 import google.auth.transport.requests
 import google.oauth2.credentials
@@ -175,26 +175,32 @@ gassistant = GoogleAssistant('en-us', 'fire0682-444871677176709141', '2876984088
 class Assistant(commands.Cog, name='Google Assistant'):
 	def __init__(self, bot):
 		self.bot = bot
-		self.gassistant = gassistant
-		self.htmlre = r'<div class=\"show_text_content\">([\S\s]+?)</div>'
 		self.responses = {}
+		self.google = gassistant
+		self.service = services.Chromedriver()
+		self.browser = browsers.Chrome(chromeOptions={
+			'args': ['--headless', '--disable-gpu']
+		})
 
 	def assist(self, user, query):
-		text, html = gassistant.assist_text(query)
-		if html:
-			# with open('gassist.html', 'w') as f:
-			#	f.write(html.decode('utf-8'))
-			html = '\n'.join(re.findall(self.htmlre, html.decode('utf-8'), re.MULTILINE))
-		self.responses[user] = html or text
+		text, html = self.google.assist_text(query)
+		self.responses[user] = html or False
 
 	@commands.command(description="Ask the Google Assistant a question.")
+	@commands.max_concurrency(1, per=commands.BucketType.user)
 	async def google(self, ctx, *, query):
 		await ctx.channel.trigger_typing()
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.assist, ctx.author.id, query))
 		if ctx.author.id not in self.responses:
 			return await ctx.send(f'<a:okaygoogle:661951491082551306> Something went wrong. Try again later')
-		await ctx.send(f'<a:okaygoogle:661951491082551306> {self.responses[ctx.author.id]}')
-		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'gassist.responses'))
+		async with get_session(service, browser) as session:
+			await session.set_window_size(1920, 1080)
+			await session.get(f'https://api.gaminggeek.dev/assist/{ctx.author.id}')
+			await session.execute_script('document.body.style.backgroundImage = \'url("https://picsum.photos/1920/1080")\';')
+			await ctx.send(file=discord.File((await session.get_screenshot()), filename='google.png'))
+			await session.close()
+		return await ctx.error('If you\'re seeing this, something went wrong I guess ¯\_(ツ)_/¯')
+
 
 def setup(bot):
 	if credentials:
