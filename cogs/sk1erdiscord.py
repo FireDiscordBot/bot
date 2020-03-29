@@ -16,7 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import datetime
 import aiohttp
 import json
@@ -52,6 +52,19 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		self.secrets = r'(club\.sk1er\.mods\.levelhead\.auth\.MojangAuth|api\.sk1er\.club\/auth|LoginPacket|SentryAPI\.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :)'
 		self.emailre = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
 		self.urlre = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
+		self.description_updater.start()
+
+	@tasks.loop(minutes=30)
+	async def description_updater(self):
+		try:
+			m = (await (await aiohttp.ClientSession().get('https://api.sk1er.club/mods_analytics')).json())['unique']
+			h = (await (await aiohttp.ClientSession().get('https://api.hyperium.cc/users')).json())['all']
+			await self.guild.edit(description=f'The official Discord for Sk1er LLC mods (used by {m:,d} players) & Hyperium (used by {h:,d} players)')
+		except Exception as e:
+			self.bot.logger.warn(f'Description update task for {self.guild} failed.', exc_info=e)
+
+	async def cog_unload(self):
+		self.description_updater.cancel()
 
 	async def cog_check(self, ctx: commands.Context):
 		if ctx.guild.id == 411619823445999637:
