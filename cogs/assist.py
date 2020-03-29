@@ -193,12 +193,18 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		await self.bot.loop.run_in_executor(None, func=functools.partial(self.assist, ctx.author.id, query))
 		if ctx.author.id not in self.responses:
 			return await ctx.send(f'<a:okaygoogle:661951491082551306> Something went wrong. Try again later')
-		async with get_session(service, browser) as session:
-			await session.set_window_size(1920, 1080)
-			await session.get(f'https://api.gaminggeek.dev/assist/{ctx.author.id}')
-			await session.execute_script('document.body.style.backgroundImage = \'url("https://picsum.photos/1920/1080")\';')
+		async with get_session(self.service, self.browser) as session:
+			await session.set_window_size(1366, 768)
+			sub = 'devapi' if self.bot.dev else 'api'
+			await session.get(f'https://{sub}.gaminggeek.dev/assist/{ctx.author.id}')
+			try:
+				await session.execute_script('document.body.style.backgroundImage = \'url("https://picsum.photos/1366/768")\';')
+			except Exception:
+				pass
+				# await ctx.error('script did an oopsie')
+			await asyncio.sleep(1.5)
 			await ctx.send(file=discord.File((await session.get_screenshot()), filename='google.png'))
-			await session.close()
+			return await session.close()
 		return await ctx.error('If you\'re seeing this, something went wrong I guess ¯\_(ツ)_/¯')
 
 
