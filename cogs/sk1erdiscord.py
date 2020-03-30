@@ -54,12 +54,13 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		self.urlre = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
 		self.description_updater.start()
 
-	@tasks.loop(minutes=30)
+	@tasks.loop(minutes=5)
 	async def description_updater(self):
 		try:
-			m = (await (await aiohttp.ClientSession().get('https://api.sk1er.club/mods_analytics')).json())['unique']
-			h = (await (await aiohttp.ClientSession().get('https://api.hyperium.cc/users')).json())['all']
-			await self.guild.edit(description=f'The official Discord for Sk1er LLC mods (used by {m:,d} players) & Hyperium (used by {h:,d} players)')
+			m = (await (await aiohttp.ClientSession().get('https://api.sk1er.club/mods_analytics')).json())['combined_total']
+			m += (await (await aiohttp.ClientSession().get('https://api.autotip.pro/counts')).json())['total']
+			m += (await (await aiohttp.ClientSession().get('https://api.hyperium.cc/users')).json())['all']
+			await self.guild.edit(description=f'The Official Discord for Sk1er & Sk1er Mods ({m:,d} total players)')
 		except Exception as e:
 			self.bot.logger.warn(f'Description update task for {self.guild} failed.', exc_info=e)
 
