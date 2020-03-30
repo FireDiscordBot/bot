@@ -177,9 +177,9 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		self.bot = bot
 		self.responses = {}
 		self.google = gassistant
-		self.service = services.Chromedriver()
+		self.service = services.Chromedriver(log_file=os.devnull)
 		self.browser = browsers.Chrome(chromeOptions={
-			'args': ['--headless', '--disable-gpu', '--silent', '--log-path=/home/geek/.pm2/logs/chromedriver.log']
+			'args': ['--headless', '--disable-gpu', '--disable-logging']
 		})
 
 	def assist(self, user, query):
