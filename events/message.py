@@ -44,8 +44,6 @@ class Message(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if not self.bot.dev and not message.author.bot:
-            await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.gauge, 'bot.messages', self.bot.socketstats['MESSAGE_CREATE']))
         if not isinstance(message.author, discord.Member):
             return
         if message.author.bot:

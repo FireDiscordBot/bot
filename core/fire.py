@@ -16,7 +16,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from logging.handlers import TimedRotatingFileHandler
-from datadog import initialize, statsd, ThreadStats
 from jishaku.modules import resolve_extensions
 import core.coloredformat as colorformat
 from discord.ext import commands, tasks
@@ -54,7 +53,7 @@ class Fire(commands.AutoShardedBot):
         self.premiumGuilds = []
         self.db: asyncpg.pool.Pool = None
         self.realtime_members = True
-        self.dev = False
+        self.dev = kwargs.pop('dev', False)
 
         # CRAB
         self.crab = '🦀'
@@ -68,19 +67,9 @@ class Fire(commands.AutoShardedBot):
         stdout.setFormatter(colorformat.ColoredFormatter(COLOR_FORMAT))
         self.logger.addHandler(stdout)
 
-        # SENTRY AND DATADOG
-        self.datadog: ThreadStats = None
+        # SENTRY
         if 'sentry' in self.config:
             sentry_sdk.init(self.config['sentry'])
-        if 'datadogapi' in self.config and 'datadogapp' in self.config:
-            datadogopt = {
-                'api_key': self.config['datadogapi'],
-                'app_key': self.config['datadogapp']
-            }
-            initialize(**datadogopt)
-            self.datadog = ThreadStats()
-            self.datadog.start()
-            self.datadog_ping.start()
 
         # INFLUX
         self.influx = InfluxDBClient(db='fire')
@@ -171,19 +160,6 @@ class Fire(commands.AutoShardedBot):
             for key in extra:
                 scope.set_tag(key, extra[key])
             sentry_sdk.capture_exception(error)
-
-    @tasks.loop(seconds=1)
-    async def datadog_ping(self):
-        if self.dev:
-            return
-        await self.wait_until_ready()
-        try:
-            if isinstance(self.latency, float):
-                await self.loop.run_in_executor(None, func=functools.partial(self.datadog.gauge, 'bot.latency', round(self.latency * 1000)))
-            await self.loop.run_in_executor(None, func=functools.partial(self.datadog.gauge, 'bot.guilds', len(self.guilds)))
-            await self.loop.run_in_executor(None, func=functools.partial(self.datadog.gauge, 'bot.users', len(self.users)))
-        except Exception:
-            pass
 
     @tasks.loop(hours=1)
     async def override_save(self):

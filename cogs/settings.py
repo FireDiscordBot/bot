@@ -235,7 +235,6 @@ class Settings(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
-		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.join'))
 		premium = self.bot.premiumGuilds
 		if member.guild.id in premium:
 			self.bot.dispatch('membercacheadd', member.guild.id, member.id)
@@ -320,7 +319,6 @@ class Settings(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):
-		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'members.leave'))
 		if self.bot.configs[member.guild.id].get('greet.leavemsg'):
 			leavechan = self.bot.configs[member.guild.id].get('greet.leavechannel')
 			leavemsg = self.bot.configs[member.guild.id].get('greet.leavemsg')

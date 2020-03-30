@@ -309,7 +309,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			nodm = False
 		except discord.HTTPException:
 			nodm = True
-		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.mutes'))
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			if until:
@@ -402,7 +401,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				except Exception:
 					pass
 			await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been banished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
-			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.bans'))
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
@@ -438,7 +436,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			except Exception:
 				pass
 		await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unbanished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
-		await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.unbans'))
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
@@ -479,7 +476,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					pass
 			await ctx.guild.unban(user, reason="Temporarily Banned")
 			await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been soft-banned.")
-			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.softbans'))
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
@@ -688,7 +684,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				except Exception:
 					pass
 			await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been kicked.')
-			await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'moderation.kicks'))
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'

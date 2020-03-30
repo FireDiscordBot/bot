@@ -22,18 +22,18 @@ import discord
 import traceback
 
 
-class socketStats(commands.Cog):
+class SocketStats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
     async def socketstats(self, ctx):
-        if not hasattr(self.bot, 'socketstats'):
+        if not hasattr(self.bot, 'stats'):
             return await ctx.error(f'Socket stats are not loaded')
         delta = datetime.datetime.utcnow() - self.bot.launchtime
         minutes = delta.total_seconds() / 60
-        total = sum(self.bot.socketstats.values())
-        stats = [f'[{k}] {v:,d}' for k, v in sorted(self.bot.socketstats.items(), key=lambda t: self.bot.socketstats[t[0]])]
+        total = sum(self.bot.stats['socket'].values())
+        stats = [f'[{k}] {v:,d}' for k, v in sorted(self.bot.stats['socket'].items(), key=lambda t: self.bot.stats['socket'][t[0]])]
         stats.reverse()
         paginator = WrappedPaginator(prefix='```ini', suffix='```', max_size=1000)
         paginator.add_line(f'{total:,d} events seen since January 20th 2020')
@@ -45,7 +45,7 @@ class socketStats(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(socketStats(bot))
+        bot.add_cog(SocketStats(bot))
         bot.logger.info(f'$GREENLoaded $BLUE"socketstats" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

@@ -31,7 +31,6 @@ class CommandCompletion(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_completion(self, ctx):
-        await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.increment, 'commands.used'))
         if ctx.command.name in self.watchedcmds:
             if ctx.guild:
                 logch = self.bot.configs[ctx.guild.id].get('log.action')
