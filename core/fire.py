@@ -72,7 +72,15 @@ class Fire(commands.AutoShardedBot):
             sentry_sdk.init(self.config['sentry'])
 
         # INFLUX
-        self.influx = InfluxDBClient(db='fire')
+        if 'influx_user' in self.config and 'influx_pass' in self.config:
+            self.influx = InfluxDBClient(
+                db='firedev' if self.dev else 'fire',
+                username=self.config['influx_user'],
+                password=self.config['influx_pass']
+            )
+
+        # MODULES
+        self.loadModules()
 
         # COMMANDS
         self.loadCommands()
@@ -136,16 +144,18 @@ class Fire(commands.AutoShardedBot):
                 # errortb = ''.join(traceback.format_exception(
                 #     type(e), e, e.__traceback__))
                 self.logger.error(f'$REDError while loading $BLUE{ext}', exc_info=e)
-        for ext in resolve_extensions(self, 'modules.*'):
+
+    def loadEvents(self):
+        for ext in resolve_extensions(self, 'events.*'):
             try:
                 self.load_extension(ext)
             except Exception as e:
                 # errortb = ''.join(traceback.format_exception(
                 #     type(e), e, e.__traceback__))
-                self.logger.error(f'$REDError while loading $BLUE{ext}', exc_info=e)
+                self.logger.error(f'$REDError while loading {ext}', exc_info=e)
 
-    def loadEvents(self):
-        for ext in resolve_extensions(self, 'events.*'):
+    def loadModules(self):
+        for ext in resolve_extensions(self, 'modules.*'):
             try:
                 self.load_extension(ext)
             except Exception as e:

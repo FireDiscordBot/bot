@@ -16,6 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from core.influx import (
+    Shards,
     Guilds,
     Users,
     Ping,
@@ -44,9 +45,11 @@ class Stats(commands.Cog):
         self.bot.stats['commands']['session'] = 0
         self.bot.stats['errors']['session'] = 0
         self.save_stats.start()
+        self.send_stats.start()
 
-    async def cog_unload(self):
+    def cog_unload(self):
         self.save_stats.cancel()
+        self.send_stats.cancel()
 
     @commands.Cog.listener()
     async def on_socket_response(self, payload):
@@ -62,7 +65,7 @@ class Stats(commands.Cog):
             elif payload['op'] == 10:
                 t = 'HELLO'  # hi
             else:
-                self.bot.logger.warning(f'$REDUnknown event, $BLUE{t}\n$REDPayload: $BLUE{payload}')
+                self.bot.logger.warn(f'$REDUnknown event, $BLUE{t}\n$REDPayload: $BLUE{payload}')
                 return
         if t not in self.bot.stats['socket']:
             self.bot.logger.info(f'$GREENFound new event, $BLUE{t}')
@@ -85,11 +88,21 @@ class Stats(commands.Cog):
         with open('stats.json', 'w') as f:
             f.write(json.dumps(self.bot.stats))
 
-    @tasks.loop(seconds=8)
+    @tasks.loop(seconds=1)
     async def send_stats(self):
         if not hasattr(self.bot, 'influx'):
             return
+        await self.bot.wait_until_ready()
         try:
+            dst = datetime.timedelta(hours=1)
+            when = str(datetime.datetime.utcnow() + dst)
+            for s in self.bot.shards.values():
+                sh = Shards(
+                    when=when,
+                    shard=s.id,
+                    shard_id=s.id
+                )
+                await self.bot.influx.write(sh)
             shards = {
                 s.id: {
                     'guilds': 0,
@@ -98,7 +111,7 @@ class Stats(commands.Cog):
                         'total': 0
                     },
                     'ping': round(s.ws.latency * 1000)
-                } for s in self.bot.shards}
+                } for s in self.bot.shards.values()}
             for g in self.bot.guilds:
                 shards[g.shard_id]['guilds'] += 1
                 shards[g.shard_id]['users']['total'] += g.member_count
@@ -107,45 +120,46 @@ class Stats(commands.Cog):
                 shards[g.shard_id]['users']['online'] += len(online)
             for sid, data in shards.items():
                 g = Guilds(
-                    when=datetime.datetime.utcnow(),
+                    when=when,
                     shard=sid,
                     guilds=data['guilds']
                 )
                 await self.bot.influx.write(g)
                 u = Users(
-                    when=datetime.datetime.utcnow(),
+                    when=when,
                     shard=sid,
                     total=data['users']['total'],
                     online=data['users']['online']
                 )
                 await self.bot.influx.write(u)
                 p = Ping(
-                    when=datetime.datetime.utcnow(),
+                    when=when,
                     shard=sid,
                     heartbeat=data['ping']
                 )
                 await self.bot.influx.write(p)
             sr = SocketResponses(
-                when=datetime.datetime.utcnow(),
+                when=when,
                 shard=0,
                 responses=sum(self.bot.stats['socket'].values())
             )
             await self.bot.influx.write(sr)
             c = Commands(
-                when=datetime.datetime.utcnow(),
+                when=when,
                 shard=0,
                 total=self.bot.stats['commands']['total'],
                 session=self.bot.stats['commands']['session']
             )
             await self.bot.influx.write(c)
             e = Errors(
-                when=datetime.datetime.utcnow(),
+                when=when,
                 shard=0,
                 total=self.bot.stats['errors']['total'],
                 session=self.bot.stats['errors']['session']
             )
             await self.bot.influx.write(c)
-
+        except Exception as e:
+            self.bot.logger.warn(f'$YELLOWFailed to send to influx!', exc_info=e)
 
 
 def setup(bot):

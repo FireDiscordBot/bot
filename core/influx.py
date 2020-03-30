@@ -21,59 +21,67 @@ from dataclasses import dataclass
 
 @lineprotocol
 @dataclass
-class Guilds:
-    when: TIMEDT
+class Shards:
+    when: TIMESTR
     shard: TAG
-    guilds: int
+    shard_id: INT
+
+
+@lineprotocol
+@dataclass
+class Guilds:
+    when: TIMESTR
+    shard: TAG
+    guilds: INT
 
 
 @lineprotocol
 @dataclass
 class Users:
-    when: TIMEDT
+    when: TIMESTR
     shard: TAG
-    total: int
-    online: int
+    total: INT
+    online: INT
 
 
 @lineprotocol
 @dataclass
 class Ping:
-    when: TIMEDT
+    when: TIMESTR
     shard: TAG
-    heartbeat: int
+    heartbeat: INT
 
 
 @lineprotocol
 @dataclass
 class SocketResponses:
-    when: TIMEDT
+    when: TIMESTR
     shard: TAG
-    responses: int
+    responses: INT
 
 
 @lineprotocol
 @dataclass
 class Commands:
-    when: TIMEDT
+    when: TIMESTR
     shard: TAG
-    total: int
-    session: int
+    total: INT
+    session: INT
 
 
 @lineprotocol
 @dataclass
 class Errors:
-    when: TIMEDT
+    when: TIMESTR
     shard: TAG
-    total: int
-    session: int
+    total: INT
+    session: INT
 
 
 # @lineprotocol
 # @dataclass
 # class Memory:
-#     when: TIMEDT
+#     when: TIMESTR
 #     shard: TAG
-#     total: int
-#     used: int
+#     total: INT
+#     used: INT
