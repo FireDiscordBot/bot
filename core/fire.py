@@ -19,8 +19,9 @@ from logging.handlers import TimedRotatingFileHandler
 from datadog import initialize, statsd, ThreadStats
 from jishaku.modules import resolve_extensions
 import core.coloredformat as colorformat
-from sentry_sdk import push_scope
 from discord.ext import commands, tasks
+from aioinflux import InfluxDBClient
+from sentry_sdk import push_scope
 from .context import Context
 from .config import Config
 import functools
@@ -35,10 +36,15 @@ import json
 import sys
 
 
-class Fire(commands.Bot):
+class Fire(commands.AutoShardedBot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.launchtime = datetime.datetime.utcnow()
+
+        # SHARDING
+        self.shard_count = 4
+        self.shard_ids = [0, 1, 2, 3]
+
         # COMMON ATTRIBUTES
         self.config: dict = json.load(open('config.json', 'r'))
         self.configs = {}
@@ -75,6 +81,9 @@ class Fire(commands.Bot):
             self.datadog = ThreadStats()
             self.datadog.start()
             self.datadog_ping.start()
+
+        # INFLUX
+        self.influx = InfluxDBClient(db='fire')
 
         # COMMANDS
         self.loadCommands()
