@@ -38,7 +38,7 @@ class MessageEdit(commands.Cog):
     async def on_message_edit(self, before, after):
         if not self.bot.dev:
             await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.datadog.gauge, 'bot.message_edits', self.bot.socketstats['MESSAGE_UPDATE']))
-        if not after.guild and before.content == after.content or after.author.bot:
+        if not after.guild and not (before.content == after.content or after.author.bot):
             ctx = await self.bot.get_context(after)
             return await self.bot.invoke(ctx)
         logch = self.bot.configs[after.guild.id].get('log.action')
