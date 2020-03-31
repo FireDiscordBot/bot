@@ -179,7 +179,7 @@ class Stats(commands.Cog):
             mem = Memory(
                 when=when,
                 shard=0,
-                used=(process.memory_info().rss / 1024) / 1000
+                used=round((process.memory_info().rss / 1024) / 1000)
             )
             await self.bot.influx.write(mem)
         except Exception as e:
