@@ -40,10 +40,6 @@ class Fire(commands.AutoShardedBot):
         super().__init__(*args, **kwargs)
         self.launchtime = datetime.datetime.utcnow()
 
-        # SHARDING
-        self.shard_count = 4
-        self.shard_ids = [0, 1, 2, 3]
-
         # COMMON ATTRIBUTES
         self.config: dict = json.load(open('config.json', 'r'))
         self.configs = {}
