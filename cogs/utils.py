@@ -1096,9 +1096,9 @@ class utils(commands.Cog, name='Utility Commands'):
 					self.bot.logger.error(f'$REDUnable to send Vanity URL to Slack!', exc_info=e)
 					if 'vanityapiurl' not in config:
 						config['vanityurlapi'] = 'https://http.cat/404'
-					await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
+					await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `https://inv.wtf/{vanity["code"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
 			else:
-				await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `{vanity["url"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
+				await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `https://inv.wtf/{vanity["code"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
 			return await ctx.success(f'Your Vanity URL is https://inv.wtf/{code}')
 		else:
 			return await ctx.error('Something went wrong...')
