@@ -34,8 +34,8 @@ class Help(commands.Cog):
 		cmdurl = f'https://fire.gaminggeek.space/commands?prefix={quote(prefix)}'
 		embed = discord.Embed(colour=ctx.author.color, description=f'Here\'s some helpful links\n\n'
 									   f'[Commands]({cmdurl})\n'
-									   f'[Support Server](https://inv.wtf/geek)\n'
-									   f'[Invite Me](https://inv.wtf/fire)\n'
+									   f'[Support Server](https://inv.wtf/fire)\n'
+									   f'[Invite Me](https://inv.wtf/bot)\n'
 									   f'[Vote for me](https://fire-is-the.best)\n'
 									   f'[Premium](https://gaminggeek.dev/premium)')
 		embed.set_author(name='Help has arrived', icon_url=str(ctx.me.avatar_url_as(static_format='png', size=2048)))
