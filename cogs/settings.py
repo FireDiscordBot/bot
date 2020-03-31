@@ -650,7 +650,7 @@ class Settings(commands.Cog):
 					await logch.send(embed=embed)
 				except Exception:
 					pass
-			if before.description != after.description:
+			if before.description != after.description and after.id != 411619823445999637:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**Guild description was changed**')
 				embed.add_field(name='Before', value=before.description, inline=False)
 				embed.add_field(name='After', value=after.description, inline=False)
