@@ -30,8 +30,6 @@ import os
 import typing
 import re
 import asyncpg
-import functools
-import strgen
 import asyncio
 import aiohttp
 import humanfriendly
@@ -43,7 +41,6 @@ from PIL import ImageFilter
 from PIL import ImageFont
 from PIL import ImageDraw
 from io import BytesIO
-from gtts import gTTS
 from fire.invite import findinvite
 from fire.push import pushover
 from fire.exceptions import PushError
@@ -349,9 +346,7 @@ class utils(commands.Cog, name='Utility Commands'):
 					'invite': invite,
 					'code': code,
 					'clicks': clicks,
-					'links': links,
-					'url': f'https://inv.wtf/{code}',
-					'inviteurl': f'https://discord.gg/{invite}'
+					'links': links
 				}
 		self.bot.logger.info(f'$GREENLoaded vanity urls & redirects!')
 
@@ -1065,45 +1060,15 @@ class utils(commands.Cog, name='Utility Commands'):
 			desc = self.bot.configs[ctx.guild.id].get('main.description') or f'Check out {ctx.guild} on Discord'
 			desc = f'[{ctx.guild}]({current.get("url", "https://inv.wtf/")})\n{desc}\n\n{gonline} & {gmembers}'
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=desc)
-			attach = None
-			if not ctx.guild.splash_url and not ctx.guild.banner_url and not ctx.guild.id == 564052798044504084:
+			if not ctx.guild.splash_url and not ctx.guild.banner_url:
 				embed.set_thumbnail(url=str(ctx.guild.icon_url))
 			else:
-				image = ctx.guild.splash_url or ctx.guild.banner_url
-				if 'PARTNERED' in ctx.guild.features or 'VERIFIED' in ctx.guild.features:
-					if ctx.guild.splash_url:
-						splashraw = await ctx.guild.splash_url.read()
-					elif ctx.guild.banner_url:
-						splashraw = await ctx.guild.banner_url.read()
-					if splashraw:
-						if 'PARTNERED' in ctx.guild.features:
-							badge = await aiohttp.ClientSession().get('https://cdn.discordapp.com/emojis/647415490226159617.png?size=32')
-							badgeraw = await badge.read()
-						elif 'VERIFIED' in ctx.guild.features:
-							badge = await aiohttp.ClientSession().get('https://cdn.discordapp.com/emojis/647415489764524062.png?size=32')
-							badgeraw = await badge.read()
-						s = Image.open(BytesIO(splashraw))
-						s = s.resize((320, 180))
-						if badgeraw:
-							b = Image.open(BytesIO(badgeraw))
-							s.paste(b, (6, 6), b)
-						buf = BytesIO()
-						s.save(buf, format='PNG')
-						buf.seek(0)
-						attach = discord.File(buf, 'splashyboi.png')
-						image = 'attachment://splashyboi.png'
-				if ctx.guild.id == 564052798044504084:
-					image = 'https://cdn.discordapp.com/app-assets/444871677176709141/store/630360840251506742.png?size=320'
-					#please join my discord and boost so I can get an invite splash, https://inv.wtf/firebot thank
-				embed.set_image(url=str(image))
+				embed.set_image(url=str(ctx.guild.splash_url or ctx.guild.banner_url))
 			embed.add_field(name='Clicks', value=current['clicks'])
 			embed.add_field(name='Links', value=current['links'])
-			embed.add_field(name='URL', value=current['url'], inline=False)
-			if attach:
-				return await ctx.send(embed=embed, file=attach)
-			else:
-				return await ctx.send(embed=embed)
-		if code.lower() == 'disable':
+			embed.add_field(name='URL', value=f'https://inv.wtf/{current["code"]}', inline=False)
+			return await ctx.send(embed=embed)
+		if code.lower() in ['remove', 'delete', 'true', 'yeet', 'disable']:
 			await self.deletevanity(ctx)
 			return await ctx.success('Vanity URL deleted!')
 		if not re.fullmatch(r'[a-zA-Z0-9]+', code):
@@ -1141,7 +1106,7 @@ class utils(commands.Cog, name='Utility Commands'):
 	@commands.command(name='redirect', description='Creates a custom redirect for a URL using https://inv.wtf/')
 	@commands.has_permissions(administrator=True)
 	@commands.guild_only()
-	async def makeredirect(self, ctx, slug: str = None, url: str = None, delete: bool = False):
+	async def makeredirect(self, ctx, slug: str = None, url: str = None):
 		premiumguilds = self.bot.premiumGuilds
 		if not ctx.guild.id in premiumguilds:
 			return await ctx.error('This feature is premium only! You can learn more at <https://gaminggeek.dev/premium>')
@@ -1150,8 +1115,6 @@ class utils(commands.Cog, name='Utility Commands'):
 		if not url:
 			return await ctx.error('You must provide a url!')
 		if url.lower() in ['remove', 'delete', 'true', 'yeet', 'disable']:
-			delete = True
-		if delete:
 			current = self.get_redirect(slug.lower())
 			if current['uid'] != ctx.author.id:
 				return await ctx.error('You can only delete your own redirects!')
@@ -1166,8 +1129,6 @@ class utils(commands.Cog, name='Utility Commands'):
 		if len(slug) < 3 or len(slug) > 20:
 			return await ctx.error('The slug needs to be 3-20 characters!')
 		exists = self.bot.get_vanity(slug.lower())
-		if exists and exists['gid'] not in premiumguilds:
-			exists = False
 		redirexists = self.bot.get_redirect(slug.lower())
 		if exists or redirexists:
 			return await ctx.error('This slug is already in use!')
@@ -1192,7 +1153,11 @@ class utils(commands.Cog, name='Utility Commands'):
 				return await ctx.error('No tags found.')
 			if not tagname:
 				taglist = ', '.join(taglist)
-				embed = discord.Embed(title=f'{ctx.guild.name}\'s tags', color=ctx.author.color, description=taglist)
+				embed = discord.Embed(
+					title=f'{ctx.guild.name}\'s tags',
+					color=ctx.author.color,
+					description=taglist
+				)
 				return await ctx.send(embed=embed)
 			else:
 				tag = taglist[tagname.lower()] if tagname.lower() in taglist else False
@@ -1276,7 +1241,6 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.command(name='fetchactivity', description='Get a member\'s activity in json')
 	async def fetchactivity(self, ctx, member: Member = None):
-		"""PFXfetchactivity [<member>]"""
 		if not member:
 			member = ctx.author
 		try:
@@ -1285,22 +1249,9 @@ class utils(commands.Cog, name='Utility Commands'):
 			for act in a:
 				activities.append(act.to_dict())
 			ajson = json.dumps(activities, indent=2).replace('`', '\`')
-			await ctx.send('```json\n{}```'.format(ajson)) #i dont want to use format() but im forced to
+			await ctx.send('```json\n{}```'.format(ajson))
 		except Exception:
 			return await ctx.send('I couldn\'t get that member\'s activity...')
-
-	def gtts(self, text: str):
-		fp = strgen.StringGenerator("[\d\w]{20}").render()
-		tts = gTTS(text)
-		tts.save(f'{fp}.mp3')
-		return fp
-	
-	@commands.command(description='Make Google TTS say something!')
-	async def tts(self, ctx, *, text: str):
-		fp = await self.bot.loop.run_in_executor(None, functools.partial(self.gtts, text))
-		ttsfile = discord.File(f'{fp}.mp3', f'{ctx.author}.mp3')
-		await ctx.send(file=ttsfile)
-		os.remove(f'{fp}.mp3')
 		
 def setup(bot):
 	bot.add_cog(utils(bot))

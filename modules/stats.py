@@ -22,15 +22,22 @@ from core.influx import (
     Ping,
     SocketResponses,
     Commands,
-    Errors
-    # Memory
+    Errors,
+    Messages,
+    Memory
 )
 from discord.ext import commands, tasks
 from core.config import Config
+import traceback
+import aiofiles
 import datetime
 import discord
-import traceback
+import psutil
 import json
+import os
+
+
+process = psutil.Process(os.getpid())
 
 
 class Stats(commands.Cog):
@@ -38,8 +45,9 @@ class Stats(commands.Cog):
         self.bot = bot
         if not hasattr(self.bot, 'stats'):
             self.bot.stats = json.load(open('stats.json'))
-        self.bot.stats['commands'] = {'session': 0, 'total': 0}
-        self.bot.stats['errors'] = {'session':0,'total':0}
+        self.bot.stats['commands'] = 0
+        self.bot.stats['messages'] = 0
+        self.bot.stats['errors'] = 0
         self.save_stats.start()
         self.send_stats.start()
 
@@ -71,18 +79,21 @@ class Stats(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        self.bot.stats['commands']['total'] += 1
-        self.bot.stats['commands']['session'] += 1
+        self.bot.stats['commands'] += 1
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        self.bot.stats['errors']['total'] += 1
-        self.bot.stats['errors']['session'] += 1
+        self.bot.stats['errors'] += 1
 
-    @tasks.loop(minutes=1)
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        self.bot.stats['messages'] += 1
+
+    @tasks.loop(seconds=5)
     async def save_stats(self):
-        with open('stats.json', 'w') as f:
-            f.write(json.dumps(self.bot.stats))
+        f = await aiofiles.open('stats.json', 'w')
+        await f.write(json.dumps(self.bot.stats))
+        await f.close()
 
     @tasks.loop(seconds=4)
     async def send_stats(self):
@@ -90,7 +101,7 @@ class Stats(commands.Cog):
             return
         await self.bot.wait_until_ready()
         try:
-            dst = datetime.timedelta(hours=1)
+            dst = datetime.timedelta(hours=1)  # gotta love daylight savings
             when = str(datetime.datetime.utcnow() + dst)
             for s in self.bot.shards.values():
                 sh = Shards(
@@ -102,6 +113,7 @@ class Stats(commands.Cog):
             shards = {
                 s.id: {
                     'guilds': 0,
+                    'unavailable': 0,
                     'users': {
                         'online': 0,
                         'total': 0
@@ -110,6 +122,8 @@ class Stats(commands.Cog):
                 } for s in self.bot.shards.values()}
             for g in self.bot.guilds:
                 shards[g.shard_id]['guilds'] += 1
+                if g.unavailable:
+                    shards[g.shard_id]['unavailable'] += 1
                 shards[g.shard_id]['users']['total'] += g.member_count
                 statuses = ['online', 'dnd']
                 online = [m for m in g.members if str(m.status) in statuses]
@@ -118,7 +132,8 @@ class Stats(commands.Cog):
                 g = Guilds(
                     when=when,
                     shard=sid,
-                    guilds=data['guilds']
+                    guilds=data['guilds'],
+                    unavailable=data['unavailable']
                 )
                 await self.bot.influx.write(g)
                 u = Users(
@@ -143,19 +158,30 @@ class Stats(commands.Cog):
             c = Commands(
                 when=when,
                 shard=0,
-                total=self.bot.stats['commands']['total'],
-                session=self.bot.stats['commands']['session']
+                total=self.bot.stats['commands']
             )
-            self.bot.stats['commands'] = {'session': 0, 'total': 0}
+            self.bot.stats['commands'] = 0
             await self.bot.influx.write(c)
+            m = Messages(
+                when=when,
+                shard=0,
+                total=self.bot.stats['messages']
+            )
+            self.bot.stats['messages'] = 0
+            await self.bot.influx.write(m)
             e = Errors(
                 when=when,
                 shard=0,
-                total=self.bot.stats['errors']['total'],
-                session=self.bot.stats['errors']['session']
+                total=self.bot.stats['errors']
             )
-            self.bot.stats['errors'] = {'session': 0, 'total': 0}
-            await self.bot.influx.write(c)
+            self.bot.stats['errors'] = 0
+            await self.bot.influx.write(e)
+            mem = Memory(
+                when=when,
+                shard=0,
+                used=(process.memory_info().rss / 1024) / 1000
+            )
+            await self.bot.influx.write(mem)
         except Exception as e:
             self.bot.logger.warn(f'$YELLOWFailed to send to influx!', exc_info=e)
 

@@ -66,7 +66,6 @@ class Commands:
     when: TIMESTR
     shard: TAG
     total: INT
-    session: INT
 
 
 @lineprotocol
@@ -75,13 +74,19 @@ class Errors:
     when: TIMESTR
     shard: TAG
     total: INT
-    session: INT
 
 
-# @lineprotocol
-# @dataclass
-# class Memory:
-#     when: TIMESTR
-#     shard: TAG
-#     total: INT
-#     used: INT
+@lineprotocol
+@dataclass
+class Messages:
+    when: TIMESTR
+    shard: TAG
+    total: INT
+
+
+@lineprotocol
+@dataclass
+class Memory:
+    when: TIMESTR
+    shard: TAG
+    used: INT

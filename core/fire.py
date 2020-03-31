@@ -26,6 +26,7 @@ from .config import Config
 import functools
 import traceback
 import sentry_sdk
+import aiofiles
 import datetime
 import discord
 import asyncpg
@@ -167,12 +168,13 @@ class Fire(commands.AutoShardedBot):
                 scope.set_tag(key, extra[key])
             sentry_sdk.capture_exception(error)
 
-    @tasks.loop(hours=1)
+    @tasks.loop(minutes=2)
     async def override_save(self):
         await self.wait_until_ready()
         try:
-            with open('overrides.json', 'w') as f:
-                f.write(json.dumps(self.overrides, indent=4))
+            f = await aiofiles.open('overrides.json', 'w')
+            await f.write(json.dumps(self.overrides))
+            await f.close()
         except Exception:
             pass
 

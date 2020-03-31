@@ -488,11 +488,6 @@
                 "Usage": "{prefix}fetchactivity [<member>]",
                 "Aliases": null
             },
-            "tts": {
-                "Description": "Make Google TTS say something!",
-                "Usage": "{prefix}tts <text>",
-                "Aliases": null
-            },
             "google": {
                 "Description": "Talk to the Google Assistant",
                 "Usage": "{prefix}google <query>",

@@ -132,7 +132,12 @@ async def cmdperm_check(ctx):
 
 async def start_bot():
     try:
-        login_data = {"user": "postgres", "password": bot.config['pgpassword'], "database": "fire" if not bot.dev else "dev", "host": "127.0.0.1"}
+        login_data = {
+            "user": "postgres",
+            "password": bot.config['pgpassword'],
+            "database": "fire" if not bot.dev else "dev",
+            "host": "127.0.0.1"
+        }
         bot.db = await asyncpg.create_pool(**login_data)
         await bot.start(bot.config['token'])
     except KeyboardInterrupt:
