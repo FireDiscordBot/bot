@@ -29,10 +29,11 @@ options = dict()
 class Config:
     def __init__(self, guild, **kwargs):
         self._bot = kwargs.pop('bot')
-        self._guild = self._bot.get_guild(guild)
+        self._guild = self._bot.get_guild(guild) or guild
         self._db = kwargs.pop('db')
         self.options = options
         self._data: dict = self.get_default_config()
+        self.loaded: bool = False
 
     @ConfigOpt(name='main.prefix', accepts=str, default='$', options=options)
     async def prefix(self, value: str):
@@ -267,12 +268,15 @@ class Config:
         await self.save()
 
     async def load(self):
+        if isinstance(self._guild, int):
+            self._guild = self._bot.get_guild(self._guild)
         query = 'SELECT * FROM config WHERE gid=$1;'
         conf = await self._db.fetch(query, self._guild.id)
         if not conf:
             self._data = await self.init()
             return
         self._data = json.loads(conf[0]['data'])
+        self.loaded = True
         changed = False
         for opt in self.options:
             if opt not in self._data:

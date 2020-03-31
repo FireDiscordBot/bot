@@ -41,6 +41,10 @@ class Ready(commands.Cog):
         self.bot.logger.info(f"$GREENUsers: {len(self.bot.users)}")
         self.bot.logger.info("$GREEN-------------------------")
         self.bot.logger.info(f"$BLUELOGGING START ON {datetime.datetime.utcnow()}")
+        for c in self.bot.configs.values():
+            if not c.loaded:
+                await c.load()  # Load any stragglers that (for whatever reason) did not load on GUILD_CREATE
+
 
 def setup(bot):
     try:
