@@ -38,12 +38,8 @@ class Stats(commands.Cog):
         self.bot = bot
         if not hasattr(self.bot, 'stats'):
             self.bot.stats = json.load(open('stats.json'))
-        if 'commands' not in self.bot.stats:
-            self.bot.stats['commands'] = {'session': 0, 'total': 0}
-        if 'errors' not in self.bot.stats:
-            self.bot.stats['errors'] = {'session':0,'total':0}
-        self.bot.stats['commands']['session'] = 0
-        self.bot.stats['errors']['session'] = 0
+        self.bot.stats['commands'] = {'session': 0, 'total': 0}
+        self.bot.stats['errors'] = {'session':0,'total':0}
         self.save_stats.start()
         self.send_stats.start()
 
@@ -88,7 +84,7 @@ class Stats(commands.Cog):
         with open('stats.json', 'w') as f:
             f.write(json.dumps(self.bot.stats))
 
-    @tasks.loop(seconds=1)
+    @tasks.loop(seconds=4)
     async def send_stats(self):
         if not hasattr(self.bot, 'influx'):
             return
@@ -150,6 +146,7 @@ class Stats(commands.Cog):
                 total=self.bot.stats['commands']['total'],
                 session=self.bot.stats['commands']['session']
             )
+            self.bot.stats['commands'] = {'session': 0, 'total': 0}
             await self.bot.influx.write(c)
             e = Errors(
                 when=when,
@@ -157,6 +154,7 @@ class Stats(commands.Cog):
                 total=self.bot.stats['errors']['total'],
                 session=self.bot.stats['errors']['session']
             )
+            self.bot.stats['errors'] = {'session': 0, 'total': 0}
             await self.bot.influx.write(c)
         except Exception as e:
             self.bot.logger.warn(f'$YELLOWFailed to send to influx!', exc_info=e)
