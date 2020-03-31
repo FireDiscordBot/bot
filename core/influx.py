@@ -33,6 +33,7 @@ class Guilds:
     when: TIMESTR
     shard: TAG
     guilds: INT
+    unavailable: INT
 
 
 @lineprotocol
