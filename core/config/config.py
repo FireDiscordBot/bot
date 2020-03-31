@@ -175,6 +175,12 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $BLUEutils.autoquote $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('utils.autoquote', value)
 
+    @ConfigOpt(name='utils.badname', accepts=str, default=None, options=options)
+    async def bad_name(self, value: str):
+        '''Bad Name | The name used for decancer and dehoist. If not set, John Doe + discrim is used'''
+        self._bot.logger.info(f'$GREENSetting $BLUEutils.badname $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('utils.badname', value)
+
     @ConfigOpt(name='utils.public', accepts=bool, default=False, options=options)
     async def public_guild(self, value: bool):
         '''Public Guild | Makes your server viewable on https://fire.gaminggeek.space/discover (and joinable if a vanity url is set)'''

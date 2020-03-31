@@ -308,12 +308,12 @@ class Settings(commands.Cog):
 		try:
 			if self.bot.configs[member.guild.id].get('mod.autodecancer'):
 				if not self.bot.isascii(member.name.replace('‘', '\'').replace('“', '"').replace('“', '"')): #fix weird mobile characters
-					num = member.discriminator
-					return await member.edit(nick=f'John Doe {num}')
+					name = self.bot.configs[member.guild.id].get('utils.badname') or f'John Doe {member.discriminator}'
+					return await member.edit(nick=name)
 			if self.bot.configs[member.guild.id].get('mod.autodehoist'):
 				if self.bot.ishoisted(member.name):
-					num = member.discriminator
-					return await member.edit(nick=f'John Doe {num}')
+					name = self.bot.configs[member.guild.id].get('utils.badname') or f'John Doe {member.discriminator}'
+					return await member.edit(nick=name)
 		except Exception:
 			pass
 
@@ -370,11 +370,11 @@ class Settings(commands.Cog):
 								pass
 							else:
 								nick = after.name
+								badname = self.bot.configs[member.guild.id].get('utils.badname') or f'John Doe {member.discriminator}'
 								if not self.bot.isascii(nick.replace('‘', '\'').replace('“', '"').replace('“', '"')):
-									num = member.discriminator
-									return await member.edit(nick=f'John Doe {num}')
+									return await member.edit(nick=badname)
 								else:
-									if member.nick and 'John Doe' in member.nick:
+									if member.nick and badname in member.nick:
 										return await member.edit(nick=None)
 						if self.bot.configs[member.guild.id].get('mod.autodehoist'):
 							nitroboosters = discord.utils.get(member.guild.roles, id=585534346551754755)
@@ -384,11 +384,11 @@ class Settings(commands.Cog):
 								pass
 							else:
 								nick = after.name
+								badname = self.bot.configs[member.guild.id].get('utils.badname') or f'John Doe {member.discriminator}'
 								if self.bot.ishoisted(nick):
-									num = member.discriminator
-									return await member.edit(nick=f'John Doe {num}')
+									return await member.edit(nick=badname)
 								else:
-									if member.nick and 'John Doe' in member.nick:
+									if member.nick and badname in member.nick:
 										return await member.edit(nick=None)
 				except Exception:
 					pass
@@ -396,7 +396,8 @@ class Settings(commands.Cog):
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
 		if before.nick != after.nick:
-			if after.nick is not None and f'John Doe {after.discriminator}' in after.nick:
+			badname = self.bot.configs[after.guild.id].get('utils.badname') or f'John Doe {after.discriminator}'
+			if after.nick is not None and badname in after.nick:
 				return
 			try:
 				if self.bot.configs[after.guild.id].get('mod.autodecancer'):
@@ -409,8 +410,7 @@ class Settings(commands.Cog):
 						else:
 							nick = after.nick
 						if not self.bot.isascii(nick.replace('‘', '\'').replace('“', '"').replace('“', '"')):
-							num = after.discriminator
-							return await after.edit(nick=f'John Doe {num}')
+							return await after.edit(nick=badname)
 				if self.bot.configs[after.guild.id].get('mod.autodehoist'):
 					nitroboosters = discord.utils.get(after.guild.roles, id=585534346551754755)
 					if after.guild_permissions.manage_nicknames or nitroboosters in after.roles:
@@ -421,8 +421,7 @@ class Settings(commands.Cog):
 						else:
 							nick = after.nick
 						if self.bot.ishoisted(nick):
-							num = after.discriminator
-							return await after.edit(nick=f'John Doe {num}')
+							return await after.edit(nick=badname)
 			except Exception:
 				pass
 			logch = self.bot.configs[after.guild.id].get('log.action')
@@ -1016,7 +1015,7 @@ class Settings(commands.Cog):
 			except Exception:
 				return
 		await asyncio.sleep(2)
-		await ctx.send('The penultimate setting, auto-decancer. No, this setting doesn\'t cure cancer. Instead, it renames users with "cancerous" names (non-ascii) to some form of `John Doe 0000`')
+		await ctx.send('The penultimate setting, auto-decancer. This renames users with "cancerous" names (non-ascii)')
 		await asyncio.sleep(2)
 		autodcmsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
 		await autodcmsg.add_reaction(firesuccess)
