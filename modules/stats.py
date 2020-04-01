@@ -62,7 +62,8 @@ class Stats(commands.Cog):
             guild = int(payload['d']['id'])
             if guild not in self.bot.configs:
                 self.bot.configs[guild] = Config(guild, bot=self.bot, db=self.bot.db)
-            await self.bot.configs[guild].load()
+            if not self.bot.configs[guild].loaded:
+                await self.bot.configs[guild].load()
         if not t:
             if payload['op'] == 11:
                 t = 'HEARTBEAT'
