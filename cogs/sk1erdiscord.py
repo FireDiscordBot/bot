@@ -47,7 +47,9 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			'Running launcher core',
 			'[Client thread/INFO]: Setting user:',
 			'[Client thread/INFO]: (Session ID is',
-			'MojangTricksIntelDriversForPerformance'
+			'MojangTricksIntelDriversForPerformance',
+			'[DefaultDispatcher-worker-1] INFO Installer',
+			'[DefaultDispatcher-worker-1] ERROR Installer'
 		]
 		self.secrets = r'(club\.sk1er\.mods\.levelhead\.auth\.MojangAuth|api\.sk1er\.club\/auth|LoginPacket|SentryAPI\.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :)'
 		self.emailre = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
