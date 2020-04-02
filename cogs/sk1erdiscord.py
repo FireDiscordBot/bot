@@ -66,7 +66,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		except Exception as e:
 			self.bot.logger.warn(f'Description update task for {self.guild} failed.', exc_info=e)
 
-	async def cog_unload(self):
+	def cog_unload(self):
 		self.description_updater.cancel()
 
 	async def cog_check(self, ctx: commands.Context):
