@@ -104,31 +104,31 @@ class Stats(commands.Cog):
         try:
             dst = datetime.timedelta(hours=1)  # gotta love daylight savings
             when = str(datetime.datetime.utcnow() + dst)
-            for s in self.bot.shards.values():
-                sh = Shards(
-                    when=when,
-                    shard=s.id,
-                    shard_id=s.id
-                )
-                await self.bot.influx.write(sh)
+            # for s in self.bot.shards.values():
+            sh = Shards(
+                when=when,
+                shard=0,
+                shard_id=0
+            )
+            await self.bot.influx.write(sh)
             shards = {
-                s.id: {
+                0: {
                     'guilds': 0,
                     'unavailable': 0,
                     'users': {
                         'online': 0,
                         'total': 0
                     },
-                    'ping': round(s.ws.latency * 1000)
-                } for s in self.bot.shards.values()}
+                    'ping': round(self.bot.latency * 1000)
+                }}
             for g in self.bot.guilds:
-                shards[g.shard_id]['guilds'] += 1
+                shards[0]['guilds'] += 1
                 if g.unavailable:
-                    shards[g.shard_id]['unavailable'] += 1
-                shards[g.shard_id]['users']['total'] += g.member_count
+                    shards[0]['unavailable'] += 1
+                shards[0]['users']['total'] += g.member_count
                 statuses = ['online', 'dnd']
                 online = [m for m in g.members if str(m.status) in statuses]
-                shards[g.shard_id]['users']['online'] += len(online)
+                shards[0]['users']['online'] += len(online)
             for sid, data in shards.items():
                 g = Guilds(
                     when=when,

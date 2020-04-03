@@ -36,7 +36,7 @@ import json
 import sys
 
 
-class Fire(commands.AutoShardedBot):
+class Fire(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.launchtime = datetime.datetime.utcnow()
