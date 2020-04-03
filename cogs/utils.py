@@ -574,6 +574,17 @@ class utils(commands.Cog, name='Utility Commands'):
 		'PREMIUM': '<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)'
 	}
 
+	def shorten(self, items: list, max: int = 1000, sep: str = ', '):
+		text = ''
+		while len(text) < max and items:
+			text = text + f'{items[0]}{sep}'
+			items.pop(0)
+		if text.endswith(sep):  # Remove trailing separator
+			text = text[:(len(text) - len(sep))]
+		if len(items) >= 1:
+			return text + f' and {len(items)} more...'
+		return text
+
 	@commands.group(name='info', invoke_without_command=True)
 	@commands.guild_only()
 	async def infogroup(self, ctx):
@@ -631,23 +642,12 @@ class utils(commands.Cog, name='Utility Commands'):
 		features = ', '.join([self.featureslist.get(f, f) for f in guild.features])
 		if features and features != '':
 			embed.add_field(name="» Features", value=features, inline=False)
-		roles = []
-		for role in guild.roles:
-			if role.is_default():
-				pass
-			else:
-				roles.append(role.mention)
-		roles = ' - '.join(roles)
-		if len(roles) <= 1000:
-			embed.add_field(name="» Roles", value=roles, inline=False)
-			await ctx.send(embed=embed)
-		else:
-			rolebed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Roles**\n{roles}')
-			await ctx.send(embed=embed)
-			try:
-				await ctx.send(embed=rolebed)
-			except Exception:
-				return  # No roles for you : (
+		embed.add_field(
+			name="» Roles",
+			value=self.shorten([r.mention for r in guild.roles if not r.is_default()], sep=' - '),
+			inline=False
+		)
+		await ctx.send(embed=embed)
 
 	@infogroup.command(name='user', description='Check out a user\'s info')
 	async def infouser(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
@@ -676,18 +676,17 @@ class utils(commands.Cog, name='Utility Commands'):
 			members = sorted(ctx.guild.members, key=lambda m: m.joined_at or m.created_at)
 			embed.add_field(name="» Join Position", value=members.index(user) + 1, inline=False)
 		embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - user.created_at, max_units=2) + ' ago', inline=False)
-		if type(user) == discord.Member:
+		if isinstance(user, discord.Member):
 			if user.nick:
 				embed.add_field(name="» Nickname", value=user.nick, inline=False)
 			if user.premium_since:
 				embed.add_field(name="» Boosting For", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - user.premium_since), inline=False)
-			roles = []
-			for role in user.roles:
-				if role.is_default():
-					pass
-				else:
-					roles.append(role.mention)
-			embed.add_field(name="» Roles", value=' - '.join(roles) or 'No roles', inline=False)
+			if [r for r in user.roles if not r.is_default()]:
+				embed.add_field(
+					name="» Roles",
+					value=self.shorten([r.mention for r in user.roles if not r.is_default()], sep=' - '),
+					inline=False
+				)
 		if not user.bot:
 			trust = 'High' # yes ravy I'm stealing your trust thing. go check out ravy, https://ravy.xyz/
 			if self.bans:
