@@ -27,7 +27,7 @@ class invite(commands.Cog):
 
     @commands.command(name="invite")
     async def inviteme(self, ctx):
-        return await ctx.send("https://inv.wtf/bot")
+        return await ctx.send("<https://inv.wtf/bot>")
 
 
 def setup(bot):
