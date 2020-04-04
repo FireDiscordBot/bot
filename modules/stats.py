@@ -69,6 +69,10 @@ class Stats(commands.Cog):
                 t = 'HEARTBEAT'
             elif payload['op'] == 10:
                 t = 'HELLO'  # hi
+            elif payload['op'] == 9:
+                t = 'INVALID_SESSION'
+            elif payload['op'] == 7:
+                t = 'RECONNECT'
             else:
                 self.bot.logger.warn(f'$REDUnknown event, $BLUE{t}\n$REDPayload: $BLUE{payload}')
                 return
