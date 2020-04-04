@@ -88,10 +88,11 @@ class CommandError(commands.Cog):
         if isinstance(error, noperms):
             return await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
 
-        if isinstance(error, KeyError):
-            errorstr = f'Key not found: {errorstr}. This is something that should be reported in my support server, discord.gg/mKDWeSA'
-
-        await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
+        if not self.bot.isadmin(ctx.author):
+            await ctx.error(f'{type(error)}: {discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
+        else:
+            tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
+            await ctx.send(f'```py\n{tb[:1000]}\n```')
 
         if not isinstance(error, noperms) and not isinstance(error, sentryignored):
             userscope = {
@@ -106,25 +107,6 @@ class CommandError(commands.Cog):
                 "environment": os.environ.get("FIREENV", "production")
             }
             await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.sentry_exc, error, userscope, 'error', extra))
-
-        nomsg = (commands.BotMissingPermissions, commands.MissingPermissions, commands.UserInputError, commands.MissingRequiredArgument, commands.TooManyArguments, TypeMismatchError, RestrictedOptionError, InvalidValueError)
-        if isinstance(error, nomsg):
-            return
-        errortb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-        embed = discord.Embed(colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!\n```py\n{errortb}```", timestamp=datetime.datetime.utcnow())
-        embed.add_field(name='User', value=f'{ctx.author} ({ctx.author.id})', inline=False)
-        embed.add_field(name='Guild', value=f'{ctx.guild} ({ctx.guild.id})', inline=False)
-        embed.add_field(name='Message', value=ctx.message.system_content, inline=False)
-        embednotb = discord.Embed(colour=ctx.author.color, url="https://http.cat/500", description=f"hi. someone did something and this happened. pls fix now!", timestamp=datetime.datetime.utcnow())
-        embednotb.add_field(name='User', value=f'{ctx.author} ({ctx.author.id})', inline=False)
-        embednotb.add_field(name='Guild', value=f'{ctx.guild} ({ctx.guild.id})', inline=False)
-        embednotb.add_field(name='Message', value=ctx.message.system_content, inline=False)
-        me = self.bot.get_user(287698408855044097)
-        try:
-            await me.send(embed=embed)
-        except discord.HTTPException:
-            await me.send(embed=embednotb)
-            await me.send(f'```py\n{errortb}```')
 
 
 def setup(bot):
