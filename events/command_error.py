@@ -89,10 +89,10 @@ class CommandError(commands.Cog):
             return await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
 
         if not self.bot.isadmin(ctx.author):
-            await ctx.error(f'{type(error)}: {discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
+            await ctx.error(f'{error.__class__.__name__}: {discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
         else:
-            tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__))
-            await ctx.send(f'```py\n{tb[:1000]}\n```')
+            tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))
+            await ctx.send(f'```py\n{tb[:1990]}\n```')
 
         if not isinstance(error, noperms) and not isinstance(error, sentryignored):
             userscope = {
