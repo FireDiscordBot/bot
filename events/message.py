@@ -32,9 +32,13 @@ class Message(commands.Cog):
         self.msgraiders = {}
         self.dupecheck = {}
         self.uuidregex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
+        self.urlregex = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
 
     def uuidgobyebye(self, text: str):
         return re.sub(self.uuidregex, '', text, 0, re.MULTILINE)
+
+    def urlgobyebye(self, text: str):
+        return re.sub(self.urlregex, '', text, 0, re.MULTILINE)
 
     async def safe_exc(self, coro, *args, **kwargs):
         try:
@@ -49,12 +53,13 @@ class Message(commands.Cog):
         if message.author.bot:
             return
         if self.bot.configs[message.guild.id].get('mod.dupecheck'):
-            lastmsg = self.uuidgobyebye(self.dupecheck.get(message.author.id, 'send this message and it will get yeeted'))
-            thismsg = self.uuidgobyebye(message.content)
+            lastmsg = self.dupecheck.get(message.author.id, 'send this message and it will get yeeted')
+            lastmsg = self.urlgobyebye(self.uuidgobyebye(lastmsg)).strip()
+            thismsg = self.urlgobyebye(self.uuidgobyebye(message.content)).strip()
             excluded = self.bot.configs[message.guild.id].get('excluded.filter')
             roleids = [r.id for r in message.author.roles]
             if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
-                if message.content != "" and len(message.attachments) < 1 and not message.author.bot:
+                if message.content != "" and len(message.attachments) < 1 and not message.author.bot and len(message.content) > 10:
                     if thismsg == lastmsg and not message.author.permissions_in(message.channel).manage_messages:
                         await message.delete()
             self.dupecheck[message.author.id] = message.content
