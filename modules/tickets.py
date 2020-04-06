@@ -191,7 +191,7 @@ class tickets(commands.Cog, name="Tickets"):
             transcript.append(f'{m.author} ({m.author.id}) at {m.created_at.strftime("%d/%m/%Y @ %I:%M:%S %p")} UTC\n{m.content}')
         transcript.reverse()
         string = io.StringIO('\n\n'.join(transcript))
-        author = ctx.author.id  # If author is not found for some odd reason, fallback to message author for log embed color
+        author = ctx.author  # If author is not found for some odd reason, fallback to message author for log embed color
         for m in ctx.channel.members:
             if str(m.id) in ctx.channel.topic:  # they do be the ticket author doe
                 author = m
