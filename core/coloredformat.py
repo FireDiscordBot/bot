@@ -1,5 +1,6 @@
 from copy import copy
 import logging
+import datetime
 
 
 BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
@@ -8,23 +9,24 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
 RESET_SEQ = "\033[0m"
 COLOR_SEQ = "\033[1;%dm"
 BOLD_SEQ = "\033[1m"
+HIGHLIGHT_SEQ = "\033[4%dm"
+HIGHLIGHT_SEQ_ALT = "\033[10%dm"
 
 
 def getcolor(color=None):
     return COLOR_SEQ % (30 + (color or WHITE))
 
+
+def gethighlight(color=None, alt=False):
+    if alt:
+        return HIGHLIGHT_SEQ % (color or WHITE)
+    return HIGHLIGHT_SEQ % (color or BLACK)
+
+
 def formatter_message(message):
     for k, v in COLORS.items():
         message = message.replace(k, v)
     return message
-
-LEVELS = {
-    "WARNING": YELLOW,
-    "INFO": GREEN,
-    "DEBUG": BLUE,
-    "CRITICAL": YELLOW,
-    "ERROR": RED
-}
 
 
 COLORS = {
@@ -37,7 +39,33 @@ COLORS = {
     "$CYAN": getcolor(CYAN),
     "$WHITE": getcolor(WHITE),
     "$RESET": RESET_SEQ,
-    "$BOLD": BOLD_SEQ
+    "$BOLD": BOLD_SEQ,
+    "!GREEN": gethighlight(GREEN),
+    "!BLUE": gethighlight(BLUE),
+    "!RED": gethighlight(RED),
+    "!YELLOW": gethighlight(YELLOW),
+    "!BLACK": gethighlight(BLACK),
+    "!MAGENTA": gethighlight(MAGENTA),
+    "!CYAN": gethighlight(CYAN),
+    "!WHITE": gethighlight(WHITE, alt=True),
+    "!LBLUE": gethighlight(BLUE, alt=True),
+    "!LGREEN": gethighlight(GREEN, alt=True),
+    "!LRED": gethighlight(RED, alt=True),
+    "!LYELLOW": gethighlight(YELLOW, alt=True),
+    "!GRAY": gethighlight(BLACK, alt=True),
+    "!GREY": gethighlight(BLACK, alt=True),
+    "!LMAGENTA": gethighlight(MAGENTA, alt=True),
+    "!LCYAN": gethighlight(CYAN, alt=True),
+}
+
+
+
+LEVELS = {
+    "INFO": COLORS["!CYAN"],
+    "WARNING": COLORS["!YELLOW"],
+    "ERROR": COLORS["!LRED"],
+    "CRITICAL": COLORS["!RED"],
+    "DEBUG": COLORS["!GRAY"]
 }
 
 
@@ -49,8 +77,10 @@ class ColoredFormatter(logging.Formatter):
         record = copy(record)
         levelname = record.levelname
         if levelname in LEVELS:
-            levelname_color = COLOR_SEQ % (30 + LEVELS[levelname]) + levelname + RESET_SEQ
-            record.levelname = levelname_color
+            levelname_color = LEVELS[levelname]
+            now = datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # fuck daylight savings
+            now = datetime.datetime.strftime(now, '%d/%m/%Y @ %I:%M:%S %p')
+            record.levelname = f'{levelname_color}{now}{COLORS["$RESET"]}'
             for k, v in COLORS.items():
                 record.msg = record.msg.replace(k, v)
         return super().format(record)
