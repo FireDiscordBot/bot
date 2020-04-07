@@ -143,7 +143,7 @@ class imagegen(commands.Cog, name='Image Generation'):
 				y = last_y + h
 				draw_text_with_outline(lines[i], x, y)
 				last_y = y
-		
+
 		try:
 			draw_text(text[0], "top")
 			draw_text(text[1], "bottom")
@@ -169,7 +169,7 @@ class imagegen(commands.Cog, name='Image Generation'):
 		if type(image) == discord.Member:
 			image = str(image.avatar_url_as(format='png'))
 		image = image.strip('<>')
-		imgraw = await aiohttp.ClientSession(headers={'Authorization': f'{config["dankmemer"]}'}).get(f'https://dankmemer.services/api/deepfry?avatar1={image}')
+		imgraw = await aiohttp.ClientSession(headers={'Authorization': config["aeromeme"]}).get(f'https://memes.aero.bot/api/deepfry?avatar1={image}')
 		if imgraw.status != 200:
 			return await ctx.error('Something went wrong...')
 		imgraw = await imgraw.read()
