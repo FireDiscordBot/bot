@@ -59,7 +59,7 @@ class Message(commands.Cog):
             excluded = self.bot.configs[message.guild.id].get('excluded.filter')
             roleids = [r.id for r in message.author.roles]
             if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
-                if message.content != "" and len(message.attachments) < 1 and not message.author.bot and len(message.content) > 10:
+                if message.content != "" and len(message.attachments) < 1 and not message.author.bot and len(thismsg) > 10:
                     if thismsg == lastmsg and not message.author.permissions_in(message.channel).manage_messages:
                         await message.delete()
             self.dupecheck[message.author.id] = message.content
