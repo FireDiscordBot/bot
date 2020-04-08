@@ -199,6 +199,9 @@ class Assistant(commands.Cog, name='Google Assistant'):
 			await session.get(f'https://{sub}.gaminggeek.dev/assist/{ctx.author.id}')
 			try:
 				await session.execute_script('document.body.style.backgroundImage = \'url("https://picsum.photos/1366/768")\';')
+				namere = '<div class=\"show_text_content\">Your name is .*\.<\/div>'
+				namesub = f'<div class=\'show_text_content\'>Your name is {ctx.author.name}.</div>'
+				await session.execute_script(f'document.body.innerHTML = document.body.innerHTML.replace(/{namere}/gm, "{namesub}");')
 			except Exception:
 				pass
 				# await ctx.error('script did an oopsie')
