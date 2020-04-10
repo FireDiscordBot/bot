@@ -746,7 +746,16 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not blocked:
 			return await ctx.send("You must specify a user")
 
-		await ctx.channel.set_permissions(blocked, send_messages=False, reason=reason)
+		current = ctx.channel.overwrites_for(blocked)
+		current.update(
+			send_messages=False,
+			add_reactions=False
+		)
+		await ctx.channel.set_permissions(
+			blocked,
+			overwrite=current,
+			reason=reason
+		)
 		await ctx.success(f'Successfully blocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}** from chatting in {ctx.channel.mention}.')
 		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 		if logch:
@@ -781,7 +790,16 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not blocked:
 			return await ctx.send("You must specify a user")
 
-		await ctx.channel.set_permissions(blocked, send_messages=None, reason=reason)
+		current = ctx.channel.overwrites_for(blocked)
+		current.update(
+			send_messages=None,
+			add_reactions=None
+		)
+		await ctx.channel.set_permissions(
+			blocked,
+			overwrite=current,
+			reason=reason
+		)
 		await ctx.success(f'Successfully unblocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}**. Welcome back!')
 		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 		if logch:
