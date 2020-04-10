@@ -45,6 +45,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			'A detailed walkthrough of the error',
 			'launchermeta.mojang.com',
 			'Running launcher core',
+			'Native Launcher Version:',
 			'[Client thread/INFO]: Setting user:',
 			'[Client thread/INFO]: (Session ID is',
 			'MojangTricksIntelDriversForPerformance',
