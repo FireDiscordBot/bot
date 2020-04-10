@@ -383,8 +383,10 @@ class utils(commands.Cog, name='Utility Commands'):
 
 	@commands.Cog.listener()
 	async def on_member_unban(self, guild, member):
-		if guild.id in self.bans:
+		try:
 			self.bans[guild.id].remove(member.id)
+		except Exception:
+			pass
 
 	async def loadremind(self):
 		await self.bot.wait_until_ready()
