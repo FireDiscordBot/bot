@@ -795,6 +795,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			send_messages=None,
 			add_reactions=None
 		)
+		if current.is_empty():
+			curent = None
 		await ctx.channel.set_permissions(
 			blocked,
 			overwrite=current,
