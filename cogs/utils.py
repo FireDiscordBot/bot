@@ -663,14 +663,28 @@ class utils(commands.Cog, name='Utility Commands'):
 			color = user.color
 		if ctx.guild and ctx.guild.get_member(user.id):
 			user = ctx.guild.get_member(user.id)
-		badges = [u'\u200b']
-		for guild in self.bot.guilds:
-			if guild.owner_id == user.id and 'PARTNERED' in guild.features:
-				badges.append(str(discord.utils.get(self.bot.emojis, id=631831109575114752)))
+		badges = []
 		if self.bot.isadmin(user):
 			badges.append(str(discord.utils.get(self.bot.emojis, id=671243744774848512)))
-		if len(badges) > 1:
-			embed = discord.Embed(title=f'{user} ({user.id})', colour=color, timestamp=datetime.datetime.utcnow(), description=''.join(badges))
+		if (user.flags & 1) == 1:  # Staff
+			badges.append(str(discord.utils.get(self.bot.emojis, id=698344463281422371)))
+		if (user.flags & 2) == 2:  # Partner
+			badges.append(str(discord.utils.get(self.bot.emojis, id=631831109575114752)))
+		if (user.flags & 1 << 2) == 1 << 2:  # Hypesquad Events
+			badges.append(str(discord.utils.get(self.bot.emojis, id=698349980192079882)))
+		if (user.flags & 1 << 3) == 1 << 3:  # Bug Hunter (Level 1)
+			badges.append(str(discord.utils.get(self.bot.emojis, id=698350213596971049)))
+		if (user.flags & 1 << 9) == 1 << 9:  # Early Supporter
+			badges.append(str(discord.utils.get(self.bot.emojis, id=698350657073053726)))
+		if (user.flags & 1 << 14) == 1 << 14:  # Bug Hunter (Level 2)
+			badges.append(str(discord.utils.get(self.bot.emojis, id=698350544103669771)))
+		if (user.flags & 1 << 17) == 1 << 17:
+			badges.append(str(discord.utils.get(self.bot.emojis, id=697581675260936233)))
+		if (user.flags & 1 << 16) == 1 << 16:
+			badges.append(str(discord.utils.get(self.bot.emojis, id=698341346263564389)))
+		if badges:
+			badges.append(u'\u200b')  # Prevents huge emojis on mobile
+			embed = discord.Embed(title=f'{user} ({user.id})', colour=color, timestamp=datetime.datetime.utcnow(), description='  '.join(badges))
 		else:
 			embed = discord.Embed(title=f'{user} ({user.id})', colour=color, timestamp=datetime.datetime.utcnow())
 		embed.set_thumbnail(url=str(user.avatar_url_as(static_format='png', size=2048)))
