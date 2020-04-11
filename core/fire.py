@@ -27,6 +27,7 @@ import functools
 import traceback
 import sentry_sdk
 import aiofiles
+import aiohttp
 import datetime
 import discord
 import asyncpg
@@ -77,14 +78,14 @@ class Fire(commands.Bot):
             )
 
         # MODULES
-        self.loadModules()
+        self.load_modules()
 
         # COMMANDS
-        self.loadCommands()
+        self.load_commands()
         self.cmdresp = {}
 
         # EVENTS
-        self.loadEvents()
+        self.load_events()
 
         # CUSTOM PERMISSIONS
         # self.permissions = {}
@@ -120,7 +121,7 @@ class Fire(commands.Bot):
             admin = True
         return admin
 
-    def loadCommands(self):
+    def load_commands(self):
         try:
             # raise Exception('Chatwatch is temporarily disabled')
             self.load_extension('core.chatwatch')
@@ -142,7 +143,7 @@ class Fire(commands.Bot):
                 #     type(e), e, e.__traceback__))
                 self.logger.error(f'$REDError while loading $BLUE{ext}', exc_info=e)
 
-    def loadEvents(self):
+    def load_events(self):
         for ext in resolve_extensions(self, 'events.*'):
             try:
                 self.load_extension(ext)
@@ -151,7 +152,7 @@ class Fire(commands.Bot):
                 #     type(e), e, e.__traceback__))
                 self.logger.error(f'$REDError while loading {ext}', exc_info=e)
 
-    def loadModules(self):
+    def load_modules(self):
         for ext in resolve_extensions(self, 'modules.*'):
             try:
                 self.load_extension(ext)
@@ -177,6 +178,16 @@ class Fire(commands.Bot):
             await f.close()
         except Exception:
             pass
+
+    async def haste(self, content, fallback: bool=False):
+        url = 'hst.sh'
+        if fallback:
+            url = 'h.inv.wtf'
+        async with aiohttp.ClientSession().post(f'https://{url}/documents', data=content) as r:
+            if r.status != 200 and not fallback:
+                return await self.haste(content, fallback=True)
+            j = await r.json()
+            return f'https://{url}/' + j['key']
 
     async def is_team_owner(self, user: typing.Union[discord.User, discord.Member]):
         if user.id == self.owner_id:
