@@ -645,8 +645,8 @@ class utils(commands.Cog, name='Utility Commands'):
 		if features and features != '':
 			embed.add_field(name="» Features", value=features, inline=False)
 		embed.add_field(
-			name="» Roles",
-			value=self.shorten([r.mention for r in guild.roles if not r.is_default()], sep=' - '),
+			name=f"» Roles [{len(guild.roles)}]",
+			value=self.shorten([r.mention for r in guild.roles if not r.is_default()], sep=' - ', max=750),
 			inline=False
 		)
 		await ctx.send(embed=embed)
@@ -699,7 +699,7 @@ class utils(commands.Cog, name='Utility Commands'):
 				embed.add_field(name="» Boosting For", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - user.premium_since), inline=False)
 			if [r for r in user.roles if not r.is_default()]:
 				embed.add_field(
-					name="» Roles",
+					name=f"» Roles [{len(user.roles)}]",
 					value=self.shorten([r.mention for r in user.roles if not r.is_default()], sep=' - '),
 					inline=False
 				)
@@ -771,7 +771,7 @@ class utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name='» Recognized User', value=', '.join(ack), inline=False)
 		if user.id in self.bot.aliases.get('hasalias', []) and any(ctx.message.content.lower().endswith(f'info user {a}') for a in [b for b in self.bot.aliases if b != 'hasalias' and self.bot.aliases[b] == user.id]):
 			aliases = [a for a in self.bot.aliases if a != 'hasalias' and self.bot.aliases[a] == user.id]
-			embed.add_field(name='» Aliases', value=', '.join(aliases) + '\n\nNot the right user? Use their name and discriminator, id or mention to bypass aliases', inline=False)
+			embed.add_field(name=f'» Aliases [{len(aliases)}]', value=', '.join(aliases) + '\n\nNot the right user? Use their name and discriminator, id or mention to bypass aliases', inline=False)
 		await ctx.send(embed=embed)
 
 	@infogroup.command(description='Check out a role\'s info')
@@ -779,15 +779,14 @@ class utils(commands.Cog, name='Utility Commands'):
 		if not role:
 			role = ctx.author.top_role
 		embed = discord.Embed(colour=role.color if role.color != discord.Color.default() else ctx.author.color, timestamp=datetime.datetime.utcnow())
-		embed.add_field(name="» Name", value=role.name, inline=True)
-		embed.add_field(name="» ID", value=role.id, inline=True)
-		embed.add_field(name="» Mention", value=f'`{role.mention}`', inline=True)
-		embed.add_field(name="» Members", value=len(role.members), inline=True)
+		embed.add_field(name="» Name", value=role.name, inline=False)
+		embed.add_field(name="» ID", value=role.id, inline=False)
+		embed.add_field(name="» Mention", value=f'`{role.mention}`', inline=False)
 		rgbcolor = role.color.to_rgb()
 		hexcolor = rgb2hex(role.color.r, role.color.g, role.color.b).replace('##', '#')
-		embed.add_field(name="» Hoisted?", value='Yes' if role.hoist else 'No', inline=True)
-		embed.add_field(name="» Mentionable?", value='Yes' if role.mentionable else 'No', inline=True)
-		embed.add_field(name="» Color", value=f'> RGB: {rgbcolor}\n> HEX: {hexcolor}', inline=True)
+		embed.add_field(name="» Hoisted?", value='Yes' if role.hoist else 'No')
+		embed.add_field(name="» Mentionable?", value='Yes' if role.mentionable else 'No')
+		embed.add_field(name="» Color", value=f'RGB: {rgbcolor}\nHEX: {hexcolor}')
 		perms = []
 		if not role.permissions.administrator:
 			for perm, value in role.permissions:
@@ -802,7 +801,11 @@ class utils(commands.Cog, name='Utility Commands'):
 			paginator = WrappedPaginator(prefix='', suffix='', max_size=250)
 			for member in role.members:
 				paginator.add_line(member.mention)
-			membed = discord.Embed(colour=role.color if role.color != discord.Color.default() else ctx.author.color, timestamp=datetime.datetime.utcnow())
+			membed = discord.Embed(
+				colour=role.color if role.color != discord.Color.default() else ctx.author.color,
+				timestamp=datetime.datetime.utcnow(),
+				title=f'Members [{len(role.members)}]'
+			)
 			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=membed)
 			await interface.send_to(ctx)
 
