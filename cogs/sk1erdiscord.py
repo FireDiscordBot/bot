@@ -193,7 +193,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 					return
 				await message.delete()
 				return await message.channel.send(f'{message.author} uploaded a log, {message.content}\n{url}')
-		if not message.attachments:
+		if not message.attachments and len(message.content) > 350:
 			txt = message.content
 			for line in txt.split('\n'):
 				if re.findall(self.secrets, line, re.MULTILINE):
