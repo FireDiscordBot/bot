@@ -37,7 +37,7 @@ class Message(commands.Cog):
         self.uuidregex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
         self.urlregex = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
         self.tokenregex = r'[MN][A-Za-z\d]{23}\.[\w-]{6}\.[\w-]{27}'
-        self.gistheaders = {'Authorization': f'token {self.bot.config["github"]}'}
+        self.gistheaders = {'Authorization': f'token {self.bot.config["github_token"]}'}
 
     def uuidgobyebye(self, text: str):
         return re.sub(self.uuidregex, '', text, 0, re.MULTILINE)
