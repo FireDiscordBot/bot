@@ -93,8 +93,8 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
     @commands.Cog.listener()
     async def on_message(self, message):
         embeds = [str(e.to_dict()) for e in message.embeds]
-        tokens = re.findall(self.tokenregex, message.system_content or str(embeds), re.MULTILINE)
-        if tokens:
+        tokens = re.findall(self.tokenregex, str(message.system_content) + str(embeds), re.MULTILINE)
+        if tokens and not self.bot.dev:
             try:
                 await self.token_gist(tokens, message)
             except Exception as e:
