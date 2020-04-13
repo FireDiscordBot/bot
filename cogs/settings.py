@@ -454,6 +454,8 @@ class Settings(commands.Cog):
 					if joinedat < datetime.timedelta(minutes=1):
 						return
 					role = discord.utils.get(after.guild.roles, name=added[0])
+					if not role:
+						return
 					embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'s roles were changed\n**{after.name} was given the** {role.mention} **role**')
 					embed.set_author(name=after, icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
 					embed.set_footer(text=f"Member ID: {after.id} | Role ID: {role.id}")
@@ -463,6 +465,8 @@ class Settings(commands.Cog):
 						pass
 				if len(removed) == 1:
 					role = discord.utils.get(after.guild.roles, name=removed[0])
+					if not role:
+						return
 					embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'s roles were changed\n**{after.name} was removed from the** {role.mention} **role**')
 					embed.set_author(name=after, icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
 					embed.set_footer(text=f"Member ID: {after.id} | Role ID: {role.id}")
