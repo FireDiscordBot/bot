@@ -54,32 +54,28 @@ class Message(commands.Cog):
     async def token_gist(self, tokens, message):
         files = {}
         for t in tokens:
-            uid = int(base64.b64decode(t.split('.')[0]).decode('utf-8'))
-            user = 'Unknown User#0000'
-            try:
-                user = await self.bot.fetch_user(uid)
-            except Exception:
-                pass
-            files[f'{str(user).split("#")[0]}.txt'] = {'content':f'''
+            files[f'token_leak.md'] = {'content':f'''
 Oh no, it seems a token has been leaked! Fire (Fire#0682) scans for tokens in Discord messages and uploads them to GitHub to be reset.
 You can learn more about GitHub's token scanning at https://help.github.com/en/github/administering-a-repository/about-token-scanning
 
 The token in question was found in a message sent by {message.author} in the channel #{message.channel} in the guild {message.guild}.
-I have attempted to identify who the token belongs to and found {user}
+Here's the link to the message: {message.jump_url}
 
-The token in question is {t}
+The token in question *was* {t}
 
 Discord should send the owner of this bot a system message letting them know their token has been leaked pretty much instantly.
 If you are the owner of said bot, you should look into how this happened and try prevent it in the future!
 
-Examples of how you can protect your token is by using a config file or environment variables. This ensures the token is not directly in your code.
+Examples of how you can protect your token is by using a config file or environment variables.
+This ensures the token is not directly in your code.
+If you have an eval command, make sure only **you** can use it
 
 I hope you keep your token safe in the future :)
 
-If you have any queries about this gist, feel free to email tokens@gaminggeek.dev
+If you have any queries about this gist, feel free to email tokens@gaminggeek.dev or leave a comment.
 '''}
         body = {
-            'description': 'A token was found in a Discord message by Fire#0682',
+            'description': '',
             'public': True,
             'files': files
         }
