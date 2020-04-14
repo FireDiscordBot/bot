@@ -117,7 +117,7 @@ class quotes(commands.Cog, name="Quotes"):
         if not isinstance(message, discord.Message):
             return
 
-        if str(message.author) in ['Public Server Updates#0000', 'Discord#0000']:  # Prevent quoting from known system users
+        if str(message.author) in ['Public Server Updates#0000', 'Discord#0000'] and not self.bot.isadmin(ctx.author):  # Prevent quoting from known system users
             return await ctx.error(f'Cannot quote messages from that user!')
 
         if message.guild:
