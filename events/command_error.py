@@ -85,14 +85,15 @@ class CommandError(commands.Cog):
         errorstr = replaceinvite(str(error))
         errorstr = re.sub(r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)', 'BLOCKED URL', errorstr, 0, re.MULTILINE)
 
-        if isinstance(error, noperms):
-            return await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
+        if ctx.me.permissions_in(ctx.channel).send_messages:
+            if isinstance(error, noperms):
+                return await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
 
-        if not self.bot.isadmin(ctx.author):
-            await ctx.error(f'{error.__class__.__name__}: {discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
-        else:
-            tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))
-            await ctx.send(f'```py\n{tb[:1990]}\n```')
+            if not self.bot.isadmin(ctx.author):
+                await ctx.error(f'{error.__class__.__name__}: {discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
+            else:
+                tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))
+                await ctx.send(f'```py\n{tb[:1990]}\n```')
 
         if not isinstance(error, noperms) and not isinstance(error, sentryignored):
             userscope = {

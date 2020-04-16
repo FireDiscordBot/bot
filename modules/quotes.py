@@ -82,7 +82,7 @@ class quotes(commands.Cog, name="Quotes"):
         ctx = await self.bot.get_context(message)
         if ctx.valid:
             return
-        if message.guild:
+        if message.guild and isinstance(message.author, discord.Member):
             if not self.bot.configs[message.guild.id].get('utils.autoquote'):
                 return
             if message.channel in self.bot.configs[message.guild.id].get('commands.modonly'):
@@ -90,10 +90,11 @@ class quotes(commands.Cog, name="Quotes"):
                     return
             if message.channel in self.bot.configs[message.guild.id].get('commands.adminonly'):
                 if not message.author.permissions_in(message.channel).manage_guild:
-                    return
+                    retu
             perms = message.guild.me.permissions_in(message.channel)
-            if not perms.send_messages or not perms.embed_links or message.author.bot:
-                return
+            if not perms.send_messages or not perms.embed_links:
+                if message.author.bot or not perms.manage_webhooks:
+                    return
 
             message_regex = r'https?:\/\/(?:(?:ptb|canary|development)\.)?discordapp\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
             url = re.findall(message_regex, message.content, re.MULTILINE)

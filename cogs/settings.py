@@ -1115,8 +1115,10 @@ class Settings(commands.Cog):
 				modonly.remove(sf)
 		current = await self.bot.configs[ctx.guild.id].set('commands.modonly', modonly)
 		channelmentions = [c.mention for c in current]
-		channellist = ', '.join(channelmentions)
-		return await ctx.success(f'Commands can now only be run by moderators (those with Manage Messages permission) in;\n{channellist}.')
+		if channelmentions:
+			channellist = ', '.join(channelmentions)
+			return await ctx.success(f'Commands can now only be run by moderators (those with Manage Messages permission) in:\n{channellist}.')
+		return await ctx.success(f'Moderator only channels have been reset')
 
 	@commands.command(name='adminonly', description='Set channels to be admin only (users with `Manage Server` are admins')
 	@commands.has_permissions(manage_guild=True)
@@ -1132,8 +1134,10 @@ class Settings(commands.Cog):
 				adminonly.remove(sf)
 		current = await self.bot.configs[ctx.guild.id].set('commands.adminonly', adminonly)
 		channelmentions = [c.mention for c in current]
-		channellist = ', '.join(channelmentions)
-		return await ctx.success(f'Commands can now only be run by admins (those with Manage Server permission) in;\n{channellist}.')
+		if channelmentions:
+			channellist = ', '.join(channelmentions)
+			return await ctx.success(f'Commands can now only be run by admins (those with Manage Server permission) in;\n{channellist}.')
+		return await ctx.success(f'Admin only channels have been reset')
 
 
 	@commands.command(name='joinmsg', description='Set the channel and message for join messages')
