@@ -681,7 +681,9 @@ class utils(commands.Cog, name='Utility Commands'):
 		if (user.flags & 1 << 17) == 1 << 17:
 			badges.append(str(discord.utils.get(self.bot.emojis, id=697581675260936233)))
 		if (user.flags & 1 << 16) == 1 << 16:
-			badges.append(str(discord.utils.get(self.bot.emojis, id=698341346263564389)))
+			badges.append(
+				str(discord.utils.get(self.bot.emojis, id=700325427998097449)) + str(discord.utils.get(self.bot.emojis, id=700325521665425429))
+			)
 		if badges:
 			badges.append(u'\u200b')  # Prevents huge emojis on mobile
 			embed = discord.Embed(title=f'{user} ({user.id})', colour=color, timestamp=datetime.datetime.utcnow(), description='  '.join(badges))
