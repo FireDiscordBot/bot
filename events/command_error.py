@@ -92,7 +92,7 @@ class CommandError(commands.Cog):
             if not self.bot.isadmin(ctx.author):
                 await ctx.error(f'{error.__class__.__name__}: {discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
             else:
-                tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__, 1))
+                tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__, 3))
                 await ctx.send(f'```py\n{tb[:1990]}\n```')
 
         if not isinstance(error, noperms) and not isinstance(error, sentryignored):

@@ -245,6 +245,13 @@ class Config:
         return self._data[option]
 
     async def set(self, opt: str, value):
+        changed = False
+        for option in self.options:
+            if option not in self._data:
+                self._data[option] = self.options[opt]['default']
+                changed = True
+        if changed:
+            await self.save()
         if opt not in self.options:
             raise InvalidOptionError(opt)
         option = self.options[opt]
@@ -265,7 +272,7 @@ class Config:
             if not isinstance(value, list) or any(not isinstance(v, accepts) for v in value):
                 if isinstance(value, list) and len(value) >= 1:
                     raise TypeMismatchError(type=[t.__class__.__name__ for t in value if not isinstance(t, accepts)], accepted=[t.__name__ for t in option['accepts']], option=opt)
-                raise TypeMismatchError(type=value.__class__.__name__, accepted=option['accepts'].__name__, option=opt)
+                raise TypeMismatchError(type=value.__class__.__name__, accepted=option['accepts'].__class__.__name__, option=opt)
         await setter(self, value)
         return self.get(opt)
 
@@ -283,13 +290,6 @@ class Config:
             return
         self._data = json.loads(conf[0]['data'])
         self.loaded = True
-        changed = False
-        for opt in self.options:
-            if opt not in self._data:
-                self._data[opt] = self.options[opt]['default']
-                changed = True
-        if changed:
-            await self.save()
         # self._bot.logger.info(f'$GREENLoaded config for $BLUE{self._guild}')
         # this would be spammy boi every time ready is dispatched
 
