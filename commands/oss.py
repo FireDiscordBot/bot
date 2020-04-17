@@ -27,7 +27,7 @@ class OSS(commands.Cog):
 
     @commands.command(description='Links to Fire\'s GitHub repo', aliases=['oss'])
     async def opensource(self, ctx):
-        await ctx.send(f'You can find Fire\'s source code at <https://github.com/GamingGeek/Fire>')
+        await ctx.send(f'You can find Fire\'s source code at <https://github.com/FireDiscordBot/bot>')
 
 
 def setup(bot):

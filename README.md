@@ -1,4 +1,4 @@
-![Fire](https://github.com/GamingGeek/Fire/blob/master/cogs/static/images/promotional-assets/fire_inner.png?raw=true)
+![Fire](https://github.com/FireDiscordBot/bot/blob/master/cogs/static/images/promotional-assets/fire_inner.png?raw=true)
 
 <h3 align="center">A Discord bot for all your needs.<br>
 With memes, music, moderation & more,<br>
@@ -22,14 +22,13 @@ For support, join the [support discord](https://inv.wtf/fire).
 ## Authors
 
 * **Geek** *aka GamingGeek* - *Main Developer* - [GamingGeek](https://github.com/GamingGeek)
-* **Ender** *aka EnderDev* - *Main Developer* - [EnderDev](https://github.com/EnderDev)
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
 
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FGamingGeek%2FFire.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FGamingGeek%2FFire?ref=badge_large)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FFireDiscordBot%2Fbot.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FGamingGeek%2FFire?ref=badge_large)
 
 ## Acknowledgments
 
