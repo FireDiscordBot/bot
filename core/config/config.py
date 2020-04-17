@@ -188,6 +188,12 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $BLUEutils.public $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('utils.public', value)
 
+    @ConfigOpt(name='utils.tokendetect', accepts=bool, default=True, options=options)
+    async def token_detect(self, value: bool):
+        '''Token Detection | Automatically detects and resets Discord bot tokens'''
+        self._bot.logger.info(f'$GREENSetting $BLUEutils.tokendetect $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        await self.update('utils.tokendetect', value)
+
     @ConfigOpt(name='tickets.parent', accepts=discord.CategoryChannel, default=None, options=options)
     async def ticket_parent(self, value: discord.CategoryChannel):
         '''Tickets Category | The category where ticket channels are created. If this is not set, tickets are disabled'''
