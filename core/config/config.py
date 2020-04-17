@@ -188,7 +188,7 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $BLUEutils.public $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
         await self.update('utils.public', value)
 
-    @ConfigOpt(name='utils.tokendetect', accepts=bool, default=True, options=options)
+    @ConfigOpt(name='utils.tokendetect', accepts=bool, default=True, options=options, restricted=[264445053596991498])
     async def token_detect(self, value: bool):
         '''Token Detection | Automatically detects and resets Discord bot tokens'''
         self._bot.logger.info(f'$GREENSetting $BLUEutils.tokendetect $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
