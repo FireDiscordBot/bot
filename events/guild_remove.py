@@ -33,7 +33,7 @@ class GuildRemove(commands.Cog):
         self.bot.configs.pop(guild.id)
         fire = self.bot.get_guild(564052798044504084)
         await fire.edit(description=f'Fire is an open-source, multi-purpose bot with {len(self.bot.commands)} commands and is used in {len(self.bot.guilds)} servers.')
-        self.bot.logger.info(f"$REDFire left the guild $BLUE{guild.name}({guild.id}) $REDwith $BLUE{guild.member_count} $REDmembers! Goodbye o/")
+        self.bot.logger.info(f"$REDFire left the guild $BLUE{guild.name}({guild.id}) $REDwith $BLUE{guild.member_count} $REDmembers owned by $BLUE{guild.owner}$RED! Goodbye o/")
         try:
             await pushbullet("link", "Fire left a guild!", f"Fire left {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/", f"https://api.gaminggeek.dev/guild/{guild.id}")
         except exceptions.PushError as e:
