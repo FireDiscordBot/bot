@@ -90,9 +90,12 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        if not message.guild:
+            return
         embeds = [str(e.to_dict()) for e in message.embeds]
         tokens = re.findall(self.tokenregex, str(message.system_content) + str(embeds), re.MULTILINE)
-        if tokens and not self.bot.dev:
+        config = self.bot.configs[message.guild.id]
+        if tokens and not self.bot.dev and configs.get('utils.tokendetect'):
             try:
                 await self.token_gist(tokens, message)
             except Exception as e:
@@ -101,11 +104,11 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             return
         if message.author.bot:
             return
-        if self.bot.configs[message.guild.id].get('mod.dupecheck'):
+        if config.get('mod.dupecheck'):
             lastmsg = self.dupecheck.get(message.author.id, 'send this message and it will get yeeted')
             lastmsg = self.urlgobyebye(self.uuidgobyebye(lastmsg)).strip()
             thismsg = self.urlgobyebye(self.uuidgobyebye(message.content)).strip()
-            excluded = self.bot.configs[message.guild.id].get('excluded.filter')
+            excluded = config.get('excluded.filter')
             roleids = [r.id for r in message.author.roles]
             if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
                 if message.content != "" and len(message.attachments) < 1 and not message.author.bot and len(thismsg) > 10:
@@ -117,7 +120,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             raidmsg = self.raidmsgs.get(message.guild.id, False)
             if raidmsg and raidmsg in message.content:
                 self.msgraiders.get(message.guild.id, []).append(message.author)
-        excluded = self.bot.configs[message.guild.id].get('excluded.filter')
+        excluded = config.get('excluded.filter')
         roleids = [r.id for r in message.author.roles]
         if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
             filters = self.bot.get_cog('Filters')
