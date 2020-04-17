@@ -110,23 +110,17 @@ async def blacklist_check(ctx):
 async def cmdperm_check(ctx):
     if isinstance(ctx.channel, discord.DMChannel):
         return True
-    if ctx.command.cog.__class__.__name__ == 'Jishaku':
+    if ctx.bot.isadmin(ctx.author):
         return True
     if ctx.command.name in ctx.bot.configs[ctx.guild.id].get('disabled.commands'):
         if not ctx.author.permissions_in(ctx.channel).manage_messages:
             return False
-        else:
-            return True
     if ctx.channel in ctx.bot.configs[ctx.guild.id].get('commands.modonly'):
         if not ctx.author.permissions_in(ctx.channel).manage_messages:
             return False
-        else:
-            return True
     if ctx.channel in ctx.bot.configs[ctx.guild.id].get('commands.modonly'):
         if not ctx.author.permissions_in(ctx.channel).manage_guild:
             return False
-        else:
-            return True
     return True
 
 
