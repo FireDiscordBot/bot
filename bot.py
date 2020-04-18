@@ -61,7 +61,6 @@ extensions = [
     "cogs.skier",
     "cogs.utils",
     "cogs.help",
-    "cogs.dbl",
     "cogs.youtube",
     "cogs.settings",
     "cogs.moderation",
