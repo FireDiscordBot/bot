@@ -63,11 +63,10 @@ class GuildAdd(commands.Cog):
 
 
 def setup(bot):
-    if bot.dev:
-        return
-    try:
-        bot.add_cog(GuildAdd(bot))
-        bot.logger.info(f'$GREENLoaded event $CYANGuildAdd!')
-    except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding event $CYAN"GuildAdd"', exc_info=e)
+    if not bot.dev:
+        try:
+            bot.add_cog(GuildAdd(bot))
+            bot.logger.info(f'$GREENLoaded event $CYANGuildAdd!')
+        except Exception as e:
+            # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
+            bot.logger.error(f'$REDError while adding event $CYAN"GuildAdd"', exc_info=e)
