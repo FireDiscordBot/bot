@@ -32,20 +32,38 @@ class GuildRemove(commands.Cog):
     async def on_guild_remove(self, guild):
         self.bot.configs.pop(guild.id)
         fire = self.bot.get_guild(564052798044504084)
-        await fire.edit(description=f'Fire is an open-source, multi-purpose bot with {len(self.bot.commands)} commands and is used in {len(self.bot.guilds)} servers.')
-        self.bot.logger.info(f"$REDFire left the guild $CYAN{guild.name}({guild.id}) $REDwith $CYAN{guild.member_count} $REDmembers owned by $CYAN{guild.owner}$RED! Goodbye o/")
+        await fire.edit(description=f'Fire is an open-source, multi-purpose bot '
+                                    f'with {len(self.bot.commands)} commands and is used in'
+                                    f'{len(self.bot.guilds)} servers.'
+        )
+        self.bot.logger.info(f'$REDFire joined a new guild! '
+                             f'$CYAN{guild.name}({guild.id}) '
+                             f'$REDwith $CYAN{guild.member_count} $REDmembers '
+                             f'owned by {guild.owner}'
+        )
         try:
-            await pushbullet("link", "Fire left a guild!", f"Fire left {guild.name}({guild.id}) with {guild.member_count} members! Goodbye o/", f"https://api.gaminggeek.dev/guild/{guild.id}")
+            await pushbullet(
+                'note',
+                'Fire left a guild!',
+                f'Fire left {guild.name}({guild.id}) '
+                f'with {guild.member_count} members',
+                'https://api.gaminggeek.dev/stats'
+            )
         except exceptions.PushError as e:
-            self.bot.logger.warn(f'$YELLOWFailed to send guild leave notification!')
+            self.bot.logger.warn(f'$YELLOWFailed to send guild leave notification!', exc_info=e)
+        topgg = self.bot.get_cog('TopGG')
+        if topgg:
+            try:
+                await topgg.post_guilds()
+            except Exception as e:
+                self.bot.logger.warn(f'$YELLOWFailed to post guild count to top.gg', exc_info=e)
 
 
 def setup(bot):
-    if bot.dev:
-        return
-    try:
-        bot.add_cog(GuildRemove(bot))
-        bot.logger.info(f'$GREENLoaded event $CYANGuildRemove!')
-    except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while loading event $CYAN"GuildRemove"', exc_info=e)
+    if not bot.dev:
+        try:
+            bot.add_cog(GuildRemove(bot))
+            bot.logger.info(f'$GREENLoaded event $CYANGuildRemove!')
+        except Exception as e:
+            # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
+            bot.logger.error(f'$REDError while loading event $CYAN"GuildRemove"', exc_info=e)
