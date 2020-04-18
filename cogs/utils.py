@@ -1049,10 +1049,10 @@ class utils(commands.Cog, name='Utility Commands'):
 		try:
 			forwhen = datetime.datetime.utcnow() + datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours)
 		except OverflowError:
-			return await ctx.error(f'Somehow I don\'t think Discord is gonna be around for that long. Reminders are limited to a month anyways')
-		limit = datetime.datetime.utcnow() + datetime.timedelta(days=32) # 32 to account for extra time on 31st day, e.g. 31 days 2 hours
+			return await ctx.error(f'Somehow I don\'t think Discord is gonna be around for that long. Reminders are limited to 3 months anyways')
+		limit = datetime.datetime.utcnow() + datetime.timedelta(days=90)
 		if forwhen > limit and not await self.bot.is_owner(ctx.author):
-			return await ctx.error('Reminders currently cannot be set for more than 1 month (31 days)')
+			return await ctx.error('Reminders currently cannot be set for more than 3 months (90 days)')
 		if ctx.author.id not in self.reminders:
 			try:
 				await ctx.author.send('Hey, I\'m just checking to see if I can DM you as this is where I will send your reminder :)')
