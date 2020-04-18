@@ -43,7 +43,7 @@ class publiccmd(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(publiccmd(bot))
-        bot.logger.info(f'$GREENLoaded $BLUE"public" $GREENcommand!')
+        bot.logger.info(f'$GREENLoaded $CYAN"public" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $BLUE"public"', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"public"', exc_info=e)

@@ -40,7 +40,7 @@ class Ready(commands.Cog):
         self.bot.logger.info(f"$GREENGuilds: {len(self.bot.guilds)}")
         self.bot.logger.info(f"$GREENUsers: {len(self.bot.users)}")
         self.bot.logger.info("$GREEN-------------------------")
-        self.bot.logger.info(f"$BLUELOGGING START ON {datetime.datetime.utcnow()}")
+        self.bot.logger.info(f"$CYANLOGGING START ON {datetime.datetime.utcnow()}")
         for c in self.bot.configs.values():
             if not c.loaded:
                 await c.load()  # Load any stragglers that (for whatever reason) did not load on GUILD_CREATE
@@ -49,7 +49,7 @@ class Ready(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(Ready(bot))
-        bot.logger.info(f'$GREENLoaded event $BLUEReady!')
+        bot.logger.info(f'$GREENLoaded event $CYANReady!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while loading event $BLUE"Ready"', exc_info=e)
+        bot.logger.error(f'$REDError while loading event $CYAN"Ready"', exc_info=e)

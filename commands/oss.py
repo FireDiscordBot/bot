@@ -33,7 +33,7 @@ class OSS(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(OSS(bot))
-        bot.logger.info(f'$GREENLoaded $BLUE"OSS" $GREENcommand!')
+        bot.logger.info(f'$GREENLoaded $CYAN"OSS" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $BLUE"OSS', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"OSS', exc_info=e)

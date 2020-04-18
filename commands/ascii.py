@@ -44,7 +44,7 @@ class asciii(commands.Cog):  # 3 i's because ascii() already exists. ez fix
 def setup(bot):
     try:
         bot.add_cog(asciii(bot))
-        bot.logger.info(f'$GREENLoaded $BLUE"ascii" $GREENcommand!')
+        bot.logger.info(f'$GREENLoaded $CYAN"ascii" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $BLUE"ascii"', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"ascii"', exc_info=e)

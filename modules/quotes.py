@@ -154,7 +154,7 @@ class quotes(commands.Cog, name="Quotes"):
                         )
                     ]
                 except Exception as e:
-                    self.bot.logger.error(f'$REDFailed to create webhook for quotes in $BLUE{ctx.channel} ({ctx.guild})', exc_info=e)
+                    self.bot.logger.error(f'$REDFailed to create webhook for quotes in $CYAN{ctx.channel} ({ctx.guild})', exc_info=e)
                     existing = ['hi i am here to prevent a KeyError']
             if existing and isinstance(existing[0], discord.Webhook):
                 try:
@@ -170,7 +170,7 @@ class quotes(commands.Cog, name="Quotes"):
                         files=[(await a.to_file()) for a in message.attachments if a.size < 8388608]
                     )
                 except Exception as e:
-                    self.bot.logger.error(f'$REDFailed to use webhook for quotes in $BLUE{ctx.channel} ({ctx.guild})', exc_info=e)
+                    self.bot.logger.error(f'$REDFailed to use webhook for quotes in $CYAN{ctx.channel} ({ctx.guild})', exc_info=e)
                     pass  # Fallback to normal quoting if webhook fails
 
         if not message.content and message.embeds and message.author.bot:
@@ -184,4 +184,4 @@ class quotes(commands.Cog, name="Quotes"):
 
 def setup(bot):
     bot.add_cog(quotes(bot))
-    bot.logger.info(f'$GREENLoaded $BLUEQuotes $GREENmodule!')
+    bot.logger.info(f'$GREENLoaded $CYANQuotes $GREENmodule!')

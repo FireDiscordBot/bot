@@ -48,7 +48,7 @@ class GuildChannelDelete(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(GuildChannelDelete(bot))
-        bot.logger.info(f'$GREENLoaded event $BLUEGuildChannelDelete!')
+        bot.logger.info(f'$GREENLoaded event $CYANGuildChannelDelete!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding event $BLUE"GuildChannelDelete"', exc_info=e)
+        bot.logger.error(f'$REDError while adding event $CYAN"GuildChannelDelete"', exc_info=e)

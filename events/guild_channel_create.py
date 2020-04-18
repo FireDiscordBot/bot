@@ -51,7 +51,7 @@ class GuildChannelCreate(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(GuildChannelCreate(bot))
-        bot.logger.info(f'$GREENLoaded event $BLUEGuildChannelCreate!')
+        bot.logger.info(f'$GREENLoaded event $CYANGuildChannelCreate!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding event $BLUE"GuildChannelCreate"', exc_info=e)
+        bot.logger.error(f'$REDError while adding event $CYAN"GuildChannelCreate"', exc_info=e)

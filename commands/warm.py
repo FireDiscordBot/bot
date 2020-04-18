@@ -33,7 +33,7 @@ class warm(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(warm(bot))
-        bot.logger.info(f'$GREENLoaded $BLUE"warm" $GREENcommand!')
+        bot.logger.info(f'$GREENLoaded $CYAN"warm" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $BLUE"warm"', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"warm"', exc_info=e)

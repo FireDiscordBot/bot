@@ -46,7 +46,7 @@ class SocketStats(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(SocketStats(bot))
-        bot.logger.info(f'$GREENLoaded $BLUE"socketstats" $GREENcommand!')
+        bot.logger.info(f'$GREENLoaded $CYAN"socketstats" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $BLUE"socketstats"', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"socketstats"', exc_info=e)

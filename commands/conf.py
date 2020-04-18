@@ -49,7 +49,7 @@ class conf(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(conf(bot))
-        bot.logger.info(f'$GREENLoaded $BLUE"config" $GREENcommand!')
+        bot.logger.info(f'$GREENLoaded $CYAN"config" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $BLUE"config"', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"config"', exc_info=e)

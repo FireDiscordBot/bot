@@ -55,4 +55,4 @@ def setup(bot):
         bot.logger.info(f'$GREENLoaded Chatwatch!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while loading $BLUEChatwatch', exc_info=e)
+        bot.logger.error(f'$REDError while loading $CYANChatwatch', exc_info=e)

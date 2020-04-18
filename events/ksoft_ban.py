@@ -32,7 +32,7 @@ class KsoftBan(commands.Cog):
             user = await self.bot.fetch_user(int(event['id']))
         except Exception:
             return
-        self.bot.logger.warn(f'$BLUE{user} ({user.id}) $YELLOWwas banned on KSoft for $BLUE{event["reason"]} $YELLOWby $BLUE{event["moderator_id"]} $YELLOW. Proof: $BLUE{event["proof"]}')
+        self.bot.logger.warn(f'$CYAN{user} ({user.id}) $YELLOWwas banned on KSoft for $CYAN{event["reason"]} $YELLOWby $CYAN{event["moderator_id"]} $YELLOW. Proof: $CYAN{event["proof"]}')
         for guild in self.bot.guilds:
             if self.bot.configs[guild.id].get('mod.globalbans'):
                 logch = self.bot.configs[guild.id].get('log.moderation')
@@ -57,7 +57,7 @@ class KsoftBan(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(KsoftBan(bot))
-        bot.logger.info(f'$GREENLoaded event $BLUEKsoftBan!')
+        bot.logger.info(f'$GREENLoaded event $CYANKsoftBan!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding event $BLUE"KsoftBan"', exc_info=e)
+        bot.logger.error(f'$REDError while adding event $CYAN"KsoftBan"', exc_info=e)

@@ -31,7 +31,7 @@ class KsoftUnban(commands.Cog):
             user = await self.bot.fetch_user(int(event['id']))
         except Exception:
             return
-        self.bot.logger.warn(f'$BLUE{user} ({user.id}) $YELLOWwas unbanned on KSoft with the reason $BLUE{event["appeal_reason"]}')
+        self.bot.logger.warn(f'$CYAN{user} ({user.id}) $YELLOWwas unbanned on KSoft with the reason $CYAN{event["appeal_reason"]}')
         for guild in self.bot.guilds:
             if self.bot.configs[guild.id].get('mod.globalbans'):
                 logch = self.bot.configs[guild.id].get('log.moderation')
@@ -58,7 +58,7 @@ class KsoftUnban(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(KsoftUnban(bot))
-        bot.logger.info(f'$GREENLoaded event $BLUEKsoftUnban!')
+        bot.logger.info(f'$GREENLoaded event $CYANKsoftUnban!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding event $BLUE"KsoftUnban"', exc_info=e)
+        bot.logger.error(f'$REDError while adding event $CYAN"KsoftUnban"', exc_info=e)

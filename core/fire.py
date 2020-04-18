@@ -128,20 +128,20 @@ class Fire(commands.Bot):
         except Exception as e:
             # errortb = ''.join(traceback.format_exception(
             #     type(e), e, e.__traceback__))
-            self.logger.error(f'$REDError while loading $BLUEChatwatch', exc_info=e)
+            self.logger.error(f'$REDError while loading $CYANChatwatch', exc_info=e)
         try:
             self.load_extension('jishaku')
         except Exception as e:
             # errortb = ''.join(traceback.format_exception(
             #     type(e), e, e.__traceback__))
-            self.logger.error(f'$REDError while loading $BLUEJishaku', exc_info=e)
+            self.logger.error(f'$REDError while loading $CYANJishaku', exc_info=e)
         for ext in resolve_extensions(self, 'commands.*'):
             try:
                 self.load_extension(ext)
             except Exception as e:
                 # errortb = ''.join(traceback.format_exception(
                 #     type(e), e, e.__traceback__))
-                self.logger.error(f'$REDError while loading $BLUE{ext}', exc_info=e)
+                self.logger.error(f'$REDError while loading $CYAN{ext}', exc_info=e)
 
     def load_events(self):
         for ext in resolve_extensions(self, 'events.*'):

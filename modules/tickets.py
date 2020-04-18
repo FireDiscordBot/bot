@@ -220,4 +220,4 @@ class tickets(commands.Cog, name="Tickets"):
 
 def setup(bot):
     bot.add_cog(tickets(bot))
-    bot.logger.info(f'$GREENLoaded $BLUETickets $GREENmodule!')
+    bot.logger.info(f'$GREENLoaded $CYANTickets $GREENmodule!')

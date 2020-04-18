@@ -74,10 +74,10 @@ class Stats(commands.Cog):
             elif payload['op'] == 7:
                 t = 'RECONNECT'
             else:
-                self.bot.logger.warn(f'$REDUnknown event, $BLUE{t}\n$REDPayload: $BLUE{payload}')
+                self.bot.logger.warn(f'$REDUnknown event, $CYAN{t}\n$REDPayload: $CYAN{payload}')
                 return
         if t not in self.bot.stats['socket']:
-            self.bot.logger.info(f'$GREENFound new event, $BLUE{t}')
+            self.bot.logger.info(f'$GREENFound new event, $CYAN{t}')
             self.bot.stats['socket'][t] = 1
         else:
             self.bot.stats['socket'][t] += 1
@@ -194,7 +194,7 @@ class Stats(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(Stats(bot))
-        bot.logger.info(f'$GREENLoaded $BLUEStats $GREENmodule!')
+        bot.logger.info(f'$GREENLoaded $CYANStats $GREENmodule!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while loading module $BLUE"Stats"', exc_info=e)
+        bot.logger.error(f'$REDError while loading module $CYAN"Stats"', exc_info=e)

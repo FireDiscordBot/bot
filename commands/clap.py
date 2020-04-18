@@ -36,7 +36,7 @@ class clap(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(clap(bot))
-        bot.logger.info(f'$GREENLoaded $BLUE"clap" $GREENcommand!')
+        bot.logger.info(f'$GREENLoaded $CYAN"clap" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $BLUE"clap"', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"clap"', exc_info=e)

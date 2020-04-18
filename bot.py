@@ -75,10 +75,10 @@ extensions = [
 
 for cog in extensions:
     try:
-        bot.logger.info(f'$GREENLoading cog $BLUE{cog}')
+        bot.logger.info(f'$GREENLoading cog $CYAN{cog}')
         bot.load_extension(cog)
     except Exception as e:
-        bot.logger.error(f"$REDError while loading $BLUE{cog}", exc_info=e)
+        bot.logger.error(f"$REDError while loading $CYAN{cog}", exc_info=e)
 
 
 @bot.command(description="Change the prefix for this guild. (For prefixes with a space, surround it in \"\")")

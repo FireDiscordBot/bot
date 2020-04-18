@@ -223,4 +223,4 @@ class Filters(commands.Cog):
 
 def setup(bot):
     bot.add_cog(Filters(bot))
-    bot.logger.info(f'$GREENLoaded $BLUEFilters $GREENmodule!')
+    bot.logger.info(f'$GREENLoaded $CYANFilters $GREENmodule!')

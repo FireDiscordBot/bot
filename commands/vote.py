@@ -33,7 +33,7 @@ class vote(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(vote(bot))
-        bot.logger.info(f'$GREENLoaded $BLUE"vote" $GREENcommand!')
+        bot.logger.info(f'$GREENLoaded $CYAN"vote" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $BLUE"vote"', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"vote"', exc_info=e)

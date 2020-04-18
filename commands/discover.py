@@ -33,7 +33,7 @@ class Discover(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(Discover(bot))
-        bot.logger.info(f'$GREENLoaded $BLUE"Discover" $GREENcommand!')
+        bot.logger.info(f'$GREENLoaded $CYAN"Discover" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $BLUE"Discover', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"Discover', exc_info=e)

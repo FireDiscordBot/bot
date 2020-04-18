@@ -40,7 +40,7 @@ class eightball(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(eightball(bot))
-        bot.logger.info(f'$GREENLoaded $BLUE"eightball" $GREENcommand!')
+        bot.logger.info(f'$GREENLoaded $CYAN"eightball" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $BLUE"eightball"', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"eightball"', exc_info=e)

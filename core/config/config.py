@@ -38,7 +38,7 @@ class Config:
     @ConfigOpt(name='main.prefix', accepts=str, default='$', options=options)
     async def prefix(self, value: str):
         '''Prefix | The prefix used before all Fire commands'''
-        self._bot.logger.info(f'$GREENSetting $BLUEmain.prefix $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANmain.prefix $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('main.prefix', value)
 
     @ConfigOpt(name='main.description', accepts=str, default=None, options=options)
@@ -46,25 +46,25 @@ class Config:
         '''Description | The server description, shown in the embed for Vanity URLs'''
         if len(value) > 240:
             raise InvalidValueError('main.description', value, 'Descriptions must be 240 characters or less.')
-        self._bot.logger.info(f'$GREENSetting $BLUEmain.description $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANmain.description $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('main.description', value)
 
     @ConfigOpt(name='log.moderation', accepts=discord.TextChannel, default=None, options=options)
     async def mod_logs(self, value: discord.TextChannel):
         '''Moderation Logs | The channel where moderation actions are logged'''
-        self._bot.logger.info(f'$GREENSetting $BLUElog.moderation $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANlog.moderation $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('log.moderation', value.id)
 
     @ConfigOpt(name='log.action', accepts=discord.TextChannel, default=None, options=options)
     async def action_logs(self, value: discord.TextChannel):
         '''Action Logs | The channel where miscellaneous actions are logged, e.g. deleted messages'''
-        self._bot.logger.info(f'$GREENSetting $BLUElog.action $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANlog.action $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('log.action', value.id)
 
     @ConfigOpt(name='mod.mutedrole', accepts=discord.Role, default=None, options=options)
     async def muted_role(self, value: discord.Role):
         '''Muted Role | The role which will be used when muting a user. If not set, it will default to a role called "Muted"'''
-        self._bot.logger.info(f'$GREENSetting $BLUEmod.mutedrole $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANmod.mutedrole $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.mutedrole', value.id)
 
     @ConfigOpt(name='mod.linkfilter', accepts=[str], default=[], options=options)
@@ -73,85 +73,85 @@ class Config:
         valid = ['discord', 'youtube', 'twitch', 'twitter', 'paypal', 'malware']
         if any(v not in valid for v in value):
             raise TypeMismatchError(type=', '.join([v for v in value if v not in valid]), accepted=', '.join(valid), option='mod.linkfilter')
-        self._bot.logger.info(f'$GREENSetting $BLUEmod.linkfilter $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANmod.linkfilter $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.linkfilter', value)
 
     @ConfigOpt(name='mod.dupecheck', accepts=bool, default=False, options=options)
     async def dupe_check(self, value: bool):
         '''Duplicate Message Deletion | The deletion of duplicate messages'''
-        self._bot.logger.info(f'$GREENSetting $BLUEmod.dupecheck $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANmod.dupecheck $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.dupecheck', value)
 
     @ConfigOpt(name='excluded.filter', accepts=[int], default=[], options=options)
     async def filter_exclude(self, value: list):
         '''Filter Exclusion | Channel, role and user IDs that are excluded from link filters and duplicate message deletion'''
-        self._bot.logger.info(f'$GREENSetting $BLUEexcluded.filter $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANexcluded.filter $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('excluded.filter', value)
 
     @ConfigOpt(name='mod.globalbans', accepts=bool, default=False, options=options)
     async def global_bans(self, value: bool):
         '''Global Bans | Global ban checking on member join, powered by KSoft.Si API'''
-        self._bot.logger.info(f'$GREENSetting $BLUEmod.globalbans $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANmod.globalbans $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.globalbans', value)
 
     @ConfigOpt(name='mod.autodecancer', accepts=bool, default=False, options=options)
     async def auto_decancer(self, value: bool):
         '''Auto Decancer | Renames those with "cancerous" names (non-ascii chars) to John Doe'''
-        self._bot.logger.info(f'$GREENSetting $BLUEmod.autodecancer $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANmod.autodecancer $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.autodecancer', value)
 
     @ConfigOpt(name='mod.autodehoist', accepts=bool, default=False, options=options)
     async def auto_dehoist(self, value: bool):
         '''Auto Dehoist | Renames those with "hoisted" names (starts with non a-z char) to John Doe'''
-        self._bot.logger.info(f'$GREENSetting $BLUEmod.autodehoist $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANmod.autodehoist $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.autodehoist', value)
 
     @ConfigOpt(name='commands.modonly', accepts=[discord.TextChannel], default=[], options=options)
     async def mod_only(self, value: list):
         '''Moderator Channels | The channels where only moderators can run commands'''
-        self._bot.logger.info(f'$GREENSetting $BLUEcommands.modonly $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANcommands.modonly $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('commands.modonly', [c.id for c in value])
 
     @ConfigOpt(name='commands.adminonly', accepts=[discord.TextChannel], default=[], options=options)
     async def admin_only(self, value: list):
         '''Admin channels | The channels where only admins can run commands'''
-        self._bot.logger.info(f'$GREENSetting $BLUEcommands.adminonly $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANcommands.adminonly $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('commands.adminonly', [c.id for c in value])
 
     @ConfigOpt(name='mod.antiraid', accepts=discord.TextChannel, default=None, options=options, premium=True)
     async def anti_raid(self, value: discord.TextChannel):
         '''Anti Raid (Premium) | The channel where raid alerts are sent'''
-        self._bot.logger.info(f'$GREENSetting $BLUEmod.antiraid $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANmod.antiraid $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.antiraid', value.id)
 
     @ConfigOpt(name='mod.autorole', accepts=discord.Role, default=None, options=options, premium=True)
     async def auto_role(self, value: discord.Role):
         '''Auto Role (Premium ) | The role given to users upon joining the server'''
-        self._bot.logger.info(f'$GREENSetting $BLUEmod.autorole $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANmod.autorole $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.autorole', value.id)
 
     @ConfigOpt(name='greet.joinchannel', accepts=discord.TextChannel, default=None, options=options)
     async def join_channel(self, value: discord.TextChannel):
         '''Join Message Channel | The channel where join messages are sent'''
-        self._bot.logger.info(f'$GREENSetting $BLUEgreet.joinchannel $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANgreet.joinchannel $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('greet.joinchannel', value.id)
 
     @ConfigOpt(name='greet.leavechannel', accepts=discord.TextChannel, default=None, options=options)
     async def leave_channel(self, value: discord.TextChannel):
         '''Leave Message Channel | The channel where leave messages are sent'''
-        self._bot.logger.info(f'$GREENSetting $BLUEgreet.leavechannel $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANgreet.leavechannel $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('greet.leavechannel', value.id)
 
     @ConfigOpt(name='greet.joinmsg', accepts=str, default=None, options=options)
     async def join_message(self, value: str):
         '''Join Message | The server's custom join message'''
-        self._bot.logger.info(f'$GREENSetting $BLUEgreet.joinmsg $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANgreet.joinmsg $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('greet.joinmsg', value)
 
     @ConfigOpt(name='greet.leavemsg', accepts=str, default=None, options=options)
     async def leave_message(self, value: str):
         '''Leave Message | The server's custom leave message'''
-        self._bot.logger.info(f'$GREENSetting $BLUEgreet.leavemsg $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANgreet.leavemsg $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('greet.leavemsg', value)
 
     @ConfigOpt(name='disabled.commands', accepts=[str], default=[], options=options)
@@ -159,7 +159,7 @@ class Config:
         '''Disabled Commands | Commands that can only be ran by moderators (those with Manage Messages permission)'''
         if [v for v in value if not self._bot.get_command(v)]:
             raise TypeMismatchError(type=', '.join([v for v in value if not self._bot.get_command(v)]), accepted=', '.join([cmd.name for cmd in self._bot.commands if not cmd.hidden]), option='disabled.commands')
-        self._bot.logger.info(f'$GREENSetting $BLUEdisabled.commands $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANdisabled.commands $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('disabled.commands', value)
 
     @ConfigOpt(name='disabled.cogs', accepts=[str], default=[], options=options)
@@ -167,37 +167,37 @@ class Config:
         '''Disabled Cogs | Modules that can only be ran by moderators (those with Manage Messages permission)'''
         if [v for v in value if not self._bot.get_cog(v)]:
             raise TypeMismatchError(type=', '.join([v for v in value if not self._bot.get_cog(v)]), accepted=', '.join([cog.name for cog in self._bot.cogs if not cog.hidden]), option='disabled.cogs')
-        self._bot.logger.info(f'$GREENSetting $BLUEdisabled.cogs $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANdisabled.cogs $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('disabled.cogs', value)
 
     @ConfigOpt(name='utils.autoquote', accepts=bool, default=False, options=options)
     async def auto_quote(self, value: bool):
         '''Automatic Quotes | Automatically quotes messages when a message link is sent'''
-        self._bot.logger.info(f'$GREENSetting $BLUEutils.autoquote $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANutils.autoquote $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('utils.autoquote', value)
 
     @ConfigOpt(name='utils.badname', accepts=str, default=None, options=options)
     async def bad_name(self, value: str):
         '''Bad Name | The name used for decancer and dehoist. If not set, John Doe + discrim is used'''
-        self._bot.logger.info(f'$GREENSetting $BLUEutils.badname $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANutils.badname $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('utils.badname', value)
 
     @ConfigOpt(name='utils.public', accepts=bool, default=False, options=options)
     async def public_guild(self, value: bool):
         '''Public Guild | Makes your server viewable on https://fire.gaminggeek.space/discover (and joinable if a vanity url is set)'''
-        self._bot.logger.info(f'$GREENSetting $BLUEutils.public $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANutils.public $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('utils.public', value)
 
     @ConfigOpt(name='utils.tokendetect', accepts=bool, default=True, options=options, restricted=[264445053596991498])
     async def token_detect(self, value: bool):
         '''Token Detection | Automatically detects and resets Discord bot tokens'''
-        self._bot.logger.info(f'$GREENSetting $BLUEutils.tokendetect $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANutils.tokendetect $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('utils.tokendetect', value)
 
     @ConfigOpt(name='tickets.parent', accepts=discord.CategoryChannel, default=None, options=options)
     async def ticket_parent(self, value: discord.CategoryChannel):
         '''Tickets Category | The category where ticket channels are created. If this is not set, tickets are disabled'''
-        self._bot.logger.info(f'$GREENSetting $BLUEtickets.parent $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANtickets.parent $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('tickets.parent', value.id)
 
     @ConfigOpt(name='tickets.increment', accepts=int, default=0, options=options)
@@ -208,13 +208,13 @@ class Config:
     @ConfigOpt(name='tickets.limit', accepts=int, default=0, options=options)
     async def ticket_limit(self, value: int):
         '''Ticket Limit | The number tickets a user can open, 0 = Unlimited'''
-        self._bot.logger.info(f'$GREENSetting $BLUEtickets.limit $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANtickets.limit $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('tickets.limit', value)
 
     @ConfigOpt(name='tickets.name', accepts=str, default='ticket-{increment}', options=options)
     async def ticket_name(self, value: str):
         '''Ticket Name | The name used for ticket channels'''
-        self._bot.logger.info(f'$GREENSetting $BLUEtickets.name $GREENto $BLUE{value} $GREENfor guild $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSetting $CYANtickets.name $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('tickets.name', value)
 
     @ConfigOpt(name='tickets.channels', accepts=[discord.TextChannel], default=[], options=options, hidden=True)
@@ -290,7 +290,7 @@ class Config:
             return
         self._data = json.loads(conf[0]['data'])
         self.loaded = True
-        # self._bot.logger.info(f'$GREENLoaded config for $BLUE{self._guild}')
+        # self._bot.logger.info(f'$GREENLoaded config for $CYAN{self._guild}')
         # this would be spammy boi every time ready is dispatched
 
     async def save(self):
@@ -299,7 +299,7 @@ class Config:
             query = 'UPDATE config SET data = $1 WHERE gid = $2;'
             await self._db.execute(query, json.dumps(self._data), self._guild.id)
         await self._db.release(con)
-        self._bot.logger.info(f'$GREENSaved config for $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENSaved config for $CYAN{self._guild}')
 
     async def init(self):
         con = await self._db.acquire()
@@ -307,7 +307,7 @@ class Config:
             query = 'INSERT INTO config (\"gid\", \"data\") VALUES ($1, $2);'
             await self._db.execute(query, self._guild.id, json.dumps(self.get_default_config()))
         await self._db.release(con)
-        self._bot.logger.info(f'$GREENInitiated config for $BLUE{self._guild}')
+        self._bot.logger.info(f'$GREENInitiated config for $CYAN{self._guild}')
         return self.get_default_config()
 
     def get_default_config(self):

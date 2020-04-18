@@ -36,12 +36,30 @@ class GuildAdd(commands.Cog):
             self.bot.configs[guild.id] = Config(guild.id, bot=self.bot, db=self.bot.db)
             await self.bot.configs[guild.id].load()
         fire = self.bot.get_guild(564052798044504084)
-        await fire.edit(description=f'Fire is an open-source, multi-purpose bot with {len(self.bot.commands)} commands and is used in {len(self.bot.guilds)} servers.')
-        self.bot.logger.info(f"$GREENFire joined a new guild! $BLUE{guild.name}({guild.id}) $GREENwith $BLUE{guild.member_count} $GREENmembers")
+        await fire.edit(description=f'Fire is an open-source, multi-purpose bot '
+                                    f'with {len(self.bot.commands)} commands and is used in'
+                                    f'{len(self.bot.guilds)} servers.'
+        )
+        self.bot.logger.info(f'$GREENFire joined a new guild! '
+                             f'$CYAN{guild.name}({guild.id}) '
+                             f'$GREENwith $CYAN{guild.member_count} $GREENmembers'
+        )
         try:
-            await pushbullet("note", "Fire joined a new guild!", f"Fire joined {guild.name}({guild.id}) with {guild.member_count} members", f"https://api.gaminggeek.dev/guild/{guild.id}")
+            await pushbullet(
+                'note',
+                'Fire joined a new guild!',
+                f'Fire joined {guild.name}({guild.id}) '
+                f'with {guild.member_count} members',
+                'https://api.gaminggeek.dev/stats'
+            )
         except exceptions.PushError as e:
             self.bot.logger.warn(f'$YELLOWFailed to send guild join notification!', exc_info=e)
+        topgg = self.bot.get_cog('TopGG')
+        if topgg:
+            try:
+                await topgg.post_guilds()
+            except Exception as e:
+                self.bot.logger.warn(f'$YELLOWFailed to post guild count to top.gg', exc_info=e)
 
 
 def setup(bot):
@@ -49,7 +67,7 @@ def setup(bot):
         return
     try:
         bot.add_cog(GuildAdd(bot))
-        bot.logger.info(f'$GREENLoaded event $BLUEGuildAdd!')
+        bot.logger.info(f'$GREENLoaded event $CYANGuildAdd!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding event $BLUE"GuildAdd"', exc_info=e)
+        bot.logger.error(f'$REDError while adding event $CYAN"GuildAdd"', exc_info=e)

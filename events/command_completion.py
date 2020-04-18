@@ -65,7 +65,7 @@ class CommandCompletion(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(CommandCompletion(bot))
-        bot.logger.info(f'$GREENLoaded event $BLUECommandCompletion!')
+        bot.logger.info(f'$GREENLoaded event $CYANCommandCompletion!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding event $BLUE"CommandCompletion"', exc_info=e)
+        bot.logger.error(f'$REDError while adding event $CYAN"CommandCompletion"', exc_info=e)
