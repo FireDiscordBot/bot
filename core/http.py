@@ -110,7 +110,7 @@ class HTTPClient:
         self.session = self.renew_session()
 
         async with self.session.request(method, url, **kwargs) as r:
-            logger.debug(f'core.http:request {method} {path} | {r.status}')
+            logger.info(f'core.http:request {method} {path} | {r.status}')
             if route.expected_type:
                 if r.headers.get('Content-Type', '') != route.expected_type:
                     logger.debug(f'core.http:request Received unexpected content type')
