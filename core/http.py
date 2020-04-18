@@ -71,7 +71,7 @@ class HTTPClient:
 
     def renew_session(self) -> aiohttp.ClientSession:
         if self.session.closed:
-            logger.warn(f'core.http:session Session is closed, renewing')
+            logger.warn(f'[Session] Session is closed, renewing')
             session = aiohttp.ClientSession(
                 loop=self.loop,
                 headers=self.headers,
@@ -110,10 +110,10 @@ class HTTPClient:
         self.session = self.renew_session()
 
         async with self.session.request(method, url, **kwargs) as r:
-            logger.info(f'core.http:request {method} {path} | {r.status}')
+            logger.info(f'[Request] {method} {path} | {r.status}')
             if route.expected_type:
                 if r.headers.get('Content-Type', '') != route.expected_type:
-                    logger.debug(f'core.http:request Received unexpected content type')
+                    logger.debug(f'[Request] Received unexpected content type')
                     raise UnexpectedContentType(
                         route.expected_type,
                         r.headers.get('Content-Type', 'Unkown')
