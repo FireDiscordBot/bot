@@ -112,14 +112,14 @@ async def cmdperm_check(ctx):
         return True
     if ctx.bot.isadmin(ctx.author):
         return True
+    if ctx.channel in ctx.bot.configs[ctx.guild.id].get('commands.adminonly'):
+        if not ctx.author.permissions_in(ctx.channel).manage_guild:
+            return False
     if ctx.command.name in ctx.bot.configs[ctx.guild.id].get('disabled.commands'):
         if not ctx.author.permissions_in(ctx.channel).manage_messages:
             return False
     if ctx.channel in ctx.bot.configs[ctx.guild.id].get('commands.modonly'):
         if not ctx.author.permissions_in(ctx.channel).manage_messages:
-            return False
-    if ctx.channel in ctx.bot.configs[ctx.guild.id].get('commands.modonly'):
-        if not ctx.author.permissions_in(ctx.channel).manage_guild:
             return False
     return True
 
