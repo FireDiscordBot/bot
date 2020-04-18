@@ -42,9 +42,10 @@ class TopGG(commands.Cog):
                 'server_count': len(self.bot.guilds)
             }
         )
-        self.bot.logger.info(f'$GREENPosted guild count ({len(self.bot.guilds)}) to $CYANtop.gg')
+        self.bot.logger.info(f'$GREENPosted guild count $CYAN({len(self.bot.guilds)}) $GREENto $CYANtop.gg')
 
 
 def setup(bot):
-    bot.add_cog(TopGG(bot))
-    bot.logger.info(f'$GREENLoaded $CYANtop.gg $GREENmodule!')
+    if not bot.dev:
+        bot.add_cog(TopGG(bot))
+        bot.logger.info(f'$GREENLoaded $CYANtop.gg $GREENmodule!')
