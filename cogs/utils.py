@@ -1046,7 +1046,10 @@ class utils(commands.Cog, name='Utility Commands'):
 			return await ctx.error('Invalid format. Please use the format "DAYSd HOURSh MINUTESm SECONDSs" along with your reminder')
 		if not days and not hours and not minutes and not seconds:
 			return await ctx.error('Invalid format. Please provide a time')
-		forwhen = datetime.datetime.utcnow() + datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours)
+		try:
+			forwhen = datetime.datetime.utcnow() + datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours)
+		except OverflowError:
+			return await ctx.error(f'Somehow I don\'t think Discord is gonna be around for that long. Reminders are limited to a month anyways')
 		limit = datetime.datetime.utcnow() + datetime.timedelta(days=32) # 32 to account for extra time on 31st day, e.g. 31 days 2 hours
 		if forwhen > limit and not await self.bot.is_owner(ctx.author):
 			return await ctx.error('Reminders currently cannot be set for more than 1 month (31 days)')
