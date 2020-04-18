@@ -190,7 +190,12 @@ class Assistant(commands.Cog, name='Google Assistant'):
 	@commands.max_concurrency(1, per=commands.BucketType.user)
 	async def google(self, ctx, *, query):
 		await ctx.channel.trigger_typing()
-		await self.bot.loop.run_in_executor(None, func=functools.partial(self.assist, ctx.author.id, query))
+		try:
+			await self.bot.loop.run_in_executor(None, func=functools.partial(self.assist, ctx.author.id, query))
+		except Exception as e:
+			if 'text_query too long.' in str(e):
+				return await ctx.error(f'That query is too long. Try something shorter')
+			return await ctx.error(f'Something went wrong.')
 		if ctx.author.id not in self.responses:
 			return await ctx.send(f'<a:okaygoogle:661951491082551306> Something went wrong. Try again later')
 		async with get_session(self.service, self.browser) as session:
