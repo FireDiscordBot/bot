@@ -101,7 +101,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             except Exception as e:
                 self.bot.logger.warn(f'Failed to upload token to gist (to reset ofc)', exc_info=e)
         if message.channel.id == 600070909365059584 and message.embeds:
-            if 'new commit' in message.embeds[0].title:
+            if 'new commit' in message.embeds[0].title and self.bot.dev:
                 try:
                     await message.publish()
                 except Exception as e:
