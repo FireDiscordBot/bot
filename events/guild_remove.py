@@ -36,7 +36,7 @@ class GuildRemove(commands.Cog):
                                     f'with {len(self.bot.commands)} commands and is used in'
                                     f'{len(self.bot.guilds)} servers.'
         )
-        self.bot.logger.info(f'$REDFire joined a new guild! '
+        self.bot.logger.info(f'$REDFire left a guild! '
                              f'$CYAN{guild.name}({guild.id}) '
                              f'$REDwith $CYAN{guild.member_count} $REDmembers '
                              f'owned by {guild.owner}'
