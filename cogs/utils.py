@@ -749,11 +749,11 @@ class utils(commands.Cog, name='Utility Commands'):
 						trust = 'Low'
 						cwbl = f'<:xmark:674359427830382603> **High** chance of spam'
 					if cwprofile['score'] > 50:
+						cwbl = f'<a:fireWarning:660148304486727730> **Moderate** chance of spam'
 						if trust == 'High':
 							trust = 'Moderate'
 						elif trust == 'Moderate':
 							trust = 'Low'
-						cwbl = f'<a:fireWarning:660148304486727730> **Moderate** chance of spam'
 					if cwprofile['score'] == 50:
 						cwbl = '<:neutral:674359530074669076> **Neutral** chance of spam'
 					else:
