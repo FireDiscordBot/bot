@@ -18,6 +18,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from core.http import HTTPClient, Route
 from discord.ext import commands
 import discord
+import json
 
 
 class TopGG(commands.Cog):
@@ -27,7 +28,8 @@ class TopGG(commands.Cog):
             'https://top.gg/api',
             user_agent=f'Fire Discord Bot',
             headers={
-                'Authorization': bot.config['dbl']
+                'Authorization': bot.config['dbl'],
+                'content-type': 'application/json'
             }
         )
 
