@@ -103,9 +103,9 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
         if message.channel.id == 600070909365059584 and message.embeds:
             if 'new commit' in message.embeds[0].title:
                 try:
-                    await mesage.publish()
-                except Exception:
-                    pass
+                    await message.publish()
+                except Exception as e:
+                    self.bot.logger.warn(f'Failed to publish commit', exc_info=e)
         if not isinstance(message.author, discord.Member):
             return
         if message.author.bot:
