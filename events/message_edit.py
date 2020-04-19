@@ -39,6 +39,8 @@ class MessageEdit(commands.Cog):
         if not after.guild and not (before.content == after.content or after.author.bot):
             ctx = await self.bot.get_context(after)
             return await self.bot.invoke(ctx)
+        if not after.guild:
+            return
         logch = self.bot.configs[after.guild.id].get('log.action')
         if after.channel.is_news():
             if before.flags.crossposted != after.flags.crossposted:
