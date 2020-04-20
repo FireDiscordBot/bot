@@ -51,12 +51,15 @@ class GuildRemove(commands.Cog):
             )
         except exceptions.PushError as e:
             self.bot.logger.warn(f'$YELLOWFailed to send guild leave notification!', exc_info=e)
-        topgg = self.bot.get_cog('TopGG')
-        if topgg:
+        botlists = [
+            self.bot.get_cog('TopGG'),
+            self.bot.get_cog('DiscordBoats')
+        ]
+        for l in botlists:
             try:
-                await topgg.post_guilds()
+                await l.post_guilds()
             except Exception as e:
-                self.bot.logger.warn(f'$YELLOWFailed to post guild count to top.gg', exc_info=e)
+                self.bot.logger.warn(f'$YELLOWFailed to post guild count to $CYAN{l.name}', exc_info=e)
 
 
 def setup(bot):
