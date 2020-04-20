@@ -24,10 +24,6 @@ import uuid
 import re
 
 
-with open('config.json', 'r') as cfg:
-	config = json.load(cfg)
-
-
 class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 	def __init__(self, bot):
 		self.bot = bot
@@ -35,8 +31,8 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		self.nitro = discord.utils.get(self.guild.roles, id=585534346551754755)
 		self.testrole = discord.utils.get(self.guild.roles, id=645067429067751436)
 		self.gist = 'b070e7f75a9083d2e211caffa0c772cc'
-		self.gistheaders = {'Authorization': f'token {config["github"]}'}
-		self.modcoreheaders = {'secret': config['modcore']}
+		self.gistheaders = {'Authorization': f'token {bot.config["github"]}'}
+		self.modcoreheaders = {'secret': bot.config['modcore']}
 		self.logregex = r'((hyperium-)?crash-\d{4}-\d{2}-\d{2}_\d{2}\.\d{2}\.\d{2}.+\.txt|latest\.log|launcher_log\.txt|hs_err_pid\d{1,8}\.log)'
 		self.logtext = [
 			'net.minecraft.launchwrapper.Launch',
@@ -102,7 +98,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 					}
 				}
 			}
-			await aiohttp.ClientSession(headers=self.modcoreheaders).get(f'{config["modcoreapi"]}nitro/{mcuuid}/false')
+			await aiohttp.ClientSession(headers=self.modcoreheaders).get(f'https://api.modcore.sk1er.club/nitro/{mcuuid}/false')
 			async with aiohttp.ClientSession(headers=self.gistheaders) as s:
 				async with s.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as r:
 					if r.status == 200:
@@ -149,7 +145,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 						}
 					}
 				}
-				await aiohttp.ClientSession(headers=self.modcoreheaders).get(f'{config["modcoreapi"]}nitro/{mcuuid}/false')
+				await aiohttp.ClientSession(headers=self.modcoreheaders).get(f'https://api.modcore.sk1er.club/nitro/{mcuuid}/false')
 				async with aiohttp.ClientSession(headers=self.gistheaders) as s:
 					async with s.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as r:
 						if r.status == 200:
@@ -242,7 +238,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		try:
 			user = next(i for i in current if i["id"] == str(ctx.author.id))
 			async with aiohttp.ClientSession(headers=self.modcoreheaders) as s:
-				async with s.get(f'{config["modcoreapi"]}nitro/{user["uuid"]}/false') as r:
+				async with s.get(f'https://api.modcore.sk1er.club/nitro/{user["uuid"]}/false') as r:
 					if r.status != 200:
 						await progress.edit(content='<:xmark:674359427830382603> Modcore didn\'t respond correctly')
 			current.remove(user)
@@ -265,7 +261,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			}
 		}
 		async with aiohttp.ClientSession(headers=self.modcoreheaders) as s:
-			async with s.get(f'{config["modcoreapi"]}nitro/{user["uuid"]}/true') as r:
+			async with s.get(f'https://api.modcore.sk1er.club/nitro/{user["uuid"]}/true') as r:
 				if r.status != 200:
 					await ctx.error('Modcore didn\'t respond correctly')
 		async with aiohttp.ClientSession(headers=self.gistheaders) as s:

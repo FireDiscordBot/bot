@@ -26,15 +26,12 @@ from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 from fire.converters import Member
 
 
-with open('config.json', 'r') as cfg:
-	config = json.load(cfg)
-
 imgext = ('.png', '.jpg', '.jpeg', '.gif')
 
 class ksoft(commands.Cog, name="KSoft.SI API"):
 	def __init__(self, bot):
 		self.bot = bot
-		self.bot.ksoft = ksoftapi.Client(api_key=config['ksoft'] if not self.bot.dev else config['ksoftalt'])
+		self.bot.ksoft = ksoftapi.Client(api_key=bot.config['ksoft'] if not bot.dev else bot.config['ksoftalt'])
 
 	@commands.command(description="Gets a random meme from Reddit")
 	async def meme(self, ctx, sub: str = None):

@@ -28,14 +28,7 @@ import functools
 import re
 from random import randint
 from fire.converters import TextChannel, Role, Member
-from fire.invite import findinvite
-from fire.youtube import findchannel, findvideo
-from fire.paypal import findpaypal
-from fire.twitch import findtwitch
-from fire.twitter import findtwitter
 
-with open('config.json', 'r') as cfg:
-	config = json.load(cfg)
 
 watchedcmds = ['purge']
 region = {

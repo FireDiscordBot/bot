@@ -21,14 +21,12 @@ import discord
 import traceback
 import json
 
-config = json.load(open('config.json'))
-
 
 class chatwatch(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         if not hasattr(self.bot, 'chatwatch'):
-            self.bot.chatwatch = ChatWatch(config['chatwatch'], self.bot.logger)
+            self.bot.chatwatch = ChatWatch(bot.config['chatwatch'], self.bot.logger)
 
     @commands.Cog.listener()
     async def on_message(self, message):

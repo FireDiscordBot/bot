@@ -41,20 +41,11 @@ from PIL import ImageFilter
 from PIL import ImageFont
 from PIL import ImageDraw
 from io import BytesIO
-from fire.invite import findinvite
+from fire.filters.invite import findinvite
 from fire.push import pushover
 from fire.exceptions import PushError
 from fire import slack
 
-launchtime = datetime.datetime.utcnow()
-
-
-with open('config.json', 'r') as cfg:
-	config = json.load(cfg)
-	error_string = '<:xmark:674359427830382603>'
-	success_string = '<:check:674359197378281472>'
-
-disabled = [264445053596991498, 110373943822540800, 336642139381301249, 458341246453415947]
 
 region = {
 	'amsterdam': '🇳🇱 Amsterdam',
@@ -74,10 +65,7 @@ region = {
 	'us-central': '🇺🇸 Central US',
 	'us-south': '🇺🇸 US South',
 	'us-east': '🇺🇸 US East',
-	'us-west': '🇺🇸 US West',
-	'vip-us-east': '🇺🇸 US East (VIP)',
-	'vip-us-west': '🇺🇸 US West (VIP)',
-	'vip-amsterdam': '🇳🇱 Amsterdam (VIP)'
+	'us-west': '🇺🇸 US West'
 }
 
 notifs = {
@@ -1117,11 +1105,11 @@ class utils(commands.Cog, name='Utility Commands'):
 					self.bot.slack_messages[f'vanity_{ctx.guild.id}'] = slackmsg
 				except PushError as e:
 					self.bot.logger.error(f'$REDUnable to send Vanity URL to Slack!', exc_info=e)
-					if 'vanityapiurl' not in config:
-						config['vanityurlapi'] = 'https://http.cat/404'
-					await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `https://inv.wtf/{vanity["code"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
+					if 'vanityapiurl' not in self.bot.config:
+						self.bot.config['vanityurlapi'] = 'https://http.cat/404'
+					await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `https://inv.wtf/{vanity["code"]}` for {ctx.guild.name}', url=self.bot.config['vanityurlapi'], url_title='Check current Vanity URLs')
 			else:
-				await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `https://inv.wtf/{vanity["code"]}` for {ctx.guild.name}', url=config['vanityurlapi'], url_title='Check current Vanity URLs')
+				await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `https://inv.wtf/{vanity["code"]}` for {ctx.guild.name}', url=self.bot.config['vanityurlapi'], url_title='Check current Vanity URLs')
 			return await ctx.success(f'Your Vanity URL is https://inv.wtf/{code}')
 		else:
 			return await ctx.error('Something went wrong...')

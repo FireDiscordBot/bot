@@ -24,9 +24,6 @@ import aiohttp
 import json
 
 
-with open('config.json', 'r') as cfg:
-	config = json.load(cfg)
-
 class mcs(commands.Cog, name="Minecraft Saturdays"):
 	def __init__(self, bot):
 		self.bot = bot

@@ -17,7 +17,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import discord
 from discord.ext import commands
-from fire.youtube import findvideo
+from fire.filters.youtube import findvideo
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 from jishaku.cog import Jishaku
 import googleapiclient.discovery
@@ -25,30 +25,17 @@ import functools
 import datetime
 import json
 
-with open('config.json', 'r') as cfg:
-	config = json.load(cfg)
-
-def isadmin(ctx):
-	"""Checks if the author is an admin"""
-	if str(ctx.author.id) not in config['admins']:
-		admin = False
-	else:
-		admin = True
-	return admin
 
 class youtube(commands.Cog, name="YouTube API"):
 	def __init__(self, bot):
 		self.bot = bot
-		self.key = config['youtube']
-		self.apiname = 'youtube'
-		self.apiver = 'v3'
+		self.youtube = googleapiclient.discovery.build(
+			'youtube', 'v3', developerKey=bot.config['youtube']
+		)
 		self.loop = bot.loop
 
 	def popular(self):
-		youtube = googleapiclient.discovery.build(
-        self.apiname, self.apiver, developerKey=self.key)
-
-		request = youtube.videos().list(
+		request = self.youtube.videos().list(
 			part="snippet,contentDetails,statistics",
 			chart="mostPopular",
 			maxResults=5,
@@ -61,10 +48,7 @@ class youtube(commands.Cog, name="YouTube API"):
 		return videos
 
 	def video_info(self, vid):
-		youtube = googleapiclient.discovery.build(
-        self.apiname, self.apiver, developerKey=self.key)
-
-		request = youtube.videos().list(
+		request = self.youtube.videos().list(
 			part="snippet,contentDetails,statistics",
 			id=vid
 		)
@@ -72,16 +56,13 @@ class youtube(commands.Cog, name="YouTube API"):
 		return response
 
 	def channel_info(self, channel):
-		youtube = googleapiclient.discovery.build(
-        self.apiname, self.apiver, developerKey=self.key)
-
 		if channel.startswith('UC'):
-			request = youtube.channels().list(
+			request = self.youtube.channels().list(
 				part="snippet,contentDetails,statistics",
 				id=channel
 			)
 		else:
-			request = youtube.channels().list(
+			request = self.youtube.channels().list(
 				part="snippet,statistics",
 				forUsername=channel
 			)

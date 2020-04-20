@@ -21,7 +21,6 @@ from discord.ext import commands
 from discord.ext.commands import has_permissions, bot_has_permissions
 #from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
 from fire.converters import Member, Role, TextChannel
-import aiosqlite3
 import functools
 import datetime
 import asyncio
@@ -30,8 +29,6 @@ import asyncpg
 import json
 import os
 
-with open('config.json', 'r') as cfg:
-	config = json.load(cfg)
 
 class Premium(commands.Cog, name="Premium Commands"):
 	def __init__(self, bot):

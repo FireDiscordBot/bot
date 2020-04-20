@@ -29,18 +29,6 @@ from . import mcfont
 
 remcolor = r'&[0-9A-FK-OR]'
 
-with open('config.json', 'r') as cfg:
-	config = json.load(cfg)
-
-
-def isadmin(ctx):
-	"""Checks if the author is an admin"""
-	if str(ctx.author.id) not in config['admins']:
-		admin = False
-	else:
-		admin = True
-	return admin
-
 
 class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 	def __init__(self, bot):
@@ -52,8 +40,8 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			await ctx.send("What user should I check?")
 		else:
 			headers = {
-				'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-				'CONTENT-TYPE': 'application/json'
+				'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+				'Content-Type': 'application/json'
 			}
 			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.sk1er.club/levelheadv5/{player}/LEVEL') as resp:
@@ -159,11 +147,11 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		if not uuid:
 			raise commands.UserInputError('Couldn\'t find that player\'s UUID')
 		headers = {
-			'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-			'CONTENT-TYPE': 'application/json'
+			'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+			'Content-Type': 'application/json'
 		}
 		async with aiohttp.ClientSession(headers=headers) as session:
-			async with session.get(f'{config["modcoreapi"]}profile/{uuid}') as resp:
+			async with session.get(f'https://api.modcore.sk1er.club/profile/{uuid}') as resp:
 				if resp.status != 200:
 					return await ctx.error('Modcore API responded incorrectly')
 				profile = await resp.json()
@@ -172,10 +160,10 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			if s != {} and s.get('enabled', False):
 				if 'STATIC' in c:
 					cid = s['id']
-					purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}]({config["modcoreapi"]}serve/cape/static/{cid})**') for p in purchases]
+					purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}](https://api.modcore.sk1er.club/serve/cape/static/{cid})**') for p in purchases]
 				elif 'DYNAMIC' in c:
 					cid = s['id']
-					purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}]({config["modcoreapi"]}serve/cape/dynamic/{cid})**') for p in purchases]
+					purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}](https://api.modcore.sk1er.club/serve/cape/dynamic/{cid})**') for p in purchases]
 		purchases = ', '.join([i for i in purchases])
 		embed = discord.Embed(title=f'{player}\'s Modcore Profile', color=ctx.author.color)
 		embed.add_field(name='Name', value=player, inline=False)
@@ -189,8 +177,8 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 			await ctx.send("I can either check a player's info or `stats`")
 			return
 		headers = {
-			'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-			'CONTENT-TYPE': 'application/json'
+			'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+			'Content-Type': 'application/json'
 		}
 		if player == "stats":
 			async with aiohttp.ClientSession(headers=headers) as session:
@@ -411,8 +399,8 @@ class skier(commands.Cog, name="Sk1er/Hyperium Commands"):
 		if mod is None:
 			return await ctx.error("You need to provide a mod name")
 		headers = {
-			'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-			'CONTENT-TYPE': 'application/json'
+			'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+			'Content-Type': 'application/json'
 		}
 		async with aiohttp.ClientSession(headers=headers) as session:
 			async with session.get(f'https://api.sk1er.club/mods') as resp:

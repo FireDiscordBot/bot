@@ -31,9 +31,6 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 def get_path(path):
 	return os.path.join(ROOT_DIR, path)
 
-with open('config.json', 'r') as cfg:
-	config = json.load(cfg)
-
 class imagegen(commands.Cog, name='Image Generation'):
 	def __init__(self, bot):
 		self.bot = bot
@@ -169,7 +166,7 @@ class imagegen(commands.Cog, name='Image Generation'):
 		if type(image) == discord.Member:
 			image = str(image.avatar_url_as(format='png'))
 		image = image.strip('<>')
-		imgraw = await aiohttp.ClientSession(headers={'Authorization': config["aeromeme"]}).get(f'https://memes.aero.bot/api/deepfry?avatar1={image}')
+		imgraw = await aiohttp.ClientSession(headers={'Authorization': self.bot.config["aeromeme"]}).get(f'https://memes.aero.bot/api/deepfry?avatar1={image}')
 		if imgraw.status != 200:
 			return await ctx.error('Something went wrong...')
 		imgraw = await imgraw.read()

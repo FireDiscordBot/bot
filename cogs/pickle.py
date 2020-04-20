@@ -29,17 +29,9 @@ from PIL import Image
 from io import BytesIO
 from . import mcfont
 
+
 remcolor = r'\u00A7[0-9A-FK-OR]'
 
-now = datetime.datetime.utcnow()
-launchtime = datetime.datetime.utcnow()
-
-with open('config.json', 'r') as cfg:
-	config = json.load(cfg)
-
-hypixelkey = config['hypixel']
-keys = [config['hypixel']]
-hypixel.setKeys(keys)
 
 uuidToName = {}
 
@@ -74,7 +66,8 @@ picklegames = {
 class pickle(commands.Cog, name="Hypixel Commands"):
 	def __init__(self, bot):
 		self.bot = bot
-		self.bot.hypixelkey = hypixelkey
+		keys = [bot.config['hypixel']]
+		hypixel.setKeys(keys)
 		self.uuidcache = {}
 
 	# @commands.command(description='Generate a rank image from text, e.g. `&d[PIG&c+&d]`')
@@ -114,7 +107,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			arg2 = arg2.lower()
 		if arg1.lower() == "watchdog":
 			async with aiohttp.ClientSession() as session:
-				async with session.get(f'https://api.hypixel.net/watchdogstats?key={hypixelkey}') as resp:
+				async with session.get(f'https://api.hypixel.net/watchdogstats?key={self.bot.config["hypixel"]}') as resp:
 					watchdog = await resp.json()
 			color = ctx.author.color
 			embed = discord.Embed(title="Watchdog Stats", colour=color, timestamp=datetime.datetime.utcnow())
@@ -130,7 +123,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		if arg1.lower() == "key":
 			lastmin = "0"
 			async with aiohttp.ClientSession() as session:
-				async with session.get(f'https://api.hypixel.net/key?key={hypixelkey}') as resp:
+				async with session.get(f'https://api.hypixel.net/key?key={self.bot.config["hypixel"]}') as resp:
 					key = await resp.json()
 			lastmin = key.get('record', {}).get('queriesInPastMin', 0)
 			color = ctx.author.color
@@ -148,8 +141,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			elif arg2.lower() == 'level':
 				msg = await ctx.send(f"Generating Network Level leaderboard...")
 				headers = {
-					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'application/json' 
+					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'Content-Type': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/LEVEL') as resp:
@@ -171,8 +164,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			elif arg2.lower() == 'karma':
 				msg = await ctx.send(f"Generating Karma leaderboard...")
 				headers = {
-					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'application/json' 
+					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'Content-Type': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/KARMA') as resp:
@@ -194,8 +187,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			elif arg2.lower() == 'coins':
 				msg = await ctx.send(f"Generating Coins leaderboard...")
 				headers = {
-					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'application/json' 
+					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'Content-Type': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/COINS') as resp:
@@ -217,8 +210,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			elif arg2.lower() == 'kills':
 				msg = await ctx.send(f"Generating Total Kills leaderboard...")
 				headers = {
-					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'application/json' 
+					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'Content-Type': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/TOTAL_KILLS') as resp:
@@ -240,8 +233,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			elif arg2.lower() == 'wins':
 				msg = await ctx.send(f"Generating Total Wins leaderboard...")
 				headers = {
-					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'application/json' 
+					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'Content-Type': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/TOTAL_WINS') as resp:
@@ -263,8 +256,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			elif arg2.lower() == 'glevel':
 				msg = await ctx.send(f"Generating Guild Level leaderboard...")
 				headers = {
-					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'application/json' 
+					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'Content-Type': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/GUILD_LEVEL') as resp:
@@ -286,8 +279,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			elif arg2.lower() == 'gexperience':
 				msg = await ctx.send(f"Generating Guild Experience leaderboard...")
 				headers = {
-					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'application/json' 
+					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'Content-Type': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/GUILD_LEVEL') as resp:
@@ -309,8 +302,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			elif arg2.lower() == 'gwins':
 				msg = await ctx.send(f"Generating Guild Wins leaderboard...")
 				headers = {
-					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'application/json' 
+					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'Content-Type': 'application/json' 
 				}
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://sk1er.club/leaderboards/newdata/GUILD_WINS') as resp:
@@ -334,7 +327,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		elif arg1 == 'skyblock':
 			if not arg2 or arg2 == 'news':
 				async with aiohttp.ClientSession() as session:
-					async with session.get(f'https://api.hypixel.net/skyblock/news?key={hypixelkey}') as resp:
+					async with session.get(f'https://api.hypixel.net/skyblock/news?key={self.bot.config["hypixel"]}') as resp:
 						sbnews = await resp.json()
 				paginator = WrappedPaginator(prefix='', suffix='', max_size=250)
 				for entry in sbnews['items']:
@@ -356,8 +349,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					raise commands.ArgumentParsingError('Couldn\'t find that player...')
 				p = player.JSON
 				headers = {
-					'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'CONTENT-TYPE': 'application/json' 
+					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+					'Content-Type': 'application/json' 
 				}
 				tributes = p.get('tourney', {}).get('total_tributes', 0) # TOURNAMENT TRIBUTES
 				level = str(player.getLevel()).split('.')[0]
@@ -451,8 +444,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 						await msg.edit(content=None, embed=embed)
 		elif arg2 == 'friends':
 			headers = {
-				'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-				'CONTENT-TYPE': 'application/json' 
+				'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+				'Content-Type': 'application/json' 
 			}
 			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.sk1er.club/friends/{arg1}') as resp:
@@ -473,8 +466,8 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		elif arg2 == 'guild':
 			uuid = await self.nameToUUID(arg1)
 			headers = {
-				'USER-AGENT': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-				'CONTENT-TYPE': 'application/json' 
+				'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
+				'Content-Type': 'application/json' 
 			}
 			async with aiohttp.ClientSession(headers=headers) as session:
 				async with session.get(f'https://api.sk1er.club/guild/player/{uuid}') as resp:

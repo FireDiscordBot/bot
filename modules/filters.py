@@ -16,11 +16,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-from fire.youtube import findchannel, findvideo
-from fire.twitter import findtwitter
-from fire.invite import findinvite
-from fire.paypal import findpaypal
-from fire.twitch import findtwitch
+from fire.filters.youtube import findchannel, findvideo
+from fire.filters.twitter import findtwitter
+from fire.filters.invite import findinvite
+from fire.filters.paypal import findpaypal
+from fire.filters.twitch import findtwitch
 from discord.ext import commands
 import functools
 import datetime
