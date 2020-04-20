@@ -255,13 +255,13 @@ class Config:
         if opt not in self.options:
             raise InvalidOptionError(opt)
         option = self.options[opt]
+        if value == option['default']:  # Bypass all checks if default
+            await self.update(opt, value)
+            return self.get(opt)
         if option['premium'] and self._guild.id not in self._bot.premiumGuilds:
             raise RestrictedOptionError(opt, 'premium guilds only')
         if option['restricted'] and self._guild.id not in option['restricted']:
             raise RestrictedOptionError(opt, 'select guilds only')
-        if value == option['default']:  # Bypass all checks if default
-            await self.update(opt, value)
-            return self.get(opt)
         setter = option['setter']
         if not inspect.isfunction(setter):
             raise OptionConfigError(option)
