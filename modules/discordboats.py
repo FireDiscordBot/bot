@@ -44,7 +44,7 @@ class DiscordBoats(commands.Cog):
                 'server_count': len(self.bot.guilds)
             }
         )
-        self.bot.logger.info(f'$GREENPosted guild count $CYAN({len(self.bot.guilds)}) $GREENto $CYANtop.gg')
+        self.bot.logger.info(f'$GREENPosted guild count $CYAN({len(self.bot.guilds)}) $GREENto $CYANdiscord.boats')
 
     async def get_bot(self, bot: int):
         route = Route(
