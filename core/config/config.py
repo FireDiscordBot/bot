@@ -227,6 +227,10 @@ class Config:
             raise InvalidOptionError(option)
         if self.options[option]['premium'] and self._guild.id not in self._bot.premiumGuilds:
             return self.options[option]['default']  # Return default value if not premium :)
+        if self.options[option]['restricted'] and self._guild.id not in self.options[option]['restricted']:
+            return self.options[option]['default']  # Return default value if restricted :)
+        if option not in self._data:
+            self._data[option] = self.options[option]['default']  # Ensure the value actually exists
         accept = self.options[option]['accepts']
         acceptlist = False
         if isinstance(self._guild, discord.Guild):
