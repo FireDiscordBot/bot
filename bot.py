@@ -68,7 +68,6 @@ extensions = [
     "cogs.assist",
     "cogs.imagegen",
     "cogs.koding",
-    "cogs.conorthedev",
     "api.main"
 ]
 
