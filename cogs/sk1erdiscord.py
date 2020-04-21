@@ -33,6 +33,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		self.gist = 'b070e7f75a9083d2e211caffa0c772cc'
 		self.gistheaders = {'Authorization': f'token {bot.config["github"]}'}
 		self.modcoreheaders = {'secret': bot.config['modcore']}
+		self.pastebinre = r'https://pastebin\.com/([^raw]\w+)'
 		self.logregex = r'((hyperium-)?crash-\d{4}-\d{2}-\d{2}_\d{2}\.\d{2}\.\d{2}.+\.txt|latest\.log|launcher_log\.txt|hs_err_pid\d{1,8}\.log)'
 		self.logtext = [
 			'net.minecraft.launchwrapper.Launch',
@@ -166,6 +167,10 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 	async def on_message(self, message):
 		if self.bot.dev:
 			return
+		pastebin = re.findall(self.pastebinre, message.content, re.MULTILINE)
+		for p in pastebin:
+			async with aiohttp.ClientSession().get(f'https://pastebin.com/raw/{p}') as r:
+				message.content = re.sub(self.pastebinre, (await r.text()), message.content, 0, re.MULTILINE)
 		for attach in message.attachments:
 			if not re.match(self.logregex, attach.filename) and not attach.filename == 'message.txt':
 				return
@@ -193,6 +198,9 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				return await message.channel.send(f'{message.author} uploaded a log, {message.content}\n{url}')
 		if not message.attachments and len(message.content) > 350:
 			txt = message.content
+			txt = re.sub(self.emailre, '[removed email]', txt, 0, re.MULTILINE)
+			txt = re.sub(self.urlre, '[removed url]', txt, 0, re.MULTILINE)
+			txt = re.sub(self.homere, 'USER.HOME', txt, 0, re.MULTILINE)
 			for line in txt.split('\n'):
 				if re.findall(self.secrets, line, re.MULTILINE):
 					txt = txt.replace(line, '[line removed to protect sensitive info]')
@@ -203,7 +211,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 					self.bot.logger.error(f'$REDFailed to upload log to hastebin', exc_info=e)
 					return
 				await message.delete()
-				return await message.channel.send(url)
+				return await message.channel.send(f'{message.author} sent a log, {url}')
 
 	async def nameToUUID(self, player: str):
 		async with aiohttp.ClientSession() as s:
