@@ -85,17 +85,10 @@ class quotes(commands.Cog, name="Quotes"):
         if message.guild and isinstance(message.author, discord.Member):
             if not self.bot.configs[message.guild.id].get('utils.autoquote'):
                 return
-            if message.channel in self.bot.configs[message.guild.id].get('commands.modonly'):
-                if not message.author.permissions_in(message.channel).manage_messages:
-                    return
-            if message.channel in self.bot.configs[message.guild.id].get('commands.adminonly'):
-                if not message.author.permissions_in(message.channel).manage_guild:
-                    retu
             perms = message.guild.me.permissions_in(message.channel)
             if not perms.send_messages or not perms.embed_links:
                 if message.author.bot or not perms.manage_webhooks:
                     return
-
             message_regex = r'https?:\/\/(?:(?:ptb|canary|development)\.)?discordapp\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
             url = re.findall(message_regex, message.content, re.MULTILINE)
             if all(u == url[0] for u in url) and len(url) > 1:  # Checks if it's one url multiple times.
