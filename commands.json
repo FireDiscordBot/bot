@@ -252,10 +252,10 @@
                 "Usage": "{prefix}settings",
                 "Aliases": "setup"
             },
-            "logs": {
+            "log": {
                 "Description": "Set the channel(s) for logging",
-                "Usage": "{prefix}logs <type> <channel>",
-                "Aliases": null
+                "Usage": "{prefix}log <type> <channel>",
+                "Aliases": "logging, logs"
             },
             "description": {
                 "Description": "Set the description for the server that shows in Vanity URLs",
@@ -438,6 +438,11 @@
                 "Usage": "{prefix}dstatus",
                 "Aliases": null
             },
+            "status": {
+                "Description": "Get Fire's status",
+                "Usage": "{prefix}status",
+                "Aliases": null
+            },
             "snipe": {
                 "Description": "Get the last deleted message",
                 "Usage": "{prefix}snipe [<channel/user>]",
@@ -446,6 +451,16 @@
             "esnipe": {
                 "Description": "Get the last edited message",
                 "Usage": "{prefix}esnipe [<channel/user>]",
+                "Aliases": null
+            },
+            "slowmode": {
+                "Description": "Set the slowmode for a channel or category",
+                "Usage": "{prefix}slowmode [<length>] [<channel/category>]",
+                "Aliases": null
+            },
+            "debug": {
+                "Description": "Debug a command",
+                "Usage": "{prefix}debug <command>",
                 "Aliases": null
             },
             "quote": {
