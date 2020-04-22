@@ -97,7 +97,10 @@ class quotes(commands.Cog, name="Quotes"):
                 alt_ctx = await copy_context_with(ctx, content=self.bot.configs[ctx.guild.id].get('main.prefix') + f'quote {u}')
                 if not alt_ctx.valid:
                     return
-                await alt_ctx.command.invoke(alt_ctx)
+                try:
+                    await alt_ctx.command.invoke(alt_ctx)
+                except Exception as e:
+                    self.bot.dispatch('command_error', alt_ctx, e)
                 await asyncio.sleep(.5)
 
     @commands.command(description='Quote a message from an id or url')
