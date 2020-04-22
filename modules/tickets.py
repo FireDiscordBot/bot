@@ -183,7 +183,7 @@ class tickets(commands.Cog, name="Tickets"):
         await ctx.error(f'Are you sure you want to close this ticket? Type `close` to confirm')
         try:
             await self.bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel and m.content.lower() == 'close', timeout=10)
-        except asyncio.TimeoutException:
+        except asyncio.TimeoutError:
             return await ctx.error('No response, aborting close.')
         closing = await ctx.send('Closing ticket, this may make take a bit...')
         transcript = []
