@@ -57,6 +57,8 @@ class Filters(commands.Cog):
                                     await message.delete()
                                 except Exception:
                                     pass
+                            else:
+                                continue
                     except discord.Forbidden:
                         pass
                     logch = self.bot.configs[message.guild.id].get('log.action')
