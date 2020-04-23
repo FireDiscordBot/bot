@@ -89,7 +89,7 @@ class quotes(commands.Cog, name="Quotes"):
             if not perms.send_messages or not perms.embed_links:
                 if message.author.bot or not perms.manage_webhooks:
                     return
-            message_regex = r'https?:\/\/(?:(?:ptb|canary|development)\.)?discordapp\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
+            message_regex = r'https?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
             url = re.findall(message_regex, message.content, re.MULTILINE)
             if all(u == url[0] for u in url) and len(url) > 1:  # Checks if it's one url multiple times.
                 return
