@@ -88,7 +88,7 @@ class TopGG(commands.Cog):
         )
         vote = await self.http.request(
             route,
-            params={'userid':user}
+            params={'userId':user}
         )
         return bool(vote.get('voted', 0))
 
