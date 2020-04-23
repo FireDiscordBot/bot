@@ -132,7 +132,7 @@ class snipes(commands.Cog, name="Snipes"):
                         )
                     ]
                 except Exception as e:
-                    self.bot.logger.error(f'$REDFailed to create webhook for snipes in $CYAN{ctx.channel} ({ctx.guild})', exc_info=e)
+                    self.bot.logger.warn(f'$REDFailed to create webhook for snipes in $CYAN{ctx.channel} ({ctx.guild})', exc_info=e)
                     existing = ['hi i am here to prevent a KeyError']
             if existing and isinstance(existing[0], discord.Webhook):
                 try:
@@ -147,7 +147,7 @@ class snipes(commands.Cog, name="Snipes"):
                         embeds=message.embeds
                     )
                 except Exception as e:
-                    self.bot.logger.error(f'$REDFailed to use webhook for snipes in $CYAN{ctx.channel} ({ctx.guild})', exc_info=e)
+                    self.bot.logger.warn(f'$REDFailed to use webhook for snipes in $CYAN{ctx.channel} ({ctx.guild})', exc_info=e)
                     pass  # Fallback to normal sniping if webhook fails
 
         if not message.content and message.embeds and message.author.bot:
