@@ -350,7 +350,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				p = player.JSON
 				headers = {
 					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'Content-Type': 'application/json' 
+					'Content-Type': 'application/json'
 				}
 				tributes = p.get('tourney', {}).get('total_tributes', 0) # TOURNAMENT TRIBUTES
 				level = str(player.getLevel()).split('.')[0]
@@ -364,7 +364,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				async with aiohttp.ClientSession(headers=headers) as session:
 					async with session.get(f'https://api.sk1er.club/guild/player/{player.UUID}') as resp:
 						guild = await resp.json()
-				if guild['success']:
+				if guild.get('success', False):
 					guild = guild['guild']
 					tag = guild['tag'] if 'tag' in guild else None
 					if tag:
