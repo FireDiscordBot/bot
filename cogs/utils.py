@@ -279,6 +279,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.bot.vanity_urls[code]['links'] += 1
 
 	async def deletevanity(self, ctx: commands.Context):
+		self.bot.logger.warn(f'$YELLOWDeleting vanity for guild $CYAN{ctx.guild}')
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'DELETE FROM vanity WHERE gid = $1;'
@@ -287,6 +288,7 @@ class utils(commands.Cog, name='Utility Commands'):
 		await self.loadvanitys()
 
 	async def deletevanitycode(self, code: str):
+		self.bot.logger.warn(f'$YELLOWDeleting vanity for code $CYAN{code}')
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'DELETE FROM vanity WHERE code = $1;'
@@ -295,20 +297,13 @@ class utils(commands.Cog, name='Utility Commands'):
 		await self.loadvanitys()
 
 	async def deletevanitygid(self, gid: int):
+		self.bot.logger.warn(f'$YELLOWDeleting vanity for guild id $CYAN{gid}')
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'DELETE FROM vanity WHERE gid = $1;'
 			await self.bot.db.execute(query, gid)
 		await self.bot.db.release(con)
 		await self.loadvanitys()
-
-	@commands.Cog.listener()
-	async def on_guild_remove(self, guild):
-		con = await self.bot.db.acquire()
-		async with con.transaction():
-			query = 'DELETE FROM vanity WHERE gid = $1;'
-			await self.bot.db.execute(query, guild.id)
-		await self.bot.db.release(con)
 
 	async def loadvanitys(self):
 		await self.bot.wait_until_ready()
