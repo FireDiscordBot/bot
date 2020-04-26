@@ -51,11 +51,14 @@ class CommandCompletion(commands.Cog):
                         except KeyError as e:
                             pass
                         if purged:
-                            async with aiohttp.ClientSession() as s:
-                                async with s.post('https://hasteb.in/documents', data=json.dumps(self.bot.recentpurge[ctx.channel.id], indent=4)) as r:
-                                    j = await r.json()
-                                    key = j['key'] + '.json'
-                                    embed.add_field(name='Purged Messages', value=f'https://hasteb.in/{key}', inline=False)
+                            try:
+                                embed.add_field(
+                                    name='Purged Messages',
+                                    value=(await self.bot.haste(json.dumps(self.bot.recentpurge[ctx.channel.id], indent=4))),
+                                    inline=False
+                                )
+                            except Exception:
+                                embed.add_field(name='Purged Messages', value='Failed to upload messages to hastebin', inline=False)
                     try:
                         await logch.send(embed=embed)
                     except Exception:
