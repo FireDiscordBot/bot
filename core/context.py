@@ -24,6 +24,25 @@ import random
 class Context(commands.Context):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.colors = [
+            discord.Color.blue(),
+            discord.Color.blurple(),
+            discord.Color.dark_blue(),
+            discord.Color.dark_gold(),
+            discord.Color.dark_green(),
+            discord.Color.dark_magenta(),
+            discord.Color.dark_orange(),
+            discord.Color.dark_purple(),
+            discord.Color.dark_red(),
+            discord.Color.dark_teal(),
+            discord.Color.gold(),
+            discord.Color.green(),
+            discord.Color.magenta(),
+            discord.Color.orange(),
+            discord.Color.purple(),
+            discord.Color.red(),
+            discord.Color.teal()
+        ]
 
     async def success(self, message: str):
         await self.send(f'<:check:674359197378281472> {message}')
@@ -37,8 +56,13 @@ class Context(commands.Context):
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):
         if content:
             content = str(content).replace('@everyone', u'@\u200beveryone').replace('@here', u'@\u200bhere')
+        if isinstance(content, discord.Embed):
+            embed = content.copy()
+            content = None
         if not content and random.randint(0, 20) == 10 and self.has_override('ab27d28671a645a9ba40187ddd111488'):
             content = '**PROTIP:** ' + random.choice(self.bot.tips)
+        if isinstance(embed, discord.Embed) and embed.color in [discord.Embed.Empty, discord.Color.default()]:
+            embed.color = random.choice(self.colors)
         if not (file or files):
             resp = discord.utils.get(self.bot.cached_messages, id=self.bot.cmdresp.get(self.message.id, 0))
             edited = self.message.edited_at
