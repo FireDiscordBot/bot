@@ -119,7 +119,8 @@ class snipes(commands.Cog, name="Snipes"):
         if not message:
             return await ctx.error(f'Nothing to snipe for {target}, move along.')
 
-        if ctx.guild.me.permissions_in(ctx.channel).manage_webhooks:
+        usehooks = self.bot.configs[ctx.guild.id].get('utils.quotehooks')
+        if ctx.guild.me.permissions_in(ctx.channel).manage_webhooks and usehooks:
             existing = [w for w in (await ctx.channel.webhooks()) if w.token]
             if not existing:
                 try:

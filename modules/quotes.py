@@ -86,8 +86,9 @@ class quotes(commands.Cog, name="Quotes"):
             if not self.bot.configs[message.guild.id].get('utils.autoquote'):
                 return
             perms = message.guild.me.permissions_in(message.channel)
+            config = self.bot.configs[message.guild.id]
             if not perms.send_messages or not perms.embed_links:
-                if message.author.bot or not perms.manage_webhooks:
+                if message.author.bot or not (perms.manage_webhooks or config.get('utils.quotehooks')):
                     return
             message_regex = r'https?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
             url = re.findall(message_regex, message.content, re.MULTILINE)
@@ -137,7 +138,8 @@ class quotes(commands.Cog, name="Quotes"):
             if hasattr(ctx.channel, 'recipient') and ctx.channel.recipient.id != ctx.author.id:
                 return
 
-        if ctx.guild.me.permissions_in(ctx.channel).manage_webhooks:
+        usehooks = self.bot.configs[ctx.guild.id].get('utils.quotehooks')
+        if ctx.guild.me.permissions_in(ctx.channel).manage_webhooks and usehooks:
             existing = [w for w in (await ctx.channel.webhooks()) if w.token]
             if not existing:
                 try:

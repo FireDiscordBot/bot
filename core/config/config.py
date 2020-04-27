@@ -176,6 +176,12 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $CYANutils.autoquote $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('utils.autoquote', value)
 
+    @ConfigOpt(name='utils.quotehooks', accepts=bool, default=True, options=options)
+    async def quote_hooks(self, value: bool):
+        '''Quote Webhooks | Whether or not to use webhooks for quoting/snipes'''
+        self._bot.logger.info(f'$GREENSetting $CYANutils.quotehooks $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
+        await self.update('utils.quotehooks', value)
+
     @ConfigOpt(name='utils.badname', accepts=str, default=None, options=options)
     async def bad_name(self, value: str):
         '''Bad Name | The name used for decancer and dehoist. If not set, John Doe + discrim is used'''
