@@ -50,7 +50,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			'[DefaultDispatcher-worker-1] ERROR Installer'
 		]
 		self.secrets = r'(club\.sk1er\.mods\.levelhead\.auth\.MojangAuth|api\.sk1er\.club\/auth|LoginPacket|SentryAPI\.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :)'
-		self.emailre = r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+'
+		self.emailre = r'[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}'
 		self.urlre = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
 		self.homere = r'(/Users/\w+|/home/\w+|C:\\Users\\\w+)'
 		self.description_updater.start()
