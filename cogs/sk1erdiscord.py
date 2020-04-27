@@ -174,13 +174,17 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 		for attach in message.attachments:
 			if not re.match(self.logregex, attach.filename) and not attach.filename == 'message.txt':
 				return
-			txt = await attach.read()
+			try:
+				txt = await attach.read()
+			except Exception as e:
+				self.bot.logger.error(f'$REDFailed to read log sent by $CYAN{message.author}', exc_info=e)
 			try:
 				txt = txt.decode('utf-8')
 			except Exception:
 				try:
 					txt = txt.decode('ISO-8859-1')
-				except Exception:
+				except Exception as e:
+					self.bot.logger.error(f'$REDFailed to decode log sent by $CYAN{message.author}', exc_info=e)
 					return # give up, leave the file there
 			txt = re.sub(self.emailre, '[removed email]', txt, 0, re.MULTILINE)
 			txt = re.sub(self.urlre, '[removed url]', txt, 0, re.MULTILINE)
