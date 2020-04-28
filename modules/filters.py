@@ -31,6 +31,17 @@ class Filters(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.imgext = ['.png', '.jpg', '.gif']
+        self.malware = []
+        self.bot.loop.create_task(self.get_malware())
+
+    async def get_malware(self):
+        try:
+            async with aiohttp.ClientSession() as s:
+                malware = await (await s.get('https://mirror.cedia.org.ec/malwaredomains/justdomains')).text()
+                await s.close()
+            self.malware = list(filter(None, malware.split('\n')))
+        except Exception:
+            self.bot.logger.error(f'$REDFailed to fetch malware domains')
 
     async def handle_invite(self, message):
         codes = findinvite(message.system_content)
