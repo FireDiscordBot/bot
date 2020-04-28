@@ -19,6 +19,7 @@ from logging.handlers import TimedRotatingFileHandler
 from jishaku.modules import resolve_extensions
 import core.coloredformat as colorformat
 from discord.ext import commands, tasks
+from fire.http import HTTPClient, Route
 from aioinflux import InfluxDBClient
 from sentry_sdk import push_scope
 from .context import Context
@@ -76,6 +77,36 @@ class Fire(commands.Bot):
                 username=self.config['influx_user'],
                 password=self.config['influx_pass']
             )
+
+        # GLOBAL HTTP CLIENTS
+        self.http.mojang = HTTPClient(
+            'https://api.mojang.com'
+        )
+        self.http.hypixel = HTTPClient(
+            'https://api.hypixel.net',
+            params={'key': self.config["hypixel"]}
+        )
+        self.http.sk1er = HTTPClient(
+            'https://api.sk1er.club',
+            user_agent='Fire Discord Bot'
+        )
+        self.http.modcore = HTTPClient(
+            'https://api.modcore.sk1er.club',
+            user_agent='Fire Discord Bot'
+        )
+        self.http.github = HTTPClient(
+            'https://api.github.com'
+        )
+
+        # HASTEBIN
+        self.http.hst = HTTPClient(
+            'https://hst.sh',
+            user_agent='Fire Discord Bot'
+        )
+        self.http.hinvwtf = HTTPClient(
+            'https://h.inv.wtf',
+            user_agent='Fire Discord Bot'
+        )
 
         # MODULES
         self.load_modules()
@@ -179,15 +210,22 @@ class Fire(commands.Bot):
         except Exception:
             pass
 
-    async def haste(self, content, fallback: bool=False):
-        url = 'hst.sh'
+    async def haste(self, content, fallback: bool = False):
+        route = Route(
+            'POST'
+            '/documents'
+        )
+        client = self.http.hst
         if fallback:
-            url = 'h.inv.wtf'
-        async with aiohttp.ClientSession().post(f'https://{url}/documents', data=content) as r:
-            if r.status != 200 and not fallback:
+            client = self.http.hinvwtf
+        try:
+            h = await client.request(route, data=content)
+            return f'https://{client.BASE_URL}/' + h['key']
+        except Exception as e:
+            self.logger.warn(f'$REDFailed to create haste on $CYAN{client.BASE_URL}')
+            if not fallback:
                 return await self.haste(content, fallback=True)
-            j = await r.json()
-            return f'https://{url}/' + j['key']
+        return 'Failed to create haste'
 
     async def is_team_owner(self, user: typing.Union[discord.User, discord.Member]):
         if user.id == self.owner_id:
