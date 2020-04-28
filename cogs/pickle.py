@@ -15,87 +15,69 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-import discord
-from discord.ext import commands
-import datetime
-import json
-import aiohttp
-import hypixel
-import re
-import os
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
-from fire.jsontable import table2json
-from PIL import Image
+from fire.http import HTTPClient, Route
+from discord.ext import commands
 from io import BytesIO
+from PIL import Image
 from . import mcfont
+import datetime
+import aiohttp
+import discord
+import hypixel
+import json
+import os
+import re
 
 
 remcolor = r'\u00A7[0-9A-FK-OR]'
-
-
 uuidToName = {}
-
 picklegames = {
-		'QUAKECRAFT': 'Quake',
-		'WALLS': 'Walls',
-		'PAINTBALL': 'Paintball',
-		'SURVIVAL_GAMES': 'Blitz SG',
-		'TNTGAMES': 'TNT Games',
-		'VAMPIREZ': 'VampireZ',
-		'WALLS3': 'Mega Walls',
-		'ARCADE': 'Arcade',
-		'ARENA': 'Arena',
-		'UHC': 'UHC Champions',
-		'MCGO': 'Cops and Crims',
-		'BATTLEGROUND': 'Warlords',
-		'SUPER_SMASH': 'Smash Heroes',
-		'GINGERBREAD': 'Turbo Kart Racers',
-		'HOUSING': 'Housing',
-		'SKYWARS': 'SkyWars',
-		'TRUE_COMBAT': 'Crazy Walls',
-		'SPEED_UHC': 'Speed UHC',
-		'SKYCLASH': 'SkyClash',
-		'LEGACY': 'Classic Games',
-		'PROTOTYPE': 'Prototype',
-		'BEDWARS': 'Bed Wars',
-		'MURDER_MYSTERY': 'Murder Mystery',
-		'BUILD_BATTLE': 'Build Battle',
-		'DUELS': 'Duels'
-	}
+	'QUAKECRAFT': 'Quake',
+	'WALLS': 'Walls',
+	'PAINTBALL': 'Paintball',
+	'SURVIVAL_GAMES': 'Blitz SG',
+	'TNTGAMES': 'TNT Games',
+	'VAMPIREZ': 'VampireZ',
+	'WALLS3': 'Mega Walls',
+	'ARCADE': 'Arcade',
+	'ARENA': 'Arena',
+	'UHC': 'UHC Champions',
+	'MCGO': 'Cops and Crims',
+	'BATTLEGROUND': 'Warlords',
+	'SUPER_SMASH': 'Smash Heroes',
+	'GINGERBREAD': 'Turbo Kart Racers',
+	'HOUSING': 'Housing',
+	'SKYWARS': 'SkyWars',
+	'TRUE_COMBAT': 'Crazy Walls',
+	'SPEED_UHC': 'Speed UHC',
+	'SKYCLASH': 'SkyClash',
+	'LEGACY': 'Classic Games',
+	'PROTOTYPE': 'Prototype',
+	'BEDWARS': 'Bed Wars',
+	'MURDER_MYSTERY': 'Murder Mystery',
+	'BUILD_BATTLE': 'Build Battle',
+	'DUELS': 'Duels'
+}
 
-class pickle(commands.Cog, name="Hypixel Commands"):
+class Hypixel(commands.Cog, name="Hypixel Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 		keys = [bot.config['hypixel']]
 		hypixel.setKeys(keys)
 		self.uuidcache = {}
 
-	# @commands.command(description='Generate a rank image from text, e.g. `&d[PIG&c+&d]`')
-	# async def rankimg(self, ctx, *, arg):
-	# 	text = arg.replace('&', '§')
-	# 	parsedtxt = mcfont.parse(text)
-	# 	width = mcfont.get_width(parsedtxt)
-	# 	img = Image.new('RGBA', (width+25, 42))
-	# 	mcfont.render((5, 0), parsedtxt, img)
-	# 	img.save('lastrank.png')
-	# 	file = discord.File('lastrank.png')
-	# 	embed = discord.Embed(color=ctx.author.color)
-	# 	embed.set_image(url=f'attachment://lastrank.png')
-	# 	await ctx.send(embed=embed, file=file)
-
-	async def nameToUUID(self, player: str):
+	async def name_to_uuid(self, player: str):
 		try:
-			uuid = self.uuidcache[player]
+			self.uuidcache[player]
 		except KeyError:
-			async with aiohttp.ClientSession() as session:
-				async with session.get(f'https://api.mojang.com/users/profiles/minecraft/{player}') as resp:
-					try:
-						json = await resp.json()
-					except Exception:
-						return None
-					uuid = json['id']
-					self.uuidcache.update({player: json['id']})
-		return uuid or None
+			route = Route(
+				'GET',
+				f'users/profiles/minecraft/{player}'
+			)
+			profile = await self.bot.http.mojang.request(route)
+			self.uuidcache.update({player: profile['id']})
+		return self.uuidcache.get(player, None)
 
 	@commands.command(description="Get hypixel stats")
 	async def hypixel(self, ctx, arg1: str = None, arg2: str = None):
@@ -106,9 +88,11 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		if arg2:
 			arg2 = arg2.lower()
 		if arg1.lower() == "watchdog":
-			async with aiohttp.ClientSession() as session:
-				async with session.get(f'https://api.hypixel.net/watchdogstats?key={self.bot.config["hypixel"]}') as resp:
-					watchdog = await resp.json()
+			route = Route(
+				'GET',
+				'/watchdogstats'
+			)
+			watchdog = await self.bot.http.hypixel.request(route)
 			color = ctx.author.color
 			embed = discord.Embed(title="Watchdog Stats", colour=color, timestamp=datetime.datetime.utcnow())
 			embed.set_thumbnail(url="https://hypixel.net/attachments/cerbtrimmed-png.245674/")
@@ -118,217 +102,14 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			embed.add_field(name="Watchdog bans in the last day", value=format(watchdog['watchdog_rollingDaily'], ',d'), inline=False)
 			embed.add_field(name="Staff Total Bans", value=format(watchdog['staff_total'], ',d'), inline=False)
 			embed.add_field(name="Watchdog Total Bans", value=format(watchdog['watchdog_total'], ',d'), inline=False)
-			await ctx.send(embed=embed)
-			return
-		if arg1.lower() == "key":
-			lastmin = "0"
-			async with aiohttp.ClientSession() as session:
-				async with session.get(f'https://api.hypixel.net/key?key={self.bot.config["hypixel"]}') as resp:
-					key = await resp.json()
-			lastmin = key.get('record', {}).get('queriesInPastMin', 0)
-			color = ctx.author.color
-			embed = discord.Embed(title="My API Key Stats", colour=color, timestamp=datetime.datetime.utcnow())
-			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
-			embed.add_field(name="Owner", value="GamingGeeek (4686e7b58815485d8bc4a45445abb984)", inline=False)
-			embed.add_field(name="Total Requests", value=format(key['record']['totalQueries'], ',d'), inline=False)
-			embed.add_field(name="Requests in the past minute", value=lastmin, inline=False)
-			await ctx.send(embed=embed)
-			return
-		if arg1.lower() == 'leaderboard':
-			if arg2 is None:
-				return
-				#Make available leaderboards embed
-			elif arg2.lower() == 'level':
-				msg = await ctx.send(f"Generating Network Level leaderboard...")
-				headers = {
-					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'Content-Type': 'application/json' 
-				}
-				async with aiohttp.ClientSession(headers=headers) as session:
-					async with session.get(f'https://sk1er.club/leaderboards/newdata/LEVEL') as resp:
-						content = await resp.read()
-				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Level', 'Karma', 'Kills', 'Wins'])
-				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
-				for player in lbjson:
-					try:
-						pos = player['Position']
-						name = player['Name']
-						level = player['Level']
-						paginator.add_line(f'[{pos}] {name} - {level}')
-					except Exception as e:
-						pass
-				embed = discord.Embed(title='Network Level Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
-				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
-				await msg.delete()
-				return await interface.send_to(ctx)
-			elif arg2.lower() == 'karma':
-				msg = await ctx.send(f"Generating Karma leaderboard...")
-				headers = {
-					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'Content-Type': 'application/json' 
-				}
-				async with aiohttp.ClientSession(headers=headers) as session:
-					async with session.get(f'https://sk1er.club/leaderboards/newdata/KARMA') as resp:
-						content = await resp.read()
-				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Karma', 'Level', 'Kills', 'Wins'])
-				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
-				for player in lbjson:
-					try:
-						pos = player['Position']
-						name = player['Name']
-						karma = player['Karma']
-						paginator.add_line(f'[{pos}] {name} - {karma}')
-					except Exception as e:
-						pass
-				embed = discord.Embed(title='Karma Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
-				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
-				await msg.delete()
-				return await interface.send_to(ctx)
-			elif arg2.lower() == 'coins':
-				msg = await ctx.send(f"Generating Coins leaderboard...")
-				headers = {
-					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'Content-Type': 'application/json' 
-				}
-				async with aiohttp.ClientSession(headers=headers) as session:
-					async with session.get(f'https://sk1er.club/leaderboards/newdata/COINS') as resp:
-						content = await resp.read()
-				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Coins', 'Karma', 'Kills', 'Wins'])
-				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
-				for player in lbjson:
-					try:
-						pos = player['Position']
-						name = player['Name']
-						coins = player['Coins']
-						paginator.add_line(f'[{pos}] {name} - {coins}')
-					except Exception as e:
-						pass
-				embed = discord.Embed(title='Coins Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
-				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
-				await msg.delete()
-				return await interface.send_to(ctx)
-			elif arg2.lower() == 'kills':
-				msg = await ctx.send(f"Generating Total Kills leaderboard...")
-				headers = {
-					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'Content-Type': 'application/json' 
-				}
-				async with aiohttp.ClientSession(headers=headers) as session:
-					async with session.get(f'https://sk1er.club/leaderboards/newdata/TOTAL_KILLS') as resp:
-						content = await resp.read()
-				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Kills', 'Level', 'Wins', 'Quests'])
-				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
-				for player in lbjson:
-					try:
-						pos = player['Position']
-						name = player['Name']
-						kills = player['Kills']
-						paginator.add_line(f'[{pos}] {name} - {kills}')
-					except Exception as e:
-						pass
-				embed = discord.Embed(title='Total Kills Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
-				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
-				await msg.delete()
-				return await interface.send_to(ctx)
-			elif arg2.lower() == 'wins':
-				msg = await ctx.send(f"Generating Total Wins leaderboard...")
-				headers = {
-					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'Content-Type': 'application/json' 
-				}
-				async with aiohttp.ClientSession(headers=headers) as session:
-					async with session.get(f'https://sk1er.club/leaderboards/newdata/TOTAL_WINS') as resp:
-						content = await resp.read()
-				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Wins', 'Level', 'Kills', 'Quests'])
-				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
-				for player in lbjson:
-					try:
-						pos = player['Position']
-						name = player['Name']
-						wins = player['Wins']
-						paginator.add_line(f'[{pos}] {name} - {wins}')
-					except Exception as e:
-						pass
-				embed = discord.Embed(title='Total Wins Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
-				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
-				await msg.delete()
-				return await interface.send_to(ctx)
-			elif arg2.lower() == 'glevel':
-				msg = await ctx.send(f"Generating Guild Level leaderboard...")
-				headers = {
-					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'Content-Type': 'application/json' 
-				}
-				async with aiohttp.ClientSession(headers=headers) as session:
-					async with session.get(f'https://sk1er.club/leaderboards/newdata/GUILD_LEVEL') as resp:
-						content = await resp.read()
-				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Level', 'Wins', 'Exp', 'Legacy', 'Created'])
-				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
-				for player in lbjson:
-					try:
-						pos = player['Position']
-						name = player['Name']
-						level = player['Level']
-						paginator.add_line(f'[{pos}] {name} - {level}')
-					except Exception as e:
-						pass
-				embed = discord.Embed(title='Guild Level Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
-				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
-				await msg.delete()
-				return await interface.send_to(ctx)
-			elif arg2.lower() == 'gexperience':
-				msg = await ctx.send(f"Generating Guild Experience leaderboard...")
-				headers = {
-					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'Content-Type': 'application/json' 
-				}
-				async with aiohttp.ClientSession(headers=headers) as session:
-					async with session.get(f'https://sk1er.club/leaderboards/newdata/GUILD_LEVEL') as resp:
-						content = await resp.read()
-				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Level', 'Wins', 'Exp', 'Legacy', 'Created'])
-				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
-				for player in lbjson:
-					try:
-						pos = player['Position']
-						name = player['Name']
-						exp = player['Exp']
-						paginator.add_line(f'[{pos}] {name} - {exp}')
-					except Exception as e:
-						pass
-				embed = discord.Embed(title='Guild Experience Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
-				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
-				await msg.delete()
-				return await interface.send_to(ctx)
-			elif arg2.lower() == 'gwins':
-				msg = await ctx.send(f"Generating Guild Wins leaderboard...")
-				headers = {
-					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'Content-Type': 'application/json' 
-				}
-				async with aiohttp.ClientSession(headers=headers) as session:
-					async with session.get(f'https://sk1er.club/leaderboards/newdata/GUILD_WINS') as resp:
-						content = await resp.read()
-				lbjson = table2json(content, ['Position', 'Change', 'Name', 'Wins', 'Level', 'Exp', 'Legacy', 'Created'])
-				paginator = WrappedPaginator(prefix='```vbs\n-------------------------------------', suffix='-------------------------------------\n```', max_size=420)
-				for player in lbjson:
-					try:
-						pos = player['Position']
-						name = player['Name']
-						wins = player['Wins']
-						paginator.add_line(f'[{pos}] {name} - {wins}')
-					except Exception as e:
-						pass
-				embed = discord.Embed(title='Guild Wins Leaderboard', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
-				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
-				await msg.delete()
-				return await interface.send_to(ctx)
-			else:
-				return await ctx.send('Unknown leaderboard.')
-		elif arg1 == 'skyblock':
+			return await ctx.send(embed=embed)
+		elif arg1.lower() == 'skyblock':
 			if not arg2 or arg2 == 'news':
-				async with aiohttp.ClientSession() as session:
-					async with session.get(f'https://api.hypixel.net/skyblock/news?key={self.bot.config["hypixel"]}') as resp:
-						sbnews = await resp.json()
+				route = Route(
+					'GET',
+					'/skyblock/news'
+				)
+				sbnews = await self.bot.http.hypixel.request(route)
 				paginator = WrappedPaginator(prefix='', suffix='', max_size=250)
 				for entry in sbnews['items']:
 					paginator.add_line(f'[{entry["title"]}]({entry["link"]})\n{entry["text"]}\n')
@@ -336,8 +117,6 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 				return await interface.send_to(ctx)
 		if arg2 is None:
-			cleaned = discord.utils.escape_mentions(discord.utils.escape_markdown(arg1))
-			msg = await ctx.send(f"Requesting info about {cleaned} from the Hypixel API!")
 			channel = ctx.message.channel
 			color = ctx.author.color
 			async with channel.typing():
@@ -348,10 +127,6 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				except AttributeError:
 					raise commands.ArgumentParsingError('Couldn\'t find that player...')
 				p = player.JSON
-				headers = {
-					'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-					'Content-Type': 'application/json'
-				}
 				tributes = p.get('tourney', {}).get('total_tributes', 0) # TOURNAMENT TRIBUTES
 				level = str(player.getLevel()).split('.')[0]
 				lastlogin = p.get('lastLogin', 0)
@@ -361,9 +136,11 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 				else:
 					status = "Offline!"
 				tag = None
-				async with aiohttp.ClientSession(headers=headers) as session:
-					async with session.get(f'https://api.sk1er.club/guild/player/{player.UUID}') as resp:
-						guild = await resp.json()
+				route = Route(
+					'GET',
+					f'/guild/player/{player.UUID}'
+				)
+				guild = await self.bot.http.sk1er.request(route)
 				if guild.get('success', False):
 					guild = guild['guild']
 					tag = guild['tag'] if 'tag' in guild else None
@@ -381,9 +158,11 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 							tag = f'§3[{tag}]'
 						if not tag:
 							tag = f'§7[{tag}]'
-				async with aiohttp.ClientSession(headers=headers) as session:
-					async with session.get(f'https://api.sk1er.club/player/{arg1}') as resp:
-						apiplayer = await resp.json()
+				route = Route(
+					'GET',
+					f'/player/{player.UUID}'
+				)
+				apiplayer = await self.bot.http.sk1er.request(route)
 				if apiplayer['success']:
 					try:
 						nametag = apiplayer['player']['playerdisplay'].replace('§0YOUTUBE', '§fYOUTUBE') if 'playerdisplay' in apiplayer else apiplayer['player']['display'].replace('§0YOUTUBE', '§fYOUTUBE')
@@ -443,14 +222,20 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 					else:
 						await msg.edit(content=None, embed=embed)
 		elif arg2 == 'friends':
-			headers = {
-				'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-				'Content-Type': 'application/json' 
-			}
-			async with aiohttp.ClientSession(headers=headers) as session:
-				async with session.get(f'https://api.sk1er.club/friends/{arg1}') as resp:
-					friends = await resp.json()
-			paginator = WrappedPaginator(prefix=f'-----------------------------------------------------\n                           Friends ({len(friends)}) >>', suffix='-----------------------------------------------------', max_size=512)
+			uuid = await self.name_to_uuid(arg1)
+			if not uuid:
+				return await ctx.error(f'Couldn\'t find that player')
+			route = Route(
+				'GET',
+				f'/friends/{uuid}'
+			)
+			friends = await self.bot.http.sk1er.request(route)
+			paginator = WrappedPaginator(
+				prefix=f'''-----------------------------------------------------
+                           Friends ({len(friends)}) >>''',
+				suffix='-----------------------------------------------------',
+				max_size=512
+			)
 			for uuid in friends:
 				friend = friends[uuid]
 				try:
@@ -464,14 +249,14 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 			await interface.send_to(ctx)
 		elif arg2 == 'guild':
-			uuid = await self.nameToUUID(arg1)
-			headers = {
-				'User-Agent': 'Fire (Python 3.7.2 / aiohttp 3.3.2) | Fire Discord Bot',
-				'Content-Type': 'application/json' 
-			}
-			async with aiohttp.ClientSession(headers=headers) as session:
-				async with session.get(f'https://api.sk1er.club/guild/player/{uuid}') as resp:
-					guild = await resp.json()
+			uuid = await self.name_to_uuid(arg1)
+			if not uuid:
+				return await ctx.error(f'Couldn\'t find that player')
+			route = Route(
+				'GET',
+				f'/guild/player/{uuid}'
+			)
+			guild = await self.bot.http.sk1er.request(route)
 			if guild['success'] != True:
 				raise commands.ArgumentParsingError('Couldn\'t find a guild. Maybe they aren\'t in one...')
 			guild = guild['guild']
@@ -527,7 +312,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 	async def skin(self, ctx, *, ign: str = None):
 		if not ign:
 			return await ctx.error('You must provide a name!')
-		uid = await self.nameToUUID(ign)
+		uid = await self.name_to_uuid(ign)
 		timestamp = str(datetime.datetime.utcnow().timestamp()).split('.')[0]
 		embed = discord.Embed(color=ctx.author.color)
 		embed.set_image(url=f'https://mc-heads.net/body/{uid}/{timestamp}')
@@ -538,7 +323,7 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 	async def mcuuid(self, ctx, *, ign: str = None):
 		if not ign:
 			return await ctx.error('You must provide a name!')
-		uid = await self.nameToUUID(ign)
+		uid = await self.name_to_uuid(ign)
 		await ctx.send(f'{ign} has the UUID {uid}')
 
 	@commands.command(description='View the current status of Minecraft services')
@@ -555,16 +340,18 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 		}
 		services = {
 			'minecraft.net': '**Website**',
-			'sessionserver.mojang.com': '**Sessions**',
+			'session.minecraft.net': '**Sessions**',
 			'authserver.mojang.com': '**Auth**',
 			'textures.minecraft.net': '**Skins**',
 			'api.mojang.com': '**API**'
 		}
-		async with aiohttp.ClientSession().get('https://status.mojang.com/check') as r:
-			if r.status == 200:
-				status = await r.json()
-			else:
-				return await ctx.error('Failed to check status')
+		async with aiohttp.ClientSession() as s:
+			async with s.get('https://status.mojang.com/check') as r:
+				await s.close()
+				if r.status == 200:
+					status = await r.json()
+				else:
+					return await ctx.error('Failed to check status')
 		s = []
 		for service in status:
 			for name, state in service.items():
@@ -575,5 +362,5 @@ class pickle(commands.Cog, name="Hypixel Commands"):
 
 
 def setup(bot):
-	bot.add_cog(pickle(bot))
+	bot.add_cog(Hypixel(bot))
 	bot.logger.info(f'$GREENLoaded Hypixel cog!')
