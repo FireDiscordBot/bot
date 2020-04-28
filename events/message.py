@@ -81,11 +81,18 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             'public': True,
             'files': files
         }
-        async with aiohttp.ClientSession(headers=self.gistheaders) as session:
-            async with session.post('https://api.github.com/gists', json=body) as r:
-                if r.status != 201:
-                    self.bot.logger.warn(f'Failed to create gist for tokens! Status: {r.status}')
-            await session.close()
+        route = Route(
+            'POST',
+            f'/gists'
+        )
+        try:
+            await self.bot.http.github.request(
+                route,
+                json=payload,
+                headers=self.gistheaders
+            )
+        except Exception as e:
+            self.bot.logger.warn(f'$YELLOWFailed to create gist for tokens!', exc_info=e)
 
 
     @commands.Cog.listener()
