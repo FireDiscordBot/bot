@@ -134,7 +134,7 @@ def parseTime(content, replace: bool = False):
 		return days, hours, minutes, seconds
 	return 0, 0, 0, 0
 
-class utils(commands.Cog, name='Utility Commands'):
+class Utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
 		self.bot.recentpurge = {}
@@ -157,10 +157,10 @@ class utils(commands.Cog, name='Utility Commands'):
 		self.tags = {}
 		self.bans = {}
 		self.reminders = {}
-		asyncio.get_event_loop().create_task(self.loadvanitys())
-		asyncio.get_event_loop().create_task(self.loadtags())
-		asyncio.get_event_loop().create_task(self.loadbans())
-		asyncio.get_event_loop().create_task(self.loadremind())
+		self.bot.loop.create_task(self.loadvanitys())
+		self.bot.loop.create_task(self.loadtags())
+		self.bot.loop.create_task(self.loadbans())
+		self.bot.loop.create_task(self.loadremind())
 		self.remindcheck.start()
 
 	def is_emoji(self, s):
@@ -913,9 +913,9 @@ class utils(commands.Cog, name='Utility Commands'):
 				if user:
 					completed.append(m.author.id == user.id)
 				if match:
-					completed.append(match in m.content)
+					completed.append(match.lower() in m.content)
 				if nomatch:
-					completed.append(nomatch not in m.content)
+					completed.append(nomatch.lower() not in m.content)
 				if startswith:
 					completed.append(m.content.startswith(startswith))
 				if endswith:
@@ -1260,5 +1260,5 @@ class utils(commands.Cog, name='Utility Commands'):
 			return await ctx.send('I couldn\'t get that member\'s activity...')
 		
 def setup(bot):
-	bot.add_cog(utils(bot))
+	bot.add_cog(Utils(bot))
 	bot.logger.info(f'$GREENLoaded Utilities cog!')
