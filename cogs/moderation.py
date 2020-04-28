@@ -117,7 +117,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.mutes = {}
-		asyncio.get_event_loop().create_task(self.loadMutes())
+		self.bot.loop.create_task(self.loadMutes())
 		self.tempmuteChecker.start()
 
 	async def __error(self, ctx, error):

@@ -63,9 +63,13 @@ class Settings(commands.Cog):
 		if not hasattr(self.bot, 'invites'):
 			self.bot.invites = {}
 		self.bot.aliases = {}
-		asyncio.get_event_loop().create_task(self.load_data())
-		asyncio.get_event_loop().create_task(self.load_invites())
-		asyncio.get_event_loop().create_task(self.load_aliases())
+		for g in self.bot.guilds:
+			self.joincache[g.id] = []
+			message = bot.get_cog('Message')
+			message.raidmsgs[g.id] = None
+			message.msgraiders[g.id] = []
+		self.bot.loop.create_task(self.load_invites())
+		self.bot.loop.create_task(self.load_aliases())
 		self.refresh_invites.start()
 
 	def clean(self, text: str):
@@ -82,24 +86,6 @@ class Settings(commands.Cog):
 	@refresh_invites.after_loop
 	async def after_refresh_invites(self):
 		self.bot.logger.warn(f'$YELLOWInvite refresher has stopped!')
-
-	async def load_data(self):
-		await self.bot.wait_until_ready()
-		self.bot.logger.info(f'$YELLOWLoading common data...')
-		for g in self.bot.guilds:
-			self.joincache[g.id] = []
-			message = self.bot.get_cog('Message')
-			message.raidmsgs[g.id] = None
-			message.msgraiders[g.id] = []
-		filters = self.bot.get_cog('Filters')
-		try:
-			malware = await aiohttp.ClientSession().get('https://mirror.cedia.org.ec/malwaredomains/justdomains')
-			malware = await malware.text()
-			filters.malware = list(filter(None, malware.split('\n')))
-		except Exception as e:
-			self.bot.logger.error(f'$REDFailed to fetch malware domains!', exc_info=e)
-			filters.malware = []
-		self.bot.logger.info(f'$GREENFinished loading common data!')
 
 	async def load_aliases(self):
 		await self.bot.wait_until_ready()
