@@ -24,6 +24,7 @@ from fire.filters.twitch import findtwitch
 from discord.ext import commands
 import functools
 import datetime
+import aiohttp
 import discord
 
 
@@ -40,8 +41,8 @@ class Filters(commands.Cog):
                 malware = await (await s.get('https://mirror.cedia.org.ec/malwaredomains/justdomains')).text()
                 await s.close()
             self.malware = list(filter(None, malware.split('\n')))
-        except Exception:
-            self.bot.logger.error(f'$REDFailed to fetch malware domains')
+        except Exception as e:
+            self.bot.logger.error(f'$REDFailed to fetch malware domains', exc_info=e)
 
     async def handle_invite(self, message):
         codes = findinvite(message.system_content)

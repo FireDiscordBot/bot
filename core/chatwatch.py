@@ -22,7 +22,7 @@ import traceback
 import json
 
 
-class ChatWatch(commands.Cog):
+class Chatwatch(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         if not hasattr(self.bot, 'chatwatch'):
@@ -51,7 +51,7 @@ class ChatWatch(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(ChatWatch(bot))
+        bot.add_cog(Chatwatch(bot))
         bot.logger.info(f'$GREENLoaded Chatwatch!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

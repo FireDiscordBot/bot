@@ -101,7 +101,8 @@ class Fire(commands.Bot):
         # HASTEBIN
         self.http.hst = HTTPClient(
             'https://hst.sh',
-            user_agent='Fire Discord Bot'
+            user_agent='Fire Discord Bot',
+            raise_for_status=False
         )
         self.http.hinvwtf = HTTPClient(
             'https://h.inv.wtf',
@@ -212,7 +213,7 @@ class Fire(commands.Bot):
 
     async def haste(self, content, fallback: bool = False):
         route = Route(
-            'POST'
+            'POST',
             '/documents'
         )
         client = self.http.hst
@@ -220,11 +221,11 @@ class Fire(commands.Bot):
             client = self.http.hinvwtf
         try:
             h = await client.request(route, data=content)
-            return f'https://{client.BASE_URL}/' + h['key']
+            return f'{client.BASE_URL}/' + h['key']
         except Exception as e:
-            self.logger.warn(f'$REDFailed to create haste on $CYAN{client.BASE_URL}')
             if not fallback:
                 return await self.haste(content, fallback=True)
+            self.logger.warn(f'$REDFailed to create haste on $CYAN{client.BASE_URL}/', exc_info=e)
         return 'Failed to create haste'
 
     async def is_team_owner(self, user: typing.Union[discord.User, discord.Member]):
