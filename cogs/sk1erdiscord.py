@@ -15,16 +15,17 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-import discord
 from discord.ext import commands, tasks
+from fire.http import Route
 import datetime
 import aiohttp
+import discord
 import json
 import uuid
 import re
 
 
-class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
+class Sk1er(commands.Cog, name='Sk1er Discord'):
 	def __init__(self, bot):
 		self.bot = bot
 		self.guild = self.bot.get_guild(411619823445999637)
@@ -58,7 +59,7 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 	@tasks.loop(minutes=5)
 	async def description_updater(self):
 		try:
-			m = (await (await aiohttp.ClientSession().get('https://api.sk1er.club/mods_analytics')).json())['combined_total']
+			m = (await self.bot.http.sk1er.request(Route('GET', '/mods_analytics')))['combined_total']
 			m += (await (await aiohttp.ClientSession().get('https://api.autotip.pro/counts')).json())['total']
 			m += (await (await aiohttp.ClientSession().get('https://api.hyperium.cc/users')).json())['all']
 			await self.guild.edit(description=f'The Official Discord for Sk1er & Sk1er Mods ({m:,d} total players)')
@@ -76,13 +77,17 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):
 		if self.nitro in member.roles or self.testrole in member.roles:
-			async with aiohttp.ClientSession(headers=self.gistheaders) as s:
-				async with s.get(f'https://api.github.com/gists/{self.gist}') as r:
-					if r.status != 200:
-						return
-					gist = await r.json()
-					text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
-					current = json.loads(text)
+			route = Route(
+				'GET',
+				f'/gists/{self.gist}'
+			)
+			try:
+				gist = await self.bot.http.github.request(route, headers=self.gistheaders)
+			except Exception:
+				self.bot.logger.error(f'$REDFailed to fetch booster gist for $CYAN{member}')
+				return
+			text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
+			current = json.loads(text)
 			if 'error' in current:
 				return
 			try:
@@ -99,12 +104,29 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 					}
 				}
 			}
-			await aiohttp.ClientSession(headers=self.modcoreheaders).get(f'https://api.modcore.sk1er.club/nitro/{mcuuid}/false')
-			async with aiohttp.ClientSession(headers=self.gistheaders) as s:
-				async with s.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as r:
-					if r.status == 200:
-						general = self.guild.get_channel(411620457754787841)
-						await general.send(f'{member} left and their nitro perks in Hyperium & Modcore have been removed.')
+			route = Route(
+				'GET',
+				f'/nitro/{mcuuid}/false'
+			)
+			try:
+				await self.bot.http.modcore.request(route, headers=self.modcoreheaders)
+			except Exception as e:
+				self.bot.logger.error(f'$REDFailed to remove nitro perks for $CYAN{mcuuid}')
+			route = Route(
+				'PATCH',
+				f'/gists/{self.gist}'
+			)
+			try:
+				gist = await self.bot.http.github.request(
+					route,
+					json=payload,
+					headers=self.gistheaders
+				)
+			except Exception:
+				self.bot.logger.error(f'$REDFailed to patch booster gist for $CYAN{mcuuid}')
+				return
+			general = self.guild.get_channel(411620457754787841)
+			await general.send(f'{member} left and their nitro perks have been removed.')
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
@@ -123,13 +145,20 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 			if self.nitro in removed or (self.testrole in removed and after.id == 287698408855044097):
 				if not self.bot.isascii(after.nick or after.name) or self.bot.ishoisted(after.nick or after.name):
 					await after.edit(nick=f'John Doe {after.discriminator}')
-				async with aiohttp.ClientSession(headers=self.gistheaders) as s:
-					async with s.get(f'https://api.github.com/gists/{self.gist}') as r:
-						if r.status != 200:
-							return
-						gist = await r.json()
-						text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
-						current = json.loads(text)
+				route = Route(
+					'GET',
+					f'/gists/{self.gist}'
+				)
+				try:
+					gist = await self.bot.http.github.request(
+						route,
+						headers=self.gistheaders
+					)
+				except Exception:
+					self.bot.logger.error(f'$REDFailed to get booster gist for $CYAN{after}')
+					return
+				text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
+				current = json.loads(text)
 				if 'error' in current:
 					return
 				try:
@@ -138,6 +167,14 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 					current.remove(user)
 				except Exception:
 					return
+				route = Route(
+					'GET',
+					f'/nitro/{mcuuid}/false'
+				)
+				try:
+					await self.bot.http.modcore.request(route, headers=self.modcoreheaders)
+				except Exception as e:
+					self.bot.logger.error(f'$REDFailed to remove modcore nitro perks for $CYAN{mcuuid}')
 				payload = {
 					'description': 'Nitro Booster dots for the Hyperium Client!',
 					'files': {
@@ -146,12 +183,21 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 						}
 					}
 				}
-				await aiohttp.ClientSession(headers=self.modcoreheaders).get(f'https://api.modcore.sk1er.club/nitro/{mcuuid}/false')
-				async with aiohttp.ClientSession(headers=self.gistheaders) as s:
-					async with s.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as r:
-						if r.status == 200:
-							general = self.guild.get_channel(411620457754787841)
-							await general.send(f'{after.mention} Your nitro perks in Hyperium & Modcore have been removed. Boost the server to get them back :)')
+				route = Route(
+					'PATCH',
+					f'/gists/{self.gist}'
+				)
+				try:
+					gist = await self.bot.http.github.request(
+						route,
+						json=payload,
+						headers=self.gistheaders
+					)
+				except Exception:
+					self.bot.logger.error(f'$REDFailed to patch booster gist for $CYAN{mcuuid}')
+					return
+				general = self.guild.get_channel(411620457754787841)
+				await general.send(f'{after.mention} Your nitro perks have been removed. Boost the server to get them back :)')
 
 	async def haste(self, content, fallback: bool=False):
 		url = 'hst.sh'
@@ -217,42 +263,41 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				await message.delete()
 				return await message.channel.send(f'{message.author} sent a log, {url}')
 
-	async def nameToUUID(self, player: str):
-		async with aiohttp.ClientSession() as s:
-			async with s.get(f'https://api.mojang.com/users/profiles/minecraft/{player}') as r:
-				if r.status == 204:
-					return False
-				elif r.status == 200:
-					json = await r.json()
-					mid = json['id']
-					return str(uuid.UUID(mid))
-		return False
-
 	@commands.command(description='Adds perks for Nitro Boosters')
 	async def nitroperks(self, ctx, ign: str = None):
 		if self.nitro not in ctx.author.roles and self.testrole not in ctx.author.roles:
 			return await ctx.send('no')
 		if not ign:
 			return await ctx.error('You must provide your Minecraft name!')
-		mid = await self.nameToUUID(ign)
+		mid = await self.bot.get_cog('Hypixel Commands').name_to_uuid(ign)
 		if not mid:
 			return await ctx.error('No UUID found!')
 		progress = await ctx.send('Give me a moment.')
-		async with aiohttp.ClientSession(headers=self.gistheaders) as s:
-			async with s.get(f'https://api.github.com/gists/{self.gist}') as r:
-				if r.status != 200:
-					return await progress.edit(content='<:xmark:674359427830382603> Something went wrong when getting the list of boosters')
-				gist = await r.json()
-				text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
-				current = json.loads(text)
+		route = Route(
+			'GET',
+			f'/gists/{self.gist}'
+		)
+		try:
+			gist = await self.bot.http.github.request(
+				route,
+				headers=self.gistheaders
+			)
+		except Exception:
+			return await progress.edit(content='<:xmark:674359427830382603> Something went wrong when getting the list of boosters')
+		text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
+		current = json.loads(text)
 		if 'error' in current:
 			return await progress.edit(content='<:xmark:674359427830382603> Something went wrong when getting the list of boosters')
 		try:
 			user = next(i for i in current if i["id"] == str(ctx.author.id))
-			async with aiohttp.ClientSession(headers=self.modcoreheaders) as s:
-				async with s.get(f'https://api.modcore.sk1er.club/nitro/{user["uuid"]}/false') as r:
-					if r.status != 200:
-						await progress.edit(content='<:xmark:674359427830382603> Modcore didn\'t respond correctly')
+			route = Route(
+				'GET',
+				f'/nitro/{user["uuid"]}/false'
+			)
+			try:
+				await self.bot.http.modcore.request(route, headers=self.modcoreheaders)
+			except Exception as e:
+				return await progress.edit(f'<:xmark:674359427830382603> Failed to remove perks from previous user, {user["ign"]}')
 			current.remove(user)
 			user['uuid'] = mid
 			user['ign'] = ign
@@ -264,6 +309,14 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				"color": "LIGHT_PURPLE"
 			}
 		current.append(user)
+		route = Route(
+			'GET',
+			f'/nitro/{user["uuid"]}/true'
+		)
+		try:
+			await self.bot.http.modcore.request(route, headers=self.modcoreheaders)
+		except Exception as e:
+			await ctx.error(f'Failed to give perks on modcore.')
 		payload = {
 			'description': 'Nitro Booster dots for the Hyperium Client!',
 			'files': {
@@ -272,20 +325,21 @@ class sk1ercog(commands.Cog, name="Sk1er's Epic Cog"):
 				}
 			}
 		}
-		async with aiohttp.ClientSession(headers=self.modcoreheaders) as s:
-			async with s.get(f'https://api.modcore.sk1er.club/nitro/{user["uuid"]}/true') as r:
-				if r.status != 200:
-					await ctx.error('Modcore didn\'t respond correctly')
-		async with aiohttp.ClientSession(headers=self.gistheaders) as s:
-			async with s.patch(f'https://api.github.com/gists/{self.gist}', json=payload) as r:
-				if r.status == 200:
-					if ctx.author.id == 202666531111436288:
-						return await ctx.success('Successfully gave you the perks!')
-					return await progress.edit(content='<:check:674359197378281472> Successfully gave you the perks!')
-				else:
-					return await progress.edit(content='<:xmark:674359427830382603> Something went wrong when updating the list')
+		route = Route(
+			'PATCH',
+			f'/gists/{self.gist}'
+		)
+		try:
+			gist = await self.bot.http.github.request(
+				route,
+				json=payload,
+				headers=self.gistheaders
+			)
+		except Exception:
+			return await ctx.error(content='<:xmark:674359427830382603> Failed to give you the perks in Hyperium')
+		return await progress.edit(content='<:check:674359197378281472> Successfully gave you the perks!')
 
 
 def setup(bot):
-	bot.add_cog(sk1ercog(bot))
+	bot.add_cog(Sk1er(bot))
 	bot.logger.info(f'$GREENLoaded cog for discord.gg/sk1er!')
