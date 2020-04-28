@@ -151,27 +151,6 @@
     },
     {
         "id": 5,
-        "name": "Hyperium",
-        "commands": {
-            "stats": {
-                "Description": "Get Hyperium's statistics",
-                "Usage": "{prefix}hyperium stats",
-                "Aliases": null
-            },
-            "player status": {
-                "Description": "Check if a player is currently using Hyperium",
-                "Usage": "{prefix}hyperium <player> status",
-                "Aliases": null
-            },
-            "player purchases": {
-                "Description": "Check a player's purchases",
-                "Usage": "{prefix}hyperium <player> purchases",
-                "Aliases": null
-            }
-        }
-    },
-    {
-        "id": 6,
         "name": "YouTube",
         "commands": {
             "yt": {
@@ -187,7 +166,7 @@
         }
     },
     {
-        "id": 7,
+        "id": 6,
         "name": "Image Manipulation",
         "commands": {
             "makeameme": {
@@ -203,7 +182,7 @@
         }
     },
     {
-        "id": 8,
+        "id": 7,
         "name": "Tickets",
         "commands": {
             "ticket": {
@@ -244,7 +223,7 @@
         }
     },
     {
-        "id": 9,
+        "id": 8,
         "name": "Configuration",
         "commands": {
             "settings": {
@@ -300,7 +279,7 @@
         }
     },
     {
-        "id": 10,
+        "id": 9,
         "name": "Moderation",
         "Note": "Users with the \"Manage Messages\" permission are considered moderators! This will most likely change in the future.",
         "commands": {
@@ -382,7 +361,7 @@
         }
     },
     {
-        "id": 11,
+        "id": 10,
         "name": "Info",
         "commands": {
             "user": {
@@ -403,7 +382,7 @@
         }
     },
     {
-        "id": 12,
+        "id": 11,
         "name": "Tags",
         "Note": "Creating/deleting tags requires \"Manage Messages\" permission. Tag names can only be one word.",
         "commands": {
@@ -430,7 +409,7 @@
         }
     },
     {
-        "id": 13,
+        "id": 12,
         "name": "Utilities",
         "commands": {
             "dstatus": {
@@ -511,7 +490,7 @@
         }
     },
     {
-        "id": 14,
+        "id": 13,
         "name": "Purge",
         "Note": "The purge command makes use of a flag system for different options. \nFor example, \"purge 10 --user Geek --match oof\" would purge the last 10 messages from the user Geek if it contains oof",
         "commands": {
@@ -565,7 +544,7 @@
         }
     },
     {
-        "id": 15,
+        "id": 14,
         "name": "Random",
         "commands": {
             "dab": {
@@ -611,7 +590,7 @@
         }
     },
     {
-        "id": 16,
+        "id": 15,
         "name": "Premium",
         "commands": {
             "autorole": {
