@@ -31,7 +31,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 def get_path(path):
 	return os.path.join(ROOT_DIR, path)
 
-class imagegen(commands.Cog, name='Image Generation'):
+class ImageGeneration(commands.Cog, name='Image Generation'):
 	def __init__(self, bot):
 		self.bot = bot
 
@@ -56,7 +56,9 @@ class imagegen(commands.Cog, name='Image Generation'):
 		if len(text.split('|')) <= 1:
 			return await ctx.error('You must provide text seperated by **|**')
 		try:
-			imgraw = await aiohttp.ClientSession().get(image)
+			async with aiohttp.ClientSession() as s:
+				imgraw = await s.get(image)
+				await s.close()
 		except Exception:
 			return await ctx.error('Invalid image!')
 		if imgraw.status != 200:
@@ -166,7 +168,11 @@ class imagegen(commands.Cog, name='Image Generation'):
 		if type(image) == discord.Member:
 			image = str(image.avatar_url_as(format='png'))
 		image = image.strip('<>')
-		imgraw = await aiohttp.ClientSession(headers={'Authorization': self.bot.config["aeromeme"]}).get(f'https://memes.aero.bot/api/deepfry?avatar1={image}')
+		async with aiohttp.ClientSession(
+			headers={'Authorization': self.bot.config["aeromeme"]}
+		) as s:
+			imgraw = s.get(f'https://memes.aero.bot/api/deepfry?avatar1={image}')
+			await s.close()
 		if imgraw.status != 200:
 			return await ctx.error('Something went wrong...')
 		imgraw = await imgraw.read()
@@ -178,4 +184,4 @@ class imagegen(commands.Cog, name='Image Generation'):
 
 
 def setup(bot):
-	bot.add_cog(imagegen(bot))
+	bot.add_cog(ImageGeneration(bot))
