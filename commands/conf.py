@@ -22,7 +22,7 @@ import traceback
 import discord
 
 
-class conf(commands.Cog):
+class Conf(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -30,12 +30,12 @@ class conf(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def config(self, ctx, option: str = None):
         if not option:
-            paginator = WrappedPaginator(prefix='```ini', suffix='```', max_size=800)
+            paginator = WrappedPaginator(prefix='```ini', suffix='```', max_size=600)
             gconf = self.bot.configs[ctx.guild.id]
             for opt, data in gconf.options.items():
                 current = gconf.get(opt)
                 if isinstance(current, list):
-                    current = ', '.join(str(current))
+                    current = ', '.join([str(c) for c in current])
                 accepted = data["accepts"]
                 if isinstance(accepted, list):
                     accepted = f'List of {accepted[0].__name__}'
@@ -48,7 +48,7 @@ class conf(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(conf(bot))
+        bot.add_cog(Conf(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"config" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
