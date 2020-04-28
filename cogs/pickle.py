@@ -73,10 +73,14 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 		except KeyError:
 			route = Route(
 				'GET',
-				f'users/profiles/minecraft/{player}'
+				f'/users/profiles/minecraft/{player}'
 			)
-			profile = await self.bot.http.mojang.request(route)
-			self.uuidcache.update({player: profile['id']})
+			try:
+				profile = await self.bot.http.mojang.request(route)
+				if profile:
+					self.uuidcache.update({player: profile['id']})
+			except Exception:
+				pass  # whatever is using this should check for None
 		return self.uuidcache.get(player, None)
 
 	@commands.command(description="Get hypixel stats")

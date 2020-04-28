@@ -316,6 +316,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		try:
 			await self.bot.http.modcore.request(route, headers=self.modcoreheaders)
 		except Exception as e:
+			self.bot.logger.warn(f'$YELLOWFailed to give perks on modcore', exc_info=e)
 			await ctx.error(f'Failed to give perks on modcore.')
 		payload = {
 			'description': 'Nitro Booster dots for the Hyperium Client!',
@@ -336,7 +337,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				headers=self.gistheaders
 			)
 		except Exception:
-			return await ctx.error(content='<:xmark:674359427830382603> Failed to give you the perks in Hyperium')
+			return await ctx.error('Failed to give you the perks in Hyperium')
 		return await progress.edit(content='<:check:674359197378281472> Successfully gave you the perks!')
 
 
