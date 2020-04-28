@@ -37,7 +37,7 @@ async def get_pre(bot, message):
         return commands.when_mentioned_or('$', 'fire ', 'Fire ')(bot, message)
     prefix = bot.configs[message.guild.id].get('main.prefix')
     if bot.dev:
-            return commands.when_mentioned_or(prefix, 'dev ', 'Dev ')(bot, message)
+        return commands.when_mentioned_or(prefix, 'dev ', 'Dev ')(bot, message)
     return commands.when_mentioned_or(prefix, 'fire ', 'Fire ')(bot, message)
 
 dev = False
@@ -55,19 +55,17 @@ bot = Fire(
 
 
 extensions = [
-    "cogs.misc",
-    "cogs.pickle",
-    "cogs.ksoft",
-    "cogs.skier",
-    "cogs.utils",
-    "cogs.help",
-    "cogs.youtube",
-    "cogs.settings",
-    "cogs.moderation",
-    "cogs.premium",
     "cogs.assist",
     "cogs.imagegen",
     "cogs.koding",
+    "cogs.ksoft",
+    "cogs.misc",
+    "cogs.moderation",
+    "cogs.pickle",
+    "cogs.premium",
+    "cogs.settings",
+    "cogs.utils",
+    "cogs.youtube",
     "api.main"
 ]
 
