@@ -36,4 +36,4 @@ def setup(bot):
         bot.logger.info(f'$GREENLoaded $CYAN"OSS" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $CYAN"OSS', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"OSS"', exc_info=e)
