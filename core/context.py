@@ -43,6 +43,7 @@ class Context(commands.Context):
             discord.Color.red(),
             discord.Color.teal()
         ]
+        self.config = self.bot.configs[self.guild.id]
 
     async def success(self, message: str):
         await self.send(f'<:check:674359197378281472> {message}')
