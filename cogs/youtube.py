@@ -26,7 +26,7 @@ import datetime
 import json
 
 
-class youtube(commands.Cog, name="YouTube API"):
+class YouTube(commands.Cog, name="YouTube API"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.youtube = googleapiclient.discovery.build(
@@ -117,5 +117,5 @@ class youtube(commands.Cog, name="YouTube API"):
 
 
 def setup(bot):
-	bot.add_cog(youtube(bot))
+	bot.add_cog(YouTube(bot))
 	bot.logger.info(f'$GREENLoaded YouTube cog!')

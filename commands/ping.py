@@ -22,7 +22,7 @@ import discord
 import datetime
 
 
-class ping(commands.Cog):
+class Ping(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -40,7 +40,7 @@ class ping(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(ping(bot))
+        bot.add_cog(Ping(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"ping" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

@@ -21,19 +21,19 @@ import traceback
 import discord
 
 
-class thank(commands.Cog):
+class Thanks(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(description="you're welcome", aliases=['thank you', 'thank'])
-    async def thanks(self, ctx):
+    async def thankscmd(self, ctx):
         return await ctx.send("You're Welcome! I don't know what you're thanking me for but I'll just go along with it")
 
 
 def setup(bot):
     try:
-        bot.add_cog(thank(bot))
-        bot.logger.info(f'$GREENLoaded $CYAN"thank" $GREENcommand!')
+        bot.add_cog(Thanks(bot))
+        bot.logger.info(f'$GREENLoaded $CYAN"thanks" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $CYAN"thank"', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"thanks"', exc_info=e)

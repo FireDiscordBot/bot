@@ -21,7 +21,7 @@ import traceback
 import discord
 
 
-class invite(commands.Cog):
+class Invite(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -32,7 +32,7 @@ class invite(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(invite(bot))
+        bot.add_cog(Invite(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"invite" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

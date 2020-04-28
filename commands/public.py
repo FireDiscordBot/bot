@@ -21,13 +21,13 @@ import traceback
 import discord
 
 
-class publiccmd(commands.Cog):
+class Public(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(description='Makes the guild visible on https://fire.gaminggeek.dev/discover')
+    @commands.command(name='public', description='Makes the guild visible on https://fire.gaminggeek.dev/discover')
     @commands.has_permissions(manage_guild=True)
-    async def public(self, ctx):
+    async def publiccmd(self, ctx):
         current = self.bot.configs[ctx.guild.id].get('utils.public')
         vanitys = [k for k, v in self.bot.vanity_urls.items() if v['gid'] == ctx.guild.id]
         if not vanitys:
@@ -42,7 +42,7 @@ class publiccmd(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(publiccmd(bot))
+        bot.add_cog(Public(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"public" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

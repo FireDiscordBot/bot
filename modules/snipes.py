@@ -24,7 +24,7 @@ import typing
 import re
 
 
-class snipes(commands.Cog, name="Snipes"):
+class Snipes(commands.Cog, name="Snipes"):
     def __init__(self, bot):
         self.bot = bot
         self.snipes = {}
@@ -161,5 +161,5 @@ class snipes(commands.Cog, name="Snipes"):
 
 
 def setup(bot):
-    bot.add_cog(snipes(bot))
+    bot.add_cog(Snipes(bot))
     bot.logger.info(f'$GREENLoaded $CYANSnipes $GREENmodule!')

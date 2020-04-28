@@ -21,7 +21,7 @@ import traceback
 import discord
 
 
-class dab(commands.Cog):
+class Dab(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -32,7 +32,7 @@ class dab(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(dab(bot))
+        bot.add_cog(Dab(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"dab" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

@@ -22,7 +22,7 @@ import traceback
 import json
 
 
-class chatwatch(commands.Cog):
+class ChatWatch(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         if not hasattr(self.bot, 'chatwatch'):
@@ -32,6 +32,8 @@ class chatwatch(commands.Cog):
     async def on_message(self, message):
         if not message.guild or not message.content or message.author.bot:
             return
+        if len(message.guild.members) < 10:  # probably a private server so don't send to chatwatch
+            return  # y'all can stop fucking complaining now I am sick and tired of hearing it fuck y'all
         ctx = await self.bot.get_context(message)
         if ctx.valid:
             return
@@ -49,7 +51,7 @@ class chatwatch(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(chatwatch(bot))
+        bot.add_cog(ChatWatch(bot))
         bot.logger.info(f'$GREENLoaded Chatwatch!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

@@ -21,7 +21,7 @@ import json
 import re
 
 
-class koding(commands.Cog, name="Koding's Custom Features"):
+class Koding(commands.Cog, name="Koding's Custom Features"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.konfig = json.load(open('koding.json', 'r'))
@@ -80,5 +80,5 @@ class koding(commands.Cog, name="Koding's Custom Features"):
 
 
 def setup(bot):
-	bot.add_cog(koding(bot))
+	bot.add_cog(Koding(bot))
 	bot.logger.info(f'$GREENLoaded Koding\'s custom features!')

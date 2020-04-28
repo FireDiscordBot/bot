@@ -20,12 +20,12 @@ from discord.ext import commands
 import asyncio
 
 
-class misc(commands.Cog, name="Miscellaneous"):
+class Misc(commands.Cog, name="Miscellaneous"):
 	def __init__(self, bot):
 		self.bot = bot
 		if not hasattr(bot, 'plonked'):
 			self.bot.plonked = []
-		asyncio.get_event_loop().create_task(self.loadutils())
+		self.bot.loop.create_task(self.loadutils())
 
 	async def loadutils(self):
 		await self.bot.wait_until_ready()
@@ -41,5 +41,5 @@ class misc(commands.Cog, name="Miscellaneous"):
 		return plonked
 
 def setup(bot):
-	bot.add_cog(misc(bot))
+	bot.add_cog(Misc(bot))
 	bot.logger.info(f'$GREENLoaded Misc cog!')

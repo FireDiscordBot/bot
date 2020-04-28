@@ -26,7 +26,7 @@ import discord
 import asyncio
 
 
-class richPresence(commands.Cog):
+class RichPresence(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -120,7 +120,7 @@ class richPresence(commands.Cog):
             embed.set_thumbnail(url=activity.large_image_url)
         return embed
 
-    @commands.command(name='rpc', description='View someone\'s rich presence')
+    @commands.command(description='View someone\'s rich presence')
     async def rpc(self, ctx, *, member: Member = None, MSG: discord.Message = None, ACT: int = 0):
         if not member:
             member = ctx.author
@@ -207,8 +207,8 @@ class richPresence(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(richPresence(bot))
-        bot.logger.info(f'$GREENLoaded $CYAN"richPresence" $GREENcommand!')
+        bot.add_cog(RichPresence(bot))
+        bot.logger.info(f'$GREENLoaded $CYAN"rpc" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $CYAN"richPresence"', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"rpc"', exc_info=e)

@@ -28,7 +28,7 @@ from fire.converters import Member
 
 imgext = ('.png', '.jpg', '.jpeg', '.gif')
 
-class ksoft(commands.Cog, name="KSoft.SI API"):
+class KSoft(commands.Cog, name="KSoft.SI API"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.bot.ksoft = ksoftapi.Client(api_key=bot.config['ksoft'] if not bot.dev else bot.config['ksoftalt'])
@@ -163,5 +163,5 @@ class ksoft(commands.Cog, name="KSoft.SI API"):
 
 
 def setup(bot):
-	bot.add_cog(ksoft(bot))
+	bot.add_cog(KSoft(bot))
 	bot.logger.info(f'$GREENLoaded KSoft.Si cog!')

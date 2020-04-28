@@ -21,18 +21,18 @@ import traceback
 import discord
 
 
-class vote(commands.Cog):
+class Vote(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=["vote", "top.gg"])
-    async def dbl(self, ctx):
+    @commands.command(name='vote', aliases=["dbl", "top.gg"])
+    async def votecmd(self, ctx):
         return await ctx.send("https://fire-is-the.best/")
 
 
 def setup(bot):
     try:
-        bot.add_cog(vote(bot))
+        bot.add_cog(Vote(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"vote" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

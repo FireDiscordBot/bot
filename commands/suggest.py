@@ -23,7 +23,7 @@ import datetime
 import discord
 
 
-class suggest(commands.Cog):
+class Suggest(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.trello = aiotrello.Trello(key=self.bot.config['trellokey'], token=self.bot.config['trellotoken'])
@@ -44,7 +44,7 @@ class suggest(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(suggest(bot))
+        bot.add_cog(Suggest(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"suggest" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

@@ -26,7 +26,7 @@ import re
 import io
 
 
-class tickets(commands.Cog, name="Tickets"):
+class Tickets(commands.Cog, name="Tickets"):
     def __init__(self, bot):
         self.bot = bot
         self.words = open('./words.txt').read().split(' ')
@@ -219,5 +219,5 @@ class tickets(commands.Cog, name="Tickets"):
 
 
 def setup(bot):
-    bot.add_cog(tickets(bot))
+    bot.add_cog(Tickets(bot))
     bot.logger.info(f'$GREENLoaded $CYANTickets $GREENmodule!')

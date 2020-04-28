@@ -22,7 +22,7 @@ import discord
 import random
 
 
-class eightball(commands.Cog):
+class Eightball(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -39,8 +39,8 @@ class eightball(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(eightball(bot))
-        bot.logger.info(f'$GREENLoaded $CYAN"eightball" $GREENcommand!')
+        bot.add_cog(Eightball(bot))
+        bot.logger.info(f'$GREENLoaded $CYAN"8ball" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $CYAN"eightball"', exc_info=e)
+        bot.logger.error(f'$REDError while adding command $CYAN"8ball"', exc_info=e)

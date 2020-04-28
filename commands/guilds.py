@@ -31,7 +31,7 @@ def shorten(text):
     return text
 
 
-class guilds(commands.Cog):
+class Guilds(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -64,7 +64,7 @@ class guilds(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(guilds(bot))
+        bot.add_cog(Guilds(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"guilds" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

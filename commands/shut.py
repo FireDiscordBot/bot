@@ -21,7 +21,7 @@ import traceback
 import discord
 
 
-class shut(commands.Cog):
+class Shut(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -32,7 +32,7 @@ class shut(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(shut(bot))
+        bot.add_cog(Shut(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"shut" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

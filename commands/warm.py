@@ -21,7 +21,7 @@ import traceback
 import discord
 
 
-class warm(commands.Cog):
+class Warm(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -32,7 +32,7 @@ class warm(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(warm(bot))
+        bot.add_cog(Warm(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"warm" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

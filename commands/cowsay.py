@@ -22,7 +22,7 @@ import discord
 import aiohttp
 
 
-class cowsay(commands.Cog):
+class Cowsay(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -31,6 +31,7 @@ class cowsay(commands.Cog):
         async with aiohttp.ClientSession() as session:
             async with session.get(f'http://cowsay.morecode.org/say?message={cow}&format=json') as resp:
                 body = await resp.json()
+                await session.close()
         cow = body['cow']
         cow = discord.utils.escape_mentions(cow).replace('`', '')
         await ctx.send(f'```{cow}```')
@@ -38,7 +39,7 @@ class cowsay(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(cowsay(bot))
+        bot.add_cog(Cowsay(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"cowsay" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

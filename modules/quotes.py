@@ -25,7 +25,7 @@ import typing
 import re
 
 
-class quotes(commands.Cog, name="Quotes"):
+class Quotes(commands.Cog, name="Quotes"):
     def __init__(self, bot):
         self.bot = bot
 
@@ -181,5 +181,5 @@ class quotes(commands.Cog, name="Quotes"):
 
 
 def setup(bot):
-    bot.add_cog(quotes(bot))
+    bot.add_cog(Quotes(bot))
     bot.logger.info(f'$GREENLoaded $CYANQuotes $GREENmodule!')

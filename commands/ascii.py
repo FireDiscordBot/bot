@@ -23,7 +23,7 @@ import discord
 import aiohttp
 
 
-class asciii(commands.Cog):  # 3 i's because ascii() already exists. ez fix
+class Ascii(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -43,7 +43,7 @@ class asciii(commands.Cog):  # 3 i's because ascii() already exists. ez fix
 
 def setup(bot):
     try:
-        bot.add_cog(asciii(bot))
+        bot.add_cog(Ascii(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"ascii" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))

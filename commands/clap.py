@@ -21,7 +21,7 @@ import traceback
 import discord
 
 
-class clap(commands.Cog):
+class Clap(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -35,7 +35,7 @@ class clap(commands.Cog):
 
 def setup(bot):
     try:
-        bot.add_cog(clap(bot))
+        bot.add_cog(Clap(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"clap" $GREENcommand!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
