@@ -38,9 +38,9 @@ class Premium(commands.Cog, name="Premium Commands"):
 		# self.reactroles = {}
 		self.joinroles = {}
 		self.rolepersists = {}
-		asyncio.get_event_loop().create_task(self.loadPremiumGuilds())
-		asyncio.get_event_loop().create_task(self.loadJoinRoles())
-		asyncio.get_event_loop().create_task(self.loadRolePersist())
+		self.bot.loop.create_task(self.loadPremiumGuilds())
+		self.bot.loop.create_task(self.loadJoinRoles())
+		self.bot.loop.create_task(self.loadRolePersist())
 
 	async def loadPremiumGuilds(self):
 		await self.bot.wait_until_ready()
@@ -184,7 +184,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	async def raidmsg(self, ctx, *, msg: str):
 		await ctx.message.delete()
 		await ctx.send(f'Raid message set! Anyone who sends that message in the next 5 minutes will be added to the list.\nI will alert you in your raid alerts channel with the list of raiders :)')
-		asyncio.get_event_loop().create_task(self._setraidmsg(ctx.guild.id, msg))
+		self.bot.loop.create_task(self._setraidmsg(ctx.guild.id, msg))
 
 	@commands.command(name='addrank', description='Add a role that users can join through the rank command.')
 	@has_permissions(manage_roles=True)
