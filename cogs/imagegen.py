@@ -58,12 +58,12 @@ class ImageGeneration(commands.Cog, name='Image Generation'):
 		try:
 			async with aiohttp.ClientSession() as s:
 				imgraw = await s.get(image)
+				if imgraw.status != 200:
+					return await ctx.error('Invalid image!')
+				imgraw = await imgraw.read()
 				await s.close()
 		except Exception:
 			return await ctx.error('Invalid image!')
-		if imgraw.status != 200:
-			return await ctx.error('Invalid image!')
-		imgraw = await imgraw.read()
 		try:
 			img = Image.open(BytesIO(imgraw))
 		except Exception:
@@ -171,11 +171,11 @@ class ImageGeneration(commands.Cog, name='Image Generation'):
 		async with aiohttp.ClientSession(
 			headers={'Authorization': self.bot.config["aeromeme"]}
 		) as s:
-			imgraw = s.get(f'https://memes.aero.bot/api/deepfry?avatar1={image}')
+			imgraw = await s.get(f'https://memes.aero.bot/api/deepfry?avatar1={image}')
+			if imgraw.status != 200:
+				return await ctx.error('Something went wrong...')
+			imgraw = await imgraw.read()
 			await s.close()
-		if imgraw.status != 200:
-			return await ctx.error('Something went wrong...')
-		imgraw = await imgraw.read()
 		# img = Image.open(BytesIO(imgraw))
 		# img.save(f'deepfry{ctx.author.id}.png')
 		file = discord.File(BytesIO(imgraw), f'deepfried.png')
