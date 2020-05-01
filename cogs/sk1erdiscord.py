@@ -299,11 +299,11 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			except Exception as e:
 				return await progress.edit(f'<:xmark:674359427830382603> Failed to remove perks from previous user, {user["ign"]}')
 			current.remove(user)
-			user['uuid'] = mid
+			user['uuid'] = str(uuid.UUID(mid))
 			user['ign'] = ign
 		except Exception:
 			user = {
-				"uuid": mid,
+				"uuid": str(uuid.UUID(mid)),
 				"ign": ign,
 				"id": str(ctx.author.id),
 				"color": "LIGHT_PURPLE"
