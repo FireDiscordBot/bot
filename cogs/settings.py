@@ -63,17 +63,21 @@ class Settings(commands.Cog):
 		if not hasattr(self.bot, 'invites'):
 			self.bot.invites = {}
 		self.bot.aliases = {}
-		for g in self.bot.guilds:
-			self.joincache[g.id] = []
-			message = bot.get_cog('Message')
-			message.raidmsgs[g.id] = None
-			message.msgraiders[g.id] = []
 		self.bot.loop.create_task(self.load_invites())
 		self.bot.loop.create_task(self.load_aliases())
+		self.bot.loop.create_task(self.load_data())
 		self.refresh_invites.start()
 
 	def clean(self, text: str):
 		return re.sub(r'[^A-Za-z0-9.\/ ]', '', text, 0, re.MULTILINE)
+
+	async def load_data(self):
+		await self.bot.wait_until_ready()
+		for g in self.bot.guilds:
+			self.joincache[g.id] = []
+			message = self.bot.get_cog('Message')
+			message.raidmsgs[g.id] = None
+			message.msgraiders[g.id] = []
 
 	@tasks.loop(minutes=2)
 	async def refresh_invites(self):
