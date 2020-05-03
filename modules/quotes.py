@@ -41,12 +41,11 @@ class Quotes(commands.Cog, name="Quotes"):
             color = user.color
         embed = discord.Embed(color=color, timestamp=message.created_at)
         if message.system_content:
-            if not (message.channel.is_nsfw() and not context_channel.is_nsfw()):
-                urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.jpeg|\.gif|\.gifv|\.webp)))'
-                search = re.search(urlre, message.system_content)
-                if search and not message.attachments:
-                    msg = message.system_content.replace(search.group(0), '').split('\n')
-                    embed.set_image(url=search.group(0))
+            urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.jpeg|\.gif|\.gifv|\.webp)))'
+            search = re.search(urlre, message.system_content)
+            if search and not message.attachments:
+                msg = message.system_content.replace(search.group(0), '').split('\n')
+                embed.set_image(url=search.group(0))
             if not msg:
                 msg = message.system_content.split('\n')
             for line in msg:
@@ -56,9 +55,7 @@ class Quotes(commands.Cog, name="Quotes"):
                 embed.description = '\n'.join(lines)
         embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
         if message.attachments:
-            if message.channel.is_nsfw() and not context_channel.is_nsfw():
-                embed.add_field(name='Attachments', value=':underage: Quoted message is from an NSFW channel.')
-            elif len(message.attachments) == 1 and message.attachments[0].url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')):
+            if len(message.attachments) == 1 and message.attachments[0].url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')):
                 embed.set_image(url=message.attachments[0].url)
             else:
                 for attachment in message.attachments:
@@ -117,6 +114,8 @@ class Quotes(commands.Cog, name="Quotes"):
 
         if str(message.author) in ['Public Server Updates#0000', 'Discord#0000'] and not self.bot.isadmin(ctx.author):  # Prevent quoting from known system users
             return await ctx.error(f'Cannot quote messages from that user!')
+        if message.channel.is_nsfw() and not ctx.channel.is_nsfw():
+            return await ctx.error(f'Cannot quote from an NSFW channel in a non-NSFW channel')
 
         if message.guild:
             if 'DISCOVERABLE' not in message.guild.features:

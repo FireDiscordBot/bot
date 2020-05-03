@@ -477,11 +477,6 @@
                 "Usage": "{prefix}fetchchannel <channel>",
                 "Aliases": null
             },
-            "fetchactivity": {
-                "Description": "Get a member's activities (Returns JSON)",
-                "Usage": "{prefix}fetchactivity [<member>]",
-                "Aliases": null
-            },
             "google": {
                 "Description": "Talk to the Google Assistant",
                 "Usage": "{prefix}google <query>",

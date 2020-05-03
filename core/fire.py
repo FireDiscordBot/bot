@@ -102,7 +102,6 @@ class Fire(commands.Bot):
         self.http.hst = HTTPClient(
             'https://hst.sh',
             user_agent='Fire Discord Bot',
-            raise_for_status=False
         )
         self.http.hinvwtf = HTTPClient(
             'https://h.inv.wtf',

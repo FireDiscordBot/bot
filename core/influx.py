@@ -42,7 +42,6 @@ class Users:
     when: TIMESTR
     shard: TAG
     total: INT
-    online: INT
 
 
 @lineprotocol

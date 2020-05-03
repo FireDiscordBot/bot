@@ -137,22 +137,15 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
 		await ctx.send(embed=embed)
 
 	@commands.command(name='lyrics')
-	async def lyrics(self, ctx, *, query: typing.Union[Member, str] = None):
+	async def lyrics(self, ctx, *, query: str = None):
 		lyrics = None
-		query = ctx.author if not query else query
-		if type(query) == discord.Member:
-			for activity in query.activities:
-				if type(activity) == discord.Spotify:
-					lyrics = await self.bot.ksoft.lyrics_search(f'{", ".join(activity.artists)} {activity.title}')
-			if not lyrics:
-				return await ctx.error('That member isn\'t listening to Spotify!')
-		elif type(query) == discord.User:
-			return await ctx.send('Missing search query')
+		if not query:
+			return await ctx.error('Missing search query')
 		else:
 			lyrics = await self.bot.ksoft.lyrics_search(query)
-		if len(lyrics.results) < 1:
+		if not lyrics or len(lyrics.results) < 1:
 			return await ctx.error('No lyrics found')
-		lyrics: ksoftapi.LyricsSearchResp = lyrics.results[0]
+		lyrics = lyrics.results[0]
 		paginator = WrappedPaginator(prefix='', suffix='', max_size=1000)
 		for line in lyrics.lyrics.split('\n'):
 			paginator.add_line(line)

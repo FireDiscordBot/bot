@@ -913,13 +913,13 @@ class Utils(commands.Cog, name='Utility Commands'):
 				if user:
 					completed.append(m.author.id == user.id)
 				if match:
-					completed.append(match.lower() in m.content)
+					completed.append(match.lower() in m.content.lower())
 				if nomatch:
-					completed.append(nomatch.lower() not in m.content)
+					completed.append(nomatch.lower() not in m.content.lower())
 				if startswith:
-					completed.append(m.content.startswith(startswith))
+					completed.append(m.content.lower().startswith(startswith.lower()))
 				if endswith:
-					completed.append(m.content.endswith(endswith))
+					completed.append(m.content.lower().endswith(endswith.lower()))
 				if attachments:
 					completed.append(len(m.attachments) >= 1)
 				if bot:
@@ -1059,12 +1059,9 @@ class Utils(commands.Cog, name='Utility Commands'):
 		if not code and (not ctx.guild.id in premiumguilds or not current):
 			return await ctx.error('You need to provide a code!')
 		elif not code and current:
-			statuses = ['online', 'idle', 'dnd']
-			online = len([m for m in ctx.guild.members if str(m.status) in statuses])
-			gonline = f'⬤ {online:,d} Online'
 			gmembers = f'⭘ {len(ctx.guild.members):,d} Members'
 			desc = self.bot.configs[ctx.guild.id].get('main.description') or f'Check out {ctx.guild} on Discord'
-			desc = f'[{ctx.guild}]({current.get("url", "https://inv.wtf/")})\n{desc}\n\n{gonline} & {gmembers}'
+			desc = f'[{ctx.guild}]({current.get("url", "https://inv.wtf/")})\n{desc}\n\n{gmembers}'
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=desc)
 			if not ctx.guild.splash_url and not ctx.guild.banner_url:
 				embed.set_thumbnail(url=str(ctx.guild.icon_url))
@@ -1245,20 +1242,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 				interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
 				await interface.send_to(ctx)
 
-	@commands.command(name='fetchactivity', description='Get a member\'s activity in json')
-	async def fetchactivity(self, ctx, member: Member = None):
-		if not member:
-			member = ctx.author
-		try:
-			a = member.activities
-			activities = []
-			for act in a:
-				activities.append(act.to_dict())
-			ajson = json.dumps(activities, indent=2).replace('`', '\`')
-			await ctx.send('```json\n{}```'.format(ajson))
-		except Exception:
-			return await ctx.send('I couldn\'t get that member\'s activity...')
-		
+
 def setup(bot):
 	bot.add_cog(Utils(bot))
 	bot.logger.info(f'$GREENLoaded Utilities cog!')

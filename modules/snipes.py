@@ -42,12 +42,11 @@ class Snipes(commands.Cog, name="Snipes"):
             color = user.color
         embed = discord.Embed(color=color, timestamp=message.created_at)
         if message.system_content:
-            if not (message.channel.is_nsfw() and not context_channel.is_nsfw()):
-                urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.jpeg|\.gif|\.gifv|\.webp)))'
-                search = re.search(urlre, message.system_content)
-                if search and not message.attachments:
-                    msg = message.system_content.replace(search.group(0), '').split('\n')
-                    embed.set_image(url=search.group(0))
+            urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.jpeg|\.gif|\.gifv|\.webp)))'
+            search = re.search(urlre, message.system_content)
+            if search and not message.attachments:
+                msg = message.system_content.replace(search.group(0), '').split('\n')
+                embed.set_image(url=search.group(0))
             if not msg:
                 msg = message.system_content.split('\n')
             for line in msg:
@@ -118,6 +117,9 @@ class Snipes(commands.Cog, name="Snipes"):
         message = gsnipes.pop(target.id, None)  # A message can now only be sniped once
         if not message:
             return await ctx.error(f'Nothing to snipe for {target}, move along.')
+
+        if message.channel.is_nsfw() and not ctx.channel.is_nsfw():
+            return await ctx.error(f'Cannot snipe an NSFW channel in a non-NSFW channel')
 
         usehooks = self.bot.configs[ctx.guild.id].get('utils.quotehooks')
         if ctx.guild.me.permissions_in(ctx.channel).manage_webhooks and usehooks:

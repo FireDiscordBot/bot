@@ -120,7 +120,6 @@ class Stats(commands.Cog):
                     'guilds': 0,
                     'unavailable': 0,
                     'users': {
-                        'online': 0,
                         'total': 0
                     },
                     'ping': round(self.bot.latency * 1000)
@@ -130,9 +129,6 @@ class Stats(commands.Cog):
                 if g.unavailable:
                     shards[0]['unavailable'] += 1
                 shards[0]['users']['total'] += g.member_count
-                statuses = ['online', 'dnd']
-                online = [m for m in g.members if str(m.status) in statuses]
-                shards[0]['users']['online'] += len(online)
             for sid, data in shards.items():
                 g = Guilds(
                     when=when,
@@ -144,8 +140,7 @@ class Stats(commands.Cog):
                 u = Users(
                     when=when,
                     shard=sid,
-                    total=data['users']['total'],
-                    online=data['users']['online']
+                    total=data['users']['total']
                 )
                 await self.bot.influx.write(u)
                 p = Ping(
