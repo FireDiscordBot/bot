@@ -64,7 +64,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			m += (await (await aiohttp.ClientSession().get('https://api.hyperium.cc/users')).json())['all']
 			await self.guild.edit(description=f'The Official Discord for Sk1er & Sk1er Mods ({m:,d} total players)')
 		except Exception as e:
-			self.bot.logger.warn(f'Description update task for {self.guild} failed.', exc_info=e)
+			pass
 
 	def cog_unload(self):
 		self.description_updater.cancel()
