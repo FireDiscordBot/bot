@@ -542,11 +542,11 @@ class Utils(commands.Cog, name='Utility Commands'):
 		'PARTNERED': '[Partnered](https://dis.gd/partners)',
 		'VERIFIED': '[Verified](https://dis.gd/verified)',
 		'COMMERCE': '[Store Channels](https://dis.gd/sell-your-game)',
-		'NEWS': '[Announcement Channels](https://support.discordapp.com/hc/en-us/articles/360032008192)',
-		'FEATURABLE': '[Featurable](https://discordapp.com/activity)',
-		'DISCOVERABLE': '[Discoverable](https://discordapp.com/guild-discovery) [(Discoverable Guidelines)](https://support.discordapp.com/hc/en-us/articles/360035969312)',
+		'NEWS': '[Announcement Channels](https://support.discord.com/hc/en-us/articles/360032008192)',
+		'FEATURABLE': 'Featurable',
+		'DISCOVERABLE': '[Discoverable](https://discord.com/guild-discovery)',
 		'ENABLED_DISCOVERABLE_BEFORE': 'Enabled Discoverable Before',
-		'PUBLIC': '[Public](https://support.discordapp.com/hc/en-us/articles/360035969312-Public-Server-Guidelines)',
+		'PUBLIC': '[Public](https://support.discord.com/hc/en-us/articles/360035969312-Public-Server-Guidelines)',
 		'WELCOME_SCREEN_ENABLED': 'Welcome Screen',
 		'VANITY_URL': 'Vanity URL',
 		'ANIMATED_ICON': 'Animated Icon',
@@ -810,9 +810,9 @@ class Utils(commands.Cog, name='Utility Commands'):
 			'major_outage': '<:major_outage:685538400639385706>',
 			'under_maintenance': '<:maintenance:685538400337395743>'
 		}
-		summary = await aiohttp.ClientSession().get('https://status.discordapp.com/api/v2/summary.json')
+		summary = await aiohttp.ClientSession().get('https://status.discord.com/api/v2/summary.json')
 		summary = await summary.json()
-		incidents = await aiohttp.ClientSession().get('https://status.discordapp.com/api/v2/incidents.json')
+		incidents = await aiohttp.ClientSession().get('https://status.discord.com/api/v2/incidents.json')
 		incidents = await incidents.json()
 		desc = []
 		groups = {}
