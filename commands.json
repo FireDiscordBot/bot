@@ -413,7 +413,7 @@
         "name": "Utilities",
         "commands": {
             "dstatus": {
-                "Description": "Get Discord's status (Made with help from ravy, https://ravy.xyz/)",
+                "Description": "Get Discord's status",
                 "Usage": "{prefix}dstatus",
                 "Aliases": null
             },
@@ -455,26 +455,21 @@
             "http.cat": {
                 "Description": "Got a HTTP Error Code? My cat knows what it means.",
                 "Usage": "{prefix}http.cat <error code>",
-                "Aliases": null
+                "Aliases": "httpcat"
             },
             "membercount": {
                 "Description": "Shows the amount of members",
                 "Usage": "{prefix}membercount",
-                "Aliases": null
+                "Aliases": "members"
             },
             "avatar": {
                 "Description": "Get a user's avatar",
                 "Usage": "{prefix}avatar [<user>]",
-                "Aliases": null
+                "Aliases": "av"
             },
             "vanityurl": {
                 "Description": "Creates a vanity invite for your Discord using inv.wtf",
                 "Usage": "{prefix}vanityurl [<code>/\"disable\"]",
-                "Aliases": null
-            },
-            "fetchchannel": {
-                "Description": "Fetch a channel's info (Returns JSON)",
-                "Usage": "{prefix}fetchchannel <channel>",
                 "Aliases": null
             },
             "google": {

@@ -16,6 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
+from jishaku.models import copy_context_with
 from discord.ext import commands
 from contextlib import suppress
 from fire.http import Route
@@ -118,6 +119,15 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             return
         if message.author.bot:
             return
+        if '--remind' in message.content and not self.bot.dev:
+            content = re.sub(r'\s?--remind\s?', '', message.content, 0, re.MULTILINE)
+            ctx = await self.bot.get_context(message)
+            alt_ctx = await copy_context_with(
+                ctx,
+                content=self.bot.configs[message.guild.id].get('main.prefix') + f'remind {content}'
+            )
+            if alt_ctx.valid:
+                await alt_ctx.command.invoke(alt_ctx)
         if config.get('mod.dupecheck'):
             lastmsg = self.dupecheck.get(message.author.id, 'send this message and it will get yeeted')
             lastmsg = self.urlgobyebye(self.uuidgobyebye(lastmsg)).strip()
