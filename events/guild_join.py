@@ -16,7 +16,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from discord.ext import commands
-from fire.push import pushbullet
 from core.config import Config
 from fire import exceptions
 import functools
@@ -44,16 +43,6 @@ class GuildAdd(commands.Cog):
                              f'$CYAN{guild.name}({guild.id}) '
                              f'$GREENwith $CYAN{guild.member_count} $GREENmembers'
         )
-        try:
-            await pushbullet(
-                'note',
-                'Fire joined a new guild!',
-                f'Fire joined {guild.name}({guild.id}) '
-                f'with {guild.member_count} members',
-                'https://api.gaminggeek.dev/stats'
-            )
-        except exceptions.PushError as e:
-            self.bot.logger.warn(f'$YELLOWFailed to send guild join notification!', exc_info=e)
         botlists = [
             self.bot.get_cog('TopGG'),
             self.bot.get_cog('DiscordBoats')

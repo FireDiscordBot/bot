@@ -16,7 +16,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from discord.ext import commands
-from fire.push import pushbullet
 from fire import exceptions
 import functools
 import asyncio
@@ -41,16 +40,6 @@ class GuildRemove(commands.Cog):
                              f'$REDwith $CYAN{guild.member_count} $REDmembers '
                              f'owned by {guild.owner}'
         )
-        try:
-            await pushbullet(
-                'note',
-                'Fire left a guild!',
-                f'Fire left {guild.name}({guild.id}) '
-                f'with {guild.member_count} members',
-                'https://api.gaminggeek.dev/stats'
-            )
-        except exceptions.PushError as e:
-            self.bot.logger.warn(f'$YELLOWFailed to send guild leave notification!', exc_info=e)
         botlists = [
             self.bot.get_cog('TopGG'),
             self.bot.get_cog('DiscordBoats')
