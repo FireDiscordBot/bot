@@ -629,7 +629,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 		if features and features != '':
 			embed.add_field(name="» Features", value=features, inline=False)
 		embed.add_field(
-			name=f"» Roles [{len(guild.roles)}]",
+			name=f"» Roles [{len(guild.roles)} - 1]",
 			value=self.shorten([r.mention for r in guild.roles if not r.is_default()], sep=' - ', max=750),
 			inline=False
 		)
@@ -685,7 +685,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 				embed.add_field(name="» Boosting For", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - user.premium_since), inline=False)
 			if [r for r in user.roles if not r.is_default()]:
 				embed.add_field(
-					name=f"» Roles [{len(user.roles)}]",
+					name=f"» Roles [{len(user.roles) - 1}]",
 					value=self.shorten([r.mention for r in user.roles if not r.is_default()], sep=' - '),
 					inline=False
 				)
