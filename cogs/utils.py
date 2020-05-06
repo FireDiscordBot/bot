@@ -679,7 +679,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name="» Join Position", value=members.index(user) + 1, inline=False)
 		embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - user.created_at, max_units=2) + ' ago', inline=False)
 		if isinstance(user, discord.Member):
-			if user.nick:
+			if user.nick and user.nick != user.name:
 				embed.add_field(name="» Nickname", value=user.nick, inline=False)
 			if user.premium_since:
 				embed.add_field(name="» Boosting For", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - user.premium_since), inline=False)
