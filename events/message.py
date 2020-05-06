@@ -18,6 +18,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 from contextlib import suppress
+from fire.http import Route
 import functools
 import traceback
 import datetime
