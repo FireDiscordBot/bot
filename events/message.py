@@ -90,7 +90,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
         try:
             await self.bot.http.github.request(
                 route,
-                json=payload,
+                json=body,
                 headers=self.gistheaders
             )
         except Exception as e:
