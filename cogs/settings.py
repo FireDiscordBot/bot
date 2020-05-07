@@ -320,8 +320,10 @@ class Settings(commands.Cog):
 							return
 						if e.action == discord.AuditLogAction.kick:
 							action = 'Kicked'
+							reason = e.reason
 						if e.action == discord.AuditLogAction.ban:
 							action = 'Banned'
+							reason = e.reason
 						break
 			embed = discord.Embed(title='Member Left', url='https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif', color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
 			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
@@ -332,6 +334,8 @@ class Settings(commands.Cog):
 				embed.add_field(name='Roles', value=', '.join(roles), inline=False)
 			if moderator and action:
 				embed.add_field(name=f'{action} By', value=f'{moderator} ({moderator.id})', inline=False)
+			if action and reason:
+				embed.add_field(name=f'{action} for', value=reason, inline=False)
 			embed.set_footer(text=f'User ID: {member.id}')
 			try:
 				await logch.send(embed=embed)
