@@ -159,6 +159,8 @@ class Quotes(commands.Cog, name="Quotes"):
                     for m in message.mentions:
                         content = content.replace(m.mention.replace('@!', '@'), u'@\u200b' + str(m))
                     content = discord.utils.escape_mentions(content) if message.content else None
+                    attchurls = '\n\n' + '\n'.join([a.url for a in message.attachments if a.size > 8388608])
+                    content = content + attchurls if len(content + attchurls) < 2000 else content
                     return await existing[0].send(
                         content=content,
                         username=str(message.author).replace('#0000', ''),
