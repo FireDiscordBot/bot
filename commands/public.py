@@ -34,10 +34,16 @@ class Public(commands.Cog):
             return await ctx.error(f'You must set a vanity url before your guild can be public')
         current = await self.bot.configs[ctx.guild.id].set('utils.public', not current)
         if current:
-            return await ctx.success(f'Your guild is now public & visible on <https://fire.gaminggeek.dev/discover>.'
+            await ctx.success(f'Your guild is now public & visible on <https://fire.gaminggeek.dev/discover>.'
                                      f'\nPeople will be able to use your guild\'s vanity url (<https://inv.wtf/{vanitys[0]}>) to join')
+            log = self.bot.configs[ctx.guild.id].get('log.action')
+            if log:
+                await log.send(f'<:operational:685538400639385649> Ths server is now public and will appear on Fire\'s public server list')
         else:
-            return await ctx.success(f'Your guild is no longer public and will no longer show on the Fire website')
+            await ctx.success(f'Your guild is no longer public and will no longer show on the Fire website')
+            log = self.bot.configs[ctx.guild.id].get('log.action')
+            if log:
+                await log.send(f'<:major_outage:685538400639385706> Ths server was manually removed from Fire\'s public server list by {ctx.author}')
 
 
 def setup(bot):

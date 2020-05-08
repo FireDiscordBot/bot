@@ -81,7 +81,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         config = self.bot.configs[guild.id]
         if config.get('utils.public') and not self.get(guild.id):
             await config.set('utils.public', False)
-            log = config.get('logs.action')
+            log = config.get('log.action')
             if log:
                 return await log.send('<:major_outage:685538400639385706> This server has been removed from Fire\'s public server list as it\'s vanity url was deleted')
 
