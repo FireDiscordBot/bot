@@ -34,7 +34,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.loop = bot.loop
-		self.bot.premiumGuilds  = []
+		self.bot.premium_guilds  = []
 		# self.reactroles = {}
 		self.joinroles = {}
 		self.rolepersists = {}
@@ -45,11 +45,11 @@ class Premium(commands.Cog, name="Premium Commands"):
 	async def loadPremiumGuilds(self):
 		await self.bot.wait_until_ready()
 		self.bot.logger.info(f'$YELLOWLoading premium guilds...')
-		self.bot.premiumGuilds = []
+		self.bot.premium_guilds = []
 		query = 'SELECT * FROM premium;'
 		guilds = await self.bot.db.fetch(query)
 		for guild in guilds:
-			self.bot.premiumGuilds.append(guild['gid'])
+			self.bot.premium_guilds.append(guild['gid'])
 		self.bot.logger.info(f'$GREENLoaded premium guilds!')
 
 	async def loadJoinRoles(self):
@@ -90,7 +90,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		"""
 		Local check, makes all commands in this cog premium only
 		"""
-		if ctx.guild.id in self.bot.premiumGuilds:
+		if ctx.guild.id in self.bot.premium_guilds:
 			return True
 		if self.bot.isadmin(ctx.author):
 			return True
@@ -100,7 +100,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		"""
 		Check if the guild from a member is premium
 		"""
-		if member.guild.id in self.bot.premiumGuilds:
+		if member.guild.id in self.bot.premium_guilds:
 			return True
 		if await self.bot.is_owner(member):
 			return True
@@ -476,7 +476,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
-		if member.guild.id in self.bot.premiumGuilds:
+		if member.guild.id in self.bot.premium_guilds:
 			try:
 				role = self.bot.configs[member.guild.id].get('mod.autorole')
 				if role is not None:

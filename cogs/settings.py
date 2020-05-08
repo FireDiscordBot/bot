@@ -81,7 +81,7 @@ class Settings(commands.Cog):
 
 	@tasks.loop(minutes=2)
 	async def refresh_invites(self):
-		for gid in self.bot.premiumGuilds:
+		for gid in self.bot.premium_guilds:
 			await self.load_invites(gid)
 
 	def cog_unload(self):
@@ -107,7 +107,7 @@ class Settings(commands.Cog):
 	async def load_invites(self, gid: int = None):
 		if not gid:
 			self.bot.invites = {}
-			for gid in self.bot.premiumGuilds:
+			for gid in self.bot.premium_guilds:
 				guild = self.bot.get_guild(gid)
 				if not guild:
 					continue
@@ -218,7 +218,7 @@ class Settings(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_member_join(self, member):
-		premium = self.bot.premiumGuilds
+		premium = self.bot.premium_guilds
 		if member.guild.id in premium:
 			self.bot.dispatch('membercacheadd', member.guild.id, member.id)
 			if len(self.joincache[member.guild.id]) >= 50:
@@ -805,7 +805,7 @@ class Settings(commands.Cog):
 	@commands.Cog.listener()
 	async def on_invite_create(self, invite: discord.Invite):
 		guild = invite.guild
-		if guild.id in self.bot.premiumGuilds:
+		if guild.id in self.bot.premium_guilds:
 			self.bot.invites.get(guild.id, {})[invite.code] = 0
 		if not isinstance(guild, discord.Guild):
 			return
@@ -832,7 +832,7 @@ class Settings(commands.Cog):
 	@commands.Cog.listener()
 	async def on_invite_delete(self, invite: discord.Invite):
 		guild = invite.guild
-		if guild.id in self.bot.premiumGuilds:
+		if guild.id in self.bot.premium_guilds:
 			self.bot.invites.get(guild.id, {}).pop(invite.code, 'lmao')
 		if not isinstance(guild, discord.Guild):
 			return

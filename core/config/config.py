@@ -231,7 +231,7 @@ class Config:
     def get(self, option):
         if option not in self.options:
             raise InvalidOptionError(option)
-        if self.options[option]['premium'] and self._guild.id not in self._bot.premiumGuilds:
+        if self.options[option]['premium'] and self._guild.id not in self._bot.premium_guilds:
             return self.options[option]['default']  # Return default value if not premium :)
         if self.options[option]['restricted'] and self._guild.id not in self.options[option]['restricted']:
             return self.options[option]['default']  # Return default value if restricted :)
@@ -268,7 +268,7 @@ class Config:
         if value == option['default']:  # Bypass all checks if default
             await self.update(opt, value)
             return self.get(opt)
-        if option['premium'] and self._guild.id not in self._bot.premiumGuilds:
+        if option['premium'] and self._guild.id not in self._bot.premium_guilds:
             raise RestrictedOptionError(opt, 'premium guilds only')
         if option['restricted'] and self._guild.id not in option['restricted']:
             raise RestrictedOptionError(opt, 'select guilds only')

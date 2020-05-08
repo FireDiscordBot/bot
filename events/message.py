@@ -139,7 +139,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
                     if thismsg == lastmsg and not message.author.permissions_in(message.channel).manage_messages:
                         await message.delete()
             self.dupecheck[message.author.id] = message.content
-        premium = self.bot.premiumGuilds
+        premium = self.bot.premium_guilds
         if message.guild and message.guild.id in premium:
             raidmsg = self.raidmsgs.get(message.guild.id, False)
             if raidmsg and raidmsg in message.content:
