@@ -385,7 +385,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				nodm = False
 			except discord.HTTPException:
 				nodm = True
-			await ctx.guild.ban(user, reason=f"Banned by {ctx.author} for {reason}")
+			await ctx.guild.ban(user, reason=f"Banned by {ctx.author} for {reason}", delete_message_days=0)
 			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
