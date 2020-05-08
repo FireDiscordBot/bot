@@ -16,9 +16,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from fire.filters.invite import findinvite
-from discord.ext import commands, flags
+from discord.ext import commands
+from fire.push import pushover
 import discord
 import typing
+import re
 
 
 class VanityURLs(commands.Cog, name="Vanity URLs"):
@@ -206,9 +208,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
     @commands.command(description='Creates a vanity invite for your Discord using https://inv.wtf/')
     @commands.has_permissions(manage_guild=True)
     @commands.guild_only()
-    async def vanityurl(self, ctx, code: str = None, opt: flags.FlagParser(
-        invite=str
-    ) = flags.EmptyFlags):
+    async def vanityurl(self, ctx, code: str = None):
         premium = self.bot.premium_guilds
         current = self.get(ctx.guild.id)
         if not code and (not ctx.guild.id in premium or not current):
@@ -226,24 +226,12 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         redirexists = self.bot.get_redirect(code.lower())
         if exists or redirexists:
             return await ctx.error('This code is already in use!')
-        if not opt['invite']:
-            if not ctx.guild.me.guild_permissions.create_instant_invite:
-                raise commands.BotMissingPermissions(['create_instant_invite'])
-            if ctx.guild.me.guild_permissions.manage_guild and 'VANITY_URL' in ctx.guild.features:
-                createdinv = await ctx.guild.vanity_invite()
-            else:
-                createdinv = await ctx.channel.create_invite(reason='Creating invite for Vanity URL')
+        if not ctx.guild.me.guild_permissions.create_instant_invite:
+            raise commands.BotMissingPermissions(['create_instant_invite'])
+        if ctx.guild.me.guild_permissions.manage_guild and 'VANITY_URL' in ctx.guild.features:
+            createdinv = await ctx.guild.vanity_invite()
         else:
-            if findinvite(opt['invite']):
-                fullurl, foundinv = findinvite(opt['invite'])
-            else:
-                foundinv = opt['invite']
-            try:
-                createdinv = await self.bot.fetch_invite(foundinv)
-                if not createdinv.guild or createdinv.guild.id != ctx.guild.id:
-                    return await ctx.error(f'The invite must be for this guild')
-            except discord.HTTPException:
-                return await ctx.error(f'Invalid invite')
+            createdinv = await ctx.channel.create_invite(reason='Creating invite for Vanity URL')
         vanity = await self.create(ctx, code.lower(), createdinv)
         if vanity:
             author = str(ctx.author).replace('#', '%23')
