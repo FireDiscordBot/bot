@@ -629,7 +629,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 		if features and features != '':
 			embed.add_field(name="» Features", value=features, inline=False)
 		embed.add_field(
-			name=f"» Roles [{len(guild.roles)} - 1]",
+			name=f"» Roles [{len(guild.roles) - 1}]",
 			value=self.shorten([r.mention for r in guild.roles if not r.is_default()], sep=' - ', max=750),
 			inline=False
 		)
