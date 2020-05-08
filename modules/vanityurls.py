@@ -38,7 +38,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         if isinstance(vanity, int):
             for v in self.bot.vanity_urls:
                 v = self.bot.vanity_urls[v]
-                if v['gid'] == gid:
+                if v['gid'] == vanity:
                     return v
         elif isinstance(vanity, str):
             if vanity.lower() in self.bot.vanity_urls:
@@ -212,7 +212,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         premium = self.bot.premium_guilds
         current = self.get(ctx.guild.id)
         if not code and (not ctx.guild.id in premium or not current):
-            return await ctx.error('You need to provide a code!')
+            return await ctx.error('You need to provide a code or "delete" to delete the current vanity!')
         elif not code and current:
             return await self.current_embed(ctx, current)
         if code.lower() in ['remove', 'delete', 'true', 'yeet', 'disable']:
