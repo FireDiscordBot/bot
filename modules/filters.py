@@ -33,6 +33,7 @@ class Filters(commands.Cog):
         self.bot = bot
         self.imgext = ['.png', '.jpg', '.gif']
         self.malware = []
+        self.allowed_invites = [inv for inv in open('allowed_invites.txt').read().split('\n') if inv] # Remove empty strings
         self.bot.loop.create_task(self.get_malware())
 
     async def get_malware(self):
@@ -47,7 +48,10 @@ class Filters(commands.Cog):
     async def handle_invite(self, message):
         codes = findinvite(message.system_content)
         invite = None
-        for code in codes:
+        for fullurl, code in codes:
+            print(f'Found invite {code} ({fullurl})')
+            if fullurl in self.llowed_invites:
+                continue
             if not message.author.permissions_in(message.channel).manage_messages:
                 if 'discord' in self.bot.configs[message.guild.id].get('mod.linkfilter'):
                     try:
