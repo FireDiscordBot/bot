@@ -49,8 +49,7 @@ class Filters(commands.Cog):
         codes = findinvite(message.system_content)
         invite = None
         for fullurl, code in codes:
-            print(f'Found invite {code} ({fullurl})')
-            if fullurl in self.llowed_invites:
+            if fullurl in self.allowed_invites:
                 continue
             if not message.author.permissions_in(message.channel).manage_messages:
                 if 'discord' in self.bot.configs[message.guild.id].get('mod.linkfilter'):
