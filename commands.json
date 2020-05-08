@@ -412,14 +412,24 @@
         "id": 12,
         "name": "Utilities",
         "commands": {
+            "status": {
+                "Description": "Get Fire's status",
+                "Usage": "{prefix}status",
+                "Aliases": null
+            },
             "dstatus": {
                 "Description": "Get Discord's status",
                 "Usage": "{prefix}dstatus",
                 "Aliases": null
             },
-            "status": {
-                "Description": "Get Fire's status",
-                "Usage": "{prefix}status",
+            "ghstatus": {
+                "Description": "Get GitHub's status",
+                "Usage": "{prefix}ghstatus",
+                "Aliases": null
+            },
+            "cfstatus": {
+                "Description": "Get Cloudflare's status",
+                "Usage": "{prefix}cfstatus",
                 "Aliases": null
             },
             "snipe": {
