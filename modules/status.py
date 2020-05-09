@@ -31,12 +31,12 @@ class FireStatus(commands.Cog):
         self.bot.http.firestatus = HTTPClient(
             'https://status.gaminggeek.dev/api/v2'
         )
-        self.bot.http.statuspage = HTTPClient(
-            'https://api.statuspage.io/v1',
-            headers={'Authorization': self.bot.config['statuspage']}
-        )
-        self.last_log = None
         if not self.bot.dev:
+            self.bot.http.statuspage = HTTPClient(
+                'https://api.statuspage.io/v1',
+                headers={'Authorization': self.bot.config['statuspage']}
+            )
+            self.last_log = None
             self.check_ping.start()
 
     def cog_unload(self):
