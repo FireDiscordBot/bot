@@ -432,6 +432,11 @@
                 "Usage": "{prefix}cfstatus",
                 "Aliases": null
             },
+            "imgurstatus": {
+                "Description": "Get Imgur's status",
+                "Usage": "{prefix}imgurstatus",
+                "Aliases": null
+            },
             "snipe": {
                 "Description": "Get the last deleted message",
                 "Usage": "{prefix}snipe [<channel/user>]",
