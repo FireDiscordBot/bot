@@ -36,6 +36,10 @@ class FireStatus(commands.Cog):
             headers={'Authorization': self.bot.config['statuspage']}
         )
         self.last_log = None
+        self.check_ping.start()
+
+    def cog_unload(self):
+        self.check_ping.cancel()
 
     async def get_bot_status(self):
         route = Route(
