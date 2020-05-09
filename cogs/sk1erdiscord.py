@@ -54,6 +54,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		self.emailre = r'[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}'
 		self.urlre = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
 		self.homere = r'(/Users/\w+|/home/\w+|C:\\Users\\\w+)'
+		self.solutions = json.load(open('sk1er_solutions.json'))
 		self.description_updater.start()
 
 	@tasks.loop(minutes=5)
@@ -209,6 +210,15 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			j = await r.json()
 			return f'<https://{url}/' + j['key'] + '>'
 
+	def get_solutions(self, log):
+		solutions = []
+		for err, sol in self.solutions.items():
+			if err in log:
+				solutions.append(sol)
+		if not solutions:
+			return ''
+		return 'Possible solutions:\n' + '\n'.join(solutions)
+
 	@commands.Cog.listener()
 	async def on_message(self, message):
 		if self.bot.dev:
@@ -245,7 +255,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 					self.bot.logger.error(f'$REDFailed to upload log to hastebin', exc_info=e)
 					return
 				await message.delete()
-				return await message.channel.send(f'{message.author} uploaded a log, {message.content}\n{url}')
+				solutions = self.get_solutions(txt)
+				return await message.channel.send(f'{message.author} uploaded a log, {message.content}\n{url}{solutions}')
 		if not message.attachments and len(message.content) > 350:
 			txt = message.content
 			txt = re.sub(self.emailre, '[removed email]', txt, 0, re.MULTILINE)
@@ -261,7 +272,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 					self.bot.logger.error(f'$REDFailed to upload log to hastebin', exc_info=e)
 					return
 				await message.delete()
-				return await message.channel.send(f'{message.author} sent a log, {url}')
+				solutions = self.get_solutions(txt)
+				return await message.channel.send(f'{message.author} sent a log, {url}{solutions}')
 
 	@commands.command(description='Adds perks for Nitro Boosters')
 	async def nitroperks(self, ctx, ign: str = None):
