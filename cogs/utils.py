@@ -36,15 +36,6 @@ import humanfriendly
 import traceback
 from colormap import rgb2hex, hex2rgb
 from emoji import UNICODE_EMOJI
-from PIL import Image
-from PIL import ImageFilter
-from PIL import ImageFont
-from PIL import ImageDraw
-from io import BytesIO
-from fire.filters.invite import findinvite
-from fire.push import pushover
-from fire.exceptions import PushError
-from fire import slack
 
 
 region = {
