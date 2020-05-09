@@ -150,6 +150,7 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
 		for line in lyrics.lyrics.split('\n'):
 			paginator.add_line(line)
 		embed = discord.Embed(color=ctx.author.color, title=f'{lyrics.name} by {lyrics.artist}', url=lyrics.url)
+		embed.set_thumbnail(url=lyrics.album_art)
 		footer = {'text': 'Powered by KSoft.Si API', 'icon_url': 'https://cdn.ksoft.si/images/Logo128.png'}
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed, _footer=footer)
 		await interface.send_to(ctx)
