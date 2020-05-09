@@ -256,7 +256,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 					return
 				await message.delete()
 				solutions = self.get_solutions(txt)
-				return await message.channel.send(f'{message.author} uploaded a log, {message.content}\n{url} {solutions}')
+				return await message.channel.send(f'{message.author} uploaded a log, {message.content}\n{url}\n\n{solutions}')
 		if not message.attachments and len(message.content) > 350:
 			txt = message.content
 			txt = re.sub(self.emailre, '[removed email]', txt, 0, re.MULTILINE)
@@ -273,7 +273,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 					return
 				await message.delete()
 				solutions = self.get_solutions(txt)
-				return await message.channel.send(f'{message.author} sent a log, {url} {solutions}')
+				return await message.channel.send(f'{message.author} sent a log, {url}\n\n{solutions}')
 
 	@commands.command(description='Adds perks for Nitro Boosters')
 	async def nitroperks(self, ctx, ign: str = None):
