@@ -67,9 +67,10 @@ class FireStatus(commands.Cog):
         try:
             channel = self.bot.get_channel(708692723984629811)
             start = round(datetime.datetime.utcnow().timestamp() * 1000)
-            await channel.send(random.choice(['ping', 'pong']))
+            msg = await channel.send(random.choice(['ping', 'pong']))
             end = round(datetime.datetime.utcnow().timestamp() * 1000)
             ping = round(end - start)
+            await msg.edit(content=f'ping is {ping}')
             if ping > 500:
                 status = await self.get_bot_status()
                 await asyncio.sleep(1)  # Statuspage ratelimit is 1req/s
