@@ -17,10 +17,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from fire.http import HTTPClient, Route
-from discord.ext import commands
+from discord.ext import commands, tasks
 import traceback
 import datetime
 import discord
+import asyncio
+import random
 
 
 class FireStatus(commands.Cog):
@@ -29,9 +31,67 @@ class FireStatus(commands.Cog):
         self.bot.http.firestatus = HTTPClient(
             'https://status.gaminggeek.dev/api/v2'
         )
+        self.bot.http.statuspage = HTTPClient(
+            'https://api.statuspage.io/v1',
+            headers={'Authorization': self.bot.config['statuspage']}
+        )
+        self.last_log = None
+
+    async def get_bot_status(self):
+        route = Route(
+            'GET',
+            '/pages/fhrcp0477jwt/components/gtbpmn9g33jk'
+        )
+        component = await self.bot.http.statuspage.request(route)
+        return component['status']
+
+    async def set_bot_status(self, status: str = 'operational'):
+        route = Route(
+            'PATCH',
+            '/pages/fhrcp0477jwt/components/gtbpmn9g33jk'
+        )
+        payload = {
+            "component": {
+                "status": status,
+            }
+        }
+        await self.bot.http.statuspage.request(route, json=payload)
+
+    @tasks.loop(minutes=1)
+    async def check_ping(self):
+        await self.bot.wait_until_ready()
+        try:
+            channel = self.bot.get_channel(708692723984629811)
+            start = round(datetime.datetime.utcnow().timestamp() * 1000)
+            await channel.send(random.choice(['ping', 'pong']))
+            end = round(datetime.datetime.utcnow().timestamp() * 1000)
+            ping = round(end - start)
+            if ping > 500:
+                status = await self.get_bot_status()
+                await asyncio.sleep(1)  # Statuspage ratelimit is 1req/s
+                if status == 'operational':
+                    await self.set_bot_status('degraded_performance')
+                else:
+                    return
+            if ping < 500:
+                status = await self.get_bot_status()
+                await asyncio.sleep(1)
+                if status == 'degraded_performance':
+                    await self.set_bot_status('operational')
+                else:
+                    return
+        except Exception as e:
+            if not self.last_log:
+                self.bot.logger.warn('Failed to check ping / set status', exc_info=e)
+                self.last_log = datetime.datetime.utcnow()
+            else:
+                td = datetime.datetime.utcnow() - self.last_log
+                if td > datetime.timedelta(minutes=15):
+                    self.bot.logger.warn('Failed to check ping / set status', exc_info=e)
+                    self.last_log = datetime.datetime.utcnow()
 
     @commands.command(name='status')
-    async def status(self, ctx):
+    async def command(self, ctx):
         colors = {
             'none': ctx.author.color,
             'minor': discord.Color.gold(),
@@ -85,7 +145,7 @@ class FireStatus(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(FireStatus(bot))
-        bot.logger.info(f'$GREENLoaded $CYAN"status" $GREENcommand!')
+        bot.logger.info(f'$GREENLoaded $CYAN"status" $GREENmodule!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while adding command $CYAN"status"', exc_info=e)
+        bot.logger.error(f'$REDError while adding module $CYAN"status"', exc_info=e)
