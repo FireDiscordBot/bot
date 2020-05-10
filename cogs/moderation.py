@@ -136,6 +136,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				if not self.bot.get_guild(guild):
 					continue
 				until = m['until'] if 'until' in m else False
+				if not until:
+					continue
 				user = m['uid']
 				if guild in self.mutes:
 					self.mutes[guild][user] = {
@@ -207,51 +209,57 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	def cog_unload(self):
 		self.tempmuteChecker.cancel()
 
-	@tasks.loop(seconds=1)
+	@tasks.loop(minutes=1)
 	async def tempmuteChecker(self):
 		try:
 			for g in self.mutes:
 				mutes = self.mutes[g]
 				for m in mutes:
 					mute = self.mutes[g][m]
+					until = mute['until'] if 'until' in mute else False
+					if until and datetime.datetime.now(datetime.timezone.utc).timestamp() > until:
+						try:
+							con = await self.bot.db.acquire()
+							async with con.transaction():
+								query = 'DELETE FROM mutes WHERE uid = $1 AND gid = $2;'
+								await self.bot.db.execute(query, mute['uid'], mute['gid'])
+							await self.bot.db.release(con)
+							self.bot.logger.warn(f'$YELLOWDeleted mute for $CYAN{mute["uid"]} $YELLOWin $CYAN{mute["gid"]}')
+							try:
+								del self.mutes[mute['gid']][mute['uid']]
+							except KeyError:
+								pass
+						except Exception as e:
+							self.bot.logger.error(f'$REDFailed to delete mute for $CYAN{mute["uid"]} $REDin $CYAN{mute["gid"]}', exc_info=e)
+					else:
+						continue
 					guild = self.bot.get_guild(mute['gid'])
 					if not guild:
+						del self.mutes[mute['gid']]
 						continue
 					user = guild.get_member(mute['uid'])
-					until = mute['until'] if 'until' in mute else False
 					muted = self.bot.configs[guild.id].get('mod.mutedrole') or discord.utils.get(guild.roles, name="Muted")
 					if guild and user and muted:
 						if muted in user.roles:
-							if until:
-								if datetime.datetime.now(datetime.timezone.utc).timestamp() > until:
-									try:
-										con = await self.bot.db.acquire()
-										async with con.transaction():
-											query = 'DELETE FROM mutes WHERE uid = $1 AND gid = $2;'
-											await self.bot.db.execute(query, user.id, guild.id)
-										await self.bot.db.release(con)
-										try:
-											self.mutes[user.id] = None
-										except KeyError:
-											pass
-									except Exception as e:
-										self.bot.logger.error(f'$REDFailed to delete mute for {user} in {guild}', exc_info=e)
-									try:
-										await user.remove_roles(muted, reason='Times up.')
-										logch = self.bot.configs[guild.id].get('log.moderation')
-										if logch:
-											embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
-											embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-											embed.add_field(name='User', value=user.mention, inline=False)
-											embed.add_field(name='Moderator', value=guild.me.mention, inline=False)
-											embed.add_field(name='Reason', value='Times up', inline=False)
-											embed.set_footer(text=f'User ID: {user.id} | Mod ID: {guild.me.id}')
-											try:
-												await logch.send(embed=embed)
-											except Exception:
-												pass
-									except discord.HTTPException:
-										pass
+							removefail = False
+							try:
+								await user.remove_roles(muted, reason='Times up.')
+							except discord.HTTPException as e:
+								removefail = str(e)
+							logch = self.bot.configs[guild.id].get('log.moderation')
+							if logch:
+								embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
+								embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
+								embed.add_field(name='User', value=user.mention, inline=False)
+								embed.add_field(name='Moderator', value=guild.me.mention, inline=False)
+								embed.add_field(name='Reason', value='Times up', inline=False)
+								if removefail:
+									embed.add_field(name='Error', value=f'Failed to remove role\n{removefail}', inline=False)
+								embed.set_footer(text=f'User ID: {user.id} | Mod ID: {guild.me.id}')
+								try:
+									await logch.send(embed=embed)
+								except Exception:
+									pass
 		except Exception as e:
 			pass
 
