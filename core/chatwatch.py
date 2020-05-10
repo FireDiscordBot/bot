@@ -33,17 +33,19 @@ class Chatwatch(commands.Cog):
         if isinstance(event, MessageResponseEvent):
             data = event.data
             guild = self.bot.get_guild(int(data['message']['guild']))
-            if not guild:
+            channel = guild.get_channel(int(data['message']['channel'])
+            if not (guild or channel):
                 return  # HOW
             chance = self.bot.configs[guild.id].get('mod.nospam')
             if not chance or chance < 65:
                 return
             if data['scores']['content'] >= chance:
                 message = discord.utils.get(self.bot.cached_messages, id=int(data['message']['id']))
-                try:
-                    await message.delete()
-                except Exception:
-                    return
+                if message and guild.me.permissions_in(channel).manage_messages:
+                    try:
+                        await message.delete()
+                    except Exception:
+                        return
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -68,6 +70,7 @@ class Chatwatch(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
+    @commands.has_permissions(manage_guild=True)
     async def antispam(self, ctx, chance: int = 0):
         if not chance:
             await ctx.config.set('mod.nospam', 0)
