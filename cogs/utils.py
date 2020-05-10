@@ -543,6 +543,35 @@ class Utils(commands.Cog, name='Utility Commands'):
 		await self.loadremind()
 		return await ctx.success(f'Reminder set for {humanfriendly.format_timespan(datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours))} from now')
 
+	@commands.command()
+	async def reminders(self, ctx):
+		mine = sorted(self.reminders.get(ctx.author.id, []), key=lambda r: r['for'])
+		if not mine:
+			return await ctx.error('You have no reminders.')
+		paginator = WrappedPaginator(prefix='', suffix='', max_size=1980)
+		for i, r in enumerate(mine):
+			forwhen = datetime.datetime.utcfromtimestamp(r['for']).strftime('%b %-d %Y @ %I:%M %p')
+			delta = humanfriendly.format_timespan(datetime.datetime.utcfromtimestamp(r['for']) - datetime.datetime.utcnow())
+			paginator.add_line(f'[{i + 1}] {r["reminder"]} - {forwhen} ({delta})')
+		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author)
+		return await interface.send_to(ctx)
+
+	@commands.command(aliases=['deleteremind', 'delreminder', 'deletereminder'])
+	async def delremind(self, ctx, i: int = None):
+		mine = sorted(self.reminders.get(ctx.author.id, []), key=lambda r: r['for'])
+		if not mine:
+			return await ctx.error('You have no reminders.')
+		if not i:
+			return await ctx.error(f'You must specify the reminder to delete. Use the [number] from `{ctx.prefix}reminders` to select a reminder')
+		i -= 1  # Arrays start at 0
+		if i >= len(mine):
+			return await ctx.error(f'You don\'t have that many reminders. Use the [number] from `{ctx.prefix}reminders` to select a reminder')
+		r = mine[i]
+		forwhen = datetime.datetime.utcfromtimestamp(r['for']).strftime('%b %-d %Y @ %I:%M %p')
+		delta = humanfriendly.format_timespan(datetime.datetime.utcfromtimestamp(r['for'] * 1000) - datetime.datetime.utcnow())
+		await self.deleteremind(ctx.author.id, r['for'])
+		return await ctx.success(f'Your reminder, {r["reminder"]} for {forwhen} ({delta} from now), has been deleted!')
+
 	@commands.group(name='tags', aliases=['tag', 'dtag'], invoke_without_command=True)
 	@commands.guild_only()
 	async def tags(self, ctx, *, tagname: str = None):
