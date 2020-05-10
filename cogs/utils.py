@@ -128,19 +128,15 @@ def parseTime(content, replace: bool = False):
 class Utils(commands.Cog, name='Utility Commands'):
 	def __init__(self, bot):
 		self.bot = bot
-		self.bot.recentpurge = {}
 		self.bot.is_emoji = self.is_emoji
 		self.bot.len_emoji = self.len_emoji
 		self.bot.isascii = lambda s: len(s) == len(s.encode())
 		self.bot.getperms = self.getperms
 		self.bot.getguildperms = self.getguildperms
 		self.bot.ishoisted = self.ishoisted
-		self.published = {}
 		self.tags = {}
-		self.bans = {}
 		self.reminders = {}
 		self.bot.loop.create_task(self.loadtags())
-		self.bot.loop.create_task(self.loadbans())
 		self.bot.loop.create_task(self.loadremind())
 		self.remindcheck.start()
 
@@ -189,29 +185,6 @@ class Utils(commands.Cog, name='Utility Commands'):
 			self.tags[guild][tagname] = content
 		self.bot.logger.info(f'$GREENLoaded tags!')
 
-	async def loadbans(self):
-		await self.bot.wait_until_ready()
-		self.bot.logger.info(f'$YELLOWLoading bans...')
-		self.bans = {}
-		for g in [guild for guild in self.bot.guilds if guild.me.guild_permissions.ban_members]:
-			bans = await g.bans()
-			self.bans[g.id] = [b.user.id for b in bans]
-		self.bot.logger.info(f'$GREENLoaded bans!')
-
-	@commands.Cog.listener()
-	async def on_member_ban(self, guild, member):
-		if guild.id in self.bans:
-			self.bans[guild.id].append(member.id)
-		else:
-			self.bans[guild.id] = [member.id]
-
-	@commands.Cog.listener()
-	async def on_member_unban(self, guild, member):
-		try:
-			self.bans[guild.id].remove(member.id)
-		except Exception:
-			pass
-
 	async def loadremind(self):
 		await self.bot.wait_until_ready()
 		self.bot.logger.info(f'$YELLOWLoading reminders...')
@@ -238,7 +211,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 	def cog_unload(self):
 		self.remindcheck.cancel()
 
-	@tasks.loop(seconds=1)
+	@tasks.loop(minutes=1)
 	async def remindcheck(self):
 		reminders = self.reminders.copy()
 		fornow = datetime.datetime.now(datetime.timezone.utc).timestamp()
@@ -249,19 +222,20 @@ class Utils(commands.Cog, name='Utility Commands'):
 					reminder = r['reminder']
 					if r['for'] <= fornow:
 						quotes = []
-						if 'discordapp.com/channels/' in reminder:
+						reminder = reminder.replace('discordapp.com', 'discord.com')  # When the client switches to discord.com, this go bye bye ok
+						if 'discord.com/channels/' in reminder:
 							for i in reminder.split():
 								word = i.lower()
 								urlbranch = None
-								if word.startswith('https://canary.discordapp.com/channels/'):
+								if word.startswith('https://canary.discord.com/channels/'):
 									urlbranch = 'canary.'
-									word = word.strip('https://canary.discordapp.com/channels/')
-								elif word.startswith('https://ptb.discordapp.com/channels/'):
+									word = word.strip('https://canary.discord.com/channels/')
+								elif word.startswith('https://ptb.discord.com/channels/'):
 									urlbranch = 'ptb.'
-									word = word.strip('https://ptb.discordapp.com/channels/')
-								elif word.startswith('https://discordapp.com/channels/'):
+									word = word.strip('https://ptb.discord.com/channels/')
+								elif word.startswith('https://discord.com/channels/'):
 									urlbranch = ''
-									word = word.strip('https://discordapp.com/channels/')
+									word = word.strip('https://discord.com/channels/')
 								else:
 									continue
 								list_ids = word.split('/')
@@ -274,7 +248,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 											if not m:
 												pass
 											if m.permissions_in(channel).read_messages:
-												fullurl = f'https://{urlbranch}discordapp.com/channels/{list_ids[0]}/{list_ids[1]}/{list_ids[2]}'
+												fullurl = f'https://{urlbranch}discord.com/channels/{list_ids[0]}/{list_ids[1]}/{list_ids[2]}'
 												reminder = reminder.replace(f'{fullurl}/', '').replace(fullurl, '').replace('<>', '')
 												quotes.append(f'"{message["content"]}" (<{fullurl}>)'.replace(f'{message["content"]}/', message["content"]))
 									except Exception as e:
@@ -522,6 +496,8 @@ class Utils(commands.Cog, name='Utility Commands'):
 			return await ctx.error('Invalid format. Please use the format "DAYSd HOURSh MINUTESm SECONDSs" along with your reminder')
 		if not days and not hours and not minutes and not seconds:
 			return await ctx.error('Invalid format. Please provide a time')
+		if not days and not hours and not minutes and seconds < 120:
+			return await ctx.error('If you need a bot to remind you about something in less than two minutes you should *probably* be worried...')
 		try:
 			forwhen = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours)
 		except OverflowError:
