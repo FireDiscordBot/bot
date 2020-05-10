@@ -155,7 +155,9 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             await self.safe_exc(filters.handle_youtube, message)
             await self.safe_exc(filters.handle_twitch, message)
             await self.safe_exc(filters.handle_twitter, message)
-
+        if f'{message.content.strip()} ' in commands.when_mentioned(self.bot, message):
+            prefix = self.bot.configs[message.guild.id].get('main.prefix')
+            await message.channel.send(f'Hey! My prefix here is `{prefix}` or you can mention me :)')
 
 def setup(bot):
     try:
