@@ -53,7 +53,7 @@ class UserInfo(commands.Cog):
                 return f'<:xmark:674359427830382603> Blacklisted on Chatwatch for **{cwprofile["blacklisted_reason"]}**'
             elif cwprofile['blacklisted_reason'] and not cwprofile['blacklisted']:
                 return f'Previously blacklisted for **{cwprofile["blacklisted_reason"]}**'
-        return 'cwbl'
+        return ''
 
     async def get_ksoft_ban(self, user: typing.Union[discord.User, discord.Member]):
         ksoftban = await self.bot.ksoft.bans_check(user.id)
