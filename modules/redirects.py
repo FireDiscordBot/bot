@@ -68,7 +68,7 @@ class Redirects(commands.Cog, name="Redirects"):
 
     async def load(self):
         await self.bot.wait_until_ready()
-        self.bot.logger.info(f'$YELLOWLoading vanity urls...')
+        self.bot.logger.info(f'$YELLOWLoading redirects...')
         self.bot.redirects = {}
         query = 'SELECT * FROM vanity WHERE redirect IS NOT NULL;'
         redirects = await self.bot.db.fetch(query)
