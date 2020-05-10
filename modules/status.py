@@ -84,7 +84,7 @@ class FireStatus(commands.Cog):
                 status = await self.get_status('gtbpmn9g33jk')
                 await asyncio.sleep(1)
                 if status == 'degraded_performance':
-                    await self.set_status('operational')
+                    await self.set_status('gtbpmn9g33jk', 'operational')
                 else:
                     return
         except Exception as e:

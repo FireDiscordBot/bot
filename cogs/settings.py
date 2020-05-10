@@ -270,7 +270,7 @@ class Settings(commands.Cog):
 			#https://giphy.com/gifs/pepsi-5C0a8IItAWRebylDRX
 			embed = discord.Embed(title='Member Joined', url='https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif', color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-			embed.add_field(name='Account Created', value=humanfriendly.format_timespan(datetime.datetime.now(datetime.timezone.utc) - member.created_at) + ' ago', inline=False)
+			embed.add_field(name='Account Created', value=humanfriendly.format_timespan(datetime.datetime.utcnow() - member.created_at) + ' ago', inline=False)
 			if usedinvite and member.guild.id in premium:
 				embed.add_field(name='Invite Used', value=usedinvite, inline=False)
 			if member.guild.id not in premium and randint(0, 100) == 69:
@@ -437,8 +437,8 @@ class Settings(commands.Cog):
 				s = set(broles)
 				added = [x for x in aroles if x not in s]
 				if len(added) == 1:
-					joinedat = datetime.datetime.now(datetime.timezone.utc) - after.joined_at
-					if joinedat < datetime.timedelta(minutes=1):
+					joinedat = datetime.datetime.now() - after.joined_at
+					if joinedat < datetime.timedelta(seconds=10):
 						return
 					role = discord.utils.get(after.guild.roles, name=added[0])
 					if not role:

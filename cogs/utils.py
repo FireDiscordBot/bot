@@ -438,7 +438,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name="» ID", value=gid, inline=False)
 			embed.add_field(name="» Members", value=f'⬤ {preview["approximate_presence_count"]:,d} Online & ⭘ {preview["approximate_member_count"]:,d} Members', inline=False)
 			embed.add_field(name="» Description", value=preview['description'] or 'No description set.', inline=False)
-			embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.now(datetime.timezone.utc) - discord.utils.snowflake_time(gid), max_units=2) + ' ago', inline=True)
+			embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - discord.utils.snowflake_time(gid), max_units=2) + ' ago', inline=True)
 			features = ', '.join([self.featureslist.get(f, f) for f in preview['features']])
 			if features and features != '':
 				embed.add_field(name="» Features", value=features, inline=False)
@@ -465,7 +465,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Verification", value=str(guild.verification_level).capitalize(), inline=True)
 		embed.add_field(name="» Notifications", value=notifs[str(guild.default_notifications)], inline=True)
 		embed.add_field(name="» Multi-Factor Auth", value=bool(guild.mfa_level), inline=True)
-		embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.now(datetime.timezone.utc) - guild.created_at, max_units=2) + ' ago', inline=True)
+		embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - guild.created_at, max_units=2) + ' ago', inline=True)
 		features = ', '.join([self.featureslist.get(f, f) for f in guild.features])
 		if features and features != '':
 			embed.add_field(name="» Features", value=features, inline=False)
