@@ -106,17 +106,11 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $CYANmod.autodehoist $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.autodehoist', value)
 
-    @ConfigOpt(name='commands.modonly', accepts=[discord.TextChannel], default=[], options=options)
-    async def mod_only(self, value: list):
-        '''Moderator Channels | The channels where only moderators can run commands'''
-        self._bot.logger.info(f'$GREENSetting $CYANcommands.modonly $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('commands.modonly', [c.id for c in value])
-
-    @ConfigOpt(name='commands.adminonly', accepts=[discord.TextChannel], default=[], options=options)
-    async def admin_only(self, value: list):
-        '''Admin channels | The channels where only admins can run commands'''
-        self._bot.logger.info(f'$GREENSetting $CYANcommands.adminonly $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('commands.adminonly', [c.id for c in value])
+    @ConfigOpt(name='mod.nospam', accepts=int, default=0, options=options)
+    async def spam_prevention(self, value: int):
+        '''Spam Prevention | Detect and delete spam using ChatWatch'''
+        self._bot.logger.info(f'$GREENSetting $CYANmod.nospam $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
+        await self.update('mod.nospam', value)
 
     @ConfigOpt(name='mod.antiraid', accepts=discord.TextChannel, default=None, options=options, premium=True)
     async def anti_raid(self, value: discord.TextChannel):
@@ -129,6 +123,18 @@ class Config:
         '''Auto Role (Premium ) | The role given to users upon joining the server'''
         self._bot.logger.info(f'$GREENSetting $CYANmod.autorole $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.autorole', value.id)
+
+    @ConfigOpt(name='commands.modonly', accepts=[discord.TextChannel], default=[], options=options)
+    async def mod_only(self, value: list):
+        '''Moderator Channels | The channels where only moderators can run commands'''
+        self._bot.logger.info(f'$GREENSetting $CYANcommands.modonly $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
+        await self.update('commands.modonly', [c.id for c in value])
+
+    @ConfigOpt(name='commands.adminonly', accepts=[discord.TextChannel], default=[], options=options)
+    async def admin_only(self, value: list):
+        '''Admin channels | The channels where only admins can run commands'''
+        self._bot.logger.info(f'$GREENSetting $CYANcommands.adminonly $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
+        await self.update('commands.adminonly', [c.id for c in value])
 
     @ConfigOpt(name='greet.joinchannel', accepts=discord.TextChannel, default=None, options=options)
     async def join_channel(self, value: discord.TextChannel):
@@ -258,6 +264,7 @@ class Config:
         changed = False
         for option in self.options:
             if option not in self._data:
+                self._bot.logger.info(f'$GREENAdding option $CYAN{option} $GREENfor guild $CYAN{self._guild}')
                 self._data[option] = self.options[opt]['default']
                 changed = True
         if changed:

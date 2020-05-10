@@ -15,7 +15,7 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from chatwatch.cw import ChatWatch
+from chatwatch.cw import ChatWatch, MessageResponseEvent
 from discord.ext import commands
 import discord
 import traceback
@@ -27,13 +27,30 @@ class Chatwatch(commands.Cog):
         self.bot = bot
         if not hasattr(self.bot, 'chatwatch'):
             self.bot.chatwatch = ChatWatch(bot.config['chatwatch'], self.bot.logger)
+        self.bot.chatwatch.register_listener(self.handle)
+
+    async def handle(self, event):
+        if isinstance(event, MessageResponseEvent):
+            data = event.data
+            guild = self.bot.get_guild(int(data['message']['guild']))
+            if not guild:
+                return  # HOW
+            chance = self.bot.configs[guild.id].get('mod.nospam')
+            if not chance or chance < 65:
+                return
+            if data['scores']['content'] >= chance:
+                message = discord.utils.get(self.bot.cached_messages, id=int(data['message']['id']))
+                try:
+                    await message.delete()
+                except Exception:
+                    return
 
     @commands.Cog.listener()
     async def on_message(self, message):
         if not message.guild or not message.content or message.author.bot:
             return
-        if len(message.guild.members) < 10:  # probably a private server so don't send to chatwatch
-            return  # y'all can stop fucking complaining now I am sick and tired of hearing it fuck y'all
+        if not self.bot.configs[message.guild.id].get('mod.nospam'):
+            return  # Y'all can shut the fuck up now and stop complaining don't ever talk to me again I fucking hate your guts ;)
         ctx = await self.bot.get_context(message)
         if ctx.valid:
             return
@@ -48,6 +65,19 @@ class Chatwatch(commands.Cog):
             }
         }
         await self.bot.chatwatch.send(payload)
+
+    @commands.command()
+    @commands.guild_only()
+    async def antispam(self, ctx, chance: int = 0):
+        if not chance:
+            await ctx.config.set('mod.nospam', 0)
+            return await ctx.success(f'Successfully disabled ChatWatch spam prevention.')
+        if chance < 65:
+            return await ctx.error(f'You must set the threshold (% chance of spam to delete) to at least 65 or 0 to disable')
+        await ctx.config.set('mod.nospam', chance)
+        return await ctx.success(f'Successfully enabled ChatWatch spam prevention.'
+                                 f'Messages with a chance of spam greather than or equal to {chance}% will be deleted')
+
 
 def setup(bot):
     try:
