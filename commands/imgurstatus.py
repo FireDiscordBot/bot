@@ -26,7 +26,7 @@ import discord
 class ImgurStatus(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.bot.http.dscstatus = HTTPClient(
+        self.bot.http.imgurstatus = HTTPClient(
             'https://status.imgur.com/api/v2',
             user_agent='Fire Discord Bot'
         )
@@ -56,8 +56,8 @@ class ImgurStatus(commands.Cog):
             '/incidents.json'
         )
         try:
-            summary = await self.bot.http.dscstatus.request(sroute)
-            incidents = await self.bot.http.dscstatus.request(iroute)
+            summary = await self.bot.http.imgurstatus.request(sroute)
+            incidents = await self.bot.http.imgurstatus.request(iroute)
         except Exception:
             return await ctx.error(f'Failed to fetch Discord status')
         desc = []
