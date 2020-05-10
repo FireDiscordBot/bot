@@ -43,18 +43,18 @@ class FireStatus(commands.Cog):
         if not self.bot.dev:
             self.check_ping.cancel()
 
-    async def get_bot_status(self):
+    async def get_status(self, cid: str):
         route = Route(
             'GET',
-            '/pages/fhrcp0477jwt/components/gtbpmn9g33jk'
+            f'/pages/fhrcp0477jwt/components/{cid}'
         )
         component = await self.bot.http.statuspage.request(route)
         return component['status']
 
-    async def set_bot_status(self, status: str = 'operational'):
+    async def set_status(self, cid: str, status: str = 'operational'):
         route = Route(
             'PATCH',
-            '/pages/fhrcp0477jwt/components/gtbpmn9g33jk'
+            f'/pages/fhrcp0477jwt/components/{cid}'
         )
         payload = {
             "component": {
@@ -73,18 +73,18 @@ class FireStatus(commands.Cog):
             end = round(datetime.datetime.utcnow().timestamp() * 1000)
             ping = round(end - start)
             await msg.edit(content=f'ping is {ping}')
-            if ping > 500:
-                status = await self.get_bot_status()
+            if ping > 800:
+                status = await self.get_status('gtbpmn9g33jk')
                 await asyncio.sleep(1)  # Statuspage ratelimit is 1req/s
                 if status == 'operational':
-                    await self.set_bot_status('degraded_performance')
+                    await self.set_status('gtbpmn9g33jk', 'degraded_performance')
                 else:
                     return
-            if ping < 500:
-                status = await self.get_bot_status()
+            if ping < 800:
+                status = await self.get_status('gtbpmn9g33jk')
                 await asyncio.sleep(1)
                 if status == 'degraded_performance':
-                    await self.set_bot_status('operational')
+                    await self.set_status('operational')
                 else:
                     return
         except Exception as e:
