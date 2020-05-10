@@ -41,7 +41,7 @@ import sys
 class Fire(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.launchtime = datetime.datetime.utcnow()
+        self.launchtime = datetime.datetime.now(datetime.timezone.utc)
 
         # COMMON ATTRIBUTES
         self.config: dict = json.load(open('config.json', 'r'))

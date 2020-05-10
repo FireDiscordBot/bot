@@ -68,9 +68,9 @@ class FireStatus(commands.Cog):
         await self.bot.wait_until_ready()
         try:
             channel = self.bot.get_channel(708692723984629811)
-            start = round(datetime.datetime.utcnow().timestamp() * 1000)
+            start = round(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000)
             msg = await channel.send(random.choice(['ping', 'pong']))
-            end = round(datetime.datetime.utcnow().timestamp() * 1000)
+            end = round(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000)
             ping = round(end - start)
             await msg.edit(content=f'ping is {ping}')
             if ping > 800:
@@ -90,12 +90,12 @@ class FireStatus(commands.Cog):
         except Exception as e:
             if not self.last_log:
                 self.bot.logger.warn('Failed to check ping / set status', exc_info=e)
-                self.last_log = datetime.datetime.utcnow()
+                self.last_log = datetime.datetime.now(datetime.timezone.utc)
             else:
-                td = datetime.datetime.utcnow() - self.last_log
+                td = datetime.datetime.now(datetime.timezone.utc) - self.last_log
                 if td > datetime.timedelta(minutes=15):
                     self.bot.logger.warn('Failed to check ping / set status', exc_info=e)
-                    self.last_log = datetime.datetime.utcnow()
+                    self.last_log = datetime.datetime.now(datetime.timezone.utc)
 
     @commands.command(name='status')
     async def command(self, ctx):
@@ -139,7 +139,7 @@ class FireStatus(commands.Cog):
             desc.append(f'├{emoji[c["status"]]} **{c["name"]}**: {c["status"].replace("_", " ").title()}')
             for s in groups.get(c['id'], []):
                 desc.append(f'├─{emoji[s["status"]]} **{s["name"]}**: {s["status"].replace("_", " ").title()}')
-        embed = discord.Embed(color=colors[str(summary['status']['indicator'])], title=summary['status']['description'], timestamp=datetime.datetime.utcnow(), description='\n'.join(desc))
+        embed = discord.Embed(color=colors[str(summary['status']['indicator'])], title=summary['status']['description'], timestamp=datetime.datetime.now(datetime.timezone.utc), description='\n'.join(desc))
         incident = incidents['incidents'][0]
         embed.add_field(name='Latest Incident', value=f'[{incident["name"]}]({incident["shortlink"]})\nStatus: **{incident["status"].capitalize()}**', inline=False)
         maintenance = summary.get('scheduled_maintenances', [])

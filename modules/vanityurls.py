@@ -200,7 +200,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         gmembers = f'⭘ {len(ctx.guild.members):,d} Members'
         desc = self.bot.configs[ctx.guild.id].get('main.description') or f'Check out {ctx.guild} on Discord'
         desc = f'[{ctx.guild}]({current.get("url", "https://inv.wtf/")})\n{desc}\n\n{gmembers}'
-        embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=desc)
+        embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=desc)
         if not ctx.guild.splash_url and not ctx.guild.banner_url:
             embed.set_thumbnail(url=str(ctx.guild.icon_url))
         else:

@@ -65,7 +65,7 @@ class Levelhead(commands.Cog):
             img.save(buf, format='PNG')
             buf.seek(0)
             customlvl = discord.File(buf, 'mitchplshireme.png')
-            embed = discord.Embed(title=f"{player}'s Levelhead", colour=ctx.author.color, url="https://purchase.sk1er.club/category/1050972", timestamp=datetime.datetime.utcnow())
+            embed = discord.Embed(title=f"{player}'s Levelhead", colour=ctx.author.color, url="https://purchase.sk1er.club/category/1050972", timestamp=datetime.datetime.now(datetime.timezone.utc))
             embed.add_field(name="IGN", value=player, inline=False)
             embed.set_image(url='attachment://mitchplshireme.png')
             return await ctx.send(embed=embed, file=customlvl)
@@ -93,7 +93,7 @@ class Levelhead(commands.Cog):
         tab = 'Purchased!' if purchase.get('tab', False) else 'Not Purchased'
         chat = 'Purchased!' if purchase.get('chat', False) else 'Not Purchased'
         head = purchase['head']
-        embed = discord.Embed(title=f"{player}'s Levelhead", colour=ctx.author.color, url="https://purchase.sk1er.club/category/1050972", timestamp=datetime.datetime.utcnow())
+        embed = discord.Embed(title=f"{player}'s Levelhead", colour=ctx.author.color, url="https://purchase.sk1er.club/category/1050972", timestamp=datetime.datetime.now(datetime.timezone.utc))
         embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
         if nocustom:
             embed.add_field(name="IGN", value=player, inline=False)

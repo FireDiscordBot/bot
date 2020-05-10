@@ -29,12 +29,12 @@ class Ping(commands.Cog):
     @commands.command(name='ping', description='Shows you my ping to discord\'s servers')
     async def pingcmd(self, ctx):
         latency = round(self.bot.latency * 1000)
-        start = round(datetime.datetime.utcnow().timestamp() * 1000)
+        start = round(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000)
         msg = await ctx.send(content='Pinging...')
-        end = round(datetime.datetime.utcnow().timestamp() * 1000)
+        end = round(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000)
         elapsed = round(end - start)
         color = ctx.author.color
-        embed = discord.Embed(title=f':ping_pong: {elapsed}ms.\n:heartpulse: {latency}ms.', colour=color, timestamp=datetime.datetime.utcnow())
+        embed = discord.Embed(title=f':ping_pong: {elapsed}ms.\n:heartpulse: {latency}ms.', colour=color, timestamp=datetime.datetime.now(datetime.timezone.utc))
         await msg.edit(content='`Pong!`', embed=embed)
 
 

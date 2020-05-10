@@ -63,7 +63,7 @@ class Mod(commands.Cog):
             colour=ctx.author.color,
             url=f"https://sk1er.club/mods/{mod['mod_ids'][0]}",
             description=mod['short'],
-            timestamp=datetime.datetime.utcnow()
+            timestamp=datetime.datetime.now(datetime.timezone.utc)
         )
         embed.add_field(name="Versions", value='\n'.join([f'**{k}**: {v}' for k, v in mod['latest'].items()]), inline=False)
         embed.add_field(name="Creator", value=f'''**__{mod['vendor']['name']}__**
@@ -79,10 +79,10 @@ class Mod(commands.Cog):
             paginator.add_line(f'**__{mcv}__**')
             for v in mod['changelog'][mcv]:
                 changelog = mod["changelog"][mcv][v][0]
-                time = datetime.datetime.utcfromtimestamp(changelog["time"] / 1000).strftime('%d/%m/%Y @ %I:%M:%S %p')
+                time = datetime.datetime.fromtimestamp(changelog["time"] / 1000, datetime.timezone.utc).strftime('%d/%m/%Y @ %I:%M:%S %p')
                 paginator.add_line(f'**{v}**: {changelog["text"]} ({time})')
             paginator.add_line('-----------------')
-        embed = discord.Embed(color=ctx.author.color, title='Changelogs', timestamp=datetime.datetime.utcnow())
+        embed = discord.Embed(color=ctx.author.color, title='Changelogs', timestamp=datetime.datetime.now(datetime.timezone.utc))
         interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
         await interface.send_to(ctx)
 

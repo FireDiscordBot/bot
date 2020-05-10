@@ -254,7 +254,7 @@ class Settings(commands.Cog):
 						await member.guild.ban(member, reason=f'{member} was found on global ban list')
 						self.recentgban.append(f'{member.id}-{member.guild.id}')
 						if logch:
-							embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
+							embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{member.mention} was banned**')
 							embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 							embed.add_field(name='Reason', value=f'{member} was found on global ban list', inline=False)
 							embed.set_footer(text=f"Member ID: {member.id}")
@@ -268,9 +268,9 @@ class Settings(commands.Cog):
 				pass
 		if logch:
 			#https://giphy.com/gifs/pepsi-5C0a8IItAWRebylDRX
-			embed = discord.Embed(title='Member Joined', url='https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif', color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(title='Member Joined', url='https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif', color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-			embed.add_field(name='Account Created', value=humanfriendly.format_timespan(datetime.datetime.utcnow() - member.created_at) + ' ago', inline=False)
+			embed.add_field(name='Account Created', value=humanfriendly.format_timespan(datetime.datetime.now(datetime.timezone.utc) - member.created_at) + ' ago', inline=False)
 			if usedinvite and member.guild.id in premium:
 				embed.add_field(name='Invite Used', value=usedinvite, inline=False)
 			if member.guild.id not in premium and randint(0, 100) == 69:
@@ -325,7 +325,7 @@ class Settings(commands.Cog):
 							action = 'Banned'
 							reason = e.reason
 						break
-			embed = discord.Embed(title='Member Left', url='https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif', color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(title='Member Left', url='https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif', color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'{member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 			if member.nick:
 				embed.add_field(name='Nickname', value=member.nick, inline=False)
@@ -413,7 +413,7 @@ class Settings(commands.Cog):
 				pass
 			logch = self.bot.configs[after.guild.id].get('log.action')
 			if logch and after.nick:
-				embed = discord.Embed(color=after.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'**s nickname was changed**')
+				embed = discord.Embed(color=after.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{after.mention}\'**s nickname was changed**')
 				embed.set_author(name=after, icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='Before', value=before.nick, inline=False)
 				embed.add_field(name='After', value=after.nick, inline=False)
@@ -437,13 +437,13 @@ class Settings(commands.Cog):
 				s = set(broles)
 				added = [x for x in aroles if x not in s]
 				if len(added) == 1:
-					joinedat = datetime.datetime.utcnow() - after.joined_at
+					joinedat = datetime.datetime.now(datetime.timezone.utc) - after.joined_at
 					if joinedat < datetime.timedelta(minutes=1):
 						return
 					role = discord.utils.get(after.guild.roles, name=added[0])
 					if not role:
 						return
-					embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'s roles were changed\n**{after.name} was given the** {role.mention} **role**')
+					embed = discord.Embed(color=role.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{after.mention}\'s roles were changed\n**{after.name} was given the** {role.mention} **role**')
 					embed.set_author(name=after, icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
 					embed.set_footer(text=f"Member ID: {after.id} | Role ID: {role.id}")
 					try:
@@ -454,7 +454,7 @@ class Settings(commands.Cog):
 					role = discord.utils.get(after.guild.roles, name=removed[0])
 					if not role:
 						return
-					embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'{after.mention}\'s roles were changed\n**{after.name} was removed from the** {role.mention} **role**')
+					embed = discord.Embed(color=role.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{after.mention}\'s roles were changed\n**{after.name} was removed from the** {role.mention} **role**')
 					embed.set_author(name=after, icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
 					embed.set_footer(text=f"Member ID: {after.id} | Role ID: {role.id}")
 					try:
@@ -466,7 +466,7 @@ class Settings(commands.Cog):
 	async def on_guild_channel_pins_update(self, channel, last_pin = 0):
 			logch = self.bot.configs[channel.guild.id].get('log.action')
 			if logch:
-				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'{channel.mention}\'**s pinned messages were updated**')
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{channel.mention}\'**s pinned messages were updated**')
 				embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
 				embed.set_footer(text=f"Channel ID: {channel.id}")
 				try:
@@ -478,7 +478,7 @@ class Settings(commands.Cog):
 	async def on_guild_role_create(self, role):
 		logch = self.bot.configs[role.guild.id].get('log.action')
 		if logch:
-			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**A new role was created**\n{role.mention}')
+			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**A new role was created**\n{role.mention}')
 			embed.set_author(name=role.guild.name, icon_url=str(role.guild.icon_url))
 			embed.set_footer(text=f"Role ID: {role.id}")
 			try:
@@ -490,7 +490,7 @@ class Settings(commands.Cog):
 	async def on_guild_role_delete(self, role):
 		logch = self.bot.configs[role.guild.id].get('log.action')
 		if logch:
-			embed = discord.Embed(color=role.color, timestamp=datetime.datetime.utcnow(), description=f'**The role** `{role.name}` **was deleted**')
+			embed = discord.Embed(color=role.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**The role** `{role.name}` **was deleted**')
 			embed.set_author(name=role.guild.name, icon_url=str(role.guild.icon_url))
 			embed.set_footer(text=f"Role ID: {role.id}")
 			try:
@@ -504,7 +504,7 @@ class Settings(commands.Cog):
 		if logch:
 			if before.deaf != after.deaf:
 				if after.deaf:
-					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **was server deafened**')
+					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **was server deafened**')
 					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					if after.channel:
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
@@ -515,7 +515,7 @@ class Settings(commands.Cog):
 					except Exception:
 						pass
 				elif not after.deaf:
-					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **was server undeafened**')
+					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **was server undeafened**')
 					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					if after.channel:
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
@@ -527,7 +527,7 @@ class Settings(commands.Cog):
 						pass
 			if before.mute != after.mute:
 				if after.mute:
-					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **was server muted**')
+					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **was server muted**')
 					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					if after.channel:
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
@@ -538,7 +538,7 @@ class Settings(commands.Cog):
 					except Exception:
 						pass
 				elif not after.mute:
-					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **was server unmuted**')
+					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **was server unmuted**')
 					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					if after.channel:
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
@@ -551,10 +551,10 @@ class Settings(commands.Cog):
 			if before.self_video != after.self_video:
 				if after.self_video:
 					if after.channel:
-						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **started sharing video in {after.channel.name}**')
+						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **started sharing video in {after.channel.name}**')
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					else:
-						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **started sharing video**')
+						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **started sharing video**')
 						embed.set_footer(text=f"Member ID: {member.id}")
 					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					try:
@@ -563,10 +563,10 @@ class Settings(commands.Cog):
 						pass
 				elif not after.self_video:
 					if after.channel:
-						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **stopped sharing video in {after.channel.name}**')
+						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **stopped sharing video in {after.channel.name}**')
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					else:
-						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **stopped sharing video**')
+						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **stopped sharing video**')
 						embed.set_footer(text=f"Member ID: {member.id}")
 					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					try:
@@ -576,10 +576,10 @@ class Settings(commands.Cog):
 			if before.self_stream != after.self_stream:
 				if after.self_stream:
 					if after.channel:
-						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **went live in {after.channel.name}**')
+						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **went live in {after.channel.name}**')
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					else:
-						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **went live**')
+						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **went live**')
 						embed.set_footer(text=f"Member ID: {member.id}")
 					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					try:
@@ -588,10 +588,10 @@ class Settings(commands.Cog):
 						pass
 				elif not after.self_stream:
 					if after.channel:
-						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **stopped being live in {after.channel.name}**')
+						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **stopped being live in {after.channel.name}**')
 						embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					else:
-						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **stopped being live**')
+						embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **stopped being live**')
 						embed.set_footer(text=f"Member ID: {member.id}")
 					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					try:
@@ -600,7 +600,7 @@ class Settings(commands.Cog):
 						pass
 			if before.channel != after.channel:
 				if before.channel and after.channel:
-					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **switched voice channel**')
+					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **switched voice channel**')
 					embed.add_field(name='Before', value=before.channel.name, inline=False)
 					embed.add_field(name='After', value=after.channel.name, inline=False)
 					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
@@ -610,7 +610,7 @@ class Settings(commands.Cog):
 					except Exception:
 						pass
 				if after.channel:
-					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **joined voice channel {after.channel.name}**')
+					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **joined voice channel {after.channel.name}**')
 					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {after.channel.id}")
 					try:
@@ -618,7 +618,7 @@ class Settings(commands.Cog):
 					except Exception:
 						pass
 				elif not after.channel:
-					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow(), description=f'{member.mention} **left voice channel {before.channel.name}**')
+					embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{member.mention} **left voice channel {before.channel.name}**')
 					embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					embed.set_footer(text=f"Member ID: {member.id} | Channel ID: {before.channel.id}")
 					try:
@@ -631,7 +631,7 @@ class Settings(commands.Cog):
 		logch = self.bot.configs[after.id].get('log.action')
 		if logch:
 			if before.name != after.name:
-				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**Guild name was changed**')
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**Guild name was changed**')
 				embed.add_field(name='Before', value=before.name, inline=False)
 				embed.add_field(name='After', value=after.name, inline=False)
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
@@ -641,7 +641,7 @@ class Settings(commands.Cog):
 				except Exception:
 					pass
 			if before.description != after.description and after.id != 411619823445999637:
-				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**Guild description was changed**')
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**Guild description was changed**')
 				embed.add_field(name='Before', value=before.description, inline=False)
 				embed.add_field(name='After', value=after.description, inline=False)
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
@@ -651,7 +651,7 @@ class Settings(commands.Cog):
 				except Exception:
 					pass
 			if before.region != after.region:
-				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s region was changed**')
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name}\'s region was changed**')
 				embed.add_field(name='Before', value=region[str(before.region)], inline=False)
 				embed.add_field(name='After', value=region[str(after.region)], inline=False)
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
@@ -661,7 +661,7 @@ class Settings(commands.Cog):
 				except Exception:
 					pass
 			if before.owner != after.owner:
-				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name} was transferred to a new owner**')
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name} was transferred to a new owner**')
 				embed.add_field(name='Before', value=before.owner, inline=False)
 				embed.add_field(name='After', value=after.owner, inline=False)
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
@@ -671,7 +671,7 @@ class Settings(commands.Cog):
 				except Exception:
 					pass
 			if before.verification_level != after.verification_level:
-				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s verification level was changed**')
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name}\'s verification level was changed**')
 				embed.add_field(name='Before', value=str(before.verification_level).capitalize(), inline=False)
 				embed.add_field(name='After', value=str(after.verification_level).capitalize(), inline=False)
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
@@ -681,7 +681,7 @@ class Settings(commands.Cog):
 				except Exception:
 					pass
 			if before.explicit_content_filter != after.explicit_content_filter:
-				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s content filter level was changed**')
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name}\'s content filter level was changed**')
 				embed.add_field(name='Before', value=str(before.explicit_content_filter).capitalize().replace('_', ''), inline=False)
 				embed.add_field(name='After', value=str(after.explicit_content_filter).capitalize().replace('_', ''), inline=False)
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
@@ -691,7 +691,7 @@ class Settings(commands.Cog):
 				except Exception:
 					pass
 			if set(before.features) != set(after.features):
-				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s features were updated**')
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name}\'s features were updated**')
 				s = set(after.features)
 				removed = [x for x in before.features if x not in s]
 				ignored = ['PREMIUM']
@@ -718,10 +718,10 @@ class Settings(commands.Cog):
 						pass
 			if before.banner != after.banner:
 				if after.banner:
-					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s banner was changed**')
+					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name}\'s banner was changed**')
 					embed.set_image(url=str(after.banner_url))
 				else:
-					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s banner was removed**')
+					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name}\'s banner was removed**')
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
 				try:
@@ -730,10 +730,10 @@ class Settings(commands.Cog):
 					pass
 			if before.splash != after.splash:
 				if after.splash:
-					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s splash was changed**')
+					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name}\'s splash was changed**')
 					embed.set_image(url=str(after.splash_url))
 				else:
-					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s splash was removed**')
+					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name}\'s splash was removed**')
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
 				try:
@@ -742,10 +742,10 @@ class Settings(commands.Cog):
 					pass
 			if before.discovery_splash != after.discovery_splash:
 				if after.discovery_splash:
-					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s discovery splash was changed**')
+					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name}\'s discovery splash was changed**')
 					embed.set_image(url=str(after.discovery_splash_url))
 				else:
-					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s discovery splash was removed**')
+					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name}\'s discovery splash was removed**')
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
 				try:
@@ -754,9 +754,9 @@ class Settings(commands.Cog):
 					pass
 			if before.premium_tier != after.premium_tier:
 				if after.premium_tier > before.premium_tier:
-					embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.utcnow(), description=f'**{after.name} got boosted to Level {after.premium_tier}**')
+					embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name} got boosted to Level {after.premium_tier}**')
 				if after.premium_tier < before.premium_tier:
-					embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.utcnow(), description=f'**{after.name} got weakened to Level {after.premium_tier}**')
+					embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name} got weakened to Level {after.premium_tier}**')
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
 				try:
@@ -765,9 +765,9 @@ class Settings(commands.Cog):
 					pass
 			if before.system_channel != after.system_channel:
 				if after.system_channel:
-					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s system channel was changed to {after.system_channel.mention}**')
+					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name}\'s system channel was changed to {after.system_channel.mention}**')
 				else:
-					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{after.name}\'s system channel was removed**')
+					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{after.name}\'s system channel was removed**')
 				embed.set_author(name=after.name, icon_url=str(after.icon_url))
 				embed.set_footer(text=f"Guild ID: {after.id}")
 				try:
@@ -782,7 +782,7 @@ class Settings(commands.Cog):
 			return
 		logch = self.bot.configs[guild.id].get('log.action')
 		if logch:
-			embed = discord.Embed(color=member.color if member.color != discord.Color.default() else discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
+			embed = discord.Embed(color=member.color if member.color != discord.Color.default() else discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{member.mention} was banned**')
 			embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 			embed.set_footer(text=f"Member ID: {member.id}")
 			try:
@@ -794,7 +794,7 @@ class Settings(commands.Cog):
 	async def on_member_unban(self, guild, member):
 		logch = self.bot.configs[guild.id].get('log.action')
 		if logch:
-			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**{member} was unbanned**')
+			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{member} was unbanned**')
 			embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 			embed.set_footer(text=f"Member ID: {member.id}")
 			try:
@@ -811,13 +811,13 @@ class Settings(commands.Cog):
 			return
 		logch = self.bot.configs[guild.id].get('log.action')
 		if logch:
-			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow(), description=f'**An invite was created**')
+			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**An invite was created**')
 			embed.set_author(name=guild.name, icon_url=str(guild.icon_url_as(static_format='png', size=2048)))
 			embed.add_field(name='Invite Code', value=invite.code, inline=False)
 			embed.add_field(name='Max Uses', value=invite.max_uses, inline=False)
 			embed.add_field(name='Temporary', value=invite.temporary, inline=False)
 			if invite.temporary:
-				delta = datetime.datetime.utcnow() + datetime.timedelta(seconds=invite.max_age)
+				delta = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=invite.max_age)
 				if isinstance(delta, datetime.timedelta):
 					embed.add_field(name='Expires in', value=humanfriendly.format_timespan(delta), inline=False)
 			if isinstance(invite.channel, discord.abc.GuildChannel):
@@ -842,7 +842,7 @@ class Settings(commands.Cog):
 				whodidit = a.user
 		logch = self.bot.configs[guild.id].get('log.action')
 		if logch:
-			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**An invite was deleted**')
+			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**An invite was deleted**')
 			embed.set_author(name=guild.name, icon_url=str(guild.icon_url_as(static_format='png', size=2048)))
 			embed.add_field(name='Invite Code', value=invite.code, inline=False)
 			if isinstance(invite.channel, discord.abc.GuildChannel):
@@ -1056,7 +1056,7 @@ class Settings(commands.Cog):
 		await asyncio.sleep(2)
 		await ctx.send('Nice! We\'re all good to go. I\'ll send a recap in a moment. I just need to reload settings.')
 		config = self.bot.configs[ctx.guild.id]
-		embed = discord.Embed(title=":gear: Guild Settings", colour=ctx.author.color, description="Here's a list of the current guild settings", timestamp=datetime.datetime.utcnow())
+		embed = discord.Embed(title=":gear: Guild Settings", colour=ctx.author.color, description="Here's a list of the current guild settings", timestamp=datetime.datetime.now(datetime.timezone.utc))
 		embed.set_author(name=ctx.guild.name, icon_url=str(ctx.guild.icon_url))
 		embed.add_field(name="Moderation Logs", value=config.get('log.moderation').mention if config.get('log.moderation') else 'Not set.', inline=False)
 		embed.add_field(name="Action Logs", value=config.get('log.action').mention if config.get('log.action') else 'Not set.', inline=False)
@@ -1135,11 +1135,11 @@ class Settings(commands.Cog):
 			joinmsg = self.bot.configs[ctx.guild.id].get('greet.joinmsg')
 			joinchan =  self.bot.configs[ctx.guild.id].get('greet.joinchannel')
 			if not joinmsg:
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'<:xmark:674359427830382603> Please provide a channel and message for join messages.')
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'<:xmark:674359427830382603> Please provide a channel and message for join messages.')
 				variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
 				embed.add_field(name='Variables', value=variables, inline=False)
 				return await ctx.send(embed=embed)
-			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Current Join Message Settings**\nDo __{ctx.prefix}joinmsg disable__ to disable join messages')
+			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**Current Join Message Settings**\nDo __{ctx.prefix}joinmsg disable__ to disable join messages')
 			embed.add_field(name='Channel', value=joinchan.mention if joinchan else 'Not Set (Not sure how you managed to do this)', inline=False)
 			message = joinmsg or 'Not set.'
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)
@@ -1177,11 +1177,11 @@ class Settings(commands.Cog):
 			leavemsg = self.bot.configs[ctx.guild.id].get('greet.leavemsg')
 			leavechan =  self.bot.configs[ctx.guild.id].get('greet.leavechannel')
 			if not leavemsg:
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'<:xmark:674359427830382603> Please provide a channel and message for leave messages.')
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'<:xmark:674359427830382603> Please provide a channel and message for leave messages.')
 				variables = '{user}: {fuser}\n{user.mention}: {fmention}\n{user.name}: {fname}\n{user.discrim}: {fdiscrim}\n{server}|{guild}: {fguild}'.replace('{fmention}', ctx.author.mention).replace('{fuser}', str(ctx.author)).replace('{fname}', ctx.author.name).replace('{fdiscrim}', ctx.author.discriminator).replace('{fguild}', ctx.guild.name)
 				embed.add_field(name='Variables', value=variables, inline=False)
 				return await ctx.send(embed=embed)
-			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'**Current Leave Message Settings**\nDo __{ctx.prefix}leavemsg disable__ to disable leave messages')
+			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**Current Leave Message Settings**\nDo __{ctx.prefix}leavemsg disable__ to disable leave messages')
 			embed.add_field(name='Channel', value=leavechan.mention if leavechan else 'Not Set (Not sure how you managed to do this)', inline=False)
 			message = leavemsg or 'Not set.'
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name)

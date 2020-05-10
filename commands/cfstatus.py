@@ -75,7 +75,7 @@ class CloudflareStatus(commands.Cog):
             paginator.add_line(f'├{emoji[c["status"]]} **{c["name"]}**: {c["status"].replace("_", " ").title()}')
             for s in groups.get(c['id'], []):
                 paginator.add_line(f'├─{emoji[s["status"]]} **{s["name"]}**: {s["status"].replace("_", " ").title()}')
-        embed = discord.Embed(color=colors[str(summary['status']['indicator'])], title=summary['status']['description'], timestamp=datetime.datetime.utcnow())
+        embed = discord.Embed(color=colors[str(summary['status']['indicator'])], title=summary['status']['description'], timestamp=datetime.datetime.now(datetime.timezone.utc))
         incident = incidents['incidents'][0]
         embed.add_field(name='Latest Incident', value=f'[{incident["name"]}]({incident["shortlink"]})\nStatus: **{incident["status"].capitalize()}**')
         interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)

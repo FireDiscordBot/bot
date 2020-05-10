@@ -32,13 +32,13 @@ class RichPresence(commands.Cog):
 
     def getSpotify(self, member: discord.Member, activity: discord.Spotify):
         adict = activity.to_dict()
-        embed = discord.Embed(color=activity.color, timestamp=datetime.datetime.utcnow())
+        embed = discord.Embed(color=activity.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
         embed.set_author(name=f'{member}\'s Spotify Info', icon_url='https://cdn.discordapp.com/emojis/471412444716072960.png')
         embed.add_field(name='Song', value=activity.title, inline=False)
         embed.add_field(name='Artists', value=', '.join(activity.artists), inline=False)
         embed.add_field(name='Album', value=activity.album, inline=False)
         duration = humanfriendly.format_timespan(activity.duration)
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc)
         elapsed = humanfriendly.format_timespan(now - activity.start)
         left = humanfriendly.format_timespan(activity.end - now)
         if 'day' in left:
@@ -49,7 +49,7 @@ class RichPresence(commands.Cog):
         return embed
 
     def getTwitch(self, member: discord.Member, activity: discord.Streaming):
-        embed = discord.Embed(color=discord.Color.purple(), timestamp=datetime.datetime.utcnow())
+        embed = discord.Embed(color=discord.Color.purple(), timestamp=datetime.datetime.now(datetime.timezone.utc))
         embed.set_author(name=f'{member}\'s Twitch Info', icon_url='https://cdn.discordapp.com/emojis/603188557242433539.png')
         if member.bot:
             embed.add_field(name='Title', value=activity.name, inline=False)
@@ -62,7 +62,7 @@ class RichPresence(commands.Cog):
         return embed
 
     def getYoutube(self, member: discord.Member, activity: discord.Streaming):
-        embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+        embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
         embed.set_author(name=f'{member}\'s YouTube Info', icon_url='https://cdn.discordapp.com/emojis/471627092463976448.png')
         if member.bot:
             embed.add_field(name='Title', value=activity.name, inline=False)
@@ -75,14 +75,14 @@ class RichPresence(commands.Cog):
         return embed
 
     def getGenericStream(self, member: discord.Member, activity: discord.Streaming):
-        embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+        embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
         embed.set_author(name=f'{member}\'s Stream Info')
         embed.add_field(name='Title', value=activity.name, inline=False)
         embed.add_field(name='URL', value=f'{activity.url}', inline=False)
         return embed
 
     def getCustomStatus(self, member: discord.Member, activity: discord.CustomActivity):
-        embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow())
+        embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
         emoji: discord.PartialEmoji = activity.emoji
         if emoji and (discord.utils.get(self.bot.emojis, id=emoji.id) or emoji.is_unicode_emoji()):
             embed.add_field(name='Status', value=f'{emoji} {activity.name}')
@@ -94,13 +94,13 @@ class RichPresence(commands.Cog):
         return embed
 
     def getGenericActivity(self, member: discord.Member, activity: discord.Activity):
-        embed = discord.Embed(color=member.color, timestamp=datetime.datetime.utcnow())
+        embed = discord.Embed(color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
         if activity.small_image_url is not None:
             embed.set_author(name=f'{member}\'s Game Info', icon_url=activity.small_image_url)
         else:
             embed.set_author(name=f'{member}\'s Game Info')
         embed.add_field(name='Game', value=activity.name, inline=False)
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc)
         elapsed = None
         if activity.start:
             elapsed = humanfriendly.format_timespan(now - activity.start)

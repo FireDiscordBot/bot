@@ -35,7 +35,7 @@ class CommandCompletion(commands.Cog):
             if ctx.guild:
                 logch = self.bot.configs[ctx.guild.id].get('log.action')
                 if logch:
-                    embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description=f'`{ctx.command.name}` **was used in** {ctx.channel.mention} **by {ctx.author.name}**')
+                    embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'`{ctx.command.name}` **was used in** {ctx.channel.mention} **by {ctx.author.name}**')
                     embed.set_author(name=ctx.author, icon_url=str(ctx.author.avatar_url_as(static_format='png', size=2048)))
                     embed.add_field(name='Message', value=ctx.message.system_content, inline=False)
                     embed.set_footer(text=f"Author ID: {ctx.author.id} | Channel ID: {ctx.channel.id}")

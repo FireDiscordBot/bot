@@ -163,7 +163,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				if guild and user and muted:
 					if muted in user.roles:
 						if until:
-							if datetime.datetime.utcnow().timestamp() > until:
+							if datetime.datetime.now(datetime.timezone.utc).timestamp() > until:
 								try:
 									await user.remove_roles(muted, reason='Times up.')
 									con = await self.bot.db.acquire()
@@ -177,7 +177,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 										pass
 									logch = self.bot.configs[guild.id].get('log.moderation')
 									if logch:
-										embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+										embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 										embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 										embed.add_field(name='User', value=user.mention, inline=False)
 										embed.add_field(name='Moderator', value=guild.me.mention, inline=False)
@@ -192,7 +192,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 							break
 					else:
 						if until:
-							if datetime.datetime.utcnow().timestamp() < until:
+							if datetime.datetime.now(datetime.timezone.utc).timestamp() < until:
 								try:
 									await user.add_roles(muted, reason='Muted.')
 								except discord.HTTPException:
@@ -223,7 +223,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					if guild and user and muted:
 						if muted in user.roles:
 							if until:
-								if datetime.datetime.utcnow().timestamp() > until:
+								if datetime.datetime.now(datetime.timezone.utc).timestamp() > until:
 									try:
 										con = await self.bot.db.acquire()
 										async with con.transaction():
@@ -240,7 +240,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 										await user.remove_roles(muted, reason='Times up.')
 										logch = self.bot.configs[guild.id].get('log.moderation')
 										if logch:
-											embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+											embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 											embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 											embed.add_field(name='User', value=user.mention, inline=False)
 											embed.add_field(name='Moderator', value=guild.me.mention, inline=False)
@@ -318,7 +318,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				query = 'INSERT INTO mutes (\"gid\", \"uid\") VALUES ($1, $2);'
 				await self.bot.db.execute(query, ctx.guild.id, user.id)
 			query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
-			await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'mute', datetime.datetime.utcnow().timestamp() + user.id)
+			await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.now(datetime.timezone.utc).strftime('%d/%m/%Y @ %I:%M:%S %p'), 'mute', datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id)
 		await self.bot.db.release(con)
 		if until:
 			if ctx.guild.id in self.mutes:
@@ -347,7 +347,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					"gid": ctx.guild.id
 				}
 		if modlogs:
-			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Mute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 			embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 			embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
@@ -388,7 +388,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await ctx.guild.ban(user, reason=f"Banned by {ctx.author} for {reason}", delete_message_days=0)
 			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 			if logch:
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Ban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
@@ -404,7 +404,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
-				await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'ban', datetime.datetime.utcnow().timestamp() + user.id)
+				await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.now(datetime.timezone.utc).strftime('%d/%m/%Y @ %I:%M:%S %p'), 'ban', datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id)
 			await self.bot.db.release(con)
 		except discord.Forbidden:
 			await ctx.error("Ban failed. Are you trying to ban someone higher than the bot?")
@@ -425,7 +425,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await ctx.guild.unban(discord.Object(user.id), reason=f"Unbanned by {ctx.author} for {reason}")
 		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 		if logch:
-			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Unban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 			embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 			embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
@@ -439,7 +439,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
-			await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'unban', datetime.datetime.utcnow().timestamp() + user.id)
+			await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.now(datetime.timezone.utc).strftime('%d/%m/%Y @ %I:%M:%S %p'), 'unban', datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id)
 		await self.bot.db.release(con)
 
 	@commands.command(description="Temporarily restricts access to this server.")
@@ -464,7 +464,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await ctx.guild.ban(user, reason=f"Softbanned by {ctx.author} for {reason}", delete_message_days=messages)
 			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 			if logch:
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Softban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
@@ -479,7 +479,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
-				await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'softban', datetime.datetime.utcnow().timestamp() + user.id)
+				await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.now(datetime.timezone.utc).strftime('%d/%m/%Y @ %I:%M:%S %p'), 'softban', datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id)
 			await self.bot.db.release(con)
 		except discord.Forbidden:
 			await ctx.error("Soft-ban failed. Are you trying to soft-ban someone higher than the bot?")
@@ -522,7 +522,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			return await ctx.error('That time is too short, please specify a longer time!')
 		else:
 			td = datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
-			until = datetime.datetime.utcnow() + datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+			until = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 			reason = parseTime(reason, True)
 			return await self.mute(ctx, user, reason=reason, until=until, timedelta=td, modlogs=logch)
 
@@ -553,7 +553,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				await ctx.send(f'<a:fireWarning:660148304486727730> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** was not warned due to having DMs off. The warning has been logged.')
 			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 			if logch:
-				embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.utcnow())
+				embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Warn | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
@@ -570,7 +570,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
-			await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'warn', datetime.datetime.utcnow().timestamp() + user.id)
+			await self.bot.db.execute(query, ctx.guild.id, user.id, reason, datetime.datetime.now(datetime.timezone.utc).strftime('%d/%m/%Y @ %I:%M:%S %p'), 'warn', datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id)
 		await self.bot.db.release(con)
 
 	@commands.command(description="View warnings for a user", aliases=['warns'])
@@ -593,7 +593,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 							   f'**Reason**: {warn["reason"]}\n'
 							   f'**Date**: {warn["date"]}\n'
 							   f'**-----------------**')		
-		embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.utcnow())
+		embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.now(datetime.timezone.utc))
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 		await interface.send_to(ctx)
 
@@ -643,7 +643,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 							   f'**Reason**: {log["reason"]}\n'
 							   f'**Date**: {log["date"]}\n'
 							   f'**-----------------**')
-		embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.utcnow())
+		embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.now(datetime.timezone.utc))
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 		await interface.send_to(ctx)
 
@@ -671,7 +671,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await ctx.guild.kick(user, reason=f"Kicked by {ctx.author} for {reason}")
 			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 			if logch:
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Kick | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
@@ -687,7 +687,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
-				await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p'), 'kick', datetime.datetime.utcnow().timestamp() + user.id)
+				await self.bot.db.execute(query, ctx.guild.id, user.id, reason or "No Reason Provided.", datetime.datetime.now(datetime.timezone.utc).strftime('%d/%m/%Y @ %I:%M:%S %p'), 'kick', datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id)
 			await self.bot.db.release(con)
 		except discord.Forbidden:
 			await ctx.error("Kick failed. Are you trying to kick someone higher than the bot?")
@@ -717,7 +717,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			pass
 		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 		if logch:
-			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 			embed.add_field(name='User', value=user.mention, inline=False)
 			embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
@@ -759,7 +759,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await ctx.success(f'Successfully blocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}** from chatting in {ctx.channel.mention}.')
 		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 		if logch:
-			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Block | {blocked}', icon_url=str(blocked.avatar_url_as(static_format='png', size=2048)) if blocktype == 'User' else str(ctx.guild.icon_url))
 			embed.add_field(name=blocktype, value=f'{blocked}({blocked.id})', inline=False)
 			embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
@@ -805,7 +805,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await ctx.success(f'Successfully unblocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}**. Welcome back!')
 		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 		if logch:
-			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Unblock | {blocked}', icon_url=str(blocked.avatar_url_as(static_format='png', size=2048)) if blocktype == 'User' else str(ctx.guild.icon_url))
 			embed.add_field(name=blocktype, value=f'{blocked}({blocked.id})', inline=False)
 			embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
@@ -848,7 +848,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await ctx.success(f'Successfully removed all roles from **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**.')
 		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 		if logch:
-			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Derank | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
 			embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 			embed.add_field(name='Moderator', value=user.mention, inline=False)

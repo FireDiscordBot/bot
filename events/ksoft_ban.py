@@ -42,7 +42,7 @@ class KsoftBan(commands.Cog):
                         await guild.ban(member, reason=f'{member} was found on global ban list')
                         self.recentgban.append(f'{member.id}-{guild.id}')
                         if logch:
-                            embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{member.mention} was banned**')
+                            embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{member.mention} was banned**')
                             embed.set_author(name=str(member), icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
                             embed.add_field(name='Reason', value=f'{member} was found on global ban list\n\nBanned for: {event["reason"]}', inline=False)
                             embed.set_footer(text=f"Member ID: {member.id}")

@@ -241,7 +241,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 	@tasks.loop(seconds=1)
 	async def remindcheck(self):
 		reminders = self.reminders.copy()
-		fornow = datetime.datetime.utcnow().timestamp()
+		fornow = datetime.datetime.now(datetime.timezone.utc).timestamp()
 		try:
 			for u in reminders:
 				user = self.reminders[u]
@@ -415,7 +415,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 	@commands.group(name='info', invoke_without_command=True)
 	@commands.guild_only()
 	async def infogroup(self, ctx):
-		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
+		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 		embed.set_author(name=ctx.guild.name, icon_url=str(ctx.guild.icon_url))
 		embed.add_field(name='Info Commands', value=f'> {ctx.prefix}info guild | Get\'s info about the guild\n> {ctx.prefix}info user [<user>] | Get\'s info about you or another user\n> {ctx.prefix}info role [<role>] | Get\'s info about your top role or another role', inline=False)
 		await ctx.send(embed=embed)
@@ -427,7 +427,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 			if preview.status != 200:
 				return await ctx.error(f'HTTP ERROR {preview.status}: That guild could not be found! It must be public for me to show it.')
 			preview = await preview.json()
-			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_thumbnail(url=preview['icon'])
 			nameemote = ''
 			if 'PARTNERED' in preview['features']:
@@ -438,7 +438,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 			embed.add_field(name="» ID", value=gid, inline=False)
 			embed.add_field(name="» Members", value=f'⬤ {preview["approximate_presence_count"]:,d} Online & ⭘ {preview["approximate_member_count"]:,d} Members', inline=False)
 			embed.add_field(name="» Description", value=preview['description'] or 'No description set.', inline=False)
-			embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - discord.utils.snowflake_time(gid), max_units=2) + ' ago', inline=True)
+			embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.now(datetime.timezone.utc) - discord.utils.snowflake_time(gid), max_units=2) + ' ago', inline=True)
 			features = ', '.join([self.featureslist.get(f, f) for f in preview['features']])
 			if features and features != '':
 				embed.add_field(name="» Features", value=features, inline=False)
@@ -447,7 +447,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 				embed.set_image(url=preview['discovery_splash'] or preview['splash'])
 			return await ctx.send(embed=embed)
 		guild = ctx.guild
-		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
+		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 		embed.set_thumbnail(url=guild.icon_url)
 		nameemote = ''
 		if 'PARTNERED' in guild.features:
@@ -465,7 +465,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name="» Verification", value=str(guild.verification_level).capitalize(), inline=True)
 		embed.add_field(name="» Notifications", value=notifs[str(guild.default_notifications)], inline=True)
 		embed.add_field(name="» Multi-Factor Auth", value=bool(guild.mfa_level), inline=True)
-		embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - guild.created_at, max_units=2) + ' ago', inline=True)
+		embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.now(datetime.timezone.utc) - guild.created_at, max_units=2) + ' ago', inline=True)
 		features = ', '.join([self.featureslist.get(f, f) for f in guild.features])
 		if features and features != '':
 			embed.add_field(name="» Features", value=features, inline=False)
@@ -480,7 +480,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 	async def role(self, ctx, *, role: Role = None):
 		if not role:
 			role = ctx.author.top_role
-		embed = discord.Embed(colour=role.color if role.color != discord.Color.default() else ctx.author.color, timestamp=datetime.datetime.utcnow())
+		embed = discord.Embed(colour=role.color if role.color != discord.Color.default() else ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 		embed.add_field(name="» Name", value=role.name, inline=False)
 		embed.add_field(name="» ID", value=role.id, inline=False)
 		embed.add_field(name="» Mention", value=f'`{role.mention}`', inline=False)
@@ -505,7 +505,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 				paginator.add_line(member.mention)
 			membed = discord.Embed(
 				colour=role.color if role.color != discord.Color.default() else ctx.author.color,
-				timestamp=datetime.datetime.utcnow(),
+				timestamp=datetime.datetime.now(datetime.timezone.utc),
 				title=f'Members [{len(role.members)}]'
 			)
 			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=membed)
@@ -523,10 +523,10 @@ class Utils(commands.Cog, name='Utility Commands'):
 		if not days and not hours and not minutes and not seconds:
 			return await ctx.error('Invalid format. Please provide a time')
 		try:
-			forwhen = datetime.datetime.utcnow() + datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours)
+			forwhen = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours)
 		except OverflowError:
 			return await ctx.error(f'Somehow I don\'t think Discord is gonna be around for that long. Reminders are limited to 3 months anyways')
-		limit = datetime.datetime.utcnow() + datetime.timedelta(days=90)
+		limit = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=90)
 		if forwhen > limit and not await self.bot.is_owner(ctx.author):
 			return await ctx.error('Reminders currently cannot be set for more than 3 months (90 days)')
 		if ctx.author.id not in self.reminders:
@@ -550,8 +550,8 @@ class Utils(commands.Cog, name='Utility Commands'):
 			return await ctx.error('You have no reminders.')
 		paginator = WrappedPaginator(prefix='', suffix='', max_size=1980)
 		for i, r in enumerate(mine):
-			forwhen = datetime.datetime.utcfromtimestamp(r['for']).strftime('%b %-d %Y @ %I:%M %p')
-			delta = humanfriendly.format_timespan(datetime.datetime.utcfromtimestamp(r['for']) - datetime.datetime.utcnow())
+			forwhen = datetime.datetime.fromtimestamp(r['for'], datetime.timezone.utc).strftime('%b %-d %Y @ %I:%M %p')
+			delta = humanfriendly.format_timespan(datetime.datetime.fromtimestamp(r['for'], datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc), max_units=2)
 			paginator.add_line(f'[{i + 1}] {r["reminder"]} - {forwhen} ({delta})')
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author)
 		return await interface.send_to(ctx)
@@ -567,8 +567,8 @@ class Utils(commands.Cog, name='Utility Commands'):
 		if i >= len(mine):
 			return await ctx.error(f'You don\'t have that many reminders. Use the [number] from `{ctx.prefix}reminders` to select a reminder')
 		r = mine[i]
-		forwhen = datetime.datetime.utcfromtimestamp(r['for']).strftime('%b %-d %Y @ %I:%M %p')
-		delta = humanfriendly.format_timespan(datetime.datetime.utcfromtimestamp(r['for'] * 1000) - datetime.datetime.utcnow())
+		forwhen = datetime.datetime.fromtimestamp(r['for'], datetime.timezone.utc).strftime('%b %-d %Y @ %I:%M %p')
+		delta = humanfriendly.format_timespan(datetime.datetime.fromtimestamp(r['for'], datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc), max_units=2)
 		await self.deleteremind(ctx.author.id, r['for'])
 		return await ctx.success(f'Your reminder, {r["reminder"]} for {forwhen} ({delta} from now), has been deleted!')
 

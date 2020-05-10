@@ -30,7 +30,7 @@ class SocketStats(commands.Cog):
     async def socketstats(self, ctx):
         if not hasattr(self.bot, 'stats'):
             return await ctx.error(f'Socket stats are not loaded')
-        delta = datetime.datetime.utcnow() - self.bot.launchtime
+        delta = datetime.datetime.now(datetime.timezone.utc) - self.bot.launchtime
         minutes = delta.total_seconds() / 60
         total = sum(self.bot.stats['socket'].values())
         stats = [f'[{k}] {v:,d}' for k, v in sorted(self.bot.stats['socket'].items(), key=lambda t: self.bot.stats['socket'][t[0]])]

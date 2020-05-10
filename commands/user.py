@@ -91,7 +91,7 @@ class UserInfo(commands.Cog):
     def get_info(self, ctx: commands.Context, user: typing.Union[discord.User, discord.Member]):
         created = user.created_at.strftime('%b %-d %Y @ %I:%M %p')
         cdelta = humanfriendly.format_timespan(
-            datetime.datetime.utcnow() - user.created_at,
+            datetime.datetime.now(datetime.timezone.utc) - user.created_at,
             max_units=2
         ) + ' ago'
         info = [
@@ -101,7 +101,7 @@ class UserInfo(commands.Cog):
         if isinstance(user, discord.Member):
             joined = user.joined_at.strftime('%b %-d %Y @ %I:%M %p')
             jdelta = humanfriendly.format_timespan(
-                datetime.datetime.utcnow() - user.joined_at,
+                datetime.datetime.now(datetime.timezone.utc) - user.joined_at,
                 max_units=2
             ) + ' ago'
             if ctx.guild and ctx.guild.owner == user:
@@ -148,7 +148,7 @@ class UserInfo(commands.Cog):
         info = self.get_info(ctx, uinfo)
         embed = discord.Embed(
             colour=color,
-            timestamp=datetime.datetime.utcnow(),
+            timestamp=datetime.datetime.now(datetime.timezone.utc),
             description='  '.join(badges) if badges else discord.Embed.Empty
         ).set_author(
             name=str(uinfo),

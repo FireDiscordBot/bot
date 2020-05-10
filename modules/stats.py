@@ -107,7 +107,7 @@ class Stats(commands.Cog):
         await self.bot.wait_until_ready()
         try:
             dst = datetime.timedelta(hours=1)  # gotta love daylight savings
-            when = str(datetime.datetime.utcnow() + dst)
+            when = str(datetime.datetime.now(datetime.timezone.utc) + dst)
             # for s in self.bot.shards.values():
             sh = Shards(
                 when=when,

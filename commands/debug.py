@@ -79,7 +79,7 @@ class Debug(commands.Cog):
         embed = discord.Embed(
             title=status,
             color=ctx.author.color,
-            timestamp=datetime.datetime.utcnow(),
+            timestamp=datetime.datetime.now(datetime.timezone.utc),
             description='\n'.join(detail)
         )
         if ctx.me.permissions_in(ctx.channel).embed_links:

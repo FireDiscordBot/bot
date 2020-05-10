@@ -37,7 +37,7 @@ class Suggest(commands.Cog):
             board = await self.trello.get_board(lambda b: b.name == 'Fire')
             suggestions = await board.get_list(lambda l: l.name == 'Suggestions')
             card = await suggestions.create_card(suggestion, f'Suggested by {ctx.author.name} ({ctx.author.id})')
-            now = datetime.datetime.utcnow().strftime('%d/%m/%Y @ %I:%M:%S %p')
+            now = datetime.datetime.now(datetime.timezone.utc).strftime('%d/%m/%Y @ %I:%M:%S %p')
             await card.add_comment(f'Suggested in channel {ctx.channel.name} ({ctx.channel.id}) in guild {ctx.guild.name} ({ctx.guild.id}) at {now} UTC')
             await ctx.success(f'Thanks! Your suggestion was added to the Trello @ <{card.url}>. Make sure to check it every now and then for a response.')
 

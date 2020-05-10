@@ -78,7 +78,7 @@ class ColoredFormatter(logging.Formatter):
         levelname = record.levelname
         if levelname in LEVELS:
             levelname_color = LEVELS[levelname]
-            now = datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # fuck daylight savings
+            now = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)  # fuck daylight savings
             now = datetime.datetime.strftime(now, '%d/%m/%Y @ %I:%M:%S %p')
             record.levelname = f'{levelname_color}{now}{COLORS["$RESET"]}'
             for k, v in COLORS.items():

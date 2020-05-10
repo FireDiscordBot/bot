@@ -72,7 +72,7 @@ class YouTube(commands.Cog, name="YouTube API"):
 	@commands.group(name="yt", aliases=['youtube'], invoke_without_command=True, description='YouTube commands.')
 	async def yt(self, ctx):
 		videos = await self.loop.run_in_executor(None, func=self.popular)
-		embed = discord.Embed(title="Trending on YouTube (US)", color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+		embed = discord.Embed(title="Trending on YouTube (US)", color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 		for video in videos:
 			title = video['snippet']['title']
 			vid = video['id']
@@ -110,7 +110,7 @@ class YouTube(commands.Cog, name="YouTube API"):
 		likes = format(int(videoinfo.get('statistics', {}).get('likeCount', 0)), ',d')
 		dislikes = format(int(videoinfo.get('statistics', {}).get('dislikeCount', 0)), ',d')
 		comments = format(int(videoinfo.get('statistics', {}).get('commentCount', 0)), ',d')
-		embed = discord.Embed(title=f"Video info for {video}", color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+		embed = discord.Embed(title=f"Video info for {video}", color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 		embed.add_field(name=videoinfo["snippet"]["title"], value=f"» Link: [{title}](https://youtu.be/{vid} 'Click here to watch the video')\n» Author: [{author}](https://youtube.com/channel/{authorid} 'Click here to checkout {author} channel')\n» Published: {published}\n» Views: {views}\n» Likes: {likes}\n» Dislikes: {dislikes}\n» Comments: {comments}", inline=False)
 		interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 		return await interface.send_to(ctx)

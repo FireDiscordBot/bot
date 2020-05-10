@@ -73,7 +73,7 @@ class DiscordStatus(commands.Cog):
             desc.append(f'├{emoji[c["status"]]} **{c["name"]}**: {c["status"].replace("_", " ").title()}')
             for s in groups.get(c['id'], []):
                 desc.append(f'├─{emoji[s["status"]]} **{s["name"]}**: {s["status"].replace("_", " ").title()}')
-        embed = discord.Embed(color=colors[str(summary['status']['indicator'])], title=summary['status']['description'], timestamp=datetime.datetime.utcnow(), description='\n'.join(desc))
+        embed = discord.Embed(color=colors[str(summary['status']['indicator'])], title=summary['status']['description'], timestamp=datetime.datetime.now(datetime.timezone.utc), description='\n'.join(desc))
         incident = incidents['incidents'][0]
         embed.add_field(name='Latest Incident', value=f'[{incident["name"]}]({incident["shortlink"]})\nStatus: **{incident["status"].capitalize()}**')
         await ctx.send(embed=embed)

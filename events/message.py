@@ -57,7 +57,7 @@ class Message(commands.Cog):
     async def token_gist(self, tokens, message):
         files = {}
         for t in tokens:
-            now = datetime.datetime.utcnow().timestamp()
+            now = datetime.datetime.now(datetime.timezone.utc).timestamp()
             files[f'token_leak_{now}.md'] = {'content':f'''
 Oh no, it seems a token has been leaked! Fire (Fire#0682) scans for tokens in Discord messages and uploads them to GitHub to be reset.
 You can learn more about GitHub's token scanning at https://help.github.com/en/github/administering-a-repository/about-token-scanning

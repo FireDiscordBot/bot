@@ -48,7 +48,7 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
 				pass
 		if not meme.title:
 			return await ctx.error(f'The subreddit **{discord.utils.escape_mentions(discord.utils.escape_markdown(sub))}** couldn\'t be found...')
-		embed = discord.Embed(title="Did someone order a spicy meme?", colour=ctx.message.author.color, url=meme.source, timestamp=datetime.datetime.utcnow())		
+		embed = discord.Embed(title="Did someone order a spicy meme?", colour=ctx.message.author.color, url=meme.source, timestamp=datetime.datetime.now(datetime.timezone.utc))		
 		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url_as(static_format='png', size=2048)))
 		embed.set_footer(text=f"Memes provided by https://api.ksoft.si")
 		embed.add_field(name="Title", value=meme.title, inline=False)
@@ -95,7 +95,7 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
 			if not channel.is_nsfw():
 				msg = await ctx.send("The image I was given was marked as NSFW but this channel is not. Go into an NSFW channel to see NSFW memes", delete_after=5)
 				return
-		embed = discord.Embed(title="The randomizer machine returned this image!", colour=ctx.message.author.color, url=img.url, timestamp=datetime.datetime.utcnow())
+		embed = discord.Embed(title="The randomizer machine returned this image!", colour=ctx.message.author.color, url=img.url, timestamp=datetime.datetime.now(datetime.timezone.utc))
 		embed.set_image(url=img.url)
 		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url_as(static_format='png', size=2048)))
 		embed.set_footer(text=f"🏷️ {tag} (https://api.ksoft.si)")
@@ -117,11 +117,11 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
 		try:
 			inf = await self.bot.ksoft.bans_info(bannedboi)
 		except ksoftapi.APIError as e:
-			embed = discord.Embed(title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color, timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.add_field(name='Error', value=e.message, inline=False)
 			embed.add_field(name='Code', value=e.code, inline=False)
 			return await ctx.send(embed=embed)
-		embed = discord.Embed(title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color, timestamp=datetime.datetime.utcnow())
+		embed = discord.Embed(title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url_as(static_format='png', size=2048)))
 		embed.set_footer(text='Ban info from KSoft.Si API (https://api.ksoft.si/)', icon_url='https://cdn.ksoft.si/images/Logo128.png')
 		embed.add_field(name='User', value=f'{inf.name}#{inf.discriminator}' if inf.name != 'Unknown' else 'Unknown#0000')

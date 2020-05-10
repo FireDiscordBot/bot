@@ -36,7 +36,7 @@ class Tickets(commands.Cog, name="Tickets"):
     async def tickets_group(self, ctx):
         if ctx.invoked_subcommand:
             return
-        embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description='Here are all the ticket configuration commands')
+        embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description='Here are all the ticket configuration commands')
         embed.add_field(
             name=f'{ctx.prefix}ticket category [<category>]',
             value='Set the category were tickets are made. **Setting this enables tickets**'
@@ -87,7 +87,7 @@ class Tickets(commands.Cog, name="Tickets"):
         if not name:
             variables = '\n'.join([f'{k}: {v}' for k, v in variables.items()])
             current = self.bot.configs[ctx.guild.id].get('tickets.name')
-            embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+            embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
             embed.add_field(name='Variables', value=variables, inline=False)
             return await ctx.send(embed=embed)
         await self.bot.configs[ctx.guild.id].set('tickets.name', name)
@@ -132,7 +132,7 @@ class Tickets(commands.Cog, name="Tickets"):
         )
         embed = discord.Embed(
             title=f'Ticket opened by {ctx.author}',
-            timestamp=datetime.datetime.utcnow(),
+            timestamp=datetime.datetime.now(datetime.timezone.utc),
             color=ctx.author.color
         )
         embed.add_field(name='Subject', value=subject)
@@ -206,7 +206,7 @@ class Tickets(commands.Cog, name="Tickets"):
             string = io.StringIO('\n\n'.join(transcript))
             embed = discord.Embed(
                 title=f'Ticket {ctx.channel} was closed',
-                timestamp=datetime.datetime.utcnow(),
+                timestamp=datetime.datetime.now(datetime.timezone.utc),
                 color=author.color
             )
             embed.add_field(name='Closed by', value=f'{ctx.author} ({ctx.author.id})', inline=False)

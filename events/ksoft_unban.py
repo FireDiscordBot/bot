@@ -43,7 +43,7 @@ class KsoftUnban(commands.Cog):
                     try:
                         await guild.unban(user, reason=f'{user} was unbanned from global ban list')
                         if logch:
-                            embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow(), description=f'**{user.mention} was unbanned**')
+                            embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{user.mention} was unbanned**')
                             embed.set_author(name=str(user), icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
                             embed.add_field(name='Reason', value=f'{user} was unbanned from KSoft.Si Bans\n\nAppeal reason: {event["appeal_reason"]}', inline=False)
                             embed.set_footer(text=f"User ID: {user.id}")

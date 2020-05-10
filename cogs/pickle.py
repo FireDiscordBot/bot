@@ -98,7 +98,7 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 			)
 			watchdog = await self.bot.http.hypixel.request(route)
 			color = ctx.author.color
-			embed = discord.Embed(title="Watchdog Stats", colour=color, timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(title="Watchdog Stats", colour=color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_thumbnail(url="https://hypixel.net/attachments/cerbtrimmed-png.245674/")
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 			embed.add_field(name="Watchdog Bans in the last minute", value=watchdog['watchdog_lastMinute'], inline=False)
@@ -117,7 +117,7 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 				paginator = WrappedPaginator(prefix='', suffix='', max_size=250)
 				for entry in sbnews['items']:
 					paginator.add_line(f'[{entry["title"]}]({entry["link"]})\n{entry["text"]}\n')
-				embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+				embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 				interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 				return await interface.send_to(ctx)
 		if arg2 is None:
@@ -187,7 +187,7 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 				if arg2 is None:
 					msg = await ctx.send(f"Retrieving {discord.utils.escape_mentions(discord.utils.escape_markdown(p['displayname']))}'s info...")
 					uuid = player.UUID
-					embed = discord.Embed(title=f"{discord.utils.escape_markdown(p['displayname'])}'s Info", colour=color, timestamp=datetime.datetime.utcnow())
+					embed = discord.Embed(title=f"{discord.utils.escape_markdown(p['displayname'])}'s Info", colour=color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 					if nametag:
 						embed.set_image(url=f'attachment://imaginereadingthefilename.png')
 					embed.set_thumbnail(url=f"https://crafatar.com/avatars/{uuid}?overlay=true")
@@ -244,12 +244,12 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 				friend = friends[uuid]
 				try:
 					name = re.sub(remcolor, '', friend['display'], 0, re.IGNORECASE)
-					time = str(datetime.datetime.utcfromtimestamp(friend['time']/1000)).split('.')[0]
+					time = str(datetime.datetime.fromtimestamp(friend['time']/1000, datetime.timezone.utc)).split('.')[0]
 				except TypeError:
 					raise commands.ArgumentParsingError('Couldn\'t find that persons friends. Check the name and try again')
 					return
 				paginator.add_line(discord.utils.escape_markdown(f'{name} added on {time}'))
-			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
 			await interface.send_to(ctx)
 		elif arg2 == 'guild':
@@ -264,7 +264,7 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 			if guild['success'] != True:
 				raise commands.ArgumentParsingError('Couldn\'t find a guild. Maybe they aren\'t in one...')
 			guild = guild['guild']
-			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
 			gtagcolor = guild.get('tagColor', 'GRAY').lower().replace('_', ' ').capitalize()
 			gtag = guild.get('tag', '')
@@ -291,14 +291,14 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 			embed.add_field(name="Ranks", value='\n'.join(ranks) if ranks else 'No custom ranks', inline=False)
 			await ctx.send(embed=embed)
 			gname = guild['name']
-			paginatorembed = discord.Embed(title=f'{gname}\'s Members ({len(guild["members"])})', color=ctx.author.color, timestamp=datetime.datetime.utcnow())
+			paginatorembed = discord.Embed(title=f'{gname}\'s Members ({len(guild["members"])})', color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 			ranktags = {}
 			for rank in ranks:
 				ranktags[rank.split(' ')[0]] = rank.split(' ')[1]
 			paginator = WrappedPaginator(prefix='', suffix='', max_size=380)
 			for member in guild['members']:
 				name = re.sub(remcolor, '', member.get('displayname', member.get('name', 'Unknown Player')), 0, re.IGNORECASE)
-				joined = str(datetime.datetime.utcfromtimestamp(member['joined']/1000)).split('.')[0]
+				joined = str(datetime.datetime.fromtimestamp(member['joined']/1000, datetime.timezone.utc)).split('.')[0]
 				try:
 					ranktag = ranktags[member['rank']]
 				except KeyError:
@@ -317,7 +317,7 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 		if not ign:
 			return await ctx.error('You must provide a name!')
 		uid = await self.name_to_uuid(ign)
-		timestamp = str(datetime.datetime.utcnow().timestamp()).split('.')[0]
+		timestamp = str(datetime.datetime.now(datetime.timezone.utc).timestamp()).split('.')[0]
 		embed = discord.Embed(color=ctx.author.color)
 		embed.set_image(url=f'https://mc-heads.net/body/{uid}/{timestamp}')
 		embed.set_footer(text=f'Requested by {ctx.author}', icon_url=str(ctx.author.avatar_url_as(static_format='png', size=2048)))

@@ -213,7 +213,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		await ctx.success(f'Successfully added the rank {discord.utils.escape_mentions(role.name)}!')
 		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 		if logch:
-			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Rank Added | {role.name}', icon_url=str(ctx.guild.icon_url))
 			embed.add_field(name='User', value=ctx.author.mention, inline=False)
 			embed.add_field(name='Role', value=f'{role.mention}', inline=False)
@@ -243,7 +243,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		await ctx.success(f'Successfully removed the rank {discord.utils.escape_mentions(role.name)}!')
 		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 		if logch:
-			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Rank Removed | {role.name}', icon_url=str(ctx.guild.icon_url))
 			embed.add_field(name='User', value=ctx.author.mention, inline=False)
 			embed.add_field(name='Role', value=f'{role.mention}', inline=False)
@@ -282,14 +282,14 @@ class Premium(commands.Cog, name="Premium Commands"):
 			if roles == []:
 				return await ctx.error('Seems like there\'s no ranks set for this guild :c')
 				if someremoved > 0:
-					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+					embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 					embed.add_field(name='Error', value=f'I couldn\'t find some of the ranks. This may be due to the corresponding role being deleted.\n{someremoved} rank(s) have been deleted and may need to be re-added.')
 					await ctx.send(embed=embed)
 			else:
 				ranks = []
 				for role in roles:
 					ranks.append(f'> {role.mention} ({len(role.members)} members)')
-				embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.utcnow(), description='\n'.join(ranks))
+				embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description='\n'.join(ranks))
 				embed.set_author(name=f'{ctx.guild.name}\'s ranks', icon_url=str(ctx.guild.icon_url))
 				await ctx.send(embed=embed)
 		else:
@@ -342,7 +342,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
 			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 			if logch:
-				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
@@ -373,7 +373,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
 				logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 				if logch:
-					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.utcnow())
+					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 					embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 					embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
 					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
@@ -397,7 +397,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will no longer keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
 			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 			if logch:
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Role Persist Removed | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
@@ -519,7 +519,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				pass
 			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
 			if logch:
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.utcnow())
+				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Role Persist Removed | {after}', icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
 				embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
 				embed.add_field(name='Moderator', value=after.guild.me.mention, inline=False)
