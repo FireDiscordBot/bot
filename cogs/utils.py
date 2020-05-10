@@ -570,7 +570,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 		forwhen = datetime.datetime.fromtimestamp(r['for'], datetime.timezone.utc).strftime('%b %-d %Y @ %I:%M %p')
 		delta = humanfriendly.format_timespan(datetime.datetime.fromtimestamp(r['for'], datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc), max_units=2)
 		await self.deleteremind(ctx.author.id, r['for'])
-		return await ctx.success(f'Your reminder, {r["reminder"]} for {forwhen} ({delta} from now), has been deleted!')
+		return await ctx.success(f'Your reminder, "{r["reminder"]}" for {forwhen} ({delta} from now), has been deleted!')
 
 	@commands.group(name='tags', aliases=['tag', 'dtag'], invoke_without_command=True)
 	@commands.guild_only()
