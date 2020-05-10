@@ -214,7 +214,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		solutions = []
 		for err, sol in self.solutions.items():
 			if err in log:
-				solutions.append(sol)
+				solutions.append(f'- {sol}')
 		if not solutions:
 			return ''
 		return 'Possible solutions:\n' + '\n'.join(solutions)
