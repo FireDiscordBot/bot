@@ -98,8 +98,6 @@ class UserInfo(commands.Cog):
             f'**Mention:** {user.mention}',
             f'**Created:** {created} ({cdelta})'
         ]
-        if user.nick:
-            info.append(f'**Nickname:** {user.nick}')
         if isinstance(user, discord.Member):
             joined = user.joined_at.strftime('%b %-d %Y @ %I:%M %p')
             jdelta = humanfriendly.format_timespan(
@@ -112,6 +110,8 @@ class UserInfo(commands.Cog):
                 info.append(f'**Joined:** {joined} ({jdelta})')
             joinpos = sorted(ctx.guild.members, key=lambda m: m.joined_at or m.created_at).index(user) + 1
             info.append(f'**Join Position:** {joinpos}')
+            if user.nick:
+                info.append(f'**Nickname:** {user.nick}')
         return info
 
     def shorten(self, items: list, max: int = 1000, sep: str = ', '):
@@ -165,11 +165,12 @@ class UserInfo(commands.Cog):
                     key=lambda r: r.position
                 ) if not r.is_default()
             ]
-            embed.add_field(
-                name=f'» Roles [{len(uinfo.roles) - 1}]',
-                value=self.shorten(roles, sep=' - '),
-                inline=False
-            )
+            if roles:
+                embed.add_field(
+                    name=f'» Roles [{len(uinfo.roles) - 1}]',
+                    value=self.shorten(roles, sep=' - '),
+                    inline=False
+                )
             if not uinfo.guild_permissions.administrator:
                 perms = []
                 for perm, value in uinfo.guild_permissions:
