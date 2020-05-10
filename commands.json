@@ -367,7 +367,7 @@
             "user": {
                 "Description": "Get a general overview of a user.",
                 "Usage": "{prefix}user <user>",
-                "Aliases": "userinfo, user info, infouser, info user, whois, u"
+                "Aliases": "userinfo, user info, infouser, whois, u"
             },
             "role": {
                 "Description": "Get a general overview of a role",
@@ -466,6 +466,16 @@
                 "Description": "Set a reminder and get reminded because that's what reminders are for. (Uses the same time format as tempmutes, DAYSd HOURSh etc.)",
                 "Usage": "{prefix}remind <time + reminder>",
                 "Aliases": "remindme, reminder"
+            },
+            "reminders": {
+                "Description": "List all reminders you have set",
+                "Usage": "{prefix}reminders",
+                "Aliases": null
+            },
+            "delremind": {
+                "Description": "Delete a reminder using the index from the reminders command",
+                "Usage": "{prefix}delremind <reminder index>",
+                "Aliases": "deleteremind, delreminder, deletereminder"
             },
             "http.cat": {
                 "Description": "Got a HTTP Error Code? My cat knows what it means.",
