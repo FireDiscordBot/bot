@@ -33,7 +33,7 @@ class Chatwatch(commands.Cog):
         if isinstance(event, MessageResponseEvent):
             data = event.data
             guild = self.bot.get_guild(int(data['message']['guild']))
-            channel = guild.get_channel(int(data['message']['channel'])
+            channel = guild.get_channel(int(data['message']['channel']))
             if not (guild or channel):
                 return  # HOW
             chance = self.bot.configs[guild.id].get('mod.nospam')
@@ -78,7 +78,7 @@ class Chatwatch(commands.Cog):
         if chance < 65:
             return await ctx.error(f'You must set the threshold (% chance of spam to delete) to at least 65 or 0 to disable')
         await ctx.config.set('mod.nospam', chance)
-        return await ctx.success(f'Successfully enabled ChatWatch spam prevention.'
+        return await ctx.success(f'Successfully enabled ChatWatch spam prevention. '
                                  f'Messages with a chance of spam greather than or equal to {chance}% will be deleted')
 
 
