@@ -16,8 +16,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from fire.filters.invite import findinvite
+from fire.exceptions import PushError
 from discord.ext import commands
 from fire.push import pushover
+from fire import slack
 import datetime
 import discord
 import typing
