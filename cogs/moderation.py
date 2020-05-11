@@ -735,7 +735,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			except Exception:
 				pass
 
-	@commands.command(description="Mute a user/role in the current channel.")
+	@commands.command(description="Mute a user/role in the current channel.", aliases=['blobk'])
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def block(self, ctx, blocked: typing.Union[StaffCheck, Role] = None, *, reason = 'No Reason Provided.'):
@@ -779,7 +779,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			except Exception:
 				pass
 
-	@commands.command(description="Unmute a user/role who has been blocked in the current channel.")
+	@commands.command(description="Unmute a user/role who has been blocked in the current channel.", aliases=['unblobk'])
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def unblock(self, ctx, blocked: typing.Union[StaffCheck, Role] = None, *, reason = 'No Reason Provided.'):
