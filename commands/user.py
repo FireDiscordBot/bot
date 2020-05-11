@@ -128,9 +128,7 @@ class UserInfo(commands.Cog):
     @commands.command(
         aliases=[
             'userinfo',
-            'user info',
             'infouser',
-            'info user',
             'whois',
             'u'
         ],

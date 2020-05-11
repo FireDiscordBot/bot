@@ -387,7 +387,7 @@
             "user": {
                 "Description": "Get a general overview of a user.",
                 "Usage": "{prefix}user <user>",
-                "Aliases": "userinfo, user info, infouser, whois, u"
+                "Aliases": "userinfo, info user, infouser, whois, u"
             },
             "role": {
                 "Description": "Get a general overview of a role",

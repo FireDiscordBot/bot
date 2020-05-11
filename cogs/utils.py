@@ -394,6 +394,10 @@ class Utils(commands.Cog, name='Utility Commands'):
 		embed.add_field(name='Info Commands', value=f'> {ctx.prefix}info guild | Get\'s info about the guild\n> {ctx.prefix}info user [<user>] | Get\'s info about you or another user\n> {ctx.prefix}info role [<role>] | Get\'s info about your top role or another role', inline=False)
 		await ctx.send(embed=embed)
 
+	@infogroup.command(name='user')
+	async def infouser(self, ctx, uinfo: typing.Union[Member, UserWithFallback] = None):
+		return await ctx.invoke(self.bot.get_command('user'), uinfo=uinfo)
+
 	@infogroup.command(name='guild', description='Check out the guild\'s info', aliases=['server'])
 	async def infoguild(self, ctx, gid: int = None):
 		if gid and gid != ctx.guild.id:
