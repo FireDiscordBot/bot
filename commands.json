@@ -3,6 +3,11 @@
         "id": 0,
         "name": "Main",
         "commands": {
+            "help": {
+                "Description": "Shows you some useful links, including this page",
+                "Usage": "{prefix}help",
+                "Aliases": null
+            },
             "ping": {
                 "Description": "Shows you my ping to discord's servers",
                 "Usage": "{prefix}ping",
@@ -28,6 +33,11 @@
                 "Usage": "{prefix}oss",
                 "Aliases": "opensource"
             },
+            "public": {
+                "Description": "Set your server to public (see command below)",
+                "Usage": "{prefix}public",
+                "Aliases": null
+            },
             "discover": {
                 "Description": "Links to Fire's public servers page",
                 "Usage": "{prefix}discover",
@@ -36,6 +46,11 @@
             "rpc": {
                 "Description": "View someone's rich presence",
                 "Usage": "{prefix}rpc [<member>]",
+                "Aliases": null
+            },
+            "socketstats": {
+                "Description": "View Fire's websocket event stats",
+                "Usage": "{prefix}socketstats",
                 "Aliases": null
             }
         }
@@ -234,7 +249,7 @@
             "log": {
                 "Description": "Set the channel(s) for logging",
                 "Usage": "{prefix}log <type> <channel>",
-                "Aliases": "logging, logs"
+                "Aliases": "logging, logs, setlogs"
             },
             "description": {
                 "Description": "Set the description for the server that shows in Vanity URLs",
@@ -357,6 +372,11 @@
                 "Description": "Remove all roles from a user (The role must be below Fire's highest role to be removed)",
                 "Usage": "{prefix}derank <user> [<reason>]",
                 "Aliases": "dethrone"
+            },
+            "antispam": {
+                "Description": "Enable ChatWatch spam prevention",
+                "Usage": "{prefix}antispam [<chance of spam>]",
+                "Aliases": null
             }
         }
     },
