@@ -56,7 +56,7 @@ class Context(commands.Context):
 
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):
         if content:
-            content = str(content).replace('@everyone', u'@\u200beveryone').replace('@here', u'@\u200bhere')
+            content = str(content).replace('@everyone', u'@\u200beveryone').replace('@here', u'@\u200bhere').replace('<@&', u'<@\u200b&')
         if isinstance(content, discord.Embed):
             embed = content.copy()
             content = None
