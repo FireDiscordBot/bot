@@ -38,7 +38,7 @@ class RichPresence(commands.Cog):
         embed.add_field(name='Artists', value=', '.join(activity.artists), inline=False)
         embed.add_field(name='Album', value=activity.album, inline=False)
         duration = humanfriendly.format_timespan(activity.duration)
-        now = datetime.datetime.now(datetime.timezone.utc)
+        now = datetime.datetime.utcnow()
         elapsed = humanfriendly.format_timespan(now - activity.start)
         left = humanfriendly.format_timespan(activity.end - now)
         if 'day' in left:
@@ -100,7 +100,7 @@ class RichPresence(commands.Cog):
         else:
             embed.set_author(name=f'{member}\'s Game Info')
         embed.add_field(name='Game', value=activity.name, inline=False)
-        now = datetime.datetime.now(datetime.timezone.utc)
+        now = datetime.datetime.utcnow()
         elapsed = None
         if activity.start:
             elapsed = humanfriendly.format_timespan(now - activity.start)
