@@ -31,7 +31,7 @@ class Public(commands.Cog):
         current = self.bot.configs[ctx.guild.id].get('utils.public')
         vanitys = [k for k, v in self.bot.vanity_urls.items() if v['gid'] == ctx.guild.id]
         if not vanitys:
-            return await ctx.error(f'You must set a vanity url before your guild can be public')
+            return await ctx.error(f'You must set a vanity url with `{ctx.prefix}vanityurl` before your guild can be public')
         current = await self.bot.configs[ctx.guild.id].set('utils.public', not current)
         if current:
             await ctx.success(f'Your guild is now public & visible on <https://fire.gaminggeek.dev/discover>.'
