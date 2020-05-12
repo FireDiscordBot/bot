@@ -377,6 +377,21 @@
                 "Description": "Enable ChatWatch spam prevention",
                 "Usage": "{prefix}antispam [<chance of spam>]",
                 "Aliases": null
+            },
+            "badname": {
+                "Description": "Change the name used for auto dehoist/decancer",
+                "Usage": "{prefix}badname [<new name>]",
+                "Aliases": null
+            },
+            "autodehoist": {
+                "Description": "Toggle renaming those with hoisted names",
+                "Usage": "{prefix}autodehoist",
+                "Aliases": null
+            },
+            "autodecancer": {
+                "Description": "Toggle renaming those with \"cancerous\" (non-ascii) names",
+                "Usage": "{prefix}autodecancer",
+                "Aliases": null
             }
         }
     },
