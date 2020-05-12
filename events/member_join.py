@@ -17,9 +17,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from discord.ext import commands
+from random import randint
+import humanfriendly
 import datetime
 import discord
-import traceback
 
 
 class MemberJoin(commands.Cog):
