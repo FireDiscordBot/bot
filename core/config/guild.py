@@ -300,20 +300,19 @@ class Config:
     async def load(self):
         if isinstance(self._guild, int):
             self._guild = self._bot.get_guild(self._guild)
-        query = 'SELECT * FROM config WHERE gid=$1;'
+        query = 'SELECT * FROM guildconfig WHERE gid=$1;'
         conf = await self._db.fetch(query, self._guild.id)
         if not conf:
             self._data = await self.init()
-            return
-        self._data = json.loads(conf[0]['data'])
-        self.loaded = True
-        # self._bot.logger.info(f'$GREENLoaded config for $CYAN{self._guild}')
-        # this would be spammy boi every time ready is dispatched
+            self.loaded = True
+        else:
+            self._data = json.loads(conf[0]['data'])
+            self.loaded = True
 
     async def save(self):
         con = await self._db.acquire()
         async with con.transaction():
-            query = 'UPDATE config SET data = $1 WHERE gid = $2;'
+            query = 'UPDATE guildconfig SET data = $1 WHERE gid = $2;'
             await self._db.execute(query, json.dumps(self._data), self._guild.id)
         await self._db.release(con)
         self._bot.logger.info(f'$GREENSaved config for $CYAN{self._guild}')
@@ -321,7 +320,7 @@ class Config:
     async def init(self):
         con = await self._db.acquire()
         async with con.transaction():
-            query = 'INSERT INTO config (\"gid\", \"data\") VALUES ($1, $2);'
+            query = 'INSERT INTO guildconfig (\"gid\", \"data\") VALUES ($1, $2);'
             await self._db.execute(query, self._guild.id, json.dumps(self.get_default_config()))
         await self._db.release(con)
         self._bot.logger.info(f'$GREENInitiated config for $CYAN{self._guild}')
@@ -332,3 +331,9 @@ class Config:
         for opt in self.options:
             conf[opt] = self.options[opt]['default']
         return conf
+
+    def __repr__(self):
+        return f'<GuildConfig guild={self._guild} loaded={self.loaded}>'
+
+    def __str__(self):
+        return f'<GuildConfig guild={self._guild} loaded={self.loaded}>'

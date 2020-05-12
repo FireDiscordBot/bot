@@ -29,9 +29,9 @@ class Description(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def description(self, ctx, *, desc: str = None):
         if not desc:
-            await self.bot.configs[ctx.guild.id].set('main.description', '')
+            await ctx.config.set('main.description', '')
             return await ctx.success(f'Successfully reset guild description!')
-        await self.bot.configs[ctx.guild.id].set('main.description', desc)
+        await ctx.config.set('main.description', desc)
         return await ctx.success(f'Successfully set guild description!')
 
 

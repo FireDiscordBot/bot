@@ -63,7 +63,7 @@ class Debug(commands.Cog):
                                f'This may cause issues with this command')
             else:
                 detail.append(f'{self.check} Fire has all common permissions')
-            disabled = ctx.bot.configs[ctx.guild.id].get('disabled.commands')
+            disabled = ctx.config.get('disabled.commands')
             if cmd.name in disabled:
                 if ctx.author.permissions_in(ctx.channel).manage_messages:
                     detail.append(f'{self.check} Command is disabled but you are bypassed')

@@ -16,6 +16,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from discord.ext import commands
+from typing import Optional
+from core.fire import Fire
 import datetime
 import discord
 import random
@@ -24,6 +26,7 @@ import random
 class Context(commands.Context):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.bot: Optional[Fire] = self.bot
         self.colors = [
             discord.Color.blue(),
             discord.Color.blurple(),
@@ -43,7 +46,8 @@ class Context(commands.Context):
             discord.Color.red(),
             discord.Color.teal()
         ]
-        self.config = self.bot.configs[self.guild.id] if self.guild else None
+        self.config = self.bot.get_config(self.guild.id) if self.guild else None
+        self.uconfig = self.bot.get_config(self.author)
 
     async def success(self, message: str):
         await self.send(f'<:check:674359197378281472> {message}')
@@ -60,10 +64,10 @@ class Context(commands.Context):
         if isinstance(content, discord.Embed):
             embed = content.copy()
             content = None
-        if not content and random.randint(0, 20) == 10 and self.has_override('ab27d28671a645a9ba40187ddd111488'):
+        if not content and random.randint(0, 101) < 10 and self.uconfig.get('utils.tips'):
             content = '**PROTIP:** ' + random.choice(self.bot.tips)
         if isinstance(embed, discord.Embed) and embed.color in [discord.Embed.Empty, discord.Color.default()]:
-            embed.color = random.choice(self.colors)
+            embed.color = random.choice(self.colors)  # TODO Add ability for user to set default color
         if not (file or files):
             resp = discord.utils.get(self.bot.cached_messages, id=self.bot.cmdresp.get(self.message.id, 0))
             edited = self.message.edited_at
@@ -87,7 +91,7 @@ class Context(commands.Context):
         build = self.bot.overrides.get(build, {})
         return self.author.id in build.get('active', [])
 
-    # Unfinished permissions system
+    # Unfinished permissions system (this will actually come soon as I know how to do it now)
 
     # def has_permission(self, permission: str):
     #     if permission in self.bot.permissions.get(self.guild.id, {}).get('global', {})['denied']:

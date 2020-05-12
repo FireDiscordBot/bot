@@ -28,10 +28,10 @@ class BadName(commands.Cog):
     @commands.command(name='badname', description='Change the name used for auto dehoist/decancer')
     @commands.has_permissions(manage_nicknames=True)
     async def badnamecmd(self, ctx, *, newname: str = None):
-        current = self.bot.configs[ctx.guild.id].get('utils.badname')
+        current = ctx.config.get('utils.badname')
         if newname and newname == current:
             return await ctx.success(f'I did absolutely nothing because that\'s already set as the "bad name"')
-        current = await self.bot.configs[ctx.guild.id].set('utils.badname', newname)
+        current = await ctx.config.set('utils.badname', newname)
         if current:
             await ctx.success(f'I have set the "bad name" to {newname}. This will **not** rename existing users')
         else:

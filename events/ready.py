@@ -17,7 +17,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from discord.ext import commands
-from core.config import Config
+from core.config import UserConfig
 import datetime
 import discord
 import functools
@@ -41,8 +41,15 @@ class Ready(commands.Cog):
         self.bot.logger.info(f"$GREENUsers: {len(self.bot.users)}")
         self.bot.logger.info("$GREEN-------------------------")
         for c in self.bot.configs.values():
-            if not c.loaded:
+            if not c.loaded and hasattr(c, '_guild'):
                 await c.load()  # Load any stragglers that (for whatever reason) did not load on GUILD_CREATE
+        users = await self.bot.db.fetch('SELECT * FROM userconfig;')
+        for u in users:
+            if u['uid'] not in self.bot.configs:
+                self.bot.configs[u['uid']] = UserConfig(u['uid'], bot=self.bot, db=self.bot.db)
+            conf = self.bot.get_config(u['uid'])
+            if not conf.loaded:
+                await conf.load()
 
 
 def setup(bot):

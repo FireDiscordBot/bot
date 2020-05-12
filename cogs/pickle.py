@@ -199,21 +199,21 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 					embed.add_field(name="Chat Channel", value=channel, inline=True)
 					embed.add_field(name="Level", value=level, inline=True)
 					embed.add_field(name="Karma", value=format(p.get('karma', 0), ',d'), inline=True)
-					if 'twitter' not in self.bot.configs[ctx.guild.id].get('mod.linkfilter'):
+					if 'twitter' not in ctx.config.get('mod.linkfilter'):
 						twitter = p.get('socialMedia', {}).get('TWITTER', 'Not Set')
 					else:
 						twitter = 'Hidden'
-					if 'youtube' not in self.bot.configs[ctx.guild.id].get('mod.linkfilter'):
+					if 'youtube' not in ctx.config.get('mod.linkfilter'):
 						yt = p.get('socialMedia', {}).get('links', {}).get('YOUTUBE', 'Not Set')
 					else:
 						yt = 'Hidden'
 					insta = p.get('socialMedia', {}).get('INSTAGRAM', 'Not Set')
-					if 'twitch' not in self.bot.configs[ctx.guild.id].get('mod.linkfilter'):
+					if 'twitch' not in ctx.config.get('mod.linkfilter'):
 						twitch = p.get('socialMedia', {}).get('TWITCH', 'Not Set')
 					else:
 						twitch = 'Hidden'
 					beam = p.get('socialMedia', {}).get('BEAM', 'Not Set')
-					if 'discord' not in self.bot.configs[ctx.guild.id].get('mod.linkfilter'):
+					if 'discord' not in ctx.config.get('mod.linkfilter'):
 						dscrd = p.get('socialMedia', {}).get('links', {}).get('DISCORD', 'Not Set')
 					else:
 						dscrd = 'Hidden'

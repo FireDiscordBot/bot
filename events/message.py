@@ -103,7 +103,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             return
         embeds = [str(e.to_dict()) for e in message.embeds]
         tokens = re.findall(self.tokenregex, str(message.system_content) + str(embeds), re.MULTILINE)
-        config = self.bot.configs[message.guild.id]
+        config = self.bot.get_config(message.guild)
         if tokens and not self.bot.dev and config.get('utils.tokendetect'):
             try:
                 await self.token_gist(tokens, message)
@@ -124,7 +124,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             ctx = await self.bot.get_context(message)
             alt_ctx = await copy_context_with(
                 ctx,
-                content=self.bot.configs[message.guild.id].get('main.prefix') + f'remind {content}'
+                content=self.bot.get_config(message.guild).get('main.prefix') + f'remind {content}'
             )
             if alt_ctx.valid:
                 await alt_ctx.command.invoke(alt_ctx)
@@ -156,7 +156,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             await self.safe_exc(filters.handle_twitch, message)
             await self.safe_exc(filters.handle_twitter, message)
         if f'{message.content.strip()} ' in commands.when_mentioned(self.bot, message):
-            prefix = self.bot.configs[message.guild.id].get('main.prefix')
+            prefix = self.bot.get_config(message.guild).get('main.prefix')
             await message.channel.send(f'Hey! My prefix here is `{prefix}` or you can mention me :)')
 
 def setup(bot):

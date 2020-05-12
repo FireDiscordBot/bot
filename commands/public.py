@@ -28,20 +28,20 @@ class Public(commands.Cog):
     @commands.command(name='public', description='Makes the guild visible on https://fire.gaminggeek.dev/discover')
     @commands.has_permissions(manage_guild=True)
     async def publiccmd(self, ctx):
-        current = self.bot.configs[ctx.guild.id].get('utils.public')
+        current = ctx.config.get('utils.public')
         vanitys = [k for k, v in self.bot.vanity_urls.items() if v['gid'] == ctx.guild.id]
         if not vanitys:
             return await ctx.error(f'You must set a vanity url with `{ctx.prefix}vanityurl` before your guild can be public')
-        current = await self.bot.configs[ctx.guild.id].set('utils.public', not current)
+        current = await ctx.config.set('utils.public', not current)
         if current:
             await ctx.success(f'Your guild is now public & visible on <https://fire.gaminggeek.dev/discover>.'
                                      f'\nPeople will be able to use your guild\'s vanity url (<https://inv.wtf/{vanitys[0]}>) to join')
-            log = self.bot.configs[ctx.guild.id].get('log.action')
+            log = ctx.config.get('log.action')
             if log:
                 await log.send(f'<:operational:685538400639385649> Ths server is now public and will appear on Fire\'s public server list')
         else:
             await ctx.success(f'Your guild is no longer public and will no longer show on the Fire website')
-            log = self.bot.configs[ctx.guild.id].get('log.action')
+            log = ctx.config.get('log.action')
             if log:
                 await log.send(f'<:major_outage:685538400639385706> Ths server was manually removed from Fire\'s public server list by {ctx.author}')
 

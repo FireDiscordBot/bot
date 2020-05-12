@@ -26,7 +26,7 @@ class GuildChannelDelete(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_channel_delete(self, channel):
-        logch = self.bot.configs[channel.guild.id].get('log.action')
+        logch = self.bot.get_config(channel.guild).get('log.action')
         if logch:
             deletedby = None
             if channel.guild.me.guild_permissions.view_audit_log:

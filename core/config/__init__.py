@@ -17,7 +17,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from .constants import ConfigOpt
-from .config import Config
+from .guild import Config as GuildConfig
+from .user import Config as UserConfig
 from .errors import (
     TypeMismatchError,
     InvalidOptionError,

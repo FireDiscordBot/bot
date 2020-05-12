@@ -34,8 +34,8 @@ class KsoftBan(commands.Cog):
             return
         self.bot.logger.warn(f'$CYAN{user} ({user.id}) $YELLOWwas banned on KSoft for $CYAN{event["reason"]} $YELLOWby $CYAN{event["moderator_id"]}$YELLOW. Proof: $CYAN{event["proof"]}')
         for guild in self.bot.guilds:
-            if self.bot.configs[guild.id].get('mod.globalbans'):
-                logch = self.bot.configs[guild.id].get('log.moderation')
+            if self.bot.get_config(guild).get('mod.globalbans'):
+                logch = self.bot.get_config(guild).get('log.moderation')
                 member = guild.get_member(user.id)
                 if member:
                     try:

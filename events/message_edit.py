@@ -41,7 +41,7 @@ class MessageEdit(commands.Cog):
             return await self.bot.invoke(ctx)
         if not after.guild:
             return
-        logch = self.bot.configs[after.guild.id].get('log.action')
+        logch = self.bot.get_config(after.guild).get('log.action')
         if after.channel.is_news():
             if before.flags.crossposted != after.flags.crossposted:
                 if logch:
@@ -57,7 +57,7 @@ class MessageEdit(commands.Cog):
         if before.content == after.content or after.author.bot:
             return
         message = after
-        excluded = self.bot.configs[message.guild.id].get('excluded.filter')
+        excluded = self.bot.get_config(message.guild).get('excluded.filter')
         roleids = [r.id for r in message.author.roles]
         if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
             filters = self.bot.get_cog('Filters')

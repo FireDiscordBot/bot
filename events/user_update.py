@@ -17,7 +17,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from discord.ext import commands
-from core.config import Config
 import datetime
 import discord
 import functools
@@ -31,7 +30,7 @@ class UserUpdate(commands.Cog):
     @commands.Cog.listener()
     async def on_user_update(self, before, after):
         for guild in self.bot.guilds:
-            conf = self.bot.configs[guild.id]
+            conf = self.bot.get_config(guild)
             badname = conf.get('utils.badname') or f'John Doe {after.discriminator}'
             if before.name != after.name:
                 try:

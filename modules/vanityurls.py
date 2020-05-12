@@ -81,7 +81,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         guild = self.bot.get_guild(vanity['gid'])
         if not guild:
             return
-        config = self.bot.configs[guild.id]
+        config = self.bot.get_config(guild)
         if config.get('utils.public') and not self.get(guild.id):
             await config.set('utils.public', False)
             log = config.get('log.action')
@@ -201,7 +201,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
 
     async def current_embed(self, ctx, current):
         gmembers = f'⭘ {len(ctx.guild.members):,d} Members'
-        desc = self.bot.configs[ctx.guild.id].get('main.description') or f'Check out {ctx.guild} on Discord'
+        desc = ctx.config.get('main.description') or f'Check out {ctx.guild} on Discord'
         desc = f'[{ctx.guild}]({current.get("url", "https://inv.wtf/")})\n{desc}\n\n{gmembers}'
         embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=desc)
         if not ctx.guild.splash_url and not ctx.guild.banner_url:

@@ -29,8 +29,8 @@ class AutoDecancer(commands.Cog):
     @commands.has_permissions(manage_nicknames=True)
     @commands.bot_has_permissions(manage_nicknames=True)
     async def autodecancercmd(self, ctx):
-        current = self.bot.configs[ctx.guild.id].get('mod.autodecancer')
-        current = await self.bot.configs[ctx.guild.id].set('mod.autodecancer', not current)
+        current = ctx.config.get('mod.autodecancer')
+        current = await ctx.config.set('mod.autodecancer', not current)
         if current:
             await ctx.success(f'Enabled autodecancer. **New** users with "cancerous" (non-ascii) names will be renamed')
         else:

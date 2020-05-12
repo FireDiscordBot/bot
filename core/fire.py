@@ -23,7 +23,7 @@ from fire.http import HTTPClient, Route
 from aioinflux import InfluxDBClient
 from sentry_sdk import push_scope
 from .context import Context
-from .config import Config
+from .config import GuildConfig, UserConfig
 import functools
 import traceback
 import sentry_sdk
@@ -45,7 +45,7 @@ class Fire(commands.Bot):
 
         # COMMON ATTRIBUTES
         self.config: dict = json.load(open('config.json', 'r'))
-        self.configs = {}
+        self.configs: typing.Dict[int, typing.Union[GuildConfig, UserConfig]] = {}
         self.overrides: dict = json.load(open('overrides.json', 'r'))
         self.override_save.start()
         self.tips = json.load(open('tips.json', 'r'))
@@ -144,6 +144,27 @@ class Fire(commands.Bot):
         if not found:
             return None
         return found[0]
+
+    def get_config(
+        self,
+        obj: typing.Union[
+            discord.Guild,
+            discord.Member,
+            discord.User,
+            int
+        ]
+    ) -> typing.Union[GuildConfig, UserConfig]:
+        if hasattr(obj, 'id') and obj.id in self.configs:
+            return self.configs[obj]
+        if isinstance(obj, int) and obj in self.configs:
+            return self.configs[obj]
+        if isinstance(obj, discord.Guild) or isinstance(obj, int) and self.get_guild(obj):
+            conf = self.configs[obj.id if hasattr(obj, 'id') else obj] = GuildConfig(obj, bot=self, db=self.db)
+            self.loop.create_task(conf.load())
+            return conf
+        if isinstance(obj, (discord.User, discord.Member)) or isinstance(obj, int) and self.get_user(obj):
+            conf = self.configs[obj.id if hasattr(obj, 'id') else obj] = UserConfig(obj, bot=self, db=self.db)
+            return conf  # Attempting to set an option in UserConfig will load/init the config if not already
 
     def isadmin(self, user: typing.Union[discord.User, discord.Member]) -> bool:
         if str(user.id) not in self.config['admins']:

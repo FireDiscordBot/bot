@@ -27,7 +27,7 @@ from core.influx import (
     Memory
 )
 from discord.ext import commands, tasks
-from core.config import Config
+from core.config import GuildConfig
 import traceback
 import aiofiles
 import datetime
@@ -61,9 +61,9 @@ class Stats(commands.Cog):
         if t == 'GUILD_CREATE':
             guild = int(payload['d']['id'])
             if guild not in self.bot.configs:
-                self.bot.configs[guild] = Config(guild, bot=self.bot, db=self.bot.db)
-            if not self.bot.configs[guild].loaded:
-                await self.bot.configs[guild].load()
+                self.bot.configs[guild] = GuildConfig(guild, bot=self.bot, db=self.bot.db)
+            if not self.bot.get_config(guild).loaded:
+                await self.bot.get_config(guild).load()
         if not t:
             if payload['op'] == 11:
                 t = 'HEARTBEAT'

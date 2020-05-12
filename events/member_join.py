@@ -43,7 +43,7 @@ class MemberJoin(commands.Cog):
                         usedinvite = inv
             if not usedinvite and 'PUBLIC' in member.guild.features:
                 usedinvite = 'Joined without an invite (Lurking/Server Discovery)'
-        conf = self.bot.configs[member.guild.id]
+        conf = self.bot.get_config(member.guild)
         logch = conf.get('log.moderation')
         if conf.get('mod.globalbans'):
             try:

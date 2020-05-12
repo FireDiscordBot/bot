@@ -59,7 +59,7 @@ class Tickets(commands.Cog, name="Tickets"):
     @tickets_group.command(name='category', description='Set the category where tickets are made')
     @commands.has_permissions(manage_channels=True)
     async def tickets_category(self, ctx, category: discord.CategoryChannel = None):
-        await self.bot.configs[ctx.guild.id].set('tickets.parent', category)
+        await ctx.config.set('tickets.parent', category)
         if not category:
             return await ctx.success(f'Successfully disabled tickets.')
         return await ctx.success(f'Successfully enabled tickets and set the category to {category}.')
@@ -69,7 +69,7 @@ class Tickets(commands.Cog, name="Tickets"):
     async def tickets_limit(self, ctx, limit: int = 0):
         if limit < 0 or limit > 20:
             return await ctx.error('Invalid limit')
-        await self.bot.configs[ctx.guild.id].set('tickets.limit', limit)
+        await ctx.config.set('tickets.limit', limit)
         return await ctx.success(f'Successfully set the ticket limit to {limit}')
 
     @tickets_group.command(name='name', description='Set the name for tickets')
@@ -78,7 +78,7 @@ class Tickets(commands.Cog, name="Tickets"):
         if len(name) > 50:
             return await ctx.error('Name is too long, it must be 50 chars or less')
         variables = {
-            '{increment}': self.bot.configs[ctx.guild.id].get('tickets.increment'),
+            '{increment}': ctx.config.get('tickets.increment'),
             '{name}': ctx.author.name,
             '{id}': ctx.author.id,
             '{word}': random.choice(self.words),
@@ -86,11 +86,11 @@ class Tickets(commands.Cog, name="Tickets"):
         }
         if not name:
             variables = '\n'.join([f'{k}: {v}' for k, v in variables.items()])
-            current = self.bot.configs[ctx.guild.id].get('tickets.name')
+            current = ctx.config.get('tickets.name')
             embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
             embed.add_field(name='Variables', value=variables, inline=False)
             return await ctx.send(embed=embed)
-        await self.bot.configs[ctx.guild.id].set('tickets.name', name)
+        await ctx.config.set('tickets.name', name)
         fname = name
         for k, v in variables.items():
             fname = fname.replace(k, str(v))
@@ -100,7 +100,7 @@ class Tickets(commands.Cog, name="Tickets"):
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True)
     async def tickets_new(self, ctx, *, subject: str = "No subject given"):
         creating = await ctx.send('Creating your ticket...')
-        config = self.bot.configs[ctx.guild.id]
+        config = ctx.config
         parent = config.get('tickets.parent')
         limit = config.get('tickets.limit')
         if not parent:
@@ -146,7 +146,7 @@ class Tickets(commands.Cog, name="Tickets"):
     @commands.command(name='add', description='Add a user to the current ticket')
     @commands.bot_has_permissions(manage_roles=True)
     async def tickets_add(self, ctx, *, user: Member):
-        tchannels = self.bot.configs[ctx.guild.id].get('tickets.channels')
+        tchannels = ctx.config.get('tickets.channels')
         if ctx.channel not in tchannels:
             return await ctx.error('This command can only be ran in ticket channels!')
         if str(ctx.author.id) not in ctx.channel.topic and not ctx.author.permissions_in(ctx.channel).manage_channels:
@@ -157,7 +157,7 @@ class Tickets(commands.Cog, name="Tickets"):
     @commands.command(name='remove', description='Remove a user from the current ticket')
     @commands.bot_has_permissions(manage_roles=True)
     async def tickets_remove(self, ctx, *, user: Member):
-        tchannels = self.bot.configs[ctx.guild.id].get('tickets.channels')
+        tchannels = ctx.config.get('tickets.channels')
         if ctx.channel not in tchannels:
             return await ctx.error('This command can only be ran in ticket channels!')
         if str(ctx.author.id) not in ctx.channel.topic and not ctx.author.permissions_in(ctx.channel).manage_channels:
@@ -174,7 +174,7 @@ class Tickets(commands.Cog, name="Tickets"):
     @commands.command(name='close', description='Closes a ticket, uploads the transcript to action logs channel and sends to the ticket author')
     @commands.bot_has_permissions(manage_roles=True)
     async def tickets_close(self, ctx, *, reason: str = "No Reason Provided"):
-        config = self.bot.configs[ctx.guild.id]
+        config = ctx.config
         tchannels = config.get('tickets.channels')
         if ctx.channel not in tchannels:
             return await ctx.error('This command can only be ran in ticket channels!')

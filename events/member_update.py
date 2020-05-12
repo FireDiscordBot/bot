@@ -30,7 +30,7 @@ class MemberUpdate(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        conf = self.bot.configs[after.guild.id]
+        conf = self.bot.get_config(after.guild)
         if before.nick != after.nick:
             badname = conf.get('utils.badname') or f'John Doe {after.discriminator}'
             if after.nick is not None and badname in after.nick:

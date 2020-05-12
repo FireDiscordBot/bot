@@ -104,7 +104,7 @@ class StaffCheckNoMessage(commands.Converter):
 class MuteCheck(commands.Converter):
 	async def convert(self, ctx, argument):
 		argument = await Member().convert(ctx, argument)
-		muted = ctx.bot.configs[ctx.guild.id].get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
+		muted = ctx.config.get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
 		if muted in argument.roles:
 			return argument
 		else:
@@ -161,7 +161,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					continue
 				user = guild.get_member(mute['uid'])
 				until = mute['until'] if 'until' in mute else False
-				muted = self.bot.configs[guild.id].get('mod.mutedrole') or discord.utils.get(guild.roles, name="Muted")
+				muted = self.bot.get_config(guild).get('mod.mutedrole') or discord.utils.get(guild.roles, name="Muted")
 				if guild and user and muted:
 					if muted in user.roles:
 						if until:
@@ -177,7 +177,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 										self.mutes[user.id] = None
 									except KeyError:
 										pass
-									logch = self.bot.configs[guild.id].get('log.moderation')
+									logch = self.bot.get_config(guild).get('log.moderation')
 									if logch:
 										embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 										embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
@@ -238,7 +238,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 						del self.mutes[mute['gid']]
 						continue
 					user = guild.get_member(mute['uid'])
-					muted = self.bot.configs[guild.id].get('mod.mutedrole') or discord.utils.get(guild.roles, name="Muted")
+					muted = self.bot.get_config(guild).get('mod.mutedrole') or discord.utils.get(guild.roles, name="Muted")
 					if guild and user and muted:
 						if muted in user.roles:
 							removefail = False
@@ -246,7 +246,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 								await user.remove_roles(muted, reason='Times up.')
 							except discord.HTTPException as e:
 								removefail = str(e)
-							logch = self.bot.configs[guild.id].get('log.moderation')
+							logch = self.bot.get_config(guild).get('log.moderation')
 							if logch:
 								embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 								embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
@@ -275,7 +275,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			for mute in mutes:
 				mute = self.mutes[guild.id][mute]
 				if mute['uid'] == member.id:
-					muted = self.bot.configs[guild.id].get('mod.mutedrole') or discord.utils.get(guild.roles, name="Muted")
+					muted = self.bot.get_config(guild).get('mod.mutedrole') or discord.utils.get(guild.roles, name="Muted")
 					if muted:
 						try:
 							await member.add_roles(muted, reason='Muted.')
@@ -285,7 +285,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	async def mute(self, ctx, user, reason, until = None, timedelta = None, modlogs: TextChannel = None):
 		if not reason:
 			reason = "No Reason Provided."
-		muted = self.bot.configs[ctx.guild.id].get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
+		muted = ctx.config.get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
 		if until:
 			timeup = datetime.datetime.strftime(until, '%d/%m/%Y @ %I:%M:%S %p')
 			until = until.timestamp()
@@ -394,7 +394,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			except discord.HTTPException:
 				nodm = True
 			await ctx.guild.ban(user, reason=f"Banned by {ctx.author} for {reason}", delete_message_days=0)
-			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+			logch = ctx.config.get('log.moderation')
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Ban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
@@ -431,7 +431,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			return await ctx.send("You must specify a user")
 
 		await ctx.guild.unban(discord.Object(user.id), reason=f"Unbanned by {ctx.author} for {reason}")
-		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+		logch = ctx.config.get('log.moderation')
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Unban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
@@ -470,7 +470,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 		try:
 			await ctx.guild.ban(user, reason=f"Softbanned by {ctx.author} for {reason}", delete_message_days=messages)
-			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+			logch = ctx.config.get('log.moderation')
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Softban | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
@@ -497,7 +497,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.has_permissions(manage_roles=True)
 	@commands.bot_has_permissions(manage_roles=True)
 	async def muterole(self, ctx, *, role: Role = None):
-		await self.bot.configs[ctx.guild.id].set('mod.mutedrole', role)
+		await ctx.config.set('mod.mutedrole', role)
 		if role:
 			return await ctx.success(f'Set the muted role to {role}')
 		return await ctx.success('Reset the muted role.')
@@ -516,7 +516,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not user:
 			return await ctx.send('You must specify a user')
 		await ctx.trigger_typing()
-		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+		logch = ctx.config.get('log.moderation')
 		if reason:
 			if parseTime(reason):
 				days, hours, minutes, seconds = parseTime(reason)
@@ -559,7 +559,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			except discord.Forbidden:
 				nodm = True
 				await ctx.send(f'<a:fireWarning:660148304486727730> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** was not warned due to having DMs off. The warning has been logged.')
-			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+			logch = ctx.config.get('log.moderation')
 			if logch:
 				embed = discord.Embed(color=discord.Color(15105570), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Warn | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
@@ -677,7 +677,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			except discord.HTTPException:
 				nodm = True
 			await ctx.guild.kick(user, reason=f"Kicked by {ctx.author} for {reason}")
-			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+			logch = ctx.config.get('log.moderation')
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Kick | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
@@ -711,7 +711,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not user:
 			return
 		await ctx.trigger_typing()
-		muted = self.bot.configs[ctx.guild.id].get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
+		muted = ctx.config.get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
 		await user.remove_roles(muted, reason=f'Unmuted by {ctx.author}')
 		await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unmuted")
 		con = await self.bot.db.acquire()
@@ -723,7 +723,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			self.mutes[ctx.guild.id].pop(user.id, None)
 		except KeyError:
 			pass
-		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+		logch = ctx.config.get('log.moderation')
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Unmute | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
@@ -765,7 +765,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			reason=reason
 		)
 		await ctx.success(f'Successfully blocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}** from chatting in {ctx.channel.mention}.')
-		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+		logch = ctx.config.get('log.moderation')
 		if logch:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Block | {blocked}', icon_url=str(blocked.avatar_url_as(static_format='png', size=2048)) if blocktype == 'User' else str(ctx.guild.icon_url))
@@ -811,7 +811,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			reason=reason
 		)
 		await ctx.success(f'Successfully unblocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}**. Welcome back!')
-		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+		logch = ctx.config.get('log.moderation')
 		if logch:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Unblock | {blocked}', icon_url=str(blocked.avatar_url_as(static_format='png', size=2048)) if blocktype == 'User' else str(ctx.guild.icon_url))
@@ -854,7 +854,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await ctx.error(f'I wasn\'t able to remove the roles {", ".join(cantrem)} from **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**.')
 		else:
 			await ctx.success(f'Successfully removed all roles from **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**.')
-		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+		logch = ctx.config.get('log.moderation')
 		if logch:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Derank | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))

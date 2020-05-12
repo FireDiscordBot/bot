@@ -53,7 +53,7 @@ class Filters(commands.Cog):
             if fullurl in self.allowed_invites:
                 continue
             if not message.author.permissions_in(message.channel).manage_messages:
-                if 'discord' in self.bot.configs[message.guild.id].get('mod.linkfilter'):
+                if 'discord' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         invite = await self.bot.fetch_invite(url=code)
                         if invite.guild.id != message.guild.id:
@@ -77,7 +77,7 @@ class Filters(commands.Cog):
                                 continue
                     except discord.Forbidden:
                         pass
-                    logch = self.bot.configs[message.guild.id].get('log.action')
+                    logch = self.bot.get_config(message.guild).get('log.action')
                     if logch:
                         embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -97,7 +97,7 @@ class Filters(commands.Cog):
     async def anti_malware(self, message):  # Get it? It gets rid of malware links so it's, anti malware. I'm hilarious!
         tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
         if any(l in tosearch for l in self.malware):
-            if 'malware' in self.bot.configs[message.guild.id].get('mod.linkfilter'):
+            if 'malware' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                 try:
                     await message.delete()
                 except Exception:
@@ -105,7 +105,7 @@ class Filters(commands.Cog):
                         await message.channel.send(f'A blacklisted link was found in a message send by {message.author} and I was unable to delete it!')
                     except Exception:
                         pass
-                logch = self.bot.configs[message.guild.id].get('log.action')
+                logch = self.bot.get_config(message.guild).get('log.action')
                 if logch:
                     embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Known malware link sent in** {message.channel.mention}')
                     embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -120,12 +120,12 @@ class Filters(commands.Cog):
         paypal = findpaypal(tosearch)
         if paypal:
             if not message.author.permissions_in(message.channel).manage_messages:
-                if 'paypal' in self.bot.configs[message.guild.id].get('mod.linkfilter'):
+                if 'paypal' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         await message.delete()
                     except Exception:
                         pass
-                    logch = self.bot.configs[message.guild.id].get('log.action')
+                    logch = self.bot.get_config(message.guild).get('log.action')
                     if logch:
                         embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -145,7 +145,7 @@ class Filters(commands.Cog):
         invalidchannel = False
         if video:
             if not message.author.permissions_in(message.channel).manage_messages:
-                if 'youtube' in self.bot.configs[message.guild.id].get('mod.linkfilter'):
+                if 'youtube' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         await message.delete()
                     except Exception:
@@ -154,7 +154,7 @@ class Filters(commands.Cog):
                     videoinfo = videoinfo.get('items', [])
                     if len(videoinfo) >= 1:
                         videoinfo = videoinfo[0]
-                        logch = self.bot.configs[message.guild.id].get('log.action')
+                        logch = self.bot.get_config(message.guild).get('log.action')
                         if logch:
                             embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
                             embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -174,7 +174,7 @@ class Filters(commands.Cog):
                                 pass
         if channel:
             if not message.author.permissions_in(message.channel).manage_messages:
-                if 'youtube' in self.bot.configs[message.guild.id].get('mod.linkfilter'):
+                if 'youtube' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         await message.delete()
                     except Exception:
@@ -183,7 +183,7 @@ class Filters(commands.Cog):
                     channelinfo = channelinfo.get('items', [])
                     if len(channelinfo) >= 1:
                         channelinfo = channelinfo[0]
-                        logch = self.bot.configs[message.guild.id].get('log.action')
+                        logch = self.bot.get_config(message.guild).get('log.action')
                         if logch:
                             embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
                             embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -206,12 +206,12 @@ class Filters(commands.Cog):
         twitch = findtwitch(tosearch)
         if twitch:
             if not message.author.permissions_in(message.channel).manage_messages:
-                if 'twitch' in self.bot.configs[message.guild.id].get('mod.linkfilter'):
+                if 'twitch' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         await message.delete()
                     except Exception:
                         pass
-                    logch = self.bot.configs[message.guild.id].get('log.action')
+                    logch = self.bot.get_config(message.guild).get('log.action')
                     if logch:
                         embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
@@ -227,12 +227,12 @@ class Filters(commands.Cog):
         twitter = findtwitter(tosearch)
         if twitter:
             if not message.author.permissions_in(message.channel).manage_messages:
-                if 'twitter' in self.bot.configs[message.guild.id].get('mod.linkfilter'):
+                if 'twitter' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         await message.delete()
                     except Exception:
                         pass
-                    logch = self.bot.configs[message.guild.id].get('log.action')
+                    logch = self.bot.get_config(message.guild).get('log.action')
                     if logch:
                         embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))

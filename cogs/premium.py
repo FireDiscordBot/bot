@@ -154,10 +154,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 		if role.managed:
 			return await ctx.error('That role is managed by an integration, I cannot give it to anyone.')
 		if not role:
-			await self.bot.configs[ctx.guild.id].set('mod.autorole', None)
+			await ctx.config.set('mod.autorole', None)
 			return await ctx.success(f'Successfully disabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}')
 		else:
-			await self.bot.configs[ctx.guild.id].set('mod.autorole', role)
+			await ctx.config.set('mod.autorole', role)
 			return await ctx.success(f'Successfully enabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}! All new members will recieve the {discord.utils.escape_mentions(role.name)} role.')
 
 	@commands.command(name='antiraid', description='Configure the channel for antiraid alerts')
@@ -166,10 +166,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@commands.guild_only()
 	async def antiraid(self, ctx, channel: TextChannel = None):
 		if not channel:
-			await self.bot.configs[ctx.guild.id].set('mod.antiraid', None)
+			await ctx.config.set('mod.antiraid', None)
 			return await ctx.send(f'I\'ve reset the antiraid alert channel.')
 		else:
-			await self.bot.configs[ctx.guild.id].set('mod.antiraid', channel)
+			await ctx.config.set('mod.antiraid', channel)
 			return await ctx.send(f'Antiraid alerts will now be sent in {channel.mention}')
 
 	async def _setraidmsg(self, id: int, message: str):
@@ -211,7 +211,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			self.joinroles[ctx.guild.id] = []
 			self.joinroles[ctx.guild.id].append(role.id)
 		await ctx.success(f'Successfully added the rank {discord.utils.escape_mentions(role.name)}!')
-		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+		logch = ctx.config.get('log.moderation')
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Rank Added | {role.name}', icon_url=str(ctx.guild.icon_url))
@@ -241,7 +241,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		except KeyError:
 			pass
 		await ctx.success(f'Successfully removed the rank {discord.utils.escape_mentions(role.name)}!')
-		logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+		logch = ctx.config.get('log.moderation')
 		if logch:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Rank Removed | {role.name}', icon_url=str(ctx.guild.icon_url))
@@ -340,7 +340,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				except Exception:
 					pass
 			await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
-			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+			logch = ctx.config.get('log.moderation')
 			if logch:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
@@ -371,7 +371,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				except Exception:
 					pass
 				await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
-				logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+				logch = ctx.config.get('log.moderation')
 				if logch:
 					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 					embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
@@ -395,7 +395,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			except Exception:
 				pass
 			await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will no longer keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
-			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+			logch = ctx.config.get('log.moderation')
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Role Persist Removed | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
@@ -478,7 +478,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	async def on_member_join(self, member):
 		if member.guild.id in self.bot.premium_guilds:
 			try:
-				role = self.bot.configs[member.guild.id].get('mod.autorole')
+				role = self.bot.get_config(member.guild).get('mod.autorole')
 				if role is not None:
 					await member.add_roles(role, reason='Auto-Role')
 			except Exception:
@@ -517,7 +517,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 				self.rolepersists[after.guild.id].pop(after.id, None)
 			except Exception:
 				pass
-			logch = self.bot.configs[ctx.guild.id].get('log.moderation')
+			logch = ctx.config.get('log.moderation')
 			if logch:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 				embed.set_author(name=f'Role Persist Removed | {after}', icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
