@@ -32,7 +32,7 @@ class UserUpdate(commands.Cog):
     async def on_user_update(self, before, after):
         for guild in self.bot.guilds:
             conf = self.bot.configs[guild.id]
-            badname = conf.get('utils.badname') or f'John Doe {member.discriminator}'
+            badname = conf.get('utils.badname') or f'John Doe {after.discriminator}'
             if before.name != after.name:
                 try:
                     member = guild.get_member(after.id)
