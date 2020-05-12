@@ -46,7 +46,8 @@ class Filters(commands.Cog):
             self.bot.logger.error(f'$REDFailed to fetch malware domains', exc_info=e)
 
     async def handle_invite(self, message):
-        codes = findinvite(message.system_content)
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+        codes = findinvite(tosearch)
         invite = None
         for fullurl, code in codes:
             if fullurl in self.allowed_invites:
@@ -59,7 +60,7 @@ class Filters(commands.Cog):
                             await message.delete()
                     except discord.NotFound:
                         vanitydomains = ['oh-my-god.wtf', 'inv.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
-                        if code.lower() in self.bot.vanity_urls and any(d in message.system_content for d in vanitydomains):
+                        if code.lower() in self.bot.vanity_urls and any(d in fullurl for d in vanitydomains):
                             invite = self.bot.get_vanity(code)
                             if invite['gid'] != message.guild.id:
                                 try:
@@ -67,7 +68,7 @@ class Filters(commands.Cog):
                                 except Exception:
                                     pass
                         else:
-                            if not (any(f'i.inv.wtf/{code}{e}' in message.content for e in self.imgext) and self.bot.isadmin(message.author)):
+                            if not (any(f'i.inv.wtf/{code}{e}' in message.system_content for e in self.imgext) and self.bot.isadmin(message.author)):
                                 try:
                                     await message.delete()
                                 except Exception:
@@ -94,7 +95,8 @@ class Filters(commands.Cog):
                             pass
 
     async def anti_malware(self, message):  # Get it? It gets rid of malware links so it's, anti malware. I'm hilarious!
-        if any(l in message.system_content for l in self.malware):
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+        if any(l in tosearch for l in self.malware):
             if 'malware' in self.bot.configs[message.guild.id].get('mod.linkfilter'):
                 try:
                     await message.delete()
@@ -114,7 +116,8 @@ class Filters(commands.Cog):
                         pass
 
     async def handle_paypal(self, message):
-        paypal = findpaypal(message.system_content)
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+        paypal = findpaypal(tosearch)
         if paypal:
             if not message.author.permissions_in(message.channel).manage_messages:
                 if 'paypal' in self.bot.configs[message.guild.id].get('mod.linkfilter'):
@@ -135,8 +138,9 @@ class Filters(commands.Cog):
 
     async def handle_youtube(self, message):
         ytcog = self.bot.get_cog('YouTube API')
-        video = findvideo(message.system_content)
-        channel = findchannel(message.system_content)
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+        video = findvideo(tosearch)
+        channel = findchannel(tosearch)
         invalidvid = False
         invalidchannel = False
         if video:
@@ -198,7 +202,8 @@ class Filters(commands.Cog):
                                 pass
 
     async def handle_twitch(self, message):
-        twitch = findtwitch(message.system_content)
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+        twitch = findtwitch(tosearch)
         if twitch:
             if not message.author.permissions_in(message.channel).manage_messages:
                 if 'twitch' in self.bot.configs[message.guild.id].get('mod.linkfilter'):
@@ -218,7 +223,8 @@ class Filters(commands.Cog):
                             pass
 
     async def handle_twitter(self, message):
-        twitter = findtwitter(message.system_content)
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+        twitter = findtwitter(tosearch)
         if twitter:
             if not message.author.permissions_in(message.channel).manage_messages:
                 if 'twitter' in self.bot.configs[message.guild.id].get('mod.linkfilter'):
