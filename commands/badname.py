@@ -33,10 +33,10 @@ class BadName(commands.Cog):
             return await ctx.success(f'I did absolutely nothing because that\'s already set as the "bad name"')
         current = await self.bot.configs[ctx.guild.id].set('utils.badname', newname)
         if current:
-            await ctx.success(f'I have set the "bad name" to {newname}. This will not rename existing users')
+            await ctx.success(f'I have set the "bad name" to {newname}. This will **not** rename existing users')
         else:
             await ctx.success(f'I have reset the "bad name" to John Doe 0000 (with 0000 being their discriminator). '
-                              f'This will not rename existing users')
+                              f'This will **not** rename existing users')
 
 def setup(bot):
     try:
