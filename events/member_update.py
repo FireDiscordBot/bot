@@ -20,6 +20,7 @@ from discord.ext import commands
 import datetime
 import discord
 import traceback
+import random
 
 
 class MemberUpdate(commands.Cog):
@@ -116,7 +117,7 @@ class MemberUpdate(commands.Cog):
                     embed = discord.Embed(
                         color=random.choice(roles).color,
                         timestamp=datetime.datetime.now(datetime.timezone.utc),
-                        description=f'{after.mention}\'s roles were changed\n**{after.name} was given the role(s)** {mentions}'
+                        description=f'{after.mention}\'s roles were changed\n**{after.name} was given the role(s)**\n{mentions}'
                     ).set_author(
                         name=after,
                         icon_url=str(after.avatar_url_as(
@@ -136,7 +137,7 @@ class MemberUpdate(commands.Cog):
                     embed = discord.Embed(
                         color=random.choice(roles).color,
                         timestamp=datetime.datetime.now(datetime.timezone.utc),
-                        description=f'{after.mention}\'s roles were changed\n**{after.name} was removed from the role(s)** {mentions}'
+                        description=f'{after.mention}\'s roles were changed\n**{after.name} was removed from the role(s)**\n{mentions}'
                     ).set_author(
                         name=after,
                         icon_url=str(after.avatar_url_as(
