@@ -18,6 +18,11 @@
                 "Usage": "{prefix}suggest <suggestion>",
                 "Aliases": null
             },
+            "tips": {
+                "Description": "Toggle a 10% chance of seeing a useful tip when running a command",
+                "Usage": "{prefix}tips",
+                "Aliases": null
+            },
             "invite": {
                 "Description": "Sends my invite link",
                 "Usage": "{prefix}invite",
