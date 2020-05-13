@@ -25,9 +25,10 @@ class Vote(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='vote', aliases=["dbl", "top.gg"])
+    @commands.command(name='vote', aliases=["dbl", "top.gg", "dboats", "discord.boats"])
     async def votecmd(self, ctx):
-        return await ctx.send("https://fire-is-the.best/")
+        v = 'vote' if ctx.invoked_with == 'vote' else ''
+        return await ctx.send(f"https://fire-is-the.best/{v}")
 
 
 def setup(bot):

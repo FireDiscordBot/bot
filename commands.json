@@ -29,9 +29,9 @@
                 "Aliases": null
             },
             "vote": {
-                "Description": "Sends a link to vote for Fire on top.gg",
+                "Description": "Sends a link to Fire on a random bot list (sends direct vote link if you use the \"vote\" alias)",
                 "Usage": "{prefix}vote",
-                "Aliases": "dbl, top.gg"
+                "Aliases": "dbl, top.gg, dboats, discord.boats"
             },
             "oss": {
                 "Description": "Sends my GitHub repo link",
