@@ -155,7 +155,7 @@ class Fire(commands.Bot):
         ]
     ) -> typing.Union[GuildConfig, UserConfig]:
         if hasattr(obj, 'id') and obj.id in self.configs:
-            return self.configs[obj]
+            return self.configs[obj.id]
         if isinstance(obj, int) and obj in self.configs:
             return self.configs[obj]
         if isinstance(obj, discord.Guild) or isinstance(obj, int) and self.get_guild(obj):

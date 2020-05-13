@@ -17,7 +17,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 from typing import Optional
-from core.fire import Fire
 import datetime
 import discord
 import random
@@ -26,7 +25,6 @@ import random
 class Context(commands.Context):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.bot: Optional[Fire] = self.bot
         self.colors = [
             discord.Color.blue(),
             discord.Color.blurple(),
