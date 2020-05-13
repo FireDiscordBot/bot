@@ -26,15 +26,13 @@ class Tips(commands.Cog):
         self.bot = bot
 
     @commands.command(name='tips', description='Toggle tips when running commands')
-    @commands.has_permissions(manage_nicknames=True)
-    @commands.bot_has_permissions(manage_nicknames=True)
     async def tipscmd(self, ctx):
-        current = ctx.config.get('utils.tips')
-        current = await ctx.config.set('utils.tips', not current)
+        current = ctx.uconfig.get('utils.tips')
+        current = await ctx.uconfig.set('utils.tips', not current)
         if current:
-            return await ctx.success(f'Enabled Tips.')
+            return await ctx.success(f'You now have a 10% chance of seeing a useful tip when running commands.')
         else:
-            return await ctx.success(f'Disabled Tips.')
+            return await ctx.success(f'You will no longer see tips when running commands')
 
 def setup(bot):
     try:
