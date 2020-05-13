@@ -163,6 +163,8 @@ class Fire(commands.Bot):
             self.loop.create_task(conf.load())
             return conf
         if isinstance(obj, (discord.User, discord.Member)) or isinstance(obj, int) and self.get_user(obj):
+            if (obj.bot if hasattr(obj, 'bot') else self.get_user(obj).bot):
+                return False
             conf = self.configs[obj.id if hasattr(obj, 'id') else obj] = UserConfig(obj, bot=self, db=self.db)
             return conf  # Attempting to set an option in UserConfig will load/init the config if not already
 
