@@ -90,7 +90,10 @@ class MemberUpdate(commands.Cog):
                 if role in before.roles:
                     before.roles.remove(role)
             if not any(r for r in self.deleted_roles if r in after.guild.roles):
-                groles = await after.guild.fetch_roles()  # Hopefully this should stop deleted roles from being logged
+                try:
+                    groles = await after.guild.fetch_roles()  # Hopefully this should stop deleted roles from being logged
+                except Exception:
+                    groles = guild.roles  # Don't complain to me when your logs get spammed if you remove a role with a bunch of people in it lol
                 for role in after.guild.roles:
                     if role not in groles:
                         self.deleted_roles.append(role)
