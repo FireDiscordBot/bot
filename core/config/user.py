@@ -16,7 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-from .constants import ConfigOpt, DISCORD_CONVERTERS
+from .constants import ConfigOpt
 from .errors import *
 import discord
 import inspect
@@ -55,10 +55,6 @@ class Config:
             if isinstance(accept, list):
                 accept = accept[0]
                 acceptlist = True
-            if accept in DISCORD_CONVERTERS['bot']:
-                converter = getattr(self._bot, DISCORD_CONVERTERS['bot'][accept])
-            elif accept in DISCORD_CONVERTERS['user']:
-                converter = getattr(self._user, DISCORD_CONVERTERS['guild'][accept])
             if converter and inspect.ismethod(converter):
                 if acceptlist:
                     return [converter(d) for d in self._data[option]]
