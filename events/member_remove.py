@@ -28,6 +28,8 @@ class MemberRemove(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
+        if not [g for g in self.bot.guilds if g.get_member(member.id)]:
+            self.bot.configs.pop(member.id, None)
         conf = self.bot.get_config(member.guild)
         if conf.get('greet.leavemsg'):
             leavechan = conf.get('greet.leavechannel')
