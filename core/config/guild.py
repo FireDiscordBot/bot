@@ -41,6 +41,12 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $CYANmain.prefix $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('main.prefix', value)
 
+    @ConfigOpt(name='main.fetch_offline', accepts=bool, default=True, options=options)
+    async def fetch_offline(self, value: str):
+        '''Fetch Offline Members | Whether or not to fetch offline members. This is manually set by Geek#8405 depending on guild size'''
+        self._bot.logger.info(f'$GREENSetting $CYANmain.fetch_offline $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
+        await self.update('main.fetch_offline', value)
+
     @ConfigOpt(name='main.description', accepts=str, default=None, options=options)
     async def description(self, value: str):
         '''Description | The server description, shown in the embed for Vanity URLs'''
