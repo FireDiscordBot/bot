@@ -60,9 +60,9 @@ class Filters(commands.Cog):
                             await message.delete()
                     except discord.NotFound:
                         vanitydomains = ['oh-my-god.wtf', 'inv.wtf', 'floating-through.space', 'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
-                        if code.lower() in self.bot.vanity_urls and any(d in fullurl for d in vanitydomains):
-                            invite = self.bot.get_vanity(code)
-                            if invite['gid'] != message.guild.id:
+                        if any(d in fullurl for d in vanitydomains):
+                            invite = await self.bot.get_vanity(code)
+                            if not invite or invite['gid'] != message.guild.id:
                                 try:
                                     await message.delete()
                                 except Exception:

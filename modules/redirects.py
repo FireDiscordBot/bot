@@ -26,15 +26,6 @@ import re
 class Redirects(commands.Cog, name="Redirects"):
     def __init__(self, bot):
         self.bot = bot
-        self.bot.redirects = {}
-        self.bot.get_redirect = self.get
-        self.bot.loop.create_task(self.load())
-
-    def get(self, code: str):
-        if code.lower() in self.bot.redirects:
-            return self.bot.redirects[code.lower()]
-        else:
-            return False
 
     async def create(self, code: str, url: str, uid: int):
         code = code.lower()
@@ -46,11 +37,11 @@ class Redirects(commands.Cog, name="Redirects"):
             query = 'INSERT INTO vanity (\"code\", \"redirect\", \"uid\") VALUES ($1, $2, $3);'
             await self.bot.db.execute(query, code, url, uid)
         await self.bot.db.release(con)
-        self.bot.redirects[code.lower()] = {
+        await self.bot.get_cog('Vanity URLs').request_fetch()
+        return {
             'url': url,
             'uid': uid
         }
-        return self.bot.redirects[code.lower()]
 
     async def delete(self, slug: str):
         self.bot.logger.warn(f'$YELLOWDeleting redirect for slug $CYAN{slug}')
@@ -63,21 +54,8 @@ class Redirects(commands.Cog, name="Redirects"):
             async with con.transaction():
                 query = 'DELETE FROM vanity WHERE code = $1;'
                 await self.bot.db.execute(query, slug)
-            await self.bot.db.release(con)
-            self.bot.redirects.pop(slug.lower())
-
-    async def load(self):
-        await self.bot.wait_until_ready()
-        self.bot.logger.info(f'$YELLOWLoading redirects...')
-        self.bot.redirects = {}
-        query = 'SELECT * FROM vanity WHERE redirect IS NOT NULL;'
-        redirects = await self.bot.db.fetch(query)
-        for v in redirects:
-            self.bot.redirects[v['code'].lower()] = {
-                'url': v['redirect'],
-                'uid': v['uid']
-            }
-        self.bot.logger.info(f'$GREENLoaded redirects!')
+            await self.bot.db.release(con)]
+            await self.bot.get_cog('Vanity URLs').request_fetch()
 
     @commands.command(name='redirect', description='Creates a custom redirect for a URL using https://inv.wtf/')
     @commands.has_permissions(administrator=True)
@@ -90,8 +68,8 @@ class Redirects(commands.Cog, name="Redirects"):
         if not url:
             return await ctx.error('You must provide a url or "delete" to delete an existing redirect!')
         if url.lower() in ['remove', 'delete', 'true', 'yeet', 'disable']:
-            current = self.get(slug.lower())
-            if not current:
+            current = await self.bot.get_vanity(slug.lower())
+            if not current or 'uid' not in current:
                 return await ctx.error('Redirect not found!')
             if current['uid'] != ctx.author.id:
                 return await ctx.error('You can only delete your own redirects!')
@@ -105,9 +83,9 @@ class Redirects(commands.Cog, name="Redirects"):
             return await ctx.error('Redirect slugs can only contain characters A-Z0-9')
         if len(slug) < 3 or len(slug) > 20:
             return await ctx.error('The slug needs to be 3-20 characters!')
-        exists = self.bot.get_vanity(slug.lower())
-        redirexists = self.get(slug.lower())
-        if exists or redirexists:
+        query = 'SELECT * FROM vanity WHERE code=$1;'
+        exists = await self.bot.db.fetch(query, slug.lower())
+        if exists:
             return await ctx.error('This slug is already in use!')
         redir = await self.create(slug.lower(), url, ctx.author.id)
         if redir:
