@@ -51,7 +51,6 @@ class Fire(commands.Bot):
         self.tips = json.load(open('tips.json', 'r'))
         self.premium_guilds = []
         self.db: asyncpg.pool.Pool = None
-        self.realtime_members = True
         self.dev = kwargs.pop('dev', False)
 
         # CRAB
