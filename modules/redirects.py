@@ -54,7 +54,7 @@ class Redirects(commands.Cog, name="Redirects"):
             async with con.transaction():
                 query = 'DELETE FROM vanity WHERE code = $1;'
                 await self.bot.db.execute(query, slug)
-            await self.bot.db.release(con)]
+            await self.bot.db.release(con)
             await self.bot.get_cog('Vanity URLs').request_fetch()
 
     @commands.command(name='redirect', description='Creates a custom redirect for a URL using https://inv.wtf/')

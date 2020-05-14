@@ -33,8 +33,9 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         self.bot = bot
         self.bot.http.invwtf = HTTPClient(
             'https://inv.wtf' if not self.bot.dev else 'https://test.inv.wtf',
+            user_agent=f'Fire Discord Bot',
             headers={'Authorization': self.bot.config['vanityauth']}
-        }
+        )
         self.bot.get_vanity = self.get_vanity
         if 'slack_messages' not in dir(self.bot):
             self.bot.slack_messages = {}
@@ -171,10 +172,13 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         # desc = ctx.config.get('main.description') or f'Check out {ctx.guild} on Discord'
         # desc = f'[{ctx.guild}]({current.get("url", "https://inv.wtf/")})\n{desc}\n\n{gmembers}'
         embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
-        if not ctx.guild.splash_url and not ctx.guild.banner_url:
+        splash = str(
+            (guild.splash_url or guild.discovery_splash_url)
+        ).replace('.webp?size=2048', '.png?size=320')
+        if not splash:
             embed.set_thumbnail(url=str(ctx.guild.icon_url))
         else:
-            embed.set_image(url=f'https://inv.wtf/splash/{ctx.guild.id}')
+            embed.set_image(url=splash)
         embed.add_field(name='Clicks', value=current['clicks'])
         embed.add_field(name='Links', value=current['links'])
         embed.add_field(name='URL', value=f'https://inv.wtf/{current["code"]}', inline=False)
@@ -185,9 +189,13 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
     @commands.guild_only()
     async def vanityurl(self, ctx, code: str = None):
         premium = self.bot.premium_guilds
-        query = 'SELECT * FROM vanity WHERE code=$1 AND redirect IS NULL;'
-        current = await self.bot.db.fetch(query, slug.lower())
-        if isinstance(current, list):
+        if code:
+            query = 'SELECT * FROM vanity WHERE code=$1 AND redirect IS NULL;'
+            current = await self.bot.db.fetch(query, code.lower())
+        else:
+            query = 'SELECT * FROM vanity WHERE gid=$1 AND redirect IS NULL;'
+            current = await self.bot.db.fetch(query, ctx.guild.id)
+        if current and isinstance(current, list):
             current = random.choice(current)
         if not code and (not ctx.guild.id in premium or not current):
             return await ctx.error('You need to provide a code or "delete" to delete the current vanity!')
@@ -223,7 +231,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
                     await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `https://inv.wtf/{vanity["code"]}` for {ctx.guild.name}', url=self.bot.config['vanityurlapi'], url_title='Check current Vanity URLs')
             else:
                 await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `https://inv.wtf/{vanity["code"]}` for {ctx.guild.name}', url=self.bot.config['vanityurlapi'], url_title='Check current Vanity URLs')
-            return await ctx.success(f'Your Vanity URL is https://inv.wtf/{code}')
+            return await ctx.success(f'Your Vanity URL is https://{"test." if self.bot.dev else ""}inv.wtf/{code}')
         else:
             return await ctx.error('Something went wrong...')
 

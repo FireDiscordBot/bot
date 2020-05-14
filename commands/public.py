@@ -29,13 +29,14 @@ class Public(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def publiccmd(self, ctx):
         current = ctx.config.get('utils.public')
-        vanitys = [k for k, v in self.bot.vanity_urls.items() if v['gid'] == ctx.guild.id]
+        query = 'SELECT * FROM vanity WHERE gid=$1 AND redirect IS NULL'
+        vanitys = await self.bot.db.fetch(query, ctx.guild.id)
         if not vanitys:
             return await ctx.error(f'You must set a vanity url with `{ctx.prefix}vanityurl` before your guild can be public')
         current = await ctx.config.set('utils.public', not current)
         if current:
             await ctx.success(f'Your guild is now public & visible on <https://fire.gaminggeek.dev/discover>.'
-                                     f'\nPeople will be able to use your guild\'s vanity url (<https://inv.wtf/{vanitys[0]}>) to join')
+                                     f'\nPeople will be able to use your guild\'s vanity url (<https://inv.wtf/{vanitys[0]["code"]}>) to join')
             log = ctx.config.get('log.action')
             if log:
                 await log.send(f'<:operational:685538400639385649> Ths server is now public and will appear on Fire\'s public server list')
