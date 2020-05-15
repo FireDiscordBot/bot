@@ -173,7 +173,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         # desc = f'[{ctx.guild}]({current.get("url", "https://inv.wtf/")})\n{desc}\n\n{gmembers}'
         embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
         splash = str(
-            (guild.splash_url or guild.discovery_splash_url)
+            (ctx.guild.splash_url or ctx.guild.discovery_splash_url)
         ).replace('.webp?size=2048', '.png?size=320')
         if not splash:
             embed.set_thumbnail(url=str(ctx.guild.icon_url))
