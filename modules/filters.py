@@ -52,6 +52,8 @@ class Filters(commands.Cog):
         for fullurl, code in codes:
             if fullurl in self.allowed_invites:
                 continue
+            if any(u in fullurl for u in ['h.inv.wtf', 'i.inv.wtf']) and self.bot.isadmin(message.author):
+                continue
             if not message.author.permissions_in(message.channel).manage_messages:
                 if 'discord' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
@@ -68,13 +70,10 @@ class Filters(commands.Cog):
                                 except Exception:
                                     pass
                         else:
-                            if not (any(f'i.inv.wtf/{code}{e}' in message.system_content for e in self.imgext) and self.bot.isadmin(message.author)):
-                                try:
-                                    await message.delete()
-                                except Exception:
-                                    pass
-                            else:
-                                continue
+                            try:
+                                await message.delete()
+                            except Exception:
+                                pass
                     except discord.Forbidden:
                         pass
                     logch = self.bot.get_config(message.guild).get('log.action')
