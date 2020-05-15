@@ -288,7 +288,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			else:
 				ranks = []
 				for role in roles:
-					ranks.append(f'> {role.mention} ({len(role.members)} members)')
+					ranks.append(f'> {role.mention}')
 				embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description='\n'.join(ranks))
 				embed.set_author(name=f'{ctx.guild.name}\'s ranks', icon_url=str(ctx.guild.icon_url))
 				await ctx.send(embed=embed)

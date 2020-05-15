@@ -108,8 +108,6 @@ class UserInfo(commands.Cog):
                 info.append(f'**Created Guild:** {joined} ({jdelta})')
             else:
                 info.append(f'**Joined:** {joined} ({jdelta})')
-            joinpos = sorted(ctx.guild.members, key=lambda m: m.joined_at or m.created_at).index(user) + 1
-            info.append(f'**Join Position:** {joinpos}')
             if user.nick:
                 info.append(f'**Nickname:** {user.nick}')
         return info

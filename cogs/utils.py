@@ -477,17 +477,6 @@ class Utils(commands.Cog, name='Utility Commands'):
 		else:
 			embed.add_field(name="» Permissions", value='Administrator', inline=False)
 		await ctx.send(embed=embed)
-		if role.members:
-			paginator = WrappedPaginator(prefix='', suffix='', max_size=250)
-			for member in role.members:
-				paginator.add_line(member.mention)
-			membed = discord.Embed(
-				colour=role.color if role.color != discord.Color.default() else ctx.author.color,
-				timestamp=datetime.datetime.now(datetime.timezone.utc),
-				title=f'Members [{len(role.members)}]'
-			)
-			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=membed)
-			await interface.send_to(ctx)
 
 	@commands.command(aliases=['remind', 'reminder'], description='Sets a reminder for a time in the future')
 	async def remindme(self, ctx, *, reminder: str):
