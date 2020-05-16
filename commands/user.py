@@ -183,10 +183,11 @@ class UserInfo(commands.Cog):
                 gban = await self.get_ksoft_ban(uinfo)
             except Exception:
                 pass
-            try:
-                cwbl = await self.get_chatwatch(uinfo)
-            except Exception:
-                pass
+            if self.bot.chatwatch.connected:
+                try:
+                    cwbl = await self.get_chatwatch(uinfo)
+                except Exception:
+                    pass
             notes = [n for n in [gban, cwbl] if n]
             if notes:
                 embed.add_field(name=f'» Notes', value='\n'.join(notes), inline=False)
