@@ -18,6 +18,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from fire.filters.youtube import findchannel, findvideo
 from fire.filters.twitter import findtwitter
+from fire.filters.shorten import findshort
 from fire.filters.invite import findinvite
 from fire.filters.paypal import findpaypal
 from fire.filters.twitch import findtwitch
@@ -236,6 +237,27 @@ class Filters(commands.Cog):
                         embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
                         embed.add_field(name='Link', value=f'[{twitter}](https://twitter.com/{twitter})', inline=False)
+                        embed.set_footer(text=f"Author ID: {message.author.id}")
+                        try:
+                            await logch.send(embed=embed)
+                        except Exception:
+                            pass
+
+    async def handle_shorturl(self, message):
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+        short = findshort(tosearch)
+        if short:
+            if not message.author.permissions_in(message.channel).manage_messages:
+                if 'shorteners' in self.bot.get_config(message.guild).get('mod.linkfilter'):
+                    try:
+                        await message.delete()
+                    except Exception:
+                        pass
+                    logch = self.bot.get_config(message.guild).get('log.action')
+                    if logch:
+                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Short link sent in** {message.channel.mention}')
+                        embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
+                        embed.add_field(name='Link', value=short, inline=False)
                         embed.set_footer(text=f"Author ID: {message.author.id}")
                         try:
                             await logch.send(embed=embed)

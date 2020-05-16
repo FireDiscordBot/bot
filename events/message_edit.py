@@ -41,6 +41,18 @@ class MessageEdit(commands.Cog):
             return await self.bot.invoke(ctx)
         if not after.guild:
             return
+        excluded = self.bot.get_config(message.guild).get('excluded.filter')
+        roleids = [r.id for r in message.author.roles]
+        if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
+            filters = self.bot.get_cog('Filters')
+            # with suppress(Exception):
+            await self.safe_exc(filters.handle_invite, message)
+            await self.safe_exc(filters.anti_malware, message)
+            await self.safe_exc(filters.handle_paypal, message)
+            await self.safe_exc(filters.handle_youtube, message)
+            await self.safe_exc(filters.handle_twitch, message)
+            await self.safe_exc(filters.handle_twitter, message)
+            await self.safe_exc(filters.handle_shorten, message)
         logch = self.bot.get_config(after.guild).get('log.action')
         if after.channel.is_news():
             if before.flags.crossposted != after.flags.crossposted:
@@ -57,17 +69,6 @@ class MessageEdit(commands.Cog):
         if before.content == after.content or after.author.bot:
             return
         message = after
-        excluded = self.bot.get_config(message.guild).get('excluded.filter')
-        roleids = [r.id for r in message.author.roles]
-        if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
-            filters = self.bot.get_cog('Filters')
-            # with suppress(Exception):
-            await self.safe_exc(filters.handle_invite, message)
-            await self.safe_exc(filters.anti_malware, message)
-            await self.safe_exc(filters.handle_paypal, message)
-            await self.safe_exc(filters.handle_youtube, message)
-            await self.safe_exc(filters.handle_twitch, message)
-            await self.safe_exc(filters.handle_twitter, message)
         if logch:
             embed = discord.Embed(color=after.author.color, timestamp=after.created_at, description=f'{after.author.mention} **edited a message in** {after.channel.mention}')
             embed.set_author(name=after.author, icon_url=str(after.author.avatar_url_as(static_format='png', size=2048)))

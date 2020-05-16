@@ -46,6 +46,8 @@ class Ready(commands.Cog):
                 await c.load()  # Load any stragglers that (for whatever reason) did not load on GUILD_CREATE
         users = await self.bot.db.fetch('SELECT * FROM userconfig;')
         for u in users:
+            if not self.bot.get_user(u['uid']):
+                continue
             if u['uid'] not in self.bot.configs:
                 self.bot.configs[u['uid']] = UserConfig(u['uid'], bot=self.bot, db=self.bot.db)
             conf = self.bot.get_config(u['uid'])
