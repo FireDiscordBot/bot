@@ -34,7 +34,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		self.gist = 'b070e7f75a9083d2e211caffa0c772cc'
 		self.gistheaders = {'Authorization': f'token {bot.config["github"]}'}
 		self.modcoreheaders = {'secret': bot.config['modcore']}
-		self.pastebinre = r'(?:http(?:s)?://)?pastebin\.com/(?:raw/)?(\w+)'
+		self.reupload = r'(?:http(?:s)?://)?(paste\.ee|pastebin\.com|hastebin\.com|hasteb\.in)/(?:raw/)?(\w+)'
 		self.noraw = r'(?:http(?:s)?://)?(?:justpaste)\.(?:it)/(\w+)'
 		self.logregex = r'((hyperium-)?crash-\d{4}-\d{2}-\d{2}_\d{2}\.\d{2}\.\d{2}.+\.txt|latest\.log|launcher_log\.txt|hs_err_pid\d{1,8}\.log)'
 		self.logtext = [
@@ -224,14 +224,19 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 	async def on_message(self, message):
 		if self.bot.dev:
 			return
+		if not message.guild or message.guild.id != 411619823445999637:
+			return
 		noraw = re.findall(self.noraw, message.content, re.MULTILINE)
-		if noraw and message.guild.id == 411619823445999637:
+		if noraw:
 			await message.delete()
 			return await message.channel.send(f'{message.author.mention} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)')
-		pastebin = re.findall(self.pastebinre, message.content, re.MULTILINE)
-		for p in pastebin:
-			async with aiohttp.ClientSession().get(f'https://pastebin.com/raw/{p}') as r:
-				message.content = re.sub(self.pastebinre, (await r.text()), message.content, 0, re.MULTILINE)
+		reupload = re.findall(self.reupload, message.content, re.MULTILINE)
+		for domain, key in reupload:
+			try:
+				async with aiohttp.ClientSession().get(f'https://{domain}/raw/{key}') as r:
+					message.content = re.sub(self.reupload, (await r.text()), message.content, 0, re.MULTILINE)
+			except Exception:
+				return await message.channel.send(f'I was unable to read your log. Please upload it directly rather than using {domain}')
 		for attach in message.attachments:
 			if not re.match(self.logregex, attach.filename) and not attach.filename == 'message.txt':
 				return
