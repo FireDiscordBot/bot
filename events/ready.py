@@ -20,6 +20,7 @@ from discord.ext import commands
 from core.config import UserConfig
 import datetime
 import discord
+import asyncio
 import functools
 import traceback
 
@@ -54,10 +55,10 @@ class Ready(commands.Cog):
             comps = ['gtbpmn9g33jk', 'xp3103fm3kpf']
             for c in comps:
                 await asyncio.sleep(1)  # rate limits are fun
-                current = await bot.get_cog('FireStatus').get_status(c)
+                current = await self.bot.get_cog('FireStatus').get_status(c)
                 if current == 'partial_outage':
                     await asyncio.sleep(1)  # rate limits are fun 2 electric boogaloo
-                    await bot.get_cog('FireStatus').set_status(c, 'operational')
+                    await self.bot.get_cog('FireStatus').set_status(c, 'operational')
 
 
 def setup(bot):

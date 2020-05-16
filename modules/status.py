@@ -52,6 +52,7 @@ class FireStatus(commands.Cog):
         return component['status']
 
     async def set_status(self, cid: str, status: str = 'operational'):
+        self.bot.logger.warn(f'$YELLOWSetting status for $CYAN{cid} $YELLOWto $CYAN{status}')
         route = Route(
             'PATCH',
             f'/pages/fhrcp0477jwt/components/{cid}'
