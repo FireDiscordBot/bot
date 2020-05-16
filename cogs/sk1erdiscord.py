@@ -34,7 +34,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		self.gist = 'b070e7f75a9083d2e211caffa0c772cc'
 		self.gistheaders = {'Authorization': f'token {bot.config["github"]}'}
 		self.modcoreheaders = {'secret': bot.config['modcore']}
-		self.pastebinre = r'https://pastebin\.com/([^raw]\w+)'
+		self.pastebinre = r'(?:http(?:s)?://)?pastebin\.com/(?:raw/)?(\w+)'
+		self.noraw = r'(?:http(?:s)?://)?(?:justpaste)\.(?:it)/(\w+)'
 		self.logregex = r'((hyperium-)?crash-\d{4}-\d{2}-\d{2}_\d{2}\.\d{2}\.\d{2}.+\.txt|latest\.log|launcher_log\.txt|hs_err_pid\d{1,8}\.log)'
 		self.logtext = [
 			'net.minecraft.launchwrapper.Launch',
@@ -223,6 +224,10 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 	async def on_message(self, message):
 		if self.bot.dev:
 			return
+		noraw = re.findall(self.noraw, message.content, re.MULTILINE)
+		if noraw and message.guild.id == 411619823445999637:
+			await message.delete()
+			return await message.channel.send(f'{message.author.mention} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)')
 		pastebin = re.findall(self.pastebinre, message.content, re.MULTILINE)
 		for p in pastebin:
 			async with aiohttp.ClientSession().get(f'https://pastebin.com/raw/{p}') as r:
