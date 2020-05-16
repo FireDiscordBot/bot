@@ -53,8 +53,10 @@ class Ready(commands.Cog):
         if self.bot.get_cog('FireStatus') and not self.bot.dev:
             comps = ['gtbpmn9g33jk', 'xp3103fm3kpf']
             for c in comps:
+                await asyncio.sleep(1)  # rate limits are fun
                 current = await bot.get_cog('FireStatus').get_status(c)
                 if current == 'partial_outage':
+                    await asyncio.sleep(1)  # rate limits are fun 2 electric boogaloo
                     await bot.get_cog('FireStatus').set_status(c, 'operational')
 
 

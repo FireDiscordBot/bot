@@ -138,6 +138,7 @@ async def stop_bot():
     if bot.get_cog('FireStatus') and not bot.dev:
         comps = ['gtbpmn9g33jk', 'xp3103fm3kpf']
         for c in comps:
+            await asyncio.sleep(1)  # rate limits are fun
             await bot.get_cog('FireStatus').set_status(c, 'partial_outage')
     await bot.db.close()
     await bot.logout()
