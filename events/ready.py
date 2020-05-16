@@ -50,8 +50,12 @@ class Ready(commands.Cog):
             conf = self.bot.get_config(u['uid'])
             if not conf.loaded:
                 await conf.load()
-        # tofetch = [g for g in self.bot.guilds if g.large and self.bot.get_config(g).get('main.fetch_offline')]
-        # await self.bot.request_offline_members(*tofetch)
+        if self.bot.get_cog('FireStatus') and not self.bot.dev:
+            comps = ['gtbpmn9g33jk', 'xp3103fm3kpf']
+            for c in comps:
+                current = await bot.get_cog('FireStatus').get_status(c)
+                if current == 'partial_outage':
+                    await bot.get_cog('FireStatus').set_status(c, 'operational')
 
 
 def setup(bot):

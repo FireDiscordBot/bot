@@ -132,8 +132,18 @@ async def start_bot():
         bot.db = await asyncpg.create_pool(**login_data)
         await bot.start(bot.config['token'])
     except KeyboardInterrupt:
-        await bot.db.close()
-        await bot.logout()
+        await stop_bot()
+
+async def stop_bot():
+    if bot.get_cog('FireStatus') and not bot.dev:
+        comps = ['gtbpmn9g33jk', 'xp3103fm3kpf']
+        for c in comps:
+            await bot.get_cog('FireStatus').set_status(c, 'partial_outage')
+    await bot.db.close()
+    await bot.logout()
 
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(start_bot())
+    try:
+        asyncio.get_event_loop().run_until_complete(start_bot())
+    except KeyboardInterrupt:
+       asyncio.get_event_loop().run_until_complete(stop_bot())
