@@ -58,7 +58,8 @@ class CommandError(commands.Cog):
             commands.BadUnionArgument,
             commands.CheckFailure,
             commands.ArgumentParsingError,
-            commands.NotOwner
+            commands.NotOwner,
+            RestrictedOptionError
         )
         noperms = (commands.BotMissingPermissions, commands.MissingPermissions, discord.Forbidden, MissingOverride)
         saved = error
