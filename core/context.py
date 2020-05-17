@@ -46,6 +46,7 @@ class Context(commands.Context):
         ]
         self.config = self.bot.get_config(self.guild.id) if self.guild else None
         self.uconfig = self.bot.get_config(self.author)
+        self.silent = False
 
     async def success(self, message: str):
         await self.send(f'<:check:674359197378281472> {message}')

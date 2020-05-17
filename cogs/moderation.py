@@ -311,7 +311,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				await e.delete()
 		else:
 			await user.add_roles(muted)
-		await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been muted")
+		if not ctx.silent:
+			await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been muted")
 		try:
 			await user.send(f'You were muted in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
 			nodm = False
@@ -384,9 +385,14 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not user:
 			return await ctx.send("You must specify a user")
 
-		current = await ctx.guild.bans()
-		if len([b for b in current if b.user.id == user.id]) >= 1:
+		try:
+			await ctx.guild.fetch_ban(user.id)
 			return await ctx.error('That user is already banned!')
+		except discord.NotFound:
+			pass
+		# current = await ctx.guild.bans()
+		# if len([b for b in current if b.user.id == user.id]) >= 1:
+		#	return await ctx.error('That user is already banned!')
 		try:
 			try:
 				await user.send(f'You were banned from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
@@ -408,7 +414,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					await logch.send(embed=embed)
 				except Exception:
 					pass
-			await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been banished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
+			if not ctx.silent:
+				await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been banished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
@@ -443,7 +450,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				await logch.send(embed=embed)
 			except Exception:
 				pass
-		await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unbanished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
+		if not ctx.silent:
+			await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unbanished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}.")
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
@@ -483,7 +491,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				except Exception:
 					pass
 			await ctx.guild.unban(user, reason="Temporarily Banned")
-			await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been soft-banned.")
+			if not ctx.silent:
+				await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been soft-banned.")
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
@@ -537,7 +546,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(description="Warn a user.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
-	async def warn(self, ctx, user: Member = None, *, reason = None):
+	async def warn(self, ctx, user: typing.Union[Member, UserWithFallback] = None, *, reason = None):
 		await ctx.trigger_typing()
 		try:
 			await ctx.message.delete()
@@ -555,7 +564,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			try:
 				await user.send(f'You were warned in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
 				nodm = False
-				await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been warned.')
+				if not ctx.silent:
+					await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been warned.')
 			except discord.Forbidden:
 				nodm = True
 				await ctx.send(f'<a:fireWarning:660148304486727730> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** was not warned due to having DMs off. The warning has been logged.')
@@ -691,7 +701,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 					await logch.send(embed=embed)
 				except Exception:
 					pass
-			await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been kicked.')
+			if not ctx.silent:
+				await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been kicked.')
 			con = await self.bot.db.acquire()
 			async with con.transaction():
 				query = 'INSERT INTO modlogs (\"gid\", \"uid\", \"reason\", \"date\", \"type\", \"caseid\") VALUES ($1, $2, $3, $4, $5, $6);'
@@ -713,7 +724,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await ctx.trigger_typing()
 		muted = ctx.config.get('mod.mutedrole') or discord.utils.get(ctx.guild.roles, name="Muted")
 		await user.remove_roles(muted, reason=f'Unmuted by {ctx.author}')
-		await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unmuted")
+		if not ctx.silent:
+			await ctx.success(f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unmuted")
 		con = await self.bot.db.acquire()
 		async with con.transaction():
 			query = 'DELETE FROM mutes WHERE uid = $1 AND gid = $2;'
@@ -764,7 +776,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			overwrite=current,
 			reason=reason
 		)
-		await ctx.success(f'Successfully blocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}** from chatting in {ctx.channel.mention}.')
+		if not ctx.silent:
+			await ctx.success(f'Successfully blocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}** from chatting in {ctx.channel.mention}.')
 		logch = ctx.config.get('log.moderation')
 		if logch:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
@@ -810,7 +823,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			overwrite=current,
 			reason=reason
 		)
-		await ctx.success(f'Successfully unblocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}**. Welcome back!')
+		if not ctx.silent:
+			await ctx.success(f'Successfully unblocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}**. Welcome back!')
 		logch = ctx.config.get('log.moderation')
 		if logch:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
@@ -853,7 +867,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if len(cantrem) >= 1:
 			await ctx.error(f'I wasn\'t able to remove the roles {", ".join(cantrem)} from **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**.')
 		else:
-			await ctx.success(f'Successfully removed all roles from **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**.')
+			if not ctx.silent:
+				await ctx.success(f'Successfully removed all roles from **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**.')
 		logch = ctx.config.get('log.moderation')
 		if logch:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))

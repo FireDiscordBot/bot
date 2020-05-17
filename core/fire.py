@@ -130,6 +130,7 @@ class Fire(commands.Bot):
         else:
             ctx = await super().get_context(message, **kwargs)
         if ctx.valid and silent:
+            ctx.silent = True
             try:
                 await message.delete()
             except Exception:
