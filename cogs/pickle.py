@@ -88,7 +88,7 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 		if arg1 is None:
 			msg = await ctx.send("I need an IGN, `key` or `watchdog`", delete_after=5)
 			return
-		arg1 = arg1.lower()
+		arg1 = arg1.lower().replace('-', '')
 		if arg2:
 			arg2 = arg2.lower()
 		if arg1.lower() == "watchdog":
