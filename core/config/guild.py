@@ -126,9 +126,15 @@ class Config:
 
     @ConfigOpt(name='mod.autorole', accepts=discord.Role, default=None, options=options, premium=True)
     async def auto_role(self, value: discord.Role):
-        '''Auto Role (Premium ) | The role given to users upon joining the server'''
+        '''Auto Role (Premium) | The role given to users upon joining the server'''
         self._bot.logger.info(f'$GREENSetting $CYANmod.autorole $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.autorole', value.id)
+
+    @ConfigOpt(name='mod.autorole.waitformsg', accepts=bool, default=False, options=options, premium=True)
+    async def auto_role(self, value: discord.Role):
+        '''Auto Role - Wait for message | Waits for the user to send a message to give the auto role'''
+        self._bot.logger.info(f'$GREENSetting $CYANmod.autorole.waitformsg $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
+        await self.update('mod.autorole.waitformsg', value)
 
     @ConfigOpt(name='commands.modonly', accepts=[discord.TextChannel], default=[], options=options)
     async def mod_only(self, value: list):

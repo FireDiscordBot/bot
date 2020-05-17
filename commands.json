@@ -284,7 +284,7 @@
             "linkfilter": {
                 "Description": "Enable different link filters. Run the command without arguments to see all filters",
                 "Usage": "{prefix}linkfilter <**filters>",
-                "Aliases": null
+                "Aliases": "linkfilters, linkblock"
             },
             "filterexcl": {
                 "Description": "Exclude channels/roles/members from the filters",
@@ -649,8 +649,8 @@
         "name": "Premium",
         "commands": {
             "autorole": {
-                "Description": "Automatically add a role to a user when they join",
-                "Usage": "{prefix}autorole [<role name/id/mention>] Use command without role argument to disable",
+                "Description": "Automatically add a role to a user when they join (Use command without role argument to disable or \"delay\" to toggle waiting for a message)",
+                "Usage": "{prefix}autorole [<role name/id/mention>]",
                 "Aliases": null
             },
             "addrank": {
