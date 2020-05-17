@@ -20,7 +20,6 @@ from jishaku.modules import resolve_extensions
 import core.coloredformat as colorformat
 from discord.ext import commands, tasks
 from fire.http import HTTPClient, Route
-from aioinflux import InfluxDBClient
 from sentry_sdk import push_scope
 from .context import Context
 from .config import GuildConfig, UserConfig
@@ -68,14 +67,6 @@ class Fire(commands.Bot):
         # SENTRY
         if 'sentry' in self.config:
             sentry_sdk.init(self.config['sentry'])
-
-        # INFLUX
-        if 'influx_user' in self.config and 'influx_pass' in self.config:
-            self.influx = InfluxDBClient(
-                db='firedev' if self.dev else 'fire',
-                username=self.config['influx_user'],
-                password=self.config['influx_pass']
-            )
 
         # GLOBAL HTTP CLIENTS
         self.http.mojang = HTTPClient(

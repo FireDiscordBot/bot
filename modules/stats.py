@@ -15,17 +15,7 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from core.influx import (
-    Shards,
-    Guilds,
-    Users,
-    Ping,
-    SocketResponses,
-    Commands,
-    Errors,
-    Messages,
-    Memory
-)
+
 from discord.ext import commands, tasks
 from core.config import GuildConfig
 import traceback
@@ -49,7 +39,6 @@ class Stats(commands.Cog):
         self.bot.stats['messages'] = 0
         self.bot.stats['errors'] = 0
         self.save_stats.start()
-        self.send_stats.start()
 
     def cog_unload(self):
         self.save_stats.cancel()
@@ -99,91 +88,6 @@ class Stats(commands.Cog):
         f = await aiofiles.open('stats.json', 'w')
         await f.write(json.dumps(self.bot.stats))
         await f.close()
-
-    @tasks.loop(seconds=4)
-    async def send_stats(self):
-        if not hasattr(self.bot, 'influx'):
-            return
-        await self.bot.wait_until_ready()
-        try:
-            dst = datetime.timedelta(hours=1)  # gotta love daylight savings
-            when = str(datetime.datetime.now(datetime.timezone.utc) + dst)
-            # for s in self.bot.shards.values():
-            sh = Shards(
-                when=when,
-                shard=0,
-                shard_id=0
-            )
-            await self.bot.influx.write(sh)
-            shards = {
-                0: {
-                    'guilds': 0,
-                    'unavailable': 0,
-                    'users': {
-                        'total': 0
-                    },
-                    'ping': round(self.bot.latency * 1000)
-                }}
-            for g in self.bot.guilds:
-                shards[0]['guilds'] += 1
-                if g.unavailable:
-                    shards[0]['unavailable'] += 1
-                shards[0]['users']['total'] += g.member_count
-            for sid, data in shards.items():
-                g = Guilds(
-                    when=when,
-                    shard=sid,
-                    guilds=data['guilds'],
-                    unavailable=data['unavailable']
-                )
-                await self.bot.influx.write(g)
-                u = Users(
-                    when=when,
-                    shard=sid,
-                    total=data['users']['total']
-                )
-                await self.bot.influx.write(u)
-                p = Ping(
-                    when=when,
-                    shard=sid,
-                    heartbeat=data['ping']
-                )
-                await self.bot.influx.write(p)
-            sr = SocketResponses(
-                when=when,
-                shard=0,
-                responses=sum(self.bot.stats['socket'].values())
-            )
-            await self.bot.influx.write(sr)
-            c = Commands(
-                when=when,
-                shard=0,
-                total=self.bot.stats['commands']
-            )
-            self.bot.stats['commands'] = 0
-            await self.bot.influx.write(c)
-            m = Messages(
-                when=when,
-                shard=0,
-                total=self.bot.stats['messages']
-            )
-            self.bot.stats['messages'] = 0
-            await self.bot.influx.write(m)
-            e = Errors(
-                when=when,
-                shard=0,
-                total=self.bot.stats['errors']
-            )
-            self.bot.stats['errors'] = 0
-            await self.bot.influx.write(e)
-            mem = Memory(
-                when=when,
-                shard=0,
-                used=round((process.memory_info().rss / 1024) / 1000)
-            )
-            await self.bot.influx.write(mem)
-        except Exception as e:
-            self.bot.logger.warn(f'$YELLOWFailed to send to influx!', exc_info=e)
 
 
 def setup(bot):
