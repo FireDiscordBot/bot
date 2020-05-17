@@ -39,7 +39,7 @@ class MessageEdit(commands.Cog):
         if not after.guild and not (before.content == after.content or after.author.bot):
             ctx = await self.bot.get_context(after)
             return await self.bot.invoke(ctx)
-        if not after.guild:
+        if not after.guild or isinstance(after.author, discord.User):
             return
         message = after
         excluded = self.bot.get_config(message.guild).get('excluded.filter')
