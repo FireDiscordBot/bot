@@ -148,7 +148,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	@has_permissions(manage_roles=True)
 	@bot_has_permissions(manage_roles=True)
 	@commands.guild_only()
-	async def autorole(self, ctx, role: typing.Union[str, Role] = None):
+	async def autorole(self, ctx, role: typing.Union[Role, str] = None):
 		if not role:
 			return await ctx.error('You must provide a role!')
 		if isinstance(role, str) and role in ['delay', 'wait']:
