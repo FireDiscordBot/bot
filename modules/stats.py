@@ -35,14 +35,12 @@ class Stats(commands.Cog):
         self.bot = bot
         if not hasattr(self.bot, 'stats'):
             self.bot.stats = json.load(open('stats.json'))
-        self.bot.stats['commands'] = 0
-        self.bot.stats['messages'] = 0
-        self.bot.stats['errors'] = 0
+        if 'commands' not in self.bot.stats:
+            self.bot.stats['commands'] = {}
         self.save_stats.start()
 
     def cog_unload(self):
         self.save_stats.cancel()
-        self.send_stats.cancel()
 
     @commands.Cog.listener()
     async def on_socket_response(self, payload):
@@ -73,15 +71,10 @@ class Stats(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command(self, ctx):
-        self.bot.stats['commands'] += 1
-
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
-        self.bot.stats['errors'] += 1
-
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        self.bot.stats['messages'] += 1
+        name = ctx.command.name
+        if not name in self.bot.stats['commands']:
+            self.bot.stats['commands'][name] = 0
+        self.bot.stats['commands'][name] += 1
 
     @tasks.loop(seconds=5)
     async def save_stats(self):
