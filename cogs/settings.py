@@ -894,7 +894,7 @@ class Settings(commands.Cog):
 			message = message.replace('{user.mention}', ctx.author.mention).replace('{user}', str(ctx.author)).replace('{user.name}', ctx.author.name).replace('{user.discrim}', ctx.author.discriminator).replace('{server}', ctx.guild.name).replace('{guild}', ctx.guild.name).replace('@everyone', '\@everyone').replace('@here', '\@here')
 			return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {message}')
 
-	@commands.command(name='linkfilter', description='Configure the link filter for this server')
+	@commands.command(name='linkfilter', description='Configure the link filter for this server', aliases=['linkfilters', 'linkblock'])
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def linkfiltercmd(self, ctx, *, enabled: str = None):
