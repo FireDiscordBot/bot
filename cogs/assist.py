@@ -199,11 +199,11 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		if ctx.author.id not in self.responses:
 			return await ctx.send(f'<a:okaygoogle:661951491082551306> Something went wrong. Try again later')
 		async with get_session(self.service, self.browser) as session:
-			await session.set_window_size(1366, 768)
+			await session.set_window_size(1920, 1080)
 			sub = 'devapi' if self.bot.dev else 'api'
 			await session.get(f'https://{sub}.gaminggeek.dev/assist/{ctx.author.id}')
 			try:
-				await session.execute_script('document.body.style.backgroundImage = \'url("https://picsum.photos/1366/768")\';')
+				await session.execute_script('document.body.style.backgroundImage = \'url("https://picsum.photos/1920/1080")\';')
 				namere = '<div class=\"show_text_content\">Your name is .*\.<\/div>'
 				namesub = f'<div class=\'show_text_content\'>Your name is {ctx.author.name}.</div>'
 				await session.execute_script(f'document.body.innerHTML = document.body.innerHTML.replace(/{namere}/gm, "{namesub}");')
