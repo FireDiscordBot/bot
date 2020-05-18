@@ -386,7 +386,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			return await ctx.send("You must specify a user")
 
 		try:
-			await ctx.guild.fetch_ban(user.id)
+			await ctx.guild.fetch_ban(user)
 			return await ctx.error('That user is already banned!')
 		except discord.NotFound:
 			pass
@@ -437,7 +437,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not user:
 			return await ctx.send("You must specify a user")
 
-		await ctx.guild.unban(discord.Object(user.id), reason=f"Unbanned by {ctx.author} for {reason}")
+		try:
+			await ctx.guild.unban(discord.Object(user.id), reason=f"Unbanned by {ctx.author} for {reason}")
+		except discord.HTTPException:
+			return await ctx.error(f'Failed to unban. Maybe they aren\'t even banned?')
 		logch = ctx.config.get('log.moderation')
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
@@ -475,6 +478,12 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 		if messages > 7:
 			messages = 7
+
+		try:
+			await ctx.guild.fetch_ban(user)
+			return await ctx.error('That user is banned so I\'m not sure how a softban is gonna do anything. May I introduce you to the unban command?')
+		except discord.NotFound:
+			pass
 
 		try:
 			await ctx.guild.ban(user, reason=f"Softbanned by {ctx.author} for {reason}", delete_message_days=messages)
