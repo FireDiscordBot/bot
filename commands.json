@@ -557,6 +557,11 @@
                 "Description": "Get DigitalOcean's status",
                 "Usage": "{prefix}dostatus",
                 "Aliases": null
+            },
+            "dbstatus": {
+                "Description": "Get Dropbox's status",
+                "Usage": "{prefix}dbstatus",
+                "Aliases": null
             }
         }
     },
