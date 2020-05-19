@@ -104,7 +104,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
         embeds = [str(e.to_dict()) for e in message.embeds]
         tokens = re.findall(self.tokenregex, str(message.system_content) + str(embeds), re.MULTILINE)
         config = self.bot.get_config(message.guild)
-        if tokens and not self.bot.dev and config.get('utils.tokendetect'):
+        if tokens and not self.bot.dev:
             try:
                 await self.token_gist(tokens, message)
             except Exception as e:
