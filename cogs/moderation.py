@@ -385,6 +385,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not user:
 			return await ctx.send("You must specify a user")
 
+		delete = re.findall(r'--?d(?:elete)? ([1-7])', reason, re.MULTILINE)
+		reason = re.sub(r'--?d(?:elete)? ([1-7])', '', reason, 0, re.MULTILINE)
+		delete = delete[0] if delete else 0
+
 		try:
 			await ctx.guild.fetch_ban(user)
 			return await ctx.error('That user is already banned!')
