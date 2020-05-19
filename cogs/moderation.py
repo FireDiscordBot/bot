@@ -385,9 +385,13 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		if not user:
 			return await ctx.send("You must specify a user")
 
-		delete = re.findall(r'--?d(?:elete)? ([1-7])', reason, re.MULTILINE)
-		reason = re.sub(r'--?d(?:elete)? ([1-7])', '', reason, 0, re.MULTILINE)
-		delete = delete[0] if delete else 0
+		delete = 0
+		if '-d' in reason:
+			delete = re.findall(r'--?d(?:elete)? (\d{1,5})', reason, re.MULTILINE)
+			reason = re.sub(r'--?d(?:elete)? (\d{1,5})', '', reason, 0, re.MULTILINE)
+			delete = int(delete[0]) if delete else 0
+			if delete > 7 or delete < 1:  # idk if \d will match a negative number lol
+				return await ctx.error(f'I cannot delete {delete} days of messages. The maximum is 7 and the minimum is 1')
 
 		try:
 			await ctx.guild.fetch_ban(user)
