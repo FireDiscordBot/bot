@@ -58,7 +58,8 @@ class MemberRemove(commands.Cog):
                     if e.action in [discord.AuditLogAction.kick, discord.AuditLogAction.ban] and e.target.id == member.id:
                         moderator = e.user
                         if moderator == member.guild.me:
-                            return
+                            moderator = None
+                            break
                         if e.action == discord.AuditLogAction.kick:
                             action = 'Kicked'
                             reason = e.reason
