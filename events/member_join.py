@@ -41,6 +41,8 @@ class MemberJoin(commands.Cog):
                     b = before[inv]
                     if b != a:
                         usedinvite = inv
+            if usedinvite:
+                self.bot.dispatch('invite_join', member, usedinvite)
             if not usedinvite and 'PUBLIC' in member.guild.features:
                 usedinvite = 'Joined without an invite (Lurking/Server Discovery)'
         conf = self.bot.get_config(member.guild)
