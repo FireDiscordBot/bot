@@ -72,6 +72,8 @@ class InviteRoles(commands.Cog):
         return True
 
     @commands.command(aliases=['inviterole', 'inviteroles', 'invroles'])
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
     async def invrole(self, ctx, invite: discord.Invite, *, role: Role):
         if role.is_default() or role.position >= ctx.guild.me.top_role.position or role.managed:
             return await ctx.error(f'I cannot give users this role')
