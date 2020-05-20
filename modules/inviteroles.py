@@ -73,6 +73,8 @@ class InviteRoles(commands.Cog):
 
     @commands.command(aliases=['inviterole', 'inviteroles', 'invroles'])
     async def invrole(self, ctx, invite: discord.Invite, *, role: Role):
+        if role.is_default() or role.position >= ctx.guild.me.top_role.position or role.managed:
+            return await ctx.error(f'I cannot give users this role')
         if invite.guild.id != ctx.guild.id:
             return await ctx.error(f'The invite must be for this guild')
         invite = invite.code
