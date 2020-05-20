@@ -674,6 +674,11 @@
                 "Usage": "{prefix}autorole [<role name/id/mention>]",
                 "Aliases": null
             },
+            "invrole": {
+                "Description": "Automatically add a role to a user when they join with a specific invite",
+                "Usage": "{prefix}invrole <invite> <role>",
+                "Aliases": "invroles, inviterole, inviteroles"
+            },
             "addrank": {
                 "Description": "Add a role that users can join through the rank command.",
                 "Usage": "{prefix}addrank <role>",
