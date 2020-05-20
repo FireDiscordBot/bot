@@ -74,9 +74,7 @@ class Tickets(commands.Cog, name="Tickets"):
 
     @tickets_group.command(name='name', description='Set the name for tickets')
     @commands.has_permissions(manage_channels=True)
-    async def tickets_name(self, ctx, name: str):
-        if len(name) > 50:
-            return await ctx.error('Name is too long, it must be 50 chars or less')
+    async def tickets_name(self, ctx, name: str = None):
         variables = {
             '{increment}': ctx.config.get('tickets.increment'),
             '{name}': ctx.author.name,
@@ -90,6 +88,8 @@ class Tickets(commands.Cog, name="Tickets"):
             embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
             embed.add_field(name='Variables', value=variables, inline=False)
             return await ctx.send(embed=embed)
+        if len(name) > 50:
+            return await ctx.error('Name is too long, it must be 50 chars or less')
         await ctx.config.set('tickets.name', name)
         fname = name
         for k, v in variables.items():
