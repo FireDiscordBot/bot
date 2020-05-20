@@ -16,6 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
+from fire.filters.invite import findinvite
 from discord.ext import commands, tasks
 from fire.converters import Role
 import traceback
@@ -29,7 +30,8 @@ class InviteRoles(commands.Cog):
         self.bot.loop.create_task(self.load_invroles())
 
     async def load_invroles(self):
-        q = 'SELECT * FROM invroles;'
+        await self.bot.wait_until_ready()
+        q = 'SELECT * FROM invrole;'
         invroles = await self.bot.db.fetch(q)
         for ir in invroles:
             if ir['gid'] not in self.bot.premium_guilds:
@@ -48,7 +50,7 @@ class InviteRoles(commands.Cog):
         if guild.id not in self.invite_roles:
             return
         invroles = [
-            guild.get_role(i['rid']) for i in self.invite_roles[guild.id] if i['inv'] == invite and guild.get_role(i['rid'])
+            guild.get_role(i['role']) for i in self.invite_roles[guild.id] if i['invite'] == invite and guild.get_role(i['role'])
         ]
         if invroles:
             try:
@@ -60,7 +62,7 @@ class InviteRoles(commands.Cog):
     async def on_invite_delete(self, invite: discord.Invite):
         con = await self.bot.db.acquire()
         async with con.transaction():
-            q = 'DELETE FROM invroles WHERE inv=$1;'
+            q = 'DELETE FROM invrole WHERE inv=$1;'
             await self.bot.db.execute(q, invite.code)
         await self.bot.db.release(con)
 
@@ -69,29 +71,26 @@ class InviteRoles(commands.Cog):
             return False
         return True
 
-    @commands.command()
-    async def invrole(self, ctx, invite: str, *, role: Role):
-        try:
-            await self.bot.fetch_invite(invite)
-        except discord.NotFound:
-            return await ctx.error(f'You must provide a valid invite')
-        except Exception:
-            return await ctx.error(f'Something went wrong while attempting to check the invite')
+    @commands.command(aliases=['inviterole', 'inviteroles', 'invroles'])
+    async def invrole(self, ctx, invite: discord.Invite, *, role: Role):
+        if invite.guild.id != ctx.guild.id:
+            return await ctx.error(f'The invite must be for this guild')
+        invite = invite.code
         if ctx.guild.id not in self.invite_roles:
              self.invite_roles[ctx.guild.id] = []
         current = [
-            i for i in self.invite_roles[guild.id] if i['inv'] == invite and i['rid'] == role.id
+            i for i in self.invite_roles[ctx.guild.id] if i['invite'] == invite and i['role'] == role.id
         ]
         if current:
             con = await self.bot.db.acquire()
             async with con.transaction():
-                q = 'DELETE FROM invroles WHERE inv=$1 AND rid=$2;'
+                q = 'DELETE FROM invrole WHERE inv=$1 AND rid=$2;'
                 await self.bot.db.execute(q, invite, role.id)
             await self.bot.db.release(con)
             return await ctx.success(f'Successfully deleted invite role {discord.utils.escape_mentions(role.name)} for discord.gg\/{invite}')
         con = await self.bot.db.acquire()
         async with con.transaction():
-            query = 'INSERT INTO invroles (\"gid\", \"rid\", \"inv\") VALUES ($1, $2, $3);'
+            query = 'INSERT INTO invrole (\"gid\", \"rid\", \"inv\") VALUES ($1, $2, $3);'
             await self.bot.db.execute(query, ctx.guild.id, role.id, invite)
         await self.bot.db.release(con)
         self.invite_roles[ctx.guild.id].append({
