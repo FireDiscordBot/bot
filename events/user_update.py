@@ -38,10 +38,12 @@ class UserUpdate(commands.Cog):
                     if not member:
                         return
                     if conf.get('mod.autodecancer') and guild.me.guild_permissions.manage_nicknames:
-                        nitroboosters = discord.utils.get(member.guild.roles, id=585534346551754755)
-                        if member.guild_permissions.manage_nicknames:
-                            pass
-                        if nitroboosters and nitroboosters in member.roles:
+                        sk1roles = [
+                            discord.utils.get(member.guild.roles, id=585534346551754755),
+                            discord.utils.get(member.guild.roles, id=436306157762773013),
+                            discord.utils.get(member.guild.roles, id=698943379181928520)
+                        ]
+                        if member.guild_permissions.manage_nicknames or any(r for r in sk1roles if r in member.roles):
                             pass
                         else:
                             nick = after.name
@@ -52,10 +54,12 @@ class UserUpdate(commands.Cog):
                                     if not self.bot.ishoisted(nick):
                                         return await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters)')
                     if conf.get('mod.autodehoist') and guild.me.guild_permissions.manage_nicknames:
-                        nitroboosters = discord.utils.get(member.guild.roles, id=585534346551754755)
-                        if member.guild_permissions.manage_nicknames:
-                            pass
-                        if nitroboosters and nitroboosters in member.roles:
+                        sk1roles = [
+                            discord.utils.get(member.guild.roles, id=585534346551754755),
+                            discord.utils.get(member.guild.roles, id=436306157762773013),
+                            discord.utils.get(member.guild.roles, id=698943379181928520)
+                        ]
+                        if member.guild_permissions.manage_nicknames or any(r for r in sk1roles if r in member.roles):
                             pass
                         else:
                             nick = after.name
@@ -72,7 +76,7 @@ class UserUpdate(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(UserUpdate(bot))
-        bot.logger.info(f'$GREENLoaded event $CYANReady!')
+        bot.logger.info(f'$GREENLoaded event $CYANUserUpdate!')
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while loading event $CYAN"Ready"', exc_info=e)
+        bot.logger.error(f'$REDError while loading event $CYAN"UserUpdate"', exc_info=e)

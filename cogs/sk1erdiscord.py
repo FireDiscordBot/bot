@@ -30,7 +30,6 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		self.bot = bot
 		self.guild = self.bot.get_guild(411619823445999637)
 		self.nitro = discord.utils.get(self.guild.roles, id=585534346551754755)
-		self.testrole = discord.utils.get(self.guild.roles, id=645067429067751436)
 		self.gist = 'b070e7f75a9083d2e211caffa0c772cc'
 		self.gistheaders = {'Authorization': f'token {bot.config["github"]}'}
 		self.modcoreheaders = {'secret': bot.config['modcore']}
@@ -79,7 +78,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):
-		if self.nitro in member.roles or self.testrole in member.roles:
+		if self.nitro in member.roles:
 			route = Route(
 				'GET',
 				f'/gists/{self.gist}'
@@ -133,9 +132,17 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
-		if self.testrole in after.roles and after.id != 287698408855044097:
-			await after.remove_roles(self.testrole, reason='not geek')
+		if after.guild.id != self.guild.id:
+			return
 		if before.roles != after.roles:
+			sk1roles = [
+				discord.utils.get(self.guild.roles, id=585534346551754755),
+				discord.utils.get(self.guild.roles, id=436306157762773013),
+				discord.utils.get(self.guild.roles, id=698943379181928520)
+			]
+			if not any(r for r in sk1roles in after.roles):
+				if not self.bot.isascii(after.nick or after.name) or self.bot.ishoisted(after.nick or after.name):
+					await after.edit(nick=self.bot.get_config(self.guild.id).get('utils.badname') or f'John Doe {after.discriminator}')
 			broles = []
 			aroles = []
 			changed = []
@@ -145,9 +152,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				aroles.append(role)
 			s = set(aroles)
 			removed = [x for x in broles if x not in s]
-			if self.nitro in removed or (self.testrole in removed and after.id == 287698408855044097):
-				if not self.bot.isascii(after.nick or after.name) or self.bot.ishoisted(after.nick or after.name):
-					await after.edit(nick=f'John Doe {after.discriminator}')
+			if self.nitro in removed:
 				route = Route(
 					'GET',
 					f'/gists/{self.gist}'
@@ -202,21 +207,13 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				general = self.guild.get_channel(411620457754787841)
 				await general.send(f'{after.mention} Your nitro perks have been removed. Boost the server to get them back :)')
 
-	async def haste(self, content, fallback: bool=False):
-		url = 'hst.sh'
-		if fallback:
-			url = 'h.inv.wtf'
-		async with aiohttp.ClientSession().post(f'https://{url}/documents', data=content) as r:
-			if r.status != 200 and not fallback:
-				return await self.haste(content, fallback=True)
-			j = await r.json()
-			return f'<https://{url}/' + j['key'] + '>'
-
 	def get_solutions(self, log):
 		solutions = []
 		for err, sol in self.solutions.items():
 			if err in log:
 				solutions.append(f'- {sol}')
+		if all(m in log for m in ['com.replaymod', 'io.framesplus']):
+			solutions.append(f'- Frames+ and Replaymod are incompatible. You will need to remove one of them')
 		if not solutions:
 			return ''
 		return 'Possible solutions:\n' + '\n'.join(solutions)
@@ -261,7 +258,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 					txt = txt.replace(line, '[line removed to protect sensitive info]')
 			if any(t in txt for t in self.logtext) and message.guild.id == 411619823445999637:
 				try:
-					url = await self.haste(txt)
+					url = await self.bot.haste(txt)
 				except Exception as e:
 					self.bot.logger.error(f'$REDFailed to upload log to hastebin', exc_info=e)
 					return
@@ -278,7 +275,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 					txt = txt.replace(line, '[line removed to protect sensitive info]')
 			if any(t in message.content for t in self.logtext) and message.guild.id == 411619823445999637:
 				try:
-					url = await self.haste(txt)
+					url = await self.bot.haste(txt)
 				except Exception as e:
 					self.bot.logger.error(f'$REDFailed to upload log to hastebin', exc_info=e)
 					return
@@ -288,7 +285,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 
 	@commands.command(description='Adds perks for Nitro Boosters')
 	async def nitroperks(self, ctx, ign: str = None):
-		if self.nitro not in ctx.author.roles and self.testrole not in ctx.author.roles:
+		if self.nitro not in ctx.author.roles:
 			return await ctx.send('no')
 		if not ign:
 			return await ctx.error('You must provide your Minecraft name!')

@@ -37,8 +37,12 @@ class MemberUpdate(commands.Cog):
                 return
             try:
                 if conf.get('mod.autodecancer') and after.guild.me.guild_permissions.manage_nicknames:
-                    nitroboosters = discord.utils.get(after.guild.roles, id=585534346551754755)
-                    if after.guild_permissions.manage_nicknames or nitroboosters in after.roles:
+                    sk1roles = [
+                            discord.utils.get(after.guild.roles, id=585534346551754755),
+                            discord.utils.get(after.guild.roles, id=436306157762773013),
+                            discord.utils.get(after.guild.roles, id=698943379181928520)
+                    ]
+                    if after.guild_permissions.manage_nicknames or any(r for r in sk1roles if r in after.roles):
                         pass
                     else:
                         if not after.nick:
@@ -48,8 +52,12 @@ class MemberUpdate(commands.Cog):
                         if not self.bot.isascii(nick.replace('‘', '\'').replace('“', '"').replace('“', '"')):
                             return await after.edit(nick=badname)
                 if conf.get('mod.autodehoist') and after.guild.me.guild_permissions.manage_nicknames:
-                    nitroboosters = discord.utils.get(after.guild.roles, id=585534346551754755)
-                    if after.guild_permissions.manage_nicknames or nitroboosters in after.roles:
+                    sk1roles = [
+                        discord.utils.get(after.guild.roles, id=585534346551754755),
+                        discord.utils.get(after.guild.roles, id=436306157762773013),
+                        discord.utils.get(after.guild.roles, id=698943379181928520)
+                    ]
+                    if after.guild_permissions.manage_nicknames or any(r for r in sk1roles if r in after.roles):
                         pass
                     else:
                         if not after.nick:
