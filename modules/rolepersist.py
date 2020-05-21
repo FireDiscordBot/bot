@@ -16,11 +16,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-from discord.ext import command
-from fire.converters import Role
+from fire.converters import Role, Member, UserWithFallback
+from discord.ext import commands
 import traceback
 import datetime
 import discord
+import typing
 
 
 class RolePersist(commands.Cog):
@@ -92,7 +93,7 @@ class RolePersist(commands.Cog):
                         query = 'DELETE FROM rolepersists WHERE gid = $1 AND uid = $2;'
                         await self.bot.db.execute(query, after.guild.id, after.id)
                     await self.bot.db.release(con)
-                self.role_persists[after.guild.id][user.id] = current
+                self.role_persists[after.guild.id][after.id] = current
                 names = ', '.join([
                     discord.utils.escape_mentions(after.guild.get_role(r).name) for r in current if after.guild.get_role(r)
                 ])  # The check for if the role exists should be pointless but better to check than error
@@ -121,10 +122,10 @@ class RolePersist(commands.Cog):
     @commands.command(aliases=['rolepersists', 'persistroles', 'persistrole'])
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def rolepersist(self, ctx, user: UserWithFallback, *roles: Role):
+    async def rolepersist(self, ctx, user: typing.Union[Member, UserWithFallback], *roles: Role):
         insert = False
         delete = False
-        if role.is_default() or role.position >= ctx.guild.me.top_role.position or role.managed:
+        if any(r.is_default() or r.position >= ctx.guild.me.top_role.position or r.managed for r in roles):
             return await ctx.error(f'I cannot give users this role')
         if ctx.guild.id not in self.role_persists:
             self.role_persists[ctx.guild.id] = {}
@@ -159,6 +160,11 @@ class RolePersist(commands.Cog):
                 await self.bot.db.execute(query, ctx.guild.id, user.id, current)
             await self.bot.db.release(con)
         self.role_persists[ctx.guild.id][user.id] = current
+        donthave = [
+            ctx.guild.get_role(r) for r in current if ctx.guild.get_member(user.id) and ctx.guild.get_role(r) not in user.roles
+        ]
+        if donthave:
+            await user.add_roles(*donthave, reason=f'Role persist by {ctx.author.id}', atomic=False)
         names = ', '.join([
             discord.utils.escape_mentions(ctx.guild.get_role(r).name) for r in current if ctx.guild.get_role(r)
         ])  # The check for if the role exists should be pointless but better to check than error
