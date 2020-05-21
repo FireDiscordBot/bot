@@ -695,9 +695,9 @@
                 "Aliases": null
             },
             "rolepersist": {
-                "Description": "Add a role that will stay with the user, even if they leave and rejoin.",
-                "Usage": "{prefix}rolepersist <member> <role>",
-                "Aliases": null
+                "Description": "Add a role(s) that will stay with the user, even if they leave and rejoin.",
+                "Usage": "{prefix}rolepersist <user> <roles>",
+                "Aliases": "rolepersists, persistroles, persistrole"
             },
             "antiraid": {
                 "Description": "Set a channel for raid alerts. These alerts allow you to ban raiders.",
