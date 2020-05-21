@@ -37,12 +37,10 @@ class Premium(commands.Cog, name="Premium Commands"):
 		self.bot.premium_guilds  = []
 		# self.reactroles = {}
 		self.joinroles = {}
-		self.rolepersists = {}
-		self.bot.loop.create_task(self.loadPremiumGuilds())
-		self.bot.loop.create_task(self.loadJoinRoles())
-		self.bot.loop.create_task(self.loadRolePersist())
+		self.bot.loop.create_task(self.load_premium())
+		self.bot.loop.create_task(self.load_ranks())
 
-	async def loadPremiumGuilds(self):
+	async def load_premium(self):
 		await self.bot.wait_until_ready()
 		self.bot.logger.info(f'$YELLOWLoading premium guilds...')
 		self.bot.premium_guilds = []
@@ -52,7 +50,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			self.bot.premium_guilds.append(guild['gid'])
 		self.bot.logger.info(f'$GREENLoaded premium guilds!')
 
-	async def loadJoinRoles(self):
+	async def load_ranks(self):
 		await self.bot.wait_until_ready()
 		self.bot.logger.info(f'$YELLOWLoading ranks...')
 		self.joinroles = {}
@@ -64,27 +62,6 @@ class Premium(commands.Cog, name="Premium Commands"):
 				self.joinroles[guild] = []
 			self.joinroles[guild].append(r['rid'])
 		self.bot.logger.info(f'$GREENLoaded ranks!')
-
-	async def loadRolePersist(self):
-		await self.bot.wait_until_ready()
-		self.bot.logger.info(f'$YELLOWLoading role persists...')
-		self.rolepersists = {}
-		query = 'SELECT * FROM rolepersist;'
-		persists = await self.bot.db.fetch(query)
-		for p in persists:
-			guild = p['gid']
-			user = p['uid']
-			role = p['rid']
-			try:
-				self.rolepersists[guild][user] = {
-					"role": role
-				}
-			except KeyError:
-				self.rolepersists[guild] = {}
-				self.rolepersists[guild][user] = {
-					"role": role
-				}
-		self.bot.logger.info(f'$GREENLoaded role persists!')
 
 	async def cog_check(self, ctx: commands.Context):
 		"""
@@ -317,106 +294,6 @@ class Premium(commands.Cog, name="Premium Commands"):
 			except KeyError:
 				return await ctx.send(f'I cannot find any ranks for this guild :c')
 
-	@commands.command(name='rolepersist', description='Add a role that will stay with the user, even if they leave and rejoin.')
-	@has_permissions(manage_roles=True)
-	@bot_has_permissions(manage_roles=True)
-	@commands.guild_only()
-	async def rolepersist(self, ctx, member: Member, *, role: Role):
-		if ctx.guild.id not in self.rolepersists:
-			self.rolepersists[ctx.guild.id] = {}
-		if role.position >= ctx.guild.me.top_role.position:
-			return await ctx.error('That role is higher than my top role, I cannot persist it to anyone')
-		if role.managed:
-			return await ctx.error('That role is managed by an integration, I cannot persist it to anyone')
-		if member.id not in self.rolepersists[ctx.guild.id]:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'INSERT INTO rolepersist (\"gid\", \"rid\", \"uid\") VALUES ($1, $2, $3);'
-				await self.bot.db.execute(query, ctx.guild.id, role.id, member.id)
-			await self.bot.db.release(con)
-			try:
-				self.rolepersists[ctx.guild.id][member.id] = {
-					"role": role.id
-				}
-			except KeyError:
-				self.rolepersists[ctx.guild.id] = {}
-				self.rolepersists[ctx.guild.id][member.id] = {
-					"role": role.id
-				}
-			if role not in member.roles:
-				try:
-					await member.add_roles(role, reason='Role Persist')
-				except Exception:
-					pass
-			await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
-			logch = ctx.config.get('log.moderation')
-			if logch:
-				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
-				embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-				embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
-				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-				embed.add_field(name='Role', value=role.mention, inline=False)
-				embed.set_footer(text=f'User ID: {member.id} | Mod ID: {ctx.author.id} | Role ID: {role.id}')
-				try:
-					await logch.send(embed=embed)
-				except Exception:
-					pass
-			return
-		else:
-			current = self.rolepersists[ctx.guild.id][member.id]['role']
-			if role.id != current:
-				con = await self.bot.db.acquire()
-				async with con.transaction():
-					query = 'UPDATE rolepersist SET rid = $1 WHERE gid = $2 AND uid = $3;'
-					await self.bot.db.execute(query, role.id, ctx.guild.id, member.id)
-				await self.bot.db.release(con)
-				self.rolepersists[ctx.guild.id][member.id] = {
-					"role": role.id
-				}
-				try:
-					crole = discord.utils.get(ctx.guild.roles, id=current)
-					await member.remove_roles(crole, reason='Role Persist')
-					await member.add_roles(role, reason='Role Persist Updated')
-				except Exception:
-					pass
-				await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
-				logch = ctx.config.get('log.moderation')
-				if logch:
-					embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
-					embed.set_author(name=f'Role Persist | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-					embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
-					embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-					embed.add_field(name='Role', value=role.mention, inline=False)
-					embed.set_footer(text=f'User ID: {member.id} | Mod ID: {ctx.author.id} | Role ID: {role.id}')
-					try:
-						await logch.send(embed=embed)
-					except Exception:
-						pass
-				return
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'DELETE FROM rolepersist WHERE gid = $1 AND uid = $2;'
-				await self.bot.db.execute(query, ctx.guild.id, member.id)
-			await self.bot.db.release(con)
-			try:
-				self.rolepersists[ctx.guild.id].pop(member.id, None)
-				await member.remove_roles(role, reason='Role Persist')
-			except Exception:
-				pass
-			await ctx.success(f'**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))}** will no longer keep the role {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}')
-			logch = ctx.config.get('log.moderation')
-			if logch:
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
-				embed.set_author(name=f'Role Persist Removed | {member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-				embed.add_field(name='User', value=f'{member}({member.id})', inline=False)
-				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
-				embed.set_footer(text=f'User ID: {member.id} | Mod ID: {ctx.author.id} | Role ID: {role.id}')
-				try:
-					await logch.send(embed=embed)
-				except Exception:
-					pass
-			return
-
 	# @commands.Cog.listener()
 	# async def on_reaction_add(self, reaction, member):
 	# 	if type(member) == discord.Member:
@@ -493,13 +370,6 @@ class Premium(commands.Cog, name="Premium Commands"):
 					await member.add_roles(role, reason='Auto-Role')
 			except Exception:
 				pass
-			try:
-				role = self.rolepersists[member.guild.id][member.id]['role']
-				r = discord.utils.get(member.guild.roles, id=role)
-				if r:
-					await member.add_roles(r, reason='Role Persist')
-			except Exception as e:
-				return
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
@@ -514,43 +384,6 @@ class Premium(commands.Cog, name="Premium Commands"):
 			except Exception as e:
 				pass
 
-	@commands.Cog.listener()
-	async def on_member_update(self, before, after):
-		broles = []
-		aroles = []
-		changed = []
-		for role in before.roles:
-			broles.append(role)
-		for role in after.roles:
-			aroles.append(role)
-		s = set(aroles)
-		removed = [x for x in broles if x not in s]
-		try:
-			role = self.rolepersists[after.guild.id][after.id]['role']
-		except KeyError:
-			return
-		r = discord.utils.get(after.guild.roles, id=role)
-		if r in removed:
-			con = await self.bot.db.acquire()
-			async with con.transaction():
-				query = 'DELETE FROM rolepersist WHERE gid = $1 AND uid = $2;'
-				await self.bot.db.execute(query, after.guild.id, after.id)
-			await self.bot.db.release(con)
-			try:
-				self.rolepersists[after.guild.id].pop(after.id, None)
-			except Exception:
-				pass
-			logch = ctx.config.get('log.moderation')
-			if logch:
-				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
-				embed.set_author(name=f'Role Persist Removed | {after}', icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
-				embed.add_field(name='User', value=f'{after}({after.id})', inline=False)
-				embed.add_field(name='Moderator', value=after.guild.me.mention, inline=False)
-				embed.set_footer(text=f'User ID: {after.id} | Mod ID: {after.guild.me.id} | Role ID: {r.id}')
-				try:
-					await logch.send(embed=embed)
-				except Exception:
-					pass
 
 def setup(bot):
 	bot.add_cog(Premium(bot))
