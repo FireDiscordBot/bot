@@ -41,6 +41,7 @@ class Fire(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.launchtime = datetime.datetime.now(datetime.timezone.utc)
+        self.started = False
 
         # COMMON ATTRIBUTES
         self.config: dict = json.load(open('config.json', 'r'))

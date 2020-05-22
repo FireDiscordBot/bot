@@ -18,11 +18,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 from core.config import UserConfig
+import humanfriendly
+import traceback
 import datetime
 import discord
 import asyncio
-import functools
-import traceback
 
 
 class Ready(commands.Cog):
@@ -36,10 +36,14 @@ class Ready(commands.Cog):
         except Exception:
             pass
         self.bot.logger.info("$GREEN-------------------------")
-        self.bot.logger.info(f"$GREENBot: {self.bot.user}")
-        self.bot.logger.info(f"$GREENID: {self.bot.user.id}")
-        self.bot.logger.info(f"$GREENGuilds: {len(self.bot.guilds)}")
-        self.bot.logger.info(f"$GREENUsers: {len(self.bot.users)}")
+        self.bot.logger.info(f"$GREENBot: $CYAN{self.bot.user}")
+        self.bot.logger.info(f"$GREENID: $CYAN{self.bot.user.id}")
+        self.bot.logger.info(f"$GREENGuilds: $CYAN{len(self.bot.guilds)}")
+        self.bot.logger.info(f"$GREENUsers: $CYAN{len(self.bot.users)}")
+        if not self.bot.started:
+            start = humanfriendly.format_timespan(datetime.datetime.now(datetime.timezone.utc) - self.bot.launchtime)
+            self.bot.logger.info(f"$GREENStarted in $CYAN{start}")
+            self.bot.started = True
         self.bot.logger.info("$GREEN-------------------------")
         for c in self.bot.configs.values():
             if not c.loaded and hasattr(c, '_guild'):
