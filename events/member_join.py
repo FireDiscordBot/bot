@@ -110,10 +110,10 @@ class MemberJoin(commands.Cog):
             badname = conf.get('utils.badname') or f'John Doe {member.discriminator}'
             if conf.get('mod.autodecancer') and member.guild.me.guild_permissions.manage_nicknames:
                 if not self.bot.isascii(member.name.replace('‘', '\'').replace('“', '"').replace('“', '"')): #fix weird mobile characters
-                    return await member.edit(nick=badname)
+                    return await member.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters')
             if conf.get('mod.autodehoist') and member.guild.me.guild_permissions.manage_nicknames:
                 if self.bot.ishoisted(member.name):
-                    return await member.edit(nick=badname)
+                    return await member.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character')
         except Exception:
             pass
 
