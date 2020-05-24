@@ -31,6 +31,7 @@ import aiohttp
 import datetime
 import discord
 import asyncpg
+import asyncio
 import logging
 import typing
 import json
@@ -111,6 +112,15 @@ class Fire(commands.Bot):
 
         # CUSTOM PERMISSIONS
         # self.permissions = {}
+
+    async def logout(self):
+        if self.get_cog('FireStatus') and not self.dev:
+            comps = ['gtbpmn9g33jk', 'xp3103fm3kpf']
+            for c in comps:
+                await asyncio.sleep(1)  # rate limits are fun
+                await self.get_cog('FireStatus').set_status(c, 'partial_outage')
+        await self.db.close()
+        await super().logout()
 
     async def get_context(self, message: discord.Message, **kwargs):
         silent = False
