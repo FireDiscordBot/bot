@@ -35,7 +35,6 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		self.modcoreheaders = {'secret': bot.config['modcore']}
 		self.reupload = r'(?:http(?:s)?://)?(paste\.ee|pastebin\.com|hastebin\.com|hasteb\.in)/(?:raw/|p/)?(\w+)'
 		self.noraw = r'(?:http(?:s)?://)?(?:justpaste)\.(?:it)/(\w+)'
-		self.logregex = r'((hyperium-)?crash-\d{4}-\d{2}-\d{2}_\d{2}\.\d{2}\.\d{2}.+\.txt|latest\.log|launcher_log\.txt|hs_err_pid\d{1,8}\.log)'
 		self.logtext = [
 			'net.minecraft.launchwrapper.Launch',
 			'# A fatal error has been detected by the Java Runtime Environment:',
@@ -236,7 +235,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			except Exception:
 				return await message.channel.send(f'I was unable to read your log. Please upload it directly rather than using {domain}')
 		for attach in message.attachments:
-			if not re.match(self.logregex, attach.filename) and not attach.filename == 'message.txt':
+			if not any(attach.filename.endswith(ext) for ext in ['.log', '.txt']):
 				return
 			try:
 				txt = await attach.read()
