@@ -49,8 +49,7 @@ bot = Fire(
     activity=discord.Game(name="with fire | inv.wtf"),
     case_insensitive=True,
     owner_id=287698408855044097,
-    max_messages=8000,
-    fetch_offline_members=False,
+    max_messages=2500,
     dev=dev
 )
 
