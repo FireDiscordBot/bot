@@ -47,13 +47,7 @@ class MessageEdit(commands.Cog):
         if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
             filters = self.bot.get_cog('Filters')
             # with suppress(Exception):
-            await self.safe_exc(filters.handle_invite, message)
-            await self.safe_exc(filters.anti_malware, message)
-            await self.safe_exc(filters.handle_paypal, message)
-            await self.safe_exc(filters.handle_youtube, message)
-            await self.safe_exc(filters.handle_twitch, message)
-            await self.safe_exc(filters.handle_twitter, message)
-            await self.safe_exc(filters.handle_shorturl, message)
+            await filters.run_all(message)
         logch = self.bot.get_config(after.guild).get('log.action')
         if after.channel.is_news():
             if before.flags.crossposted != after.flags.crossposted:

@@ -22,6 +22,8 @@ from fire.filters.shorten import findshort
 from fire.filters.invite import findinvite
 from fire.filters.paypal import findpaypal
 from fire.filters.twitch import findtwitch
+from fire.filters.gift import findgift
+from fire.filters.sku import findsku
 from discord.ext import commands
 import functools
 import datetime
@@ -46,8 +48,31 @@ class Filters(commands.Cog):
         except Exception as e:
             self.bot.logger.error(f'$REDFailed to fetch malware domains', exc_info=e)
 
-    async def handle_invite(self, message):
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+    async def safe_exc(self, coro, *args, **kwargs):
+        try:
+            await coro(*args, **kwargs)
+        except Exception:
+            pass
+
+    async def run_all(self, message, extra: str = 'lol'):  # Some filters may uncover extra content (e.g. gift metadata) and rerun all filters with that data
+        #try:
+        #    before, message = await self.bot.wait_for(
+        #        'message_edit',
+        #        check=lambda b, a: a.id == message.id,
+        #        timeout=3
+        #    )
+        #except Exception:
+        #    pass
+        await self.safe_exc(self.handle_invite, message, extra)
+        await self.safe_exc(self.anti_malware, message, extra)
+        await self.safe_exc(self.handle_paypal, message, extra)
+        await self.safe_exc(self.handle_youtube, message, extra)
+        await self.safe_exc(self.handle_twitch, message, extra)
+        await self.safe_exc(self.handle_twitter, message, extra)
+        await self.safe_exc(self.handle_shorturl, message, extra)
+
+    async def handle_invite(self, message, extra):
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
         codes = findinvite(tosearch)
         invite = None
         for fullurl, code in codes:
@@ -94,8 +119,8 @@ class Filters(commands.Cog):
                         except Exception:
                             pass
 
-    async def anti_malware(self, message):  # Get it? It gets rid of malware links so it's, anti malware. I'm hilarious!
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+    async def anti_malware(self, message, extra):  # Get it? It gets rid of malware links so it's, anti malware. I'm hilarious!
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
         if any(l in tosearch for l in self.malware):
             if 'malware' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                 try:
@@ -115,8 +140,8 @@ class Filters(commands.Cog):
                     except Exception:
                         pass
 
-    async def handle_paypal(self, message):
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+    async def handle_paypal(self, message, extra):
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
         paypal = findpaypal(tosearch)
         if paypal:
             if not message.author.permissions_in(message.channel).manage_messages:
@@ -136,9 +161,9 @@ class Filters(commands.Cog):
                         except Exception:
                             pass
 
-    async def handle_youtube(self, message):
+    async def handle_youtube(self, message, extra):
         ytcog = self.bot.get_cog('YouTube API')
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
         video = findvideo(tosearch)
         channel = findchannel(tosearch)
         invalidvid = False
@@ -201,8 +226,8 @@ class Filters(commands.Cog):
                             except Exception:
                                 pass
 
-    async def handle_twitch(self, message):
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+    async def handle_twitch(self, message, extra):
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
         twitch = findtwitch(tosearch)
         if twitch:
             if not message.author.permissions_in(message.channel).manage_messages:
@@ -222,8 +247,8 @@ class Filters(commands.Cog):
                         except Exception:
                             pass
 
-    async def handle_twitter(self, message):
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+    async def handle_twitter(self, message, extra):
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
         twitter = findtwitter(tosearch)
         if twitter:
             if not message.author.permissions_in(message.channel).manage_messages:
@@ -243,8 +268,8 @@ class Filters(commands.Cog):
                         except Exception:
                             pass
 
-    async def handle_shorturl(self, message):
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds])
+    async def handle_shorturl(self, message, extra):
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
         short = findshort(tosearch)
         if short:
             if not message.author.permissions_in(message.channel).manage_messages:
@@ -263,6 +288,71 @@ class Filters(commands.Cog):
                             await logch.send(embed=embed)
                         except Exception:
                             pass
+
+    async def handle_gift(self, message, extra):
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
+        codes = findgift(tosearch)
+        gift = None
+        for fullurl, code in codes:
+            try:
+                gift = await self.bot.http.request(discord.http.Route("GET", f"/entitlements/gift-codes/{code}?with_application=true&with_subscription_plan=true"))
+            except discord.HTTPException:
+                continue
+            if gift:
+                await self.run_all(message, extra=str(gift))
+            logch = self.bot.get_config(message.guild).get('log.action')
+            if not logch:
+                continue
+            if gift['application_id'] in ['521842831262875670']:
+                embed = discord.Embed(color=discord.Color.from_rgb(197, 126, 217), timestamp=message.created_at, description='**Nitro gift sent in** {message.channel.mention}')
+                embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
+                embed.add_field(name='Type', value=gift['subscription_plan']['name'], inline=False)
+                embed.add_field(name='Redeemed', value='Yes' if gift['redeemed'] else 'Nope', inline=False)
+                embed.set_footer(text=f"Author ID: {message.author.id}")
+                try:
+                    await logch.send(embed=embed)
+                except Exception:
+                    pass
+                gift = None
+                continue
+            embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description='**Game gift sent in** {message.channel.mention}')
+            embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
+            embed.add_field(name='Name', value=gift['store_listing']['sku']['name'], inline=False)
+            embed.add_field(name='Tagline', value=gift['store_listing']['tagline'], inline=False)
+            embed.add_field(name='Redeemed', value='Yes' if gift['redeemed'] else 'Nope', inline=False)
+            embed.set_footer(text=f"Author ID: {message.author.id}")
+            try:
+                await logch.send(embed=embed)
+            except Exception:
+                pass
+            gift = None
+
+    async def handle_sku(self, message, extra):
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
+        codes = findsku(tosearch)
+        sku = None
+        for fullurl, code in codes:
+            try:
+                sku = await self.bot.http.request(discord.http.Route("GET", f"/store/published-listings/skus/{code}"))
+            except discord.HTTPException:
+                continue
+            if sku:
+                await self.run_all(message, extra=str(sku))
+            logch = self.bot.get_config(message.guild).get('log.action')
+            if not logch:
+                continue
+            embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description='**Game SKU sent in** {message.channel.mention}')
+            embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
+            embed.add_field(name='Name', value=sku['sku']['name'], inline=False)
+            embed.add_field(name='Tagline', value=sku['tagline'], inline=False)
+            embed.add_field(name='Application Description', value=sku['sku']['application']['description'], inline=False)
+            embed.set_footer(text=f"Author ID: {message.author.id}")
+            try:
+                await logch.send(embed=embed)
+            except Exception:
+                pass
+            sku = None
+
 
 
 def setup(bot):

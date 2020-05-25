@@ -48,12 +48,6 @@ class Message(commands.Cog):
     def urlgobyebye(self, text: str):
         return re.sub(self.urlregex, '', text, 0, re.MULTILINE)
 
-    async def safe_exc(self, coro, *args, **kwargs):
-        try:
-            await coro(*args, **kwargs)
-        except Exception:
-            pass
-
     async def token_gist(self, tokens, message):
         files = {}
         for t in tokens:
@@ -149,13 +143,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
         if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
             filters = self.bot.get_cog('Filters')
             # with suppress(Exception):
-            await self.safe_exc(filters.handle_invite, message)
-            await self.safe_exc(filters.anti_malware, message)
-            await self.safe_exc(filters.handle_paypal, message)
-            await self.safe_exc(filters.handle_youtube, message)
-            await self.safe_exc(filters.handle_twitch, message)
-            await self.safe_exc(filters.handle_twitter, message)
-            await self.safe_exc(filters.handle_shorturl, message)
+            await filters.run_all(message)
         if f'{message.content.strip()} ' in commands.when_mentioned(self.bot, message):
             prefix = self.bot.get_config(message.guild).get('main.prefix')
             await message.channel.send(f'Hey! My prefix here is `{prefix}` or you can mention me :)')
