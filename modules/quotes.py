@@ -87,7 +87,11 @@ class Quotes(commands.Cog, name="Quotes"):
             if not perms.send_messages or not perms.embed_links:
                 if message.author.bot or not (perms.manage_webhooks or config.get('utils.quotehooks')):
                     return
-            message_regex = r'https?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
+            message_regex = r'(?:http(?:s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
+            botquote_regex = r'.{1,25} quote (http(s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels'
+            botquote = re.findall(botquote_regex, message.content, re.MULTILINE)
+            if botquote:
+                return
             url = re.findall(message_regex, message.content, re.MULTILINE)
             if all(u == url[0] for u in url) and len(url) > 1:  # Checks if it's one url multiple times.
                 return
@@ -118,6 +122,7 @@ class Quotes(commands.Cog, name="Quotes"):
             return await ctx.error(f'Cannot quote from an NSFW channel in a non-NSFW channel')
 
         if message.guild:
+            print('guild')
             if 'DISCOVERABLE' not in message.guild.features:
                 if message.guild != ctx.guild:
                     member = message.guild.get_member(ctx.author.id)
