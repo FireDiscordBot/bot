@@ -51,28 +51,33 @@ class Filters(commands.Cog):
     async def safe_exc(self, coro, *args, **kwargs):
         try:
             await coro(*args, **kwargs)
-        except Exception:
+        except Exception as e:
             pass
 
-    async def run_all(self, message, extra: str = 'lol'):  # Some filters may uncover extra content (e.g. gift metadata) and rerun all filters with that data
-        #try:
-        #    before, message = await self.bot.wait_for(
-        #        'message_edit',
-        #        check=lambda b, a: a.id == message.id,
-        #        timeout=3
-        #    )
-        #except Exception:
-        #    pass
-        await self.safe_exc(self.handle_invite, message, extra)
-        await self.safe_exc(self.anti_malware, message, extra)
-        await self.safe_exc(self.handle_paypal, message, extra)
-        await self.safe_exc(self.handle_youtube, message, extra)
-        await self.safe_exc(self.handle_twitch, message, extra)
-        await self.safe_exc(self.handle_twitter, message, extra)
-        await self.safe_exc(self.handle_shorturl, message, extra)
+    async def run_all(self, message, extra: str = '', exclude: list = []):  # Some filters may uncover extra content (e.g. gift metadata) and rerun all filters with that data
+        if message.author.bot:  # Somehow this STILL gets triggered by bot messages
+            return
+        if 'discord' not in exclude:
+            await self.safe_exc(self.handle_invite, message, extra)
+        if 'malware' not in exclude:
+            await self.safe_exc(self.anti_malware, message, extra)
+        if 'paypal' not in exclude:
+            await self.safe_exc(self.handle_paypal, message, extra)
+        if 'youtube' not in exclude:
+            await self.safe_exc(self.handle_youtube, message, extra)
+        if 'twitch' not in exclude:
+            await self.safe_exc(self.handle_twitch, message, extra)
+        if 'twitter' not in exclude:
+            await self.safe_exc(self.handle_twitter, message, extra)
+        if 'shorteners' not in exclude:
+            await self.safe_exc(self.handle_shorturl, message, extra)
+        if 'gift' not in exclude:
+            await self.safe_exc(self.handle_gift, message, extra)
+        if 'sku' not in exclude:
+            await self.safe_exc(self.handle_sku, message, extra)
 
     async def handle_invite(self, message, extra):
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) if not extra else extra
         codes = findinvite(tosearch)
         invite = None
         for fullurl, code in codes:
@@ -104,7 +109,12 @@ class Filters(commands.Cog):
                         pass
                     logch = self.bot.get_config(message.guild).get('log.action')
                     if logch:
-                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Invite link sent in** {message.channel.mention}')
+                        description = f'**Invite link sent in** {message.channel.mention}'
+                        if fullurl in extra:
+                            if fullurl in str(message.system_content) + str([e.to_dict() for e in message.embeds]):  # Prevent logging inf also in content/embed
+                                return
+                            description = f'**Invite link found in external content**'
+                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=description)
                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
                         embed.add_field(name='Invite Code', value=code, inline=False)
                         if isinstance(invite, dict):
@@ -120,7 +130,7 @@ class Filters(commands.Cog):
                             pass
 
     async def anti_malware(self, message, extra):  # Get it? It gets rid of malware links so it's, anti malware. I'm hilarious!
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) if not extra else extra
         if any(l in tosearch for l in self.malware):
             if 'malware' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                 try:
@@ -132,7 +142,12 @@ class Filters(commands.Cog):
                         pass
                 logch = self.bot.get_config(message.guild).get('log.action')
                 if logch:
-                    embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Known malware link sent in** {message.channel.mention}')
+                    description = f'**Known malware link sent in** {message.channel.mention}'
+                    if any(l in extra for l in self.malware):
+                        if any(l in str(message.system_content) + str([e.to_dict() for e in message.embeds]) for l in self.malware):
+                            return
+                        description = f'**Known malware link found in external content**'
+                    embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=description)
                     embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
                     embed.set_footer(text=f"Author ID: {message.author.id}")
                     try:
@@ -141,7 +156,7 @@ class Filters(commands.Cog):
                         pass
 
     async def handle_paypal(self, message, extra):
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) if not extra else extra
         paypal = findpaypal(tosearch)
         if paypal:
             if not message.author.permissions_in(message.channel).manage_messages:
@@ -152,7 +167,12 @@ class Filters(commands.Cog):
                         pass
                     logch = self.bot.get_config(message.guild).get('log.action')
                     if logch:
-                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**PayPal link sent in** {message.channel.mention}')
+                        description = f'**PayPal link sent in** {message.channel.mention}'
+                        if paypal in extra:
+                            if paypal in str(message.system_content) + str([e.to_dict() for e in message.embeds]):
+                                return
+                            description = f'**PayPal link found in external content**'
+                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=description)
                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
                         embed.add_field(name='Link', value=f'[{paypal}](https://paypal.me/{paypal})', inline=False)
                         embed.set_footer(text=f"Author ID: {message.author.id}")
@@ -163,7 +183,7 @@ class Filters(commands.Cog):
 
     async def handle_youtube(self, message, extra):
         ytcog = self.bot.get_cog('YouTube API')
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) if not extra else extra
         video = findvideo(tosearch)
         channel = findchannel(tosearch)
         invalidvid = False
@@ -181,7 +201,12 @@ class Filters(commands.Cog):
                         videoinfo = videoinfo[0]
                         logch = self.bot.get_config(message.guild).get('log.action')
                         if logch:
-                            embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube video sent in** {message.channel.mention}')
+                            description = f'**YouTube video sent in** {message.channel.mention}'
+                            if video in extra:
+                                if video in str(message.system_content) + str([e.to_dict() for e in message.embeds]):
+                                    return
+                                description = f'**YouTube video found in external content**'
+                            embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=description)
                             embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
                             embed.add_field(name='Video ID', value=video, inline=False)
                             if not invalidvid:
@@ -210,7 +235,12 @@ class Filters(commands.Cog):
                         channelinfo = channelinfo[0]
                         logch = self.bot.get_config(message.guild).get('log.action')
                         if logch:
-                            embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**YouTube channel sent in** {message.channel.mention}')
+                            description = f'**YouTube channel sent in** {message.channel.mention}'
+                            if channel in extra:
+                                if channel in str(message.system_content) + str([e.to_dict() for e in message.embeds]):
+                                    return
+                                description = f'**YouTube channel found in external content**'
+                            embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=description)
                             embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
                             if not invalidchannel:
                                 embed.add_field(name='Name', value=f'{channelinfo.get("snippet", {}).get("title", "Unknown")}', inline=False)
@@ -227,7 +257,7 @@ class Filters(commands.Cog):
                                 pass
 
     async def handle_twitch(self, message, extra):
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) if not extra else extra
         twitch = findtwitch(tosearch)
         if twitch:
             if not message.author.permissions_in(message.channel).manage_messages:
@@ -238,7 +268,12 @@ class Filters(commands.Cog):
                         pass
                     logch = self.bot.get_config(message.guild).get('log.action')
                     if logch:
-                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitch link sent in** {message.channel.mention}')
+                        description = f'**Twitch link sent in** {message.channel.mention}'
+                        if twitch in extra:
+                            if twitch in str(message.system_content) + str([e.to_dict() for e in message.embeds]):
+                                return
+                            description = f'**Twitch link found in external content**'
+                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=description)
                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
                         embed.add_field(name='Link', value=f'[{twitch}](https://twitch.tv/{twitch})', inline=False)
                         embed.set_footer(text=f"Author ID: {message.author.id}")
@@ -248,7 +283,7 @@ class Filters(commands.Cog):
                             pass
 
     async def handle_twitter(self, message, extra):
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) if not extra else extra
         twitter = findtwitter(tosearch)
         if twitter:
             if not message.author.permissions_in(message.channel).manage_messages:
@@ -259,7 +294,12 @@ class Filters(commands.Cog):
                         pass
                     logch = self.bot.get_config(message.guild).get('log.action')
                     if logch:
-                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Twitter link sent in** {message.channel.mention}')
+                        description = f'**Twitter link sent in** {message.channel.mention}'
+                        if twitter in extra:
+                            if twitter in str(message.system_content) + str([e.to_dict() for e in message.embeds]):
+                                return
+                            description = f'**Twitter link found in external content**'
+                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=description)
                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
                         embed.add_field(name='Link', value=f'[{twitter}](https://twitter.com/{twitter})', inline=False)
                         embed.set_footer(text=f"Author ID: {message.author.id}")
@@ -269,7 +309,7 @@ class Filters(commands.Cog):
                             pass
 
     async def handle_shorturl(self, message, extra):
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) if not extra else extra
         short = findshort(tosearch)
         if short:
             if not message.author.permissions_in(message.channel).manage_messages:
@@ -280,6 +320,11 @@ class Filters(commands.Cog):
                         pass
                     logch = self.bot.get_config(message.guild).get('log.action')
                     if logch:
+                        description = f'**Short link sent in** {message.channel.mention}'
+                        if short in extra:
+                            if short in str(message.system_content) + str([e.to_dict() for e in message.embeds]):
+                                return
+                            description = f'**Short link found in external content**'
                         embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Short link sent in** {message.channel.mention}')
                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
                         embed.add_field(name='Link', value=short, inline=False)
@@ -290,7 +335,7 @@ class Filters(commands.Cog):
                             pass
 
     async def handle_gift(self, message, extra):
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) if not extra else extra
         codes = findgift(tosearch)
         gift = None
         for fullurl, code in codes:
@@ -299,15 +344,15 @@ class Filters(commands.Cog):
             except discord.HTTPException:
                 continue
             if gift:
-                await self.run_all(message, extra=str(gift))
+                await self.run_all(message, extra=str(gift) + 'handle_gift', exclude=['gift'])
             logch = self.bot.get_config(message.guild).get('log.action')
             if not logch:
                 continue
             if gift['application_id'] in ['521842831262875670']:
-                embed = discord.Embed(color=discord.Color.from_rgb(197, 126, 217), timestamp=message.created_at, description='**Nitro gift sent in** {message.channel.mention}')
+                embed = discord.Embed(color=discord.Color.from_rgb(197, 126, 217), timestamp=message.created_at, description=f'**Nitro gift sent in** {message.channel.mention}')
                 embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
                 embed.add_field(name='Type', value=gift['subscription_plan']['name'], inline=False)
-                embed.add_field(name='Redeemed', value='Yes' if gift['redeemed'] else 'Nope', inline=False)
+                embed.add_field(name='Redeemed', value='Yes' if gift['uses'] == gift['max_uses'] else 'Nope', inline=False)
                 embed.set_footer(text=f"Author ID: {message.author.id}")
                 try:
                     await logch.send(embed=embed)
@@ -315,11 +360,11 @@ class Filters(commands.Cog):
                     pass
                 gift = None
                 continue
-            embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description='**Game gift sent in** {message.channel.mention}')
+            embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Game gift sent in** {message.channel.mention}')
             embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
             embed.add_field(name='Name', value=gift['store_listing']['sku']['name'], inline=False)
             embed.add_field(name='Tagline', value=gift['store_listing']['tagline'], inline=False)
-            embed.add_field(name='Redeemed', value='Yes' if gift['redeemed'] else 'Nope', inline=False)
+            embed.add_field(name='Redeemed', value='Yes' if gift['uses'] == gift['max_uses'] else 'Nope', inline=False)
             embed.set_footer(text=f"Author ID: {message.author.id}")
             try:
                 await logch.send(embed=embed)
@@ -328,7 +373,7 @@ class Filters(commands.Cog):
             gift = None
 
     async def handle_sku(self, message, extra):
-        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) + extra
+        tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) if not extra else extra
         codes = findsku(tosearch)
         sku = None
         for fullurl, code in codes:
@@ -337,21 +382,9 @@ class Filters(commands.Cog):
             except discord.HTTPException:
                 continue
             if sku:
-                await self.run_all(message, extra=str(sku))
-            logch = self.bot.get_config(message.guild).get('log.action')
-            if not logch:
-                continue
-            embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description='**Game SKU sent in** {message.channel.mention}')
-            embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
-            embed.add_field(name='Name', value=sku['sku']['name'], inline=False)
-            embed.add_field(name='Tagline', value=sku['tagline'], inline=False)
-            embed.add_field(name='Application Description', value=sku['sku']['application']['description'], inline=False)
-            embed.set_footer(text=f"Author ID: {message.author.id}")
-            try:
-                await logch.send(embed=embed)
-            except Exception:
-                pass
-            sku = None
+                sku.pop('summary', None) # prevent duped logs since summary is already in the embed description
+                await self.run_all(message, extra=str(sku), exclude=['sku'])
+                sku = None
 
 
 
