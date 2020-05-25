@@ -39,12 +39,6 @@ class Help(commands.Cog):
 [Premium](https://gaminggeek.dev/premium)
 ''')
         embed.set_author(name='Help has arrived', icon_url=str(ctx.me.avatar_url_as(static_format='png', size=2048)))
-        overrides = []
-        for build, override in self.bot.overrides.items():
-            if 'active' in override and ctx.author.id in override['active']:
-                overrides.append(build)
-        if overrides:
-            embed.set_footer(text=f'Overrides active: {", ".join(overrides)}')
         await ctx.send(embed=embed)
 
 

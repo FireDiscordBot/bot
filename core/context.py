@@ -86,10 +86,6 @@ class Context(commands.Context):
     async def dm(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):
         return await self.author.send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after)
 
-    def has_override(self, build: str = None):
-        build = self.bot.overrides.get(build, {})
-        return self.author.id in build.get('active', [])
-
     # Unfinished permissions system (this will actually come soon as I know how to do it now)
 
     # def has_permission(self, permission: str):

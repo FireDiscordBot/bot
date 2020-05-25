@@ -47,8 +47,6 @@ class Fire(commands.Bot):
         # COMMON ATTRIBUTES
         self.config: dict = json.load(open('config.json', 'r'))
         self.configs: typing.Dict[int, typing.Union[GuildConfig, UserConfig]] = {}
-        self.overrides: dict = json.load(open('overrides.json', 'r'))
-        self.override_save.start()
         self.tips = json.load(open('tips.json', 'r'))
         self.premium_guilds = []
         self.db: asyncpg.pool.Pool = None
@@ -224,16 +222,6 @@ class Fire(commands.Bot):
             for key in extra:
                 scope.set_tag(key, extra[key])
             sentry_sdk.capture_exception(error)
-
-    @tasks.loop(minutes=2)
-    async def override_save(self):
-        await self.wait_until_ready()
-        try:
-            f = await aiofiles.open('overrides.json', 'w')
-            await f.write(json.dumps(self.overrides))
-            await f.close()
-        except Exception:
-            pass
 
     async def haste(self, content, fallback: bool = False):
         route = Route(
