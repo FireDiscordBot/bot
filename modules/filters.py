@@ -112,7 +112,7 @@ class Filters(commands.Cog):
                         description = f'**Invite link sent in** {message.channel.mention}'
                         if fullurl in extra:
                             if fullurl in str(message.system_content) + str([e.to_dict() for e in message.embeds]):  # Prevent logging inf also in content/embed
-                                return
+                                continue
                             description = f'**Invite link found in external content**'
                         embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=description)
                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
