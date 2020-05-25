@@ -16,6 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
+from fire.converters import Member, UserWithFallback, TextChannel, Category, Role
 from core.config import TypeMismatchError, RestrictedOptionError, InvalidValueError
 from discord import Webhook, AsyncWebhookAdapter
 from fire.extras import MissingOverride
@@ -54,8 +55,6 @@ class CommandError(commands.Cog):
             MissingOverride,
             commands.UserInputError,
             commands.CommandOnCooldown,
-            commands.BadArgument,
-            commands.BadUnionArgument,
             commands.CheckFailure,
             commands.ArgumentParsingError,
             commands.NotOwner,
@@ -67,6 +66,17 @@ class CommandError(commands.Cog):
         # Allows us to check for original exceptions raised and sent to CommandInvokeError.
         # If nothing is found. We keep the exception passed to on_command_error.
         error = getattr(error, 'original', error)
+
+        # Check for converter errors so that errors aren't too verbose (prevents "python moment")
+        if isinstance(error, commands.BadUnionArgument):
+           if any(c in error.converters for c in [Member, UserWithFallback]):
+               return await ctx.error(f'User not found :(')
+           if any(c in error.converters for c in [TextChannel, Category]):  # Don't think I use VoiceChannel for anything
+               return await ctx.error(f'Channel not found :(')
+           if Role in error.converters:
+               return await ctx.error(f'Role not found')
+        if isinstance(error, commands.BadArgument):
+            return await ctx.error(str(error))
 
         # Anything in ignored will return and prevent anything happening.
         if isinstance(error, ignored):
