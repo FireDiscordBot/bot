@@ -103,7 +103,7 @@ class Levelhead(commands.Cog):
             embed.add_field(name="Custom Levelhead?", value="Yeah!", inline=False)
             embed.add_field(name="IGN", value=player, inline=False)
             embed.add_field(name="Levelhead", value=f"{header}:{strlevel}", inline=False)
-            if proposal:
+            if proposal and 'header_obj' not in proposal:
                 nheader = re.sub(remcolor, '', proposal['header'], 0, re.IGNORECASE)
                 nstrlevel = re.sub(remcolor, '', proposal['strlevel'], 0, re.IGNORECASE)
                 embed.add_field(name='Proposed Levelhead', value=f'{nheader}:{nstrlevel}', inline=False)
