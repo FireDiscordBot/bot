@@ -171,7 +171,7 @@ class Quotes(commands.Cog, name="Quotes"):
                         content=content,
                         username=str(message.author).replace('#0000', ''),
                         avatar_url=str(message.author.avatar_url_as(static_format='png')),
-                        embeds=message.embeds,
+                        embeds=[e for e in message.embeds if not ('url' in e.to_dict() and e.to_dict()['url'] in content)],
                         files=[(await a.to_file()) for a in message.attachments if a.size < 8388608]
                     )
                 except Exception as e:
