@@ -157,7 +157,6 @@ class Quotes(commands.Cog, name="Quotes"):
                     ]
                 except Exception as e:
                     self.bot.logger.warn(f'$YELLOWFailed to create webhook for quotes in $CYAN{ctx.channel} ({ctx.guild})', exc_info=e)
-                    existing = ['hi i am here to prevent a KeyError']
             if existing and isinstance(existing[0], discord.Webhook):
                 try:
                     content = message.content.replace('@!', '@')
