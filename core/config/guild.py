@@ -41,14 +41,6 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $CYANmain.prefix $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('main.prefix', value)
 
-    @ConfigOpt(name='main.description', accepts=str, default=None, options=options)
-    async def description(self, value: str):
-        '''Description | The server description, shown in the embed for Vanity URLs'''
-        if len(value) > 240:
-            raise InvalidValueError('main.description', value, 'Descriptions must be 240 characters or less.')
-        self._bot.logger.info(f'$GREENSetting $CYANmain.description $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('main.description', value)
-
     @ConfigOpt(name='log.moderation', accepts=discord.TextChannel, default=None, options=options)
     async def mod_logs(self, value: discord.TextChannel):
         '''Moderation Logs | The channel where moderation actions are logged'''

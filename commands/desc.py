@@ -25,13 +25,31 @@ class Description(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    async def set_desc(self, guild: discord.Guild, desc: str = None):
+        con = await self.bot.db.acquire()
+        async with con.transaction():
+            await db.execute(
+                'UPDATE vanity SET \"description\" = $2 WHERE gid = $1;',
+                guild.id,
+                desc
+            )
+        await self.bot.db.release(con)
+
     @commands.command(aliases=['desc'])
     @commands.has_permissions(manage_guild=True)
     async def description(self, ctx, *, desc: str = None):
+        vanity = await self.bot.db.fetch(
+            'SELECT * FROM vanity WHERE gid=$1;',
+            ctx.guild.id
+        )
+        if not vanity:
+            return await ctx.error(f'You must set a vanity url with `{ctx.prefix}vanityurl` before you can set a description')
+        try:
+            await self.set_desc(ctx.guild, desc)
+        except Exception:
+            return await ctx.error(f'Failed to set guild description.')
         if not desc:
-            await ctx.config.set('main.description', '')
             return await ctx.success(f'Successfully reset guild description!')
-        await ctx.config.set('main.description', desc)
         return await ctx.success(f'Successfully set guild description!')
 
 
@@ -40,5 +58,4 @@ def setup(bot):
         bot.add_cog(Description(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"desc" $GREENcommand!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $CYAN"desc"', exc_info=e)
