@@ -39,5 +39,4 @@ def setup(bot):
         bot.add_cog(Tips(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"tips" $GREENcommand!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $CYAN"tips"', exc_info=e)

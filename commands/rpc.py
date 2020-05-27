@@ -210,5 +210,4 @@ def setup(bot):
         bot.add_cog(RichPresence(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"rpc" $GREENcommand!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $CYAN"rpc"', exc_info=e)

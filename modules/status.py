@@ -155,5 +155,4 @@ def setup(bot):
         bot.add_cog(FireStatus(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"status" $GREENmodule!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding module $CYAN"status"', exc_info=e)

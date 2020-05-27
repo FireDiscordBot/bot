@@ -82,5 +82,4 @@ def setup(bot):
         bot.add_cog(TwitterStatus(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"tstatus" $GREENcommand!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $CYAN"tstatus"', exc_info=e)

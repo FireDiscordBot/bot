@@ -44,5 +44,4 @@ def setup(bot):
         bot.add_cog(Avatar(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"avatar" $GREENcommand!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $CYAN"avatar"', exc_info=e)

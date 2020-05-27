@@ -84,5 +84,4 @@ def setup(bot):
         bot.add_cog(ImgurStatus(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"imgurstatus" $GREENcommand!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $CYAN"imgurstatus"', exc_info=e)

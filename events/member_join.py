@@ -123,5 +123,4 @@ def setup(bot):
         bot.add_cog(MemberJoin(bot))
         bot.logger.info(f'$GREENLoaded event $CYANMemberJoin!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while loading event $CYAN"MemberJoin"', exc_info=e)

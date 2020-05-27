@@ -141,5 +141,4 @@ def setup(bot):
         bot.add_cog(Purge(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"purge" $GREENcommand!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $CYAN"purge"', exc_info=e)

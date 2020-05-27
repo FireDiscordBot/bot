@@ -90,5 +90,4 @@ def setup(bot):
         bot.add_cog(MemberRemove(bot))
         bot.logger.info(f'$GREENLoaded event $CYANMemberRemove!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while loading event $CYAN"MemberRemove"', exc_info=e)

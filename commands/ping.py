@@ -43,5 +43,4 @@ def setup(bot):
         bot.add_cog(Ping(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"ping" $GREENcommand!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $CYAN"ping"', exc_info=e)

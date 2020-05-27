@@ -117,5 +117,4 @@ def setup(bot):
         bot.add_cog(Levelhead(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"levelhead" $GREENcommand!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $CYAN"levelhead"', exc_info=e)

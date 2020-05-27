@@ -84,5 +84,4 @@ def setup(bot):
         bot.add_cog(MessageEdit(bot))
         bot.logger.info(f'$GREENLoaded event $CYANMessageEdit!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while loading event $CYAN"MessageEdit"', exc_info=e)

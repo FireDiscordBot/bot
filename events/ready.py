@@ -72,5 +72,4 @@ def setup(bot):
         bot.add_cog(Ready(bot))
         bot.logger.info(f'$GREENLoaded event $CYANReady!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while loading event $CYAN"Ready"', exc_info=e)

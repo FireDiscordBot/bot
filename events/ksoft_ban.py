@@ -59,5 +59,4 @@ def setup(bot):
         bot.add_cog(KsoftBan(bot))
         bot.logger.info(f'$GREENLoaded event $CYANKsoftBan!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding event $CYAN"KsoftBan"', exc_info=e)

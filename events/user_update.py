@@ -78,5 +78,4 @@ def setup(bot):
         bot.add_cog(UserUpdate(bot))
         bot.logger.info(f'$GREENLoaded event $CYANUserUpdate!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while loading event $CYAN"UserUpdate"', exc_info=e)

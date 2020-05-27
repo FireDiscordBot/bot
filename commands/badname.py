@@ -43,5 +43,4 @@ def setup(bot):
         bot.add_cog(BadName(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"badname" $GREENcommand!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $CYAN"badname"', exc_info=e)

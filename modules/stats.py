@@ -88,5 +88,4 @@ def setup(bot):
         bot.add_cog(Stats(bot))
         bot.logger.info(f'$GREENLoaded $CYANStats $GREENmodule!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while loading module $CYAN"Stats"', exc_info=e)

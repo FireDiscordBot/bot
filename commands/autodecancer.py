@@ -41,5 +41,4 @@ def setup(bot):
         bot.add_cog(AutoDecancer(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"autodecancer" $GREENcommand!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $CYAN"autodecancer"', exc_info=e)

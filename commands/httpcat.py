@@ -39,5 +39,4 @@ def setup(bot):
         bot.add_cog(HTTPCat(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"http.cat" $GREENcommand!')
     except Exception as e:
-        # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
         bot.logger.error(f'$REDError while adding command $CYAN"http.cat"', exc_info=e)
