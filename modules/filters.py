@@ -361,15 +361,16 @@ class Filters(commands.Cog):
                     pass
                 gift = None
                 continue
-            if gift['application_id'] in self.blocked_gifts:  # Fake nitro gifts
+            if gift['application_id'] in self.blocked_gifts:
                 if 'gifts' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     if not message.author.permissions_in(message.channel).manage_messages:
                         try:
                             await message.delete()
                         except Exception:
                             pass
-                        embed = discord.Embed(color=discord.Color.from_rgb(197, 126, 217), timestamp=message.created_at, description=f'**Fake Nitro gift sent in** {message.channel.mention}')
+                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Blocked gift sent in** {message.channel.mention}')
                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
+                        embed.add_field(name='Link', value=fullurl, inline=False)
                         embed.set_footer(text=f"Author ID: {message.author.id}")
                         try:
                             await logch.send(embed=embed)
@@ -404,15 +405,16 @@ class Filters(commands.Cog):
             logch = self.bot.get_config(message.guild).get('log.action')
             if not logch:
                 continue
-            if sku['sku']['application_id'] in self.blocked_gifts:  # Fake nitro gifts
+            if sku['sku']['application_id'] in self.blocked_gifts:
                 if 'gifts' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     if not message.author.permissions_in(message.channel).manage_messages:
                         try:
                             await message.delete()
                         except Exception:
                             pass
-                        embed = discord.Embed(color=discord.Color.from_rgb(197, 126, 217), timestamp=message.created_at, description=f'**Fake Nitro gift sent in** {message.channel.mention}')
+                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Blocked gift sent in** {message.channel.mention}')
                         embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
+                        embed.add_field(name='Link', value=fullurl, inline=False)
                         embed.set_footer(text=f"Author ID: {message.author.id}")
                         try:
                             await logch.send(embed=embed)
