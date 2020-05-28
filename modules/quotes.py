@@ -96,6 +96,8 @@ class Quotes(commands.Cog, name="Quotes"):
             if all(u == url[0] for u in url) and len(url) > 1:  # Checks if it's one url multiple times.
                 return
             for u in url:
+                if f'<{u}>' in message.content:
+                    continue
                 alt_ctx = await copy_context_with(ctx, content=ctx.config.get('main.prefix') + f'quote {u}')
                 if alt_ctx.valid:
                     try:
@@ -121,7 +123,6 @@ class Quotes(commands.Cog, name="Quotes"):
             return await ctx.error(f'Cannot quote from an NSFW channel in a non-NSFW channel')
 
         if message.guild:
-            print('guild')
             if 'DISCOVERABLE' not in message.guild.features:
                 if message.guild != ctx.guild:
                     member = message.guild.get_member(ctx.author.id)
