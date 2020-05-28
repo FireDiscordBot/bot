@@ -903,7 +903,7 @@ class Settings(commands.Cog):
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def linkfiltercmd(self, ctx, *, enabled: str = None):
-		options = ['discord', 'youtube', 'twitch', 'twitter', 'paypal', 'malware', 'shorteners']
+		options = ['discord', 'youtube', 'twitch', 'twitter', 'paypal', 'malware', 'shorteners', 'gifts']
 		if not enabled:
 			return await ctx.error(f'You must provide a valid filter(s). You can choose from {", ".join(options)}')
 		enabled = enabled.split(' ')

@@ -62,7 +62,7 @@ class Config:
     @ConfigOpt(name='mod.linkfilter', accepts=[str], default=[], options=options)
     async def link_filter(self, value: list):
         '''Link Filter | The filters of which any links found will be deleted (unless they have Manage Messages)'''
-        valid = ['discord', 'youtube', 'twitch', 'twitter', 'paypal', 'malware', 'shorteners']
+        valid = ['discord', 'youtube', 'twitch', 'twitter', 'paypal', 'malware', 'shorteners', 'gifts']
         if any(v not in valid for v in value):
             raise TypeMismatchError(type=', '.join([v for v in value if v not in valid]), accepted=', '.join(valid), option='mod.linkfilter')
         self._bot.logger.info(f'$GREENSetting $CYANmod.linkfilter $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
