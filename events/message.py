@@ -118,7 +118,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             ctx = await self.bot.get_context(message)
             alt_ctx = await copy_context_with(
                 ctx,
-                content=self.bot.get_config(message.guild).get('main.prefix') + f'remind {content}'
+                content=ctx.config.get('main.prefix') + f'remind {content}'
             )
             if alt_ctx.valid:
                 await alt_ctx.command.invoke(alt_ctx)

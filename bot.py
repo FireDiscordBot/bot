@@ -104,6 +104,9 @@ async def blacklist_check(ctx):
 
 @bot.check
 async def cmdperm_check(ctx):
+    if ctx.author.bot:
+        return False
+        # somehow bots can trigger auto quotes but not reminders even though it's the same code lol
     if isinstance(ctx.channel, discord.DMChannel):
         return True
     if ctx.bot.isadmin(ctx.author):
