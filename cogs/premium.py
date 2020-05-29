@@ -146,32 +146,6 @@ class Premium(commands.Cog, name="Premium Commands"):
 			await ctx.config.set('mod.autorole', role)
 			return await ctx.success(f'Successfully enabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}! All new members will recieve the {discord.utils.escape_mentions(role.name)} role.')
 
-	@commands.command(name='antiraid', description='Configure the channel for antiraid alerts')
-	@commands.has_permissions(manage_channels=True)
-	@commands.bot_has_permissions(ban_members=True)
-	@commands.guild_only()
-	async def antiraid(self, ctx, channel: TextChannel = None):
-		if not channel:
-			await ctx.config.set('mod.antiraid', None)
-			return await ctx.send(f'I\'ve reset the antiraid alert channel.')
-		else:
-			await ctx.config.set('mod.antiraid', channel)
-			return await ctx.send(f'Antiraid alerts will now be sent in {channel.mention}')
-
-	async def _setraidmsg(self, id: int, message: str):
-		self.raidmsgs[id] = message
-		await asyncio.sleep(300)
-		self.raidmsgs[id] = None
-		self.bot.dispatch('msgraid_attempt', self.bot.get_guild(id), self.msgraiders[id])
-
-	@commands.command(name='raidmsg', description='Set the raid message for the server. Anyone who says it will get banned')
-	@commands.has_permissions(ban_members=True)
-	@commands.bot_has_permissions(ban_members=True)
-	async def raidmsg(self, ctx, *, msg: str):
-		await ctx.message.delete()
-		await ctx.send(f'Raid message set! Anyone who sends that message in the next 5 minutes will be added to the list.\nI will alert you in your raid alerts channel with the list of raiders :)')
-		self.bot.loop.create_task(self._setraidmsg(ctx.guild.id, msg))
-
 	@commands.command(name='addrank', description='Add a role that users can join through the rank command.')
 	@has_permissions(manage_roles=True)
 	@bot_has_permissions(manage_roles=True)

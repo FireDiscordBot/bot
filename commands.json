@@ -699,16 +699,6 @@
                 "Usage": "{prefix}rolepersist <user> <roles>",
                 "Aliases": "rolepersists, persistroles, persistrole"
             },
-            "antiraid": {
-                "Description": "Set a channel for raid alerts. These alerts allow you to ban raiders.",
-                "Usage": "{prefix}antiraid <channel>",
-                "Aliases": null
-            },
-            "raidmsg": {
-                "Description": "Set a raid message. Any user who sends the message will be added to a list and send to your raid alerts channel.",
-                "Usage": "{prefix}raidmsg <message>",
-                "Aliases": null
-            },
             "redirect": {
                 "Description": "Create a redirect to any website using inv.wtf, e.g. inv.wtf/bot. Use `$redirect <slug> delete` to delete the redirect.",
                 "Usage": "{prefix}redirect <slug> <url>",
