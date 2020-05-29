@@ -88,7 +88,7 @@ class Quotes(commands.Cog, name="Quotes"):
                 if message.author.bot or not (perms.manage_webhooks or config.get('utils.quotehooks')):
                     return
             message_regex = r'(?:http(?:s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
-            botquote_regex = r'.{1,25} quote (http(s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels'
+            botquote_regex = r'.{1,25}\s?quote (http(s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels'
             botquote = re.findall(botquote_regex, message.content, re.MULTILINE)
             if botquote:
                 return
