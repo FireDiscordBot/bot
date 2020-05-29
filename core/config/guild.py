@@ -20,6 +20,7 @@ from .constants import ConfigOpt, DISCORD_CONVERTERS
 from .errors import *
 import discord
 import inspect
+import asyncio
 import json
 
 
@@ -103,12 +104,6 @@ class Config:
         '''Spam Prevention | Detect and delete spam using ChatWatch'''
         self._bot.logger.info(f'$GREENSetting $CYANmod.nospam $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.nospam', value)
-
-    @ConfigOpt(name='mod.antiraid', accepts=discord.TextChannel, default=None, options=options, premium=True)
-    async def anti_raid(self, value: discord.TextChannel):
-        '''Anti Raid (Premium) | The channel where raid alerts are sent'''
-        self._bot.logger.info(f'$GREENSetting $CYANmod.antiraid $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('mod.antiraid', value.id)
 
     @ConfigOpt(name='mod.autorole', accepts=discord.Role, default=None, options=options, premium=True)
     async def auto_role(self, value: discord.Role):
@@ -234,7 +229,7 @@ class Config:
         if self.options[option]['restricted'] and self._guild.id not in self.options[option]['restricted']:
             return self.options[option]['default']  # Return default value if restricted :)
         if option not in self._data:
-            self._data[option] = self.options[option]['default']  # Ensure the value actually exists
+            return self.options[option]['default']  # Return default value if it's not even in the config :)
         accept = self.options[option]['accepts']
         acceptlist = False
         if isinstance(self._guild, discord.Guild):
@@ -253,14 +248,6 @@ class Config:
         return self._data[option]
 
     async def set(self, opt: str, value):
-        changed = False
-        for option in self.options:
-            if option not in self._data:
-                self._bot.logger.info(f'$GREENAdding option $CYAN{option} $GREENfor guild $CYAN{self._guild}')
-                self._data[option] = self.options[opt]['default']
-                changed = True
-        if changed:
-            await self.save()
         if opt not in self.options:
             raise InvalidOptionError(opt)
         option = self.options[opt]
@@ -300,6 +287,32 @@ class Config:
         else:
             self._data = json.loads(conf[0]['data'])
             self.loaded = True
+        changed = False
+        keys = self._data.copy().keys()
+        for opt in keys:
+            try:
+                val = self.get(opt)
+            except InvalidOptionError:
+                self._bot.logger.warn(f'$YELLOWRemoving invalid option $CYAN{opt} $GREENfor guild $CYAN{self._guild}')
+                self._data.pop(opt)
+                changed = True
+                continue
+            accepts = self.options[opt]['accepts']
+            if not isinstance(accepts, list) and val is not None and not isinstance(val, accepts):
+                self._bot.logger.info(f'$GREENSetting option $CYAN{opt} $GREENto default for guild $CYAN{self._guild} $GREENdue to mismatched types')
+                self._data[opt] = self.options[opt]['default']
+                changed = True
+            elif isinstance(accepts, list):
+                if not isinstance(val, list):
+                    self._bot.logger.info(f'$GREENSetting option $CYAN{opt} $GREENto default for guild $CYAN{self._guild} $GREENdue to mismatched types')
+                    self._data[opt] = self.options[opt]['default']
+                    changed = True
+                elif val and not isinstance(val[0], accepts[0]):
+                    self._bot.logger.info(f'$GREENSetting option $CYAN{opt} $GREENto default for guild $CYAN{self._guild} $GREENdue to mismatched types')
+                    self._data[opt] = self.options[opt]['default']
+                    changed = True
+        if changed:
+            await self.save()
 
     async def save(self):
         con = await self._db.acquire()
