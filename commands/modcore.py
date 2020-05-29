@@ -55,9 +55,9 @@ class Modcore(commands.Cog):
                     purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}](https://api.modcore.sk1er.club/serve/cape/dynamic/{cid})**') for p in purchases]
         purchases = ', '.join([i for i in purchases])
         embed = discord.Embed(title=f'{player}\'s Modcore Profile', color=ctx.author.color)
-        embed.add_field(name='Name', value=player, inline=False)
         embed.add_field(name='UUID', value=uuid, inline=False)
         embed.add_field(name='Enabled Cosmetics', value=purchases or 'No Cosmetics', inline=False)
+        embed.add_field(name='Status' if profile['online'] else 'Last Seen', value=profile.get('status', 'Unknown'), inline=False)
         return await ctx.send(embed=embed)
 
 
