@@ -82,9 +82,18 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             f'/gists'
         )
         try:
-            await self.bot.http.github.request(
+            gist = await self.bot.http.github.request(
                 route,
                 json=body,
+                headers=self.gistheaders
+            )
+            await asyncio.sleep(30)
+            route = Route(
+                'DELETE',
+                f'/gists/{gist["id"]}'
+            )
+            await self.bot.http.github.request(
+                route,
                 headers=self.gistheaders
             )
         except Exception as e:
