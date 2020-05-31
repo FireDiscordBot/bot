@@ -22,6 +22,7 @@ import aiohttp
 import asyncio
 import asyncpg
 import logging
+import uvloop
 import json
 import os
 
@@ -39,6 +40,10 @@ async def get_pre(bot, message):
     if bot.dev:
         return commands.when_mentioned_or(prefix, 'dev ', 'Dev ')(bot, message)
     return commands.when_mentioned_or(prefix, 'fire ', 'Fire ')(bot, message)
+
+if os.name != 'nt':
+    uvloop.install()
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 dev = False
 if os.environ.get("FIREENV", "production") == "dev":
