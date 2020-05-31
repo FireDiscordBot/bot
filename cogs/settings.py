@@ -589,11 +589,6 @@ class Settings(commands.Cog):
 			await ctx.config.set('log.action', actionlogs)
 		except asyncio.TimeoutError:
 			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
-			try:
-				[await m.delete() for m in setupmsgs]
-				return
-			except Exception:
-				return
 		await asyncio.sleep(2)
 		await ctx.send('Ok. Next is link deletion. Discord invites are enabled by default but you can enable more with `$linkfilter`')
 		await asyncio.sleep(2)
@@ -620,11 +615,6 @@ class Settings(commands.Cog):
 			await ctx.config.set('mod.linkfilter', linkfilter)
 		except asyncio.TimeoutError:
 			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
-			try:
-				[await m.delete() for m in setupmsgs]
-				return
-			except Exception:
-				return
 		await asyncio.sleep(2)
 		await ctx.send('Ok. Next is dupe checking. If a user attempts to send the same message again, I will delete it (that is, if I have permission to do so)')
 		await asyncio.sleep(2)
@@ -649,11 +639,6 @@ class Settings(commands.Cog):
 			await ctx.config.set('mod.dupecheck', dupecheck)
 		except asyncio.TimeoutError:
 			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
-			try:
-				[await m.delete() for m in setupmsgs]
-				return
-			except Exception:
-				return
 		await asyncio.sleep(2)
 		await ctx.send('Ok. Now we\'re onto global bans. Fire uses the KSoft.Si API to check for naughty people. If enabled, I will ban any of these naughty people if they attempt to join.')
 		await asyncio.sleep(2)
@@ -678,11 +663,6 @@ class Settings(commands.Cog):
 			await ctx.config.set('mod.globalbans', globalbans)
 		except asyncio.TimeoutError:
 			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
-			try:
-				[await m.delete() for m in setupmsgs]
-				return
-			except Exception:
-				return
 		await asyncio.sleep(2)
 		await ctx.send('The penultimate setting, auto-decancer. This renames users with "cancerous" names (non-ascii)')
 		await asyncio.sleep(2)
