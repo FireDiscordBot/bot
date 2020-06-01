@@ -50,7 +50,7 @@ if os.environ.get("FIREENV", "production") == "dev":
     dev = True
 bot = Fire(
     command_prefix=get_pre,
-    status=discord.Status.idle,
+    status=discord.Status.online,
     activity=discord.Game(name="with fire | inv.wtf"),
     case_insensitive=True,
     owner_id=287698408855044097,
