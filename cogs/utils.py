@@ -56,7 +56,8 @@ region = {
 	'us-central': '🇺🇸 Central US',
 	'us-south': '🇺🇸 US South',
 	'us-east': '🇺🇸 US East',
-	'us-west': '🇺🇸 US West'
+	'us-west': '🇺🇸 US West',
+	'london': 'stop using deprecated regions >:('
 }
 
 notifs = {
