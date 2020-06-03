@@ -36,7 +36,8 @@ class Filters(commands.Cog):
         self.bot = bot
         self.imgext = ['.png', '.jpg', '.gif']
         self.malware = []
-        self.allowed_invites = [inv for inv in open('allowed_invites.txt').read().split('\n') if inv] # Remove empty strings
+        self.blocked_gifts = [gift for gift in open('blocked_gifts.txt').read().split('\n') if gift]
+        self.allowed_invites = [inv for inv in open('allowed_invites.txt').read().split('\n') if inv]
         self.bot.loop.create_task(self.get_malware())
 
     async def get_malware(self):
@@ -360,6 +361,23 @@ class Filters(commands.Cog):
                     pass
                 gift = None
                 continue
+            if gift['application_id'] in self.blocked_gifts:
+                if 'gifts' in self.bot.get_config(message.guild).get('mod.linkfilter'):
+                    if not message.author.permissions_in(message.channel).manage_messages:
+                        try:
+                            await message.delete()
+                        except Exception:
+                            pass
+                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Blocked gift sent in** {message.channel.mention}')
+                        embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
+                        embed.add_field(name='Link', value=fullurl, inline=False)
+                        embed.set_footer(text=f"Author ID: {message.author.id}")
+                        try:
+                            await logch.send(embed=embed)
+                        except Exception:
+                            pass
+                        gift = None
+                        continue
             embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Game gift sent in** {message.channel.mention}')
             embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
             embed.add_field(name='Name', value=gift['store_listing']['sku']['name'], inline=False)
@@ -384,7 +402,26 @@ class Filters(commands.Cog):
             if sku:
                 sku.pop('summary', None) # prevent duped logs since summary is already in the embed description
                 await self.run_all(message, extra=str(sku), exclude=['sku'])
-                sku = None
+            logch = self.bot.get_config(message.guild).get('log.action')
+            if not logch:
+                continue
+            if sku['sku']['application_id'] in self.blocked_gifts:
+                if 'gifts' in self.bot.get_config(message.guild).get('mod.linkfilter'):
+                    if not message.author.permissions_in(message.channel).manage_messages:
+                        try:
+                            await message.delete()
+                        except Exception:
+                            pass
+                        embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'**Blocked gift sent in** {message.channel.mention}')
+                        embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
+                        embed.add_field(name='Link', value=fullurl, inline=False)
+                        embed.set_footer(text=f"Author ID: {message.author.id}")
+                        try:
+                            await logch.send(embed=embed)
+                        except Exception:
+                            pass
+                        sku = None
+                        continue
 
 
 

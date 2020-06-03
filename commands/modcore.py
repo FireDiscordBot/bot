@@ -47,17 +47,14 @@ class Modcore(commands.Cog):
         purchases = [self.modcoref(c) for c, e in profile.get('purchase_profile', {'No Cosmetics': True}).items() if e]
         for c, s in profile.get('cosmetic_settings', {}).items():
             if s != {} and s.get('enabled', False):
-                if 'STATIC' in c:
+                if 'id' in s:
                     cid = s['id']
-                    purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}](https://api.modcore.sk1er.club/serve/cape/static/{cid})**') for p in purchases]
-                elif 'DYNAMIC' in c:
-                    cid = s['id']
-                    purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}](https://api.modcore.sk1er.club/serve/cape/dynamic/{cid})**') for p in purchases]
+                    purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}](https://api.modcore.sk1er.club/serve/{"cape" if "CAPE" in c else "skin"}/{"static" if "STATIC" in c else "dynamic"}/{cid})**') for p in purchases]
         purchases = ', '.join([i for i in purchases])
         embed = discord.Embed(title=f'{player}\'s Modcore Profile', color=ctx.author.color)
-        embed.add_field(name='Name', value=player, inline=False)
         embed.add_field(name='UUID', value=uuid, inline=False)
         embed.add_field(name='Enabled Cosmetics', value=purchases or 'No Cosmetics', inline=False)
+        embed.add_field(name='Status' if profile['online'] else 'Last Seen', value=profile.get('status', 'Unknown'), inline=False)
         return await ctx.send(embed=embed)
 
 

@@ -34,8 +34,6 @@ import re
 class Message(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.raidmsgs = {}
-        self.msgraiders = {}
         self.dupecheck = {}
         self.uuidregex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
         self.urlregex = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
@@ -82,9 +80,18 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             f'/gists'
         )
         try:
-            await self.bot.http.github.request(
+            gist = await self.bot.http.github.request(
                 route,
                 json=body,
+                headers=self.gistheaders
+            )
+            await asyncio.sleep(30)
+            route = Route(
+                'DELETE',
+                f'/gists/{gist["id"]}'
+            )
+            await self.bot.http.github.request(
+                route,
                 headers=self.gistheaders
             )
         except Exception as e:
@@ -118,7 +125,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             ctx = await self.bot.get_context(message)
             alt_ctx = await copy_context_with(
                 ctx,
-                content=self.bot.get_config(message.guild).get('main.prefix') + f'remind {content}'
+                content=ctx.config.get('main.prefix') + f'remind {content}'
             )
             if alt_ctx.valid:
                 await alt_ctx.command.invoke(alt_ctx)
@@ -133,11 +140,6 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
                     if thismsg == lastmsg and not message.author.permissions_in(message.channel).manage_messages:
                         await message.delete()
             self.dupecheck[message.author.id] = message.content
-        premium = self.bot.premium_guilds
-        if message.guild and message.guild.id in premium:
-            raidmsg = self.raidmsgs.get(message.guild.id, False)
-            if raidmsg and raidmsg in message.content:
-                self.msgraiders.get(message.guild.id, []).append(message.author)
         excluded = config.get('excluded.filter')
         roleids = [r.id for r in message.author.roles]
         if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:

@@ -28,7 +28,7 @@ class Description(commands.Cog):
     async def set_desc(self, guild: discord.Guild, desc: str = None):
         con = await self.bot.db.acquire()
         async with con.transaction():
-            await db.execute(
+            await self.bot.db.execute(
                 'UPDATE vanity SET \"description\" = $2 WHERE gid = $1;',
                 guild.id,
                 desc

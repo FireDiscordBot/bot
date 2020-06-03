@@ -59,26 +59,16 @@ class Settings(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.recentgban = []
-		self.joincache = {}
 		if not hasattr(self.bot, 'invites'):
 			self.bot.invites = {}
 		self.bot.load_invites = self.load_invites
 		self.bot.aliases = {}
 		self.bot.loop.create_task(self.bot.load_invites())
 		self.bot.loop.create_task(self.load_aliases())
-		self.bot.loop.create_task(self.load_data())
 		self.refresh_invites.start()
 
 	def clean(self, text: str):
 		return re.sub(r'[^A-Za-z0-9.\/ ]', '', text, 0, re.MULTILINE)
-
-	async def load_data(self):
-		await self.bot.wait_until_ready()
-		for g in self.bot.guilds:
-			self.joincache[g.id] = []
-			message = self.bot.get_cog('Message')
-			message.raidmsgs[g.id] = None
-			message.msgraiders[g.id] = []
 
 	@tasks.loop(minutes=2)
 	async def refresh_invites(self):
@@ -599,11 +589,6 @@ class Settings(commands.Cog):
 			await ctx.config.set('log.action', actionlogs)
 		except asyncio.TimeoutError:
 			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
-			try:
-				[await m.delete() for m in setupmsgs]
-				return
-			except Exception:
-				return
 		await asyncio.sleep(2)
 		await ctx.send('Ok. Next is link deletion. Discord invites are enabled by default but you can enable more with `$linkfilter`')
 		await asyncio.sleep(2)
@@ -630,11 +615,6 @@ class Settings(commands.Cog):
 			await ctx.config.set('mod.linkfilter', linkfilter)
 		except asyncio.TimeoutError:
 			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
-			try:
-				[await m.delete() for m in setupmsgs]
-				return
-			except Exception:
-				return
 		await asyncio.sleep(2)
 		await ctx.send('Ok. Next is dupe checking. If a user attempts to send the same message again, I will delete it (that is, if I have permission to do so)')
 		await asyncio.sleep(2)
@@ -659,11 +639,6 @@ class Settings(commands.Cog):
 			await ctx.config.set('mod.dupecheck', dupecheck)
 		except asyncio.TimeoutError:
 			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
-			try:
-				[await m.delete() for m in setupmsgs]
-				return
-			except Exception:
-				return
 		await asyncio.sleep(2)
 		await ctx.send('Ok. Now we\'re onto global bans. Fire uses the KSoft.Si API to check for naughty people. If enabled, I will ban any of these naughty people if they attempt to join.')
 		await asyncio.sleep(2)
@@ -688,11 +663,6 @@ class Settings(commands.Cog):
 			await ctx.config.set('mod.globalbans', globalbans)
 		except asyncio.TimeoutError:
 			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
-			try:
-				[await m.delete() for m in setupmsgs]
-				return
-			except Exception:
-				return
 		await asyncio.sleep(2)
 		await ctx.send('The penultimate setting, auto-decancer. This renames users with "cancerous" names (non-ascii)')
 		await asyncio.sleep(2)
@@ -935,7 +905,7 @@ class Settings(commands.Cog):
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def linkfiltercmd(self, ctx, *, enabled: str = None):
-		options = ['discord', 'youtube', 'twitch', 'twitter', 'paypal', 'malware', 'shorteners']
+		options = ['discord', 'youtube', 'twitch', 'twitter', 'paypal', 'malware', 'shorteners', 'gifts']
 		if not enabled:
 			return await ctx.error(f'You must provide a valid filter(s). You can choose from {", ".join(options)}')
 		enabled = enabled.split(' ')
