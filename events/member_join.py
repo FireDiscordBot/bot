@@ -77,6 +77,7 @@ class MemberJoin(commands.Cog):
                 '{user.discrim}': member.discriminator,
                 '{server}': str(member.guild),
                 '{guild}': str(member.guild),
+                '{count}': member.guild.member_count,
                 '@everyone': u'@\u200beveryone',  # Nobody needs @everyone in a join/leave message
                 '@here': u'@\u200bhere'
             }
