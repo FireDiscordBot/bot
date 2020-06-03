@@ -794,8 +794,9 @@ class Settings(commands.Cog):
 			'{user.mention}': ctx.author.mention,
 			'{user.name}': ctx.author.name,
 			'{user.discrim}': ctx.author.discriminator,
-			'{server}|{guild}': ctx.guild.name,
-			'{count}': ctx.guild.member_count
+			'{guild}': ctx.guild.name,
+			'{server}': ctx.guild.name,
+			'{count}': str(ctx.guild.member_count)
 		}
 		if not channel:
 			joinmsg = ctx.config.get('greet.joinmsg')
@@ -804,21 +805,13 @@ class Settings(commands.Cog):
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'<:xmark:674359427830382603> Please provide a channel and message for join messages.')
 				embed.add_field(name='Variables', value='\n'.join([f'{k}: {v}' for k, v in variables.items()]), inline=False)
 				return await ctx.send(embed=embed)
-			variables.update({
-				'{guild}': ctx.guild.name,
-				'{server}': ctx.guild.name
-			})
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**Current Join Message Settings**\nDo __{ctx.prefix}joinmsg disable__ to disable join messages')
 			embed.add_field(name='Channel', value=joinchan.mention if joinchan else 'Not Set (Not sure how you managed to do this)', inline=False)
 			for k, v in variables.items():
-				joinmsg.replace(k, v)
+				joinmsg = joinmsg.replace(k, v)
 			embed.add_field(name='Message', value=joinmsg, inline=False)
 			embed.add_field(name='Variables', value='\n'.join([f'{k}: {v}' for k, v in variables.items()]), inline=False)
 			return await ctx.send(embed=embed)
-		variables.update({
-			'{guild}': ctx.guild.name,
-			'{server}': ctx.guild.name
-		})
 		if isinstance(channel, str) and channel.lower() in ['off', 'disable', 'false']:
 			joinmsg = ctx.config.get('greet.joinmsg')
 			if not joinmsg:
@@ -834,14 +827,14 @@ class Settings(commands.Cog):
 				return await ctx.error('You can\'t set a channel without setting a message.')
 			await ctx.config.set('greet.joinchannel', channel)
 			for k, v in variables.items():
-				joinmsg.replace(k, v)
+				joinmsg = joinmsg.replace(k, v)
 			return await ctx.success(f'Join messages will show in {channel.mention}!\nExample: {joinmsg}')
 		else:
 			await ctx.config.set('greet.joinmsg', message)
 			await ctx.config.set('greet.joinchannel', channel)
 			for k, v in variables.items():
-				joinmsg.replace(k, v)
-			return await ctx.success(f'Join messages will show in {channel.mention}!\nExample: {joinmsg}')
+				message = message.replace(k, v)
+			return await ctx.success(f'Join messages will show in {channel.mention}!\nExample: {message}')
 
 	@commands.command(name='leavemsg', description='Set the channel and message for leave messages')
 	@commands.has_permissions(manage_guild=True)
@@ -852,8 +845,9 @@ class Settings(commands.Cog):
 			'{user.mention}': ctx.author.mention,
 			'{user.name}': ctx.author.name,
 			'{user.discrim}': ctx.author.discriminator,
-			'{server}|{guild}': ctx.guild.name,
-			'{count}': ctx.guild.member_count
+			'{server}': ctx.guild.name,
+			'{guild}': ctx.guild.name,
+			'{count}': str(ctx.guild.member_count)
 		}
 		if not channel:
 			leavemsg = ctx.config.get('greet.leavemsg')
@@ -862,21 +856,13 @@ class Settings(commands.Cog):
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'<:xmark:674359427830382603> Please provide a channel and message for leave messages.')
 				embed.add_field(name='Variables', value='\n'.join([f'{k}: {v}' for k, v in variables.items()]), inline=False)
 				return await ctx.send(embed=embed)
-			variables.update({
-				'{guild}': ctx.guild.name,
-				'{server}': ctx.guild.name
-			})
 			embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**Current Leave Message Settings**\nDo __{ctx.prefix}leavemsg disable__ to disable leave messages')
 			embed.add_field(name='Channel', value=leavechan.mention if leavechan else 'Not Set (Not sure how you managed to do this)', inline=False)
 			for k, v in variables.items():
-				leavemsg.replace(k, v)
+				leavemsg = leavemsg.replace(k, v)
 			embed.add_field(name='Message', value=leavemsg, inline=False)
 			embed.add_field(name='Variables', value='\n'.join([f'{k}: {v}' for k, v in variables.items()]), inline=False)
 			return await ctx.send(embed=embed)
-		variables.update({
-			'{guild}': ctx.guild.name,
-			'{server}': ctx.guild.name
-		})
 		if isinstance(channel, str) and channel.lower() in ['off', 'disable', 'false']:
 			leavemsg = ctx.config.get('greet.leavemsg')
 			if not leavemsg:
@@ -892,14 +878,14 @@ class Settings(commands.Cog):
 				return await ctx.error('You can\'t set a channel without setting a message.')
 			await ctx.config.set('greet.leavechannel', channel)
 			for k, v in variables.items():
-				leavemsg.replace(k, v)
+				leavemsg = leavemsg.replace(k, v)
 			return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {leavemsg}')
 		else:
 			await ctx.config.set('greet.leavemsg', message)
 			await ctx.config.set('greet.leavechannel', channel)
 			for k, v in variables.items():
-				leavemsg.replace(k, v)
-			return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {leavemsg}')
+				message = message.replace(k, v)
+			return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {message}')
 
 	@commands.command(name='linkfilter', description='Configure the link filter for this server', aliases=['linkfilters', 'linkblock'])
 	@commands.has_permissions(manage_guild=True)
