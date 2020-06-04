@@ -22,7 +22,6 @@ import aiohttp
 import asyncio
 import asyncpg
 import logging
-import uvloop
 import json
 import os
 
@@ -42,6 +41,7 @@ async def get_pre(bot, message):
     return commands.when_mentioned_or(prefix, 'fire ', 'Fire ')(bot, message)
 
 if os.name != 'nt':
+    import uvloop
     uvloop.install()
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
