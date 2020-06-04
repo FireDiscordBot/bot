@@ -54,7 +54,7 @@ class Modcore(commands.Cog):
         embed = discord.Embed(title=f'{player}\'s Modcore Profile', color=ctx.author.color)
         embed.add_field(name='UUID', value=uuid, inline=False)
         embed.add_field(name='Enabled Cosmetics', value=purchases or 'No Cosmetics', inline=False)
-        embed.add_field(name='Status' if profile['online'] else 'Last Seen', value=profile.get('status', 'Unknown'), inline=False)
+        embed.add_field(name='Status' if profile['online'] else 'Last Seen', value=profile.get('status', None) or '¯\_(ツ)_/¯', inline=False)
         return await ctx.send(embed=embed)
 
 
