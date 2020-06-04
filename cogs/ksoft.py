@@ -44,11 +44,9 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
 			if not channel.is_nsfw():
 				await ctx.send("The meme I was given was marked as NSFW but this channel is not. Go into an NSFW channel to see NSFW memes", delete_after=5)
 				return
-			else:
-				pass
 		if not meme.title:
 			return await ctx.error(f'The subreddit **{discord.utils.escape_mentions(discord.utils.escape_markdown(sub))}** couldn\'t be found...')
-		embed = discord.Embed(title="Did someone order a spicy meme?", colour=ctx.message.author.color, url=meme.source, timestamp=datetime.datetime.now(datetime.timezone.utc))		
+		embed = discord.Embed(title="Did someone order a spicy meme?", colour=ctx.message.author.color, url=meme.source, timestamp=datetime.datetime.now(datetime.timezone.utc))
 		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url_as(static_format='png', size=2048)))
 		embed.set_footer(text=f"Memes provided by https://api.ksoft.si")
 		embed.add_field(name="Title", value=meme.title, inline=False)
