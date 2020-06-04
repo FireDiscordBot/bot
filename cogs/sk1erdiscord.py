@@ -225,7 +225,10 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			return
 		noraw = re.findall(self.noraw, message.content, re.MULTILINE)
 		if noraw:
-			await message.delete()
+			try:
+				await message.delete()
+			except discord.HTTPException:
+				pass
 			return await message.channel.send(f'{message.author.mention} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)')
 		reupload = re.findall(self.reupload, message.content, re.MULTILINE)
 		for domain, key in reupload:
@@ -261,7 +264,10 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				except Exception as e:
 					self.bot.logger.error(f'$REDFailed to upload log to hastebin', exc_info=e)
 					return
-				await message.delete()
+				try:
+					await message.delete()
+				except discord.HTTPException:
+					pass
 				solutions = self.get_solutions(txt)
 				return await message.channel.send(f'{message.author} uploaded a log, {message.content}\n{url}\n\n{solutions}')
 		if not message.attachments and len(message.content) > 350:
@@ -278,7 +284,10 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				except Exception as e:
 					self.bot.logger.error(f'$REDFailed to upload log to hastebin', exc_info=e)
 					return
-				await message.delete()
+				try:
+					await message.delete()
+				except discord.HTTPException:
+					pass
 				solutions = self.get_solutions(txt)
 				return await message.channel.send(f'{message.author} sent a log, {url}\n\n{solutions}')
 
