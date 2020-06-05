@@ -366,5 +366,6 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 
 
 def setup(bot):
+	return # Hypixel please unban me
 	bot.add_cog(Hypixel(bot))
 	bot.logger.info(f'$GREENLoaded Hypixel cog!')
