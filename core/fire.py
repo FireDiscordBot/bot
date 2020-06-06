@@ -56,7 +56,7 @@ class Fire(commands.Bot):
         self.crab = '🦀'
 
         # LOGGING
-        logging.basicConfig(filename='bot.log', level=logging.INFO)
+        logging.basicConfig(filename='fire.log', level=logging.INFO)
         self.logger = logging.getLogger('Fire')
         stdout = logging.StreamHandler(sys.stdout)
         stdout.setLevel(logging.INFO)
