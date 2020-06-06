@@ -36,7 +36,7 @@ class UserUpdate(commands.Cog):
                 try:
                     member = guild.get_member(after.id)
                     if not member:
-                        return
+                        continue
                     if conf.get('mod.autodecancer') and guild.me.guild_permissions.manage_nicknames:
                         sk1roles = [
                             discord.utils.get(member.guild.roles, id=585534346551754755),
@@ -48,11 +48,11 @@ class UserUpdate(commands.Cog):
                         else:
                             nick = after.name
                             if not self.bot.isascii(nick.replace('‘', '\'').replace('“', '"').replace('“', '"')):
-                                return await member.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters')
+                                await member.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters (DEBUG: USER_UPDATE)')
                             else:
                                 if member.nick and badname in member.nick:
                                     if not self.bot.ishoisted(nick):
-                                        return await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters)')
+                                        await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: USER_UPDATE)')
                     if conf.get('mod.autodehoist') and guild.me.guild_permissions.manage_nicknames:
                         sk1roles = [
                             discord.utils.get(member.guild.roles, id=585534346551754755),
@@ -64,11 +64,11 @@ class UserUpdate(commands.Cog):
                         else:
                             nick = after.name
                             if self.bot.ishoisted(nick):
-                                return await member.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character')
+                                await member.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character (DEBUG: USER_UPDATE)')
                             else:
                                 if member.nick and badname in member.nick:
                                     # Technically this should never run because it should already be reset if not hoisted or cancerous
-                                    return await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters)')
+                                    await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: USER_UPDATE)')
                 except Exception:
                     pass
 

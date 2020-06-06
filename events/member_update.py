@@ -33,39 +33,35 @@ class MemberUpdate(commands.Cog):
         conf = self.bot.get_config(after.guild)
         if before.nick != after.nick:
             badname = conf.get('utils.badname') or f'John Doe {after.discriminator}'
-            if after.nick is not None and badname in after.nick:
-                return
             try:
+                if after.nick is not None and badname in after.nick:
+                    raise Exception # Escapes the try
                 if conf.get('mod.autodecancer') and after.guild.me.guild_permissions.manage_nicknames:
                     sk1roles = [
                             discord.utils.get(after.guild.roles, id=585534346551754755),
                             discord.utils.get(after.guild.roles, id=436306157762773013),
                             discord.utils.get(after.guild.roles, id=698943379181928520)
                     ]
-                    if after.guild_permissions.manage_nicknames or any(r for r in sk1roles if r in after.roles):
-                        pass
-                    else:
+                    if not after.guild_permissions.manage_nicknames or not any(r for r in sk1roles if r in after.roles):
                         if not after.nick:
                             nick = after.name
                         else:
                             nick = after.nick
                         if not self.bot.isascii(nick.replace('‘', '\'').replace('“', '"').replace('“', '"')):
-                            return await after.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters')
+                            await after.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters')
                 if conf.get('mod.autodehoist') and after.guild.me.guild_permissions.manage_nicknames:
                     sk1roles = [
                         discord.utils.get(after.guild.roles, id=585534346551754755),
                         discord.utils.get(after.guild.roles, id=436306157762773013),
                         discord.utils.get(after.guild.roles, id=698943379181928520)
                     ]
-                    if after.guild_permissions.manage_nicknames or any(r for r in sk1roles if r in after.roles):
-                        pass
-                    else:
+                    if not after.guild_permissions.manage_nicknames or not any(r for r in sk1roles if r in after.roles):
                         if not after.nick:
                             nick = after.name
                         else:
                             nick = after.nick
                         if self.bot.ishoisted(nick):
-                            return await after.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character')
+                            await after.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character')
             except Exception:
                 pass
             logch = conf.get('log.action')
@@ -122,44 +118,42 @@ class MemberUpdate(commands.Cog):
                 added = [x for x in aroles if x not in s]
                 if len(added) >= 1:
                     roles = [r for r in [discord.utils.get(groles, name=a) for a in added] if r]
-                    if not roles:
-                        return
-                    mentions = ', '.join([r.mention for r in roles])
-                    embed = discord.Embed(
-                        color=random.choice(roles).color,
-                        timestamp=datetime.datetime.now(datetime.timezone.utc),
-                        description=f'{after.mention}\'s roles were changed\n**{after.name} was given the role(s)**\n{mentions}'
-                    ).set_author(
-                        name=after,
-                        icon_url=str(after.avatar_url_as(
-                            static_format='png',
-                            size=2048)
-                        )
-                    ).set_footer(text=f"Member ID: {after.id}")
-                    try:
-                        await logch.send(embed=embed)
-                    except Exception:
-                        pass
+                    if roles:
+                        mentions = ', '.join([r.mention for r in roles])
+                        embed = discord.Embed(
+                            color=random.choice(roles).color,
+                            timestamp=datetime.datetime.now(datetime.timezone.utc),
+                            description=f'{after.mention}\'s roles were changed\n**{after.name} was given the role(s)**\n{mentions}'
+                        ).set_author(
+                            name=after,
+                            icon_url=str(after.avatar_url_as(
+                                static_format='png',
+                                size=2048)
+                            )
+                        ).set_footer(text=f"Member ID: {after.id}")
+                        try:
+                            await logch.send(embed=embed)
+                        except Exception:
+                            pass
                 if len(removed) >= 1:
                     roles = [r for r in [discord.utils.get(groles, name=a) for a in removed] if r]
-                    if not roles:
-                        return
-                    mentions = ', '.join([r.mention for r in roles])
-                    embed = discord.Embed(
-                        color=random.choice(roles).color,
-                        timestamp=datetime.datetime.now(datetime.timezone.utc),
-                        description=f'{after.mention}\'s roles were changed\n**{after.name} was removed from the role(s)**\n{mentions}'
-                    ).set_author(
-                        name=after,
-                        icon_url=str(after.avatar_url_as(
-                            static_format='png',
-                            size=2048)
-                        )
-                    ).set_footer(text=f"Member ID: {after.id}")
-                    try:
-                        await logch.send(embed=embed)
-                    except Exception:
-                        pass
+                    if roles:
+                        mentions = ', '.join([r.mention for r in roles])
+                        embed = discord.Embed(
+                            color=random.choice(roles).color,
+                            timestamp=datetime.datetime.now(datetime.timezone.utc),
+                            description=f'{after.mention}\'s roles were changed\n**{after.name} was removed from the role(s)**\n{mentions}'
+                        ).set_author(
+                            name=after,
+                            icon_url=str(after.avatar_url_as(
+                                static_format='png',
+                                size=2048)
+                            )
+                        ).set_footer(text=f"Member ID: {after.id}")
+                        try:
+                            await logch.send(embed=embed)
+                        except Exception:
+                            pass
 
 
 def setup(bot):
