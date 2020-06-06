@@ -76,6 +76,14 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		return False
 
 	@commands.Cog.listener()
+	async def on_command_error(self, ctx, error):
+		if isinstance(error, commands.CheckFailure):
+			if ctx.channel.id == 411620457754787841:
+				await ctx.send(
+					file=discord.File('command_general.png', filename='firebestbot.png')
+				)
+
+	@commands.Cog.listener()
 	async def on_member_remove(self, member):
 		if self.nitro in member.roles:
 			route = Route(
