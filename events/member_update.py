@@ -48,7 +48,11 @@ class MemberUpdate(commands.Cog):
                         else:
                             nick = after.nick
                         if not self.bot.isascii(nick.replace('‘', '\'').replace('“', '"').replace('“', '"')):
-                            await after.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters')
+                            await after.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters (DEBUG: MEMBER_UPDATE)')
+                        else:
+                            change = True if (conf.get('mod.autodehoist') and not self.bot.ishoisted(nick) or not conf.get('mod.autodehoist')) else False
+                            if change:
+                                await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
                 if conf.get('mod.autodehoist') and after.guild.me.guild_permissions.manage_nicknames:
                     sk1roles = [
                         discord.utils.get(after.guild.roles, id=585534346551754755),
@@ -61,7 +65,9 @@ class MemberUpdate(commands.Cog):
                         else:
                             nick = after.nick
                         if self.bot.ishoisted(nick):
-                            await after.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character')
+                            await after.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character (DEBUG: MEMBER_UPDATE)')
+                        else:
+                            await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
             except Exception:
                 pass
             logch = conf.get('log.action')
