@@ -31,8 +31,8 @@ class MemberUpdate(commands.Cog):
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         conf = self.bot.get_config(after.guild)
+        badname = conf.get('utils.badname') or f'John Doe {after.discriminator}'
         if before.nick != after.nick:
-            badname = conf.get('utils.badname') or f'John Doe {after.discriminator}'
             try:
                 if after.nick is not None and badname in after.nick:
                     raise Exception # Escapes the try
@@ -51,7 +51,7 @@ class MemberUpdate(commands.Cog):
                             await after.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters (DEBUG: MEMBER_UPDATE)')
                         else:
                             change = True if (conf.get('mod.autodehoist') and not self.bot.ishoisted(nick) or not conf.get('mod.autodehoist')) else False
-                            if change:
+                            if change and badname not in str(m.nick):
                                 await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
                 if conf.get('mod.autodehoist') and after.guild.me.guild_permissions.manage_nicknames:
                     sk1roles = [
@@ -66,12 +66,12 @@ class MemberUpdate(commands.Cog):
                             nick = after.nick
                         if self.bot.ishoisted(nick):
                             await after.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character (DEBUG: MEMBER_UPDATE)')
-                        else:
+                        elif badname not in str(m.nick):
                             await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
             except Exception:
                 pass
             logch = conf.get('log.action')
-            if logch and after.nick:
+            if logch and after.nick and badname not in f'{before.nick} -> {after.nick}':
                 embed = discord.Embed(
                     color=after.color,
                     timestamp=datetime.datetime.now(datetime.timezone.utc),
