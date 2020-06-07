@@ -132,6 +132,7 @@ class RolePersist(commands.Cog):
         if user.id not in self.role_persists[ctx.guild.id]:
             insert = True
             self.role_persists[ctx.guild.id][user.id] = []
+        toremove = []
         roleids = [r.id for r in roles]
         current = [r for r in self.role_persists[ctx.guild.id][user.id]]
         for rid in roleids:
@@ -139,6 +140,7 @@ class RolePersist(commands.Cog):
                 current.append(rid)
             else:
                 current.remove(rid)
+                toremove.append(ctx.guild.get_role(rid))
         if not current:
             delete = True
         if delete:
@@ -163,8 +165,13 @@ class RolePersist(commands.Cog):
         donthave = [
             ctx.guild.get_role(r) for r in current if ctx.guild.get_member(user.id) and ctx.guild.get_role(r) not in user.roles
         ]
+        toremove = [
+             r for r in toremove if r and ctx.guild.get_member(user.id) and r in user.roles
+        ]
         if donthave:
             await user.add_roles(*donthave, reason=f'Role persist by {ctx.author.id}', atomic=False)
+        if toremove:
+            await user.remove_roles(*toremove, reason=f'Role un-persist by {ctx.author.id}', atomic=False)
         names = ', '.join([
             discord.utils.escape_mentions(ctx.guild.get_role(r).name) for r in current if ctx.guild.get_role(r)
         ])  # The check for if the role exists should be pointless but better to check than error
