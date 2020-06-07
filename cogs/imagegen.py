@@ -38,13 +38,13 @@ class ImageGeneration(commands.Cog, name='Image Generation'):
 	@commands.command(name='makeameme')
 	async def meme(self, ctx, image: typing.Union[Member, str] = None, *, text: str = None):
 		if ctx.message.attachments:
-			if type(image) == discord.Member:
+			if isinstance(image, discord.Member):
 				image = image.name
-			text = f'{image} {text}'
+			text = f'{image} {text or ""}'
 			image = ctx.message.attachments[0].url
 		if not image:
 			return await ctx.error('You need to provide an image')
-		if type(image) == discord.Member:
+		if isinstance(image, discord.Member):
 			image = str(image.avatar_url_as(format='png'))
 		image = image.strip('<>')
 		if 'cdn.discordapp.com' in image and not '?size=' in image:
