@@ -48,7 +48,7 @@ class Fire(commands.Bot):
         self.config: dict = json.load(open('config.json', 'r'))
         self.configs: typing.Dict[int, typing.Union[GuildConfig, UserConfig]] = {}
         self.tips = json.load(open('tips.json', 'r'))
-        self.premium_guilds = []
+        self.premium_guilds = {}
         self.db: asyncpg.pool.Pool = None
         self.dev = kwargs.pop('dev', False)
 

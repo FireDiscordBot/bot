@@ -84,6 +84,8 @@ class UserInfo(commands.Cog):
             )
         if (user.flags & 1 << 17) == 1 << 17:  # Verified Bot Developer
             badges.append(str(discord.utils.get(self.bot.emojis, id=697581675260936233)))
+        if user.id in self.bot.premium_guilds.values():
+            badges.append(str(discord.utils.get(self.bot.emojis, id=680519037704208466)))
         if badges:
             badges.append(u'\u200b')  # Prevents huge emojis on mobile
         return badges

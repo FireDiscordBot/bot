@@ -34,7 +34,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.loop = bot.loop
-		self.bot.premium_guilds  = []
+		self.bot.premium_guilds  = {}
 		# self.reactroles = {}
 		self.joinroles = {}
 		self.bot.loop.create_task(self.load_premium())
@@ -43,11 +43,11 @@ class Premium(commands.Cog, name="Premium Commands"):
 	async def load_premium(self):
 		await self.bot.wait_until_ready()
 		self.bot.logger.info(f'$YELLOWLoading premium guilds...')
-		self.bot.premium_guilds = []
+		self.bot.premium_guilds = {}
 		query = 'SELECT * FROM premium;'
-		guilds = await self.bot.db.fetch(query)
-		for guild in guilds:
-			self.bot.premium_guilds.append(guild['gid'])
+		premium = await self.bot.db.fetch(query)
+		for p in premium:
+			self.bot.premium_guilds.update({p['gid']: p['uid']})
 		self.bot.logger.info(f'$GREENLoaded premium guilds!')
 
 	async def load_ranks(self):
