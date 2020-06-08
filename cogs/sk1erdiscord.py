@@ -56,6 +56,23 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		self.homere = r'(/Users/\w+|/home/\w+|C:\\Users\\\w+)'
 		self.solutions = json.load(open('sk1er_solutions.json'))
 		self.description_updater.start()
+		self.uuidcache = {}
+
+	async def name_to_uuid(self, player: str):
+		try:
+			self.uuidcache[player]
+		except KeyError:
+			route = Route(
+				'GET',
+				f'/users/profiles/minecraft/{player}'
+			)
+			try:
+				profile = await self.bot.http.mojang.request(route)
+				if profile:
+					self.uuidcache.update({player: profile['id']})
+			except Exception:
+				pass  # whatever is using this should check for None
+		return self.uuidcache.get(player, None)
 
 	@tasks.loop(minutes=5)
 	async def description_updater(self):
@@ -305,7 +322,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			return await ctx.send('no')
 		if not ign:
 			return await ctx.error('You must provide your Minecraft name!')
-		mid = await self.bot.get_cog('Hypixel Commands').name_to_uuid(ign)
+		mid = await self.name_to_uuid(ign)
 		if not mid:
 			return await ctx.error('No UUID found!')
 		progress = await ctx.send('Give me a moment.')

@@ -33,7 +33,7 @@ class Modcore(commands.Cog):
     async def modcore(self, ctx, player: str = None):
         if player is None:
             return await ctx.error("You must provide a player to check their profile")
-        uuid = await self.bot.get_cog('Hypixel Commands').name_to_uuid(player)
+        uuid = await self.bot.get_cog('Sk1er Discord').name_to_uuid(player)
         if not uuid:
             raise commands.UserInputError('Couldn\'t find that player\'s UUID')
         route = Route(
