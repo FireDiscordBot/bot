@@ -287,6 +287,7 @@ class Config:
         else:
             self._data = json.loads(conf[0]['data'])
             self.loaded = True
+        await self._bot.wait_until_ready()
         changed = False
         keys = self._data.copy().keys()
         for opt in keys:
