@@ -153,6 +153,6 @@ class FireStatus(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(FireStatus(bot))
-        bot.logger.info(f'$GREENLoaded $CYAN"status" $GREENmodule!')
+        bot.logger.info(f'$GREENLoaded $CYANStatus $GREENmodule!')
     except Exception as e:
         bot.logger.error(f'$REDError while adding module $CYAN"status"', exc_info=e)

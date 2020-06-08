@@ -107,6 +107,6 @@ class InviteRoles(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(InviteRoles(bot))
-        bot.logger.info(f'$GREENLoaded $CYAN"invite roles" $GREENmodule!')
+        bot.logger.info(f'$GREENLoaded $CYANInvite Roles $GREENmodule!')
     except Exception as e:
         bot.logger.error(f'$REDError while adding module $CYAN"invite roles"', exc_info=e)

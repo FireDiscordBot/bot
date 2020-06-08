@@ -200,6 +200,6 @@ class RolePersist(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(RolePersist(bot))
-        bot.logger.info(f'$GREENLoaded $CYAN"role persist" $GREENmodule!')
+        bot.logger.info(f'$GREENLoaded $CYANRole Persist $GREENmodule!')
     except Exception as e:
         bot.logger.error(f'$REDError while adding module $CYAN"role persist"', exc_info=e)
