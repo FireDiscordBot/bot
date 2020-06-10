@@ -62,7 +62,7 @@ class UserInfo(commands.Cog):
             return f'<:xmark:674359427830382603> Banned on [KSoft.Si](https://bans.ksoft.si/share?user={user.id}) for {ksoftban.reason} - [Proof]({ksoftban.proof})'
         return ''
 
-    def get_badges(self, user: typing.Union[discord.User, discord.Member]):
+    def get_badges(self, user: typing.Union[discord.User, discord.Member]):  # I will improve this when discord.py gets actual flags support
         badges = []
         if self.bot.isadmin(user):
             badges.append(str(discord.utils.get(self.bot.emojis, id=671243744774848512)))
@@ -110,7 +110,14 @@ class UserInfo(commands.Cog):
                 info.append(f'**Created Guild:** {joined} ({jdelta})')
             else:
                 info.append(f'**Joined:** {joined} ({jdelta})')
-            if user.nick:
+            is_cached = len(ctx.guild.members) / ctx.guild.member_count
+            if is_cached > 0.98:  # is_cached should be 1.0 if cached but allow for discrepancies
+                joinpos = sorted(
+                    ctx.guild.members,
+                    key=lambda m: m.joined_at or m.created_at
+                ).index(user) + 1
+                info.append(f'**Join Position:** {joinpos:,d}')
+            if user.nick and user.nick != user.name:
                 info.append(f'**Nickname:** {user.nick}')
         return info
 
@@ -193,6 +200,7 @@ class UserInfo(commands.Cog):
             notes = [n for n in [gban, cwbl] if n]
             if notes:
                 embed.add_field(name=f'» Notes', value='\n'.join(notes), inline=False)
+        embed.set_footer(text=str(uinfo.id))
         await ctx.send(embed=embed)
 
 
