@@ -563,7 +563,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	@commands.command(description="Warn a user.")
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
-	async def warn(self, ctx, user: typing.Union[Member, UserWithFallback] = None, *, reason = None):
+	async def warn(self, ctx, user: Member = None, *, reason = None):
 		await ctx.trigger_typing()
 		try:
 			await ctx.message.delete()
