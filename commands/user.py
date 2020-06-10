@@ -83,7 +83,7 @@ class UserInfo(commands.Cog):
                 str(discord.utils.get(self.bot.emojis, id=700325427998097449)) + str(discord.utils.get(self.bot.emojis, id=700325521665425429))
             )
         if (user.flags & 1 << 17) == 1 << 17:  # Verified Bot Developer
-            badges.append(str(discord.utils.get(self.bot.emojis, id=697581675260936233)))
+            badges.append(str(discord.utils.get(self.bot.emojis, id=720179031785340938)))
         if user.id in self.bot.premium_guilds.values():
             badges.append(str(discord.utils.get(self.bot.emojis, id=680519037704208466)))
         if badges:
