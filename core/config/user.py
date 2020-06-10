@@ -27,13 +27,15 @@ options = dict()
 
 
 class Config:
+    __slots__ = ('options', 'loaded', '_bot', '_user', '_db', '_data')
+
     def __init__(self, user, **kwargs):
+        self.options = options
+        self.loaded: bool = False
         self._bot = kwargs.pop('bot')
         self._user = self._bot.get_user(user) or user
         self._db = kwargs.pop('db')
-        self.options = options
         self._data: dict = self.get_default_config()
-        self.loaded: bool = False
 
     @ConfigOpt(name='utils.tips', accepts=bool, default=True, options=options)
     async def tips(self, value: bool):

@@ -28,19 +28,27 @@ options = dict()
 
 
 class Config:
+    __slots__ = ('options', 'loaded', '_bot', '_guild', '_db', '_data')
+
     def __init__(self, guild, **kwargs):
+        self.options = options
+        self.loaded: bool = False
         self._bot = kwargs.pop('bot')
         self._guild = self._bot.get_guild(guild) or guild
         self._db = kwargs.pop('db')
-        self.options = options
         self._data: dict = self.get_default_config()
-        self.loaded: bool = False
 
     @ConfigOpt(name='main.prefix', accepts=str, default='$', options=options)
     async def prefix(self, value: str):
         '''Prefix | The prefix used before all Fire commands'''
         self._bot.logger.info(f'$GREENSetting $CYANmain.prefix $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('main.prefix', value)
+
+    @ConfigOpt(name='main.fetch_offline', accepts=bool, default=True, hidden=True, options=options)
+    async def fetch_offline(self, value: bool):
+        '''Fetch Offline | Manually set by Geek#8405 for larger guilds that do not need all members cached'''
+        self._bot.logger.info(f'$GREENSetting $CYANmain.fetch_offline $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
+        await self.update('main.fetch_offline', value)
 
     @ConfigOpt(name='log.moderation', accepts=discord.TextChannel, default=None, options=options)
     async def mod_logs(self, value: discord.TextChannel):
@@ -273,7 +281,11 @@ class Config:
         return self.get(opt)
 
     async def update(self, option: str, value):
-        self._data[option] = value
+        default = self.options[option]['default']
+        if value == default and option in self._data:
+            self._data.pop(option)
+        else:
+            self._data[option] = value
         await self.save()
 
     async def load(self):
