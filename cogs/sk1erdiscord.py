@@ -77,9 +77,11 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 	@tasks.loop(minutes=5)
 	async def description_updater(self):
 		try:
+			session = aiohttp.ClientSession()
 			m = (await self.bot.http.sk1er.request(Route('GET', '/mods_analytics')))['combined_total']
-			m += (await (await aiohttp.ClientSession().get('https://api.autotip.pro/counts')).json())['total']
-			m += (await (await aiohttp.ClientSession().get('https://api.hyperium.cc/users')).json())['all']
+			m += (await (await session.get('https://api.autotip.pro/counts')).json())['total']
+			m += (await (await session.get('https://api.hyperium.cc/users')).json())['all']
+			await session.close()
 			await self.guild.edit(description=f'The Official Discord for Sk1er & Sk1er Mods ({m:,d} total players)')
 		except Exception as e:
 			pass
