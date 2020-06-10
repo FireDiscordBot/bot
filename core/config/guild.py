@@ -286,7 +286,7 @@ class Config:
         if value == default:
             v = self._data.pop(option, None)
             changed = True if v else False
-        elif self._data[option] != value:
+        elif self._data.get(option, None) != value:
             self._data[option] = value
             changed = True
         if changed:
@@ -300,41 +300,10 @@ class Config:
         if not conf:
             self._data = await self.init()
             self.loaded = True
+            return
         else:
             self._data = json.loads(conf[0]['data'])
             self.loaded = True
-        await self._bot.wait_until_ready()
-        changed = False
-        keys = self._data.copy().keys()
-        for opt in keys:
-            try:
-                val = self.get(opt)
-            except InvalidOptionError:
-                self._bot.logger.warn(f'$YELLOWRemoving invalid option $CYAN{opt} $GREENfor guild $CYAN{self._guild}')
-                v = self._data.pop(opt, None)
-                changed = True if v and not changed else False
-                continue
-            default = self.options[opt]['default']
-            if val == default:
-                v = self._data.pop(opt, None)
-                changed = True if v and not changed else False
-                continue
-            accepts = self.options[opt]['accepts']
-            if not isinstance(accepts, list) and (not isinstance(val, accepts) or val is None) and opt in self._data:
-                self._bot.logger.info(f'$GREENSetting option $CYAN{opt} $GREENto default for guild $CYAN{self._guild} $GREENdue to mismatched types $CYAN({type(val)})')
-                v = self._data.pop(opt, None)
-                changed = True if v and not changed else False
-            elif isinstance(accepts, list) and opt in self._data:
-                if not isinstance(val, list):
-                    self._bot.logger.info(f'$GREENSetting option $CYAN{opt} $GREENto default for guild $CYAN{self._guild} $GREENdue to mismatched types $CYAN({type(val)})')
-                    v = self._data.pop(opt, None)
-                    changed = True if v and not changed else False
-                elif val and not isinstance(val[0], accepts[0]):
-                    self._bot.logger.info(f'$GREENSetting option $CYAN{opt} $GREENto default for guild $CYAN{self._guild} $GREENdue to mismatched types $CYAN({type(val[0])})')
-                    v = self._data.pop(opt, None)
-                    changed = True if v and not changed else False
-        if changed:
-            await self.save()
 
     async def save(self):
         con = await self._db.acquire()

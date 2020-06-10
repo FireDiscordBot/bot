@@ -258,12 +258,14 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				pass
 			return await message.channel.send(f'{message.author.mention} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)')
 		reupload = re.findall(self.reupload, message.content, re.MULTILINE)
+		session = aiohttp.ClientSession()
 		for domain, key in reupload:
 			try:
-				async with aiohttp.ClientSession().get(f'https://{domain}/{"r" if "paste.ee" in domain else "raw"}/{key}') as r:
+				async with session.get(f'https://{domain}/{"r" if "paste.ee" in domain else "raw"}/{key}') as r:
 					message.content = re.sub(self.reupload, (await r.text()), message.content, 0, re.MULTILINE)
 			except Exception:
 				return await message.channel.send(f'I was unable to read your log. Please upload it directly rather than using {domain}')
+		await session.close()
 		for attach in message.attachments:
 			if not any(attach.filename.endswith(ext) for ext in ['.log', '.txt']):
 				return
