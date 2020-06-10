@@ -21,6 +21,7 @@ from fire.converters import Member
 from discord.ext import commands
 from random import randint
 from io import BytesIO
+import functools
 import aiohttp
 import discord
 import typing
@@ -144,8 +145,8 @@ class ImageGeneration(commands.Cog, name='Image Generation'):
 				last_y = y
 
 		try:
-			draw_text(text[0], "top")
-			draw_text(text[1], "bottom")
+			await self.bot.loop.run_in_executor(None, functools.partial(draw_text, text[0], "top"))
+			await self.bot.loop.run_in_executor(None, functools.partial(draw_text, text[1], "bottom"))
 		except Exception:
 			return await ctx.error('Invalid image!')
 
