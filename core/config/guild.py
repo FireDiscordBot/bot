@@ -310,19 +310,24 @@ class Config:
                 self._data.pop(opt)
                 changed = True
                 continue
-            accepts = self.options[opt]['accepts']
-            if not isinstance(accepts, list) and val is not None and not isinstance(val, accepts):
-                self._bot.logger.info(f'$GREENSetting option $CYAN{opt} $GREENto default for guild $CYAN{self._guild} $GREENdue to mismatched types')
-                self._data[opt] = self.options[opt]['default']
+            default = self.options[option]['default']
+            if val == default and opt in self._data:
+                self._data.pop(opt)
                 changed = True
-            elif isinstance(accepts, list):
+                continue
+            accepts = self.options[opt]['accepts']
+            if not isinstance(accepts, list) and (not isinstance(val, accepts) or val is None) and opt in self._data:
+                self._bot.logger.info(f'$GREENSetting option $CYAN{opt} $GREENto default for guild $CYAN{self._guild} $GREENdue to mismatched types')
+                self._data.pop(opt)
+                changed = True
+            elif isinstance(accepts, list) and opt in self._data:
                 if not isinstance(val, list):
                     self._bot.logger.info(f'$GREENSetting option $CYAN{opt} $GREENto default for guild $CYAN{self._guild} $GREENdue to mismatched types')
-                    self._data[opt] = self.options[opt]['default']
+                    self._data.pop(opt)
                     changed = True
                 elif val and not isinstance(val[0], accepts[0]):
                     self._bot.logger.info(f'$GREENSetting option $CYAN{opt} $GREENto default for guild $CYAN{self._guild} $GREENdue to mismatched types')
-                    self._data[opt] = self.options[opt]['default']
+                    self._data.pop(opt)
                     changed = True
         if changed:
             await self.save()
