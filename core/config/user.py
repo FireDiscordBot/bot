@@ -49,7 +49,7 @@ class Config:
         if self.options[option]['restricted'] and self._user.id not in self.options[option]['restricted']:
             return self.options[option]['default']  # Return default value if restricted :)
         if option not in self._data:
-            self._data[option] = self.options[option]['default']  # Ensure the value actually exists
+            return self.options[option]['default']  # Return default value if it's not even in the config :)
         accept = self.options[option]['accepts']
         acceptlist = False
         if isinstance(self._user, discord.User):
@@ -68,14 +68,6 @@ class Config:
     async def set(self, opt: str, value):
         if not self.loaded:  # Since there's so many users, only those with non-default configs should be loaded
             await self.load()
-        changed = False
-        for option in self.options:
-            if option not in self._data:
-                self._bot.logger.info(f'$GREENAdding option $CYAN{option} $GREENfor user $CYAN{self._user}')
-                self._data[option] = self.options[opt]['default']
-                changed = True
-        if changed:
-            await self.save()
         if opt not in self.options:
             raise InvalidOptionError(opt)
         option = self.options[opt]
@@ -104,7 +96,7 @@ class Config:
         if value == default:
             v = self._data.pop(option, None)
             changed = True if v else False
-        else:
+        elif self._data[option] != value:
             self._data[option] = value
             changed = True
         if changed:
