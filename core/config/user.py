@@ -113,38 +113,6 @@ class Config:
         else:
             self._data = json.loads(conf[0]['data'])
             self.loaded = True
-        await self._bot.wait_until_ready()
-        changed = False
-        keys = self._data.copy().keys()
-        for opt in keys:
-            try:
-                val = self.get(opt)
-            except InvalidOptionError:
-                self._bot.logger.warn(f'$YELLOWRemoving invalid option $CYAN{opt} $GREENfor user $CYAN{self._user}')
-                v = self._data.pop(opt, None)
-                changed = True if v and not changed else False
-                continue
-            default = self.options[opt]['default']
-            if val == default:
-                v = self._data.pop(opt, None)
-                changed = True if v and not changed else False
-                continue
-            accepts = self.options[opt]['accepts']
-            if not isinstance(accepts, list) and (not isinstance(val, accepts) or val is None) and opt in self._data:
-                self._bot.logger.info(f'$GREENSetting option $CYAN{opt} $GREENto default for user $CYAN{self._user} $GREENdue to mismatched types')
-                v = self._data.pop(opt, None)
-                changed = True if v and not changed else False
-            elif isinstance(accepts, list) and opt in self._data:
-                if not isinstance(val, list):
-                    self._bot.logger.info(f'$GREENSetting option $CYAN{opt} $GREENto default for user $CYAN{self._user} $GREENdue to mismatched types')
-                    v = self._data.pop(opt, None)
-                    changed = True if v and not changed else False
-                elif val and not isinstance(val[0], accepts[0]):
-                    self._bot.logger.info(f'$GREENSetting option $CYAN{opt} $GREENto default for user $CYAN{self._user} $GREENdue to mismatched types')
-                    v = self._data.pop(opt, None)
-                    changed = True if v and not changed else False
-        if changed:
-            await self.save()
 
     async def save(self):
         con = await self._db.acquire()
