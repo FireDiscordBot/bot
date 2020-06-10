@@ -36,7 +36,7 @@ class Config:
         self._bot = kwargs.pop('bot')
         self._guild = self._bot.get_guild(guild) or guild
         self._db = kwargs.pop('db')
-        self._data: dict = self.get_default_config()
+        self._data = {}
 
     @ConfigOpt(name='main.prefix', accepts=str, default='$', options=options)
     async def prefix(self, value: str):
@@ -344,16 +344,10 @@ class Config:
         con = await self._db.acquire()
         async with con.transaction():
             query = 'INSERT INTO guildconfig (\"gid\", \"data\") VALUES ($1, $2);'
-            await self._db.execute(query, self._guild.id, json.dumps(self.get_default_config()))
+            await self._db.execute(query, self._guild.id, json.dumps({}))
         await self._db.release(con)
         self._bot.logger.info(f'$GREENInitiated config for $CYAN{self._guild}')
-        return self.get_default_config()
-
-    def get_default_config(self):
-        conf = {}
-        for opt in self.options:
-            conf[opt] = self.options[opt]['default']
-        return conf
+        return {}
 
     def __repr__(self):
         return f'<GuildConfig guild={self._guild} loaded={self.loaded}>'

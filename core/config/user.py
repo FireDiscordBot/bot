@@ -35,7 +35,7 @@ class Config:
         self._bot = kwargs.pop('bot')
         self._user = self._bot.get_user(user) or user
         self._db = kwargs.pop('db')
-        self._data: dict = self.get_default_config()
+        self._data = {}
 
     @ConfigOpt(name='utils.tips', accepts=bool, default=True, options=options)
     async def tips(self, value: bool):
@@ -162,16 +162,10 @@ class Config:
         con = await self._db.acquire()
         async with con.transaction():
             query = 'INSERT INTO userconfig (\"uid\", \"data\") VALUES ($1, $2);'
-            await self._db.execute(query, self._user.id, json.dumps(self.get_default_config()))
+            await self._db.execute(query, self._user.id, json.dumps({}))
         await self._db.release(con)
         self._bot.logger.info(f'$GREENInitiated config for $CYAN{self._user}')
-        return self.get_default_config()
-
-    def get_default_config(self):
-        conf = {}
-        for opt in self.options:
-            conf[opt] = self.options[opt]['default']
-        return conf
+        return {}
 
     def __repr__(self):
         return f'<UserConfig user={self._user} loaded={self.loaded}>'
