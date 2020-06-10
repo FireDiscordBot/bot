@@ -96,7 +96,7 @@ class Config:
         if value == default:
             v = self._data.pop(option, None)
             changed = True if v else False
-        elif self._data[option] != value:
+        elif self._data.get(option, None) != value:
             self._data[option] = value
             changed = True
         if changed:
