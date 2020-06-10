@@ -128,7 +128,7 @@ class Config:
                 self._data.pop(opt)
                 changed = True
                 continue
-            default = self.options[option]['default']
+            default = self.options[opt]['default']
             if val == default and opt in self._data:
                 self._data.pop(opt)
                 changed = True
