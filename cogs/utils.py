@@ -84,6 +84,7 @@ permissions = {
 dehoistchars = '1234567890abcdefghijklmnopqrstuvwxyz'
 
 month_regex = re.compile(r'(?:me in |in )?(?:(?P<months>\d+)(?:mo|months|month| months| month))(?: about | that )?')
+week_regex = re.compile(r'(?:me in |in )?(?:(?P<weeks>\d+)(?:wk|weeks|week| weeks| week))(?: about | that )?')
 day_regex = re.compile(r'(?:me in |in )?(?:(?P<days>\d+)(?:d|days|day| days| day))(?: about | that )?')
 hour_regex = re.compile(r'(?:me in |in )?(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))(?: about | that )?')
 min_regex = re.compile(r'(?:me in |in )?(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))(?: about | that )?')
@@ -91,11 +92,19 @@ sec_regex = re.compile(r'(?:me in |in )?(?:(?P<seconds>\d+)(?:s|seconds|second| 
 
 def parseTime(content, replace: bool = False):
 	if replace:
-		for regex in [r'(?:me in |in )?(?:(?P<months>\d+)(?:mo|months|month| months| month))(?: about | that )?', r'(?:me in |in )?(?:(?P<days>\d+)(?:d|days|day| days| day))(?: about | that )?', r'(?:me in |in )?(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))(?: about | that )?', r'(?:me in |in )?(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))(?: about | that )?', r'(?:me in |in )?(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))(?: about | that )?']:
+		for regex in [
+			r'(?:me in |in )?(?:(?P<months>\d+)(?:mo|months|month| months| month))(?: about | that )?',
+			r'(?:me in |in )?(?:(?P<weeks>\d+)(?:wk|weeks|week| weeks| week))(?: about | that )?',
+			r'(?:me in |in )?(?:(?P<days>\d+)(?:d|days|day| days| day))(?: about | that )?',
+			r'(?:me in |in )?(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))(?: about | that )?',
+			r'(?:me in |in )?(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))(?: about | that )?',
+			r'(?:me in |in )?(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))(?: about | that )?'
+		]:
 			content = re.sub(regex, '', content, 0, re.MULTILINE)
 		return content
 	try:
 		months = month_regex.search(content)
+		weeks = week_regex.search(content)
 		days = day_regex.search(content)
 		hours = hour_regex.search(content)
 		minutes = min_regex.search(content)
@@ -103,8 +112,9 @@ def parseTime(content, replace: bool = False):
 	except Exception:
 		return 0, 0, 0, 0
 	time = 0
-	if months or days or hours or minutes or seconds:
+	if months or weeks or days or hours or minutes or seconds:
 		months = months.group(1) if months is not None else 0
+		weeks = weeks.group(1) if weeks is not None else 0
 		days = days.group(1) if days is not None else 0
 		hours = hours.group(1) if hours is not None else 0
 		minutes = minutes.group(1) if minutes is not None else 0
@@ -113,7 +123,9 @@ def parseTime(content, replace: bool = False):
 		if not days:
 			days = 0
 		if months:
-			days += int(months)*30 if months else 0
+			days += int(months)*30
+		if weeks:
+			days += int(weeks)*7
 		hours = int(hours) if hours else 0
 		if not hours:
 			hours = 0
