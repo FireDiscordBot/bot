@@ -54,6 +54,13 @@ class Fire(commands.Bot):
 
         # CRAB
         self.crab = '🦀'
+        # test test I am typing things wow look at me go
+        # can we get a crab in chat bois
+        # this is epic
+        # hopefully this looks good when I check the vod
+        # forgot what it was called haha
+        # i should commit these comments
+        # fuck it let's do it
 
         # LOGGING
         logging.basicConfig(filename='fire.log', level=logging.INFO)
