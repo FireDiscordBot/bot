@@ -262,8 +262,13 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		for domain, key in reupload:
 			try:
 				async with session.get(f'https://{domain}/{"r" if "paste.ee" in domain else "raw"}/{key}') as r:
-					message.content = re.sub(self.reupload, (await r.text()), message.content, 0, re.MULTILINE)
-			except Exception:
+					text = await r.text()
+					try:
+						message.content = re.sub(self.reupload, text, message.content, 0, re.MULTILINE)
+					except Exception:
+						message.content = text
+			except Exception as e:
+				await session.close()
 				return await message.channel.send(f'I was unable to read your log. Please upload it directly rather than using {domain}')
 		await session.close()
 		for attach in message.attachments:
