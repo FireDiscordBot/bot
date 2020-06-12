@@ -63,7 +63,7 @@ picklegames = {
 class Hypixel(commands.Cog, name="Hypixel Commands"):
 	def __init__(self, bot):
 		self.bot = bot
-		keys = [bot.config['hypixel']]
+		keys = bot.config['hypixel']
 		hypixel.setKeys(keys)
 		self.uuidcache = {}
 
@@ -366,6 +366,5 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 
 
 def setup(bot):
-	return # Hypixel please unban me
 	bot.add_cog(Hypixel(bot))
 	bot.logger.info(f'$GREENLoaded Hypixel cog!')
