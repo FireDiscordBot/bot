@@ -63,7 +63,6 @@
     {
         "id": 1,
         "name": "Hypixel",
-        "Note": "Due to unfortunate circumstances, the Hypixel commands are disabled at this point in time",
         "commands": {
             "key": {
                 "Description": "See my API key usage",
