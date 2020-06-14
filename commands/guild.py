@@ -52,6 +52,7 @@ featureslist = {
     'MORE_EMOJI': 'More Emoji',
     'FEATURABLE': 'Featurable',
     'VANITY_URL': 'Vanity URL',
+    'COMMUNITY': 'Community',
     'PARTNERED': '[Partnered](https://dis.gd/partners)',
     'COMMERCE': '[Store Channels](https://dis.gd/sell-your-game)',
     'VERIFIED': '[Verified](https://dis.gd/vfs)',
@@ -168,6 +169,7 @@ class GuildInfo(commands.Cog):
             info.append(
                 f'{emotes.get("red")} **Two-Factor Auth:** Disabled'
             )
+        return info
 
     def shorten(self, items: list, max: int = 1000, sep: str = ', '):
         text = ''
@@ -211,11 +213,13 @@ class GuildInfo(commands.Cog):
             inline=False
         ).add_field(
             name='» Security',
-            value='\n'.join(modinfo),
+            value='\n'.join(secinfo),
             inline=False
         ).add_field(
             name='» Features',
-            value='\n'.join([featureslist.get(f, f) for f in guild.features]),
+            value=', '.join(
+                [featureslist[f] for f in guild.features if f in featureslist]
+            ),
             inline=False
         )
         if isinstance(guild, discord.Guild):
@@ -231,7 +235,7 @@ class GuildInfo(commands.Cog):
                     value=self.shorten(roles, sep=' - '),
                     inline=False
                 )
-        embed.set_footer(text=str(uinfo.id))
+        embed.set_footer(text=str(guild.id))
         await ctx.send(embed=embed)
 
 
