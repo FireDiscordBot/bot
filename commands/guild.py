@@ -62,7 +62,7 @@ featureslist = {
     'PREMIUM': '<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)'
 }
 
-emojis = {  # Yes these are the statuspage emotes but idc
+emotes = {  # Yes these are the statuspage emotes but idc
     'green': '<:operational:685538400639385649>',
     'yellow': '<:partial_outage:685538400555499675>',
     'red': '<:major_outage:685538400639385706>'
