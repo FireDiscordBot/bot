@@ -86,8 +86,7 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 	@commands.command(description="Get hypixel stats")
 	async def hypixel(self, ctx, arg1: str = None, arg2: str = None):
 		if arg1 is None:
-			msg = await ctx.send("I need an IGN, `key` or `watchdog`", delete_after=5)
-			return
+			return await ctx.send("I need an IGN or `watchdog`", delete_after=5)
 		arg1 = arg1.lower().replace('-', '')
 		if arg2:
 			arg2 = arg2.lower()

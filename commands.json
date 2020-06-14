@@ -64,11 +64,6 @@
         "id": 1,
         "name": "Hypixel",
         "commands": {
-            "key": {
-                "Description": "See my API key usage",
-                "Usage": "{prefix}hypixel key",
-                "Aliases": null
-            },
             "watchdog": {
                 "Description": "See watchdog stats, usually broadcasted every 2 hours on the server",
                 "Usage": "{prefix}hypixel watchdog",
