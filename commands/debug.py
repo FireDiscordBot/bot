@@ -78,7 +78,7 @@ class Debug(commands.Cog):
                     bypass.append(key.mention)
             if bypass:
                 detail.append(f'{self.error} The following users/roles will bypass mutes in {ctx.channel.mention}')
-                [detail.append(f'  - {k}') for k in bypass]
+                detail.append(', '.join(bypass))
         issues = [d for d in detail if d.startswith(self.error)]
         if issues:
             status = f'{len(issues)} issues found'
