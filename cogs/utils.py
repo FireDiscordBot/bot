@@ -366,28 +366,6 @@ class Utils(commands.Cog, name='Utility Commands'):
 				await star_chat.send(f'{user} was unblacklisted by {ctx.author}')
 			self.bot.plonked = await self.bot.get_cog("Miscellaneous").loadplonked()
 
-	featureslist = {
-		'PARTNERED': '[Partnered](https://dis.gd/partners)',
-		'VERIFIED': '[Verified](https://dis.gd/verified)',
-		'COMMERCE': '[Store Channels](https://dis.gd/sell-your-game)',
-		'NEWS': '[Announcement Channels](https://support.discord.com/hc/en-us/articles/360032008192)',
-		'FEATURABLE': 'Featurable',
-		'DISCOVERABLE': '[Discoverable](https://discord.com/guild-discovery)',
-		'ENABLED_DISCOVERABLE_BEFORE': 'Enabled Discoverable Before',
-		'PUBLIC': '[Public](https://support.discord.com/hc/en-us/articles/360035969312-Public-Server-Guidelines)',
-		'WELCOME_SCREEN_ENABLED': 'Welcome Screen',
-		'VANITY_URL': 'Vanity URL',
-		'ANIMATED_ICON': 'Animated Icon',
-		'BANNER': 'Banner',
-		'INVITE_SPLASH': 'Invite Splash',
-		'MORE_EMOJI': 'More Emoji',
-		'VIP_REGIONS': 'VIP Regions (Deprecated)',
-		'RELAY_ENABLED': 'Relay Enabled',
-		'RELAY_FORCED': 'Relay Forced',
-		# CUSTOM FEATURES
-		'PREMIUM': '<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)'
-	}
-
 	def shorten(self, items: list, max: int = 1000, sep: str = ', '):
 		text = ''
 		while len(text) < max and items:
@@ -411,37 +389,9 @@ class Utils(commands.Cog, name='Utility Commands'):
 	async def infouser(self, ctx, uinfo: typing.Union[Member, UserWithFallback] = None):
 		return await ctx.invoke(self.bot.get_command('user'), uinfo=uinfo)
 
-	@infogroup.command(name='guild', description='Check out the guild\'s info', aliases=['server'])
+	@infogroup.command(name='guild')
 	async def infoguild(self, ctx):
-		guild = ctx.guild
-		embed = discord.Embed(colour=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
-		embed.set_thumbnail(url=guild.icon_url)
-		nameemote = ''
-		if 'PARTNERED' in guild.features:
-			nameemote = discord.utils.get(self.bot.emojis, id=647400542775279629)
-		elif 'VERIFIED' in guild.features:
-			nameemote = discord.utils.get(self.bot.emojis, id=647400543018287114)
-		embed.add_field(name="» Name", value=f'{guild.name} {nameemote}', inline=False)
-		embed.add_field(name="» ID", value=guild.id, inline=False)
-		embed.add_field(name="» Members", value=format(guild.member_count, ',d'), inline=False)
-		announcech = [c for c in guild.text_channels if c.is_news()]
-		storech = [c for c in guild.channels if str(c.type) == 'store']
-		embed.add_field(name="» Channels", value=f"Text: {len(guild.text_channels) - len(announcech)} | Voice: {len(guild.voice_channels)}\nAnnouncement: {len(announcech)}\nStore: {len(storech)}", inline=True)
-		embed.add_field(name="» Owner", value=str(guild.owner), inline=True)
-		embed.add_field(name="» Region", value=region[str(guild.region)], inline=True)
-		embed.add_field(name="» Verification", value=str(guild.verification_level).capitalize(), inline=True)
-		embed.add_field(name="» Notifications", value=notifs[str(guild.default_notifications)], inline=True)
-		embed.add_field(name="» Multi-Factor Auth", value=bool(guild.mfa_level), inline=True)
-		embed.add_field(name="» Created", value=humanfriendly.format_timespan(datetime.datetime.utcnow() - guild.created_at, max_units=2) + ' ago', inline=True)
-		features = ', '.join([self.featureslist.get(f, f) for f in guild.features])
-		if features and features != '':
-			embed.add_field(name="» Features", value=features, inline=False)
-		embed.add_field(
-			name=f"» Roles [{len(guild.roles) - 1}]",
-			value=self.shorten([r.mention for r in guild.roles if not r.is_default()], sep=' - ', max=750),
-			inline=False
-		)
-		await ctx.send(embed=embed)
+		return await ctx.invoke(self.bot.get_command('guild'))
 
 	@infogroup.command(description='Check out a role\'s info')
 	async def role(self, ctx, *, role: Role = None):
