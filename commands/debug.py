@@ -71,6 +71,14 @@ class Debug(commands.Cog):
                     detail.append(f'{self.error} Command is disabled.')
             else:
                 detail.append(f'{self.check} Command is not disabled')
+        if cmd.name == 'mute':
+            bypass = []
+            for key in ctx.channel.overwrites.keys():
+                if ctx.channel.overwrites_for(key).send_messages is True:
+                    bypass.append(key.mention)
+            if bypass:
+                detail.append(f'{self.error} The following users/roles will bypass mutes in {ctx.channel.mention}')
+                [detail.append(f'  - {k}') for k in bypass]
         issues = [d for d in detail if d.startswith(self.error)]
         if issues:
             status = f'{len(issues)} issues found'
