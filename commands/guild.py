@@ -105,7 +105,7 @@ class GuildInfo(commands.Cog):
             max_units=2
         ) + ' ago'
         info = [
-            f'**Created by {guild.owner}:** {created} ({cdelta})',
+            f'**Created by {guild.owner} {cdelta}**',
             f'**Members:** {guild.member_count:,d}',
             f'**Region:** {region.get(str(guild.region), "❓ Deprecated Region")}'
         ]
