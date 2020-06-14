@@ -209,7 +209,7 @@ class GuildInfo(commands.Cog):
             ))
         ).add_field(
             name='» About',
-            value='\n'.join(secinfo),
+            value='\n'.join(info),
             inline=False
         ).add_field(
             name='» Security',
