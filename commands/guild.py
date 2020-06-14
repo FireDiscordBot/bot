@@ -138,11 +138,11 @@ class GuildInfo(commands.Cog):
                 verification = '**Low Verification Level**'
             info.append(f'{emotes.get("red")} {verification}')
         cfilter = guild.explicit_content_filter
-        if cfilter.all_members:
+        if cfilter == discord.ContentFilter.all_members:
             info.append(
                 f'{emotes.get("green")} **Content Filter:** All Members'
             )
-        elif cfilter.no_role:
+        elif cfilter == discord.ContentFilter.no_role:
             info.append(
                 f'{emotes.get("yellow")} **Content Filter:** Without Role'
             )
@@ -151,7 +151,7 @@ class GuildInfo(commands.Cog):
                 f'{emotes.get("red")} **Content Filter:** Disabled'
             )
         notifications = guild.default_notifications
-        if notifications.all_messages:
+        if notifications == discord.NotificationLevel.all_messages:
             info.append(
                 f'{emotes.get("yellow")} **Default Notifications:** All Messages'
             )
