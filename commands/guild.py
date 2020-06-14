@@ -77,19 +77,19 @@ class GuildInfo(commands.Cog):
         badges = []
         if guild.id == 564052798044504084:
             badges.append(
-                discord.utils.get(self.bot.emojis, id=671243744774848512)
+                str(discord.utils.get(self.bot.emojis, id=671243744774848512))
             )
         if 'PARTNERED' in guild.features:
             badges.append(
-                discord.utils.get(self.bot.emojis, id=647400542775279629)
+                str(discord.utils.get(self.bot.emojis, id=647400542775279629))
             )
         elif 'VERIFIED' in guild.features:
             badges.append(
-                discord.utils.get(self.bot.emojis, id=647400543018287114)
+                str(discord.utils.get(self.bot.emojis, id=647400543018287114))
                 )
         if guild.id in self.bot.premium_guilds:
             badges.append(
-                discord.utils.get(self.bot.emojis, id=680519037704208466)
+                str(discord.utils.get(self.bot.emojis, id=680519037704208466))
             )
         if badges:
             badges.append(u'\u200b')  # Prevents huge emojis on mobile
