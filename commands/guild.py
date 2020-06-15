@@ -124,7 +124,11 @@ class GuildInfo(commands.Cog):
         # guilds in the future
         info = []
         verification = str(guild.verification_level)
-        if verification == 'high':
+        if verification == 'extreme':
+            info.append(
+                f'{emotes.get("green")} **Extreme Verification Level**'
+            )
+        elif verification == 'high':
             info.append(
                 f'{emotes.get("green")} **High Verification Level**'
             )
