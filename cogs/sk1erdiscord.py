@@ -15,8 +15,11 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+
 from discord.ext import commands, tasks
+from fire.converters import Member
 from fire.http import Route
+import urllib.parse
 import datetime
 import aiohttp
 import discord
@@ -55,6 +58,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		self.urlre = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
 		self.homere = r'(/Users/\w+|/home/\w+|C:\\Users\\\w+)'
 		self.solutions = json.load(open('sk1er_solutions.json'))
+		self.specs = {}
+		self.bot.loop.create_task(self.load_specs())
 		self.description_updater.start()
 		self.uuidcache = {}
 
@@ -73,6 +78,17 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			except Exception:
 				pass  # whatever is using this should check for None
 		return self.uuidcache.get(player, None)
+
+	async def load_specs(self):
+		uspecs = await self.bot.db.fetch('SELECT * FROM specs;')
+		for s in uspecs:
+			self.specs[s['uid']] = {
+				'cpu': s['cpu'],
+				'gpu': s['gpu'],
+				'ram': s['ram'],
+				'os': s['os']
+			}
+		self.bot.logger.info(f'$GREENLoaded $CYAN{len(self.specs)} $GREENspecs for $CYAN{self.guild}')
 
 	@tasks.loop(minutes=5)
 	async def description_updater(self):
@@ -101,6 +117,25 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				await ctx.send(
 					file=discord.File('command_general.png', filename='firebestbot.png')
 				)
+
+	@commands.Cog.listener()
+	async def on_command_completion(self, ctx):
+		if ctx.guild.id != self.guild.id:
+			return
+		if 'rank' in ctx.command.name:
+			fake = self.guild.get_role(722176131511484499)
+			real = self.guild.get_role(595626786549792793)
+			if ctx.kwargs.get('role', None) == fake and fake in ctx.author.roles:
+				if ctx.author.id not in self.specs:
+					encoded = urllib.parse.quote(str(ctx.author))
+					await ctx.send(f'{ctx.author.mention} To become a beta tester ,'
+						       f' please provide your specs through this form: '
+						       f'\n<https://inv.wtf/sk1spec?user={encoded}>\n\n'
+						       f'You will automatically gain access to beta channels after filling in the form'
+					)
+				else:
+					await ctx.author.remove_roles(fake, reason='Specs already stored')
+					await ctx.author.add_roles(real, reason='Specs already stored')
 
 	@commands.Cog.listener()
 	async def on_member_remove(self, member):
@@ -324,6 +359,39 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 					pass
 				solutions = self.get_solutions(txt)
 				return await message.channel.send(f'{message.author} sent a log, {url}\n\n{solutions}')
+
+	@commands.command()
+	async def specs(self, ctx, *, user: Member = None):
+		user = user if user else ctx.author
+		if user.id not in self.specs:
+			encoded = urllib.parse.quote(str(user))
+			return await ctx.error(f'Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec?user={encoded}>')
+		else:
+			uspecs = self.specs[user.id]
+			embed = discord.Embed(
+				color=user.color,
+				timestamp=datetime.datetime.now(datetime.timezone.utc)
+			).set_author(
+				name=str(user),
+				icon_url=user.avatar_url_as(static_format='png', size=2048)
+			).add_field(
+				name='» CPU',
+				value=uspecs['cpu'][:1024],
+				inline=False
+			).add_field(
+				name='» GPU',
+				value=uspecs['gpu'][:1024],
+				inline=False
+			).add_field(
+				name='» RAM',
+				value=uspecs['ram'][:1024],
+				inline=False
+			).add_field(
+				name='» Operating System',
+				value=uspecs['os'][:1024],
+				inline=False
+			)
+			return await ctx.send(embed=embed)
 
 	@commands.command(description='Adds perks for Nitro Boosters')
 	async def nitroperks(self, ctx, ign: str = None):
