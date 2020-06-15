@@ -363,8 +363,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 	@commands.command()
 	async def specs(self, ctx, *, user: Member = None):
 		user = user if user else ctx.author
+		encoded = urllib.parse.quote(str(user))
 		if user.id not in self.specs:
-			encoded = urllib.parse.quote(str(user))
 			return await ctx.error(f'Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec?user={encoded}>')
 		else:
 			uspecs = self.specs[user.id]
@@ -373,7 +373,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				timestamp=datetime.datetime.now(datetime.timezone.utc)
 			).set_author(
 				name=str(user),
-				icon_url=user.avatar_url_as(static_format='png', size=2048)
+				icon_url=user.avatar_url_as(static_format='png', size=2048),
+				url=f'https://inv.wtf/sk1spec?user={encoded}'
 			).add_field(
 				name='» CPU',
 				value=uspecs['cpu'][:1024],
