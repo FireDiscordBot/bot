@@ -222,7 +222,7 @@ class GuildInfo(commands.Cog):
         ).add_field(
             name='» Features',
             value=', '.join(
-                [featureslist[f] for f in guild.features if f in featureslist]
+                [featureslist[f] for f in guild.features if f in featureslist] or ['No Features']
             ),
             inline=False
         )
