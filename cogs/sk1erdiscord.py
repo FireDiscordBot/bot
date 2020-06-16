@@ -16,7 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-from discord.ext import commands, tasks
+from discord.ext import commands, tasks, flags
 from fire.converters import Member
 from fire.http import Route
 import urllib.parse
@@ -361,12 +361,23 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				return await message.channel.send(f'{message.author} sent a log, {url}\n\n{solutions}')
 
 	@commands.command()
-	async def specs(self, ctx, *, user: Member = None):
+	async def specs(self, ctx, user: Member = None, flags: flags.FlagParser(
+		remove=bool
+	) = flags.EmptyFlags):
 		user = user if user else ctx.author
 		encoded = urllib.parse.quote(str(user))
 		if user.id not in self.specs:
 			return await ctx.error(f'Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec?user={encoded}>')
 		else:
+			if isinstance(flags, dict) and flags.get('remove', False) and ctx.author.guild_permissions.manage_messages:
+				con = await self.bot.db.acquire()
+				async with con.transaction():
+					query = 'DELETE FROM specs WHERE uid=$1;'
+					await self.bot.db.execute(query, user.id)
+				await self.bot.db.release(con)
+				self.specs.pop(user.id)
+				await user.remove_roles(self.guild.get_role(595626786549792793), reason=f'Specs removed by {ctx.author}')
+				return await ctx.success(f'Successfully removed specs for {user}')
 			uspecs = self.specs[user.id]
 			embed = discord.Embed(
 				color=user.color,
