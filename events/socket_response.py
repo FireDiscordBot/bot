@@ -15,37 +15,28 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from jishaku.paginators import WrappedPaginator, PaginatorInterface
+
 from discord.ext import commands
-import datetime
-import discord
-import traceback
+from core.config import GuildConfig
 
 
-class SocketStats(commands.Cog):
+class SocketResponse(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def socketstats(self, ctx):
-        if not hasattr(self.bot, 'stats'):
-            return await ctx.error(f'Socket stats are not loaded')
-        delta = datetime.datetime.now(datetime.timezone.utc) - self.bot.launchtime
-        minutes = delta.total_seconds() / 60
-        total = sum(self.bot.stats['socket'].values())
-        stats = [f'[{k}] {v:,d}' for k, v in sorted(self.bot.stats['socket'].items(), key=lambda t: self.bot.stats['socket'][t[0]])]
-        stats.reverse()
-        paginator = WrappedPaginator(prefix='```ini', suffix='```', max_size=1000)
-        paginator.add_line(f'{total:,d} events seen since January 20th 2020')
-        for ln in stats:
-            paginator.add_line(ln)
-        interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
-        await interface.send_to(ctx)
-
+    @commands.Cog.listener()
+    async def on_socket_response(self, payload):
+        t = payload['t']
+        if t == 'GUILD_CREATE':
+            guild = int(payload['d']['id'])
+            if guild not in self.bot.configs:
+                self.bot.configs[guild] = GuildConfig(guild, bot=self.bot, db=self.bot.db)
+            if not self.bot.get_config(guild).loaded:
+                await self.bot.get_config(guild).load()
 
 def setup(bot):
     try:
-        bot.add_cog(SocketStats(bot))
-        bot.logger.info(f'$GREENLoaded $CYAN"socketstats" $GREENcommand!')
+        bot.add_cog(SocketResponse(bot))
+        bot.logger.info(f'$GREENLoaded event $CYANSocketResponse!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"socketstats"', exc_info=e)
+        bot.logger.error(f'$REDError while loading event $CYAN"SocketResponse"', exc_info=e)

@@ -47,11 +47,6 @@
                 "Description": "Links to Fire's public servers page",
                 "Usage": "{prefix}discover",
                 "Aliases": null
-            },
-            "socketstats": {
-                "Description": "View Fire's websocket event stats",
-                "Usage": "{prefix}socketstats",
-                "Aliases": null
             }
         }
     },
