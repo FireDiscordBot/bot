@@ -64,7 +64,6 @@ class Settings(commands.Cog):
 		self.bot.aliases = {}
 		self.bot.loop.create_task(self.load_aliases())
 		if not self.bot.dev:
-			self.bot.loop.create_task(self.bot.load_invites())
 			self.refresh_invites.start()
 
 	def clean(self, text: str):
@@ -608,30 +607,6 @@ class Settings(commands.Cog):
 		except asyncio.TimeoutError:
 			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
 		await asyncio.sleep(2)
-		await ctx.send('Ok. Next is dupe checking. If a user attempts to send the same message again, I will delete it (that is, if I have permission to do so)')
-		await asyncio.sleep(2)
-		dupemsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
-		await dupemsg.add_reaction(firesuccess)
-		await dupemsg.add_reaction(firefailed)
-		def dupemsg_check(reaction, user):
-			if user != ctx.author:
-				return False
-			if reaction.emoji == firefailed and reaction.message.id == dupemsg.id:
-				return True
-			if reaction.emoji == firesuccess and reaction.message.id == dupemsg.id:
-				return True
-		try:
-			reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=dupemsg_check)
-			if reaction.emoji == firefailed:
-				dupecheck = False
-				await ctx.success('Disabling duplicate message filter...')
-			elif reaction.emoji == firesuccess:
-				dupecheck = True
-				await ctx.success(f'Enabling duplicate message filter')
-			await ctx.config.set('mod.dupecheck', dupecheck)
-		except asyncio.TimeoutError:
-			return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
-		await asyncio.sleep(2)
 		await ctx.send('Ok. Now we\'re onto global bans. Fire uses the KSoft.Si API to check for naughty people. If enabled, I will ban any of these naughty people if they attempt to join.')
 		await asyncio.sleep(2)
 		gbansmsg = await ctx.send(f'React with {firesuccess} to enable and {firefailed} to disable')
@@ -924,7 +899,7 @@ class Settings(commands.Cog):
 				excl.append(ctx.guild.get_channel(sf))
 			else:
 				excl.append(sf)
-		await ctx.success(f'Successfully set objects excluded from filters (link filter and duplicate message check)\nExcluded: {", ".join([str(e) for e in excl])}')
+		await ctx.success(f'Successfully set objects excluded from link filters\nExcluded: {", ".join([str(e) for e in excl])}')
 
 	@commands.command(name='command', description='Enable and disable commands')
 	@commands.has_permissions(manage_guild=True)

@@ -77,12 +77,6 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $CYANmod.linkfilter $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.linkfilter', value)
 
-    @ConfigOpt(name='mod.dupecheck', accepts=bool, default=False, options=options)
-    async def dupe_check(self, value: bool):
-        '''Duplicate Message Deletion | The deletion of duplicate messages'''
-        self._bot.logger.info(f'$GREENSetting $CYANmod.dupecheck $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('mod.dupecheck', value)
-
     @ConfigOpt(name='excluded.filter', accepts=[int], default=[], options=options)
     async def filter_exclude(self, value: list):
         '''Filter Exclusion | Channel, role and user IDs that are excluded from link filters and duplicate message deletion'''
@@ -303,6 +297,11 @@ class Config:
             return
         else:
             self._data = json.loads(conf[0]['data'])
+            for opt, val in self._data.items():
+                if opt not in self.options:
+                    self._data.pop(opt)
+                elif val == self.options[opt]['default']:
+                    self._data.pop(opt)
             self.loaded = True
 
     async def save(self):

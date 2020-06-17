@@ -34,7 +34,6 @@ import re
 class Message(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.dupecheck = {}
         self.uuidregex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
         self.urlregex = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
         self.tokenregex = r'[MN][A-Za-z\d]{23}\.[\w-]{6}\.[\w-]{27}'
@@ -129,17 +128,6 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             )
             if alt_ctx.valid:
                 await alt_ctx.command.invoke(alt_ctx)
-        if config.get('mod.dupecheck'):
-            lastmsg = self.dupecheck.get(message.author.id, 'send this message and it will get yeeted')
-            lastmsg = self.urlgobyebye(self.uuidgobyebye(lastmsg)).strip()
-            thismsg = self.urlgobyebye(self.uuidgobyebye(message.content)).strip()
-            excluded = config.get('excluded.filter')
-            roleids = [r.id for r in message.author.roles]
-            if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
-                if message.content != "" and len(message.attachments) < 1 and not message.author.bot and len(thismsg) > 10:
-                    if thismsg == lastmsg and not message.author.permissions_in(message.channel).manage_messages:
-                        await message.delete()
-            self.dupecheck[message.author.id] = message.content
         excluded = config.get('excluded.filter')
         roleids = [r.id for r in message.author.roles]
         if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
