@@ -297,7 +297,8 @@ class Config:
             return
         else:
             self._data = json.loads(conf[0]['data'])
-            for opt, val in self._data.items():
+            items = [(k,v) for k,v in tuple(self._data.items())]
+            for opt, val in items:
                 if opt not in self.options:
                     self._data.pop(opt)
                 elif val == self.options[opt]['default']:
