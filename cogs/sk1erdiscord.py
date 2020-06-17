@@ -58,6 +58,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		self.urlre = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
 		self.homere = r'(/Users/\w+|/home/\w+|C:\\Users\\\w+)'
 		self.solutions = json.load(open('sk1er_solutions.json'))
+		self.modconf = json.load(open('mods.json'))
 		self.specs = {}
 		self.bot.loop.create_task(self.load_specs())
 		self.description_updater.start()
@@ -404,6 +405,39 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				inline=False
 			)
 			return await ctx.send(embed=embed)
+
+	@commands.command()
+	@commands.has_role(504372119589617674)
+	async def mods(self, ctx, *, ign: str):
+		if ctx.channel.id != 577203509863251989:
+			return await ctx.error(f'You must run this command in <#577203509863251989>')
+		mid = await self.name_to_uuid(ign)
+		if not mid:
+			return await ctx.error(f'Player not found')
+		route = Route(
+			'GET',
+			f'/user_mods/{ign}'
+		)
+		try:
+			modlist = await self.bot.http.sk1er.request(route, headers=self.modcoreheaders)
+		except Exception as e:
+			return await ctx.error(f'Failed to retrieve mods for {ign}')
+		[modlist.remove(m) for m in ['mcp', 'forge', 'fml', 'modcore'] if m in modlist]
+		[modlist.remove(m) for m in modlist if m in self.modconf['blacklisted_mods']]
+		if not modlist:
+			return await ctx.error(f'No mods found for {ign}')
+		embed = discord.Embed(
+			color=ctx.author.color,
+			timestamp=datetime.datetime.now(datetime.timezone.utc)
+		).set_author(
+			name=ign,
+			icon_url=f'https://crafatar.com/avatars/{mid}?overlay=true'
+		).add_field(
+			name='» Mods',
+			value=', '.join(modlist),
+			inline=False
+		)
+		return await ctx.send(embed=embed)
 
 	@commands.command(description='Adds perks for Nitro Boosters')
 	async def nitroperks(self, ctx, ign: str = None):

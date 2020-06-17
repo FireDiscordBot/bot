@@ -28,7 +28,7 @@ class Mod(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='mod', description="Get info about a Sk1er mod", aliases=['mods'])
+    @commands.command(name='mod', description="Get info about a Sk1er mod")
     async def skiermod(self, ctx, *, mod: str = None):
         if mod is None:
             return await ctx.error("You need to provide a mod name")
