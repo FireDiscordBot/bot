@@ -27,6 +27,7 @@ class MemberUpdate(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.deleted_roles = []
+        self.last_role_fetch = {}
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
@@ -100,14 +101,20 @@ class MemberUpdate(commands.Cog):
                 if role in before.roles:
                     before.roles.remove(role)
             if not any(r for r in self.deleted_roles if r in after.guild.roles):
-                try:
-                    groles = await after.guild.fetch_roles()  # Hopefully this should stop deleted roles from being logged
-                except Exception:
-                    groles = after.guild.roles  # Don't complain to me when your logs get spammed if you remove a role with a bunch of people in it lol
-                for role in after.guild.roles:
-                    if role not in groles:
-                        self.deleted_roles.append(role)
-                        after.guild.roles.remove(role)
+                if after.guild.id in self.last_role_fetch:
+                    delta = datetime.datetime.now(datetime.timezone.utc) - self.last_role_fetch[after.guild.id]
+                else:
+                    delta = datetime.timedelta(seconds=1)
+                if delta > datetime.timedelta(minutes=10):
+                    try:
+                        groles = await after.guild.fetch_roles()  # Hopefully this should stop deleted roles from being logged
+                        self.last_role_fetch[after.guild.id] = datetime.datetime.now(datetime.timezone.utc)
+                    except Exception:
+                        groles = after.guild.roles  # Don't complain to me when your logs get spammed if you remove a role with a bunch of people in it lol
+                    for role in after.guild.roles:
+                        if role not in groles:
+                            self.deleted_roles.append(role)
+                            after.guild.roles.remove(role)
             else:
                 groles = after.guild.roles
             logch = conf.get('log.action')

@@ -48,11 +48,6 @@
                 "Usage": "{prefix}discover",
                 "Aliases": null
             },
-            "rpc": {
-                "Description": "View someone's rich presence",
-                "Usage": "{prefix}rpc [<member>]",
-                "Aliases": null
-            },
             "socketstats": {
                 "Description": "View Fire's websocket event stats",
                 "Usage": "{prefix}socketstats",

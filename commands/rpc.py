@@ -206,6 +206,7 @@ class RichPresence(commands.Cog):
 
 
 def setup(bot):
+    return  # disabled indefinitely
     try:
         bot.add_cog(RichPresence(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"rpc" $GREENcommand!')

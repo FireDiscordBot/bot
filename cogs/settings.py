@@ -70,7 +70,7 @@ class Settings(commands.Cog):
 	def clean(self, text: str):
 		return re.sub(r'[^A-Za-z0-9.\/ ]', '', text, 0, re.MULTILINE)
 
-	@tasks.loop(minutes=2)
+	@tasks.loop(minutes=5)
 	async def refresh_invites(self):
 		for gid in self.bot.premium_guilds:
 			await self.load_invites(gid)
