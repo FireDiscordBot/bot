@@ -77,9 +77,7 @@ class RolePersist(commands.Cog):
                 roleids = [r.id for r in removed]
                 current = [r for r in self.role_persists[after.guild.id][after.id]]
                 for rid in roleids:
-                    if rid not in current:
-                        current.append(rid)
-                    else:
+                    if rid in current:
                         current.remove(rid)
                 if current:
                     con = await self.bot.db.acquire()

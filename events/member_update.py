@@ -97,6 +97,7 @@ class MemberUpdate(commands.Cog):
                 except Exception:
                     pass
         if before.roles != after.roles:
+            groles = None
             for role in self.deleted_roles:
                 if role in before.roles:
                     before.roles.remove(role)
@@ -104,6 +105,7 @@ class MemberUpdate(commands.Cog):
                 if after.guild.id in self.last_role_fetch:
                     delta = datetime.datetime.now(datetime.timezone.utc) - self.last_role_fetch[after.guild.id]
                 else:
+                    self.last_role_fetch[after.guild.id] = datetime.datetime.now(datetime.timezone.utc)
                     delta = datetime.timedelta(seconds=1)
                 if delta > datetime.timedelta(minutes=10):
                     try:
@@ -115,7 +117,7 @@ class MemberUpdate(commands.Cog):
                         if role not in groles:
                             self.deleted_roles.append(role)
                             after.guild.roles.remove(role)
-            else:
+            if not groles:
                 groles = after.guild.roles
             logch = conf.get('log.action')
             if logch:

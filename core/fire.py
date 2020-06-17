@@ -219,6 +219,8 @@ class Fire(commands.Bot):
                 self.logger.error(f'$REDError while loading {ext}', exc_info=e)
 
     def sentry_exc(self, error: commands.CommandError, userscope: dict, exclevel: str, extra: dict):
+        if 'sentry' not in self.config:
+            return
         with push_scope() as scope:
             scope.user = userscope
             scope.level = exclevel
