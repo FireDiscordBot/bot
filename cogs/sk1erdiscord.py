@@ -116,9 +116,9 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				if not (await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', ctx.author.id)):
 					encoded = urllib.parse.quote(str(ctx.author))
 					await ctx.send(f'{ctx.author.mention} To become a beta tester ,'
-						       f' please provide your specs through this form: '
-						       f'\n<https://inv.wtf/sk1spec?user={encoded}>\n\n'
-						       f'You will automatically gain access to beta channels after filling in the form'
+							   f' please provide your specs through this form: '
+							   f'\n<https://inv.wtf/sk1spec?user={encoded}>\n\n'
+							   f'You will automatically gain access to beta channels after filling in the form'
 					)
 				else:
 					await ctx.author.remove_roles(fake, reason='Specs already stored')
@@ -391,6 +391,39 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				inline=False
 			)
 			return await ctx.send(embed=embed)
+
+	@commands.command()
+	@commands.has_role(504372119589617674)
+	async def mods(self, ctx, *, ign: str):
+		if ctx.channel.id != 577203509863251989:
+			return await ctx.error(f'You must run this command in <#577203509863251989>')
+		mid = await self.name_to_uuid(ign)
+		if not mid:
+			return await ctx.error(f'Player not found')
+		route = Route(
+			'GET',
+			f'/user_mods/{ign}'
+		)
+		try:
+			modlist = await self.bot.http.sk1er.request(route, headers=self.modcoreheaders)
+		except Exception as e:
+			return await ctx.error(f'Failed to retrieve mods for {ign}')
+		[modlist.remove(m) for m in ['mcp', 'forge', 'fml', 'modcore'] if m in modlist]
+		[modlist.remove(m) for m in modlist if m in self.modconf['blacklisted_mods']]
+		if not modlist:
+			return await ctx.error(f'No mods found for {ign}')
+		embed = discord.Embed(
+			color=ctx.author.color,
+			timestamp=datetime.datetime.now(datetime.timezone.utc)
+		).set_author(
+			name=ign,
+			icon_url=f'https://crafatar.com/avatars/{mid}?overlay=true'
+		).add_field(
+			name='» Mods',
+			value=', '.join(modlist),
+			inline=False
+		)
+		return await ctx.send(embed=embed)
 
 	@commands.command(description='Adds perks for Nitro Boosters')
 	async def nitroperks(self, ctx, ign: str = None):
