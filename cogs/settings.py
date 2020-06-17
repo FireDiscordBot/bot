@@ -61,7 +61,6 @@ class Settings(commands.Cog):
 		self.recentgban = []
 		self.bot.load_invites = self.load_invites
 		self.bot.get_invites = self.get_invites
-		self.bot.aliases = {}
 		self.bot.loop.create_task(self.load_aliases())
 		if not self.bot.dev:
 			self.refresh_invites.start()
@@ -87,11 +86,14 @@ class Settings(commands.Cog):
 		self.bot.aliases = {}
 		query = 'SELECT * FROM aliases;'
 		aliases = await self.bot.db.fetch(query)
-		self.bot.aliases['hasalias'] = []
+		hasalias = []
+		allaliases = {}
 		for a in aliases:
-			self.bot.aliases['hasalias'].append(a['uid'])
+			hasalias.append(a['uid'])
 			for al in a['aliases']:
-				self.bot.aliases[al.lower()] = a['uid']
+				allaliases[al.lower()] = a['uid']
+		await self.bot.redis.set('hasalias', json.dumps(hasalias))
+		await self.bot.redis.set('aliases', json.dumps(allaliases))
 		self.bot.logger.info(f'$GREENLoaded aliases!')
 
 	async def load_invites(self, gid: int = None):
