@@ -64,6 +64,8 @@ class Fire(commands.Bot):
         COLOR_FORMAT = colorformat.formatter_message("[$BOLD%(name)s$RESET][%(levelname)s] %(message)s $RESET($BOLD%(filename)s$RESET:%(lineno)d)")
         stdout.setFormatter(colorformat.ColoredFormatter(COLOR_FORMAT))
         self.logger.addHandler(stdout)
+        gateway = logging.getLogger('discord.gateway')
+        gateway.addHandler(stdout)
 
         # SENTRY
         if 'sentry' in self.config:
