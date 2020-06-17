@@ -117,14 +117,14 @@ class Moderation(commands.Cog, name="Mod Commands"):
 	def __init__(self, bot):
 		self.bot = bot
 		self.mutes = {}
-		self.bot.loop.create_task(self.loadMutes())
-		self.tempmuteChecker.start()
+		self.bot.loop.create_task(self.load_mutes())
+		self.tempmute_checker.start()
 
 	async def __error(self, ctx, error):
 		if isinstance(error, commands.BadArgument):
 			await ctx.send(discord.utils.escape_mentions(discord.utils.escape_markdown(error)))
 
-	async def loadMutes(self):
+	async def load_mutes(self):
 		await self.bot.wait_until_ready()
 		self.bot.logger.info(f'$YELLOWLoading mutes...')
 		self.mutes = {}
@@ -207,10 +207,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		self.bot.logger.info(f'$GREENLoaded mutes!')
 
 	def cog_unload(self):
-		self.tempmuteChecker.cancel()
+		self.tempmute_checker.cancel()
 
 	@tasks.loop(minutes=1)
-	async def tempmuteChecker(self):
+	async def tempmute_checker(self):
 		try:
 			for g in self.mutes:
 				mutes = self.mutes[g]
@@ -263,8 +263,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		except Exception as e:
 			pass
 
-	@tempmuteChecker.after_loop
-	async def after_tempmuteChecker(self):
+	@tempmute_checker.after_loop
+	async def after_tempmute_checker(self):
 		self.bot.logger.warn(f'$YELLOWTempmute checker has stopped!')
 
 	@commands.Cog.listener()

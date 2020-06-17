@@ -59,13 +59,13 @@ class Settings(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.recentgban = []
-		if not hasattr(self.bot, 'invites'):
-			self.bot.invites = {}
 		self.bot.load_invites = self.load_invites
+		self.bot.get_invites = self.get_invites
 		self.bot.aliases = {}
-		self.bot.loop.create_task(self.bot.load_invites())
 		self.bot.loop.create_task(self.load_aliases())
-		self.refresh_invites.start()
+		if not self.bot.dev:
+			self.bot.loop.create_task(self.bot.load_invites())
+			self.refresh_invites.start()
 
 	def clean(self, text: str):
 		return re.sub(r'[^A-Za-z0-9.\/ ]', '', text, 0, re.MULTILINE)
@@ -96,44 +96,36 @@ class Settings(commands.Cog):
 		self.bot.logger.info(f'$GREENLoaded aliases!')
 
 	async def load_invites(self, gid: int = None):
-		if not gid:
-			self.bot.invites = {}
-			for gid in self.bot.premium_guilds:
-				guild = self.bot.get_guild(gid)
-				if not guild:
+		guilds = [g for g in self.bot.premium_guilds] if not gid else [gid]
+		for g in guilds:
+			guild = self.bot.get_guild(g)
+			if not guild:
+				continue
+			invites = []
+			try:
+				invites = await guild.invites()
+				if 'VANITY_URL' in guild.features:
+					vanity = await guild.vanity_invite()
+					invites.append(vanity)
+			except (discord.Forbidden, discord.HTTPException) as e:
+				if isinstance(e, discord.Forbidden):
 					continue
-				invites = []
-				try:
-					invites = await guild.invites()
-					if 'VANITY_URL' in guild.features:
-						vanity = await guild.vanity_invite()
-						invites.append(vanity)
-				except (discord.Forbidden, discord.HTTPException) as e:
-					if isinstance(e, discord.Forbidden):
-						continue
-					if isinstance(e, discord.HTTPException) and invites == []:
-						continue
-				self.bot.invites[guild.id] = {}
-				for invite in invites:
-					self.bot.invites[guild.id][invite.code] = invite.uses
-		else:
-			self.bot.invites[gid] = {}
-			guild = self.bot.get_guild(gid)
-			if guild:
-				invites = []
-				try:
-					invites = await guild.invites()
-					if 'VANITY_URL' in guild.features:
-						vanity = await guild.vanity_invite()
-						invites.append(vanity)
-				except (discord.Forbidden, discord.HTTPException) as e:
-					if isinstance(e, discord.Forbidden):
-						return
-					if isinstance(e, discord.HTTPException) and invites == []:
-						return
-				self.bot.invites[guild.id] = {}
-				for invite in invites:
-					self.bot.invites[guild.id][invite.code] = invite.uses
+				if isinstance(e, discord.HTTPException) and invites == []:
+					continue
+			ginvites = {guild.id: {}}
+			for invite in invites:
+				ginvites[guild.id][invite.code] = invite.uses
+			await self.bot.redis.set(f'invites.{guild.id}', json.dumps(ginvites))
+			if gid and len(guilds) == 1:
+				return ginvites[guild.id]
+
+	async def get_invites(self, gid: int = None):
+		invites = {}
+		guilds = [g for g in self.bot.premium_guilds] if not gid else [gid]
+		for g in guilds:
+			invs = json.loads((await self.bot.redis.get(f'invites.{g}', encoding='utf-8')) or '{}')
+			invites.update(invs)
+		return invites if not gid else invites[str(gid)]
 
 	@commands.Cog.listener()
 	async def on_guild_channel_pins_update(self, channel, last_pin = 0):
@@ -484,7 +476,7 @@ class Settings(commands.Cog):
 	async def on_invite_create(self, invite: discord.Invite):
 		guild = invite.guild
 		if guild.id in self.bot.premium_guilds:
-			self.bot.invites.get(guild.id, {})[invite.code] = 0
+			await self.load_invites(guild.id)
 		if not isinstance(guild, discord.Guild):
 			return
 		logch = self.bot.get_config(guild).get('log.action')
@@ -511,7 +503,7 @@ class Settings(commands.Cog):
 	async def on_invite_delete(self, invite: discord.Invite):
 		guild = invite.guild
 		if guild.id in self.bot.premium_guilds:
-			self.bot.invites.get(guild.id, {}).pop(invite.code, 'lmao')
+			await self.load_invites(guild.id)
 		if not isinstance(guild, discord.Guild):
 			return
 		whodidit = None

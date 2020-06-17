@@ -26,6 +26,7 @@ from .config import GuildConfig, UserConfig
 import functools
 import traceback
 import sentry_sdk
+import aioredis
 import aiofiles
 import aiohttp
 import datetime
@@ -70,6 +71,11 @@ class Fire(commands.Bot):
         # SENTRY
         if 'sentry' in self.config:
             sentry_sdk.init(self.config['sentry'])
+
+        # REDIS
+        self.redis = None
+        if 'redis' in self.config:
+            self.loop.create_task(self.init_redis())
 
         # GLOBAL HTTP CLIENTS
         self.http.mojang = HTTPClient(
@@ -170,6 +176,12 @@ class Fire(commands.Bot):
                 return False
             conf = self.configs[obj.id if hasattr(obj, 'id') else obj] = UserConfig(obj, bot=self, db=self.db)
             return conf  # Attempting to set an option in UserConfig will load/init the config if not already
+
+    async def init_redis(self):
+        self.redis = await aioredis.create_redis_pool(
+            'redis://localhost',
+            password=self.config['redis']
+        )
 
     def isadmin(self, user: typing.Union[discord.User, discord.Member]) -> bool:
         if str(user.id) not in self.config['admins']:

@@ -31,11 +31,12 @@ class MemberJoin(commands.Cog):
     async def on_member_join(self, member):
         premium = self.bot.premium_guilds
         usedinvite = None
-        if not member.bot and hasattr(self.bot, 'invites'):
-            if member.guild.id in self.bot.invites and member.guild.id in premium:
-                before = self.bot.invites[member.guild.id].copy()
-                await self.bot.load_invites(member.guild.id)
-                after = self.bot.invites[member.guild.id]
+        if not member.bot:
+            if member.guild.id in premium:
+                before = await self.bot.get_invites(member.guild.id)
+                print(f'Invites before: {before}')
+                after = await self.bot.load_invites(member.guild.id)
+                print(f'Invites after: {after}')
                 for inv in before:
                     a = after.get(inv, False)
                     b = before[inv]
