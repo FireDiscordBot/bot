@@ -58,8 +58,6 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		self.urlre = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
 		self.homere = r'(/Users/\w+|/home/\w+|C:\\Users\\\w+)'
 		self.solutions = json.load(open('sk1er_solutions.json'))
-		self.specs = {}
-		self.bot.loop.create_task(self.load_specs())
 		self.description_updater.start()
 		self.uuidcache = {}
 
@@ -78,17 +76,6 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			except Exception:
 				pass  # whatever is using this should check for None
 		return self.uuidcache.get(player, None)
-
-	async def load_specs(self):
-		uspecs = await self.bot.db.fetch('SELECT * FROM specs;')
-		for s in uspecs:
-			self.specs[s['uid']] = {
-				'cpu': s['cpu'],
-				'gpu': s['gpu'],
-				'ram': s['ram'],
-				'os': s['os']
-			}
-		self.bot.logger.info(f'$GREENLoaded $CYAN{len(self.specs)} $GREENspecs for $CYAN{self.guild}')
 
 	@tasks.loop(minutes=5)
 	async def description_updater(self):
@@ -126,7 +113,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			fake = self.guild.get_role(722176131511484499)
 			real = self.guild.get_role(595626786549792793)
 			if ctx.kwargs.get('role', None) == fake and fake in ctx.author.roles:
-				if ctx.author.id not in self.specs:
+				if not (await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', ctx.author.id)):
 					encoded = urllib.parse.quote(str(ctx.author))
 					await ctx.send(f'{ctx.author.mention} To become a beta tester ,'
 						       f' please provide your specs through this form: '
@@ -366,7 +353,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 	) = flags.EmptyFlags):
 		user = user if user else ctx.author
 		encoded = urllib.parse.quote(str(user))
-		if user.id not in self.specs:
+		uspecs = await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', user.id)
+		if not uspecs:
 			return await ctx.error(f'Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec?user={encoded}>')
 		else:
 			if isinstance(flags, dict) and flags.get('remove', False) and ctx.author.guild_permissions.manage_messages:
@@ -375,10 +363,9 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 					query = 'DELETE FROM specs WHERE uid=$1;'
 					await self.bot.db.execute(query, user.id)
 				await self.bot.db.release(con)
-				self.specs.pop(user.id)
 				await user.remove_roles(self.guild.get_role(595626786549792793), reason=f'Specs removed by {ctx.author}')
 				return await ctx.success(f'Successfully removed specs for {user}')
-			uspecs = self.specs[user.id]
+			uspecs = uspecs[0]
 			embed = discord.Embed(
 				color=user.color,
 				timestamp=datetime.datetime.now(datetime.timezone.utc)
