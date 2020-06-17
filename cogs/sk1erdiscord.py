@@ -58,12 +58,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		self.urlre = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
 		self.homere = r'(/Users/\w+|/home/\w+|C:\\Users\\\w+)'
 		self.solutions = json.load(open('sk1er_solutions.json'))
-<<<<<<< HEAD
 		self.modconf = json.load(open('mods.json'))
-		self.specs = {}
-		self.bot.loop.create_task(self.load_specs())
-=======
->>>>>>> 75a629e5f1960962eab7cf3fcb83c7824eb377ec
 		self.description_updater.start()
 		self.uuidcache = {}
 
