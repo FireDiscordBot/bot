@@ -107,7 +107,7 @@ class RolePersist(commands.Cog):
                 names = ', '.join([
                     discord.utils.escape_mentions(guild.get_role(r).name) for r in current if guild.get_role(r)
                 ])  # The check for if the role exists should be pointless but better to check than error
-                logch = await self.bot.get_config(guild.id).get('log.moderation')
+                logch = self.bot.get_config(after.guild.id).get('log.moderation')
                 if logch:
                     embed = discord.Embed(
                         color=discord.Color.green() if current else discord.Color.red(),
@@ -186,7 +186,7 @@ class RolePersist(commands.Cog):
         names = ', '.join([
             discord.utils.escape_mentions(ctx.guild.get_role(r).name) for r in current if ctx.guild.get_role(r)
         ])  # The check for if the role exists should be pointless but better to check than error
-        logch = await ctx.config.get('log.moderation')
+        logch = ctx.config.get('log.moderation')
         if logch:
             embed = discord.Embed(
                 color=discord.Color.green() if not delete else discord.Color.red(),

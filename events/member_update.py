@@ -32,12 +32,12 @@ class MemberUpdate(commands.Cog):
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         conf = self.bot.get_config(after.guild)
-        badname = (await conf.get('utils.badname')) or f'John Doe {after.discriminator}'
+        badname = conf.get('utils.badname') or f'John Doe {after.discriminator}'
         if before.nick != after.nick:
             try:
                 if after.nick is not None and badname in after.nick:
                     raise Exception # Escapes the try
-                if (await conf.get('mod.autodecancer')) and after.guild.me.guild_permissions.manage_nicknames:
+                if conf.get('mod.autodecancer') and after.guild.me.guild_permissions.manage_nicknames:
                     sk1roles = [
                             discord.utils.get(after.guild.roles, id=585534346551754755),
                             discord.utils.get(after.guild.roles, id=436306157762773013),
@@ -54,7 +54,7 @@ class MemberUpdate(commands.Cog):
                             change = True if (conf.get('mod.autodehoist') and not self.bot.ishoisted(nick) or not conf.get('mod.autodehoist')) else False
                             if change and badname not in str(m.nick):
                                 await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
-                if (await conf.get('mod.autodehoist')) and after.guild.me.guild_permissions.manage_nicknames:
+                if conf.get('mod.autodehoist') and after.guild.me.guild_permissions.manage_nicknames:
                     sk1roles = [
                         discord.utils.get(after.guild.roles, id=585534346551754755),
                         discord.utils.get(after.guild.roles, id=436306157762773013),
@@ -71,7 +71,7 @@ class MemberUpdate(commands.Cog):
                             await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
             except Exception:
                 pass
-            logch = await conf.get('log.action')
+            logch = conf.get('log.action')
             if logch and after.nick and badname not in f'{before.nick} -> {after.nick}':
                 embed = discord.Embed(
                     color=after.color,
@@ -119,7 +119,7 @@ class MemberUpdate(commands.Cog):
                             after.guild.roles.remove(role)
             if not groles:
                 groles = after.guild.roles
-            logch = await conf.get('log.action')
+            logch = conf.get('log.action')
             if logch:
                 broles = []
                 aroles = []

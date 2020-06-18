@@ -71,9 +71,9 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         config = self.bot.get_config(guild)
         query = 'SELECT * FROM vanity WHERE gid = $1;'
         remaining = await self.bot.db.fetch(query, guild.id)
-        if (await config.get('utils.public')) and not remaining:
+        if config.get('utils.public') and not remaining:
             await config.set('utils.public', False)
-            log = await config.get('log.action')
+            log = config.get('log.action')
             if log:
                 return await log.send('<:major_outage:685538400639385706> This server has been removed from Fire\'s public server list as it\'s vanity url was deleted')
 
@@ -168,11 +168,10 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
             await self.delete_code(vanity)
 
     async def current_embed(self, ctx, current):
-        embed = discord.Embed(
-            color=ctx.author.color,
-            timestamp=datetime.datetime.now(datetime.timezone.utc),
-            description=ctx.guild.description or current['description'] or discord.Embed.Empty
-        )
+        # gmembers = f'⭘ {len(ctx.guild.members):,d} Members'
+        # desc = ctx.config.get('main.description') or f'Check out {ctx.guild} on Discord'
+        # desc = f'[{ctx.guild}]({current.get("url", "https://inv.wtf/")})\n{desc}\n\n{gmembers}'
+        embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
         splash = str(
             (ctx.guild.splash_url or ctx.guild.discovery_splash_url)
         ).replace('.webp?size=2048', '.png?size=320')

@@ -129,7 +129,7 @@ class Settings(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_guild_channel_pins_update(self, channel, last_pin = 0):
-			logch = await self.bot.get_config(channel.guild).get('log.action')
+			logch = self.bot.get_config(channel.guild).get('log.action')
 			if logch:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'{channel.mention}\'**s pinned messages were updated**')
 				embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
@@ -141,7 +141,7 @@ class Settings(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_guild_role_create(self, role):
-		logch = await self.bot.get_config(role.guild).get('log.action')
+		logch = self.bot.get_config(role.guild).get('log.action')
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**A new role was created**\n{role.mention}')
 			embed.set_author(name=role.guild.name, icon_url=str(role.guild.icon_url))
@@ -153,7 +153,7 @@ class Settings(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_guild_role_delete(self, role):
-		logch = await self.bot.get_config(role.guild).get('log.action')
+		logch = self.bot.get_config(role.guild).get('log.action')
 		if logch:
 			embed = discord.Embed(color=role.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**The role** `{role.name}` **was deleted**')
 			embed.set_author(name=role.guild.name, icon_url=str(role.guild.icon_url))
@@ -165,7 +165,7 @@ class Settings(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_voice_state_update(self, member, before, after):
-		logch = await self.bot.get_config(member.guild).get('log.action')
+		logch = self.bot.get_config(member.guild).get('log.action')
 		if logch:
 			if before.deaf != after.deaf:
 				if after.deaf:
@@ -293,7 +293,7 @@ class Settings(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_guild_update(self, before, after):
-		logch = await self.bot.get_config(after).get('log.action')
+		logch = self.bot.get_config(after).get('log.action')
 		if logch:
 			if before.name != after.name:
 				embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**Guild name was changed**')
@@ -450,7 +450,7 @@ class Settings(commands.Cog):
 				if e.action in [discord.AuditLogAction.kick, discord.AuditLogAction.ban] and e.target.id == member.id:
 					if e.user == member.guild.me:
 						return
-		logch = await self.bot.get_config(guild).get('log.action')
+		logch = self.bot.get_config(guild).get('log.action')
 		if logch:
 			embed = discord.Embed(color=member.color if member.color != discord.Color.default() else discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{member.mention} was banned**')
 			embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
@@ -462,7 +462,7 @@ class Settings(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_member_unban(self, guild, member):
-		logch = await self.bot.get_config(guild).get('log.action')
+		logch = self.bot.get_config(guild).get('log.action')
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{member} was unbanned**')
 			embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
@@ -479,7 +479,7 @@ class Settings(commands.Cog):
 			await self.load_invites(guild.id)
 		if not isinstance(guild, discord.Guild):
 			return
-		logch = await self.bot.get_config(guild).get('log.action')
+		logch = self.bot.get_config(guild).get('log.action')
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**An invite was created**')
 			embed.set_author(name=guild.name, icon_url=str(guild.icon_url_as(static_format='png', size=2048)))
@@ -510,7 +510,7 @@ class Settings(commands.Cog):
 		async for a in guild.audit_logs(action=discord.AuditLogAction.invite_delete, limit=1):
 			if a.target.code == invite.code:
 				whodidit = a.user
-		logch = await self.bot.get_config(guild).get('log.action')
+		logch = self.bot.get_config(guild).get('log.action')
 		if logch:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**An invite was deleted**')
 			embed.set_author(name=guild.name, icon_url=str(guild.icon_url_as(static_format='png', size=2048)))
@@ -600,7 +600,7 @@ class Settings(commands.Cog):
 				linkfilter = []
 				await ctx.success('Disabling link filter...')
 			elif reaction.emoji == firesuccess:
-				linkfilter = await ctx.config.get('mod.linkfilter')
+				linkfilter = ctx.config.get('mod.linkfilter')
 				if not linkfilter:
 					linkfilter = ['discord']
 				await ctx.success(f'Enabling link filter. (If it was already enabled, your configuration won\'t change)')
@@ -684,7 +684,7 @@ class Settings(commands.Cog):
 		config = ctx.config
 		embed = discord.Embed(title=":gear: Guild Settings", colour=ctx.author.color, description="Here's a list of the current guild settings", timestamp=datetime.datetime.now(datetime.timezone.utc))
 		embed.set_author(name=ctx.guild.name, icon_url=str(ctx.guild.icon_url))
-		embed.add_field(name="Moderation Logs", value=(await config.get('log.moderation')).mention if (await config.get('log.moderation')) else 'Not set.', inline=False)
+		embed.add_field(name="Moderation Logs", value=config.get('log.moderation').mention if config.get('log.moderation') else 'Not set.', inline=False)
 		embed.add_field(name="Action Logs", value=config.get('log.action').mention if config.get('log.action') else 'Not set.', inline=False)
 		embed.add_field(name="Link Filter", value=",".join(config.get('mod.linkfilter')) or 'No filters enabled.', inline=False)
 		embed.add_field(name="Global Ban Check (KSoft.Si API)", value=config.get('mod.globalbans'), inline=False)
@@ -718,7 +718,7 @@ class Settings(commands.Cog):
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def modonly(self, ctx, channels: commands.Greedy[TextChannel] = []):
-		current = await ctx.config.get('commands.modonly')
+		current = ctx.config.get('commands.modonly')
 		modonly = current.copy()
 		for sf in channels:
 			if sf not in modonly:
@@ -737,7 +737,7 @@ class Settings(commands.Cog):
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def adminonly(self, ctx, channels: commands.Greedy[TextChannel] = []):
-		current = await ctx.config.get('commands.adminonly')
+		current = ctx.config.get('commands.adminonly')
 		adminonly = current.copy()
 		for sf in channels:
 			if sf not in current:
@@ -767,8 +767,8 @@ class Settings(commands.Cog):
 			'{count}': str(ctx.guild.member_count)
 		}
 		if not channel:
-			joinmsg = await ctx.config.get('greet.joinmsg')
-			joinchan =  await ctx.config.get('greet.joinchannel')
+			joinmsg = ctx.config.get('greet.joinmsg')
+			joinchan =  ctx.config.get('greet.joinchannel')
 			if not joinmsg:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'<:xmark:674359427830382603> Please provide a channel and message for join messages.')
 				embed.add_field(name='Variables', value='\n'.join([f'{k}: {v}' for k, v in variables.items()]), inline=False)
@@ -781,7 +781,7 @@ class Settings(commands.Cog):
 			embed.add_field(name='Variables', value='\n'.join([f'{k}: {v}' for k, v in variables.items()]), inline=False)
 			return await ctx.send(embed=embed)
 		if isinstance(channel, str) and channel.lower() in ['off', 'disable', 'false']:
-			joinmsg = await ctx.config.get('greet.joinmsg')
+			joinmsg = ctx.config.get('greet.joinmsg')
 			if not joinmsg:
 				return await ctx.error('Can\'t disable something that wasn\'t enabled. ¯\_(ツ)_/¯')
 			await ctx.config.set('greet.joinmsg', '')
@@ -790,7 +790,7 @@ class Settings(commands.Cog):
 		if isinstance(channel, str):
 			return await ctx.error('You need to provide a valid channel')
 		if not message:
-			joinmsg = await ctx.config.get('greet.joinmsg')
+			joinmsg = ctx.config.get('greet.joinmsg')
 			if not joinmsg:
 				return await ctx.error('You can\'t set a channel without setting a message.')
 			await ctx.config.set('greet.joinchannel', channel)
@@ -818,8 +818,8 @@ class Settings(commands.Cog):
 			'{count}': str(ctx.guild.member_count)
 		}
 		if not channel:
-			leavemsg = await ctx.config.get('greet.leavemsg')
-			leavechan =  await ctx.config.get('greet.leavechannel')
+			leavemsg = ctx.config.get('greet.leavemsg')
+			leavechan =  ctx.config.get('greet.leavechannel')
 			if not leavemsg:
 				embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'<:xmark:674359427830382603> Please provide a channel and message for leave messages.')
 				embed.add_field(name='Variables', value='\n'.join([f'{k}: {v}' for k, v in variables.items()]), inline=False)
@@ -832,7 +832,7 @@ class Settings(commands.Cog):
 			embed.add_field(name='Variables', value='\n'.join([f'{k}: {v}' for k, v in variables.items()]), inline=False)
 			return await ctx.send(embed=embed)
 		if isinstance(channel, str) and channel.lower() in ['off', 'disable', 'false']:
-			leavemsg = await ctx.config.get('greet.leavemsg')
+			leavemsg = ctx.config.get('greet.leavemsg')
 			if not leavemsg:
 				return await ctx.error('Can\'t disable something that wasn\'t enabled. ¯\_(ツ)_/¯')
 			await ctx.config.set('greet.leavemsg', '')
@@ -841,7 +841,7 @@ class Settings(commands.Cog):
 		if isinstance(channel, str):
 			return await ctx.error('You need to provide a valid channel')
 		if not message:
-			leavemsg = await ctx.config.get('greet.leavemsg')
+			leavemsg = ctx.config.get('greet.leavemsg')
 			if not leavemsg:
 				return await ctx.error('You can\'t set a channel without setting a message.')
 			await ctx.config.set('greet.leavechannel', channel)
@@ -866,7 +866,7 @@ class Settings(commands.Cog):
 		if any(e not in options for e in enabled):
 			invalid = [e for e in enabled if e not in options]
 			return await ctx.error(f'{", ".join(invalid)} are not valid filters')
-		filtered = await ctx.config.get('mod.linkfilter')
+		filtered = ctx.config.get('mod.linkfilter')
 		for f in enabled:
 			if f in filtered:
 				filtered.remove(f)
@@ -880,7 +880,7 @@ class Settings(commands.Cog):
 
 	@commands.command(name='filterexcl', description='Exclude channels, roles and members from the filter')
 	async def filterexclcmd(self, ctx, *ids: typing.Union[TextChannel, Role, Member]):
-		current = await ctx.config.get('excluded.filter')
+		current = ctx.config.get('excluded.filter')
 		ids = [d.id for d in ids]
 		for sf in ids:
 			if sf not in current:
@@ -911,7 +911,7 @@ class Settings(commands.Cog):
 		command = self.bot.get_command(command)
 		if not command:
 			return await ctx.error('You must provide a valid command')
-		disabled = await ctx.config.get('disabled.commands')
+		disabled = ctx.config.get('disabled.commands')
 		if command.name in disabled:
 			toggle = 'enabled'
 			disabled.remove(command.name)

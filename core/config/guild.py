@@ -36,6 +36,7 @@ class Config:
         self._bot = kwargs.pop('bot')
         self._guild = self._bot.get_guild(guild) or guild
         self._db = kwargs.pop('db')
+        self._data = {}
 
     @ConfigOpt(name='main.prefix', accepts=str, default='$', options=options)
     async def prefix(self, value: str):
@@ -222,28 +223,14 @@ class Config:
         '''Ticket Channels | All ticket channels in the guild'''
         await self.update('tickets.channels', [v.id for v in value])
 
-    async def _get_data(self):
-        _data = json.loads((await self._bot.redis.get(
-            f'config.{self._guild.id}',
-            encoding='utf-8'
-        )))
-        return _data
-
-    async def _set_data(self, data: dict):
-        await self._bot.redis.set(
-            f'config.{self._guild.id}',
-            json.dumps(data)
-        )
-
-    async def get(self, option):
+    def get(self, option):
         if option not in self.options:
             raise InvalidOptionError(option)
         if self.options[option]['premium'] and self._guild.id not in self._bot.premium_guilds:
             return self.options[option]['default']  # Return default value if not premium :)
         if self.options[option]['restricted'] and self._guild.id not in self.options[option]['restricted']:
             return self.options[option]['default']  # Return default value if restricted :)
-        _data = await self._get_data()
-        if option not in _data:
+        if option not in self._data:
             return self.options[option]['default']  # Return default value if it's not even in the config :)
         accept = self.options[option]['accepts']
         acceptlist = False
@@ -258,9 +245,9 @@ class Config:
                 converter = getattr(self._guild, DISCORD_CONVERTERS['guild'][accept])
             if converter and inspect.ismethod(converter):
                 if acceptlist:
-                    return [converter(d) for d in _data[option]]
-                return converter(_data[option])
-        return _data[option]
+                    return [converter(d) for d in self._data[option]]
+                return converter(self._data[option])
+        return self._data[option]
 
     async def set(self, opt: str, value):
         if opt not in self.options:
@@ -290,15 +277,14 @@ class Config:
     async def update(self, option: str, value):
         changed = False # Don't need to save if nothing changed lol
         default = self.options[option]['default']
-        _data = await self._get_data()
         if value == default:
-            v = _data.pop(option, None)
+            v = self._data.pop(option, None)
             changed = True if v else False
-        elif _data.get(option, None) != value:
-            _data[option] = value
+        elif self._data.get(option, None) != value:
+            self._data[option] = value
             changed = True
         if changed:
-            await self.save(_data)
+            await self.save()
 
     async def load(self):
         if isinstance(self._guild, int):
@@ -306,26 +292,24 @@ class Config:
         query = 'SELECT * FROM guildconfig WHERE gid=$1;'
         conf = await self._db.fetch(query, self._guild.id)
         if not conf:
-            _data = await self.init()
-            await self._set_data(_data)
+            self._data = await self.init()
             self.loaded = True
             return
         else:
-            _data = json.loads(conf[0]['data'])
-            items = [(k,v) for k,v in tuple(_data.items())]
+            self._data = json.loads(conf[0]['data'])
+            items = [(k,v) for k,v in tuple(self._data.items())]
             for opt, val in items:
                 if opt not in self.options:
-                    _data.pop(opt)
+                    self._data.pop(opt)
                 elif val == self.options[opt]['default']:
-                    _data.pop(opt)
-            await self._set_data(_data)
+                    self._data.pop(opt)
             self.loaded = True
 
-    async def save(self, data: dict):
+    async def save(self):
         con = await self._db.acquire()
         async with con.transaction():
             query = 'UPDATE guildconfig SET data = $1 WHERE gid = $2;'
-            await self._db.execute(query, json.dumps(data), self._guild.id)
+            await self._db.execute(query, json.dumps(self._data), self._guild.id)
         await self._db.release(con)
         self._bot.logger.info(f'$GREENSaved config for $CYAN{self._guild}')
 
@@ -339,7 +323,7 @@ class Config:
         return {}
 
     def __repr__(self):
-        return self.__str__()
+        return f'<GuildConfig guild={self._guild} loaded={self.loaded}>'
 
     def __str__(self):
         return f'<GuildConfig guild={self._guild} loaded={self.loaded}>'

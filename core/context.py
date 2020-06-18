@@ -63,7 +63,7 @@ class Context(commands.Context):
         if isinstance(content, discord.Embed):
             embed = content.copy()
             content = None
-        if not content and random.randint(0, 101) < 10 and (await self.uconfig.get('utils.tips')):
+        if not content and random.randint(0, 101) < 10 and self.uconfig.get('utils.tips'):
             content = '**PROTIP:** ' + random.choice(self.bot.tips)
         if isinstance(embed, discord.Embed) and embed.color in [discord.Embed.Empty, discord.Color.default()]:
             embed.color = random.choice(self.colors)  # TODO Add ability for user to set default color

@@ -129,7 +129,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		if not role:
 			return await ctx.error('You must provide a role!')
 		if isinstance(role, str) and role in ['delay', 'wait']:
-			current = await ctx.config.get('mod.autorole.waitformsg')
+			current = ctx.config.get('mod.autorole.waitformsg')
 			current = await ctx.config.set('mod.autorole.waitformsg', not current)
 			if not current:
 				return await ctx.success(f'I will no longer wait for a message to give users your auto-role.')
@@ -171,7 +171,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 			self.joinroles[ctx.guild.id] = []
 			self.joinroles[ctx.guild.id].append(role.id)
 		await ctx.success(f'Successfully added the rank {discord.utils.escape_mentions(role.name)}!')
-		logch = await ctx.config.get('log.moderation')
+		logch = ctx.config.get('log.moderation')
 		if logch:
 			embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Rank Added | {role.name}', icon_url=str(ctx.guild.icon_url))
@@ -201,7 +201,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		except KeyError:
 			pass
 		await ctx.success(f'Successfully removed the rank {discord.utils.escape_mentions(role.name)}!')
-		logch = await ctx.config.get('log.moderation')
+		logch = ctx.config.get('log.moderation')
 		if logch:
 			embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
 			embed.set_author(name=f'Rank Removed | {role.name}', icon_url=str(ctx.guild.icon_url))
@@ -343,8 +343,8 @@ class Premium(commands.Cog, name="Premium Commands"):
 	async def on_member_join(self, member):
 		if member.guild.id in self.bot.premium_guilds:
 			try:
-				role = await self.bot.get_config(member.guild).get('mod.autorole')
-				wait = await self.bot.get_config(member.guild).get('mod.autorole.waitformsg')
+				role = self.bot.get_config(member.guild).get('mod.autorole')
+				wait = self.bot.get_config(member.guild).get('mod.autorole.waitformsg')
 				if role is not None and not wait and not role in member.roles:
 					await member.add_roles(role, reason='Auto-Role')
 			except Exception:
@@ -356,8 +356,8 @@ class Premium(commands.Cog, name="Premium Commands"):
 		if member and member.guild.id in self.bot.premium_guilds:
 			try:
 				config = self.bot.get_config(member.guild)
-				role = await config.get('mod.autorole')
-				wait = await config.get('mod.autorole.waitformsg')
+				role = config.get('mod.autorole')
+				wait = config.get('mod.autorole.waitformsg')
 				if role is not None and wait and role not in member.roles:
 					await member.add_roles(role, reason='Auto-Role (Waited for message before adding)')
 			except Exception as e:

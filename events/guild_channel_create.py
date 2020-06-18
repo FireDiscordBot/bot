@@ -26,10 +26,10 @@ class GuildChannelCreate(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_channel_create(self, channel):
-        muted = (await self.bot.get_config(channel.guild).get('mod.mutedrole')) or discord.utils.get(channel.guild.roles, name="Muted")
+        muted = self.bot.get_config(channel.guild).get('mod.mutedrole') or discord.utils.get(channel.guild.roles, name="Muted")
         if muted and channel.guild.me.guild_permissions.manage_roles:
             await channel.set_permissions(muted, send_messages=False)
-        logch = await self.bot.get_config(channel.guild).get('log.action')
+        logch = self.bot.get_config(channel.guild).get('log.action')
         if logch:
             createdby = None
             if channel.guild.me.guild_permissions.view_audit_log:

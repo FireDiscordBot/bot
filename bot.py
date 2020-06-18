@@ -36,7 +36,7 @@ async def get_pre(bot, message):
         if bot.dev:
             return commands.when_mentioned_or('$', 'dev ', 'Dev ')(bot, message)
         return commands.when_mentioned_or('$', 'fire ', 'Fire ')(bot, message)
-    prefix = await bot.get_config(message.guild).get('main.prefix')
+    prefix = bot.get_config(message.guild).get('main.prefix')
     if bot.dev:
         return commands.when_mentioned_or(prefix, 'dev ', 'Dev ')(bot, message)
     return commands.when_mentioned_or(prefix, 'fire ', 'Fire ')(bot, message)
@@ -124,13 +124,13 @@ async def cmdperm_check(ctx):
         return True
     if ctx.bot.isadmin(ctx.author):
         return True
-    if ctx.channel in (await ctx.config.get('commands.adminonly')):
+    if ctx.channel in ctx.config.get('commands.adminonly'):
         if not ctx.author.permissions_in(ctx.channel).manage_guild:
             return False
-    if ctx.command.name in (await ctx.config.get('disabled.commands')):
+    if ctx.command.name in ctx.config.get('disabled.commands'):
         if not ctx.author.permissions_in(ctx.channel).manage_messages:
             return False
-    if ctx.channel in (await ctx.config.get('commands.modonly')):
+    if ctx.channel in ctx.config.get('commands.modonly'):
         if not ctx.author.permissions_in(ctx.channel).manage_messages:
             return False
     return True

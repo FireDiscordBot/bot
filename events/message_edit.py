@@ -41,14 +41,14 @@ class MessageEdit(commands.Cog):
             return await self.bot.invoke(ctx)
         if not after.guild or isinstance(after.author, discord.User):
             return
-        config = self.bot.get_config(after.guild)
-        excluded = await config.get('excluded.filter')
-        roleids = [r.id for r in after.author.roles]
-        if after.author.id not in excluded and not any(r in excluded for r in roleids) and after.channel.id not in excluded:
+        message = after
+        excluded = self.bot.get_config(message.guild).get('excluded.filter')
+        roleids = [r.id for r in message.author.roles]
+        if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
             filters = self.bot.get_cog('Filters')
             # with suppress(Exception):
-            await filters.run_all(after)
-        logch = await config.get('log.action')
+            await filters.run_all(message)
+        logch = self.bot.get_config(after.guild).get('log.action')
         if after.channel.is_news():
             if before.flags.crossposted != after.flags.crossposted:
                 if logch:
