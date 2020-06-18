@@ -79,7 +79,7 @@ class Premium(commands.Cog, name="Premium Commands"):
 		"""
 		if member.guild.id in self.bot.premium_guilds:
 			return True
-		if await self.bot.is_owner(member):
+		if (await self.bot.is_owner(member)):
 			return True
 		else:
 			return False

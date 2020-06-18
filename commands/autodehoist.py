@@ -29,7 +29,7 @@ class AutoDehoist(commands.Cog):
     @commands.has_permissions(manage_nicknames=True)
     @commands.bot_has_permissions(manage_nicknames=True)
     async def autodehoistcmd(self, ctx):
-        current = ctx.config.get('mod.autodehoist')
+        current = await ctx.config.get('mod.autodehoist')
         current = await ctx.config.set('mod.autodehoist', not current)
         if current:
             await ctx.success(f'Enabled autodehoist. **New** users with hoisted names will be renamed')
