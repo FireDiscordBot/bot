@@ -48,8 +48,8 @@ class RolePersist(commands.Cog):
         rps = json.loads((await self.bot.redis.get(
             'rolepersists',
             encoding='utf-8'
-        )))
-        return rps if not guild else rps.get(guild, None)
+        )) or '{}')
+        return rps if not guild else rps.get(str(guild), None)
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
@@ -57,10 +57,10 @@ class RolePersist(commands.Cog):
         rps = await self.get_role_persists(guild.id)
         if not rps:
             return
-        if member.id not in rps:
+        if str(member.id) not in rps:
             return
         persisted = [
-            guild.get_role(r) for r in rps[member.id] if guild.get_role(r)
+            guild.get_role(r) for r in rps[str(member.id)] if guild.get_role(r)
         ]
         if persisted:
             try:
@@ -87,7 +87,7 @@ class RolePersist(commands.Cog):
             removed = [x for x in broles if x not in s]
             if len(removed) >= 1:
                 roleids = [r.id for r in removed]
-                current = [r for r in rps[after.id]]
+                current = [r for r in rps[str(after.id)]]
                 for rid in roleids:
                     if rid in current:
                         current.remove(rid)
@@ -142,10 +142,10 @@ class RolePersist(commands.Cog):
             rps = {}
         if user.id not in rps:
             insert = True
-            rps[user.id] = []
+            rps[str(user.id)] = []
         toremove = []
         roleids = [r.id for r in roles]
-        current = [r for r in rps[user.id]]
+        current = [r for r in rps[str(user.id)]]
         for rid in roleids:
             if rid not in current:
                 current.append(rid)

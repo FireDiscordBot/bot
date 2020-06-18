@@ -21,6 +21,7 @@ from discord.ext import commands
 from fire.converters import Role
 import traceback
 import discord
+import json
 
 
 class InviteRoles(commands.Cog):
@@ -49,8 +50,8 @@ class InviteRoles(commands.Cog):
         rps = json.loads((await self.bot.redis.get(
             'invroles',
             encoding='utf-8'
-        )))
-        return rps if not guild else rps.get(guild, None)
+        )) or '{}')
+        return rps if not guild else rps.get(str(guild), None)
 
     @commands.Cog.listener()
     async def on_invite_join(self, member: discord.Member, invite: str):  # member_join will dispatch this if a valid invite was used
@@ -102,6 +103,7 @@ class InviteRoles(commands.Cog):
                 q = 'DELETE FROM invrole WHERE inv=$1 AND rid=$2;'
                 await self.bot.db.execute(q, invite, role.id)
             await self.bot.db.release(con)
+            await self.load_invroles()
             return await ctx.success(f'Successfully deleted invite role {discord.utils.escape_mentions(role.name)} for discord.gg\/{invite}')
         con = await self.bot.db.acquire()
         async with con.transaction():
