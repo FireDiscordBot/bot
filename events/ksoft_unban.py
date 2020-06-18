@@ -33,7 +33,7 @@ class KsoftUnban(commands.Cog):
             return
         self.bot.logger.warn(f'$CYAN{user} ({user.id}) $YELLOWwas unbanned on KSoft with the reason $CYAN{event["appeal_reason"]}')
         for guild in self.bot.guilds:
-            if self.bot.get_config(guild).get('mod.globalbans'):
+            if (await self.bot.get_config(guild).get('mod.globalbans')):
                 logch = await self.bot.get_config(guild).get('log.moderation')
                 try:
                     ban = await guild.fetch_ban(user)
