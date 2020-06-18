@@ -180,6 +180,7 @@ class Fire(commands.Bot):
     async def init_redis(self):
         self.redis = await aioredis.create_redis_pool(
             'redis://localhost',
+            db=0 if self.dev else 1,
             password=self.config['redis']
         )
 
