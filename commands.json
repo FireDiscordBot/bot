@@ -47,6 +47,16 @@
                 "Description": "Links to Fire's public servers page",
                 "Usage": "{prefix}discover",
                 "Aliases": null
+            },
+            "status": {
+                "Description": "Get Fire's status",
+                "Usage": "{prefix}status",
+                "Aliases": null
+            },
+            "dstatus": {
+                "Description": "Get Discord's status",
+                "Usage": "{prefix}dstatus",
+                "Aliases": null
             }
         }
     },
@@ -496,52 +506,6 @@
     },
     {
         "id": 13,
-        "name": "Status",
-        "commands": {
-            "status": {
-                "Description": "Get Fire's status",
-                "Usage": "{prefix}status",
-                "Aliases": null
-            },
-            "dstatus": {
-                "Description": "Get Discord's status",
-                "Usage": "{prefix}dstatus",
-                "Aliases": null
-            },
-            "ghstatus": {
-                "Description": "Get GitHub's status",
-                "Usage": "{prefix}ghstatus",
-                "Aliases": null
-            },
-            "cfstatus": {
-                "Description": "Get Cloudflare's status",
-                "Usage": "{prefix}cfstatus",
-                "Aliases": null
-            },
-            "imgurstatus": {
-                "Description": "Get Imgur's status",
-                "Usage": "{prefix}imgurstatus",
-                "Aliases": null
-            },
-            "tstatus": {
-                "Description": "Get Twitter's status",
-                "Usage": "{prefix}tstatus",
-                "Aliases": null
-            },
-            "dostatus": {
-                "Description": "Get DigitalOcean's status",
-                "Usage": "{prefix}dostatus",
-                "Aliases": null
-            },
-            "dbstatus": {
-                "Description": "Get Dropbox's status",
-                "Usage": "{prefix}dbstatus",
-                "Aliases": null
-            }
-        }
-    },
-    {
-        "id": 14,
         "name": "Purge",
         "Note": "The purge command makes use of a flag system for different options. \nFor example, \"purge 10 --user Geek --match oof\" would purge the last 10 messages from the user Geek if it contains oof",
         "commands": {
@@ -595,7 +559,7 @@
         }
     },
     {
-        "id": 15,
+        "id": 14,
         "name": "Premium",
         "commands": {
             "autorole": {
