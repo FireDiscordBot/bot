@@ -137,7 +137,7 @@ class RolePersist(commands.Cog):
         delete = False
         if any(r.is_default() or r.position >= ctx.guild.me.top_role.position or r.managed for r in roles):
             return await ctx.error(f'I cannot give users this role')
-        rps = await self.get_role_persists(guild.id)
+        rps = await self.get_role_persists(ctx.guild.id)
         if not rps:
             rps = {}
         if user.id not in rps:
