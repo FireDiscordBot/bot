@@ -26,31 +26,40 @@ import discord
 class InviteRoles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.invite_roles = {}
         self.bot.loop.create_task(self.load_invroles())
 
     async def load_invroles(self):
         await self.bot.wait_until_ready()
         q = 'SELECT * FROM invrole;'
+        iroles = {}
         invroles = await self.bot.db.fetch(q)
         for ir in invroles:
             if ir['gid'] not in self.bot.premium_guilds:
                 continue
-            if ir['gid'] not in self.invite_roles:
-                self.invite_roles[ir['gid']] = []
-            self.invite_roles[ir['gid']].append({
+            if ir['gid'] not in iroles:
+                iroles[ir['gid']] = []
+            iroles[ir['gid']].append({
                 'role': ir['rid'],
                 'invite': ir['inv']
             })
+        await self.bot.redis.set('invroles', json.dumps(iroles))
         self.bot.logger.info('$GREENLoaded invite roles!')
+
+    async def get_invroles(self, guild: int):
+        rps = json.loads((await self.bot.redis.get(
+            'invroles',
+            encoding='utf-8'
+        )))
+        return rps if not guild else rps.get(guild, None)
 
     @commands.Cog.listener()
     async def on_invite_join(self, member: discord.Member, invite: str):  # member_join will dispatch this if a valid invite was used
         guild = member.guild
-        if guild.id not in self.invite_roles:
+        invroles = await self.get_invroles(guild.id)
+        if not invroles:
             return
         invroles = [
-            guild.get_role(i['role']) for i in self.invite_roles[guild.id] if i['invite'] == invite and guild.get_role(i['role'])
+            guild.get_role(i['role']) for i in invroles if i['invite'] == invite and guild.get_role(i['role'])
         ]
         if invroles:
             try:
@@ -65,6 +74,7 @@ class InviteRoles(commands.Cog):
             q = 'DELETE FROM invrole WHERE inv=$1;'
             await self.bot.db.execute(q, invite.code)
         await self.bot.db.release(con)
+        await self.load_invroles()
 
     async def cog_check(self, ctx):
         if not ctx.guild or not ctx.guild.id in self.bot.premium_guilds:
@@ -80,10 +90,11 @@ class InviteRoles(commands.Cog):
         if invite.guild.id != ctx.guild.id:
             return await ctx.error(f'The invite must be for this guild')
         invite = invite.code
-        if ctx.guild.id not in self.invite_roles:
-             self.invite_roles[ctx.guild.id] = []
+        invroles = await self.get_invroles(ctx.guild.id)
+        if not invroles:
+             invroles = []
         current = [
-            i for i in self.invite_roles[ctx.guild.id] if i['invite'] == invite and i['role'] == role.id
+            i for i in invroles if i['invite'] == invite and i['role'] == role.id
         ]
         if current:
             con = await self.bot.db.acquire()
@@ -97,10 +108,7 @@ class InviteRoles(commands.Cog):
             query = 'INSERT INTO invrole (\"gid\", \"rid\", \"inv\") VALUES ($1, $2, $3);'
             await self.bot.db.execute(query, ctx.guild.id, role.id, invite)
         await self.bot.db.release(con)
-        self.invite_roles[ctx.guild.id].append({
-            'role': role.id,
-            'invite': invite
-        })
+        await self.load_invroles()
         return await ctx.success(f'Successfully added invite role {discord.utils.escape_mentions(role.name)} for discord.gg\/{invite}')
 
 
