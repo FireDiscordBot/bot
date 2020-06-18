@@ -87,7 +87,7 @@ class Filters(commands.Cog):
             if any(u in fullurl for u in ['h.inv.wtf', 'i.inv.wtf']) and self.bot.isadmin(message.author):
                 continue
             if not message.author.permissions_in(message.channel).manage_messages:
-                if 'discord' in (await self.bot.get_config(message.guild).get('mod.linkfilter')):
+                if 'discord' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         invite = await self.bot.fetch_invite(url=code)
                         if invite.guild.id != message.guild.id:
@@ -133,7 +133,7 @@ class Filters(commands.Cog):
     async def anti_malware(self, message, extra):  # Get it? It gets rid of malware links so it's, anti malware. I'm hilarious!
         tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) if not extra else extra
         if any(l in tosearch for l in self.malware):
-            if 'malware' in (await self.bot.get_config(message.guild).get('mod.linkfilter')):
+            if 'malware' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                 try:
                     await message.delete()
                 except Exception:
@@ -161,7 +161,7 @@ class Filters(commands.Cog):
         paypal = findpaypal(tosearch)
         if paypal:
             if not message.author.permissions_in(message.channel).manage_messages:
-                if 'paypal' in (await self.bot.get_config(message.guild).get('mod.linkfilter')):
+                if 'paypal' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         await message.delete()
                     except Exception:
@@ -191,7 +191,7 @@ class Filters(commands.Cog):
         invalidchannel = False
         if video:
             if not message.author.permissions_in(message.channel).manage_messages:
-                if 'youtube' in (await self.bot.get_config(message.guild).get('mod.linkfilter')):
+                if 'youtube' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         await message.delete()
                     except Exception:
@@ -225,7 +225,7 @@ class Filters(commands.Cog):
                                 pass
         if channel:
             if not message.author.permissions_in(message.channel).manage_messages:
-                if 'youtube' in (await self.bot.get_config(message.guild).get('mod.linkfilter')):
+                if 'youtube' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         await message.delete()
                     except Exception:
@@ -262,7 +262,7 @@ class Filters(commands.Cog):
         twitch = findtwitch(tosearch)
         if twitch:
             if not message.author.permissions_in(message.channel).manage_messages:
-                if 'twitch' in (await self.bot.get_config(message.guild).get('mod.linkfilter')):
+                if 'twitch' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         await message.delete()
                     except Exception:
@@ -288,7 +288,7 @@ class Filters(commands.Cog):
         twitter = findtwitter(tosearch)
         if twitter:
             if not message.author.permissions_in(message.channel).manage_messages:
-                if 'twitter' in (await self.bot.get_config(message.guild).get('mod.linkfilter')):
+                if 'twitter' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         await message.delete()
                     except Exception:
@@ -314,7 +314,7 @@ class Filters(commands.Cog):
         short = findshort(tosearch)
         if short:
             if not message.author.permissions_in(message.channel).manage_messages:
-                if 'shorteners' in (await self.bot.get_config(message.guild).get('mod.linkfilter')):
+                if 'shorteners' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         await message.delete()
                     except Exception:
@@ -362,7 +362,7 @@ class Filters(commands.Cog):
                 gift = None
                 continue
             if gift['application_id'] in self.blocked_gifts:
-                if 'gifts' in (await self.bot.get_config(message.guild).get('mod.linkfilter')):
+                if 'gifts' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     if not message.author.permissions_in(message.channel).manage_messages:
                         try:
                             await message.delete()
@@ -406,7 +406,7 @@ class Filters(commands.Cog):
             if not logch:
                 continue
             if sku['sku']['application_id'] in self.blocked_gifts:
-                if 'gifts' in (await self.bot.get_config(message.guild).get('mod.linkfilter')):
+                if 'gifts' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     if not message.author.permissions_in(message.channel).manage_messages:
                         try:
                             await message.delete()
