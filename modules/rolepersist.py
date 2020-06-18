@@ -49,7 +49,7 @@ class RolePersist(commands.Cog):
             'rolepersists',
             encoding='utf-8'
         )))
-        return rps if not guild else rps.get(str(guild), None)
+        return rps if not guild else rps.get(guild, None)
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
