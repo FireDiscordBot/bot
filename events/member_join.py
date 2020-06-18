@@ -34,9 +34,7 @@ class MemberJoin(commands.Cog):
         if not member.bot:
             if member.guild.id in premium:
                 before = await self.bot.get_invites(member.guild.id)
-                print(f'Invites before: {before}')
                 after = await self.bot.load_invites(member.guild.id)
-                print(f'Invites after: {after}')
                 for inv in before:
                     a = after.get(inv, False)
                     b = before[inv]
