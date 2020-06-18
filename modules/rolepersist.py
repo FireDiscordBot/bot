@@ -22,35 +22,45 @@ import traceback
 import datetime
 import discord
 import typing
+import json
 
 
 class RolePersist(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.role_persists = {}
         self.bot.loop.create_task(self.load_role_persists())
 
     async def load_role_persists(self):
         await self.bot.wait_until_ready()
         q = 'SELECT * FROM rolepersists;'
-        rolepersists = await self.bot.db.fetch(q)
-        for rp in rolepersists:
+        rps = {}
+        persists = await self.bot.db.fetch(q)
+        for rp in persists:
             if rp['gid'] not in self.bot.premium_guilds:
                 continue
-            if rp['gid'] not in self.role_persists:
-                self.role_persists[rp['gid']] = {}
-            self.role_persists[rp['gid']][rp['uid']] = rp['roles']
+            if rp['gid'] not in rps:
+                rps[rp['gid']] = {}
+            rps[rp['gid']][rp['uid']] = rp['roles']
+        await self.bot.redis.set('rolepersists', json.dumps(rps))
         self.bot.logger.info('$GREENLoaded persisted roles!')
+
+    async def get_role_persists(self, guild: int):
+        rps = json.loads((await self.bot.redis.get(
+            'rolepersists',
+            encoding='utf-8'
+        )))
+        return rps if not guild else rps.get(str(guild), None)
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         guild = member.guild
-        if guild.id not in self.role_persists:
+        rps = await self.get_role_persists(guild.id)
+        if not rps:
             return
-        if member.id not in self.role_persists[guild.id]:
+        if member.id not in rps:
             return
         persisted = [
-            guild.get_role(r) for r in self.role_persists[guild.id][member.id] if guild.get_role(r)
+            guild.get_role(r) for r in rps[member.id] if guild.get_role(r)
         ]
         if persisted:
             try:
@@ -60,9 +70,11 @@ class RolePersist(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        if after.guild.id not in self.role_persists:
+        guild = after.guild
+        rps = await self.get_role_persists(guild.id)
+        if not rps:
             return
-        if after.id not in self.role_persists[after.guild.id]:
+        if after.id not in rps:
             return
         if before.roles != after.roles:
             broles = []
@@ -75,7 +87,7 @@ class RolePersist(commands.Cog):
             removed = [x for x in broles if x not in s]
             if len(removed) >= 1:
                 roleids = [r.id for r in removed]
-                current = [r for r in self.role_persists[after.guild.id][after.id]]
+                current = [r for r in rps[after.id]]
                 for rid in roleids:
                     if rid in current:
                         current.remove(rid)
@@ -83,19 +95,19 @@ class RolePersist(commands.Cog):
                     con = await self.bot.db.acquire()
                     async with con.transaction():
                         query = 'UPDATE rolepersists SET roles = $1 WHERE gid = $2 AND uid = $3;'
-                        await self.bot.db.execute(query, current, after.guild.id, after.id)
+                        await self.bot.db.execute(query, current, guild.id, after.id)
                     await self.bot.db.release(con)
                 else:
                     con = await self.bot.db.acquire()
                     async with con.transaction():
                         query = 'DELETE FROM rolepersists WHERE gid = $1 AND uid = $2;'
-                        await self.bot.db.execute(query, after.guild.id, after.id)
+                        await self.bot.db.execute(query, guild.id, after.id)
                     await self.bot.db.release(con)
-                self.role_persists[after.guild.id][after.id] = current
+                await self.load_role_persists()
                 names = ', '.join([
-                    discord.utils.escape_mentions(after.guild.get_role(r).name) for r in current if after.guild.get_role(r)
+                    discord.utils.escape_mentions(guild.get_role(r).name) for r in current if guild.get_role(r)
                 ])  # The check for if the role exists should be pointless but better to check than error
-                logch = await self.bot.get_config(after.guild.id).get('log.moderation')
+                logch = await self.bot.get_config(guild.id).get('log.moderation')
                 if logch:
                     embed = discord.Embed(
                         color=discord.Color.green() if current else discord.Color.red(),
@@ -103,10 +115,10 @@ class RolePersist(commands.Cog):
                     )
                     embed.set_author(name=f'Role Persist | {after}', icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
                     embed.add_field(name='User', value=f'{after} ({after.id})', inline=False)
-                    embed.add_field(name='Moderator', value=after.guild.me.mention, inline=False)
+                    embed.add_field(name='Moderator', value=guild.me.mention, inline=False)
                     if names:
                         embed.add_field(name='Roles', value=names, inline=False)
-                    embed.set_footer(text=f'User ID: {after.id} | Mod ID: {after.guild.me.id}')
+                    embed.set_footer(text=f'User ID: {after.id} | Mod ID: {guild.me.id}')
                     try:
                         await logch.send(embed=embed)
                     except Exception:
@@ -125,14 +137,15 @@ class RolePersist(commands.Cog):
         delete = False
         if any(r.is_default() or r.position >= ctx.guild.me.top_role.position or r.managed for r in roles):
             return await ctx.error(f'I cannot give users this role')
-        if ctx.guild.id not in self.role_persists:
-            self.role_persists[ctx.guild.id] = {}
-        if user.id not in self.role_persists[ctx.guild.id]:
+        rps = await self.get_role_persists(guild.id)
+        if not rps:
+            rps = {}
+        if user.id not in rps:
             insert = True
-            self.role_persists[ctx.guild.id][user.id] = []
+            rps[user.id] = []
         toremove = []
         roleids = [r.id for r in roles]
-        current = [r for r in self.role_persists[ctx.guild.id][user.id]]
+        current = [r for r in rps[user.id]]
         for rid in roleids:
             if rid not in current:
                 current.append(rid)
@@ -159,7 +172,7 @@ class RolePersist(commands.Cog):
                 query = 'INSERT INTO rolepersists (\"gid\", \"uid\", \"roles\") VALUES ($1, $2, $3);'
                 await self.bot.db.execute(query, ctx.guild.id, user.id, current)
             await self.bot.db.release(con)
-        self.role_persists[ctx.guild.id][user.id] = current
+        await self.load_role_persists()
         donthave = [
             ctx.guild.get_role(r) for r in current if ctx.guild.get_member(user.id) and ctx.guild.get_role(r) not in user.roles
         ]
