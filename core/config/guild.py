@@ -226,7 +226,7 @@ class Config:
         _data = json.loads((await self._bot.redis.get(
             f'config.{self._guild.id}',
             encoding='utf-8'
-        )) or '{}')
+        )))
         return _data
 
     async def _set_data(self, data: dict):
