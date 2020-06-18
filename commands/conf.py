@@ -33,7 +33,7 @@ class Conf(commands.Cog):
             paginator = WrappedPaginator(prefix='```ini', suffix='```', max_size=600)
             gconf = ctx.config
             for opt, data in gconf.options.items():
-                current = gconf.get(opt)
+                current = await gconf.get(opt)
                 if isinstance(current, list):
                     current = ', '.join([str(c) for c in current])
                 accepted = data["accepts"]

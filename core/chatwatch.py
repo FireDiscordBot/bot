@@ -36,7 +36,7 @@ class Chatwatch(commands.Cog):
             channel = guild.get_channel(int(data['message']['channel']))
             if not (guild or channel):
                 return  # HOW
-            chance = self.bot.get_config(guild).get('mod.nospam')
+            chance = await self.bot.get_config(guild).get('mod.nospam')
             if not chance or chance < 65:
                 return
             if data['scores']['content'] >= chance:
@@ -51,7 +51,7 @@ class Chatwatch(commands.Cog):
     async def on_message(self, message):
         if not message.guild or not message.content or message.author.bot:
             return
-        if not self.bot.get_config(message.guild).get('mod.nospam'):
+        if not (await self.bot.get_config(message.guild).get('mod.nospam')):
             return  # Y'all can shut the fuck up now and stop complaining don't ever talk to me again I fucking hate your guts ;)
         ctx = await self.bot.get_context(message)
         if ctx.valid:

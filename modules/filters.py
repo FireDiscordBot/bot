@@ -108,7 +108,7 @@ class Filters(commands.Cog):
                                 pass
                     except discord.Forbidden:
                         pass
-                    logch = self.bot.get_config(message.guild).get('log.action')
+                    logch = await self.bot.get_config(message.guild).get('log.action')
                     if logch:
                         description = f'**Invite link sent in** {message.channel.mention}'
                         if fullurl in extra:
@@ -141,7 +141,7 @@ class Filters(commands.Cog):
                         await message.channel.send(f'A blacklisted link was found in a message send by {message.author} and I was unable to delete it!')
                     except Exception:
                         pass
-                logch = self.bot.get_config(message.guild).get('log.action')
+                logch = await self.bot.get_config(message.guild).get('log.action')
                 if logch:
                     description = f'**Known malware link sent in** {message.channel.mention}'
                     if any(l in extra for l in self.malware):
@@ -166,7 +166,7 @@ class Filters(commands.Cog):
                         await message.delete()
                     except Exception:
                         pass
-                    logch = self.bot.get_config(message.guild).get('log.action')
+                    logch = await self.bot.get_config(message.guild).get('log.action')
                     if logch:
                         description = f'**PayPal link sent in** {message.channel.mention}'
                         if paypal in extra:
@@ -200,7 +200,7 @@ class Filters(commands.Cog):
                     videoinfo = videoinfo.get('items', [])
                     if len(videoinfo) >= 1:
                         videoinfo = videoinfo[0]
-                        logch = self.bot.get_config(message.guild).get('log.action')
+                        logch = await self.bot.get_config(message.guild).get('log.action')
                         if logch:
                             description = f'**YouTube video sent in** {message.channel.mention}'
                             if video in extra:
@@ -234,7 +234,7 @@ class Filters(commands.Cog):
                     channelinfo = channelinfo.get('items', [])
                     if len(channelinfo) >= 1:
                         channelinfo = channelinfo[0]
-                        logch = self.bot.get_config(message.guild).get('log.action')
+                        logch = await self.bot.get_config(message.guild).get('log.action')
                         if logch:
                             description = f'**YouTube channel sent in** {message.channel.mention}'
                             if channel in extra:
@@ -267,7 +267,7 @@ class Filters(commands.Cog):
                         await message.delete()
                     except Exception:
                         pass
-                    logch = self.bot.get_config(message.guild).get('log.action')
+                    logch = await self.bot.get_config(message.guild).get('log.action')
                     if logch:
                         description = f'**Twitch link sent in** {message.channel.mention}'
                         if twitch in extra:
@@ -293,7 +293,7 @@ class Filters(commands.Cog):
                         await message.delete()
                     except Exception:
                         pass
-                    logch = self.bot.get_config(message.guild).get('log.action')
+                    logch = await self.bot.get_config(message.guild).get('log.action')
                     if logch:
                         description = f'**Twitter link sent in** {message.channel.mention}'
                         if twitter in extra:
@@ -319,7 +319,7 @@ class Filters(commands.Cog):
                         await message.delete()
                     except Exception:
                         pass
-                    logch = self.bot.get_config(message.guild).get('log.action')
+                    logch = await self.bot.get_config(message.guild).get('log.action')
                     if logch:
                         description = f'**Short link sent in** {message.channel.mention}'
                         if short in extra:
@@ -346,7 +346,7 @@ class Filters(commands.Cog):
                 continue
             if gift:
                 await self.run_all(message, extra=str(gift) + 'handle_gift', exclude=['gift'])
-            logch = self.bot.get_config(message.guild).get('log.action')
+            logch = await self.bot.get_config(message.guild).get('log.action')
             if not logch:
                 continue
             if gift['application_id'] in ['521842831262875670']:
@@ -402,7 +402,7 @@ class Filters(commands.Cog):
             if sku:
                 sku.pop('summary', None) # prevent duped logs since summary is already in the embed description
                 await self.run_all(message, extra=str(sku), exclude=['sku'])
-            logch = self.bot.get_config(message.guild).get('log.action')
+            logch = await self.bot.get_config(message.guild).get('log.action')
             if not logch:
                 continue
             if sku['sku']['application_id'] in self.blocked_gifts:

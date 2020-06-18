@@ -65,7 +65,7 @@ class Ready(commands.Cog):
                 if current == 'partial_outage':
                     await asyncio.sleep(1)  # rate limits are fun 2 electric boogaloo
                     await self.bot.get_cog('FireStatus').set_status(c, 'operational')
-        guilds = [g for g in self.bot.guilds if self.bot.get_config(g.id).get('main.fetch_offline') and g.large]
+        guilds = [g for g in self.bot.guilds if (await self.bot.get_config(g.id).get('main.fetch_offline')) and g.large]
         if guilds:
             await self.bot.request_offline_members(*guilds)
 

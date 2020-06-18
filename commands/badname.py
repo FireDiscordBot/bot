@@ -28,7 +28,7 @@ class BadName(commands.Cog):
     @commands.command(name='badname', description='Change the name used for auto dehoist/decancer')
     @commands.has_permissions(manage_nicknames=True)
     async def badnamecmd(self, ctx, *, newname: str = None):
-        current = ctx.config.get('utils.badname')
+        current = await ctx.config.get('utils.badname')
         if newname and newname == current:
             return await ctx.success(f'I did absolutely nothing because that\'s already set as the "bad name"')
         current = await ctx.config.set('utils.badname', newname)

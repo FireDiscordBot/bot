@@ -33,7 +33,7 @@ class CommandCompletion(commands.Cog):
     async def on_command_completion(self, ctx):
         if ctx.command.name in self.watchedcmds:
             if ctx.guild:
-                logch = ctx.config.get('log.action')
+                logch = await ctx.config.get('log.action')
                 if logch:
                     embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'`{ctx.command.name}` **was used in** {ctx.channel.mention} **by {ctx.author.name}**')
                     embed.set_author(name=ctx.author, icon_url=str(ctx.author.avatar_url_as(static_format='png', size=2048)))

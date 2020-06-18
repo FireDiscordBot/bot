@@ -30,7 +30,7 @@ class MessageDelete(commands.Cog):
     async def on_message_delete(self, message):
         self.bot.cmdresp.pop(message.id, 0)
         if message.guild and not message.author.bot:
-            logch = self.bot.get_config(message.guild).get('log.action')
+            logch = await self.bot.get_config(message.guild).get('log.action')
             if logch:
                 deletedby = None
                 if message.guild.me.guild_permissions.view_audit_log:

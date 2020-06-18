@@ -28,7 +28,7 @@ class Public(commands.Cog):
     @commands.command(name='public', description='Makes the guild visible on https://fire.gaminggeek.dev/discover')
     @commands.has_permissions(manage_guild=True)
     async def publiccmd(self, ctx):
-        current = ctx.config.get('utils.public')
+        current = await ctx.config.get('utils.public')
         query = 'SELECT * FROM vanity WHERE gid=$1 AND redirect IS NULL'
         vanitys = await self.bot.db.fetch(query, ctx.guild.id)
         if not vanitys:
@@ -37,12 +37,12 @@ class Public(commands.Cog):
         if current:
             await ctx.success(f'Your guild is now public & visible on <https://fire.gaminggeek.dev/discover>.'
                                      f'\nPeople will be able to use your guild\'s vanity url (<https://inv.wtf/{vanitys[0]["code"]}>) to join')
-            log = ctx.config.get('log.action')
+            log = await ctx.config.get('log.action')
             if log:
                 await log.send(f'<:operational:685538400639385649> Ths server is now public and will appear on Fire\'s public server list')
         else:
             await ctx.success(f'Your guild is no longer public and will no longer show on the Fire website')
-            log = ctx.config.get('log.action')
+            log = await ctx.config.get('log.action')
             if log:
                 await log.send(f'<:major_outage:685538400639385706> Ths server was manually removed from Fire\'s public server list by {ctx.author}')
 

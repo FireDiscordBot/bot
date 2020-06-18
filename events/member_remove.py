@@ -31,9 +31,9 @@ class MemberRemove(commands.Cog):
         if not [g for g in self.bot.guilds if g.get_member(member.id)]:
             self.bot.configs.pop(member.id, None)
         conf = self.bot.get_config(member.guild)
-        if conf.get('greet.leavemsg'):
-            leavechan = conf.get('greet.leavechannel')
-            leavemsg = conf.get('greet.leavemsg')
+        if (await conf.get('greet.leavemsg')):
+            leavechan = await conf.get('greet.leavechannel')
+            leavemsg = awaut conf.get('greet.leavemsg')
             if leavechan and leavemsg:
                 vars = {
                     '{user.mention}': member.mention,
@@ -50,7 +50,7 @@ class MemberRemove(commands.Cog):
                 for var, value in vars.items():
                     message = message.replace(var, value)
                 await leavechan.send(message)
-        logch = conf.get('log.moderation')
+        logch = await conf.get('log.moderation')
         if logch:
             moderator = None
             action = None

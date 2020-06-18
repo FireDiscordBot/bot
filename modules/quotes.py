@@ -85,7 +85,7 @@ class Quotes(commands.Cog, name="Quotes"):
             perms = message.guild.me.permissions_in(message.channel)
             config = self.bot.get_config(message.guild)
             if not perms.send_messages or not perms.embed_links:
-                if message.author.bot or not (perms.manage_webhooks or config.get('utils.quotehooks')):
+                if message.author.bot or not (perms.manage_webhooks or (await config.get('utils.quotehooks'))):
                     return
             message_regex = r'(?:http(?:s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
             botquote_regex = r'.{1,25}\s?quote (http(s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels'
@@ -98,7 +98,7 @@ class Quotes(commands.Cog, name="Quotes"):
             for u in url:
                 if f'<{u}>' in message.content:
                     continue
-                alt_ctx = await copy_context_with(ctx, content=ctx.config.get('main.prefix') + f'quote {u}')
+                alt_ctx = await copy_context_with(ctx, content=ctx.prefix + f'quote {u}')
                 if alt_ctx.valid:
                     try:
                         await alt_ctx.command.invoke(alt_ctx)
@@ -111,7 +111,7 @@ class Quotes(commands.Cog, name="Quotes"):
         if not message:
             return await ctx.error('Please specify a message ID/URL to quote. Use `auto` to toggle auto message quotes.')
         if isinstance(message, str) and message.lower() == 'auto' and ctx.author.guild_permissions.manage_guild:
-            current = ctx.config.get('utils.autoquote')
+            current = await ctx.config.get('utils.autoquote')
             new = await ctx.config.set('utils.autoquote', not current)
             return await ctx.success(f'Auto message quoting: {new}')
         if not isinstance(message, discord.Message):
@@ -142,7 +142,7 @@ class Quotes(commands.Cog, name="Quotes"):
             if hasattr(ctx.channel, 'recipient') and ctx.channel.recipient.id != ctx.author.id:
                 return
 
-        usehooks = ctx.config.get('utils.quotehooks')
+        usehooks = await ctx.config.get('utils.quotehooks')
         if ctx.guild.me.permissions_in(ctx.channel).manage_webhooks and usehooks:
             existing = [w for w in (await ctx.channel.webhooks()) if w.token]
             if not existing:

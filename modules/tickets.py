@@ -76,7 +76,7 @@ class Tickets(commands.Cog, name="Tickets"):
     @commands.has_permissions(manage_channels=True)
     async def tickets_name(self, ctx, name: str = None):
         variables = {
-            '{increment}': ctx.config.get('tickets.increment'),
+            '{increment}': (await ctx.config.get('tickets.increment')),
             '{name}': ctx.author.name,
             '{id}': ctx.author.id,
             '{word}': random.choice(self.words),
@@ -84,7 +84,7 @@ class Tickets(commands.Cog, name="Tickets"):
         }
         if not name:
             variables = '\n'.join([f'{k}: {v}' for k, v in variables.items()])
-            current = ctx.config.get('tickets.name')
+            current = await ctx.config.get('tickets.name')
             embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
             embed.add_field(name='Variables', value=variables, inline=False)
             return await ctx.send(embed=embed)
@@ -101,21 +101,21 @@ class Tickets(commands.Cog, name="Tickets"):
     async def tickets_new(self, ctx, *, subject: str = "No subject given"):
         creating = await ctx.send('Creating your ticket...')
         config = ctx.config
-        parent = config.get('tickets.parent')
-        limit = config.get('tickets.limit')
+        parent = await config.get('tickets.parent')
+        limit = await config.get('tickets.limit')
         if not parent:
             return await ctx.error('Tickets are not enabled here')
         if limit and len([c for c in parent.channels if str(ctx.author.id) in str(c.topic)]) > limit:
             return await ctx.error('You have too many tickets open!')
         variables = {
-            '{increment}': config.get('tickets.increment'),
+            '{increment}': (await config.get('tickets.increment')),
             '{name}': ctx.author.name,
             '{id}': ctx.author.id,
             '{word}': random.choice(self.words),
             '{uuid}': str(uuid.uuid4())[:4],
             '{crab}': '🦀'  # crab in the code? nah, crab in the ticket name
         }
-        name = config.get('tickets.name')
+        name = await config.get('tickets.name')
         for k, v in variables.items():
             name = name.replace(k, str(v)).replace('crab', '🦀')  # asbyth has me putting crabs everywhere
         overwrites = {
@@ -137,16 +137,16 @@ class Tickets(commands.Cog, name="Tickets"):
         )
         embed.add_field(name='Subject', value=subject)
         await ticket.send(embed=embed)
-        tchannels = [c for c in config.get('tickets.channels') if c]  # Removes any channels that no longer exist.
+        tchannels = [c for c in (await config.get('tickets.channels')) if c]  # Removes any channels that no longer exist.
         tchannels.append(ticket)
         await config.set('tickets.channels', tchannels)
-        await config.set('tickets.increment', config.get('tickets.increment') + 1)
+        await config.set('tickets.increment', (await config.get('tickets.increment') + 1))
         return await creating.edit(content=f'<:check:674359197378281472> Successfully made your ticket, {ticket.mention}')
 
     @commands.command(name='add', description='Add a user to the current ticket')
     @commands.bot_has_permissions(manage_roles=True)
     async def tickets_add(self, ctx, *, user: Member):
-        tchannels = ctx.config.get('tickets.channels')
+        tchannels = await ctx.config.get('tickets.channels')
         if ctx.channel not in tchannels:
             return await ctx.error('This command can only be ran in ticket channels!')
         if str(ctx.author.id) not in ctx.channel.topic and not ctx.author.permissions_in(ctx.channel).manage_channels:
@@ -157,7 +157,7 @@ class Tickets(commands.Cog, name="Tickets"):
     @commands.command(name='remove', description='Remove a user from the current ticket')
     @commands.bot_has_permissions(manage_roles=True)
     async def tickets_remove(self, ctx, *, user: Member):
-        tchannels = ctx.config.get('tickets.channels')
+        tchannels = await ctx.config.get('tickets.channels')
         if ctx.channel not in tchannels:
             return await ctx.error('This command can only be ran in ticket channels!')
         if str(ctx.author.id) not in ctx.channel.topic and not ctx.author.permissions_in(ctx.channel).manage_channels:
@@ -175,7 +175,7 @@ class Tickets(commands.Cog, name="Tickets"):
     @commands.bot_has_permissions(manage_roles=True)
     async def tickets_close(self, ctx, *, reason: str = "No Reason Provided"):
         config = ctx.config
-        tchannels = config.get('tickets.channels')
+        tchannels = await config.get('tickets.channels')
         if ctx.channel not in tchannels:
             return await ctx.error('This command can only be ran in ticket channels!')
         if not ctx.author.permissions_in(ctx.channel).manage_channels and not str(ctx.author.id) in str(ctx.channel.topic):
@@ -200,7 +200,7 @@ class Tickets(commands.Cog, name="Tickets"):
                                  file=discord.File(string, filename=f'{ctx.channel}-transcript.txt'))
                 except Exception:
                     pass  # no transcript for you, boo hoo :(
-        actionlogs = config.get('log.action')
+        actionlogs = await config.get('log.action')
         if actionlogs:
             transcript.append(f'{len(transcript)} total messages, closed by {ctx.author}')
             string = io.StringIO('\n\n'.join(transcript))

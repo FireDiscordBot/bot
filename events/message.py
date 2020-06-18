@@ -124,18 +124,18 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             ctx = await self.bot.get_context(message)
             alt_ctx = await copy_context_with(
                 ctx,
-                content=ctx.config.get('main.prefix') + f'remind {content}'
+                content=ctx.prefix + f'remind {content}'
             )
             if alt_ctx.valid:
                 await alt_ctx.command.invoke(alt_ctx)
-        excluded = config.get('excluded.filter')
+        excluded = await config.get('excluded.filter')
         roleids = [r.id for r in message.author.roles]
         if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
             filters = self.bot.get_cog('Filters')
             # with suppress(Exception):
             await filters.run_all(message)
         if f'{message.content.strip()} ' in commands.when_mentioned(self.bot, message):
-            prefix = self.bot.get_config(message.guild).get('main.prefix')
+            prefix = await config.get('main.prefix')
             await message.channel.send(f'Hey! My prefix here is `{prefix}` or you can mention me :)')
 
 def setup(bot):

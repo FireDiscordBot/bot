@@ -121,7 +121,7 @@ class Snipes(commands.Cog, name="Snipes"):
         if message.channel.is_nsfw() and not ctx.channel.is_nsfw():
             return await ctx.error(f'Cannot snipe an NSFW channel in a non-NSFW channel')
 
-        usehooks = ctx.config.get('utils.quotehooks')
+        usehooks = await ctx.config.get('utils.quotehooks')
         if ctx.guild.me.permissions_in(ctx.channel).manage_webhooks and usehooks:
             existing = [w for w in (await ctx.channel.webhooks()) if w.token]
             if not existing:
