@@ -33,7 +33,7 @@ class MemberRemove(commands.Cog):
         conf = self.bot.get_config(member.guild)
         if (await conf.get('greet.leavemsg')):
             leavechan = await conf.get('greet.leavechannel')
-            leavemsg = await conf.get('greet.leavemsg')
+            leavemsg = awaut conf.get('greet.leavemsg')
             if leavechan and leavemsg:
                 vars = {
                     '{user.mention}': member.mention,

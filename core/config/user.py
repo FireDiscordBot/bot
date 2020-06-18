@@ -42,7 +42,7 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $CYANutils.tips $GREENto $CYAN{value} $GREENfor user $CYAN{self._user}')
         await self.update('utils.tips', value)
 
-    async def get_data(self) -> dict:
+    async def _get_data(self) -> dict:
         _data = json.loads((await self._bot.redis.get(
             f'config.{self._user.id}',
             encoding='utf-8'
@@ -60,7 +60,7 @@ class Config:
             raise InvalidOptionError(option)
         if self.options[option]['restricted'] and self._user.id not in self.options[option]['restricted']:
             return self.options[option]['default']  # Return default value if restricted :)
-        _data = await self.get_data()
+        _data = await self._get_data()
         if option not in _data:
             return self.options[option]['default']  # Return default value if it's not even in the config :)
         accept = self.options[option]['accepts']
@@ -86,7 +86,7 @@ class Config:
         option = self.options[opt]
         if value == option['default']:  # Bypass all checks if default
             await self.update(opt, value)
-            return await self.get(opt)
+            return self.get(opt)
         if option['restricted'] and self._user.id not in option['restricted']:
             raise RestrictedOptionError(opt, 'select users only')
         setter = option['setter']
@@ -101,12 +101,12 @@ class Config:
                     raise TypeMismatchError(type=[t.__class__.__name__ for t in value if not isinstance(t, accepts)], accepted=[t.__name__ for t in option['accepts']], option=opt)
                 raise TypeMismatchError(type=value.__class__.__name__, accepted=option['accepts'].__class__.__name__, option=opt)
         await setter(self, value)
-        return await self.get(opt)
+        return self.get(opt)
 
     async def update(self, option: str, value):
         changed = False # Don't need to save if nothing changed lol
         default = self.options[option]['default']
-        _data = self.get_data()
+        _data = self._get_data()
         if value == default:
             v = _data.pop(option, None)
             changed = True if v else False
@@ -142,7 +142,6 @@ class Config:
             query = 'UPDATE userconfig SET data = $1 WHERE uid = $2;'
             await self._db.execute(query, json.dumps(data), self._user.id)
         await self._db.release(con)
-        await self._set_data(data)
         self._bot.logger.info(f'$GREENSaved config for $CYAN{self._user}')
 
     async def init(self):
