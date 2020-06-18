@@ -32,16 +32,17 @@ class Conf(commands.Cog):
         if not option:
             paginator = WrappedPaginator(prefix='```ini', suffix='```', max_size=600)
             gconf = ctx.config
+            _data = await gconf.get_data()
             for opt, data in gconf.options.items():
-                current = await gconf.get(opt)
+                current = _data.get(opt, data['default'])
                 if isinstance(current, list):
-                    current = ', '.join([str(c) for c in current])
-                accepted = data["accepts"]
+                    current = ', '.join([str(c) for c in current]) if current else []
+                accepted = data['accepts']
                 if isinstance(accepted, list):
                     accepted = f'List of {accepted[0].__name__}'
                 else:
                     accepted = accepted.__name__
-                paginator.add_line(f'[{opt}]\n{data["description"].split(" | ")[-1]}\nDefault: {data["default"]}\nCurrent: {gconf.get(opt)}\nAccepts: {accepted}\n')
+                paginator.add_line(f'[{opt}]\n{data["description"].split(" | ")[-1]}\nDefault: {data["default"]}\nCurrent: {current}\nAccepts: {accepted}\n')
             interface = PaginatorInterface(ctx.bot, paginator, owner=ctx.author)
             return await interface.send_to(ctx)
 
