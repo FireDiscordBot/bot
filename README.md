@@ -28,7 +28,7 @@ For support, join the [support discord](https://inv.wtf/fire).
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
 
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FFireDiscordBot%2Fbot.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FFireDiscordBot%2Fbot?ref=badge_large)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGamingGeek%2FFire.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FGamingGeek%2FFire?ref=badge_large)
 
 ## Acknowledgments
 
