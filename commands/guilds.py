@@ -42,11 +42,11 @@ class Guilds(commands.Cog):
         data = [
             ['Name', 'ID', 'Members', 'Channels', 'Boosts', 'Shard', 'Public']
         ]
-        for guild in sorted(self.bot.guilds, key=lambda g: len(g.member_count), reverse=True):
+        for guild in sorted(self.bot.guilds, key=lambda g: g.member_count, reverse=True):
             data.append([
                 shorten(guild.name),
                 guild.id,
-                format(len(guild.member_count), ',d'),
+                format(guild.member_count, ',d'),
                 len(guild.channels),
                 guild.premium_subscription_count,
                 guild.shard_id,
