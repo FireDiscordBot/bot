@@ -82,7 +82,7 @@ class YouTube(commands.Cog, name="YouTube API"):
 			'/videos',
 		)
 		response = await self.bot.http.youtube.request(route, params=params)
-		return response
+		return [v for v in response.get('items', [])]
 
 	def channel_info(self, channel):
 		if channel.startswith('UC'):
@@ -113,7 +113,7 @@ class YouTube(commands.Cog, name="YouTube API"):
 		response = await self.bot.http.youtube.request(route, params=params)
 		return response
 
-	@commands.group(name="yt", aliases=['youtube'], invoke_without_command=True, description='YouTube commands.')
+	@commands.group(name="yt", aliases=['youtube'], description='YouTube commands.')
 	async def yt(self, ctx):
 		if ctx.invoked_subcommand:
 			return
@@ -141,7 +141,7 @@ class YouTube(commands.Cog, name="YouTube API"):
 		video = findvideo(video) or video
 		try:
 			videoinfo = await self.avideo_info(video)
-			videoinfo = videoinfo['items'][0]
+			videoinfo = videoinfo[0]
 		except Exception:
 			return await ctx.error(f'Failed to fetch video. Ensure the id/url is correct.')
 		title = videoinfo['snippet']['title']
