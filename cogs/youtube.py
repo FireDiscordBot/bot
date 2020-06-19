@@ -18,6 +18,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import discord
 from discord.ext import commands
 from fire.filters.youtube import findvideo
+from fire.http import Route
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 from jishaku.cog import Jishaku
 import googleapiclient.discovery
@@ -47,12 +48,40 @@ class YouTube(commands.Cog, name="YouTube API"):
 			videos.append(video)
 		return videos
 
+	async def apopular(self):
+		params={
+			'part': 'snippet,contentDetails,statistics',
+			'chart': 'mostPopular',
+			'maxResults': '5',
+			'regionCode': 'US'
+		}
+		route = Route(
+			'GET',
+			'/videos',
+		)
+		response = await self.bot.http.youtube.request(route, params=params)
+		videos = [v for v in response.get('items', [])]
+		return videos
+
+
 	def video_info(self, vid):
 		request = self.youtube.videos().list(
 			part="snippet,contentDetails,statistics",
 			id=vid
 		)
 		response = request.execute()
+		return response
+
+	async def avideo_info(self, vid: str):
+		params = {
+			'part': 'snippet,contentDetails,statistics',
+			'id': vid
+		}
+		route = Route(
+			'GET',
+			'/videos',
+		)
+		response = await self.bot.http.youtube.request(route, params=params)
 		return response
 
 	def channel_info(self, channel):
@@ -69,9 +98,29 @@ class YouTube(commands.Cog, name="YouTube API"):
 		response = request.execute()
 		return response
 
+	async def achannel_info(self, channel: str):
+		params = {
+			'part': 'snippet,contentDetails,statistics'
+		}
+		if channel.startswith('UC'):
+			params.update({'id': channel})
+		else:
+			params.update({'forUsername': channel})
+		route = Route(
+			'GET',
+			'/channels',
+		)
+		response = await self.bot.http.youtube.request(route, params=params)
+		return response
+
 	@commands.group(name="yt", aliases=['youtube'], invoke_without_command=True, description='YouTube commands.')
 	async def yt(self, ctx):
-		videos = await self.loop.run_in_executor(None, func=self.popular)
+		if ctx.invoked_subcommand:
+			return
+		try:
+			videos = await self.apopular()
+		except Exception:
+			return await ctx.error('Failed to get trending videos.')
 		embed = discord.Embed(title="Trending on YouTube (US)", color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
 		for video in videos:
 			title = video['snippet']['title']
@@ -89,13 +138,12 @@ class YouTube(commands.Cog, name="YouTube API"):
 
 	@yt.command(name="info", description="Retrieve info from a video URL or ID")
 	async def info(self, ctx, video: str):
-		if findvideo(video):
-			video = findvideo(video)
-		videoinfo = await self.loop.run_in_executor(None, func=functools.partial(self.video_info, video))
+		if video = findvideo(video) or video
 		try:
+			videoinfo = await self.avideo_info(video)
 			videoinfo = videoinfo['items'][0]
-		except (KeyError, IndexError):
-			return await ctx.error(f'Couldn\'t find a video. Please provide a valid YouTube video URL')
+		except Exception:
+			return await ctx.error(f'Failed to fetch video. Ensure the id/url is correct.')
 		title = videoinfo['snippet']['title']
 		vid = videoinfo['id']
 		author = videoinfo['snippet']['channelTitle']

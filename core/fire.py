@@ -96,6 +96,10 @@ class Fire(commands.Bot):
         self.http.github = HTTPClient(
             'https://api.github.com'
         )
+        self.http.youtube = HTTPClient(
+            'https://www.googleapis.com/youtube/v3'
+            params={'key': self.config['youtube']}
+        )
 
         # HASTEBIN
         self.http.hst = HTTPClient(

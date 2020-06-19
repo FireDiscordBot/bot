@@ -118,7 +118,7 @@ class CommandError(commands.Cog):
                 "channel.id": ctx.channel.id if ctx.guild else 'N/A',
                 "environment": os.environ.get("FIREENV", "production")
             }
-            await self.bot.loop.run_in_executor(None, func=functools.partial(self.bot.sentry_exc, error, userscope, 'error', extra))
+            self.bot.sentry_exc(error, userscope, 'error', extra)
 
 
 def setup(bot):
