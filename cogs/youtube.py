@@ -138,7 +138,7 @@ class YouTube(commands.Cog, name="YouTube API"):
 
 	@yt.command(name="info", description="Retrieve info from a video URL or ID")
 	async def info(self, ctx, video: str):
-		if video = findvideo(video) or video
+		video = findvideo(video) or video
 		try:
 			videoinfo = await self.avideo_info(video)
 			videoinfo = videoinfo['items'][0]
