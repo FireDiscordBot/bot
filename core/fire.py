@@ -121,6 +121,9 @@ class Fire(commands.Bot):
         # EVENTS
         self.load_events()
 
+        # BLACKLIST
+        self.loop.create_task(self.load_plonked())
+
         # CUSTOM PERMISSIONS
         # self.permissions = {}
 
@@ -187,6 +190,12 @@ class Fire(commands.Bot):
             db=0 if self.dev else 1,
             password=self.config['redis']
         )
+
+    async def load_plonked(self):
+        await self.wait_until_ready()
+        query = 'SELECT * FROM blacklist;'
+        self.plonked = [p['uid'] for p in await self.db.fetch(query)]
+        self.logger.info(f'$GREENLoaded blacklist!')
 
     def isadmin(self, user: typing.Union[discord.User, discord.Member]) -> bool:
         if str(user.id) not in self.config['admins']:
