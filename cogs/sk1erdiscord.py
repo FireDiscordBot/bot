@@ -442,10 +442,9 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		)
 		try:
 			gist = await self.bot.http.github.request(
-				route,
-				headers=self.gistheaders
+				route
 			)
-		except Exception:
+		except Exception as e:
 			return await progress.edit(content='<:xmark:674359427830382603> Something went wrong when getting the list of boosters')
 		text = gist.get('files', {}).get('boosters.json', {}).get('content', ['error'])
 		current = json.loads(text)
