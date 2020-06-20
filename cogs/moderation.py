@@ -555,7 +555,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		elif days == 0 and hours == 0 and minutes == 0 and seconds < 60:
 			return await ctx.error('That time is too short, please specify a longer time!')
 		else:
-			td = datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+			try:
+				td = datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+			except OverflowError:
+				return await ctx.error(f'If you\'re going to mute for so long that Python can\'t handle that time, you should *probably* just do a permanent mute')
 			until = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 			reason = parseTime(reason, True)
 			return await self.mute(ctx, user, reason=reason, until=until, timedelta=td, modlogs=logch)
