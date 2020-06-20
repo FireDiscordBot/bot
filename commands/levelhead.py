@@ -60,7 +60,7 @@ class Levelhead(commands.Cog):
                 timestamp=datetime.datetime.now(datetime.timezone.utc),
                 description=f'Level: {levelhead["level"]}'
             )
-            return await ctx.send(embed=embed, file=customlvl)
+            return await ctx.send(embed=embed)
         if len(uuid) < 28:
             return await ctx.error('Malformed UUID. Check the spelling of the player\'s name')
         route = Route(
