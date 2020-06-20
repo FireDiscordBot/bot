@@ -18,9 +18,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 from fire.http import Route
-from io import BytesIO
-from PIL import Image
-from cogs import mcfont
 import traceback
 import datetime
 import aiohttp
@@ -56,18 +53,13 @@ class Levelhead(commands.Cog):
             except KeyError:
                 hcolor = '§b'
                 fcolor = '§e'
-            fulllvlhead = f'{hcolor}Level: {fcolor}{levelhead["level"]}'
-            parsedtxt = mcfont.parse(fulllvlhead)
-            width = mcfont.get_width(parsedtxt)
-            img = Image.new('RGBA', (width + 25, 42))
-            mcfont.render((5, 0), parsedtxt, img)
-            buf = BytesIO()
-            img.save(buf, format='PNG')
-            buf.seek(0)
-            customlvl = discord.File(buf, 'mitchplshireme.png')
-            embed = discord.Embed(title=f"{player}'s Levelhead", colour=ctx.author.color, url="https://purchase.sk1er.club/category/1050972", timestamp=datetime.datetime.now(datetime.timezone.utc))
-            embed.add_field(name="IGN", value=player, inline=False)
-            embed.set_image(url='attachment://mitchplshireme.png')
+            embed = discord.Embed(
+                title=f"{player}'s Levelhead",
+                colour=ctx.author.color,
+                url="https://purchase.sk1er.club/category/1050972",
+                timestamp=datetime.datetime.now(datetime.timezone.utc),
+                description=f'Level: {levelhead["level"]}'
+            )
             return await ctx.send(embed=embed, file=customlvl)
         if len(uuid) < 28:
             return await ctx.error('Malformed UUID. Check the spelling of the player\'s name')
