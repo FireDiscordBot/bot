@@ -309,59 +309,6 @@ class Hypixel(commands.Cog, name="Hypixel Commands"):
 			interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=paginatorembed)
 			await interface.send_to(ctx)
 
-	# some commands that aren't hypixel related but don't really belong anywhere else so they're going here since it's minecraft
-
-	@commands.command(description='View a player\'s Minecraft skin')
-	async def skin(self, ctx, *, ign: str = None):
-		if not ign:
-			return await ctx.error('You must provide a name!')
-		uid = await self.name_to_uuid(ign)
-		timestamp = str(datetime.datetime.now(datetime.timezone.utc).timestamp()).split('.')[0]
-		embed = discord.Embed(color=ctx.author.color)
-		embed.set_image(url=f'https://mc-heads.net/body/{uid}/{timestamp}')
-		embed.set_footer(text=f'Requested by {ctx.author}', icon_url=str(ctx.author.avatar_url_as(static_format='png', size=2048)))
-		await ctx.send(embed=embed)
-
-	@commands.command(description='View the UUID for a Minecraft player')
-	async def mcuuid(self, ctx, *, ign: str = None):
-		if not ign:
-			return await ctx.error('You must provide a name!')
-		uid = await self.name_to_uuid(ign)
-		await ctx.send(f'{ign} has the UUID {uid}')
-
-	@commands.command(description='View the current status of Minecraft services')
-	async def mcstatus(self, ctx):
-		emotes = {
-			'green': '<:check:674359197378281472>',
-			'yellow': '<a:fireWarning:660148304486727730>',
-			'red': '<:xmark:674359427830382603>'
-		}
-		statuses = {
-			'green': 'No Issues',
-			'yellow': 'Some Issues',
-			'red': 'Service Unavailable'
-		}
-		services = {
-			'minecraft.net': '**Website**',
-			'session.minecraft.net': '**Sessions**',
-			'authserver.mojang.com': '**Auth**',
-			'textures.minecraft.net': '**Skins**',
-			'api.mojang.com': '**API**'
-		}
-		async with aiohttp.ClientSession() as s:
-			async with s.get('https://status.mojang.com/check') as r:
-				await s.close()
-				if r.status == 200:
-					status = await r.json()
-				else:
-					return await ctx.error('Failed to check status')
-		s = []
-		for service in status:
-			for name, state in service.items():
-				if name in services:
-					s.append(f'{emotes[state]} {services[name]}: {statuses[state]}')
-		embed = discord.Embed(color=ctx.author.color, description='\n'.join(s))
-		return await ctx.send(embed=embed)
 
 
 def setup(bot):
