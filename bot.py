@@ -72,9 +72,11 @@ extensions = [
     "cogs.imagegen",
     "cogs.koding",
     "cogs.ksoft",
-    "cogs.misc",
     "cogs.moderation",
-    "cogs.pickle",
+
+# Hypixel cog is disabled until I get around to rewriting it
+#    "cogs.pickle",
+
     "cogs.premium",
     "cogs.settings",
     "cogs.utils",
