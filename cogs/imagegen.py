@@ -21,6 +21,7 @@ from fire.converters import Member
 from discord.ext import commands
 from random import randint
 from io import BytesIO
+import urllib.parse
 import functools
 import aiohttp
 import discord
@@ -167,16 +168,16 @@ class ImageGeneration(commands.Cog, name='Image Generation'):
 			return await ctx.error('You need to provide an image')
 		if isinstance(image, discord.Member):
 			image = str(image.avatar_url_as(format='png'))
-		image = image.strip('<>')
-		if 'cdn.discordapp.com' in image and not '?size=' in image:
-			image = image + '?size=2048'
+		image = urllib.parse.quote(image.strip('<>'))
+		if 'cdn.discordapp.com' in image and ('gif' in image or 'webp' in image):
+			image = image.replace('gif', 'png').replace('webp', 'png')
 		if '.gif' in image:
 			return await ctx.error('Animated images are not supported!')
 		if not text:
 			return await ctx.error('You must provide text seperated by **|**')
-		if len(text.split('|')) != 1:
+		if len(text.split('|')) != 2:
 			return await ctx.error('You must provide text seperated by **|**')
-		text = text.split('|')
+		text = urllib.parse.quote(text).split('%7C')
 		async with aiohttp.ClientSession(
 			headers={'Authorization': self.bot.config["aeromeme"]}
 		) as s:
