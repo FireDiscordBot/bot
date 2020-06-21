@@ -306,7 +306,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 		if user is None:
 			await ctx.send('You need to provide a user to add to the blacklist!')
 		else:
-			if user.id not in self.bot.blonked:
+			if user.id not in self.bot.plonked:
 				permanent = int(permanent)
 				# await self.bot.db.execute(f'INSERT INTO blacklist (\"user\", \"uid\", \"reason\", \"perm\") VALUES (\"{user}\", {user.id}, \"{reason}\", {permanent});')
 				# await self.bot.conn.commit()
