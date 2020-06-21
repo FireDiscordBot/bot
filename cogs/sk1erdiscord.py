@@ -114,15 +114,14 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			fake = self.guild.get_role(722176131511484499)
 			real = self.guild.get_role(595626786549792793)
 			if ctx.kwargs.get('role', None) == fake and fake in ctx.author.roles:
+				await ctx.author.remove_roles(fake)
 				if not (await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', ctx.author.id)):
-					encoded = urllib.parse.quote(str(ctx.author))
 					await ctx.send(f'{ctx.author.mention} To become a beta tester ,'
 							   f' please provide your specs through this form: '
-							   f'\n<https://inv.wtf/sk1spec?user={encoded}>\n\n'
+							   f'\n<https://inv.wtf/sk1spec\n\n'
 							   f'You will automatically gain access to beta channels after filling in the form'
 					)
 				else:
-					await ctx.author.remove_roles(fake, reason='Specs already stored')
 					await ctx.author.add_roles(real, reason='Specs already stored')
 
 	@commands.Cog.listener()
@@ -353,10 +352,9 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		remove=bool
 	) = flags.EmptyFlags):
 		user = user if user else ctx.author
-		encoded = urllib.parse.quote(str(user))
 		uspecs = await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', user.id)
 		if not uspecs:
-			return await ctx.error(f'Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec?user={encoded}>')
+			return await ctx.error(f'Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec>')
 		else:
 			if isinstance(flags, dict) and flags.get('remove', False) and ctx.author.guild_permissions.manage_messages:
 				con = await self.bot.db.acquire()
@@ -373,7 +371,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			).set_author(
 				name=str(user),
 				icon_url=user.avatar_url_as(static_format='png', size=2048),
-				url=f'https://inv.wtf/sk1spec?user={encoded}'
+				url=f'https://inv.wtf/sk1spec'
 			).add_field(
 				name='» CPU',
 				value=uspecs['cpu'][:1024],
