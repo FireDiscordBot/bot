@@ -3,13 +3,13 @@
 # Fire/cogs/mcfont.py: 1
 # Fire/cogs/pickle.py: 22
 # Fire/imageutils/textutils.py: 6
-Pillow == 5.1.0
+Pillow == 7.1.2
 
 # Fire/core/fire.py: 30
 aiofiles == 0.4.0
 
 # Fire/bot.py: 22
-# Fire/cogs/imagegen.py: 25
+# Fire/cogs/imagegen.py: 26
 # Fire/cogs/pickle.py: 25
 # Fire/cogs/settings.py: 25
 # Fire/cogs/sk1erdiscord.py: 24
@@ -38,18 +38,18 @@ arsenic == 19.1
 # Fire/cogs/utils.py: 32
 # Fire/core/fire.py: 34
 # Fire/events/guild_join.py: 23
-asyncpg == 0.18.3
+asyncpg == 0.20.1
 
 # Fire/cogs/amodules/audio_helpers.py: 24
 # Fire/cogs/assist.py: 24
-click == 7.1.2
+click == 6.7
 
 # Fire/cogs/utils.py: 37
 colormap == 1.0.2
 
 # Fire/bot.py: 18,21
 # Fire/cogs/assist.py: 19,20
-# Fire/cogs/imagegen.py: 21,26
+# Fire/cogs/imagegen.py: 21,27
 # Fire/cogs/koding.py: 19
 # Fire/cogs/ksoft.py: 18,19
 # Fire/cogs/moderation.py: 19
@@ -132,6 +132,10 @@ emoji == 0.5.4
 # Fire/cogs/youtube.py: 24
 google_api_python_client == 1.7.9
 
+# Fire/cogs/amodules/assistant_helpers.py: 19
+# Fire/cogs/assist.py: 32
+google_auth == 1.6.3
+
 # Fire/cogs/moderation.py: 26
 # Fire/cogs/settings.py: 26
 # Fire/cogs/utils.py: 35
@@ -161,12 +165,8 @@ jishaku == 1.8.0
 # Fire/cogs/ksoft.py: 22
 ksoftapi == 0.1.5b0
 
-# Fire/cogs/amodules/assistant_helpers.py: 19
-# Fire/cogs/assist.py: 32
-protobuf == 3.7.1
-
 # Fire/core/fire.py: 23,28
-sentry-sdk == 0.15.1
+sentry_sdk == 0.15.1
 
 # Fire/cogs/amodules/audio_helpers.py: 25
 sounddevice == 0.3.15
@@ -176,3 +176,6 @@ stackimpact == 1.2.7
 
 # Fire/commands/guilds.py: 20
 terminaltables == 3.1.0
+
+# Fire/bot.py: 45
+uvloop == 0.14.0
