@@ -17,7 +17,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 from core.fire import Fire
-import stackimpact
 import discord
 import aiohttp
 import asyncio
@@ -49,11 +48,6 @@ if os.name != 'nt':
 dev = False
 if os.environ.get("FIREENV", "production") == "dev":
     dev = True
-
-agent = stackimpact.start(
-    agent_key = 'b38494662d8382029e1adf862ebb462ef4582456',
-    app_name = 'Fire' if not dev else 'FireDev')
-span = agent.profile('all');
 
 bot = Fire(
     command_prefix=get_pre,
@@ -152,7 +146,6 @@ async def start_bot():
         await stop_bot()
 
 async def stop_bot():
-    span.stop()
     if bot.get_cog('FireStatus') and not bot.dev:
         comps = ['gtbpmn9g33jk', 'xp3103fm3kpf']
         for c in comps:

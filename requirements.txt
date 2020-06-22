@@ -171,9 +171,6 @@ sentry_sdk == 0.15.1
 # Fire/cogs/amodules/audio_helpers.py: 25
 sounddevice == 0.3.15
 
-# Fire/bot.py: 20
-stackimpact == 1.2.7
-
 # Fire/commands/guilds.py: 20
 terminaltables == 3.1.0
 
