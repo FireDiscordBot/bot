@@ -306,13 +306,8 @@ class Utils(commands.Cog, name='Utility Commands'):
 		if user is None:
 			await ctx.send('You need to provide a user to add to the blacklist!')
 		else:
-			query = 'SELECT * FROM blacklist WHERE uid = $1;'
-			blraw = await self.bot.db.fetch(query, user.id)
-			if not blraw:
-				if permanent:
-					permanent = 1
-				else:
-					permanent = 0
+			if user.id not in self.bot.plonked:
+				permanent = int(permanent)
 				# await self.bot.db.execute(f'INSERT INTO blacklist (\"user\", \"uid\", \"reason\", \"perm\") VALUES (\"{user}\", {user.id}, \"{reason}\", {permanent});')
 				# await self.bot.conn.commit()
 				con = await self.bot.db.acquire()
@@ -324,11 +319,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 				await star_chat.send(f'{user} was blacklisted by {ctx.author} with the reason "{reason}". Permanent: {bool(permanent)}')
 				await ctx.send(f'{user.mention} was successfully blacklisted!')
 			else:
-				blid = blraw[0]['uid']
-				if permanent:
-					permanent = 1
-				else:
-					permanent = 0
+				permanent = int(permanent)
 				# await self.bot.db.execute(f'UPDATE blacklist SET user = \"{user}\", uid = {user.id}, reason = \"{reason}\", perm = {permanent} WHERE id = {blid};')
 				# await self.bot.conn.commit()
 				con = await self.bot.db.acquire()
@@ -339,7 +330,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 				star_chat = self.bot.get_channel(624304772333436928)
 				await star_chat.send(f'{user}\'s blacklist was updated by {ctx.author} to reason "{reason}". Permanent: {bool(permanent)}')
 				await ctx.send(f'Blacklist entry updated for {user.mention}.')
-			self.bot.plonked = await self.bot.get_cog("Miscellaneous").loadplonked()
+			await self.bot.load_plonked()
 
 	@commands.command(name='unplonk', description='Remove someone from the blacklist', hidden=True)
 	async def blacklist_remove(self, ctx, user: UserWithFallback = None):
@@ -348,11 +339,8 @@ class Utils(commands.Cog, name='Utility Commands'):
 		if user is None:
 			await ctx.send('You need to provide a user to remove from the blacklist!')
 		else:
-			query = 'SELECT * FROM blacklist WHERE uid = $1;'
-			blraw = await self.bot.db.fetch(query, user.id)
-			if not blraw:
-				await ctx.send(f'{user.mention} is not blacklisted.')
-				return
+			if user.id not in self.bot.plonked:
+				return await ctx.send(f'{user.mention} is not blacklisted.')
 			else:
 				# await self.bot.db.execute(f'DELETE FROM blacklist WHERE uid = {user.id};')
 				# await self.bot.conn.commit()
@@ -364,7 +352,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 				await ctx.send(f'{user.mention} is now unblacklisted!')
 				star_chat = self.bot.get_channel(624304772333436928)
 				await star_chat.send(f'{user} was unblacklisted by {ctx.author}')
-			self.bot.plonked = await self.bot.get_cog("Miscellaneous").loadplonked()
+			await self.bot.load_plonked()
 
 	def shorten(self, items: list, max: int = 1000, sep: str = ', '):
 		text = ''

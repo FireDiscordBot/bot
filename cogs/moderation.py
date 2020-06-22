@@ -402,9 +402,11 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		# if len([b for b in current if b.user.id == user.id]) >= 1:
 		#	return await ctx.error('That user is already banned!')
 		try:
+			nodm = None
 			try:
-				await user.send(f'You were banned from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
-				nodm = False
+				if isinstance(user, discord.Member):
+					await user.send(f'You were banned from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"')
+					nodm = False
 			except discord.HTTPException:
 				nodm = True
 			await ctx.guild.ban(user, reason=f"Banned by {ctx.author} for {reason}", delete_message_days=0)
@@ -415,7 +417,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 				embed.add_field(name='User', value=f'{user}({user.id})', inline=False)
 				embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
 				embed.add_field(name='Reason', value=reason, inline=False)
-				if nodm:
+				if nodm is True:
 					embed.add_field(name='DM Received?', value='No, user has DMs off or has blocked me.', inline=False)
 				embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
 				try:

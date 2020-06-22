@@ -158,8 +158,7 @@ class Config:
     @ConfigOpt(name='disabled.commands', accepts=[str], default=[], options=options)
     async def disabled_commands(self, value: list):
         '''Disabled Commands | Commands that can only be ran by moderators (those with Manage Messages permission)'''
-        if [v for v in value if not self._bot.get_command(v)]:
-            raise TypeMismatchError(type=', '.join([v for v in value if not self._bot.get_command(v)]), accepted=', '.join([cmd.name for cmd in self._bot.commands if not cmd.hidden]), option='disabled.commands')
+        [value.remove(v) for v in value if not self._bot.get_command(v)]
         self._bot.logger.info(f'$GREENSetting $CYANdisabled.commands $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('disabled.commands', value)
 
