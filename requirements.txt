@@ -26,7 +26,7 @@ aiohttp == 3.6.2
 aioredis == 1.3.1
 
 # Fire/commands/suggest.py: 21
-aiotrello == 0.0.5
+git+https://github.com/FireDiscordBot/aiotrello
 
 # Fire/cogs/assist.py: 26,27,28
 arsenic == 19.1
