@@ -102,10 +102,11 @@ class Filters(commands.Cog):
                                 except Exception:
                                     pass
                         else:
-                            try:
-                                await message.delete()
-                            except Exception:
-                                pass
+                            if 'dis.gd' not in fullurl:
+                                try:
+                                    await message.delete()
+                                except Exception:
+                                    pass
                     except discord.Forbidden:
                         pass
                     logch = self.bot.get_config(message.guild).get('log.action')
