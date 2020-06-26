@@ -16,7 +16,7 @@ For support, join the [support discord](https://inv.wtf/fire).
 
 ## Built With
 
-* [Python 3.7.5](https://www.python.org/downloads/) - The language used
+* [Python 3.8](https://www.python.org/downloads/) - The language used
 * [discord.py](https://github.com/Rapptz/discord.py) - Used to run the bot
 
 ## Authors
