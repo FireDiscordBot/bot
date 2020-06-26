@@ -524,6 +524,10 @@
                 "Description": "Purge messages in this channel",
                 "Usage": "--channel <name/mention/id>"
             },
+            "include_embeds": {
+                "Description": "Whether or not to search embeds for match/startswith/endswith/invite",
+                "Usage": "--include_embeds"
+            },
             "match": {
                 "Description": "Purge messages containing a string",
                 "Usage": "--match <string>"
@@ -541,20 +545,20 @@
                 "Usage": "--endswith <string>"
             },
             "attachments": {
-                "Description": "Purge messages with attachments (true = with, false = without)",
-                "Usage": "--attachments <true/false>"
+                "Description": "Only purge messages with attachments",
+                "Usage": "--attachments"
             },
             "bot": {
-                "Description": "Purge messages from bots (true = bot, false = not bot)",
-                "Usage": "--bot <true/false>"
+                "Description": "Only purge messages from bots",
+                "Usage": "--bot"
             },
             "invite": {
-                "Description": "Purge messages containing invites (true = with invites, false = without invites)",
-                "Usage": "--invite <true/false>"
+                "Description": "Only purge messages containing invites",
+                "Usage": "--invite"
             },
             "text": {
-                "Description": "Purge messages containing only text (true = only text, false = attachments, embeds etc.)",
-                "Usage": "--text <true/false>"
+                "Description": "Purge messages containing only text",
+                "Usage": "--text"
             }
         }
     },

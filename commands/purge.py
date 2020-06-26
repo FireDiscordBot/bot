@@ -28,6 +28,21 @@ class Purge(commands.Cog):
         self.bot = bot
         self.bot.recentpurge = {}
 
+    def get_embed_content(self, embed):
+        content = [
+            embed.title,
+            embed.description
+        ]
+        for f in embed.fields:
+            content.append(f'{f.name} {f.value}')
+        footer = embed.footer
+        if footer.text:
+            content.append(footer.text)
+        author = embed.author
+        if author.name:
+            content.append(author.name)
+        return str(content)
+
     async def basic_purge(self, ctx, amount):
         self.bot.recentpurge[ctx.channel.id] = []
         async for message in ctx.channel.history(limit=amount):
@@ -54,6 +69,7 @@ class Purge(commands.Cog):
         user = opt['user']
         match = opt['match']
         nomatch = opt['nomatch']
+        include_embeds = opt['include_embeds']
         startswith = opt['startswith']
         endswith = opt['endswith']
         attachments = opt['attachments']
@@ -64,17 +80,20 @@ class Purge(commands.Cog):
         reason = opt['reason'] or 'No Reason Provided'
 
         def purgecheck(m):
+            content = m.content
+            if include_embeds and m.embeds:
+                content = m.content + str([self.get_embed_content(e) for e in m.embeds])
             completed = []
             if user:
                 completed.append(m.author.id == user.id)
             if match:
-                completed.append(match.lower() in m.content.lower())
+                completed.append(match.lower() in content.lower())
             if nomatch:
-                completed.append(nomatch.lower() not in m.content.lower())
+                completed.append(nomatch.lower() not in content.lower())
             if startswith:
-                completed.append(m.content.lower().startswith(startswith.lower()))
+                completed.append(content.lower().startswith(startswith.lower()))
             if endswith:
-                completed.append(m.content.lower().endswith(endswith.lower()))
+                completed.append(content.lower().endswith(endswith.lower()))
             if attachments:
                 completed.append(len(m.attachments) >= 1)
             if bot:
@@ -82,7 +101,7 @@ class Purge(commands.Cog):
             elif bot is False:  # not includes None meaning "not bot" would be triggered if not included
                 completed.append(not m.author.bot)
             if invite:
-                completed.append(findinvite(m.content))
+                completed.append(findinvite(content))
             if text is False:  # same as bot
                 completed.append(not m.content)
             return len([c for c in completed if not c]) == 0
@@ -115,6 +134,7 @@ class Purge(commands.Cog):
         user=UserWithFallback,
         match=str,
         nomatch=str,
+        include_embeds=bool,
         startswith=str,
         endswith=str,
         attachments=bool,
