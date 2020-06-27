@@ -60,10 +60,11 @@ class Purge(commands.Cog):
         except Exception:
             return await ctx.error(f'Failed to purge')
         finally:
-            return await ctx.channel.send(
-                f'Successfully deleted **{len(self.bot.recentpurge[ctx.channel.id])}** messages!',
-                delete_after=5
-            )
+            if not ctx.silent:
+                return await ctx.channel.send(
+                    f'Successfully deleted **{len(self.bot.recentpurge[ctx.channel.id])}** messages!',
+                    delete_after=5
+                )
 
     async def flag_purge(self, ctx, amount, opt):
         user = opt['user']
@@ -123,10 +124,11 @@ class Purge(commands.Cog):
         except Exception:
             return await ctx.error(f'Failed to purge')
         finally:
-            return await channel.send(
-                f'Successfully deleted **{len(self.bot.recentpurge[channel.id])}** messages!',
-                delete_after=5
-            )
+            if not ctx.silent:
+                return await channel.send(
+                    f'Successfully deleted **{len(self.bot.recentpurge[channel.id])}** messages!',
+                    delete_after=5
+                )
 
     @commands.command(description='Bulk delete messages', aliases=['prune'])
     @commands.has_permissions(manage_messages=True)
