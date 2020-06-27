@@ -33,6 +33,7 @@ from google.assistant.embedded.v1alpha2 import (
 	embedded_assistant_pb2,
 	embedded_assistant_pb2_grpc
 )
+from asyncio.subprocess import DEVNULL
 
 try:
 	from .amodules import (
@@ -177,9 +178,9 @@ class Assistant(commands.Cog, name='Google Assistant'):
 		self.bot = bot
 		self.responses = {}
 		self.google = gassistant
-		self.service = services.Chromedriver(log_file=os.devnull)
+		self.service = services.Chromedriver(log_file=DEVNULL)
 		self.browser = browsers.Chrome(chromeOptions={
-			'args': ['--headless', '--disable-gpu', '--disable-logging']
+			'args': ['--headless', '--disable-gpu', '--log-file=/dev/null']
 		})
 
 	def assist(self, user, query):
