@@ -62,7 +62,8 @@ bot = Fire(
 
 
 extensions = [
-    "cogs.assist",
+# Google Assistant is disabled until I can fix logging
+#    "cogs.assist",
     "cogs.imagegen",
     "cogs.koding",
     "cogs.ksoft",
