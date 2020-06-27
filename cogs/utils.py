@@ -81,7 +81,6 @@ permissions = {
 	'view_audit_log': 'View Logs'
 }
 
-dehoistchars = '1234567890abcdefghijklmnopqrstuvwxyz'
 
 month_regex = re.compile(r'(?:me in |in )?(?:(?P<months>\d+)(?:mo|months|month| months| month))(?: about | that )?')
 week_regex = re.compile(r'(?:me in |in )?(?:(?P<weeks>\d+)(?:wk|weeks|week| weeks| week))(?: about | that )?')
@@ -178,7 +177,7 @@ class Utils(commands.Cog, name='Utility Commands'):
 		return perms
 
 	def ishoisted(self, string: str):
-		if string.lower()[0] not in dehoistchars:
+		if string.lower()[0] < '0':
 			return True
 		else:
 			return False
