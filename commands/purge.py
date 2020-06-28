@@ -67,7 +67,7 @@ class Purge(commands.Cog):
                 )
 
     async def flag_purge(self, ctx, amount, opt):
-        user = opt['user']
+        users = [u.id for u in opt['user']]
         match = opt['match']
         nomatch = opt['nomatch']
         include_embeds = opt['include_embeds']
@@ -85,8 +85,8 @@ class Purge(commands.Cog):
             if include_embeds and m.embeds:
                 content = m.content + str([self.get_embed_content(e) for e in m.embeds])
             completed = []
-            if user:
-                completed.append(m.author.id == user.id)
+            if users:
+                completed.append(m.author.id in users)
             if match:
                 completed.append(match.lower() in content.lower())
             if nomatch:
@@ -133,7 +133,7 @@ class Purge(commands.Cog):
     @commands.command(description='Bulk delete messages', aliases=['prune'])
     @commands.has_permissions(manage_messages=True)
     async def purge(self, ctx, amount: int = -1, *, opt: flags.FlagParser(
-        user=UserWithFallback,
+        user=[UserWithFallback],
         match=str,
         nomatch=str,
         include_embeds=bool,
