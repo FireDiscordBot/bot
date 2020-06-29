@@ -99,14 +99,6 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		return False
 
 	@commands.Cog.listener()
-	async def on_command_error(self, ctx, error):
-		if isinstance(error, commands.CheckFailure):
-			if ctx.channel.id == 411620457754787841:
-				await ctx.send(
-					file=discord.File('command_general.png', filename='firebestbot.png')
-				)
-
-	@commands.Cog.listener()
 	async def on_command_completion(self, ctx):
 		if ctx.guild.id != self.guild.id:
 			return
