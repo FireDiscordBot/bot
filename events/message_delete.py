@@ -35,6 +35,8 @@ class MessageDelete(commands.Cog):
                 deletedby = None
                 if message.guild.me.guild_permissions.view_audit_log:
                     async for e in message.guild.audit_logs(action=discord.AuditLogAction.message_delete, limit=2):
+                        if getattr(e.extra, 'channel', None) != message.channel:
+                            continue
                         if e.target == message.author:
                             deletedby = e.user
                             break
