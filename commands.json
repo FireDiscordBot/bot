@@ -2,520 +2,607 @@
     {
         "id": 0,
         "name": "Main",
-        "commands": {
-            "help": {
-                "Description": "Shows you some useful links, including this page",
-                "Usage": "{prefix}help",
-                "Aliases": null
+        "commands": [
+            {
+                "name": "help",
+                "description": "Shows you some useful links, including this page",
+                "usage": "{prefix}help",
+                "aliases": null
             },
-            "ping": {
-                "Description": "Shows you my ping to discord's servers",
-                "Usage": "{prefix}ping",
-                "Aliases": null
+            {
+                "name": "ping",
+                "description": "Shows you my ping to discord's servers",
+                "usage": "{prefix}ping",
+                "aliases": null
             },
-            "suggest": {
-                "Description": "Suggest a feature",
-                "Usage": "{prefix}suggest <suggestion>",
-                "Aliases": null
+            {
+                "name": "suggest",
+                "description": "Suggest a feature",
+                "usage": "{prefix}suggest <suggestion>",
+                "aliases": null
             },
-            "tips": {
-                "Description": "Toggle a 10% chance of seeing a useful tip when running a command",
-                "Usage": "{prefix}tips",
-                "Aliases": null
+            {
+                "name": "tips",
+                "description": "Toggle a 10% chance of seeing a useful tip when running a command",
+                "usage": "{prefix}tips",
+                "aliases": null
             },
-            "invite": {
-                "Description": "Sends my invite link",
-                "Usage": "{prefix}invite",
-                "Aliases": null
+            {
+                "name": "invite",
+                "description": "Sends my invite link",
+                "usage": "{prefix}invite",
+                "aliases": null
             },
-            "vote": {
-                "Description": "Sends a link to Fire on a random bot list (sends direct vote link if you use the \"vote\" alias)",
-                "Usage": "{prefix}vote",
-                "Aliases": "dbl, top.gg, dboats, discord.boats"
+            {
+                "name": "vote",
+                "description": "Sends a link to Fire on a random bot list (sends direct vote link if you use the \"vote\" alias)",
+                "usage": "{prefix}vote",
+                "aliases": "dbl, top.gg, dboats, discord.boats"
             },
-            "oss": {
-                "Description": "Sends my GitHub repo link",
-                "Usage": "{prefix}oss",
-                "Aliases": "opensource, source"
+            {
+                "name": "oss",
+                "description": "Sends my GitHub repo link",
+                "usage": "{prefix}oss",
+                "aliases": "opensource, source"
             },
-            "public": {
-                "Description": "Set your server to public (see command below)",
-                "Usage": "{prefix}public",
-                "Aliases": null
+            {
+                "name": "public",
+                "description": "Set your server to public (see command below)",
+                "usage": "{prefix}public",
+                "aliases": null
             },
-            "discover": {
-                "Description": "Links to Fire's public servers page",
-                "Usage": "{prefix}discover",
-                "Aliases": null
+            {
+                "name": "discover",
+                "description": "Links to Fire's public servers page",
+                "usage": "{prefix}discover",
+                "aliases": null
             },
-            "status": {
-                "Description": "Get Fire's status",
-                "Usage": "{prefix}status",
-                "Aliases": null
+            {
+                "name": "status",
+                "description": "Get Fire's status",
+                "usage": "{prefix}status",
+                "aliases": null
             },
-            "dstatus": {
-                "Description": "Get Discord's status",
-                "Usage": "{prefix}dstatus",
-                "Aliases": null
+            {
+                "name": "dstatus",
+                "description": "Get Discord's status",
+                "usage": "{prefix}dstatus",
+                "aliases": null
             }
-        }
+        ]
     },
     {
         "id": 1,
         "name": "Hypixel",
-        "commands": {
-            "watchdog": {
-                "Description": "See watchdog stats, usually broadcasted every 2 hours on the server",
-                "Usage": "{prefix}hypixel watchdog",
-                "Aliases": null
+        "note": "These commands have been temporarily disabled",
+        "commands": [
+            {
+                "name": "watchdog",
+                "description": "See watchdog stats, usually broadcasted every 2 hours on the server",
+                "usage": "{prefix}hypixel watchdog",
+                "aliases": null
             },
-            "skyblock": {
-                "Description": "See SkyBlock news (profiles are a work in progress)",
-                "Usage": "{prefix}hypixel skyblock [<news>]",
-                "Aliases": null
+            {
+                "name": "skyblock",
+                "description": "See SkyBlock news (profiles are a work in progress)",
+                "usage": "{prefix}hypixel skyblock [<news>]",
+                "aliases": null
             },
-            "player": {
-                "Description": "Get a general overview of a player",
-                "Usage": "{prefix}hypixel <player>",
-                "Aliases": null
+            {
+                "name": "player",
+                "description": "Get a general overview of a player",
+                "usage": "{prefix}hypixel <player>",
+                "aliases": null
             },
-            "guild": {
-                "Description": "Get a general overview of a player's guild & members",
-                "Usage": "{prefix}hypixel <player> guild",
-                "Aliases": null
+            {
+                "name": "guild",
+                "description": "Get a general overview of a player's guild & members",
+                "usage": "{prefix}hypixel <player> guild",
+                "aliases": null
             },
-            "friends": {
-                "Description": "Get a general overview of a player's friends",
-                "Usage": "{prefix}hypixel <player> friends",
-                "Aliases": null
+            {
+                "name": "friends",
+                "description": "Get a general overview of a player's friends",
+                "usage": "{prefix}hypixel <player> friends",
+                "aliases": null
             }
-        }
+        ]
     },
     {
         "id": 2,
         "name": "Minecraft",
-        "commands": {
-            "skin": {
-                "Description": "See a player's Minecraft skin",
-                "Usage": "{prefix}skin <ign/UUID>",
-                "Aliases": null
+        "commands": [
+            {
+                "name": "skin",
+                "description": "See a player's Minecraft skin",
+                "usage": "{prefix}skin <ign/UUID>",
+                "aliases": null
             },
-            "mcstatus": {
-                "Description": "Check the status of Minecraft services",
-                "Usage": "{prefix}mcstatus",
-                "Aliases": null
+            {
+                "name": "mcstatus",
+                "description": "Check the status of Minecraft services",
+                "usage": "{prefix}mcstatus",
+                "aliases": null
             },
-            "mcuuid": {
-                "Description": "Get a player's UUID (without dashes)",
-                "Usage": "{prefix}mcuuid <ign>",
-                "Aliases": null
-           }
-        }
+            {
+                "name": "mcuuid",
+                "description": "Get a player's UUID (without dashes)",
+                "usage": "{prefix}mcuuid <ign>",
+                "aliases": null
+            }
+        ]
     },
     {
         "id": 3,
         "name": "KSoft.Si API",
-        "commands": {
-            "meme": {
-                "Description": "Get a random meme",
-                "Usage": "{prefix}meme [<subreddit>]",
-                "Aliases": null
+        "commands": [
+            {
+                "name": "meme",
+                "description": "Get a random meme",
+                "usage": "{prefix}meme [<subreddit>]",
+                "aliases": null
             },
-            "lyrics": {
-                "Description": "Get the lyrics for a song (Provide a member to search for their current song on Spotify)",
-                "Usage": "{prefix}lyrics [<query/member>]",
-                "Aliases": null
+            {
+                "name": "lyrics",
+                "description": "Get the lyrics for a song (Provide a member to search for their current song on Spotify)",
+                "usage": "{prefix}lyrics [<query/member>]",
+                "aliases": null
             },
-            "image": {
-                "Description": "Get an image from a tag",
-                "Usage": "{prefix}image <tag>",
-                "Aliases": null
+            {
+                "name": "image",
+                "description": "Get an image from a tag",
+                "usage": "{prefix}image <tag>",
+                "aliases": null
             },
-            "imagetags": {
-                "Description": "Get a list of tags (for the above command)",
-                "Usage": "{prefix}imagetags",
-                "Aliases": null
+            {
+                "name": "imagetags",
+                "description": "Get a list of tags (for the above command)",
+                "usage": "{prefix}imagetags",
+                "aliases": null
             },
-            "baninfo": {
-                "Description": "Get info about a ban on KSoft.Si",
-                "Usage": "{prefix}baninfo <user id>",
-                "Aliases": null
+            {
+                "name": "baninfo",
+                "description": "Get info about a ban on KSoft.Si",
+                "usage": "{prefix}baninfo <user id>",
+                "aliases": null
             }
-        }
+        ]
     },
     {
         "id": 4,
         "name": "Sk1er",
-        "commands": {
-            "levelhead": {
-                "Description": "Get a player's levelhead info",
-                "Usage": "{prefix}levelhead <player>",
-                "Aliases": null
+        "commands": [
+            {
+                "name": "levelhead",
+                "description": "Get a player's levelhead info",
+                "usage": "{prefix}levelhead <player>",
+                "aliases": null
             },
-            "modcore": {
-                "Description": "Get a player's modcore profile",
-                "Usage": "{prefix}modcore <player>",
-                "Aliases": null
+            {
+                "name": "modcore",
+                "description": "Get a player's modcore profile",
+                "usage": "{prefix}modcore <player>",
+                "aliases": null
             },
-            "mod": {
-                "Description": "Get information about a Sk1er LLC mod",
-                "Usage": "{prefix}mod <mod name>",
-                "Aliases": "mods"
+            {
+                "name": "mod",
+                "description": "Get information about a Sk1er LLC mod",
+                "usage": "{prefix}mod <mod name>",
+                "aliases": "mods"
             }
-        }
+        ]
     },
     {
         "id": 5,
         "name": "YouTube",
-        "commands": {
-            "yt": {
-                "Description": "Get the top 5 trending videos in the US",
-                "Usage": "{prefix}yt",
-                "Aliases": null
+        "commands": [
+            {
+                "name": "yt",
+                "description": "Get the top 5 trending videos in the US",
+                "usage": "{prefix}yt",
+                "aliases": null
             },
-            "yt info": {
-                "Description": "Get a video's info from an ID or URL",
-                "Usage": "{prefix}yt info <id/url>",
-                "Aliases": null
+            {
+                "name": "yt info",
+                "description": "Get a video's info from an ID or URL",
+                "usage": "{prefix}yt info <id/url>",
+                "aliases": null
             }
-        }
+        ]
     },
     {
         "id": 6,
         "name": "Image Manipulation",
-        "commands": {
-            "makeameme": {
-                "Description": "Make your own meme using the \"top text, bottom text\" format",
-                "Usage": "{prefix}makeameme <member/image url> <top text>/<bottom text>",
-                "Aliases": null
+        "commands": [
+            {
+                "name": "makeameme",
+                "description": "Make your own meme using the \"top text, bottom text\" format",
+                "usage": "{prefix}makeameme <member/image url> <top text>/<bottom text>",
+                "aliases": null
             },
-            "deepfry": {
-                "Description": "Deepfry an image or your avatar (your avatar is used if no argument is provided)",
-                "Usage": "{prefix}deepfry [<member/image url>]",
-                "Aliases": "df"
+            {
+                "name": "deepfry",
+                "description": "Deepfry an image or your avatar (your avatar is used if no argument is provided)",
+                "usage": "{prefix}deepfry [<member/image url>]",
+                "aliases": "df"
             }
-        }
+        ]
     },
     {
         "id": 7,
         "name": "Tickets",
-        "commands": {
-            "ticket": {
-                "Description": "View all the ticket configuration commands",
-                "Usage": "{prefix}ticket",
-                "Aliases": "tickets"
+        "commands": [
+            {
+                "name": "ticket",
+                "description": "View all the ticket configuration commands",
+                "usage": "{prefix}ticket",
+                "aliases": "tickets"
             },
-            "ticket category": {
-                "Description": "Set the category where tickets are made",
-                "Usage": "{prefix}ticket category [<category>]",
-                "Aliases": null
+            {
+                "name": "ticket category",
+                "description": "Set the category where tickets are made",
+                "usage": "{prefix}ticket category [<category>]",
+                "aliases": null
             },
-            "ticket name": {
-                "Description": "Set the name for tickets. Run the command without arguments to see all available variables",
-                "Usage": "{prefix}ticket name <name>",
-                "Aliases": null
+            {
+                "name": "ticket name",
+                "description": "Set the name for tickets. Run the command without arguments to see all available variables",
+                "usage": "{prefix}ticket name <name>",
+                "aliases": null
             },
-            "new": {
-                "Description": "Makes a new ticket",
-                "Usage": "{prefix}new [<ticket subject>]",
-                "Aliases": null
+            {
+                "name": "new",
+                "description": "Makes a new ticket",
+                "usage": "{prefix}new [<ticket subject>]",
+                "aliases": null
             },
-            "add": {
-                "Description": "Add a user to the current ticket",
-                "Usage": "{prefix}add <user>",
-                "Aliases": null
+            {
+                "name": "add",
+                "description": "Add a user to the current ticket",
+                "usage": "{prefix}add <user>",
+                "aliases": null
             },
-            "remove": {
-                "Description": "Remove a user from the current ticket",
-                "Usage": "{prefix}remove <user>",
-                "Aliases": null
+            {
+                "name": "remove",
+                "description": "Remove a user from the current ticket",
+                "usage": "{prefix}remove <user>",
+                "aliases": null
             },
-            "close": {
-                "Description": "Closes a ticket, uploads the transcript to action logs channel and sends to the ticket author",
-                "Usage": "{prefix}close [<close reason>]",
-                "Aliases": null
+            {
+                "name": "close",
+                "description": "Closes a ticket, uploads the transcript to action logs channel and sends to the ticket author",
+                "usage": "{prefix}close [<close reason>]",
+                "aliases": null
             }
-        }
+        ]
     },
     {
         "id": 8,
         "name": "Configuration",
-        "commands": {
-            "settings": {
-                "Description": "Run through my setup process to configure a few settings",
-                "Usage": "{prefix}settings",
-                "Aliases": "setup"
+        "commands": [
+            {
+                "name": "settings",
+                "description": "Run through my setup process to configure a few settings",
+                "usage": "{prefix}settings",
+                "aliases": "setup"
             },
-            "log": {
-                "Description": "Set the channel(s) for logging",
-                "Usage": "{prefix}log <type> <channel>",
-                "Aliases": "logging, logs, setlogs"
+            {
+                "name": "log",
+                "description": "Set the channel(s) for logging",
+                "usage": "{prefix}log <type> <channel>",
+                "aliases": "logging, logs, setlogs"
             },
-            "description": {
-                "Description": "Set the description for the server that shows in Vanity URLs",
-                "Usage": "{prefix}description <desccription>",
-                "Aliases": "desc"
+            {
+                "name": "description",
+                "description": "Set the description for the server that shows in Vanity URLs",
+                "usage": "{prefix}description <desccription>",
+                "aliases": "desc"
             },
-            "modonly": {
-                "Description": "Set channels to restrict commands for moderators",
-                "Usage": "{prefix}modonly [<**channels>]",
-                "Aliases": null
+            {
+                "name": "modonly",
+                "description": "Set channels to restrict commands for moderators",
+                "usage": "{prefix}modonly [<**channels>]",
+                "aliases": null
             },
-            "adminonly": {
-                "Description": "Set channels to restrict commands for admins",
-                "Usage": "{prefix}adminonly [<**channels>]",
-                "Aliases": null
+            {
+                "name": "adminonly",
+                "description": "Set channels to restrict commands for admins",
+                "usage": "{prefix}adminonly [<**channels>]",
+                "aliases": null
             },
-            "joinmsg": {
-                "Description": "Set the join message and a channel to send it in",
-                "Usage": "{prefix}joinmsg <channel> <message>",
-                "Aliases": null
+            {
+                "name": "joinmsg",
+                "description": "Set the join message and a channel to send it in",
+                "usage": "{prefix}joinmsg <channel> <message>",
+                "aliases": null
             },
-            "leavemsg": {
-                "Description": "Set the leave message and a channel to send it in",
-                "Usage": "{prefix}leavemsg <channel> <message>",
-                "Aliases": null
+            {
+                "name": "leavemsg",
+                "description": "Set the leave message and a channel to send it in",
+                "usage": "{prefix}leavemsg <channel> <message>",
+                "aliases": null
             },
-            "linkfilter": {
-                "Description": "Enable different link filters. Run the command without arguments to see all filters",
-                "Usage": "{prefix}linkfilter <**filters>",
-                "Aliases": "linkfilters, linkblock"
+            {
+                "name": "linkfilter",
+                "description": "Enable different link filters. Run the command without arguments to see all filters",
+                "usage": "{prefix}linkfilter <**filters>",
+                "aliases": "linkfilters, linkblock"
             },
-            "filterexcl": {
-                "Description": "Exclude channels/roles/members from the filters",
-                "Usage": "{prefix}filterexcl <**channel/role/member>",
-                "Aliases": null
+            {
+                "name": "filterexcl",
+                "description": "Exclude channels/roles/members from the filters",
+                "usage": "{prefix}filterexcl <**channel/role/member>",
+                "aliases": null
             },
-            "command": {
-                "Description": "Enable/disable a command in your server",
-                "Usage": "{prefix}command <command>",
-                "Aliases": null
+            {
+                "name": "command",
+                "description": "Enable/disable a command in your server",
+                "usage": "{prefix}command <command>",
+                "aliases": null
             }
-        }
+        ]
     },
     {
         "id": 9,
         "name": "Moderation",
         "Note": "Users with the \"Manage Messages\" permission are considered moderators! This will most likely change in the future.",
-        "commands": {
-            "ban": {
-                "Description": "Ban a user from the server",
-                "Usage": "{prefix}ban <user> [<reason>]",
-                "Aliases": "banish, begone, gtfo, 410, perish, bonk, bean"
+        "commands": [
+            {
+                "name": "ban",
+                "description": "Ban a user from the server",
+                "usage": "{prefix}ban <user> [<reason>]",
+                "aliases": "banish, begone, gtfo, 410, perish, bonk, bean"
             },
-            "unban": {
-                "Description": "Unban a user from the server",
-                "Usage": "{prefix}unban <user> [<reason>]",
-                "Aliases": "unbanish"
+            {
+                "name": "unban",
+                "description": "Unban a user from the server",
+                "usage": "{prefix}unban <user> [<reason>]",
+                "aliases": "unbanish"
             },
-            "softban": {
-                "Description": "Bans a user, deletes messages from a specified amount of days and then unbans.",
-                "Usage": "{prefix}softban <user> <amount of days: 1-7> [<reason>]",
-                "Aliases": null
+            {
+                "name": "softban",
+                "description": "Bans a user, deletes messages from a specified amount of days and then unbans.",
+                "usage": "{prefix}softban <user> <amount of days: 1-7> [<reason>]",
+                "aliases": null
             },
-            "muterole": {
-                "Description": "Sets the muted role Fire will use",
-                "Usage": "{prefix}muterole [<role>]",
-                "Aliases": "mutedrole"
+            {
+                "name": "muterole",
+                "description": "Sets the muted role Fire will use",
+                "usage": "{prefix}muterole [<role>]",
+                "aliases": "mutedrole"
             },
-            "mute": {
-                "Description": "Mute a user.",
-                "Usage": "{prefix}mute <user> [<time> <reason>] Time format: 1d 2h 3m 4s == 1 day, 2 hours, 3 minutes and 4 seconds",
-                "Aliases": "silence, tempmute, 403"
+            {
+                "name": "mute",
+                "description": "Mute a user.",
+                "usage": "{prefix}mute <user> [<time> <reason>] Time format: 1d 2h 3m 4s == 1 day, 2 hours, 3 minutes and 4 seconds",
+                "aliases": "silence, tempmute, 403"
             },
-            "unmute": {
-                "Description": "Unmute a muted user.",
-                "Usage": "{prefix}unmute <user>",
-                "Aliases": null
+            {
+                "name": "unmute",
+                "description": "Unmute a muted user.",
+                "usage": "{prefix}unmute <user>",
+                "aliases": null
             },
-            "warn": {
-                "Description": "Warn a user.",
-                "Usage": "{prefix}warn <user> <reason>",
-                "Aliases": null
+            {
+                "name": "warn",
+                "description": "Warn a user.",
+                "usage": "{prefix}warn <user> <reason>",
+                "aliases": null
             },
-            "warnings": {
-                "Description": "View warnings for a user",
-                "Usage": "{prefix}warnings <user>",
-                "Aliases": null
+            {
+                "name": "warnings",
+                "description": "View warnings for a user",
+                "usage": "{prefix}warnings <user>",
+                "aliases": null
             },
-            "clearwarns": {
-                "Description": "Clear a users warnings",
-                "Usage": "{prefix}clearwarns <user>",
-                "Aliases": "clearwarnings"
+            {
+                "name": "clearwarns",
+                "description": "Clear a users warnings",
+                "usage": "{prefix}clearwarns <user>",
+                "aliases": "clearwarnings"
             },
-            "clearwarn": {
-                "Description": "Clear a single warning",
-                "Usage": "{prefix}clearwarn <case id>",
-                "Aliases": "clearwarning"
+            {
+                "name": "clearwarn",
+                "description": "Clear a single warning",
+                "usage": "{prefix}clearwarn <case id>",
+                "aliases": "clearwarning"
             },
-            "modlogs": {
-                "Description": "View moderation logs for a user",
-                "Usage": "{prefix}modlogs <user>",
-                "Aliases": null
+            {
+                "name": "modlogs",
+                "description": "View moderation logs for a user",
+                "usage": "{prefix}modlogs <user>",
+                "aliases": null
             },
-            "kick": {
-                "Description": "Kick a user.",
-                "Usage": "{prefix}kick <user> [<reason>]",
-                "Aliases": "yeet, 409"
+            {
+                "name": "kick",
+                "description": "Kick a user.",
+                "usage": "{prefix}kick <user> [<reason>]",
+                "aliases": "yeet, 409"
             },
-            "block": {
-                "Description": "Mute a user/role in the current channel.",
-                "Usage": "{prefix}block <user/role> [<reason>]",
-                "Aliases": null
+            {
+                "name": "block",
+                "description": "Mute a user/role in the current channel.",
+                "usage": "{prefix}block <user/role> [<reason>]",
+                "aliases": null
             },
-            "unblock": {
-                "Description": "Unmute a user/role who has been blocked in the current channel.",
-                "Usage": "{prefix}unblock <user/role> [<reason>]",
-                "Aliases": null
+            {
+                "name": "unblock",
+                "description": "Unmute a user/role who has been blocked in the current channel.",
+                "usage": "{prefix}unblock <user/role> [<reason>]",
+                "aliases": null
             },
-            "derank": {
-                "Description": "Remove all roles from a user (The role must be below Fire's highest role to be removed)",
-                "Usage": "{prefix}derank <user> [<reason>]",
-                "Aliases": "dethrone"
+            {
+                "name": "derank",
+                "description": "Remove all roles from a user (The role must be below Fire's highest role to be removed)",
+                "usage": "{prefix}derank <user> [<reason>]",
+                "aliases": "dethrone"
             },
-            "antispam": {
-                "Description": "Enable ChatWatch spam prevention",
-                "Usage": "{prefix}antispam [<chance of spam>]",
-                "Aliases": null
+            {
+                "name": "antispam",
+                "description": "Enable ChatWatch spam prevention",
+                "usage": "{prefix}antispam [<chance of spam>]",
+                "aliases": null
             },
-            "badname": {
-                "Description": "Change the name used for auto dehoist/decancer",
-                "Usage": "{prefix}badname [<new name>]",
-                "Aliases": null
+            {
+                "name": "badname",
+                "description": "Change the name used for auto dehoist/decancer",
+                "usage": "{prefix}badname [<new name>]",
+                "aliases": null
             },
-            "autodehoist": {
-                "Description": "Toggle renaming those with hoisted names",
-                "Usage": "{prefix}autodehoist",
-                "Aliases": null
+            {
+                "name": "autodehoist",
+                "description": "Toggle renaming those with hoisted names",
+                "usage": "{prefix}autodehoist",
+                "aliases": null
             },
-            "autodecancer": {
-                "Description": "Toggle renaming those with \"cancerous\" (non-ascii) names",
-                "Usage": "{prefix}autodecancer",
-                "Aliases": null
+            {
+                "name": "autodecancer",
+                "description": "Toggle renaming those with \"cancerous\" (non-ascii) names",
+                "usage": "{prefix}autodecancer",
+                "aliases": null
             }
-        }
+        ]
     },
     {
         "id": 10,
         "name": "Info",
-        "commands": {
-            "user": {
-                "Description": "Get a general overview of a user.",
-                "Usage": "{prefix}user <user>",
-                "Aliases": "userinfo, info user, infouser, whois, u"
+        "commands": [
+            {
+                "name": "user",
+                "description": "Get a general overview of a user.",
+                "usage": "{prefix}user <user>",
+                "aliases": "userinfo, info user, infouser, whois, u"
             },
-            "role": {
-                "Description": "Get a general overview of a role",
-                "Usage": "{prefix}info role <role>",
-                "Aliases": null
+            {
+                "name": "role",
+                "description": "Get a general overview of a role",
+                "usage": "{prefix}info role <role>",
+                "aliases": null
             },
-            "guild": {
-                "Description": "Get a general overview of the guild",
-                "Usage": "{prefix}info guild",
-                "Aliases": "info server"
+            {
+                "name": "guild",
+                "description": "Get a general overview of the guild",
+                "usage": "{prefix}info guild",
+                "aliases": "info server"
             }
-        }
+        ]
     },
     {
         "id": 11,
         "name": "Tags",
         "Note": "Creating/deleting tags requires \"Manage Messages\" permission. Tag names can only be one word.",
-        "commands": {
-            "tag": {
-                "Description": "See a list of all tags or view a tag",
-                "Usage": "{prefix}tag [<tag name>]",
-                "Aliases": "dtag, tags"
+        "commands": [
+            {
+                "name": "tag",
+                "description": "See a list of all tags or view a tag",
+                "usage": "{prefix}tag [<tag name>]",
+                "aliases": "dtag, tags"
             },
-            "raw": {
-                "Description": "View the raw content of a tag",
-                "Usage": "{prefix}tag raw [<tag name>]",
-                "Aliases": null
+            {
+                "name": "raw",
+                "description": "View the raw content of a tag",
+                "usage": "{prefix}tag raw [<tag name>]",
+                "aliases": null
             },
-            "create": {
-                "Description": "Create a new tag",
-                "Usage": "{prefix}tag create <name> <content>",
-                "Aliases": "tags create, dtag create"
+            {
+                "name": "create",
+                "description": "Create a new tag",
+                "usage": "{prefix}tag create <name> <content>",
+                "aliases": "tags create, dtag create"
             },
-            "delete": {
-                "Description": "Delete a tag",
-                "Usage": "{prefix}tag delete <name>",
-                "Aliases": "tags delete, dtag delete"
+            {
+                "name": "delete",
+                "description": "Delete a tag",
+                "usage": "{prefix}tag delete <name>",
+                "aliases": "tags delete, dtag delete"
             }
-        }
+        ]
     },
     {
         "id": 12,
         "name": "Utilities",
-        "commands": {
-            "snipe": {
-                "Description": "Get the last deleted message",
-                "Usage": "{prefix}snipe [<channel/user>]",
-                "Aliases": null
+        "commands": [
+            {
+                "name": "snipe",
+                "description": "Get the last deleted message",
+                "usage": "{prefix}snipe [<channel/user>]",
+                "aliases": null
             },
-            "esnipe": {
-                "Description": "Get the last edited message",
-                "Usage": "{prefix}esnipe [<channel/user>]",
-                "Aliases": null
+            {
+                "name": "esnipe",
+                "description": "Get the last edited message",
+                "usage": "{prefix}esnipe [<channel/user>]",
+                "aliases": null
             },
-            "slowmode": {
-                "Description": "Set the slowmode for a channel or category",
-                "Usage": "{prefix}slowmode [<length>] [<channel/category>]",
-                "Aliases": null
+            {
+                "name": "slowmode",
+                "description": "Set the slowmode for a channel or category",
+                "usage": "{prefix}slowmode [<length>] [<channel/category>]",
+                "aliases": null
             },
-            "debug": {
-                "Description": "Debug a command",
-                "Usage": "{prefix}debug <command>",
-                "Aliases": null
+            {
+                "name": "debug",
+                "description": "Debug a command",
+                "usage": "{prefix}debug <command>",
+                "aliases": null
             },
-            "quote": {
-                "Description": "Quote a message from an id or url",
-                "Usage": "{prefix}quote <message id/message url>",
-                "Aliases": null
+            {
+                "name": "quote",
+                "description": "Quote a message from an id or url",
+                "usage": "{prefix}quote <message id/message url>",
+                "aliases": null
             },
-            "remind": {
-                "Description": "Set a reminder and get reminded because that's what reminders are for. (Uses the same time format as tempmutes, DAYSd HOURSh etc.)",
-                "Usage": "{prefix}remind <time + reminder>",
-                "Aliases": "remindme, reminder"
+            {
+                "name": "remind",
+                "description": "Set a reminder and get reminded because that's what reminders are for. (Uses the same time format as tempmutes, DAYSd HOURSh etc.)",
+                "usage": "{prefix}remind <time + reminder>",
+                "aliases": "remindme, reminder"
             },
-            "reminders": {
-                "Description": "List all reminders you have set",
-                "Usage": "{prefix}reminders",
-                "Aliases": null
+            {
+                "name": "reminders",
+                "description": "List all reminders you have set",
+                "usage": "{prefix}reminders",
+                "aliases": null
             },
-            "delremind": {
-                "Description": "Delete a reminder using the index from the reminders command",
-                "Usage": "{prefix}delremind <reminder index>",
-                "Aliases": "deleteremind, delreminder, deletereminder"
+            {
+                "name": "delremind",
+                "description": "Delete a reminder using the index from the reminders command",
+                "usage": "{prefix}delremind <reminder index>",
+                "aliases": "deleteremind, delreminder, deletereminder"
             },
-            "avatar": {
-                "Description": "Get a user's avatar",
-                "Usage": "{prefix}avatar [<user>]",
-                "Aliases": "av"
+            {
+                "name": "avatar",
+                "description": "Get a user's avatar",
+                "usage": "{prefix}avatar [<user>]",
+                "aliases": "av"
             },
-            "vanityurl": {
-                "Description": "Creates a vanity invite for your Discord using inv.wtf",
-                "Usage": "{prefix}vanityurl [<code>/\"disable\"]",
-                "Aliases": null
+            {
+                "name": "vanityurl",
+                "description": "Creates a vanity invite for your Discord using inv.wtf",
+                "usage": "{prefix}vanityurl [<code>/\"disable\"]",
+                "aliases": null
             },
-            "google": {
-                "Description": "Talk to the Google Assistant",
-                "Usage": "{prefix}google <query>",
-                "Aliases": null
+            {
+                "name": "google",
+                "description": "Talk to the Google Assistant",
+                "usage": "{prefix}google <query>",
+                "aliases": null
             }
-        }
+        ]
     },
     {
         "id": 13,
         "name": "Purge",
         "Note": "The purge command makes use of a flag system for different options. \nFor example, \"purge 10 --user Geek --match oof\" would purge the last 10 messages from the user Geek if it contains oof",
-        "commands": {
-            "purge": {
-                "Description": "Bulk delete messages",
-                "Usage": "{prefix}purge <amount> [<flags>]",
-                "Aliases": "prune"
+        "commands": [
+            {
+                "name": "purge",
+                "description": "Bulk delete messages",
+                "usage": "{prefix}purge <amount> [<flags>]",
+                "aliases": "prune"
             }
-	},
-	"flags": {
+        ],
+        "flags": {
             "user": {
                 "Description": "Purge messages from this user",
                 "Usage": "--user <name/mention/id>"
@@ -565,42 +652,49 @@
     {
         "id": 14,
         "name": "Premium",
-        "commands": {
-            "autorole": {
-                "Description": "Automatically add a role to a user when they join (Use command without role argument to disable or \"delay\" to toggle waiting for a message)",
-                "Usage": "{prefix}autorole [<role name/id/mention>]",
-                "Aliases": null
+        "commands": [
+            {
+                "name": "autorole",
+                "description": "Automatically add a role to a user when they join (Use command without role argument to disable or \"delay\" to toggle waiting for a message)",
+                "usage": "{prefix}autorole [<role name/id/mention>]",
+                "aliases": null
             },
-            "invrole": {
-                "Description": "Automatically add a role to a user when they join with a specific invite",
-                "Usage": "{prefix}invrole <invite> <role>",
-                "Aliases": "invroles, inviterole, inviteroles"
+            {
+                "name": "invrole",
+                "description": "Automatically add a role to a user when they join with a specific invite",
+                "usage": "{prefix}invrole <invite> <role>",
+                "aliases": "invroles, inviterole, inviteroles"
             },
-            "addrank": {
-                "Description": "Add a role that users can join through the rank command.",
-                "Usage": "{prefix}addrank <role>",
-                "Aliases": null
+            {
+                "name": "addrank",
+                "description": "Add a role that users can join through the rank command.",
+                "usage": "{prefix}addrank <role>",
+                "aliases": null
             },
-            "delrank": {
-                "Description": "Remove a rank from the list of joinable roles.",
-                "Usage": "{prefix}delrank <role>",
-                "Aliases": null
+            {
+                "name": "delrank",
+                "description": "Remove a rank from the list of joinable roles.",
+                "usage": "{prefix}delrank <role>",
+                "aliases": null
             },
-            "rank": {
-                "Description": "List all available ranks and join a rank",
-                "Usage": "{prefix}rank [<rank>]",
-                "Aliases": null
+            {
+                "name": "rank",
+                "description": "List all available ranks and join a rank",
+                "usage": "{prefix}rank [<rank>]",
+                "aliases": null
             },
-            "rolepersist": {
-                "Description": "Add a role(s) that will stay with the user, even if they leave and rejoin.",
-                "Usage": "{prefix}rolepersist <user> <roles>",
-                "Aliases": "rolepersists, persistroles, persistrole"
+            {
+                "name": "rolepersist",
+                "description": "Add a role(s) that will stay with the user, even if they leave and rejoin.",
+                "usage": "{prefix}rolepersist <user> <roles>",
+                "aliases": "rolepersists, persistroles, persistrole"
             },
-            "redirect": {
-                "Description": "Create a redirect to any website using inv.wtf, e.g. inv.wtf/bot. Use `$redirect <slug> delete` to delete the redirect.",
-                "Usage": "{prefix}redirect <slug> <url>",
-                "Aliases": null
+            {
+                "name": "redirect",
+                "description": "Create a redirect to any website using inv.wtf, e.g. inv.wtf/bot. Use `$redirect <slug> delete` to delete the redirect.",
+                "usage": "{prefix}redirect <slug> <url>",
+                "aliases": null
             }
-        }
+        ]
     }
 ]
