@@ -15,11 +15,11 @@ watchanimeattheoffice.com/discord-developers
 inv.wtf/sdk
 inv.wtf/devs
 inv.wtf/dev
-discord.gg/discord-events
-discordapp.com/invite/discord-events
-discord.com/invite/discord-events
-watchanimeattheoffice.com/discord-events
-inv.wtf/events
+discord.gg/discord-townhall
+discordapp.com/invite/discord-townhall
+discord.com/invite/discord-townhall
+watchanimeattheoffice.com/discord-townhall
+inv.wtf/townhall
 discord.gg/discord-api
 discordapp.com/invite/discord-api
 discord.com/invite/discord-api
