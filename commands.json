@@ -602,52 +602,63 @@
                 "aliases": "prune"
             }
         ],
-        "flags": {
-            "user": {
-                "Description": "Purge messages from this user",
-                "Usage": "--user <name/mention/id>"
+        "flags": [
+            {
+                "name": "user",
+                "description": "Purge messages from this user",
+                "usage": "--user <name/mention/id>"
             },
-            "channel": {
-                "Description": "Purge messages in this channel",
-                "Usage": "--channel <name/mention/id>"
+            {
+                "name": "channel",
+                "description": "Purge messages in this channel",
+                "usage": "--channel <name/mention/id>"
             },
-            "include_embeds": {
-                "Description": "Whether or not to search embeds for match/startswith/endswith/invite",
-                "Usage": "--include_embeds"
+            {
+                "name": "include_embeds",
+                "description": "Whether or not to search embeds for match/startswith/endswith/invite",
+                "usage": "--include_embeds"
             },
-            "match": {
-                "Description": "Purge messages containing a string",
-                "Usage": "--match <string>"
+            {
+                "name": "match",
+                "description": "Purge messages containing a string",
+                "usage": "--match <string>"
             },
-            "nomatch": {
-                "Description": "Purge messages that do not contain a string",
-                "Usage": "--nomatch <string>"
+            {
+                "name": "nomatch",
+                "description": "Purge messages that do not contain a string",
+                "usage": "--nomatch <string>"
             },
-            "startswith": {
-                "Description": "Purge messages starting with a string",
-                "Usage": "--startswith <string>"
+            {
+                "name": "startswith",
+                "description": "Purge messages starting with a string",
+                "usage": "--startswith <string>"
             },
-            "endswith": {
-                "Description": "Purge messages ending with a string",
-                "Usage": "--endswith <string>"
+            {
+                "name": "endswith",
+                "description": "Purge messages ending with a string",
+                "usage": "--endswith <string>"
             },
-            "attachments": {
-                "Description": "Only purge messages with attachments",
-                "Usage": "--attachments"
+            {
+                "name": "attachments",
+                "description": "Only purge messages with attachments",
+                "usage": "--attachments"
             },
-            "bot": {
-                "Description": "Only purge messages from bots",
-                "Usage": "--bot"
+            {
+                "name": "bot",
+                "description": "Only purge messages from bots",
+                "usage": "--bot"
             },
-            "invite": {
-                "Description": "Only purge messages containing invites",
-                "Usage": "--invite"
+            {
+                "name": "invite",
+                "description": "Only purge messages containing invites",
+                "usage": "--invite"
             },
-            "text": {
-                "Description": "Purge messages containing only text",
-                "Usage": "--text"
+            {
+                "name": "text",
+                "description": "Purge messages containing only text",
+                "usage": "--text"
             }
-        }
+        ]
     },
     {
         "id": 14,
