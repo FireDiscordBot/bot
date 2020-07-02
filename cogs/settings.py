@@ -718,7 +718,7 @@ class Settings(commands.Cog):
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def modonly(self, ctx, channels: commands.Greedy[TextChannel] = []):
-		current = ctx.config.get('commands.modonly')
+		current = [c for c in ctx.config.get('commands.modonly') if c]
 		modonly = current.copy()
 		for sf in channels:
 			if sf not in modonly:
@@ -737,7 +737,7 @@ class Settings(commands.Cog):
 	@commands.has_permissions(manage_guild=True)
 	@commands.guild_only()
 	async def adminonly(self, ctx, channels: commands.Greedy[TextChannel] = []):
-		current = ctx.config.get('commands.adminonly')
+		current = [c for c in ctx.config.get('commands.adminonly') if c]
 		adminonly = current.copy()
 		for sf in channels:
 			if sf not in current:
