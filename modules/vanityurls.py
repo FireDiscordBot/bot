@@ -48,7 +48,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         try:
             await self.bot.http.invwtf.request(route)
         except Exception as e:
-            self.bot.logger.warn(f'$YELLOWFailed to request vanity url fetch', exc_inf=e)
+            self.bot.logger.warn(f'$YELLOWFailed to request vanity url fetch', exc_info=e)
 
     async def get_vanity(self, code: str):
         route = Route(
