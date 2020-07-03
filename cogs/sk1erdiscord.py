@@ -357,6 +357,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				await user.remove_roles(self.guild.get_role(595626786549792793), reason=f'Specs removed by {ctx.author}')
 				return await ctx.success(f'Successfully removed specs for {user}')
 			uspecs = uspecs[0]
+			escape = discord.utils.escape_markdown
 			embed = discord.Embed(
 				color=user.color,
 				timestamp=datetime.datetime.now(datetime.timezone.utc)
@@ -366,19 +367,19 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				url=f'https://inv.wtf/sk1spec'
 			).add_field(
 				name='» CPU',
-				value=uspecs['cpu'][:1024],
+				value=escape(uspecs['cpu'][:1024]),
 				inline=False
 			).add_field(
 				name='» GPU',
-				value=uspecs['gpu'][:1024],
+				value=escape(uspecs['gpu'][:1024]),
 				inline=False
 			).add_field(
 				name='» RAM',
-				value=uspecs['ram'][:1024],
+				value=escape(uspecs['ram'][:1024]),
 				inline=False
 			).add_field(
 				name='» Operating System',
-				value=uspecs['os'][:1024],
+				value=escape(uspecs['os'][:1024]),
 				inline=False
 			)
 			return await ctx.send(embed=embed)
