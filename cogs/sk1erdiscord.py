@@ -357,7 +357,10 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				await user.remove_roles(self.guild.get_role(595626786549792793), reason=f'Specs removed by {ctx.author}')
 				return await ctx.success(f'Successfully removed specs for {user}')
 			uspecs = uspecs[0]
-			escape = discord.utils.escape_markdown
+			def escape(text: str):
+				text = discord.utils.escape_markdown(text)
+				text = re.sub(r'<a?:[a-zA-Z0-9\_]+:([0-9]+)>', '', text, 0, re.MULTILINE)
+				return text
 			embed = discord.Embed(
 				color=user.color,
 				timestamp=datetime.datetime.now(datetime.timezone.utc)
