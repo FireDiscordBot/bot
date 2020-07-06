@@ -252,8 +252,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		for err, sol in self.solutions.items():
 			if err in log:
 				solutions.append(f'- {sol}')
-		if all(m in log for m in ['com.replaymod', 'io.framesplus']):
-			solutions.append(f'- Frames+ and Replaymod are incompatible. You will need to remove one of them')
+		if 'OptiFine_1.8.9_HD_U' in log and not any(v in log for v in ['_I7', '_L5']):
+			solutions.append(f'- Update Optifine to either I7 or L5')
 		if not solutions:
 			return ''
 		return 'Possible solutions:\n' + '\n'.join(solutions)
