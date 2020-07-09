@@ -162,14 +162,6 @@ class Config:
         self._bot.logger.info(f'$GREENSetting $CYANdisabled.commands $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('disabled.commands', value)
 
-    @ConfigOpt(name='disabled.cogs', accepts=[str], default=[], options=options)
-    async def disabled_cogs(self, value: list):
-        '''Disabled Cogs | Modules that can only be ran by moderators (those with Manage Messages permission)'''
-        if [v for v in value if not self._bot.get_cog(v)]:
-            raise TypeMismatchError(type=', '.join([v for v in value if not self._bot.get_cog(v)]), accepted=', '.join([cog.name for cog in self._bot.cogs if not cog.hidden]), option='disabled.cogs')
-        self._bot.logger.info(f'$GREENSetting $CYANdisabled.cogs $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('disabled.cogs', value)
-
     @ConfigOpt(name='utils.autoquote', accepts=bool, default=False, options=options)
     async def auto_quote(self, value: bool):
         '''Automatic Quotes | Automatically quotes messages when a message link is sent'''
