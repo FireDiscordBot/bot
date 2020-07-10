@@ -149,18 +149,6 @@
                 "aliases": null
             },
             {
-                "name": "image",
-                "description": "Get an image from a tag",
-                "usage": "{prefix}image <tag>",
-                "aliases": null
-            },
-            {
-                "name": "imagetags",
-                "description": "Get a list of tags (for the above command)",
-                "usage": "{prefix}imagetags",
-                "aliases": null
-            },
-            {
                 "name": "baninfo",
                 "description": "Get info about a ban on KSoft.Si",
                 "usage": "{prefix}baninfo <user id>",

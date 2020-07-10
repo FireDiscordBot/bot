@@ -61,55 +61,6 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
 			embed.add_field(name='Check it out', value=f'[Click Here]({meme.source})')
 		await ctx.send(embed=embed)
 
-	@commands.command(description="Gets a random image from a specified tag", name="image")
-	async def randimage(self, ctx, tag: str = None, nsfw: bool = None):
-		taglist = await self.bot.ksoft.tags()
-		tags = str(taglist).split(', ')
-		if tag.lower() == 'false':
-			nsfw = False
-			tag = random.choice(tags)
-		elif tag.lower() == 'true':
-			nsfw = True
-			tag = random.choice(tags)
-		if tag is None:
-			tag = random.choice(tags)
-			if tag is None:
-				tag = 'dog'
-		else:
-			if tag not in tags:
-				await ctx.send('The tag you gave is invalid. Use the imagetags command to see a list of tags you can use.')
-				return
-		channel = ctx.message.channel
-		if not channel.is_nsfw():
-			nsfw = False
-			if tag == 'hentai_gif':
-				tag = 'dog'
-			if tag == 'neko':
-				tag = 'pepe'
-		if nsfw is None:
-			nsfw = False
-		img = await self.bot.ksoft.random_image(tag = tag, nsfw = nsfw)
-		if img.nsfw:
-			if not channel.is_nsfw():
-				msg = await ctx.send("The image I was given was marked as NSFW but this channel is not. Go into an NSFW channel to see NSFW memes", delete_after=5)
-				return
-		embed = discord.Embed(title="The randomizer machine returned this image!", colour=ctx.message.author.color, url=img.url, timestamp=datetime.datetime.now(datetime.timezone.utc))
-		embed.set_image(url=img.url)
-		embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(ctx.message.author.avatar_url_as(static_format='png', size=2048)))
-		embed.set_footer(text=f"🏷️ {tag} (https://api.ksoft.si)")
-		await ctx.send(embed=embed)
-
-	@commands.command(description="List all available tags", aliases=['imagetag'])
-	async def imagetags(self, ctx):
-		tags = await self.bot.ksoft.tags()
-		if ctx.channel.nsfw:
-			nsfwtags = ', '.join(tags.nsfw_tags)
-			sfwtags = ', '.join(tags.sfw_tags)
-			await ctx.send(f'```Non-NSFW Tags:\n{sfwtags}\n\nNSFW Tags:\n{nsfwtags}```')
-		else:
-			sfwtags = ', '.join(tags.sfw_tags)
-			await ctx.send(f'```Tags:\n{sfwtags}```')
-
 	@commands.command(name='baninfo', description='Check the info of a ban on the KSoft.Si API')
 	async def baninfo(self, ctx, bannedboi: int):
 		try:
