@@ -16,10 +16,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-from fire.converters import UserWithFallback
+from fire.converters import Member, UserWithFallback
 from discord.ext import commands
 import traceback
 import discord
+import typing
 
 
 class Avatar(commands.Cog):
@@ -27,7 +28,7 @@ class Avatar(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=['av'])
-    async def avatar(self, ctx, user: UserWithFallback = None):
+    async def avatar(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
         if not user:
             user = ctx.author
         if ctx.guild:
