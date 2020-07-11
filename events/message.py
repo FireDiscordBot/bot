@@ -121,7 +121,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
                 m = await f.send(embed=message.embeds[0])
                 await m.publish()
             except Exception:
-                self.bot.logger.warn(f'Failed to forward datamining webhook', exc_info=e)
+                pass
         if not isinstance(message.author, discord.Member):
             return
         if message.author.bot:
