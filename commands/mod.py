@@ -65,7 +65,7 @@ class Mod(commands.Cog):
             description=mod['short'],
             timestamp=datetime.datetime.now(datetime.timezone.utc)
         )
-        embed.add_field(name="Versions", value='\n'.join([f'**{k}**: {v}' for k, v in mod['latest'].items()]), inline=False)
+        embed.add_field(name="Versions", value='\n'.join([f'**{k}**: {v}' for k, v in mod['latest'].items()]) or 'No Versions Found', inline=False)
         embed.add_field(name="Creator", value=f'''**__{mod['vendor']['name']}__**
 [Website]({mod['vendor']['website']})
 [Twitter]({mod['vendor']['twitter']})
@@ -82,6 +82,8 @@ class Mod(commands.Cog):
                 time = datetime.datetime.fromtimestamp(changelog["time"] / 1000, datetime.timezone.utc).strftime('%d/%m/%Y @ %I:%M:%S %p')
                 paginator.add_line(f'**{v}**: {changelog["text"]} ({time})')
             paginator.add_line('-----------------')
+        if not paginator.pages:
+            return
         embed = discord.Embed(color=ctx.author.color, title='Changelogs', timestamp=datetime.datetime.now(datetime.timezone.utc))
         interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
         await interface.send_to(ctx)
