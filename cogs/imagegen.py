@@ -175,6 +175,8 @@ class ImageGeneration(commands.Cog, name='Image Generation'):
 			return await ctx.error('Animated images are not supported!')
 		if not text:
 			return await ctx.error('You must provide text seperated by **|**')
+		if not any(ext in image for ext in ['.png', '.jpg', '.jpeg']):
+			return await ctx.error('You must provide an image or user as the first argument')
 		if len(text.split('|')) != 2:
 			return await ctx.error('You must provide text seperated by **|**')
 		text = urllib.parse.quote(text).split('%7C')
@@ -183,7 +185,7 @@ class ImageGeneration(commands.Cog, name='Image Generation'):
 		) as s:
 			imgraw = await s.get(f'https://memes.aero.bot/api/meme?avatar1={image}&top_text={text[0]}&bottom_text={text[1]}')
 			if imgraw.status != 200:
-				return await ctx.error('Something went wrong...')
+				return await ctx.error(f'Something went wrong ({imgraw.status})')
 			imgraw = await imgraw.read()
 			await s.close()
 		file = discord.File(BytesIO(imgraw), f'spicymeme.png')
