@@ -55,7 +55,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		]
 		self.secrets = r'(club\.sk1er\.mods\.levelhead\.auth\.MojangAuth|api\.sk1er\.club\/auth|LoginPacket|SentryAPI\.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :)'
 		self.emailre = r'[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}'
-		self.urlre = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
+		self.urlre = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
 		self.homere = r'(/Users/\w+|/home/\w+|C:\\Users\\\w+)'
 		self.solutions = json.load(open('sk1er_solutions.json'))
 		self.modconf = json.load(open('mods.json'))
@@ -301,7 +301,9 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 					self.bot.logger.error(f'$REDFailed to decode log sent by $CYAN{message.author}', exc_info=e)
 					return # give up, leave the file there
 			txt = re.sub(self.emailre, '[removed email]', txt, 0, re.MULTILINE)
-			txt = re.sub(self.urlre, '[removed url]', txt, 0, re.MULTILINE)
+			for u in re.findall(self.urlre, txt, re.MULTILINE):
+				if 'sk1er.club' not in u:
+					txt.replace(u, '[removed url]')
 			txt = re.sub(self.homere, 'USER.HOME', txt, 0, re.MULTILINE)
 			for line in txt.split('\n'):
 				if re.findall(self.secrets, line, re.MULTILINE):
@@ -321,7 +323,9 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		if not message.attachments and len(message.content) > 350:
 			txt = message.content
 			txt = re.sub(self.emailre, '[removed email]', txt, 0, re.MULTILINE)
-			txt = re.sub(self.urlre, '[removed url]', txt, 0, re.MULTILINE)
+			for u in re.findall(self.urlre, txt, re.MULTILINE):
+				if 'sk1er.club' not in u:
+					txt.replace(u, '[removed url]')
 			txt = re.sub(self.homere, 'USER.HOME', txt, 0, re.MULTILINE)
 			for line in txt.split('\n'):
 				if re.findall(self.secrets, line, re.MULTILINE):
