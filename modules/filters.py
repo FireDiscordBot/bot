@@ -16,14 +16,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-from fire.filters.youtube import findchannel, findvideo
-from fire.filters.twitter import findtwitter
-from fire.filters.shorten import findshort
-from fire.filters.invite import findinvite
-from fire.filters.paypal import findpaypal
-from fire.filters.twitch import findtwitch
-from fire.filters.gift import findgift
-from fire.filters.sku import findsku
+from fire.filters.youtube import findchannel, findvideo, replacechannel, replacevideo
+from fire.filters.twitter import findtwitter, replacetwitter
+from fire.filters.shorten import findshort, replaceshort
+from fire.filters.invite import findinvite, replaceinvite
+from fire.filters.paypal import findpaypal, replacepaypal
+from fire.filters.twitch import findtwitch, replacetwitch
+from fire.filters.gift import findgift, replacegift
+from fire.filters.sku import findsku, replacesku
 from discord.ext import commands
 import functools
 import datetime
@@ -76,6 +76,22 @@ class Filters(commands.Cog):
             await self.safe_exc(self.handle_gift, message, extra)
         if 'sku' not in exclude:
             await self.safe_exc(self.handle_sku, message, extra)
+
+    def run_replace(self, text):
+        filters = [
+            replacechannel,
+            replacevideo,
+            replacetwitter,
+            replaceshort,
+            replaceinvite,
+            replacepaypal,
+            replacetwitch,
+            replacegift,
+            replacesku
+        ]
+        for f in filters:
+            text = f(text)
+        return text
 
     async def handle_invite(self, message, extra):
         tosearch = str(message.system_content) + str([e.to_dict() for e in message.embeds]) if not extra else extra

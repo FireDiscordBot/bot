@@ -308,6 +308,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			for line in txt.split('\n'):
 				if re.findall(self.secrets, line, re.MULTILINE):
 					txt = txt.replace(line, '[line removed to protect sensitive info]')
+			filters = self.bot.get_cog('Filters')
+			txt = filters.run_replace(txt)
 			if any(t in txt for t in self.logtext) and message.guild.id == 411619823445999637:
 				try:
 					url = await self.bot.haste(txt)
@@ -330,6 +332,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			for line in txt.split('\n'):
 				if re.findall(self.secrets, line, re.MULTILINE):
 					txt = txt.replace(line, '[line removed to protect sensitive info]')
+			filters = self.bot.get_cog('Filters')
+			txt = filters.run_replace(txt)
 			if any(t in message.content for t in self.logtext) and message.guild.id == 411619823445999637:
 				try:
 					url = await self.bot.haste(txt)
