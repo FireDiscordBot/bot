@@ -208,6 +208,9 @@ class Assistant(commands.Cog, name='Google Assistant'):
 				namere = '<div class=\"show_text_content\">Your name is .*\.<\/div>'
 				namesub = f'<div class=\'show_text_content\'>Your name is {ctx.author.name}.</div>'
 				await session.execute_script(f'document.body.innerHTML = document.body.innerHTML.replace(/{namere}/gm, "{namesub}");')
+				namere = '<div class=\"show_text_content\">I remember you telling me your name was .*\.<\/div>'
+				namesub = f'<div class=\'show_text_content\'>I remember you telling me your name was {ctx.author.name}.</div>'
+				await session.execute_script(f'document.body.innerHTML = document.body.innerHTML.replace(/{namere}/gm, "{namesub}");')
 			except Exception:
 				pass
 				# await ctx.error('script did an oopsie')
