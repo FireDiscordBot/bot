@@ -142,7 +142,7 @@ class RolePersist(commands.Cog):
         rps = await self.get_role_persists(ctx.guild.id)
         if not rps:
             rps = {}
-        if user.id not in rps:
+        if str(user.id) not in rps:
             insert = True
             rps[str(user.id)] = []
         toremove = []
