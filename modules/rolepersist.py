@@ -74,7 +74,7 @@ class RolePersist(commands.Cog):
         rps = await self.get_role_persists(guild.id)
         if not rps:
             return
-        if after.id not in rps:
+        if str(after.id) not in rps:
             return
         if before.roles != after.roles:
             broles = []
@@ -203,9 +203,9 @@ class RolePersist(commands.Cog):
             except Exception:
                 pass
         if names:
-            return await ctx.success(f'{discord.utils.escape_mentions(str(user))} now has the roles {names} persisted to them')
+            return await ctx.success(f'**{discord.utils.escape_mentions(str(user))}** now has the role(s) {names} persisted to them')
         else:
-            return await ctx.success(f'{discord.utils.escape_mentions(str(user))} no longer has any persisted roles.')
+            return await ctx.success(f'**{discord.utils.escape_mentions(str(user))}** no longer has any persisted roles.')
 
 
 def setup(bot):
