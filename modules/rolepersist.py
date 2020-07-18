@@ -91,6 +91,8 @@ class RolePersist(commands.Cog):
                 for rid in roleids:
                     if rid in current:
                         current.remove(rid)
+                if current == rps[str(after.id)]:
+                    return
                 if current:
                     con = await self.bot.db.acquire()
                     async with con.transaction():
