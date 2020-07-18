@@ -57,6 +57,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 		self.emailre = r'[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}'
 		self.urlre = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
 		self.homere = r'(/Users/\w+|/home/\w+|C:\\Users\\\w+)'
+		self.emojire = r'<a?:[a-zA-Z0-9\_]+:([0-9]+)>'
 		self.solutions = json.load(open('sk1er_solutions.json'))
 		self.modconf = json.load(open('mods.json'))
 		self.description_updater.start()
@@ -264,6 +265,9 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			return
 		if not message.guild or message.guild.id != 411619823445999637:
 			return
+		if message.guild.get_role(734143981839188028) in message.author.roles:
+			if re.findall(self.emojire, message.content, re.MULTILINE) or self.bot.len_emoji(message.content):
+				return await message.delete()
 		noraw = re.findall(self.noraw, message.content, re.MULTILINE)
 		if noraw:
 			try:
