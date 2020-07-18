@@ -15,6 +15,7 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+from sentry_sdk.integrations.redis import RedisIntegration, AioHttpIntegration
 from logging.handlers import TimedRotatingFileHandler
 from jishaku.modules import resolve_extensions
 import core.coloredformat as colorformat
@@ -70,7 +71,7 @@ class Fire(commands.Bot):
 
         # SENTRY
         if 'sentry' in self.config:
-            sentry_sdk.init(self.config['sentry'])
+            sentry_sdk.init(self.config['sentry'], integrations=[RedisIntegration(), AioHttpIntegration()])
 
         # REDIS
         self.redis = None
