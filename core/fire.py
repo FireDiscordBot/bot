@@ -15,7 +15,8 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from sentry_sdk.integrations.redis import RedisIntegration, AioHttpIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
+from sentry_sdk.integrations.aiohttp import AioHttpIntegration
 from logging.handlers import TimedRotatingFileHandler
 from jishaku.modules import resolve_extensions
 import core.coloredformat as colorformat
