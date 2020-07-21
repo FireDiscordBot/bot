@@ -54,7 +54,7 @@ class Quotes(commands.Cog, name="Quotes"):
             if lines:
                 embed.description = '\n'.join(lines)
         embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
-        if message.attachments and message.channel.overwrites_for(message.guild.default_role).read_messages in [None, True]:
+        if message.attachments:
             if len(message.attachments) == 1 and message.attachments[0].url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')):
                 embed.set_image(url=message.attachments[0].url)
             else:
@@ -63,7 +63,7 @@ class Quotes(commands.Cog, name="Quotes"):
         embed.set_author(
             name=str(message.author),
             icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)),
-            url=f'https://discord.com/channels/{message.guild.id}/{message.channel.id}/{message.id}'
+            url=f'https://discordapp.com/channels/{message.guild.id}/{message.channel.id}/{message.id}'
         )
         if message.channel != context_channel:
             if message.channel.guild != context_channel.guild:
@@ -132,7 +132,7 @@ class Quotes(commands.Cog, name="Quotes"):
                         return
                 elif not ctx.author.permissions_in(message.channel).read_messages:
                     return
-            elif message.channel.overwrites_for(message.guild.default_role).read_messages is False:
+            elif message.channel.overwrites_for(message.guild.default_role).read_messages not in [None, True]:
                 member = message.guild.get_member(ctx.author.id)
                 if not member:
                     return
@@ -173,7 +173,6 @@ class Quotes(commands.Cog, name="Quotes"):
                         avatar_url=str(message.author.avatar_url_as(static_format='png')),
                         embeds=[e for e in message.embeds if not ('url' in e.to_dict() and e.to_dict()['url'] in (content or ''))],
                         files=[(await a.to_file()) for a in message.attachments if a.size < 8388608]
-                        if message.channel.overwrites_for(message.guild.default_role).read_messages in [None, True] else []
                     )
                 except Exception as e:
                     self.bot.logger.warn(f'$YELLOWFailed to use webhook for quotes in $CYAN{ctx.channel} ({ctx.guild})', exc_info=e)
