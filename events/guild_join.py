@@ -35,9 +35,10 @@ class GuildAdd(commands.Cog):
             self.bot.configs[guild] = GuildConfig(guild.id, bot=self.bot, db=self.bot.db)
             await self.bot.get_config(guild).load()
         fire = self.bot.get_guild(564052798044504084)
-        await fire.edit(description=f'Fire is an open-source, multi-purpose bot '
-                                    f'with {len(self.bot.commands)} commands and is used in '
-                                    f'{len(self.bot.guilds)} servers.'
+        desc = self.bot.get_cog('Description')
+        await desc.set_desc(fire, f'Fire is an open-source, multi-purpose bot '
+                                  f'with {len(self.bot.commands)} commands and is used in '
+                                  f'{len(self.bot.guilds)} servers.'
         )
         self.bot.logger.info(f'$GREENFire joined a new guild! '
                              f'$CYAN{guild.name}({guild.id}) '
