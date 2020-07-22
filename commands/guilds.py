@@ -40,7 +40,7 @@ class Guilds(commands.Cog):
         if not self.bot.isadmin(ctx.author):
             return await ctx.error('no')
         data = [
-            ['Name', 'ID', 'Members', 'Channels', 'Boosts', 'Shard', 'Public']
+            ['Name', 'ID', 'Members', 'Channels', 'Boosts', 'Shard']
         ]
         for guild in sorted(self.bot.guilds, key=lambda g: g.member_count, reverse=True):
             data.append([
@@ -50,7 +50,6 @@ class Guilds(commands.Cog):
                 len(guild.channels),
                 guild.premium_subscription_count,
                 guild.shard_id,
-                'PUBLIC' in guild.features
             ])
         table = AsciiTable(data)
         header = table.table.split('\n')[:3]

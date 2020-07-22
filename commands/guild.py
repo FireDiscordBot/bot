@@ -57,7 +57,6 @@ featureslist = {
     'COMMERCE': '[Store Channels](https://dis.gd/sell-your-game)',
     'VERIFIED': '[Verified](https://dis.gd/vfs)',
     'BANNER': 'Banner',
-    'PUBLIC': 'Public',
     'NEWS': '[Announcement Channels](https://support.discord.com/hc/en-us/articles/360032008192)',
     # CUSTOM FEATURES
     'PREMIUM': '<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)'
