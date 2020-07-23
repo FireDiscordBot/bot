@@ -283,7 +283,7 @@
             {
                 "name": "description",
                 "description": "Set the description for the server that shows in Vanity URLs",
-                "usage": "{prefix}description <desccription>",
+                "usage": "{prefix}description <description>",
                 "aliases": "desc"
             },
             {
