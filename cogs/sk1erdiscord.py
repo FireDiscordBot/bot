@@ -352,7 +352,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 				return await message.channel.send(f'{message.author} sent a log, {url}\n\n{solutions}')
 
 	@commands.command()
-	async def specs(self, ctx, *, user: Member = None, flags: flags.FlagParser(
+	async def specs(self, ctx, user: Member = None, flags: flags.FlagParser(
 		remove=bool
 	) = flags.EmptyFlags):
 		user = user if user else ctx.author
