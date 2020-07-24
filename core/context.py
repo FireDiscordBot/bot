@@ -48,14 +48,14 @@ class Context(commands.Context):
         self.uconfig = self.bot.get_config(self.author)
         self.silent = False
 
-    async def success(self, message: str):
-        await self.send(f'<:check:674359197378281472> {message}')
+    async def success(self, message: str, **kwargs):
+        await self.send(f'<:check:674359197378281472> {message}', **kwargs)
 
-    async def warning(self, message: str):
-        await self.send(f'<a:fireWarning:660148304486727730> {message}')
+    async def warning(self, message: str, **kwargs):
+        await self.send(f'<a:fireWarning:660148304486727730> {message}', **kwargs)
 
-    async def error(self, message: str):
-        await self.send(f'<:xmark:674359427830382603> {message}')
+    async def error(self, message: str, **kwargs):
+        await self.send(f'<:xmark:674359427830382603> {message}', **kwargs)
 
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):
         if content:
