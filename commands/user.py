@@ -192,7 +192,7 @@ class UserInfo(commands.Cog):
                 gban = await self.get_ksoft_ban(uinfo)
             except Exception:
                 pass
-            if self.bot.chatwatch.connected:
+            if hasattr(self.bot, 'chatwatch') and self.bot.chatwatch.connected:
                 try:
                     cwbl = await self.get_chatwatch(uinfo)
                 except Exception:
