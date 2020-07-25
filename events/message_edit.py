@@ -28,12 +28,6 @@ class MessageEdit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def safe_exc(self, coro, *args, **kwargs):
-        try:
-            await coro(*args, **kwargs)
-        except Exception:
-            pass
-
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         if not after.guild and not (before.content == after.content or after.author.bot):
@@ -49,18 +43,6 @@ class MessageEdit(commands.Cog):
             # with suppress(Exception):
             await filters.run_all(message)
         logch = self.bot.get_config(after.guild).get('log.action')
-        if after.channel.is_news():
-            if before.flags.crossposted != after.flags.crossposted:
-                if logch:
-                    embed = discord.Embed(color=discord.Color.green(), timestamp=after.created_at, description=f'**A message was published in** {after.channel.mention}')
-                    embed.set_author(name=after.guild.name, icon_url=str(after.guild.icon_url))
-                    embed.add_field(name='Message Author', value=after.author.mention, inline=False)
-                    embed.add_field(name='Message', value=f'[Click Here]({after.jump_url})', inline=False)
-                    embed.set_footer(text=f"Author ID: {after.author.id} | Message ID: {after.id} | Channel ID: {after.channel.id}")
-                    try:
-                        await logch.send(embed=embed)
-                    except Exception:
-                        pass
         if before.content == after.content or after.author.bot:
             return
         if logch:
