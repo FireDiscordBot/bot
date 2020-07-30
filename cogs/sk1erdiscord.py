@@ -109,7 +109,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 			if ctx.kwargs.get('role', None) == fake and fake in ctx.author.roles:
 				await ctx.author.remove_roles(fake)
 				if not (await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', ctx.author.id)):
-					await ctx.send(f'{ctx.author.mention} To become a beta tester ,'
+					await ctx.send(f'{ctx.author.mention} To become a beta tester,'
 							   f' please provide your specs through this form: '
 							   f'\n<https://inv.wtf/sk1spec>\n\n'
 							   f'You will automatically gain access to beta channels after filling in the form'
