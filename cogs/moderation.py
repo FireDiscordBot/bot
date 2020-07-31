@@ -371,7 +371,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
 
 	@commands.command(aliases=["banish", "begone", "gtfo", "410", "perish", "bonk", "bean"], description="Ban a user from the server")
-	@commands.has_permissions(manage_messages=True)
+	@commands.has_permissions(ban_members=True)
 	@commands.bot_has_permissions(ban_members=True)
 	async def ban(self, ctx, user: typing.Union[StaffCheck, UserWithFallback] = None, *, reason: str = "No Reason Provided.", ):
 		try:
@@ -435,7 +435,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 			await ctx.error("Ban failed. Are you trying to ban someone higher than the bot?")
 
 	@commands.command(aliases=["unbanish"], description="Unban a user from the server")
-	@commands.has_permissions(manage_messages=True)
+	@commands.has_permissions(ban_members=True)
 	@commands.bot_has_permissions(ban_members=True)
 	async def unban(self, ctx, user: UserWithFallback = None, *, reason: str = "No Reason Provided."):
 		try:
@@ -472,7 +472,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await self.bot.db.release(con)
 
 	@commands.command(description="Temporarily restricts access to this server.")
-	@commands.has_permissions(manage_messages=True)
+	@commands.has_permissions(ban_members=True)
 	@commands.bot_has_permissions(ban_members=True)
 	async def softban(self, ctx, user: StaffCheck = None, messages: int = 7, *, reason = "No Reason Provided."):
 		try:
@@ -688,7 +688,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
 		await interface.send_to(ctx)
 
 	@commands.command(description="Kick a user.", aliases=["yeet", "409"])
-	@commands.has_permissions(manage_messages=True)
+	@commands.has_permissions(kick_members=True)
 	@commands.bot_has_permissions(kick_members=True)
 	async def kick(self, ctx, user: StaffCheck = None, *, reason = "No Reason Provided."):
 		await ctx.trigger_typing()

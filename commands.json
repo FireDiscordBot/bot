@@ -333,7 +333,6 @@
     {
         "id": 9,
         "name": "Moderation",
-        "Note": "Users with the \"Manage Messages\" permission are considered moderators! This will most likely change in the future.",
         "commands": [
             {
                 "name": "ban",
