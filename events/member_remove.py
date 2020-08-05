@@ -17,6 +17,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from discord.ext import commands
+import humanfriendly
 import datetime
 import discord
 import traceback
@@ -68,17 +69,29 @@ class MemberRemove(commands.Cog):
                             action = 'Banned'
                             reason = e.reason
                         break
-            embed = discord.Embed(title='Member Left', url='https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif', color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
-            embed.set_author(name=f'{member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
+            embed = discord.Embed(title='Member Left', url='https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif',
+                                  color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
+            embed.set_author(name=f'{member}', icon_url=str(
+                member.avatar_url_as(static_format='png', size=2048)))
+            delta = humanfriendly.format_timespan(
+                datetime.datetime.utcnow() - user.created_at,
+                max_units=2
+            )
+            embed.add_field(name='Stayed for', value=delta, inline=False)
             if member.nick:
-                embed.add_field(name='Nickname', value=member.nick, inline=False)
-            roles = [role.mention for role in member.roles if role != member.guild.default_role]
+                embed.add_field(name='Nickname',
+                                value=member.nick, inline=False)
+            roles = [role.mention for role in member.roles if role !=
+                     member.guild.default_role]
             if roles:
-                embed.add_field(name='Roles', value=', '.join(roles), inline=False)
+                embed.add_field(
+                    name='Roles', value=', '.join(roles), inline=False)
             if moderator and action:
-                embed.add_field(name=f'{action} By', value=f'{moderator} ({moderator.id})', inline=False)
+                embed.add_field(
+                    name=f'{action} By', value=f'{moderator} ({moderator.id})', inline=False)
             if action and reason:
-                embed.add_field(name=f'{action} for', value=reason, inline=False)
+                embed.add_field(name=f'{action} for',
+                                value=reason, inline=False)
             embed.set_footer(text=f'User ID: {member.id}')
             try:
                 await logch.send(embed=embed)
@@ -91,4 +104,5 @@ def setup(bot):
         bot.add_cog(MemberRemove(bot))
         bot.logger.info(f'$GREENLoaded event $CYANMemberRemove!')
     except Exception as e:
-        bot.logger.error(f'$REDError while loading event $CYAN"MemberRemove"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while loading event $CYAN"MemberRemove"', exc_info=e)
