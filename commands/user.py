@@ -62,30 +62,41 @@ class UserInfo(commands.Cog):
             return f'<:xmark:674359427830382603> Banned on [KSoft.Si](https://bans.ksoft.si/share?user={user.id}) for {ksoftban.reason} - [Proof]({ksoftban.proof})'
         return ''
 
-    def get_badges(self, user: typing.Union[discord.User, discord.Member]):  # I will improve this when discord.py gets actual flags support
+    # I will improve this when discord.py gets actual flags support
+    def get_badges(self, user: typing.Union[discord.User, discord.Member]):
         badges = []
         if self.bot.isadmin(user):
-            badges.append(str(discord.utils.get(self.bot.emojis, id=671243744774848512)))
+            badges.append(str(discord.utils.get(
+                self.bot.emojis, id=671243744774848512)))
         if (user.flags & 1) == 1:  # Staff
-            badges.append(str(discord.utils.get(self.bot.emojis, id=698344463281422371)))
+            badges.append(str(discord.utils.get(
+                self.bot.emojis, id=698344463281422371)))
         if (user.flags & 2) == 2:  # Partner
-            badges.append(str(discord.utils.get(self.bot.emojis, id=631831109575114752)))
+            badges.append(str(discord.utils.get(
+                self.bot.emojis, id=631831109575114752)))
         if (user.flags & 1 << 2) == 1 << 2:  # Hypesquad Events
-            badges.append(str(discord.utils.get(self.bot.emojis, id=698349980192079882)))
+            badges.append(str(discord.utils.get(
+                self.bot.emojis, id=698349980192079882)))
         if (user.flags & 1 << 3) == 1 << 3:  # Bug Hunter (Level 1)
-            badges.append(str(discord.utils.get(self.bot.emojis, id=698350213596971049)))
+            badges.append(str(discord.utils.get(
+                self.bot.emojis, id=698350213596971049)))
         if (user.flags & 1 << 9) == 1 << 9:  # Early Supporter
-            badges.append(str(discord.utils.get(self.bot.emojis, id=698350657073053726)))
+            badges.append(str(discord.utils.get(
+                self.bot.emojis, id=698350657073053726)))
         if (user.flags & 1 << 14) == 1 << 14:  # Bug Hunter (Level 2)
-            badges.append(str(discord.utils.get(self.bot.emojis, id=698350544103669771)))
+            badges.append(str(discord.utils.get(
+                self.bot.emojis, id=698350544103669771)))
         if (user.flags & 1 << 16) == 1 << 16:  # Verified Bot
             badges.append(
-                str(discord.utils.get(self.bot.emojis, id=700325427998097449)) + str(discord.utils.get(self.bot.emojis, id=700325521665425429))
+                str(discord.utils.get(self.bot.emojis, id=700325427998097449)) +
+                str(discord.utils.get(self.bot.emojis, id=700325521665425429))
             )
         if (user.flags & 1 << 17) == 1 << 17:  # Verified Bot Developer
-            badges.append(str(discord.utils.get(self.bot.emojis, id=720179031785340938)))
+            badges.append(str(discord.utils.get(
+                self.bot.emojis, id=720179031785340938)))
         if user.id in self.bot.premium_guilds.values():
-            badges.append(str(discord.utils.get(self.bot.emojis, id=680519037704208466)))
+            badges.append(str(discord.utils.get(
+                self.bot.emojis, id=680519037704208466)))
         if badges:
             badges.append(u'\u200b')  # Prevents huge emojis on mobile
         return badges
@@ -148,7 +159,8 @@ class UserInfo(commands.Cog):
             uinfo = ctx.guild.get_member(uinfo.id)
         if isinstance(uinfo, discord.ClientUser):
             uinfo = ctx.me
-        color = uinfo.color if isinstance(uinfo, discord.Member) else ctx.author.color
+        color = uinfo.color if isinstance(
+            uinfo, discord.Member) else ctx.author.color
         badges = self.get_badges(uinfo)
         info = self.get_info(ctx, uinfo)
         embed = discord.Embed(
@@ -182,9 +194,11 @@ class UserInfo(commands.Cog):
                     if value and perm in permissions:
                         perms.append(permissions[perm])
                 if perms:
-                    embed.add_field(name="» Key Permissions", value=', '.join(perms), inline=False)
+                    embed.add_field(name="» Key Permissions",
+                                    value=', '.join(perms), inline=False)
             else:
-                embed.add_field(name="» Permissions", value='Administrator', inline=False)
+                embed.add_field(name="» Permissions",
+                                value='Administrator', inline=False)
         if not uinfo.bot:
             gban = None
             cwbl = None
@@ -199,7 +213,8 @@ class UserInfo(commands.Cog):
                     pass
             notes = [n for n in [gban, cwbl] if n]
             if notes:
-                embed.add_field(name=f'» Notes', value='\n'.join(notes), inline=False)
+                embed.add_field(name=f'» Notes',
+                                value='\n'.join(notes), inline=False)
         embed.set_footer(text=str(uinfo.id))
         await ctx.send(embed=embed)
 
@@ -209,4 +224,5 @@ def setup(bot):
         bot.add_cog(UserInfo(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"user" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"user"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"user"', exc_info=e)

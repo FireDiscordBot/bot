@@ -70,12 +70,16 @@ class DiscordStatus(commands.Cog):
             else:
                 groups[c['group_id']].append(c)
         for c in [c for c in summary['components'] if not c['group_id']]:
-            desc.append(f'├{emoji[c["status"]]} **{c["name"]}**: {c["status"].replace("_", " ").title()}')
+            desc.append(
+                f'├{emoji[c["status"]]} **{c["name"]}**: {c["status"].replace("_", " ").title()}')
             for s in groups.get(c['id'], []):
-                desc.append(f'├─{emoji[s["status"]]} **{s["name"]}**: {s["status"].replace("_", " ").title()}')
-        embed = discord.Embed(color=colors[str(summary['status']['indicator'])], title=summary['status']['description'], timestamp=datetime.datetime.now(datetime.timezone.utc), description='\n'.join(desc))
+                desc.append(
+                    f'├─{emoji[s["status"]]} **{s["name"]}**: {s["status"].replace("_", " ").title()}')
+        embed = discord.Embed(color=colors[str(summary['status']['indicator'])], title=summary['status']
+                              ['description'], timestamp=datetime.datetime.now(datetime.timezone.utc), description='\n'.join(desc))
         incident = incidents['incidents'][0]
-        embed.add_field(name='Latest Incident', value=f'[{incident["name"]}]({incident["shortlink"]})\nStatus: **{incident["status"].capitalize()}**')
+        embed.add_field(name='Latest Incident',
+                        value=f'[{incident["name"]}]({incident["shortlink"]})\nStatus: **{incident["status"].capitalize()}**')
         await ctx.send(embed=embed)
 
 
@@ -84,4 +88,5 @@ def setup(bot):
         bot.add_cog(DiscordStatus(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"dstatus" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"dstatus"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"dstatus"', exc_info=e)

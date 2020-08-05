@@ -40,16 +40,19 @@ class Config:
     @ConfigOpt(name='utils.tips', accepts=bool, default=True, options=options)
     async def tips(self, value: bool):
         '''Tips | Fire will sometimes add a helpful tip to the response from a command'''
-        self._bot.logger.info(f'$GREENSetting $CYANutils.tips $GREENto $CYAN{value} $GREENfor user $CYAN{self._user}')
+        self._bot.logger.info(
+            f'$GREENSetting $CYANutils.tips $GREENto $CYAN{value} $GREENfor user $CYAN{self._user}')
         await self.update('utils.tips', value)
 
     def get(self, option):
         if option not in self.options:
             raise InvalidOptionError(option)
         if self.options[option]['restricted'] and self._user.id not in self.options[option]['restricted']:
-            return self.options[option]['default']  # Return default value if restricted :)
+            # Return default value if restricted :)
+            return self.options[option]['default']
         if option not in self._data:
-            return self.options[option]['default']  # Return default value if it's not even in the config :)
+            # Return default value if it's not even in the config :)
+            return self.options[option]['default']
         accept = self.options[option]['accepts']
         acceptlist = False
         if isinstance(self._user, discord.User):
@@ -80,18 +83,21 @@ class Config:
         if not inspect.isfunction(setter):
             raise OptionConfigError(option)
         if not isinstance(option['accepts'], list) and not isinstance(value, option['accepts']) and value is not None:
-            raise TypeMismatchError(type=value.__class__.__name__, accepted=option['accepts'].__name__, option=opt)
+            raise TypeMismatchError(
+                type=value.__class__.__name__, accepted=option['accepts'].__name__, option=opt)
         if isinstance(option['accepts'], list):
             accepts = option['accepts'][0]
             if not isinstance(value, list) or any(not isinstance(v, accepts) for v in value):
                 if isinstance(value, list) and len(value) >= 1:
-                    raise TypeMismatchError(type=[t.__class__.__name__ for t in value if not isinstance(t, accepts)], accepted=[t.__name__ for t in option['accepts']], option=opt)
-                raise TypeMismatchError(type=value.__class__.__name__, accepted=option['accepts'].__class__.__name__, option=opt)
+                    raise TypeMismatchError(type=[t.__class__.__name__ for t in value if not isinstance(
+                        t, accepts)], accepted=[t.__name__ for t in option['accepts']], option=opt)
+                raise TypeMismatchError(
+                    type=value.__class__.__name__, accepted=option['accepts'].__class__.__name__, option=opt)
         await setter(self, value)
         return self.get(opt)
 
     async def update(self, option: str, value):
-        changed = False # Don't need to save if nothing changed lol
+        changed = False  # Don't need to save if nothing changed lol
         default = self.options[option]['default']
         if value == default:
             v = self._data.pop(option, None)

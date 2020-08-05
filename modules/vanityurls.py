@@ -48,7 +48,8 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         try:
             await self.bot.http.invwtf.request(route)
         except Exception as e:
-            self.bot.logger.warn(f'$YELLOWFailed to request vanity url fetch', exc_info=e)
+            self.bot.logger.warn(
+                f'$YELLOWFailed to request vanity url fetch', exc_info=e)
 
     async def get_vanity(self, code: str):
         route = Route(
@@ -61,7 +62,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
             return False
 
     @commands.Cog.listener()
-    async def on_vanity_delete(self, vanity = None):
+    async def on_vanity_delete(self, vanity=None):
         await self.request_fetch()
         if isinstance(vanity, list):
             vanity = vanity[0]
@@ -108,7 +109,8 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         }
 
     async def delete_ctx(self, ctx: commands.Context):
-        self.bot.logger.warn(f'$YELLOWDeleting vanity for guild $CYAN{ctx.guild}')
+        self.bot.logger.warn(
+            f'$YELLOWDeleting vanity for guild $CYAN{ctx.guild}')
         current = await self.bot.db.fetch(
             'SELECT * FROM vanity WHERE gid=$1;',
             ctx.guild.id
@@ -171,7 +173,8 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         # gmembers = f'⭘ {len(ctx.guild.members):,d} Members'
         # desc = ctx.config.get('main.description') or f'Check out {ctx.guild} on Discord'
         # desc = f'[{ctx.guild}]({current.get("url", "https://inv.wtf/")})\n{desc}\n\n{gmembers}'
-        embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
+        embed = discord.Embed(
+            color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
         splash = str(
             (ctx.guild.splash_url or ctx.guild.discovery_splash_url)
         ).replace('.webp?size=2048', '.png?size=320')
@@ -181,7 +184,8 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
             embed.set_image(url=splash)
         embed.add_field(name='Clicks', value=current['clicks'])
         embed.add_field(name='Links', value=current['links'])
-        embed.add_field(name='URL', value=f'https://inv.wtf/{current["code"]}', inline=False)
+        embed.add_field(
+            name='URL', value=f'https://inv.wtf/{current["code"]}', inline=False)
         return await ctx.send(embed=embed)
 
     @commands.command(description='Creates a vanity invite for your Discord using https://inv.wtf/')
@@ -225,7 +229,8 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
                     slackmsg = await slack.sendvanity(f'/{code}', ctx.author, ctx.guild)
                     self.bot.slack_messages[f'vanity_{ctx.guild.id}'] = slackmsg
                 except PushError as e:
-                    self.bot.logger.error(f'$REDUnable to send Vanity URL to Slack!', exc_info=e)
+                    self.bot.logger.error(
+                        f'$REDUnable to send Vanity URL to Slack!', exc_info=e)
                     if 'vanityapiurl' not in self.bot.config:
                         self.bot.config['vanityurlapi'] = 'https://http.cat/404'
                     await pushover(f'{author} ({ctx.author.id}) has created the Vanity URL `https://inv.wtf/{vanity["code"]}` for {ctx.guild.name}', url=self.bot.config['vanityurlapi'], url_title='Check current Vanity URLs')

@@ -34,9 +34,11 @@ class Tips(commands.Cog):
         else:
             return await ctx.success(f'You will no longer see tips when running commands')
 
+
 def setup(bot):
     try:
         bot.add_cog(Tips(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"tips" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"tips"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"tips"', exc_info=e)

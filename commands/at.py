@@ -34,8 +34,8 @@ class Autotip(commands.Cog):
         try:
             m = await self.bot.wait_for(
                 'message',
-                 check=lambda m: m.channel.id == self.channel and m.attachments,
-                 timeout=15
+                check=lambda m: m.channel.id == self.channel and m.attachments,
+                timeout=15
             )
             return await ctx.send(file=(await m.attachments[0].to_file()))
         except asyncio.TimeoutError:
@@ -47,4 +47,5 @@ def setup(bot):
         bot.add_cog(Autotip(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"at" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"at"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"at"', exc_info=e)

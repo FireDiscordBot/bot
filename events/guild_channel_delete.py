@@ -34,11 +34,15 @@ class GuildChannelDelete(commands.Cog):
                     if e.target.id == channel.id:
                         deletedby = e.user
                         break
-            embed = discord.Embed(color=discord.Color.red(), timestamp=channel.created_at, description=f'**Channel deleted: #{channel.name}**')
+            embed = discord.Embed(color=discord.Color.red(
+            ), timestamp=channel.created_at, description=f'**Channel deleted: #{channel.name}**')
             if deletedby:
-                embed.add_field(name='Deleted By', value=f'{deletedby} ({deletedby.id})', inline=False)
-            embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
-            embed.set_footer(text=f"Channel ID: {channel.id} | Guild ID: {channel.guild.id}")
+                embed.add_field(
+                    name='Deleted By', value=f'{deletedby} ({deletedby.id})', inline=False)
+            embed.set_author(name=channel.guild.name,
+                             icon_url=str(channel.guild.icon_url))
+            embed.set_footer(
+                text=f"Channel ID: {channel.id} | Guild ID: {channel.guild.id}")
             try:
                 await logch.send(embed=embed)
             except Exception:
@@ -50,4 +54,5 @@ def setup(bot):
         bot.add_cog(GuildChannelDelete(bot))
         bot.logger.info(f'$GREENLoaded event $CYANGuildChannelDelete!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding event $CYAN"GuildChannelDelete"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding event $CYAN"GuildChannelDelete"', exc_info=e)

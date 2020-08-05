@@ -32,7 +32,8 @@ class KsoftBan(commands.Cog):
             user = await self.bot.fetch_user(int(event['id']))
         except Exception:
             return
-        self.bot.logger.warn(f'$CYAN{user} ({user.id}) $YELLOWwas banned on KSoft for $CYAN{event["reason"]} $YELLOWby $CYAN{event["moderator_id"]}$YELLOW. Proof: $CYAN{event["proof"]}')
+        self.bot.logger.warn(
+            f'$CYAN{user} ({user.id}) $YELLOWwas banned on KSoft for $CYAN{event["reason"]} $YELLOWby $CYAN{event["moderator_id"]}$YELLOW. Proof: $CYAN{event["proof"]}')
         for guild in self.bot.guilds:
             if self.bot.get_config(guild).get('mod.globalbans'):
                 logch = self.bot.get_config(guild).get('log.moderation')
@@ -42,9 +43,12 @@ class KsoftBan(commands.Cog):
                         await guild.ban(member, reason=f'{member} was found on global ban list')
                         self.recentgban.append(f'{member.id}-{guild.id}')
                         if logch:
-                            embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{member.mention} was banned**')
-                            embed.set_author(name=str(member), icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-                            embed.add_field(name='Reason', value=f'{member} was found on global ban list\n\nBanned for: {event["reason"]}', inline=False)
+                            embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(
+                                datetime.timezone.utc), description=f'**{member.mention} was banned**')
+                            embed.set_author(name=str(member), icon_url=str(
+                                member.avatar_url_as(static_format='png', size=2048)))
+                            embed.add_field(
+                                name='Reason', value=f'{member} was found on global ban list\n\nBanned for: {event["reason"]}', inline=False)
                             embed.set_footer(text=f"Member ID: {member.id}")
                             try:
                                 await logch.send(embed=embed)
@@ -59,4 +63,5 @@ def setup(bot):
         bot.add_cog(KsoftBan(bot))
         bot.logger.info(f'$GREENLoaded event $CYANKsoftBan!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding event $CYAN"KsoftBan"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding event $CYAN"KsoftBan"', exc_info=e)

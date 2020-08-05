@@ -33,12 +33,15 @@ class Skin(commands.Cog):
             return await ctx.error('That player does not exist')
         embed = discord.Embed(color=ctx.author.color)
         embed.set_image(url=f'https://visage.surgeplay.com/full/512/{uid}')
-        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=str(ctx.author.avatar_url_as(static_format='png', size=2048)))
+        embed.set_footer(text=f'Requested by {ctx.author}', icon_url=str(
+            ctx.author.avatar_url_as(static_format='png', size=2048)))
         await ctx.send(embed=embed)
+
 
 def setup(bot):
     try:
         bot.add_cog(Skin(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"skin" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"skin"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"skin"', exc_info=e)

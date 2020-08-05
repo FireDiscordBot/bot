@@ -26,7 +26,8 @@ class Chatwatch(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         if not hasattr(self.bot, 'chatwatch'):
-            self.bot.chatwatch = ChatWatch(bot.config['chatwatch'], self.bot.logger)
+            self.bot.chatwatch = ChatWatch(
+                bot.config['chatwatch'], self.bot.logger)
         self.bot.chatwatch.register_listener(self.handle)
 
     async def handle(self, event):
@@ -40,7 +41,8 @@ class Chatwatch(commands.Cog):
             if not chance or chance < 65:
                 return
             if data['scores']['content'] >= chance:
-                message = discord.utils.get(self.bot.cached_messages, id=int(data['message']['id']))
+                message = discord.utils.get(
+                    self.bot.cached_messages, id=int(data['message']['id']))
                 if message and guild.me.permissions_in(channel).manage_messages:
                     try:
                         await message.delete()

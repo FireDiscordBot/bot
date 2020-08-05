@@ -44,7 +44,8 @@ class Quotes(commands.Cog, name="Quotes"):
             urlre = r'((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.jpeg|\.gif|\.gifv|\.webp)))'
             search = re.search(urlre, message.system_content)
             if search and not message.attachments:
-                msg = message.system_content.replace(search.group(0), '').split('\n')
+                msg = message.system_content.replace(
+                    search.group(0), '').split('\n')
                 embed.set_image(url=search.group(0))
             if not msg:
                 msg = message.system_content.split('\n')
@@ -53,23 +54,28 @@ class Quotes(commands.Cog, name="Quotes"):
                     lines.append(f'{line}')
             if lines:
                 embed.description = '\n'.join(lines)
-        embed.add_field(name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
+        embed.add_field(
+            name='Jump URL', value=f'[Click Here]({message.jump_url})', inline=False)
         if message.attachments:
             if len(message.attachments) == 1 and message.attachments[0].url.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.gifv', '.webp', '.bmp')):
                 embed.set_image(url=message.attachments[0].url)
             else:
                 for attachment in message.attachments:
-                    embed.add_field(name='Attachment', value=f'[{attachment.filename}]({attachment.url})', inline=False)
+                    embed.add_field(
+                        name='Attachment', value=f'[{attachment.filename}]({attachment.url})', inline=False)
         embed.set_author(
             name=str(message.author),
-            icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)),
+            icon_url=str(message.author.avatar_url_as(
+                static_format='png', size=2048)),
             url=f'https://discordapp.com/channels/{message.guild.id}/{message.channel.id}/{message.id}'
         )
         if message.channel != context_channel:
             if message.channel.guild != context_channel.guild:
-                embed.set_footer(text=f'Quoted by: {user} | #{message.channel} | {message.channel.guild}')
+                embed.set_footer(
+                    text=f'Quoted by: {user} | #{message.channel} | {message.channel.guild}')
             else:
-                embed.set_footer(text=f'Quoted by: {user} | #{message.channel}')
+                embed.set_footer(
+                    text=f'Quoted by: {user} | #{message.channel}')
         else:
             embed.set_footer(text=f'Quoted by: {user}')
         return embed
@@ -96,11 +102,13 @@ class Quotes(commands.Cog, name="Quotes"):
             reply = re.findall(reply_regex, message.content, re.MULTILINE)
             if reply:
                 return
-            botquote = re.findall(botquote_regex, message.content, re.MULTILINE)
+            botquote = re.findall(
+                botquote_regex, message.content, re.MULTILINE)
             if botquote:
                 return
             url = re.findall(message_regex, message.content, re.MULTILINE)
-            if all(u == url[0] for u in url) and len(url) > 1:  # Checks if it's one url multiple times.
+            # Checks if it's one url multiple times.
+            if all(u == url[0] for u in url) and len(url) > 1:
                 return
             for u in url:
                 if f'<{u}>' in message.content:
@@ -124,7 +132,8 @@ class Quotes(commands.Cog, name="Quotes"):
         if not isinstance(message, discord.Message):
             return
 
-        if str(message.author) in ['Public Server Updates#0000', 'Discord#0000'] and not self.bot.isadmin(ctx.author):  # Prevent quoting from known system users
+        # Prevent quoting from known system users
+        if str(message.author) in ['Public Server Updates#0000', 'Discord#0000'] and not self.bot.isadmin(ctx.author):
             return await ctx.error(f'Cannot quote messages from that user!')
         if message.channel.is_nsfw() and not ctx.channel.is_nsfw():
             return await ctx.error(f'Cannot quote from an NSFW channel in a non-NSFW channel')
@@ -163,26 +172,36 @@ class Quotes(commands.Cog, name="Quotes"):
                         )
                     ]
                 except Exception as e:
-                    self.bot.logger.warn(f'$YELLOWFailed to create webhook for quotes in $CYAN{ctx.channel} ({ctx.guild})', exc_info=e)
+                    self.bot.logger.warn(
+                        f'$YELLOWFailed to create webhook for quotes in $CYAN{ctx.channel} ({ctx.guild})', exc_info=e)
             if existing and isinstance(existing[0], discord.Webhook):
                 try:
                     content = message.content.replace('@!', '@')
                     for m in message.mentions:
-                        content = content.replace(m.mention.replace('@!', '@'), u'@\u200b' + str(m))
+                        content = content.replace(
+                            m.mention.replace('@!', '@'), u'@\u200b' + str(m))
                     if not message.author.bot:
                         content = content.replace('[', '\[').replace(']', '\]')
-                    content = discord.utils.escape_mentions(content) if message.content else None
-                    attchurls = '\n\n' + '\n'.join([a.url for a in message.attachments if a.size > 8388608])
-                    content = content + attchurls if content and len(content + attchurls) < 2000 else content
+                    content = discord.utils.escape_mentions(
+                        content) if message.content else None
+                    attchurls = '\n\n' + \
+                        '\n'.join(
+                            [a.url for a in message.attachments if a.size > 8388608])
+                    content = content + \
+                        attchurls if content and len(
+                            content + attchurls) < 2000 else content
                     return await existing[0].send(
                         content=content,
                         username=str(message.author).replace('#0000', ''),
-                        avatar_url=str(message.author.avatar_url_as(static_format='png')),
-                        embeds=[e for e in message.embeds if not ('url' in e.to_dict() and e.to_dict()['url'] in (content or ''))],
+                        avatar_url=str(message.author.avatar_url_as(
+                            static_format='png')),
+                        embeds=[e for e in message.embeds if not (
+                            'url' in e.to_dict() and e.to_dict()['url'] in (content or ''))],
                         files=[(await a.to_file()) for a in message.attachments if a.size < 8388608]
                     )
                 except Exception as e:
-                    self.bot.logger.warn(f'$YELLOWFailed to use webhook for quotes in $CYAN{ctx.channel} ({ctx.guild})', exc_info=e)
+                    self.bot.logger.warn(
+                        f'$YELLOWFailed to use webhook for quotes in $CYAN{ctx.channel} ({ctx.guild})', exc_info=e)
                     pass  # Fallback to normal quoting if webhook fails
 
         if not message.content and message.embeds and message.author.bot:

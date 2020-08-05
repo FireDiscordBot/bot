@@ -60,7 +60,8 @@ class CommandError(commands.Cog):
             commands.NotOwner,
             RestrictedOptionError
         )
-        noperms = (commands.BotMissingPermissions, commands.MissingPermissions, discord.Forbidden, MissingOverride)
+        noperms = (commands.BotMissingPermissions,
+                   commands.MissingPermissions, discord.Forbidden, MissingOverride)
         saved = error
 
         # Allows us to check for original exceptions raised and sent to CommandInvokeError.
@@ -69,12 +70,13 @@ class CommandError(commands.Cog):
 
         # Check for converter errors so that errors aren't too verbose (prevents "python moment")
         if isinstance(error, commands.BadUnionArgument):
-           if any(c in error.converters for c in [Member, UserWithFallback]):
-               return await ctx.error(f'User not found :(')
-           if any(c in error.converters for c in [TextChannel, Category]):  # Don't think I use VoiceChannel for anything
-               return await ctx.error(f'Channel not found :(')
-           if Role in error.converters:
-               return await ctx.error(f'Role not found')
+            if any(c in error.converters for c in [Member, UserWithFallback]):
+                return await ctx.error(f'User not found :(')
+            # Don't think I use VoiceChannel for anything
+            if any(c in error.converters for c in [TextChannel, Category]):
+                return await ctx.error(f'Channel not found :(')
+            if Role in error.converters:
+                return await ctx.error(f'Role not found')
         if isinstance(error, commands.BadArgument):
             return await ctx.error(str(error))
 
@@ -94,7 +96,8 @@ class CommandError(commands.Cog):
             return await ctx.error('You must wait for the command to finish before you can run it again!')
 
         errorstr = replaceinvite(str(error))
-        errorstr = re.sub(r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)', 'BLOCKED URL', errorstr, 0, re.MULTILINE)
+        errorstr = re.sub(
+            r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)', 'BLOCKED URL', errorstr, 0, re.MULTILINE)
 
         if ctx.me.permissions_in(ctx.channel).send_messages:
             if isinstance(error, noperms):
@@ -103,7 +106,8 @@ class CommandError(commands.Cog):
             if not self.bot.isadmin(ctx.author):
                 await ctx.error(f'{error.__class__.__name__}: {discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
             else:
-                tb = ''.join(traceback.format_exception(type(error), error, error.__traceback__, 3))
+                tb = ''.join(traceback.format_exception(
+                    type(error), error, error.__traceback__, 3))
                 await ctx.send(f'```py\n{tb[:1990]}\n```')
 
         if not isinstance(error, noperms) and not isinstance(error, sentryignored):
@@ -128,4 +132,5 @@ def setup(bot):
     except Exception as e:
         # errortb = ''.join(traceback.format_exception(
         #     type(e), e, e.__traceback__))
-        bot.logger.error(f'$REDError while loading event $CYAN"CommandError"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while loading event $CYAN"CommandError"', exc_info=e)

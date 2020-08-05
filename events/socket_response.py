@@ -30,13 +30,16 @@ class SocketResponse(commands.Cog):
         if t == 'GUILD_CREATE':
             guild = int(payload['d']['id'])
             if guild not in self.bot.configs:
-                self.bot.configs[guild] = GuildConfig(guild, bot=self.bot, db=self.bot.db)
+                self.bot.configs[guild] = GuildConfig(
+                    guild, bot=self.bot, db=self.bot.db)
             if not self.bot.get_config(guild).loaded:
                 await self.bot.get_config(guild).load()
+
 
 def setup(bot):
     try:
         bot.add_cog(SocketResponse(bot))
         bot.logger.info(f'$GREENLoaded event $CYANSocketResponse!')
     except Exception as e:
-        bot.logger.error(f'$REDError while loading event $CYAN"SocketResponse"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while loading event $CYAN"SocketResponse"', exc_info=e)

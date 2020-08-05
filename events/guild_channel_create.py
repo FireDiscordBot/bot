@@ -26,7 +26,8 @@ class GuildChannelCreate(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_channel_create(self, channel):
-        muted = self.bot.get_config(channel.guild).get('mod.mutedrole') or discord.utils.get(channel.guild.roles, name="Muted")
+        muted = self.bot.get_config(channel.guild).get(
+            'mod.mutedrole') or discord.utils.get(channel.guild.roles, name="Muted")
         if muted and channel.guild.me.guild_permissions.manage_roles:
             await channel.set_permissions(muted, send_messages=False)
         logch = self.bot.get_config(channel.guild).get('log.action')
@@ -37,11 +38,15 @@ class GuildChannelCreate(commands.Cog):
                     if e.target.id == channel.id:
                         createdby = e.user
                         break
-            embed = discord.Embed(color=discord.Color.green(), timestamp=channel.created_at, description=f'**New channel created: #{channel.name}**')
+            embed = discord.Embed(color=discord.Color.green(
+            ), timestamp=channel.created_at, description=f'**New channel created: #{channel.name}**')
             if createdby:
-                embed.add_field(name='Created By', value=f'{createdby} ({createdby.id})', inline=False)
-            embed.set_author(name=channel.guild.name, icon_url=str(channel.guild.icon_url))
-            embed.set_footer(text=f"Channel ID: {channel.id} | Guild ID: {channel.guild.id}")
+                embed.add_field(
+                    name='Created By', value=f'{createdby} ({createdby.id})', inline=False)
+            embed.set_author(name=channel.guild.name,
+                             icon_url=str(channel.guild.icon_url))
+            embed.set_footer(
+                text=f"Channel ID: {channel.id} | Guild ID: {channel.guild.id}")
             try:
                 await logch.send(embed=embed)
             except Exception:
@@ -53,4 +58,5 @@ def setup(bot):
         bot.add_cog(GuildChannelCreate(bot))
         bot.logger.info(f'$GREENLoaded event $CYANGuildChannelCreate!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding event $CYAN"GuildChannelCreate"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding event $CYAN"GuildChannelCreate"', exc_info=e)

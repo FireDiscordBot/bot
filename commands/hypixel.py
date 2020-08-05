@@ -34,4 +34,5 @@ def setup(bot):
         bot.add_cog(HypixelPlacebo(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"hypixel" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"hypixel"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"hypixel"', exc_info=e)

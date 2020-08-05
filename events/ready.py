@@ -41,7 +41,8 @@ class Ready(commands.Cog):
         self.bot.logger.info(f"$GREENGuilds: $CYAN{len(self.bot.guilds)}")
         self.bot.logger.info(f"$GREENUsers: $CYAN{len(self.bot.users)}")
         if not self.bot.started:
-            start = humanfriendly.format_timespan(datetime.datetime.now(datetime.timezone.utc) - self.bot.launchtime)
+            start = humanfriendly.format_timespan(datetime.datetime.now(
+                datetime.timezone.utc) - self.bot.launchtime)
             self.bot.logger.info(f"$GREENStarted in $CYAN{start}")
             self.bot.started = True
         self.bot.logger.info("$GREEN-------------------------")
@@ -53,7 +54,8 @@ class Ready(commands.Cog):
             if not self.bot.get_user(u['uid']):
                 continue
             if u['uid'] not in self.bot.configs:
-                self.bot.configs[u['uid']] = UserConfig(u['uid'], bot=self.bot, db=self.bot.db)
+                self.bot.configs[u['uid']] = UserConfig(
+                    u['uid'], bot=self.bot, db=self.bot.db)
             conf = self.bot.get_config(u['uid'])
             if not conf.loaded:
                 await conf.load()
@@ -63,9 +65,11 @@ class Ready(commands.Cog):
                 await asyncio.sleep(1)  # rate limits are fun
                 current = await self.bot.get_cog('FireStatus').get_status(c)
                 if current == 'partial_outage':
-                    await asyncio.sleep(1)  # rate limits are fun 2 electric boogaloo
+                    # rate limits are fun 2 electric boogaloo
+                    await asyncio.sleep(1)
                     await self.bot.get_cog('FireStatus').set_status(c, 'operational')
-        guilds = [g for g in self.bot.guilds if self.bot.get_config(g.id).get('main.fetch_offline') and g.large]
+        guilds = [g for g in self.bot.guilds if self.bot.get_config(
+            g.id).get('main.fetch_offline') and g.large]
         if guilds:
             await self.bot.request_offline_members(*guilds)
 
@@ -75,4 +79,5 @@ def setup(bot):
         bot.add_cog(Ready(bot))
         bot.logger.info(f'$GREENLoaded event $CYANReady!')
     except Exception as e:
-        bot.logger.error(f'$REDError while loading event $CYAN"Ready"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while loading event $CYAN"Ready"', exc_info=e)

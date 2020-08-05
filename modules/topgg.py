@@ -44,7 +44,8 @@ class TopGG(commands.Cog):
                 'server_count': len(self.bot.guilds)
             }
         )
-        self.bot.logger.info(f'$GREENPosted guild count $CYAN({len(self.bot.guilds)}) $GREENto $CYANtop.gg')
+        self.bot.logger.info(
+            f'$GREENPosted guild count $CYAN({len(self.bot.guilds)}) $GREENto $CYANtop.gg')
 
     async def get_bots(self, **kwargs):
         params = ['limit', 'offset', 'search', 'sort', 'fields']
@@ -88,7 +89,7 @@ class TopGG(commands.Cog):
         )
         vote = await self.http.request(
             route,
-            params={'userId':user}
+            params={'userId': user}
         )
         return bool(vote.get('voted', 0))
 

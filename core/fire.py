@@ -48,7 +48,8 @@ class Fire(commands.Bot):
 
         # COMMON ATTRIBUTES
         self.config: dict = json.load(open('config.json', 'r'))
-        self.configs: typing.Dict[int, typing.Union[GuildConfig, UserConfig]] = {}
+        self.configs: typing.Dict[int,
+                                  typing.Union[GuildConfig, UserConfig]] = {}
         self.tips = json.load(open('tips.json', 'r'))
         self.premium_guilds = {}
         self.paginators = {}
@@ -63,7 +64,8 @@ class Fire(commands.Bot):
         self.logger = logging.getLogger('Fire')
         stdout = logging.StreamHandler(sys.stdout)
         stdout.setLevel(logging.INFO)
-        COLOR_FORMAT = colorformat.formatter_message("[$BOLD%(name)s$RESET][%(levelname)s] %(message)s $RESET($BOLD%(filename)s$RESET:%(lineno)d)")
+        COLOR_FORMAT = colorformat.formatter_message(
+            "[$BOLD%(name)s$RESET][%(levelname)s] %(message)s $RESET($BOLD%(filename)s$RESET:%(lineno)d)")
         stdout.setFormatter(colorformat.ColoredFormatter(COLOR_FORMAT))
         self.logger.addHandler(stdout)
         gateway = logging.getLogger('discord.gateway')
@@ -71,7 +73,8 @@ class Fire(commands.Bot):
 
         # SENTRY
         if 'sentry' in self.config:
-            sentry_sdk.init(self.config['sentry'], integrations=[AioHttpIntegration()])
+            sentry_sdk.init(self.config['sentry'],
+                            integrations=[AioHttpIntegration()])
 
         # REDIS
         self.redis = None
@@ -176,13 +179,15 @@ class Fire(commands.Bot):
         if isinstance(obj, int) and obj in self.configs:
             return self.configs[obj]
         if isinstance(obj, discord.Guild) or isinstance(obj, int) and self.get_guild(obj):
-            conf = self.configs[obj.id if hasattr(obj, 'id') else obj] = GuildConfig(obj, bot=self, db=self.db)
+            conf = self.configs[obj.id if hasattr(obj, 'id') else obj] = GuildConfig(
+                obj, bot=self, db=self.db)
             self.loop.create_task(conf.load())
             return conf
         if isinstance(obj, (discord.User, discord.Member)) or isinstance(obj, int) and self.get_user(obj):
             if (obj.bot if hasattr(obj, 'bot') else self.get_user(obj).bot):
                 return False
-            conf = self.configs[obj.id if hasattr(obj, 'id') else obj] = UserConfig(obj, bot=self, db=self.db)
+            conf = self.configs[obj.id if hasattr(obj, 'id') else obj] = UserConfig(
+                obj, bot=self, db=self.db)
             return conf  # Attempting to set an option in UserConfig will load/init the config if not already
 
     async def init_redis(self):
@@ -211,20 +216,23 @@ class Fire(commands.Bot):
         except Exception as e:
             # errortb = ''.join(traceback.format_exception(
             #     type(e), e, e.__traceback__))
-            self.logger.error(f'$REDError while loading $CYANChatwatch', exc_info=e)
+            self.logger.error(
+                f'$REDError while loading $CYANChatwatch', exc_info=e)
         try:
             self.load_extension('jishaku')
         except Exception as e:
             # errortb = ''.join(traceback.format_exception(
             #     type(e), e, e.__traceback__))
-            self.logger.error(f'$REDError while loading $CYANJishaku', exc_info=e)
+            self.logger.error(
+                f'$REDError while loading $CYANJishaku', exc_info=e)
         for ext in resolve_extensions(self, 'commands.*'):
             try:
                 self.load_extension(ext)
             except Exception as e:
                 # errortb = ''.join(traceback.format_exception(
                 #     type(e), e, e.__traceback__))
-                self.logger.error(f'$REDError while loading $CYAN{ext}', exc_info=e)
+                self.logger.error(
+                    f'$REDError while loading $CYAN{ext}', exc_info=e)
 
     def load_events(self):
         for ext in resolve_extensions(self, 'events.*'):
@@ -268,7 +276,8 @@ class Fire(commands.Bot):
         except Exception as e:
             if not fallback:
                 return await self.haste(content, fallback=True)
-            self.logger.warn(f'$REDFailed to create haste on $CYAN{client.BASE_URL}/', exc_info=e)
+            self.logger.warn(
+                f'$REDFailed to create haste on $CYAN{client.BASE_URL}/', exc_info=e)
         return 'Failed to create haste'
 
     async def is_team_owner(self, user: typing.Union[discord.User, discord.Member]):

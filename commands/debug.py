@@ -54,19 +54,22 @@ class Debug(commands.Cog):
                 if can_run:
                     detail.append(f'{self.check} All checks passed')
                 else:
-                    detail.append(f'{self.error} An unknown issue is stopping the command from being run')
+                    detail.append(
+                        f'{self.error} An unknown issue is stopping the command from being run')
             except Exception as e:
                 detail.append(f'{self.error} {e}')
-            missing = [p for p, v in ctx.me.permissions_in(ctx.channel) if not v]
+            missing = [p for p, v in ctx.me.permissions_in(
+                ctx.channel) if not v]
             if any(p in self.common_perms for p in missing):
                 detail.append(f'{self.error} Fire is missing one or more common permissions.\n'
-                               f'This may cause issues with this command')
+                              f'This may cause issues with this command')
             else:
                 detail.append(f'{self.check} Fire has all common permissions')
             disabled = ctx.config.get('disabled.commands')
             if cmd.name in disabled:
                 if ctx.author.permissions_in(ctx.channel).manage_messages:
-                    detail.append(f'{self.check} Command is disabled but you are bypassed')
+                    detail.append(
+                        f'{self.check} Command is disabled but you are bypassed')
                 else:
                     detail.append(f'{self.error} Command is disabled.')
             else:
@@ -77,10 +80,12 @@ class Debug(commands.Cog):
                     if ctx.channel.overwrites_for(key).send_messages is True:
                         bypass.append(key.mention)
                 if bypass:
-                    detail.append(f'{self.error} The following users/roles will bypass mutes in {ctx.channel.mention}')
+                    detail.append(
+                        f'{self.error} The following users/roles will bypass mutes in {ctx.channel.mention}')
                     detail.append(', '.join(bypass))
                 else:
-                    detail.append(f'{self.check} Nobody can bypass mutes in {ctx.channel.mention}')
+                    detail.append(
+                        f'{self.check} Nobody can bypass mutes in {ctx.channel.mention}')
         issues = [d for d in detail if d.startswith(self.error)]
         if issues:
             status = f'{len(issues)} issues found'
@@ -104,4 +109,5 @@ def setup(bot):
         bot.add_cog(Debug(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"debug" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"debug"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"debug"', exc_info=e)

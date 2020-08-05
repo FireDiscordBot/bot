@@ -53,7 +53,8 @@ class Guilds(commands.Cog):
             ])
         table = AsciiTable(data)
         header = table.table.split('\n')[:3]
-        paginator = WrappedPaginator(prefix='```\n' + '\n'.join(header), suffix='```', max_size=1950)
+        paginator = WrappedPaginator(
+            prefix='```\n' + '\n'.join(header), suffix='```', max_size=1950)
         for ln in table.table.split('\n'):
             if ln not in header:
                 paginator.add_line(ln)
@@ -66,4 +67,5 @@ def setup(bot):
         bot.add_cog(Guilds(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"guilds" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"guilds"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"guilds"', exc_info=e)

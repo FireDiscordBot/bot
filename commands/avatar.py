@@ -45,4 +45,5 @@ def setup(bot):
         bot.add_cog(Avatar(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"avatar" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"avatar"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"avatar"', exc_info=e)

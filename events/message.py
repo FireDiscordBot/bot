@@ -37,7 +37,8 @@ class Message(commands.Cog):
         self.uuidregex = r"[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}"
         self.urlregex = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
         self.tokenregex = r'[MN][A-Za-z\d]{23}\.[\w-]{6}\.[\w-]{27}'
-        self.gistheaders = {'Authorization': f'token {self.bot.config["github_token"]}'}
+        self.gistheaders = {
+            'Authorization': f'token {self.bot.config["github_token"]}'}
 
     def uuidgobyebye(self, text: str):
         return re.sub(self.uuidregex, '', text, 0, re.MULTILINE)
@@ -49,7 +50,7 @@ class Message(commands.Cog):
         files = {}
         for t in tokens:
             now = datetime.datetime.now(datetime.timezone.utc).timestamp()
-            files[f'token_leak_{now}.md'] = {'content':f'''
+            files[f'token_leak_{now}.md'] = {'content': f'''
 Oh no, it seems a token has been leaked! Fire (Fire#0682) scans for tokens in Discord messages and uploads them to GitHub to be reset.
 You can learn more about GitHub's token scanning at https://help.github.com/en/github/administering-a-repository/about-token-scanning
 
@@ -94,27 +95,30 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
                 headers=self.gistheaders
             )
         except Exception as e:
-            self.bot.logger.warn(f'$YELLOWFailed to create gist for tokens!', exc_info=e)
-
+            self.bot.logger.warn(
+                f'$YELLOWFailed to create gist for tokens!', exc_info=e)
 
     @commands.Cog.listener()
     async def on_message(self, message):
         if not message.guild:
             return
         embeds = [str(e.to_dict()) for e in message.embeds]
-        tokens = re.findall(self.tokenregex, str(message.system_content) + str(embeds), re.MULTILINE)
+        tokens = re.findall(self.tokenregex, str(
+            message.system_content) + str(embeds), re.MULTILINE)
         config = self.bot.get_config(message.guild)
         if tokens and not self.bot.dev:
             try:
                 await self.token_gist(tokens, message)
             except Exception as e:
-                self.bot.logger.warn(f'Failed to upload token to gist (to reset ofc)', exc_info=e)
+                self.bot.logger.warn(
+                    f'Failed to upload token to gist (to reset ofc)', exc_info=e)
         if message.channel.id == 600070909365059584 and message.embeds:
             if 'new commit' in message.embeds[0].title and self.bot.dev:
                 try:
                     await message.publish()
                 except Exception as e:
-                    self.bot.logger.warn(f'Failed to publish commit', exc_info=e)
+                    self.bot.logger.warn(
+                        f'Failed to publish commit', exc_info=e)
         if message.channel.id == 388850472632451073:
             f = self.bot.get_channel(731330454422290463)
             try:
@@ -127,7 +131,8 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
         if message.author.bot:
             return
         if '--remind' in message.content and not self.bot.dev:
-            content = re.sub(r'\s?--remind\s?', '', message.content, 0, re.MULTILINE)
+            content = re.sub(r'\s?--remind\s?', '',
+                             message.content, 0, re.MULTILINE)
             ctx = await self.bot.get_context(message)
             alt_ctx = await copy_context_with(
                 ctx,
@@ -145,9 +150,11 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             prefix = self.bot.get_config(message.guild).get('main.prefix')
             await message.channel.send(f'Hey! My prefix here is `{prefix}` or you can mention me :)')
 
+
 def setup(bot):
     try:
         bot.add_cog(Message(bot))
         bot.logger.info(f'$GREENLoaded event $CYANMessage!')
     except Exception as e:
-        bot.logger.error(f'$REDError while loading event $CYAN"Message"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while loading event $CYAN"Message"', exc_info=e)

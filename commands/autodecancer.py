@@ -36,9 +36,11 @@ class AutoDecancer(commands.Cog):
         else:
             await ctx.success(f'Disabled autodecancer. **New** users with "cancerous" (non-ascii) names will no longer be renamed')
 
+
 def setup(bot):
     try:
         bot.add_cog(AutoDecancer(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"autodecancer" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"autodecancer"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"autodecancer"', exc_info=e)

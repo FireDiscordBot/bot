@@ -31,7 +31,8 @@ class KsoftUnban(commands.Cog):
             user = await self.bot.fetch_user(int(event['id']))
         except Exception:
             return
-        self.bot.logger.warn(f'$CYAN{user} ({user.id}) $YELLOWwas unbanned on KSoft with the reason $CYAN{event["appeal_reason"]}')
+        self.bot.logger.warn(
+            f'$CYAN{user} ({user.id}) $YELLOWwas unbanned on KSoft with the reason $CYAN{event["appeal_reason"]}')
         for guild in self.bot.guilds:
             if self.bot.get_config(guild).get('mod.globalbans'):
                 logch = self.bot.get_config(guild).get('log.moderation')
@@ -43,9 +44,12 @@ class KsoftUnban(commands.Cog):
                     try:
                         await guild.unban(user, reason=f'{user} was unbanned from global ban list')
                         if logch:
-                            embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{user.mention} was unbanned**')
-                            embed.set_author(name=str(user), icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-                            embed.add_field(name='Reason', value=f'{user} was unbanned from KSoft.Si Bans\n\nAppeal reason: {event["appeal_reason"]}', inline=False)
+                            embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(
+                                datetime.timezone.utc), description=f'**{user.mention} was unbanned**')
+                            embed.set_author(name=str(user), icon_url=str(
+                                user.avatar_url_as(static_format='png', size=2048)))
+                            embed.add_field(
+                                name='Reason', value=f'{user} was unbanned from KSoft.Si Bans\n\nAppeal reason: {event["appeal_reason"]}', inline=False)
                             embed.set_footer(text=f"User ID: {user.id}")
                             try:
                                 await logch.send(embed=embed)
@@ -60,4 +64,5 @@ def setup(bot):
         bot.add_cog(KsoftUnban(bot))
         bot.logger.info(f'$GREENLoaded event $CYANKsoftUnban!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding event $CYAN"KsoftUnban"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding event $CYAN"KsoftUnban"', exc_info=e)

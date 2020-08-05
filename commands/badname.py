@@ -38,9 +38,11 @@ class BadName(commands.Cog):
             await ctx.success(f'I have reset the "bad name" to John Doe 0000 (with 0000 being their discriminator). '
                               f'This will **not** rename existing users')
 
+
 def setup(bot):
     try:
         bot.add_cog(BadName(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"badname" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"badname"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"badname"', exc_info=e)

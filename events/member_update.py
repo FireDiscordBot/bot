@@ -32,16 +32,20 @@ class MemberUpdate(commands.Cog):
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         conf = self.bot.get_config(after.guild)
-        badname = conf.get('utils.badname') or f'John Doe {after.discriminator}'
+        badname = conf.get(
+            'utils.badname') or f'John Doe {after.discriminator}'
         if before.nick != after.nick:
             try:
                 if after.nick is not None and badname in after.nick:
-                    raise Exception # Escapes the try
+                    raise Exception  # Escapes the try
                 if conf.get('mod.autodecancer') and after.guild.me.guild_permissions.manage_nicknames:
                     sk1roles = [
-                            discord.utils.get(after.guild.roles, id=585534346551754755),
-                            discord.utils.get(after.guild.roles, id=436306157762773013),
-                            discord.utils.get(after.guild.roles, id=698943379181928520)
+                        discord.utils.get(after.guild.roles,
+                                          id=585534346551754755),
+                        discord.utils.get(after.guild.roles,
+                                          id=436306157762773013),
+                        discord.utils.get(after.guild.roles,
+                                          id=698943379181928520)
                     ]
                     if not after.guild_permissions.manage_nicknames or not any(r for r in sk1roles if r in after.roles):
                         if not after.nick:
@@ -51,14 +55,18 @@ class MemberUpdate(commands.Cog):
                         if not self.bot.isascii(nick.replace('‘', '\'').replace('“', '"').replace('“', '"')):
                             await after.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters (DEBUG: MEMBER_UPDATE)')
                         else:
-                            change = True if (conf.get('mod.autodehoist') and not self.bot.ishoisted(nick) or not conf.get('mod.autodehoist')) else False
+                            change = True if (conf.get('mod.autodehoist') and not self.bot.ishoisted(
+                                nick) or not conf.get('mod.autodehoist')) else False
                             if change and badname not in str(m.nick):
                                 await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
                 if conf.get('mod.autodehoist') and after.guild.me.guild_permissions.manage_nicknames:
                     sk1roles = [
-                        discord.utils.get(after.guild.roles, id=585534346551754755),
-                        discord.utils.get(after.guild.roles, id=436306157762773013),
-                        discord.utils.get(after.guild.roles, id=698943379181928520)
+                        discord.utils.get(after.guild.roles,
+                                          id=585534346551754755),
+                        discord.utils.get(after.guild.roles,
+                                          id=436306157762773013),
+                        discord.utils.get(after.guild.roles,
+                                          id=698943379181928520)
                     ]
                     if not after.guild_permissions.manage_nicknames or not any(r for r in sk1roles if r in after.roles):
                         if not after.nick:
@@ -103,16 +111,21 @@ class MemberUpdate(commands.Cog):
                     before.roles.remove(role)
             if not any(r for r in self.deleted_roles if r in after.guild.roles):
                 if after.guild.id in self.last_role_fetch:
-                    delta = datetime.datetime.now(datetime.timezone.utc) - self.last_role_fetch[after.guild.id]
+                    delta = datetime.datetime.now(
+                        datetime.timezone.utc) - self.last_role_fetch[after.guild.id]
                 else:
-                    self.last_role_fetch[after.guild.id] = datetime.datetime.now(datetime.timezone.utc)
+                    self.last_role_fetch[after.guild.id] = datetime.datetime.now(
+                        datetime.timezone.utc)
                     delta = datetime.timedelta(seconds=1)
                 if delta > datetime.timedelta(minutes=10):
                     try:
-                        groles = await after.guild.fetch_roles()  # Hopefully this should stop deleted roles from being logged
-                        self.last_role_fetch[after.guild.id] = datetime.datetime.now(datetime.timezone.utc)
+                        # Hopefully this should stop deleted roles from being logged
+                        groles = await after.guild.fetch_roles()
+                        self.last_role_fetch[after.guild.id] = datetime.datetime.now(
+                            datetime.timezone.utc)
                     except Exception:
-                        groles = after.guild.roles  # Don't complain to me when your logs get spammed if you remove a role with a bunch of people in it lol
+                        # Don't complain to me when your logs get spammed if you remove a role with a bunch of people in it lol
+                        groles = after.guild.roles
                     for role in after.guild.roles:
                         if role not in groles:
                             self.deleted_roles.append(role)
@@ -132,12 +145,14 @@ class MemberUpdate(commands.Cog):
                 s = set(broles)
                 added = [x for x in aroles if x not in s]
                 if len(added) >= 1:
-                    roles = [r for r in [discord.utils.get(groles, name=a) for a in added] if r]
+                    roles = [r for r in [discord.utils.get(
+                        groles, name=a) for a in added] if r]
                     if roles:
                         mentions = ', '.join([r.mention for r in roles])
                         embed = discord.Embed(
                             color=random.choice(roles).color,
-                            timestamp=datetime.datetime.now(datetime.timezone.utc),
+                            timestamp=datetime.datetime.now(
+                                datetime.timezone.utc),
                             description=f'{after.mention}\'s roles were changed\n**{after.name} was given the role(s)**\n{mentions}'
                         ).set_author(
                             name=after,
@@ -151,12 +166,14 @@ class MemberUpdate(commands.Cog):
                         except Exception:
                             pass
                 if len(removed) >= 1:
-                    roles = [r for r in [discord.utils.get(groles, name=a) for a in removed] if r]
+                    roles = [r for r in [discord.utils.get(
+                        groles, name=a) for a in removed] if r]
                     if roles:
                         mentions = ', '.join([r.mention for r in roles])
                         embed = discord.Embed(
                             color=random.choice(roles).color,
-                            timestamp=datetime.datetime.now(datetime.timezone.utc),
+                            timestamp=datetime.datetime.now(
+                                datetime.timezone.utc),
                             description=f'{after.mention}\'s roles were changed\n**{after.name} was removed from the role(s)**\n{mentions}'
                         ).set_author(
                             name=after,
@@ -176,4 +193,5 @@ def setup(bot):
         bot.add_cog(MemberUpdate(bot))
         bot.logger.info(f'$GREENLoaded event $CYANMemberUpdate!')
     except Exception as e:
-        bot.logger.error(f'$REDError while loading event $CYAN"MemberUpdate"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while loading event $CYAN"MemberUpdate"', exc_info=e)

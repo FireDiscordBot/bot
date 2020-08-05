@@ -31,9 +31,11 @@ class MCUUID(commands.Cog):
         uid = await self.bot.get_cog('Sk1er Discord').name_to_uuid(ign)
         await ctx.send(f'{ign} has the UUID {uid}')
 
+
 def setup(bot):
     try:
         bot.add_cog(MCUUID(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"mcuuid" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"mcuuid"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"mcuuid"', exc_info=e)

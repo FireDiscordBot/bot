@@ -36,7 +36,7 @@ class Public(commands.Cog):
         current = await ctx.config.set('utils.public', not current)
         if current:
             await ctx.success(f'Your guild is now public & visible on <https://fire.gaminggeek.dev/discover>.'
-                                     f'\nPeople will be able to use your guild\'s vanity url (<https://inv.wtf/{vanitys[0]["code"]}>) to join')
+                              f'\nPeople will be able to use your guild\'s vanity url (<https://inv.wtf/{vanitys[0]["code"]}>) to join')
             log = ctx.config.get('log.action')
             if log:
                 await log.send(f'<:operational:685538400639385649> Ths server is now public and will appear on Fire\'s public server list')
@@ -52,4 +52,5 @@ def setup(bot):
         bot.add_cog(Public(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"public" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"public"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"public"', exc_info=e)

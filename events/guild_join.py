@@ -32,18 +32,19 @@ class GuildAdd(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         if guild.id not in self.bot.configs:
-            self.bot.configs[guild] = GuildConfig(guild.id, bot=self.bot, db=self.bot.db)
+            self.bot.configs[guild] = GuildConfig(
+                guild.id, bot=self.bot, db=self.bot.db)
             await self.bot.get_config(guild).load()
         fire = self.bot.get_guild(564052798044504084)
         desc = self.bot.get_cog('Description')
         await desc.set_desc(fire, f'Fire is an open-source, multi-purpose bot '
                                   f'with {len(self.bot.commands)} commands and is used in '
                                   f'{len(self.bot.guilds)} servers.'
-        )
+                            )
         self.bot.logger.info(f'$GREENFire joined a new guild! '
                              f'$CYAN{guild.name}({guild.id}) '
                              f'$GREENwith $CYAN{guild.member_count} $GREENmembers'
-        )
+                             )
         botlists = [
             self.bot.get_cog('TopGG'),
             self.bot.get_cog('DiscordBoats')
@@ -52,7 +53,8 @@ class GuildAdd(commands.Cog):
             try:
                 await l.post_guilds()
             except Exception as e:
-                self.bot.logger.warn(f'$YELLOWFailed to post guild count to $CYAN{l.name}', exc_info=e)
+                self.bot.logger.warn(
+                    f'$YELLOWFailed to post guild count to $CYAN{l.name}', exc_info=e)
 
 
 def setup(bot):
@@ -62,4 +64,5 @@ def setup(bot):
             bot.logger.info(f'$GREENLoaded event $CYANGuildAdd!')
         except Exception as e:
             # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-            bot.logger.error(f'$REDError while adding event $CYAN"GuildAdd"', exc_info=e)
+            bot.logger.error(
+                f'$REDError while adding event $CYAN"GuildAdd"', exc_info=e)

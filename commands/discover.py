@@ -35,4 +35,5 @@ def setup(bot):
         bot.add_cog(Discover(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"Discover" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"Discover', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"Discover', exc_info=e)

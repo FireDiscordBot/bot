@@ -44,7 +44,8 @@ class DiscordBoats(commands.Cog):
                 'server_count': len(self.bot.guilds)
             }
         )
-        self.bot.logger.info(f'$GREENPosted guild count $CYAN({len(self.bot.guilds)}) $GREENto $CYANdiscord.boats')
+        self.bot.logger.info(
+            f'$GREENPosted guild count $CYAN({len(self.bot.guilds)}) $GREENto $CYANdiscord.boats')
 
     async def get_bot(self, bot: int):
         route = Route(
@@ -63,7 +64,7 @@ class DiscordBoats(commands.Cog):
         )
         vote = await self.http.request(
             route,
-            params={'id':user}
+            params={'id': user}
         )
         return vote
 

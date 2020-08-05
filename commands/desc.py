@@ -59,4 +59,5 @@ def setup(bot):
         bot.add_cog(Description(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"desc" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"desc"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"desc"', exc_info=e)

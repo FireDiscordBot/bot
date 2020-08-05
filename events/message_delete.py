@@ -40,13 +40,18 @@ class MessageDelete(commands.Cog):
                         if e.target == message.author:
                             deletedby = e.user
                             break
-                embed = discord.Embed(color=message.author.color, timestamp=message.created_at, description=f'{message.author.mention}\'**s message in** {message.channel.mention} **was deleted**\n{message.system_content}')
-                embed.set_author(name=message.author, icon_url=str(message.author.avatar_url_as(static_format='png', size=2048)))
+                embed = discord.Embed(color=message.author.color, timestamp=message.created_at,
+                                      description=f'{message.author.mention}\'**s message in** {message.channel.mention} **was deleted**\n{message.system_content}')
+                embed.set_author(name=message.author, icon_url=str(
+                    message.author.avatar_url_as(static_format='png', size=2048)))
                 if message.attachments:
-                    embed.add_field(name='Attachment(s)', value='\n'.join([attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
+                    embed.add_field(name='Attachment(s)', value='\n'.join(
+                        [attachment.filename for attachment in message.attachments]) + '\n\n__Attachment URLs are invalidated once the message is deleted.__')
                 if deletedby:
-                    embed.add_field(name='Potentially Deleted By', value=f'{deletedby} ({deletedby.id})', inline=False)
-                embed.set_footer(text=f"Author ID: {message.author.id} | Message ID: {message.id} | Channel ID: {message.channel.id}")
+                    embed.add_field(name='Potentially Deleted By',
+                                    value=f'{deletedby} ({deletedby.id})', inline=False)
+                embed.set_footer(
+                    text=f"Author ID: {message.author.id} | Message ID: {message.id} | Channel ID: {message.channel.id}")
                 try:
                     await logch.send(embed=embed)
                 except Exception:
@@ -58,4 +63,5 @@ def setup(bot):
         bot.add_cog(MessageDelete(bot))
         bot.logger.info(f'$GREENLoaded event $CYANMessageDelete!')
     except Exception as e:
-        bot.logger.error(f'$REDError while loading event $CYAN"MessageDelete"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while loading event $CYAN"MessageDelete"', exc_info=e)

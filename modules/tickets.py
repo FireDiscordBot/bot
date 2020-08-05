@@ -36,7 +36,8 @@ class Tickets(commands.Cog, name="Tickets"):
     async def tickets_group(self, ctx):
         if ctx.invoked_subcommand:
             return
-        embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc), description='Here are all the ticket configuration commands')
+        embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(
+            datetime.timezone.utc), description='Here are all the ticket configuration commands')
         embed.add_field(
             name=f'{ctx.prefix}ticket category [<category>]',
             value='Set the category were tickets are made. **Setting this enables tickets**'
@@ -53,7 +54,8 @@ class Tickets(commands.Cog, name="Tickets"):
             value='Set the name for tickets. There are many variables available for use in the name',
             inline=False
         )
-        embed.set_author(name=str(ctx.author), icon_url=str(ctx.author.avatar_url_as(static_format='png')))
+        embed.set_author(name=str(ctx.author), icon_url=str(
+            ctx.author.avatar_url_as(static_format='png')))
         return await ctx.send(embed=embed)
 
     @tickets_group.command(name='category', description='Set the category where tickets are made')
@@ -85,7 +87,8 @@ class Tickets(commands.Cog, name="Tickets"):
         if not name:
             variables = '\n'.join([f'{k}: {v}' for k, v in variables.items()])
             current = ctx.config.get('tickets.name')
-            embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
+            embed = discord.Embed(
+                color=ctx.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
             embed.add_field(name='Variables', value=variables, inline=False)
             return await ctx.send(embed=embed)
         if len(name) > 50:
@@ -117,11 +120,13 @@ class Tickets(commands.Cog, name="Tickets"):
         }
         name = config.get('tickets.name')
         for k, v in variables.items():
-            name = name.replace(k, str(v)).replace('crab', '🦀')  # asbyth has me putting crabs everywhere
+            # asbyth has me putting crabs everywhere
+            name = name.replace(k, str(v)).replace('crab', '🦀')
         overwrites = {
             ctx.author: discord.PermissionOverwrite(read_messages=True, send_messages=True),
             ctx.guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True, manage_channels=True, manage_roles=True),
-            ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False)
+            ctx.guild.default_role: discord.PermissionOverwrite(
+                read_messages=False)
         }
         overwrites.update(parent.overwrites)
         ticket = await parent.create_text_channel(
@@ -137,7 +142,8 @@ class Tickets(commands.Cog, name="Tickets"):
         )
         embed.add_field(name='Subject', value=subject)
         await ticket.send(embed=embed)
-        tchannels = [c for c in config.get('tickets.channels') if c]  # Removes any channels that no longer exist.
+        # Removes any channels that no longer exist.
+        tchannels = [c for c in config.get('tickets.channels') if c]
         tchannels.append(ticket)
         await config.set('tickets.channels', tchannels)
         await config.set('tickets.increment', config.get('tickets.increment') + 1)
@@ -188,10 +194,12 @@ class Tickets(commands.Cog, name="Tickets"):
         closing = await ctx.send('Closing ticket, this may make take a bit...')
         transcript = []
         async for m in ctx.channel.history(limit=None):
-            transcript.append(f'{m.author} ({m.author.id}) at {m.created_at.strftime("%d/%m/%Y @ %I:%M:%S %p")} UTC\n{m.content}')
+            transcript.append(
+                f'{m.author} ({m.author.id}) at {m.created_at.strftime("%d/%m/%Y @ %I:%M:%S %p")} UTC\n{m.content}')
         transcript.reverse()
         string = io.StringIO('\n\n'.join(transcript))
-        author = ctx.author  # If author is not found for some odd reason, fallback to message author for log embed color
+        # If author is not found for some odd reason, fallback to message author for log embed color
+        author = ctx.author
         for m in ctx.channel.members:
             if str(m.id) in ctx.channel.topic:  # they do be the ticket author doe
                 author = m
@@ -202,14 +210,16 @@ class Tickets(commands.Cog, name="Tickets"):
                     pass  # no transcript for you, boo hoo :(
         actionlogs = config.get('log.action')
         if actionlogs:
-            transcript.append(f'{len(transcript)} total messages, closed by {ctx.author}')
+            transcript.append(
+                f'{len(transcript)} total messages, closed by {ctx.author}')
             string = io.StringIO('\n\n'.join(transcript))
             embed = discord.Embed(
                 title=f'Ticket {ctx.channel} was closed',
                 timestamp=datetime.datetime.now(datetime.timezone.utc),
                 color=author.color
             )
-            embed.add_field(name='Closed by', value=f'{ctx.author} ({ctx.author.id})', inline=False)
+            embed.add_field(
+                name='Closed by', value=f'{ctx.author} ({ctx.author.id})', inline=False)
             embed.add_field(name='Reason', value=reason, inline=False)
             await actionlogs.send(
                 embed=embed,

@@ -35,4 +35,5 @@ def setup(bot):
         bot.add_cog(Invite(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"invite" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"invite"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"invite"', exc_info=e)

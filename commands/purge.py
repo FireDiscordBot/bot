@@ -83,7 +83,8 @@ class Purge(commands.Cog):
         def purgecheck(m):
             content = m.content
             if include_embeds and m.embeds:
-                content = m.content + str([self.get_embed_content(e) for e in m.embeds])
+                content = m.content + \
+                    str([self.get_embed_content(e) for e in m.embeds])
             completed = []
             if users:
                 completed.append(m.author.id in users)
@@ -92,7 +93,8 @@ class Purge(commands.Cog):
             if nomatch:
                 completed.append(nomatch.lower() not in content.lower())
             if startswith:
-                completed.append(content.lower().startswith(startswith.lower()))
+                completed.append(
+                    content.lower().startswith(startswith.lower()))
             if endswith:
                 completed.append(content.lower().endswith(endswith.lower()))
             if attachments:
@@ -163,4 +165,5 @@ def setup(bot):
         bot.add_cog(Purge(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"purge" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"purge"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"purge"', exc_info=e)

@@ -78,29 +78,42 @@ class Levelhead(commands.Cog):
                     proposal = await resp.json()
                 except Exception:
                     proposal = None
-        header = re.sub(remcolor, '', levelhead.get('header', 'Level'), 0, re.IGNORECASE)
-        strlevel = re.sub(remcolor, '', levelhead['strlevel'], 0, re.IGNORECASE)
+        header = re.sub(remcolor, '', levelhead.get(
+            'header', 'Level'), 0, re.IGNORECASE)
+        strlevel = re.sub(
+            remcolor, '', levelhead['strlevel'], 0, re.IGNORECASE)
         level = levelhead['level']
         nocustom = True if header == "Level" else False
         tab = 'Purchased!' if purchase.get('tab', False) else 'Not Purchased'
         chat = 'Purchased!' if purchase.get('chat', False) else 'Not Purchased'
         head = purchase['head']
-        embed = discord.Embed(title=f"{player}'s Levelhead", colour=ctx.author.color, url="https://purchase.sk1er.club/category/1050972", timestamp=datetime.datetime.now(datetime.timezone.utc))
-        embed.set_footer(text="Want more integrations? Use the suggest command to suggest some")
+        embed = discord.Embed(title=f"{player}'s Levelhead", colour=ctx.author.color,
+                              url="https://purchase.sk1er.club/category/1050972", timestamp=datetime.datetime.now(datetime.timezone.utc))
+        embed.set_footer(
+            text="Want more integrations? Use the suggest command to suggest some")
         if nocustom:
             embed.add_field(name="IGN", value=player, inline=False)
-            embed.add_field(name="Levelhead", value=f"Level: {levelhead['level']}", inline=False)
-            embed.add_field(name="Other items", value=f"Tab: {tab} \nChat: {chat} \nAddon Head Layers: {head}", inline=False)
+            embed.add_field(name="Levelhead",
+                            value=f"Level: {levelhead['level']}", inline=False)
+            embed.add_field(
+                name="Other items", value=f"Tab: {tab} \nChat: {chat} \nAddon Head Layers: {head}", inline=False)
         else:
-            embed.add_field(name="Custom Levelhead?", value="Yeah!", inline=False)
+            embed.add_field(name="Custom Levelhead?",
+                            value="Yeah!", inline=False)
             embed.add_field(name="IGN", value=player, inline=False)
-            embed.add_field(name="Levelhead", value=f"{header}:{strlevel}", inline=False)
+            embed.add_field(name="Levelhead",
+                            value=f"{header}:{strlevel}", inline=False)
             if proposal and 'header_obj' not in proposal:
-                nheader = re.sub(remcolor, '', proposal['header'], 0, re.IGNORECASE)
-                nstrlevel = re.sub(remcolor, '', proposal['strlevel'], 0, re.IGNORECASE)
-                embed.add_field(name='Proposed Levelhead', value=f'{nheader}:{nstrlevel}', inline=False)
-                embed.add_field(name='Denied?', value=proposal['denied'], inline=False)
-            embed.add_field(name="Other items", value=f"Tab: {tab} \nChat: {chat} \nAddon Head Layers: {head}", inline=False)
+                nheader = re.sub(
+                    remcolor, '', proposal['header'], 0, re.IGNORECASE)
+                nstrlevel = re.sub(
+                    remcolor, '', proposal['strlevel'], 0, re.IGNORECASE)
+                embed.add_field(name='Proposed Levelhead',
+                                value=f'{nheader}:{nstrlevel}', inline=False)
+                embed.add_field(
+                    name='Denied?', value=proposal['denied'], inline=False)
+            embed.add_field(
+                name="Other items", value=f"Tab: {tab} \nChat: {chat} \nAddon Head Layers: {head}", inline=False)
         return await ctx.send(embed=embed)
 
 
@@ -109,4 +122,5 @@ def setup(bot):
         bot.add_cog(Levelhead(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"levelhead" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"levelhead"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"levelhead"', exc_info=e)

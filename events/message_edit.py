@@ -46,13 +46,18 @@ class MessageEdit(commands.Cog):
         if before.content == after.content or after.author.bot:
             return
         if logch:
-            embed = discord.Embed(color=after.author.color, timestamp=after.created_at, description=f'{after.author.mention} **edited a message in** {after.channel.mention}')
-            embed.set_author(name=after.author, icon_url=str(after.author.avatar_url_as(static_format='png', size=2048)))
-            bcontent = before.system_content[:300] + (before.system_content[300:] and '...')
-            acontent = after.system_content[:300] + (after.system_content[300:] and '...')
+            embed = discord.Embed(color=after.author.color, timestamp=after.created_at,
+                                  description=f'{after.author.mention} **edited a message in** {after.channel.mention}')
+            embed.set_author(name=after.author, icon_url=str(
+                after.author.avatar_url_as(static_format='png', size=2048)))
+            bcontent = before.system_content[:300] + \
+                (before.system_content[300:] and '...')
+            acontent = after.system_content[:300] + \
+                (after.system_content[300:] and '...')
             embed.add_field(name='Before', value=bcontent, inline=False)
             embed.add_field(name='After', value=acontent, inline=False)
-            embed.set_footer(text=f"Author ID: {after.author.id} | Message ID: {after.id} | Channel ID: {after.channel.id}")
+            embed.set_footer(
+                text=f"Author ID: {after.author.id} | Message ID: {after.id} | Channel ID: {after.channel.id}")
             try:
                 await logch.send(embed=embed)
             except Exception:
@@ -66,4 +71,5 @@ def setup(bot):
         bot.add_cog(MessageEdit(bot))
         bot.logger.info(f'$GREENLoaded event $CYANMessageEdit!')
     except Exception as e:
-        bot.logger.error(f'$REDError while loading event $CYAN"MessageEdit"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while loading event $CYAN"MessageEdit"', exc_info=e)

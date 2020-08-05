@@ -44,7 +44,8 @@ class Context(commands.Context):
             discord.Color.red(),
             discord.Color.teal()
         ]
-        self.config = self.bot.get_config(self.guild.id) if self.guild else None
+        self.config = self.bot.get_config(
+            self.guild.id) if self.guild else None
         self.uconfig = self.bot.get_config(self.author)
         self.silent = False
 
@@ -59,23 +60,26 @@ class Context(commands.Context):
 
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):
         if content:
-            content = str(content).replace('@everyone', u'@\u200beveryone').replace('@here', u'@\u200bhere').replace('<@&', u'<@\u200b&')
+            content = str(content).replace('@everyone', u'@\u200beveryone').replace(
+                '@here', u'@\u200bhere').replace('<@&', u'<@\u200b&')
         if isinstance(content, discord.Embed):
             embed = content.copy()
             content = None
         if not content and random.randint(0, 101) < 10 and self.uconfig.get('utils.tips'):
             content = '**PROTIP:** ' + random.choice(self.bot.tips)
         if isinstance(embed, discord.Embed) and embed.color in [discord.Embed.Empty, discord.Color.default()]:
-            embed.color = random.choice(self.colors)  # TODO Add ability for user to set default color
+            # TODO Add ability for user to set default color
+            embed.color = random.choice(self.colors)
         if not (file or files):
-            resp = discord.utils.get(self.bot.cached_messages, id=self.bot.cmdresp.get(self.message.id, 0))
+            resp = discord.utils.get(
+                self.bot.cached_messages, id=self.bot.cmdresp.get(self.message.id, 0))
             edited = self.message.edited_at
             if resp and edited and edited > (resp.edited_at or self.message.created_at):
-               try:
-                   await resp.edit(content=content, tts=tts, embed=embed, delete_after=delete_after)
-                   return resp
-               except Exception:
-                   pass
+                try:
+                    await resp.edit(content=content, tts=tts, embed=embed, delete_after=delete_after)
+                    return resp
+                except Exception:
+                    pass
             elif not resp:
                 self.bot.cmdresp.pop(self.message.id, 0)
         resp = await super().send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after)

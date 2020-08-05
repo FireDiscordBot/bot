@@ -52,11 +52,15 @@ class MemberJoin(commands.Cog):
                 if banned:
                     try:
                         await member.guild.ban(member, reason=f'{member} was found on global ban list')
-                        self.recentgban.append(f'{member.id}-{member.guild.id}')
+                        self.recentgban.append(
+                            f'{member.id}-{member.guild.id}')
                         if logch:
-                            embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc), description=f'**{member.mention} was banned**')
-                            embed.set_author(name=member, icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-                            embed.add_field(name='Reason', value=f'{member} was found on global ban list', inline=False)
+                            embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(
+                                datetime.timezone.utc), description=f'**{member.mention} was banned**')
+                            embed.set_author(name=member, icon_url=str(
+                                member.avatar_url_as(static_format='png', size=2048)))
+                            embed.add_field(
+                                name='Reason', value=f'{member} was found on global ban list', inline=False)
                             embed.set_footer(text=f"Member ID: {member.id}")
                             try:
                                 return await logch.send(embed=embed)
@@ -86,18 +90,25 @@ class MemberJoin(commands.Cog):
                     message = message.replace(var, value)
                 await joinchan.send(message)
         if logch:
-            embed = discord.Embed(title='Member Joined', url='https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif', color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
-            embed.set_author(name=f'{member}', icon_url=str(member.avatar_url_as(static_format='png', size=2048)))
-            embed.add_field(name='Account Created', value=humanfriendly.format_timespan(datetime.datetime.utcnow() - member.created_at) + ' ago', inline=False)
+            embed = discord.Embed(title='Member Joined', url='https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif',
+                                  color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))
+            embed.set_author(name=f'{member}', icon_url=str(
+                member.avatar_url_as(static_format='png', size=2048)))
+            embed.add_field(name='Account Created', value=humanfriendly.format_timespan(
+                datetime.datetime.utcnow() - member.created_at) + ' ago', inline=False)
             if usedinvite and member.guild.id in premium:
-                embed.add_field(name='Invite Used', value=usedinvite, inline=False)
-            if member.guild.id not in premium and randint(0, 100) == 69:  # Nice
-                embed.add_field(name='Want to see what invite they used?', value='Fire Premium allows you to do that and more.\n[Learn More](https://gaminggeek.dev/premium)', inline=False)
+                embed.add_field(name='Invite Used',
+                                value=usedinvite, inline=False)
+            # Nice
+            if member.guild.id not in premium and randint(0, 100) == 69:
+                embed.add_field(name='Want to see what invite they used?',
+                                value='Fire Premium allows you to do that and more.\n[Learn More](https://gaminggeek.dev/premium)', inline=False)
             if member.bot:
                 try:
                     async for e in member.guild.audit_logs(action=discord.AuditLogAction.bot_add, limit=10):
                         if e.target.id == member.id:
-                            embed.add_field(name='Invited By', value=f'{e.user} ({e.user.id})', inline=False)
+                            embed.add_field(
+                                name='Invited By', value=f'{e.user} ({e.user.id})', inline=False)
                             break
                 except Exception as e:
                     pass
@@ -107,9 +118,11 @@ class MemberJoin(commands.Cog):
             except Exception:
                 pass
         try:
-            badname = conf.get('utils.badname') or f'John Doe {member.discriminator}'
+            badname = conf.get(
+                'utils.badname') or f'John Doe {member.discriminator}'
             if conf.get('mod.autodecancer') and member.guild.me.guild_permissions.manage_nicknames:
-                if not self.bot.isascii(member.name.replace('‘', '\'').replace('“', '"').replace('“', '"')): #fix weird mobile characters
+                # fix weird mobile characters
+                if not self.bot.isascii(member.name.replace('‘', '\'').replace('“', '"').replace('“', '"')):
                     return await member.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters')
             if conf.get('mod.autodehoist') and member.guild.me.guild_permissions.manage_nicknames:
                 if self.bot.ishoisted(member.name):
@@ -123,4 +136,5 @@ def setup(bot):
         bot.add_cog(MemberJoin(bot))
         bot.logger.info(f'$GREENLoaded event $CYANMemberJoin!')
     except Exception as e:
-        bot.logger.error(f'$REDError while loading event $CYAN"MemberJoin"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while loading event $CYAN"MemberJoin"', exc_info=e)

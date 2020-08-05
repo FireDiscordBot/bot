@@ -56,13 +56,16 @@ class MCStatus(commands.Cog):
         for service in status:
             for name, state in service.items():
                 if name in services:
-                    s.append(f'{emotes[state]} {services[name]}: {statuses[state]}')
+                    s.append(
+                        f'{emotes[state]} {services[name]}: {statuses[state]}')
         embed = discord.Embed(color=ctx.author.color, description='\n'.join(s))
         return await ctx.send(embed=embed)
+
 
 def setup(bot):
     try:
         bot.add_cog(MCStatus(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"mcstatus" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"mcstatus"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"mcstatus"', exc_info=e)

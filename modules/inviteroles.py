@@ -54,7 +54,8 @@ class InviteRoles(commands.Cog):
         return rps if not guild else rps.get(str(guild), None)
 
     @commands.Cog.listener()
-    async def on_invite_join(self, member: discord.Member, invite: str):  # member_join will dispatch this if a valid invite was used
+    # member_join will dispatch this if a valid invite was used
+    async def on_invite_join(self, member: discord.Member, invite: str):
         guild = member.guild
         invroles = await self.get_invroles(guild.id)
         if not invroles:
@@ -93,7 +94,7 @@ class InviteRoles(commands.Cog):
         invite = invite.code
         invroles = await self.get_invroles(ctx.guild.id)
         if not invroles:
-             invroles = []
+            invroles = []
         current = [
             i for i in invroles if i['invite'] == invite and i['role'] == role.id
         ]
@@ -119,4 +120,5 @@ def setup(bot):
         bot.add_cog(InviteRoles(bot))
         bot.logger.info(f'$GREENLoaded $CYANInvite Roles $GREENmodule!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding module $CYAN"invite roles"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding module $CYAN"invite roles"', exc_info=e)

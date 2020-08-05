@@ -22,63 +22,64 @@ import re
 
 
 class Koding(commands.Cog, name="Koding's Custom Features"):
-	def __init__(self, bot):
-		self.bot = bot
-		self.konfig = json.load(open('koding.json', 'r'))
-		if not hasattr(self.bot, 'kodingantiswear'):
-			self.bot.kodingantiswear = self.konfig.get('antiswear', True)
-		self.swear = self.konfig.get('words', [])
-		self.urlregex = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
+    def __init__(self, bot):
+        self.bot = bot
+        self.konfig = json.load(open('koding.json', 'r'))
+        if not hasattr(self.bot, 'kodingantiswear'):
+            self.bot.kodingantiswear = self.konfig.get('antiswear', True)
+        self.swear = self.konfig.get('words', [])
+        self.urlregex = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
 
-	@commands.command(name='kodingswear')
-	async def stopswearingkoding(self, ctx, state: bool = True):
-		if ctx.author.id != 341841981074309121:
-			return await ctx.send('no')
-		self.bot.kodingantiswear = state
-		self.konfig['antiswear'] = state
-		json.dump(self.konfig, open('koding.json', 'w'), indent=4)
-		e = 'enabled' if self.bot.kodingantiswear else 'disabled'
-		return await ctx.send(f'Antiswear is now {e}')
+    @commands.command(name='kodingswear')
+    async def stopswearingkoding(self, ctx, state: bool = True):
+        if ctx.author.id != 341841981074309121:
+            return await ctx.send('no')
+        self.bot.kodingantiswear = state
+        self.konfig['antiswear'] = state
+        json.dump(self.konfig, open('koding.json', 'w'), indent=4)
+        e = 'enabled' if self.bot.kodingantiswear else 'disabled'
+        return await ctx.send(f'Antiswear is now {e}')
 
-	@commands.command(name='klistswear', aliases=['kswearlist'])
-	async def swearlist(self, ctx):
-		if ctx.author.id != 341841981074309121:
-			return await ctx.send('no')
-		return await ctx.send('```\n' + ', '.join(self.swear) + '```')
+    @commands.command(name='klistswear', aliases=['kswearlist'])
+    async def swearlist(self, ctx):
+        if ctx.author.id != 341841981074309121:
+            return await ctx.send('no')
+        return await ctx.send('```\n' + ', '.join(self.swear) + '```')
 
-	@commands.command(name='kaddswear', aliases=['kswearadd'])
-	async def addswear(self, ctx, word: str, f: flags.FlagParser(remove=bool) = flags.EmptyFlags):
-		if ctx.author.id != 341841981074309121:
-                        return await ctx.send('no')
-		remove = False
-		if isinstance(f, dict):
-			remove = f['remove']
-		if not remove:
-			self.konfig['words'].append(word)
-			json.dump(self.konfig, open('koding.json', 'w'), indent=4)
-			self.swear = self.konfig['words']
-			return await ctx.send(f'Added {word} to the naughty list')
-		elif word in self.swear:
-			self.konfig['words'].remove(word)
-			json.dump(self.konfig, open('koding.json', 'w'), indent=4)
-			self.swear = self.konfig['words']
-			return await ctx.send(f'Removed {word} from the naughty list')
+    @commands.command(name='kaddswear', aliases=['kswearadd'])
+    async def addswear(self, ctx, word: str, f: flags.FlagParser(remove=bool) = flags.EmptyFlags):
+        if ctx.author.id != 341841981074309121:
+            return await ctx.send('no')
+        remove = False
+        if isinstance(f, dict):
+            remove = f['remove']
+        if not remove:
+            self.konfig['words'].append(word)
+            json.dump(self.konfig, open('koding.json', 'w'), indent=4)
+            self.swear = self.konfig['words']
+            return await ctx.send(f'Added {word} to the naughty list')
+        elif word in self.swear:
+            self.konfig['words'].remove(word)
+            json.dump(self.konfig, open('koding.json', 'w'), indent=4)
+            self.swear = self.konfig['words']
+            return await ctx.send(f'Removed {word} from the naughty list')
 
-	@commands.Cog.listener()
-	async def on_message(self, message):
-		if message.author.id != 341841981074309121:
-			return
-		if message.content.endswith('/i'):
-			return
-		tocheck = re.sub(self.urlregex, 'URL', message.content, 0, re.MULTILINE)
-		tocheck = re.sub(r'[^A-Za-z0-9 ]', '', tocheck, 0, re.MULTILINE)
-		if any(swear in tocheck.lower().split(' ') for swear in self.swear) and self.bot.kodingantiswear:
-			try:
-				await message.delete()
-			except Exception:
-				await message.author.send('uh oh, you did a naughty! don\'t do that!')
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author.id != 341841981074309121:
+            return
+        if message.content.endswith('/i'):
+            return
+        tocheck = re.sub(self.urlregex, 'URL',
+                         message.content, 0, re.MULTILINE)
+        tocheck = re.sub(r'[^A-Za-z0-9 ]', '', tocheck, 0, re.MULTILINE)
+        if any(swear in tocheck.lower().split(' ') for swear in self.swear) and self.bot.kodingantiswear:
+            try:
+                await message.delete()
+            except Exception:
+                await message.author.send('uh oh, you did a naughty! don\'t do that!')
 
 
 def setup(bot):
-	bot.add_cog(Koding(bot))
-	bot.logger.info(f'$GREENLoaded Koding\'s custom features!')
+    bot.add_cog(Koding(bot))
+    bot.logger.info(f'$GREENLoaded Koding\'s custom features!')

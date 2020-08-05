@@ -86,7 +86,7 @@ class GuildInfo(commands.Cog):
         elif 'VERIFIED' in guild.features:
             badges.append(
                 str(discord.utils.get(self.bot.emojis, id=647400543018287114))
-                )
+            )
         if guild.id in self.bot.premium_guilds:
             badges.append(
                 str(discord.utils.get(self.bot.emojis, id=680519037704208466))
@@ -221,7 +221,8 @@ class GuildInfo(commands.Cog):
         ).add_field(
             name='» Features',
             value=', '.join(
-                [featureslist[f] for f in guild.features if f in featureslist] or ['No Features']
+                [featureslist[f]
+                    for f in guild.features if f in featureslist] or ['No Features']
             ),
             inline=False
         )
@@ -247,4 +248,5 @@ def setup(bot):
         bot.add_cog(GuildInfo(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"guild" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"guild"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"guild"', exc_info=e)

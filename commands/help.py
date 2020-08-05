@@ -25,12 +25,14 @@ from urllib.parse import quote
 
 class Help(commands.Cog):
     """Handles the help command for Fire"""
+
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(name='help', description='Provides help for those who need it')
     async def help(self, ctx):
-        prefix = ctx.prefix.replace('<@444871677176709141> ', '@Fire ').replace('<@!444871677176709141>', '@Fire ')
+        prefix = ctx.prefix.replace(
+            '<@444871677176709141> ', '@Fire ').replace('<@!444871677176709141>', '@Fire ')
         embed = discord.Embed(colour=ctx.author.color, description=f'''Here\'s some helpful links
 [Commands](https://fire.gaminggeek.space/commands?prefix={quote(prefix)})
 [Support Server](https://inv.wtf/fire)
@@ -38,7 +40,8 @@ class Help(commands.Cog):
 [Vote for me](https://fire-is-the.best)
 [Premium](https://gaminggeek.dev/premium)
 ''')
-        embed.set_author(name='Help has arrived', icon_url=str(ctx.me.avatar_url_as(static_format='png', size=2048)))
+        embed.set_author(name='Help has arrived', icon_url=str(
+            ctx.me.avatar_url_as(static_format='png', size=2048)))
         await ctx.send(embed=embed)
 
 

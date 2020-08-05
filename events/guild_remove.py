@@ -35,12 +35,12 @@ class GuildRemove(commands.Cog):
         await desc.set_desc(fire, f'Fire is an open-source, multi-purpose bot '
                                   f'with {len(self.bot.commands)} commands and is used in '
                                   f'{len(self.bot.guilds)} servers.'
-        )
+                            )
         self.bot.logger.info(f'$REDFire left a guild! '
                              f'$CYAN{guild.name}({guild.id}) '
                              f'$REDwith $CYAN{guild.member_count} $REDmembers '
                              f'owned by {guild.owner}'
-        )
+                             )
         botlists = [
             self.bot.get_cog('TopGG'),
             self.bot.get_cog('DiscordBoats')
@@ -49,7 +49,8 @@ class GuildRemove(commands.Cog):
             try:
                 await l.post_guilds()
             except Exception as e:
-                self.bot.logger.warn(f'$YELLOWFailed to post guild count to $CYAN{l.name}', exc_info=e)
+                self.bot.logger.warn(
+                    f'$YELLOWFailed to post guild count to $CYAN{l.name}', exc_info=e)
 
 
 def setup(bot):
@@ -59,4 +60,5 @@ def setup(bot):
             bot.logger.info(f'$GREENLoaded event $CYANGuildRemove!')
         except Exception as e:
             # errortb = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
-            bot.logger.error(f'$REDError while loading event $CYAN"GuildRemove"', exc_info=e)
+            bot.logger.error(
+                f'$REDError while loading event $CYAN"GuildRemove"', exc_info=e)

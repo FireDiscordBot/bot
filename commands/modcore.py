@@ -44,18 +44,23 @@ class Modcore(commands.Cog):
             profile = await self.bot.http.modcore.request(route)
         except Exception:
             return await ctx.error(f'Failed to fetch profile')
-        purchases = [self.modcoref(c) for c, e in profile.get('purchase_profile', {'No Cosmetics': True}).items() if e]
+        purchases = [self.modcoref(c) for c, e in profile.get(
+            'purchase_profile', {'No Cosmetics': True}).items() if e]
         for c, s in profile.get('cosmetic_settings', {}).items():
             if s != {} and s.get('enabled', False):
                 if 'id' in s:
                     cid = s['id']
-                    purchases = [p.replace(self.modcoref(c), f'**[{self.modcoref(c)}](https://api.modcore.sk1er.club/serve/{"cape" if "CAPE" in c else "skin"}/{"static" if "STATIC" in c else "dynamic"}/{cid})**') for p in purchases]
+                    purchases = [p.replace(self.modcoref(
+                        c), f'**[{self.modcoref(c)}](https://api.modcore.sk1er.club/serve/{"cape" if "CAPE" in c else "skin"}/{"static" if "STATIC" in c else "dynamic"}/{cid})**') for p in purchases]
         purchases = ', '.join([i for i in purchases])
-        embed = discord.Embed(title=f'{player}\'s Modcore Profile', color=ctx.author.color)
+        embed = discord.Embed(
+            title=f'{player}\'s Modcore Profile', color=ctx.author.color)
         embed.add_field(name='UUID', value=uuid, inline=False)
-        embed.add_field(name='Enabled Cosmetics', value=purchases or 'No Cosmetics', inline=False)
+        embed.add_field(name='Enabled Cosmetics',
+                        value=purchases or 'No Cosmetics', inline=False)
         if profile.get('online', False):
-            embed.add_field(name='Status', value=profile.get('status', None) or '¯\_(ツ)_/¯', inline=False)
+            embed.add_field(name='Status', value=profile.get(
+                'status', None) or '¯\_(ツ)_/¯', inline=False)
         return await ctx.send(embed=embed)
 
 
@@ -64,4 +69,5 @@ def setup(bot):
         bot.add_cog(Modcore(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"Modcore" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"Modcore"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"Modcore"', exc_info=e)

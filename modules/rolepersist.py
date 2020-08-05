@@ -109,18 +109,24 @@ class RolePersist(commands.Cog):
                 names = ', '.join([
                     discord.utils.escape_mentions(guild.get_role(r).name) for r in current if guild.get_role(r)
                 ])  # The check for if the role exists should be pointless but better to check than error
-                logch = self.bot.get_config(after.guild.id).get('log.moderation')
+                logch = self.bot.get_config(
+                    after.guild.id).get('log.moderation')
                 if logch:
                     embed = discord.Embed(
                         color=discord.Color.green() if current else discord.Color.red(),
                         timestamp=datetime.datetime.now(datetime.timezone.utc)
                     )
-                    embed.set_author(name=f'Role Persist | {after}', icon_url=str(after.avatar_url_as(static_format='png', size=2048)))
-                    embed.add_field(name='User', value=f'{after} ({after.id})', inline=False)
-                    embed.add_field(name='Moderator', value=guild.me.mention, inline=False)
+                    embed.set_author(name=f'Role Persist | {after}', icon_url=str(
+                        after.avatar_url_as(static_format='png', size=2048)))
+                    embed.add_field(
+                        name='User', value=f'{after} ({after.id})', inline=False)
+                    embed.add_field(name='Moderator',
+                                    value=guild.me.mention, inline=False)
                     if names:
-                        embed.add_field(name='Roles', value=names, inline=False)
-                    embed.set_footer(text=f'User ID: {after.id} | Mod ID: {guild.me.id}')
+                        embed.add_field(
+                            name='Roles', value=names, inline=False)
+                    embed.set_footer(
+                        text=f'User ID: {after.id} | Mod ID: {guild.me.id}')
                     try:
                         await logch.send(embed=embed)
                     except Exception:
@@ -179,7 +185,7 @@ class RolePersist(commands.Cog):
             ctx.guild.get_role(r) for r in current if ctx.guild.get_member(user.id) and ctx.guild.get_role(r) not in user.roles
         ]
         toremove = [
-             r for r in toremove if r and ctx.guild.get_member(user.id) and r in user.roles
+            r for r in toremove if r and ctx.guild.get_member(user.id) and r in user.roles
         ]
         if donthave:
             await user.add_roles(*donthave, reason=f'Role persist by {ctx.author.id}', atomic=False)
@@ -194,12 +200,16 @@ class RolePersist(commands.Cog):
                 color=discord.Color.green() if not delete else discord.Color.red(),
                 timestamp=datetime.datetime.now(datetime.timezone.utc)
             )
-            embed.set_author(name=f'Role Persist | {user}', icon_url=str(user.avatar_url_as(static_format='png', size=2048)))
-            embed.add_field(name='User', value=f'{user} ({user.id})', inline=False)
-            embed.add_field(name='Moderator', value=ctx.author.mention, inline=False)
+            embed.set_author(name=f'Role Persist | {user}', icon_url=str(
+                user.avatar_url_as(static_format='png', size=2048)))
+            embed.add_field(
+                name='User', value=f'{user} ({user.id})', inline=False)
+            embed.add_field(name='Moderator',
+                            value=ctx.author.mention, inline=False)
             if names:
                 embed.add_field(name='Roles', value=names, inline=False)
-            embed.set_footer(text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
+            embed.set_footer(
+                text=f'User ID: {user.id} | Mod ID: {ctx.author.id}')
             try:
                 await logch.send(embed=embed)
             except Exception:
@@ -215,4 +225,5 @@ def setup(bot):
         bot.add_cog(RolePersist(bot))
         bot.logger.info(f'$GREENLoaded $CYANRole Persist $GREENmodule!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding module $CYAN"role persist"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding module $CYAN"role persist"', exc_info=e)

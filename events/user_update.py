@@ -31,7 +31,8 @@ class UserUpdate(commands.Cog):
     async def on_user_update(self, before, after):
         for guild in self.bot.guilds:
             conf = self.bot.get_config(guild)
-            badname = conf.get('utils.badname') or f'John Doe {after.discriminator}'
+            badname = conf.get(
+                'utils.badname') or f'John Doe {after.discriminator}'
             if before.name != after.name:
                 try:
                     member = guild.get_member(after.id)
@@ -39,9 +40,12 @@ class UserUpdate(commands.Cog):
                         continue
                     if conf.get('mod.autodecancer') and guild.me.guild_permissions.manage_nicknames:
                         sk1roles = [
-                            discord.utils.get(member.guild.roles, id=585534346551754755),
-                            discord.utils.get(member.guild.roles, id=436306157762773013),
-                            discord.utils.get(member.guild.roles, id=698943379181928520)
+                            discord.utils.get(
+                                member.guild.roles, id=585534346551754755),
+                            discord.utils.get(
+                                member.guild.roles, id=436306157762773013),
+                            discord.utils.get(
+                                member.guild.roles, id=698943379181928520)
                         ]
                         if member.guild_permissions.manage_nicknames or any(r for r in sk1roles if r in member.roles):
                             pass
@@ -55,9 +59,12 @@ class UserUpdate(commands.Cog):
                                         await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: USER_UPDATE)')
                     if conf.get('mod.autodehoist') and guild.me.guild_permissions.manage_nicknames:
                         sk1roles = [
-                            discord.utils.get(member.guild.roles, id=585534346551754755),
-                            discord.utils.get(member.guild.roles, id=436306157762773013),
-                            discord.utils.get(member.guild.roles, id=698943379181928520)
+                            discord.utils.get(
+                                member.guild.roles, id=585534346551754755),
+                            discord.utils.get(
+                                member.guild.roles, id=436306157762773013),
+                            discord.utils.get(
+                                member.guild.roles, id=698943379181928520)
                         ]
                         if member.guild_permissions.manage_nicknames or any(r for r in sk1roles if r in member.roles):
                             pass
@@ -78,4 +85,5 @@ def setup(bot):
         bot.add_cog(UserUpdate(bot))
         bot.logger.info(f'$GREENLoaded event $CYANUserUpdate!')
     except Exception as e:
-        bot.logger.error(f'$REDError while loading event $CYAN"UserUpdate"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while loading event $CYAN"UserUpdate"', exc_info=e)

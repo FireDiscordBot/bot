@@ -54,4 +54,5 @@ def setup(bot):
         bot.add_cog(Slowmode(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"slowmode" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"slowmode"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"slowmode"', exc_info=e)

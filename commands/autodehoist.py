@@ -36,9 +36,11 @@ class AutoDehoist(commands.Cog):
         else:
             await ctx.success(f'Disabled autodehoist. **New** users with hoisted names will no longer be renamed')
 
+
 def setup(bot):
     try:
         bot.add_cog(AutoDehoist(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"autodehoist" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"autodehoist"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"autodehoist"', exc_info=e)

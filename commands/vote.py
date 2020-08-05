@@ -36,4 +36,5 @@ def setup(bot):
         bot.add_cog(Vote(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"vote" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"vote"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"vote"', exc_info=e)

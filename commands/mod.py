@@ -65,27 +65,32 @@ class Mod(commands.Cog):
             description=mod['short'],
             timestamp=datetime.datetime.now(datetime.timezone.utc)
         )
-        embed.add_field(name="Versions", value='\n'.join([f'**{k}**: {v}' for k, v in mod['latest'].items()]) or 'No Versions Found', inline=False)
+        embed.add_field(name="Versions", value='\n'.join(
+            [f'**{k}**: {v}' for k, v in mod['latest'].items()]) or 'No Versions Found', inline=False)
         embed.add_field(name="Creator", value=f'''**__{mod['vendor']['name']}__**
 [Website]({mod['vendor']['website']})
 [Twitter]({mod['vendor']['twitter']})
 [YouTube]({mod['vendor']['youtube']})
 ''', inline=False)
         if analytics:
-            embed.add_field(name="Analytics", value=f"Total: {analytics['total']:,d}, Online: {analytics['online']:,d}, Last Day: {analytics['day']:,d}, Last Week: {analytics['week']:,d}", inline=False)
+            embed.add_field(
+                name="Analytics", value=f"Total: {analytics['total']:,d}, Online: {analytics['online']:,d}, Last Day: {analytics['day']:,d}, Last Week: {analytics['week']:,d}", inline=False)
         await ctx.send(embed=embed)
         paginator = WrappedPaginator(prefix='', suffix='', max_size=490)
         for mcv in mod['changelog']:
             paginator.add_line(f'**__{mcv}__**')
             for v in mod['changelog'][mcv]:
                 changelog = mod["changelog"][mcv][v][0]
-                time = datetime.datetime.fromtimestamp(changelog["time"] / 1000, datetime.timezone.utc).strftime('%d/%m/%Y @ %I:%M:%S %p')
+                time = datetime.datetime.fromtimestamp(
+                    changelog["time"] / 1000, datetime.timezone.utc).strftime('%d/%m/%Y @ %I:%M:%S %p')
                 paginator.add_line(f'**{v}**: {changelog["text"]} ({time})')
             paginator.add_line('-----------------')
         if not paginator.pages:
             return
-        embed = discord.Embed(color=ctx.author.color, title='Changelogs', timestamp=datetime.datetime.now(datetime.timezone.utc))
-        interface = PaginatorEmbedInterface(ctx.bot, paginator, owner=ctx.author, _embed=embed)
+        embed = discord.Embed(color=ctx.author.color, title='Changelogs',
+                              timestamp=datetime.datetime.now(datetime.timezone.utc))
+        interface = PaginatorEmbedInterface(
+            ctx.bot, paginator, owner=ctx.author, _embed=embed)
         await interface.send_to(ctx)
 
 
@@ -94,4 +99,5 @@ def setup(bot):
         bot.add_cog(Mod(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"Mod" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"Mod"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"Mod"', exc_info=e)

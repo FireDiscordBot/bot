@@ -35,4 +35,5 @@ def setup(bot):
         bot.add_cog(OSS(bot))
         bot.logger.info(f'$GREENLoaded $CYAN"OSS" $GREENcommand!')
     except Exception as e:
-        bot.logger.error(f'$REDError while adding command $CYAN"OSS"', exc_info=e)
+        bot.logger.error(
+            f'$REDError while adding command $CYAN"OSS"', exc_info=e)

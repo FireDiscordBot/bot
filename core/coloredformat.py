@@ -59,7 +59,6 @@ COLORS = {
 }
 
 
-
 DATE_LEVELS = {
     "INFO": COLORS["!CYAN"],
     "WARNING": COLORS["!YELLOW"],
@@ -86,7 +85,8 @@ class ColoredFormatter(logging.Formatter):
         if levelname in LEVELS:
             date_color = DATE_LEVELS[levelname]
             level_color = LEVELS[levelname]
-            now = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)  # fuck daylight savings
+            now = datetime.datetime.now(
+                datetime.timezone.utc) + datetime.timedelta(hours=1)  # fuck daylight savings
             now = datetime.datetime.strftime(now, '%d/%m/%Y @ %I:%M:%S %p')
             record.levelname = f'{date_color}{now}{COLORS["$RESET"]}{level_color}'
             for k, v in COLORS.items():

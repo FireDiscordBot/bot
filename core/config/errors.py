@@ -15,6 +15,7 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+
 class TypeMismatchError(Exception):
     def __init__(self, **kwargs):
         self.type = kwargs.pop('type', str)
@@ -24,12 +25,14 @@ class TypeMismatchError(Exception):
     def __str__(self):
         return f'{self.type} is not an accepted type for {self.option}. {self.accepted} is required.'
 
+
 class InvalidOptionError(Exception):
     def __init__(self, *args):
         self.option = args[0]
 
     def __str__(self):
         return f'{self.option} is not a valid option.'
+
 
 class RestrictedOptionError(Exception):
     def __init__(self, *args):
@@ -39,12 +42,14 @@ class RestrictedOptionError(Exception):
     def __str__(self):
         return f'{self.option} is restricted to {self.restriction}.'
 
+
 class OptionConfigError(Exception):
     def __init__(self, *args):
         self.option = args[0]
 
     def __str__(self):
         return f'{self.option} has an invalid config.'
+
 
 class InvalidValueError(Exception):
     def __init__(self, *args):
@@ -54,4 +59,3 @@ class InvalidValueError(Exception):
 
     def __str__(self):
         return f'{self.value} is not a valid value for {self.option}. {self.reason}'
-
