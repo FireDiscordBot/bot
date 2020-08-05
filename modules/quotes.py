@@ -98,7 +98,7 @@ class Quotes(commands.Cog, name="Quotes"):
 
             # Replies are an experimental feature. It basically is quotes on steroids so Fire shouldn't quote when it's being used.
             # While you can manually reply cross server, it's not as convinient as Fire quotes so I don't think quotes are going anywhere just yet
-            reply_regex = r'Replying to <@!?[0-9]+> from (?:http(?:s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
+            reply_regex = r'Replying to (?:<@!?[0-9]+> from )?(?:http(?:s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
             reply = re.findall(reply_regex, message.content, re.MULTILINE)
             if reply:
                 return
