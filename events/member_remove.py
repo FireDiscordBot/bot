@@ -74,7 +74,7 @@ class MemberRemove(commands.Cog):
             embed.set_author(name=f'{member}', icon_url=str(
                 member.avatar_url_as(static_format='png', size=2048)))
             delta = humanfriendly.format_timespan(
-                datetime.datetime.utcnow() - member.created_at,
+                datetime.datetime.utcnow() - member.joined_at,
                 max_units=2
             )
             embed.add_field(name='Stayed for', value=delta, inline=False)
