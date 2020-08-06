@@ -59,9 +59,6 @@ class Context(commands.Context):
         await self.send(f'<:xmark:674359427830382603> {message}', **kwargs)
 
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, allowed_mentions=None):
-        if content:
-            content = str(content).replace('@everyone', u'@\u200beveryone').replace(
-                '@here', u'@\u200bhere').replace('<@&', u'<@\u200b&')
         if isinstance(content, discord.Embed):
             embed = content.copy()
             content = None
