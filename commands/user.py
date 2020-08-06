@@ -62,41 +62,30 @@ class UserInfo(commands.Cog):
             return f'<:xmark:674359427830382603> Banned on [KSoft.Si](https://bans.ksoft.si/share?user={user.id}) for {ksoftban.reason} - [Proof]({ksoftban.proof})'
         return ''
 
-    # I will improve this when discord.py gets actual flags support
     def get_badges(self, user: typing.Union[discord.User, discord.Member]):
-        badges = []
-        if self.bot.isadmin(user):
-            badges.append(str(discord.utils.get(
-                self.bot.emojis, id=671243744774848512)))
-        if (user.flags & 1) == 1:  # Staff
-            badges.append(str(discord.utils.get(
-                self.bot.emojis, id=698344463281422371)))
-        if (user.flags & 2) == 2:  # Partner
-            badges.append(str(discord.utils.get(
-                self.bot.emojis, id=631831109575114752)))
-        if (user.flags & 1 << 2) == 1 << 2:  # Hypesquad Events
-            badges.append(str(discord.utils.get(
-                self.bot.emojis, id=698349980192079882)))
-        if (user.flags & 1 << 3) == 1 << 3:  # Bug Hunter (Level 1)
-            badges.append(str(discord.utils.get(
-                self.bot.emojis, id=698350213596971049)))
-        if (user.flags & 1 << 9) == 1 << 9:  # Early Supporter
-            badges.append(str(discord.utils.get(
-                self.bot.emojis, id=698350657073053726)))
-        if (user.flags & 1 << 14) == 1 << 14:  # Bug Hunter (Level 2)
-            badges.append(str(discord.utils.get(
-                self.bot.emojis, id=698350544103669771)))
-        if (user.flags & 1 << 16) == 1 << 16:  # Verified Bot
-            badges.append(
-                str(discord.utils.get(self.bot.emojis, id=700325427998097449)) +
-                str(discord.utils.get(self.bot.emojis, id=700325521665425429))
-            )
-        if (user.flags & 1 << 17) == 1 << 17:  # Verified Bot Developer
-            badges.append(str(discord.utils.get(
-                self.bot.emojis, id=720179031785340938)))
-        if user.id in self.bot.premium_guilds.values():
-            badges.append(str(discord.utils.get(
-                self.bot.emojis, id=680519037704208466)))
+        badge_checks = {
+            self.bot.isadmin(user): discord.utils.get(
+                self.bot.emojis, id=671243744774848512),
+            user.public_flags.staff: discord.utils.get(
+                self.bot.emojis, id=698344463281422371),
+            user.public_flags.partner: discord.utils.get(
+                self.bot.emojis, id=631831109575114752),
+            user.public_flags.hypesquad: discord.utils.get(
+                self.bot.emojis, id=698349980192079882),
+            user.public_flags.bug_hunter: discord.utils.get(
+                self.bot.emojis, id=698350213596971049),
+            user.public_flags.bug_hunter_level_2: discord.utils.get(
+                self.bot.emojis, id=698350544103669771),
+            user.public_flags.early_supporter: discord.utils.get(
+                self.bot.emojis, id=698350657073053726),
+            user.public_flags.verified_bot: str(discord.utils.get(self.bot.emojis, id=700325427998097449)) +
+            str(discord.utils.get(self.bot.emojis, id=700325521665425429)),
+            user.public_flags.verified_bot_developer: discord.utils.get(
+                self.bot.emojis, id=720179031785340938),
+            user.id in self.bot.premium_guilds.values(): discord.utils.get(
+                self.bot.emojis, id=680519037704208466)
+        }
+        badges = [v for k, v in badge_checks.items() if k]
         if badges:
             badges.append(u'\u200b')  # Prevents huge emojis on mobile
         return badges
