@@ -40,6 +40,13 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         if 'slack_messages' not in dir(self.bot):
             self.bot.slack_messages = {}
 
+    async def cog_check(self, ctx):
+        """
+        Local check, prevents blacklisted guilds from using any vanity features
+        """
+        is_bl = await self.bot.db.fetch('SELECT * FROM vanitybl WHERE gid=$1;', ctx.guild.id)
+        return bool(is_bl)
+
     async def request_fetch(self):
         route = Route(
             'PUT',
