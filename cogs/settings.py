@@ -627,6 +627,7 @@ class Settings(commands.Cog):
         await ctx.send('Hey, I\'m going to guide you through my settings. This shouldn\'t take long, there\'s only 6 options to configure')
         await asyncio.sleep(3)
         await ctx.send('First, we\'ll configure logging. Please give a channel for moderation logs or say `skip` to disable...')
+        user_mention = discord.AllowedMentions(users=True)
 
         def modlog_check(message):
             if message.author != ctx.author:
@@ -648,7 +649,7 @@ class Settings(commands.Cog):
                 modlogs = None
             await ctx.config.set('log.moderation', modlogs)
         except asyncio.TimeoutError:
-            return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+            return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!', allowed_mentions=user_mention)
         await asyncio.sleep(2)
         await ctx.send('Ok. Next we\'ll configure action logs. This is where actions such as deleted messages, edited messages etc. are logged.')
         await asyncio.sleep(2)
@@ -674,7 +675,7 @@ class Settings(commands.Cog):
                 actionlogs = None
             await ctx.config.set('log.action', actionlogs)
         except asyncio.TimeoutError:
-            return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+            return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!', allowed_mentions=user_mention)
         await asyncio.sleep(2)
         await ctx.send('Ok. Next is link deletion. Discord invites are enabled by default but you can enable more with `$linkfilter`')
         await asyncio.sleep(2)
@@ -701,7 +702,7 @@ class Settings(commands.Cog):
                 await ctx.success(f'Enabling link filter. (If it was already enabled, your configuration won\'t change)')
             await ctx.config.set('mod.linkfilter', linkfilter)
         except asyncio.TimeoutError:
-            return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+            return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!', allowed_mentions=user_mention)
         await asyncio.sleep(2)
         await ctx.send('Ok. Now we\'re onto global bans. Fire uses the KSoft.Si API to check for naughty people. If enabled, I will ban any of these naughty people if they attempt to join.')
         await asyncio.sleep(2)
@@ -726,7 +727,7 @@ class Settings(commands.Cog):
                 await ctx.success(f'Enabling global ban check')
             await ctx.config.set('mod.globalbans', globalbans)
         except asyncio.TimeoutError:
-            return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+            return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!', allowed_mentions=user_mention)
         await asyncio.sleep(2)
         await ctx.send('The penultimate setting, auto-decancer. This renames users with "cancerous" names (non-ascii)')
         await asyncio.sleep(2)
@@ -751,7 +752,7 @@ class Settings(commands.Cog):
                 await ctx.success(f'Enabling auto decancer')
             await ctx.config.set('mod.autodecancer', audodc)
         except asyncio.TimeoutError:
-            return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+            return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!', allowed_mentions=user_mention)
         await asyncio.sleep(2)
         await ctx.send('Finally, the last setting. Similar to the last one, auto-dehoist renames people with a non A-Z character at the start of their name.')
         await asyncio.sleep(2)
@@ -776,7 +777,7 @@ class Settings(commands.Cog):
                 await ctx.success(f'Enabling auto dehoist')
             await ctx.config.set('mod.autodehoist', audodh)
         except asyncio.TimeoutError:
-            return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!')
+            return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!', allowed_mentions=user_mention)
         await asyncio.sleep(2)
         await ctx.send('Nice! We\'re all good to go. I\'ll send a recap in a moment. I just need to reload settings.')
         config = ctx.config
@@ -870,6 +871,7 @@ class Settings(commands.Cog):
             '{server}': ctx.guild.name,
             '{count}': str(ctx.guild.member_count)
         }
+        user_mention = discord.AllowedMentions(users=True)
         if not channel:
             joinmsg = ctx.config.get('greet.joinmsg')
             joinchan = ctx.config.get('greet.joinchannel')
@@ -905,13 +907,13 @@ class Settings(commands.Cog):
             await ctx.config.set('greet.joinchannel', channel)
             for k, v in variables.items():
                 joinmsg = joinmsg.replace(k, v)
-            return await ctx.success(f'Join messages will show in {channel.mention}!\nExample: {joinmsg}')
+            return await ctx.success(f'Join messages will show in {channel.mention}!\nExample: {joinmsg}', allowed_mentions=user_mention)
         else:
             await ctx.config.set('greet.joinmsg', message)
             await ctx.config.set('greet.joinchannel', channel)
             for k, v in variables.items():
                 message = message.replace(k, v)
-            return await ctx.success(f'Join messages will show in {channel.mention}!\nExample: {message}')
+            return await ctx.success(f'Join messages will show in {channel.mention}!\nExample: {message}', allowed_mentions=user_mention)
 
     @commands.command(name='leavemsg', description='Set the channel and message for leave messages')
     @commands.has_permissions(manage_guild=True)
@@ -926,6 +928,7 @@ class Settings(commands.Cog):
             '{guild}': ctx.guild.name,
             '{count}': str(ctx.guild.member_count)
         }
+        user_mention = discord.AllowedMentions(users=True)
         if not channel:
             leavemsg = ctx.config.get('greet.leavemsg')
             leavechan = ctx.config.get('greet.leavechannel')
@@ -961,13 +964,13 @@ class Settings(commands.Cog):
             await ctx.config.set('greet.leavechannel', channel)
             for k, v in variables.items():
                 leavemsg = leavemsg.replace(k, v)
-            return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {leavemsg}')
+            return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {leavemsg}', allowed_mentions=user_mention)
         else:
             await ctx.config.set('greet.leavemsg', message)
             await ctx.config.set('greet.leavechannel', channel)
             for k, v in variables.items():
                 message = message.replace(k, v)
-            return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {message}')
+            return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {message}', allowed_mentions=user_mention)
 
     @commands.command(name='linkfilter', description='Configure the link filter for this server', aliases=['linkfilters', 'linkblock'])
     @commands.has_permissions(manage_guild=True)

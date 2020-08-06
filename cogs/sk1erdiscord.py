@@ -112,7 +112,9 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     await ctx.send(f'{ctx.author.mention} To become a beta tester ,'
                                    f' please provide your specs through this form: '
                                    f'\n<https://inv.wtf/sk1spec>\n\n'
-                                   f'You will automatically gain access to beta channels after filling in the form'
+                                   f'You will automatically gain access to beta channels after filling in the form',
+                                   allowed_mentions=discord.AllowedMentions(
+                                       users=True)
                                    )
                 else:
                     await ctx.author.add_roles(real, reason='Specs already stored')
@@ -282,7 +284,11 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 await message.delete()
             except discord.HTTPException:
                 pass
-            return await message.channel.send(f'{message.author.mention} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)')
+            return await message.channel.send(
+                f'{message.author.mention} I am unable to read your log to remove sensitive information & provide solutions to your issue. '
+                f'Please upload the log directly :)',
+                allowed_mentions=discord.AllowedMentions(users=True)
+            )
         reupload = re.findall(self.reupload, message.content, re.MULTILINE)
         session = aiohttp.ClientSession()
         for domain, key in reupload:

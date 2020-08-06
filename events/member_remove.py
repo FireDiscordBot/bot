@@ -43,14 +43,12 @@ class MemberRemove(commands.Cog):
                     '{user.discrim}': member.discriminator,
                     '{server}': str(member.guild),
                     '{guild}': str(member.guild),
-                    '{count}': str(member.guild.member_count),
-                    '@everyone': u'@\u200beveryone',  # Nobody needs @everyone in a join/leave message
-                    '@here': u'@\u200bhere'
+                    '{count}': str(member.guild.member_count)
                 }
                 message = leavemsg
                 for var, value in vars.items():
                     message = message.replace(var, value)
-                await leavechan.send(message)
+                await leavechan.send(message, allowed_mentions=discord.AllowedMentions(users=True))
         logch = conf.get('log.moderation')
         if logch:
             moderator = None

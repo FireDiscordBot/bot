@@ -80,15 +80,14 @@ class MemberJoin(commands.Cog):
                 '{user.discrim}': member.discriminator,
                 '{server}': str(member.guild),
                 '{guild}': str(member.guild),
-                '{count}': str(member.guild.member_count),
-                '@everyone': u'@\u200beveryone',  # Nobody needs @everyone in a join/leave message
-                '@here': u'@\u200bhere'
+                '{count}': str(member.guild.member_count)
             }
+
             if joinchan and joinmsg:
                 message = joinmsg
                 for var, value in vars.items():
                     message = message.replace(var, value)
-                await joinchan.send(message)
+                await joinchan.send(message, allowed_mentions=discord.AllowedMentions(users=True))
         if logch:
             embed = discord.Embed(title='Member Joined', url='https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif',
                                   color=discord.Color.green(), timestamp=datetime.datetime.now(datetime.timezone.utc))

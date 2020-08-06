@@ -57,7 +57,9 @@ bot = Fire(
     owner_id=287698408855044097,
     max_messages=2500,
     fetch_offline_members=False,
-    dev=dev
+    dev=dev,
+    allowed_mentions=discord.AllowedMentions(
+        everyone=False, users=False, roles=False)
 )
 
 
@@ -68,8 +70,8 @@ extensions = [
     "cogs.ksoft",
     "cogs.moderation",
 
-# Hypixel cog is disabled until I get around to rewriting it
-#    "cogs.pickle",
+    # Hypixel cog is disabled until I get around to rewriting it
+    #    "cogs.pickle",
 
     "cogs.premium",
     "cogs.settings",
@@ -93,7 +95,10 @@ async def prefix(ctx, pfx: str = None):
     if not pfx:
         return await ctx.error("Missing argument for prefix! (Note: For prefixes with a space, surround it in \"\")")
     if ctx.me.mention in pfx:
-        return await ctx.warning(f'{ctx.me.mention} is a global prefix, you can use it anywhere. There\'s no need to set the server prefix to it')
+        return await ctx.warning(
+            f'{ctx.me.mention} is a global prefix, you can use it anywhere. There\'s no need to set the server prefix to it',
+            allowed_mentions=discord.AllowedMentions(users=True)
+        )
     if len(pfx) > 10:
         return await ctx.warning(f'Short prefixes are usually better. Try setting a prefix that\'s less than 10 characters')
     else:
@@ -145,6 +150,7 @@ async def start_bot():
     except KeyboardInterrupt:
         await stop_bot()
 
+
 async def stop_bot():
     if bot.get_cog('FireStatus') and not bot.dev:
         comps = ['gtbpmn9g33jk', 'xp3103fm3kpf']
@@ -158,4 +164,4 @@ if __name__ == "__main__":
     try:
         asyncio.get_event_loop().run_until_complete(start_bot())
     except KeyboardInterrupt:
-       asyncio.get_event_loop().run_until_complete(stop_bot())
+        asyncio.get_event_loop().run_until_complete(stop_bot())
