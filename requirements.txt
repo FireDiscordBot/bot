@@ -124,7 +124,7 @@ colormap == 1.0.2
 # Fire/modules/tickets.py: 19,21
 # Fire/modules/topgg.py: 19,20
 # Fire/modules/vanityurls.py: 21,25
-discord.py == 1.3.3
+discord.py == 1.4.0
 
 # Fire/cogs/utils.py: 38
 emoji == 0.5.4
