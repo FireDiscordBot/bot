@@ -540,6 +540,12 @@
                 "aliases": null
             },
             {
+                "name": "autoquote",
+                "description": "Enable automatic quoting when a message url is sent",
+                "usage": "{prefix}autoquote",
+                "aliases": null
+            },
+            {
                 "name": "remind",
                 "description": "Set a reminder and get reminded because that's what reminders are for. (Uses the same time format as tempmutes, DAYSd HOURSh etc.)",
                 "usage": "{prefix}remind <time + reminder>",

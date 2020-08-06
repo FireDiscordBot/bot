@@ -121,14 +121,14 @@ class Quotes(commands.Cog, name="Quotes"):
                         self.bot.dispatch('command_error', alt_ctx, e)
                 await asyncio.sleep(.5)
 
-    @commands.command(description='Quote a message from an id or url')
+    @commands.command(description='Quote a message from an id or url', aliases=['autoquote'])
     async def quote(self, ctx, message: typing.Union[discord.Message, str] = None):
-        if not message:
-            return await ctx.error('Please specify a message ID/URL to quote. Use `auto` to toggle auto message quotes.')
-        if isinstance(message, str) and message.lower() == 'auto' and ctx.author.guild_permissions.manage_guild:
+        if ctx.invoked_with == 'autoquote' or (message and isinstance(message, str) and message.lower() == 'auto') and ctx.author.guild_permissions.manage_guild:
             current = ctx.config.get('utils.autoquote')
             new = await ctx.config.set('utils.autoquote', not current)
             return await ctx.success(f'Auto message quoting: {new}')
+        if not message:
+            return await ctx.error('Please specify a message ID/URL to quote. Use `auto` to toggle auto message quotes.')
         if not isinstance(message, discord.Message):
             return
 
