@@ -58,7 +58,7 @@ class Context(commands.Context):
     async def error(self, message: str, **kwargs):
         await self.send(f'<:xmark:674359427830382603> {message}', **kwargs)
 
-    async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):
+    async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, allowed_mentions=None):
         if content:
             content = str(content).replace('@everyone', u'@\u200beveryone').replace(
                 '@here', u'@\u200bhere').replace('<@&', u'<@\u200b&')
@@ -82,7 +82,7 @@ class Context(commands.Context):
                     pass
             elif not resp:
                 self.bot.cmdresp.pop(self.message.id, 0)
-        resp = await super().send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after)
+        resp = await super().send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after, allowed_mentions=allowed_mentions)
         if not delete_after and not (file or files):
             self.bot.cmdresp[self.message.id] = resp.id
         return resp
