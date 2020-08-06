@@ -29,6 +29,9 @@ class Public(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def publiccmd(self, ctx):
         current = ctx.config.get('utils.public')
+        is_bl = await self.bot.db.fetch('SELECT * FROM vanitybl WHERE gid=$1;', ctx.guild.id)
+        if is_bl:
+            return await ctx.error(f'This guild has been blacklisted from vanity features and therefore cannot be public!')
         query = 'SELECT * FROM vanity WHERE gid=$1 AND redirect IS NULL'
         vanitys = await self.bot.db.fetch(query, ctx.guild.id)
         if not vanitys:
