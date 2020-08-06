@@ -45,7 +45,10 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         Local check, prevents blacklisted guilds from using any vanity features
         """
         is_bl = await self.bot.db.fetch('SELECT * FROM vanitybl WHERE gid=$1;', ctx.guild.id)
-        return bool(is_bl)
+        if is_bl:
+            await ctx.error(f'This guild has been blacklisted from vanity features!')
+            return False
+        return True
 
     async def request_fetch(self):
         route = Route(
