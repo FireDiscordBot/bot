@@ -71,12 +71,19 @@ class InviteRoles(commands.Cog):
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite: discord.Invite):
-        con = await self.bot.db.acquire()
-        async with con.transaction():
-            q = 'DELETE FROM invrole WHERE inv=$1;'
-            await self.bot.db.execute(q, invite.code)
-        await self.bot.db.release(con)
-        await self.load_invroles()
+        invroles = await self.get_invroles(guild.id)
+        if not invroles:
+            return
+        invroles = [
+            guild.get_role(i['role']) for i in invroles if i['invite'] == invite and guild.get_role(i['role'])
+        ]
+        if invroles:
+            con = await self.bot.db.acquire()
+            async with con.transaction():
+                q = 'DELETE FROM invrole WHERE inv=$1;'
+                await self.bot.db.execute(q, invite.code)
+            await self.bot.db.release(con)
+            await self.load_invroles()
 
     async def cog_check(self, ctx):
         if not ctx.guild or not ctx.guild.id in self.bot.premium_guilds:
