@@ -71,11 +71,11 @@ class InviteRoles(commands.Cog):
 
     @commands.Cog.listener()
     async def on_invite_delete(self, invite: discord.Invite):
-        invroles = await self.get_invroles(guild.id)
+        invroles = await self.get_invroles(invite.guild.id)
         if not invroles:
             return
         invroles = [
-            guild.get_role(i['role']) for i in invroles if i['invite'] == invite and guild.get_role(i['role'])
+            invite.guild.get_role(i['role']) for i in invroles if i['invite'] == invite and invite.guild.get_role(i['role'])
         ]
         if invroles:
             con = await self.bot.db.acquire()
