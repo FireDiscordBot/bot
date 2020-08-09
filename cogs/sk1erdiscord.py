@@ -79,7 +79,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 pass  # whatever is using this should check for None
         return self.uuidcache.get(player, None)
 
-    @tasks.loop(minutes=5)
+    @tasks.loop(seconds=300)
     async def description_updater(self):
         try:
             session = aiohttp.ClientSession()
