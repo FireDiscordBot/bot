@@ -128,9 +128,6 @@ class Fire(commands.Bot):
         # BLACKLIST
         self.loop.create_task(self.load_plonked())
 
-        # CUSTOM PERMISSIONS
-        # self.permissions = {}
-
     async def logout(self):
         if self.get_cog('FireStatus') and not self.dev:
             comps = ['gtbpmn9g33jk', 'xp3103fm3kpf']

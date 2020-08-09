@@ -86,21 +86,3 @@ class Context(commands.Context):
 
     async def dm(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):
         return await self.author.send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after)
-
-    # Unfinished permissions system (this will actually come soon as I know how to do it now)
-
-    # def has_permission(self, permission: str):
-    #     if permission in self.bot.permissions.get(self.guild.id, {}).get('global', {})['denied']:
-    #         return False
-    #     if permission in self.bot.permissions.get('global', {}).get('users', {}).get(self.author.id, []):
-    #         return True
-    #     if permission in self.bot.permissions.get(self.guild.id, {}).get('members', {}).get(self.author.id, []):
-    #         return True
-    #     for role in self.author.roles:
-    #         if permission in self.bot.permissions.get(self.guild.id, {}).get('roles', {}).get(self.role.id, []):
-    #             return True
-    #     if permission in self.bot.permissions.get(self.guild.id, {}).get('global', {})['allowed']:
-    #         return True
-    #     if permission in self.bot.permissions.get('global', {}).get('defaults', []):
-    #         return True
-    #     return False
