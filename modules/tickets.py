@@ -122,13 +122,13 @@ class Tickets(commands.Cog, name="Tickets"):
         for k, v in variables.items():
             # asbyth has me putting crabs everywhere
             name = name.replace(k, str(v)).replace('crab', '🦀')
-        overwrites = parent.overwrites.copy()
-        overwrites.update({
+        overwrites = {
             ctx.author: discord.PermissionOverwrite(read_messages=True, send_messages=True),
             ctx.guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True, manage_channels=True, manage_roles=True),
             ctx.guild.default_role: discord.PermissionOverwrite(
                 read_messages=False)
-        })
+        }
+        overwrites.update(parent.overwrites)
         ticket = await parent.create_text_channel(
             name=name[:50],
             overwrites=overwrites,
@@ -157,7 +157,9 @@ class Tickets(commands.Cog, name="Tickets"):
             return await ctx.error('This command can only be ran in ticket channels!')
         if str(ctx.author.id) not in ctx.channel.topic and not ctx.author.permissions_in(ctx.channel).manage_channels:
             return await ctx.error('You must own this ticket or have `Manage Channels` permission to add users')
-        await ctx.channel.set_permissions(user, read_messages=True, send_messages=True)
+        overwrites = ctx.channel.overwrites
+        overwrites.update({user: discord.PermissionOverwrite(read_messages=True, send_messages=True)})
+        await ctx.channel.edit(overwrites=overwrites)
         return await ctx.success(f'Successfully added {user.mention} to the ticket')
 
     @commands.command(name='remove', description='Remove a user from the current ticket')
@@ -174,7 +176,9 @@ class Tickets(commands.Cog, name="Tickets"):
             return await ctx.error(f'{user} is not here, so how are you gonna remove them? 🤔')
         if user.permissions_in(ctx.channel).manage_channels:
             return await ctx.error(f'You cannot remove this user')
-        await ctx.channel.set_permissions(user, read_messages=False, send_messages=False)
+        overwrites = ctx.channel.overwrites
+        overwrites.update({user: discord.PermissionOverwrite(read_messages=False, send_messages=False)})
+        await ctx.channel.edit(overwrites=overwrites)
         return await ctx.success(f'Successfully removed {user} from the ticket')
 
     @commands.command(name='close', description='Closes a ticket, uploads the transcript to action logs channel and sends to the ticket author')
