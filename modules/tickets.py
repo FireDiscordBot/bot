@@ -122,13 +122,13 @@ class Tickets(commands.Cog, name="Tickets"):
         for k, v in variables.items():
             # asbyth has me putting crabs everywhere
             name = name.replace(k, str(v)).replace('crab', '🦀')
-        overwrites = {
+        overwrites = parent.overwrites.copy()
+        overwrites.update({
             ctx.author: discord.PermissionOverwrite(read_messages=True, send_messages=True),
             ctx.guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True, manage_channels=True, manage_roles=True),
             ctx.guild.default_role: discord.PermissionOverwrite(
                 read_messages=False)
-        }
-        overwrites.update(parent.overwrites)
+        })
         ticket = await parent.create_text_channel(
             name=name[:50],
             overwrites=overwrites,

@@ -29,7 +29,9 @@ class GuildChannelCreate(commands.Cog):
         muted = self.bot.get_config(channel.guild).get(
             'mod.mutedrole') or discord.utils.get(channel.guild.roles, name="Muted")
         if muted and channel.guild.me.guild_permissions.manage_roles:
-            await channel.set_permissions(muted, send_messages=False)
+            overwrites = channel.overwrites
+            overwrites.update({muted: discord.PermissionOverwrite(send_messages=False)})
+            await channel.edit(overwrites=overwrites)
         logch = self.bot.get_config(channel.guild).get('log.action')
         if logch:
             createdby = None
