@@ -192,7 +192,12 @@ class ImageGeneration(commands.Cog, name='Image Generation'):
             imgraw = await imgraw.read()
             await s.close()
         file = discord.File(BytesIO(imgraw), f'spicymeme.png')
-        await ctx.send(file=file)
+        try:
+            await ctx.send(file=file)
+        except discord.HTTPException as e:
+            if e.status == 413:
+                return await ctx.error(f'The meme is too big for me to send :(')
+            return await ctx.error(str(e))
 
     @commands.command(name='deepfry', aliases=['df'])
     async def df(self, ctx, image: typing.Union[Member, str] = None):
@@ -213,7 +218,12 @@ class ImageGeneration(commands.Cog, name='Image Generation'):
             imgraw = await imgraw.read()
             await s.close()
         file = discord.File(BytesIO(imgraw), f'deepfried.png')
-        await ctx.send(file=file)
+        try:
+            await ctx.send(file=file)
+        except discord.HTTPException as e:
+            if e.status == 413:
+                return await ctx.error(f'The image is too big for me to send :(')
+            return await ctx.error(str(e))
 
 
 def setup(bot):
