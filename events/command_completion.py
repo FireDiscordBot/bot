@@ -27,47 +27,72 @@ import json
 class CommandCompletion(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.watchedcmds = ['purge']
+        self.watchedcmds = ["purge"]
 
     @commands.Cog.listener()
     async def on_command_completion(self, ctx):
         if ctx.command.name in self.watchedcmds:
             if ctx.guild:
-                logch = ctx.config.get('log.action')
-                if logch:
-                    embed = discord.Embed(color=ctx.author.color, timestamp=datetime.datetime.now(
-                        datetime.timezone.utc), description=f'`{ctx.command.name}` **was used in** {ctx.channel.mention} **by {ctx.author.name}**')
-                    embed.set_author(name=ctx.author, icon_url=str(
-                        ctx.author.avatar_url_as(static_format='png', size=2048)))
-                    embed.add_field(
-                        name='Message', value=ctx.message.system_content, inline=False)
-                    embed.set_footer(
-                        text=f"Author ID: {ctx.author.id} | Channel ID: {ctx.channel.id}")
-                    if ctx.command.name == 'purge':
-                        purged = None
-                        reason = 'No Reason Provided'
-                        try:
-                            purged = self.bot.recentpurge[ctx.channel.id]
-                            reason = self.bot.recentpurge.pop(
-                                f'{ctx.channel.id}-reason', 'No Reason Provided')
-                            embed.add_field(
-                                name='Reason', value=reason, inline=False)
-                            embed.set_field_at(0, name='Message', value=ctx.message.system_content.replace(
-                                f'--reason {reason}', ''), inline=False)
-                        except KeyError as e:
-                            pass
-                        if purged:
-                            try:
-                                embed.add_field(
-                                    name='Purged Messages',
-                                    value=(await self.bot.haste(json.dumps(self.bot.recentpurge[ctx.channel.id], indent=4))),
-                                    inline=False
-                                )
-                            except Exception:
-                                embed.add_field(
-                                    name='Purged Messages', value='Failed to upload messages to hastebin', inline=False)
+                embed = (
+                    discord.Embed(
+                        color=ctx.author.color,
+                        timestamp=datetime.datetime.now(datetime.timezone.utc),
+                        description=f"`{ctx.command.name}` **was used in** {ctx.channel.mention} **by {ctx.author.name}**",
+                    )
+                    .set_author(
+                        name=ctx.author,
+                        icon_url=str(
+                            ctx.author.avatar_url_as(static_format="png", size=2048)
+                        ),
+                    )
+                    .add_field(
+                        name="Message", value=ctx.message.system_content, inline=False
+                    )
+                    .set_footer(
+                        text=f"Author ID: {ctx.author.id} | Channel ID: {ctx.channel.id}"
+                    )
+                )
+                if ctx.command.name == "purge":
+                    purged = None
+                    reason = "No Reason Provided"
                     try:
-                        await logch.send(embed=embed)
+                        purged = self.bot.recentpurge[ctx.channel.id]
+                        reason = self.bot.recentpurge.pop(
+                            f"{ctx.channel.id}-reason", "No Reason Provided"
+                        )
+                        embed.add_field(name="Reason", value=reason, inline=False)
+                        embed.set_field_at(
+                            0,
+                            name="Message",
+                            value=ctx.message.system_content.replace(
+                                f"--reason {reason}", ""
+                            ),
+                            inline=False,
+                        )
+                    except KeyError as e:
+                        pass
+                    if purged:
+                        try:
+                            embed.add_field(
+                                name="Purged Messages",
+                                value=(
+                                    await self.bot.haste(
+                                        json.dumps(
+                                            self.bot.recentpurge[ctx.channel.id],
+                                            indent=4,
+                                        )
+                                    )
+                                ),
+                                inline=False,
+                            )
+                        except Exception:
+                            embed.add_field(
+                                name="Purged Messages",
+                                value="Failed to upload messages to hastebin",
+                                inline=False,
+                            )
+                    try:
+                        await ctx.actionlog.send(embed=embed)
                     except Exception:
                         pass
 
@@ -75,7 +100,8 @@ class CommandCompletion(commands.Cog):
 def setup(bot):
     try:
         bot.add_cog(CommandCompletion(bot))
-        bot.logger.info(f'$GREENLoaded event $CYANCommandCompletion!')
+        bot.logger.info(f"$GREENLoaded event $CYANCommandCompletion!")
     except Exception as e:
         bot.logger.error(
-            f'$REDError while adding event $CYAN"CommandCompletion"', exc_info=e)
+            f'$REDError while adding event $CYAN"CommandCompletion"', exc_info=e
+        )

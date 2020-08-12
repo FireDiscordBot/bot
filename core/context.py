@@ -15,6 +15,7 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+from core.config import GuildConfig
 from discord.ext import commands
 from typing import Optional
 import datetime
@@ -44,7 +45,7 @@ class Context(commands.Context):
             discord.Color.red(),
             discord.Color.teal()
         ]
-        self.config = self.bot.get_config(
+        self.config: GuildConfig = self.bot.get_config(
             self.guild.id) if self.guild else None
         self.uconfig = self.bot.get_config(self.author)
         self.silent = False
@@ -86,3 +87,15 @@ class Context(commands.Context):
 
     async def dm(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None):
         return await self.author.send(content=content, tts=tts, embed=embed, file=file, files=files, delete_after=delete_after)
+
+    async def modlog(self, embed: discord.Embed):
+        channel: discord.TextChannel = self.config.get('log.moderation')
+        if not channel:
+            return
+        await channel.send(embed=embed)
+
+    async def actionlog(self, embed: discord.Embed):
+        channel: discord.TextChannel = self.config.get('log.action')
+        if not channel:
+            return
+        await channel.send(embed=embed)
