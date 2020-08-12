@@ -96,7 +96,7 @@ sec_regex = re.compile(
     r'(?:me in |in )?(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))(?: about | that )?')
 
 
-def parseTime(content, replace: bool = False):
+def parse_time(content, replace: bool = False):
     if replace:
         for regex in [
                 r'(?:me in |in )?(?:(?P<months>\d+)(?:mo|months|month| months| month))(?: about | that )?',
@@ -448,9 +448,9 @@ class Utils(commands.Cog, name='Utility Commands'):
 
     @commands.command(aliases=['remind', 'reminder'], description='Sets a reminder for a time in the future')
     async def remindme(self, ctx, *, reminder: str):
-        if parseTime(reminder):
-            days, hours, minutes, seconds = parseTime(reminder)
-            reminder = parseTime(reminder, True)
+        if parse_time(reminder):
+            days, hours, minutes, seconds = parse_time(reminder)
+            reminder = parse_time(reminder, True)
             if not reminder.replace(' ', '') or not reminder:
                 return await ctx.error('Invalid format. Please provide a reminder along with the time')
         else:
