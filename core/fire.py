@@ -54,6 +54,7 @@ class Fire(commands.Bot):
         self.paginators = {}
         self.db: asyncpg.pool.Pool = None
         self.dev = kwargs.pop('dev', False)
+        self.plonked = []
 
         # CRAB
         self.crab = '🦀'
