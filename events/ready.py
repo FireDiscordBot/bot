@@ -17,7 +17,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from discord.ext import commands
-from core.config import UserConfig
 import humanfriendly
 import traceback
 import datetime
@@ -49,16 +48,6 @@ class Ready(commands.Cog):
         for c in self.bot.configs.values():
             if not c.loaded and hasattr(c, '_guild'):
                 await c.load()  # Load any stragglers that (for whatever reason) did not load on GUILD_CREATE
-        users = await self.bot.db.fetch('SELECT * FROM userconfig;')
-        for u in users:
-            if not self.bot.get_user(u['uid']):
-                continue
-            if u['uid'] not in self.bot.configs:
-                self.bot.configs[u['uid']] = UserConfig(
-                    u['uid'], bot=self.bot, db=self.bot.db)
-            conf = self.bot.get_config(u['uid'])
-            if not conf.loaded:
-                await conf.load()
         if self.bot.get_cog('FireStatus') and not self.bot.dev:
             comps = ['gtbpmn9g33jk', 'xp3103fm3kpf']
             for c in comps:

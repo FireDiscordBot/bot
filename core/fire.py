@@ -23,7 +23,7 @@ from discord.ext import commands, tasks
 from fire.http import HTTPClient, Route
 from sentry_sdk import push_scope
 from .context import Context
-from .config import GuildConfig, UserConfig
+from .config import Config
 import functools
 import traceback
 import sentry_sdk
@@ -48,8 +48,7 @@ class Fire(commands.Bot):
 
         # COMMON ATTRIBUTES
         self.config: dict = json.load(open('config.json', 'r'))
-        self.configs: typing.Dict[int,
-                                  typing.Union[GuildConfig, UserConfig]] = {}
+        self.configs: typing.Dict[int, Config] = {}
         self.tips = json.load(open('tips.json', 'r'))
         self.premium_guilds = {}
         self.paginators = {}
@@ -166,22 +165,16 @@ class Fire(commands.Bot):
             discord.User,
             int
         ]
-    ) -> typing.Union[GuildConfig, UserConfig]:
+    ) -> Config:
         if hasattr(obj, 'id') and obj.id in self.configs:
             return self.configs[obj.id]
         if isinstance(obj, int) and obj in self.configs:
             return self.configs[obj]
         if isinstance(obj, discord.Guild) or isinstance(obj, int) and self.get_guild(obj):
-            conf = self.configs[obj.id if hasattr(obj, 'id') else obj] = GuildConfig(
+            conf = self.configs[obj.id if hasattr(obj, 'id') else obj] = Config(
                 obj, bot=self, db=self.db)
             self.loop.create_task(conf.load())
             return conf
-        if isinstance(obj, (discord.User, discord.Member)) or isinstance(obj, int) and self.get_user(obj):
-            if (obj.bot if hasattr(obj, 'bot') else self.get_user(obj).bot):
-                return False
-            conf = self.configs[obj.id if hasattr(obj, 'id') else obj] = UserConfig(
-                obj, bot=self, db=self.db)
-            return conf  # Attempting to set an option in UserConfig will load/init the config if not already
 
     async def init_redis(self):
         self.redis = await aioredis.create_redis_pool(

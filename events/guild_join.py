@@ -16,7 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from discord.ext import commands
-from core.config import GuildConfig
+from core.config import Config
 from fire import exceptions
 import functools
 import asyncio
@@ -32,7 +32,7 @@ class GuildAdd(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         if guild.id not in self.bot.configs:
-            self.bot.configs[guild] = GuildConfig(
+            self.bot.configs[guild] = Config(
                 guild.id, bot=self.bot, db=self.bot.db)
             await self.bot.get_config(guild).load()
         fire = self.bot.get_guild(564052798044504084)

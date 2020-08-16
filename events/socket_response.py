@@ -17,7 +17,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from discord.ext import commands
-from core.config import GuildConfig
+from core.config import Config
 
 
 class SocketResponse(commands.Cog):
@@ -30,7 +30,7 @@ class SocketResponse(commands.Cog):
         if t == 'GUILD_CREATE':
             guild = int(payload['d']['id'])
             if guild not in self.bot.configs:
-                self.bot.configs[guild] = GuildConfig(
+                self.bot.configs[guild] = Config(
                     guild, bot=self.bot, db=self.bot.db)
             if not self.bot.get_config(guild).loaded:
                 await self.bot.get_config(guild).load()

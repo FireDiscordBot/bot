@@ -351,7 +351,7 @@ class Config:
         return {}
 
     def __repr__(self):
-        return f'<GuildConfig guild={self._guild} loaded={self.loaded}>'
+        return f'<Config guild={self._guild} loaded={self.loaded}>'
 
     def __str__(self):
-        return f'<GuildConfig guild={self._guild} loaded={self.loaded}>'
+        return f'<Config guild={self._guild} loaded={self.loaded}>'

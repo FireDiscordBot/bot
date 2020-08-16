@@ -15,7 +15,7 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from core.config import GuildConfig
+from core.config import Config
 from discord.ext import commands
 from typing import Optional
 import datetime
@@ -45,9 +45,8 @@ class Context(commands.Context):
             discord.Color.red(),
             discord.Color.teal()
         ]
-        self.config: GuildConfig = self.bot.get_config(
+        self.config: Config = self.bot.get_config(
             self.guild.id) if self.guild else None
-        self.uconfig = self.bot.get_config(self.author)
         self.silent = False
 
     async def success(self, message: str, **kwargs):
@@ -63,10 +62,7 @@ class Context(commands.Context):
         if isinstance(content, discord.Embed):
             embed = content.copy()
             content = None
-        if not content and random.randint(0, 101) < 10 and self.uconfig.get('utils.tips'):
-            content = '**PROTIP:** ' + random.choice(self.bot.tips)
         if isinstance(embed, discord.Embed) and embed.color in [discord.Embed.Empty, discord.Color.default()]:
-            # TODO Add ability for user to set default color
             embed.color = random.choice(self.colors)
         if not (file or files):
             resp = discord.utils.get(
