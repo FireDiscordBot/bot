@@ -510,18 +510,6 @@
         "name": "Utilities",
         "commands": [
             {
-                "name": "snipe",
-                "description": "Get the last deleted message",
-                "usage": "{prefix}snipe [<channel/user>]",
-                "aliases": null
-            },
-            {
-                "name": "esnipe",
-                "description": "Get the last edited message",
-                "usage": "{prefix}esnipe [<channel/user>]",
-                "aliases": null
-            },
-            {
                 "name": "slowmode",
                 "description": "Set the slowmode for a channel or category",
                 "usage": "{prefix}slowmode [<length>] [<channel/category>]",
@@ -537,6 +525,12 @@
                 "name": "quote",
                 "description": "Quote a message from an id or url",
                 "usage": "{prefix}quote <message id/message url>",
+                "aliases": null
+            },
+            {
+                "name": "steal",
+                "description": "Steal an emote to use in your own server",
+                "usage": "{prefix}steal <emote/emote id/emote url>",
                 "aliases": null
             },
             {

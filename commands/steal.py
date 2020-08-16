@@ -29,6 +29,8 @@ class Steal(commands.Cog):
         self.bot = bot
 
     @commands.command(description="Steal an emote so you can use it in your own server")
+    @commands.has_permissions(manage_emojis=True)
+    @commands.bot_has_permissions(manage_emojis=True)
     async def steal(self, ctx, emoji: typing.Union[discord.PartialEmoji, int, str]):
         if isinstance(emoji, discord.PartialEmoji):
             try:
