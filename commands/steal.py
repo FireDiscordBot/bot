@@ -36,7 +36,7 @@ class Steal(commands.Cog):
             except discord.HTTPException as e:
                 return await ctx.error(f"Failed to fetch image ({e.status})")
             try:
-                stolen = await guild.create_custom_emoji(
+                stolen = await ctx.guild.create_custom_emoji(
                     name=emoji.name, image=raw, reason=f"Stolen by {ctx.author}"
                 )
             except discord.DiscordException as e:
@@ -50,7 +50,7 @@ class Steal(commands.Cog):
                 return await ctx.error(
                     f"Failed to fetch image, make sure the id is a valid emote id ({e.status})"
                 )
-            stolen = await guild.create_custom_emoji(
+            stolen = await ctx.guild.create_custom_emoji(
                 name="stolen_emoji", image=raw, reason=f"Stolen by {ctx.author}"
             )
             return await ctx.success(
@@ -78,7 +78,7 @@ class Steal(commands.Cog):
                 return await ctx.error(
                     f"Failed to fetch image, make sure the url is a valid emote url ({e.status})"
                 )
-            stolen = await guild.create_custom_emoji(
+            stolen = await ctx.guild.create_custom_emoji(
                 name="stolen_emoji", image=raw, reason=f"Stolen by {ctx.author}"
             )
             return await ctx.success(
