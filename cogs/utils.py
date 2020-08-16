@@ -36,6 +36,7 @@ import humanfriendly
 import traceback
 from colormap import rgb2hex, hex2rgb
 from emoji import UNICODE_EMOJI
+from fuzzywuzzy import fuzz
 
 
 region = {
@@ -519,6 +520,16 @@ class Utils(commands.Cog, name='Utility Commands'):
         await self.deleteremind(ctx.author.id, r['for'])
         return await ctx.success(f'Your reminder, "{r["reminder"]}" for {forwhen} ({delta} from now), has been deleted!')
 
+    def get_fuzzy_tag(self, ctx, arg):
+        taglist = self.tags[ctx.guild.id] if ctx.guild.id in self.tags else False
+        if not taglist:
+            return False
+        for tag in taglist:
+            for c in [c for c in tag if not ctx.bot.isascii(c)]:
+                tag = tag.replace(c, '')
+            if fuzz.ratio(arg.strip().lower(), tag.strip().lower()) >= 80:
+                return tag
+
     @commands.group(name='tags', aliases=['tag', 'dtag'], invoke_without_command=True)
     @commands.guild_only()
     async def tags(self, ctx, *, tagname: str = None):
@@ -538,7 +549,10 @@ class Utils(commands.Cog, name='Utility Commands'):
                 tag = taglist[tagname.lower()] if tagname.lower(
                 ) in taglist else False
                 if not tag:
-                    return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.')
+                    fuzzy = ''
+                    if fuzzy := self.get_fuzzy_tag(ctx, tagname):
+                        fuzzy = f'\nDid you mean {fuzzy}?'
+                    return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.{fuzzy}')
                 else:
                     if ctx.invoked_with == 'dtag':
                         await ctx.message.delete()
@@ -555,7 +569,10 @@ class Utils(commands.Cog, name='Utility Commands'):
             tag = taglist[tagname.lower()] if tagname.lower(
             ) in taglist else False
             if not tag:
-                return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.')
+                fuzzy = ''
+                if fuzzy := self.get_fuzzy_tag(ctx, tagname):
+                    fuzzy = f'\nDid you mean {fuzzy}?'
+                return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.{fuzzy}')
             else:
                 await ctx.send(content=discord.utils.escape_markdown(discord.utils.escape_mentions(tag)))
 
