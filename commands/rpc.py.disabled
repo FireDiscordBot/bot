@@ -199,10 +199,10 @@ class RichPresence(commands.Cog):
                         return
             else:
                 if ACT == 0:
-                    await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))} doesn\'t seem to be playing something with rich presence integration...')
+                    await ctx.error(f'{discord.utils.escape_markdown(str(member))} doesn\'t seem to be playing something with rich presence integration...')
         else:
             if ACT == 0:
-                await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(str(member)))} doesn\'t seem to be playing something with rich presence integration...')
+                await ctx.error(f'{discord.utils.escape_markdown(str(member))} doesn\'t seem to be playing something with rich presence integration...')
 
     async def rpcReactController(self, ctx: Context, member: discord.Member, MSG: discord.Message, ACT: int):
         def react_check(reaction, user):

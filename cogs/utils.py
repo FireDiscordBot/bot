@@ -552,11 +552,11 @@ class Utils(commands.Cog, name='Utility Commands'):
                 if not tag:
                     fuzzy = self.get_fuzzy_tag(ctx, tagname)
                     if not fuzzy:
-                        return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.')
+                        return await ctx.error(f'No tag called {discord.utils.escape_markdown(tagname)} found.')
                     tag = taglist[fuzzy]
                 if ctx.invoked_with == 'dtag':
                     await ctx.message.delete()
-                await ctx.send(content=discord.utils.escape_mentions(tag))
+                await ctx.send(content=tag)
 
     @tags.command(name='raw')
     async def tagraw(self, ctx, *, tagname: str = None):
@@ -571,10 +571,10 @@ class Utils(commands.Cog, name='Utility Commands'):
             if not tag:
                 fuzzy = self.get_fuzzy_tag(ctx, tagname)
                 if not fuzzy:
-                    return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.')
+                    return await ctx.error(f'No tag called {discord.utils.escape_markdown(tagname)} found.')
                 tag = taglist[fuzzy]
             else:
-                await ctx.send(content=discord.utils.escape_markdown(discord.utils.escape_mentions(tag)))
+                await ctx.send(content=discord.utils.escape_markdown(tag))
 
     @commands.has_permissions(manage_messages=True)
     @tags.command(name='create', aliases=['new', 'add'])
@@ -583,7 +583,7 @@ class Utils(commands.Cog, name='Utility Commands'):
         ]
         existing = currenttags[tagname] if tagname in currenttags else False
         if existing:
-            return await ctx.error(f'A tag with the name {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} already exists')
+            return await ctx.error(f'A tag with the name {discord.utils.escape_markdown(tagname)} already exists')
         if len(currenttags) >= 20:
             premium_guilds = self.bot.premium_guilds
             if ctx.guild.id not in premium_guilds:
@@ -594,7 +594,7 @@ class Utils(commands.Cog, name='Utility Commands'):
             await self.bot.db.execute(query, ctx.guild.id, tagname.lower(), tagcontent)
         await self.bot.db.release(con)
         await self.loadtags()
-        return await ctx.success(f'Successfully created the tag {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))}')
+        return await ctx.success(f'Successfully created the tag {discord.utils.escape_markdown(tagname))}'
 
     @commands.has_permissions(manage_messages=True)
     @tags.command(name='delete', aliases=['del', 'remove'])
@@ -604,14 +604,14 @@ class Utils(commands.Cog, name='Utility Commands'):
         existing = currenttags[tagname.lower(
         )] if tagname.lower() in currenttags else False
         if not existing:
-            return await ctx.error(f'A tag with the name {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} doesn\'t exist')
+            return await ctx.error(f'A tag with the name {discord.utils.escape_markdown(tagname)} doesn\'t exist')
         con = await self.bot.db.acquire()
         async with con.transaction():
             query = 'DELETE FROM tags WHERE name = $1 AND gid = $2'
             await self.bot.db.execute(query, tagname.lower(), ctx.guild.id)
         await self.bot.db.release(con)
         await self.loadtags()
-        return await ctx.success(f'Successfully deleted the tag {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))}')
+        return await ctx.success(f'Successfully deleted the tag {discord.utils.escape_markdown(tagname))}'
 
 
 def setup(bot):

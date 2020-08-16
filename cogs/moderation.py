@@ -131,7 +131,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
     async def __error(self, ctx, error):
         if isinstance(error, commands.BadArgument):
             await ctx.send(
-                discord.utils.escape_mentions(discord.utils.escape_markdown(error))
+                discord.utils.escape_markdown(error)
             )
 
     async def load_mutes(self):
@@ -410,11 +410,11 @@ class Moderation(commands.Cog, name="Mod Commands"):
             await user.add_roles(muted)
         if not ctx.silent:
             await ctx.success(
-                f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been muted"
+                f"**{discord.utils.escape_markdown(str(user))}** has been muted"
             )
         try:
             await user.send(
-                f'You were muted in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"'
+                f'You were muted in {discord.utils.escape_markdown(ctx.guild.name)} for "{reason}"'
             )
             nodm = False
         except discord.HTTPException:
@@ -539,7 +539,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
             try:
                 if isinstance(user, discord.Member):
                     await user.send(
-                        f'You were banned from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"'
+                        f'You were banned from {discord.utils.escape_markdown(ctx.guild.name)} for "{reason}"'
                     )
                     nodm = False
             except discord.HTTPException:
@@ -577,7 +577,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
                     pass
             if not ctx.silent:
                 await ctx.success(
-                    f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been banished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}."
+                    f"**{discord.utils.escape_markdown(str(user))}** has been banished from {discord.utils.escape_markdown(ctx.guild.name)}."
                 )
             con = await self.bot.db.acquire()
             async with con.transaction():
@@ -640,7 +640,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
                 pass
         if not ctx.silent:
             await ctx.success(
-                f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unbanished from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))}."
+                f"**{discord.utils.escape_markdown(str(user))}** has been unbanished from {discord.utils.escape_markdown(ctx.guild.name)}."
             )
         con = await self.bot.db.acquire()
         async with con.transaction():
@@ -720,7 +720,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
             await ctx.guild.unban(user, reason="Temporarily Banned")
             if not ctx.silent:
                 await ctx.success(
-                    f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been soft-banned."
+                    f"**{discord.utils.escape_markdown(str(user))}** has been soft-banned."
                 )
             con = await self.bot.db.acquire()
             async with con.transaction():
@@ -821,17 +821,17 @@ class Moderation(commands.Cog, name="Mod Commands"):
         try:
             try:
                 await user.send(
-                    f'You were warned in {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"'
+                    f'You were warned in {discord.utils.escape_markdown(ctx.guild.name)} for "{reason}"'
                 )
                 nodm = False
                 if not ctx.silent:
                     await ctx.success(
-                        f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been warned."
+                        f"**{discord.utils.escape_markdown(str(user))}** has been warned."
                     )
             except discord.Forbidden:
                 nodm = True
                 await ctx.send(
-                    f"<a:fireWarning:660148304486727730> **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** was not warned due to having DMs off. The warning has been logged."
+                    f"<a:fireWarning:660148304486727730> **{discord.utils.escape_markdown(str(user))}** was not warned due to having DMs off. The warning has been logged."
                 )
             logch = ctx.config.get("log.moderation")
             if logch:
@@ -920,7 +920,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
             await self.bot.db.execute(query, "warn", user.id, ctx.guild.id)
         await self.bot.db.release(con)
         await ctx.success(
-            f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**'s warns have been cleared"
+            f"**{discord.utils.escape_markdown(str(user))}**'s warns have been cleared"
         )
 
     @commands.command(description="Clear a single warning", aliases=["clearwarning"])
@@ -983,7 +983,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
         try:
             try:
                 await user.send(
-                    f'You were kicked from {discord.utils.escape_mentions(discord.utils.escape_markdown(ctx.guild.name))} for "{reason}"'
+                    f'You were kicked from {discord.utils.escape_markdown(ctx.guild.name)} for "{reason}"'
                 )
                 nodm = False
             except discord.HTTPException:
@@ -1017,7 +1017,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
                     pass
             if not ctx.silent:
                 await ctx.success(
-                    f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been kicked."
+                    f"**{discord.utils.escape_markdown(str(user))}** has been kicked."
                 )
             con = await self.bot.db.acquire()
             async with con.transaction():
@@ -1056,7 +1056,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
         await user.remove_roles(muted, reason=f"Unmuted by {ctx.author}")
         if not ctx.silent:
             await ctx.success(
-                f"**{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}** has been unmuted"
+                f"**{discord.utils.escape_markdown(str(user))}** has been unmuted"
             )
         con = await self.bot.db.acquire()
         async with con.transaction():
@@ -1123,7 +1123,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
         await ctx.channel.edit(overwrites=current, reason=reason)
         if not ctx.silent:
             await ctx.success(
-                f"Successfully blocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}** from chatting in {ctx.channel.mention}."
+                f"Successfully blocked **{discord.utils.escape_markdown(str(blocked))}** from chatting in {ctx.channel.mention}."
             )
         logch = ctx.config.get("log.moderation")
         if logch:
@@ -1188,7 +1188,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
         await ctx.channel.edit(overwrites=overwrites, reason=reason)
         if not ctx.silent:
             await ctx.success(
-                f"Successfully unblocked **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(blocked)))}**. Welcome back!"
+                f"Successfully unblocked **{discord.utils.escape_markdown(str(blocked))}**. Welcome back!"
             )
         logch = ctx.config.get("log.moderation")
         if logch:
@@ -1248,12 +1248,12 @@ class Moderation(commands.Cog, name="Mod Commands"):
                     cantrem.append(role.name)
         if len(cantrem) >= 1:
             await ctx.error(
-                f'I wasn\'t able to remove the roles {", ".join(cantrem)} from **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**.'
+                f'I wasn\'t able to remove the roles {", ".join(cantrem)} from **{discord.utils.escape_markdown(str(user))}**.'
             )
         else:
             if not ctx.silent:
                 await ctx.success(
-                    f"Successfully removed all roles from **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(user)))}**."
+                    f"Successfully removed all roles from **{discord.utils.escape_markdown(str(user))}**."
                 )
         logch = ctx.config.get("log.moderation")
         if logch:

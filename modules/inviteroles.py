@@ -112,14 +112,14 @@ class InviteRoles(commands.Cog):
                 await self.bot.db.execute(q, invite, role.id)
             await self.bot.db.release(con)
             await self.load_invroles()
-            return await ctx.success(f'Successfully deleted invite role {discord.utils.escape_mentions(role.name)} for discord.gg\/{invite}')
+            return await ctx.success(f'Successfully deleted invite role {role.name} for discord.gg\/{invite}')
         con = await self.bot.db.acquire()
         async with con.transaction():
             query = 'INSERT INTO invrole (\"gid\", \"rid\", \"inv\") VALUES ($1, $2, $3);'
             await self.bot.db.execute(query, ctx.guild.id, role.id, invite)
         await self.bot.db.release(con)
         await self.load_invroles()
-        return await ctx.success(f'Successfully added invite role {discord.utils.escape_mentions(role.name)} for discord.gg\/{invite}')
+        return await ctx.success(f'Successfully added invite role {role.name} for discord.gg\/{invite}')
 
 
 def setup(bot):

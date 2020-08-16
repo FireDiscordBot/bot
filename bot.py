@@ -103,7 +103,7 @@ async def prefix(ctx, pfx: str = None):
         return await ctx.warning(f'Short prefixes are usually better. Try setting a prefix that\'s less than 10 characters')
     else:
         await ctx.config.set('main.prefix', pfx)
-        await ctx.success(f'Ok, {discord.utils.escape_mentions(ctx.guild.name)}\'s prefix is now `{pfx}`!')
+        await ctx.success(f'Ok, {ctx.guild.name}\'s prefix is now `{pfx}`!')
 
 
 @bot.check

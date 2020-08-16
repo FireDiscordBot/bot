@@ -153,12 +153,12 @@ class Premium(commands.Cog, name="Premium Commands"):
         if not role:
             await ctx.config.set("mod.autorole", None)
             return await ctx.success(
-                f"Successfully disabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}"
+                f"Successfully disabled auto-role in {ctx.guild.name}"
             )
         else:
             await ctx.config.set("mod.autorole", role)
             return await ctx.success(
-                f"Successfully enabled auto-role in {discord.utils.escape_mentions(ctx.guild.name)}! All new members will recieve the {discord.utils.escape_mentions(role.name)} role."
+                f"Successfully enabled auto-role in {ctx.guild.name}! All new members will recieve the {role.name} role."
             )
 
     @commands.command(
@@ -191,7 +191,7 @@ class Premium(commands.Cog, name="Premium Commands"):
             self.joinroles[ctx.guild.id] = []
             self.joinroles[ctx.guild.id].append(role.id)
         await ctx.success(
-            f"Successfully added the rank {discord.utils.escape_mentions(role.name)}!"
+            f"Successfully added the rank {role.name}!"
         )
         embed = (
             discord.Embed(
@@ -229,7 +229,7 @@ class Premium(commands.Cog, name="Premium Commands"):
         except KeyError:
             pass
         await ctx.success(
-            f"Successfully removed the rank {discord.utils.escape_mentions(role.name)}!"
+            f"Successfully removed the rank {role.name}!"
         )
         embed = (
             discord.Embed(
@@ -314,23 +314,23 @@ class Premium(commands.Cog, name="Premium Commands"):
         else:
             if not role:
                 return await ctx.error(
-                    f"I cannot find the rank **{discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}**. Type '{ctx.prefix}rank' to see a list of ranks"
+                    f"I cannot find the rank **{discord.utils.escape_markdown(role.name)}**. Type '{ctx.prefix}rank' to see a list of ranks"
                 )
             try:
                 if role.id in self.joinroles[ctx.guild.id]:
                     if role in ctx.author.roles:
                         await ctx.author.remove_roles(role, reason="Left rank")
                         await ctx.success(
-                            f"You successfully left the {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))} rank."
+                            f"You successfully left the {discord.utils.escape_markdown(role.name)} rank."
                         )
                     else:
                         await ctx.author.add_roles(role, reason="Joined rank")
                         await ctx.success(
-                            f"You successfully joined the {discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))} rank."
+                            f"You successfully joined the {discord.utils.escape_markdown(role.name)} rank."
                         )
                 else:
                     return await ctx.error(
-                        f"I cannot find the rank **{discord.utils.escape_mentions(discord.utils.escape_markdown(role.name))}**. Type '{ctx.prefix}rank' to see a list of ranks"
+                        f"I cannot find the rank **{discord.utils.escape_markdown(role.name)}**. Type '{ctx.prefix}rank' to see a list of ranks"
                     )
             except KeyError:
                 return await ctx.send(f"I cannot find any ranks for this guild :c")

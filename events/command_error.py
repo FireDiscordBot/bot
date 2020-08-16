@@ -101,10 +101,10 @@ class CommandError(commands.Cog):
 
         if ctx.me.permissions_in(ctx.channel).send_messages:
             if isinstance(error, noperms):
-                return await ctx.error(f'{discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
+                return await ctx.error(f'{discord.utils.escape_markdown(errorstr))}'
 
             if not self.bot.isadmin(ctx.author):
-                await ctx.error(f'{error.__class__.__name__}: {discord.utils.escape_mentions(discord.utils.escape_markdown(errorstr))}')
+                await ctx.error(f'{error.__class__.__name__}: {discord.utils.escape_markdown(errorstr))}'
             else:
                 tb = ''.join(traceback.format_exception(
                     type(error), error, error.__traceback__, 3))

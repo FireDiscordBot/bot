@@ -109,7 +109,7 @@ class RolePersist(commands.Cog):
                 await self.load_role_persists()
                 names = ", ".join(
                     [
-                        discord.utils.escape_mentions(guild.get_role(r).name)
+                        guild.get_role(r).name
                         for r in current
                         if guild.get_role(r)
                     ]
@@ -218,7 +218,7 @@ class RolePersist(commands.Cog):
             )
         names = ", ".join(
             [
-                discord.utils.escape_mentions(ctx.guild.get_role(r).name)
+                ctx.guild.get_role(r).name
                 for r in current
                 if ctx.guild.get_role(r)
             ]
@@ -243,11 +243,11 @@ class RolePersist(commands.Cog):
             pass
         if names:
             return await ctx.success(
-                f"**{discord.utils.escape_mentions(str(user))}** now has the role(s) {names} persisted to them"
+                f"**{str(user)}** now has the role(s) {names} persisted to them"
             )
         else:
             return await ctx.success(
-                f"**{discord.utils.escape_mentions(str(user))}** no longer has any persisted roles."
+                f"**{str(user)}** no longer has any persisted roles."
             )
 
 
