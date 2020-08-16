@@ -527,7 +527,7 @@ class Utils(commands.Cog, name='Utility Commands'):
         for tag in taglist:
             for c in [c for c in tag if not ctx.bot.isascii(c)]:
                 tag = tag.replace(c, '')
-            if fuzz.ratio(arg.strip().lower(), tag.strip().lower()) >= 80:
+            if fuzz.ratio(arg.strip().lower(), tag.strip().lower()) >= 60:
                 return tag
         return False
 
@@ -550,15 +550,13 @@ class Utils(commands.Cog, name='Utility Commands'):
                 tag = taglist[tagname.lower()] if tagname.lower(
                 ) in taglist else False
                 if not tag:
-                    if fuzzy := self.get_fuzzy_tag(ctx, tagname):
-                        fuzzy = f' Did you mean {fuzzy}?'
-                    else:
-                        fuzzy = ''
-                    return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.{fuzzy}')
-                else:
-                    if ctx.invoked_with == 'dtag':
-                        await ctx.message.delete()
-                    await ctx.send(content=discord.utils.escape_mentions(tag))
+                    fuzzy = self.get_fuzzy_tag(ctx, tagname)
+                    if not fuzzy:
+                        return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.')
+                    tag = taglist[fuzzy]
+                if ctx.invoked_with == 'dtag':
+                    await ctx.message.delete()
+                await ctx.send(content=discord.utils.escape_mentions(tag))
 
     @tags.command(name='raw')
     async def tagraw(self, ctx, *, tagname: str = None):
@@ -571,11 +569,10 @@ class Utils(commands.Cog, name='Utility Commands'):
             tag = taglist[tagname.lower()] if tagname.lower(
             ) in taglist else False
             if not tag:
-                if fuzzy := self.get_fuzzy_tag(ctx, tagname):
-                    fuzzy = f' Did you mean {fuzzy}?'
-                else:
-                    fuzzy = ''
-                return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.{fuzzy}')
+                fuzzy = self.get_fuzzy_tag(ctx, tagname)
+                if not fuzzy:
+                    return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.')
+                tag = taglist[fuzzy]
             else:
                 await ctx.send(content=discord.utils.escape_markdown(discord.utils.escape_mentions(tag)))
 
