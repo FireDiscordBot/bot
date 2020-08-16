@@ -38,7 +38,8 @@ class Message(commands.Cog):
         self.urlregex = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
         self.tokenregex = r'[MN][A-Za-z\d]{23}\.[\w-]{6}\.[\w-]{27}'
         self.gistheaders = {
-            'Authorization': f'token {self.bot.config["github_token"]}'}
+            'Authorization': f'token {self.bot.config["github_token"]}'
+        }
 
     def uuidgobyebye(self, text: str):
         return re.sub(self.uuidregex, '', text, 0, re.MULTILINE)
@@ -121,11 +122,12 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
                         f'Failed to publish commit', exc_info=e)
         if message.channel.id == 388850472632451073:
             f = self.bot.get_channel(731330454422290463)
-            try:
-                m = await f.send(embed=message.embeds[0])
-                await m.publish()
-            except Exception:
-                pass
+            if message.embeds[0].author.name in self.bot.config['datamine']:
+                try:
+                    m = await f.send(embed=message.embeds[0])
+                    await m.publish()
+                except Exception:
+                    pass
         if not isinstance(message.author, discord.Member):
             return
         if message.author.bot:
