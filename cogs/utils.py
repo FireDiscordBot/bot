@@ -551,7 +551,7 @@ class Utils(commands.Cog, name='Utility Commands'):
                 if not tag:
                     fuzzy = ''
                     if fuzzy := self.get_fuzzy_tag(ctx, tagname):
-                        fuzzy = f'\nDid you mean {fuzzy}?'
+                        fuzzy = f' Did you mean {fuzzy}?'
                     return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.{fuzzy}')
                 else:
                     if ctx.invoked_with == 'dtag':
@@ -571,7 +571,7 @@ class Utils(commands.Cog, name='Utility Commands'):
             if not tag:
                 fuzzy = ''
                 if fuzzy := self.get_fuzzy_tag(ctx, tagname):
-                    fuzzy = f'\nDid you mean {fuzzy}?'
+                    fuzzy = f' Did you mean {fuzzy}?'
                 return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.{fuzzy}')
             else:
                 await ctx.send(content=discord.utils.escape_markdown(discord.utils.escape_mentions(tag)))
