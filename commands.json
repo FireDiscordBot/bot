@@ -73,43 +73,6 @@
     },
     {
         "id": 1,
-        "name": "Hypixel",
-        "note": "These commands have been temporarily disabled",
-        "commands": [
-            {
-                "name": "watchdog",
-                "description": "See watchdog stats, usually broadcasted every 2 hours on the server",
-                "usage": "{prefix}hypixel watchdog",
-                "aliases": null
-            },
-            {
-                "name": "skyblock",
-                "description": "See SkyBlock news (profiles are a work in progress)",
-                "usage": "{prefix}hypixel skyblock [<news>]",
-                "aliases": null
-            },
-            {
-                "name": "player",
-                "description": "Get a general overview of a player",
-                "usage": "{prefix}hypixel <player>",
-                "aliases": null
-            },
-            {
-                "name": "guild",
-                "description": "Get a general overview of a player's guild & members",
-                "usage": "{prefix}hypixel <player> guild",
-                "aliases": null
-            },
-            {
-                "name": "friends",
-                "description": "Get a general overview of a player's friends",
-                "usage": "{prefix}hypixel <player> friends",
-                "aliases": null
-            }
-        ]
-    },
-    {
-        "id": 2,
         "name": "Minecraft",
         "commands": [
             {
@@ -133,7 +96,7 @@
         ]
     },
     {
-        "id": 3,
+        "id": 2,
         "name": "KSoft.Si API",
         "commands": [
             {
@@ -157,7 +120,7 @@
         ]
     },
     {
-        "id": 4,
+        "id": 3,
         "name": "Sk1er",
         "commands": [
             {
@@ -181,7 +144,7 @@
         ]
     },
     {
-        "id": 5,
+        "id": 4,
         "name": "YouTube",
         "commands": [
             {
@@ -199,7 +162,7 @@
         ]
     },
     {
-        "id": 6,
+        "id": 5,
         "name": "Image Manipulation",
         "commands": [
             {
@@ -217,7 +180,7 @@
         ]
     },
     {
-        "id": 7,
+        "id": 6,
         "name": "Tickets",
         "commands": [
             {
@@ -265,7 +228,7 @@
         ]
     },
     {
-        "id": 8,
+        "id": 7,
         "name": "Configuration",
         "commands": [
             {
@@ -331,7 +294,7 @@
         ]
     },
     {
-        "id": 9,
+        "id": 8,
         "name": "Moderation",
         "commands": [
             {
@@ -451,7 +414,7 @@
         ]
     },
     {
-        "id": 10,
+        "id": 9,
         "name": "Info",
         "commands": [
             {
@@ -475,7 +438,7 @@
         ]
     },
     {
-        "id": 11,
+        "id": 10,
         "name": "Tags",
         "Note": "Creating/deleting tags requires \"Manage Messages\" permission. Tag names can only be one word.",
         "commands": [
@@ -506,7 +469,7 @@
         ]
     },
     {
-        "id": 12,
+        "id": 11,
         "name": "Utilities",
         "commands": [
             {
@@ -578,7 +541,7 @@
         ]
     },
     {
-        "id": 13,
+        "id": 12,
         "name": "Purge",
         "Note": "The purge command makes use of a flag system for different options. \nFor example, \"purge 10 --user Geek --match oof\" would purge the last 10 messages from the user Geek if it contains oof",
         "commands": [
@@ -648,7 +611,7 @@
         ]
     },
     {
-        "id": 14,
+        "id": 13,
         "name": "Premium",
         "commands": [
             {
@@ -689,7 +652,7 @@
             },
             {
                 "name": "redirect",
-                "description": "Create a redirect to any website using inv.wtf, e.g. inv.wtf/bot. Use `$redirect <slug> delete` to delete the redirect.",
+                "description": "Create a redirect to any website using inv.wtf, e.g. inv.wtf/bot. Use \"$redirect <slug> delete\" to delete the redirect.",
                 "usage": "{prefix}redirect <slug> <url>",
                 "aliases": null
             }
