@@ -85,10 +85,6 @@ class Fire(commands.Bot):
         self.http.mojang = HTTPClient(
             'https://api.mojang.com'
         )
-        self.http.hypixel = HTTPClient(
-            'https://api.hypixel.net',
-            params={'key': self.config["hypixel"][0]}
-        )
         self.http.sk1er = HTTPClient(
             'https://api.sk1er.club',
             user_agent='Fire Discord Bot'

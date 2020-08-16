@@ -73,7 +73,6 @@ colormap == 1.0.2
 # Fire/commands/guild.py: 20,24
 # Fire/commands/guilds.py: 21,23
 # Fire/commands/help.py: 19,20
-# Fire/commands/hypixel.py: 19,20
 # Fire/commands/invite.py: 19,21
 # Fire/commands/levelhead.py: 19,24
 # Fire/commands/mcstatus.py: 19,21
@@ -145,9 +144,6 @@ google_auth == 1.6.3
 # Fire/events/member_join.py: 21
 # Fire/events/ready.py: 21
 humanfriendly == 4.18
-
-# Fire/cogs/pickle.py: 27
-hypixel == 0.7.9
 
 # Fire/cogs/ksoft.py: 25
 # Fire/cogs/moderation.py: 29
