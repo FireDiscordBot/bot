@@ -594,7 +594,7 @@ class Utils(commands.Cog, name='Utility Commands'):
             await self.bot.db.execute(query, ctx.guild.id, tagname.lower(), tagcontent)
         await self.bot.db.release(con)
         await self.loadtags()
-        return await ctx.success(f'Successfully created the tag {discord.utils.escape_markdown(tagname))}'
+        return await ctx.success(f'Successfully created the tag {discord.utils.escape_markdown(tagname)}')
 
     @commands.has_permissions(manage_messages=True)
     @tags.command(name='delete', aliases=['del', 'remove'])
@@ -611,7 +611,7 @@ class Utils(commands.Cog, name='Utility Commands'):
             await self.bot.db.execute(query, tagname.lower(), ctx.guild.id)
         await self.bot.db.release(con)
         await self.loadtags()
-        return await ctx.success(f'Successfully deleted the tag {discord.utils.escape_markdown(tagname))}'
+        return await ctx.success(f'Successfully deleted the tag {discord.utils.escape_markdown(tagname)}')
 
 
 def setup(bot):
