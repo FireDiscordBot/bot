@@ -34,7 +34,7 @@ min_regex = re.compile(r"(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute
 sec_regex = re.compile(r"(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))")
 
 
-def parseTime(content, replace: bool = False):
+def parse_time(content, replace: bool = False):
     if replace:
         for regex in [
             r"(?:(?P<days>\d+)(?:d|days|day| days| day))",
@@ -772,8 +772,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
         await ctx.trigger_typing()
         logch = ctx.config.get("log.moderation")
         if reason:
-            if parseTime(reason):
-                days, hours, minutes, seconds = parseTime(reason)
+            if parse_time(reason):
+                days, hours, minutes, seconds = parse_time(reason)
             else:
                 days, hours, minutes, seconds = 0, 0, 0, 0
         else:
@@ -796,7 +796,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
             until = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
                 days=days, hours=hours, minutes=minutes, seconds=seconds
             )
-            reason = parseTime(reason, True)
+            reason = parse_time(reason, True)
             return await self.mute(
                 ctx, user, reason=reason, until=until, timedelta=td, modlogs=logch
             )
