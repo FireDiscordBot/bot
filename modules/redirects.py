@@ -72,7 +72,7 @@ class Redirects(commands.Cog, name="Redirects"):
             current = await self.bot.get_vanity(slug.lower())
             if not current or 'uid' not in current:
                 return await ctx.error('Redirect not found!')
-            if current['uid'] != ctx.author.id:
+            if current['uid'] != str(ctx.author.id):
                 return await ctx.error('You can only delete your own redirects!')
             await self.delete(slug.lower())
             return await ctx.success('Redirect deleted!')
