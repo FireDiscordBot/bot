@@ -60,7 +60,7 @@ class Steal(commands.Cog):
             try:
                 asset_url = (
                     re.findall(
-                        r"https?:\/\/cdn\.discordapp\.com(\/emojis\/739956106373365770)\.\w{3,4}",
+                        r"https?:\/\/cdn\.discordapp\.com(\/emojis\/\d{15,21})\.\w{3,4}",
                         emoji,
                         re.MULTILINE,
                     )
