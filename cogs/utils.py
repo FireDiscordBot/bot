@@ -529,6 +529,7 @@ class Utils(commands.Cog, name='Utility Commands'):
                 tag = tag.replace(c, '')
             if fuzz.ratio(arg.strip().lower(), tag.strip().lower()) >= 80:
                 return tag
+        return False
 
     @commands.group(name='tags', aliases=['tag', 'dtag'], invoke_without_command=True)
     @commands.guild_only()
@@ -549,9 +550,10 @@ class Utils(commands.Cog, name='Utility Commands'):
                 tag = taglist[tagname.lower()] if tagname.lower(
                 ) in taglist else False
                 if not tag:
-                    fuzzy = ''
                     if fuzzy := self.get_fuzzy_tag(ctx, tagname):
                         fuzzy = f' Did you mean {fuzzy}?'
+                    else:
+                        fuzzy = ''
                     return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.{fuzzy}')
                 else:
                     if ctx.invoked_with == 'dtag':
@@ -569,9 +571,10 @@ class Utils(commands.Cog, name='Utility Commands'):
             tag = taglist[tagname.lower()] if tagname.lower(
             ) in taglist else False
             if not tag:
-                fuzzy = ''
                 if fuzzy := self.get_fuzzy_tag(ctx, tagname):
                     fuzzy = f' Did you mean {fuzzy}?'
+                else:
+                    fuzzy = ''
                 return await ctx.error(f'No tag called {discord.utils.escape_mentions(discord.utils.escape_markdown(tagname))} found.{fuzzy}')
             else:
                 await ctx.send(content=discord.utils.escape_markdown(discord.utils.escape_mentions(tag)))
