@@ -203,7 +203,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
             if 'text_query too long.' in str(e):
                 return await ctx.error(f'That query is too long. Try something shorter')
             return await ctx.error(f'Something went wrong.')
-        if ctx.author.id not in self.responses:
+        if ctx.author.id not in self.responses or not self.responses[ctx.author.id]:
             return await ctx.send(f'<a:okaygoogle:661951491082551306> Something went wrong. Try again later')
         async with get_session(self.service, self.browser) as session:
             await session.set_window_size(1920, 1080)
