@@ -1181,8 +1181,6 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
         current = ctx.channel.overwrites_for(blocked)
         current.update(send_messages=None, add_reactions=None)
-        if current.is_empty():
-            current = None
         overwrites = ctx.channel.overwrites
         overwrites.update({blocked: current})
         await ctx.channel.edit(overwrites=overwrites, reason=reason)
