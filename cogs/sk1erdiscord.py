@@ -17,12 +17,13 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from discord.ext import commands, tasks, flags
-from fire.converters import Member
+from fire.converters import Member, UserWithFallback
 from fire.http import Route
 import urllib.parse
 import datetime
 import aiohttp
 import discord
+import typing
 import json
 import uuid
 import re
@@ -373,7 +374,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 return await message.channel.send(f'{message.author} sent a log, {url}\n\n{solutions}')
 
     @commands.command()
-    async def specs(self, ctx, user: Member = None, flags: flags.FlagParser(
+    async def specs(self, ctx, user: typing.Union[Member, UserWithFallback] = None, flags: flags.FlagParser(
             remove=bool
     ) = flags.EmptyFlags):
         user = user if user else ctx.author
