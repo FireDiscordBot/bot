@@ -40,7 +40,7 @@ class MCStatus(commands.Cog):
         }
         services = {
             'minecraft.net': '**Website**',
-            'session.minecraft.net': '**Sessions**',
+            'sessionserver.mojang.com': '**Sessions**',
             'authserver.mojang.com': '**Auth**',
             'textures.minecraft.net': '**Skins**',
             'api.mojang.com': '**API**'
