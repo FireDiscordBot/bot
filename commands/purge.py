@@ -26,7 +26,6 @@ import discord
 class Purge(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.bot.recentpurge = {}
 
     def get_embed_content(self, embed):
         content = [
@@ -44,9 +43,9 @@ class Purge(commands.Cog):
         return str(content)
 
     async def basic_purge(self, ctx, amount):
-        self.bot.recentpurge[ctx.channel.id] = []
+        recentpurge = []
         async for message in ctx.channel.history(limit=amount):
-            self.bot.recentpurge[ctx.channel.id].append({
+            recentpurge.append({
                 'author': str(message.author),
                 'author_id': str(message.author.id),
                 'content': message.system_content or '',
@@ -60,9 +59,10 @@ class Purge(commands.Cog):
         except Exception:
             return await ctx.error(f'Failed to purge')
         finally:
+            self.bot.dispatch('purge', ctx, ctx.channel, None, recentpurge)
             if not ctx.silent:
                 return await ctx.channel.send(
-                    f'Successfully deleted **{len(self.bot.recentpurge[ctx.channel.id])}** messages!',
+                    f'Successfully deleted **{len(recentpurge)}** messages!',
                     delete_after=5
                 )
 
@@ -108,11 +108,10 @@ class Purge(commands.Cog):
             if text is False:  # same as bot
                 completed.append(not m.content)
             return len([c for c in completed if not c]) == 0
-        self.bot.recentpurge[channel.id] = []
-        self.bot.recentpurge[f'{channel.id}-reason'] = reason
+        recentpurge = []
         async for message in channel.history(limit=amount):
             if purgecheck(message):
-                self.bot.recentpurge[channel.id].append({
+                recentpurge.append({
                     'author': str(message.author),
                     'author_id': str(message.author.id),
                     'content': message.system_content or '',
@@ -126,9 +125,10 @@ class Purge(commands.Cog):
         except Exception:
             return await ctx.error(f'Failed to purge')
         finally:
+            self.bot.dispatch('purge', ctx, channel, reason, recentpurge)
             if not ctx.silent:
                 return await channel.send(
-                    f'Successfully deleted **{len(self.bot.recentpurge[channel.id])}** messages!',
+                    f'Successfully deleted **{len(recentpurge)}** messages!',
                     delete_after=5
                 )
 
