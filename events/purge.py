@@ -47,8 +47,6 @@ class Purge(commands.Cog):
                 text=f"Author ID: {ctx.author.id} | Channel ID: {channel.id}"
             )
         )
-        purged = None
-        reason = "No Reason Provided"
         if reason:
             embed.add_field(name="Reason", value=reason, inline=False)
         if purged:
@@ -72,8 +70,8 @@ class Purge(commands.Cog):
                     inline=False,
                 )
         try:
-            await ctx.actionlog.send(embed=embed)
-        except Exception:
+            await ctx.actionlog(embed=embed)
+        except Exception as e:
             pass
 
 
