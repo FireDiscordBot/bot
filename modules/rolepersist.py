@@ -238,7 +238,7 @@ class RolePersist(commands.Cog):
                 text=f"User ID: {user.id} | Mod ID: {ctx.author.id}"
             )
         try:
-            await ctx.modlog.send(embed=embed)
+            await ctx.modlog(embed=embed)
         except Exception:
             pass
         if names:

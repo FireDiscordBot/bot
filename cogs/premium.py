@@ -206,7 +206,7 @@ class Premium(commands.Cog, name="Premium Commands"):
             .set_footer(text=f"User ID: {ctx.author.id} | Role ID: {role.id}")
         )
         try:
-            await ctx.modlog.send(embed=embed)
+            await ctx.modlog(embed=embed)
         except Exception:
             pass
 
@@ -244,7 +244,7 @@ class Premium(commands.Cog, name="Premium Commands"):
             .set_footer(text=f"User ID: {ctx.author.id} | Role ID: {role.id}")
         )
         try:
-            await ctx.modlog.send(embed=embed)
+            await ctx.modlog(embed=embed)
         except Exception:
             pass
 
