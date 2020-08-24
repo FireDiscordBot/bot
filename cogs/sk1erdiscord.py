@@ -276,6 +276,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             return
         if not message.guild or message.guild.id != 411619823445999637:
             return
+        if 'gruh' in message.content.lower() and not message.author.guild_permissions.manage_messages:
+            await message.delete()
         if message.guild.get_role(734143981839188028) in message.author.roles:
             if re.findall(self.emojire, message.content, re.MULTILINE) or self.bot.len_emoji(message.content):
                 return await message.delete()
