@@ -308,7 +308,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
     async def on_message_edit(self, before, after):
         if after.content == '[Original Message Deleted]':
             return await after.delete()
-        if message.flags.crossposted and message.channel.id == 411620555960352787:
+        if after.flags.crossposted and after.channel.id == 411620555960352787:
             await self.check_bot_status(after)
 
     async def check_logs(self, message):
