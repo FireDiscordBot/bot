@@ -412,10 +412,26 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             234395307759108106: 747787115974230156,
             172002275412279296: 747787792402219128,
             689373971572850842: 747788002738176110,
-            155149108183695360: 747786691074457610
+            155149108183695360: 747786691074457610,
+            287698408855044097: 747799955724304385
         }
         if message.author.id not in bots.values():
             return
+        if message.author.id == 747799955724304385:
+            # Fire Status
+            print('fire status')
+            if message.embeds[0].fields[0].name == 'Resolved' and message.pinned:
+                print('pinned, incident is resolved')
+                try:
+                    await message.unpin(reason='Incident is resolved.')
+                except discord.HTTPException:
+                    print('failed to unpin')
+            elif not message.pinned and message.embeds[0].description != 'New scheduled maintenance':
+                print('not pinned, not maintenance')
+                try:
+                    await message.pin(reason='New incident')
+                except discord.HTTPException as e:
+                    self.bot.logger.warn(f'Failed to pin Testing status update', exc_info=e)
         if message.author.id == 747786560123961443:
             # Fire Status
             if message.embeds[0].fields[0].name == 'Resolved' and message.pinned:
@@ -426,8 +442,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             elif not message.pinned and message.embeds[0].description != 'New scheduled maintenance':
                 try:
                     await message.pin(reason='New incident')
-                except discord.HTTPException:
-                    pass
+                except discord.HTTPException as e:
+                    self.bot.logger.warn(f'Failed to pin Fire status update', exc_info=e)
         elif message.author.id == 747787115974230156:
             # Groovy Status
             emoji_re = r'<a?:([a-zA-Z0-9\_]+):[0-9]+>'
@@ -441,8 +457,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             elif not message.pinned:
                 try:
                     await message.pin(reason='New incident')
-                except discord.HTTPException:
-                    pass
+                except discord.HTTPException as e:
+                    self.bot.logger.warn(f'Failed to pin Groovy status update', exc_info=e)
         elif message.author.id == 747787792402219128:
             # Tatsu Status
             if 'resolved' in message.content.lower() and message.pinned:
@@ -453,8 +469,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             elif not message.pinned:
                 try:
                     await message.pin(reason='New incident')
-                except discord.HTTPException:
-                    pass
+                except discord.HTTPException as e:
+                    self.bot.logger.warn(f'Failed to pin Tatsu status update', exc_info=e)
         elif message.author.id == 747788002738176110:
             # Lunar Status
             if 'resolved' in message.content.lower() and message.pinned:
@@ -465,8 +481,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             elif not message.pinned:
                 try:
                     await message.pin(reason='New incident')
-                except discord.HTTPException:
-                    pass
+                except discord.HTTPException as e:
+                    self.bot.logger.warn(f'Failed to pin Lunar status update', exc_info=e)
         elif message.author.id == 747786691074457610:
             # Dyno Status (ew)
             if any(m in message.content.lower() for m in ['dynoonline', 'recovered']) and message.pinned:
