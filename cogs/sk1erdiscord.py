@@ -62,6 +62,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         self.solutions = json.load(open('sk1er_solutions.json'))
         self.modconf = json.load(open('mods.json'))
         self.description_updater.start()
+        self.status_checker.start()
         self.uuidcache = {}
 
     async def name_to_uuid(self, player: str):
