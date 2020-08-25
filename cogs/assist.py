@@ -19,6 +19,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from discord.ext import commands
 import discord
 import os
+import re
 import asyncio
 import json
 import click
@@ -197,6 +198,14 @@ class Assistant(commands.Cog, name='Google Assistant'):
     @commands.max_concurrency(1, per=commands.BucketType.user)
     async def google(self, ctx, *, query):
         await ctx.channel.trigger_typing()
+        if ' ^' in query:
+            nextmsg = False
+            async for m in ctx.channel.history(limit=5):
+                if m.id == ctx.message.id:
+                    nextmsg = True
+                if nextmsg:
+                    query = re.sub(r"(?: \^ | \^$)", m.content, query, 0, re.MULTILINE)
+                    break
         try:
             await self.bot.loop.run_in_executor(None, func=functools.partial(self.assist, ctx.author.id, query))
         except Exception as e:
