@@ -311,13 +311,14 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         if after.content == '[Original Message Deleted]':
             return await after.delete()
         if after.flags.is_crossposted and after.channel.id == 411620555960352787:
-            print('content check', before.content == after.content)
-            print('embed check', before.embeds == after.embeds)
-            print('pin check', before.pinned and not after.pinned)
-            if before.content == after.content and before.embeds == after.embeds:
+            if before.pinned and not after.pinned:
+                print('unpinned')
                 return
-            if after.flags.is_crossposted and after.channel.id == 411620555960352787:
-                await self.check_bot_status(after)
+            embeds = False
+            if before.embeds and after.embeds:
+                embeds = before.embeds[0].to_dict() == after.embeds[0].to_dict()
+            if before.content != after.content and not embeds:
+                return await self.check_bot_status(after)
 
     async def check_logs(self, message):
         noraw = re.findall(self.noraw, message.content, re.MULTILINE)
