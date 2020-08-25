@@ -199,17 +199,13 @@ class Assistant(commands.Cog, name='Google Assistant'):
     async def google(self, ctx, *, query):
         await ctx.channel.trigger_typing()
         if ' ^' in query:
-            print('up arrow')
             nextmsg = False
             async for m in ctx.channel.history(limit=5):
-                print(m.content)
-                if m.id == ctx.message.id:
-                    print('google message')
-                    nextmsg = True
                 if nextmsg:
-                    print('this is the message that the up arrow should replace')
                     query = query.replace(' ^', m.content)
                     break
+                if m.id == ctx.message.id:
+                    nextmsg = True
         try:
             await self.bot.loop.run_in_executor(None, func=functools.partial(self.assist, ctx.author.id, query))
         except Exception as e:
