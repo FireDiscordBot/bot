@@ -202,7 +202,7 @@ class Assistant(commands.Cog, name='Google Assistant'):
             nextmsg = False
             async for m in ctx.channel.history(limit=5):
                 if nextmsg:
-                    query = query.replace(' ^', m.content)
+                    query = query.replace(' ^', ' ' + m.content)
                     break
                 if m.id == ctx.message.id:
                     nextmsg = True
