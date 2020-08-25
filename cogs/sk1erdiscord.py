@@ -295,14 +295,16 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
     async def on_message(self, message):
         if not message.guild or message.guild.id != self.guild.id:
             return
+        if message.flags.crossposted and message.channel.id == 411620555960352787:
+            return await self.check_bot_status(message)
+        if message.author.bot and isinstance(message.author, discord.User):
+            return
         if 'gruh' in message.content.lower().replace(' ', '') and not message.author.guild_permissions.manage_messages:
             await message.delete()
         if message.guild.get_role(734143981839188028) in message.author.roles:
             if re.findall(self.emojire, message.content, re.MULTILINE) or self.bot.len_emoji(message.content):
                 return await message.delete()
         await self.check_logs(message)
-        if message.flags.crossposted and message.channel.id == 411620555960352787:
-            await self.check_bot_status(message)
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
