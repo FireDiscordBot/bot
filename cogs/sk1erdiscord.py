@@ -295,7 +295,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
     async def on_message(self, message):
         if not message.guild or message.guild.id != self.guild.id:
             return
-        if message.flags.crossposted and message.channel.id == 411620555960352787:
+        if message.flags.is_crossposted and message.channel.id == 411620555960352787:
             return await self.check_bot_status(message)
         if message.author.bot and isinstance(message.author, discord.User):
             return
@@ -310,7 +310,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
     async def on_message_edit(self, before, after):
         if after.content == '[Original Message Deleted]':
             return await after.delete()
-        if after.flags.crossposted and after.channel.id == 411620555960352787:
+        if after.flags.is_crossposted and after.channel.id == 411620555960352787:
             await self.check_bot_status(after)
 
     async def check_logs(self, message):
@@ -409,6 +409,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 return await message.channel.send(f'{message.author} sent a log, {url}\n\n{solutions}')
 
     async def check_bot_status(self, message):
+        print('check bot status')
         bots = {
             444871677176709141: 747786560123961443,
             234395307759108106: 747787115974230156,
@@ -418,10 +419,11 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             287698408855044097: 747799955724304385
         }
         if message.author.id not in bots.values():
+            print('not bot status')
             return
         if message.author.id == 747799955724304385:
             # Fire Status
-            print('fire status')
+            print('test status')
             if message.embeds[0].fields[0].name == 'Resolved' and message.pinned:
                 print('pinned, incident is resolved')
                 try:
