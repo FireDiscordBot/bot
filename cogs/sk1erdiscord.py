@@ -314,10 +314,12 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             if before.pinned and not after.pinned:
                 print('unpinned')
                 return
+            print('content check', before.content != after.content)
             embeds = False
             if before.embeds and after.embeds:
+                print('embed check', before.embeds[0].to_dict() == after.embeds[0].to_dict())
                 embeds = before.embeds[0].to_dict() == after.embeds[0].to_dict()
-            if before.content != after.content and not embeds:
+            if before.content != after.content or after.embeds and not embeds:
                 return await self.check_bot_status(after)
 
     async def check_logs(self, message):
