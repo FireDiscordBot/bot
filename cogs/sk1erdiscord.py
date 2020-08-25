@@ -89,7 +89,30 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             m += (await (await session.get('https://api.hyperium.cc/users')).json())['all']
             await session.close()
             await self.guild.edit(description=f'The Official Discord for Sk1er & Sk1er Mods ({m:,d} total players)')
-        except Exception as e:
+        except Exception:
+            pass
+
+    @tasks.loop(hours=1)
+    async def status_checker(self):
+        bots = {
+            444871677176709141: 747786560123961443,
+            234395307759108106: 747787115974230156,
+            172002275412279296: 747787792402219128,
+            689373971572850842: 747788002738176110,
+            155149108183695360: 747786691074457610
+        }
+        try:
+            commands: discord.TextChannel = self.guild.get_channel(411620555960352787)
+            pins = await commands.pins()
+            for m in pins:
+                if m.author.id not in bots.values():
+                    continue
+                if m.edited_at and (datetime.datetime.utcnow() - m.edited_at) > datetime.timedelta(hours=10):
+                    try:
+                        await m.unpin(reason='Incident has lasted more than 10 hours')
+                    except discord.HTTPException:
+                        pass
+        except Exception:
             pass
 
     def cog_unload(self):
@@ -269,8 +292,6 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if self.bot.dev:
-            return
         if not message.guild or message.guild.id != self.guild.id:
             return
         if 'gruh' in message.content.lower().replace(' ', '') and not message.author.guild_permissions.manage_messages:
@@ -279,6 +300,15 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             if re.findall(self.emojire, message.content, re.MULTILINE) or self.bot.len_emoji(message.content):
                 return await message.delete()
         await self.check_logs(message)
+        if message.flags.crossposted and message.channel.id == 411620555960352787:
+            await self.check_bot_status(message)
+
+    @commands.Cog.listener()
+    async def on_message_edit(self, before, after):
+        if after.content == '[Original Message Deleted]':
+            return await after.delete()
+        if message.flags.crossposted and message.channel.id == 411620555960352787:
+            await self.check_bot_status(after)
 
     async def check_logs(self, message):
         noraw = re.findall(self.noraw, message.content, re.MULTILINE)
@@ -374,6 +404,80 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     pass
                 solutions = self.get_solutions(txt)
                 return await message.channel.send(f'{message.author} sent a log, {url}\n\n{solutions}')
+
+    async def check_bot_status(self, message):
+        bots = {
+            444871677176709141: 747786560123961443,
+            234395307759108106: 747787115974230156,
+            172002275412279296: 747787792402219128,
+            689373971572850842: 747788002738176110,
+            155149108183695360: 747786691074457610
+        }
+        if message.author.id not in bots.values():
+            return
+        if message.author.id == 747786560123961443:
+            # Fire Status
+            if message.embeds[0].fields[0].name == 'Resolved' and message.pinned:
+                try:
+                    await message.unpin(reason='Incident is resolved.')
+                except discord.HTTPException:
+                    pass
+            elif not message.pinned and message.embeds[0].description != 'New scheduled maintenance':
+                try:
+                    await message.pin(reason='New incident')
+                except discord.HTTPException:
+                    pass
+        elif message.author.id == 747787115974230156:
+            # Groovy Status
+            emoji_re = r'<a?:([a-zA-Z0-9\_]+):[0-9]+>'
+            emojis = re.findall(emoji_re, message.content, re.MULTILINE)
+            online = [e for e in emojis if 'online' in e.lower()]
+            if online and message.pinned:
+                try:
+                    await message.unpin(reason='Incident is resolved.')
+                except discord.HTTPException:
+                    pass
+            elif not message.pinned:
+                try:
+                    await message.pin(reason='New incident')
+                except discord.HTTPException:
+                    pass
+        elif message.author.id == 747787792402219128:
+            # Tatsu Status
+            if 'resolved' in message.content.lower() and message.pinned:
+                try:
+                    await message.unpin(reason='Incident is resolved.')
+                except discord.HTTPException:
+                    pass
+            elif not message.pinned:
+                try:
+                    await message.pin(reason='New incident')
+                except discord.HTTPException:
+                    pass
+        elif message.author.id == 747788002738176110:
+            # Lunar Status
+            if 'resolved' in message.content.lower() and message.pinned:
+                try:
+                    await message.unpin(reason='Incident is resolved.')
+                except discord.HTTPException:
+                    pass
+            elif not message.pinned:
+                try:
+                    await message.pin(reason='New incident')
+                except discord.HTTPException:
+                    pass
+        elif message.author.id == 747786691074457610:
+            # Dyno Status (ew)
+            if any(m in message.content.lower() for m in ['dynoonline', 'recovered']) and message.pinned:
+                try:
+                    await message.unpin(reason='Incident is resolved.')
+                except discord.HTTPException:
+                    pass
+            elif not message.pinned:
+                try:
+                    await message.pin(reason='New incident')
+                except discord.HTTPException:
+                    pass
 
     @commands.command()
     async def specs(self, ctx, user: typing.Union[Member, UserWithFallback] = None, flags: flags.FlagParser(
