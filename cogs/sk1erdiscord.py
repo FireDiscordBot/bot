@@ -105,20 +105,17 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         if ctx.guild.id != self.guild.id:
             return
         if 'rank' in ctx.command.name:
-            fake = self.guild.get_role(722176131511484499)
-            real = self.guild.get_role(595626786549792793)
-            if ctx.kwargs.get('role', None) == fake and fake in ctx.author.roles:
-                await ctx.author.remove_roles(fake)
-                if not (await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', ctx.author.id)):
-                    await ctx.send(f'{ctx.author.mention} To become a beta tester ,'
-                                   f' please provide your specs through this form: '
-                                   f'\n<https://inv.wtf/sk1spec>\n\n'
-                                   f'You will automatically gain access to beta channels after filling in the form',
-                                   allowed_mentions=discord.AllowedMentions(
-                                       users=True)
-                                   )
-                else:
-                    await ctx.author.add_roles(real, reason='Specs already stored')
+            beta = self.guild.get_role(595626786549792793)
+            specs = await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', ctx.author.id)
+            if ctx.kwargs.get('role', None) == beta and beta in ctx.author.roles and not specs:
+                await ctx.author.remove_roles(beta, reason='User must provide specs')
+                await ctx.send(f'{ctx.author.mention} To become a beta tester ,'
+                               f' please provide your specs through this form: '
+                               f'\n<https://inv.wtf/sk1spec>\n\n'
+                               f'You will automatically gain access to beta channels after filling in the form',
+                               allowed_mentions=discord.AllowedMentions(
+                                   users=True)
+                               )
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
@@ -180,7 +177,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        if after.guild.id != self.guild.id:
+        if not after.guild or after.guild.id != self.guild.id:
             return
         if before.roles != after.roles:
             sk1roles = [
@@ -274,13 +271,16 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
     async def on_message(self, message):
         if self.bot.dev:
             return
-        if not message.guild or message.guild.id != 411619823445999637:
+        if not message.guild or message.guild.id != self.guild.id:
             return
         if 'gruh' in message.content.lower().replace(' ', '') and not message.author.guild_permissions.manage_messages:
             await message.delete()
         if message.guild.get_role(734143981839188028) in message.author.roles:
             if re.findall(self.emojire, message.content, re.MULTILINE) or self.bot.len_emoji(message.content):
                 return await message.delete()
+        await self.check_logs(message)
+
+    async def check_logs(self, message):
         noraw = re.findall(self.noraw, message.content, re.MULTILINE)
         if noraw:
             try:
