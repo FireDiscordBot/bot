@@ -312,12 +312,9 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             return await after.delete()
         if after.flags.is_crossposted and after.channel.id == 411620555960352787:
             if before.pinned and not after.pinned:
-                print('unpinned')
                 return
-            print('content check', before.content != after.content)
             embeds = False
             if before.embeds and after.embeds:
-                print('embed check', before.embeds[0].to_dict() == after.embeds[0].to_dict())
                 embeds = before.embeds[0].to_dict() == after.embeds[0].to_dict()
             if before.content != after.content or after.embeds and not embeds:
                 return await self.check_bot_status(after)
@@ -418,33 +415,15 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 return await message.channel.send(f'{message.author} sent a log, {url}\n\n{solutions}')
 
     async def check_bot_status(self, message):
-        print('check bot status')
         bots = {
             444871677176709141: 747786560123961443,
             234395307759108106: 747787115974230156,
             172002275412279296: 747787792402219128,
             689373971572850842: 747788002738176110,
-            155149108183695360: 747786691074457610,
-            287698408855044097: 747799955724304385
+            155149108183695360: 747786691074457610
         }
         if message.author.id not in bots.values():
-            print('not bot status')
             return
-        if message.author.id == 747799955724304385:
-            # Fire Status
-            print('test status')
-            if message.embeds[0].fields[0].name == 'Resolved' and message.pinned:
-                print('pinned, incident is resolved')
-                try:
-                    await message.unpin(reason='Incident is resolved.')
-                except discord.HTTPException:
-                    print('failed to unpin')
-            elif not message.pinned and message.embeds[0].description != 'New scheduled maintenance':
-                print('not pinned, not maintenance')
-                try:
-                    await message.pin(reason='New incident')
-                except discord.HTTPException as e:
-                    self.bot.logger.warn(f'Failed to pin Testing status update', exc_info=e)
         if message.author.id == 747786560123961443:
             # Fire Status
             if message.embeds[0].fields[0].name == 'Resolved' and message.pinned:
