@@ -22,12 +22,6 @@
                 "aliases": null
             },
             {
-                "name": "tips",
-                "description": "Toggle a 10% chance of seeing a useful tip when running a command",
-                "usage": "{prefix}tips",
-                "aliases": null
-            },
-            {
                 "name": "invite",
                 "description": "Sends my invite link",
                 "usage": "{prefix}invite",
