@@ -81,7 +81,7 @@ class GuildInfo(commands.Cog):
             )
         if 'PARTNERED' in guild.features:
             badges.append(
-                str(discord.utils.get(self.bot.emojis, id=647400542775279629))
+                str(discord.utils.get(self.bot.emojis, id=748708707247980674))
             )
         elif 'VERIFIED' in guild.features:
             badges.append(
