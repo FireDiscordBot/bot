@@ -67,7 +67,7 @@ class UserInfo(commands.Cog):
             'staff': discord.utils.get(
                 self.bot.emojis, id=698344463281422371),
             'partner': discord.utils.get(
-                self.bot.emojis, id=748708747144331295),
+                self.bot.emojis, id=748876804562878504),
             'hypesquad': discord.utils.get(
                 self.bot.emojis, id=698349980192079882),
             'bug_hunter': discord.utils.get(
