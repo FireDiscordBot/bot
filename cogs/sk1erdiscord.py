@@ -108,7 +108,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             for m in pins:
                 if m.author.id not in bots.values():
                     continue
-                if m.edited_at and (datetime.datetime.utcnow() - m.edited_at) > datetime.timedelta(hours=10):
+                if (datetime.datetime.utcnow() - (m.edited_at or m.created_at)) > datetime.timedelta(hours=10):
                     try:
                         await m.unpin(reason='Incident has lasted more than 10 hours')
                     except discord.HTTPException:
