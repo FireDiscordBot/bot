@@ -103,7 +103,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             155149108183695360: 747786691074457610
         }
         try:
-            commands: discord.TextChannel = self.guild.get_channel(411620555960352787)
+            commands: discord.TextChannel = self.guild.get_channel(
+                411620555960352787)
             pins = await commands.pins()
             for m in pins:
                 if m.author.id not in bots.values():
@@ -278,7 +279,10 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                         f'$REDFailed to patch booster gist for $CYAN{mcuuid}')
                     return
                 general = self.guild.get_channel(411620457754787841)
-                await general.send(f'{after.mention} Your nitro perks have been removed. Boost the server to get them back :)')
+                await general.send(f'{after.mention} Your nitro perks have been removed. Boost the server to get them back :)',
+                                   allowed_mentions=discord.AllowedMentions(
+                                       users=True)
+                                   )
 
     def get_solutions(self, log):
         solutions = []
@@ -315,7 +319,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 return
             embeds = False
             if before.embeds and after.embeds:
-                embeds = before.embeds[0].to_dict() == after.embeds[0].to_dict()
+                embeds = before.embeds[0].to_dict(
+                ) == after.embeds[0].to_dict()
             if before.content != after.content or after.embeds and not embeds:
                 return await self.check_bot_status(after)
 
@@ -435,7 +440,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 try:
                     await message.pin(reason='New incident')
                 except discord.HTTPException as e:
-                    self.bot.logger.warn(f'Failed to pin Fire status update', exc_info=e)
+                    self.bot.logger.warn(
+                        f'Failed to pin Fire status update', exc_info=e)
         elif message.author.id == 747787115974230156:
             # Groovy Status
             emoji_re = r'<a?:([a-zA-Z0-9\_]+):[0-9]+>'
@@ -450,7 +456,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 try:
                     await message.pin(reason='New incident')
                 except discord.HTTPException as e:
-                    self.bot.logger.warn(f'Failed to pin Groovy status update', exc_info=e)
+                    self.bot.logger.warn(
+                        f'Failed to pin Groovy status update', exc_info=e)
         elif message.author.id == 747787792402219128:
             # Tatsu Status
             if 'resolved' in message.content.lower() and message.pinned:
@@ -462,7 +469,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 try:
                     await message.pin(reason='New incident')
                 except discord.HTTPException as e:
-                    self.bot.logger.warn(f'Failed to pin Tatsu status update', exc_info=e)
+                    self.bot.logger.warn(
+                        f'Failed to pin Tatsu status update', exc_info=e)
         elif message.author.id == 747788002738176110:
             # Lunar Status
             if 'resolved' in message.content.lower() and message.pinned:
@@ -474,7 +482,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 try:
                     await message.pin(reason='New incident')
                 except discord.HTTPException as e:
-                    self.bot.logger.warn(f'Failed to pin Lunar status update', exc_info=e)
+                    self.bot.logger.warn(
+                        f'Failed to pin Lunar status update', exc_info=e)
         elif message.author.id == 747786691074457610:
             # Dyno Status (ew)
             if any(m in message.content.lower() for m in ['dynoonline', 'recovered']) and message.pinned:
