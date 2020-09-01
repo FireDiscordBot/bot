@@ -57,9 +57,9 @@ class ImageGeneration(commands.Cog, name='Image Generation'):
     #     if '.gif' in image:
     #         return await ctx.error('Animated images are not supported!')
     #     if not text:
-    #         return await ctx.error('You must provide text seperated by **|**')
+    #         return await ctx.error('You must provide text separated by **|**')
     #     if len(text.split('|')) <= 1:
-    #         return await ctx.error('You must provide text seperated by **|**')
+    #         return await ctx.error('You must provide text separated by **|**')
     #     try:
     #         async with aiohttp.ClientSession() as s:
     #             imgraw = await s.get(image)
@@ -177,11 +177,11 @@ class ImageGeneration(commands.Cog, name='Image Generation'):
         if '.gif' in image:
             return await ctx.error('Animated images are not supported!')
         if not text:
-            return await ctx.error('You must provide text seperated by **|**')
+            return await ctx.error('You must provide text separated by **|**')
         if not any(ext in image for ext in ['.png', '.jpg', '.jpeg']):
             return await ctx.error('You must provide an image or user as the first argument')
         if len(text.split('|')) != 2:
-            return await ctx.error('You must provide text seperated by **|**')
+            return await ctx.error('You must provide text separated by **|**')
         text = urllib.parse.quote(text).split('%7C')
         async with aiohttp.ClientSession(
                 headers={'Authorization': self.bot.config["aeromeme"]}
