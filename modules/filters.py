@@ -25,7 +25,6 @@ from fire.filters.twitch import findtwitch, replacetwitch
 from fire.filters.gift import findgift, replacegift
 from fire.filters.sku import findsku, replacesku
 from discord.ext import commands
-from typing import List
 import functools
 import datetime
 import aiohttp
@@ -101,7 +100,7 @@ class Filters(commands.Cog):
         return text
 
     async def handle_invite(self, message, extra):
-        tosearch = str(message.system_content) + \
+        tosearch = str(message.content) + \
             str([e.to_dict() for e in message.embeds]) if not extra else extra
         codes = findinvite(tosearch)
         invite = None
@@ -138,7 +137,7 @@ class Filters(commands.Cog):
                         description = f'**Invite link sent in** {message.channel.mention}'
                         if fullurl in extra:
                             # Prevent logging inf also in content/embed
-                            if fullurl in str(message.system_content) + str([e.to_dict() for e in message.embeds]):
+                            if fullurl in str(message.content) + str([e.to_dict() for e in message.embeds]):
                                 continue
                             description = f'**Invite link found in external content**'
                         embed = discord.Embed(
@@ -167,17 +166,13 @@ class Filters(commands.Cog):
         cs = aiohttp.ClientSession()
         for embed in message.embeds:
             try:
-                if not isinstance(embed.provider, discord.Embed.Empty) and embed.provider.name == 'Discord' and re.findall(
-                    r"hang out with \W{1,6} other members and enjoy free voice and text chat\.",
-                    embed.description,
-                    re.MULTILINE
-                ) and embed.url and not isinstance(embed.thumbnail, discord.Embed.Empty) and 'https://cdn.discordapp.com/icons/' in embed.thumbnail.url:
+                if embed.provider.name == 'Discord' and embed.url and 'https://cdn.discordapp.com/' in embed.thumbnail.url:
                     req = await cs.get(embed.url, allow_redirects=False)
                     if req.headers.get('Location', ''):
                         message.content = message.content.replace(
                             embed.url, req.headers['Location'])
-                        await self.safe_exc(self.handle_invite, message, extra)
-            except Exception:
+                        await self.safe_exc(self.handle_invite, message, '')
+            except Exception as e:
                 pass
         await cs.close()
 
