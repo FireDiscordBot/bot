@@ -1,0 +1,33 @@
+{
+	"type": "commonjs",
+	"name": "fire",
+	"version": "1.0.0",
+	"description": "Fire is a Discord bot that hopes to be the only one you'll need!",
+	"main": "dist/index",
+	"repository": "https://github.com/FireDiscordBot/bot-ts.git",
+	"author": "GamingGeek <geek@gaminggeek.dev> (https://gaminggeek.dev/)",
+	"contributors": [
+		"The Aero Team <team@aero.bot> (https://aero.bot)"
+	],
+	"engines": {
+		"node": ">=14.0.0"
+	},
+	"private": true,
+	"license": "UNLICENSED",
+	"dependencies": {
+		"@aero/ksoft": "^3.1.8",
+		"@klasa/console": "^0.0.3",
+		"@sentry/node": "^5.15.4",
+		"@types/node": "^14.6.0",
+		"discord-akairo": "^8.1.0",
+		"discord.js": "^12.2.0",
+		"dotenv": "^8.2.0",
+		"emoji-regex": "^9.0.0",
+		"moment": "^2.27.0",
+		"ws": "^7.2.3"
+	},
+	"optionalDependencies": {
+		"bufferutil": "^4.0.1",
+		"utf-8-validate": "^5.0.2"
+	}
+}
