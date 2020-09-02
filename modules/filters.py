@@ -25,10 +25,12 @@ from fire.filters.twitch import findtwitch, replacetwitch
 from fire.filters.gift import findgift, replacegift
 from fire.filters.sku import findsku, replacesku
 from discord.ext import commands
+from typing import List
 import functools
 import datetime
 import aiohttp
 import discord
+import re
 
 
 class Filters(commands.Cog):
@@ -64,6 +66,7 @@ class Filters(commands.Cog):
             return
         if 'discord' not in exclude:
             await self.safe_exc(self.handle_invite, message, extra)
+            await self.safe_exc(self.handle_ext_invite, message, extra)
         if 'malware' not in exclude:
             await self.safe_exc(self.anti_malware, message, extra)
         if 'paypal' not in exclude:
@@ -114,9 +117,7 @@ class Filters(commands.Cog):
                         if invite.guild.id != message.guild.id:
                             await message.delete()
                     except discord.NotFound:
-                        vanitydomains = ['oh-my-god.wtf', 'inv.wtf', 'floating-through.space',
-                                         'i-live-in.space', 'i-need-personal.space', 'get-out-of-my-parking.space']
-                        if any(d in fullurl for d in vanitydomains):
+                        if 'inv.wtf' in fullurl:
                             invite = await self.bot.get_vanity(code)
                             if not invite or invite['gid'] != message.guild.id:
                                 try:
@@ -161,6 +162,24 @@ class Filters(commands.Cog):
                             await logch.send(embed=embed)
                         except Exception:
                             pass
+
+    async def handle_ext_invite(self, message, extra):
+        cs = aiohttp.ClientSession()
+        for embed in message.embeds:
+            try:
+                if not isinstance(embed.provider, discord.Embed.Empty) and embed.provider.name == 'Discord' and re.findall(
+                    r"hang out with \W{1,6} other members and enjoy free voice and text chat\.",
+                    embed.description,
+                    re.MULTILINE
+                ) and embed.url and not isinstance(embed.thumbnail, discord.Embed.Empty) and 'https://cdn.discordapp.com/icons/' in embed.thumbnail.url:
+                    req = await cs.get(embed.url, allow_redirects=False)
+                    if req.headers.get('Location', ''):
+                        message.content = message.content.replace(
+                            embed.url, req.headers['Location'])
+                        await self.safe_exc(self.handle_invite, message, extra)
+            except Exception:
+                pass
+        await cs.close()
 
     # Get it? It gets rid of malware links so it's, anti malware. I'm hilarious!
     async def anti_malware(self, message, extra):
