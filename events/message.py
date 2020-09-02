@@ -103,6 +103,12 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
     async def on_message(self, message):
         if not message.guild:
             return
+        if '@everyone' in message.content and not message.author.permissions_in(message.channel).mention_everyone:
+            if self.bot.get_config(message.guild).get('mod.antieveryone'):
+                try:
+                    return await message.delete()
+                except Exception:
+                    pass
         embeds = [str(e.to_dict()) for e in message.embeds]
         tokens = re.findall(self.tokenregex, str(
             message.system_content) + str(embeds), re.MULTILINE)

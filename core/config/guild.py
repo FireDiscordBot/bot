@@ -73,6 +73,13 @@ class Config:
             f'$GREENSetting $CYANmod.mutedrole $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.mutedrole', value.id)
 
+    @ConfigOpt(name='mod.antieveryone', accepts=bool, default=None, options=options)
+    async def anti_everyone(self, value: bool):
+        '''Anti Everyone | Prevents those without permission from sending messages containing @everyone (as they're most likely just advertising/sending copypasta etc.'''
+        self._bot.logger.info(
+            f'$GREENSetting $CYANmod.antieveryone $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
+        await self.update('mod.antieveryone', value)
+
     @ConfigOpt(name='mod.linkfilter', accepts=[str], default=[], options=options)
     async def link_filter(self, value: list):
         '''Link Filter | The filters of which any links found will be deleted (unless they have Manage Messages)'''
