@@ -1,17 +1,19 @@
+import { FireMessage } from "../../lib/extensions/message";
+import { Language } from "../../lib/util/language";
 import { Command } from "../../lib/util/command";
-import { Message } from "discord.js";
 import { MessageEmbed } from "discord.js";
 
 export default class extends Command {
   constructor() {
     super("ping", {
-      description: "Shows you my ping to discord's servers",
+      description: (language: Language) =>
+        language.get("PING_COMMAND_DESCRIPTION"),
       clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
     });
   }
 
-  async exec(message: Message) {
-    const m = await message.channel.send(`Pinging...`);
+  async exec(message: FireMessage) {
+    const m = await message.send("PING_INITIAL_MESSAGE");
     const embed = new MessageEmbed()
       .setTitle(
         `:ping_pong: ${

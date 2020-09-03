@@ -1,7 +1,8 @@
+import { FireMessage } from "../../lib/extensions/message";
 import { constants } from "../../lib/util/constants";
+import { Language } from "../../lib/util/language";
 import { Command } from "../../lib/util/command";
 import { TextChannel } from "discord.js";
-import { Message } from "discord.js";
 const { emojis } = constants;
 
 export default class extends Command {
@@ -10,8 +11,8 @@ export default class extends Command {
     super("at", {
       aliases: ["autotip"],
       ownerOnly: true,
-      description:
-        "command that does autotip bot thing but not rn because I got banned",
+      description: (language: Language) =>
+        language.get("AUTODECANCER_COMMAND_DESCRIPTION"),
       args: [
         {
           id: "content",
@@ -22,15 +23,13 @@ export default class extends Command {
     });
   }
 
-  async exec(message: Message, args: { content: string }) {
+  async exec(message: FireMessage, args: { content: string }) {
     if (!this.autotipChannel)
-      return await message.channel.send(
-        `${emojis.error} I could not find the autotip channel.`
-      );
+      return await message.error("AT_CHANNEL_NOT_FOUND");
     this.autotipChannel.send(`|at ${args.content}`);
     this.autotipChannel
       .awaitMessages(
-        (response: Message) => {
+        (response: FireMessage) => {
           return response.attachments.size == 1;
         },
         {
@@ -43,7 +42,7 @@ export default class extends Command {
         message.channel.send(collected.first().attachments.first());
       })
       .catch((err) => {
-        message.channel.send(`${emojis.error} Got no response :(`);
+        message.error("AT_NO_RESPONSE");
       });
   }
 

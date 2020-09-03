@@ -12,8 +12,10 @@ import { Manager } from "../lib/Manager";
 import { Command } from "./util/command";
 import { Client as PGClient } from "ts-postgres";
 import { config } from "../config";
-import * as moment from "moment";
 import PostgresProvider from "./providers/postgres";
+import { LanguageHandler } from "./util/language";
+import * as moment from "moment";
+import * as extensions from "./extensions";
 
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
@@ -27,6 +29,7 @@ export class Fire extends AkairoClient {
   commandHandler: CommandHandler;
   inhibitorHandler: InhibitorHandler;
   listenerHandler: ListenerHandler;
+  languages: LanguageHandler;
   ksoft: KSoftClient | boolean;
   // chatwatch;
 
@@ -100,6 +103,11 @@ export class Fire extends AkairoClient {
       listenerHandler: this.listenerHandler,
     });
     this.listenerHandler.loadAll();
+
+    this.languages = new LanguageHandler(this, {
+      directory: "./src/languages",
+    });
+    this.languages.loadAll();
 
     if (process.env.KSOFT_TOKEN)
       this.ksoft = new KSoftClient(process.env.KSOFT_TOKEN);
