@@ -1,13 +1,12 @@
 import { Fire } from "./Fire";
-
-const Websocket = require("./ws/Websocket");
-const Reconnector = require("./ws/Reconnector");
+import { Websocket } from "./ws/Websocket";
+import { Reconnector } from "./ws/Reconnector";
 
 export class Manager {
   id: number;
   client: Fire;
-  ws: typeof Websocket;
-  reconnector: typeof Reconnector;
+  ws: Websocket;
+  reconnector: Reconnector;
 
   constructor(sentry: any) {
     this.id =
