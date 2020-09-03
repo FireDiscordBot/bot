@@ -85,7 +85,7 @@ class GuildInfo(commands.Cog):
             )
         elif 'VERIFIED' in guild.features:
             badges.append(
-                str(discord.utils.get(self.bot.emojis, id=647400543018287114))
+                str(discord.utils.get(self.bot.emojis, id=751196492517081189))
             )
         if guild.id in self.bot.premium_guilds:
             badges.append(
