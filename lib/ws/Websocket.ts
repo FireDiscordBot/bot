@@ -19,7 +19,7 @@ export class Websocket extends Client {
         MessageUtil.encode(
           new Message(IDENTIFY_CLIENT, {
             id: this.client.id,
-            ready: this.client.client.readyAt ? true : false,
+            ready: !!this.client.client.readyAt,
           })
         )
       );
