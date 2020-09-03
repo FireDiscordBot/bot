@@ -166,7 +166,7 @@ class Filters(commands.Cog):
         cs = aiohttp.ClientSession()
         for embed in message.embeds:
             try:
-                if embed.provider.name == 'Discord' and embed.url and 'https://cdn.discordapp.com/' in embed.thumbnail.url:
+                if embed.provider.name == 'Discord' and embed.url and any(u in embed.thumbnail.url for u in ['https://cdn.discordapp.com/', 'https://discord.com/assets/']):
                     req = await cs.get(embed.url, allow_redirects=False)
                     if req.headers.get('Location', ''):
                         message.content = message.content.replace(
