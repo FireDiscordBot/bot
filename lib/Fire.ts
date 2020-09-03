@@ -10,6 +10,7 @@ import { KlasaConsole } from "@klasa/console"; // Klasa console do be looking ki
 import { KSoftClient } from "@aero/ksoft";
 import { Manager } from "../lib/Manager";
 import { Command } from "./util/command";
+import { Client as PGClient } from "ts-postgres";
 import { config } from "../config";
 import * as moment from "moment";
 
@@ -17,6 +18,7 @@ export class Fire extends AkairoClient {
   launchTime: moment.Moment;
   started: boolean;
   manager: Manager;
+  db: PGClient;
   console: KlasaConsole;
   sentry: any;
   config: typeof config.fire;
@@ -33,6 +35,19 @@ export class Fire extends AkairoClient {
 
     this.manager = manager;
     this.console = new KlasaConsole();
+
+    this.db = new PGClient({
+      user: "postgres",
+      password: process.env.POSTGRES_PASS,
+      database: process.env.NODE_ENV === "production" ? "fire" : "dev",
+    });
+    this.console.log("[DB] Attempting to connect...");
+    this.db
+      .connect()
+      .catch((err) =>
+        this.console.error(`[DB] Failed to connect\n${err.stack}`)
+      )
+      .then(() => this.console.log("[DB] Connected"))
 
     this.on("warn", (warning) => this.console.warn(`[Discord] ${warning}`));
     this.on("error", (error) => this.console.error(`[Discord] ${error}`));
@@ -54,7 +69,7 @@ export class Fire extends AkairoClient {
       handleEdits: true,
       storeMessages: true,
       prefix: (message) => {
-        return "dev ";
+        return "dev "; // TODO Change this for config
       },
     });
     this.commandHandler.on("load", async (command: Command) => {
@@ -84,7 +99,7 @@ export class Fire extends AkairoClient {
     else this.ksoft = false;
   }
 
-  login() {
+  async login() {
     this.console.log(
       `[Discord] Attempting to login on shard ${this.manager.id}/${this.options.shardCount}.`
     );
