@@ -37,11 +37,6 @@ class FireStatus(commands.Cog):
                 headers={'Authorization': self.bot.config['statuspage']}
             )
             self.last_log = None
-            self.check_ping.start()
-
-    def cog_unload(self):
-        if not self.bot.dev:
-            self.check_ping.cancel()
 
     async def get_status(self, cid: str):
         route = Route(
@@ -64,46 +59,6 @@ class FireStatus(commands.Cog):
             }
         }
         await self.bot.http.statuspage.request(route, json=payload)
-
-    @tasks.loop(minutes=1)
-    async def check_ping(self):
-        await self.bot.wait_until_ready()
-        try:
-            channel = self.bot.get_channel(708692723984629811)
-            start = round(datetime.datetime.now(
-                datetime.timezone.utc).timestamp() * 1000)
-            msg = await channel.send(random.choice(['ping', 'pong']))
-            end = round(datetime.datetime.now(
-                datetime.timezone.utc).timestamp() * 1000)
-            ping = round(end - start)
-            await msg.edit(content=f'ping is {ping}')
-            if ping > 800:
-                status = await self.get_status('gtbpmn9g33jk')
-                await asyncio.sleep(1)  # Statuspage ratelimit is 1req/s
-                if status == 'operational':
-                    await self.set_status('gtbpmn9g33jk', 'degraded_performance')
-                else:
-                    return
-            if ping < 800:
-                status = await self.get_status('gtbpmn9g33jk')
-                await asyncio.sleep(1)
-                if status == 'degraded_performance':
-                    await self.set_status('gtbpmn9g33jk', 'operational')
-                else:
-                    return
-        except Exception as e:
-            if not self.last_log:
-                self.bot.logger.warn(
-                    'Failed to check ping / set status', exc_info=e)
-                self.last_log = datetime.datetime.now(datetime.timezone.utc)
-            else:
-                td = datetime.datetime.now(
-                    datetime.timezone.utc) - self.last_log
-                if td > datetime.timedelta(minutes=15):
-                    self.bot.logger.warn(
-                        'Failed to check ping / set status', exc_info=e)
-                    self.last_log = datetime.datetime.now(
-                        datetime.timezone.utc)
 
     @commands.command(name='status')
     async def command(self, ctx):
