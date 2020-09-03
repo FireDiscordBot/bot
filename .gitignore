@@ -3,7 +3,6 @@ node_modules
 config.json
 *.log
 .idea
-yarn.lock
 .env*
 *.env
 test*
