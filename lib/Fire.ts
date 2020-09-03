@@ -13,6 +13,7 @@ import { Command } from "./util/command";
 import { Client as PGClient } from "ts-postgres";
 import { config } from "../config";
 import * as moment from "moment";
+import PostgresProvider from "./providers/postgres";
 
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
@@ -22,6 +23,7 @@ export class Fire extends AkairoClient {
   console: KlasaConsole;
   sentry: any;
   config: typeof config.fire;
+  settings: PostgresProvider;
   commandHandler: CommandHandler;
   inhibitorHandler: InhibitorHandler;
   listenerHandler: ListenerHandler;
@@ -47,7 +49,7 @@ export class Fire extends AkairoClient {
       .catch((err) =>
         this.console.error(`[DB] Failed to connect\n${err.stack}`)
       )
-      .then(() => this.console.log("[DB] Connected"))
+      .then(() => this.console.log("[DB] Connected"));
 
     this.on("warn", (warning) => this.console.warn(`[Discord] ${warning}`));
     this.on("error", (error) => this.console.error(`[Discord] ${error}`));
@@ -62,6 +64,11 @@ export class Fire extends AkairoClient {
     }
 
     this.config = config.fire;
+
+    this.settings = new PostgresProvider(this.db, "guildconfig", {
+      idColumn: "gid",
+      dataColumn: "data",
+    });
 
     this.commandHandler = new CommandHandler(this, {
       directory: "./src/commands/",
@@ -104,6 +111,7 @@ export class Fire extends AkairoClient {
       `[Discord] Attempting to login on shard ${this.manager.id}/${this.options.shardCount}.`
     );
     this.options.shards = [this.manager.id];
+    await this.settings.init();
     return super.login();
   }
 }
