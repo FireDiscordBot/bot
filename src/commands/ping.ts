@@ -4,7 +4,10 @@ import { MessageEmbed } from "discord.js";
 
 export default class extends Command {
   constructor() {
-    super("ping", {});
+    super("ping", {
+      description: "Shows you my ping to discord's servers",
+      clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
+    });
   }
 
   async exec(message: Message) {
