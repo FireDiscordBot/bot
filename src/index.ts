@@ -8,7 +8,7 @@ import * as sentry from "@sentry/node";
 const version = process.env.npm_package_gitHead || "dev";
 
 sentry.init({
-  dsn: process.env.SENTRY_TOKEN,
+  dsn: process.env.SENTRY_DSN,
   release: `fire@${version}`,
 });
 
