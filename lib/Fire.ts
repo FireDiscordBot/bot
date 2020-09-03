@@ -15,7 +15,7 @@ import { config } from "../config";
 import PostgresProvider from "./providers/postgres";
 import { LanguageHandler } from "./util/language";
 import * as moment from "moment";
-import * as extensions from "./extensions";
+require("./extensions");
 
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
@@ -49,9 +49,10 @@ export class Fire extends AkairoClient {
     this.console.log("[DB] Attempting to connect...");
     this.db
       .connect()
-      .catch((err) =>
-        this.console.error(`[DB] Failed to connect\n${err.stack}`)
-      )
+      .catch((err) => {
+        this.console.error(`[DB] Failed to connect\n${err.stack}`);
+        process.exit(-1);
+      })
       .then(() => this.console.log("[DB] Connected"));
 
     this.on("warn", (warning) => this.console.warn(`[Discord] ${warning}`));
