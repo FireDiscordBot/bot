@@ -1,12 +1,12 @@
-import { Fire } from "../../Fire";
 import { EventStore } from "./EventStore";
 import { MessageUtil } from "../util/MessageUtil";
+import { Manager } from "../../Manager";
 
 export class EventHandler {
-  client: Fire;
+  client: Manager;
   store: EventStore;
 
-  constructor(client: Fire) {
+  constructor(client: Manager) {
     this.client = client;
     this.store = new EventStore(client);
   }

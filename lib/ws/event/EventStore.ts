@@ -1,13 +1,13 @@
-import { Fire } from "../../Fire";
+import { Manager } from "../../Manager";
 import { readdirSync } from "fs";
 import { join } from "path";
 
 const { Collection } = require("discord.js");
 
 export class EventStore extends Collection {
-  client: Fire;
+  client: Manager;
 
-  constructor(client: Fire) {
+  constructor(client: Manager) {
     super();
     this.client = client;
   }
