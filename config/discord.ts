@@ -19,4 +19,10 @@ export const discord: ClientOptions = {
       intents.GUILD_MESSAGES |
       intents.GUILD_MESSAGE_REACTIONS,
   },
+  presence: {
+    activity: {
+      name: "with fire | inv.wtf",
+      type: "PLAYING",
+    },
+  },
 };
