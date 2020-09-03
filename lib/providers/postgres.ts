@@ -52,9 +52,11 @@ export default class PostgresProvider extends Provider {
   async init(): Promise<void> {
     const rows = await this.db.query(`SELECT * FROM ${this.tableName}`);
     for await (const row of rows) {
+      const idColumn = row.names.indexOf(this.idColumn);
+      const dataColumn = row.names.indexOf(this.dataColumn);
       this.items.set(
-        row[this.idColumn].toString(),
-        this.dataColumn ? JSON.parse(row[this.dataColumn]) : row
+        row.data[idColumn].toString(),
+        this.dataColumn ? row.data[dataColumn] : row
       );
     }
   }
