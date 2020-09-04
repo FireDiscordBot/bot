@@ -8,11 +8,13 @@ import {
 import { Fire } from "../Fire";
 import { Language } from "../util/language";
 import { constants } from "../util/constants";
+import { FireGuild } from "./guild";
 
 const { emojis, reactions } = constants;
 
 export class FireMessage extends Message {
   language: Language;
+  guild: FireGuild;
   constructor(
     client: Fire,
     data: object,
@@ -43,6 +45,4 @@ export class FireMessage extends Message {
   }
 }
 
-Structures.extend("Message", () => {
-  return FireMessage;
-});
+Structures.extend("Message", () => FireMessage);
