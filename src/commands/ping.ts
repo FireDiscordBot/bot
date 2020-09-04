@@ -1,7 +1,6 @@
 import { FireMessage } from "../../lib/extensions/message";
 import { Language } from "../../lib/util/language";
 import { Command } from "../../lib/util/command";
-import { MessageEmbed } from "discord.js";
 
 export default class extends Command {
   constructor() {
