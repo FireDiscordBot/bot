@@ -26,6 +26,7 @@ export const constants = {
     KSoftBans: "https://bans.ksoft.si/share",
     DiscordStatus: "https://status.discord.com",
     FireStatus: "https://status.gaminggeek.dev",
+    FireVote: "https://fire-is-the.best/vote",
   },
   regexes: {
     discord: {
