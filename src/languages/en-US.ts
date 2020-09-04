@@ -11,6 +11,9 @@ export default class extends Language {
         AUTODECANCER_COMMAND_DESCRIPTION: `Toggle renaming those with "cancerous" (non-ascii) names`,
         AUTODECANCER_ENABLED: `Enabled autodecancer. **New** users with "cancerous" (non-ascii) names will be renamed`,
         AUTODECANCER_DISABLED: `Disabled autodecancer. **New** users with "cancerous" (non-ascii) names will no longer be renamed`,
+        AUTODEHOIST_COMMAND_DESCRIPTION: `Toggle renaming those with hoisted names`,
+        AUTODEHOIST_ENABLED: `Enabled autodehoist. **New** users with hoisted names will be renamed`,
+        AUTODEHOIST_DISABLED: `Disabled autodehoist. **New** users with hoisted names will no longer be renamed`,
         AT_COMMAND_DESCRIPTION:
           "command that does autotip bot thing but not rn because I got banned",
         AT_CHANNEL_NOT_FOUND: "I could not find the autotip channel.",
