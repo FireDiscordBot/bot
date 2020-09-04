@@ -1,4 +1,6 @@
 import { Language } from "../../lib/util/language";
+import { GuildMember } from "discord.js";
+import { TextChannel } from "discord.js";
 
 export default class extends Language {
   constructor() {
@@ -7,6 +9,7 @@ export default class extends Language {
         DEFAULT: (key: string) =>
           `${key} has not been localized for en-US yet.`,
         USER_NOT_FOUND: "User not found :(",
+        UNKNOWN_COMMAND: "Command not found",
         AT_COMMAND_DESCRIPTION:
           "command that does autotip bot thing but not rn because I got banned",
         AT_CHANNEL_NOT_FOUND: "I could not find the autotip channel.",
@@ -25,6 +28,36 @@ export default class extends Language {
           `I have set the "bad name" to ${name}. This will **not** rename existing users`,
         BADNAME_RESET: `I have reset the "bad name" to John Doe 0000 (with 0000 being their discriminator).
 This will **not** rename existing users`,
+        DEBUG_NO_COMMAND: "You must provide a command to debug",
+        DEBUGGING_DEBUG: "Debug command is working",
+        DEBUG_OWNER_ONLY: "Only my owner can use this command",
+        DEBUG_PERMS_PASS: "No permissions missing",
+        DEBUG_PERMS_CHECKS_FAIL: "Permission Checks Failed!",
+        DEBUG_PERMS_FAIL: (userMissing: string[], clientMissing: string[]) => {
+          return {
+            user: userMissing.length
+              ? `You are missing the permission${
+                  userMissing.length > 1 ? "s" : ""
+                } ${userMissing.join(", ")}`
+              : null,
+            client: clientMissing.length
+              ? `I am missing the permission${
+                  clientMissing.length > 1 ? "s" : ""
+                } ${clientMissing.join(", ")}`
+              : null,
+          };
+        },
+        DEBUG_COMMAND_DISABLE_BYPASS:
+          "Command is disabled but you are bypassed",
+        DEBUG_COMMAND_DISABLED: "Command is disabled.",
+        DEBUG_COMMAND_NOT_DISABLED: "Command is not disabled",
+        DEBUG_MUTE_BYPASS: (channel: TextChannel, bypass: string[]) =>
+          `The following users/roles will bypass mutes in ${channel}\n${bypass.join(
+            ", "
+          )}`,
+        DEBUG_MUTE_NO_BYPASS: (channel: TextChannel) =>
+          `Nobody can bypass mutes in ${channel}`,
+        DEBUG_NO_EMBEDS: "I cannot send embeds",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
       },
