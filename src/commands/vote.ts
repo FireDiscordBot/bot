@@ -14,6 +14,6 @@ export default class extends Command {
   }
 
   async exec(message: FireMessage) {
-    await message.channel.send(constants.url.FireVote);
+    return await message.channel.send(constants.url.FireVote);
   }
 }
