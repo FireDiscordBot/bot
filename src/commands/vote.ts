@@ -12,7 +12,7 @@ export default class extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { name: string }) {
+  async exec(message: FireMessage) {
     await message.channel.send("https://fire-is-the.best/vote");
   }
 }
