@@ -18,6 +18,13 @@ export default class extends Language {
         AUTODEHOIST_ENABLED: `Enabled autodehoist. **New** users with hoisted names will be renamed`,
         AUTODEHOIST_DISABLED: `Disabled autodehoist. **New** users with hoisted names will no longer be renamed`,
         AVATAR_COMMAND_DESCRIPTION: "Get a user's avatar",
+        BADNAME_COMMAND_DESCRIPTION:
+          "Change the name used for auto dehoist/decancer",
+        BADNAME_NO_CHANGES: `I did absolutely nothing because that's already set as the "bad name"`,
+        BADNAME_SET: (name: string) =>
+          `I have set the "bad name" to ${name}. This will **not** rename existing users`,
+        BADNAME_RESET: `I have reset the "bad name" to John Doe 0000 (with 0000 being their discriminator).
+This will **not** rename existing users`,
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
       },
