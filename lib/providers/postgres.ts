@@ -56,7 +56,11 @@ export default class PostgresProvider extends Provider {
       const dataColumn = row.names.indexOf(this.dataColumn);
       this.items.set(
         row.data[idColumn].toString(),
-        this.dataColumn ? row.data[dataColumn] : row
+        this.dataColumn
+          ? typeof row.data[dataColumn] === "string"
+            ? JSON.parse(row.data[dataColumn] as string)
+            : row.data[dataColumn]
+          : row
       );
     }
   }
