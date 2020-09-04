@@ -17,6 +17,7 @@ export default class extends Command {
           id: "user",
           type: "string",
           match: "rest",
+          default: (message: FireMessage) => message.author.id,
         },
       ],
     });
