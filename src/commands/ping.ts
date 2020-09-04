@@ -14,17 +14,14 @@ export default class extends Command {
 
   async exec(message: FireMessage) {
     const m = await message.send("PING_INITIAL_MESSAGE");
-    const embed = new MessageEmbed()
-      .setTitle(
-        `:ping_pong: ${
-          m.createdTimestamp -
-          (message.editedAt
-            ? message.editedTimestamp
-            : message.createdTimestamp)
-        }ms.\n:heartpulse: ${this.client.ws.ping}ms.`
-      )
-      .setColor(message.member?.displayColor || "#ffffff")
-      .setTimestamp(new Date());
+    const embed = {
+      title: `:ping_pong: ${
+        m.createdTimestamp -
+        (message.editedAt ? message.editedTimestamp : message.createdTimestamp)
+      }ms.\n:heartpulse: ${this.client.ws.ping}ms.`,
+      color: message.member?.displayColor || "#ffffff",
+      timestamp: new Date(),
+    };
     await m.edit({ content: null, embed });
   }
 }
