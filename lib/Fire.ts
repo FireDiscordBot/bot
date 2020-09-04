@@ -15,12 +15,14 @@ import { config } from "../config";
 import PostgresProvider from "./providers/postgres";
 import { LanguageHandler } from "./util/language";
 import * as moment from "moment";
+import { Util } from "./util/clientUtil";
 require("./extensions");
 
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
   started: boolean;
   manager: Manager;
+  util: Util;
   db: PGClient;
   console: KlasaConsole;
   sentry: any;
@@ -39,6 +41,7 @@ export class Fire extends AkairoClient {
     this.started = false;
 
     this.manager = manager;
+    this.util = new Util(this);
     this.console = new KlasaConsole();
 
     this.db = new PGClient({
