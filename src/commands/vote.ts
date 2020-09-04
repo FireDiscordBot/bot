@@ -1,6 +1,7 @@
 import { FireMessage } from "../../lib/extensions/message";
 import { Language } from "../../lib/util/language";
 import { Command } from "../../lib/util/command";
+import { constants } from "../../lib/util/constants";
 
 export default class extends Command {
   constructor() {
@@ -13,6 +14,6 @@ export default class extends Command {
   }
 
   async exec(message: FireMessage) {
-    await message.channel.send("https://fire-is-the.best/vote");
+    await message.channel.send(constants.url.FireVote);
   }
 }
