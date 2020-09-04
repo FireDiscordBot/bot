@@ -103,8 +103,8 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
     async def on_message(self, message):
         if not message.guild:
             return
-        if '@everyone' in message.content and not message.author.permissions_in(message.channel).mention_everyone:
-            if self.bot.get_config(message.guild).get('mod.antieveryone'):
+        if isinstance(message.author, discord.Member) and any(m in message.content for m in ['@everyone', '@here']):
+            if self.bot.get_config(message.guild).get('mod.antieveryone') and not message.author.permissions_in(message.channel).mention_everyone:
                 try:
                     return await message.delete()
                 except Exception:
