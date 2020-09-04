@@ -27,7 +27,7 @@ export default class extends Language {
 This will **not** rename existing users`,
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
-        VOTE_COMMAND_DESCRIPTION: "Vote for Fire.",
+        VOTE_COMMAND_DESCRIPTION: "Sends a link to Fire on a random bot list (sends direct vote link if you use the "vote" alias)",
       },
       enabled: true,
     });
