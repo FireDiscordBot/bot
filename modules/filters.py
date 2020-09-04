@@ -113,7 +113,7 @@ class Filters(commands.Cog):
                 if 'discord' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
                         invite = await self.bot.fetch_invite(url=code)
-                        if invite.guild.id != message.guild.id:
+                        if not invite.guild or invite.guild.id != message.guild.id:
                             await message.delete()
                     except discord.NotFound:
                         if 'inv.wtf' in fullurl:
@@ -149,8 +149,9 @@ class Filters(commands.Cog):
                         if isinstance(invite, dict):
                             invite = await self.bot.fetch_invite(url=invite['invite'])
                         if isinstance(invite, discord.Invite):
-                            embed.add_field(
-                                name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
+                            if invite.guild:
+                                embed.add_field(
+                                    name='Guild', value=f'{invite.guild.name}({invite.guild.id})', inline=False)
                             embed.add_field(
                                 name='Channel', value=f'#{invite.channel.name}({invite.channel.id})', inline=False)
                             embed.add_field(
