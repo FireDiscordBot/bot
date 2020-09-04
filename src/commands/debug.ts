@@ -62,43 +62,42 @@ export default class extends Command {
       clientPermissions: cmd.clientPermissions as Array<string>,
       userPermissions: cmd.userPermissions as Array<string>,
     };
-    permissionChecks
-      ? (() => {
-          let userMissing = [];
-          cmdPerms.userPermissions?.forEach((perm) => {
-            if (!message.member.permissions.has(perm as PermissionString)) {
-              let permTitle = perm.split("_");
-              permTitle.forEach((v, index) => {
-                permTitle[index] =
-                  v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
-              });
-              userMissing.push(permTitle.join(" "));
-            }
+    if (permissionChecks) {
+      let userMissing = [];
+      cmdPerms.userPermissions?.forEach((perm) => {
+        if (!message.member.permissions.has(perm as PermissionString)) {
+          let permTitle = perm.split("_");
+          permTitle.forEach((v, index) => {
+            permTitle[index] =
+              v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
           });
-          let clientMissing = [];
-          cmdPerms.clientPermissions?.forEach((perm) => {
-            if (!message.guild.me.permissions.has(perm as PermissionString)) {
-              let permTitle = perm.split("_");
-              permTitle.forEach((v, index) => {
-                permTitle[index] =
-                  v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
-              });
-              clientMissing.push(permTitle.join(" "));
-            }
+          userMissing.push(permTitle.join(" "));
+        }
+      });
+      let clientMissing = [];
+      cmdPerms.clientPermissions?.forEach((perm) => {
+        if (!message.guild.me.permissions.has(perm as PermissionString)) {
+          let permTitle = perm.split("_");
+          permTitle.forEach((v, index) => {
+            permTitle[index] =
+              v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
           });
-          const permMsg = (message.language.get(
-            "DEBUG_PERMS_FAIL",
-            userMissing,
-            clientMissing
-          ) as unknown) as { user: string | null; client: string | null };
-          if (userMissing || clientMissing)
-            details.push(
-              `${error} ${message.language.get("DEBUG_PERMS_CHECKS_FAIL")}` +
-                (permMsg.user ? `\n${permMsg.user}` : ``) +
-                (permMsg.client ? `\n${permMsg.client}` : ``)
-            );
-        })()
-      : details.push(`${success} ${message.language.get("DEBUG_PERMS_PASS")}`);
+          clientMissing.push(permTitle.join(" "));
+        }
+      });
+      const permMsg = (message.language.get(
+        "DEBUG_PERMS_FAIL",
+        userMissing,
+        clientMissing
+      ) as unknown) as { user: string | null; client: string | null };
+      if (userMissing || clientMissing)
+        details.push(
+          `${error} ${message.language.get("DEBUG_PERMS_CHECKS_FAIL")}` +
+            (permMsg.user ? `\n${permMsg.user}` : ``) +
+            (permMsg.client ? `\n${permMsg.client}` : ``)
+        );
+    } else
+      details.push(`${success} ${message.language.get("DEBUG_PERMS_PASS")}`);
     const inhibitorCheck = await this.client.inhibitorHandler.test(
       "all",
       message,
