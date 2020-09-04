@@ -13,6 +13,7 @@ import { FireGuild } from "./guild";
 const { emojis, reactions } = constants;
 
 export class FireMessage extends Message {
+  client: Fire;
   language: Language;
   guild: FireGuild;
   constructor(
@@ -22,7 +23,7 @@ export class FireMessage extends Message {
   ) {
     super(client, data, channel);
     this.language = client.languages.modules.get(
-      client.settings.get(this.guild.id, "util.language", "en-US")
+      client.settings.get(this.guild.id, "utils.language", "en-US")
     ) as Language;
   }
 
