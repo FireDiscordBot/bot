@@ -79,9 +79,10 @@ export default class extends Command {
           cmdPerms.clientPermissions?.forEach((perm) => {
             if (!message.guild.me.permissions.has(perm as PermissionString)) {
               let permTitle = perm.split("_");
-              permTitle.forEach(
-                (v) => (v = v.charAt(0).toUpperCase() + v.slice(1))
-              );
+              permTitle.forEach((v, index) => {
+                permTitle[index] =
+                  v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
+              });
               clientMissing.push(permTitle.join(" "));
             }
           });
