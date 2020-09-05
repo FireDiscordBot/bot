@@ -1,5 +1,4 @@
 import { Language } from "../../lib/util/language";
-import { GuildMember } from "discord.js";
 import { TextChannel } from "discord.js";
 
 export default class extends Language {
