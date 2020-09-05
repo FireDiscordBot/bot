@@ -10,6 +10,7 @@ export default class extends Language {
         USER_NOT_FOUND: "User not found :(",
         UNKNOWN_COMMAND: "Command not found",
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
+        COMMAND_ERROR_GENERIC: (id: string) => `Something went wrong while running ${id}`,
         AT_COMMAND_DESCRIPTION:
           "command that does autotip bot thing but not rn because I got banned",
         AT_CHANNEL_NOT_FOUND: "I could not find the autotip channel.",
