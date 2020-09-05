@@ -1,21 +1,21 @@
 import {
   AkairoClient,
-  CommandHandler,
   InhibitorHandler,
   ListenerHandler,
   version as akairover,
 } from "discord-akairo";
+import { CommandHandler } from "./util/commandHandler";
+import { PostgresProvider } from "./providers/postgres";
+import { LanguageHandler } from "./util/language";
+import { Client as PGClient } from "ts-postgres";
 import { version as djsver } from "discord.js";
 import { KlasaConsole } from "@klasa/console"; // Klasa console do be looking kinda nice doe
 import { KSoftClient } from "@aero/ksoft";
 import { Manager } from "../lib/Manager";
 import { Command } from "./util/command";
-import { Client as PGClient } from "ts-postgres";
-import { config } from "../config";
-import PostgresProvider from "./providers/postgres";
-import { LanguageHandler } from "./util/language";
-import * as moment from "moment";
 import { Util } from "./util/clientUtil";
+import { config } from "../config";
+import * as moment from "moment";
 require("./extensions");
 
 export class Fire extends AkairoClient {
