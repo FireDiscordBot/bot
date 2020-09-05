@@ -18,15 +18,17 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands, tasks, flags
 from fire.converters import Member, UserWithFallback
-from fire.http import Route
+from fire.http import HTTPClient, Route
 import urllib.parse
 import datetime
 import aiohttp
 import discord
+import zipfile
 import typing
 import json
 import uuid
 import re
+import io
 
 
 class Sk1er(commands.Cog, name='Sk1er Discord'):
@@ -61,6 +63,9 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         self.emojire = r'<a?:[a-zA-Z0-9\_]+:([0-9]+)>'
         self.solutions = json.load(open('sk1er_solutions.json'))
         self.modconf = json.load(open('mods.json'))
+        self.sk1static = HTTPClient(
+            "https://static.sk1er.club"
+        )
         self.description_updater.start()
         self.status_checker.start()
         self.uuidcache = {}
@@ -368,56 +373,82 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     self.bot.logger.error(
                         f'$REDFailed to decode log sent by $CYAN{message.author}', exc_info=e)
                     return  # give up, leave the file there
-            txt = re.sub(self.emailre, '[removed email]', txt, 0, re.MULTILINE)
-            for u in re.findall(self.urlre, txt, re.MULTILINE):
-                if 'sk1er.club' not in u:
-                    txt.replace(u, '[removed url]')
-            txt = re.sub(self.homere, 'USER.HOME', txt, 0, re.MULTILINE)
-            for line in txt.split('\n'):
-                if re.findall(self.secrets, line, re.MULTILINE):
-                    txt = txt.replace(
-                        line, '[line removed to protect sensitive info]')
-            filters = self.bot.get_cog('Filters')
-            txt = filters.run_replace(txt)
-            if any(t in txt for t in self.logtext) and message.guild.id == 411619823445999637:
-                try:
-                    url = await self.bot.haste(txt)
-                except Exception as e:
-                    self.bot.logger.error(
-                        f'$REDFailed to upload log to hastebin', exc_info=e)
-                    return
-                try:
-                    await message.delete()
-                except discord.HTTPException:
-                    pass
-                solutions = self.get_solutions(txt)
-                return await message.channel.send(f'{message.author} uploaded a log, {message.content}\n{url}\n\n{solutions}')
+            return await self.handle_log_text(txt, 'uploaded')
         if not message.attachments and len(message.content) > 350:
             txt = message.content
-            txt = re.sub(self.emailre, '[removed email]', txt, 0, re.MULTILINE)
-            for u in re.findall(self.urlre, txt, re.MULTILINE):
-                if 'sk1er.club' not in u:
-                    txt.replace(u, '[removed url]')
-            txt = re.sub(self.homere, 'USER.HOME', txt, 0, re.MULTILINE)
-            for line in txt.split('\n'):
-                if re.findall(self.secrets, line, re.MULTILINE):
-                    txt = txt.replace(
-                        line, '[line removed to protect sensitive info]')
-            filters = self.bot.get_cog('Filters')
-            txt = filters.run_replace(txt)
-            if any(t in message.content for t in self.logtext) and message.guild.id == 411619823445999637:
-                try:
-                    url = await self.bot.haste(txt)
-                except Exception as e:
-                    self.bot.logger.error(
-                        f'$REDFailed to upload log to hastebin', exc_info=e)
-                    return
+            return await self.handle_log_text(txt, 'send')
+
+    async def handle_log_text(self, txt, msg_type='uploaded'):
+        log_lines = txt.split('\n')
+        if re.findall(
+            r"\[club.sk1er.mods.levelhead.ModCoreInstaller:download:230]: MAX: \d+",
+            log_lines[-1]
+        ):
+            zipfile = None
+            try:
+                zipfile = await self.create_modcore_zip()
+            except Exception:
+                pass
+            if zipfile:
                 try:
                     await message.delete()
                 except discord.HTTPException:
                     pass
-                solutions = self.get_solutions(txt)
-                return await message.channel.send(f'{message.author} sent a log, {url}\n\n{solutions}')
+                return await message.channel.send(
+                    f'{message.author.mention}, Unzip this in `.minecraft/modcore` and your issue should be resolved.',
+                    file=discord.File(zipfile, filename="modcore.zip"),
+                    allowed_mentions=discord.AllowedMentions(users=True)
+                )
+        txt = re.sub(self.emailre, '[removed email]', txt, 0, re.MULTILINE)
+        for u in re.findall(self.urlre, txt, re.MULTILINE):
+            if 'sk1er.club' not in u:
+                txt.replace(u, '[removed url]')
+        txt = re.sub(self.homere, 'USER.HOME', txt, 0, re.MULTILINE)
+        for line in log_lines:
+            if re.findall(self.secrets, line, re.MULTILINE):
+                txt = txt.replace(
+                    line, '[line removed to protect sensitive info]')
+        filters = self.bot.get_cog('Filters')
+        txt = filters.run_replace(txt)
+        if any(t in txt for t in self.logtext) and message.guild.id == 411619823445999637:
+            try:
+                url = await self.bot.haste(txt)
+            except Exception as e:
+                self.bot.logger.error(
+                    f'$REDFailed to upload log to hastebin', exc_info=e)
+                return
+            try:
+                await message.delete()
+            except discord.HTTPException:
+                pass
+            solutions = self.get_solutions(txt)
+            return await message.channel.send(
+                f'{message.author} {msg_type} a log, {message.content if msg_type == "sent" else ""}\n{url}\n\n{solutions}'
+            )
+
+    async def create_modcore_zip(self):
+        zipbytes = io.BytesIO()
+        with zipfile.ZipFile(zipbytes, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+            ver_route = Route(
+                "GET",
+                "/modcore_versions"
+            )
+            versions = await self.bot.http.sk1er.request(ver_route)
+            current = versions["1.8.9"]
+            current_route = Route(
+                "GET",
+                f"/repo/mods/modcore/{current}/1.8.9/ModCore-{current}%20(1.8.9).jar"
+            )
+            modcore = await self.sk1static.request(current_route)
+            zf.writestr(f"Sk1er Modcore-{current} (1.8.9).jar", modcore)
+            zf.writestr(
+                "metadata.json",
+                (json.dumps({"1.8.9": current}).encode("UTF-8"))
+            )
+            zf.close()
+        
+        zipbytes.close()
+        return zipbytes
 
     async def check_bot_status(self, message):
         bots = {
