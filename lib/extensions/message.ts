@@ -27,18 +27,18 @@ export class FireMessage extends Message {
     ) as Language;
   }
 
-  send(key: string, ...args: any[]) {
+  send(key: string = null, ...args: any[]) {
     return this.channel.send(`${this.language.get(key, ...args)}`);
   }
 
-  success(key: string, ...args: any[]) {
+  success(key: string = null, ...args: any[]) {
     if (!key) return this.react(reactions.success);
     return this.channel.send(
       `${emojis.success} ${this.language.get(key, ...args)}`
     );
   }
 
-  error(key: string, ...args: any[]) {
+  error(key: string = null, ...args: any[]) {
     if (!key) return this.react(reactions.error);
     return this.channel.send(
       `${emojis.error} ${this.language.get(key, ...args)}`
