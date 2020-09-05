@@ -14,6 +14,7 @@ import { KSoftClient } from "@aero/ksoft";
 import { Manager } from "../lib/Manager";
 import { Command } from "./util/command";
 import { Util } from "./util/clientUtil";
+import * as Sentry from "@sentry/node";
 import { config } from "../config";
 import * as moment from "moment";
 require("./extensions");
@@ -25,7 +26,7 @@ export class Fire extends AkairoClient {
   util: Util;
   db: PGClient;
   console: KlasaConsole;
-  sentry: any;
+  sentry: typeof Sentry;
   config: typeof config.fire;
   settings: PostgresProvider;
   commandHandler: CommandHandler;
@@ -64,7 +65,7 @@ export class Fire extends AkairoClient {
 
     if (sentry) {
       this.sentry = sentry;
-      this.sentry.setTag("shard", this.manager.id);
+      this.sentry.setTag("shard", this.manager.id.toString());
       this.sentry.setTag("discord.js", djsver);
       this.sentry.setTag("discord-akairo", akairover);
       this.console.log("[Sentry] Connected.");
