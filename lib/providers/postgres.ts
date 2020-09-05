@@ -1,4 +1,4 @@
-import { Provider, ProviderOptions } from "discord-akairo";
+import { Provider } from "discord-akairo";
 import { Client, ResultIterator } from "ts-postgres";
 
 /**
@@ -8,7 +8,7 @@ import { Client, ResultIterator } from "ts-postgres";
  * @param {ProviderOptions} [options={}] - Options to use.
  * @extends {Provider}
  */
-export default class PostgresProvider extends Provider {
+export class PostgresProvider extends Provider {
   db: Client;
   tableName: string;
   idColumn: string;
