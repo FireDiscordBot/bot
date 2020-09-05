@@ -10,7 +10,8 @@ export default class enUS extends Language {
         USER_NOT_FOUND: "User not found :(",
         UNKNOWN_COMMAND: "Command not found",
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
-        COMMAND_ERROR_GENERIC: (id: string) => `Something went wrong while running ${id}`,
+        COMMAND_ERROR_GENERIC: (id: string) =>
+          `Something went wrong while running ${id}`,
         AT_COMMAND_DESCRIPTION:
           "command that does autotip bot thing but not rn because I got banned",
         AT_CHANNEL_NOT_FOUND: "I could not find the autotip channel.",
@@ -58,6 +59,13 @@ This will **not** rename existing users`,
         DEBUG_MUTE_NO_BYPASS: (channel: TextChannel) =>
           `Nobody can bypass mutes in ${channel}`,
         DEBUG_NO_EMBEDS: "I cannot send embeds",
+        DESC_COMMAND_DESCRIPTION:
+          "Set the description for the server that shows in Vanity URLs",
+        DESC_NO_VANITY: (prefix: string) =>
+          `You must set a vanity url with \`${prefix}vanityurl\` before you can set a description`,
+        DESC_FAILED: "Failed to set guild description.",
+        DESC_SET: "Successfully set guild description!",
+        DESC_RESET: "Successfully reset guild description!",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
       },
