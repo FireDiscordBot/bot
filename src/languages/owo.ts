@@ -9,6 +9,7 @@ export default class extends Language {
           `${key} has not been wocawized fow owo yet.`,
         USER_NOT_FOUND: "Usew not fouwnd :(",
         UNKNOWN_COMMAND: "Command not fouwnd",
+        COMMAND_OWNER_ONLY: "Onwy my ownew can uwse this command",
         AT_COMMAND_DESCRIPTION:
           "command that does auwtotip bot thing buwt not wn becauwse i got banned",
         AT_CHANNEL_NOT_FOUND: "I couwwd not find the auwtotip channew.",
@@ -29,7 +30,6 @@ export default class extends Language {
  this wiww **not** wename existing uwsews`,
         DEBUG_NO_COMMAND: "Youw muwst pwovide a vawid command to debuwg",
         DEBUGGING_DEBUG: "Debuwg command is wowking",
-        DEBUG_OWNER_ONLY: "Onwy my ownew can uwse this command",
         DEBUG_PERMS_PASS: "No pewmissions missing",
         DEBUG_PERMS_CHECKS_FAIL: "Pewmission checks faiwed!",
         DEBUG_PERMS_FAIL: (userMissing: string[], clientMissing: string[]) => {

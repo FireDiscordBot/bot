@@ -9,6 +9,7 @@ export default class extends Language {
           `${key} aún no se ha localizado para es-ES.`,
         USER_NOT_FOUND: "Usuario no encontrado :(",
         UNKNOWN_COMMAND: "Comando no encontrado",
+        COMMAND_OWNER_ONLY: "Solo mi dueño puede usar este comando",
         AT_COMMAND_DESCRIPTION:
           "comando que hace autotip bot pero no rn porque me prohibieron",
         AT_CHANNEL_NOT_FOUND: "INo se pudo encontrar el canal de autotip.",
@@ -29,7 +30,6 @@ export default class extends Language {
 Esto ** no ** cambiará el nombre de los usuarios existentes`,
         DEBUG_NO_COMMAND: "Debes proporcionar un comando válido para depurar",
         DEBUGGING_DEBUG: "El comando de depuración está funcionando",
-        DEBUG_OWNER_ONLY: "Solo mi dueño puede usar este comando",
         DEBUG_PERMS_PASS: "No faltan permisos",
         DEBUG_PERMS_CHECKS_FAIL: "¡Falló la verificación de permisos!",
         DEBUG_PERMS_FAIL: (userMissing: string[], clientMissing: string[]) => {

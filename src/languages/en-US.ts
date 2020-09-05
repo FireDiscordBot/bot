@@ -9,6 +9,7 @@ export default class extends Language {
           `${key} has not been localized for en-US yet.`,
         USER_NOT_FOUND: "User not found :(",
         UNKNOWN_COMMAND: "Command not found",
+        COMMAND_OWNER_ONLY: "Only my owner can use this command",
         AT_COMMAND_DESCRIPTION:
           "command that does autotip bot thing but not rn because I got banned",
         AT_CHANNEL_NOT_FOUND: "I could not find the autotip channel.",
@@ -29,7 +30,6 @@ export default class extends Language {
 This will **not** rename existing users`,
         DEBUG_NO_COMMAND: "You must provide a valid command to debug",
         DEBUGGING_DEBUG: "Debug command is working",
-        DEBUG_OWNER_ONLY: "Only my owner can use this command",
         DEBUG_PERMS_PASS: "No permissions missing",
         DEBUG_PERMS_CHECKS_FAIL: "Permission Checks Failed!",
         DEBUG_PERMS_FAIL: (userMissing: string[], clientMissing: string[]) => {
