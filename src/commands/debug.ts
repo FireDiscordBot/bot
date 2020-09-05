@@ -8,7 +8,7 @@ const {
   emojis: { success, error },
 } = constants;
 
-export default class extends Command {
+export default class Debug extends Command {
   constructor() {
     super("debug", {
       description: (language: Language) =>

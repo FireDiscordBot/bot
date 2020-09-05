@@ -2,7 +2,7 @@ import { FireMessage } from "../../lib/extensions/message";
 import { Language } from "../../lib/util/language";
 import { Command } from "../../lib/util/command";
 
-export default class extends Command {
+export default class BadName extends Command {
   constructor() {
     super("badname", {
       description: (language: Language) =>

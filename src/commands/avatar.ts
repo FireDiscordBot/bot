@@ -5,7 +5,7 @@ import { GuildMember } from "discord.js";
 import { User } from "discord.js";
 import { FireGuild } from "../../lib/extensions/guild";
 
-export default class extends Command {
+export default class Avatar extends Command {
   constructor() {
     super("avatar", {
       description: (language: Language) =>

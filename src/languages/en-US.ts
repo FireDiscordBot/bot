@@ -1,7 +1,7 @@
 import { Language } from "../../lib/util/language";
 import { TextChannel } from "discord.js";
 
-export default class extends Language {
+export default class enUS extends Language {
   constructor() {
     super("en-US", {
       language: {
