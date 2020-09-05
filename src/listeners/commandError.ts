@@ -40,7 +40,10 @@ export default class CommandError extends Listener {
       scope.setExtras(null);
     });
     if (!this.client.isOwner(message.author))
-      return await message.error("COMMAND_ERROR_GENERIC", command.id);
+      return await message.error(
+        "COMMAND_ERROR_GENERIC",
+        message.util.parsed.alias
+      );
     else return await message.channel.send("```js\n" + error.stack + "```");
   }
 }
