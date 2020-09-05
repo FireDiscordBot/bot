@@ -4,7 +4,7 @@ import { TextChannel } from "discord.js";
 
 export default class extends Language {
   constructor() {
-    super("en-US", {
+    super("es-ES", {
       language: {
         DEFAULT: (key: string) =>
           `${key} aún no se ha localizado para en-US.`,
