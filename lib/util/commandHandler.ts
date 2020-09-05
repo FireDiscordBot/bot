@@ -38,9 +38,8 @@ export class CommandHandler extends DefaultHandler {
           args,
           ret
         );
-      } catch (err: any) {
+      } catch (err) {
         this.emit("commandError", message, command, args, err);
-        throw err;
       }
     } finally {
       if (command.typing) {
