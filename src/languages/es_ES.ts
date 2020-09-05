@@ -7,7 +7,7 @@ export default class extends Language {
     super("es-ES", {
       language: {
         DEFAULT: (key: string) =>
-          `${key} aún no se ha localizado para en-US.`,
+          `${key} aún no se ha localizado para es-ES.`,
         USER_NOT_FOUND: "Usuario no encontrado :(",
         UNKNOWN_COMMAND: "Comando no encontrado",
         AT_COMMAND_DESCRIPTION:
