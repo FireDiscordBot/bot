@@ -373,12 +373,12 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     self.bot.logger.error(
                         f'$REDFailed to decode log sent by $CYAN{message.author}', exc_info=e)
                     return  # give up, leave the file there
-            return await self.handle_log_text(txt, 'uploaded')
+            return await self.handle_log_text(message, txt, 'uploaded')
         if not message.attachments and len(message.content) > 350:
             txt = message.content
-            return await self.handle_log_text(txt, 'send')
+            return await self.handle_log_text(message, txt, 'send')
 
-    async def handle_log_text(self, txt, msg_type='uploaded'):
+    async def handle_log_text(self, message, txt, msg_type='uploaded'):
         log_lines = txt.split('\n')
         if re.findall(
             r"\[club.sk1er.mods.levelhead.ModCoreInstaller:download:230]: MAX: \d+",
@@ -396,7 +396,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     pass
                 return await message.channel.send(
                     f'{message.author.mention}, Unzip this in `.minecraft/modcore` and your issue should be resolved.',
-                    file=discord.File(zipfile, filename="modcore.zip"),
+                    file=discord.File(io.BytesIO(zipfile), filename="modcore.zip"),
                     allowed_mentions=discord.AllowedMentions(users=True)
                 )
         txt = re.sub(self.emailre, '[removed email]', txt, 0, re.MULTILINE)
@@ -446,9 +446,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 (json.dumps({"1.8.9": current}).encode("UTF-8"))
             )
             zf.close()
-        
-        zipbytes.close()
-        return zipbytes
+        return zipbytes.getvalue()
 
     async def check_bot_status(self, message):
         bots = {
