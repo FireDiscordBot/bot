@@ -18,7 +18,7 @@ export default class extends Command {
         {
           id: "command",
           type: "command",
-          default: "hi",
+          default: null,
         },
       ],
     });

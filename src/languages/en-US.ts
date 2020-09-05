@@ -28,7 +28,7 @@ export default class extends Language {
           `I have set the "bad name" to ${name}. This will **not** rename existing users`,
         BADNAME_RESET: `I have reset the "bad name" to John Doe 0000 (with 0000 being their discriminator).
 This will **not** rename existing users`,
-        DEBUG_NO_COMMAND: "You must provide a command to debug",
+        DEBUG_NO_COMMAND: "You must provide a valid command to debug",
         DEBUGGING_DEBUG: "Debug command is working",
         DEBUG_OWNER_ONLY: "Only my owner can use this command",
         DEBUG_PERMS_PASS: "No permissions missing",
