@@ -55,7 +55,7 @@ export class PostgresProvider extends Provider {
       const idColumn = row.names.indexOf(this.idColumn);
       const dataColumn = row.names.indexOf(this.dataColumn);
       this.items.set(
-        row.data[idColumn].toString(),
+        row.data[idColumn] as string,
         this.dataColumn
           ? typeof row.data[dataColumn] === "string"
             ? JSON.parse(row.data[dataColumn] as string)
