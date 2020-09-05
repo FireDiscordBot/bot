@@ -47,7 +47,7 @@ export default class extends Command {
     if (cmd.ownerOnly)
       return await message.channel.send({
         embed: this.createEmbed(message, [
-          `${error} ${message.language.get("DEBUG_OWNER_ONLY")}`,
+          `${error} ${message.language.get("COMMAND_OWNER_ONLY")}`,
         ]),
       });
     let details: string[] = [];
