@@ -7,9 +7,9 @@ export class Reconnector {
   client: Manager;
   timeout: number;
   state: number;
-  interval: NodeJS.Timeout;
+  interval: NodeJS.Timeout | null;
 
-  constructor(client, timeout = 5000) {
+  constructor(client: Manager, timeout = 5000) {
     this.client = client;
     this.timeout = timeout;
     this.state = IDLE;
@@ -18,7 +18,7 @@ export class Reconnector {
 
   handleOpen() {
     if (this.state === RECONNECTING) {
-      clearInterval(this.interval);
+      if (this.interval) clearInterval(this.interval);
       this.client.client.console.log("[Aether] Reconnected to Websocket.");
       this.state = IDLE;
     } else {
@@ -28,7 +28,9 @@ export class Reconnector {
 
   handleClose(code: number, reason: string) {
     if (this.state === IDLE) {
-      this.client.client.console.warn(`[Aether] Disconnected from Websocket with code ${code} and reason ${reason}.`);
+      this.client.client.console.warn(
+        `[Aether] Disconnected from Websocket with code ${code} and reason ${reason}.`
+      );
       this.activate();
     }
   }
@@ -46,7 +48,7 @@ export class Reconnector {
   }
 
   activate() {
-    clearInterval(this.interval);
+    if (this.interval) clearInterval(this.interval);
     this.interval = setInterval(() => {
       this.reconnect();
     }, this.timeout);

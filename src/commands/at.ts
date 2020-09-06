@@ -4,7 +4,7 @@ import { Command } from "../../lib/util/command";
 import { TextChannel } from "discord.js";
 
 export default class AutoTip extends Command {
-  autotipChannel: TextChannel;
+  autotipChannel: TextChannel | undefined;
   constructor() {
     super("at", {
       aliases: ["autotip"],
@@ -37,7 +37,7 @@ export default class AutoTip extends Command {
         }
       )
       .then((collected) => {
-        message.channel.send(collected.first().attachments.first());
+        message.channel.send(collected.first()?.attachments.first());
       })
       .catch((err) => {
         message.error("AT_NO_RESPONSE");

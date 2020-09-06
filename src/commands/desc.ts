@@ -36,7 +36,10 @@ export default class Ping extends Command {
       [message.guild.id]
     );
     if (!vanity.rows.length)
-      return await message.error("DESC_NO_VANITY", message.util.parsed.prefix);
+      return await message.error(
+        "DESC_NO_VANITY",
+        message?.util?.parsed?.prefix
+      );
     this.setDesc(message.guild, args.desc)
       .catch(async () => {
         return await message.error("DESC_FAILED");

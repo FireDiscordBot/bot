@@ -24,9 +24,10 @@ export default class Avatar extends Command {
   }
 
   async exec(message: FireMessage, args: { user: string }) {
-    let user: GuildMember | User = await message.guild.resolveOrFetchUser(
-      args.user
-    );
+    let user:
+      | GuildMember
+      | User
+      | null = await message.guild.resolveOrFetchUser(args.user);
     if (!(user instanceof User)) return message.error("USER_NOT_FOUND");
     if (message.guild.member(user)) user = message.guild.member(user);
     const color =
@@ -38,7 +39,7 @@ export default class Avatar extends Command {
       color: color,
       timestamp: new Date(),
       image: {
-        url: user.displayAvatarURL({
+        url: user?.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,

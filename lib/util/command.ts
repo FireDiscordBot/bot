@@ -4,8 +4,8 @@ import { Fire } from "../Fire";
 export class Command extends AkairoCommand {
   client: Fire;
   constructor(id: string, options?: CommandOptions) {
-    if (!options.aliases) options.aliases = [id];
-    else options.aliases.push(id);
+    if (!options?.aliases) options.aliases = [id];
+    else options?.aliases?.push(id);
     super(id, options);
   }
 

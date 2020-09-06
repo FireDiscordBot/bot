@@ -33,7 +33,7 @@ export class LanguageHandler extends AkairoHandler {
   constructor(
     client: Fire,
     {
-      directory,
+      directory = "./src/languages",
       classToHandle = Language,
       extensions = [".js", ".ts"],
       automateCategories = false,

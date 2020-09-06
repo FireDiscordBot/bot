@@ -60,9 +60,9 @@ export default class Debug extends Command {
       userPermissions: cmd.userPermissions as Array<string>,
     };
     if (permissionChecks) {
-      let userMissing = [];
+      let userMissing: string[] = [];
       cmdPerms.userPermissions?.forEach((perm) => {
-        if (!message.member.permissions.has(perm as PermissionString)) {
+        if (!message.member?.permissions.has(perm as PermissionString)) {
           let permTitle = perm.split("_");
           permTitle.forEach((v, index) => {
             permTitle[index] =
@@ -71,9 +71,9 @@ export default class Debug extends Command {
           userMissing.push(permTitle.join(" "));
         }
       });
-      let clientMissing = [];
+      let clientMissing: string[] = [];
       cmdPerms.clientPermissions?.forEach((perm) => {
-        if (!message.guild.me.permissions.has(perm as PermissionString)) {
+        if (!message.guild.me?.permissions.has(perm as PermissionString)) {
           let permTitle = perm.split("_");
           permTitle.forEach((v, index) => {
             permTitle[index] =
@@ -107,7 +107,7 @@ export default class Debug extends Command {
       []
     );
     if (disabledCommands.includes(cmd.id)) {
-      if (message.member.permissions.has("MANAGE_MESSAGES"))
+      if (message.member?.permissions.has("MANAGE_MESSAGES"))
         details.push(
           `${success} ${message.language.get("DEBUG_COMMAND_DISABLE_BYPASS")}`
         );
@@ -120,21 +120,21 @@ export default class Debug extends Command {
         `${success} ${message.language.get("DEBUG_COMMAND_NOT_DISABLED")}`
       );
     if (cmd.id == "mute") {
-      let bypass = [];
+      let bypass: string[] = [];
       const overwrites = (message.channel as TextChannel).permissionOverwrites;
       overwrites.forEach((value, key) => {
-        let overwriteFor: GuildMember | Role =
+        let overwriteFor: GuildMember | Role | undefined =
           message.guild.roles.cache.get(key) ||
           message.guild.members.cache.get(key);
         if (value.allow.has("SEND_MESSAGES"))
-          bypass.push(overwriteFor.toString());
+          bypass.push(overwriteFor?.toString() || "");
       });
       if (bypass.length)
         details.push(
           `${error} ${message.language.get(
             "DEBUG_MUTE_BYPASS",
             message.channel,
-            bypass
+            bypass.filter((value) => value != "")
           )}`
         );
       else
@@ -145,7 +145,7 @@ export default class Debug extends Command {
           )}`
         );
     }
-    if (message.guild.me.permissions.has("EMBED_LINKS"))
+    if (message.guild.me?.permissions.has("EMBED_LINKS"))
       return await message.channel.send({
         embed: this.createEmbed(message, details),
       });

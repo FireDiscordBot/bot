@@ -16,7 +16,9 @@ export default class Ping extends Command {
     const embed = {
       title: `:ping_pong: ${
         m.createdTimestamp -
-        (message.editedAt ? message.editedTimestamp : message.createdTimestamp)
+        (message.editedAt
+          ? message.editedTimestamp || 0
+          : message.createdTimestamp)
       }ms.\n:heartpulse: ${this.client.ws.ping}ms.`,
       color: message.member?.displayColor || "#ffffff",
       timestamp: new Date(),

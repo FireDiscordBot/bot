@@ -42,7 +42,7 @@ export default class CommandError extends Listener {
     if (!this.client.isOwner(message.author))
       return await message.error(
         "COMMAND_ERROR_GENERIC",
-        message.util.parsed.alias
+        message.util?.parsed?.alias
       );
     else return await message.channel.send("```js\n" + error.stack + "```");
   }

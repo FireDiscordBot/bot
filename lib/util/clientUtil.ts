@@ -18,7 +18,7 @@ export class Util extends ClientUtil {
     caseSensitive: boolean = false,
     wholeWord: boolean = true
   ) {
-    let user: User;
+    let user: User | null = null;
     if (text && text.match(/([0-9]{15,21})$/m))
       user = await this.client.users.fetch(text).catch(() => null);
     if (!user) {

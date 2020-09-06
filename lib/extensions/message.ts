@@ -22,23 +22,23 @@ export class FireMessage extends Message {
     channel: DMChannel | TextChannel | NewsChannel
   ) {
     super(client, data, channel);
-    this.language = client.languages.modules.get(
-      client.settings.get(this.guild.id, "utils.language", "en-US")
+    this.language = client.languages.modules?.get(
+      client.settings?.get(this.guild.id, "utils.language", "en-US")
     ) as Language;
   }
 
-  send(key: string = null, ...args: any[]) {
+  send(key: string = "", ...args: any[]) {
     return this.channel.send(`${this.language.get(key, ...args)}`);
   }
 
-  success(key: string = null, ...args: any[]) {
+  success(key: string = "", ...args: any[]) {
     if (!key) return this.react(reactions.success);
     return this.channel.send(
       `${emojis.success} ${this.language.get(key, ...args)}`
     );
   }
 
-  error(key: string = null, ...args: any[]) {
+  error(key: string = "", ...args: any[]) {
     if (!key) return this.react(reactions.error);
     return this.channel.send(
       `${emojis.error} ${this.language.get(key, ...args)}`

@@ -16,7 +16,7 @@ export class PostgresProvider extends Provider {
   constructor(
     db: Client,
     tableName: string,
-    { idColumn = "gid", dataColumn = null } = {}
+    { idColumn = "gid", dataColumn = "data" } = {}
   ) {
     super();
 
