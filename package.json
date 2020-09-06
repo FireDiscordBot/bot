@@ -1,5 +1,4 @@
 {
-  "type": "commonjs",
   "name": "fire",
   "version": "1.0.0",
   "description": "Fire is a Discord bot that hopes to be the only one you'll need!",
@@ -13,9 +12,9 @@
     "node": ">=14.0.0"
   },
   "scripts": {
-    "dev": "ts-node src/index.ts",
+    "dev": "NODE_ENV=development ts-node src/index.ts",
     "compile": "tsc",
-    "run": "node dist/src/index.js"
+    "start": "NODE_ENV=production node dist/src/index.js"
   },
   "private": true,
   "license": "UNLICENSED",
