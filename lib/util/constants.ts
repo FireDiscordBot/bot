@@ -23,9 +23,10 @@ export const constants = {
   },
   // urls
   url: {
-    KSoftBans: "https://bans.ksoft.si/share",
-    DiscordStatus: "https://status.discord.com",
+    FireDiscovery: "https://inv.wtf/discover",
+    DiscordStatus: "https://discordstatus.com",
     FireStatus: "https://status.gaminggeek.dev",
+
   },
   regexes: {
     discord: {
