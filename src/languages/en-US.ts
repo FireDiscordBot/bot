@@ -59,6 +59,7 @@ This will **not** rename existing users`,
         DEBUG_MUTE_NO_BYPASS: (channel: TextChannel) =>
           `Nobody can bypass mutes in ${channel}`,
         DEBUG_NO_EMBEDS: "I cannot send embeds",
+        DEBUG_ISSUES: (issues: string[]) => issues.length ? `${issues.length} issues found` : "No issues found",
         DESC_COMMAND_DESCRIPTION:
           "Set the description for the server that shows in Vanity URLs",
         DESC_NO_VANITY: (prefix: string) =>
