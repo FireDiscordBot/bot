@@ -4,7 +4,7 @@ import { TextChannel } from "discord.js";
 
 export default class OwO extends Language {
   constructor() {
-    super("owo", {
+    super("owo-UwU", {
       language: {
         DEFAULT: (key: string) =>
           `${key} has not been wocawized fow owo yet.`,
