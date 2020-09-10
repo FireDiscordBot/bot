@@ -72,6 +72,8 @@ This will **not** rename existing users`,
         DISCOVER_COMMAND_DESCRIPTION: "Links to Fire's public servers page",
         DISCOVER_MESSAGE: `You can find Fire\'s public server list at <${constants.url.discovery}>
 Hint: Use the \`public\` command to get your server on the list`,
+        DSTATUS_COMMAND_DESCRIPTION: "Get Discord's current status",
+        DSTATUS_FETCH_FAIL: "Failed to fetch Discord status",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
       },
