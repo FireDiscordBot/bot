@@ -85,5 +85,10 @@ export const titleCase = (string: string) => {
 
 export const zws = "\u200b";
 
-export const humanize = (seconds: number) =>
-  humanizeDuration(seconds, { largest: 2, delimiter: " and " });
+export const humanize = (seconds: number, language: string) =>
+  humanizeDuration(seconds, {
+    largest: 2,
+    delimiter: " and ",
+    language: language,
+    fallbacks: ["en"],
+  });

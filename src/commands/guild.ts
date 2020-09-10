@@ -39,7 +39,11 @@ export default class GuildCommand extends Command {
   }
 
   getInfo(message: FireMessage, guild: FireGuild) {
-    const created = humanize(moment(guild.createdAt).diff(moment())) + " ago";
+    const created =
+      humanize(
+        moment(guild.createdAt).diff(moment()),
+        guild.language.id.split("-")[0]
+      ) + " ago";
     return [
       message.language.get("GUILD_CREATED_AT", guild, created),
       `**${message.language.get(
