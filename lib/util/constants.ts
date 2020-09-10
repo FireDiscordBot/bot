@@ -53,8 +53,7 @@ export const constants = {
   },
   statuspage: {
     colors: {
-      none: (author: GuildMember | User = null) =>
-        author instanceof GuildMember ? author?.displayColor : "#ffffff",
+      none: null,
       minor: "#f1c40f",
       major: "#e67e22",
       critical: "#e74c3c",
