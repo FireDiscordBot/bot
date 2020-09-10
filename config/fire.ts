@@ -1,4 +1,5 @@
 import { Fire } from "../lib/Fire";
+import { humanize } from "../lib/util/constants";
 import * as moment from "moment";
 
 export const fire = {
@@ -13,8 +14,8 @@ export const fire = {
     client.console.log(`Users: ${client.users.cache.size}`);
     if (!client.started) {
       const now = moment();
-      const duration = moment.duration(client.launchTime.diff(now));
-      client.console.log(`Started in ${duration.humanize()}`);
+      const duration = client.launchTime.diff(now);
+      client.console.log(`Started in ${humanize(duration, "en")}`);
     }
     client.console.log("-------------------------");
   },
