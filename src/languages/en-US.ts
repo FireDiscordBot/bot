@@ -70,7 +70,7 @@ This will **not** rename existing users`,
         DESC_SET: "Successfully set guild description!",
         DESC_RESET: "Successfully reset guild description!",
         DISCOVER_COMMAND_DESCRIPTION: "Links to Fire's public servers page",
-        DISCOVER_MESSAGE: `You can find Fire\'s public server list at <${constants.url.FireDiscovery}>
+        DISCOVER_MESSAGE: `You can find Fire\'s public server list at <${constants.url.discovery}>
 Hint: Use the \`public\` command to get your server on the list`,
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
