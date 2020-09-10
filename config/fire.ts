@@ -10,6 +10,7 @@ export const fire = {
     );
     client.console.log(`ID: ${client?.user?.id}`);
     client.console.log(`Guilds: ${client.guilds.cache.size}`);
+    client.console.log(`Users: ${client.users.cache.size}`);
     if (!client.started) {
       const now = moment();
       const duration = moment.duration(client.launchTime.diff(now));
