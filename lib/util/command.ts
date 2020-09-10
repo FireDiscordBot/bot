@@ -10,4 +10,6 @@ export class Command extends AkairoCommand {
   }
 
   async init() {}
+
+  async unload() {}
 }

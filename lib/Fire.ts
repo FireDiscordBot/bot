@@ -94,9 +94,12 @@ export class Fire extends AkairoClient {
     this.commandHandler.on(
       "load",
       async (command: Command, isReload: boolean) => {
-        if (!isReload) await command?.init();
+        await command?.init();
       }
     );
+    this.commandHandler.on("remove", async (command: Command) => {
+      await command?.unload();
+    });
     this.commandHandler.loadAll();
 
     this.inhibitorHandler = new InhibitorHandler(this, {
