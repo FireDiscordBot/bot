@@ -1,10 +1,14 @@
-import { GuildMember, User } from "discord.js";
+import humanizeDuration = require("humanize-duration");
 
 export const constants = {
   emojis: {
     success: "<:check:674359197378281472>",
     error: "<:xmark:674359427830382603>",
     warning: "<a:fireWarning:660148304486727730>",
+    // Yes these are the statuspage emotes but idc
+    green: "<:operational:685538400639385649>",
+    yellow: "<:partial_outage:685538400555499675>",
+    red: "<:major_outage:685538400639385706>",
   },
   reactions: {
     success: "check:674359197378281472",
@@ -67,6 +71,43 @@ export const constants = {
       underMaintenance: "<:maintenance:685538400337395743>",
     },
   },
+  discord: {
+    regions: {
+      brazil: "🇧🇷 Brazil",
+      europe: "🇪🇺 Europe",
+      hongkong: "🇭🇰 Hong Kong",
+      india: "🇮🇳 India",
+      japan: "🇯🇵 Japan",
+      russia: "🇷🇺 Russia",
+      singapore: "🇸🇬 Singapore",
+      southafrica: "🇿🇦 South Africa",
+      sydney: "🇦🇺 Sydney",
+      "us-central": "🇺🇸 Central US",
+      "us-south": "🇺🇸 US South",
+      "us-east": "🇺🇸 US East",
+      "us-west": "🇺🇸 US West",
+    },
+    features: {
+      ENABLED_DISCOVERABLE_BEFORE: "Enabled Discoverable Before",
+      WELCOME_SCREEN_ENABLED: "Welcome Screen",
+      ANIMATED_ICON: "Animated Icon",
+      INVITE_SPLASH: "Invite Splash",
+      DISCOVERABLE: "[Discoverable](https://discord.com/guild-discovery)",
+      MORE_EMOJI: "More Emoji",
+      FEATURABLE: "Featurable",
+      VANITY_URL: "Vanity URL",
+      COMMUNITY: "[Community](https://dis.gd/communityservers)",
+      PARTNERED: "[Partnered](https://dis.gd/partners)",
+      COMMERCE: "[Store Channels](https://dis.gd/sellyourgame)",
+      VERIFIED: "[Verified](https://dis.gd/vfs)",
+      BANNER: "Banner",
+      NEWS:
+        "[Announcement Channels](https://support.discord.com/hc/en-us/articles/360032008192)",
+      // CUSTOM FEATURES
+      PREMIUM:
+        "<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)",
+    },
+  },
 };
 
 export const noop = () => {};
@@ -80,3 +121,6 @@ export const titleCase = (string: string) => {
 };
 
 export const zws = "\u200b";
+
+export const humanize = (seconds: number) =>
+  humanizeDuration(seconds, { largest: 2, delimiter: " and " });
