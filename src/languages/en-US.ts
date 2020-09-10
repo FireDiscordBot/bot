@@ -1,6 +1,7 @@
 import { constants } from "../../lib/util/constants";
 import { Language } from "../../lib/util/language";
 import { TextChannel } from "discord.js";
+import { Guild } from "discord.js";
 
 export default class enUS extends Language {
   constructor() {
@@ -13,6 +14,44 @@ export default class enUS extends Language {
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
+        MEMBERS: "Members",
+        REGION: "Region",
+        REGION_DEPRECATED: "❓ Deprecated Region",
+        REGIONS: {
+          brazil: "🇧🇷 Brazil",
+          europe: "🇪🇺 Europe",
+          hongkong: "🇭🇰 Hong Kong",
+          india: "🇮🇳 India",
+          japan: "🇯🇵 Japan",
+          russia: "🇷🇺 Russia",
+          singapore: "🇸🇬 Singapore",
+          southafrica: "🇿🇦 South Africa",
+          sydney: "🇦🇺 Sydney",
+          "us-central": "🇺🇸 Central US",
+          "us-south": "🇺🇸 US South",
+          "us-east": "🇺🇸 US East",
+          "us-west": "🇺🇸 US West",
+        },
+        FEATURES: {
+          ENABLED_DISCOVERABLE_BEFORE: "Enabled Discoverable Before",
+          WELCOME_SCREEN_ENABLED: "Welcome Screen",
+          ANIMATED_ICON: "Animated Icon",
+          INVITE_SPLASH: "Invite Splash",
+          DISCOVERABLE: "[Discoverable](https://discord.com/guild-discovery)",
+          MORE_EMOJI: "More Emoji",
+          FEATURABLE: "Featurable",
+          VANITY_URL: "Vanity URL",
+          COMMUNITY: "[Community](https://dis.gd/communityservers)",
+          PARTNERED: "[Partnered](https://dis.gd/partners)",
+          COMMERCE: "[Store Channels](https://dis.gd/sellyourgame)",
+          VERIFIED: "[Verified](https://dis.gd/vfs)",
+          BANNER: "Banner",
+          NEWS:
+            "[Announcement Channels](https://support.discord.com/hc/en-us/articles/360032008192)",
+          // CUSTOM FEATURES
+          PREMIUM:
+            "<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)",
+        },
         AT_COMMAND_DESCRIPTION:
           "command that does autotip bot thing but not rn because I got banned",
         AT_CHANNEL_NOT_FOUND: "I could not find the autotip channel.",
@@ -102,6 +141,29 @@ Hint: Use the \`public\` command to get your server on the list`,
           ];
           return responses[Math.floor(Math.random() * responses.length)];
         },
+        GUILD_COMMAND_DESCRIPTION: "Get a general overview of the guild",
+        GUILD_CREATED_AT: (guild: Guild, created: string) =>
+          `**Created by ${
+            guild.owner.user.username + guild.owner.user.discriminator ||
+            "Unknown#0000"
+          } ${created}**`,
+        GUILD_JOIN_POS: (pos: number) => `**Your Join Position:** ${pos}`,
+        GUILD_VERIF_VERY_HIGH: "**Extreme Verification Level**",
+        GUILD_VERIF_HIGH: "**High Verification Level**",
+        GUILD_VERIF_MEDIUM: "**Medium Verification Level**",
+        GUILD_VERIF_LOW: "**Low Verification Level**",
+        GUILD_VERIF_NONE: "**No Verification!**",
+        GUILD_FILTER_ALL: "**Content Filter:** All Members",
+        GUILD_FILTER_NO_ROLE: "**Content Filter:** Without Role",
+        GUILD_FILTER_NONE: "**Content Filter:** Disabled",
+        GUILD_NOTIFS_MENTIONS: "**Default Notifications:** Only @Mentions",
+        GUILD_NOTIFS_ALL: "**Default Notifications:** All Messages",
+        GUILD_MFA_ENABLED: "**Two-Factor Auth:** Enabled",
+        GUILD_MFA_NONE: "**Two-Factor Auth:** Disabled",
+        GUILD_ABOUT: "» About",
+        GUILD_SECURITY: "» Security",
+        GUILD_FEATURES: "» Features",
+        GUILD_ROLES: "» Roles",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
       },

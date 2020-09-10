@@ -1,8 +1,8 @@
 import { humanize, zws, constants } from "../../lib/util/constants";
 import { FireMessage } from "../../lib/extensions/message";
+import { FireGuild } from "../../lib/extensions/guild";
 import { Language } from "../../lib/util/language";
 import { Command } from "../../lib/util/command";
-import { Guild } from "discord.js";
 import * as moment from "moment";
 
 export default class GuildCommand extends Command {
@@ -15,7 +15,7 @@ export default class GuildCommand extends Command {
     });
   }
 
-  getBadges(guild: Guild) {
+  getBadges(guild: FireGuild) {
     let badges: string[] = [];
     if (guild.id == "564052798044504084")
       badges.push(
@@ -38,69 +38,99 @@ export default class GuildCommand extends Command {
       : [];
   }
 
-  getInfo(message: FireMessage, guild: Guild) {
+  getInfo(message: FireMessage, guild: FireGuild) {
     const created = humanize(moment(guild.createdAt).diff(moment())) + " ago";
     return [
-      `**Created by ${
-        guild.owner.user.username + guild.owner.user.discriminator ||
-        "Unknown#0000"
-      } ${created}**`,
-      `**Members:** ${guild.memberCount.toLocaleString()}`,
-      `**Region:** ${
-        constants.discord.regions[guild.region] || "❓ Deprecated Region"
+      message.language.get("GUILD_CREATED_AT", guild, created),
+      `**${message.language.get(
+        "MEMBERS"
+      )}:** ${guild.memberCount.toLocaleString()}`,
+      `**${message.language.get("REGION")}:** ${
+        message.language.get("REGIONS")[guild.region] ||
+        message.language.get("REGION_DEPRECATED")
       }`,
-      `**Your Join Position:** ${(
-        guild.members.cache
-          .array()
-          .sort((one, two) => (one.joinedAt > two.joinedAt ? 1 : -1))
-          .indexOf(message.member) + 1
-      ).toLocaleString()}`,
+      message.language.get(
+        "GUILD_JOIN_POS",
+        (
+          guild.members.cache
+            .array()
+            .sort((one, two) => (one.joinedAt > two.joinedAt ? 1 : -1))
+            .indexOf(message.member) + 1
+        ).toLocaleString()
+      ),
     ];
   }
 
-  getSecurity(guild: Guild) {
+  getSecurity(guild: FireGuild) {
     let info: string[] = [];
     switch (guild.verificationLevel) {
       case "VERY_HIGH":
-        info.push(`${constants.emojis.green} **Extreme Verification Level**`);
+        info.push(
+          `${constants.emojis.green} ${guild.language.get(
+            "GUILD_VERIF_VERY_HIGH"
+          )}`
+        );
         break;
       case "HIGH":
-        info.push(`${constants.emojis.green} **High Verification Level**`);
+        info.push(
+          `${constants.emojis.green} ${guild.language.get("GUILD_VERIF_HIGH")}`
+        );
         break;
       case "MEDIUM":
-        info.push(`${constants.emojis.yellow} **Medium Verification Level**`);
+        info.push(
+          `${constants.emojis.yellow} ${guild.language.get(
+            "GUILD_VERIF_MEDIUM"
+          )}`
+        );
         break;
       case "LOW":
-        info.push(`${constants.emojis.red} **Low Verification Level**`);
+        info.push(
+          `${constants.emojis.red} ${guild.language.get("GUILD_VERIF_LOW")}`
+        );
         break;
       case "NONE":
-        info.push(`${constants.emojis.red} **No Verfification!**`);
+        info.push(
+          `${constants.emojis.red} ${guild.language.get("GUILD_VERIF_NONE")}`
+        );
         break;
     }
     switch (guild.explicitContentFilter) {
       case "ALL_MEMBERS":
-        info.push(`${constants.emojis.green} **Content Filter:** All Members`);
+        info.push(
+          `${constants.emojis.green} ${guild.language.get("GUILD_FILTER_ALL")}`
+        );
         break;
       case "MEMBERS_WITHOUT_ROLES":
         info.push(
-          `${constants.emojis.yellow} **Content Filter:** Without Role`
+          `${constants.emojis.yellow} ${guild.language.get(
+            "GUILD_FILTER_NO_ROLE"
+          )}`
         );
         break;
       case "DISABLED":
-        info.push(`${constants.emojis.red} **Content Filter:** Disabled`);
+        info.push(
+          `${constants.emojis.red} ${guild.language.get("GUILD_FILTER_NONE")}`
+        );
         break;
     }
     if (guild.defaultMessageNotifications == "MENTIONS")
       info.push(
-        `${constants.emojis.green} **Default Notifications:** Only @Mentions`
+        `${constants.emojis.green} ${guild.language.get(
+          "GUILD_NOTIFS_MENTIONS"
+        )}`
       );
     else
       info.push(
-        `${constants.emojis.yellow} **Default Notifications:** All Messages`
+        `${constants.emojis.yellow} ${guild.language.get("GUILD_NOTIFS_ALL")}`
       );
     if (guild.mfaLevel)
-      info.push(`${constants.emojis.green} **Two-Factor Auth:** Enabled`);
-    else info.push(`${constants.emojis.red} **Two-Factor Auth:** Disabled`);
+      info.push(
+        `${constants.emojis.green} ${guild.language.get("GUILD_MFA_ENABLED")}`
+      );
+    else
+      info.push(
+        `${constants.emojis.red} ${guild.language.get("GUILD_MFA_DISABLED")}`
+      );
     return info;
   }
 
@@ -122,8 +152,8 @@ export default class GuildCommand extends Command {
     const security = this.getSecurity(message.guild);
     let features = [];
     message.guild.features.forEach((value) => {
-      if (constants.discord.features.hasOwnProperty(value))
-        features.push(constants.discord.features[value]);
+      if (message.language.get("FEATURES").hasOwnProperty(value))
+        features.push(message.language.get("FEATURES")[value]);
     });
     let roles = [];
     message.guild.roles.cache
@@ -144,22 +174,24 @@ export default class GuildCommand extends Command {
       fields: [
         {
           value: info,
-          name: "» About",
+          name: message.language.get("GUILD_ABOUT"),
           inline: false,
         },
         {
           value: security,
-          name: "» Security",
+          name: message.language.get("GUILD_SECURITY"),
           inline: false,
         },
         {
           value: features.join(", "),
-          name: "» Features",
+          name: message.language.get("GUILD_FEATURES"),
           inline: false,
         },
         {
           value: this.shorten(roles, 1000, " - "),
-          name: `» Roles [${message.guild.roles.cache.array().length}]`,
+          name:
+            message.language.get("GUILD_ROLES") +
+            `[${message.guild.roles.cache.array().length}]`,
           inline: false,
         },
       ],
