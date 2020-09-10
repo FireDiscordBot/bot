@@ -12,4 +12,16 @@ sentry.init({
   release: `fire@${version}`,
 });
 
-new Manager(sentry).init();
+const manager = new Manager(sentry);
+manager.init();
+
+const exit = () => {
+  manager.client.console.warn("Destroying client...");
+  manager.client.user.setStatus("invisible");
+  manager.client.destroy();
+};
+
+process.on("exit", () => {
+  exit(), process.exit();
+});
+process.on("SIGINT", exit);
