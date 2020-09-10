@@ -158,9 +158,7 @@ export default class Debug extends Command {
   createEmbed(message: FireMessage, details: string[]) {
     let issues = details.filter((detail) => detail.startsWith(error));
     return {
-      title: issues.length
-        ? `${issues.length} issues found`
-        : "No issues found",
+      title: message.language.get("DEBUG_ISSUES", issues),
       color: message.member?.displayColor || "#ffffff",
       timestamp: new Date(),
       description: details.join("\n"),
