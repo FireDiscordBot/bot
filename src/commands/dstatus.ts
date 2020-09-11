@@ -13,6 +13,7 @@ export default class DiscordStatus extends Command {
       clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
       aliases: ["discordstatus"],
       typing: true,
+      category: "Utilities",
     });
   }
 
@@ -33,19 +34,23 @@ export default class DiscordStatus extends Command {
       return await message.send("DSTATUS_FETCH_FAIL");
     }
     let components = [];
-    let groups = {};
-    summary.components.forEach((component) => {
-      if (
-        !(
-          ["jk03xttfcz9b", "ghlgk5p8wyt7"].includes(component.group_id) &&
-          component.status == "operational"
-        )
-      ) {
-        if (!Object.keys(groups).includes(component.group_id)) {
-          groups[component.group_id] = [component];
-        } else groups[component.group_id].push(component);
-      }
-    });
+    const groups = summary.components
+      .filter(
+        (component) =>
+          !(
+            ["jk03xttfcz9b", "ghlgk5p8wyt7"].includes(component.group_id) &&
+            component.status == "operational"
+          )
+      )
+      .reduce((groups, component) => {
+        const groupId = component.group_id;
+        if (!(groupId in groups)) {
+          groups[groupId].push(component);
+        } else {
+          groups[groupId] = [component];
+        }
+        return groups;
+      }, {});
     summary.components.forEach((component) => {
       if (!component.group_id) {
         components.push(
