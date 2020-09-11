@@ -159,7 +159,7 @@ humanfriendly == 4.18
 jishaku == 1.8.0
 
 # Fire/cogs/ksoft.py: 22
-ksoftapi == 0.1.5b0
+ksoftapi == 0.2.4a0
 
 # Fire/core/fire.py: 23,28
 sentry_sdk == 0.16.1

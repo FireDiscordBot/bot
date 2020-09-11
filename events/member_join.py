@@ -48,7 +48,7 @@ class MemberJoin(commands.Cog):
         logch = conf.get('log.moderation')
         if conf.get('mod.globalbans'):
             try:
-                banned = await self.bot.ksoft.bans_check(member.id)
+                banned = await self.bot.ksoft.bans.check(member.id)
                 if banned:
                     try:
                         await member.guild.ban(member, reason=f'{member} was found on global ban list')

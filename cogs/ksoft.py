@@ -32,15 +32,16 @@ imgext = ('.png', '.jpg', '.jpeg', '.gif')
 class KSoft(commands.Cog, name="KSoft.SI API"):
     def __init__(self, bot):
         self.bot = bot
-        self.bot.ksoft = ksoftapi.Client(
+        self.ksoft = ksoftapi.Client(
             api_key=bot.config['ksoft'] if not bot.dev else bot.config['ksoftalt'])
+        self.bot.ksoft = self.ksoft
 
     @commands.command(description="Gets a random meme from Reddit")
     async def meme(self, ctx, sub: str = None):
         if sub is None:
-            meme = await self.bot.ksoft.random_meme()
+            meme = await self.ksoft.images.random_reddit()
         else:
-            meme = await self.bot.ksoft.random_reddit(sub)
+            meme = await self.ksoft.images.random_reddit(sub)
         if meme.nsfw:
             channel = ctx.message.channel
             if not channel.is_nsfw():
@@ -72,7 +73,7 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
     @commands.command(name='baninfo', description='Check the info of a ban on the KSoft.Si API')
     async def baninfo(self, ctx, bannedboi: int):
         try:
-            inf = await self.bot.ksoft.bans_info(bannedboi)
+            inf = await self.ksoft.bans.info(bannedboi)
         except ksoftapi.APIError as e:
             embed = discord.Embed(
                 title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
@@ -104,14 +105,14 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
 
     @commands.command(name='lyrics')
     async def lyrics(self, ctx, *, query: str = None):
-        lyrics = None
+        lyrics 
         if not query:
             return await ctx.error('Missing search query')
         else:
-            lyrics = await self.bot.ksoft.lyrics_search(query)
-        if not lyrics or len(lyrics.results) < 1:
+            lyrics = await self.ksoft.music.lyrics(query)
+        if not lyrics or len(lyrics) < 1:
             return await ctx.error('No lyrics found')
-        lyrics = lyrics.results[0]
+        lyrics = lyrics[0]
         paginator = WrappedPaginator(prefix='', suffix='', max_size=1000)
         for line in lyrics.lyrics.split('\n'):
             paginator.add_line(line)

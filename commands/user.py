@@ -56,9 +56,9 @@ class UserInfo(commands.Cog):
         return ''
 
     async def get_ksoft_ban(self, user: typing.Union[discord.User, discord.Member]):
-        ksoftban = await self.bot.ksoft.bans_check(user.id)
+        ksoftban = await self.bot.ksoft.bans.check(user.id)
         if ksoftban:
-            ksoftban = await self.bot.ksoft.bans_info(user.id)
+            ksoftban = await self.bot.ksoft.bans.info(user.id)
             return f'<:xmark:674359427830382603> Banned on [KSoft.Si](https://bans.ksoft.si/share?user={user.id}) for {ksoftban.reason} - [Proof]({ksoftban.proof})'
         return ''
 
