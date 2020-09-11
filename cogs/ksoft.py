@@ -39,7 +39,7 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
     @commands.command(description="Gets a random meme from Reddit")
     async def meme(self, ctx, sub: str = None):
         if sub is None:
-            meme = await self.ksoft.images.random_reddit()
+            meme = await self.ksoft.images.random_meme()
         else:
             meme = await self.ksoft.images.random_reddit(sub)
         if meme.nsfw:
@@ -59,12 +59,12 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
             name="Subreddit", value=f"[{meme.subreddit}](https://reddit.com/{meme.subreddit})", inline=False)
         embed.add_field(
             name="Stats", value=f"<:upvote:646857470345478184> {meme.upvotes:,d} | <:downvote:646857487353380867> {meme.downvotes:,d} | 💬 {meme.comments:,d}", inline=False)
-        if meme.url:
-            if meme.url.endswith(imgext):
-                embed.set_image(url=meme.url)
+        if meme.image_url:
+            if meme.image_url.endswith(imgext):
+                embed.set_image(url=meme.image_url)
             else:
                 embed.add_field(name='Attachment',
-                                value=f"[Click Here]({meme.url})")
+                                value=f"[Click Here]({meme.image_url})")
         else:
             embed.add_field(name='Check it out',
                             value=f'[Click Here]({meme.source})')
@@ -105,7 +105,7 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
 
     @commands.command(name='lyrics')
     async def lyrics(self, ctx, *, query: str = None):
-        lyrics 
+        lyrics = None
         if not query:
             return await ctx.error('Missing search query')
         else:
