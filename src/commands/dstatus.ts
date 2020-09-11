@@ -44,7 +44,7 @@ export default class DiscordStatus extends Command {
       )
       .reduce((groups, component) => {
         const groupId = component.group_id;
-        if (!(groupId in groups)) {
+        if (groupId in groups) {
           groups[groupId].push(component);
         } else {
           groups[groupId] = [component];
