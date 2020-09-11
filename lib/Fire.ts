@@ -89,7 +89,7 @@ export class Fire extends AkairoClient {
           message.guild.id,
           "config.prefix",
           config.fire.dev ? "dev " : "$"
-        ); // TODO Change this for config
+        );
       },
     });
     this.commandHandler.on(
