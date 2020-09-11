@@ -33,7 +33,7 @@ export default class DiscordStatus extends Command {
     } catch (e) {
       return await message.send("DSTATUS_FETCH_FAIL");
     }
-    let components = [];
+
     const groups = summary.components
       .filter(
         (component) =>
@@ -51,30 +51,25 @@ export default class DiscordStatus extends Command {
         }
         return groups;
       }, {});
-    summary.components.forEach((component) => {
-      if (!component.group_id) {
-        components.push(
-          `├${constants.statuspage.emojis[component.status]} **${
-            component.name
-          }**: ${
-            message.language.get("STATUSPAGE_COMPONENT_STATUS")[
-              component.status.toLowerCase()
-            ] || titleCase(component.status.replace("_", " "))
-          }`
-        );
-        if (Object.keys(groups).includes(component.id))
-          groups[component.id].forEach((groupComponent: Component) => {
-            components.push(
-              `├─${constants.statuspage.emojis[groupComponent.status]} **${
-                groupComponent.name
-              }**: ${
-                message.language.get("STATUSPAGE_COMPONENT_STATUS")[
-                  groupComponent.status.toLowerCase()
-                ] || titleCase(groupComponent.status.replace("_", " "))
-              }`
-            );
-          });
-      }
+    const components = groups["null"].flatMap((group: Component) => {
+      const groupComponents = groups[group.id] || [];
+      return [
+        `├${constants.statuspage.emojis[group.status]} **${group.name}**: ${
+          message.language.get("STATUSPAGE_COMPONENT_STATUS")[
+            group.status.toLowerCase()
+          ] || titleCase(group.status.replace("_", " "))
+        }`,
+        ...groupComponents.map(
+          (groupComponent: Component) =>
+            `├─${constants.statuspage.emojis[groupComponent.status]} **${
+              groupComponent.name
+            }**: ${
+              message.language.get("STATUSPAGE_COMPONENT_STATUS")[
+                groupComponent.status.toLowerCase()
+              ] || titleCase(groupComponent.status.replace("_", " "))
+            }`
+        ),
+      ];
     });
     const latest = incidents.incidents[0];
     let embed = {
