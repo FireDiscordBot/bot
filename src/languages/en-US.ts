@@ -1,7 +1,7 @@
+import { FireGuild } from "../../lib/extensions/guild";
 import { constants } from "../../lib/util/constants";
 import { Language } from "../../lib/util/language";
 import { TextChannel } from "discord.js";
-import { Guild } from "discord.js";
 
 export default class enUS extends Language {
   constructor() {
@@ -16,6 +16,7 @@ export default class enUS extends Language {
           `Something went wrong while running ${id}`,
         MEMBERS: "Members",
         REGION: "Region",
+        STATUS: "Status",
         REGION_DEPRECATED: "❓ Deprecated Region",
         REGIONS: {
           brazil: "🇧🇷 Brazil",
@@ -111,8 +112,36 @@ This will **not** rename existing users`,
         DISCOVER_COMMAND_DESCRIPTION: "Links to Fire's public servers page",
         DISCOVER_MESSAGE: `You can find Fire\'s public server list at <${constants.url.discovery}>
 Hint: Use the \`public\` command to get your server on the list`,
+        STATUS_LATEST_INCIDENT: "Latest Incident",
+        STATUSPAGE_PAGE_DESCRIPTIONS: {
+          "all systems operational": "All Systems Operational",
+          "partially degraded service": "Partially Degraded Service",
+          "minor service outage": "Minor Service Outage",
+          "partial system outage": "Partial System Outage",
+          "service under maintenance": "Service Under Maintenance",
+        },
+        STATUSPAGE_INCIDENT_STATUS: {
+          investigating: "Investigating",
+          identified: "Identified",
+          monitoring: "Monitoring",
+          resolved: "Resolved",
+          scheduled: "Scheduled",
+          "in progress": "In Progress",
+          verifying: "Verifying",
+          completed: "Completed",
+          postmortem: "Postmortem",
+        },
+        STATUSPAGE_COMPONENT_STATUS: {
+          operational: "Operational",
+          degraded_performance: "Degraded Permormance",
+          partial_outage: "Partial Outage",
+          major_outage: "Major Outage",
+          under_maintenance: "Under Maintenance",
+        },
         DSTATUS_COMMAND_DESCRIPTION: "Get Discord's current status",
         DSTATUS_FETCH_FAIL: "Failed to fetch Discord status",
+        STATUS_COMMAND_DESCRIPTION: "Get Fire's current status",
+        STATUS_FETCH_FAIL: "Failed to fetch Fire status",
         EIGHTBALL_COMMAND_DESCRIPTION: "Ask the Magic 8-Ball a question",
         EIGHTBALL_NO_QUESTION:
           "That doesn't look like a question to me. Are you forgetting something?",
@@ -142,7 +171,7 @@ Hint: Use the \`public\` command to get your server on the list`,
           return responses[Math.floor(Math.random() * responses.length)];
         },
         GUILD_COMMAND_DESCRIPTION: "Get a general overview of the guild",
-        GUILD_CREATED_AT: (guild: Guild, created: string) =>
+        GUILD_CREATED_AT: (guild: FireGuild, created: string) =>
           `**Created by ${
             guild.owner.user.username + guild.owner.user.discriminator ||
             "Unknown#0000"
