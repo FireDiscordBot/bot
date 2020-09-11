@@ -16,12 +16,18 @@ const manager = new Manager(sentry);
 manager.init();
 
 const exit = () => {
-  manager.client.console.warn("Destroying client...");
-  manager.client.user.setStatus("invisible");
-  manager.client.destroy();
+  manager.client?.console.warn("Destroying client...");
+  manager.client?.user.setStatus("invisible");
+  manager.client?.destroy();
 };
 
 process.on("exit", () => {
   exit(), process.exit();
 });
 process.on("SIGINT", exit);
+process.on("unhandledRejection", (reason) => {
+  if (reason instanceof Error) {
+    manager.client.console.error(reason?.stack);
+    manager.client.sentry.captureException(reason);
+  }
+});
