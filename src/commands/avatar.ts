@@ -15,19 +15,18 @@ export default class Avatar extends Command {
       args: [
         {
           id: "user",
-          type: "string",
+          type: "user|member",
           match: "rest",
           default: (message: FireMessage) => message.author.id,
+          required: false,
         },
       ],
+      category: "Utilities",
     });
   }
 
-  async exec(message: FireMessage, args: { user: string }) {
-    let user:
-      | GuildMember
-      | User
-      | null = await message.guild.resolveOrFetchUser(args.user);
+  async exec(message: FireMessage, args: { user: GuildMember | User | null }) {
+    let user = args.user;
     if (!(user instanceof User)) return message.error("USER_NOT_FOUND");
     if (message.guild.member(user)) user = message.guild.member(user);
     const color =

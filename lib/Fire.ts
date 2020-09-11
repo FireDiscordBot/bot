@@ -17,6 +17,7 @@ import { Util } from "./util/clientUtil";
 import * as Sentry from "@sentry/node";
 import { config } from "../config";
 import * as moment from "moment";
+import { FireMessage } from "./extensions/message";
 require("./extensions");
 
 export class Fire extends AkairoClient {
@@ -100,6 +101,13 @@ export class Fire extends AkairoClient {
     this.commandHandler.on("remove", async (command: Command) => {
       await command?.unload();
     });
+    this.commandHandler.resolver.addType(
+      "user|member",
+      async (message: FireMessage, phrase: any) => {
+        if (!phrase) return null;
+        return await message.guild.resolveOrFetchUser(phrase);
+      }
+    );
     this.commandHandler.loadAll();
 
     this.inhibitorHandler = new InhibitorHandler(this, {

@@ -71,6 +71,8 @@ export default class enUS extends Language {
           `I have set the "bad name" to ${name}. This will **not** rename existing users`,
         BADNAME_RESET: `I have reset the "bad name" to John Doe 0000 (with 0000 being their discriminator).
 This will **not** rename existing users`,
+        DEBUG_COMMAND_DESCRIPTION:
+          "Command not working? Use this command to try debug the issue.\nDebug command not working? Join the Fire Support server, https://inv.wtf/fire",
         DEBUG_NO_COMMAND: "You must provide a valid command to debug",
         DEBUGGING_DEBUG: "Debug command is working",
         DEBUG_PERMS_PASS: "No permissions missing",
@@ -193,6 +195,10 @@ Hint: Use the \`public\` command to get your server on the list`,
         GUILD_SECURITY: "» Security",
         GUILD_FEATURES: "» Features",
         GUILD_ROLES: "» Roles",
+        HELP_COMMAND_DESCRIPTION:
+          "Lists all of Fire's commands and provides information about them",
+        HELP_FOOTER: (prefix: string) =>
+          `Use "${prefix}help <command>" for more info about the command`,
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
       },

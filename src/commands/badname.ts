@@ -15,8 +15,10 @@ export default class BadName extends Command {
           type: "string",
           match: "rest",
           default: null,
+          required: false,
         },
       ],
+      category: "Moderation",
     });
   }
 

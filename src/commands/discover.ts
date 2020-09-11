@@ -8,6 +8,7 @@ export default class Discover extends Command {
       description: (language: Language) =>
         language.get("DISCOVER_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES"],
+      category: "Main",
     });
   }
 

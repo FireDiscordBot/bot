@@ -17,8 +17,10 @@ export default class Ping extends Command {
           type: "string",
           match: "rest",
           default: null,
+          required: true,
         },
       ],
+      category: "Configuration",
     });
   }
 

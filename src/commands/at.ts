@@ -16,8 +16,11 @@ export default class AutoTip extends Command {
           id: "content",
           type: "string",
           default: "/atstats",
+          required: false,
         },
       ],
+      category: "Owner",
+      hidden: true,
     });
   }
 

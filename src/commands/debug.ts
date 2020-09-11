@@ -1,6 +1,6 @@
 import { PermissionString, TextChannel, GuildMember, Role } from "discord.js";
 import { FireMessage } from "../../lib/extensions/message";
-import { constants } from "../../lib/util/constants";
+import { constants, titleCase } from "../../lib/util/constants";
 import { Language } from "../../lib/util/language";
 import { Command } from "../../lib/util/command";
 
@@ -19,8 +19,10 @@ export default class Debug extends Command {
           id: "command",
           type: "command",
           default: null,
+          required: true,
         },
       ],
+      category: "Utilities",
     });
   }
 
@@ -63,23 +65,13 @@ export default class Debug extends Command {
       let userMissing: string[] = [];
       cmdPerms.userPermissions?.forEach((perm) => {
         if (!message.member?.permissions.has(perm as PermissionString)) {
-          let permTitle = perm.split("_");
-          permTitle.forEach((v, index) => {
-            permTitle[index] =
-              v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
-          });
-          userMissing.push(permTitle.join(" "));
+          userMissing.push(titleCase(perm).replace("_", " "));
         }
       });
       let clientMissing: string[] = [];
       cmdPerms.clientPermissions?.forEach((perm) => {
         if (!message.guild.me?.permissions.has(perm as PermissionString)) {
-          let permTitle = perm.split("_");
-          permTitle.forEach((v, index) => {
-            permTitle[index] =
-              v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
-          });
-          clientMissing.push(permTitle.join(" "));
+          clientMissing.push(titleCase(perm).replace("_", " "));
         }
       });
       const permMsg = (message.language.get(

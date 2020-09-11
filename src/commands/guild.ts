@@ -12,6 +12,7 @@ export default class GuildCommand extends Command {
         language.get("GUILD_COMMAND_DESCRIPTION"),
       clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
       aliases: ["guildinfo", "infoguild", "serverinfo", "infoserver", "server"],
+      category: "Utilities",
     });
   }
 
