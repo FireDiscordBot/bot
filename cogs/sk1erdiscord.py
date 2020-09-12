@@ -126,7 +126,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         self.description_updater.cancel()
 
     async def cog_check(self, ctx: commands.Context):
-        if ctx.guild.id == 411619823445999637:
+        if ctx.guild.id == self.guild.id:
             return True
         return False
 
@@ -149,6 +149,11 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
+        if member.guild.id == self.guild.id:
+            try:
+                await self.bot.db.execute('DELETE FROM specs WHERE uid=$1;', member.id)
+            except Exception:
+                pass
         if self.nitro in member.roles:
             route = Route(
                 'GET',
