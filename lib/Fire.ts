@@ -107,8 +107,8 @@ export class Fire extends AkairoClient {
     this.commandHandler.resolver.addType(
       "user|member",
       async (message: FireMessage, phrase: any) => {
-        if (!phrase) return null;
-        return await message.guild.resolveOrFetchUser(phrase);
+        if (!phrase) return message.member || message.author;
+        else return await message.guild.resolveOrFetchUser(phrase);
       }
     );
     this.commandHandler.loadAll();

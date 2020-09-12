@@ -17,7 +17,6 @@ export default class Avatar extends Command {
           id: "user",
           type: "user|member",
           match: "rest",
-          default: (message: FireMessage) => message.author.id,
           required: false,
         },
       ],
@@ -27,7 +26,8 @@ export default class Avatar extends Command {
 
   async exec(message: FireMessage, args: { user: GuildMember | User | null }) {
     let user = args.user;
-    if (!(user instanceof User)) return message.error("USER_NOT_FOUND");
+    if (!(user instanceof GuildMember || user instanceof User))
+      return message.error("USER_NOT_FOUND");
     if (message.guild.member(user)) user = message.guild.member(user);
     const color =
       user instanceof GuildMember
