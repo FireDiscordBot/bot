@@ -105,3 +105,6 @@ dist
 
 # VSCode Settings
 .vscode/
+
+# Misc JSON Files
+sk1er_solutions.json
