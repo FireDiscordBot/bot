@@ -49,7 +49,6 @@ class Fire(commands.Bot):
         # COMMON ATTRIBUTES
         self.config: dict = json.load(open('config.json', 'r'))
         self.configs: typing.Dict[int, Config] = {}
-        self.tips = json.load(open('tips.json', 'r'))
         self.premium_guilds = {}
         self.paginators = {}
         self.db: asyncpg.pool.Pool = None
