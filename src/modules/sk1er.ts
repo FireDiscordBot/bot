@@ -1,7 +1,16 @@
-import { TextChannel, GuildMember, User, Role } from "discord.js";
+import {
+  MessageAttachment,
+  TextChannel,
+  GuildMember,
+  User,
+  Role,
+} from "discord.js";
+import { FireMessage } from "../../lib/extensions/message";
 import * as solutions from "../../sk1er_solutions.json";
 import { FireGuild } from "../../lib/extensions/guild";
+import { createWriteStream, unlink } from "fs";
 import { Module } from "../../lib/util/module";
+import * as archiver from "archiver";
 import * as Centra from "centra";
 import * as moment from "moment";
 
@@ -170,14 +179,153 @@ export default class Sk1er extends Module {
   }
 
   public getSolutions(log: string) {
-    let solutions: string[] = [];
+    let currentSolutions: string[] = [];
     Object.keys(solutions).forEach((err) => {
-      if (log.includes(err)) solutions.push(`- ${solutions[err]}`);
+      if (log.includes(err)) currentSolutions.push(`- ${solutions[err]}`);
     });
     if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_I7|_L5/im))
-      solutions.push("- Update Optifine to either I7 or L5");
-    return solutions.length
-      ? `Possible solutions:\n${solutions.join("\n")}`
+      currentSolutions.push("- Update Optifine to either I7 or L5");
+    return currentSolutions.length
+      ? `Possible solutions:\n${currentSolutions.join("\n")}`
       : "";
+  }
+
+  async checkLogs(message: FireMessage) {
+    if (message.guild.id != this.guildId) return;
+    let content = message.content;
+    if (this.regexes.noRaw.test(content)) {
+      try {
+        await message.delete({
+          reason: "Unable to reupload log from source to hastebin",
+        });
+      } catch {}
+      return await message.channel.send(
+        message.language.get("SK1ER_NO_REUPLOAD", message.author),
+        { allowedMentions: { users: [message.author.id] } }
+      );
+    }
+    const reupload = this.regexes.reupload.exec(content);
+    if (reupload != null && reupload.length >= 3) {
+      const domain = reupload[1];
+      const key = reupload[2];
+      const rawReq = await Centra(
+        `https://${domain}/${domain.includes("paste.ee") ? "r" : "raw"}/${key}`
+      ).send();
+      if (rawReq.statusCode.toString()[0] != "2") {
+        return await message.channel.send(
+          message.language.get("SK1ER_REUPLOAD_FETCH_FAIL", domain)
+        );
+      } else {
+        const text = await rawReq.text();
+        content = content.replace(this.regexes.reupload, text);
+      }
+    }
+    if (!message.attachments.size && content.length > 350)
+      return await this.handleLogText(
+        message,
+        content,
+        reupload != null ? "sent a paste containing" : "sent"
+      );
+    message.attachments.forEach(async (attach) => {
+      if (!attach.name.endsWith(".log") && !attach.name.endsWith(".txt"))
+        return;
+      try {
+        const text = await (await Centra(attach.url).send()).text();
+        return await this.handleLogText(message, text, "uploaded");
+      } catch {
+        return await message.channel.send(
+          message.language.get("SK1ER_LOG_READ_FAIL")
+        );
+      }
+    });
+  }
+
+  async handleLogText(message: FireMessage, text: string, msgType: string) {
+    const lines = text.split("\n");
+    if (
+      /ModCoreInstaller:download:\d{1,4}]: MAX: \d+/im.test(
+        lines[lines.length - 1]
+      )
+    ) {
+      try {
+        await this.createModcoreZip();
+        try {
+          await message.delete({
+            reason: "Removing log and sending Modcore zip",
+          });
+        } catch {}
+        const zipattach = new MessageAttachment("modcore.zip", "modcore.zip");
+        await message.channel.send(
+          message.language.get("SK1ER_MODCORE_ZIP", message.author),
+          {
+            allowedMentions: { users: [message.author.id] },
+            files: [zipattach],
+          }
+        );
+        unlink("modcore.zip", () => {});
+      } catch {}
+    }
+    text = text
+      .replace(this.regexes.email, "[removed email]")
+      .replace(this.regexes.home, "USER.HOME");
+    this.regexes.url.exec(text)?.forEach((match) => {
+      if (!match.includes("sk1er.club"))
+        text = text.replace(match, "[removed url]");
+    });
+    lines.forEach((line) => {
+      if (this.regexes.secrets.test(line))
+        text = text.replace(line, "[line removed to protect sensitive info]");
+    });
+    // TODO add filter run replace for log content
+    if (this.hasLogText(text)) {
+      try {
+        const haste = await this.client.haste(text);
+        try {
+          await message.delete({
+            reason: "Removing log and sending haste",
+          });
+        } catch {}
+        const solutions = this.getSolutions(text);
+        return await message.send(
+          "SK1ER_LOG_HASTE",
+          message.author,
+          msgType,
+          msgType == "sent" ? message.content : "",
+          haste,
+          solutions
+        );
+      } catch {}
+    }
+  }
+
+  hasLogText(text: string) {
+    let has = false;
+    this.logText.forEach((logText) => {
+      if (text.includes(logText)) has = true;
+    });
+    return has;
+  }
+
+  async createModcoreZip() {
+    const out = createWriteStream("modcore.zip");
+    let archive = archiver("zip", {
+      zlib: { level: 9 },
+    });
+    archive.pipe(out);
+    const versions = await (
+      await Centra("https://api.sk1er.club/modcore_versions").send()
+    ).json();
+    const current = versions["1.8.9"];
+    const modcore = (
+      await Centra(
+        `https://static.sk1er.club/repo/mods/modcore/${current}/1.8.9/ModCore-${current}%20(1.8.9).jar`
+      ).send()
+    ).body;
+    archive.append(modcore, { name: `Sk1er Modcore-${current} (1.8.9).jar` });
+    archive.append(JSON.stringify({ "1.8.9": current }), {
+      name: "metadata.json",
+    });
+    await archive.finalize();
+    out.close();
   }
 }

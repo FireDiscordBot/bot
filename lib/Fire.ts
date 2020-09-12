@@ -19,6 +19,7 @@ import { Util } from "./util/clientUtil";
 import * as Sentry from "@sentry/node";
 import { config } from "../config";
 import * as moment from "moment";
+import * as Centra from "centra";
 require("./extensions");
 
 export class Fire extends AkairoClient {
@@ -159,6 +160,16 @@ export class Fire extends AkairoClient {
     this.options.shards = [this.manager.id];
     await this.settings.init();
     return super.login();
+  }
+
+  async haste(text: string, fallback: boolean = false) {
+    const url = fallback
+      ? "https://hst.sh/documents"
+      : "https://h.inv.wtf/documents";
+    const h: { key: string } = await (
+      await Centra(url, "POST").body(text, "buffer").send()
+    ).json();
+    return url + h.key;
   }
 
   public getCommand(id: string) {

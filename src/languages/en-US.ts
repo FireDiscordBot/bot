@@ -1,7 +1,7 @@
+import { TextChannel, GuildMember, User } from "discord.js";
 import { FireGuild } from "../../lib/extensions/guild";
 import { constants } from "../../lib/util/constants";
 import { Language } from "../../lib/util/language";
-import { TextChannel } from "discord.js";
 
 export default class enUS extends Language {
   constructor() {
@@ -199,6 +199,21 @@ Hint: Use the \`public\` command to get your server on the list`,
           "Lists all of Fire's commands and provides information about them",
         HELP_FOOTER: (prefix: string) =>
           `Use "${prefix}help <command>" for more info about the command`,
+        SK1ER_NO_REUPLOAD: (user: GuildMember | User) =>
+          `${user} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)`,
+        SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>
+          `I was unable to read your log. Please upload it directly rather than using ${domain}`,
+        SK1ER_LOG_READ_FAIL:
+          "I was unable to read the attachment, try reupload it. If it still doesn't work, yell at Geek :)",
+        SK1ER_MODCORE_ZIP: (user: GuildMember | User) =>
+          `${user}, Unzip this in \`.minecraft/modcore\` and your issue should be resolved.`,
+        SK1ER_LOG_HASTE: (
+          user: GuildMember | User,
+          msgType: string,
+          extra: string,
+          haste: string,
+          solutions: string
+        ) => `${user} ${msgType} a log, ${extra}\n${haste}\n\n${solutions}`,
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
       },
