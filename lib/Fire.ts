@@ -6,6 +6,8 @@ import {
 } from "discord-akairo";
 import { CommandHandler } from "./util/commandHandler";
 import { PostgresProvider } from "./providers/postgres";
+import { Module, ModuleHandler } from "./util/module";
+import { FireMessage } from "./extensions/message";
 import { LanguageHandler } from "./util/language";
 import { Client as PGClient } from "ts-postgres";
 import { version as djsver } from "discord.js";
@@ -17,7 +19,6 @@ import { Util } from "./util/clientUtil";
 import * as Sentry from "@sentry/node";
 import { config } from "../config";
 import * as moment from "moment";
-import { FireMessage } from "./extensions/message";
 require("./extensions");
 
 export class Fire extends AkairoClient {
@@ -34,6 +35,7 @@ export class Fire extends AkairoClient {
   inhibitorHandler: InhibitorHandler;
   listenerHandler: ListenerHandler;
   languages: LanguageHandler;
+  modules: ModuleHandler;
   ksoft: KSoftClient | boolean;
   // chatwatch;
 
@@ -134,6 +136,17 @@ export class Fire extends AkairoClient {
     });
     this.languages.loadAll();
 
+    this.modules = new ModuleHandler(this, {
+      directory: config.fire.dev ? "./src/modules/" : "./dist/src/modules/",
+    });
+    this.modules.on("load", async (module: Module, isReload: boolean) => {
+      await module?.init();
+    });
+    this.modules.on("remove", async (module: Module) => {
+      await module?.unload();
+    });
+    this.modules.loadAll();
+
     if (process.env.KSOFT_TOKEN)
       this.ksoft = new KSoftClient(process.env.KSOFT_TOKEN);
     else this.ksoft = false;
@@ -146,5 +159,17 @@ export class Fire extends AkairoClient {
     this.options.shards = [this.manager.id];
     await this.settings.init();
     return super.login();
+  }
+
+  public getCommand(id: string) {
+    return this.commandHandler.modules.get(id);
+  }
+
+  public getLanguage(id: string) {
+    return this.languages.modules.get(id);
+  }
+
+  public getModule(id: string) {
+    return this.modules.modules.get(id);
   }
 }
