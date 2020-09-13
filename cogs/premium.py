@@ -48,7 +48,7 @@ class Premium(commands.Cog, name="Premium Commands"):
         query = "SELECT * FROM premium;"
         premium = await self.bot.db.fetch(query)
         for p in premium:
-            self.bot.premium_guilds.update({p["gid"]: p["uid"]})
+            self.bot.premium_guilds.update({int(p["gid"]): int(p["uid"])})
         self.bot.logger.info(f"$GREENLoaded premium guilds!")
 
     async def load_ranks(self):
@@ -58,10 +58,10 @@ class Premium(commands.Cog, name="Premium Commands"):
         query = "SELECT * FROM joinableranks;"
         ranks = await self.bot.db.fetch(query)
         for r in ranks:
-            guild = r["gid"]
+            guild = int(r["gid"])
             if guild not in self.joinroles:
                 self.joinroles[guild] = []
-            self.joinroles[guild].append(r["rid"])
+            self.joinroles[guild].append(int(r["rid"]))
         self.bot.logger.info(f"$GREENLoaded ranks!")
 
     async def cog_check(self, ctx: commands.Context):
@@ -183,7 +183,7 @@ class Premium(commands.Cog, name="Premium Commands"):
         con = await self.bot.db.acquire()
         async with con.transaction():
             query = 'INSERT INTO joinableranks ("gid", "rid") VALUES ($1, $2);'
-            await self.bot.db.execute(query, ctx.guild.id, role.id)
+            await self.bot.db.execute(query, str(ctx.guild.id), str(role.id))
         await self.bot.db.release(con)
         try:
             self.joinroles[ctx.guild.id].append(role.id)
@@ -217,12 +217,10 @@ class Premium(commands.Cog, name="Premium Commands"):
     @bot_has_permissions(manage_roles=True)
     @commands.guild_only()
     async def delrank(self, ctx, *, role: Role):
-        # await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {role.id};')
-        # await self.bot.conn.commit()
         con = await self.bot.db.acquire()
         async with con.transaction():
             query = "DELETE FROM joinableranks WHERE rid = $1;"
-            await self.bot.db.execute(query, role.id)
+            await self.bot.db.execute(query, str(role.id))
         await self.bot.db.release(con)
         try:
             self.joinroles[ctx.guild.id].remove(role.id)
@@ -268,12 +266,10 @@ class Premium(commands.Cog, name="Premium Commands"):
             for rank in ranks:
                 role = discord.utils.get(ctx.guild.roles, id=rank)
                 if not role:
-                    # await self.bot.db.execute(f'DELETE FROM joinableranks WHERE rid = {rank};')
-                    # await self.bot.conn.commit()
                     con = await self.bot.db.acquire()
                     async with con.transaction():
                         query = "DELETE FROM joinableranks WHERE rid = $1;"
-                        await self.bot.db.execute(query, rank)
+                        await self.bot.db.execute(query, str(rank))
                     await self.bot.db.release(con)
                     self.joinroles[ctx.guild.id].remove(rank)
                     someremoved += 1
