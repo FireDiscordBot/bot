@@ -35,12 +35,12 @@ class InviteRoles(commands.Cog):
         iroles = {}
         invroles = await self.bot.db.fetch(q)
         for ir in invroles:
-            if ir['gid'] not in self.bot.premium_guilds:
+            if int(ir['gid']) not in self.bot.premium_guilds:
                 continue
-            if ir['gid'] not in iroles:
-                iroles[ir['gid']] = []
-            iroles[ir['gid']].append({
-                'role': ir['rid'],
+            if int(ir['gid']) not in iroles:
+                iroles[int(ir['gid'])] = []
+            iroles[int(ir['gid'])].append({
+                'role': int(ir['rid']),
                 'invite': ir['inv']
             })
         await self.bot.redis.set('invroles', json.dumps(iroles))
@@ -109,14 +109,14 @@ class InviteRoles(commands.Cog):
             con = await self.bot.db.acquire()
             async with con.transaction():
                 q = 'DELETE FROM invrole WHERE inv=$1 AND rid=$2;'
-                await self.bot.db.execute(q, invite, role.id)
+                await self.bot.db.execute(q, invite, str(role.id))
             await self.bot.db.release(con)
             await self.load_invroles()
             return await ctx.success(f'Successfully deleted invite role {role.name} for discord.gg\/{invite}')
         con = await self.bot.db.acquire()
         async with con.transaction():
             query = 'INSERT INTO invrole (\"gid\", \"rid\", \"inv\") VALUES ($1, $2, $3);'
-            await self.bot.db.execute(query, ctx.guild.id, role.id, invite)
+            await self.bot.db.execute(query, str(ctx.guild.id), str(role.id), invite)
         await self.bot.db.release(con)
         await self.load_invroles()
         return await ctx.success(f'Successfully added invite role {role.name} for discord.gg\/{invite}')
