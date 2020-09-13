@@ -136,7 +136,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             return
         if 'rank' in ctx.command.name:
             beta = self.guild.get_role(595626786549792793)
-            specs = await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', ctx.author.id)
+            specs = await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', str(ctx.author.id))
             if ctx.kwargs.get('role', None) == beta and beta in ctx.author.roles and not specs:
                 await ctx.author.remove_roles(beta, reason='User must provide specs')
                 await ctx.send(f'{ctx.author.mention} To become a beta tester ,'
@@ -151,7 +151,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
     async def on_member_remove(self, member):
         if member.guild.id == self.guild.id:
             try:
-                await self.bot.db.execute('DELETE FROM specs WHERE uid=$1;', member.id)
+                await self.bot.db.execute('DELETE FROM specs WHERE uid=$1;', str(member.id))
             except Exception:
                 pass
         if self.nitro in member.roles:
@@ -536,7 +536,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             remove=bool
     ) = flags.EmptyFlags):
         user = user if user else ctx.author
-        uspecs = await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', user.id)
+        uspecs = await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', str(user.id))
         if not uspecs:
             return await ctx.error(f'Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec>')
         else:
@@ -544,7 +544,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 con = await self.bot.db.acquire()
                 async with con.transaction():
                     query = 'DELETE FROM specs WHERE uid=$1;'
-                    await self.bot.db.execute(query, user.id)
+                    await self.bot.db.execute(query, str(user.id))
                 await self.bot.db.release(con)
                 await user.remove_roles(self.guild.get_role(595626786549792793), reason=f'Specs removed by {ctx.author}')
                 return await ctx.success(f'Successfully removed specs for {user}')
