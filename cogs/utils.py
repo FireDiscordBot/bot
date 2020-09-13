@@ -341,7 +341,7 @@ class Utils(commands.Cog, name='Utility Commands'):
                 con = await self.bot.db.acquire()
                 async with con.transaction():
                     query = 'UPDATE blacklist SET user=$1, uid=$2, reason=$3, perm=$4 WHERE uid=$5;'
-                    await self.bot.db.execute(query, user.name, str(user.id), reason, permanent, blid)
+                    await self.bot.db.execute(query, user.name, str(user.id), reason, permanent, str(user.id))
                 await self.bot.db.release(con)
                 star_chat = self.bot.get_channel(624304772333436928)
                 await star_chat.send(f'{user}\'s blacklist was updated by {ctx.author} to reason "{reason}". Permanent: {bool(permanent)}')

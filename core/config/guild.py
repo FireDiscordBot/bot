@@ -325,7 +325,7 @@ class Config:
         if isinstance(self._guild, int):
             self._guild = self._bot.get_guild(self._guild)
         query = 'SELECT * FROM guildconfig WHERE gid=$1;'
-        conf = await self._db.fetch(query, self._guild.id)
+        conf = await self._db.fetch(query, str(self._guild.id))
         if not conf:
             self._data = await self.init()
             self.loaded = True
@@ -344,7 +344,7 @@ class Config:
         con = await self._db.acquire()
         async with con.transaction():
             query = 'UPDATE guildconfig SET data = $1 WHERE gid = $2;'
-            await self._db.execute(query, json.dumps(self._data), self._guild.id)
+            await self._db.execute(query, json.dumps(self._data), str(self._guild.id))
         await self._db.release(con)
         self._bot.logger.info(f'$GREENSaved config for $CYAN{self._guild}')
 
