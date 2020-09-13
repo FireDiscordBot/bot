@@ -89,9 +89,9 @@ class Settings(commands.Cog):
         hasalias = []
         allaliases = {}
         for a in aliases:
-            hasalias.append(a['uid'])
+            hasalias.append(int(a['uid']))
             for al in a['aliases']:
-                allaliases[al.lower()] = a['uid']
+                allaliases[al.lower()] = int(a['uid'])
         await self.bot.redis.set('hasalias', json.dumps(hasalias))
         await self.bot.redis.set('aliases', json.dumps(allaliases))
         self.bot.logger.info(f'$GREENLoaded aliases!')
