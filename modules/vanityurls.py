@@ -44,7 +44,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
         """
         Local check, prevents blacklisted guilds from using any vanity features
         """
-        is_bl = await self.bot.db.fetch('SELECT * FROM vanitybl WHERE gid=$1;', ctx.guild.id)
+        is_bl = await self.bot.db.fetch('SELECT * FROM vanitybl WHERE gid=$1;', str(ctx.guild.id))
         if is_bl:
             await ctx.error(f'This guild has been blacklisted from vanity features!')
             return False
@@ -81,7 +81,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
             return
         config = self.bot.get_config(guild)
         query = 'SELECT * FROM vanity WHERE gid = $1;'
-        remaining = await self.bot.db.fetch(query, guild.id)
+        remaining = await self.bot.db.fetch(query, str(guild.id))
         if config.get('utils.public') and not remaining:
             await config.set('utils.public', False)
             log = config.get('log.action')
@@ -96,18 +96,18 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
     ):
         code = code.lower()
         query = 'SELECT * FROM vanity WHERE gid = $1;'
-        current = await self.bot.db.fetch(query, ctx.guild.id)
+        current = await self.bot.db.fetch(query, str(ctx.guild.id))
         if not current:
             con = await self.bot.db.acquire()
             async with con.transaction():
                 query = 'INSERT INTO vanity (\"gid\", \"code\", \"invite\") VALUES ($1, $2, $3);'
-                await self.bot.db.execute(query, ctx.guild.id, code, inv.code)
+                await self.bot.db.execute(query, str(ctx.guild.id), code, inv.code)
             await self.bot.db.release(con)
         else:
             con = await self.bot.db.acquire()
             async with con.transaction():
                 query = 'UPDATE vanity SET (\"code\", \"invite\") = ($2, $3) WHERE gid = $1;'
-                await self.bot.db.execute(query, ctx.guild.id, code, inv.code)
+                await self.bot.db.execute(query, str(ctx.guild.id), code, inv.code)
             await self.bot.db.release(con)
         await self.request_fetch()
         return {
@@ -123,13 +123,13 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
             f'$YELLOWDeleting vanity for guild $CYAN{ctx.guild}')
         current = await self.bot.db.fetch(
             'SELECT * FROM vanity WHERE gid=$1;',
-            ctx.guild.id
+            str(ctx.guild.id)
         )
         if current:
             con = await self.bot.db.acquire()
             async with con.transaction():
                 query = 'DELETE FROM vanity WHERE gid = $1;'
-                await self.bot.db.execute(query, ctx.guild.id)
+                await self.bot.db.execute(query, str(ctx.guild.id))
             await self.bot.db.release(con)
             for v in current:
                 self.bot.dispatch(
@@ -157,13 +157,13 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
     async def delete_guild(self, gid: int):
         current = await self.bot.db.fetch(
             'SELECT * FROM vanity WHERE gid=$1;',
-            gid
+            str(gid)
         )
         if current:
             con = await self.bot.db.acquire()
             async with con.transaction():
                 query = 'DELETE FROM vanity WHERE gid = $1;'
-                await self.bot.db.execute(query, gid)
+                await self.bot.db.execute(query, str(gid))
             await self.bot.db.release(con)
             for v in current:
                 self.bot.dispatch(
@@ -208,7 +208,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
             current = await self.bot.db.fetch(query, code.lower())
         else:
             query = 'SELECT * FROM vanity WHERE gid=$1 AND redirect IS NULL;'
-            current = await self.bot.db.fetch(query, ctx.guild.id)
+            current = await self.bot.db.fetch(query, str(ctx.guild.id))
         if current and isinstance(current, list):
             current = random.choice(current)
         if not code and (not ctx.guild.id in premium or not current):
