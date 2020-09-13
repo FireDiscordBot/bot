@@ -36,11 +36,11 @@ class RolePersist(commands.Cog):
         rps = {}
         persists = await self.bot.db.fetch(q)
         for rp in persists:
-            if rp["gid"] not in self.bot.premium_guilds:
+            if int(rp["gid"]) not in self.bot.premium_guilds:
                 continue
-            if rp["gid"] not in rps:
-                rps[rp["gid"]] = {}
-            rps[rp["gid"]][rp["uid"]] = rp["roles"]
+            if int(rp["gid"]) not in rps:
+                rps[int(rp["gid"])] = {}
+            rps[int(rp["gid"])][int(rp["uid"])] = [int(r) for r in rp["roles"]]
         await self.bot.redis.set("rolepersists", json.dumps(rps))
         self.bot.logger.info("$GREENLoaded persisted roles!")
 
@@ -87,8 +87,8 @@ class RolePersist(commands.Cog):
             s = set(aroles)
             removed = [x for x in broles if x not in s]
             if len(removed) >= 1:
-                roleids = [r.id for r in removed]
-                current = [r for r in rps[str(after.id)]]
+                roleids = [str(r.id) for r in removed]
+                current = [str(r) for r in rps[str(after.id)]]
                 for rid in roleids:
                     if rid in current:
                         current.remove(rid)
@@ -98,23 +98,24 @@ class RolePersist(commands.Cog):
                     con = await self.bot.db.acquire()
                     async with con.transaction():
                         query = "UPDATE rolepersists SET roles = $1 WHERE gid = $2 AND uid = $3;"
-                        await self.bot.db.execute(query, current, guild.id, after.id)
+                        await self.bot.db.execute(query, current, str(guild.id), str(after.id))
                     await self.bot.db.release(con)
                 else:
                     con = await self.bot.db.acquire()
                     async with con.transaction():
                         query = "DELETE FROM rolepersists WHERE gid = $1 AND uid = $2;"
-                        await self.bot.db.execute(query, guild.id, after.id)
+                        await self.bot.db.execute(query, str(guild.id), str(after.id))
                     await self.bot.db.release(con)
                 await self.load_role_persists()
                 names = ", ".join(
                     [
-                        guild.get_role(r).name
+                        guild.get_role(int(r)).name
                         for r in current
-                        if guild.get_role(r)
+                        if guild.get_role(int(r))
                     ]
                 )  # The check for if the role exists should be pointless but better to check than error
-                logch = self.bot.get_config(after.guild.id).get("log.moderation")
+                logch = self.bot.get_config(
+                    after.guild.id).get("log.moderation")
                 if logch:
                     embed = discord.Embed(
                         color=discord.Color.green() if current else discord.Color.red(),
@@ -133,7 +134,8 @@ class RolePersist(commands.Cog):
                         name="Moderator", value=guild.me.mention, inline=False
                     )
                     if names:
-                        embed.add_field(name="Roles", value=names, inline=False)
+                        embed.add_field(
+                            name="Roles", value=names, inline=False)
                     embed.set_footer(
                         text=f"User ID: {after.id} | Mod ID: {guild.me.id}"
                     )
@@ -167,21 +169,21 @@ class RolePersist(commands.Cog):
             insert = True
             rps[str(user.id)] = []
         toremove = []
-        roleids = [r.id for r in roles]
-        current = [r for r in rps[str(user.id)]]
+        roleids = [str(r.id) for r in roles]
+        current = [str(r) for r in rps[str(user.id)]]
         for rid in roleids:
             if rid not in current:
                 current.append(rid)
             else:
                 current.remove(rid)
-                toremove.append(ctx.guild.get_role(rid))
+                toremove.append(ctx.guild.get_role(int(rid)))
         if not current:
             delete = True
         if delete:
             con = await self.bot.db.acquire()
             async with con.transaction():
                 query = "DELETE FROM rolepersists WHERE gid = $1 AND uid = $2;"
-                await self.bot.db.execute(query, ctx.guild.id, user.id)
+                await self.bot.db.execute(query, str(ctx.guild.id), str(user.id))
             await self.bot.db.release(con)
         elif not insert:
             con = await self.bot.db.acquire()
@@ -189,19 +191,19 @@ class RolePersist(commands.Cog):
                 query = (
                     "UPDATE rolepersists SET roles = $1 WHERE gid = $2 AND uid = $3;"
                 )
-                await self.bot.db.execute(query, current, ctx.guild.id, user.id)
+                await self.bot.db.execute(query, current, str(ctx.guild.id), str(user.id))
             await self.bot.db.release(con)
         else:
             con = await self.bot.db.acquire()
             async with con.transaction():
                 query = 'INSERT INTO rolepersists ("gid", "uid", "roles") VALUES ($1, $2, $3);'
-                await self.bot.db.execute(query, ctx.guild.id, user.id, current)
+                await self.bot.db.execute(query, str(ctx.guild.id), str(user.id), current)
             await self.bot.db.release(con)
         await self.load_role_persists()
         donthave = [
-            ctx.guild.get_role(r)
+            ctx.guild.get_role(int(r))
             for r in current
-            if ctx.guild.get_member(user.id) and ctx.guild.get_role(r) not in user.roles
+            if ctx.guild.get_member(user.id) and ctx.guild.get_role(int(r)) not in user.roles
         ]
         toremove = [
             r
@@ -218,9 +220,9 @@ class RolePersist(commands.Cog):
             )
         names = ", ".join(
             [
-                ctx.guild.get_role(r).name
+                ctx.guild.get_role(int(r)).name
                 for r in current
-                if ctx.guild.get_role(r)
+                if ctx.guild.get_role(int(r))
             ]
         )  # The check for if the role exists should be pointless but better to check than error
         embed = discord.Embed(
@@ -259,4 +261,3 @@ def setup(bot):
         bot.logger.error(
             f'$REDError while adding module $CYAN"role persist"', exc_info=e
         )
-
