@@ -30,13 +30,13 @@ class Redirects(commands.Cog, name="Redirects"):
     async def create(self, code: str, url: str, uid: int):
         code = code.lower()
         query = 'SELECT * FROM vanity WHERE redirect IS NOT NULL AND uid=$1;'
-        currentuser = await self.bot.db.fetch(query, uid)
+        currentuser = await self.bot.db.fetch(query, str(uid))
         if len(currentuser) >= 5 and uid != 287698408855044097:
             raise commands.CommandError('You can only have 5 redirects!')
         con = await self.bot.db.acquire()
         async with con.transaction():
             query = 'INSERT INTO vanity (\"code\", \"redirect\", \"uid\") VALUES ($1, $2, $3);'
-            await self.bot.db.execute(query, code, url, uid)
+            await self.bot.db.execute(query, code, url, str(uid))
         await self.bot.db.release(con)
         await self.bot.get_cog('Vanity URLs').request_fetch()
         return {
