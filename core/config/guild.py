@@ -33,6 +33,7 @@ class Config:
     def __init__(self, guild, **kwargs):
         self.options = options
         self.loaded: bool = False
+        self.convert_save: bool = False
         self._bot = kwargs.pop('bot')
         self._guild = self._bot.get_guild(guild) or guild
         self._db = kwargs.pop('db')
@@ -282,6 +283,9 @@ class Config:
         return self._data[option]
 
     async def set(self, opt: str, value):
+        if self._guild.id in self._bot.converted_configs and not self.convert_save:
+            raise Exception(
+                "This guilds config hasn't been converted yet. See <https://status.gaminggeek.dev/incidents/gjlkj8nrgt4y> for more info")
         if opt not in self.options:
             raise InvalidOptionError(opt)
         option = self.options[opt]
@@ -349,7 +353,7 @@ class Config:
                         self._data[opt] = str(self._data[opt])
                     elif acceptlist and accept in DISCORD_CONVERTERS['bot'] or accept in DISCORD_CONVERTERS['guild']:
                         self._data[opt] = [str(v) for v in self._data[opt]]
-            await self.save()
+            self._bot.converted_configs.append(self._guild.id)
             self.loaded = True
 
     async def save(self):
@@ -359,6 +363,8 @@ class Config:
             await self._db.execute(query, json.dumps(self._data), str(self._guild.id))
         await self._db.release(con)
         self._bot.logger.info(f'$GREENSaved config for $CYAN{self._guild}')
+        if self._guild.id in self._bot.converted_configs:
+            self.convert_save = True
 
     async def init(self):
         con = await self._db.acquire()
