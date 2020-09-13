@@ -145,7 +145,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
                 guild = int(m["gid"])
                 if not self.bot.get_guild(guild):
                     continue
-                until = m["until"] if "until" in m else False
+                until = float(m["until"]) if "until" in m else False
                 if not until:
                     continue
                 user = int(m["uid"])
@@ -423,7 +423,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
         async with con.transaction():
             if until:
                 query = 'INSERT INTO mutes ("gid", "uid", "until") VALUES ($1, $2, $3);'
-                await self.bot.db.execute(query, str(ctx.guild.id), str(user.id), until)
+                await self.bot.db.execute(query, str(ctx.guild.id), str(user.id), str(until))
             else:
                 query = 'INSERT INTO mutes ("gid", "uid") VALUES ($1, $2);'
                 await self.bot.db.execute(query, str(ctx.guild.id), str(user.id))
