@@ -30,7 +30,7 @@ class Description(commands.Cog):
         async with con.transaction():
             await self.bot.db.execute(
                 'UPDATE vanity SET \"description\" = $2 WHERE gid = $1;',
-                guild.id,
+                str(guild.id),
                 desc
             )
         await self.bot.db.release(con)
@@ -41,7 +41,7 @@ class Description(commands.Cog):
     async def description(self, ctx, *, desc: str = None):
         vanity = await self.bot.db.fetch(
             'SELECT * FROM vanity WHERE gid=$1;',
-            ctx.guild.id
+            str(ctx.guild.id)
         )
         if not vanity:
             return await ctx.error(f'You must set a vanity url with `{ctx.prefix}vanityurl` before you can set a description')
