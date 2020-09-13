@@ -57,28 +57,28 @@ class Config:
         '''Moderation Logs | The channel where moderation actions are logged'''
         self._bot.logger.info(
             f'$GREENSetting $CYANlog.moderation $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('log.moderation', value.id)
+        await self.update('log.moderation', str(value.id))
 
     @ConfigOpt(name='log.action', accepts=discord.TextChannel, default=None, options=options)
     async def action_logs(self, value: discord.TextChannel):
         '''Action Logs | The channel where miscellaneous actions are logged, e.g. deleted messages'''
         self._bot.logger.info(
             f'$GREENSetting $CYANlog.action $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('log.action', value.id)
+        await self.update('log.action', str(value.id))
 
     @ConfigOpt(name='mod.mutedrole', accepts=discord.Role, default=None, options=options)
     async def muted_role(self, value: discord.Role):
         '''Muted Role | The role which will be used when muting a user. If not set, it will default to a role called "Muted"'''
         self._bot.logger.info(
             f'$GREENSetting $CYANmod.mutedrole $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('mod.mutedrole', value.id)
+        await self.update('mod.mutedrole', str(value.id))
 
     @ConfigOpt(name='mod.antieveryone', accepts=bool, default=None, options=options)
     async def anti_everyone(self, value: bool):
         '''Anti Everyone | Prevents those without permission from sending messages containing @everyone (as they're most likely just advertising/sending copypasta etc.'''
         self._bot.logger.info(
             f'$GREENSetting $CYANmod.antieveryone $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('mod.antieveryone', value)
+        await self.update('mod.antieveryone', str(value.id))
 
     @ConfigOpt(name='mod.linkfilter', accepts=[str], default=[], options=options)
     async def link_filter(self, value: list):
@@ -132,7 +132,7 @@ class Config:
         '''Auto Role (Premium) | The role given to users upon joining the server'''
         self._bot.logger.info(
             f'$GREENSetting $CYANmod.autorole $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('mod.autorole', value.id)
+        await self.update('mod.autorole', str(value.id))
 
     @ConfigOpt(name='mod.autorole.waitformsg', accepts=bool, default=False, options=options, premium=True)
     async def auto_role(self, value: discord.Role):
@@ -160,14 +160,14 @@ class Config:
         '''Join Message Channel | The channel where join messages are sent'''
         self._bot.logger.info(
             f'$GREENSetting $CYANgreet.joinchannel $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('greet.joinchannel', value.id)
+        await self.update('greet.joinchannel', str(value.id))
 
     @ConfigOpt(name='greet.leavechannel', accepts=discord.TextChannel, default=None, options=options)
     async def leave_channel(self, value: discord.TextChannel):
         '''Leave Message Channel | The channel where leave messages are sent'''
         self._bot.logger.info(
             f'$GREENSetting $CYANgreet.leavechannel $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('greet.leavechannel', value.id)
+        await self.update('greet.leavechannel', str(value.id))
 
     @ConfigOpt(name='greet.joinmsg', accepts=str, default=None, options=options)
     async def join_message(self, value: str):
@@ -224,7 +224,7 @@ class Config:
         '''Tickets Category | The category where ticket channels are created. If this is not set, tickets are disabled'''
         self._bot.logger.info(
             f'$GREENSetting $CYANtickets.parent $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('tickets.parent', value.id)
+        await self.update('tickets.parent', str(value.id))
 
     @ConfigOpt(name='tickets.increment', accepts=int, default=0, options=options)
     async def ticket_increment(self, value: int):
@@ -277,8 +277,8 @@ class Config:
                     self._guild, DISCORD_CONVERTERS['guild'][accept])
             if converter and inspect.ismethod(converter):
                 if acceptlist:
-                    return [converter(d) for d in self._data[option]]
-                return converter(self._data[option])
+                    return [converter(int(d)) for d in self._data[option]]
+                return converter(int(self._data[option]))
         return self._data[option]
 
     async def set(self, opt: str, value):
