@@ -198,7 +198,7 @@ class Utils(commands.Cog, name='Utility Commands'):
         query = 'SELECT * FROM tags;'
         taglist = await self.bot.db.fetch(query)
         for t in taglist:
-            guild = t['gid']
+            guild = int(t['gid'])
             tagname = t['name'].lower()
             content = t['content']
             if guild not in self.tags:
@@ -213,7 +213,7 @@ class Utils(commands.Cog, name='Utility Commands'):
         query = 'SELECT * FROM remind;'
         reminders = await self.bot.db.fetch(query)
         for r in reminders:
-            user = r['uid']
+            user = int(r['uid'])
             forwhen = r['forwhen']
             reminder = r['reminder']
             if user not in self.reminders:
@@ -221,11 +221,11 @@ class Utils(commands.Cog, name='Utility Commands'):
             self.reminders[user].append({'for': forwhen, 'reminder': reminder})
         self.bot.logger.info(f'$GREENLoaded reminders!')
 
-    async def deleteremind(self, uid: int, forwhen: int):
+    async def deleteremind(self, uid: int, forwhen: str):
         con = await self.bot.db.acquire()
         async with con.transaction():
             query = 'DELETE FROM remind WHERE uid = $1 AND forwhen = $2;'
-            await self.bot.db.execute(query, uid, forwhen)
+            await self.bot.db.execute(query, str(uid), forwhen)
         await self.bot.db.release(con)
         await self.loadremind()
 
@@ -241,7 +241,7 @@ class Utils(commands.Cog, name='Utility Commands'):
                 user = self.reminders[u]
                 for r in user:
                     reminder = r['reminder']
-                    if r['for'] <= fornow:
+                    if int(r['for']) <= fornow:
                         quotes = []
                         # When the client switches to discord.com, this go bye bye ok
                         reminder = reminder.replace(
@@ -328,24 +328,20 @@ class Utils(commands.Cog, name='Utility Commands'):
         else:
             if user.id not in self.bot.plonked:
                 permanent = int(permanent)
-                # await self.bot.db.execute(f'INSERT INTO blacklist (\"user\", \"uid\", \"reason\", \"perm\") VALUES (\"{user}\", {user.id}, \"{reason}\", {permanent});')
-                # await self.bot.conn.commit()
                 con = await self.bot.db.acquire()
                 async with con.transaction():
                     query = 'INSERT INTO blacklist ("user", uid, reason, perm) VALUES ($1, $2, $3, $4);'
-                    await self.bot.db.execute(query, user.name, user.id, reason, permanent)
+                    await self.bot.db.execute(query, user.name, str(user.id), reason, permanent)
                 await self.bot.db.release(con)
                 star_chat = self.bot.get_channel(624304772333436928)
                 await star_chat.send(f'{user} was blacklisted by {ctx.author} with the reason "{reason}". Permanent: {bool(permanent)}')
                 await ctx.send(f'{user.mention} was successfully blacklisted!')
             else:
                 permanent = int(permanent)
-                # await self.bot.db.execute(f'UPDATE blacklist SET user = \"{user}\", uid = {user.id}, reason = \"{reason}\", perm = {permanent} WHERE id = {blid};')
-                # await self.bot.conn.commit()
                 con = await self.bot.db.acquire()
                 async with con.transaction():
                     query = 'UPDATE blacklist SET user=$1, uid=$2, reason=$3, perm=$4 WHERE uid=$5;'
-                    await self.bot.db.execute(query, user.name, user.id, reason, permanent, blid)
+                    await self.bot.db.execute(query, user.name, str(user.id), reason, permanent, blid)
                 await self.bot.db.release(con)
                 star_chat = self.bot.get_channel(624304772333436928)
                 await star_chat.send(f'{user}\'s blacklist was updated by {ctx.author} to reason "{reason}". Permanent: {bool(permanent)}')
@@ -362,12 +358,10 @@ class Utils(commands.Cog, name='Utility Commands'):
             if user.id not in self.bot.plonked:
                 return await ctx.send(f'{user.mention} is not blacklisted.')
             else:
-                # await self.bot.db.execute(f'DELETE FROM blacklist WHERE uid = {user.id};')
-                # await self.bot.conn.commit()
                 con = await self.bot.db.acquire()
                 async with con.transaction():
                     query = 'DELETE FROM blacklist WHERE uid = $1;'
-                    await self.bot.db.execute(query, user.id)
+                    await self.bot.db.execute(query, str(user.id))
                 await self.bot.db.release(con)
                 await ctx.send(f'{user.mention} is now unblacklisted!')
                 star_chat = self.bot.get_channel(624304772333436928)
@@ -478,7 +472,7 @@ class Utils(commands.Cog, name='Utility Commands'):
         con = await self.bot.db.acquire()
         async with con.transaction():
             query = 'INSERT INTO remind (\"uid\", \"forwhen\", \"reminder\") VALUES ($1, $2, $3);'
-            await self.bot.db.execute(query, ctx.author.id, forwhen.timestamp(), reminder)
+            await self.bot.db.execute(query, str(ctx.author.id), str(forwhen.timestamp()), reminder)
         await self.bot.db.release(con)
         await self.loadremind()
         return await ctx.success(f'Reminder set for {humanfriendly.format_timespan(datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours))} from now')
@@ -486,15 +480,15 @@ class Utils(commands.Cog, name='Utility Commands'):
     @commands.command()
     async def reminders(self, ctx):
         mine = sorted(self.reminders.get(
-            ctx.author.id, []), key=lambda r: r['for'])
+            ctx.author.id, []), key=lambda r: int(r['for']))
         if not mine:
             return await ctx.error('You have no reminders.')
         paginator = WrappedPaginator(prefix='', suffix='', max_size=1980)
         for i, r in enumerate(mine):
             forwhen = datetime.datetime.fromtimestamp(
-                r['for'], datetime.timezone.utc).strftime('%b %-d %Y @ %I:%M %p')
+                int(r['for']), datetime.timezone.utc).strftime('%b %-d %Y @ %I:%M %p')
             delta = humanfriendly.format_timespan(datetime.datetime.fromtimestamp(
-                r['for'], datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc), max_units=2)
+                int(r['for']), datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc), max_units=2)
             paginator.add_line(
                 f'[{i + 1}] {r["reminder"]} - {forwhen} ({delta})')
         interface = PaginatorEmbedInterface(
@@ -504,7 +498,7 @@ class Utils(commands.Cog, name='Utility Commands'):
     @commands.command(aliases=['deleteremind', 'delreminder', 'deletereminder'])
     async def delremind(self, ctx, i: int = None):
         mine = sorted(self.reminders.get(
-            ctx.author.id, []), key=lambda r: r['for'])
+            ctx.author.id, []), key=lambda r: int(r['for']))
         if not mine:
             return await ctx.error('You have no reminders.')
         if not i:
@@ -514,9 +508,9 @@ class Utils(commands.Cog, name='Utility Commands'):
             return await ctx.error(f'You don\'t have that many reminders. Use the [number] from `{ctx.prefix}reminders` to select a reminder')
         r = mine[i]
         forwhen = datetime.datetime.fromtimestamp(
-            r['for'], datetime.timezone.utc).strftime('%b %-d %Y @ %I:%M %p')
+            int(r['for']), datetime.timezone.utc).strftime('%b %-d %Y @ %I:%M %p')
         delta = humanfriendly.format_timespan(datetime.datetime.fromtimestamp(
-            r['for'], datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc), max_units=2)
+            int(r['for']), datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc), max_units=2)
         await self.deleteremind(ctx.author.id, r['for'])
         return await ctx.success(f'Your reminder, "{r["reminder"]}" for {forwhen} ({delta} from now), has been deleted!')
 
@@ -591,7 +585,7 @@ class Utils(commands.Cog, name='Utility Commands'):
         con = await self.bot.db.acquire()
         async with con.transaction():
             query = 'INSERT INTO tags (\"gid\", \"name\", \"content\") VALUES ($1, $2, $3);'
-            await self.bot.db.execute(query, ctx.guild.id, tagname.lower(), tagcontent)
+            await self.bot.db.execute(query, str(ctx.guild.id), tagname.lower(), tagcontent)
         await self.bot.db.release(con)
         await self.loadtags()
         return await ctx.success(f'Successfully created the tag {discord.utils.escape_markdown(tagname)}')
@@ -608,7 +602,7 @@ class Utils(commands.Cog, name='Utility Commands'):
         con = await self.bot.db.acquire()
         async with con.transaction():
             query = 'DELETE FROM tags WHERE name = $1 AND gid = $2'
-            await self.bot.db.execute(query, tagname.lower(), ctx.guild.id)
+            await self.bot.db.execute(query, tagname.lower(), str(ctx.guild.id))
         await self.bot.db.release(con)
         await self.loadtags()
         return await ctx.success(f'Successfully deleted the tag {discord.utils.escape_markdown(tagname)}')
