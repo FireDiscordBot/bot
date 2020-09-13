@@ -123,9 +123,6 @@ class Fire(commands.Bot):
         # BLACKLIST
         self.loop.create_task(self.load_plonked())
 
-        self.converted_configs = []
-        self.loop.create_task(self.save_configs())
-
     async def logout(self):
         if self.get_cog('FireStatus') and not self.dev:
             comps = ['gtbpmn9g33jk', 'xp3103fm3kpf']
@@ -191,19 +188,6 @@ class Fire(commands.Bot):
         query = 'SELECT * FROM blacklist;'
         self.plonked = [p['uid'] for p in await self.db.fetch(query)]
         self.logger.info(f'$GREENLoaded blacklist!')
-
-    async def save_configs(self):
-        await self.wait_until_ready()
-        self.logger.warn(f"$YELLOWFound {len(self.converted_configs)} converted configs")
-        while self.converted_configs:
-            current = self.converted_configs.copy()
-            for conf in current:
-                await self.get_config(conf).save()
-                await asyncio.sleep(1)
-            if len(self.converted_configs) == len(self.configs):
-                await self.get_user(self.owner_id).send("all configs converted")
-                raise Exception("complete")
-            await asyncio.sleep(300)
 
     def isadmin(self, user: typing.Union[discord.User, discord.Member]) -> bool:
         if str(user.id) not in self.config['admins']:
