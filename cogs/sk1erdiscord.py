@@ -124,6 +124,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 
     def cog_unload(self):
         self.description_updater.cancel()
+        self.status_checker.cancel()
 
     async def cog_check(self, ctx: commands.Context):
         if ctx.guild.id == self.guild.id:
