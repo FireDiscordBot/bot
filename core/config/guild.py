@@ -92,7 +92,7 @@ class Config:
             f'$GREENSetting $CYANmod.linkfilter $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.linkfilter', value)
 
-    @ConfigOpt(name='excluded.filter', accepts=[int], default=[], options=options)
+    @ConfigOpt(name='excluded.filter', accepts=[str], default=[], options=options)
     async def filter_exclude(self, value: list):
         '''Filter Exclusion | Channel, role and user IDs that are excluded from link filters and duplicate message deletion'''
         self._bot.logger.info(

@@ -999,7 +999,7 @@ class Settings(commands.Cog):
     @commands.command(name='filterexcl', description='Exclude channels, roles and members from the filter')
     async def filterexclcmd(self, ctx, *ids: typing.Union[TextChannel, Role, Member]):
         current = ctx.config.get('excluded.filter')
-        ids = [d.id for d in ids]
+        ids = [str(d.id) for d in ids]
         for sf in ids:
             if sf not in current:
                 ids.remove(sf)

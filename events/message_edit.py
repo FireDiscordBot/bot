@@ -36,7 +36,8 @@ class MessageEdit(commands.Cog):
         if not after.guild or isinstance(after.author, discord.User):
             return
         message = after
-        excluded = self.bot.get_config(message.guild).get('excluded.filter')
+        excluded = [int(e) for e in self.bot.get_config(
+            message.guild).get('excluded.filter')]
         roleids = [r.id for r in message.author.roles]
         if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
             filters = self.bot.get_cog('Filters')

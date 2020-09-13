@@ -148,7 +148,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             )
             if alt_ctx.valid:
                 await alt_ctx.command.invoke(alt_ctx)
-        excluded = config.get('excluded.filter')
+        excluded = [int(e) for e in config.get('excluded.filter')]
         roleids = [r.id for r in message.author.roles]
         if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
             filters = self.bot.get_cog('Filters')
