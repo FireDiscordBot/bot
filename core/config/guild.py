@@ -28,7 +28,7 @@ options = dict()
 
 
 class Config:
-    __slots__ = ('options', 'loaded', '_bot', '_guild', '_db', '_data')
+    __slots__ = ('options', 'loaded', 'convert_save', '_bot', '_guild', '_db', '_data')
 
     def __init__(self, guild, **kwargs):
         self.options = options
