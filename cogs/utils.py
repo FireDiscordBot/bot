@@ -241,7 +241,7 @@ class Utils(commands.Cog, name='Utility Commands'):
                 user = self.reminders[u]
                 for r in user:
                     reminder = r['reminder']
-                    if int(r['for']) <= fornow:
+                    if float(r['for']) <= fornow:
                         quotes = []
                         # When the client switches to discord.com, this go bye bye ok
                         reminder = reminder.replace(
@@ -480,15 +480,15 @@ class Utils(commands.Cog, name='Utility Commands'):
     @commands.command()
     async def reminders(self, ctx):
         mine = sorted(self.reminders.get(
-            ctx.author.id, []), key=lambda r: int(r['for']))
+            ctx.author.id, []), key=lambda r: float(r['for']))
         if not mine:
             return await ctx.error('You have no reminders.')
         paginator = WrappedPaginator(prefix='', suffix='', max_size=1980)
         for i, r in enumerate(mine):
             forwhen = datetime.datetime.fromtimestamp(
-                int(r['for']), datetime.timezone.utc).strftime('%b %-d %Y @ %I:%M %p')
+                float(r['for']), datetime.timezone.utc).strftime('%b %-d %Y @ %I:%M %p')
             delta = humanfriendly.format_timespan(datetime.datetime.fromtimestamp(
-                int(r['for']), datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc), max_units=2)
+                float(r['for']), datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc), max_units=2)
             paginator.add_line(
                 f'[{i + 1}] {r["reminder"]} - {forwhen} ({delta})')
         interface = PaginatorEmbedInterface(
@@ -498,7 +498,7 @@ class Utils(commands.Cog, name='Utility Commands'):
     @commands.command(aliases=['deleteremind', 'delreminder', 'deletereminder'])
     async def delremind(self, ctx, i: int = None):
         mine = sorted(self.reminders.get(
-            ctx.author.id, []), key=lambda r: int(r['for']))
+            ctx.author.id, []), key=lambda r: float(r['for']))
         if not mine:
             return await ctx.error('You have no reminders.')
         if not i:
@@ -508,9 +508,9 @@ class Utils(commands.Cog, name='Utility Commands'):
             return await ctx.error(f'You don\'t have that many reminders. Use the [number] from `{ctx.prefix}reminders` to select a reminder')
         r = mine[i]
         forwhen = datetime.datetime.fromtimestamp(
-            int(r['for']), datetime.timezone.utc).strftime('%b %-d %Y @ %I:%M %p')
+            float(r['for']), datetime.timezone.utc).strftime('%b %-d %Y @ %I:%M %p')
         delta = humanfriendly.format_timespan(datetime.datetime.fromtimestamp(
-            int(r['for']), datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc), max_units=2)
+            float(r['for']), datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc), max_units=2)
         await self.deleteremind(ctx.author.id, r['for'])
         return await ctx.success(f'Your reminder, "{r["reminder"]}" for {forwhen} ({delta} from now), has been deleted!')
 
