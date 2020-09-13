@@ -338,6 +338,20 @@ class Config:
                     self._data.pop(opt)
                 elif val == self.options[opt]['default']:
                     self._data.pop(opt)
+                self._bot.logger.warn(f"$YELLOWBefore: {self._data}")
+                accept = self.options[opt]['accepts']
+                acceptlist = False
+                if isinstance(self._guild, discord.Guild):
+                    converter = None
+                    if isinstance(accept, list):
+                        accept = accept[0]
+                        acceptlist = True
+                    if not acceptlist and accept in DISCORD_CONVERTERS['bot'] or accept in DISCORD_CONVERTERS['guild']:
+                        self._data[opt] = str(self._data[opt])
+                    elif acceptlist and accept in DISCORD_CONVERTERS['bot'] or accept in DISCORD_CONVERTERS['guild']:
+                        self._data[opt] = [str(v) for v in self._data[opt]]
+                    self._bot.logger.warn(f"$GREENAfter: {self._data}")
+                    # await self.save()
             self.loaded = True
 
     async def save(self):
