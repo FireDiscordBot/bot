@@ -142,13 +142,13 @@ class Moderation(commands.Cog, name="Mod Commands"):
         mutes = await self.bot.db.fetch(query)
         for m in mutes:
             if m["uid"] is not None:
-                guild = m["gid"]
+                guild = int(m["gid"])
                 if not self.bot.get_guild(guild):
                     continue
                 until = m["until"] if "until" in m else False
                 if not until:
                     continue
-                user = m["uid"]
+                user = int(m["uid"])
                 if guild in self.mutes:
                     self.mutes[guild][user] = {
                         "uid": user,
@@ -187,7 +187,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
                                     async with con.transaction():
                                         query = "DELETE FROM mutes WHERE uid = $1 AND gid = $2;"
                                         await self.bot.db.execute(
-                                            query, user.id, guild.id
+                                            query, str(user.id), str(guild.id)
                                         )
                                     await self.bot.db.release(con)
                                     try:
@@ -271,7 +271,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
                             async with con.transaction():
                                 query = "DELETE FROM mutes WHERE uid = $1 AND gid = $2;"
                                 await self.bot.db.execute(
-                                    query, mute["uid"], mute["gid"]
+                                    query, str(mute["uid"]), str(mute["gid"])
                                 )
                             await self.bot.db.release(con)
                             self.bot.logger.warn(
@@ -423,21 +423,21 @@ class Moderation(commands.Cog, name="Mod Commands"):
         async with con.transaction():
             if until:
                 query = 'INSERT INTO mutes ("gid", "uid", "until") VALUES ($1, $2, $3);'
-                await self.bot.db.execute(query, ctx.guild.id, user.id, until)
+                await self.bot.db.execute(query, str(ctx.guild.id), str(user.id), until)
             else:
                 query = 'INSERT INTO mutes ("gid", "uid") VALUES ($1, $2);'
-                await self.bot.db.execute(query, ctx.guild.id, user.id)
+                await self.bot.db.execute(query, str(ctx.guild.id), str(user.id))
             query = 'INSERT INTO modlogs ("gid", "uid", "reason", "date", "type", "caseid") VALUES ($1, $2, $3, $4, $5, $6);'
             await self.bot.db.execute(
                 query,
-                ctx.guild.id,
-                user.id,
+                str(ctx.guild.id),
+                str(user.id),
                 reason or "No Reason Provided.",
                 datetime.datetime.now(datetime.timezone.utc).strftime(
                     "%d/%m/%Y @ %I:%M:%S %p"
                 ),
                 "mute",
-                datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id,
+                str(datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id),
             )
         await self.bot.db.release(con)
         if until:
@@ -584,14 +584,14 @@ class Moderation(commands.Cog, name="Mod Commands"):
                 query = 'INSERT INTO modlogs ("gid", "uid", "reason", "date", "type", "caseid") VALUES ($1, $2, $3, $4, $5, $6);'
                 await self.bot.db.execute(
                     query,
-                    ctx.guild.id,
-                    user.id,
+                    str(ctx.guild.id),
+                    str(user.id),
                     reason,
                     datetime.datetime.now(datetime.timezone.utc).strftime(
                         "%d/%m/%Y @ %I:%M:%S %p"
                     ),
                     "ban",
-                    datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id,
+                    str(datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id),
                 )
             await self.bot.db.release(con)
         except discord.Forbidden:
@@ -647,14 +647,14 @@ class Moderation(commands.Cog, name="Mod Commands"):
             query = 'INSERT INTO modlogs ("gid", "uid", "reason", "date", "type", "caseid") VALUES ($1, $2, $3, $4, $5, $6);'
             await self.bot.db.execute(
                 query,
-                ctx.guild.id,
-                user.id,
+                str(ctx.guild.id),
+                str(user.id),
                 reason,
                 datetime.datetime.now(datetime.timezone.utc).strftime(
                     "%d/%m/%Y @ %I:%M:%S %p"
                 ),
                 "unban",
-                datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id,
+                str(datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id),
             )
         await self.bot.db.release(con)
 
@@ -727,14 +727,14 @@ class Moderation(commands.Cog, name="Mod Commands"):
                 query = 'INSERT INTO modlogs ("gid", "uid", "reason", "date", "type", "caseid") VALUES ($1, $2, $3, $4, $5, $6);'
                 await self.bot.db.execute(
                     query,
-                    ctx.guild.id,
-                    user.id,
+                    str(ctx.guild.id),
+                    str(user.id),
                     reason or "No Reason Provided.",
                     datetime.datetime.now(datetime.timezone.utc).strftime(
                         "%d/%m/%Y @ %I:%M:%S %p"
                     ),
                     "softban",
-                    datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id,
+                    str(datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id),
                 )
             await self.bot.db.release(con)
         except discord.Forbidden:
@@ -866,14 +866,14 @@ class Moderation(commands.Cog, name="Mod Commands"):
             query = 'INSERT INTO modlogs ("gid", "uid", "reason", "date", "type", "caseid") VALUES ($1, $2, $3, $4, $5, $6);'
             await self.bot.db.execute(
                 query,
-                ctx.guild.id,
-                user.id,
+                str(ctx.guild.id),
+                str(user.id),
                 reason,
                 datetime.datetime.now(datetime.timezone.utc).strftime(
                     "%d/%m/%Y @ %I:%M:%S %p"
                 ),
                 "warn",
-                datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id,
+                str(datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id),
             )
         await self.bot.db.release(con)
 
@@ -884,8 +884,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
             user = ctx.author
         warnings = await self.bot.db.fetch(
             "SELECT * FROM modlogs WHERE uid=$1 AND gid=$2 AND type=$3",
-            user.id,
-            ctx.guild.id,
+            str(user.id),
+            str(ctx.guild.id),
             "warn",
         )
         if not warnings:
@@ -917,7 +917,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
         con = await self.bot.db.acquire()
         async with con.transaction():
             query = "DELETE FROM modlogs WHERE type = $1 AND uid = $2 AND gid = $3;"
-            await self.bot.db.execute(query, "warn", user.id, ctx.guild.id)
+            await self.bot.db.execute(query, "warn", str(user.id), str(ctx.guild.id))
         await self.bot.db.release(con)
         await ctx.success(
             f"**{discord.utils.escape_markdown(str(user))}**'s warns have been cleared"
@@ -925,14 +925,14 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
     @commands.command(description="Clear a single warning", aliases=["clearwarning"])
     @commands.has_permissions(manage_guild=True)
-    async def clearwarn(self, ctx, case: int = None):
+    async def clearwarn(self, ctx, case: str = None):
         if not case:
             return await ctx.error(f"You must specify a case id")
 
         con = await self.bot.db.acquire()
         async with con.transaction():
             query = "DELETE FROM modlogs WHERE type = $1 AND gid = $2 AND caseid = $3;"
-            await self.bot.db.execute(query, "warn", ctx.guild.id, case)
+            await self.bot.db.execute(query, "warn", str(ctx.guild.id), case)
         await self.bot.db.release(con)
         await ctx.success(f"Cleared warn!")
 
@@ -942,7 +942,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
         if not user:
             user = ctx.author
         mlogs = await self.bot.db.fetch(
-            "SELECT * FROM modlogs WHERE uid=$1 AND gid=$2", user.id, ctx.guild.id
+            "SELECT * FROM modlogs WHERE uid=$1 AND gid=$2", str(user.id), str(ctx.guild.id)
         )
         if not mlogs:
             return await ctx.error("No modlogs found")
@@ -1024,14 +1024,14 @@ class Moderation(commands.Cog, name="Mod Commands"):
                 query = 'INSERT INTO modlogs ("gid", "uid", "reason", "date", "type", "caseid") VALUES ($1, $2, $3, $4, $5, $6);'
                 await self.bot.db.execute(
                     query,
-                    ctx.guild.id,
-                    user.id,
+                    str(ctx.guild.id),
+                    str(user.id),
                     reason or "No Reason Provided.",
                     datetime.datetime.now(datetime.timezone.utc).strftime(
                         "%d/%m/%Y @ %I:%M:%S %p"
                     ),
                     "kick",
-                    datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id,
+                    str(datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id),
                 )
             await self.bot.db.release(con)
         except discord.Forbidden:
@@ -1061,7 +1061,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
         con = await self.bot.db.acquire()
         async with con.transaction():
             query = "DELETE FROM mutes WHERE uid = $1 AND gid = $2;"
-            await self.bot.db.execute(query, user.id, ctx.guild.id)
+            await self.bot.db.execute(query, str(user.id), str(ctx.guild.id))
         await self.bot.db.release(con)
         try:
             self.mutes[ctx.guild.id].pop(user.id, None)
