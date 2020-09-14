@@ -352,7 +352,7 @@ class Config:
         con = await self._db.acquire()
         async with con.transaction():
             query = 'INSERT INTO guildconfig (\"gid\", \"data\") VALUES ($1, $2);'
-            await self._db.execute(query, self._guild.id, json.dumps({}))
+            await self._db.execute(query, str(self._guild.id), json.dumps({}))
         await self._db.release(con)
         self._bot.logger.info(f'$GREENInitiated config for $CYAN{self._guild}')
         return {}
