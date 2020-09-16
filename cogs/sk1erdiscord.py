@@ -368,7 +368,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 )
             if alt_ctx and alt_ctx.command and alt_ctx.invoked_with:
                 alt_ctx.silent = True
-                await alt_ctx.invoke()
+                await alt_ctx.command.invoke(alt_ctx)
             else:
                 raise Exception("alt ctx command == 404")
         except Exception as e:
