@@ -111,8 +111,11 @@ class Tickets(commands.Cog, name="Tickets"):
         limit = config.get('tickets.limit')
         if not parent and not ctx.silent:
             return await ctx.error('Tickets are not enabled here')
-        if limit and len([c for c in parent.channels if str(ctx.author.id) in str(c.topic)]) > limit and not ctx.silent:
-            return await ctx.error('You have too many tickets open!')
+        if limit and len([c for c in parent.channels if str(ctx.author.id) in str(c.topic)]) > limit:
+            if not ctx.silent:
+                return await ctx.error('You have too many tickets open!')
+            else:
+                return
         variables = {
             '{increment}': config.get('tickets.increment'),
             '{name}': ctx.author.name,
