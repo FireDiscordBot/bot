@@ -371,12 +371,20 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 "$YELLOWFailed to make ticket for Sk1er Support", exc_info=e)
 
     @commands.Cog.listener()
-    async def on_ticket_create(self, ctx, ticket):
+    async def on_ticket_create(self, ctx, ticket, msg):
         if ctx.guild.id == self.support_guild:
             channel = self.support_channel
             overwrites = channel.overwrites
             overwrites.update({ctx.author: discord.PermissionOverwrite(read_messages=False)})
             await channel.edit(overwrites=overwrites)
+            if msg.embeds:
+                embed = msg.embeds[0]
+                embed.description = """
+Please describe your issue in as much detail as possible, videos and screenshots are accepted aswell.
+
+A member of staff will review your ticket as soon as possible.
+Some tickets, especially those relating to purchases, can only be handled by Sk1er, which may take longer than a typical ticket"""
+                await msg.edit(embed=embed)
 
     @commands.Cog.listener()
     async def on_ticket_close(self, ctx, ticket):

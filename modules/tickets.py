@@ -144,13 +144,13 @@ class Tickets(commands.Cog, name="Tickets"):
             color=ctx.author.color
         )
         embed.add_field(name='Subject', value=subject)
-        await ticket.send(embed=embed)
+        open_msg = await ticket.send(embed=embed)
         # Removes any channels that no longer exist.
         tchannels = [c for c in config.get('tickets.channels') if c]
         tchannels.append(ticket)
         await config.set('tickets.channels', tchannels)
         await config.set('tickets.increment', config.get('tickets.increment') + 1)
-        self.bot.dispatch('ticket_create', ctx, ticket)
+        self.bot.dispatch('ticket_create', ctx, ticket, open_msg)
         if creating:
             return await creating.edit(
                 content=f'<:check:674359197378281472> Successfully made your ticket, {ticket.mention}'
