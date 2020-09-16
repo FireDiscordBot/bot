@@ -239,7 +239,7 @@ class Tickets(commands.Cog, name="Tickets"):
             embed.add_field(name='Reason', value=reason, inline=False)
             await actionlogs.send(
                 embed=embed,
-                file=discord.File(string, filename=f'transcript.txt')
+                file=discord.File(string, filename=f'transcript.txt') if ctx.channel.category.id != 755796036198596688 else None  # Will make this better soon
             )
         await ctx.channel.delete(reason=f'Ticket closed by {ctx.author} for "{reason}"')
         self.bot.dispatch('ticket_close', ctx)
