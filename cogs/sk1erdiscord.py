@@ -146,7 +146,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             specs = await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', str(ctx.author.id))
             if ctx.kwargs.get('role', None) == beta and beta in ctx.author.roles and not specs:
                 await ctx.author.remove_roles(beta, reason='User must provide specs')
-                await ctx.send(f'{ctx.author.mention} To become a beta tester ,'
+                await ctx.send(f'{ctx.author.mention} To become a beta tester,'
                                f' please provide your specs through this form: '
                                f'\n<https://inv.wtf/sk1spec>\n\n'
                                f'You will automatically gain access to beta channels after filling in the form',
@@ -473,7 +473,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             return await self.handle_log_text(message, txt, 'uploaded')
         if not message.attachments and len(message.content) > 350:
             txt = message.content
-            return await self.handle_log_text(message, txt, 'send')
+            return await self.handle_log_text(message, txt, 'sent')
 
     async def handle_log_text(self, message, txt, msg_type='uploaded'):
         log_lines = txt.split('\n')
@@ -508,7 +508,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     line, '[line removed to protect sensitive info]')
         filters = self.bot.get_cog('Filters')
         txt = filters.run_replace(txt)
-        if any(t in txt for t in self.logtext) and message.guild.id == 411619823445999637:
+        if any(t in txt for t in self.logtext) and message.guild.id in [self.guild.id, self.support_guild.id]:
             try:
                 url = await self.bot.haste(txt)
             except Exception as e:
@@ -521,7 +521,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 pass
             solutions = self.get_solutions(txt)
             return await message.channel.send(
-                f'{message.author} {msg_type} a log, {message.content if msg_type == "sent" else ""}\n{url}\n\n{solutions}'
+                f'{message.author} {msg_type} a log, {message.content if msg_type == "uploaded" else ""}\n{url}\n\n{solutions}'
             )
 
     async def create_modcore_zip(self):
