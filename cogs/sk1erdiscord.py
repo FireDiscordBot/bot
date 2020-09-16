@@ -133,7 +133,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         self.status_checker.cancel()
 
     async def cog_check(self, ctx: commands.Context):
-        if ctx.guild.id not in [self.guild.id, self.support_guild.id]:
+        if ctx.guild.id in [self.guild.id, self.support_guild.id]:
             return True
         return False
 
