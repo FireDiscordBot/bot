@@ -16,8 +16,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-from discord.ext import commands, tasks, flags
 from fire.converters import Member, UserWithFallback
+from discord.ext import commands, tasks, flags
+from jishaku.models import copy_context_with
 from fire.http import HTTPClient, Route
 import urllib.parse
 import datetime
@@ -35,6 +36,11 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
     def __init__(self, bot):
         self.bot = bot
         self.guild = self.bot.get_guild(411619823445999637)
+        self.support_guild = self.bot.get_guild(755794954743185438)
+        self.support_message_id = 755797375523487895
+        self.support_message = None
+        self.support_channel = self.support_guild.get_channel(
+            755796557692928031)
         self.nitro = discord.utils.get(self.guild.roles, id=585534346551754755)
         self.gist = 'b070e7f75a9083d2e211caffa0c772cc'
         self.gistheaders = {'Authorization': f'token {bot.config["github"]}'}
@@ -127,7 +133,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         self.status_checker.cancel()
 
     async def cog_check(self, ctx: commands.Context):
-        if ctx.guild.id == self.guild.id:
+        if ctx.guild.id not in [self.guild.id, self.support_guild.id]:
             return True
         return False
 
@@ -295,35 +301,20 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                                        users=True)
                                    )
 
-    def get_solutions(self, log):
-        solutions = []
-        for err, sol in self.solutions.items():
-            if err in log:
-                solutions.append(f'- {sol}')
-        if 'OptiFine_1.8.9_HD_U' in log and not any(v in log for v in ['_I7', '_L5']):
-            solutions.append(f'- Update Optifine to either I7 or L5')
-        if not solutions:
-            return ''
-        return 'Possible solutions:\n' + '\n'.join(solutions)
-
     @commands.Cog.listener()
     async def on_message(self, message):
-        if not message.guild or message.guild.id != self.guild.id:
+        if not message.guild:
             return
         if message.flags.is_crossposted and message.channel.id == 411620555960352787:
             return await self.check_bot_status(message)
         if message.author.bot and isinstance(message.author, discord.User):
             return
-        if 'gruh' in message.content.lower().replace(' ', '') and not message.author.guild_permissions.manage_messages:
-            await message.delete()
-        if message.guild.get_role(734143981839188028) in message.author.roles:
-            if re.findall(self.emojire, message.content, re.MULTILINE) or self.bot.len_emoji(message.content):
-                return await message.delete()
-        await self.check_logs(message)
+        if message.guild.id == self.support_guild.id:
+            await self.check_logs(message)
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
-        if after.content == '[Original Message Deleted]':
+        if after.content == '[Original Message Deleted]' and after.guild.id == self.guild.id:
             return await after.delete()
         if after.flags.is_crossposted and after.channel.id == 411620555960352787:
             if before.pinned and not after.pinned:
@@ -334,6 +325,78 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 ) == after.embeds[0].to_dict()
             if before.content != after.content or after.embeds and not embeds:
                 return await self.check_bot_status(after)
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        if payload.event_type != "REACTION_ADD" or payload.message_id != self.support_message_id:
+            return
+        if not payload.member:  # Should never be true
+            return
+        try:
+            self.support_message = self.support_message or await self.support_channel.fetch_message(self.support_message)
+            alt_ctx = None
+            if str(payload.emoji) == "🖥️":
+                ctx = await self.bot.get_context(self.support_message)
+                alt_ctx = await copy_context_with(
+                    ctx,
+                    author=payload.member,
+                    content="fire new General Support",
+                    silent=True,
+                    ticket_override=self.support_guild.get_channel(755795962462732288)
+                )
+            elif str(payload.emoji) == "�":
+                ctx = await self.bot.get_context(self.support_message)
+                alt_ctx = await copy_context_with(
+                    ctx,
+                    author=payload.member,
+                    content="fire new Purchase Support",
+                    silent=True,
+                    ticket_override=self.support_guild.get_channel(755796036198596688)
+                )
+            elif str(payload.emoji) == "�":
+                ctx = await self.bot.get_context(self.support_message)
+                alt_ctx = await copy_context_with(
+                    ctx,
+                    author=payload.member,
+                    content="fire new Bug Report",
+                    silent=True,
+                    ticket_override=self.support_guild.get_channel(755795994855211018)
+                )
+            if alt_ctx and alt_ctx.command and alt_ctx.invoked_with:
+                await alt_ctx.invoke()
+            else:
+                raise Exception("alt ctx command == 404")
+        except Exception as e:
+            self.bot.logger.warn(
+                "$YELLOWFailed to make ticket for Sk1er Support", exc_info=e)
+
+    @commands.Cog.listener()
+    async def on_ticket_create(self, ctx, ticket):
+        if ctx.guild.id == self.support_guild:
+            channel = self.support_channel
+            overwrites = channel.overwrites
+            overwrites.update({ctx.author: discord.PermissionOverwrite(read_messages=False)})
+            await channel.edit(overwrites=overwrites)
+
+    @commands.Cog.listener()
+    async def on_ticket_close(self, ctx, ticket):
+        if ctx.guild.id == self.support_guild:
+            channel = self.support_channel
+            overwrites = channel.overwrites.copy()
+            overwrites.pop(ctx.author, "")
+            if overwrites != channel.overwrites:
+                await channel.edit(overwrites=overwrites)
+
+    def get_solutions(self, log):
+        solutions = []
+        for err, sol in self.solutions.items():
+            if err in log:
+                solutions.append(f'- {sol}')
+        if 'OptiFine_1.8.9_HD_U' in log and not any(v in log for v in ['_I7', '_L5']):
+            solutions.append(f'- Update Optifine to either I7 or L5')
+        if not solutions:
+            return ''
+        return 'Possible solutions:\n' + '\n'.join(solutions)
 
     async def check_logs(self, message):
         noraw = re.findall(self.noraw, message.content, re.MULTILINE)
@@ -402,7 +465,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     pass
                 return await message.channel.send(
                     f'{message.author.mention}, Unzip this in `.minecraft/modcore` and your issue should be resolved.',
-                    file=discord.File(io.BytesIO(zipfile), filename="modcore.zip"),
+                    file=discord.File(io.BytesIO(zipfile),
+                                      filename="modcore.zip"),
                     allowed_mentions=discord.AllowedMentions(users=True)
                 )
         txt = re.sub(self.emailre, '[removed email]', txt, 0, re.MULTILINE)
@@ -547,7 +611,9 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     query = 'DELETE FROM specs WHERE uid=$1;'
                     await self.bot.db.execute(query, str(user.id))
                 await self.bot.db.release(con)
-                await user.remove_roles(self.guild.get_role(595626786549792793), reason=f'Specs removed by {ctx.author}')
+                member = self.guild.get_member(user.id)
+                if member:
+                    await member.remove_roles(self.guild.get_role(595626786549792793), reason=f'Specs removed by {ctx.author}')
                 return await ctx.success(f'Successfully removed specs for {user}')
             uspecs = uspecs[0]
 

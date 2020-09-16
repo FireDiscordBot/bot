@@ -48,6 +48,7 @@ class Context(commands.Context):
         self.config: Config = self.bot.get_config(
             self.guild.id) if self.guild else None
         self.silent = False
+        self.ticket_override = None
 
     async def success(self, message: str, **kwargs):
         await self.send(f'<:check:674359197378281472> {message}', **kwargs)

@@ -226,6 +226,13 @@ class Config:
             f'$GREENSetting $CYANtickets.parent $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('tickets.parent', str(value.id))
 
+    @ConfigOpt(name='tickets.allow_override', accepts=bool, default=False, restricted=[755794954743185438], options=options)
+    async def ticket_override(self, value: discord.CategoryChannel):
+        '''Tickets Override | Allows the ticket category to be overriden each command run'''
+        self._bot.logger.info(
+            f'$GREENSetting $CYANtickets.allow_override $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
+        await self.update('tickets.allow_override', value)
+
     @ConfigOpt(name='tickets.increment', accepts=int, default=0, options=options)
     async def ticket_increment(self, value: int):
         '''Ticket Increment | The number tickets will start incrementing from'''

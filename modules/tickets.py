@@ -102,13 +102,16 @@ class Tickets(commands.Cog, name="Tickets"):
     @commands.command(name='new', description='Makes a new ticket')
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True)
     async def tickets_new(self, ctx, *, subject: str = "No subject given"):
-        creating = await ctx.send('Creating your ticket...')
+        creating = None
+        if not ctx.silent:
+            creating = await ctx.send('Creating your ticket...')
         config = ctx.config
-        parent = config.get('tickets.parent')
+        parent = ctx.ticket_override if config.get(
+            "tickets.allow_override") and ctx.ticket_override else config.get('tickets.parent')
         limit = config.get('tickets.limit')
-        if not parent:
+        if not parent and not ctx.silent:
             return await ctx.error('Tickets are not enabled here')
-        if limit and len([c for c in parent.channels if str(ctx.author.id) in str(c.topic)]) > limit:
+        if limit and len([c for c in parent.channels if str(ctx.author.id) in str(c.topic)]) > limit and not ctx.silent:
             return await ctx.error('You have too many tickets open!')
         variables = {
             '{increment}': config.get('tickets.increment'),
@@ -147,7 +150,11 @@ class Tickets(commands.Cog, name="Tickets"):
         tchannels.append(ticket)
         await config.set('tickets.channels', tchannels)
         await config.set('tickets.increment', config.get('tickets.increment') + 1)
-        return await creating.edit(content=f'<:check:674359197378281472> Successfully made your ticket, {ticket.mention}')
+        self.bot.dispatch('ticket_create', ctx, ticket)
+        if creating:
+            return await creating.edit(
+                content=f'<:check:674359197378281472> Successfully made your ticket, {ticket.mention}'
+            )
 
     @commands.command(name='add', description='Add a user to the current ticket')
     @commands.bot_has_permissions(manage_roles=True)
@@ -158,7 +165,8 @@ class Tickets(commands.Cog, name="Tickets"):
         if str(ctx.author.id) not in ctx.channel.topic and not ctx.author.permissions_in(ctx.channel).manage_channels:
             return await ctx.error('You must own this ticket or have `Manage Channels` permission to add users')
         overwrites = ctx.channel.overwrites
-        overwrites.update({user: discord.PermissionOverwrite(read_messages=True, send_messages=True)})
+        overwrites.update({user: discord.PermissionOverwrite(
+            read_messages=True, send_messages=True)})
         await ctx.channel.edit(overwrites=overwrites)
         return await ctx.success(f'Successfully added {user.mention} to the ticket')
 
@@ -177,7 +185,8 @@ class Tickets(commands.Cog, name="Tickets"):
         if user.permissions_in(ctx.channel).manage_channels:
             return await ctx.error(f'You cannot remove this user')
         overwrites = ctx.channel.overwrites
-        overwrites.update({user: discord.PermissionOverwrite(read_messages=False, send_messages=False)})
+        overwrites.update({user: discord.PermissionOverwrite(
+            read_messages=False, send_messages=False)})
         await ctx.channel.edit(overwrites=overwrites)
         return await ctx.success(f'Successfully removed {user} from the ticket')
 
@@ -229,7 +238,8 @@ class Tickets(commands.Cog, name="Tickets"):
                 embed=embed,
                 file=discord.File(string, filename=f'transcript.txt')
             )
-        return await ctx.channel.delete(reason=f'Ticket closed by {ctx.author} for "{reason}"')
+        await ctx.channel.delete(reason=f'Ticket closed by {ctx.author} for "{reason}"')
+        self.bot.dispatch('ticket_close', ctx)
 
 
 def setup(bot):
