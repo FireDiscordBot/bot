@@ -403,12 +403,12 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 "$YELLOWon_ticket_create did an oopsie", exc_info=e)
 
     @commands.Cog.listener()
-    async def on_ticket_close(self, ctx):
+    async def on_ticket_close(self, ctx, author):
         try:
             if ctx.guild.id == self.support_guild.id:
                 channel = self.support_channel
                 overwrites = channel.overwrites.copy()
-                overwrites.pop(ctx.author, "")
+                overwrites.pop(author, "")
                 if overwrites != channel.overwrites:
                     await channel.edit(overwrites=overwrites)
         except Exception:

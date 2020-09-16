@@ -239,7 +239,7 @@ class Tickets(commands.Cog, name="Tickets"):
                 file=discord.File(string, filename=f'transcript.txt')
             )
         await ctx.channel.delete(reason=f'Ticket closed by {ctx.author} for "{reason}"')
-        self.bot.dispatch('ticket_close', ctx)
+        self.bot.dispatch('ticket_close', ctx, author)
 
 
 def setup(bot):
