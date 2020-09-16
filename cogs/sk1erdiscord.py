@@ -37,7 +37,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         self.bot = bot
         self.guild = self.bot.get_guild(411619823445999637)
         self.support_guild = self.bot.get_guild(755794954743185438)
-        self.support_message_id = 755797375523487895
+        self.support_message_id = 755817441581596783
         self.support_message = None
         self.support_channel = self.support_guild.get_channel(
             755796557692928031)
@@ -344,8 +344,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 alt_ctx = await copy_context_with(
                     ctx,
                     author=payload.member,
-                    content="fire new General Support",
-                    silent=True,
+                    content=ctx.config.get("main.prefix") + "new General Support",
+                    silent=False,
                     ticket_override=self.support_guild.get_channel(755795962462732288)
                 )
             elif str(payload.emoji) == "�":
@@ -353,8 +353,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 alt_ctx = await copy_context_with(
                     ctx,
                     author=payload.member,
-                    content="fire new Purchase Support",
-                    silent=True,
+                    content=ctx.config.get("main.prefix") + "new Purchase Support",
+                    silent=False,
                     ticket_override=self.support_guild.get_channel(755796036198596688)
                 )
             elif str(payload.emoji) == "�":
@@ -362,11 +362,12 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 alt_ctx = await copy_context_with(
                     ctx,
                     author=payload.member,
-                    content="fire new Bug Report",
-                    silent=True,
+                    content=ctx.config.get("main.prefix") + "new Bug Report",
+                    silent=False,
                     ticket_override=self.support_guild.get_channel(755795994855211018)
                 )
             if alt_ctx and alt_ctx.command and alt_ctx.invoked_with:
+                alt_ctx.silent = True
                 await alt_ctx.invoke()
             else:
                 raise Exception("alt ctx command == 404")
