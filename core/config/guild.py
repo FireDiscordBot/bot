@@ -255,7 +255,7 @@ class Config:
     @ConfigOpt(name='tickets.channels', accepts=[discord.TextChannel], default=[], options=options, hidden=True)
     async def ticket_channels(self, value: list):
         '''Ticket Channels | All ticket channels in the guild'''
-        await self.update('tickets.channels', [v.id for v in value])
+        await self.update('tickets.channels', [str(v.id) for v in value if v])
 
     def get(self, option):
         if option not in self.options:

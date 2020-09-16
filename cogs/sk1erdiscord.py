@@ -397,7 +397,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
     A member of staff will review your ticket as soon as possible.
     Some tickets, especially those relating to purchases, can only be handled by Sk1er, which may take longer than a typical ticket"""
                     await msg.edit(embed=embed)
-                    await ticket.send('<@&755809868056756235>', allowed_mentions=discord.AllowedMentions(roles=True))
+                    if not all(len(m.roles) > 1 for m in ticket.members):
+                        await ticket.send('<@&755809868056756235>', allowed_mentions=discord.AllowedMentions(roles=True))
         except Exception:
             self.bot.logger.warn(
                 "$YELLOWon_ticket_create did an oopsie", exc_info=e)
