@@ -106,7 +106,6 @@ class Tickets(commands.Cog, name="Tickets"):
         if not ctx.silent:
             creating = await ctx.send('Creating your ticket...')
         config = ctx.config
-        print(ctx.ticket_override)
         parent = ctx.ticket_override if config.get(
             "tickets.allow_override") and ctx.ticket_override else config.get('tickets.parent')
         limit = config.get('tickets.limit')
