@@ -344,19 +344,23 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 alt_ctx = await copy_context_with(
                     ctx,
                     author=payload.member,
-                    content=ctx.config.get("main.prefix") + "new General Support",
+                    content=ctx.config.get(
+                        "main.prefix") + "new General Support",
                     silent=False
                 )
-                alt_ctx.ticket_override = self.support_guild.get_channel(755795962462732288)
+                alt_ctx.ticket_override = self.support_guild.get_channel(
+                    755795962462732288)
             elif str(payload.emoji) == "💸":
                 ctx = await self.bot.get_context(self.support_message)
                 alt_ctx = await copy_context_with(
                     ctx,
                     author=payload.member,
-                    content=ctx.config.get("main.prefix") + "new Purchase Support",
+                    content=ctx.config.get(
+                        "main.prefix") + "new Purchase Support",
                     silent=False
                 )
-                alt_ctx.ticket_override = self.support_guild.get_channel(755796036198596688)
+                alt_ctx.ticket_override = self.support_guild.get_channel(
+                    755796036198596688)
             elif str(payload.emoji) == "🐛":
                 ctx = await self.bot.get_context(self.support_message)
                 alt_ctx = await copy_context_with(
@@ -365,7 +369,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     content=ctx.config.get("main.prefix") + "new Bug Report",
                     silent=False
                 )
-                alt_ctx.ticket_override = self.support_guild.get_channel(755795994855211018)
+                alt_ctx.ticket_override = self.support_guild.get_channel(
+                    755795994855211018)
             if alt_ctx and alt_ctx.command and alt_ctx.invoked_with:
                 alt_ctx.silent = True
                 await alt_ctx.command.invoke(alt_ctx)
@@ -381,7 +386,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             if ctx.guild.id == self.support_guild.id:
                 channel = self.support_channel
                 overwrites = channel.overwrites
-                overwrites.update({ctx.author: discord.PermissionOverwrite(read_messages=False)})
+                overwrites.update(
+                    {ctx.author: discord.PermissionOverwrite(read_messages=False)})
                 await channel.edit(overwrites=overwrites)
                 if msg.embeds:
                     embed = msg.embeds[0]
@@ -391,8 +397,10 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
     A member of staff will review your ticket as soon as possible.
     Some tickets, especially those relating to purchases, can only be handled by Sk1er, which may take longer than a typical ticket"""
                     await msg.edit(embed=embed)
+                    await ticket.send('<@&755809868056756235>', allowed_mentions=discord.AllowedMentions(roles=True))
         except Exception:
-            self.bot.logger.warn("$YELLOWon_ticket_create did an oopsie", exc_info=e)
+            self.bot.logger.warn(
+                "$YELLOWon_ticket_create did an oopsie", exc_info=e)
 
     @commands.Cog.listener()
     async def on_ticket_close(self, ctx):
@@ -404,7 +412,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 if overwrites != channel.overwrites:
                     await channel.edit(overwrites=overwrites)
         except Exception:
-            self.bot.logger.warn("$YELLOWon_ticket_close did an oopsie", exc_info=e)
+            self.bot.logger.warn(
+                "$YELLOWon_ticket_close did an oopsie", exc_info=e)
 
     def get_solutions(self, log):
         solutions = []
