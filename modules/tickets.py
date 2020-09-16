@@ -111,8 +111,11 @@ class Tickets(commands.Cog, name="Tickets"):
         limit = config.get('tickets.limit')
         if not parent and not ctx.silent:
             return await ctx.error('Tickets are not enabled here')
-        if limit and len([c for c in parent.channels if str(ctx.author.id) in str(c.topic)]) > limit and not ctx.silent:
-            return await ctx.error('You have too many tickets open!')
+        if limit and len([c for c in parent.channels if str(ctx.author.id) in str(c.topic)]) > limit:
+            if not ctx.silent:
+                return await ctx.error('You have too many tickets open!')
+            else:
+                return
         variables = {
             '{increment}': config.get('tickets.increment'),
             '{name}': ctx.author.name,
@@ -236,7 +239,7 @@ class Tickets(commands.Cog, name="Tickets"):
             embed.add_field(name='Reason', value=reason, inline=False)
             await actionlogs.send(
                 embed=embed,
-                file=discord.File(string, filename=f'transcript.txt')
+                file=discord.File(string, filename=f'transcript.txt') if ctx.channel.category.id != 755796036198596688 else None  # Will make this better soon
             )
         await ctx.channel.delete(reason=f'Ticket closed by {ctx.author} for "{reason}"')
         self.bot.dispatch('ticket_close', ctx, author)
