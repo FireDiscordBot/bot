@@ -382,6 +382,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 channel = self.support_channel
                 overwrites = channel.overwrites
                 overwrites.update({ctx.author: discord.PermissionOverwrite(read_messages=False)})
+                print(overwrites)
                 await channel.edit(overwrites=overwrites)
                 if msg.embeds:
                     embed = msg.embeds[0]
@@ -390,6 +391,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
 
     A member of staff will review your ticket as soon as possible.
     Some tickets, especially those relating to purchases, can only be handled by Sk1er, which may take longer than a typical ticket"""
+                    print(embed.to_dict())
                     await msg.edit(embed=embed)
         except Exception:
             self.bot.logger.warn("$YELLOWon_ticket_create did an oopsie", exc_info=e)
@@ -401,6 +403,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 channel = self.support_channel
                 overwrites = channel.overwrites.copy()
                 overwrites.pop(ctx.author, "")
+                print(overwrites)
                 if overwrites != channel.overwrites:
                     await channel.edit(overwrites=overwrites)
         except Exception:
