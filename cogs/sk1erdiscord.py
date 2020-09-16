@@ -333,7 +333,11 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         if not payload.member:  # Should never be true
             return
         try:
-            self.support_message = self.support_message or await self.support_channel.fetch_message(self.support_message)
+            self.support_message = self.support_message or await self.support_channel.fetch_message(self.support_message_id)
+            try:
+                await self.support_message.remove_reaction(payload.emoji, payload.member)
+            except Exception:
+                pass
             alt_ctx = None
             if str(payload.emoji) == "🖥️":
                 ctx = await self.bot.get_context(self.support_message)
