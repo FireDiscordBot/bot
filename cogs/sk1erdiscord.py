@@ -345,27 +345,27 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     ctx,
                     author=payload.member,
                     content=ctx.config.get("main.prefix") + "new General Support",
-                    silent=False,
-                    ticket_override=self.support_guild.get_channel(755795962462732288)
+                    silent=False
                 )
+                alt_ctx.ticket_override = self.support_guild.get_channel(755795962462732288)
             elif str(payload.emoji) == "💸":
                 ctx = await self.bot.get_context(self.support_message)
                 alt_ctx = await copy_context_with(
                     ctx,
                     author=payload.member,
                     content=ctx.config.get("main.prefix") + "new Purchase Support",
-                    silent=False,
-                    ticket_override=self.support_guild.get_channel(755796036198596688)
+                    silent=False
                 )
+                alt_ctx.ticket_override = self.support_guild.get_channel(755796036198596688)
             elif str(payload.emoji) == "🐛":
                 ctx = await self.bot.get_context(self.support_message)
                 alt_ctx = await copy_context_with(
                     ctx,
                     author=payload.member,
                     content=ctx.config.get("main.prefix") + "new Bug Report",
-                    silent=False,
-                    ticket_override=self.support_guild.get_channel(755795994855211018)
+                    silent=False
                 )
+                alt_ctx.ticket_override = self.support_guild.get_channel(755795994855211018)
             if alt_ctx and alt_ctx.command and alt_ctx.invoked_with:
                 alt_ctx.silent = True
                 await alt_ctx.command.invoke(alt_ctx)
