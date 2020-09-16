@@ -348,7 +348,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     silent=False,
                     ticket_override=self.support_guild.get_channel(755795962462732288)
                 )
-            elif str(payload.emoji) == "�":
+            elif str(payload.emoji) == "💸":
                 ctx = await self.bot.get_context(self.support_message)
                 alt_ctx = await copy_context_with(
                     ctx,
@@ -357,7 +357,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     silent=False,
                     ticket_override=self.support_guild.get_channel(755796036198596688)
                 )
-            elif str(payload.emoji) == "�":
+            elif str(payload.emoji) == "🐛":
                 ctx = await self.bot.get_context(self.support_message)
                 alt_ctx = await copy_context_with(
                     ctx,
