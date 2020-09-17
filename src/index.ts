@@ -1,11 +1,13 @@
 require("dotenv").config({
-  path: process.env.NODE_ENV === "production" ? ".env" : "dev.env",
+  path: process.env.NODE_ENV == "development" ? "dev.env" : ".env",
 });
 
+import { getCommitHash } from "../lib/util/gitUtils";
 import { Manager } from "../lib/Manager";
 import * as sentry from "@sentry/node";
 
-const version = process.env.npm_package_gitHead || "dev";
+const version =
+  process.env.NODE_ENV == "development" ? "dev" : getCommitHash().slice(0, 7);
 
 sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -17,7 +19,7 @@ manager.init();
 
 const exit = () => {
   manager.client?.console.warn("Destroying client...");
-  manager.client?.user.setStatus("invisible");
+  manager.client?.user?.setStatus("invisible");
   manager.client?.destroy();
 };
 
@@ -25,9 +27,3 @@ process.on("exit", () => {
   exit(), process.exit();
 });
 process.on("SIGINT", exit);
-process.on("unhandledRejection", (reason) => {
-  if (reason instanceof Error) {
-    manager.client.console.error(reason?.stack);
-    manager.client.sentry.captureException(reason);
-  }
-});
