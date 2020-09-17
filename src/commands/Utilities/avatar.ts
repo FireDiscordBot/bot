@@ -1,9 +1,7 @@
-import { FireMessage } from "../../lib/extensions/message";
-import { Language } from "../../lib/util/language";
-import { Command } from "../../lib/util/command";
-import { GuildMember } from "discord.js";
-import { User } from "discord.js";
-import { FireGuild } from "../../lib/extensions/guild";
+import { FireMessage } from "../../../lib/extensions/message";
+import { Language } from "../../../lib/util/language";
+import { Command } from "../../../lib/util/command";
+import { GuildMember, User } from "discord.js";
 
 export default class Avatar extends Command {
   constructor() {

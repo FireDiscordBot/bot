@@ -1,8 +1,8 @@
-import { humanize, zws, constants } from "../../lib/util/constants";
-import { FireMessage } from "../../lib/extensions/message";
-import { FireGuild } from "../../lib/extensions/guild";
-import { Language } from "../../lib/util/language";
-import { Command } from "../../lib/util/command";
+import { humanize, zws, constants } from "../../../lib/util/constants";
+import { FireMessage } from "../../../lib/extensions/message";
+import { FireGuild } from "../../../lib/extensions/guild";
+import { Language } from "../../../lib/util/language";
+import { Command } from "../../../lib/util/command";
 import * as moment from "moment";
 
 export default class GuildCommand extends Command {

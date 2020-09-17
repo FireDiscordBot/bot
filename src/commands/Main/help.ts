@@ -1,7 +1,7 @@
-import { FireMessage } from "../../lib/extensions/message";
-import { titleCase } from "../../lib/util/constants";
-import { Language } from "../../lib/util/language";
-import { ArgumentOptions, Command } from "../../lib/util/command";
+import { ArgumentOptions, Command } from "../../../lib/util/command";
+import { FireMessage } from "../../../lib/extensions/message";
+import { titleCase } from "../../../lib/util/constants";
+import { Language } from "../../../lib/util/language";
 
 export default class Help extends Command {
   constructor() {

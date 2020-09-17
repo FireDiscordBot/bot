@@ -1,19 +1,19 @@
-import { Component, Incidents, Summary } from "../../lib/interfaces/statuspage";
-import { constants, titleCase } from "../../lib/util/constants";
-import { FireMessage } from "../../lib/extensions/message";
-import { Language } from "../../lib/util/language";
-import { Command } from "../../lib/util/command";
+import { Incidents, Summary, Component } from "../../../lib/interfaces/statuspage";
+import { constants, titleCase } from "../../../lib/util/constants";
+import { FireMessage } from "../../../lib/extensions/message";
+import { Language } from "../../../lib/util/language";
+import { Command } from "../../../lib/util/command";
 import * as centra from "centra";
 
 export default class DiscordStatus extends Command {
   constructor() {
-    super("dstatus", {
+    super("status", {
       description: (language: Language) =>
-        language.get("DSTATUS_COMMAND_DESCRIPTION"),
+        language.get("STATUS_COMMAND_DESCRIPTION"),
       clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
-      aliases: ["discordstatus"],
+      aliases: ["firestatus"],
       typing: true,
-      category: "Utilities",
+      category: "Main",
     });
   }
 
@@ -21,19 +21,18 @@ export default class DiscordStatus extends Command {
     let summary: Summary, incidents: Incidents;
     try {
       summary = await (
-        await centra(constants.url.discordStatus)
+        await centra(constants.url.fireStatus)
           .path("/api/v2/summary.json")
           .send()
       ).json();
       incidents = await (
-        await centra(constants.url.discordStatus)
+        await centra(constants.url.fireStatus)
           .path("/api/v2/incidents.json")
           .send()
       ).json();
     } catch (e) {
-      return await message.send("DSTATUS_FETCH_FAIL");
+      return await message.send("STATUS_FETCH_FAIL");
     }
-
     const components = summary.components
       .filter((component) => !component.group_id)
       .flatMap((group) => [
@@ -46,7 +45,7 @@ export default class DiscordStatus extends Command {
           .filter((component) => {
             return (
               component.group_id === group.id &&
-              (!["jk03xttfcz9b", "ghlgk5p8wyt7"].includes(group.id) ||
+              (group.id !== "jmsbww1qjnz5" ||
                 component.status !== "operational")
             );
           })

@@ -1,8 +1,8 @@
 import { PermissionString, TextChannel, GuildMember, Role } from "discord.js";
-import { FireMessage } from "../../lib/extensions/message";
-import { constants, titleCase } from "../../lib/util/constants";
-import { Language } from "../../lib/util/language";
-import { Command } from "../../lib/util/command";
+import { constants, titleCase } from "../../../lib/util/constants";
+import { FireMessage } from "../../../lib/extensions/message";
+import { Language } from "../../../lib/util/language";
+import { Command } from "../../../lib/util/command";
 
 const {
   emojis: { success, error },

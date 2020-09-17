@@ -1,7 +1,7 @@
-import { FireMessage } from "../../lib/extensions/message";
-import { Language } from "../../lib/util/language";
-import { Command } from "../../lib/util/command";
-import { Guild } from "discord.js";
+import { FireMessage } from "../../../lib/extensions/message";
+import { FireGuild } from "../../../lib/extensions/guild";
+import { Language } from "../../../lib/util/language";
+import { Command } from "../../../lib/util/command";
 
 export default class Ping extends Command {
   constructor() {
@@ -24,7 +24,7 @@ export default class Ping extends Command {
     });
   }
 
-  async setDesc(guild: Guild, desc: string) {
+  async setDesc(guild: FireGuild, desc: string) {
     await this.client.db.query(
       'UPDATE vanity SET "description" = $2 WHERE gid = $1;',
       [guild.id, desc]
