@@ -121,7 +121,7 @@ export default class Sk1er extends Module {
       ) as TextChannel;
       const pins = await commands.messages.fetchPinned();
       pins.forEach(async (pin) => {
-        if (!(pin.author.id in bots)) return;
+        if (!Object.keys(bots).includes(pin.author.id)) return;
         if (
           moment.duration(moment().diff(moment(pin.createdAt))).asHours() > 10
         ) {
