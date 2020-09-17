@@ -38,12 +38,20 @@ export default class Sk1er extends Module {
   logText: string[];
   uuidCache: Map<string, string>;
   statusCheck: NodeJS.Timeout;
+  descriptionUpdate: NodeJS.Timeout;
   constructor() {
     super("sk1er");
     this.guildId = "411619823445999637";
     this.nitroId = "585534346551754755";
     this.uuidCache = new Map();
-    this.statusCheck = setInterval(async () => this.statusChecker(), 1800000);
+    this.statusCheck = setInterval(
+      async () => await this.statusChecker(),
+      1800000
+    );
+    this.descriptionUpdate = setInterval(
+      async () => await this.descriptionUpdater(),
+      300000
+    );
   }
 
   async init() {
@@ -78,10 +86,13 @@ export default class Sk1er extends Module {
       "[DefaultDispatcher-worker-1] ERROR Installer",
       "[Client thread/INFO]:",
     ];
+    await this.statusChecker();
+    await this.descriptionUpdater();
   }
 
   async unload() {
     clearInterval(this.statusCheck);
+    clearInterval(this.descriptionUpdate);
   }
 
   async nameToUUID(player: string) {
@@ -121,6 +132,37 @@ export default class Sk1er extends Module {
           } catch {}
         }
       });
+    } catch {}
+  }
+
+  async descriptionUpdater() {
+    try {
+      let count: number = (
+        await (
+          await Centra("https://api.sk1er.club/mods_analytics").send()
+        ).json()
+      ).combined_total;
+      count += (
+        await (await Centra("https://api.autotip.pro/counts").send()).json()
+      ).total;
+      count += (
+        await (await Centra("https://api.hyperium.cc/users").send()).json()
+      ).all;
+      // @ts-ignore
+      this.client.api
+        // @ts-ignore
+        .guilds(this.guildId)
+        .patch({
+          data: {
+            description: `The Official Discord for Sk1er & Sk1er Mods (${count.toLocaleString()} total players)`,
+          },
+          reason: "Description Updater Task",
+        })
+        .then(
+          (newData: any) =>
+            // @ts-ignore
+            this.client.actions.GuildUpdate.handle(newData).updated
+        );
     } catch {}
   }
 
