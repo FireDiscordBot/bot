@@ -12,6 +12,7 @@ import { LanguageHandler } from "./util/language";
 import { Client as PGClient } from "ts-postgres";
 import { version as djsver } from "discord.js";
 import { KlasaConsole } from "@klasa/console"; // Klasa console do be looking kinda nice doe
+import { Inhibitor } from "./util/inhibitor";
 import { KSoftClient } from "@aero/ksoft";
 import { Manager } from "../lib/Manager";
 import { Command } from "./util/command";
@@ -25,20 +26,27 @@ require("./extensions");
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
   started: boolean;
+
+  // Sharding
   manager: Manager;
-  util: Util;
-  db: PGClient;
+
+  // Logging
   console: KlasaConsole;
   sentry: typeof Sentry;
-  config: typeof config.fire;
+  
+  // Handlers
   settings: PostgresProvider;
   commandHandler: CommandHandler;
   inhibitorHandler: InhibitorHandler;
   listenerHandler: ListenerHandler;
   languages: LanguageHandler;
   modules: ModuleHandler;
+  
+  // Common Attributes
+  db: PGClient;
+  util: Util;
   ksoft: KSoftClient | boolean;
-  // chatwatch;
+  config: typeof config.fire;
 
   constructor(manager: Manager, sentry: any) {
     super({ ...config.akairo, ...config.discord });
@@ -46,8 +54,8 @@ export class Fire extends AkairoClient {
     this.started = false;
 
     this.manager = manager;
-    this.util = new Util(this);
     this.console = new KlasaConsole();
+    this.util = new Util(this);
 
     this.db = new PGClient({
       user: "postgres",
@@ -119,6 +127,12 @@ export class Fire extends AkairoClient {
         : "./dist/src/inhibitors/",
     });
     this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
+    this.inhibitorHandler.on("load", async (inhibitor: Inhibitor, isReload: boolean) => {
+      await inhibitor?.init();
+    });
+    this.inhibitorHandler.on("remove", async (inhibitor: Inhibitor) => {
+      await inhibitor?.unload();
+    });
     this.inhibitorHandler.loadAll();
 
     this.listenerHandler = new ListenerHandler(this, {

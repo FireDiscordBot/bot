@@ -17,7 +17,21 @@ export default class Plonk extends Command {
         },
         {
           id: "permanent",
-          type: "boolean",
+          type: (message: FireMessage, phrase: string | null) => {
+            if (
+              ["yes", "y", "true", "t", "1", "enable", "on"].includes(
+                phrase.toLowerCase().trim()
+              )
+            )
+              return true;
+            else if (
+              ["no", "n", "false", "f", "0", "disable", "off"].includes(
+                phrase.toLowerCase().trim()
+              )
+            )
+              return false;
+            else return null;
+          },
           default: true,
           required: false,
         },
@@ -29,12 +43,13 @@ export default class Plonk extends Command {
           required: false,
         },
       ],
+      aliases: ["unplonk"],
       category: "Admin",
     });
   }
 
   condition(message: FireMessage) {
-    return message.author.id in this.client.util.admins;
+    return this.client.util.admins.includes(message.author.id);
   }
 
   async exec(
@@ -42,8 +57,8 @@ export default class Plonk extends Command {
     args: { user: GuildMember | User; permanent: boolean; reason: string }
   ) {
     const user = args.user instanceof GuildMember ? args.user.user : args.user;
-    if (args.user.id in this.client.util.plonked) {
-      const unblacklisted = await this.client.util.unblacklist(args.user);
+    if (this.client.util.plonked.includes(user.id)) {
+      const unblacklisted = await this.client.util.unblacklist(user);
       if (unblacklisted) return await message.success();
       else return await message.error();
     } else {

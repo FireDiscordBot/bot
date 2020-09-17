@@ -212,6 +212,8 @@ Hint: Use the \`public\` command to get your server on the list`,
         ) => `${user} ${msgType} a log, ${extra}\n${haste}\n\n${solutions}`,
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
+        PLONK_COMMAND_DESCRIPTION:
+          "make a user unable to use the best discord bot",
       },
       enabled: true,
     });
