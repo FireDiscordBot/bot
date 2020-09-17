@@ -196,7 +196,7 @@ class Tickets(commands.Cog, name="Tickets"):
     @commands.bot_has_permissions(manage_roles=True)
     async def tickets_close(self, ctx, *, reason: str = "No Reason Provided"):
         config = ctx.config
-        tchannels = config.get('tickets.channels')
+        tchannels = [c for c in config.get('tickets.channels') if c]
         if ctx.channel not in tchannels:
             return await ctx.error('This command can only be ran in ticket channels!')
         if not ctx.author.permissions_in(ctx.channel).manage_channels and not str(ctx.author.id) in str(ctx.channel.topic):
