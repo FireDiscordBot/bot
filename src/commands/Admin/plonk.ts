@@ -48,14 +48,15 @@ export default class Plonk extends Command {
     });
   }
 
-  condition(message: FireMessage) {
-    return this.client.util.admins.includes(message.author.id);
-  }
-
   async exec(
     message: FireMessage,
     args: { user: GuildMember | User; permanent: boolean; reason: string }
   ) {
+    if (
+      !this.client.util.admins.includes(message.author.id) ||
+      this.client.util.admins.includes(args.user.id)
+    )
+      return;
     const user = args.user instanceof GuildMember ? args.user.user : args.user;
     if (this.client.util.plonked.includes(user.id)) {
       const unblacklisted = await this.client.util.unblacklist(user);
