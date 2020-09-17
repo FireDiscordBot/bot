@@ -11,10 +11,6 @@ export default class esES extends Language {
         USER_NOT_FOUND: "Usuario no encontrado :(",
         UNKNOWN_COMMAND: "Comando no encontrado",
         COMMAND_OWNER_ONLY: "Solo mi dueño puede usar este comando",
-        AT_COMMAND_DESCRIPTION:
-          "comando que hace autotip bot pero no rn porque me prohibieron",
-        AT_CHANNEL_NOT_FOUND: "INo se pudo encontrar el canal de autotip.",
-        AT_NO_RESPONSE: "No obtuve respuesta :(",
         AUTODECANCER_COMMAND_DESCRIPTION: `Alternar cambiar el nombre de aquellos con nombres "cancerosos" (no ASCII)`,
         AUTODECANCER_ENABLED: `Autodecancer habilitado. ** Los nuevos ** usuarios con nombres "cancerosos" (no ASCII) serán renombrados`,
         AUTODECANCER_DISABLED: `Autodecancer desactivado. ** Los nuevos ** usuarios con nombres "cancerosos" (no ASCII) ya no serán renombrados`,

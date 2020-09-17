@@ -53,10 +53,6 @@ export default class enUS extends Language {
           PREMIUM:
             "<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)",
         },
-        AT_COMMAND_DESCRIPTION:
-          "command that does autotip bot thing but not rn because I got banned",
-        AT_CHANNEL_NOT_FOUND: "I could not find the autotip channel.",
-        AT_NO_RESPONSE: "Got no response :(",
         AUTODECANCER_COMMAND_DESCRIPTION: `Toggle renaming those with "cancerous" (non-ascii) names`,
         AUTODECANCER_ENABLED: `Enabled autodecancer. **New** users with "cancerous" (non-ascii) names will be renamed`,
         AUTODECANCER_DISABLED: `Disabled autodecancer. **New** users with "cancerous" (non-ascii) names will no longer be renamed`,

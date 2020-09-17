@@ -11,10 +11,6 @@ export default class OwO extends Language {
         USER_NOT_FOUND: "Usew not fouwnd :(",
         UNKNOWN_COMMAND: "Command not fouwnd",
         COMMAND_OWNER_ONLY: "Onwy my ownew can uwse this command",
-        AT_COMMAND_DESCRIPTION:
-          "command that does auwtotip bot thing buwt not wn becauwse i got banned",
-        AT_CHANNEL_NOT_FOUND: "I couwwd not find the auwtotip channew.",
-        AT_NO_RESPONSE: "Got no wesponse :(",
         AUTODECANCER_COMMAND_DESCRIPTION: `Toggwe wenaming those with "cancewouws" (non-ascii) names`,
         AUTODECANCER_ENABLED: `Enabwed auwtodecancew. **new** uwsews with "cancewouws" (non-ascii) names wiww be wenamed`,
         AUTODECANCER_DISABLED: `Disabwed auwtodecancew. **new** uwsews with "cancewouws" (non-ascii) names wiww no wongew be wenamed`,
