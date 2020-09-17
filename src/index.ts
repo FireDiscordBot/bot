@@ -21,9 +21,10 @@ const exit = () => {
   manager.client?.console.warn("Destroying client...");
   manager.client?.user?.setStatus("invisible");
   manager.client?.destroy();
+  process.exit();
 };
 
 process.on("exit", () => {
-  exit(), process.exit();
+  exit();
 });
 process.on("SIGINT", exit);
