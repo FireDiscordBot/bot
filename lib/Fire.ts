@@ -33,7 +33,7 @@ export class Fire extends AkairoClient {
   // Logging
   console: KlasaConsole;
   sentry: typeof Sentry;
-  
+
   // Handlers
   settings: PostgresProvider;
   commandHandler: CommandHandler;
@@ -41,7 +41,7 @@ export class Fire extends AkairoClient {
   listenerHandler: ListenerHandler;
   languages: LanguageHandler;
   modules: ModuleHandler;
-  
+
   // Common Attributes
   db: PGClient;
   util: Util;
@@ -127,9 +127,12 @@ export class Fire extends AkairoClient {
         : "./dist/src/inhibitors/",
     });
     this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
-    this.inhibitorHandler.on("load", async (inhibitor: Inhibitor, isReload: boolean) => {
-      await inhibitor?.init();
-    });
+    this.inhibitorHandler.on(
+      "load",
+      async (inhibitor: Inhibitor, isReload: boolean) => {
+        await inhibitor?.init();
+      }
+    );
     this.inhibitorHandler.on("remove", async (inhibitor: Inhibitor) => {
       await inhibitor?.unload();
     });
