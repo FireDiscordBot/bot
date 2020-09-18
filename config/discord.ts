@@ -8,7 +8,7 @@ export const discord: ClientOptions = {
   messageCacheMaxSize: 2500,
   messageCacheLifetime: 60,
   messageSweepInterval: 120,
-  fetchAllMembers: true,
+  fetchAllMembers: false,
   partials: ["REACTION", "MESSAGE", "CHANNEL", "GUILD_MEMBER", "USER"],
   ws: {
     intents:

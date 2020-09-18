@@ -20,25 +20,34 @@ export class Util extends ClientUtil {
     wholeWord: boolean = true
   ) {
     let user: User | null = null;
+    let full = text;
     if (text && text.match(/([0-9]{15,21})$/m))
-      user = await this.client.users.fetch(text).catch(() => null);
-    if (!user) {
-      if (guild) {
-        let member = guild.members.cache.find(
-          (member) =>
-            member.displayName?.toLowerCase() == text.toLowerCase() ||
-            member.user.username?.toLowerCase() == text.toLowerCase()
-        );
-        if (member) return member.user;
-      }
-    } else
-      return super.resolveUser(
-        text,
-        users || this.client.users.cache,
-        caseSensitive,
-        wholeWord
+      return await this.client.users.fetch(text).catch(() => null);
+    if (guild) {
+      if (text.includes("#")) text = text.split("#")[0];
+      const member = guild.members.cache.find(
+        (member) =>
+          this.userToString(member).toLowerCase() == full.toLowerCase() ||
+          member.displayName?.toLowerCase() == text.toLowerCase() ||
+          member.user.username?.toLowerCase() == text.toLowerCase()
       );
-    return user;
+      if (member) return member.user;
+      else {
+        return (
+          await guild.members.fetch({
+            user: users ? [...users.values()] : [],
+            query: text,
+            limit: 1,
+          })
+        ).first();
+      }
+    }
+    return super.resolveUser(
+      text,
+      users || this.client.users.cache,
+      caseSensitive,
+      wholeWord
+    );
   }
 
   userToString(user: GuildMember | User) {

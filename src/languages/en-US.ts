@@ -9,7 +9,7 @@ export default class enUS extends Language {
       language: {
         DEFAULT: (key: string) =>
           `${key} has not been localized for en-US yet.`,
-        USER_NOT_FOUND: "User not found :(",
+        USER_NOT_FOUND: "User not found! Try use an ID instead.",
         UNKNOWN_COMMAND: "Command not found",
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
         COMMAND_ERROR_GENERIC: (id: string) =>
