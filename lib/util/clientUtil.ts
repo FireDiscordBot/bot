@@ -12,6 +12,7 @@ export class Util extends ClientUtil {
     this.plonked = [];
   }
 
+  // I will rewrite this eventually
   async resolveOrFetchUser(
     text: string,
     users?: Collection<Snowflake, User>,
@@ -21,8 +22,10 @@ export class Util extends ClientUtil {
   ) {
     let user: User | null = null;
     let full = text;
-    if (text && text.match(/([0-9]{15,21})$/m))
-      return await this.client.users.fetch(text).catch(() => null);
+    if (text && text.match(/(?:<@!?)?([0-9]{15,22})>?/m))
+      return await this.client.users
+        .fetch(text.match(/(?:<@!?)?([0-9]{15,22})>?/m)[1])
+        .catch(() => null);
     if (guild) {
       if (text.includes("#")) text = text.split("#")[0];
       const member = guild.members.cache.find(
