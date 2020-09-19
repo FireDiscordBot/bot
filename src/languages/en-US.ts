@@ -12,8 +12,8 @@ export default class enUS extends Language {
         USER_NOT_FOUND: "User not found! Try use an ID instead.",
         MEMBER_NOT_FOUND: "Member not found! Try use an ID instead.",
         CHANNEL_NOT_FOUND: "Channel not found! Try use an ID instead.",
-        INVAlID_USER_ID: "User not found! Make sure the ID is valid.",
-        INVAlID_MEMBER_ID: "Member not found! Make sure the ID is valid.",
+        INVALID_USER_ID: "User not found! Make sure the ID is valid.",
+        INVALID_MEMBER_ID: "Member not found! Make sure the ID is valid.",
         INVALID_CHANNEL_ID: "Channel not found! Make sure the ID is valid.",
         INVALID_MESSAGE:
           "Message not found! Make sure you're giving a valid id/link.",
