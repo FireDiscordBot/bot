@@ -522,7 +522,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             except discord.HTTPException:
                 pass
             solutions = self.get_solutions(txt)
-            user = re.findall(self.setuserre, text, re.MULTILINE)
+            user = re.findall(self.setuserre, txt, re.MULTILINE)
             if user:
                 try:
                     useruuid = await self.name_to_uuid(user[0])
