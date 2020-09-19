@@ -225,7 +225,7 @@ class Tickets(commands.Cog, name="Tickets"):
                                  file=discord.File(string, filename=f'{ctx.channel}-transcript.txt'))
                 except Exception:
                     pass  # no transcript for you, boo hoo :(
-        actionlogs = config.get('log.action')
+        actionlogs = config.get('tickets.transcript_logs') or config.get('log.action')
         if actionlogs:
             transcript.append(
                 f'{len(transcript)} total messages, closed by {ctx.author}')

@@ -227,11 +227,18 @@ class Config:
         await self.update('tickets.parent', str(value.id))
 
     @ConfigOpt(name='tickets.allow_override', accepts=bool, default=False, restricted=[755794954743185438], options=options)
-    async def ticket_override(self, value: discord.CategoryChannel):
+    async def ticket_override(self, value: bool):
         '''Tickets Override | Allows the ticket category to be overriden each command run'''
         self._bot.logger.info(
             f'$GREENSetting $CYANtickets.allow_override $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('tickets.allow_override', value)
+
+    @ConfigOpt(name='tickets.transcript_logs', accepts=discord.TextChannel, default=None, restricted=[755794954743185438], options=options)
+    async def ticket_transcript_logs(self, value: discord.TextChannel):
+        '''Tickets Transcript Logs | A seperate channel for transcripts to be logged in'''
+        self._bot.logger.info(
+            f'$GREENSetting $CYANtickets.transcript_logs $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
+        await self.update('tickets.transcript_logs', str(value.id))
 
     @ConfigOpt(name='tickets.increment', accepts=int, default=0, options=options)
     async def ticket_increment(self, value: int):
