@@ -3,18 +3,18 @@ import { FireMessage } from "../extensions/message";
 
 const idRegex = /([0-9]{15,21})$/im;
 const userMentionRegex = /<@!?([0-9]+)>$/im;
-const messageIDRegex = /^(?:(?P<channel_id>[0-9]{15,21})-)?(?P<message_id>[0-9]{15,21})$/im;
+const messageIDRegex = /^(?:(?<channel_id>[0-9]{15,21})-)?(?<message_id>[0-9]{15,21})$/im;
 const messageLinkRegex = /^https?:\/\/(?:(ptb|canary)\.)?discord(?:app)?\.com\/channels\/(?:([0-9]{15,21})|(@me))\/(?<channel_id>[0-9]{15,21})\/(?<message_id>[0-9]{15,21})\/?$/im;
 const channelMentionRegex = /<#([0-9]+)>$/im;
 
 const getIDMatch = (argument: string) => {
   const match = idRegex.exec(argument);
-  return match.length ? match[1] : null;
+  return match ? match[1] : null;
 };
 
 const getUserMentionMatch = (argument: string) => {
   const match = userMentionRegex.exec(argument);
-  return match.length ? match[1] : null;
+  return match ? match[1] : null;
 };
 
 const getMessageIDMatch = (argument: string) => {
@@ -27,16 +27,17 @@ const getMessageLinkMatch = (argument: string) => {
 
 const getChannelMentionMatch = (argument: string) => {
   const match = channelMentionRegex.exec(argument);
-  return match.length ? match[1] : null;
+  return match ? match[1] : null;
 };
 
 export const memberConverter = async (
   message: FireMessage,
-  argument: string
+  argument: string,
+  silent: boolean = false
 ) => {
   const guild = message.guild;
   if (!guild) {
-    await message.error();
+    if (!silent) await message.error();
     return null;
   }
   const userID = getIDMatch(argument) || getUserMentionMatch(argument);
@@ -44,20 +45,24 @@ export const memberConverter = async (
     const member = await guild.fetchMember(argument);
     if (member) return member;
     else {
-      await message.error("MEMBER_NOT_FOUND");
+      if (!silent) await message.error("MEMBER_NOT_FOUND");
       return null;
     }
   } else {
     const member = guild.members.cache.get(userID);
     if (member) return member;
     else {
-      await message.error("INVAlID_MEMBER_ID");
+      if (!silent) await message.error("INVAlID_MEMBER_ID");
       return null;
     }
   }
 };
 
-export const userConverter = async (message: FireMessage, argument: string) => {
+export const userConverter = async (
+  message: FireMessage,
+  argument: string,
+  silent: boolean = false
+) => {
   const userID = getIDMatch(argument) || getUserMentionMatch(argument);
   if (userID) {
     const user =
@@ -66,7 +71,7 @@ export const userConverter = async (message: FireMessage, argument: string) => {
         : null;
     if (user) return user;
     else {
-      await message.error("INVALID_USER_ID");
+      if (!silent) await message.error("INVALID_USER_ID");
       return null;
     }
   } else {
@@ -86,7 +91,7 @@ export const userConverter = async (message: FireMessage, argument: string) => {
     );
     if (match.size) return match.first();
     else {
-      await message.error("USER_NOT_FOUND");
+      if (!silent) await message.error("USER_NOT_FOUND");
       return null;
     }
   }
@@ -94,11 +99,12 @@ export const userConverter = async (message: FireMessage, argument: string) => {
 
 export const messageConverter = async (
   message: FireMessage,
-  argument: string
+  argument: string,
+  silent: boolean = false
 ) => {
   const match = getMessageIDMatch(argument) || getMessageLinkMatch(argument);
   if (!match) {
-    await message.error("INVALID_MESSAGE");
+    if (!silent) await message.error("INVALID_MESSAGE");
     return null;
   }
   const groups = match.groups;
@@ -110,19 +116,20 @@ export const messageConverter = async (
   try {
     return await channel.messages.fetch(messageID);
   } catch {
-    await message.error("INVALID_MESSAGE");
+    if (!silent) await message.error("INVALID_MESSAGE");
     return null;
   }
 };
 
 export const textChannelConverter = async (
   message: FireMessage,
-  argument: string
+  argument: string,
+  silent: boolean = false
 ) => {
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
-    await message.error();
+    if (!silent) await message.error();
     return null;
   }
   if (!match) {
@@ -135,7 +142,7 @@ export const textChannelConverter = async (
       .first();
     if (channel) return channel as TextChannel;
     else {
-      await message.error("CHANNEL_NOT_FOUND");
+      if (!silent) await message.error("CHANNEL_NOT_FOUND");
       return null;
     }
   } else {
@@ -143,7 +150,7 @@ export const textChannelConverter = async (
     if (channel && (channel.type == "text" || channel.type == "news"))
       return channel as TextChannel;
     else {
-      await message.error("INVALID_CHANNEL_ID");
+      if (!silent) await message.error("INVALID_CHANNEL_ID");
       return null;
     }
   }
@@ -151,12 +158,13 @@ export const textChannelConverter = async (
 
 export const voiceChannelConverter = async (
   message: FireMessage,
-  argument: string
+  argument: string,
+  silent: boolean = false
 ) => {
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
-    await message.error();
+    if (!silent) await message.error();
     return null;
   }
   if (!match) {
@@ -165,14 +173,14 @@ export const voiceChannelConverter = async (
       .first();
     if (channel) return channel as VoiceChannel;
     else {
-      await message.error("CHANNEL_NOT_FOUND");
+      if (!silent) await message.error("CHANNEL_NOT_FOUND");
       return null;
     }
   } else {
     const channel = guild.channels.cache.get(match);
     if (channel && channel.type == "voice") return channel as VoiceChannel;
     else {
-      await message.error("INVALID_CHANNEL_ID");
+      if (!silent) await message.error("INVALID_CHANNEL_ID");
       return null;
     }
   }
@@ -180,12 +188,13 @@ export const voiceChannelConverter = async (
 
 export const categoryChannelConverter = async (
   message: FireMessage,
-  argument: string
+  argument: string,
+  silent: boolean = false
 ) => {
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
-    await message.error();
+    if (!silent) await message.error();
     return null;
   }
   if (!match) {
@@ -196,7 +205,7 @@ export const categoryChannelConverter = async (
       .first();
     if (channel) return channel as CategoryChannel;
     else {
-      await message.error("CHANNEL_NOT_FOUND");
+      if (!silent) await message.error("CHANNEL_NOT_FOUND");
       return null;
     }
   } else {
@@ -204,7 +213,7 @@ export const categoryChannelConverter = async (
     if (channel && channel.type == "category")
       return channel as CategoryChannel;
     else {
-      await message.error("INVALID_CHANNEL_ID");
+      if (!silent) await message.error("INVALID_CHANNEL_ID");
       return null;
     }
   }

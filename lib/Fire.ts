@@ -118,12 +118,9 @@ export class Fire extends AkairoClient {
       async (message: FireMessage, phrase: any) => {
         if (!phrase) return message.member || message.author;
         else {
-          const user = await userConverter(message, phrase);
-          if (user) {
-            const member = message.guild.members.cache.get(user.id);
-            if (member) return member;
-            else return user;
-          }
+          const member = await memberConverter(message, phrase, true);
+          if (member) return member;
+          else return await userConverter(message, phrase);
         }
       }
     );
