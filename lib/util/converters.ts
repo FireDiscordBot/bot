@@ -71,8 +71,12 @@ export const userConverter = async (
         : null;
     if (user) return user;
     else {
-      if (!silent) await message.error("INVALID_USER_ID");
-      return null;
+      const fetch = await message.client.users.fetch(userID);
+      if (fetch) return fetch;
+      else {
+        if (!silent) await message.error("INVALID_USER_ID");
+        return null;
+      }
     }
   } else {
     if (argument[0] == "@") argument = argument.slice(1);
