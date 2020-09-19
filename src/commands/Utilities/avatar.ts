@@ -1,7 +1,8 @@
+import { FireMember } from "../../../lib/extensions/guildmember";
 import { FireMessage } from "../../../lib/extensions/message";
+import { FireUser } from "../../../lib/extensions/user";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import { GuildMember, User } from "discord.js";
 
 export default class Avatar extends Command {
   constructor() {
@@ -22,16 +23,20 @@ export default class Avatar extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { user: GuildMember | User | null }) {
+  async exec(
+    message: FireMessage,
+    args: { user: FireMember | FireUser | null }
+  ) {
     let user = args.user;
-    if (!(user instanceof GuildMember || user instanceof User))
-      return message.error("USER_NOT_FOUND");
-    if (message.guild.member(user)) user = message.guild.member(user);
+    if (!(user instanceof FireMember || user instanceof FireUser))
+      return await message.error("USER_NOT_FOUND");
+    if (message.guild.member(user))
+      user = message.guild.member(user) as FireMember;
     const color =
-      user instanceof GuildMember
+      user instanceof FireMember
         ? user?.displayColor
         : message.member?.displayColor || "#ffffff";
-    if (user instanceof GuildMember) user = user.user;
+    if (user instanceof FireMember) user = user.user as FireUser;
     const embed = {
       color: color,
       timestamp: new Date(),
