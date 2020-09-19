@@ -67,6 +67,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         self.urlre = r'(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)'
         self.homere = r'(/Users/\w+|/home/\w+|C:\\Users\\\w+)'
         self.emojire = r'<a?:[a-zA-Z0-9\_]+:([0-9]+)>'
+        self.setuserre = r'\[Client thread\/INFO]: Setting user: (\w{1,16})'
         self.solutions = json.load(open('sk1er_solutions.json'))
         self.modconf = json.load(open('mods.json'))
         self.sk1static = HTTPClient(
@@ -419,7 +420,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
     def get_solutions(self, log):
         solutions = []
         for err, sol in self.solutions.items():
-            if err in log:
+            if err in log and f'- {sol}' not in solutions:
                 solutions.append(f'- {sol}')
         if 'OptiFine_1.8.9_HD_U' in log and not any(v in log for v in ['_I7', '_L5']):
             solutions.append(f'- Update Optifine to either I7 or L5')
@@ -521,6 +522,18 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             except discord.HTTPException:
                 pass
             solutions = self.get_solutions(txt)
+            user = re.findall(self.setuserre, text, re.MULTILINE)
+            if user:
+                try:
+                    useruuid = await self.name_to_uuid(user[0])
+                    if not useruuid:
+                        if solutions:
+                            solutions += "\n- It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game"
+                        else:
+                            solutions = """Possible solutions:
+- It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game"""
+                except Exception:
+                    pass
             return await message.channel.send(
                 f'{message.author} {msg_type} a log, {message.content if msg_type == "uploaded" else ""}\n{url}\n\n{solutions}'
             )
