@@ -180,13 +180,19 @@ export class Fire extends AkairoClient {
   }
 
   async haste(text: string, fallback: boolean = false) {
-    const url = fallback
-      ? "https://hst.sh/documents"
-      : "https://h.inv.wtf/documents";
-    const h: { key: string } = await (
-      await Centra(url, "POST").body(text, "buffer").send()
-    ).json();
-    return url + h.key;
+    const url = fallback ? "https://h.inv.wtf/" : "https://hst.sh/";
+    try {
+      const h: { key: string } = await (
+        await Centra(url, "POST")
+          .path("/documents")
+          .body(text, "buffer")
+          .header("User-Agent", "Fire Discord Bot")
+          .send()
+      ).json();
+      return url + h.key;
+    } catch {
+      return await this.haste(text, true);
+    }
   }
 
   public getCommand(id: string) {
