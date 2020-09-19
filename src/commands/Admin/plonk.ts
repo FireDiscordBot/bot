@@ -58,6 +58,7 @@ export default class Plonk extends Command {
     )
       return;
     const user = args.user instanceof GuildMember ? args.user.user : args.user;
+    if (!user) return;
     if (this.client.util.plonked.includes(user.id)) {
       const unblacklisted = await this.client.util.unblacklist(user);
       if (unblacklisted) return await message.success();
