@@ -4,6 +4,7 @@ import {
   ListenerHandler,
   version as akairover,
 } from "discord-akairo";
+import { memberConverter, userConverter } from "./util/converters";
 import { CommandHandler } from "./util/commandHandler";
 import { PostgresProvider } from "./providers/postgres";
 import { Module, ModuleHandler } from "./util/module";
@@ -116,7 +117,28 @@ export class Fire extends AkairoClient {
       "user|member",
       async (message: FireMessage, phrase: any) => {
         if (!phrase) return message.member || message.author;
-        else return await message.guild.resolveOrFetchUser(phrase);
+        else {
+          const user = await userConverter(message, phrase);
+          if (user) {
+            const member = message.guild.members.cache.get(user.id);
+            if (member) return member;
+            else return user;
+          }
+        }
+      }
+    );
+    this.commandHandler.resolver.addType(
+      "member",
+      async (message: FireMessage, phrase: any) => {
+        if (!phrase) return message.member || message.author;
+        return await memberConverter(message, phrase);
+      }
+    );
+    this.commandHandler.resolver.addType(
+      "user",
+      async (message: FireMessage, phrase: any) => {
+        if (!phrase) return message.member || message.author;
+        return await userConverter(message, phrase);
       }
     );
     this.commandHandler.loadAll();
