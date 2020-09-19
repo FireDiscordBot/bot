@@ -8,6 +8,7 @@ import {
 import { Fire } from "../Fire";
 import { Language } from "../util/language";
 import { constants } from "../util/constants";
+import { FireMember } from "./guildmember";
 import { FireGuild } from "./guild";
 
 const { emojis, reactions } = constants;
@@ -16,6 +17,7 @@ export class FireMessage extends Message {
   client: Fire;
   language: Language;
   guild: FireGuild;
+  member: FireMember;
   constructor(
     client: Fire,
     data: object,
