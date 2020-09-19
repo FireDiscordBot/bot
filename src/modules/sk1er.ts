@@ -21,6 +21,7 @@ interface Regexes {
   email: RegExp;
   url: RegExp;
   home: RegExp;
+  settingUser: RegExp;
 }
 
 interface MojangProfile {
@@ -70,6 +71,7 @@ export default class Sk1er extends Module {
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}/im,
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/im,
       home: /(\/Users\/\w+|\/home\/\w+|C:\\Users\\\w+)/im,
+      settingUser: /\[Client thread\/INFO]: Setting user: (\w{1,16})/im,
     };
     this.logText = [
       "net.minecraft.launchwrapper.Launch",
@@ -223,7 +225,11 @@ export default class Sk1er extends Module {
   public getSolutions(log: string) {
     let currentSolutions: string[] = [];
     Object.keys(solutions).forEach((err) => {
-      if (log.includes(err)) currentSolutions.push(`- ${solutions[err]}`);
+      if (
+        log.includes(err) &&
+        !currentSolutions.includes(`- ${solutions[err]}`)
+      )
+        currentSolutions.push(`- ${solutions[err]}`);
     });
     if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_I7|_L5/im))
       currentSolutions.push("- Update Optifine to either I7 or L5");
@@ -327,16 +333,31 @@ export default class Sk1er extends Module {
             reason: "Removing log and sending haste",
           });
         } catch {}
-        const solutions = this.getSolutions(text);
+        let possibleSolutions = this.getSolutions(text);
+        const user = this.regexes.settingUser.exec(text);
+        if (user?.length) {
+          try {
+            const uuid = await this.nameToUUID(user[1]);
+            if (!uuid)
+              if (possibleSolutions)
+                possibleSolutions +=
+                  "\n- It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
+              else
+                possibleSolutions =
+                  "Possible solutions:\n- It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
+          } catch {}
+        }
         return await message.send(
           "SK1ER_LOG_HASTE",
           message.author,
           msgType,
           msgType == "sent" ? message.content : "",
           haste,
-          solutions
+          possibleSolutions
         );
-      } catch {}
+      } catch (e) {
+        this.client.console.error(e.stack);
+      }
     }
   }
 
