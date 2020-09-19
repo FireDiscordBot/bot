@@ -12,54 +12,6 @@ export class Util extends ClientUtil {
     this.plonked = [];
   }
 
-  // I will rewrite this eventually
-  async resolveOrFetchUser(
-    text: string,
-    users?: Collection<Snowflake, User>,
-    guild?: Guild,
-    caseSensitive: boolean = false,
-    wholeWord: boolean = true
-  ) {
-    let user: User | null = null;
-    let full = text;
-    if (text && text.match(/(?:<@!?)?([0-9]{15,22})>?/m))
-      return await this.client.users
-        .fetch(text.match(/(?:<@!?)?([0-9]{15,22})>?/m)[1])
-        .catch(() => null);
-    if (guild) {
-      if (text.includes("#")) text = text.split("#")[0];
-      const member = guild.members.cache.find(
-        (member) =>
-          this.userToString(member).toLowerCase() == full.toLowerCase() ||
-          member.displayName?.toLowerCase() == text.toLowerCase() ||
-          member.user.username?.toLowerCase() == text.toLowerCase()
-      );
-      if (member) return member.user;
-      else {
-        return (
-          await guild.members.fetch({
-            user: users ? [...users.values()] : [],
-            query: text,
-            limit: 1,
-          })
-        ).first();
-      }
-    }
-    return super.resolveUser(
-      text,
-      users || this.client.users.cache,
-      caseSensitive,
-      wholeWord
-    );
-  }
-
-  userToString(user: GuildMember | User) {
-    // Will change to extension of guildmember/user soon
-    if (user instanceof GuildMember)
-      return `${user.user.username}#${user.user.discriminator}`;
-    else return `${user.username}#${user.discriminator}`;
-  }
-
   async blacklist(
     user: GuildMember | User,
     reason: string,
@@ -94,9 +46,7 @@ export class Util extends ClientUtil {
       [username, user.id, reason, permanent]
     );
     this.client.util.plonked.push(user.id);
-    this.client.console.warn(
-      `[Blacklist] Successfully blacklisted ${this.userToString(user)}`
-    );
+    this.client.console.warn(`[Blacklist] Successfully blacklisted ${user}`);
     return true;
   }
 
@@ -112,9 +62,7 @@ export class Util extends ClientUtil {
       [username, user.id, reason, permanent]
     );
     this.client.console.warn(
-      `[Blacklist] Successfully updated blacklist for ${this.userToString(
-        user
-      )}`
+      `[Blacklist] Successfully updated blacklist for ${user}`
     );
     return true;
   }
@@ -126,9 +74,7 @@ export class Util extends ClientUtil {
     this.client.util.plonked = this.client.util.plonked.filter(
       (u) => u != user.id
     );
-    this.client.console.warn(
-      `[Blacklist] Successfully unblacklisted ${this.userToString(user)}`
-    );
+    this.client.console.warn(`[Blacklist] Successfully unblacklisted ${user}`);
     return true;
   }
 }
