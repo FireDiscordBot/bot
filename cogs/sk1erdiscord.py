@@ -494,9 +494,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 except discord.HTTPException:
                     pass
                 return await message.channel.send(
-                    f'{message.author.mention}, Unzip this in `.minecraft/modcore` and your issue should be resolved.',
-                    file=discord.File(io.BytesIO(zipfile),
-                                      filename="modcore.zip"),
+                    f'{message.author.mention}, Download the zip from <{zipfile}> and unzip it in `.minecraft/modcore` and your issue should be resolved.',
                     allowed_mentions=discord.AllowedMentions(users=True)
                 )
         txt = re.sub(self.emailre, '[removed email]', txt, 0, re.MULTILINE)
@@ -558,7 +556,20 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 (json.dumps({"1.8.9": current}).encode("UTF-8"))
             )
             zf.close()
-        return zipbytes.getvalue()
+        session = aiohttp.ClientSession()
+        data = aiohttp.FormData()
+        data.add_field("file", zipbytes, filename="modcore.zip",
+                       content_type="application/zip")
+        url = None
+        try:
+            res = await session.post("https://static.inv.wtf/upload", data=data)
+            if res.status == 200:
+                body = await res.json()
+                url = body['file']['url']
+        except Exception:
+            pass
+        await session.close()
+        return url
 
     async def check_bot_status(self, message):
         bots = {
