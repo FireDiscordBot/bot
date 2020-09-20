@@ -310,7 +310,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             return await self.check_bot_status(message)
         if message.author.bot and isinstance(message.author, discord.User):
             return
-        if message.guild.id == self.support_guild.id:
+        if message.guild.id in [self.guild.id, self.support_guild.id]:
             await self.check_logs(message)
 
     @commands.Cog.listener()
@@ -480,7 +480,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
     async def handle_log_text(self, message, txt, msg_type='uploaded'):
         log_lines = txt.split('\n')
         if re.findall(
-            r"\[club.sk1er.mods.levelhead.ModCoreInstaller:download:230]: MAX: \d+",
+            r"ModCoreInstaller:download:\d{1,5}]: MAX: \d+",
             log_lines[-1]
         ):
             zipfile = None
