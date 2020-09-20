@@ -21,6 +21,7 @@ from discord.ext import commands, tasks, flags
 from jishaku.models import copy_context_with
 from fire.http import HTTPClient, Route
 import urllib.parse
+import aiofiles
 import datetime
 import aiohttp
 import discord
@@ -495,7 +496,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     pass
                 return await message.channel.send(
                     f'{message.author.mention}, Download the zip from {zip} and then unzip it in `.minecraft/modcore` and your issue should be resolved.',
-                    #file=discord.File(io.BytesIO(zip),
+                    # file=discord.File(io.BytesIO(zip),
                     #                  filename="modcore.zip"),
                     allowed_mentions=discord.AllowedMentions(users=True)
                 )
@@ -558,9 +559,9 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 (json.dumps({"1.8.9": current}).encode("UTF-8"))
             )
             zf.close()
-        with open(f'/var/www/sharex/uploads/modcore.zip', 'wb') as f:
-            f.write(zipbytes.getvalue())
-            f.close()
+        async with aiofiles.open(f'/var/www/sharex/uploads/modcore.zip', 'wb') as f:
+            await f.write(zipbytes.getvalue())
+            await f.close()
         return f'https://static.inv.wtf/modcore.zip'
 
     async def check_bot_status(self, message):
