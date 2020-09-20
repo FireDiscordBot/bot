@@ -483,20 +483,20 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             r"ModCoreInstaller:download:\d{1,5}]: MAX: \d+",
             log_lines[-1]
         ):
-            zipfile = None
+            zip = None
             try:
-                zipfile = await self.create_modcore_zip()
+                zip = await self.create_modcore_zip()
             except Exception:
                 pass
-            if zipfile:
+            if zip:
                 try:
                     await message.delete()
                 except discord.HTTPException:
                     pass
                 return await message.channel.send(
-                    f'{message.author.mention}, Unzip this in `.minecraft/modcore` and your issue should be resolved.',
-                    file=discord.File(io.BytesIO(zipfile),
-                                      filename="modcore.zip"),
+                    f'{message.author.mention}, Download the zip from {zip} and then unzip it in `.minecraft/modcore` and your issue should be resolved.',
+                    #file=discord.File(io.BytesIO(zip),
+                    #                  filename="modcore.zip"),
                     allowed_mentions=discord.AllowedMentions(users=True)
                 )
         txt = re.sub(self.emailre, '[removed email]', txt, 0, re.MULTILINE)
@@ -558,7 +558,10 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 (json.dumps({"1.8.9": current}).encode("UTF-8"))
             )
             zf.close()
-        return zipbytes.getvalue()
+        with open(f'/var/www/sharex/uploads/modcore.zip', 'wb') as f:
+            f.write(zipbytes.getvalue())
+            f.close()
+        return f'https://static.inv.wtf/modcore.zip'
 
     async def check_bot_status(self, message):
         bots = {
