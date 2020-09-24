@@ -39,15 +39,7 @@ class UserUpdate(commands.Cog):
                     if not member:
                         continue
                     if conf.get('mod.autodecancer') and guild.me.guild_permissions.manage_nicknames:
-                        sk1roles = [
-                            discord.utils.get(
-                                member.guild.roles, id=585534346551754755),
-                            discord.utils.get(
-                                member.guild.roles, id=436306157762773013),
-                            discord.utils.get(
-                                member.guild.roles, id=698943379181928520)
-                        ]
-                        if member.guild_permissions.manage_nicknames or any(r for r in sk1roles if r in member.roles):
+                        if member.guild_permissions.manage_nicknames:
                             pass
                         else:
                             nick = after.name
@@ -58,15 +50,7 @@ class UserUpdate(commands.Cog):
                                     if not self.bot.ishoisted(nick):
                                         await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: USER_UPDATE)')
                     if conf.get('mod.autodehoist') and guild.me.guild_permissions.manage_nicknames:
-                        sk1roles = [
-                            discord.utils.get(
-                                member.guild.roles, id=585534346551754755),
-                            discord.utils.get(
-                                member.guild.roles, id=436306157762773013),
-                            discord.utils.get(
-                                member.guild.roles, id=698943379181928520)
-                        ]
-                        if member.guild_permissions.manage_nicknames or any(r for r in sk1roles if r in member.roles):
+                        if member.guild_permissions.manage_nicknames:
                             pass
                         else:
                             nick = after.name

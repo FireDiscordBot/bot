@@ -224,14 +224,6 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         if not after.guild or after.guild.id != self.guild.id:
             return
         if before.roles != after.roles:
-            sk1roles = [
-                discord.utils.get(self.guild.roles, id=585534346551754755),
-                discord.utils.get(self.guild.roles, id=436306157762773013),
-                discord.utils.get(self.guild.roles, id=698943379181928520)
-            ]
-            if not any(r for r in sk1roles if r in after.roles):
-                if not self.bot.isascii(after.nick or after.name) or self.bot.ishoisted(after.nick or after.name):
-                    await after.edit(nick=self.bot.get_config(self.guild.id).get('utils.badname') or f'John Doe {after.discriminator}')
             broles = []
             aroles = []
             changed = []

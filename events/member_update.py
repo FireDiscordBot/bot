@@ -39,15 +39,7 @@ class MemberUpdate(commands.Cog):
                 if after.nick is not None and badname in after.nick:
                     raise Exception  # Escapes the try
                 if conf.get('mod.autodecancer') and after.guild.me.guild_permissions.manage_nicknames:
-                    sk1roles = [
-                        discord.utils.get(after.guild.roles,
-                                          id=585534346551754755),
-                        discord.utils.get(after.guild.roles,
-                                          id=436306157762773013),
-                        discord.utils.get(after.guild.roles,
-                                          id=698943379181928520)
-                    ]
-                    if not after.guild_permissions.manage_nicknames or not any(r for r in sk1roles if r in after.roles):
+                    if not after.guild_permissions.manage_nicknames:
                         if not after.nick:
                             nick = after.name
                         else:
@@ -60,15 +52,7 @@ class MemberUpdate(commands.Cog):
                             if change and badname not in str(m.nick):
                                 await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
                 if conf.get('mod.autodehoist') and after.guild.me.guild_permissions.manage_nicknames:
-                    sk1roles = [
-                        discord.utils.get(after.guild.roles,
-                                          id=585534346551754755),
-                        discord.utils.get(after.guild.roles,
-                                          id=436306157762773013),
-                        discord.utils.get(after.guild.roles,
-                                          id=698943379181928520)
-                    ]
-                    if not after.guild_permissions.manage_nicknames or not any(r for r in sk1roles if r in after.roles):
+                    if not after.guild_permissions.manage_nicknames:
                         if not after.nick:
                             nick = after.name
                         else:
