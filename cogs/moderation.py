@@ -27,6 +27,7 @@ import humanfriendly
 import re
 from fire.converters import UserWithFallback, Member, TextChannel, Role
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
+from nanoid import generate as make_nanoid
 
 day_regex = re.compile(r"(?:(?P<days>\d+)(?:d|days|day| days| day))")
 hour_regex = re.compile(r"(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))")
@@ -437,7 +438,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
                     "%d/%m/%Y @ %I:%M:%S %p"
                 ),
                 "mute",
-                str(datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id),
+                make_nanoid(),
             )
         await self.bot.db.release(con)
         if until:
@@ -591,7 +592,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
                         "%d/%m/%Y @ %I:%M:%S %p"
                     ),
                     "ban",
-                    str(datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id),
+                    make_nanoid(),
                 )
             await self.bot.db.release(con)
         except discord.Forbidden:
@@ -654,7 +655,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
                     "%d/%m/%Y @ %I:%M:%S %p"
                 ),
                 "unban",
-                str(datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id),
+                make_nanoid(),
             )
         await self.bot.db.release(con)
 
@@ -734,7 +735,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
                         "%d/%m/%Y @ %I:%M:%S %p"
                     ),
                     "softban",
-                    str(datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id),
+                    make_nanoid(),
                 )
             await self.bot.db.release(con)
         except discord.Forbidden:
@@ -873,7 +874,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
                     "%d/%m/%Y @ %I:%M:%S %p"
                 ),
                 "warn",
-                str(datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id),
+                make_nanoid(),
             )
         await self.bot.db.release(con)
 
@@ -1031,7 +1032,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
                         "%d/%m/%Y @ %I:%M:%S %p"
                     ),
                     "kick",
-                    str(datetime.datetime.now(datetime.timezone.utc).timestamp() + user.id),
+                    make_nanoid(),
                 )
             await self.bot.db.release(con)
         except discord.Forbidden:
