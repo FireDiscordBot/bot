@@ -1,7 +1,9 @@
 import { ArgumentOptions, Command } from "../../../lib/util/command";
 import { FireMessage } from "../../../lib/extensions/message";
-import { titleCase } from "../../../lib/util/constants";
+import { titleCase, constants } from "../../../lib/util/constants";
 import { Language } from "../../../lib/util/language";
+const { categoryNames } = constants;
+
 
 export default class Help extends Command {
   constructor() {
@@ -18,7 +20,6 @@ export default class Help extends Command {
           required: false,
         },
       ],
-      category: "Main",
     });
   }
 
@@ -28,19 +29,6 @@ export default class Help extends Command {
   }
 
   async sendHelp(message: FireMessage) {
-    const categoryNames = [
-      "Main",
-      "Moderation",
-      "Configuration",
-      "Utilities",
-      "Tags",
-      "Tickets",
-      "KSoft.Si",
-      "Sk1er",
-      "Fun",
-      "Premium",
-      "Owner",
-    ];
     let fields = [];
     categoryNames.forEach((name: string) => {
       let category = this.client.commandHandler.categories.get(name);

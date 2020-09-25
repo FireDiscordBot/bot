@@ -13,7 +13,6 @@ export default class DiscordStatus extends Command {
       clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
       aliases: ["firestatus"],
       typing: true,
-      category: "Main",
     });
   }
 

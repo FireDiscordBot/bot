@@ -8,7 +8,6 @@ export default class Eightball extends Command {
       description: (language: Language) =>
         language.get("EIGHTBALL_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES"],
-      category: "Fun",
     });
   }
 

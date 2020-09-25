@@ -44,7 +44,7 @@ export default class Plonk extends Command {
         },
       ],
       aliases: ["unplonk"],
-      category: "Admin",
+      hidden: true,
     });
   }
 

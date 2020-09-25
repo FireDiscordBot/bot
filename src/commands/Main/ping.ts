@@ -8,7 +8,6 @@ export default class Ping extends Command {
       description: (language: Language) =>
         language.get("PING_COMMAND_DESCRIPTION"),
       clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
-      category: "Main",
     });
   }
 

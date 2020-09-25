@@ -20,7 +20,6 @@ export default class Ping extends Command {
           required: true,
         },
       ],
-      category: "Configuration",
     });
   }
 

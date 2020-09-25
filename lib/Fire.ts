@@ -96,6 +96,7 @@ export class Fire extends AkairoClient {
       commandUtil: true,
       handleEdits: true,
       storeMessages: true,
+      automateCategories: true,
       prefix: (message) => {
         return this.settings.get(
           message.guild.id,

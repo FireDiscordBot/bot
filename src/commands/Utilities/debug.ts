@@ -22,7 +22,6 @@ export default class Debug extends Command {
           required: true,
         },
       ],
-      category: "Utilities",
     });
   }
 

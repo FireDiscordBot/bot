@@ -9,7 +9,6 @@ export default class AutoDecancer extends Command {
         language.get("AUTODECANCER_COMMAND_DESCRIPTION"),
       userPermissions: ["MANAGE_NICKNAMES"],
       clientPermissions: ["SEND_MESSAGES", "MANAGE_NICKNAMES"],
-      category: "Moderation",
     });
   }
 

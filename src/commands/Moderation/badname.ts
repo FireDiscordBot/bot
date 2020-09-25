@@ -18,7 +18,6 @@ export default class BadName extends Command {
           required: false,
         },
       ],
-      category: "Moderation",
     });
   }
 

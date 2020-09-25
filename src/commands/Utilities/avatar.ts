@@ -19,7 +19,6 @@ export default class Avatar extends Command {
           required: false,
         },
       ],
-      category: "Utilities",
     });
   }
 
