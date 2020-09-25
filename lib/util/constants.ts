@@ -1,4 +1,19 @@
 import humanizeDuration = require("humanize-duration");
+import { readdirSync, statSync } from "fs";
+import { join, resolve } from "path";
+
+const getCategories = () => {
+  let folders: string[] = [];
+  const commandsFolder = resolve("src/commands");
+  const files = readdirSync(commandsFolder);
+
+  for (const file of files) {
+    const filepath = join(commandsFolder, file);
+
+    if (statSync(filepath).isDirectory()) folders.push(file);
+  }
+  return folders;
+};
 
 export const constants = {
   emojis: {
@@ -71,6 +86,7 @@ export const constants = {
       underMaintenance: "<:maintenance:685538400337395743>",
     },
   },
+  categoryNames: getCategories(),
 };
 
 export const noop = () => {};
