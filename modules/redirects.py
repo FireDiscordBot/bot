@@ -38,7 +38,7 @@ class Redirects(commands.Cog, name="Redirects"):
             query = 'INSERT INTO vanity (\"code\", \"redirect\", \"uid\") VALUES ($1, $2, $3);'
             await self.bot.db.execute(query, code, url, str(uid))
         await self.bot.db.release(con)
-        await self.bot.get_cog('Vanity URLs').request_fetch()
+        await self.bot.get_cog('Vanity URLs').request_fetch(reason=f'Redirect "{code}" was created.')
         return {
             'url': url,
             'uid': uid
@@ -56,7 +56,7 @@ class Redirects(commands.Cog, name="Redirects"):
                 query = 'DELETE FROM vanity WHERE code = $1;'
                 await self.bot.db.execute(query, slug)
             await self.bot.db.release(con)
-            await self.bot.get_cog('Vanity URLs').request_fetch()
+            await self.bot.get_cog('Vanity URLs').request_fetch(reason=f'Redirect "{slug}" was deleted.')
 
     @commands.command(name='redirect', description='Creates a custom redirect for a URL using https://inv.wtf/')
     @commands.has_permissions(administrator=True)

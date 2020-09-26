@@ -34,7 +34,7 @@ class Description(commands.Cog):
                 desc
             )
         await self.bot.db.release(con)
-        await self.bot.get_cog('Vanity URLs').request_fetch()
+        await self.bot.get_cog('Vanity URLs').request_fetch(reason=f'Guild "{guild}" updated it\'s description.')
 
     @commands.command(aliases=['desc'])
     @commands.has_permissions(manage_guild=True)

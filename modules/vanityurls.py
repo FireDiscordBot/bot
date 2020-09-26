@@ -50,13 +50,13 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
             return False
         return True
 
-    async def request_fetch(self):
+    async def request_fetch(self, reason='No Reason Provided.'):
         route = Route(
             'PUT',
             '/fetch'
         )
         try:
-            await self.bot.http.invwtf.request(route)
+            await self.bot.http.invwtf.request(route, json={'reason': reason})
         except Exception as e:
             self.bot.logger.warn(
                 f'$YELLOWFailed to request vanity url fetch', exc_info=e)
@@ -72,10 +72,10 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
             return False
 
     @commands.Cog.listener()
-    async def on_vanity_delete(self, vanity=None):
-        await self.request_fetch()
+    async def on_vanity_delete(self, vanity=None, reason="No Reason Provided."):
         if isinstance(vanity, list):
             vanity = vanity[0]
+        await self.request_fetch(reason=f'Vanity "{vanity["code"]}" was deleted with reason "{reason}".')
         guild = self.bot.get_guild(vanity['gid'])
         if not guild:
             return
@@ -109,7 +109,7 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
                 query = 'UPDATE vanity SET (\"code\", \"invite\") = ($2, $3) WHERE gid = $1;'
                 await self.bot.db.execute(query, str(ctx.guild.id), code, inv.code)
             await self.bot.db.release(con)
-        await self.request_fetch()
+        await self.request_fetch(reason=f'Vanity "{code}" was created.')
         return {
             'gid': ctx.guild.id,
             'invite': inv.code,
@@ -134,7 +134,8 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
             for v in current:
                 self.bot.dispatch(
                     'vanity_delete',
-                    v
+                    v,
+                    'Deleted using context.'
                 )
 
     async def delete_code(self, code: str):
@@ -151,7 +152,8 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
             await self.bot.db.release(con)
             self.bot.dispatch(
                 'vanity_delete',
-                current
+                current,
+                'Deleted using code.'
             )
 
     async def delete_guild(self, gid: int):
@@ -168,7 +170,8 @@ class VanityURLs(commands.Cog, name="Vanity URLs"):
             for v in current:
                 self.bot.dispatch(
                     'vanity_delete',
-                    v
+                    v,
+                    'Deleted using guild.'
                 )
 
     async def delete(self, vanity: typing.Union[commands.Context, int, str]):
