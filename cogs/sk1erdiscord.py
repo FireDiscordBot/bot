@@ -415,8 +415,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         for err, sol in self.solutions.items():
             if err in log and f'- {sol}' not in solutions:
                 solutions.append(f'- {sol}')
-        if 'OptiFine_1.8.9_HD_U' in log and not any(v in log for v in ['_I7', '_L5']):
-            solutions.append(f'- Update Optifine to either I7 or L5')
+        if 'OptiFine_1.8.9_HD_U' in log and not any(v in log for v in ['_L5', '_L6']):
+            solutions.append(f'- Update Optifine to either L5 or L6 (currently available as a preview version)')
         if not solutions:
             return ''
         return 'Possible solutions:\n' + '\n'.join(solutions)
