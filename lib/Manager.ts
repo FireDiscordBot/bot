@@ -1,9 +1,8 @@
-import { startRouteManager } from "../src/rest/routeManager";
-import { ErrorResponse, ResponseLocals } from "../src/rest/interfaces";
-import { Reconnector } from "./ws/Reconnector";
-import { sendError } from "../src/rest/utils";
-import { Websocket } from "./ws/Websocket";
-import { Fire } from "./Fire";
+import {startRouteManager} from "../src/rest/routeManager";
+import {ResponseLocals} from "../src/rest/interfaces";
+import {Reconnector} from "./ws/Reconnector";
+import {Websocket} from "./ws/Websocket";
+import {Fire} from "./Fire";
 import * as express from "express";
 
 export class Manager {
@@ -34,10 +33,9 @@ export class Manager {
         res: express.Response,
         next: express.NextFunction
       ) => {
-        const locals: ResponseLocals = {
+        res.locals = {
           client: this.client,
         };
-        res.locals = locals;
         return next();
       }
     );

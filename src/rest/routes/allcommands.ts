@@ -2,7 +2,7 @@ import { ArgumentOptions, Command } from "../../../lib/util/command";
 import { ResponseLocals } from "../interfaces";
 import * as express from "express";
 
-export async function allCommandsRoute(
+export function allCommandsRoute(
   req: express.Request,
   res: express.Response
 ) {

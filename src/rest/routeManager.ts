@@ -3,12 +3,13 @@ import * as express from "express";
 
 import {Fire} from "../../lib/Fire";
 import {sendError} from "./utils";
-import {HttpMethod, Route, router} from "./router";
+import {Route, RouteHandler, router} from "./router";
 
-const RATE_LIMITED_ERROR = {
-  success: false,
-  error: "Too many requests, calm down!",
-  code: 429,
+const asyncHandler = (handler: RouteHandler): RouteHandler => (req, res, next) => {
+  const response = handler(req, res, next);
+  if (response instanceof Promise) {
+    response.catch(next);
+  }
 };
 
 const createRateLimit = ({rateLimit}: Route) => useRateLimit({
@@ -17,7 +18,11 @@ const createRateLimit = ({rateLimit}: Route) => useRateLimit({
   skipFailedRequests: rateLimit.skipFailedRequests,
   handler: (req, res) => {
     res.setHeader("X-RateLimit-Remaining", rateLimit.rateLimitMs);
-    sendError(res, RATE_LIMITED_ERROR);
+    sendError(res, {
+      success: false,
+      error: "Too many requests, calm down!",
+      code: 429,
+    });
   },
 });
 
@@ -29,30 +34,25 @@ export const startRouteManager = (app: express.Application, client: Fire) => {
       handlers.push(createRateLimit(route));
     }
 
-    app.use(route.endpoint, handlers, (req: express.Request, res: express.Response) => {
-      if (route.methods.includes(req.method.toUpperCase() as HttpMethod)) {
-        return route.route(req, res);
-      }
-      throw new Error("Unhandled http method.");
-    });
+    const routeHandler = asyncHandler(route.handler);
+    if (route.methods === "ALL") {
+      app.all(route.endpoint, handlers, routeHandler);
+    } else {
+      route.methods.forEach(method => {
+        app[method.toLowerCase()](route.endpoint, handlers, routeHandler);
+      });
+    }
 
     client.console.log(`[Rest] Loaded route ${route.methods} ${route.endpoint}`);
   });
 
   client.console.log(`[Rest] Loaded ${router.length} routes.`);
-  app.use(
-    (
-      err: Error,
-      req: express.Request,
-      res: express.Response,
-      next: express.NextFunction
-    ) => {
-      sendError(res, {
-        success: false,
-        error: err.message || "Internal Server Error",
-        code: 500,
-      });
-    }
-  );
+  app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    sendError(res, {
+      success: false,
+      error: err.message || "Internal Server Error",
+      code: 500,
+    });
+  });
   client.console.log(`[Rest] Loaded error handler.`);
 };

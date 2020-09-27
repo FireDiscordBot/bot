@@ -2,7 +2,7 @@ import { FireGuild } from "../../../lib/extensions/guild";
 import { ResponseLocals } from "../interfaces";
 import * as express from "express";
 
-export async function publicRoute(req: express.Request, res: express.Response) {
+export function publicRoute(req: express.Request, res: express.Response) {
   const locals: ResponseLocals = res.locals as ResponseLocals;
   let publicGuilds: string[] = [];
   locals.client.guilds.cache.forEach((guild: FireGuild) => {

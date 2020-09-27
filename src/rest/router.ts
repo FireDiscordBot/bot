@@ -11,12 +11,12 @@ export type HttpMethod = "GET" | "POST" | "DELETE" | "PUT" | "CONNECT" |
   "HEAD" |
   "TRACE";
 
-export type RouteHandler = (req: express.Request, res: express.Response, next?: express.NextFunction) => void | Promise<void>;
+export type RouteHandler = (req: express.Request, res: express.Response, next: express.NextFunction) => void | Promise<void>;
 
 export type Route = {
   name: string;
   description: string;
-  methods: HttpMethod[];
+  methods: HttpMethod[] | "ALL";
   endpoint: string;
   rateLimit?: {
     maxRequests: number;
@@ -24,7 +24,7 @@ export type Route = {
     skipFailedRequests: boolean;
   };
   requiresAuth?: boolean;
-  route: RouteHandler
+  handler: RouteHandler
 };
 
 export const router: Route[] = [
@@ -33,14 +33,14 @@ export const router: Route[] = [
     description: "Gives information about the current shard",
     methods: ["GET"],
     endpoint: "/",
-    route: rootRoute,
+    handler: rootRoute,
   },
   {
     name: "Avatar",
     description: "Returns the current avatar of Fire",
     methods: ["GET"],
     endpoint: "/avatar",
-    route: avatarRoute,
+    handler: avatarRoute,
   },
   {
     name: "All Commands",
@@ -48,37 +48,28 @@ export const router: Route[] = [
     methods: ["GET"],
     endpoint: "/allcommands",
     requiresAuth: false,
-    route: allCommandsRoute,
+    handler: allCommandsRoute,
   },
   {
     name: "Commands",
     description: "Returns a list of all categories and their commands",
     methods: ["GET"],
     endpoint: "/commands",
-    route: commandsRoute,
+    handler: commandsRoute,
   },
   {
     name: "Public",
     description: "Returns a list of public guild ids",
     methods: ["GET"],
     endpoint: "/public",
-    route: publicRoute,
+    handler: publicRoute,
   },
   {
     name: "Fallback",
     description: "Fallback endpoint so express doesn't complain",
-    methods: [
-      "CONNECT",
-      "OPTIONS",
-      "HEAD",
-      "TRACE",
-      "GET",
-      "POST",
-      "PUT",
-      "DELETE",
-    ],
+    methods: "ALL",
     endpoint: "*",
-    route: (req: express.Request, res: express.Response) => {
+    handler: (req: express.Request, res: express.Response) => {
       sendError(res, {
         success: false,
         error: "Not Found",
