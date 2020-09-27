@@ -1,86 +1,68 @@
-import { allCommandsRoute } from "./routes/allcommands";
-import { commandsRoute } from "./routes/commands";
-import { publicRoute } from "./routes/public";
-import { avatarRoute } from "./routes/avatar";
-import { ErrorResponse } from "./interfaces";
-import { rootRoute } from "./routes/root";
-import { sendError } from "./utils";
+import {allCommandsRoute} from "./routes/allcommands";
+import {commandsRoute} from "./routes/commands";
+import {publicRoute} from "./routes/public";
+import {avatarRoute} from "./routes/avatar";
+import {rootRoute} from "./routes/root";
+import {sendError} from "./utils";
 import * as express from "express";
 
-export const router = [
+export type HttpMethod = "GET" | "POST" | "DELETE" | "PUT" | "CONNECT" |
+  "OPTIONS" |
+  "HEAD" |
+  "TRACE";
+
+export type RouteHandler = (req: express.Request, res: express.Response, next?: express.NextFunction) => void | Promise<void>;
+
+export type Route = {
+  name: string;
+  description: string;
+  methods: HttpMethod[];
+  endpoint: string;
+  rateLimit?: {
+    maxRequests: number;
+    rateLimitMs: number;
+    skipFailedRequests: boolean;
+  };
+  requiresAuth?: boolean;
+  route: RouteHandler
+};
+
+export const router: Route[] = [
   {
     name: "Root",
     description: "Gives information about the current shard",
     methods: ["GET"],
     endpoint: "/",
-    rateLimit: {
-      enabled: false,
-      maxRequests: 0,
-      rateLimitMs: 0,
-      skipFailedRequests: false,
-    },
-    requiresAuth: false,
-    route: (req: express.Request, res: express.Response) => rootRoute(req, res),
+    route: rootRoute,
   },
   {
     name: "Avatar",
     description: "Returns the current avatar of Fire",
     methods: ["GET"],
     endpoint: "/avatar",
-    rateLimit: {
-      enabled: false,
-      maxRequests: 0,
-      rateLimitMs: 0,
-      skipFailedRequests: false,
-    },
-    requiresAuth: false,
-    route: (req: express.Request, res: express.Response) =>
-      avatarRoute(req, res),
+    route: avatarRoute,
   },
   {
     name: "All Commands",
     description: "Returns a list of all loaded commands",
     methods: ["GET"],
     endpoint: "/allcommands",
-    rateLimit: {
-      enabled: false,
-      maxRequests: 0,
-      rateLimitMs: 0,
-      skipFailedRequests: false,
-    },
     requiresAuth: false,
-    route: (req: express.Request, res: express.Response) =>
-      allCommandsRoute(req, res),
+    route: allCommandsRoute,
   },
   {
     name: "Commands",
     description: "Returns a list of all categories and their commands",
     methods: ["GET"],
     endpoint: "/commands",
-    rateLimit: {
-      enabled: false,
-      maxRequests: 0,
-      rateLimitMs: 0,
-      skipFailedRequests: false,
-    },
-    requiresAuth: false,
-    route: (req: express.Request, res: express.Response) =>
-      commandsRoute(req, res),
+    route: commandsRoute,
   },
   {
     name: "Public",
     description: "Returns a list of public guild ids",
     methods: ["GET"],
     endpoint: "/public",
-    rateLimit: {
-      enabled: false,
-      maxRequests: 0,
-      rateLimitMs: 0,
-      skipFailedRequests: false,
-    },
-    requiresAuth: false,
-    route: (req: express.Request, res: express.Response) =>
-      publicRoute(req, res),
+    route: publicRoute,
   },
   {
     name: "Fallback",
@@ -96,20 +78,12 @@ export const router = [
       "DELETE",
     ],
     endpoint: "*",
-    rateLimit: {
-      enabled: false,
-      maxRequests: 0,
-      rateLimitMs: 0,
-      skipFailedRequests: false,
-    },
-    requiresAuth: false,
     route: (req: express.Request, res: express.Response) => {
-      const response: ErrorResponse = {
+      sendError(res, {
         success: false,
         error: "Not Found",
         code: 404,
-      };
-      sendError(res, response);
+      });
     },
   },
 ];

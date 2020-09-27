@@ -1,74 +1,44 @@
-import { ErrorResponse } from "./interfaces";
-import { Fire } from "../../lib/Fire";
-import { sendError } from "./utils";
-import { router } from "./router";
 import * as useRateLimit from "express-rate-limit";
 import * as express from "express";
 
-const asyncHandler = (route: any) => {
-  const asyncUtilWrap = (...args: any[]) => {
-    const fnReturn = route(...args);
-    const next = args[args.length - 1];
-    return Promise.resolve(fnReturn).catch(next);
-  };
-  return asyncUtilWrap;
+import {Fire} from "../../lib/Fire";
+import {sendError} from "./utils";
+import {HttpMethod, Route, router} from "./router";
+
+const RATE_LIMITED_ERROR = {
+  success: false,
+  error: "Too many requests, calm down!",
+  code: 429,
 };
+
+const createRateLimit = ({rateLimit}: Route) => useRateLimit({
+  windowMs: rateLimit.rateLimitMs,
+  max: rateLimit.maxRequests,
+  skipFailedRequests: rateLimit.skipFailedRequests,
+  handler: (req, res) => {
+    res.setHeader("X-RateLimit-Remaining", rateLimit.rateLimitMs);
+    sendError(res, RATE_LIMITED_ERROR);
+  },
+});
 
 export const startRouteManager = (app: express.Application, client: Fire) => {
   router.forEach((route) => {
-    route.methods.forEach((method) => {
-      const friendlyMethod: string = method.toLowerCase();
-      const endpoint = route.endpoint;
-      let rateLimit: useRateLimit.RateLimit | undefined;
+    const handlers: express.RequestHandler[] = [];
 
-      if (
-        route.rateLimit &&
-        route.rateLimit.enabled &&
-        route.rateLimit.maxRequests &&
-        route.rateLimit.rateLimitMs &&
-        process.env.NODE_ENV != "development"
-      ) {
-        const rateLimited: ErrorResponse = {
-          success: false,
-          error: "Too many requests, calm down!",
-          code: 429,
-        };
-        rateLimit = useRateLimit({
-          windowMs: route.rateLimit.rateLimitMs,
-          max: route.rateLimit.maxRequests,
-          skipFailedRequests: route.rateLimit.skipFailedRequests,
-          handler: (req, res) => {
-            res.setHeader("X-RateLimit-Remaining", route.rateLimit.rateLimitMs);
-            sendError(res, rateLimited);
-          },
-        });
+    if (route.rateLimit && process.env.NODE_ENV != "development") {
+      handlers.push(createRateLimit(route));
+    }
+
+    app.use(route.endpoint, handlers, (req: express.Request, res: express.Response) => {
+      if (route.methods.includes(req.method.toUpperCase() as HttpMethod)) {
+        return route.route(req, res);
       }
-      switch (friendlyMethod) {
-        case "connect":
-        case "options":
-        case "head":
-        case "trace":
-        case "get":
-        case "post":
-        case "put":
-        case "delete": {
-          rateLimit
-            ? app[friendlyMethod](
-                endpoint,
-                rateLimit,
-                asyncHandler(route.route)
-              )
-            : app[friendlyMethod](endpoint, asyncHandler(route.route));
-        }
-        default: {
-          rateLimit
-            ? app["get"](endpoint, rateLimit, asyncHandler(route.route))
-            : app["get"](endpoint, asyncHandler(route.route));
-        }
-      }
-      client.console.log(`[Rest] Loaded route ${method} ${endpoint}`);
+      throw new Error("Unhandled http method.");
     });
+
+    client.console.log(`[Rest] Loaded route ${route.methods} ${route.endpoint}`);
   });
+
   client.console.log(`[Rest] Loaded ${router.length} routes.`);
   app.use(
     (
@@ -77,12 +47,11 @@ export const startRouteManager = (app: express.Application, client: Fire) => {
       res: express.Response,
       next: express.NextFunction
     ) => {
-      const response: ErrorResponse = {
+      sendError(res, {
         success: false,
         error: err.message || "Internal Server Error",
         code: 500,
-      };
-      sendError(res, response);
+      });
     }
   );
   client.console.log(`[Rest] Loaded error handler.`);
