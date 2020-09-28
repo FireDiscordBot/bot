@@ -1,34 +1,33 @@
-import { states } from "./util/constants";
+import { WebsocketStates } from "./util/constants";
 import { Websocket } from "./Websocket";
 import { Manager } from "../Manager";
-const { IDLE, RECONNECTING } = states;
 
 export class Reconnector {
-  client: Manager;
+  manager: Manager;
   timeout: number;
   state: number;
   interval: NodeJS.Timeout | null;
 
-  constructor(client: Manager, timeout = 5000) {
-    this.client = client;
+  constructor(manager: Manager, timeout = 5000) {
+    this.manager = manager;
     this.timeout = timeout;
-    this.state = IDLE;
+    this.state = WebsocketStates.IDLE;
     this.interval = null;
   }
 
   handleOpen() {
-    if (this.state === RECONNECTING) {
+    if (this.state === WebsocketStates.RECONNECTING) {
       if (this.interval) clearInterval(this.interval);
-      this.client.client.console.log("[Aether] Reconnected to Websocket.");
-      this.state = IDLE;
+      this.manager.client.console.log("[Aether] Reconnected to Websocket.");
+      this.state = WebsocketStates.IDLE;
     } else {
-      this.client.client.console.log("[Aether] Connected to Websocket.");
+      this.manager.client.console.log("[Aether] Connected to Websocket.");
     }
   }
 
   handleClose(code: number, reason: string) {
-    if (this.state === IDLE) {
-      this.client.client.console.warn(
+    if (this.state === WebsocketStates.IDLE) {
+      this.manager.client.console.warn(
         `[Aether] Disconnected from Websocket with code ${code} and reason ${reason}.`
       );
       this.activate();
@@ -37,11 +36,11 @@ export class Reconnector {
 
   handleError(error: any) {
     if (error.code === "ECONNREFUSED") {
-      if (this.state === IDLE) {
+      if (this.state === WebsocketStates.IDLE) {
         this.activate();
       }
     } else {
-      this.client.client.console.error(
+      this.manager.client.console.error(
         `[Aether] Received error event: ${error}`
       );
     }
@@ -49,17 +48,15 @@ export class Reconnector {
 
   activate() {
     if (this.interval) clearInterval(this.interval);
-    this.interval = setInterval(() => {
-      this.reconnect();
-    }, this.timeout);
+    this.interval = setInterval(this.reconnect.bind(this), this.timeout);
   }
 
   reconnect() {
-    this.client.client.console.log(
+    this.manager.client.console.log(
       `[Aether] Attempting to reconnect with ${this.timeout}ms timeout.`
     );
-    this.state = RECONNECTING;
-    this.client.ws = new Websocket(this.client);
-    this.client.init();
+    this.state = WebsocketStates.RECONNECTING;
+    this.manager.ws = new Websocket(this.manager);
+    this.manager.init();
   }
 }

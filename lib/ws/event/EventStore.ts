@@ -1,22 +1,22 @@
 import { Manager } from "../../Manager";
 import { readdirSync } from "fs";
 import { join } from "path";
+import { Collection } from "discord.js";
+import { Event } from "./Event";
 
-const { Collection } = require("discord.js");
+export class EventStore extends Collection<string, Event> {
+  manager: Manager;
 
-export class EventStore extends Collection {
-  client: Manager;
-
-  constructor(client: Manager) {
+  constructor(manager: Manager) {
     super();
-    this.client = client;
+    this.manager = manager;
   }
 
   init() {
     const events = readdirSync(join(process.cwd(), "/src/ws/events"));
     for (const event of events) {
       const Event = require(join(process.cwd(), "/src/ws/events/", event));
-      const instance = new Event(this.client);
+      const instance = new Event(this.manager);
       this.set(instance.name, instance);
     }
   }

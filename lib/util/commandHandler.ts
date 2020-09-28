@@ -1,16 +1,20 @@
 import {
-  CommandHandler as DefaultHandler,
+  Category,
+  CommandHandler as AkairoCommandHandler,
   CommandHandlerOptions,
   Constants,
 } from "discord-akairo";
 import { FireMessage } from "../extensions/message";
 import { Command } from "./command";
 import { Fire } from "../Fire";
+import { Collection } from "discord.js";
 
 const { CommandHandlerEvents } = Constants;
 
-export class CommandHandler extends DefaultHandler {
+export class CommandHandler extends AkairoCommandHandler {
   client: Fire;
+  categories: Collection<string, Category<string, Command>>;
+
   constructor(client: Fire, options: CommandHandlerOptions) {
     super(client, options);
   }

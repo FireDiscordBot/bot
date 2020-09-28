@@ -1,59 +1,53 @@
-import { ArgumentOptions, Command } from "../../../lib/util/command";
-import { ResponseLocals } from "../interfaces";
+import { Command } from "../../../lib/util/command";
 import * as express from "express";
+import { getCommandArguments } from "../utils";
+
+interface Category {
+  id: number;
+  name: string;
+  commands: {
+    name: string;
+    description: string;
+    usage: string;
+    aliases: string;
+  }[];
+}
 
 export function commandsRoute(req: express.Request, res: express.Response) {
-  const locals: ResponseLocals = res.locals as ResponseLocals;
-  let categoryID = -1;
-  let categories: {
-    id: number;
-    name: string;
-    commands: {
-      name: string;
-      description: string;
-      usage: string;
-      aliases: string;
-    }[];
-  }[] = [];
-  locals.client.commandHandler.categories.forEach((category) => {
-    let data: {
-      id: number;
-      name: string;
-      commands: {
-        name: string;
-        description: string;
-        usage: string;
-        aliases: string;
-      }[];
-    } = {
-      id: ++categoryID,
-      name: category.toString(),
+  const client = req.app.client;
+  const categories: Category[] = [];
+  let categoryID = 0;
+
+  client.commandHandler.categories.forEach((commandsCategory) => {
+    const category: Category = {
+      id: categoryID++,
+      name: commandsCategory.id,
       commands: [],
     };
-    category.forEach((command: Command) => {
-      if (
-        command.ownerOnly ||
-        command.category.toString() == "Admin" ||
-        command.hidden
+
+    category.commands = commandsCategory
+      .filter(
+        (command: Command) =>
+          !command.ownerOnly &&
+          command.category.id !== "Admin" &&
+          !command.hidden
       )
-        return;
-      let args: string[] = [];
-      if (command.args?.length)
-        (command.args as ArgumentOptions[]).forEach((arg: ArgumentOptions) => {
-          if (typeof arg.type == "function") return;
-          if (!arg?.required) args.push(`[<${arg.type}>]`);
-          else args.push(`<${arg.type}>`);
-        });
-      data.commands.push({
-        name: command.id,
-        description: command.description(
-          locals.client.languages.modules.get("en-US")
-        ),
-        usage: `{prefix}${command.id} ${args.join(" ")}`.trim(),
-        aliases: command.aliases.join(", "),
+      .map((command) => {
+        const args = getCommandArguments(command).join(" ");
+        return {
+          name: command.id,
+          description: command.description(
+            client.languages.modules.get("en-US")
+          ),
+          usage: `{prefix}${command.id} ${args}`.trim(),
+          aliases: command.aliases.join(", "),
+        };
       });
-    });
-    if (data.commands.length) categories.push(data);
+
+    if (category.commands.length > 0) {
+      categories.push(category);
+    }
   });
-  res.status(200).json(categories);
+
+  res.json(categories);
 }

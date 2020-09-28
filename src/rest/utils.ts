@@ -1,6 +1,7 @@
 import { ErrorResponse, HtmlErrorResponse } from "./interfaces";
 import { errorHtml } from "./static/error";
 import * as express from "express";
+import { Command } from "../../lib/util/command";
 
 export function sendError(res: express.Response, error: ErrorResponse): void {
   res.header("Content-Type", "application/json");
@@ -29,4 +30,14 @@ export function sendErrorHTML(
     body = body.replace(entry[0], entry[1]);
   });
   res.status(error.code).send(body);
+}
+
+export function getCommandArguments(command: Command): string[] {
+  return typeof command.args !== "undefined" && Array.isArray(command.args)
+    ? command.args
+        .filter((argument) => argument.type !== "function")
+        .map((argument) =>
+          argument.required ? `[<${argument.type}>]` : `<${argument.type}>`
+        )
+    : [];
 }

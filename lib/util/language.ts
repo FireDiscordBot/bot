@@ -1,5 +1,4 @@
 import { AkairoHandler, AkairoModule } from "discord-akairo";
-import { type } from "os";
 import { Fire } from "../Fire";
 
 export class Language extends AkairoModule {
@@ -19,7 +18,7 @@ export class Language extends AkairoModule {
     this.enabled = enabled;
   }
 
-  get(key: string, ...args: any[]): string {
+  get(key: string, ...args: any[]): string | object {
     const message = this.language.hasOwnProperty(key)
       ? this.language[key]
       : this.language?.DEFAULT(key);

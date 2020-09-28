@@ -3,6 +3,7 @@ import { FireMessage } from "../../../lib/extensions/message";
 import { FireUser } from "../../../lib/extensions/user";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
+import { MessageEmbed } from "discord.js";
 
 export default class Avatar extends Command {
   constructor() {
@@ -22,30 +23,31 @@ export default class Avatar extends Command {
     });
   }
 
-  async exec(
-    message: FireMessage,
-    args: { user: FireMember | FireUser | null }
-  ) {
+  exec(message: FireMessage, args: { user: FireMember | FireUser | null }) {
     let user = args.user;
     if (!user) return;
+
     if (message.guild.member(user))
       user = message.guild.member(user) as FireMember;
+
     const color =
       user instanceof FireMember
         ? user?.displayColor
         : message.member?.displayColor || "#ffffff";
+
     if (user instanceof FireMember) user = user.user as FireUser;
-    const embed = {
-      color: color,
-      timestamp: new Date(),
-      image: {
-        url: user?.displayAvatarURL({
+
+    const embed = new MessageEmbed()
+      .setColor(color)
+      .setTimestamp(new Date())
+      .setImage(
+        user?.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        }),
-      },
-    };
-    await message.channel.send({ embed });
+        })
+      );
+
+    return message.channel.send(embed);
   }
 }

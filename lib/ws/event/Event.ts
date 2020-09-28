@@ -1,11 +1,11 @@
 import { Manager } from "../../Manager";
 
 export class Event {
-  client: Manager;
+  manager: Manager;
   name: number;
 
-  constructor(client: Manager, name: number) {
-    this.client = client;
+  constructor(manager: Manager, name: number) {
+    this.manager = manager;
     this.name = name;
   }
 

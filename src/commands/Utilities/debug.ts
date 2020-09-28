@@ -1,4 +1,4 @@
-import { PermissionString, TextChannel, GuildMember, Role } from "discord.js";
+import { PermissionString, TextChannel, MessageEmbed } from "discord.js";
 import { constants, titleCase } from "../../../lib/util/constants";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
@@ -27,76 +27,86 @@ export default class Debug extends Command {
 
   async exec(message: FireMessage, args: { command: Command }) {
     const cmd = args.command;
-    if (!cmd)
+
+    if (!cmd) {
       return await message.channel.send({
         embed: this.createEmbed(message, [
           `${error} ${message.language.get("DEBUG_NO_COMMAND")}`,
         ]),
       });
-    if (!cmd.id)
+    }
+
+    if (!cmd.id) {
       return await message.channel.send({
         embed: this.createEmbed(message, [
           `${error} ${message.language.get("UNKNOWN_COMMAND")}`,
         ]),
       });
-    if (cmd.id == this.id)
+    }
+
+    if (cmd.id == this.id) {
       return await message.channel.send({
         embed: this.createEmbed(message, [
           `${success} ${message.language.get("DEBUGGING_DEBUG")}`,
         ]),
       });
-    if (cmd.ownerOnly)
+    }
+
+    if (cmd.ownerOnly) {
       return await message.channel.send({
         embed: this.createEmbed(message, [
           `${error} ${message.language.get("COMMAND_OWNER_ONLY")}`,
         ]),
       });
-    let details: string[] = [];
+    }
+
+    const details: string[] = [];
     const permissionChecks = await this.client.commandHandler.runPermissionChecks(
       message,
       cmd
     );
-    const cmdPerms = {
-      clientPermissions: cmd.clientPermissions as Array<string>,
-      userPermissions: cmd.userPermissions as Array<string>,
-    };
+
+    const clientPermissions = cmd.clientPermissions as PermissionString[];
+    const userPermissions = cmd.userPermissions as PermissionString[];
+
     if (permissionChecks) {
-      let userMissing: string[] = [];
-      cmdPerms.userPermissions?.forEach((perm) => {
-        if (!message.member?.permissions.has(perm as PermissionString)) {
-          userMissing.push(titleCase(perm).replace("_", " "));
-        }
-      });
-      let clientMissing: string[] = [];
-      cmdPerms.clientPermissions?.forEach((perm) => {
-        if (!message.guild.me?.permissions.has(perm as PermissionString)) {
-          clientMissing.push(titleCase(perm).replace("_", " "));
-        }
-      });
-      const permMsg = (message.language.get(
+      const userMissing = userPermissions
+        .filter((permission) => !message.member?.permissions.has(permission))
+        .map((permission) => titleCase(permission.replace("_", " ")));
+
+      const clientMissing = clientPermissions
+        .filter((permission) => !message.guild.me?.permissions.has(permission))
+        .map((permission) => titleCase(permission.replace("_", " ")));
+
+      const permMsg = message.language.get(
         "DEBUG_PERMS_FAIL",
         userMissing,
         clientMissing
-      ) as unknown) as { user: string | null; client: string | null };
+      ) as { user: string | null; client: string | null };
+
       if (userMissing || clientMissing)
         details.push(
           `${error} ${message.language.get("DEBUG_PERMS_CHECKS_FAIL")}` +
-            (permMsg.user ? `\n${permMsg.user}` : ``) +
-            (permMsg.client ? `\n${permMsg.client}` : ``)
+            (permMsg.user ? `\n${permMsg.user}` : "") +
+            (permMsg.client ? `\n${permMsg.client}` : "")
         );
     } else
       details.push(`${success} ${message.language.get("DEBUG_PERMS_PASS")}`);
+
     const inhibitorCheck = await this.client.inhibitorHandler.test(
       "all",
       message,
       cmd
     );
-    if (inhibitorCheck != null) details.push(`${error} ${inhibitorCheck}`); // No Translation :(
+
+    if (inhibitorCheck !== null) details.push(`${error} ${inhibitorCheck}`); // No Translation :(
+
     const disabledCommands: string[] = this.client.settings.get(
       message.guild.id,
       "disabled.commands",
       []
     );
+
     if (disabledCommands.includes(cmd.id)) {
       if (message.member?.permissions.has("MANAGE_MESSAGES"))
         details.push(
@@ -110,22 +120,26 @@ export default class Debug extends Command {
       details.push(
         `${success} ${message.language.get("DEBUG_COMMAND_NOT_DISABLED")}`
       );
+
     if (cmd.id == "mute") {
-      let bypass: string[] = [];
       const overwrites = (message.channel as TextChannel).permissionOverwrites;
-      overwrites.forEach((value, key) => {
-        let overwriteFor: GuildMember | Role | undefined =
-          message.guild.roles.cache.get(key) ||
-          message.guild.members.cache.get(key);
-        if (value.allow.has("SEND_MESSAGES"))
-          bypass.push(overwriteFor?.toString() || "");
-      });
-      if (bypass.length)
+      const bypass = overwrites
+        .map((value, key) => {
+          const overwriteFor =
+            message.guild.roles.cache.get(key) ||
+            message.guild.members.cache.get(key);
+          return value.allow.has("SEND_MESSAGES")
+            ? overwriteFor?.toString() || ""
+            : "";
+        })
+        .filter((s) => s !== "");
+
+      if (bypass.length > 0)
         details.push(
           `${error} ${message.language.get(
             "DEBUG_MUTE_BYPASS",
             message.channel,
-            bypass.filter((value) => value != "")
+            bypass
           )}`
         );
       else
@@ -136,23 +150,21 @@ export default class Debug extends Command {
           )}`
         );
     }
+
     if (message.guild.me?.permissions.has("EMBED_LINKS"))
-      return await message.channel.send({
-        embed: this.createEmbed(message, details),
-      });
+      return await message.channel.send(this.createEmbed(message, details));
     else {
       details.push(`${error} ${message.language.get("DEBUG_NO_EMBEDS")}`);
       return await message.channel.send(details.join("\n"));
     }
   }
 
-  createEmbed(message: FireMessage, details: string[]) {
-    let issues = details.filter((detail) => detail.startsWith(error));
-    return {
-      title: message.language.get("DEBUG_ISSUES", issues),
-      color: message.member?.displayColor || "#ffffff",
-      timestamp: new Date(),
-      description: details.join("\n"),
-    };
+  private createEmbed(message: FireMessage, details: string[]) {
+    const issues = details.filter((detail) => detail.startsWith(error));
+    return new MessageEmbed()
+      .setTitle(message.language.get("DEBUG_ISSUES", issues))
+      .setColor(message.member?.displayColor || "#ffffff")
+      .setTimestamp(new Date())
+      .setDescription(details.join("\n"));
   }
 }

@@ -4,25 +4,28 @@ import {
   ListenerHandler,
   version as akairover,
 } from "discord-akairo";
-import { memberConverter, userConverter } from "./util/converters";
-import { CommandHandler } from "./util/commandHandler";
-import { PostgresProvider } from "./providers/postgres";
-import { Module, ModuleHandler } from "./util/module";
-import { FireMessage } from "./extensions/message";
-import { LanguageHandler } from "./util/language";
+import * as moment from "moment";
+import * as Sentry from "@sentry/node";
+import * as Centra from "centra";
 import { Client as PGClient } from "ts-postgres";
 import { version as djsver } from "discord.js";
 import { KlasaConsole } from "@klasa/console"; // Klasa console do be looking kinda nice doe
+import { CommandHandler } from "./util/commandHandler";
+import { PostgresProvider } from "./providers/postgres";
+import { Module, ModuleHandler } from "./util/module";
+import { LanguageHandler } from "./util/language";
 import { Inhibitor } from "./util/inhibitor";
 import { KSoftClient } from "@aero/ksoft";
-import { Manager } from "../lib/Manager";
+import { Manager } from "./Manager";
 import { Command } from "./util/command";
 import { Util } from "./util/clientUtil";
-import * as Sentry from "@sentry/node";
 import { config } from "../config";
-import * as moment from "moment";
-import * as Centra from "centra";
-require("./extensions");
+import { booleanTypeCaster } from "../src/arguments/boolean";
+import { userMemberTypeCaster } from "../src/arguments/userMember";
+import { memberTypeCaster } from "../src/arguments/member";
+import { userTypeCaster } from "../src/arguments/user";
+
+import "./extensions";
 
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
@@ -33,7 +36,7 @@ export class Fire extends AkairoClient {
 
   // Logging
   console: KlasaConsole;
-  sentry: typeof Sentry;
+  sentry: typeof Sentry | undefined;
 
   // Handlers
   settings: PostgresProvider;
@@ -46,11 +49,12 @@ export class Fire extends AkairoClient {
   // Common Attributes
   db: PGClient;
   util: Util;
-  ksoft: KSoftClient | boolean;
+  ksoft?: KSoftClient;
   config: typeof config.fire;
 
-  constructor(manager: Manager, sentry: any) {
+  constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
+
     this.launchTime = moment();
     this.started = false;
 
@@ -59,18 +63,20 @@ export class Fire extends AkairoClient {
     this.util = new Util(this);
 
     this.db = new PGClient({
-      user: "postgres",
+      user: process.env.POSTGRES_USER || "postgres",
       password: process.env.POSTGRES_PASS,
       database: process.env.NODE_ENV === "production" ? "fire" : "dev",
     });
+
     this.console.log("[DB] Attempting to connect...");
+
     this.db
       .connect()
+      .then(() => this.console.log("[DB] Connected"))
       .catch((err) => {
         this.console.error(`[DB] Failed to connect\n${err.stack}`);
         process.exit(-1);
-      })
-      .then(() => this.console.log("[DB] Connected"));
+      });
 
     this.on("warn", (warning) => this.console.warn(`[Discord] ${warning}`));
     this.on("error", (error) => this.console.error(`[Discord] ${error}`));
@@ -105,40 +111,25 @@ export class Fire extends AkairoClient {
         );
       },
     });
+
     this.commandHandler.on(
       "load",
       async (command: Command, isReload: boolean) => {
         await command?.init();
       }
     );
+
     this.commandHandler.on("remove", async (command: Command) => {
       await command?.unload();
     });
-    this.commandHandler.resolver.addType(
-      "user|member",
-      async (message: FireMessage, phrase: any) => {
-        if (!phrase) return message.member || message.author;
-        else {
-          const member = await memberConverter(message, phrase, true);
-          if (member) return member;
-          else return await userConverter(message, phrase);
-        }
-      }
-    );
-    this.commandHandler.resolver.addType(
-      "member",
-      async (message: FireMessage, phrase: any) => {
-        if (!phrase) return message.member || message.author;
-        return await memberConverter(message, phrase);
-      }
-    );
-    this.commandHandler.resolver.addType(
-      "user",
-      async (message: FireMessage, phrase: any) => {
-        if (!phrase) return message.member || message.author;
-        return await userConverter(message, phrase);
-      }
-    );
+
+    this.commandHandler.resolver.addTypes({
+      "user|member": userMemberTypeCaster,
+      member: memberTypeCaster,
+      user: userTypeCaster,
+      boolean: booleanTypeCaster,
+    });
+
     this.commandHandler.loadAll();
 
     this.inhibitorHandler = new InhibitorHandler(this, {
@@ -146,7 +137,6 @@ export class Fire extends AkairoClient {
         ? "./src/inhibitors/"
         : "./dist/src/inhibitors/",
     });
-    this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
     this.inhibitorHandler.on(
       "load",
       async (inhibitor: Inhibitor, isReload: boolean) => {
@@ -161,13 +151,15 @@ export class Fire extends AkairoClient {
     this.listenerHandler = new ListenerHandler(this, {
       directory: config.fire.dev ? "./src/listeners/" : "./dist/src/listeners/",
     });
-    this.commandHandler.useListenerHandler(this.listenerHandler);
     this.listenerHandler.setEmitters({
       commandHandler: this.commandHandler,
       inhibitorHandler: this.inhibitorHandler,
       listenerHandler: this.listenerHandler,
     });
     this.listenerHandler.loadAll();
+
+    this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
+    this.commandHandler.useListenerHandler(this.listenerHandler);
 
     this.languages = new LanguageHandler(this, {
       directory: config.fire.dev ? "./src/languages/" : "./dist/src/languages/",
@@ -185,9 +177,9 @@ export class Fire extends AkairoClient {
     });
     this.modules.loadAll();
 
-    if (process.env.KSOFT_TOKEN)
-      this.ksoft = new KSoftClient(process.env.KSOFT_TOKEN);
-    else this.ksoft = false;
+    this.ksoft = process.env.KSOFT_TOKEN
+      ? new KSoftClient(process.env.KSOFT_TOKEN)
+      : undefined;
   }
 
   async login() {
@@ -199,7 +191,7 @@ export class Fire extends AkairoClient {
     return super.login();
   }
 
-  async haste(text: string, fallback: boolean = false) {
+  async haste(text: string, fallback = false) {
     const url = fallback ? "https://h.inv.wtf/" : "https://hst.sh/";
     try {
       const h: { key: string } = await (

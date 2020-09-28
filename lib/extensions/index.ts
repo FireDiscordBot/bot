@@ -1,3 +1,4 @@
-import { readdirSync } from "fs";
-
-for (const file of readdirSync(__dirname)) require(`./${file}`);
+import "./guild";
+import "./guildmember";
+import "./message";
+import "./user";

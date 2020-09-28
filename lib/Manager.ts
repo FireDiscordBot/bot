@@ -1,9 +1,16 @@
-import { startRouteManager } from "../src/rest/routeManager";
-import { ResponseLocals } from "../src/rest/interfaces";
+import * as express from "express";
+import * as Sentry from "@sentry/node";
+
+import { setupRoutes } from "../src/rest/routeManager";
 import { Reconnector } from "./ws/Reconnector";
 import { Websocket } from "./ws/Websocket";
 import { Fire } from "./Fire";
-import * as express from "express";
+
+declare module "express-serve-static-core" {
+  export interface Application {
+    client: Fire;
+  }
+}
 
 export class Manager {
   id: number;
@@ -12,46 +19,47 @@ export class Manager {
   rest: express.Application;
   reconnector: Reconnector;
 
-  constructor(sentry: any) {
+  constructor(sentry?: typeof Sentry) {
     this.id =
       process.env.NODE_ENV === "production"
         ? parseInt(process.env.PM2_CLUSTER_ID || "0")
         : 0;
+
     this.client = new Fire(this, sentry);
+
     if (process.env.BOOT_SINGLE === "false") {
       this.ws = new Websocket(this);
       this.reconnector = new Reconnector(this);
     }
+
     this.rest = express();
     this.listen();
   }
 
   init() {
-    this.rest.use(
-      (
-        req: express.Request,
-        res: express.Response,
-        next: express.NextFunction
-      ) => {
-        res.locals = {
-          client: this.client,
-        };
-        return next();
-      }
-    );
-    startRouteManager(this.rest, this.client);
+    this.initRest();
+    if (process.env.BOOT_SINGLE === "false") {
+      this.initWebsocket();
+    }
+  }
+
+  private initRest() {
+    this.rest.client = this.client;
+    setupRoutes(this.rest);
+
     try {
+      const port = parseInt(process.env.REST_START_PORT);
       this.client.console.log(
-        `[Rest] Attempting to start API on port ${
-          parseInt(process.env.REST_START_PORT) + this.id
-        }...`
+        `[Rest] Attempting to start API on port ${port + this.id}...`
       );
-      this.rest.listen(parseInt(process.env.REST_START_PORT) + this.id);
+      this.rest.listen(port + this.id);
       this.client.console.log(`[Rest] Running.`);
     } catch (e) {
       this.client.console.error(`[Rest] Failed to start API!\n${e.stack}`);
     }
-    if (process.env.BOOT_SINGLE !== "false") return;
+  }
+
+  private initWebsocket() {
     this.ws.init();
 
     this.ws.on("open", () => {
@@ -77,9 +85,9 @@ export class Manager {
     }
   }
 
-  launch(data: any) {
+  launch(shardCount: number) {
     this.client.console.log("[Sharder] Attempting to login.");
-    this.client.options.shardCount = data;
-    this.client.login();
+    this.client.options.shardCount = shardCount;
+    return this.client.login();
   }
 }

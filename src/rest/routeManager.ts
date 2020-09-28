@@ -29,7 +29,7 @@ const createRateLimit = ({ rateLimit }: Route) =>
     },
   });
 
-export const startRouteManager = (app: express.Application, client: Fire) => {
+export const setupRoutes = (app: express.Application) => {
   router.forEach((route) => {
     const handlers: express.RequestHandler[] = [];
 
@@ -46,12 +46,12 @@ export const startRouteManager = (app: express.Application, client: Fire) => {
       });
     }
 
-    client.console.log(
+    app.client.console.log(
       `[Rest] Loaded route ${route.methods} ${route.endpoint}`
     );
   });
 
-  client.console.log(`[Rest] Loaded ${router.length} routes.`);
+  app.client.console.log(`[Rest] Loaded ${router.length} routes.`);
   app.use(
     (
       err: Error,
@@ -66,5 +66,5 @@ export const startRouteManager = (app: express.Application, client: Fire) => {
       });
     }
   );
-  client.console.log(`[Rest] Loaded error handler.`);
+  app.client.console.log(`[Rest] Loaded error handler.`);
 };

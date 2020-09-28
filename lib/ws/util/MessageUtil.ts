@@ -5,7 +5,7 @@ export class MessageUtil {
     return JSON.stringify(message);
   }
 
-  static decode(message: any) {
+  static decode(message: string) {
     const parsed = JSON.parse(message);
     return new Message(parsed.t, parsed.d);
   }

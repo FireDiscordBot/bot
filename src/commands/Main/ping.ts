@@ -1,3 +1,4 @@
+import { MessageEmbed } from "discord.js";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
@@ -12,17 +13,19 @@ export default class Ping extends Command {
   }
 
   async exec(message: FireMessage) {
-    const m = await message.send("PING_INITIAL_MESSAGE");
-    const embed = {
-      title: `:ping_pong: ${
-        m.createdTimestamp -
-        (message.editedAt
-          ? message.editedTimestamp || 0
-          : message.createdTimestamp)
-      }ms.\n:heartpulse: ${this.client.ws.ping}ms.`,
-      color: message.member?.displayColor || "#ffffff",
-      timestamp: new Date(),
-    };
-    await m.edit({ content: null, embed });
+    const pingMessage = await message.send("PING_INITIAL_MESSAGE");
+    const embed = new MessageEmbed()
+      .setTitle(
+        `:ping_pong: ${
+          pingMessage.createdTimestamp -
+          (message.editedAt
+            ? message.editedTimestamp || 0
+            : message.createdTimestamp)
+        }ms.\n:heartpulse: ${this.client.ws.ping}ms.`
+      )
+      .setColor(message.member?.displayColor || "#ffffff")
+      .setTimestamp(new Date());
+
+    await pingMessage.edit(message.language.get("PING_FINAL_MESSAGE"), embed);
   }
 }

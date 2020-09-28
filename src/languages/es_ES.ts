@@ -21,7 +21,7 @@ export default class esES extends Language {
           "Cambiar el nombre utilizado para el deshoist / decancer automático",
         BADNAME_NO_CHANGES: `No hice absolutamente nada porque eso ya está establecido como el "mal nombre"`,
         BADNAME_SET: (name: string) =>
-          `He configurado el" nombre incorrecto "en ${name}. Esto ** no ** cambiará el nombre de los usuarios existentes`,
+          `He configurado el "nombre incorrecto" en \"${name}\". Esto ** no ** cambiará el nombre de los usuarios existentes`,
         BADNAME_RESET: `He restablecido el "mal nombre" a John Doe 0000 (siendo 0000 su discriminador).
 Esto ** no ** cambiará el nombre de los usuarios existentes`,
         DEBUG_NO_COMMAND: "Debes proporcionar un comando válido para depurar",
@@ -56,6 +56,7 @@ Esto ** no ** cambiará el nombre de los usuarios existentes`,
         PING_COMMAND_DESCRIPTION:
           "Te muestra mi ping a los servidores de discord",
         PING_INITIAL_MESSAGE: "Haciendo ping...",
+        PING_FINAL_MESSAGE: "Pong!",
       },
       enabled: true,
     });

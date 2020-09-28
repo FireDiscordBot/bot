@@ -9,12 +9,15 @@ import * as sentry from "@sentry/node";
 const version =
   process.env.NODE_ENV == "development" ? "dev" : getCommitHash().slice(0, 7);
 
-sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  release: `fire@${version}`,
-});
+const loadSentry = typeof process.env.SENTRY_DSN !== "undefined";
+if (loadSentry) {
+  sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    release: `fire@${version}`,
+  });
+}
 
-const manager = new Manager(sentry);
+const manager = new Manager(loadSentry ? sentry : undefined);
 manager.init();
 
 const exit = () => {

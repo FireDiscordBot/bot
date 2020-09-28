@@ -21,7 +21,7 @@ export default class OwO extends Language {
           "Change the name uwsed fow auwto dehoist/decancew",
         BADNAME_NO_CHANGES: `I did absowuwtewy nothing becauwse that's awweady set as the "bad name"`,
         BADNAME_SET: (name: string) =>
-          `I have set the "bad name" to ${name}. This wiww **not** wename existing uwsews`,
+          `I have set the "bad name" to \"${name}\". This wiww **not** wename existing uwsews`,
         BADNAME_RESET: `I have weset the "bad name" to John Doe 0000 (with 0000 being theiw discwiminatow).
  this wiww **not** wename existing uwsews`,
         DEBUG_NO_COMMAND: "Youw muwst pwovide a vawid command to debuwg",
@@ -54,6 +54,7 @@ export default class OwO extends Language {
         DEBUG_NO_EMBEDS: "I cannot send embeds",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discowd's sewvews",
         PING_INITIAL_MESSAGE: "Pinging...",
+        PING_FINAL_MESSAGE: "Pong!",
       },
       enabled: true,
     });

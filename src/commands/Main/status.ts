@@ -1,13 +1,10 @@
-import {
-  Incidents,
-  Summary,
-  Component,
-} from "../../../lib/interfaces/statuspage";
+import * as centra from "centra";
+import { Incidents, Summary } from "../../../lib/interfaces/statuspage";
 import { constants, titleCase } from "../../../lib/util/constants";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import * as centra from "centra";
+import { MessageEmbed } from "discord.js";
 
 export default class DiscordStatus extends Command {
   constructor() {
@@ -21,21 +18,21 @@ export default class DiscordStatus extends Command {
   }
 
   async exec(message: FireMessage) {
-    let summary: Summary, incidents: Incidents;
+    let responses: centra.Response[] = [];
+
     try {
-      summary = await (
-        await centra(constants.url.fireStatus)
-          .path("/api/v2/summary.json")
-          .send()
-      ).json();
-      incidents = await (
-        await centra(constants.url.fireStatus)
-          .path("/api/v2/incidents.json")
-          .send()
-      ).json();
+      responses = await Promise.all([
+        centra(constants.url.fireStatus).path("/api/v2/summary.json").send(),
+        centra(constants.url.fireStatus).path("/api/v2/incidents.json").send(),
+      ]);
     } catch (e) {
       return await message.send("STATUS_FETCH_FAIL");
     }
+
+    const [summary, incidents] = (await Promise.all(
+      responses.map((response) => response.json())
+    )) as [Summary, Incidents];
+
     const components = summary.components
       .filter((component) => !component.group_id)
       .flatMap((group) => [
@@ -63,32 +60,33 @@ export default class DiscordStatus extends Command {
               }`
           ),
       ]);
+
     const latest = incidents.incidents[0];
-    let embed = {
-      title:
+    const embed = new MessageEmbed()
+      .setTitle(
         message.language.get("STATUSPAGE_PAGE_DESCRIPTIONS")[
           summary.status.description.toLowerCase()
-        ] || titleCase(summary.status.description),
-      description: components.join("\n"),
-      color:
+        ] || titleCase(summary.status.description)
+      )
+      .setDescription(components.join("\n"))
+      .setColor(
         constants.statuspage.colors[summary.status.indicator] ||
-        message.member?.displayColor ||
-        "#ffffff",
-      fields: [
-        {
-          value: `[${latest.name}](${latest.shortlink})\n${message.language.get(
-            "STATUS"
-          )}: **${
-            message.language.get("STATUSPAGE_INCIDENT_STATUS")[
-              latest.status.toLowerCase()
-            ] || titleCase(latest.status)
-          }**`,
-          name: message.language.get("STATUS_LATEST_INCIDENT"),
-          inline: true,
-        },
-      ],
-      timestamp: new Date(),
-    };
-    await message.channel.send({ embed });
+          message.member?.displayColor ||
+          "#ffffff"
+      )
+      .addField(
+        message.language.get("STATUS_LATEST_INCIDENT"),
+        `[${latest.name}](${latest.shortlink})\n${message.language.get(
+          "STATUS"
+        )}: **${
+          message.language.get("STATUSPAGE_INCIDENT_STATUS")[
+            latest.status.toLowerCase()
+          ] || titleCase(latest.status)
+        }**`,
+        true
+      )
+      .setTimestamp(new Date());
+
+    await message.channel.send(embed);
   }
 }

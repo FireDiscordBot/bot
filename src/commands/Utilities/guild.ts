@@ -4,6 +4,7 @@ import { FireGuild } from "../../../lib/extensions/guild";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import * as moment from "moment";
+import { MessageEmbed } from "discord.js";
 
 export default class GuildCommand extends Command {
   constructor() {
@@ -16,7 +17,8 @@ export default class GuildCommand extends Command {
   }
 
   getBadges(guild: FireGuild) {
-    let badges: string[] = [];
+    const badges: string[] = [];
+
     if (guild.id == "564052798044504084")
       badges.push(
         this.client.emojis.cache.get("671243744774848512").toString()
@@ -30,12 +32,12 @@ export default class GuildCommand extends Command {
         this.client.emojis.cache.get("751196492517081189").toString()
       );
     // TODO add premium badge
-    return badges
-      ? () => {
-          badges.push(zws);
-          return badges;
-        }
-      : [];
+
+    if (badges.length > 0) {
+      badges.push(zws);
+    }
+
+    return badges;
   }
 
   getInfo(message: FireMessage, guild: FireGuild) {
@@ -66,38 +68,21 @@ export default class GuildCommand extends Command {
   }
 
   getSecurity(guild: FireGuild) {
-    let info: string[] = [];
-    switch (guild.verificationLevel) {
-      case "VERY_HIGH":
-        info.push(
-          `${constants.emojis.green} ${guild.language.get(
-            "GUILD_VERIF_VERY_HIGH"
-          )}`
-        );
-        break;
-      case "HIGH":
-        info.push(
-          `${constants.emojis.green} ${guild.language.get("GUILD_VERIF_HIGH")}`
-        );
-        break;
-      case "MEDIUM":
-        info.push(
-          `${constants.emojis.yellow} ${guild.language.get(
-            "GUILD_VERIF_MEDIUM"
-          )}`
-        );
-        break;
-      case "LOW":
-        info.push(
-          `${constants.emojis.red} ${guild.language.get("GUILD_VERIF_LOW")}`
-        );
-        break;
-      case "NONE":
-        info.push(
-          `${constants.emojis.red} ${guild.language.get("GUILD_VERIF_NONE")}`
-        );
-        break;
-    }
+    const info: string[] = [];
+
+    const VERIFICATION_LEVEL_EMOJI = {
+      VERY_HIGH: constants.emojis.green,
+      HIGH: constants.emojis.green,
+      MEDIUM: constants.emojis.yellow,
+      LOW: constants.emojis.red,
+      NONE: constants.emojis.red,
+    };
+
+    const emoji = VERIFICATION_LEVEL_EMOJI[guild.verificationLevel];
+    info.push(
+      `${emoji} ${guild.language.get(`GUILD_VERIF_${guild.verificationLevel}`)}`
+    );
+
     switch (guild.explicitContentFilter) {
       case "ALL_MEMBERS":
         info.push(
@@ -117,6 +102,7 @@ export default class GuildCommand extends Command {
         );
         break;
     }
+
     if (guild.defaultMessageNotifications == "MENTIONS")
       info.push(
         `${constants.emojis.green} ${guild.language.get(
@@ -127,6 +113,7 @@ export default class GuildCommand extends Command {
       info.push(
         `${constants.emojis.yellow} ${guild.language.get("GUILD_NOTIFS_ALL")}`
       );
+
     if (guild.mfaLevel)
       info.push(
         `${constants.emojis.green} ${guild.language.get("GUILD_MFA_ENABLED")}`
@@ -135,75 +122,68 @@ export default class GuildCommand extends Command {
       info.push(
         `${constants.emojis.red} ${guild.language.get("GUILD_MFA_DISABLED")}`
       );
+
     return info;
   }
 
-  shorten(items: Array<any>, max: number = 1000, sep: string = ", ") {
+  shorten(items: any[], max = 1000, sep = ", ") {
     let text = "";
-    while (text.length < max && items.length) {
-      text += `${items[0]}${sep}`;
-      items = items.slice(1);
+
+    while (text.length < max && items.length > 0) {
+      text += `${items.shift()}${sep}`;
     }
+
     if (text.endsWith(sep)) text = text.slice(0, text.length - sep.length);
-    if (items.length && text.length < 11 + items.toString().length)
-      return text + ` and ${items.length} more...`;
-    return text;
+
+    return items.length > 0 && text.length < 11 + items.toString().length
+      ? `${text} and ${items.length} more...`
+      : text;
   }
 
   async exec(message: FireMessage) {
     const badges = this.getBadges(message.guild);
     const info = this.getInfo(message, message.guild);
     const security = this.getSecurity(message.guild);
-    let features = [];
-    message.guild.features.forEach((value) => {
-      if (message.language.get("FEATURES").hasOwnProperty(value))
-        features.push(message.language.get("FEATURES")[value]);
-    });
-    let roles = [];
-    message.guild.roles.cache
+
+    const featuresLocalization = message.language.get("FEATURES");
+    const features: string[] = message.guild.features
+      .filter((feature) => featuresLocalization.hasOwnProperty(feature))
+      .map((feature) => featuresLocalization[feature]);
+
+    const roles = message.guild.roles.cache
       .sort((one, two) => (one.position > two.position ? 1 : -1))
-      .forEach((value) => {
-        if (!(message.guild.id == value.id)) roles.push(value.toString());
-      });
-    const embed = {
-      description: badges,
-      color: message.member?.displayColor || "#ffffff",
-      author: {
-        name: message.guild.name,
-        icon_url: message.guild.iconURL({
+      .filter((role) => message.guild.id !== role.id)
+      .map((role) => role.toString());
+
+    const embed = new MessageEmbed()
+      .setDescription(badges)
+      .setColor(message.member?.displayColor || "#ffffff")
+      .setAuthor(
+        message.guild.name,
+        message.guild.iconURL({
           size: 2048,
-          format: message.guild.icon.startsWith("a_") ? "gif" : "png",
-        }),
-      },
-      fields: [
-        {
-          value: info,
-          name: message.language.get("GUILD_ABOUT"),
-          inline: false,
-        },
-        {
-          value: security,
-          name: message.language.get("GUILD_SECURITY"),
-          inline: false,
-        },
-        {
-          value: features.join(", "),
-          name: message.language.get("GUILD_FEATURES"),
-          inline: false,
-        },
-        {
-          value: this.shorten(roles, 1000, " - "),
-          name:
-            message.language.get("GUILD_ROLES") +
-            `[${message.guild.roles.cache.array().length}]`,
-          inline: false,
-        },
-      ],
-      footer: {
-        text: message.guild.id,
-      },
-      timestamp: new Date(),
-    };
-    await message.channel.send({ embed });
+          format: message.guild.icon?.startsWith("a_") ? "gif" : "png",
+        })
+      )
+      .addField(message.language.get("GUILD_ABOUT"), info)
+      .addField(message.language.get("GUILD_SECURITY"), security);
+
+    if (features.length > 0) {
+      embed.addField(
+        message.language.get("GUILD_FEATURES"),
+        features.join(", ")
+      );
+    }
+
+    embed
+      .addField(
+        message.language.get("GUILD_ROLES") +
+          `[${message.guild.roles.cache.array().length}]`,
+        this.shorten(roles, 1000, " - ")
+      )
+      .setFooter(message.guild.id)
+      .setTimestamp(new Date());
+
+    await message.channel.send(embed);
   }
 }

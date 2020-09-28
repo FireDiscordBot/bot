@@ -71,7 +71,7 @@ export default class enUS extends Language {
           "Change the name used for auto dehoist/decancer",
         BADNAME_NO_CHANGES: `I did absolutely nothing because that's already set as the "bad name"`,
         BADNAME_SET: (name: string) =>
-          `I have set the "bad name" to ${name}. This will **not** rename existing users`,
+          `I have set the "bad name" to \"${name}\". This will **not** rename existing users`,
         BADNAME_RESET: `I have reset the "bad name" to John Doe 0000 (with 0000 being their discriminator).
 This will **not** rename existing users`,
         DEBUG_COMMAND_DESCRIPTION:
@@ -219,6 +219,7 @@ Hint: Use the \`public\` command to get your server on the list`,
         ) => `${user} ${msgType} a log, ${extra}\n${haste}\n\n${solutions}`,
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
+        PING_FINAL_MESSAGE: "Pong!",
         PLONK_COMMAND_DESCRIPTION:
           "make a user unable to use the best discord bot",
       },

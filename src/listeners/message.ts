@@ -11,7 +11,7 @@ export default class Message extends Listener {
   }
 
   async exec(message: FireMessage) {
-    const sk1erModule: Sk1er = this.client.getModule("sk1er") as Sk1er;
+    const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     await sk1erModule.checkLogs(message);
   }
 }

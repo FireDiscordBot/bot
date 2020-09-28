@@ -1,8 +1,7 @@
-import { ResponseLocals } from "../interfaces";
 import * as express from "express";
 
 export function publicRoute(req: express.Request, res: express.Response) {
-  const { client } = res.locals as ResponseLocals;
+  const client = req.app.client;
   const publicGuilds = client.guilds.cache
     .filter(
       (guild) =>
@@ -10,5 +9,5 @@ export function publicRoute(req: express.Request, res: express.Response) {
         guild.features.includes("DISCOVERABLE")
     )
     .map((guild) => guild.id);
-  res.status(200).json(publicGuilds);
+  res.json(publicGuilds);
 }

@@ -1,14 +1,14 @@
 import { Event } from "../../../lib/ws/event/Event";
-import { types } from "../../../lib/ws/util/constants";
+import { EventType } from "../../../lib/ws/util/constants";
 import { Manager } from "../../../lib/Manager";
 
 export class LaunchEvent extends Event {
   constructor(client: Manager) {
-    super(client, types.LAUNCH_CLIENT);
+    super(client, EventType.LAUNCH_CLIENT);
   }
 
   run(data: any) {
-    this.client.client.console.log("[Aether] Received launch event.");
-    this.client.launch(data);
+    this.manager.client.console.log("[Aether] Received launch event.");
+    this.manager.launch(data);
   }
 }
