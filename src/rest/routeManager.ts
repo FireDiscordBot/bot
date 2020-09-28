@@ -3,9 +3,9 @@ import * as express from "express";
 
 import {Fire} from "../../lib/Fire";
 import {sendError} from "./utils";
-import {Route, RouteHandler, router} from "./router";
+import {Route, router} from "./router";
 
-const asyncHandler = (handler: RouteHandler): RouteHandler => (req, res, next) => {
+const asyncHandler = (handler: express.RequestHandler): express.RequestHandler => (req, res, next) => {
   const response = handler(req, res, next);
   if (response instanceof Promise) {
     response.catch(next);

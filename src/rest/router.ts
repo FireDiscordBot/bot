@@ -11,8 +11,6 @@ export type HttpMethod = "GET" | "POST" | "DELETE" | "PUT" | "CONNECT" |
   "HEAD" |
   "TRACE";
 
-export type RouteHandler = (req: express.Request, res: express.Response, next: express.NextFunction) => void | Promise<void>;
-
 export type Route = {
   name: string;
   description: string;
@@ -24,7 +22,7 @@ export type Route = {
     skipFailedRequests: boolean;
   };
   requiresAuth?: boolean;
-  handler: RouteHandler
+  handler: express.RequestHandler
 };
 
 export const router: Route[] = [
@@ -47,7 +45,6 @@ export const router: Route[] = [
     description: "Returns a list of all loaded commands",
     methods: ["GET"],
     endpoint: "/allcommands",
-    requiresAuth: false,
     handler: allCommandsRoute,
   },
   {
