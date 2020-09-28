@@ -2,10 +2,7 @@ import { ArgumentOptions, Command } from "../../../lib/util/command";
 import { ResponseLocals } from "../interfaces";
 import * as express from "express";
 
-export function allCommandsRoute(
-  req: express.Request,
-  res: express.Response
-) {
+export function allCommandsRoute(req: express.Request, res: express.Response) {
   const locals: ResponseLocals = res.locals as ResponseLocals;
   let commands: {
     name: string;

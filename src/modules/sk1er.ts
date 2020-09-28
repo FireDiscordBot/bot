@@ -1,9 +1,9 @@
 import {
-  MessageAttachment,
-  TextChannel,
   GuildMember,
-  User,
+  MessageAttachment,
   Role,
+  TextChannel,
+  User,
 } from "discord.js";
 import { FireMessage } from "../../lib/extensions/message";
 import * as solutions from "../../sk1er_solutions.json";
@@ -40,6 +40,7 @@ export default class Sk1er extends Module {
   uuidCache: Map<string, string>;
   statusCheck: NodeJS.Timeout;
   descriptionUpdate: NodeJS.Timeout;
+
   constructor() {
     super("sk1er");
     this.guildId = "411619823445999637";
@@ -249,7 +250,9 @@ export default class Sk1er extends Module {
       } catch {}
       return await message.channel.send(
         message.language.get("SK1ER_NO_REUPLOAD", message.author),
-        { allowedMentions: { users: [message.author.id] } }
+        {
+          allowedMentions: { users: [message.author.id] },
+        }
       );
     }
     const reupload = this.regexes.reupload.exec(content);

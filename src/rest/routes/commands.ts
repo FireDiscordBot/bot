@@ -2,10 +2,7 @@ import { ArgumentOptions, Command } from "../../../lib/util/command";
 import { ResponseLocals } from "../interfaces";
 import * as express from "express";
 
-export function commandsRoute(
-  req: express.Request,
-  res: express.Response
-) {
+export function commandsRoute(req: express.Request, res: express.Response) {
   const locals: ResponseLocals = res.locals as ResponseLocals;
   let categoryID = -1;
   let categories: {

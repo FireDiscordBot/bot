@@ -6,8 +6,7 @@ export default class OwO extends Language {
   constructor() {
     super("owo-UwU", {
       language: {
-        DEFAULT: (key: string) =>
-          `${key} has not been wocawized fow owo yet.`,
+        DEFAULT: (key: string) => `${key} has not been wocawized fow owo yet.`,
         USER_NOT_FOUND: "Usew not fouwnd :(",
         UNKNOWN_COMMAND: "Command not fouwnd",
         COMMAND_OWNER_ONLY: "Onwy my ownew can uwse this command",
@@ -43,8 +42,7 @@ export default class OwO extends Language {
               : null,
           };
         },
-        DEBUG_COMMAND_DISABLE_BYPASS:
-          "Command is disabwed buwt u awe bypassed",
+        DEBUG_COMMAND_DISABLE_BYPASS: "Command is disabwed buwt u awe bypassed",
         DEBUG_COMMAND_DISABLED: "Command is disabwed.",
         DEBUG_COMMAND_NOT_DISABLED: "Command is not disabwed",
         DEBUG_MUTE_BYPASS: (channel: TextChannel, bypass: string[]) =>

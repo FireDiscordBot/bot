@@ -1,8 +1,8 @@
-import {startRouteManager} from "../src/rest/routeManager";
-import {ResponseLocals} from "../src/rest/interfaces";
-import {Reconnector} from "./ws/Reconnector";
-import {Websocket} from "./ws/Websocket";
-import {Fire} from "./Fire";
+import { startRouteManager } from "../src/rest/routeManager";
+import { ResponseLocals } from "../src/rest/interfaces";
+import { Reconnector } from "./ws/Reconnector";
+import { Websocket } from "./ws/Websocket";
+import { Fire } from "./Fire";
 import * as express from "express";
 
 export class Manager {

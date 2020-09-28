@@ -14,7 +14,8 @@
   "scripts": {
     "dev": "NODE_ENV=development ts-node src/index.ts",
     "compile": "tsc",
-    "start": "NODE_ENV=production node dist/src/index.js"
+    "start": "NODE_ENV=production node dist/src/index.js",
+    "format": "prettier . --write"
   },
   "private": true,
   "license": "UNLICENSED",
@@ -47,6 +48,7 @@
     "@types/humanize-duration": "^3.18.1",
     "@types/node": "^14.6.0",
     "@types/ws": "^7.2.6",
+    "prettier": "^2.1.2",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
   }

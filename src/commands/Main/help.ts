@@ -4,7 +4,6 @@ import { titleCase, constants } from "../../../lib/util/constants";
 import { Language } from "../../../lib/util/language";
 const { categoryNames } = constants;
 
-
 export default class Help extends Command {
   constructor() {
     super("help", {

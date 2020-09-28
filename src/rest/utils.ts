@@ -1,7 +1,4 @@
-import {
-  ErrorResponse,
-  HtmlErrorResponse,
-} from "./interfaces";
+import { ErrorResponse, HtmlErrorResponse } from "./interfaces";
 import { errorHtml } from "./static/error";
 import * as express from "express";
 

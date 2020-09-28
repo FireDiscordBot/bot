@@ -1,15 +1,21 @@
-import {allCommandsRoute} from "./routes/allcommands";
-import {commandsRoute} from "./routes/commands";
-import {publicRoute} from "./routes/public";
-import {avatarRoute} from "./routes/avatar";
-import {rootRoute} from "./routes/root";
-import {sendError} from "./utils";
 import * as express from "express";
 
-export type HttpMethod = "GET" | "POST" | "DELETE" | "PUT" | "CONNECT" |
-  "OPTIONS" |
-  "HEAD" |
-  "TRACE";
+import { allCommandsRoute } from "./routes/allcommands";
+import { commandsRoute } from "./routes/commands";
+import { publicRoute } from "./routes/public";
+import { avatarRoute } from "./routes/avatar";
+import { rootRoute } from "./routes/root";
+import { sendError } from "./utils";
+
+export type HttpMethod =
+  | "GET"
+  | "POST"
+  | "DELETE"
+  | "PUT"
+  | "CONNECT"
+  | "OPTIONS"
+  | "HEAD"
+  | "TRACE";
 
 export type Route = {
   name: string;
@@ -22,7 +28,7 @@ export type Route = {
     skipFailedRequests: boolean;
   };
   requiresAuth?: boolean;
-  handler: express.RequestHandler
+  handler: express.RequestHandler;
 };
 
 export const router: Route[] = [
@@ -66,7 +72,7 @@ export const router: Route[] = [
     description: "Fallback endpoint so express doesn't complain",
     methods: "ALL",
     endpoint: "*",
-    handler: (req: express.Request, res: express.Response) => {
+    handler: (req, res) => {
       sendError(res, {
         success: false,
         error: "Not Found",

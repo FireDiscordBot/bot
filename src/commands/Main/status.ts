@@ -1,4 +1,8 @@
-import { Incidents, Summary, Component } from "../../../lib/interfaces/statuspage";
+import {
+  Incidents,
+  Summary,
+  Component,
+} from "../../../lib/interfaces/statuspage";
 import { constants, titleCase } from "../../../lib/util/constants";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
