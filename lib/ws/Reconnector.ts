@@ -60,6 +60,6 @@ export class Reconnector {
     );
     this.state = RECONNECTING;
     this.client.ws = new Websocket(this.client);
-    this.client.init();
+    this.client.init(true);
   }
 }
