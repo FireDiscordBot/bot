@@ -11,7 +11,11 @@ export class Websocket extends Client {
   handler: EventHandler;
 
   constructor(client: Manager) {
-    super(`${process.env.WS_URL}`);
+    super(
+      process.env.NODE_ENV == "development"
+        ? `ws://127.0.0.1:${process.env.WS_PORT}`
+        : `wss://${process.env.WS_HOST}`
+    );
     this.client = client;
     this.handler = new EventHandler(client);
     this.on("open", () => {
