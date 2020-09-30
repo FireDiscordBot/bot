@@ -13,9 +13,12 @@ export class EventStore extends Collection {
   }
 
   init() {
-    const events = readdirSync(join(process.cwd(), "/src/ws/events"));
+    const path = this.client.client.config.dev
+      ? "/src/ws/events/"
+      : "/dist/src/ws/events/";
+    const events = readdirSync(join(process.cwd(), path));
     for (const e of events) {
-      const event = require(join(process.cwd(), "/src/ws/events/", e));
+      const event = require(join(process.cwd(), path, e));
       const instance = new event.default(this.client);
       this.set(instance.name, instance);
     }
