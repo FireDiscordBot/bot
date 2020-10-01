@@ -50,7 +50,8 @@ dev = False
 if os.environ.get("FIREENV", "production") == "dev":
     dev = True
 
-intents = discord.Intents(1607)
+intents = discord.Intents()
+intents.value = 1607
 
 bot = Fire(
     command_prefix=get_pre,

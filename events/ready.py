@@ -60,7 +60,14 @@ class Ready(commands.Cog):
                     await self.bot.get_cog('FireStatus').set_status(c, 'operational')
         # Discord.py discards member updates from members that aren't cached meaning I need them all cached
         # Doing it here means ready will be dispatched before chunking meaning a lot of features will continue to work as normal while chunking
-        [await g.chunk() for g in self.bot.guilds]
+        [await self.chunk(g) for g in sorted(self.bot.guilds, key=lambda g: g.member_count, reverse=True)]
+
+    async def chunk(self, guild):
+        try:
+            await guild.chunk()
+            self.bot.logger.info(f'$GREENSuccessfully chunked guild $CYAN{guild}')
+        except Exception as e:
+            self.bot.logger.error(f'$REDFailed to chunk guild $CYAN{guild}', exc_info=e)
 
 
 def setup(bot):
