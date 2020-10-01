@@ -15,6 +15,7 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
+from core.competing import Competing
 from discord.ext import commands
 from core.fire import Fire
 import discord
@@ -49,14 +50,17 @@ dev = False
 if os.environ.get("FIREENV", "production") == "dev":
     dev = True
 
+intents = discord.Intents(1607)
+
 bot = Fire(
     command_prefix=get_pre,
-    status=discord.Status.online,
-    activity=discord.Game(name="with fire | inv.wtf"),
+    status=discord.Status.dnd,
+    activity=Competing(name="uptime with dyno (I'm winning)"),
+    intents=intents,
     case_insensitive=True,
     owner_id=287698408855044097,
     max_messages=2500,
-    fetch_offline_members=False,
+    chunk_guilds_at_startup=False,
     dev=dev,
     allowed_mentions=discord.AllowedMentions(
         everyone=False, users=False, roles=False)

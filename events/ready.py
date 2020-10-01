@@ -16,6 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
+from discord.state import ConnectionState
 from discord.ext import commands
 import humanfriendly
 import traceback
@@ -57,10 +58,9 @@ class Ready(commands.Cog):
                     # rate limits are fun 2 electric boogaloo
                     await asyncio.sleep(1)
                     await self.bot.get_cog('FireStatus').set_status(c, 'operational')
-        guilds = [g for g in self.bot.guilds if self.bot.get_config(
-            g.id).get('main.fetch_offline') and g.large]
-        if guilds:
-            await self.bot.request_offline_members(*guilds)
+        # Discord.py discards member updates from members that aren't cached meaning I need them all cached
+        # Doing it here means ready will be dispatched before chunking meaning a lot of features will continue to work as normal while chunking
+        [await g.chunk() for g in self.bot.guilds]
 
 
 def setup(bot):
