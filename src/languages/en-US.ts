@@ -217,6 +217,7 @@ Hint: Use the \`public\` command to get your server on the list`,
           haste: string,
           solutions: string
         ) => `${user} ${msgType} a log, ${extra}\n${haste}\n\n${solutions}`,
+        INVITE_COMMAND_DESCRIPTION: "Sends a link to invite me to a different Discord server.",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
         PLONK_COMMAND_DESCRIPTION:
