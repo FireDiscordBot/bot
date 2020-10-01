@@ -217,7 +217,19 @@ Hint: Use the \`public\` command to get your server on the list`,
           haste: string,
           solutions: string
         ) => `${user} ${msgType} a log, ${extra}\n${haste}\n\n${solutions}`,
-        INVITE_COMMAND_DESCRIPTION: "Sends a link to invite me to a different Discord server.",
+        INVITE_COMMAND_DESCRIPTION:
+          "Sends a link to invite me to a different Discord server.",
+        LEVELHEAD_COMMAND_DESCRIPTION: "Get a player's levelhead info",
+        LEVELHEAD_NO_PLAYER:
+          "You need to give a player for me to check the levelhead of",
+        LEVELHEAD_FETCH_FAIL: "Failed to fetch levelhead info",
+        LEVELHEAD_MALFORMED_UUID:
+          "Malformed UUID. Check the spelling of the player's name",
+        LEVELHEAD_PURCHASED: "Purchased",
+        LEVELHEAD_NOT_PURCHASED: "Not Purchased",
+        LEVELHEAD_EMBED_TITLE: (player: string) => `${player}'s Levelhead`,
+        LEVELHEAD_EMBED_FOOTER:
+          "Want more integrations? Use the suggest command to suggest some!",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
         PLONK_COMMAND_DESCRIPTION:
