@@ -152,7 +152,9 @@ export default class Sk1er extends Module {
         centra("https://api.autotip.pro/counts").send(),
         centra("https://api.hyperium.cc/users").send(),
       ]);
-      const jsons = Promise.all(responses.map((response) => response.json()));
+      const jsons = (await Promise.all(
+        responses.map((response) => response.json())
+      )) as [{ combined_total: number }, { total: number }, { all: number }];
       const count = jsons[0].combined_total + jsons[1].total + jsons[2].all;
 
       // @ts-ignore
