@@ -4,7 +4,7 @@ import { Command } from "../../../lib/util/command";
 
 export default class Invite extends Command {
   constructor() {
-    super("discover", {
+    super("invite", {
       description: (language: Language) =>
         language.get("INVITE_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES"],

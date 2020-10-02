@@ -8,7 +8,7 @@ export default class Levelhead extends Command {
   removeColor: RegExp;
 
   constructor() {
-    super("discover", {
+    super("levelhead", {
       description: (language: Language) =>
         language.get("LEVELHEAD_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
