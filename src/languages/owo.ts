@@ -21,6 +21,8 @@ export default class owo extends Language {
         COMMAND_OWNER_ONLY: "Onwy my ownyew can use this command",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wwong whiwe wunnying ${id}`,
+        MORE_INTEGRATIONS:
+          "Want mowe integwations? Use the suggest command to suggest some!",
         MEMBERS: "Membews",
         REGION: "Wegion",
         STATUS: "Status",
@@ -228,8 +230,12 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         LEVELHEAD_PURCHASED: "Puwchased",
         LEVELHEAD_NOT_PURCHASED: "Nyot Puwchased",
         LEVELHEAD_EMBED_TITLE: (player: string) => `${player}'s Wevewhead`,
-        LEVELHEAD_EMBED_FOOTER:
-          "Want mowe integwations? Use the suggest command to suggest some!",
+        LEVELHEAD_PROPOSED: "Pwoposed Wevewhead",
+        LEVELHEAD_DENIED: "Denyied",
+        LEVELHEAD_OTHER: "Othew Items",
+        LEVELHEAD_TAB: "Tab",
+        LEVELHEAD_CHAT: "Chat",
+        LEVELHEAD_ADDON_LAYERS: "Addon Head Wayews",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discowd's sewvews",
         PING_INITIAL_MESSAGE: "Pinging...",
         PLONK_COMMAND_DESCRIPTION:
