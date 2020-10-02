@@ -1,7 +1,6 @@
 import * as useRateLimit from "express-rate-limit";
 import * as express from "express";
 
-import { Fire } from "../../lib/Fire";
 import { sendError } from "./utils";
 import { Route, router } from "./router";
 

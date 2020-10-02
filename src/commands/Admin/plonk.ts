@@ -1,8 +1,6 @@
-import { GuildMember, User } from "discord.js";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import { booleanTypeCaster } from "../../arguments/boolean";
 import { FireMember } from "../../../lib/extensions/guildmember";
 import { FireUser } from "../../../lib/extensions/user";
 

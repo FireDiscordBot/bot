@@ -19,8 +19,6 @@ export class PostgresProvider extends Provider {
     tableName: string,
     { idColumn = "gid", dataColumn = "data" } = {}
   ) {
-    4;
-    4;
     super();
 
     /**
