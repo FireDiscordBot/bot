@@ -146,20 +146,21 @@ export class Fire extends AkairoClient {
     this.inhibitorHandler.on("remove", async (inhibitor: Inhibitor) => {
       await inhibitor?.unload();
     });
+
+    this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
     this.inhibitorHandler.loadAll();
 
     this.listenerHandler = new ListenerHandler(this, {
       directory: config.fire.dev ? "./src/listeners/" : "./dist/src/listeners/",
     });
+
+    this.commandHandler.useListenerHandler(this.listenerHandler);
     this.listenerHandler.setEmitters({
       commandHandler: this.commandHandler,
       inhibitorHandler: this.inhibitorHandler,
       listenerHandler: this.listenerHandler,
     });
     this.listenerHandler.loadAll();
-
-    this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
-    this.commandHandler.useListenerHandler(this.listenerHandler);
 
     this.languages = new LanguageHandler(this, {
       directory: config.fire.dev ? "./src/languages/" : "./dist/src/languages/",
