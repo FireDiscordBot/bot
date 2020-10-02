@@ -156,7 +156,7 @@ export default class GuildCommand extends Command {
       .map((role) => role.toString());
 
     const embed = new MessageEmbed()
-      .setDescription(badges)
+      .setDescription(badges.join(" "))
       .setColor(message.member?.displayColor || "#ffffff")
       .setAuthor(
         message.guild.name,
