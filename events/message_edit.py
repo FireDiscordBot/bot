@@ -30,12 +30,12 @@ class MessageEdit(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
-        if not after.guild and not (before.content == after.content or after.author.bot):
-            ctx = await self.bot.get_context(after)
-            return await self.bot.invoke(ctx)
-        if not after.guild or isinstance(after.author, discord.User):
-            return
         message = after
+        if isinstance(message.author, discord.User) and not message.guild.chunked:
+            try:
+                message.author = (await message.guild.query_members(user_ids=[message.author.id]))[0]
+            except Exception:
+                pass
         excluded = [int(e) for e in self.bot.get_config(
             message.guild).get('excluded.filter')]
         roleids = [r.id for r in message.author.roles]
