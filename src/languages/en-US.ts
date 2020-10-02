@@ -138,7 +138,7 @@ Hint: Use the \`public\` command to get your server on the list`,
         },
         STATUSPAGE_COMPONENT_STATUS: {
           operational: "Operational",
-          degraded_performance: "Degraded Permormance",
+          degraded_performance: "Degraded Performance",
           partial_outage: "Partial Outage",
           major_outage: "Major Outage",
           under_maintenance: "Under Maintenance",
