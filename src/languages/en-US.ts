@@ -21,6 +21,8 @@ export default class enUS extends Language {
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
+        MORE_INTEGRATIONS:
+          "Want more integrations? Use the suggest command to suggest some!",
         MEMBERS: "Members",
         REGION: "Region",
         STATUS: "Status",
@@ -228,8 +230,12 @@ Hint: Use the \`public\` command to get your server on the list`,
         LEVELHEAD_PURCHASED: "Purchased",
         LEVELHEAD_NOT_PURCHASED: "Not Purchased",
         LEVELHEAD_EMBED_TITLE: (player: string) => `${player}'s Levelhead`,
-        LEVELHEAD_EMBED_FOOTER:
-          "Want more integrations? Use the suggest command to suggest some!",
+        LEVELHEAD_PROPOSED: "Proposed Levelhead",
+        LEVELHEAD_DENIED: "Denied",
+        LEVELHEAD_OTHER: "Other Items",
+        LEVELHEAD_TAB: "Tab",
+        LEVELHEAD_CHAT: "Chat",
+        LEVELHEAD_ADDON_LAYERS: "Addon Head Layers",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
         PLONK_COMMAND_DESCRIPTION:

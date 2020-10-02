@@ -1,8 +1,9 @@
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import * as centra from "centra";
+import { titleCase } from "../../../lib/util/constants";
 import { MessageEmbed } from "discord.js";
+import * as centra from "centra";
 
 export default class Levelhead extends Command {
   removeColor: RegExp;
@@ -86,6 +87,36 @@ export default class Levelhead extends Command {
       .setColor(message?.member.displayColor || "#ffffff")
       .setURL("https://purchase.sk1er.club/category/1050972")
       .setTimestamp(new Date())
-      .setFooter(language.get("LEVELHEAD_EMBED_FOOTER"));
+      .setFooter(language.get("MORE_INTEGRATIONS"));
+    embed.addField("IGN", args.player, false);
+    embed.addField("Levelhead", `${header}:${footer}`, false);
+    if (proposal && !proposal?.header_obj) {
+      const nheader = ((proposal.header as string) || "Level").replace(
+        this.removeColor,
+        ""
+      );
+      const nfooter = (proposal.strlevel as string).replace(
+        this.removeColor,
+        ""
+      );
+      embed.addField(
+        language.get("LEVELHEAD_PROPOSED"),
+        `${nheader}:${nfooter}`,
+        false
+      );
+      embed.addField(
+        language.get("LEVELHEAD_DENIED"),
+        titleCase(proposal.denied as string),
+        false
+      );
+    }
+    embed.addField(
+      language.get("LEVELHEAD_OTHER"),
+      `${language.get("LEVELHEAD_TAB")}: ${tab}\n${language.get(
+        "LEVELHEAD_CHAT"
+      )}: ${chat}\n${language.get("LEVELHEAD_ADDON_LAYERS")}: ${head}`,
+      false
+    );
+    return await message.channel.send(embed);
   }
 }
