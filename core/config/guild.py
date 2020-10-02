@@ -361,6 +361,19 @@ class Config:
             await self._db.execute(query, json.dumps(self._data), str(self._guild.id))
         await self._db.release(con)
         self._bot.logger.info(f'$GREENSaved config for $CYAN{self._guild}')
+        should = False
+        # These options either require/work better with ALL members cached
+        options = ['log.moderation', 'log.action',
+                   'mod.autodecancer', 'mod.autodehoist']
+        for opt in options:
+            if self.get(opt):
+                should = True
+        if should:
+            try:
+                await self._guild.chunk()
+            except Exception as e:
+                self._bot.logger.error(
+                    f'$REDFailed to chunk guild $CYAN{guild}', exc_info=e)
 
     async def init(self):
         con = await self._db.acquire()
