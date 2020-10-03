@@ -12,7 +12,7 @@ The default prefix is `$` but you can change this by doing `$prefix <new prefix>
 
 For support, join the support discord;
 
-![widget](https://inv.wtf/widget/fire)
+[![widget](https://inv.wtf/widget/fire)](https://inv.wtf/fire)
 
 > **NOTE**: Support will not be provided if you attempt to self-host Fire. It is NOT recommended!
 
