@@ -23,7 +23,7 @@ For support, join the support discord;
 
 ## Authors
 
-* **Geek** *aka GamingGeek* - *Main Developer* - [GamingGeek](https://github.com/GamingGeek)
+* **Geek** *aka GamingGeek* - *Main Developer* - [GamingGeek](https://Github.com/GamingGeek)
 
 ## License
 
