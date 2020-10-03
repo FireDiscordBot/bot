@@ -10,7 +10,9 @@ The default prefix is `$` but you can change this by doing `$prefix <new prefix>
 
 ## Support
 
-For support, join the [support discord](https://inv.wtf/fire).
+For support, join the support discord;
+
+![widget](https://inv.wtf/widget/fire)
 
 > **NOTE**: Support will not be provided if you attempt to self-host Fire. It is NOT recommended!
 
