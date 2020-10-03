@@ -497,6 +497,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
         aliases=["banish", "begone", "gtfo", "410", "perish", "bonk", "bean"],
         description="Ban a user from the server",
     )
+    @commands.guild_only()
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
     async def ban(
@@ -601,6 +602,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
             )
 
     @commands.command(aliases=["unbanish"], description="Unban a user from the server")
+    @commands.guild_only()
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
     async def unban(
@@ -660,6 +662,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
         await self.bot.db.release(con)
 
     @commands.command(description="Temporarily restricts access to this server.")
+    @commands.guild_only()
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
     async def softban(
@@ -803,6 +806,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
             )
 
     @commands.command(description="Warn a user.")
+    @commands.guild_only()
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
     async def warn(self, ctx, user: Member = None, *, reason=None):
