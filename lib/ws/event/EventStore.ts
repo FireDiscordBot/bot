@@ -4,7 +4,7 @@ import { join } from "path";
 import { Collection } from "discord.js";
 import { Event } from "./Event";
 
-export class EventStore extends Collection<string, Event> {
+export class EventStore extends Collection<number, Event> {
   manager: Manager;
 
   constructor(manager: Manager) {
@@ -13,10 +13,14 @@ export class EventStore extends Collection<string, Event> {
   }
 
   init() {
-    const events = readdirSync(join(process.cwd(), "/src/ws/events"));
-    for (const event of events) {
-      const Event = require(join(process.cwd(), "/src/ws/events/", event));
-      const instance = new Event(this.manager);
+    const eventsFolder = this.manager.client.config.dev
+      ? "/src/ws/events/"
+      : "/dist/src/ws/events/";
+    const files = readdirSync(join(process.cwd(), eventsFolder));
+    for (const file of files) {
+      const eventModule = require(join(process.cwd(), eventsFolder, file));
+      const eventClass = eventModule.default;
+      const instance: Event = new eventClass(this.manager);
       this.set(instance.name, instance);
     }
   }
