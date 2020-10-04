@@ -6,27 +6,27 @@ import { Message } from "./Message";
 import { EventType } from "./util/constants";
 
 export class Websocket extends Client {
-  client: Manager;
+  manager: Manager;
   handler: EventHandler;
 
-  constructor(client: Manager) {
+  constructor(manager: Manager) {
     super(
       process.env.NODE_ENV == "development"
         ? `ws://127.0.0.1:${process.env.WS_PORT}`
         : `wss://${process.env.WS_HOST}`
     );
-    this.client = client;
-    this.handler = new EventHandler(client);
+    this.manager = manager;
+    this.handler = new EventHandler(manager);
     this.on("open", () => {
       this.send(
         MessageUtil.encode(
           new Message(EventType.IDENTIFY_CLIENT, {
-            id: this.client.id,
-            ready: !!this.client.client.readyAt,
+            id: manager.id,
+            ready: !!manager.client.readyAt,
           })
         )
       );
-      this.client.client.console.log("[Aether] Sending identify event.");
+      manager.client.console.log("[Aether] Sending identify event.");
     });
   }
 

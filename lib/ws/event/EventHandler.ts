@@ -3,12 +3,12 @@ import { MessageUtil } from "../util/MessageUtil";
 import { Manager } from "../../Manager";
 
 export class EventHandler {
-  client: Manager;
+  manager: Manager;
   store: EventStore;
 
-  constructor(client: Manager) {
-    this.client = client;
-    this.store = new EventStore(client);
+  constructor(manager: Manager) {
+    this.manager = manager;
+    this.store = new EventStore(manager);
   }
 
   init() {

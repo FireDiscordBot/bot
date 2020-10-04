@@ -3,8 +3,8 @@ import { EventType } from "../../../lib/ws/util/constants";
 import { Manager } from "../../../lib/Manager";
 
 export default class LaunchEvent extends Event {
-  constructor(client: Manager) {
-    super(client, EventType.LAUNCH_CLIENT);
+  constructor(manager: Manager) {
+    super(manager, EventType.LAUNCH_CLIENT);
   }
 
   run(data: { shardCount?: number; shards?: number[] }) {
