@@ -1,4 +1,4 @@
-import { Structures, GuildMember } from "discord.js";
+import { Structures, GuildMember, Channel } from "discord.js";
 import { FireGuild } from "./guild";
 import { Fire } from "../Fire";
 import { FireUser } from "./user";
@@ -18,6 +18,35 @@ export class FireMember extends GuildMember {
 
   toMention() {
     return super.toString();
+  }
+
+  isModerator(channel?: Channel) {
+    const moderators = this.client.settings.get(
+      this.guild.id,
+      "utils.moderators",
+      []
+    ) as string[];
+    let isMod = false;
+    if (moderators.length) {
+      if (moderators.includes(this.id)) isMod = true;
+      else if (
+        this.roles.cache.filter((role) => moderators.includes(role.id)).size
+      )
+        isMod = true;
+    } else if (
+      channel
+        ? this.permissionsIn(channel).has("MANAGE_MESSAGES")
+        : this.permissions.has("MANAGE_MESSAGES")
+    ) {
+      isMod = true;
+    }
+    return isMod;
+  }
+
+  isAdmin(channel?: Channel) {
+    return channel
+      ? this.permissionsIn(channel).has("MANAGE_GUILD")
+      : this.permissions.has("MANAGE_GUILD");
   }
 }
 
