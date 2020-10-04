@@ -7,8 +7,8 @@ export default class LaunchEvent extends Event {
     super(client, types.LAUNCH_CLIENT);
   }
 
-  run(data: { shardCount?: number }) {
+  run(data: { shardCount?: number; shards?: number[] }) {
     this.client.client.console.log("[Aether] Received launch event.");
-    this.client.launch(data?.shardCount || 0);
+    this.client.launch(data || { shardCount: 1, shards: [0] });
   }
 }
