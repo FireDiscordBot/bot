@@ -84,7 +84,7 @@ export class Manager {
     }
   }
 
-  launch(data: any) {
+  launch(data: { shardCount: number; shards: number[] }) {
     this.client.console.log("[Sharder] Attempting to login.");
     this.client.options.shardCount = data.shardCount;
     this.client.options.shards = data.shards;
