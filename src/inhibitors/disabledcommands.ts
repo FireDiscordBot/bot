@@ -18,6 +18,6 @@ export default class DisabledCommandsInhibitor extends Inhibitor {
       ) as string[]).includes(message.util?.parsed.command.id)
     )
       return message.member.isModerator(message.channel);
-    return true;
+    return false;
   }
 }
