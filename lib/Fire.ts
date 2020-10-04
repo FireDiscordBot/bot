@@ -12,7 +12,6 @@ import { version as djsver } from "discord.js";
 import { KlasaConsole } from "@klasa/console"; // Klasa console do be looking kinda nice doe
 import { CommandHandler } from "./util/commandHandler";
 import { PostgresProvider } from "./providers/postgres";
-import { CommandHandler } from "./util/commandHandler";
 import { Module, ModuleHandler } from "./util/module";
 import { LanguageHandler } from "./util/language";
 import { Inhibitor } from "./util/inhibitor";
