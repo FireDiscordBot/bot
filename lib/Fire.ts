@@ -63,9 +63,9 @@ export class Fire extends AkairoClient {
     this.util = new Util(this);
 
     this.db = new PGClient({
-      user: process.env.POSTGRES_USER || "postgres",
+      user: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASS,
-      database: process.env.NODE_ENV === "production" ? "fire" : "dev",
+      database: process.env.POSTGRES_DB,
     });
 
     this.console.log("[DB] Attempting to connect...");
