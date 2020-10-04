@@ -14,10 +14,7 @@ export class Manager {
   reconnector: Reconnector;
 
   constructor(sentry: any) {
-    this.id =
-      process.env.NODE_ENV === "production"
-        ? parseInt(process.env.PM2_CLUSTER_ID || "0")
-        : 0;
+    this.id = parseInt(process.env.PM2_CLUSTER_ID || "0");
     this.client = new Fire(this, sentry);
     if (process.env.BOOT_SINGLE === "false") {
       this.ws = new Websocket(this);
@@ -77,13 +74,15 @@ export class Manager {
   listen() {
     if (process.env.BOOT_SINGLE !== "false") {
       this.client.options.shardCount = 1;
+      this.client.options.shards = [this.id];
       return this.client.login();
     }
   }
 
   launch(data: any) {
     this.client.console.log("[Sharder] Attempting to login.");
-    this.client.options.shardCount = data;
+    this.client.options.shardCount = data.shardCount;
+    this.client.options.shards = data.shards;
     this.client.login();
   }
 }

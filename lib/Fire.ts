@@ -5,8 +5,8 @@ import {
   version as akairover,
 } from "discord-akairo";
 import { memberConverter, userConverter } from "./util/converters";
-import { CommandHandler } from "./util/commandHandler";
 import { PostgresProvider } from "./providers/postgres";
+import { CommandHandler } from "./util/commandHandler";
 import { Module, ModuleHandler } from "./util/module";
 import { FireMessage } from "./extensions/message";
 import { LanguageHandler } from "./util/language";
@@ -191,10 +191,14 @@ export class Fire extends AkairoClient {
   }
 
   async login() {
+    if (!this.options.shards) this.options.shards = [this.manager.id];
     this.console.log(
-      `[Discord] Attempting to login on shard ${this.manager.id}/${this.options.shardCount}.`
+      `[Discord] Attempting to login on cluster ${
+        this.manager.id
+      } with shards [${(this.options.shards as number[]).join(", ")}] (Total: ${
+        this.options.shardCount
+      }).`
     );
-    this.options.shards = [this.manager.id];
     await this.settings.init();
     return super.login();
   }
