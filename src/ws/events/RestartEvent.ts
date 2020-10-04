@@ -11,6 +11,12 @@ export default class RestartEvent extends Event {
     this.manager.client.console.log(
       "[Aether] Received restart event, relaunching client."
     );
+    const currentOptions = this.manager.client.options;
+    if (
+      currentOptions.shardCount == data.shardCount &&
+      currentOptions.shards == data.shards
+    )
+      return;
     this.manager.relaunch(data || { shardCount: 1, shards: [0] });
   }
 }
