@@ -1,75 +1,56 @@
-import { ErrorResponse } from "./interfaces";
-import { Fire } from "../../lib/Fire";
-import { sendError } from "./utils";
-import { router } from "./router";
 import * as useRateLimit from "express-rate-limit";
 import * as express from "express";
 
-const asyncHandler = (route: any) => {
-  const asyncUtilWrap = (...args: any[]) => {
-    const fnReturn = route(...args);
-    const next = args[args.length - 1];
-    return Promise.resolve(fnReturn).catch(next);
-  };
-  return asyncUtilWrap;
+import { sendError } from "./utils";
+import { Route, router } from "./router";
+
+const asyncHandler = (
+  handler: express.RequestHandler
+): express.RequestHandler => (req, res, next) => {
+  const response = handler(req, res, next);
+  if (response instanceof Promise) {
+    response.catch(next);
+  }
 };
 
-export const startRouteManager = (app: express.Application, client: Fire) => {
-  router.forEach((route) => {
-    route.methods.forEach((method) => {
-      const friendlyMethod: string = method.toLowerCase();
-      const endpoint = route.endpoint;
-      let rateLimit: useRateLimit.RateLimit | undefined;
-
-      if (
-        route.rateLimit &&
-        route.rateLimit.enabled &&
-        route.rateLimit.maxRequests &&
-        route.rateLimit.rateLimitMs &&
-        process.env.NODE_ENV != "development"
-      ) {
-        const rateLimited: ErrorResponse = {
-          success: false,
-          error: "Too many requests, calm down!",
-          code: 429,
-        };
-        rateLimit = useRateLimit({
-          windowMs: route.rateLimit.rateLimitMs,
-          max: route.rateLimit.maxRequests,
-          skipFailedRequests: route.rateLimit.skipFailedRequests,
-          handler: (req, res) => {
-            res.setHeader("X-RateLimit-Remaining", route.rateLimit.rateLimitMs);
-            sendError(res, rateLimited);
-          },
-        });
-      }
-      switch (friendlyMethod) {
-        case "connect":
-        case "options":
-        case "head":
-        case "trace":
-        case "get":
-        case "post":
-        case "put":
-        case "delete": {
-          rateLimit
-            ? app[friendlyMethod](
-                endpoint,
-                rateLimit,
-                asyncHandler(route.route)
-              )
-            : app[friendlyMethod](endpoint, asyncHandler(route.route));
-        }
-        default: {
-          rateLimit
-            ? app["get"](endpoint, rateLimit, asyncHandler(route.route))
-            : app["get"](endpoint, asyncHandler(route.route));
-        }
-      }
-      client.console.log(`[Rest] Loaded route ${method} ${endpoint}`);
-    });
+const createRateLimit = ({ rateLimit }: Route) =>
+  useRateLimit({
+    windowMs: rateLimit.rateLimitMs,
+    max: rateLimit.maxRequests,
+    skipFailedRequests: rateLimit.skipFailedRequests,
+    handler: (req, res) => {
+      res.setHeader("X-RateLimit-Remaining", rateLimit.rateLimitMs);
+      sendError(res, {
+        success: false,
+        error: "Too many requests, calm down!",
+        code: 429,
+      });
+    },
   });
-  client.console.log(`[Rest] Loaded ${router.length} routes.`);
+
+export const setupRoutes = (app: express.Application) => {
+  router.forEach((route) => {
+    const handlers: express.RequestHandler[] = [];
+
+    if (route.rateLimit && process.env.NODE_ENV != "development") {
+      handlers.push(createRateLimit(route));
+    }
+
+    const routeHandler = asyncHandler(route.handler);
+    if (route.methods === "ALL") {
+      app.all(route.endpoint, handlers, routeHandler);
+    } else {
+      route.methods.forEach((method) => {
+        app[method.toLowerCase()](route.endpoint, handlers, routeHandler);
+      });
+    }
+
+    app.client.console.log(
+      `[Rest] Loaded route ${route.methods} ${route.endpoint}`
+    );
+  });
+
+  app.client.console.log(`[Rest] Loaded ${router.length} routes.`);
   app.use(
     (
       err: Error,
@@ -77,13 +58,12 @@ export const startRouteManager = (app: express.Application, client: Fire) => {
       res: express.Response,
       next: express.NextFunction
     ) => {
-      const response: ErrorResponse = {
+      sendError(res, {
         success: false,
         error: err.message || "Internal Server Error",
         code: 500,
-      };
-      sendError(res, response);
+      });
     }
   );
-  client.console.log(`[Rest] Loaded error handler.`);
+  app.client.console.log(`[Rest] Loaded error handler.`);
 };

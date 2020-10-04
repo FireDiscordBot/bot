@@ -1,18 +1,20 @@
+import { createWriteStream, unlink } from "fs";
+
 import {
-  MessageAttachment,
-  TextChannel,
   GuildMember,
-  User,
+  MessageAttachment,
   Role,
+  TextChannel,
+  User,
 } from "discord.js";
+import * as archiver from "archiver";
+import * as centra from "centra";
+import * as moment from "moment";
+
 import { FireMessage } from "../../lib/extensions/message";
 import * as solutions from "../../sk1er_solutions.json";
 import { FireGuild } from "../../lib/extensions/guild";
-import { createWriteStream, unlink } from "fs";
 import { Module } from "../../lib/util/module";
-import * as archiver from "archiver";
-import * as Centra from "centra";
-import * as moment from "moment";
 
 interface Regexes {
   reupload: RegExp;
@@ -40,6 +42,7 @@ export default class Sk1er extends Module {
   uuidCache: Map<string, string>;
   statusCheck: NodeJS.Timeout;
   descriptionUpdate: NodeJS.Timeout;
+
   constructor() {
     super("sk1er");
     this.guildId = "411619823445999637";
@@ -99,7 +102,7 @@ export default class Sk1er extends Module {
 
   async nameToUUID(player: string) {
     if (this.uuidCache.has(player)) return this.uuidCache.get(player);
-    const profileReq = await Centra(
+    const profileReq = await centra(
       `https://api.mojang.com/users/profiles/minecraft/${player}`
     ).send();
     if (profileReq.statusCode == 200) {
@@ -111,6 +114,9 @@ export default class Sk1er extends Module {
 
   async statusChecker() {
     try {
+      const hoursDifferenceSince = (date: Date) =>
+        moment.duration(moment().diff(moment(date))).asHours();
+
       const bots = {
         "444871677176709141": "747786560123961443",
         "234395307759108106": "747787115974230156",
@@ -118,40 +124,41 @@ export default class Sk1er extends Module {
         "689373971572850842": "747788002738176110",
         "155149108183695360": "747786691074457610",
       };
-      const commands: TextChannel = this.guild.channels.cache.get(
+      const commandsChannel = this.guild.channels.cache.get(
         "411620555960352787"
       ) as TextChannel;
-      const pins = await commands.messages.fetchPinned();
-      pins.forEach(async (pin) => {
-        if (!Object.keys(bots).includes(pin.author.id)) return;
-        if (
-          moment.duration(moment().diff(moment(pin.createdAt))).asHours() > 10
-        ) {
-          try {
-            await pin.unpin({
+
+      const pinnedMessages = await commandsChannel.messages.fetchPinned();
+      pinnedMessages
+        .filter(
+          (message) =>
+            Object.keys(bots).includes(message.author.id) &&
+            hoursDifferenceSince(message.createdAt) > 10
+        )
+        .forEach((message) => {
+          message
+            .unpin({
               reason: "Incident has lasted more than 10 hours",
-            });
-          } catch {}
-        }
-      });
+            })
+            .catch((error) => {});
+        });
     } catch {}
   }
 
   async descriptionUpdater() {
     try {
-      let count: number = (
-        await (
-          await Centra("https://api.sk1er.club/mods_analytics").send()
-        ).json()
-      ).combined_total;
-      count += (
-        await (await Centra("https://api.autotip.pro/counts").send()).json()
-      ).total;
-      count += (
-        await (await Centra("https://api.hyperium.cc/users").send()).json()
-      ).all;
+      const responses = await Promise.all([
+        centra("https://api.sk1er.club/mods_analytics").send(),
+        centra("https://api.autotip.pro/counts").send(),
+        centra("https://api.hyperium.cc/users").send(),
+      ]);
+      const jsons = (await Promise.all(
+        responses.map((response) => response.json())
+      )) as [{ combined_total: number }, { total: number }, { all: number }];
+      const count = jsons[0].combined_total + jsons[1].total + jsons[2].all;
+
       // @ts-ignore
-      this.client.api
+      const newData = await this.client.api
         // @ts-ignore
         .guilds(this.guildId)
         .patch({
@@ -159,12 +166,10 @@ export default class Sk1er extends Module {
             description: `The Official Discord for Sk1er & Sk1er Mods (${count.toLocaleString()} total players)`,
           },
           reason: "Description Updater Task",
-        })
-        .then(
-          (newData: any) =>
-            // @ts-ignore
-            this.client.actions.GuildUpdate.handle(newData).updated
-        );
+        });
+
+      // @ts-ignore
+      this.client.actions.GuildUpdate.handle(newData);
     } catch {}
   }
 
@@ -174,13 +179,13 @@ export default class Sk1er extends Module {
         user.id,
       ])
     ).rows;
-    if (rows[0]) return rows[0][0]?.toString();
-    else return null;
+
+    return rows[0] ? rows[0][0]?.toString() : null;
   }
 
   async setUUID(user: GuildMember | User, uuid: string) {
-    const current = await this.getUUID(user);
     try {
+      const current = await this.getUUID(user);
       if (current)
         await this.client.db.query("UPDATE modcore SET uuid=$1 WHERE uid=$2;", [
           uuid,
@@ -191,6 +196,7 @@ export default class Sk1er extends Module {
           "INSERT INTO modcore (uid, uuid) VALUES ($1, $2);",
           [user.id, uuid]
         );
+      return true;
     } catch {
       return false;
     }
@@ -199,31 +205,35 @@ export default class Sk1er extends Module {
   async removeNitroPerks(user: GuildMember | User) {
     const uuid = await this.getUUID(user);
     if (!uuid) return false;
-    const nitroReq = await Centra(
+
+    const nitroReq = await centra(
       `https://api.modcore.sk1er.club/nitro/${uuid}/false`
     )
       .header("secret", this.modcoreHeaders.secret)
       .send();
-    if (nitroReq.statusCode != 200) return false;
-    else return true;
+
+    return nitroReq.statusCode === 200;
   }
 
   async giveNitroPerks(user: GuildMember | User, ign: string) {
     const uuid = await this.nameToUUID(ign);
     if (!uuid) return false;
+
     const setUUID = await this.setUUID(user, uuid);
     if (!setUUID) return false;
-    const nitroReq = await Centra(
+
+    const nitroReq = await centra(
       `https://api.modcore.sk1er.club/nitro/${uuid}/true`
     )
       .header("secret", this.modcoreHeaders.secret)
       .send();
-    if (nitroReq.statusCode != 200) return false;
-    else return true;
+
+    return nitroReq.statusCode === 200;
   }
 
   public getSolutions(log: string) {
-    let currentSolutions: string[] = [];
+    const currentSolutions: string[] = [];
+
     Object.keys(solutions).forEach((err) => {
       if (
         log.includes(err) &&
@@ -231,8 +241,10 @@ export default class Sk1er extends Module {
       )
         currentSolutions.push(`- ${solutions[err]}`);
     });
+
     if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_I7|_L5/im))
       currentSolutions.push("- Update Optifine to either I7 or L5");
+
     return currentSolutions.length
       ? `Possible solutions:\n${currentSolutions.join("\n")}`
       : "";
@@ -240,7 +252,9 @@ export default class Sk1er extends Module {
 
   async checkLogs(message: FireMessage) {
     if (message.guild.id != this.guildId) return;
+
     let content = message.content;
+
     if (this.regexes.noRaw.test(content)) {
       try {
         await message.delete({
@@ -249,14 +263,17 @@ export default class Sk1er extends Module {
       } catch {}
       return await message.channel.send(
         message.language.get("SK1ER_NO_REUPLOAD", message.author),
-        { allowedMentions: { users: [message.author.id] } }
+        {
+          allowedMentions: { users: [message.author.id] },
+        }
       );
     }
+
     const reupload = this.regexes.reupload.exec(content);
     if (reupload != null && reupload.length >= 3) {
       const domain = reupload[1];
       const key = reupload[2];
-      const rawReq = await Centra(
+      const rawReq = await centra(
         `https://${domain}/${domain.includes("paste.ee") ? "r" : "raw"}/${key}`
       ).send();
       if (rawReq.statusCode.toString()[0] != "2") {
@@ -268,24 +285,29 @@ export default class Sk1er extends Module {
         content = content.replace(this.regexes.reupload, text);
       }
     }
+
     if (!message.attachments.size && content.length > 350)
       return await this.handleLogText(
         message,
         content,
         reupload != null ? "sent a paste containing" : "sent"
       );
-    message.attachments.forEach(async (attach) => {
-      if (!attach.name.endsWith(".log") && !attach.name.endsWith(".txt"))
-        return;
-      try {
-        const text = await (await Centra(attach.url).send()).text();
-        return await this.handleLogText(message, text, "uploaded");
-      } catch {
-        return await message.channel.send(
-          message.language.get("SK1ER_LOG_READ_FAIL")
-        );
-      }
-    });
+
+    message.attachments
+      .filter(
+        (attachment) =>
+          attachment.name.endsWith(".log") || attachment.name.endsWith(".txt")
+      )
+      .forEach(async (attach) => {
+        try {
+          const text = await (await centra(attach.url).send()).text();
+          await this.handleLogText(message, text, "uploaded");
+        } catch {
+          await message.channel.send(
+            message.language.get("SK1ER_LOG_READ_FAIL")
+          );
+        }
+      });
   }
 
   async handleLogText(message: FireMessage, text: string, msgType: string) {
@@ -302,6 +324,7 @@ export default class Sk1er extends Module {
             reason: "Removing log and sending Modcore zip",
           });
         } catch {}
+
         const zipattach = new MessageAttachment("modcore.zip", "modcore.zip");
         await message.channel.send(
           message.language.get("SK1ER_MODCORE_ZIP", message.author),
@@ -313,17 +336,21 @@ export default class Sk1er extends Module {
         unlink("modcore.zip", () => {});
       } catch {}
     }
+
     text = text
       .replace(this.regexes.email, "[removed email]")
       .replace(this.regexes.home, "USER.HOME");
+
     this.regexes.url.exec(text)?.forEach((match) => {
       if (!match.includes("sk1er.club"))
         text = text.replace(match, "[removed url]");
     });
+
     lines.forEach((line) => {
       if (this.regexes.secrets.test(line))
         text = text.replace(line, "[line removed to protect sensitive info]");
     });
+
     // TODO add filter run replace for log content
     if (this.hasLogText(text)) {
       try {
@@ -333,20 +360,21 @@ export default class Sk1er extends Module {
             reason: "Removing log and sending haste",
           });
         } catch {}
+
         let possibleSolutions = this.getSolutions(text);
         const user = this.regexes.settingUser.exec(text);
         if (user?.length) {
           try {
             const uuid = await this.nameToUUID(user[1]);
-            if (!uuid)
-              if (possibleSolutions)
-                possibleSolutions +=
-                  "\n- It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
-              else
-                possibleSolutions =
-                  "Possible solutions:\n- It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
+            if (!uuid) {
+              const solution =
+                "\n- It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
+              if (possibleSolutions) possibleSolutions += solution;
+              else possibleSolutions = `Possible solutions:${solution}`;
+            }
           } catch {}
         }
+
         return await message.send(
           "SK1ER_LOG_HASTE",
           message.author,
@@ -362,25 +390,22 @@ export default class Sk1er extends Module {
   }
 
   hasLogText(text: string) {
-    let has = false;
-    this.logText.forEach((logText) => {
-      if (text.includes(logText)) has = true;
-    });
-    return has;
+    return this.logText.some((logText) => text.includes(logText));
   }
 
   async createModcoreZip() {
     const out = createWriteStream("modcore.zip");
-    let archive = archiver("zip", {
+    const archive = archiver("zip", {
       zlib: { level: 9 },
     });
     archive.pipe(out);
+
     const versions = await (
-      await Centra("https://api.sk1er.club/modcore_versions").send()
+      await centra("https://api.sk1er.club/modcore_versions").send()
     ).json();
     const current = versions["1.8.9"];
     const modcore = (
-      await Centra(
+      await centra(
         `https://static.sk1er.club/repo/mods/modcore/${current}/1.8.9/ModCore-${current}%20(1.8.9).jar`
       ).send()
     ).body;
@@ -388,6 +413,7 @@ export default class Sk1er extends Module {
     archive.append(JSON.stringify({ "1.8.9": current }), {
       name: "metadata.json",
     });
+
     await archive.finalize();
     out.close();
   }

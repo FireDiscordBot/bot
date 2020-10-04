@@ -3,16 +3,10 @@ import { readdirSync, statSync } from "fs";
 import { join, resolve } from "path";
 
 const getCategories = () => {
-  let folders: string[] = [];
   const commandsFolder = resolve("src/commands");
-  const files = readdirSync(commandsFolder);
-
-  for (const file of files) {
-    const filepath = join(commandsFolder, file);
-
-    if (statSync(filepath).isDirectory()) folders.push(file);
-  }
-  return folders;
+  return readdirSync(commandsFolder).filter((name) =>
+    statSync(join(commandsFolder, name)).isDirectory()
+  );
 };
 
 export const constants = {
@@ -89,15 +83,12 @@ export const constants = {
   categoryNames: getCategories(),
 };
 
-export const noop = () => {};
-
-export const titleCase = (string: string) => {
-  var sentence = string.toLowerCase().split(" ");
-  for (var i = 0; i < sentence.length; i++) {
-    sentence[i] = sentence[i][0].toUpperCase() + sentence[i].slice(1);
-  }
-  return sentence.join(" ");
-};
+export const titleCase = (string: string) =>
+  string
+    .toLowerCase()
+    .split(" ")
+    .map((sentence) => sentence.charAt(0).toUpperCase() + sentence.slice(1))
+    .join(" ");
 
 export const zws = "\u200b";
 

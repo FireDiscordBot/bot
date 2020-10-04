@@ -7,8 +7,7 @@ export default class owo extends Language {
   constructor() {
     super("owo", {
       language: {
-        DEFAULT: (key: string) =>
-          `${key} has nyot been wocawized fow owo yet.`,
+        DEFAULT: (key: string) => `${key} has nyot been wocawized fow owo yet.`,
         USER_NOT_FOUND: "Usew nyot found! Twy use an ID instead.",
         MEMBER_NOT_FOUND: "Membew nyot found! Twy use an ID instead.",
         CHANNEL_NOT_FOUND: "Channyew nyot found! Twy use an ID instead.",
@@ -96,8 +95,7 @@ This wiww **nyot** wenyame existing usews`,
               : null,
           };
         },
-        DEBUG_COMMAND_DISABLE_BYPASS:
-          "Command is disabwed but you awe bypassed",
+        DEBUG_COMMAND_DISABLE_BYPASS: "Command is disabwed buwt u awe bypassed",
         DEBUG_COMMAND_DISABLED: "Command is disabwed.",
         DEBUG_COMMAND_NOT_DISABLED: "Command is nyot disabwed",
         DEBUG_MUTE_BYPASS: (channel: TextChannel, bypass: string[]) =>
@@ -238,6 +236,7 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         LEVELHEAD_ADDON_LAYERS: "Addon Head Wayews",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discowd's sewvews",
         PING_INITIAL_MESSAGE: "Pinging...",
+        PING_FINAL_MESSAGE: "Pong!",
         PLONK_COMMAND_DESCRIPTION:
           "Make a usew unyabwe to use the best discowd bot",
       },

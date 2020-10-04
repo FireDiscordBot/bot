@@ -9,14 +9,19 @@
 //   return await fs.readFile(refPath, 'utf8');
 // };
 
-import { readFileSync } from "fs"
+import { readFileSync } from "fs";
 
 export const getCommitHash = () => {
-    const rev = readFileSync('.git/HEAD').toString().trim().split(/.*[: ]/).slice(-1)[0];
-    if (rev.indexOf('/') === -1) {
-        return rev;
-    } else {
-        return readFileSync('.git/' + rev).toString().trim();
-    }
-
-}
+  const rev = readFileSync(".git/HEAD")
+    .toString()
+    .trim()
+    .split(/.*[: ]/)
+    .slice(-1)[0];
+  if (rev.indexOf("/") === -1) {
+    return rev;
+  } else {
+    return readFileSync(".git/" + rev)
+      .toString()
+      .trim();
+  }
+};

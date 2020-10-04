@@ -16,7 +16,6 @@ export default class Ping extends Command {
           id: "desc",
           type: "string",
           match: "rest",
-          default: null,
           required: true,
         },
       ],
@@ -36,19 +35,21 @@ export default class Ping extends Command {
       "SELECT * FROM vanity WHERE gid=$1;",
       [message.guild.id]
     );
-    if (!vanity.rows.length)
+
+    if (!vanity.rows.length) {
       return await message.error(
         "DESC_NO_VANITY",
         message?.util?.parsed?.prefix
       );
-    this.setDesc(message.guild, args.desc)
-      .catch(async () => {
-        return await message.error("DESC_FAILED");
-      })
-      .then(async () =>
-        args.desc
-          ? await message.success("DESC_SET")
-          : await message.success("DESC_RESET")
-      );
+    }
+
+    try {
+      await this.setDesc(message.guild, args.desc);
+      return args.desc
+        ? await message.success("DESC_SET")
+        : await message.success("DESC_RESET");
+    } catch (e: any) {
+      return await message.error("DESC_FAILED");
+    }
   }
 }

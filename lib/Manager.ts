@@ -1,10 +1,16 @@
-import { startRouteManager } from "../src/rest/routeManager";
-import { ErrorResponse, ResponseLocals } from "../src/rest/interfaces";
+import * as express from "express";
+import * as Sentry from "@sentry/node";
+
+import { setupRoutes } from "../src/rest/routeManager";
 import { Reconnector } from "./ws/Reconnector";
-import { sendError } from "../src/rest/utils";
 import { Websocket } from "./ws/Websocket";
 import { Fire } from "./Fire";
-import * as express from "express";
+
+declare module "express-serve-static-core" {
+  export interface Application {
+    client: Fire;
+  }
+}
 
 export class Manager {
   id: number;
@@ -13,46 +19,45 @@ export class Manager {
   rest: express.Application;
   reconnector: Reconnector;
 
-  constructor(sentry: any) {
+  constructor(sentry?: typeof Sentry) {
     this.id = parseInt(process.env.PM2_CLUSTER_ID || "0");
     this.client = new Fire(this, sentry);
+
     if (process.env.BOOT_SINGLE === "false") {
       this.ws = new Websocket(this);
       this.reconnector = new Reconnector(this);
     }
+
     this.rest = express();
     this.listen();
   }
 
   init(reconnecting = false) {
     if (!reconnecting) {
-      this.rest.use(
-        (
-          req: express.Request,
-          res: express.Response,
-          next: express.NextFunction
-        ) => {
-          const locals: ResponseLocals = {
-            client: this.client,
-          };
-          res.locals = locals;
-          return next();
-        }
-      );
-      startRouteManager(this.rest, this.client);
-      try {
-        this.client.console.log(
-          `[Rest] Attempting to start API on port ${
-            parseInt(process.env.REST_START_PORT) + this.id
-          }...`
-        );
-        this.rest.listen(parseInt(process.env.REST_START_PORT) + this.id);
-        this.client.console.log(`[Rest] Running.`);
-      } catch (e) {
-        this.client.console.error(`[Rest] Failed to start API!\n${e.stack}`);
-      }
+      this.initRest();
     }
-    if (process.env.BOOT_SINGLE !== "false") return;
+    if (process.env.BOOT_SINGLE === "false") {
+      this.initWebsocket();
+    }
+  }
+
+  private initRest() {
+    this.rest.client = this.client;
+    setupRoutes(this.rest);
+
+    try {
+      const port = parseInt(process.env.REST_START_PORT) + this.id;
+      this.client.console.log(
+        `[Rest] Attempting to start API on port ${port}...`
+      );
+      this.rest.listen(port);
+      this.client.console.log(`[Rest] Running.`);
+    } catch (e) {
+      this.client.console.error(`[Rest] Failed to start API!\n${e.stack}`);
+    }
+  }
+
+  private initWebsocket() {
     this.ws.init();
 
     this.ws.on("open", () => {
@@ -83,6 +88,6 @@ export class Manager {
     this.client.console.log("[Sharder] Attempting to login.");
     this.client.options.shardCount = data.shardCount;
     this.client.options.shards = data.shards;
-    this.client.login();
+    return this.client.login();
   }
 }

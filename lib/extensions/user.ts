@@ -1,5 +1,4 @@
 import { Structures, User } from "discord.js";
-import { FireGuild } from "./guild";
 import { Fire } from "../Fire";
 
 export class FireUser extends User {

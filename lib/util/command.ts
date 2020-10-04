@@ -1,24 +1,21 @@
 import {
-  AkairoModuleOptions,
-  ArgumentGenerator,
-  ArgumentOptions as ArgOptions,
-  BeforeAction,
+  ArgumentGenerator as AkairoArgumentGenerator,
+  ArgumentOptions as AkairoArgumentOptions,
   Command as AkairoCommand,
-  DefaultArgumentOptions,
-  ExecutionPredicate,
-  IgnoreCheckPredicate,
-  KeySupplier,
-  MissingPermissionSupplier,
-  PrefixSupplier,
-  RegexSupplier,
+  CommandOptions as AkairoCommandOptions,
+  Flag,
 } from "discord-akairo";
-import { PermissionResolvable, StringResolvable, Snowflake } from "discord.js";
 import { Fire } from "../Fire";
+
+type ArgumentGenerator = (
+  ...a: Parameters<AkairoArgumentGenerator>
+) => IterableIterator<ArgumentOptions | Flag>;
 
 export class Command extends AkairoCommand {
   client: Fire;
   hidden: boolean;
-  args: ArgumentOptions[] | ArgumentGenerator;
+  args?: ArgumentOptions[] | ArgumentGenerator;
+
   constructor(id: string, options?: CommandOptions) {
     if (!options?.aliases) options.aliases = [id];
     else options?.aliases?.push(id);
@@ -32,39 +29,11 @@ export class Command extends AkairoCommand {
   async unload() {}
 }
 
-export interface CommandOptions extends AkairoModuleOptions {
-  aliases?: string[];
-  args?: ArgumentOptions[] | ArgumentGenerator;
-  argumentDefaults?: DefaultArgumentOptions;
-  before?: BeforeAction;
-  channel?: "guild" | "dm";
-  clientPermissions?:
-    | PermissionResolvable
-    | PermissionResolvable[]
-    | MissingPermissionSupplier;
-  condition?: ExecutionPredicate;
-  cooldown?: number;
-  description?: StringResolvable;
-  editable?: boolean;
-  flags?: string[];
-  ignoreCooldown?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
-  ignorePermissions?: Snowflake | Snowflake[] | IgnoreCheckPredicate;
-  lock?: KeySupplier | "guild" | "channel" | "user";
-  optionFlags?: string[];
-  ownerOnly?: boolean;
-  prefix?: string | string[] | PrefixSupplier;
-  ratelimit?: number;
-  regex?: RegExp | RegexSupplier;
-  separator?: string;
-  typing?: boolean;
-  userPermissions?:
-    | PermissionResolvable
-    | PermissionResolvable[]
-    | MissingPermissionSupplier;
-  quoted?: boolean;
+export interface CommandOptions extends AkairoCommandOptions {
   hidden?: boolean;
+  args?: ArgumentOptions[] | ArgumentGenerator;
 }
 
-export interface ArgumentOptions extends ArgOptions {
+export interface ArgumentOptions extends AkairoArgumentOptions {
   required?: boolean;
 }

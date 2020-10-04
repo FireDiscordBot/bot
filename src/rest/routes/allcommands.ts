@@ -1,42 +1,33 @@
-import { ArgumentOptions, Command } from "../../../lib/util/command";
-import { ResponseLocals } from "../interfaces";
 import * as express from "express";
 
-export async function allCommandsRoute(
-  req: express.Request,
-  res: express.Response
-) {
-  const locals: ResponseLocals = res.locals as ResponseLocals;
-  let commands: {
-    name: string;
-    description: string;
-    usage: string;
-    aliases: string;
-    category: string;
-  }[] = [];
-  locals.client.commandHandler.modules.forEach((command: Command) => {
-    if (
-      command.ownerOnly ||
-      command.category.toString() == "Admin" ||
-      command.hidden
+import { Command } from "../../../lib/util/command";
+import { getCommandArguments } from "../utils";
+
+interface ResponseCommand {
+  name: string;
+  description: string;
+  usage: string;
+  aliases: string;
+  category: string;
+}
+
+export function allCommandsRoute(req: express.Request, res: express.Response) {
+  const client = req.app.client;
+  const commands = client.commandHandler.modules
+    .filter(
+      (command: Command) =>
+        !command.ownerOnly && command.category.id !== "Admin" && !command.hidden
     )
-      return;
-    let args: string[] = [];
-    if (command.args?.length)
-      (command.args as ArgumentOptions[]).forEach((arg: ArgumentOptions) => {
-        if (typeof arg.type == "function") return;
-        if (!arg?.required) args.push(`[<${arg.type}>]`);
-        else args.push(`<${arg.type}>`);
-      });
-    commands.push({
-      name: command.id,
-      description: command.description(
-        locals.client.languages.modules.get("en-US")
-      ),
-      usage: `{prefix}${command.id} ${args.join(" ")}`.trim(),
-      aliases: command.aliases.join(", "),
-      category: command.category.toString(),
+    .map((command: Command) => {
+      const args = getCommandArguments(command).join(" ");
+      return {
+        name: command.id,
+        description: command.description(client.languages.modules.get("en-US")),
+        usage: `{prefix}${command.id} ${args}`.trim(),
+        aliases: command.aliases.join(", "),
+        category: command.category.toString(),
+      } as ResponseCommand;
     });
-  });
-  res.status(200).json(commands);
+
+  res.json(commands);
 }

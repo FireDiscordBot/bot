@@ -1,5 +1,3 @@
-import { Fire } from "../../lib/Fire";
-
 export interface ErrorResponse {
   success: boolean;
   error: string;
@@ -13,8 +11,4 @@ export interface HtmlErrorResponse {
   referral?: string;
   headers?: object;
   code: number;
-}
-
-export interface ResponseLocals {
-  client: Fire;
 }
