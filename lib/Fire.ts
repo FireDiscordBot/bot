@@ -12,6 +12,7 @@ import { version as djsver } from "discord.js";
 import { KlasaConsole } from "@klasa/console"; // Klasa console do be looking kinda nice doe
 import { CommandHandler } from "./util/commandHandler";
 import { PostgresProvider } from "./providers/postgres";
+import { CommandHandler } from "./util/commandHandler";
 import { Module, ModuleHandler } from "./util/module";
 import { LanguageHandler } from "./util/language";
 import { Inhibitor } from "./util/inhibitor";
@@ -184,10 +185,14 @@ export class Fire extends AkairoClient {
   }
 
   async login() {
+    if (!this.options.shards) this.options.shards = [this.manager.id];
     this.console.log(
-      `[Discord] Attempting to login on shard ${this.manager.id}/${this.options.shardCount}.`
+      `[Discord] Attempting to login on cluster ${
+        this.manager.id
+      } with shards [${(this.options.shards as number[]).join(", ")}] (Total: ${
+        this.options.shardCount
+      }).`
     );
-    this.options.shards = [this.manager.id];
     await this.settings.init();
     return super.login();
   }

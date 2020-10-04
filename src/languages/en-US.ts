@@ -21,6 +21,8 @@ export default class enUS extends Language {
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
+        MORE_INTEGRATIONS:
+          "Want more integrations? Use the suggest command to suggest some!",
         MEMBERS: "Members",
         REGION: "Region",
         STATUS: "Status",
@@ -138,7 +140,7 @@ Hint: Use the \`public\` command to get your server on the list`,
         },
         STATUSPAGE_COMPONENT_STATUS: {
           operational: "Operational",
-          degraded_performance: "Degraded Permormance",
+          degraded_performance: "Degraded Performance",
           partial_outage: "Partial Outage",
           major_outage: "Major Outage",
           under_maintenance: "Under Maintenance",
@@ -217,6 +219,23 @@ Hint: Use the \`public\` command to get your server on the list`,
           haste: string,
           solutions: string
         ) => `${user} ${msgType} a log, ${extra}\n${haste}\n\n${solutions}`,
+        INVITE_COMMAND_DESCRIPTION:
+          "Sends a link to invite me to a different Discord server.",
+        LEVELHEAD_COMMAND_DESCRIPTION: "Get a player's levelhead info",
+        LEVELHEAD_NO_PLAYER:
+          "You need to give a player for me to check the levelhead of",
+        LEVELHEAD_FETCH_FAIL: "Failed to fetch levelhead info",
+        LEVELHEAD_MALFORMED_UUID:
+          "Malformed UUID. Check the spelling of the player's name",
+        LEVELHEAD_PURCHASED: "Purchased",
+        LEVELHEAD_NOT_PURCHASED: "Not Purchased",
+        LEVELHEAD_EMBED_TITLE: (player: string) => `${player}'s Levelhead`,
+        LEVELHEAD_PROPOSED: "Proposed Levelhead",
+        LEVELHEAD_DENIED: "Denied",
+        LEVELHEAD_OTHER: "Other Items",
+        LEVELHEAD_TAB: "Tab",
+        LEVELHEAD_CHAT: "Chat",
+        LEVELHEAD_ADDON_LAYERS: "Addon Head Layers",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
         PING_FINAL_MESSAGE: "Pong!",

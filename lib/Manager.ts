@@ -20,11 +20,7 @@ export class Manager {
   reconnector: Reconnector;
 
   constructor(sentry?: typeof Sentry) {
-    this.id =
-      process.env.NODE_ENV === "production"
-        ? parseInt(process.env.PM2_CLUSTER_ID || "0")
-        : 0;
-
+    this.id = parseInt(process.env.PM2_CLUSTER_ID || "0");
     this.client = new Fire(this, sentry);
 
     if (process.env.BOOT_SINGLE === "false") {
@@ -50,11 +46,11 @@ export class Manager {
     setupRoutes(this.rest);
 
     try {
-      const port = parseInt(process.env.REST_START_PORT);
+      const port = parseInt(process.env.REST_START_PORT) + this.id;
       this.client.console.log(
-        `[Rest] Attempting to start API on port ${port + this.id}...`
+        `[Rest] Attempting to start API on port ${port}...`
       );
-      this.rest.listen(port + this.id);
+      this.rest.listen(port);
       this.client.console.log(`[Rest] Running.`);
     } catch (e) {
       this.client.console.error(`[Rest] Failed to start API!\n${e.stack}`);
@@ -83,13 +79,15 @@ export class Manager {
   listen() {
     if (process.env.BOOT_SINGLE !== "false") {
       this.client.options.shardCount = 1;
+      this.client.options.shards = [this.id];
       return this.client.login();
     }
   }
 
-  launch(shardCount: number) {
+  launch(data: any) {
     this.client.console.log("[Sharder] Attempting to login.");
-    this.client.options.shardCount = shardCount;
+    this.client.options.shardCount = data.shardCount;
+    this.client.options.shards = data.shards;
     return this.client.login();
   }
 }
