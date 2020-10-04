@@ -1,5 +1,8 @@
-import { Fire } from "../lib/Fire";
+import { MessageUtil } from "../lib/ws/util/MessageUtil";
+import { types } from "../lib/ws/util/constants";
 import { humanize } from "../lib/util/constants";
+import { Message } from "../lib/ws/Message";
+import { Fire } from "../lib/Fire";
 import * as moment from "moment";
 
 export const fire = {
@@ -18,5 +21,10 @@ export const fire = {
       client.console.log(`Started in ${humanize(duration, "en")}`);
     }
     client.console.log("-------------------------");
+    client.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(types.READY_CLIENT, { id: client.manager.id })
+      )
+    );
   },
 };
