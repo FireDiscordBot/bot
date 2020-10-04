@@ -14,6 +14,7 @@ declare module "express-serve-static-core" {
 
 export class Manager {
   id: number;
+  sentry: typeof Sentry;
   client: Fire;
   ws: Websocket;
   rest: express.Application;
@@ -21,6 +22,7 @@ export class Manager {
 
   constructor(sentry?: typeof Sentry) {
     this.id = parseInt(process.env.PM2_CLUSTER_ID || "0");
+    this.sentry = sentry;
     this.client = new Fire(this, sentry);
 
     if (process.env.BOOT_SINGLE === "false") {
@@ -89,5 +91,13 @@ export class Manager {
     this.client.options.shardCount = data.shardCount;
     this.client.options.shards = data.shards;
     return this.client.login();
+  }
+
+  relaunch(data: { shardCount: number; shards: number[] }) {
+    this.client?.console.warn("Destroying client...");
+    this.client?.user?.setStatus("invisible");
+    this.client?.destroy();
+    this.client = new Fire(this, this.sentry);
+    this.launch(data);
   }
 }
