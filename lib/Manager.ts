@@ -36,8 +36,10 @@ export class Manager {
     this.listen();
   }
 
-  init() {
-    this.initRest();
+  init(reconnecting = false) {
+    if (!reconnecting) {
+      this.initRest();
+    }
     if (process.env.BOOT_SINGLE === "false") {
       this.initWebsocket();
     }
