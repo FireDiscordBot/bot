@@ -1,5 +1,5 @@
-import { Event } from "../../../lib/ws/event/Event";
 import { EventType } from "../../../lib/ws/util/constants";
+import { Event } from "../../../lib/ws/event/Event";
 import { Manager } from "../../../lib/Manager";
 
 export default class LaunchEvent extends Event {
