@@ -200,8 +200,8 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         GUILD_ROLES: "» Roles",
         HELP_COMMAND_DESCRIPTION:
           "Wists all of Fire's commands and pwovides infowmation about them",
-        HELP_FOOTER: (prefix: string) =>
-          `Use "${prefix}help <command>" fow mowe info about the command`,
+        HELP_FOOTER: (prefix: string, cluster: number) =>
+          `Use "${prefix}help <command>" fow mowe info about the command | Cwustew ID: ${cluster}`,
         SK1ER_NO_REUPLOAD: (user: GuildMember | User) =>
           `${user} I am unyabwe to wead youw wog to wemuv sensitive infowmation & pwovide sowutions to youw issue. Pwease upwoad the wog diwectwy :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>

@@ -202,8 +202,8 @@ Hint: Use the \`public\` command to get your server on the list`,
         GUILD_ROLES: "» Roles",
         HELP_COMMAND_DESCRIPTION:
           "Lists all of Fire's commands and provides information about them",
-        HELP_FOOTER: (prefix: string) =>
-          `Use "${prefix}help <command>" for more info about the command`,
+        HELP_FOOTER: (prefix: string, cluster: number) =>
+          `Use "${prefix}help <command>" for more info about the command | Cluster ID: ${cluster}`,
         SK1ER_NO_REUPLOAD: (user: GuildMember | User) =>
           `${user} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>

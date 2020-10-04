@@ -56,7 +56,8 @@ export default class Help extends Command {
       footer: {
         text: message.language.get(
           "HELP_FOOTER",
-          message.util.parsed.prefix || "$"
+          message.util.parsed.prefix || "$",
+          this.client.manager.id
         ),
       },
       timestamp: new Date(),
