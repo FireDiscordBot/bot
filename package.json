@@ -13,6 +13,7 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development ts-node src/index.ts",
+    "dev2": "PM2_CLUSTER_ID=1 NODE_ENV=development ts-node src/index.ts",
     "compile": "tsc",
     "start": "NODE_ENV=production node dist/src/index.js"
   },
