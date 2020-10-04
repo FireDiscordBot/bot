@@ -19,7 +19,7 @@ export class FireMessage extends Message {
   client: Fire;
   language: Language;
   guild: FireGuild;
-  member: FireMember;
+  member: FireMember | null;
   author: FireUser;
 
   constructor(

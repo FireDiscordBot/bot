@@ -8,9 +8,6 @@ export const userMemberTypeCaster: ArgumentTypeCaster = async (
   message: FireMessage,
   phrase
 ): Promise<FireMember | FireUser | null> => {
-  if (!phrase) {
-    return message.member || message.author;
-  }
   const member = await memberConverter(message, phrase, true);
   return member ? member : await userConverter(message, phrase);
 };

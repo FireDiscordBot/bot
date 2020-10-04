@@ -19,13 +19,9 @@ const getUserMentionMatch = (argument: string) => {
   return match ? match[1] : null;
 };
 
-const getMessageIDMatch = (argument: string) => {
-  return argument.match(messageIDRegex);
-};
+const getMessageIDMatch = (argument: string) => argument.match(messageIDRegex);
 
-const getMessageLinkMatch = (argument: string) => {
-  return argument.match(messageLinkRegex);
-};
+const getMessageLinkMatch = (argument: string) => argument.match(messageLinkRegex);
 
 const getChannelMentionMatch = (argument: string) => {
   const match = channelMentionRegex.exec(argument);
@@ -37,6 +33,10 @@ export const memberConverter = async (
   argument: string,
   silent = false
 ): Promise<FireMember | null> => {
+  if (!argument) {
+    return message.member;
+  }
+
   const guild = message.guild;
   if (!guild) {
     if (!silent) await message.error();
@@ -66,10 +66,10 @@ export const memberConverter = async (
 export const userConverter = async (
   message: FireMessage,
   argument: string,
-  silent: boolean = false
-): Promise<FireMember | FireUser | null> => {
+  silent = false
+): Promise<FireUser | null> => {
   if (!argument) {
-    return message.member || message.author;
+    return message.member?.user || message.author;
   }
 
   const userID = getIDMatch(argument) || getUserMentionMatch(argument);
@@ -120,7 +120,7 @@ export const userConverter = async (
 export const messageConverter = async (
   message: FireMessage,
   argument: string,
-  silent: boolean = false
+  silent = false
 ): Promise<FireMessage | null> => {
   const match = getMessageIDMatch(argument) || getMessageLinkMatch(argument);
   if (!match) {
@@ -145,8 +145,8 @@ export const messageConverter = async (
 export const textChannelConverter = async (
   message: FireMessage,
   argument: string,
-  silent: boolean = false
-) => {
+  silent = false
+): Promise<TextChannel | null> => {
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
@@ -182,8 +182,8 @@ export const textChannelConverter = async (
 export const voiceChannelConverter = async (
   message: FireMessage,
   argument: string,
-  silent: boolean = false
-) => {
+  silent = false
+): Promise<VoiceChannel | null> => {
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
@@ -215,8 +215,8 @@ export const voiceChannelConverter = async (
 export const categoryChannelConverter = async (
   message: FireMessage,
   argument: string,
-  silent: boolean = false
-) => {
+  silent = false
+): Promise<CategoryChannel | null> => {
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
