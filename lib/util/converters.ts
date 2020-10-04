@@ -21,7 +21,8 @@ const getUserMentionMatch = (argument: string) => {
 
 const getMessageIDMatch = (argument: string) => argument.match(messageIDRegex);
 
-const getMessageLinkMatch = (argument: string) => argument.match(messageLinkRegex);
+const getMessageLinkMatch = (argument: string) =>
+  argument.match(messageLinkRegex);
 
 const getChannelMentionMatch = (argument: string) => {
   const match = channelMentionRegex.exec(argument);
