@@ -65,6 +65,7 @@ export default class Sk1er extends Module {
 
   async ready() {
     this.guild = this.client.guilds.cache.get(this.guildId) as FireGuild;
+    if (!this.guild) return this.client.modules.remove("sk1er");
     this.nitro = this.guild.roles.cache.get(this.nitroId);
     this.modcoreHeaders = { secret: process.env.MODCORE_SECRET };
     this.regexes = {
