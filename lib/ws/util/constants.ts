@@ -3,7 +3,8 @@ export enum EventType {
   LAUNCH_CLIENT = 1,
   READY_CLIENT = 2,
   RECONNECT_CLIENT = 3,
-  SEND_STATS = 4,
+  RESTART_CLIENT = 4,
+  SEND_STATS = 5,
 }
 
 export enum WebsocketStates {
