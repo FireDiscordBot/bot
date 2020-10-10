@@ -7,20 +7,24 @@ export default class enUS extends Language {
   constructor() {
     super("en-US", {
       language: {
+        // Remove DEFAULT if adding a new language
         DEFAULT: (key: string) =>
-          `${key} has not been localized for en-US yet.`,
+          `${key} has not been localized for any languages yet.`,
         USER_NOT_FOUND: "User not found! Try use an ID instead.",
         MEMBER_NOT_FOUND: "Member not found! Try use an ID instead.",
         CHANNEL_NOT_FOUND: "Channel not found! Try use an ID instead.",
+        ROLE_NOT_FOUND: "Role not found! Try use an ID instead.",
         INVALID_USER_ID: "User not found! Make sure the ID is valid.",
         INVALID_MEMBER_ID: "Member not found! Make sure the ID is valid.",
         INVALID_CHANNEL_ID: "Channel not found! Make sure the ID is valid.",
+        INVALID_ROLE_ID: "Role not found! Make sure the ID is valid.",
         INVALID_MESSAGE:
           "Message not found! Make sure you're giving a valid id/link.",
         UNKNOWN_COMMAND: "Command not found",
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
+        NO_MODERATORS_SET: "There are no moderators set in this guild.",
         MORE_INTEGRATIONS:
           "Want more integrations? Use the suggest command to suggest some!",
         MEMBERS: "Members",
@@ -62,12 +66,24 @@ export default class enUS extends Language {
           PREMIUM:
             "<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)",
         },
+        ADDMOD_COMMAND_DESCRIPTION:
+          "Add a member/role as a moderator. If not set, anyone with the Manage Messages permission is considered a moderator",
+        MODERATORS_ROLES: "Moderator Roles",
+        MODERATORS_MEMBERS: "Moderator Members",
+        MODERATORS_REMOVE_INVALID: "Invalid Moderators",
+        MODERATORS_REMOVED: (invalid: string[]) =>
+          `I have removed some moderators as a matching role/member could not be found...\nThe removed ids are: ${invalid.join(
+            ", "
+          )}`,
         AUTODECANCER_COMMAND_DESCRIPTION: `Toggle renaming those with "cancerous" (non-ascii) names`,
         AUTODECANCER_ENABLED: `Enabled autodecancer. **New** users with "cancerous" (non-ascii) names will be renamed`,
         AUTODECANCER_DISABLED: `Disabled autodecancer. **New** users with "cancerous" (non-ascii) names will no longer be renamed`,
-        AUTODEHOIST_COMMAND_DESCRIPTION: `Toggle renaming those with hoisted names`,
-        AUTODEHOIST_ENABLED: `Enabled autodehoist. **New** users with hoisted names will be renamed`,
-        AUTODEHOIST_DISABLED: `Disabled autodehoist. **New** users with hoisted names will no longer be renamed`,
+        AUTODEHOIST_COMMAND_DESCRIPTION:
+          "Toggle renaming those with hoisted names",
+        AUTODEHOIST_ENABLED:
+          "Enabled autodehoist. **New** users with hoisted names will be renamed",
+        AUTODEHOIST_DISABLED:
+          "Disabled autodehoist. **New** users with hoisted names will no longer be renamed",
         AVATAR_COMMAND_DESCRIPTION: "Get a user's avatar",
         BADNAME_COMMAND_DESCRIPTION:
           "Change the name used for auto dehoist/decancer",
