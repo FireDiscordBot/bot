@@ -24,6 +24,7 @@ import { booleanTypeCaster } from "../src/arguments/boolean";
 import { userMemberTypeCaster } from "../src/arguments/userMember";
 import { memberTypeCaster } from "../src/arguments/member";
 import { userTypeCaster } from "../src/arguments/user";
+import { roleTypeCaster } from "../src/arguments/role";
 
 import "./extensions";
 
@@ -127,6 +128,7 @@ export class Fire extends AkairoClient {
       "user|member": userMemberTypeCaster,
       member: memberTypeCaster,
       user: userTypeCaster,
+      role: roleTypeCaster,
       boolean: booleanTypeCaster,
     });
 

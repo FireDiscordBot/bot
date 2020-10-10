@@ -1,13 +1,14 @@
-import { TextChannel, VoiceChannel, CategoryChannel } from "discord.js";
+import { TextChannel, VoiceChannel, CategoryChannel, Role } from "discord.js";
 import { FireMessage } from "../extensions/message";
 import { FireMember } from "../extensions/guildmember";
 import { FireUser } from "../extensions/user";
 
-const idRegex = /([0-9]{15,21})$/im;
-const userMentionRegex = /<@!?([0-9]+)>$/im;
-const messageIDRegex = /^(?:(?<channel_id>[0-9]{15,21})-)?(?<message_id>[0-9]{15,21})$/im;
-const messageLinkRegex = /^https?:\/\/(?:(ptb|canary)\.)?discord(?:app)?\.com\/channels\/(?:([0-9]{15,21})|(@me))\/(?<channel_id>[0-9]{15,21})\/(?<message_id>[0-9]{15,21})\/?$/im;
-const channelMentionRegex = /<#([0-9]+)>$/im;
+const idRegex = /(\d{15,21})$/im;
+const userMentionRegex = /<@!?(\d{15,21})>$/im;
+const messageIDRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
+const messageLinkRegex = /^https?:\/\/(?:(ptb|canary)\.)?discord(?:app)?\.com\/channels\/(?:(\d{15,21})|(@me))\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})\/?$/im;
+const channelMentionRegex = /<@#(\d{15,21})>$/im;
+const roleMentionRegex = /<@&(\d{15,21})>$/im;
 
 const getIDMatch = (argument: string) => {
   const match = idRegex.exec(argument);
@@ -26,6 +27,11 @@ const getMessageLinkMatch = (argument: string) =>
 
 const getChannelMentionMatch = (argument: string) => {
   const match = channelMentionRegex.exec(argument);
+  return match ? match[1] : null;
+};
+
+const getRoleMentionMatch = (argument: string) => {
+  const match = roleMentionRegex.exec(argument);
   return match ? match[1] : null;
 };
 
@@ -106,7 +112,7 @@ export const userConverter = async (
     }
 
     const match = message.client.users.cache.filter(
-      (user) => user.username == argument
+      (user) => user.username.toLowerCase() == argument.toLowerCase()
     );
 
     if (match.size > 0) {
@@ -159,7 +165,7 @@ export const textChannelConverter = async (
     const channel = guild.channels.cache
       .filter(
         (channel) =>
-          channel.name == argument &&
+          channel.name.toLowerCase() == argument.toLowerCase() &&
           (channel.type == "text" || channel.type == "news")
       )
       .first();
@@ -194,7 +200,11 @@ export const voiceChannelConverter = async (
 
   if (!match) {
     const channel = guild.channels.cache
-      .filter((channel) => channel.name == argument && channel.type == "voice")
+      .filter(
+        (channel) =>
+          channel.name.toLowerCase() == argument.toLowerCase() &&
+          channel.type == "voice"
+      )
       .first();
     if (channel) {
       return channel as VoiceChannel;
@@ -228,7 +238,9 @@ export const categoryChannelConverter = async (
   if (!match) {
     const channel = guild.channels.cache
       .filter(
-        (channel) => channel.name == argument && channel.type == "category"
+        (channel) =>
+          channel.name.toLowerCase() == argument.toLowerCase() &&
+          channel.type == "category"
       )
       .first();
     if (channel) {
@@ -244,6 +256,42 @@ export const categoryChannelConverter = async (
     }
 
     if (!silent) await message.error("INVALID_CHANNEL_ID");
+    return null;
+  }
+};
+
+export const roleConverter = async (
+  message: FireMessage,
+  argument: string,
+  silent = false
+): Promise<Role | null> => {
+  const match = getIDMatch(argument) || getRoleMentionMatch(argument);
+  const guild = message.guild;
+  if (!guild) {
+    if (!silent) await message.error();
+    return null;
+  }
+
+  if (!match) {
+    const role = guild.roles.cache
+      .filter(
+        (role) =>
+          role.name.toLowerCase() == argument.toLowerCase().toLowerCase()
+      )
+      .first();
+    if (role) {
+      return role as Role;
+    }
+
+    if (!silent) await message.error("ROLE_NOT_FOUND");
+    return null;
+  } else {
+    const role = guild.roles.cache.get(match);
+    if (role) {
+      return role as Role;
+    }
+
+    if (!silent) await message.error("INVALID_ROLE_ID");
     return null;
   }
 };
