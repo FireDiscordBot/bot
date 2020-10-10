@@ -7,8 +7,9 @@ import {
   MessageReaction,
 } from "discord.js";
 import { Fire } from "../Fire";
-import { Language } from "../util/language";
+import { CommandUtil } from "../util/commandUtil";
 import { constants } from "../util/constants";
+import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
@@ -21,6 +22,7 @@ export class FireMessage extends Message {
   guild: FireGuild;
   member: FireMember | null;
   author: FireUser;
+  util?: CommandUtil;
 
   constructor(
     client: Fire,
