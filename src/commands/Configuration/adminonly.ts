@@ -11,12 +11,14 @@ export default class ModeratorOnly extends Command {
       description: (language: Language) =>
         language.get("ADMINONLY_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES"],
+      userPermissions: ["ADMINISTRATOR"],
       args: [
         {
           id: "channels",
           type: Util.greedyArg(textChannelConverter),
-          default: [],
           match: "rest",
+          default: [],
+          required: true,
         },
       ],
     });
@@ -36,11 +38,7 @@ export default class ModeratorOnly extends Command {
       if (current.includes(channel.id))
         adminonly = adminonly.filter((cid) => cid != channel.id);
     });
-    this.client.settings.set(
-      message.guild.id,
-      "commands.adminonly",
-      adminonly
-    );
+    this.client.settings.set(message.guild.id, "commands.adminonly", adminonly);
     let mentions: string[] = [];
     adminonly.forEach((cid) => {
       const channel = message.guild.channels.cache.get(cid);

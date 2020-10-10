@@ -11,12 +11,14 @@ export default class ModeratorOnly extends Command {
       description: (language: Language) =>
         language.get("MODONLY_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES"],
+      userPermissions: ["MANAGE_GUILD"],
       args: [
         {
           id: "channels",
           type: Util.greedyArg(textChannelConverter),
-          default: [],
           match: "rest",
+          default: [],
+          required: true,
         },
       ],
     });
