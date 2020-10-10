@@ -3,7 +3,7 @@ import { FireGuild } from "../../../lib/extensions/guild";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 
-export default class Ping extends Command {
+export default class Description extends Command {
   constructor() {
     super("description", {
       aliases: ["desc"],
