@@ -9,5 +9,5 @@ export const memberRoleTypeCaster: ArgumentTypeCaster = async (
   phrase
 ): Promise<FireMember | Role | null> => {
   const member = await memberConverter(message, phrase, true);
-  return member ? member : await roleConverter(message, phrase);
+  return member ? member : await roleConverter(message, phrase, true);
 };
