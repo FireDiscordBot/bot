@@ -20,9 +20,13 @@ export class Language extends AkairoModule {
   }
 
   get(key: string, ...args: any[]): string | object {
+    const defaultLang =
+      this.id == "en-US"
+        ? this
+        : (this.client.languages.modules.get("en-US") as Language);
     const message = this.language.hasOwnProperty(key)
       ? this.language[key]
-      : (this.client.languages.modules.get("en-US") as Language).get(key, args);
+      : defaultLang.get(key, args) || defaultLang.get("DEFAULT", key);
     if (typeof message === "function") {
       return message(...args);
     } else return message;
