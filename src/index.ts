@@ -1,12 +1,13 @@
 import * as dotEnvExtended from "dotenv-extended";
-import {getCommitHash} from "../lib/util/gitUtils";
-import {Manager} from "../lib/Manager";
-import * as sentry from "@sentry/node";
 
 dotEnvExtended.load({
   path: process.env.NODE_ENV == "development" ? "dev.env" : ".env",
   errorOnRegex: true,
 });
+
+import { getCommitHash } from "../lib/util/gitUtils";
+import { Manager } from "../lib/Manager";
+import * as sentry from "@sentry/node";
 
 const version =
   process.env.NODE_ENV == "development" ? "dev" : getCommitHash().slice(0, 7);
