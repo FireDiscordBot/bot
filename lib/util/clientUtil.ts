@@ -1,5 +1,6 @@
-import { ClientUtil } from "discord-akairo";
+import { FireMessage } from "../extensions/message";
 import { GuildMember, User } from "discord.js";
+import { ClientUtil } from "discord-akairo";
 import { Fire } from "../Fire";
 
 export class Util extends ClientUtil {
@@ -77,4 +78,24 @@ export class Util extends ClientUtil {
     );
     this.client.console.warn(`[Blacklist] Successfully unblacklisted ${user}`);
   }
+
+  static greedyArg = (
+    converter: (message: FireMessage, phrase: string, silent?: boolean) => any
+  ) => {
+    return async (message: FireMessage, phrase: string) => {
+      let converted: any[] = [];
+      let splitPhrase: string[];
+      if (phrase.includes(","))
+        splitPhrase = phrase.replace(", ", ",").split(",");
+      else splitPhrase = phrase.split(" ");
+      const converters = async () => {
+        splitPhrase.forEach(async (phrase) => {
+          const result = await converter(message, phrase.trim(), true);
+          if (result) converted.push(result);
+        });
+      };
+      await converters(); // Ensures everything gets converted before returning
+      return converted.length ? converted : null;
+    };
+  };
 }
