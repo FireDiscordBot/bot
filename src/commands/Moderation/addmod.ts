@@ -28,7 +28,11 @@ export default class AddModerator extends Command {
 
   async exec(message: FireMessage, args: { modToAdd: FireMember | Role }) {
     const modToAdd = args.modToAdd;
-    if (!modToAdd) return await this.getModeratorEmbed(message);
+    if (
+      ["listmods", "listmoderators"].includes(message.util.parsed.alias) ||
+      !modToAdd
+    )
+      return await this.getModeratorEmbed(message);
     let current = this.client.settings.get(
       message.guild.id,
       "utils.moderators",
@@ -60,19 +64,14 @@ export default class AddModerator extends Command {
       mentions.members.push(member.toMention())
     );
     const invalid = [
-      ...roles.filter((rid) => !mentions.roles.includes(`<@&${rid}>`)),
-      ...members
-        .filter(
-          (member: FireMember) => !mentions.members.includes(member.toMention())
-        )
-        .map((member) => member.id),
+      ...moderators.filter((id) => !JSON.stringify(mentions).includes(id)),
     ];
-    let fileredModerators = moderators.filter((id) => !invalid.includes(id));
-    if (moderators != fileredModerators)
+    let filteredModerators = moderators.filter((id) => !invalid.includes(id));
+    if (moderators != filteredModerators)
       this.client.settings.set(
         message.guild.id,
         "utils.moderators",
-        fileredModerators
+        filteredModerators
       );
     const embed = new MessageEmbed()
       .setColor(message.member.displayColor || "#ffffff")
