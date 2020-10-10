@@ -1,4 +1,10 @@
-import { TextChannel, VoiceChannel, CategoryChannel, Role } from "discord.js";
+import {
+  Role,
+  TextChannel,
+  VoiceChannel,
+  CategoryChannel,
+  FetchMembersOptions,
+} from "discord.js";
 import { FireMessage } from "../extensions/message";
 import { FireMember } from "../extensions/guildmember";
 import { FireUser } from "../extensions/user";
@@ -52,7 +58,15 @@ export const memberConverter = async (
 
   const userID = getIDMatch(argument) || getUserMentionMatch(argument);
   if (!userID) {
-    const member = await guild.fetchMember(argument);
+    let options: FetchMembersOptions = {
+      query: argument,
+      limit: 1,
+    };
+    if (argument.includes("#")) {
+      const [name] = argument.split("#");
+      options.query = name;
+    }
+    const member = (await guild.members.fetch(options)).first() as FireMember;
     if (member) {
       return member;
     }
