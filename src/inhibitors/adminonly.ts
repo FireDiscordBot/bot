@@ -18,7 +18,7 @@ export default class AdminOnlyInhibitor extends Inhibitor {
         []
       ) as string[]).includes(message.channel.id)
     )
-      return message.member.isAdmin();
+      return !message.member.isAdmin();
     return false;
   }
 }

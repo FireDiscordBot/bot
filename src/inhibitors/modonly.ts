@@ -17,7 +17,7 @@ export default class ModOnlyInhibitor extends Inhibitor {
         []
       ) as string[]).includes(message.channel.id)
     )
-      return message.member.isModerator(message.channel);
+      return !message.member.isModerator(message.channel);
     return false;
   }
 }
