@@ -14,6 +14,14 @@ export class FireUser extends User {
   toMention() {
     return super.toString();
   }
+
+  async blacklist(reason: string, permanent: boolean) {
+    return await this.client.util.blacklist(this, reason, permanent);
+  }
+
+  async unblacklist() {
+    return await this.client.util.unblacklist(this);
+  }
 }
 
 Structures.extend("User", () => FireUser);

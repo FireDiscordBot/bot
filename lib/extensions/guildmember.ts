@@ -48,6 +48,14 @@ export class FireMember extends GuildMember {
       ? this.permissionsIn(channel).has("MANAGE_GUILD")
       : this.permissions.has("MANAGE_GUILD");
   }
+
+  async blacklist(reason: string, permanent: boolean) {
+    return await this.client.util.blacklist(this, reason, permanent);
+  }
+
+  async unblacklist() {
+    return await this.client.util.unblacklist(this);
+  }
 }
 
 Structures.extend("GuildMember", () => FireMember);

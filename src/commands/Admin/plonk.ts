@@ -47,14 +47,10 @@ export default class Plonk extends Command {
     if (!user) return;
 
     if (this.client.util.plonked.includes(user.id)) {
-      const unblacklisted = await this.client.util.unblacklist(user);
+      const unblacklisted = await user.unblacklist();
       return unblacklisted ? await message.success() : await message.error();
     } else {
-      const blacklisted = await this.client.util.blacklist(
-        user,
-        args.reason,
-        args.permanent
-      );
+      const blacklisted = await user.blacklist(args.reason, args.permanent);
       return blacklisted ? await message.success() : await message.error();
     }
   }
