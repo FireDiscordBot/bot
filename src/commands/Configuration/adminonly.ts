@@ -5,7 +5,7 @@ import { Command } from "../../../lib/util/command";
 import { Util } from "../../../lib/util/clientUtil";
 import { TextChannel } from "discord.js";
 
-export default class ModeratorOnly extends Command {
+export default class AdminOnly extends Command {
   constructor() {
     super("adminonly", {
       description: (language: Language) =>
