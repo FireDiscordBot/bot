@@ -15,6 +15,7 @@ export default class AddModerator extends Command {
         {
           id: "modToAdd",
           type: "member|role",
+          match: "rest",
           default: null,
           required: false,
         },
@@ -36,6 +37,7 @@ export default class AddModerator extends Command {
     if (!current.includes(modToAdd.id)) current.push(modToAdd.id);
     else current = current.filter((id) => id != modToAdd.id);
     this.client.settings.set(message.guild.id, "utils.moderators", current);
+    await message.success();
     return await this.getModeratorEmbed(message);
   }
 
