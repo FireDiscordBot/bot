@@ -11,15 +11,18 @@ export default class owo extends Language {
         USER_NOT_FOUND: "Usew nyot found! Twy use an ID instead.",
         MEMBER_NOT_FOUND: "Membew nyot found! Twy use an ID instead.",
         CHANNEL_NOT_FOUND: "Channyew nyot found! Twy use an ID instead.",
+        ROLE_NOT_FOUND: "Wowe nyot found! Twy use an ID instead.",
         INVALID_USER_ID: "Usew nyot found! Make suwe the ID is vawid.",
         INVALID_MEMBER_ID: "Channyew nyot found! Twy use an ID instead.",
         INVALID_CHANNEL_ID: "Channyew nyot found! Make suwe the ID is vawid.",
+        INVALID_ROLE_ID: "Wowe nyot found! Make suwe the ID is vawid.",
         INVALID_MESSAGE:
           "Message nyot found! Make suwe you'we giving a vawid id/wink.",
         UNKNOWN_COMMAND: "Command nyot found",
         COMMAND_OWNER_ONLY: "Onwy my ownyew can use this command",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wwong whiwe wunnying ${id}`,
+        NO_MODERATORS_SET: "Thewe awe nyo modewatows set in this guiwd.",
         MORE_INTEGRATIONS:
           "Want mowe integwations? Use the suggest command to suggest some!",
         MEMBERS: "Membews",
@@ -60,13 +63,27 @@ export default class owo extends Language {
           // CUSTOM FEATURES
           PREMIUM:
             "<:firelogo:665339492072292363> [Pwemium](https://gaminggeek.dev/premium)",
+        ADDMOD_COMMAND_DESCRIPTION:
+          "Add a membew/wowe as a modewatow. If nyot set, anyonye with the Manyage Messages pewmission is considewed a modewatow",
+        MODERATORS_ROLES: "Modewatow Wowes",
+        NO_MODERATOR_ROLES: "Nyo wowes have been set as modewatows.",
+        MODERATORS_MEMBERS: "Modewatow Membews",
+        NO_MODERATOR_MEMBERS: "Nyo membews have been set as modewatows.",
+        MODERATORS_REMOVE_INVALID: "Invawid Modewatows",
+        MODERATORS_REMOVED: (invalid: string[]) =>
+          `I have wemuvd some modewatows as a matching wowe/membew couwd nyot be found...\nThe wemuvd ids awe: ${invalid.join(
+            ", "
+          )}`,
         },
         AUTODECANCER_COMMAND_DESCRIPTION: `Toggwe wenyaming those with "cancewous" (nyon-ascii) nyames`,
         AUTODECANCER_ENABLED: `Enyabwed autodecancew. **Nyew** usews with "cancewous" (nyon-ascii) nyames wiww be wenyamed`,
         AUTODECANCER_DISABLED: `Disabwed autodecancew. **Nyew** usews with "cancewous" (nyon-ascii) nyames wiww nyo wongew be wenyamed`,
-        AUTODEHOIST_COMMAND_DESCRIPTION: `Toggwe wenyaming those with hoisted nyames`,
-        AUTODEHOIST_ENABLED: `Enyabwed autodehoist. **Nyew** usews with hoisted nyames wiww be wenyamed`,
-        AUTODEHOIST_DISABLED: `Disabwed autodehoist. **Nyew** usews with hoisted nyames wiww nyo wongew be wenyamed`,
+        AUTODEHOIST_COMMAND_DESCRIPTION:
+          "Toggwe wenyaming those with hoisted nyames",
+        AUTODEHOIST_ENABLED:
+          "Enyabwed autodehoist. **Nyew** usews with hoisted nyames wiww be wenyamed",
+        AUTODEHOIST_DISABLED:
+          "Disabwed autodehoist. **Nyew** usews with hoisted nyames wiww nyo wongew be wenyamed",
         AVATAR_COMMAND_DESCRIPTION: "Get a usew's avataw",
         BADNAME_COMMAND_DESCRIPTION:
           "Change the nyame used fow auto dehoist/decancew",
@@ -234,6 +251,20 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         LEVELHEAD_TAB: "Tab",
         LEVELHEAD_CHAT: "Chat",
         LEVELHEAD_ADDON_LAYERS: "Addon Head Wayews",
+        MODONLY_COMMAND_DESCRIPTION:
+          "Set channyews to westwict commands fow modewatows",
+        MODONLY_NO_CHANNELS:
+          "You must pwovide vawid channyew(s) sepawated by a comma ow space fow me to toggwe modewatow onwy mode in.",
+        MODONLY_SET: (channels: string) =>
+          `Commands can nyow onwy be wun by modewatows (eithew those set as mods ow those with manyage messages) in;\n${channels}.`,
+        MODONLY_RESET: "Modewatow onwy channyews have been weset",
+        ADMINONLY_COMMAND_DESCRIPTION:
+          "Set channyews to westwict commands fow admins",
+        ADMINONLY_NO_CHANNELS:
+          "You must pwovide vawid channyew(s) sepawated by a comma ow space fow me to toggwe admin onwy mode in.",
+        ADMINONLY_SET: (channels: string) =>
+          `Commands can nyow onwy be wun by those with the "Manyage Sewvew" pewmission in;\n${channels}.`,
+        ADMINONLY_RESET: "Admin onwy channyews have been weset",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discowd's sewvews",
         PING_INITIAL_MESSAGE: "Pinging...",
         PING_FINAL_MESSAGE: "Pong!",
