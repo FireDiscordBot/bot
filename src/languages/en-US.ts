@@ -236,6 +236,20 @@ Hint: Use the \`public\` command to get your server on the list`,
         LEVELHEAD_TAB: "Tab",
         LEVELHEAD_CHAT: "Chat",
         LEVELHEAD_ADDON_LAYERS: "Addon Head Layers",
+        MODONLY_COMMAND_DESCRIPTION:
+          "Set channels to restrict commands for moderators",
+        MODONLY_NO_CHANNELS:
+          "You must provide valid channel(s) separated by a comma or space for me to toggle moderator only mode in.",
+        MODONLY_SET: (channels: string) =>
+          `Commands can now only be run by moderators (either those set as mods or those with manage messages) in;\n${channels}.`,
+        MODONLY_RESET: "Moderator only channels have been reset",
+        ADMINONLY_COMMAND_DESCRIPTION:
+          "Set channels to restrict commands for admins",
+        ADMINONLY_NO_CHANNELS:
+          "You must provide valid channel(s) separated by a comma or space for me to toggle admin only mode in.",
+        ADMINONLY_SET: (channels: string) =>
+          `Commands can now only be run by those with the "Manage Server" permission in;\n${channels}.`,
+        ADMINONLY_RESET: "Admin only channels have been reset",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
         PING_FINAL_MESSAGE: "Pong!",
