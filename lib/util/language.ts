@@ -4,6 +4,7 @@ import { Fire } from "../Fire";
 export class Language extends AkairoModule {
   language: any;
   enabled: boolean;
+  client: Fire;
   constructor(
     id: string,
     options = {
@@ -21,7 +22,7 @@ export class Language extends AkairoModule {
   get(key: string, ...args: any[]): string | object {
     const message = this.language.hasOwnProperty(key)
       ? this.language[key]
-      : this.language?.DEFAULT(key);
+      : (this.client.languages.modules.get("en-US") as Language).get(key, args);
     if (typeof message === "function") {
       return message(...args);
     } else return message;
