@@ -14,6 +14,7 @@ type ArgumentGenerator = (
 export class Command extends AkairoCommand {
   client: Fire;
   hidden: boolean;
+  premium: boolean;
   args?: ArgumentOptions[] | ArgumentGenerator;
 
   constructor(id: string, options?: CommandOptions) {
@@ -21,6 +22,7 @@ export class Command extends AkairoCommand {
     else options?.aliases?.push(id);
     super(id, options);
     this.hidden = options.hidden || false;
+    this.premium = options.premium || false;
     this.args = options.args;
   }
 
@@ -31,6 +33,7 @@ export class Command extends AkairoCommand {
 
 export interface CommandOptions extends AkairoCommandOptions {
   hidden?: boolean;
+  premium?: boolean;
   args?: ArgumentOptions[] | ArgumentGenerator;
 }
 
