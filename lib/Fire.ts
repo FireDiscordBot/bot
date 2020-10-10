@@ -20,8 +20,9 @@ import { Manager } from "./Manager";
 import { Command } from "./util/command";
 import { Util } from "./util/clientUtil";
 import { config } from "../config";
-import { booleanTypeCaster } from "../src/arguments/boolean";
+import { memberRoleTypeCaster } from "../src/arguments/memberRole";
 import { userMemberTypeCaster } from "../src/arguments/userMember";
+import { booleanTypeCaster } from "../src/arguments/boolean";
 import { memberTypeCaster } from "../src/arguments/member";
 import { userTypeCaster } from "../src/arguments/user";
 import { roleTypeCaster } from "../src/arguments/role";
@@ -128,6 +129,7 @@ export class Fire extends AkairoClient {
 
     this.commandHandler.resolver.addTypes({
       "user|member": userMemberTypeCaster,
+      "member|role": memberRoleTypeCaster,
       member: memberTypeCaster,
       user: userTypeCaster,
       role: roleTypeCaster,
