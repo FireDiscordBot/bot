@@ -80,7 +80,9 @@ export class Fire extends AkairoClient {
       });
 
     this.on("warn", (warning) => this.console.warn(`[Discord] ${warning}`));
-    this.on("error", (error) => this.console.error(`[Discord] ${error}`));
+    this.on("error", (error) =>
+      this.console.error(`[Discord]\n${error.stack}`)
+    );
     this.on("ready", () => config.fire.readyMessage(this));
 
     if (sentry) {
