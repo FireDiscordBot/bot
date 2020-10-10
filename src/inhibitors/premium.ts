@@ -17,6 +17,7 @@ export default class PremiumInhibitor extends Inhibitor {
 
   async init() {
     this.client.util.premium = new Map();
+    this.client.util.loadedData.premium = false;
     const premium = await this.client.db.query("SELECT * FROM premium;");
     for await (const row of premium) {
       this.client.util.premium.set(
@@ -24,6 +25,7 @@ export default class PremiumInhibitor extends Inhibitor {
         row.get("uid") as string
       );
     }
+    this.client.util.loadedData.premium = true;
     this.client.console.log(
       `[Premium] Successfully loaded ${this.client.util.premium.size} premium guilds`
     );

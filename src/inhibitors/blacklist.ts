@@ -19,10 +19,12 @@ export default class BlacklistInhibitor extends Inhibitor {
 
   async init() {
     this.client.util.plonked = [];
+    this.client.util.loadedData.plonked = false;
     const plonked = await this.client.db.query("SELECT * FROM blacklist;");
     for await (const row of plonked) {
       this.client.util.plonked.push(row.get("uid") as string);
     }
+    this.client.util.loadedData.plonked = true;
     this.client.console.log(
       `[Blacklist] Successfully loaded ${this.client.util.plonked.length} blacklisted users`
     );

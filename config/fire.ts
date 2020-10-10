@@ -7,6 +7,7 @@ import * as moment from "moment";
 
 export const fire = {
   dev: process.env.NODE_ENV == "development",
+  premiumOnly: false,
   readyMessage: (client: Fire) => {
     client.console.log("-------------------------");
     client.console.log(

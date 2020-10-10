@@ -7,14 +7,20 @@ import { FireUser } from "../extensions/user";
 export class Util extends ClientUtil {
   client: Fire;
   admins: string[];
+  loadedData: { plonked: boolean; premium: boolean };
   plonked: string[];
   premium: Map<string, string>;
 
   constructor(client: Fire) {
     super(client);
     this.admins = JSON.parse(process.env.ADMINS); // Will probably change this for a table in le database
+    this.loadedData = { plonked: false, premium: false };
     this.plonked = [];
     this.premium = new Map();
+  }
+
+  sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   async blacklist(
