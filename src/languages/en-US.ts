@@ -69,7 +69,9 @@ export default class enUS extends Language {
         ADDMOD_COMMAND_DESCRIPTION:
           "Add a member/role as a moderator. If not set, anyone with the Manage Messages permission is considered a moderator",
         MODERATORS_ROLES: "Moderator Roles",
+        NO_MODERATOR_ROLES: "No roles have been set as moderators.",
         MODERATORS_MEMBERS: "Moderator Members",
+        NO_MODERATOR_MEMBERS: "No members have been set as moderators.",
         MODERATORS_REMOVE_INVALID: "Invalid Moderators",
         MODERATORS_REMOVED: (invalid: string[]) =>
           `I have removed some moderators as a matching role/member could not be found...\nThe removed ids are: ${invalid.join(

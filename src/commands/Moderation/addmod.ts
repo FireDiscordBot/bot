@@ -3,7 +3,6 @@ import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { Role, MessageEmbed } from "discord.js";
-import { Argument } from "discord-akairo";
 
 export default class AddModerator extends Command {
   constructor() {
@@ -15,7 +14,7 @@ export default class AddModerator extends Command {
       args: [
         {
           id: "modToAdd",
-          type: Argument.union("member", "role"),
+          type: "member|role",
           default: null,
           required: false,
         },
@@ -34,7 +33,8 @@ export default class AddModerator extends Command {
       "utils.moderators",
       []
     ) as string[];
-    current.push(modToAdd.id);
+    if (!current.includes(modToAdd.id)) current.push(modToAdd.id);
+    else current = current.filter((id) => id != modToAdd.id);
     this.client.settings.set(message.guild.id, "utils.moderators", current);
     return await this.getModeratorEmbed(message);
   }
@@ -76,12 +76,13 @@ export default class AddModerator extends Command {
       .setColor(message.member.displayColor || "#ffffff")
       .addField(
         message.language.get("MODERATORS_ROLES"),
-        mentions.roles.join("\n"),
+        mentions.roles.join("\n") || message.language.get("NO_MODERATOR_ROLES"),
         false
       )
       .addField(
         message.language.get("MODERATORS_MEMBERS"),
-        mentions.members.join("\n"),
+        mentions.members.join("\n") ||
+          message.language.get("NO_MODERATOR_MEMBERS"),
         false
       );
     if (invalid.length)
