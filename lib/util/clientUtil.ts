@@ -1,21 +1,24 @@
 import { FireMessage } from "../extensions/message";
-import { GuildMember, User } from "discord.js";
 import { ClientUtil } from "discord-akairo";
 import { Fire } from "../Fire";
+import { FireMember } from "../extensions/guildmember";
+import { FireUser } from "../extensions/user";
 
 export class Util extends ClientUtil {
   client: Fire;
   admins: string[];
   plonked: string[];
+  premium: Map<string, string>;
 
   constructor(client: Fire) {
     super(client);
     this.admins = JSON.parse(process.env.ADMINS); // Will probably change this for a table in le database
     this.plonked = [];
+    this.premium = new Map();
   }
 
   async blacklist(
-    user: GuildMember | User,
+    user: FireMember | FireUser,
     reason: string,
     permanent: boolean
   ) {
@@ -29,7 +32,7 @@ export class Util extends ClientUtil {
     }
   }
 
-  async unblacklist(user: GuildMember | User) {
+  async unblacklist(user: FireMember | FireUser) {
     try {
       await this.deleteBlacklist(user);
       return true;
@@ -39,12 +42,12 @@ export class Util extends ClientUtil {
   }
 
   private async insertBlacklist(
-    user: GuildMember | User,
+    user: FireMember | FireUser,
     reason: string,
     permanent: boolean
   ) {
     const username =
-      user instanceof GuildMember ? user.user.username : user.username;
+      user instanceof FireMember ? user.user.username : user.username;
     await this.client.db.query(
       'INSERT INTO blacklist ("user", uid, reason, perm) VALUES ($1, $2, $3, $4);',
       [username, user.id, reason, permanent]
@@ -54,12 +57,12 @@ export class Util extends ClientUtil {
   }
 
   private async updateBlacklist(
-    user: GuildMember | User,
+    user: FireMember | FireUser,
     reason: string,
     permanent: boolean
   ) {
     const username =
-      user instanceof GuildMember ? user.user.username : user.username;
+      user instanceof FireMember ? user.user.username : user.username;
     await this.client.db.query(
       "UPDATE blacklist user=$1, reason=$2, perm=$3 WHERE uid=$4;",
       [username, reason, permanent, user.id]
@@ -69,7 +72,7 @@ export class Util extends ClientUtil {
     );
   }
 
-  private async deleteBlacklist(user: GuildMember | User) {
+  private async deleteBlacklist(user: FireMember | FireUser) {
     await this.client.db.query("DELETE FROM blacklist WHERE uid=$1;", [
       user.id,
     ]);
