@@ -4,30 +4,30 @@ import {
   ListenerHandler,
   version as akairover,
 } from "discord-akairo";
-import * as moment from "moment";
-import * as Sentry from "@sentry/node";
-import * as Centra from "centra";
-import { Client as PGClient } from "ts-postgres";
-import { version as djsver } from "discord.js";
-import { KlasaConsole } from "@klasa/console"; // Klasa console do be looking kinda nice doe
-import { CommandHandler } from "./util/commandHandler";
-import { PostgresProvider } from "./providers/postgres";
-import { Module, ModuleHandler } from "./util/module";
-import { LanguageHandler } from "./util/language";
-import { Inhibitor } from "./util/inhibitor";
-import { KSoftClient } from "@aero/ksoft";
-import { Manager } from "./Manager";
-import { Command } from "./util/command";
-import { Util } from "./util/clientUtil";
-import { config } from "../config";
 import { memberRoleTypeCaster } from "../src/arguments/memberRole";
 import { userMemberTypeCaster } from "../src/arguments/userMember";
 import { codeblockTypeCaster } from "../src/arguments/codeblock";
 import { booleanTypeCaster } from "../src/arguments/boolean";
 import { commandTypeCaster } from "../src/arguments/command";
+import { Language, LanguageHandler } from "./util/language";
 import { memberTypeCaster } from "../src/arguments/member";
+import { PostgresProvider } from "./providers/postgres";
+import { CommandHandler } from "./util/commandHandler";
 import { userTypeCaster } from "../src/arguments/user";
 import { roleTypeCaster } from "../src/arguments/role";
+import { Module, ModuleHandler } from "./util/module";
+import { Client as PGClient } from "ts-postgres";
+import { version as djsver } from "discord.js";
+import { KlasaConsole } from "@klasa/console"; // Klasa console do be looking kinda nice doe
+import { Inhibitor } from "./util/inhibitor";
+import { Listener } from "./util/listener";
+import { KSoftClient } from "@aero/ksoft";
+import { Command } from "./util/command";
+import { Util } from "./util/clientUtil";
+import * as Sentry from "@sentry/node";
+import { Manager } from "./Manager";
+import { config } from "../config";
+import * as moment from "moment";
 
 import "./extensions";
 
@@ -209,24 +209,24 @@ export class Fire extends AkairoClient {
   public getCommand(id: string) {
     id = id.toLowerCase();
     if (this.commandHandler.modules.has(id))
-      return this.commandHandler.modules.get(id);
+      return this.commandHandler.modules.get(id) as Command;
     else {
       const command = this.commandHandler.modules.find((command) =>
         command.aliases.includes(id)
       );
-      if (command) return command;
+      if (command) return command as Command;
     }
   }
 
   public getLanguage(id: string) {
-    return this.languages.modules.get(id);
+    return this.languages.modules.get(id) as Language;
   }
 
   public getModule(id: string) {
-    return this.modules.modules.get(id.toLowerCase());
+    return this.modules.modules.get(id.toLowerCase()) as Module;
   }
 
   public getListener(id: string) {
-    return this.listenerHandler.modules.get(id.toLowerCase());
+    return this.listenerHandler.modules.get(id.toLowerCase()) as Listener;
   }
 }
