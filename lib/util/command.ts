@@ -24,6 +24,8 @@ export class Command extends AkairoCommand {
     this.hidden = options.hidden || false;
     this.premium = options.premium || false;
     this.args = options.args;
+    if (this.args.length == 1 && this.args instanceof Array)
+      this.args[0].match = "rest";
   }
 
   async init() {}
