@@ -1,5 +1,6 @@
 import * as express from "express";
 
+import { discoverableRoute } from "./routes/discoverable";
 import { allCommandsRoute } from "./routes/allcommands";
 import { commandsRoute } from "./routes/commands";
 import { publicRoute } from "./routes/public";
@@ -66,6 +67,13 @@ export const router: Route[] = [
     methods: ["GET"],
     endpoint: "/public",
     handler: publicRoute,
+  },
+  {
+    name: "Discoverable",
+    description: "Returns a list of servers for Fire's public servers page",
+    methods: ["GET"],
+    endpoint: "/discoverable",
+    handler: discoverableRoute,
   },
   {
     name: "Fallback",
