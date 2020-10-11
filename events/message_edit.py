@@ -31,11 +31,13 @@ class MessageEdit(commands.Cog):
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         message = after
+        if message.author.bot:
+            return
         if isinstance(message.author, discord.User) and not message.guild.chunked:
             try:
                 message.author = (await message.guild.query_members(user_ids=[message.author.id]))[0]
-            except Exception:
-                pass
+            except Exception as e:
+                self.bot.logger.warn("$YELLOWFailed to fetch member", exc_info=e)
         excluded = [int(e) for e in self.bot.get_config(
             message.guild).get('excluded.filter')]
         roleids = [r.id for r in message.author.roles]
