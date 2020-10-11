@@ -28,6 +28,13 @@ export class Util extends ClientUtil {
     return value && typeof value.then == "function";
   }
 
+  shuffleArray(array: any[]) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
   async haste(text: string, fallback = false) {
     const url = fallback ? "https://h.inv.wtf/" : "https://hst.sh/";
     try {
