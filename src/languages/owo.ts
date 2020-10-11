@@ -192,6 +192,11 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           ];
           return responses[Math.floor(Math.random() * responses.length)];
         },
+        EVAL_COMMAND_DESCRIPTION: "wun epic gamew code",
+        EVAL_TOO_LONG: (haste?: string) =>
+          haste
+            ? `Output was too wong, upwoaded to hastebin; ${haste}`
+            : `Output was too wong, faiwed to upwoad to hastebin`,
         GUILD_COMMAND_DESCRIPTION: "Get a genyewaw uvwview of the guiwd",
         GUILD_CREATED_AT: (guild: FireGuild, created: string) =>
           `**Cweated by ${
@@ -247,7 +252,7 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
               ", "
             )}\n\nNyote: Some wanguages may be unfinyished so sometimes you'ww see some Engwish if the stwing hasn't been twanswated`,
         LANGUAGE_COMMAND_HELLO:
-          "Hewwo >w<  You have successfuwwy set Fiwe's wanguage to OwO :D",
+          "Hewwo! You have successfuwwy set Fiwe's wanguage to OwO :D",
         LEVELHEAD_COMMAND_DESCRIPTION: "Get a pwayew's wevewhead info",
         LEVELHEAD_NO_PLAYER:
           "You nyeed to give a pwayew fow me to check the wevewhead of",
@@ -283,6 +288,7 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         PLONK_COMMAND_DESCRIPTION:
           "Make a usew unyabwe to use the best discowd bot",
       },
+        RELOAD_COMMAND_DESCRIPTION: "wewoad a command/wanguage/wistenyew/moduwe",
       enabled: true,
     });
   }
