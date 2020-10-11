@@ -244,6 +244,18 @@ Hint: Use the \`public\` command to get your server on the list`,
         ) => `${user} ${msgType} a log, ${extra}\n${haste}\n\n${solutions}`,
         INVITE_COMMAND_DESCRIPTION:
           "Sends a link to invite me to a different Discord server.",
+        LANGUAGE_COMMAND_DESCRIPTION:
+          "Set the language Fire uses. You can add/improve languages on the GitHub repo, https://inv.wtf/github",
+        LANGUAGE_COMMAND_CURRENT: (
+          language: string // should always say it in the current language
+        ) =>
+          `The current language is ${language}. You can set the language to any of the following...\n${this.client.languages.modules
+            .keyArray()
+            .join(
+              ", "
+            )}\n\nNote: Some languages may be unfinished so sometimes you'll see some English if the string hasn't been translated`,
+        LANGUAGE_COMMAND_HELLO:
+          "Hello! You have successfully set Fire's language to English (US) :D",
         LEVELHEAD_COMMAND_DESCRIPTION: "Get a player's levelhead info",
         LEVELHEAD_NO_PLAYER:
           "You need to give a player for me to check the levelhead of",
