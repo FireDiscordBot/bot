@@ -21,7 +21,7 @@ export class Manager {
   reconnector: Reconnector;
 
   constructor(sentry?: typeof Sentry) {
-    this.id = parseInt(process.env.PM2_CLUSTER_ID || "0");
+    this.id = parseInt(process.env.pm_id || "0");
     this.sentry = sentry;
     this.client = new Fire(this, sentry);
 
