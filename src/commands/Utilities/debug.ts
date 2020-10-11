@@ -52,7 +52,7 @@ export default class Debug extends Command {
       });
     }
 
-    if (cmd.ownerOnly) {
+    if (cmd.ownerOnly && !this.client.isOwner(message.author)) {
       return await message.channel.send({
         embed: this.createEmbed(message, [
           `${error} ${message.language.get("COMMAND_OWNER_ONLY")}`,
