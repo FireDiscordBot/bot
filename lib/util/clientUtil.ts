@@ -23,6 +23,22 @@ export class Util extends ClientUtil {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  async haste(text: string, fallback = false) {
+    const url = fallback ? "https://h.inv.wtf/" : "https://hst.sh/";
+    try {
+      const h: { key: string } = await (
+        await Centra(url, "POST")
+          .path("/documents")
+          .body(text, "buffer")
+          .header("User-Agent", "Fire Discord Bot")
+          .send()
+      ).json();
+      return url + h.key;
+    } catch {
+      return await this.haste(text, true);
+    }
+  }
+
   async blacklist(
     user: FireMember | FireUser,
     reason: string,

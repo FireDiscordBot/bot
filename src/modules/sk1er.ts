@@ -355,7 +355,7 @@ export default class Sk1er extends Module {
     // TODO add filter run replace for log content
     if (this.hasLogText(text)) {
       try {
-        const haste = await this.client.haste(text);
+        const haste = await this.client.util.haste(text);
         try {
           await message.delete({
             reason: "Removing log and sending haste",
