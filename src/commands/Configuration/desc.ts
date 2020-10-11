@@ -48,7 +48,7 @@ export default class Description extends Command {
       return args.desc
         ? await message.success("DESC_SET")
         : await message.success("DESC_RESET");
-    } catch (e: any) {
+    } catch (e) {
       return await message.error("DESC_FAILED");
     }
   }
