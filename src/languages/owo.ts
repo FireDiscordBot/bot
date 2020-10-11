@@ -63,17 +63,17 @@ export default class owo extends Language {
           // CUSTOM FEATURES
           PREMIUM:
             "<:firelogo:665339492072292363> [Pwemium](https://gaminggeek.dev/premium)",
-        ADDMOD_COMMAND_DESCRIPTION:
-          "Add a membew/wowe as a modewatow. If nyot set, anyonye with the Manyage Messages pewmission is considewed a modewatow",
-        MODERATORS_ROLES: "Modewatow Wowes",
-        NO_MODERATOR_ROLES: "Nyo wowes have been set as modewatows.",
-        MODERATORS_MEMBERS: "Modewatow Membews",
-        NO_MODERATOR_MEMBERS: "Nyo membews have been set as modewatows.",
-        MODERATORS_REMOVE_INVALID: "Invawid Modewatows",
-        MODERATORS_REMOVED: (invalid: string[]) =>
-          `I have wemuvd some modewatows as a matching wowe/membew couwd nyot be found...\nThe wemuvd ids awe: ${invalid.join(
-            ", "
-          )}`,
+          ADDMOD_COMMAND_DESCRIPTION:
+            "Add a membew/wowe as a modewatow. If nyot set, anyonye with the Manyage Messages pewmission is considewed a modewatow",
+          MODERATORS_ROLES: "Modewatow Wowes",
+          NO_MODERATOR_ROLES: "Nyo wowes have been set as modewatows.",
+          MODERATORS_MEMBERS: "Modewatow Membews",
+          NO_MODERATOR_MEMBERS: "Nyo membews have been set as modewatows.",
+          MODERATORS_REMOVE_INVALID: "Invawid Modewatows",
+          MODERATORS_REMOVED: (invalid: string[]) =>
+            `I have wemuvd some modewatows as a matching wowe/membew couwd nyot be found...\nThe wemuvd ids awe: ${invalid.join(
+              ", "
+            )}`,
         },
         AUTODECANCER_COMMAND_DESCRIPTION: `Toggwe wenyaming those with "cancewous" (nyon-ascii) nyames`,
         AUTODECANCER_ENABLED: `Enyabwed autodecancew. **Nyew** usews with "cancewous" (nyon-ascii) nyames wiww be wenyamed`,
@@ -236,6 +236,18 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         ) => `${user} ${msgType} a wog, ${extra}\n${haste}\n\n${solutions}`,
         INVITE_COMMAND_DESCRIPTION:
           "Sends a wink to invite me to a diffewent Discowd sewvew.",
+        LANGUAGE_COMMAND_DESCRIPTION:
+          "Set the wanguage Fiwe uses. You can add/impwuv wanguages on the GitHub wepo, https://inv.wtf/github",
+        LANGUAGE_COMMAND_CURRENT: (
+          language: string // should always say it in the current language
+        ) =>
+          `The cuwwent wanguage is ${language}. You can set the wanguage to any of the fowwowing...\n${this.client.languages.modules
+            .keyArray()
+            .join(
+              ", "
+            )}\n\nNyote: Some wanguages may be unfinyished so sometimes you'ww see some Engwish if the stwing hasn't been twanswated`,
+        LANGUAGE_COMMAND_HELLO:
+          "Hewwo >w<  You have successfuwwy set Fiwe's wanguage to OwO :D",
         LEVELHEAD_COMMAND_DESCRIPTION: "Get a pwayew's wevewhead info",
         LEVELHEAD_NO_PLAYER:
           "You nyeed to give a pwayew fow me to check the wevewhead of",
