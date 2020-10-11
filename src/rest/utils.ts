@@ -4,8 +4,7 @@ import * as express from "express";
 import { Command } from "../../lib/util/command";
 
 export function sendError(res: express.Response, error: ErrorResponse): void {
-  res.header("Content-Type", "application/json");
-  res.status(error.code).send(JSON.stringify(error));
+  res.status(error.code).json(error);
 }
 
 export function sendErrorHTML(
