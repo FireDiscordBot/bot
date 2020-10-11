@@ -14,6 +14,13 @@ export class FireGuild extends Guild {
     ) as Language;
   }
 
+  isPublic() {
+    return (
+      !!this.client.settings.get(this.id, "utils.public", false) ||
+      this.features.includes("DISCOVERABLE")
+    );
+  }
+
   getMember(name: string): FireMember | null {
     const username = name.split("#")[0];
     const member = this.members.cache.find(
