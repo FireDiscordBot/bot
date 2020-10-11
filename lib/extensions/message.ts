@@ -30,9 +30,7 @@ export class FireMessage extends Message {
     channel: DMChannel | TextChannel | NewsChannel
   ) {
     super(client, data, channel);
-    this.language = client.languages.modules?.get(
-      client.settings?.get(this.guild.id, "utils.language", "en-US")
-    ) as Language;
+    this.language = this.guild.language;
   }
 
   send(key: string = "", ...args: any[]) {
