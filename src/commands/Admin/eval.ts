@@ -19,7 +19,7 @@ export default class Eval extends Command {
     super("eval", {
       description: (language: Language) =>
         language.get("EVAL_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS", "ADD_REACTIONS"],
       ownerOnly: true,
       args: [
         {

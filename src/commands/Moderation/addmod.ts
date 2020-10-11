@@ -9,7 +9,7 @@ export default class AddModerator extends Command {
     super("addmod", {
       description: (language: Language) =>
         language.get("ADDMOD_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS", "ADD_REACTIONS"],
       userPermissions: ["MANAGE_GUILD"],
       args: [
         {

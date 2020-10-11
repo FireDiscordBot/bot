@@ -9,7 +9,7 @@ export default class Plonk extends Command {
     super("plonk", {
       description: (language: Language) =>
         language.get("PLONK_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
+      clientPermissions: ["SEND_MESSAGES", "ADD_REACTIONS"],
       args: [
         {
           id: "user",
