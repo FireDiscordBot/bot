@@ -24,6 +24,10 @@ export class Util extends ClientUtil {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  isPromise(value: any) {
+    return value && typeof value.then == "function";
+  }
+
   async haste(text: string, fallback = false) {
     const url = fallback ? "https://h.inv.wtf/" : "https://hst.sh/";
     try {
