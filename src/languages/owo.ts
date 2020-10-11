@@ -287,8 +287,8 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         PING_FINAL_MESSAGE: "Pong!",
         PLONK_COMMAND_DESCRIPTION:
           "Make a usew unyabwe to use the best discowd bot",
-      },
         RELOAD_COMMAND_DESCRIPTION: "wewoad a command/wanguage/wistenyew/moduwe",
+      },
       enabled: true,
     });
   }
