@@ -14,7 +14,9 @@ export default class Reload extends Command {
       args: [
         {
           id: "module",
-          type: Argument.union("command", "language", "listener", "module"),
+          type: Argument.union("command", "language", "listener", "module", [
+            "*",
+          ]),
           default: null,
           required: true,
         },
@@ -25,9 +27,22 @@ export default class Reload extends Command {
 
   async exec(
     message: FireMessage,
-    args: { module?: Command | Language | Listener | Module }
+    args: { module?: Command | Language | Listener | Module | "*" }
   ) {
     if (!args.module) return await message.error();
+    if (args.module == "*") {
+      try {
+        [
+          this.client.commandHandler,
+          this.client.languages,
+          this.client.listenerHandler,
+          this.client.modules,
+        ].forEach((handler) => handler.reloadAll());
+        return await message.success();
+      } catch {
+        return await message.error();
+      }
+    }
     try {
       args.module.reload();
       return await message.success();
