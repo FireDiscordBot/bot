@@ -207,6 +207,7 @@ export class Fire extends AkairoClient {
   }
 
   public getCommand(id: string) {
+    id = id.toLowerCase();
     if (this.commandHandler.modules.has(id))
       return this.commandHandler.modules.get(id);
     else {
@@ -222,6 +223,10 @@ export class Fire extends AkairoClient {
   }
 
   public getModule(id: string) {
-    return this.modules.modules.get(id);
+    return this.modules.modules.get(id.toLowerCase());
+  }
+
+  public getListener(id: string) {
+    return this.listenerHandler.modules.get(id.toLowerCase());
   }
 }
