@@ -7,10 +7,13 @@ import {
 import { memberRoleTypeCaster } from "../src/arguments/memberRole";
 import { userMemberTypeCaster } from "../src/arguments/userMember";
 import { codeblockTypeCaster } from "../src/arguments/codeblock";
+import { languageTypeCaster } from "../src/arguments/language";
+import { listenerTypeCaster } from "../src/arguments/listener";
 import { booleanTypeCaster } from "../src/arguments/boolean";
 import { commandTypeCaster } from "../src/arguments/command";
 import { Language, LanguageHandler } from "./util/language";
 import { memberTypeCaster } from "../src/arguments/member";
+import { moduleTypeCaster } from "../src/arguments/module";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandHandler";
 import { userTypeCaster } from "../src/arguments/user";
@@ -137,6 +140,9 @@ export class Fire extends AkairoClient {
       role: roleTypeCaster,
       boolean: booleanTypeCaster,
       command: commandTypeCaster,
+      language: languageTypeCaster,
+      listener: listenerTypeCaster,
+      module: moduleTypeCaster,
       codeblock: codeblockTypeCaster,
     });
 

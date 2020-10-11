@@ -278,6 +278,7 @@ Hint: Use the \`public\` command to get your server on the list`,
         PING_FINAL_MESSAGE: "Pong!",
         PLONK_COMMAND_DESCRIPTION:
           "make a user unable to use the best discord bot",
+        RELOAD_COMMAND_DESCRIPTION: "reload a command/language/listener/module",
       },
       enabled: true,
     });
