@@ -58,6 +58,7 @@ export const setupRoutes = (app: express.Application) => {
       res: express.Response,
       next: express.NextFunction
     ) => {
+      app.client.sentry.captureException(err);
       sendError(res, {
         success: false,
         error: err.message || "Internal Server Error",
