@@ -141,7 +141,10 @@ class Quotes(commands.Cog, name="Quotes"):
         if message.guild:
             if 'DISCOVERABLE' not in message.guild.features:
                 if message.guild != ctx.guild:
-                    member = message.guild.get_member(ctx.author.id)
+                    if message.guild.chunked:
+                        member = message.guild.get_member(ctx.author.id)
+                    else:
+                        member = await message.guild.fetch_member(ctx.author.id)
                     if not member:
                         return
                     if not member.permissions_in(message.channel).read_messages:
