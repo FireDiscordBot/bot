@@ -195,6 +195,11 @@ Hint: Use the \`public\` command to get your server on the list`,
           ];
           return responses[Math.floor(Math.random() * responses.length)];
         },
+        EVAL_COMMAND_DESCRIPTION: "run epic gamer code",
+        EVAL_TOO_LONG: (haste?: string) =>
+          haste
+            ? `Output was too long, uploaded to hastebin; ${haste}`
+            : `Output was too long, failed to upload to hastebin`,
         GUILD_COMMAND_DESCRIPTION: "Get a general overview of the guild",
         GUILD_CREATED_AT: (guild: FireGuild, created: string) =>
           `**Created by ${

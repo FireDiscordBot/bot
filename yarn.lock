@@ -42,6 +42,11 @@
   resolved "https://registry.yarnpkg.com/@klasa/timestamp/-/timestamp-0.0.1.tgz#f7e2171438563affc1e082e9ff6cb013468062a1"
   integrity sha512-Oreeh+YawFcLvF5SWREBYQie8Net+KihA15ZRG8hOPYqCLRkkeRcf1xrPUdZelsXFGKV3lqpbdTvhyGOau92mA==
 
+"@klasa/type@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@klasa/type/-/type-0.0.1.tgz#ef2dda6069ba8d26d1835033bac227029106998d"
+  integrity sha512-gCacZ/FtVyYw+lJy5FmuHPfVkrLwN0FiAwLck2BLVgpUcalaC4GHIyK9U2CiHcegwPYDK8/Ef7yBwUC/xkGi3Q==
+
 "@klasa/utils@^0.0.8":
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/@klasa/utils/-/utils-0.0.8.tgz#8b017d8f7a771e5c1894b85f8dafefc219fc9d76"
