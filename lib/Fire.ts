@@ -22,6 +22,7 @@ import { Util } from "./util/clientUtil";
 import { config } from "../config";
 import { memberRoleTypeCaster } from "../src/arguments/memberRole";
 import { userMemberTypeCaster } from "../src/arguments/userMember";
+import { codeblockTypeCaster } from "../src/arguments/codeblock";
 import { booleanTypeCaster } from "../src/arguments/boolean";
 import { memberTypeCaster } from "../src/arguments/member";
 import { userTypeCaster } from "../src/arguments/user";
@@ -134,6 +135,7 @@ export class Fire extends AkairoClient {
       user: userTypeCaster,
       role: roleTypeCaster,
       boolean: booleanTypeCaster,
+      codeblock: codeblockTypeCaster,
     });
 
     this.commandHandler.loadAll();
