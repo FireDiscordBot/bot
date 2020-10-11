@@ -13,7 +13,7 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development ts-node src/index.ts",
-    "dev2": "PM2_CLUSTER_ID=1 NODE_ENV=development ts-node src/index.ts",
+    "dev2": "pm_id=1 NODE_ENV=development ts-node src/index.ts",
     "compile": "tsc",
     "start": "NODE_ENV=production node dist/src/index.js",
     "format": "prettier . --write"
@@ -35,6 +35,7 @@
     "express-rate-limit": "^5.1.3",
     "humanize-duration": "^3.23.1",
     "moment": "^2.27.0",
+    "pm2": "^4.5.0",
     "ts-postgres": "^1.1.3",
     "ws": "^7.2.3"
   },

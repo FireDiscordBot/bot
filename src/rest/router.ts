@@ -5,6 +5,7 @@ import { allCommandsRoute } from "./routes/allcommands";
 import { commandsRoute } from "./routes/commands";
 import { publicRoute } from "./routes/public";
 import { avatarRoute } from "./routes/avatar";
+import { statsRoute } from "./routes/stats";
 import { rootRoute } from "./routes/root";
 import { sendError } from "./utils";
 
@@ -60,6 +61,13 @@ export const router: Route[] = [
     methods: ["GET"],
     endpoint: "/commands",
     handler: commandsRoute,
+  },
+  {
+    name: "Stats",
+    description: "Returns stats for Fire",
+    methods: ["GET"],
+    endpoint: "/stats",
+    handler: statsRoute,
   },
   {
     name: "Public",

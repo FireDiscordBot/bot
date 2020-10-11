@@ -15,14 +15,16 @@ declare module "express-serve-static-core" {
 export class Manager {
   id: number;
   sentry: typeof Sentry;
+  pm2: boolean;
   client: Fire;
   ws: Websocket;
   rest: express.Application;
   reconnector: Reconnector;
 
-  constructor(sentry?: typeof Sentry) {
+  constructor(sentry?: typeof Sentry, pm2?: boolean) {
     this.id = parseInt(process.env.pm_id || "0");
     this.sentry = sentry;
+    this.pm2 = pm2;
     this.client = new Fire(this, sentry);
 
     if (process.env.BOOT_SINGLE === "false") {
