@@ -90,7 +90,7 @@ export default class Levelhead extends Command {
       .setFooter(language.get("MORE_INTEGRATIONS"));
     embed.addField("IGN", args.player, false);
     embed.addField("Levelhead", `${header}:${footer}`, false);
-    if (proposal && !proposal?.header_obj) {
+    if (proposal && proposal.hasOwnProperty("denied")) {
       const nheader = ((proposal.header as string) || "Level").replace(
         this.removeColor,
         ""
