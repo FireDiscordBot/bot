@@ -1,11 +1,11 @@
 import { Language } from "../../lib/util/language";
 import { TextChannel } from "discord.js";
 
-export default class esES extends Language {
+export default class ES extends Language {
   constructor() {
-    super("es-ES", {
+    super("es", {
       language: {
-        DEFAULT: (key: string) => `${key} aún no se ha localizado para es-ES.`,
+        DEFAULT: (key: string) => `${key} aún no se ha localizado para es.`,
         USER_NOT_FOUND: "Usuario no encontrado :(",
         UNKNOWN_COMMAND: "Comando no encontrado",
         COMMAND_OWNER_ONLY: "Solo mi dueño puede usar este comando",
@@ -52,6 +52,18 @@ Esto ** no ** cambiará el nombre de los usuarios existentes`,
         DEBUG_MUTE_NO_BYPASS: (channel: TextChannel) =>
           `Nadie puede omitir los silencios ${channel}`,
         DEBUG_NO_EMBEDS: "No puedo enviar incrustaciones",
+        LANGUAGE_COMMAND_DESCRIPTION:
+          "Establece el idioma que usa Fire. Puede agregar/mejorar idiomas en el repositorio de GitHub, https://inv.wtf/github",
+        LANGUAGE_COMMAND_CURRENT: (
+          language: string // should always say it in the current language
+        ) =>
+          `El idioma actual es ${language}. Puede configurar el idioma en cualquiera de los siguientes...\n${this.client.languages.modules
+            .keyArray()
+            .join(
+              ", "
+            )}\n\nNota: algunos idiomas pueden estar sin terminar, por lo que a veces verá algo de inglés si la cadena no se ha traducido`,
+        LANGUAGE_COMMAND_HELLO:
+          "¡Hola! Ha configurado correctamente el idioma de Fire en Español :D",
         PING_COMMAND_DESCRIPTION:
           "Te muestra mi ping a los servidores de discord",
         PING_INITIAL_MESSAGE: "Haciendo ping...",
