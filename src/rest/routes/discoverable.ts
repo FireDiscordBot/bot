@@ -8,13 +8,22 @@ export function discoverableRoute(req: express.Request, res: express.Response) {
     .filter((guild: FireGuild) => guild.isPublic())
     .array() as FireGuild[];
   client.util.shuffleArray(publicGuilds);
-  res.json(publicGuilds);
   publicGuilds.forEach((guild) => {
-    const splash =
-      (guild.splashURL || guild.discoverySplashURL)({
-        size: 2048,
-        format: "png",
-      }).replace("size=2048", "size=320") || "https://i.imgur.com/jWRMBRd.png";
+    let splash = "https://i.imgur.com/jWRMBRd.png";
+    if (guild.splash)
+      splash = guild
+        .splashURL({
+          size: 2048,
+          format: "png",
+        })
+        .replace("size=2048", "size=320");
+    else if (guild.discoverySplash)
+      splash = guild
+        .discoverySplashURL({
+          size: 2048,
+          format: "png",
+        })
+        .replace("size=2048", "size=320");
     const icon = guild.iconURL({
       format: guild.icon.startsWith("a_") ? "gif" : "png",
       size: 128,
@@ -34,6 +43,6 @@ export function discoverableRoute(req: express.Request, res: express.Response) {
       vanity: `https://discover.inv.wtf/${guild.id}`,
       members: guild.memberCount.toLocaleString(),
     });
-    return res.json(body);
   });
+  return res.json(body);
 }
