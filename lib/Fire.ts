@@ -24,6 +24,7 @@ import { memberRoleTypeCaster } from "../src/arguments/memberRole";
 import { userMemberTypeCaster } from "../src/arguments/userMember";
 import { codeblockTypeCaster } from "../src/arguments/codeblock";
 import { booleanTypeCaster } from "../src/arguments/boolean";
+import { commandTypeCaster } from "../src/arguments/command";
 import { memberTypeCaster } from "../src/arguments/member";
 import { userTypeCaster } from "../src/arguments/user";
 import { roleTypeCaster } from "../src/arguments/role";
@@ -135,6 +136,7 @@ export class Fire extends AkairoClient {
       user: userTypeCaster,
       role: roleTypeCaster,
       boolean: booleanTypeCaster,
+      command: commandTypeCaster,
       codeblock: codeblockTypeCaster,
     });
 
@@ -205,7 +207,14 @@ export class Fire extends AkairoClient {
   }
 
   public getCommand(id: string) {
-    return this.commandHandler.modules.get(id);
+    if (this.commandHandler.modules.has(id))
+      return this.commandHandler.modules.get(id);
+    else {
+      const command = this.commandHandler.modules.find((command) =>
+        command.aliases.includes(id)
+      );
+      if (command) return command;
+    }
   }
 
   public getLanguage(id: string) {
