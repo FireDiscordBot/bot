@@ -233,8 +233,8 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           `I was unyabwe to wead youw wog. Pwease upwoad it diwectwy wathew than using ${domain}`,
         SK1ER_LOG_READ_FAIL:
           "I was unyabwe to wead the attachment, twy weupwoad it. If it stiww doesn't wowk, yeww at Geek :)",
-        SK1ER_MODCORE_ZIP: (user: FireMember | FireUser) =>
-          `${user}, Unzip this in \`.minecraft/modcore\` and youw issue shouwd be wesowved.`,
+        SK1ER_MODCORE_ZIP: (user: FireMember | FireUser, zip: string) =>
+          `${user}, Downwoad the zip fwom ${zip} and then unzip it in \`.minecraft/modcore\` and youw issue shouwd be wesowved.`,
         SK1ER_LOG_HASTE: (
           user: FireMember | FireUser,
           msgType: string,

@@ -12,6 +12,8 @@ export default class Message extends Listener {
 
   async exec(message: FireMessage) {
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-    await sk1erModule?.checkLogs(message);
+    // These won't run if the module isn't loaded
+    await sk1erModule?.checkLogs(message).catch(() => {});
+    await sk1erModule?.checkBotStatus(message).catch(() => {});
   }
 }

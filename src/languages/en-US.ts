@@ -236,8 +236,8 @@ Hint: Use the \`public\` command to get your server on the list`,
           `I was unable to read your log. Please upload it directly rather than using ${domain}`,
         SK1ER_LOG_READ_FAIL:
           "I was unable to read the attachment, try reupload it. If it still doesn't work, yell at Geek :)",
-        SK1ER_MODCORE_ZIP: (user: FireMember | FireUser) =>
-          `${user}, Unzip this in \`.minecraft/modcore\` and your issue should be resolved.`,
+        SK1ER_MODCORE_ZIP: (user: FireMember | FireUser, zip: string) =>
+          `${user}, Download the zip from ${zip} and then unzip it in \`.minecraft/modcore\` and your issue should be resolved.`,
         SK1ER_LOG_HASTE: (
           user: FireMember | FireUser,
           msgType: string,

@@ -1,5 +1,3 @@
-import { createWriteStream, unlink } from "fs";
-
 import {
   GuildMember,
   MessageAttachment,
@@ -15,6 +13,7 @@ import { FireMessage } from "../../lib/extensions/message";
 import * as solutions from "../../sk1er_solutions.json";
 import { FireGuild } from "../../lib/extensions/guild";
 import { Module } from "../../lib/util/module";
+import { createWriteStream } from "fs";
 
 interface Regexes {
   reupload: RegExp;
@@ -26,28 +25,31 @@ interface Regexes {
   settingUser: RegExp;
 }
 
-interface MojangProfile {
-  name: string;
-  id: string;
-}
-
 export default class Sk1er extends Module {
   guild: FireGuild;
+  supportGuild: FireGuild;
   guildId: string;
+  supportGuildId: string;
+  supportMessageId: string;
+  supportMessage: FireMessage;
+  supportChannelId: string;
+  supportChannel: TextChannel;
   nitro: Role;
   nitroId: string;
   modcoreHeaders: { secret: string };
   regexes: Regexes;
   logText: string[];
-  uuidCache: Map<string, string>;
+  bots: any;
   statusCheck: NodeJS.Timeout;
   descriptionUpdate: NodeJS.Timeout;
 
   constructor() {
     super("sk1er");
     this.guildId = "411619823445999637";
+    this.supportGuildId = "755794954743185438";
+    this.supportMessageId = "755817441581596783";
+    this.supportChannelId = "755796557692928031";
     this.nitroId = "585534346551754755";
-    this.uuidCache = new Map();
     this.statusCheck = setInterval(
       async () => await this.statusChecker(),
       1800000
@@ -56,6 +58,13 @@ export default class Sk1er extends Module {
       async () => await this.descriptionUpdater(),
       300000
     );
+    this.bots = {
+      "444871677176709141": "747786560123961443",
+      "234395307759108106": "747787115974230156",
+      "172002275412279296": "747787792402219128",
+      "689373971572850842": "747788002738176110",
+      "155149108183695360": "747786691074457610",
+    };
   }
 
   async init() {
@@ -65,11 +74,18 @@ export default class Sk1er extends Module {
 
   async ready() {
     this.guild = this.client.guilds.cache.get(this.guildId) as FireGuild;
-    if (!this.guild) return this.client.modules.remove("sk1er");
+    this.supportGuild = this.client.guilds.cache.get(
+      this.supportGuildId
+    ) as FireGuild;
+    if (!this.guild || !this.supportGuild)
+      return this.client.modules.remove("sk1er");
     this.nitro = this.guild.roles.cache.get(this.nitroId);
+    this.supportChannel = this.client.channels.cache.get(
+      this.supportChannelId
+    ) as TextChannel;
     this.modcoreHeaders = { secret: process.env.MODCORE_SECRET };
     this.regexes = {
-      reupload: /(?:http(?:s)?:\/\/)?(paste.ee|pastebin.com|hastebin.com|hasteb.in)\/(?:raw\/|p\/)?(\w+)/im,
+      reupload: /(?:http(?:s)?:\/\/)?(paste\.ee|pastebin\.com|hastebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?(\w+)/im,
       noRaw: /(?:http(?:s)?:\/\/)?(?:justpaste).(?:it)\/(\w+)/im,
       secrets: /(club.sk1er.mods.levelhead.auth.MojangAuth|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :)/im,
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}/im,
@@ -101,30 +117,11 @@ export default class Sk1er extends Module {
     clearInterval(this.descriptionUpdate);
   }
 
-  async nameToUUID(player: string) {
-    if (this.uuidCache.has(player)) return this.uuidCache.get(player);
-    const profileReq = await centra(
-      `https://api.mojang.com/users/profiles/minecraft/${player}`
-    ).send();
-    if (profileReq.statusCode == 200) {
-      const profile: MojangProfile = await profileReq.json();
-      this.uuidCache.set(player, profile.id);
-      return profile.id;
-    } else return null;
-  }
-
   async statusChecker() {
     try {
       const hoursDifferenceSince = (date: Date) =>
         moment.duration(moment().diff(moment(date))).asHours();
 
-      const bots = {
-        "444871677176709141": "747786560123961443",
-        "234395307759108106": "747787115974230156",
-        "172002275412279296": "747787792402219128",
-        "689373971572850842": "747788002738176110",
-        "155149108183695360": "747786691074457610",
-      };
       const commandsChannel = this.guild.channels.cache.get(
         "411620555960352787"
       ) as TextChannel;
@@ -133,7 +130,7 @@ export default class Sk1er extends Module {
       pinnedMessages
         .filter(
           (message) =>
-            Object.keys(bots).includes(message.author.id) &&
+            Object.keys(this.bots).includes(message.author.id) &&
             hoursDifferenceSince(message.createdAt) > 10
         )
         .forEach((message) => {
@@ -141,7 +138,7 @@ export default class Sk1er extends Module {
             .unpin({
               reason: "Incident has lasted more than 10 hours",
             })
-            .catch((error) => {});
+            .catch(() => {});
         });
     } catch {}
   }
@@ -217,7 +214,7 @@ export default class Sk1er extends Module {
   }
 
   async giveNitroPerks(user: GuildMember | User, ign: string) {
-    const uuid = await this.nameToUUID(ign);
+    const uuid = await this.client.util.nameToUUID(ign);
     if (!uuid) return false;
 
     const setUUID = await this.setUUID(user, uuid);
@@ -243,8 +240,10 @@ export default class Sk1er extends Module {
         currentSolutions.push(`- ${solutions[err]}`);
     });
 
-    if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_I7|_L5/im))
-      currentSolutions.push("- Update Optifine to either I7 or L5");
+    if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_L5|_L6/im))
+      currentSolutions.push(
+        "- Update Optifine to either L5 or L6 (currently available as a preview version)"
+      );
 
     return currentSolutions.length
       ? `Possible solutions:\n${currentSolutions.join("\n")}`
@@ -252,7 +251,7 @@ export default class Sk1er extends Module {
   }
 
   async checkLogs(message: FireMessage) {
-    if (message.guild.id != this.guildId) return;
+    if (![this.guildId, this.supportGuildId].includes(message.guild.id)) return;
 
     let content = message.content;
 
@@ -314,27 +313,26 @@ export default class Sk1er extends Module {
   async handleLogText(message: FireMessage, text: string, msgType: string) {
     const lines = text.split("\n");
     if (
-      /ModCoreInstaller:download:\d{1,4}]: MAX: \d+/im.test(
+      /ModCoreInstaller:download:\d{1,5}]: MAX: \d+/im.test(
         lines[lines.length - 1]
       )
     ) {
       try {
-        await this.createModcoreZip();
-        try {
-          await message.delete({
-            reason: "Removing log and sending Modcore zip",
-          });
-        } catch {}
+        const zip = await this.createModcoreZip();
+        if (zip) {
+          try {
+            await message.delete({
+              reason: "Removing log and sending Modcore zip",
+            });
+          } catch {}
 
-        const zipattach = new MessageAttachment("modcore.zip", "modcore.zip");
-        await message.channel.send(
-          message.language.get("SK1ER_MODCORE_ZIP", message.author),
-          {
-            allowedMentions: { users: [message.author.id] },
-            files: [zipattach],
-          }
-        );
-        unlink("modcore.zip", () => {});
+          await message.channel.send(
+            message.language.get("SK1ER_MODCORE_ZIP", message.author, zip),
+            {
+              allowedMentions: { users: [message.author.id] },
+            }
+          );
+        }
       } catch {}
     }
 
@@ -366,7 +364,7 @@ export default class Sk1er extends Module {
         const user = this.regexes.settingUser.exec(text);
         if (user?.length) {
           try {
-            const uuid = await this.nameToUUID(user[1]);
+            const uuid = await this.client.util.nameToUUID(user[1]);
             if (!uuid) {
               const solution =
                 "\n- It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
@@ -395,7 +393,7 @@ export default class Sk1er extends Module {
   }
 
   async createModcoreZip() {
-    const out = createWriteStream("modcore.zip");
+    const out = createWriteStream("/var/www/sharex/uploads/modcore.zip");
     const archive = archiver("zip", {
       zlib: { level: 9 },
     });
@@ -417,5 +415,109 @@ export default class Sk1er extends Module {
 
     await archive.finalize();
     out.close();
+    return "https://static.inv.wtf/modcore.zip";
+  }
+
+  async checkBotStatus(message: FireMessage) {
+    if (!Object.values(this.bots).includes(message.author.id)) return;
+
+    switch (message.author.id) {
+      // Fire Status
+      case "747786560123961443": {
+        if (message.embeds[0].fields[0].name == "Resolved" && message.pinned)
+          await message
+            .unpin({ reason: "Incident is resolved" })
+            .catch(() => {});
+        else if (
+          !message.pinned &&
+          message.embeds[0].description != "New scheduled maintenance"
+        )
+          await message
+            .pin({ reason: "New incident" })
+            .catch((reason) =>
+              this.client.console.warn(
+                `[Sk1er] Failed to pin Fire status update; ${reason}`
+              )
+            );
+        break;
+      }
+      // Groovy Status
+      case "747787115974230156": {
+        const emojiRe = /<a?:([a-zA-Z0-9\_]+):[0-9]+>/im;
+        const online = emojiRe
+          .exec(message.content)
+          .filter((value) => value.includes("online"));
+        if (online.length && message.pinned)
+          await message
+            .unpin({ reason: "Incident is resolved" })
+            .then(() => {});
+        else if (!message.pinned)
+          await message
+            .pin({ reason: "New incident" })
+            .catch((reason) =>
+              this.client.console.warn(
+                `[Sk1er] Failed to pin Groovy status update; ${reason}`
+              )
+            );
+        break;
+      }
+      // Statsus ;)
+      case "747787792402219128": {
+        if (message.content.toLowerCase().includes("resolved"))
+          await message
+            .unpin({ reason: "Incident is resolved" })
+            .then(() => {});
+        else if (!message.pinned)
+          await message
+            .pin({ reason: "New incident" })
+            .catch((reason) =>
+              this.client.console.warn(
+                `[Sk1er] Failed to pin Tatsu status update; ${reason}`
+              )
+            );
+        break;
+      }
+      // Lunar Status
+      case "747788002738176110": {
+        if (message.content.toLowerCase().includes("resolved"))
+          await message
+            .unpin({ reason: "Incident is resolved" })
+            .then(() => {});
+        else if (!message.pinned)
+          await message
+            .pin({ reason: "New incident" })
+            .catch((reason) =>
+              this.client.console.warn(
+                `[Sk1er] Failed to pin Lunar status update; ${reason}`
+              )
+            );
+        break;
+      }
+      // Dyno Status
+      // (this is a weird one, they don't always edit the message but post a new one instead)
+      case "747786691074457610": {
+        const isLikelyResolved = Boolean(
+          message.content
+            .toLowerCase()
+            .split(" ")
+            .filter((m) => ["dynoonline", "recovered"].includes(m)).length
+        );
+        if (isLikelyResolved)
+          (await message.channel.messages.fetchPinned()).forEach(
+            async (msg) => {
+              if (msg.author.id == message.author.id) await msg.unpin();
+            }
+          );
+        else
+          await message
+            .pin({ reason: "New(?) incident" })
+            .catch((reason) =>
+              this.client.console.warn(
+                `[Sk1er] Failed to pin Dyno status update; ${reason}`
+              )
+            );
+        break;
+      }
+    }
   }
 }
