@@ -22,7 +22,7 @@ export class Manager {
   reconnector: Reconnector;
 
   constructor(sentry?: typeof Sentry, pm2?: boolean) {
-    this.id = parseInt(process.env.pm_id || "0");
+    this.id = parseInt(process.env.NODE_APP_INSTANCE || "0");
     this.sentry = sentry;
     this.pm2 = pm2;
     this.client = new Fire(this, sentry);

@@ -13,7 +13,7 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development ts-node src/index.ts",
-    "dev2": "pm_id=1 NODE_ENV=development ts-node src/index.ts",
+    "dev2": "NODE_APP_INSTANCE=1 NODE_ENV=development ts-node src/index.ts",
     "compile": "tsc",
     "start": "NODE_ENV=production node dist/src/index.js",
     "format": "prettier . --write"
