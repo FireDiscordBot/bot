@@ -46,7 +46,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         self.gist = 'b070e7f75a9083d2e211caffa0c772cc'
         self.gistheaders = {'Authorization': f'token {bot.config["github"]}'}
         self.modcoreheaders = {'secret': bot.config['modcore']}
-        self.reupload = r'(?:http(?:s)?://)?(paste\.ee|pastebin\.com|hastebin\.com|hasteb\.in)/(?:raw/|p/)?(\w+)'
+        self.reupload = r'(?:http(?:s)?://)?(paste\.ee|pastebin\.com|hastebin\.com|hasteb\.in|hst\.sh)/(?:raw/|p/)?(\w+)'
         self.noraw = r'(?:http(?:s)?://)?(?:justpaste)\.(?:it)/(\w+)'
         self.logtext = [
             'net.minecraft.launchwrapper.Launch',
@@ -301,7 +301,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             return
         if message.flags.is_crossposted and message.channel.id == 411620555960352787:
             return await self.check_bot_status(message)
-        if message.author.bot and isinstance(message.author, discord.User):
+        if message.author.bot or isinstance(message.author, discord.User):
             return
         if message.guild.id in [self.guild.id, self.support_guild.id]:
             await self.check_logs(message)
@@ -471,7 +471,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             return await self.handle_log_text(message, txt, 'sent')
 
     async def handle_log_text(self, message, txt, msg_type='uploaded'):
-        log_lines = txt.split('\n')
+        log_lines = [l for l in txt.split('\n') if l]
         if re.findall(
             r"ModCoreInstaller:download:\d{1,5}]: MAX: \d+",
             log_lines[-1]
@@ -479,7 +479,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             zip = None
             try:
                 zip = await self.create_modcore_zip()
-            except Exception:
+            except Exception as e:
+                self.bot.logger.warn(f'$YELLOWFailed to create ModCore zip', exc_info=e)
                 pass
             if zip:
                 try:
