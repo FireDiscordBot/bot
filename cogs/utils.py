@@ -287,7 +287,7 @@ class Utils(commands.Cog, name='Utility Commands'):
                                             self.bot.logger.warn(
                                                 f'$YELLOWSomething went wrong when trying to remind someone', exc_info=e)
                                             # print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
-                        tosend = self.bot.get_user(u)
+                        tosend = await self.bot.fetch_user(u) if not self.bot.get_user(u) else self.bot.get_user(u)
                         await self.deleteremind(u, r['for'])
                         try:
                             if quotes:
