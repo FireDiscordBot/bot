@@ -202,7 +202,9 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         GUILD_COMMAND_DESCRIPTION: "Get a genyewaw uvwview of the guiwd",
         GUILD_CREATED_AT: (guild: FireGuild, created: string) =>
           `**Cweated by ${
-            guild.owner instanceof FireMember ? guild.owner : "Unknyown#0000"
+            guild.owner.user.discriminator != null
+              ? guild.owner
+              : "Unknyown#0000"
           } ${created}**`,
         GUILD_JOIN_POS: (pos: number) => `**Youw Join Position:** ${pos}`,
         GUILD_VERIF_VERY_HIGH: "**Extweme Vewification Wevew**",

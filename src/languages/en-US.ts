@@ -205,7 +205,9 @@ Hint: Use the \`public\` command to get your server on the list`,
         GUILD_COMMAND_DESCRIPTION: "Get a general overview of the guild",
         GUILD_CREATED_AT: (guild: FireGuild, created: string) =>
           `**Created by ${
-            guild.owner instanceof FireMember ? guild.owner : "Unknown#0000"
+            guild.owner.user.discriminator != null
+              ? guild.owner
+              : "Unknown#0000"
           } ${created}**`,
         GUILD_JOIN_POS: (pos: number) => `**Your Join Position:** ${pos}`,
         GUILD_VERIF_VERY_HIGH: "**Extreme Verification Level**",
