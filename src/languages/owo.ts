@@ -199,10 +199,7 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
             : `Output was too wong, faiwed to upwoad to hastebin`,
         GUILD_COMMAND_DESCRIPTION: "Get a genyewaw uvwview of the guiwd",
         GUILD_CREATED_AT: (guild: FireGuild, created: string) =>
-          `**Cweated by ${
-            guild.owner.user.username + guild.owner.user.discriminator ||
-            "Unknyown#0000"
-          } ${created}**`,
+          `**Cweated by ${guild.owner || "Unknyown#0000"} ${created}**`,
         GUILD_JOIN_POS: (pos: number) => `**Youw Join Position:** ${pos}`,
         GUILD_VERIF_VERY_HIGH: "**Extweme Vewification Wevew**",
         GUILD_VERIF_HIGH: "**High Vewification Wevew**",
@@ -287,7 +284,8 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         PING_FINAL_MESSAGE: "Pong!",
         PLONK_COMMAND_DESCRIPTION:
           "Make a usew unyabwe to use the best discowd bot",
-        RELOAD_COMMAND_DESCRIPTION: "wewoad a command/wanguage/wistenyew/moduwe",
+        RELOAD_COMMAND_DESCRIPTION:
+          "wewoad a command/wanguage/wistenyew/moduwe",
       },
       enabled: true,
     });

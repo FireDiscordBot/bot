@@ -202,10 +202,7 @@ Hint: Use the \`public\` command to get your server on the list`,
             : `Output was too long, failed to upload to hastebin`,
         GUILD_COMMAND_DESCRIPTION: "Get a general overview of the guild",
         GUILD_CREATED_AT: (guild: FireGuild, created: string) =>
-          `**Created by ${
-            guild.owner.user.username + guild.owner.user.discriminator ||
-            "Unknown#0000"
-          } ${created}**`,
+          `**Created by ${guild.owner || "Unknown#0000"} ${created}**`,
         GUILD_JOIN_POS: (pos: number) => `**Your Join Position:** ${pos}`,
         GUILD_VERIF_VERY_HIGH: "**Extreme Verification Level**",
         GUILD_VERIF_HIGH: "**High Verification Level**",

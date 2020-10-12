@@ -120,7 +120,7 @@ export default class GuildCommand extends Command {
       );
     else
       info.push(
-        `${constants.emojis.red} ${guild.language.get("GUILD_MFA_DISABLED")}`
+        `${constants.emojis.red} ${guild.language.get("GUILD_MFA_NONE")}`
       );
 
     return info;
