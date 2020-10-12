@@ -5,6 +5,7 @@ import { Fire } from "../Fire";
 
 export class FireGuild extends Guild {
   client: Fire;
+  owner: FireMember;
   language: Language;
 
   constructor(client: Fire, data: object) {
