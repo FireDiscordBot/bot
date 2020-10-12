@@ -24,9 +24,9 @@ export default class owo extends Language {
         COMMAND_OWNER_ONLY: "Onwy my ownyew can use this command",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wwong whiwe wunnying ${id}`,
-        NO_MODERATORS_SET: "Thewe awe nyo modewatows set in this guiwd.",
+        NO_MODERATORS_SET: "Thewe awe nyo Mowodewatows set in this guiwd.",
         MORE_INTEGRATIONS:
-          "Want mowe integwations? Use the suggest command to suggest some!",
+          "Want mowe integwations? Use the suggest command to suggest some! >w<",
         MEMBERS: "Membews",
         REGION: "Wegion",
         STATUS: "Status",
@@ -47,13 +47,13 @@ export default class owo extends Language {
           "us-west": "🇺🇸 US West",
         },
         FEATURES: {
-          ENABLED_DISCOVERABLE_BEFORE: "Enyabwed Discuvwabwe Befowe",
+          ENABLED_DISCOVERABLE_BEFORE: "Enyabwed Discuwuvwabwe Befowe",
           WELCOME_SCREEN_ENABLED: "Wewcome Scween",
           ANIMATED_ICON: "Anyimated Icon",
           INVITE_SPLASH: "Invite Spwash",
           DISCOVERABLE: "[Discuvwabwe](https://discord.com/guild-discovery)",
           MORE_EMOJI: "Mowe Emoji",
-          FEATURABLE: "Featuwabwe",
+          FEATURABLE: "Featuwuabwe",
           VANITY_URL: "Vanyity URL",
           COMMUNITY: "[Commuwunity](https://dis.gd/communityservers)",
           PARTNERED: "[Pawtnyewed](https://dis.gd/partners)",
@@ -61,19 +61,19 @@ export default class owo extends Language {
           VERIFIED: "[Vewified](https://dis.gd/vfs)",
           BANNER: "Bannyew",
           NEWS:
-            "[Annyouncement Channyews](https://support.discord.com/hc/en-us/articles/360032008192)",
-          // CUSTOM FEATURES
+            "[Annowouncement Channyews](https://support.discord.com/hc/en-us/articles/360032008192)",
+          // CUSTOM FEATUWUES
           PREMIUM:
-            "<:firelogo:665339492072292363> [Pwemium](https://gaminggeek.dev/premium)",
+            "<:firelogo:665339492072292363> [Pwemiuwum](https://gaminggeek.dev/premium)",
           ADDMOD_COMMAND_DESCRIPTION:
-            "Add a membew/wowe as a modewatow. If nyot set, anyonye with the Manyage Messages pewmission is considewed a modewatow",
-          MODERATORS_ROLES: "Modewatow Wowes",
-          NO_MODERATOR_ROLES: "Nyo wowes have been set as modewatows.",
-          MODERATORS_MEMBERS: "Modewatow Membews",
-          NO_MODERATOR_MEMBERS: "Nyo membews have been set as modewatows.",
-          MODERATORS_REMOVE_INVALID: "Invawid Modewatows",
+            "Add a membew/wowe as a mowodewatow. If nyot set, anyone with the Manyage Messages pewmission is considewed a Mowodewatow",
+          MODERATORS_ROLES: "Mowodewatow Wowes",
+          NO_MODERATOR_ROLES: "Nyo wowes have been set as mowodewatows.",
+          MODERATORS_MEMBERS: "Mowodewatow Membews",
+          NO_MODERATOR_MEMBERS: "Nyo membews have been set as mowodewatows.",
+          MODERATORS_REMOVE_INVALID: "Invawid Mowodewatows",
           MODERATORS_REMOVED: (invalid: string[]) =>
-            `I have wemuvd some modewatows as a matching wowe/membew couwd nyot be found...\nThe wemuvd ids awe: ${invalid.join(
+            `I have wemuvd some mowodewatows as a matching wowe/membew couwd nyot be found...\nThe wemuvd ids awe: ${invalid.join(
               ", "
             )}`,
         },
@@ -81,11 +81,11 @@ export default class owo extends Language {
         AUTODECANCER_ENABLED: `Enyabwed autodecancew. **Nyew** usews with "cancewous" (nyon-ascii) nyames wiww be wenyamed`,
         AUTODECANCER_DISABLED: `Disabwed autodecancew. **Nyew** usews with "cancewous" (nyon-ascii) nyames wiww nyo wongew be wenyamed`,
         AUTODEHOIST_COMMAND_DESCRIPTION:
-          "Toggwe wenyaming those with hoisted nyames",
+          "Toggwe wenyaming those with howoisted nyames",
         AUTODEHOIST_ENABLED:
-          "Enyabwed autodehoist. **Nyew** usews with hoisted nyames wiww be wenyamed",
+          "Enyabwed autodehoist. **Nyew** usews with howoisted nyames wiww be wenyamed",
         AUTODEHOIST_DISABLED:
-          "Disabwed autodehoist. **Nyew** usews with hoisted nyames wiww nyo wongew be wenyamed",
+          "Disabwed autodehoist. **Nyew** usews with howoisted nyames wiww nyo wongew be wenyamed",
         AVATAR_COMMAND_DESCRIPTION: "Get a usew's avataw",
         BADNAME_COMMAND_DESCRIPTION:
           "Change the nyame used fow auto dehoist/decancew",
@@ -98,17 +98,17 @@ This wiww **nyot** wenyame existing usews`,
           "Command nyot wowking? Use this command to twy debug the issue.\nDebug command nyot wowking? Join the Fiwe Suppowt sewvew, https://inv.wtf/fire",
         DEBUG_NO_COMMAND: "You must pwovide a vawid command to debug",
         DEBUGGING_DEBUG: "Debug command is wowking",
-        DEBUG_PERMS_PASS: "Nyo pewmissions missing",
-        DEBUG_PERMS_CHECKS_FAIL: "Pewmission Checks Faiwed!",
+        DEBUG_PERMS_PASS: "Nyo pewmissiowons missing",
+        DEBUG_PERMS_CHECKS_FAIL: "Pewmissiowon Checks Faiwed!",
         DEBUG_PERMS_FAIL: (userMissing: string[], clientMissing: string[]) => {
           return {
             user: userMissing.length
-              ? `You awe missing the pewmission${
+              ? `You awe missing the pewmissiowon${
                   userMissing.length > 1 ? "s" : ""
                 } ${userMissing.join(", ")}`
               : null,
             client: clientMissing.length
-              ? `I am missing the pewmission${
+              ? `I am missing the pewmissiowon${
                   clientMissing.length > 1 ? "s" : ""
                 } ${clientMissing.join(", ")}`
               : null,
@@ -162,8 +162,8 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           major_outage: "Majow Outage",
           under_maintenance: "Undew Maintenyance",
         },
-        DSTATUS_COMMAND_DESCRIPTION: "Get Discowd's cuwwent status",
-        DSTATUS_FETCH_FAIL: "Faiwed to fetch Discowd status",
+        DSTATUS_COMMAND_DESCRIPTION: "Get Discowod's cuwwent status",
+        DSTATUS_FETCH_FAIL: "Faiwed to fetch Discowod status",
         STATUS_COMMAND_DESCRIPTION: "Get Fire's cuwwent status",
         STATUS_FETCH_FAIL: "Faiwed to fetch Fire status",
         EIGHTBALL_COMMAND_DESCRIPTION: "Ask the Magic 8-Baww a question",
@@ -243,7 +243,7 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           solutions: string
         ) => `${user} ${msgType} a wog, ${extra}\n${haste}\n\n${solutions}`,
         INVITE_COMMAND_DESCRIPTION:
-          "Sends a wink to invite me to a diffewent Discowd sewvew.",
+          "Sends a wink to invite me to a diffewent Discowod sewvew.",
         LANGUAGE_COMMAND_DESCRIPTION:
           "Set the wanguage Fiwe uses. You can add/impwuv wanguages on the GitHub wepo, https://inv.wtf/github",
         LANGUAGE_COMMAND_CURRENT: (
@@ -272,24 +272,24 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         LEVELHEAD_CHAT: "Chat",
         LEVELHEAD_ADDON_LAYERS: "Addon Head Wayews",
         MODONLY_COMMAND_DESCRIPTION:
-          "Set channyews to westwict commands fow modewatows",
+          "Set channyews to westwict commands fow mowodewatows",
         MODONLY_NO_CHANNELS:
-          "You must pwovide vawid channyew(s) sepawated by a comma ow space fow me to toggwe modewatow onwy mode in.",
+          "You must pwovide vawid channyew(s) sepawated by a comma ow space fow me to toggwe mowodewatow onwy mode in.",
         MODONLY_SET: (channels: string) =>
-          `Commands can nyow onwy be wun by modewatows (eithew those set as mods ow those with manyage messages) in;\n${channels}.`,
-        MODONLY_RESET: "Modewatow onwy channyews have been weset",
+          `Commands can nyow onwy be wun by mowodewatows (eithew those set as mods ow those with manyage messages) in;\n${channels}.`,
+        MODONLY_RESET: "Mowodewatow onwy channyews have been weset",
         ADMINONLY_COMMAND_DESCRIPTION:
           "Set channyews to westwict commands fow admins",
         ADMINONLY_NO_CHANNELS:
           "You must pwovide vawid channyew(s) sepawated by a comma ow space fow me to toggwe admin onwy mode in.",
         ADMINONLY_SET: (channels: string) =>
-          `Commands can nyow onwy be wun by those with the "Manyage Sewvew" pewmission in;\n${channels}.`,
+          `Commands can nyow onwy be wun by those with the "Manyage Sewvew" pewmissiowon in;\n${channels}.`,
         ADMINONLY_RESET: "Admin onwy channyews have been weset",
-        PING_COMMAND_DESCRIPTION: "Shows you my ping to Discowd's sewvews",
+        PING_COMMAND_DESCRIPTION: "Shows you my ping to Discowod's sewvews",
         PING_INITIAL_MESSAGE: "Pinging...",
         PING_FINAL_MESSAGE: "Pong!",
         PLONK_COMMAND_DESCRIPTION:
-          "Make a usew unyabwe to use the best Discowd bot",
+          "Make a usew unyabwe to use the best Discowod bot",
         RELOAD_COMMAND_DESCRIPTION:
           "wewoad a command/wanguage/wistenyew/moduwe",
       },
