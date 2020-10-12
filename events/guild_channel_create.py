@@ -28,10 +28,15 @@ class GuildChannelCreate(commands.Cog):
     async def on_guild_channel_create(self, channel):
         muted = self.bot.get_config(channel.guild).get(
             'mod.mutedrole') or discord.utils.get(channel.guild.roles, name="Muted")
+        mute_perm_fail = False
         if muted and channel.guild.me.guild_permissions.manage_roles:
             overwrites = channel.overwrites
-            overwrites.update({muted: discord.PermissionOverwrite(send_messages=False)})
-            await channel.edit(overwrites=overwrites)
+            overwrites.update(
+                {muted: discord.PermissionOverwrite(send_messages=False)})
+            try:
+                await channel.edit(overwrites=overwrites)
+            except discord.HTTPException:
+                mute_perm_fail = True
         logch = self.bot.get_config(channel.guild).get('log.action')
         if logch:
             createdby = None
@@ -45,6 +50,10 @@ class GuildChannelCreate(commands.Cog):
             if createdby:
                 embed.add_field(
                     name='Created By', value=f'{createdby} ({createdby.id})', inline=False)
+            if mute_perm_fail:
+                embed.add_field(
+                    name='Warning', value='''I was unable to set permissions for the muted role in this channel, users may be able to bypass mutes here.
+Make sure I have permission to manage roles''', inline=False)
             embed.set_author(name=channel.guild.name,
                              icon_url=str(channel.guild.icon_url))
             embed.set_footer(
