@@ -5,12 +5,18 @@ import { ClientUtil } from "discord-akairo";
 import * as Centra from "centra";
 import { Fire } from "../Fire";
 
+interface MojangProfile {
+  name: string;
+  id: string;
+}
+
 export class Util extends ClientUtil {
   client: Fire;
   admins: string[];
   loadedData: { plonked: boolean; premium: boolean };
   plonked: string[];
   premium: Map<string, string>;
+  uuidCache: Map<string, string>;
 
   constructor(client: Fire) {
     super(client);
@@ -18,6 +24,7 @@ export class Util extends ClientUtil {
     this.loadedData = { plonked: false, premium: false };
     this.plonked = [];
     this.premium = new Map();
+    this.uuidCache = new Map();
   }
 
   sleep(ms: number) {
@@ -49,6 +56,18 @@ export class Util extends ClientUtil {
     } catch {
       return await this.haste(text, true);
     }
+  }
+
+  async nameToUUID(player: string) {
+    if (this.uuidCache.has(player)) return this.uuidCache.get(player);
+    const profileReq = await Centra(
+      `https://api.mojang.com/users/profiles/minecraft/${player}`
+    ).send();
+    if (profileReq.statusCode == 200) {
+      const profile: MojangProfile = await profileReq.json();
+      this.uuidCache.set(player, profile.id);
+      return profile.id;
+    } else return null;
   }
 
   async blacklist(
