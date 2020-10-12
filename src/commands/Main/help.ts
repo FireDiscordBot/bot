@@ -30,15 +30,15 @@ export default class Help extends Command {
   async sendHelp(message: FireMessage) {
     let fields = [];
     categoryNames.forEach((name: string) => {
+      if (
+        name == "Admin" &&
+        !this.client.util.admins.includes(message.author.id)
+      )
+        return;
       let category = this.client.commandHandler.categories.get(name);
       if (!category) return;
       let commands: string[] = [];
-      category
-        .filter((command: Command) => {
-          if (!this.client.isOwner(message.author)) return !command.hidden;
-          else return true;
-        })
-        .forEach((command) => commands.push(`\`${command.id}\``));
+      category.forEach((command) => commands.push(`\`${command.id}\``));
       if (commands.length)
         fields.push({
           name: category.id,

@@ -22,6 +22,7 @@ export class Command extends AkairoCommand {
     else options?.aliases?.push(id);
     super(id, options);
     this.hidden = options.hidden || false;
+    if (this.ownerOnly) this.hidden = true;
     this.premium = options.premium || false;
     this.args = options.args;
     if (this.args && this.args.length == 1 && this.args instanceof Array)
