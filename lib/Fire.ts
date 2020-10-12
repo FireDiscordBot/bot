@@ -113,11 +113,12 @@ export class Fire extends AkairoClient {
       storeMessages: true,
       automateCategories: true,
       prefix: (message) => {
-        return this.settings.get(
-          message.guild.id,
-          "config.prefix",
-          config.fire.dev ? "dev " : "$"
-        );
+        return config.fire.dev
+          ? "dev "
+          : [
+              this.settings.get(message.guild.id, "config.prefix", "$"),
+              "fire ",
+            ];
       },
     });
 
