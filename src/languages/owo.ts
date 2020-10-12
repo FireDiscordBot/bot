@@ -55,7 +55,7 @@ export default class owo extends Language {
           MORE_EMOJI: "Mowe Emoji",
           FEATURABLE: "Featuwabwe",
           VANITY_URL: "Vanyity URL",
-          COMMUNITY: "[Communyity](https://dis.gd/communityservers)",
+          COMMUNITY: "[Commuwunity](https://dis.gd/communityservers)",
           PARTNERED: "[Pawtnyewed](https://dis.gd/partners)",
           COMMERCE: "[Stowe Channyews](https://dis.gd/sellyourgame)",
           VERIFIED: "[Vewified](https://dis.gd/vfs)",
@@ -285,11 +285,11 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         ADMINONLY_SET: (channels: string) =>
           `Commands can nyow onwy be wun by those with the "Manyage Sewvew" pewmission in;\n${channels}.`,
         ADMINONLY_RESET: "Admin onwy channyews have been weset",
-        PING_COMMAND_DESCRIPTION: "Shows you my ping to discowd's sewvews",
+        PING_COMMAND_DESCRIPTION: "Shows you my ping to Discowd's sewvews",
         PING_INITIAL_MESSAGE: "Pinging...",
         PING_FINAL_MESSAGE: "Pong!",
         PLONK_COMMAND_DESCRIPTION:
-          "Make a usew unyabwe to use the best discowd bot",
+          "Make a usew unyabwe to use the best Discowd bot",
         RELOAD_COMMAND_DESCRIPTION:
           "wewoad a command/wanguage/wistenyew/moduwe",
       },
