@@ -1,7 +1,9 @@
-import { TextChannel, GuildMember, User } from "discord.js";
+import { FireMember } from "../../lib/extensions/guildmember";
 import { FireGuild } from "../../lib/extensions/guild";
+import { FireUser } from "../../lib/extensions/user";
 import { constants } from "../../lib/util/constants";
 import { Language } from "../../lib/util/language";
+import { TextChannel } from "discord.js";
 
 export default class enUS extends Language {
   constructor() {
@@ -202,7 +204,9 @@ Hint: Use the \`public\` command to get your server on the list`,
             : `Output was too long, failed to upload to hastebin`,
         GUILD_COMMAND_DESCRIPTION: "Get a general overview of the guild",
         GUILD_CREATED_AT: (guild: FireGuild, created: string) =>
-          `**Created by ${guild.owner || "Unknown#0000"} ${created}**`,
+          `**Created by ${
+            guild.owner instanceof FireMember ? guild.owner : "Unknown#0000"
+          } ${created}**`,
         GUILD_JOIN_POS: (pos: number) => `**Your Join Position:** ${pos}`,
         GUILD_VERIF_VERY_HIGH: "**Extreme Verification Level**",
         GUILD_VERIF_HIGH: "**High Verification Level**",
@@ -224,16 +228,16 @@ Hint: Use the \`public\` command to get your server on the list`,
           "Lists all of Fire's commands and provides information about them",
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" for more info about the command | Cluster ID: ${cluster}`,
-        SK1ER_NO_REUPLOAD: (user: GuildMember | User) =>
+        SK1ER_NO_REUPLOAD: (user: FireMember | FireUser) =>
           `${user} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>
           `I was unable to read your log. Please upload it directly rather than using ${domain}`,
         SK1ER_LOG_READ_FAIL:
           "I was unable to read the attachment, try reupload it. If it still doesn't work, yell at Geek :)",
-        SK1ER_MODCORE_ZIP: (user: GuildMember | User) =>
+        SK1ER_MODCORE_ZIP: (user: FireMember | FireUser) =>
           `${user}, Unzip this in \`.minecraft/modcore\` and your issue should be resolved.`,
         SK1ER_LOG_HASTE: (
-          user: GuildMember | User,
+          user: FireMember | FireUser,
           msgType: string,
           extra: string,
           haste: string,

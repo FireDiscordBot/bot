@@ -1,7 +1,9 @@
-import { TextChannel, GuildMember, User } from "discord.js";
+import { FireMember } from "../../lib/extensions/guildmember";
 import { FireGuild } from "../../lib/extensions/guild";
+import { FireUser } from "../../lib/extensions/user";
 import { constants } from "../../lib/util/constants";
 import { Language } from "../../lib/util/language";
+import { TextChannel } from "discord.js";
 
 export default class owo extends Language {
   constructor() {
@@ -199,7 +201,9 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
             : `Output was too wong, faiwed to upwoad to hastebin`,
         GUILD_COMMAND_DESCRIPTION: "Get a genyewaw uvwview of the guiwd",
         GUILD_CREATED_AT: (guild: FireGuild, created: string) =>
-          `**Cweated by ${guild.owner || "Unknyown#0000"} ${created}**`,
+          `**Cweated by ${
+            guild.owner instanceof FireMember ? guild.owner : "Unknyown#0000"
+          } ${created}**`,
         GUILD_JOIN_POS: (pos: number) => `**Youw Join Position:** ${pos}`,
         GUILD_VERIF_VERY_HIGH: "**Extweme Vewification Wevew**",
         GUILD_VERIF_HIGH: "**High Vewification Wevew**",
@@ -221,16 +225,16 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           "Wists all of Fire's commands and pwovides infowmation about them",
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" fow mowe info about the command | Cwustew ID: ${cluster}`,
-        SK1ER_NO_REUPLOAD: (user: GuildMember | User) =>
+        SK1ER_NO_REUPLOAD: (user: FireMember | FireUser) =>
           `${user} I am unyabwe to wead youw wog to wemuv sensitive infowmation & pwovide sowutions to youw issue. Pwease upwoad the wog diwectwy :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>
           `I was unyabwe to wead youw wog. Pwease upwoad it diwectwy wathew than using ${domain}`,
         SK1ER_LOG_READ_FAIL:
           "I was unyabwe to wead the attachment, twy weupwoad it. If it stiww doesn't wowk, yeww at Geek :)",
-        SK1ER_MODCORE_ZIP: (user: GuildMember | User) =>
+        SK1ER_MODCORE_ZIP: (user: FireMember | FireUser) =>
           `${user}, Unzip this in \`.minecraft/modcore\` and youw issue shouwd be wesowved.`,
         SK1ER_LOG_HASTE: (
-          user: GuildMember | User,
+          user: FireMember | FireUser,
           msgType: string,
           extra: string,
           haste: string,
