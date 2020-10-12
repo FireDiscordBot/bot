@@ -24,7 +24,7 @@ export default class owo extends Language {
         COMMAND_OWNER_ONLY: "Onwy my ownyew can use this command",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wwong whiwe wunnying ${id}`,
-        NO_MODERATORS_SET: "Thewe awe nyo Mowodewatows set in this guiwd.",
+        NO_MODERATORS_SET: "Thewe awe nyo mowodewatows set in this guiwd.",
         MORE_INTEGRATIONS:
           "Want mowe integwations? Use the suggest command to suggest some! >w<",
         MEMBERS: "Membews",
