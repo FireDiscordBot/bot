@@ -46,7 +46,7 @@ export default class GuildCommand extends Command {
         moment(guild.createdAt).diff(moment()),
         guild.language.id.split("-")[0]
       ) + " ago";
-    return [
+    let messages = [
       message.language.get("GUILD_CREATED_AT", guild, created),
       `**${message.language.get(
         "MEMBERS"
@@ -55,16 +55,20 @@ export default class GuildCommand extends Command {
         message.language.get("REGIONS")[guild.region] ||
         message.language.get("REGION_DEPRECATED")
       }`,
-      message.language.get(
-        "GUILD_JOIN_POS",
-        (
-          guild.members.cache
-            .array()
-            .sort((one, two) => (one.joinedAt > two.joinedAt ? 1 : -1))
-            .indexOf(message.member) + 1
-        ).toLocaleString()
-      ),
     ];
+    if (guild.members.cache.size / guild.memberCount > 0.98)
+      messages.push(
+        message.language.get(
+          "GUILD_JOIN_POS",
+          (
+            guild.members.cache
+              .array()
+              .sort((one, two) => (one.joinedAt > two.joinedAt ? 1 : -1))
+              .indexOf(message.member) + 1
+          ).toLocaleString()
+        )
+      );
+    return messages;
   }
 
   getSecurity(guild: FireGuild) {
