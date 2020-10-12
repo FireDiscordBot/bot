@@ -56,7 +56,10 @@ export default class Help extends Command {
       footer: {
         text: message.language.get(
           "HELP_FOOTER",
-          message.util.parsed.prefix || "$",
+          message.util.parsed.prefix.replace(
+            this.client.user.toString(),
+            `@${this.client.user.username} `
+          ) || "$",
           this.client.manager.id
         ),
       },
@@ -75,8 +78,10 @@ export default class Help extends Command {
     let args: string[] = [];
     if (command.args?.length)
       (command.args as ArgumentOptions[]).forEach((arg: ArgumentOptions) => {
-        if (!arg?.required) args.push(`[<${arg.type}>]`);
-        else args.push(`<${arg.type}>`);
+        if (!(typeof arg.type == "function")) {
+          if (!arg?.required) args.push(`[<${arg.type}>]`);
+          else args.push(`<${arg.type}>`);
+        }
       });
     const embed = {
       color: message.member?.displayColor || "#ffffff",
