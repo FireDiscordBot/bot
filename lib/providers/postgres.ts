@@ -101,7 +101,7 @@ export class PostgresProvider extends Provider {
         exists
           ? `UPDATE ${this.tableName} SET ${this.dataColumn} = $2 WHERE ${this.idColumn} = $1`
           : `INSERT INTO ${this.tableName} (${this.idColumn}, ${this.dataColumn}) VALUES ($1, $2)`,
-        [id, JSON.stringify(data)]
+        [id, JSON.stringify(data).replace("/", "\\/")]
       );
     }
 
@@ -126,7 +126,7 @@ export class PostgresProvider extends Provider {
     if (this.dataColumn) {
       return this.db.query(
         `UPDATE ${this.tableName} SET ${this.dataColumn} = $2 WHERE ${this.idColumn} = $1`,
-        [id, JSON.stringify(data)]
+        [id, JSON.stringify(data).replace("/", "\\/")]
       );
     }
 
