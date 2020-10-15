@@ -35,6 +35,7 @@ import re
 class Filters(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.debug = []
         self.imgext = ['.png', '.jpg', '.gif']
         self.malware = []
         self.blocked_gifts = [gift for gift in open(
@@ -63,25 +64,24 @@ class Filters(commands.Cog):
     async def run_all(self, message, extra: str = '', exclude: list = []):
         if message.author.bot:  # Somehow this STILL gets triggered by bot messages
             return
-        if 'discord' not in exclude:
-            await self.safe_exc(self.handle_invite, message, extra)
-            await self.safe_exc(self.handle_ext_invite, message, extra)
-        if 'malware' not in exclude:
-            await self.safe_exc(self.anti_malware, message, extra)
-        if 'paypal' not in exclude:
-            await self.safe_exc(self.handle_paypal, message, extra)
-        if 'youtube' not in exclude:
-            await self.safe_exc(self.handle_youtube, message, extra)
-        if 'twitch' not in exclude:
-            await self.safe_exc(self.handle_twitch, message, extra)
-        if 'twitter' not in exclude:
-            await self.safe_exc(self.handle_twitter, message, extra)
-        if 'shorteners' not in exclude:
-            await self.safe_exc(self.handle_shorturl, message, extra)
-        if 'gift' not in exclude:
-            await self.safe_exc(self.handle_gift, message, extra)
-        if 'sku' not in exclude:
-            await self.safe_exc(self.handle_sku, message, extra)
+        enabled = self.bot.get_config(message.guild).get("mod.linkfilter")
+        if message.guild.id in self.debug:
+            self.bot.logger.warn(
+                f'$YELLOWRunning handlers for filters $CYAN{", ".join(enabled)} $YELLOWin guild $CYAN{message.guild}')
+        filters = {
+            'discord': [self.handle_invite, self.handle_ext_invite],
+            'malware': [self.anti_malware],
+            'paypal': [self.handle_paypal],
+            'youtube': [self.handle_youtube],
+            'twitch': [self.handle_twitch],
+            'twitter': [self.handle_twitter],
+            'shorteners': [self.handle_shorturl],
+            'gift': [self.handle_gift],
+            'sku': [self.handle_sku]
+        }
+        for name, handlers in filters.items():
+            if name not in exclude and name in enabled:
+                [await self.safe_exc(handler, message, extra) for handler in handlers]
 
     def run_replace(self, text):
         filters = [
@@ -372,7 +372,9 @@ class Filters(commands.Cog):
         tosearch = str(message.system_content) + \
             str([e.to_dict() for e in message.embeds]) if not extra else extra
         twitter = findtwitter(tosearch)
-        if twitter:
+        if not twitter:
+            return
+        for fullurl, user, extra in twitter:
             if not message.author.permissions_in(message.channel).manage_messages:
                 if 'twitter' in self.bot.get_config(message.guild).get('mod.linkfilter'):
                     try:
@@ -383,16 +385,16 @@ class Filters(commands.Cog):
                         message.guild).get('log.action')
                     if logch:
                         description = f'**Twitter link sent in** {message.channel.mention}'
-                        if twitter in extra:
-                            if twitter in str(message.system_content) + str([e.to_dict() for e in message.embeds]):
-                                return
+                        if fullurl in extra:
+                            if fullurl in str(message.system_content) + str([e.to_dict() for e in message.embeds]):
+                                continue
                             description = f'**Twitter link found in external content**'
                         embed = discord.Embed(
                             color=message.author.color, timestamp=message.created_at, description=description)
                         embed.set_author(name=message.author, icon_url=str(
                             message.author.avatar_url_as(static_format='png', size=2048)))
                         embed.add_field(
-                            name='Link', value=f'[{twitter}](https://twitter.com/{twitter})', inline=False)
+                            name='Link', value=f'[/{user}{extra if extra else ""}]({fullurl})', inline=False)
                         embed.set_footer(
                             text=f"Author ID: {message.author.id}")
                         try:
