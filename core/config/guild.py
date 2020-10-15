@@ -146,14 +146,14 @@ class Config:
         '''Moderator Channels | The channels where only moderators can run commands'''
         self._bot.logger.info(
             f'$GREENSetting $CYANcommands.modonly $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('commands.modonly', [c.id for c in value])
+        await self.update('commands.modonly', [str(c.id) for c in value])
 
     @ConfigOpt(name='commands.adminonly', accepts=[discord.TextChannel], default=[], options=options)
     async def admin_only(self, value: list):
         '''Admin channels | The channels where only admins can run commands'''
         self._bot.logger.info(
             f'$GREENSetting $CYANcommands.adminonly $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('commands.adminonly', [c.id for c in value])
+        await self.update('commands.adminonly', [str(c.id) for c in value])
 
     @ConfigOpt(name='greet.joinchannel', accepts=discord.TextChannel, default=None, options=options)
     async def join_channel(self, value: discord.TextChannel):
