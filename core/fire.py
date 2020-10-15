@@ -176,6 +176,17 @@ class Fire(commands.Bot):
             self.loop.create_task(conf.load())
             return conf
 
+    def should_chunk(self, guild):
+        config = self.get_config(guild.id)
+        should = False
+        # These options either require/work better with ALL members cached
+        options = ['log.moderation', 'log.action',
+                   'mod.autodecancer', 'mod.autodehoist']
+        for opt in options:
+            if config.get(opt):
+                should = True
+        return should
+
     async def init_redis(self):
         self.redis = await aioredis.create_redis_pool(
             'redis://localhost',
