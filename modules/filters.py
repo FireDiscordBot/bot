@@ -65,9 +65,9 @@ class Filters(commands.Cog):
         if message.author.bot:  # Somehow this STILL gets triggered by bot messages
             return
         enabled = self.bot.get_config(message.guild).get("mod.linkfilter")
-        if message.guild.id in self.debug:
+        if message.guild.id in self.debug and enabled:
             self.bot.logger.warn(
-                f'$YELLOWRunning handlers for filters $CYAN{", ".join(enabled)} $YELLOWin guild $CYAN{message.guild}')
+                f'$YELLOWRunning handler(s) for filters $CYAN{", ".join(enabled)} $YELLOWin guild $CYAN{message.guild}')
         filters = {
             'discord': [self.handle_invite, self.handle_ext_invite],
             'malware': [self.anti_malware],
@@ -76,11 +76,12 @@ class Filters(commands.Cog):
             'twitch': [self.handle_twitch],
             'twitter': [self.handle_twitter],
             'shorteners': [self.handle_shorturl],
-            'gift': [self.handle_gift],
-            'sku': [self.handle_sku]
+            'gifts': [self.handle_gift, self.handle_sku]
         }
         for name, handlers in filters.items():
             if name not in exclude and name in enabled:
+                if message.guild.id in self.debug:
+                    self.bot.logger.warn(f'$YELLOWRunning handler(s) for $CYAN{name}')
                 [await self.safe_exc(handler, message, extra) for handler in handlers]
 
     def run_replace(self, text):
