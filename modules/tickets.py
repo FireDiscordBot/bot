@@ -194,6 +194,7 @@ class Tickets(commands.Cog, name="Tickets"):
 
     @commands.command(name='close', description='Closes a ticket, uploads the transcript to action logs channel and sends to the ticket author')
     @commands.bot_has_permissions(manage_roles=True)
+    @commands.max_concurrency(1, commands.BucketType.channel)
     async def tickets_close(self, ctx, *, reason: str = "No Reason Provided"):
         config = ctx.config
         tchannels = [c for c in config.get('tickets.channels') if c]
@@ -225,7 +226,8 @@ class Tickets(commands.Cog, name="Tickets"):
                                  file=discord.File(string, filename=f'{ctx.channel}-transcript.txt'))
                 except Exception:
                     pass  # no transcript for you, boo hoo :(
-        actionlogs = config.get('tickets.transcript_logs') or config.get('log.action')
+        actionlogs = config.get(
+            'tickets.transcript_logs') or config.get('log.action')
         if actionlogs:
             transcript.append(
                 f'{len(transcript)} total messages, closed by {ctx.author}')
@@ -240,7 +242,9 @@ class Tickets(commands.Cog, name="Tickets"):
             embed.add_field(name='Reason', value=reason, inline=False)
             await actionlogs.send(
                 embed=embed,
-                file=discord.File(string, filename=f'transcript.txt') if ctx.channel.category.id != 755796036198596688 else None  # Will make this better soon
+                # Will make this better soon
+                file=discord.File(
+                    string, filename=f'transcript.txt') if ctx.channel.category.id != 755796036198596688 else None
             )
         await ctx.channel.delete(reason=f'Ticket closed by {ctx.author} for "{reason}"')
         self.bot.dispatch('ticket_close', ctx, author)
