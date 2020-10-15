@@ -520,6 +520,8 @@ class Settings(commands.Cog):
         if f'{member.id}-{guild.id}' in self.recentgban:
             self.recentgban.remove(f'{member.id}-{guild.id}')
             return
+        if isinstance(member, discord.User):
+            return # why it be called on_MEMBER_ban if it runs for users too smh my head
         if member.guild.me.guild_permissions.view_audit_log:
             async for e in member.guild.audit_logs(limit=5):
                 if e.action in [discord.AuditLogAction.kick, discord.AuditLogAction.ban] and e.target.id == member.id:
