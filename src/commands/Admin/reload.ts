@@ -1,4 +1,5 @@
 import { FireMessage } from "../../../lib/extensions/message";
+import { FireGuild } from "../../../lib/extensions/guild";
 import { Language } from "../../../lib/util/language";
 import { Listener } from "../../../lib/util/listener";
 import { Command } from "../../../lib/util/command";
@@ -38,6 +39,9 @@ export default class Reload extends Command {
           this.client.listenerHandler,
           this.client.modules,
         ].forEach((handler) => handler.reloadAll());
+        this.client.guilds.cache.forEach((g: FireGuild) =>
+          this.updateGuildLanguage(g)
+        );
         return await message.success();
       } catch {
         return await message.error();
@@ -45,9 +49,20 @@ export default class Reload extends Command {
     }
     try {
       args.module.reload();
+      if (args.module instanceof Language) {
+        this.client.guilds.cache
+          .filter(
+            (g: FireGuild) => g.language.id == (args.module as Language).id
+          )
+          .forEach((g: FireGuild) => this.updateGuildLanguage(g));
+      }
       return await message.success();
     } catch {
       return await message.error();
     }
+  }
+
+  updateGuildLanguage(guild: FireGuild) {
+    guild.language = this.client.getLanguage(guild.language.id);
   }
 }
