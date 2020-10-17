@@ -27,7 +27,6 @@ export default class Mod extends Command {
   }
 
   async exec(message: FireMessage, args: { mod?: string }) {
-    this.client.console.debug(args.mod);
     const mods: Sk1erMods = await (
       await centra("https://api.sk1er.club/mods").send()
     ).json();
