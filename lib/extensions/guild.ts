@@ -10,9 +10,9 @@ export class FireGuild extends Guild {
 
   constructor(client: Fire, data: object) {
     super(client, data);
-    this.language = client.languages.modules.get(
+    this.language = client.getLanguage(
       client.settings.get(this.id, "utils.language", "en-US")
-    ) as Language;
+    );
   }
 
   isPublic() {
