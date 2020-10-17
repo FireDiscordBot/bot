@@ -20,13 +20,13 @@ export class Command extends AkairoCommand {
   constructor(id: string, options?: CommandOptions) {
     if (!options?.aliases) options.aliases = [id];
     else options?.aliases?.push(id);
+    if (options.args instanceof Array && options.args.length == 1)
+      options.args[0].match = "rest";
     super(id, options);
     this.hidden = options.hidden || false;
     if (this.ownerOnly) this.hidden = true;
     this.premium = options.premium || false;
     this.args = options.args;
-    if (this.args && this.args.length == 1 && this.args instanceof Array)
-      this.args[0].match = "rest";
   }
 
   async init() {}
