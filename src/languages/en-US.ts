@@ -309,6 +309,8 @@ Hint: Use the \`public\` command to get your server on the list`,
           "Failed to fetch the UUID, make sure the IGN is a valid player",
         MCUUID_UUID: (ign: string, uuid: string) =>
           `${ign} has the UUID ${uuid}`,
+        MOD_COMMAND_DESCRIPTION: "Get information about a Sk1er LLC mod",
+        MOD_INVALID: "You must provide a valid mod",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
         PING_FINAL_MESSAGE: "Pong!",
