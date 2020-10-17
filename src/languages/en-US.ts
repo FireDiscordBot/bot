@@ -302,6 +302,13 @@ Hint: Use the \`public\` command to get your server on the list`,
           "textures.minecraft.net": "**Skins**",
           "api.mojang.com": "**API**",
         },
+        MCUUID_COMMAND_DESCRIPTION:
+          "Get a player's UUID (use --dashed to get the uuid with dashes)",
+        MCUUID_INVALID_IGN: "You must provide a valid IGN to get the UUID of",
+        MCUUID_FETCH_FAIL:
+          "Failed to fetch the UUID, make sure the IGN is a valid player",
+        MCUUID_UUID: (ign: string, uuid: string) =>
+          `${ign} has the UUID ${uuid}`,
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
         PING_FINAL_MESSAGE: "Pong!",
