@@ -25,7 +25,7 @@ export default class MinecraftUUID extends Command {
 
   async exec(
     message: FireMessage,
-    args: { ign?: { match: any[]; matches: any[] }; dashed: any }
+    args: { ign?: { match: any[]; matches: any[] }; dashed?: string }
   ) {
     if (!args.ign) return await message.error("MCUUID_INVALID_IGN");
     const ign: string = args.ign.match[0];
