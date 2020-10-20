@@ -65,8 +65,6 @@ class Ready(commands.Cog):
     async def chunk(self, guild):
         try:
             await guild.chunk()
-            # self.bot.logger.info(f'$GREENSuccessfully chunked guild $CYAN{guild}')
-            await asyncio.sleep(.6)
         except Exception as e:
             self.bot.logger.error(
                 f'$REDFailed to chunk guild $CYAN{guild}', exc_info=e)
