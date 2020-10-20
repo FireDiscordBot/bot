@@ -45,7 +45,7 @@ class Levelhead(commands.Cog):
             return await ctx.error(f'Failed to fetch levelhead info')
         uuid = levelhead.get('uuid', '')
         if not uuid:
-            strlevel = levelhead['strlevel']
+            strlevel = levelhead.get('strlevel', 0)
             embed = discord.Embed(
                 title=f"{player}'s Levelhead",
                 colour=ctx.author.color,
