@@ -31,7 +31,7 @@ export class Language extends AkairoModule {
     const message = this.has(key)
       ? this.language[key]
       : defaultLang.has(key)
-      ? defaultLang.get(key, args)
+      ? defaultLang.get(key, ...args)
       : defaultLang.get("DEFAULT", key);
     if (typeof message === "function") {
       return message(...args);
