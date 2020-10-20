@@ -14,8 +14,8 @@ export class EventStore extends Collection<number, Event> {
 
   init() {
     const eventsFolder = this.manager.client.config.dev
-      ? "/dist/src/ws/events/"
-      : "/src/ws/events/";
+      ? "/src/ws/events/"
+      : "/dist/src/ws/events/";
     const files = readdirSync(join(process.cwd(), eventsFolder));
     for (const file of files) {
       const eventModule = require(join(process.cwd(), eventsFolder, file));

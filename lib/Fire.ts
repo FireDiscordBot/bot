@@ -107,7 +107,7 @@ export class Fire extends AkairoClient {
     });
 
     this.commandHandler = new CommandHandler(this, {
-      directory: config.fire.dev ? "./dist/src/commands/" : "./src/commands/",
+      directory: config.fire.dev ? "./src/commands/" : "./dist/src/commands/",
       commandUtil: true,
       handleEdits: true,
       storeMessages: true,
@@ -151,8 +151,8 @@ export class Fire extends AkairoClient {
 
     this.inhibitorHandler = new InhibitorHandler(this, {
       directory: config.fire.dev
-        ? "./dist/src/inhibitors/"
-        : "./src/inhibitors/",
+        ? "./src/inhibitors/"
+        : "./dist/src/inhibitors/",
     });
     this.inhibitorHandler.on(
       "load",
@@ -168,7 +168,7 @@ export class Fire extends AkairoClient {
     this.inhibitorHandler.loadAll();
 
     this.listenerHandler = new ListenerHandler(this, {
-      directory: config.fire.dev ? "./dist/src/listeners/" : "./src/listeners/",
+      directory: config.fire.dev ? "./src/listeners/" : "./dist/src/listeners/",
     });
 
     this.commandHandler.useListenerHandler(this.listenerHandler);
@@ -180,12 +180,12 @@ export class Fire extends AkairoClient {
     this.listenerHandler.loadAll();
 
     this.languages = new LanguageHandler(this, {
-      directory: config.fire.dev ? "./dist/src/languages/" : "./src/languages/",
+      directory: config.fire.dev ? "./src/languages/" : "./dist/src/languages/",
     });
     this.languages.loadAll();
 
     this.modules = new ModuleHandler(this, {
-      directory: config.fire.dev ? "./dist/src/modules/" : "./src/modules/",
+      directory: config.fire.dev ? "./src/modules/" : "./dist/src/modules/",
     });
     this.modules.on("load", async (module: Module, isReload: boolean) => {
       await module?.init();
