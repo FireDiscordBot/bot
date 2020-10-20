@@ -1,9 +1,24 @@
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
+import { describe, ProcessDescription } from "pm2";
+import { version as djsver } from "discord.js";
 import { FireUser } from "../extensions/user";
 import { ClientUtil } from "discord-akairo";
+import { promisify } from "util";
 import * as Centra from "centra";
 import { Fire } from "../Fire";
+import * as pm2 from "pm2";
+
+const describePromise = promisify(describe.bind(pm2));
+
+const humanFileSize = (size: number) => {
+  let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+  return (
+    Number((size / Math.pow(1024, i)).toFixed(2)) * 1 +
+    " " +
+    ["B", "kB", "MB", "GB", "TB"][i]
+  );
+};
 
 interface MojangProfile {
   name: string;
@@ -80,6 +95,51 @@ export class Util extends ClientUtil {
     uuid.substr(16, 4) +
     "-" +
     uuid.substr(20);
+
+  async getClusterStats() {
+    let processInfo: ProcessDescription[] = [];
+    if (this.client.manager.pm2) {
+      try {
+        processInfo = await describePromise(process.env.pm_id || "fire");
+      } catch {}
+    }
+    return {
+      id: this.client.manager.id,
+      dev: this.client.config.dev,
+      user: this.client.user.toString(),
+      userId: this.client.user.id,
+      uptime: this.client.launchTime.toISOString(true),
+      cpu: processInfo.length ? `${processInfo[0].monit.cpu}%` : "Unknown%",
+      ram: processInfo.length
+        ? humanFileSize(processInfo[0].monit.memory)
+        : "Unknown MB",
+      pid: process.pid,
+      version: `Discord.JS v${djsver} | Node.JS ${process.version}`,
+      guilds: this.client.guilds.cache.size,
+      users:
+        this.client.guilds.cache.size >= 1
+          ? this.client.guilds.cache
+              .map((guild) => guild.memberCount)
+              .reduce((a, b) => a + b)
+          : 0,
+      commands: this.client.commandHandler.modules.size,
+      shards: (this.client.options.shards as Array<number>).map((shard) => {
+        return {
+          id: shard,
+          guilds: this.client.guilds.cache.filter(
+            (guild) => guild.shardID == shard
+          ).size,
+          users:
+            this.client.guilds.cache.size >= 1
+              ? this.client.guilds.cache
+                  .filter((guild) => guild.shardID == shard)
+                  .map((guild) => guild.memberCount)
+                  .reduce((a, b) => a + b)
+              : 0,
+        };
+      }),
+    };
+  }
 
   async blacklist(
     user: FireMember | FireUser,
