@@ -113,6 +113,8 @@ async def blacklist_check(ctx):
     else:
         return True
 
+bot.blacklist_check = blacklist_check
+
 
 @bot.check
 async def cmdperm_check(ctx):

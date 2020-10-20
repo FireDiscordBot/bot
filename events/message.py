@@ -18,7 +18,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from jishaku.models import copy_context_with
 from discord.ext import commands
-from bot import blacklist_check
 from fire.http import Route
 import datetime
 import asyncio
@@ -149,7 +148,7 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             filters = self.bot.get_cog('Filters')
             # with suppress(Exception):
             await filters.run_all(message)
-        if f'{message.content.strip()} ' in commands.when_mentioned(self.bot, message) and not (await blacklist_check(message)):
+        if f'{message.content.strip()} ' in commands.when_mentioned(self.bot, message) and (await self.bot.blacklist_check(message)):
             prefix = self.bot.get_config(message.guild).get('main.prefix')
             await message.channel.send(f'Hey! My prefix here is `{prefix}` or you can mention me :)')
 
