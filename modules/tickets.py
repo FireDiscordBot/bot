@@ -15,7 +15,7 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from fire.converters import Member
+from fire.converters import Member, TextChannel
 from discord.ext import commands
 import datetime
 import discord
@@ -110,7 +110,7 @@ class Tickets(commands.Cog, name="Tickets"):
         limit = config.get('tickets.limit')
         if not parent and not ctx.silent:
             return await ctx.error('Tickets are not enabled here')
-        if limit and len([c for c in config.get("tickets.channels") if str(ctx.author.id) in str(c.topic)]) >= limit:
+        if limit and len([c for c in config.get("tickets.channels") if isinstance(c, discord.TextChannel) and str(ctx.author.id) in str(c.topic)]) >= limit:
             if not ctx.silent:
                 return await ctx.error('You have too many tickets open!')
             return

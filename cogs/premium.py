@@ -137,6 +137,8 @@ class Premium(commands.Cog, name="Premium Commands"):
                 return await ctx.success(
                     f"I will now wait for a message before giving your auto-role. This will also apply to existing users who don't have the role."
                 )
+        elif isinstance(role, str):
+            raise commands.BadArgument('Role not found :(')
         if role.position >= ctx.guild.me.top_role.position:
             return await ctx.error(
                 "That role is higher than my top role, I cannot give it to anyone."
@@ -397,7 +399,8 @@ class Premium(commands.Cog, name="Premium Commands"):
         if member.guild.id in self.bot.premium_guilds:
             try:
                 role = self.bot.get_config(member.guild).get("mod.autorole")
-                wait = self.bot.get_config(member.guild).get("mod.autorole.waitformsg")
+                wait = self.bot.get_config(member.guild).get(
+                    "mod.autorole.waitformsg")
                 if role is not None and not wait and not role in member.roles:
                     await member.add_roles(role, reason="Auto-Role")
             except Exception:
@@ -405,7 +408,8 @@ class Premium(commands.Cog, name="Premium Commands"):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        member = message.author if isinstance(message.author, discord.Member) else None
+        member = message.author if isinstance(
+            message.author, discord.Member) else None
         if member and member.guild.id in self.bot.premium_guilds:
             try:
                 config = self.bot.get_config(member.guild)
@@ -422,4 +426,3 @@ class Premium(commands.Cog, name="Premium Commands"):
 def setup(bot):
     bot.add_cog(Premium(bot))
     bot.logger.info(f"$GREENLoaded Premium cog!")
-

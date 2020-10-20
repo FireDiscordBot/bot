@@ -34,10 +34,13 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
 
     @commands.command(description="Gets a random meme from Reddit")
     async def meme(self, ctx, sub: str = None):
-        if sub is None:
-            meme = await self.ksoft.images.random_meme()
-        else:
-            meme = await self.ksoft.images.random_reddit(sub)
+        try:
+            if sub is None:
+                meme = await self.ksoft.images.random_meme()
+            else:
+                meme = await self.ksoft.images.random_reddit(sub)
+        except ksoftapi.APIError as e:
+            return await ctx.error(str(e))
         if meme.nsfw:
             channel = ctx.message.channel
             if not channel.is_nsfw():
@@ -105,7 +108,10 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
         if not query:
             return await ctx.error('Missing search query')
         else:
-            lyrics = await self.ksoft.music.lyrics(query)
+            try:
+                lyrics = await self.ksoft.music.lyrics(query)
+            except ksoftapi.NoResults:
+                return await ctx.error("No lyrics found")
         if not lyrics or len(lyrics) < 1:
             return await ctx.error('No lyrics found')
         lyrics = lyrics[0]
