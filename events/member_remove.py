@@ -20,7 +20,6 @@ from discord.ext import commands
 import humanfriendly
 import datetime
 import discord
-import traceback
 
 
 class MemberRemove(commands.Cog):
@@ -53,6 +52,7 @@ class MemberRemove(commands.Cog):
         if logch:
             moderator = None
             action = None
+            reason = None
             if member.guild.me.guild_permissions.view_audit_log:
                 async for e in member.guild.audit_logs(limit=5):
                     if e.action in [discord.AuditLogAction.kick, discord.AuditLogAction.ban] and e.target.id == member.id:

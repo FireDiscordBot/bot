@@ -18,8 +18,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from chatwatch.cw import ChatWatch, MessageResponseEvent
 from discord.ext import commands
 import discord
-import traceback
-import json
 
 
 class Chatwatch(commands.Cog):

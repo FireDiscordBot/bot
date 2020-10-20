@@ -18,7 +18,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from fire.http import HTTPClient, Route
 from discord.ext import commands
-import traceback
 import datetime
 import discord
 

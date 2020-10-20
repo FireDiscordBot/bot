@@ -17,26 +17,17 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # 🦀
 
-import discord
-from fire.converters import User, UserWithFallback, Member, TextChannel, VoiceChannel, Category, Role
-from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
-from discord import Webhook, AsyncWebhookAdapter
-from discord.ext import commands, flags, tasks
-from jishaku.models import copy_context_with
+from jishaku.paginators import PaginatorEmbedInterface, WrappedPaginator
+from fire.converters import UserWithFallback, Member, Role
+from discord.ext import commands, tasks
+from emoji import UNICODE_EMOJI
+from colormap import rgb2hex
+from fuzzywuzzy import fuzz
+import humanfriendly
 import datetime
-import json
-import time
-import os
+import discord
 import typing
 import re
-import asyncpg
-import asyncio
-import aiohttp
-import humanfriendly
-import traceback
-from colormap import rgb2hex, hex2rgb
-from emoji import UNICODE_EMOJI
-from fuzzywuzzy import fuzz
 
 
 region = {

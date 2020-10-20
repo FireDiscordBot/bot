@@ -16,10 +16,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-from fire.filters.invite import findinvite
 from discord.ext import commands
 from fire.converters import Role
-import traceback
 import discord
 import json
 

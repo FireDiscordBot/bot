@@ -19,7 +19,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from fire.converters import UserWithFallback, TextChannel
 from fire.filters.invite import findinvite
 from discord.ext import commands, flags
-import traceback
 import discord
 
 

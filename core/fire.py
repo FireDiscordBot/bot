@@ -16,7 +16,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from sentry_sdk.integrations.aiohttp import AioHttpIntegration
-from logging.handlers import TimedRotatingFileHandler
 from jishaku.modules import resolve_extensions
 import core.coloredformat as colorformat
 from discord.ext import commands, tasks
@@ -24,12 +23,8 @@ from fire.http import HTTPClient, Route
 from sentry_sdk import push_scope
 from .context import Context
 from .config import Config
-import functools
-import traceback
 import sentry_sdk
 import aioredis
-import aiofiles
-import aiohttp
 import datetime
 import discord
 import asyncpg

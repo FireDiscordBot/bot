@@ -16,18 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-import functools
-import inspect
 import discord
-
-from discord.ext.commands.converter import (
-    MemberConverter,
-    UserConverter,
-    RoleConverter,
-    TextChannelConverter,
-    VoiceChannelConverter,
-    CategoryChannelConverter
-)
 
 
 class Options:

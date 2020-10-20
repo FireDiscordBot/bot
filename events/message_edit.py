@@ -17,11 +17,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from discord.ext import commands
-from contextlib import suppress
-import functools
-import asyncio
 import discord
-import traceback
 
 
 class MessageEdit(commands.Cog):

@@ -16,9 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from jishaku.models import copy_context_with
-# from fire.converters import Message
 from discord.ext import commands
-import datetime
 import discord
 import asyncio
 import typing

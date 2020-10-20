@@ -17,8 +17,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from core.config import Config
 from discord.ext import commands
-from typing import Optional
-import datetime
 import discord
 import random
 

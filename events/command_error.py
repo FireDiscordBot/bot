@@ -17,19 +17,15 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from fire.converters import Member, UserWithFallback, TextChannel, Category, Role
-from core.config import TypeMismatchError, RestrictedOptionError, InvalidValueError
-from discord import Webhook, AsyncWebhookAdapter
+from core.config import RestrictedOptionError
 from fire.extras import MissingOverride
 from fire.filters.invite import replaceinvite
 from core.context import Context
 from discord.ext import commands
 import humanfriendly
-import functools
 import traceback
 import datetime
 import discord
-import aiohttp
-import random
 import re
 import os
 
@@ -62,7 +58,6 @@ class CommandError(commands.Cog):
         )
         noperms = (commands.BotMissingPermissions,
                    commands.MissingPermissions, discord.Forbidden, MissingOverride)
-        saved = error
 
         # Allows us to check for original exceptions raised and sent to CommandInvokeError.
         # If nothing is found. We keep the exception passed to on_command_error.

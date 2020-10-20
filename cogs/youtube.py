@@ -15,16 +15,13 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-import discord
-from discord.ext import commands
-from fire.filters.youtube import findvideo
-from fire.http import Route
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
-from jishaku.cog import Jishaku
+from fire.filters.youtube import findvideo
+from discord.ext import commands
 import googleapiclient.discovery
-import functools
+from fire.http import Route
 import datetime
-import json
+import discord
 
 
 class YouTube(commands.Cog, name="YouTube API"):

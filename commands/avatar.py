@@ -18,7 +18,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from fire.converters import Member, UserWithFallback
 from discord.ext import commands
-import traceback
 import discord
 import typing
 
@@ -31,6 +30,7 @@ class Avatar(commands.Cog):
     async def avatar(self, ctx, *, user: typing.Union[Member, UserWithFallback] = None):
         if not user:
             user = ctx.author
+        member = None
         if ctx.guild:
             member = ctx.guild.get_member(user.id)
         await ctx.send(embed=discord.Embed(

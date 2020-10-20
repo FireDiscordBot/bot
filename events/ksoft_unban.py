@@ -16,9 +16,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from discord.ext import commands
-import discord
-import traceback
 import datetime
+import discord
 
 
 class KsoftUnban(commands.Cog):

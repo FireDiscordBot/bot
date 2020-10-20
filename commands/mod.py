@@ -19,7 +19,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
 from discord.ext import commands
 from fire.http import Route
-import traceback
 import datetime
 import discord
 

@@ -15,12 +15,10 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-import logging
+
 from discord.ext import commands
-import discord
-import typing
-from random import randint
 from urllib.parse import quote
+import discord
 
 
 class Help(commands.Cog):
@@ -34,7 +32,7 @@ class Help(commands.Cog):
         prefix = ctx.prefix.replace(
             '<@444871677176709141> ', '@Fire ').replace('<@!444871677176709141>', '@Fire ')
         embed = discord.Embed(colour=ctx.author.color, description=f'''Here\'s some helpful links
-[Commands](https://fire.gaminggeek.space/commands?prefix={quote(prefix)})
+[Commands](https://fire.gaminggeek.dev/commands?prefix={quote(prefix)})
 [Support Server](https://inv.wtf/fire)
 [Invite Me](https://inv.wtf/bot)
 [Vote for me](https://fire-is-the.best)

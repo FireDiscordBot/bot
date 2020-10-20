@@ -19,11 +19,8 @@ from core.competing import Competing
 from discord.ext import commands
 from core.fire import Fire
 import discord
-import aiohttp
 import asyncio
 import asyncpg
-import logging
-import json
 import os
 
 

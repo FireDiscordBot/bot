@@ -15,15 +15,11 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-import discord
-from discord.ext import commands
-import datetime
-import json
-import ksoftapi
-import typing
-import random
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
-from fire.converters import Member
+from discord.ext import commands
+import discord
+import datetime
+import ksoftapi
 
 
 imgext = ('.png', '.jpg', '.jpeg', '.gif')

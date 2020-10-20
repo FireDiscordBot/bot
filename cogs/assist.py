@@ -19,7 +19,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from discord.ext import commands
 import discord
 import os
-import re
 import asyncio
 import json
 import click
@@ -38,14 +37,10 @@ from asyncio.subprocess import DEVNULL
 
 try:
     from .amodules import (
-        assistant_helpers,
-        browser_helpers,
-        audio_helpers
+        assistant_helpers
     )
 except (SystemError, ImportError):
     import assistant_helpers
-    import browser_helpers
-    import audio_helpers
 
 ASSISTANT_API_ENDPOINT = 'embeddedassistant.googleapis.com'
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
@@ -170,8 +165,7 @@ try:
         http_request = google.auth.transport.requests.Request()
         credentials.refresh(http_request)
 except Exception as e:
-    # Before cog is loaded so no bot.logger :(
-    print('Failed to connect to Google Assistant. ')
+    raise Exception("Failed to connect to Google Assistant")
     credentials = None
 
 grpc_channel = google.auth.transport.grpc.secure_authorized_channel(

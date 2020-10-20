@@ -16,11 +16,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-from jishaku.paginators import PaginatorInterface, PaginatorEmbedInterface, WrappedPaginator
+from jishaku.paginators import PaginatorInterface, WrappedPaginator
 from terminaltables import AsciiTable
 from discord.ext import commands
-import traceback
-import discord
 
 
 def shorten(text):

@@ -25,11 +25,8 @@ from fire.filters.twitch import findtwitch, replacetwitch
 from fire.filters.gift import findgift, replacegift
 from fire.filters.sku import findsku, replacesku
 from discord.ext import commands
-import functools
-import datetime
 import aiohttp
 import discord
-import re
 
 
 class Filters(commands.Cog):

@@ -18,8 +18,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from fire.filters.invite import findinvite
 from discord.ext import commands
 from fire.push import pushover
-import discord
-import typing
 import re
 
 

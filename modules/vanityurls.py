@@ -15,7 +15,6 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from fire.filters.invite import findinvite
 from fire.http import HTTPClient, Route
 from fire.exceptions import PushError
 from discord.ext import commands

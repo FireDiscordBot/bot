@@ -17,12 +17,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 from core.config import Config
-from fire import exceptions
-import functools
-import asyncio
-import asyncpg
-import discord
-import traceback
 
 
 class GuildAdd(commands.Cog):

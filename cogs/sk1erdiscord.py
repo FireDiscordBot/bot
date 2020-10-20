@@ -20,7 +20,6 @@ from fire.converters import Member, UserWithFallback
 from discord.ext import commands, tasks, flags
 from jishaku.models import copy_context_with
 from fire.http import HTTPClient, Route
-import urllib.parse
 import aiofiles
 import datetime
 import aiohttp
@@ -393,7 +392,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     await msg.edit(embed=embed)
                     if not all(len(m.roles) > 1 for m in ticket.members):
                         await ticket.send('<@&755809868056756235>', allowed_mentions=discord.AllowedMentions(roles=True))
-        except Exception:
+        except Exception as e:
             self.bot.logger.warn(
                 "$YELLOWon_ticket_create did an oopsie", exc_info=e)
 
@@ -406,7 +405,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 overwrites.pop(author, "")
                 if overwrites != channel.overwrites:
                     await channel.edit(overwrites=overwrites)
-        except Exception:
+        except Exception as e:
             self.bot.logger.warn(
                 "$YELLOWon_ticket_close did an oopsie", exc_info=e)
 
@@ -416,7 +415,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             if err in log and f'- {sol}' not in solutions:
                 solutions.append(f'- {sol}')
         if 'OptiFine_1.8.9_HD_U' in log and not any(v in log for v in ['_L5', '_L6']):
-            solutions.append(f'- Update Optifine to either L5 or L6 (currently available as a preview version)')
+            solutions.append(
+                f'- Update Optifine to either L5 or L6 (currently available as a preview version)')
         if not solutions:
             return ''
         return 'Possible solutions:\n' + '\n'.join(solutions)
@@ -451,6 +451,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         for attach in message.attachments:
             if not any(attach.filename.endswith(ext) for ext in ['.log', '.txt']):
                 return
+            txt = None
             try:
                 txt = await attach.read()
             except Exception as e:
@@ -480,7 +481,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             try:
                 zip = await self.create_modcore_zip()
             except Exception as e:
-                self.bot.logger.warn(f'$YELLOWFailed to create ModCore zip', exc_info=e)
+                self.bot.logger.warn(
+                    f'$YELLOWFailed to create ModCore zip', exc_info=e)
                 pass
             if zip:
                 try:

@@ -16,10 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from discord.ext import commands
-import functools
-import asyncio
 import discord
-import traceback
 
 
 class MessageDelete(commands.Cog):

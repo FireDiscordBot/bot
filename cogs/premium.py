@@ -22,13 +22,8 @@ from discord.ext.commands import has_permissions, bot_has_permissions
 
 # from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
 from fire.converters import Member, Role, TextChannel
-import functools
 import datetime
-import asyncio
 import typing
-import asyncpg
-import json
-import os
 
 
 class Premium(commands.Cog, name="Premium Commands"):

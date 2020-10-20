@@ -17,12 +17,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from fire.http import HTTPClient, Route
-from discord.ext import commands, tasks
-import traceback
+from discord.ext import commands
 import datetime
 import discord
-import asyncio
-import random
 
 
 class FireStatus(commands.Cog):

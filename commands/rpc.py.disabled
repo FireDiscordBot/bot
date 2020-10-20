@@ -20,7 +20,6 @@ from fire.converters import Member
 from discord.ext import commands
 from core.context import Context
 import humanfriendly
-import traceback
 import datetime
 import discord
 import asyncio
@@ -30,8 +29,7 @@ class RichPresence(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def getSpotify(self, member: discord.Member, activity: discord.Spotify):
-        adict = activity.to_dict()
+    def get_spotify(self, member: discord.Member, activity: discord.Spotify):
         embed = discord.Embed(
             color=activity.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
         embed.set_author(name=f'{member}\'s Spotify Info',
@@ -53,7 +51,7 @@ class RichPresence(commands.Cog):
         embed.set_thumbnail(url=activity.album_cover_url)
         return embed
 
-    def getTwitch(self, member: discord.Member, activity: discord.Streaming):
+    def get_twitch(self, member: discord.Member, activity: discord.Streaming):
         embed = discord.Embed(color=discord.Color.purple(
         ), timestamp=datetime.datetime.now(datetime.timezone.utc))
         embed.set_author(name=f'{member}\'s Twitch Info',
@@ -71,7 +69,7 @@ class RichPresence(commands.Cog):
                 name='URL', value=f'[{activity.twitch_name}]({activity.url})', inline=False)
         return embed
 
-    def getYoutube(self, member: discord.Member, activity: discord.Streaming):
+    def get_youtube(self, member: discord.Member, activity: discord.Streaming):
         embed = discord.Embed(color=discord.Color.red(
         ), timestamp=datetime.datetime.now(datetime.timezone.utc))
         embed.set_author(name=f'{member}\'s YouTube Info',
@@ -87,7 +85,7 @@ class RichPresence(commands.Cog):
                     url=f'https://img.youtube.com/vi/{ytid}/hqdefault.jpg')
         return embed
 
-    def getGenericStream(self, member: discord.Member, activity: discord.Streaming):
+    def get_generic_stream(self, member: discord.Member, activity: discord.Streaming):
         embed = discord.Embed(color=discord.Color.green(
         ), timestamp=datetime.datetime.now(datetime.timezone.utc))
         embed.set_author(name=f'{member}\'s Stream Info')
@@ -95,7 +93,7 @@ class RichPresence(commands.Cog):
         embed.add_field(name='URL', value=f'{activity.url}', inline=False)
         return embed
 
-    def getCustomStatus(self, member: discord.Member, activity: discord.CustomActivity):
+    def get_custom_status(self, member: discord.Member, activity: discord.CustomActivity):
         embed = discord.Embed(
             color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
         emoji: discord.PartialEmoji = activity.emoji
@@ -110,7 +108,7 @@ class RichPresence(commands.Cog):
                     name=f'{member}\'s Custom Status', icon_url=str(emoji.url))
         return embed
 
-    def getGenericActivity(self, member: discord.Member, activity: discord.Activity):
+    def get_generic_activity(self, member: discord.Member, activity: discord.Activity):
         embed = discord.Embed(
             color=member.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
         if activity.small_image_url is not None:
@@ -166,18 +164,18 @@ class RichPresence(commands.Cog):
         embed = None
         if activity is not None:
             if isinstance(activity, discord.Spotify):
-                embed = self.getSpotify(member, activity)
+                embed = self.get_spotify(member, activity)
             elif isinstance(activity, discord.Streaming):
                 if activity.platform.lower() == 'twitch':
-                    embed = self.getTwitch(member, activity)
+                    embed = self.get_twitch(member, activity)
                 elif activity.platform.lower() == 'youtube':
-                    embed = self.getYoutube(member, activity)
+                    embed = self.get_youtube(member, activity)
                 else:
-                    embed = self.getGenericStream(member, activity)
+                    embed = self.get_generic_stream(member, activity)
             elif isinstance(activity, discord.CustomActivity):
-                embed = self.getCustomStatus(member, activity)
+                embed = self.get_custom_status(member, activity)
             elif type(activity) == discord.Activity:
-                embed = self.getGenericActivity(member, activity)
+                embed = self.get_generic_activity(member, activity)
             if embed:
                 if MSG:
                     await MSG.edit(embed=embed)

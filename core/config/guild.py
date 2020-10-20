@@ -20,7 +20,6 @@ from .constants import ConfigOpt, DISCORD_CONVERTERS
 from .errors import *
 import discord
 import inspect
-import asyncio
 import json
 
 
@@ -373,7 +372,7 @@ class Config:
                 await self._guild.chunk()
             except Exception as e:
                 self._bot.logger.error(
-                    f'$REDFailed to chunk guild $CYAN{guild}', exc_info=e)
+                    f'$REDFailed to chunk guild $CYAN{self._guild}', exc_info=e)
 
     async def init(self):
         con = await self._db.acquire()

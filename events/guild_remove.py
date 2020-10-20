@@ -16,11 +16,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from discord.ext import commands
-from fire import exceptions
-import functools
-import asyncio
-import discord
-import traceback
 
 
 class GuildRemove(commands.Cog):

@@ -15,24 +15,22 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-import discord
-from discord.ext import commands, tasks
-import typing
-import datetime
-import asyncpg
-import asyncio
-import traceback
-import functools
-import humanfriendly
-import re
-from fire.converters import UserWithFallback, Member, TextChannel, Role
 from jishaku.paginators import WrappedPaginator, PaginatorEmbedInterface
+from fire.converters import UserWithFallback, Member, TextChannel, Role
 from nanoid import generate as make_nanoid
+from discord.ext import commands, tasks
+import humanfriendly
+import datetime
+import discord
+import typing
+import re
 
 day_regex = re.compile(r"(?:(?P<days>\d+)(?:d|days|day| days| day))")
 hour_regex = re.compile(r"(?:(?P<hours>\d+)(?:h|hours|hour| hours| hour))")
-min_regex = re.compile(r"(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))")
-sec_regex = re.compile(r"(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))")
+min_regex = re.compile(
+    r"(?:(?P<minutes>\d+)(?:m|minutes|minute| minutes| minute))")
+sec_regex = re.compile(
+    r"(?:(?P<seconds>\d+)(?:s|seconds|second| seconds| second))")
 
 
 def parse_time(content, replace: bool = False):
@@ -179,7 +177,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
                     if muted in user.roles:
                         if until:
                             if (
-                                datetime.datetime.now(datetime.timezone.utc).timestamp()
+                                datetime.datetime.now(
+                                    datetime.timezone.utc).timestamp()
                                 > until
                             ):
                                 try:
@@ -237,7 +236,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
                     else:
                         if until:
                             if (
-                                datetime.datetime.now(datetime.timezone.utc).timestamp()
+                                datetime.datetime.now(
+                                    datetime.timezone.utc).timestamp()
                                 < until
                             ):
                                 try:
@@ -304,7 +304,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
                                 await user.remove_roles(muted, reason="Times up.")
                             except discord.HTTPException as e:
                                 removefail = str(e)
-                            logch = self.bot.get_config(guild).get("log.moderation")
+                            logch = self.bot.get_config(
+                                guild).get("log.moderation")
                             if logch:
                                 embed = discord.Embed(
                                     color=discord.Color.green(),
@@ -377,7 +378,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
             ctx.guild.roles, name="Muted"
         )
         if until:
-            timeup = datetime.datetime.strftime(until, "%d/%m/%Y @ %I:%M:%S %p")
+            timeup = datetime.datetime.strftime(
+                until, "%d/%m/%Y @ %I:%M:%S %p")
             until = until.timestamp()
         else:
             timeup = None
@@ -399,7 +401,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
                 for channel in ctx.guild.channels:
                     overwrites = channel.overwrites
                     overwrites.update(
-                        {muted: discord.PermissionOverwrite(send_messages=False)}
+                        {muted: discord.PermissionOverwrite(
+                            send_messages=False)}
                     )
                     await channel.edit(overwrites=overwrites)
             except discord.Forbidden:
@@ -474,10 +477,13 @@ class Moderation(commands.Cog, name="Mod Commands"):
             )
             embed.set_author(
                 name=f"Mute | {user}",
-                icon_url=str(user.avatar_url_as(static_format="png", size=2048)),
+                icon_url=str(user.avatar_url_as(
+                    static_format="png", size=2048)),
             )
-            embed.add_field(name="User", value=f"{user}({user.id})", inline=False)
-            embed.add_field(name="Moderator", value=ctx.author.mention, inline=False)
+            embed.add_field(
+                name="User", value=f"{user}({user.id})", inline=False)
+            embed.add_field(name="Moderator",
+                            value=ctx.author.mention, inline=False)
             embed.add_field(name="Reason", value=reason, inline=False)
             if timeup:
                 timedelta = humanfriendly.format_timespan(timedelta)
@@ -490,7 +496,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
                     value="No, user has DMs off or has blocked me.",
                     inline=False,
                 )
-            embed.set_footer(text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
+            embed.set_footer(
+                text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
             await modlogs.send(embed=embed)
 
     @commands.command(
@@ -519,8 +526,10 @@ class Moderation(commands.Cog, name="Mod Commands"):
 
         delete = 0
         if "-d" in reason:
-            delete = re.findall(r"--?d(?:elete)? (\d{1,5})", reason, re.MULTILINE)
-            reason = re.sub(r"--?d(?:elete)? (\d{1,5})", "", reason, 0, re.MULTILINE)
+            delete = re.findall(
+                r"--?d(?:elete)? (\d{1,5})", reason, re.MULTILINE)
+            reason = re.sub(
+                r"--?d(?:elete)? (\d{1,5})", "", reason, 0, re.MULTILINE)
             delete = int(delete[0]) if delete else 0
             if delete > 7 or delete < 1:  # idk if \d will match a negative number lol
                 return await ctx.error(
@@ -558,9 +567,11 @@ class Moderation(commands.Cog, name="Mod Commands"):
                 )
                 embed.set_author(
                     name=f"Ban | {user}",
-                    icon_url=str(user.avatar_url_as(static_format="png", size=2048)),
+                    icon_url=str(user.avatar_url_as(
+                        static_format="png", size=2048)),
                 )
-                embed.add_field(name="User", value=f"{user}({user.id})", inline=False)
+                embed.add_field(
+                    name="User", value=f"{user}({user.id})", inline=False)
                 embed.add_field(
                     name="Moderator", value=ctx.author.mention, inline=False
                 )
@@ -571,7 +582,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
                         value="No, user has DMs off or has blocked me.",
                         inline=False,
                     )
-                embed.set_footer(text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
+                embed.set_footer(
+                    text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
                 try:
                     await logch.send(embed=embed)
                 except Exception:
@@ -629,12 +641,16 @@ class Moderation(commands.Cog, name="Mod Commands"):
             )
             embed.set_author(
                 name=f"Unban | {user}",
-                icon_url=str(user.avatar_url_as(static_format="png", size=2048)),
+                icon_url=str(user.avatar_url_as(
+                    static_format="png", size=2048)),
             )
-            embed.add_field(name="User", value=f"{user}({user.id})", inline=False)
-            embed.add_field(name="Moderator", value=ctx.author.mention, inline=False)
+            embed.add_field(
+                name="User", value=f"{user}({user.id})", inline=False)
+            embed.add_field(name="Moderator",
+                            value=ctx.author.mention, inline=False)
             embed.add_field(name="Reason", value=reason, inline=False)
-            embed.set_footer(text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
+            embed.set_footer(
+                text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
             try:
                 await logch.send(embed=embed)
             except Exception:
@@ -706,14 +722,17 @@ class Moderation(commands.Cog, name="Mod Commands"):
                 )
                 embed.set_author(
                     name=f"Softban | {user}",
-                    icon_url=str(user.avatar_url_as(static_format="png", size=2048)),
+                    icon_url=str(user.avatar_url_as(
+                        static_format="png", size=2048)),
                 )
-                embed.add_field(name="User", value=f"{user}({user.id})", inline=False)
+                embed.add_field(
+                    name="User", value=f"{user}({user.id})", inline=False)
                 embed.add_field(
                     name="Moderator", value=ctx.author.mention, inline=False
                 )
                 embed.add_field(name="Reason", value=reason, inline=False)
-                embed.set_footer(text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
+                embed.set_footer(
+                    text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
                 try:
                     await logch.send(embed=embed)
                 except Exception:
@@ -842,9 +861,11 @@ class Moderation(commands.Cog, name="Mod Commands"):
                 )
                 embed.set_author(
                     name=f"Warn | {user}",
-                    icon_url=str(user.avatar_url_as(static_format="png", size=2048)),
+                    icon_url=str(user.avatar_url_as(
+                        static_format="png", size=2048)),
                 )
-                embed.add_field(name="User", value=f"{user}({user.id})", inline=False)
+                embed.add_field(
+                    name="User", value=f"{user}({user.id})", inline=False)
                 embed.add_field(
                     name="Moderator", value=ctx.author.mention, inline=False
                 )
@@ -855,7 +876,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
                         value="Unable to send DM, user was not warned.",
                         inline=False,
                     )
-                embed.set_footer(text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
+                embed.set_footer(
+                    text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
                 try:
                     await logch.send(embed=embed)
                 except Exception:
@@ -943,7 +965,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
         if not user:
             user = ctx.author
         mlogs = await self.bot.db.fetch(
-            "SELECT * FROM modlogs WHERE uid=$1 AND gid=$2", str(user.id), str(ctx.guild.id)
+            "SELECT * FROM modlogs WHERE uid=$1 AND gid=$2", str(
+                user.id), str(ctx.guild.id)
         )
         if not mlogs:
             return await ctx.error("No modlogs found")
@@ -998,9 +1021,11 @@ class Moderation(commands.Cog, name="Mod Commands"):
                 )
                 embed.set_author(
                     name=f"Kick | {user}",
-                    icon_url=str(user.avatar_url_as(static_format="png", size=2048)),
+                    icon_url=str(user.avatar_url_as(
+                        static_format="png", size=2048)),
                 )
-                embed.add_field(name="User", value=f"{user}({user.id})", inline=False)
+                embed.add_field(
+                    name="User", value=f"{user}({user.id})", inline=False)
                 embed.add_field(
                     name="Moderator", value=ctx.author.mention, inline=False
                 )
@@ -1011,7 +1036,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
                         value="No, user has DMs off or has blocked me.",
                         inline=False,
                     )
-                embed.set_footer(text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
+                embed.set_footer(
+                    text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
                 try:
                     await logch.send(embed=embed)
                 except Exception:
@@ -1076,11 +1102,14 @@ class Moderation(commands.Cog, name="Mod Commands"):
             )
             embed.set_author(
                 name=f"Unmute | {user}",
-                icon_url=str(user.avatar_url_as(static_format="png", size=2048)),
+                icon_url=str(user.avatar_url_as(
+                    static_format="png", size=2048)),
             )
             embed.add_field(name="User", value=user.mention, inline=False)
-            embed.add_field(name="Moderator", value=ctx.author.mention, inline=False)
-            embed.set_footer(text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
+            embed.add_field(name="Moderator",
+                            value=ctx.author.mention, inline=False)
+            embed.set_footer(
+                text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
             try:
                 await logch.send(embed=embed)
             except Exception:
@@ -1107,6 +1136,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
             blocktype = "User"
         elif isinstance(blocked, discord.Role):
             blocktype = "Role"
+        else:
+            blocktype = None
         if blocked == False:
             return
 
@@ -1134,15 +1165,18 @@ class Moderation(commands.Cog, name="Mod Commands"):
             )
             embed.set_author(
                 name=f"Block | {blocked}",
-                icon_url=str(blocked.avatar_url_as(static_format="png", size=2048))
+                icon_url=str(blocked.avatar_url_as(
+                    static_format="png", size=2048))
                 if blocktype == "User"
                 else str(ctx.guild.icon_url),
             )
             embed.add_field(
                 name=blocktype, value=f"{blocked}({blocked.id})", inline=False
             )
-            embed.add_field(name="Moderator", value=ctx.author.mention, inline=False)
-            embed.add_field(name="Channel", value=ctx.channel.mention, inline=False)
+            embed.add_field(name="Moderator",
+                            value=ctx.author.mention, inline=False)
+            embed.add_field(
+                name="Channel", value=ctx.channel.mention, inline=False)
             embed.add_field(name="Reason", value=reason, inline=False)
             embed.set_footer(
                 text=f"{blocktype} ID: {blocked.id} | Mod ID: {ctx.author.id}"
@@ -1174,6 +1208,8 @@ class Moderation(commands.Cog, name="Mod Commands"):
             blocktype = "User"
         elif isinstance(blocked, discord.Role):
             blocktype = "Role"
+        else:
+            blocktype = None
         if blocked == False:
             return
 
@@ -1197,17 +1233,21 @@ class Moderation(commands.Cog, name="Mod Commands"):
             )
             embed.set_author(
                 name=f"Unblock | {blocked}",
-                icon_url=str(blocked.avatar_url_as(static_format="png", size=2048))
+                icon_url=str(blocked.avatar_url_as(
+                    static_format="png", size=2048))
                 if blocktype == "User"
                 else str(ctx.guild.icon_url),
             )
             embed.add_field(
                 name=blocktype, value=f"{blocked}({blocked.id})", inline=False
             )
-            embed.add_field(name="Moderator", value=ctx.author.mention, inline=False)
-            embed.add_field(name="Channel", value=ctx.channel.mention, inline=False)
+            embed.add_field(name="Moderator",
+                            value=ctx.author.mention, inline=False)
+            embed.add_field(
+                name="Channel", value=ctx.channel.mention, inline=False)
             embed.add_field(name="Reason", value=reason, inline=False)
-            embed.set_footer(text=f"User ID: {blocked.id} | Mod ID: {ctx.author.id}")
+            embed.set_footer(
+                text=f"User ID: {blocked.id} | Mod ID: {ctx.author.id}")
             try:
                 await logch.send(embed=embed)
             except Exception:
@@ -1262,13 +1302,16 @@ class Moderation(commands.Cog, name="Mod Commands"):
             )
             embed.set_author(
                 name=f"Derank | {user}",
-                icon_url=str(user.avatar_url_as(static_format="png", size=2048)),
+                icon_url=str(user.avatar_url_as(
+                    static_format="png", size=2048)),
             )
-            embed.add_field(name="User", value=f"{user}({user.id})", inline=False)
+            embed.add_field(
+                name="User", value=f"{user}({user.id})", inline=False)
             embed.add_field(name="Moderator", value=user.mention, inline=False)
             embed.add_field(name="Roles", value=", ".join(roles), inline=False)
             embed.add_field(name="Reason", value=reason, inline=False)
-            embed.set_footer(text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
+            embed.set_footer(
+                text=f"User ID: {user.id} | Mod ID: {ctx.author.id}")
             try:
                 await logch.send(embed=embed)
             except Exception:
@@ -1278,4 +1321,3 @@ class Moderation(commands.Cog, name="Mod Commands"):
 def setup(bot):
     bot.add_cog(Moderation(bot))
     bot.logger.info(f"$GREENLoaded Moderation cog!")
-

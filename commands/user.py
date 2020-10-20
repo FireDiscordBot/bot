@@ -19,7 +19,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from fire.converters import Member, UserWithFallback
 from discord.ext import commands
 import humanfriendly
-import traceback
 import datetime
 import discord
 import typing

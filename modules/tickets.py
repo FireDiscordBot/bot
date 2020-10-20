@@ -15,14 +15,13 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from fire.converters import Member, Category
+from fire.converters import Member
 from discord.ext import commands
 import datetime
 import discord
 import asyncio
 import random
 import uuid
-import re
 import io
 
 

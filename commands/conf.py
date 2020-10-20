@@ -18,8 +18,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from jishaku.paginators import WrappedPaginator, PaginatorInterface
 from discord.ext import commands
-import traceback
-import discord
 
 
 class Conf(commands.Cog):

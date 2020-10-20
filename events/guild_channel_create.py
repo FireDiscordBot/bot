@@ -17,7 +17,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 import discord
-import traceback
 
 
 class GuildChannelCreate(commands.Cog):

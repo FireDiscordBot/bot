@@ -18,7 +18,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from fire.converters import TextChannel, Category
 from discord.ext import commands
-import traceback
 import discord
 import typing
 

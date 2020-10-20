@@ -16,13 +16,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from discord.ext import commands
-import functools
-import traceback
 import datetime
 import discord
-import aiohttp
 import json
-import re
 
 
 class Purge(commands.Cog):

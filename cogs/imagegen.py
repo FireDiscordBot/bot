@@ -19,14 +19,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # from PIL import Image, ImageDraw, ImageFont
 from fire.converters import Member
 from discord.ext import commands
-from random import randint
 from io import BytesIO
 import urllib.parse
-import functools
 import aiohttp
 import discord
 import typing
-import json
 import os
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -163,13 +160,13 @@ class ImageGeneration(commands.Cog, name='Image Generation'):
     @commands.command()
     async def makeameme(self, ctx, image: typing.Union[Member, str] = None, *, text: str = None):
         if ctx.message.attachments:
-            if isinstance(image, discord.Member):
+            if isinstance(image, discord.Member) or isinstance(image, discord.User):
                 image = image.name
             text = f'{image} {text or ""}'
             image = ctx.message.attachments[0].url
         if not image:
             return await ctx.error('You need to provide an image')
-        if isinstance(image, discord.Member):
+        if isinstance(image, discord.Member) or isinstance(image, discord.User):
             image = str(image.avatar_url_as(format='png'))
         image = urllib.parse.quote(image.strip('<>'))
         if 'cdn.discordapp.com' in image and ('gif' in image or 'webp' in image):

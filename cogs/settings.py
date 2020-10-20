@@ -15,19 +15,15 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-import discord
-from discord.ext import commands, tasks
-import datetime
-import json
-import asyncpg
-import typing
-import asyncio
-import aiohttp
-import humanfriendly
-import functools
-import re
-from random import randint
 from fire.converters import TextChannel, Role, Member
+from discord.ext import commands, tasks
+import humanfriendly
+import datetime
+import asyncio
+import discord
+import typing
+import json
+import re
 
 
 watchedcmds = ['purge']
@@ -489,18 +485,20 @@ class Settings(commands.Cog):
                 except Exception:
                     pass
             if before.premium_tier != after.premium_tier:
+                embed = None
                 if after.premium_tier > before.premium_tier:
                     embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.now(
                         datetime.timezone.utc), description=f'**{after.name} got boosted to Level {after.premium_tier}**')
                 if after.premium_tier < before.premium_tier:
                     embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.now(
                         datetime.timezone.utc), description=f'**{after.name} got weakened to Level {after.premium_tier}**')
-                embed.set_author(name=after.name, icon_url=str(after.icon_url))
-                embed.set_footer(text=f"Guild ID: {after.id}")
-                try:
-                    await logch.send(embed=embed)
-                except Exception:
-                    pass
+                if embed:
+                    embed.set_author(name=after.name, icon_url=str(after.icon_url))
+                    embed.set_footer(text=f"Guild ID: {after.id}")
+                    try:
+                        await logch.send(embed=embed)
+                    except Exception:
+                        pass
             if before.system_channel != after.system_channel:
                 if after.system_channel:
                     embed = discord.Embed(color=discord.Color.green(), timestamp=datetime.datetime.now(
@@ -694,6 +692,7 @@ class Settings(commands.Cog):
                 return True
         try:
             reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=linkfilter_check)
+            linkfilter = []
             if reaction.emoji == firefailed:
                 linkfilter = []
                 await ctx.success('Disabling link filter...')
@@ -721,6 +720,7 @@ class Settings(commands.Cog):
                 return True
         try:
             reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=gban_check)
+            globalbans = False
             if reaction.emoji == firefailed:
                 globalbans = False
                 await ctx.success('Disabling global ban check...')
@@ -746,13 +746,14 @@ class Settings(commands.Cog):
                 return True
         try:
             reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=dc_check)
+            autodc = False
             if reaction.emoji == firefailed:
-                audodc = False
+                autodc = False
                 await ctx.success('Disabling auto decancer...')
             elif reaction.emoji == firesuccess:
-                audodc = True
+                autodc = True
                 await ctx.success(f'Enabling auto decancer')
-            await ctx.config.set('mod.autodecancer', audodc)
+            await ctx.config.set('mod.autodecancer', autodc)
         except asyncio.TimeoutError:
             return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!', allowed_mentions=user_mention)
         await asyncio.sleep(2)
@@ -771,13 +772,14 @@ class Settings(commands.Cog):
                 return True
         try:
             reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=dh_check)
+            autodh = False
             if reaction.emoji == firefailed:
-                audodh = False
+                autodh = False
                 await ctx.success('Disabling auto dehoist...')
             elif reaction.emoji == firesuccess:
-                audodh = True
+                autodh = True
                 await ctx.success(f'Enabling auto dehoist')
-            await ctx.config.set('mod.autodehoist', audodh)
+            await ctx.config.set('mod.autodehoist', autodh)
         except asyncio.TimeoutError:
             return await ctx.error(f'{ctx.author.mention}, you took too long. Stopping setup!', allowed_mentions=user_mention)
         await asyncio.sleep(2)

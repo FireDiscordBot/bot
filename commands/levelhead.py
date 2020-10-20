@@ -18,7 +18,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 from fire.http import Route
-import traceback
 import datetime
 import aiohttp
 import discord
@@ -47,12 +46,6 @@ class Levelhead(commands.Cog):
         uuid = levelhead.get('uuid', '')
         if not uuid:
             strlevel = levelhead['strlevel']
-            try:
-                hcolor = levelhead['header_obj']['color']
-                fcolor = levelhead['footer_obj']['color']
-            except KeyError:
-                hcolor = '§b'
-                fcolor = '§e'
             embed = discord.Embed(
                 title=f"{player}'s Levelhead",
                 colour=ctx.author.color,

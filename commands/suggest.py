@@ -17,10 +17,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from discord.ext import commands
-import traceback
 import aiotrello
 import datetime
-import discord
 
 
 class Suggest(commands.Cog):
@@ -41,7 +39,8 @@ class Suggest(commands.Cog):
             now = datetime.datetime.now(datetime.timezone.utc).strftime(
                 '%d/%m/%Y @ %I:%M:%S %p')
             await card.add_comment(f'Suggested in channel {ctx.channel.name} ({ctx.channel.id}) in guild {ctx.guild.name} ({ctx.guild.id}) at {now} UTC')
-            await ctx.success(f'Thanks! Your suggestion was added to the Trello @ <{card.url}>. Make sure to check it every now and then for a response.')
+            await ctx.success(f'Thanks! Your suggestion was added to the Trello @ <{card.url}>. Make sure to check it every now and then for a response.'
+                              f'\nAbuse of this command __**will**__ result in being blacklisted from Fire')
 
 
 def setup(bot):

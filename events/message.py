@@ -22,10 +22,7 @@ from bot import blacklist_check
 from fire.http import Route
 import datetime
 import asyncio
-import aiohttp
 import discord
-import base64
-import json
 import re
 
 

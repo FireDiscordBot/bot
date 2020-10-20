@@ -18,7 +18,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 from fire.http import Route
-import traceback
 import discord
 
 
