@@ -8,7 +8,7 @@ module.exports = {
       instances: 2,
       automation: false,
       env: {
-        NODE_ENV: "development",
+        NODE_ENV: "production",
       },
     },
     {
