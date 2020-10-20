@@ -19,7 +19,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from discord.ext import commands
 import datetime
 import discord
-import traceback
 import random
 
 
@@ -44,22 +43,23 @@ class MemberUpdate(commands.Cog):
                             nick = after.name
                         else:
                             nick = after.nick
+                        change = True if (conf.get('mod.autodecancer') and self.bot.isascii(
+                            nick) or not conf.get('mod.autodecancer')) else False
                         if not self.bot.isascii(nick.replace('‘', '\'').replace('“', '"').replace('“', '"')):
                             await after.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters (DEBUG: MEMBER_UPDATE)')
-                        else:
-                            change = True if (conf.get('mod.autodehoist') and not self.bot.ishoisted(
-                                nick) or not conf.get('mod.autodehoist')) else False
-                            if change and badname not in str(m.nick):
-                                await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
+                        elif after.nick and change:
+                            await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
                 if conf.get('mod.autodehoist') and after.guild.me.guild_permissions.manage_nicknames:
                     if not after.guild_permissions.manage_nicknames:
                         if not after.nick:
                             nick = after.name
                         else:
                             nick = after.nick
+                        change = True if (conf.get('mod.autodehoist') and not self.bot.ishoisted(
+                            nick) or not conf.get('mod.autodehoist')) else False
                         if self.bot.ishoisted(nick):
                             await after.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character (DEBUG: MEMBER_UPDATE)')
-                        elif badname not in str(m.nick):
+                        elif after.nick and change:
                             await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
             except Exception:
                 pass

@@ -17,10 +17,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from discord.ext import commands
-import datetime
-import discord
-import functools
-import traceback
 
 
 class UserUpdate(commands.Cog):
@@ -46,7 +42,9 @@ class UserUpdate(commands.Cog):
                             if not self.bot.isascii(nick.replace('‘', '\'').replace('“', '"').replace('“', '"')):
                                 await member.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters (DEBUG: USER_UPDATE)')
                             else:
-                                if member.nick and badname in member.nick:
+                                change = True if (conf.get('mod.autodecancer') and self.bot.isascii(
+                                    nick) or not conf.get('mod.autodecancer')) else False
+                                if member.nick and change:
                                     if not self.bot.ishoisted(nick):
                                         await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: USER_UPDATE)')
                     if conf.get('mod.autodehoist') and guild.me.guild_permissions.manage_nicknames:
@@ -54,12 +52,12 @@ class UserUpdate(commands.Cog):
                             pass
                         else:
                             nick = after.name
+                            change = True if (conf.get('mod.autodehoist') and not self.bot.ishoisted(
+                                nick) or not conf.get('mod.autodehoist')) else False
                             if self.bot.ishoisted(nick):
                                 await member.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character (DEBUG: USER_UPDATE)')
-                            else:
-                                if member.nick and badname in member.nick:
-                                    # Technically this should never run because it should already be reset if not hoisted or cancerous
-                                    await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: USER_UPDATE)')
+                            elif member.nick and change:
+                                await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: USER_UPDATE)')
                 except Exception:
                     pass
 
