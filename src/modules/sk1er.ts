@@ -1,10 +1,4 @@
-import {
-  GuildMember,
-  MessageAttachment,
-  Role,
-  TextChannel,
-  User,
-} from "discord.js";
+import { GuildMember, Role, TextChannel, User } from "discord.js";
 import * as archiver from "archiver";
 import * as centra from "centra";
 import * as moment from "moment";
@@ -77,8 +71,7 @@ export default class Sk1er extends Module {
     this.supportGuild = this.client.guilds.cache.get(
       this.supportGuildId
     ) as FireGuild;
-    if (!this.guild || !this.supportGuild)
-      return this.client.modules.remove("sk1er");
+    if (!this.guild || !this.supportGuild) return this.unload();
     this.nitro = this.guild.roles.cache.get(this.nitroId);
     this.supportChannel = this.client.channels.cache.get(
       this.supportChannelId
@@ -461,7 +454,7 @@ export default class Sk1er extends Module {
             );
         break;
       }
-      // Statsus ;)
+      // S-tatsu-s ;)
       case "747787792402219128": {
         if (message.content.toLowerCase().includes("resolved"))
           await message
