@@ -1,7 +1,7 @@
 ![Fire](https://github.com/FireDiscordBot/bot/blob/master/cogs/static/images/promotional-assets/fire_inner.png?raw=true)
 
 <h3 align="center">A Discord bot for all your needs.<br>
-With memes, music, moderation & more,<br>
+With memes, integrations, moderation & more,<br>
 Fire is the only bot you'll need.</h3>
 
 ## Help
