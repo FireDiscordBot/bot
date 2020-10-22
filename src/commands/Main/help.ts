@@ -75,14 +75,7 @@ export default class Help extends Command {
         permissions.push(titleCase(perm.replace("_", " ")));
       }
     );
-    let args: string[] = [];
-    if (command.args?.length)
-      (command.args as ArgumentOptions[]).forEach((arg: ArgumentOptions) => {
-        if (!(typeof arg.type == "function")) {
-          if (!arg?.required) args.push(`[<${arg.type}>]`);
-          else args.push(`<${arg.type}>`);
-        }
-      });
+    let args: string[] = command.getArgumentsClean();
     const embed = {
       color: message.member?.displayColor || "#ffffff",
       title: command.id,
