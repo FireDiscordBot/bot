@@ -10,6 +10,7 @@ module.exports = {
       env: {
         NODE_ENV: "production",
       },
+      wait_ready: true,
     },
     {
       name: "firedev",
@@ -23,6 +24,7 @@ module.exports = {
       args: "run devpm2",
       instances: 1,
       automation: false,
+      wait_ready: true,
     },
   ],
 };
