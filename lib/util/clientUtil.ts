@@ -1,6 +1,7 @@
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
 import { describe, ProcessDescription } from "pm2";
+import { FireGuild } from "../extensions/guild";
 import { version as djsver } from "discord.js";
 import { FireUser } from "../extensions/user";
 import { ClientUtil } from "discord-akairo";
@@ -136,6 +137,18 @@ export class Util extends ClientUtil {
                   .map((guild) => guild.memberCount)
                   .reduce((a, b) => a + b)
               : 0,
+          publicGuilds: this.client.guilds.cache
+            .filter(
+              (guild: FireGuild) => guild.shardID == shard && guild.isPublic()
+            )
+            .map((guild) => guild.id),
+          discoverableGuilds: (this.client.guilds.cache
+            .filter(
+              (guild: FireGuild) => guild.shardID == shard && guild.isPublic()
+            )
+            .array() as FireGuild[]).map((guild) =>
+            guild.getDiscoverableData()
+          ),
         };
       }),
     };
