@@ -39,7 +39,7 @@ class MemberUpdate(commands.Cog):
                     raise Exception  # Escapes the try
                 if conf.get('mod.autodecancer') and after.guild.me.guild_permissions.manage_nicknames:
                     if not after.guild_permissions.manage_nicknames:
-                        if not after.nick:
+                        if not after.nick or badname in after.nick:
                             nick = after.name
                         else:
                             nick = after.nick
@@ -47,11 +47,11 @@ class MemberUpdate(commands.Cog):
                             nick) or not conf.get('mod.autodecancer')) else False
                         if not self.bot.isascii(nick.replace('‘', '\'').replace('“', '"').replace('“', '"')):
                             await after.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters (DEBUG: MEMBER_UPDATE)')
-                        elif after.nick and change:
+                        elif badname in after.nick and change:
                             await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
                 if conf.get('mod.autodehoist') and after.guild.me.guild_permissions.manage_nicknames:
                     if not after.guild_permissions.manage_nicknames:
-                        if not after.nick:
+                        if not after.nick or badname in after.nick:
                             nick = after.name
                         else:
                             nick = after.nick
@@ -59,7 +59,7 @@ class MemberUpdate(commands.Cog):
                             nick) or not conf.get('mod.autodehoist')) else False
                         if self.bot.ishoisted(nick):
                             await after.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character (DEBUG: MEMBER_UPDATE)')
-                        elif after.nick and change:
+                        elif badname in after.nick and change:
                             await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
             except Exception:
                 pass

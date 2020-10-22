@@ -44,7 +44,7 @@ class UserUpdate(commands.Cog):
                             else:
                                 change = True if (conf.get('mod.autodecancer') and self.bot.isascii(
                                     nick) or not conf.get('mod.autodecancer')) else False
-                                if member.nick and change:
+                                if badname in member.nick and change:
                                     if not self.bot.ishoisted(nick):
                                         await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: USER_UPDATE)')
                     if conf.get('mod.autodehoist') and guild.me.guild_permissions.manage_nicknames:
@@ -56,7 +56,7 @@ class UserUpdate(commands.Cog):
                                 nick) or not conf.get('mod.autodehoist')) else False
                             if self.bot.ishoisted(nick):
                                 await member.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character (DEBUG: USER_UPDATE)')
-                            elif member.nick and change:
+                            elif badname in member.nick and change:
                                 await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: USER_UPDATE)')
                 except Exception:
                     pass
