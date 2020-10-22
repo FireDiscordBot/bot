@@ -22,6 +22,32 @@ export class FireGuild extends Guild {
     );
   }
 
+  getDiscoverableData() {
+    let splash = "https://i.imgur.com/jWRMBRd.png";
+    if (this.splash)
+      splash = this.splashURL({
+        size: 2048,
+        format: "png",
+      }).replace("size=2048", "size=320");
+    else if (this.discoverySplash)
+      splash = this.discoverySplashURL({
+        size: 2048,
+        format: "png",
+      }).replace("size=2048", "size=320");
+    const icon = this.iconURL({
+      format: this.icon.startsWith("a_") ? "gif" : "png",
+      size: 128,
+    });
+    return {
+      name: this.name,
+      id: this.id,
+      icon,
+      splash,
+      vanity: `https://discover.inv.wtf/${this.id}`,
+      members: this.memberCount.toLocaleString(),
+    };
+  }
+
   getMember(name: string): FireMember | null {
     const username = name.split("#")[0];
     const member = this.members.cache.find(
