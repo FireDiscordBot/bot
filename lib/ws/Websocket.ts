@@ -13,7 +13,8 @@ export class Websocket extends Client {
     super(
       process.env.NODE_ENV == "development"
         ? `ws://127.0.0.1:${process.env.WS_PORT}`
-        : `wss://${process.env.WS_HOST}`
+        : `wss://${process.env.WS_HOST}`,
+      { headers: { "User-Agent": "Fire Discord Bot" } }
     );
     this.manager = manager;
     this.handler = new EventHandler(manager);
