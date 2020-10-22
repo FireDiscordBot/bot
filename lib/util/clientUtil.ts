@@ -5,8 +5,11 @@ import { FireGuild } from "../extensions/guild";
 import { version as djsver } from "discord.js";
 import { FireUser } from "../extensions/user";
 import { ClientUtil } from "discord-akairo";
+import { getCommitHash } from "./gitUtils";
+import { humanize } from "./constants";
 import { promisify } from "util";
 import * as Centra from "centra";
+import * as moment from "moment";
 import { Fire } from "../Fire";
 import * as pm2 from "pm2";
 
@@ -104,19 +107,26 @@ export class Util extends ClientUtil {
         processInfo = await describePromise(process.env.pm_id || "fire");
       } catch {}
     }
+    const now = moment();
+    const duration = this.client.launchTime.diff(now);
     return {
       id: this.client.manager.id,
-      dev: this.client.config.dev,
+      env: this.client.config.dev ? "dev" : "prod",
       user: this.client.user.toString(),
       userId: this.client.user.id,
-      uptime: this.client.launchTime.toISOString(true),
+      started: this.client.launchTime.toISOString(true),
+      uptime: humanize(duration, "en"),
       cpu: processInfo.length ? `${processInfo[0].monit.cpu}%` : "Unknown%",
       ram: processInfo.length
         ? humanFileSize(processInfo[0].monit.memory)
         : "Unknown MB",
       pid: process.pid,
-      version: `Discord.JS v${djsver} | Node.JS ${process.version}`,
+      version: this.client.config.dev  ? "dev" : getCommitHash().slice(0, 7),
+      versions: `Discord.JS v${djsver} | Node.JS ${process.version}`,
       guilds: this.client.guilds.cache.size,
+      unavailableGuilds: this.client.guilds.cache.filter(
+        (guild) => !guild.available
+      ).size,
       users:
         this.client.guilds.cache.size >= 1
           ? this.client.guilds.cache
@@ -130,6 +140,9 @@ export class Util extends ClientUtil {
           wsPing: shard.ping,
           guilds: this.client.guilds.cache.filter(
             (guild) => guild.shardID == shard.id
+          ).size,
+          unavailableGuilds: this.client.guilds.cache.filter(
+            (guild) => guild.shardID == shard.id && !guild.available
           ).size,
           users:
             this.client.guilds.cache.size > 1
