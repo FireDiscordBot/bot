@@ -30,13 +30,3 @@ export function sendErrorHTML(
   });
   res.status(error.code).send(body);
 }
-
-export function getCommandArguments(command: Command): string[] {
-  return typeof command.args !== "undefined" && Array.isArray(command.args)
-    ? command.args
-        .filter((argument) => argument.type !== "function")
-        .map((argument) =>
-          argument.required ? `[<${argument.type}>]` : `<${argument.type}>`
-        )
-    : [];
-}
