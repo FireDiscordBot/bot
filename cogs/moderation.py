@@ -79,7 +79,7 @@ class StaffCheck(commands.Converter):
             return False
         if argument.top_role.position >= ctx.guild.me.top_role.position:
             await ctx.error(
-                "You cannot punish someone with a role higher than or equal to mine"
+                "You cannot punish someone with a role higher than or equal to mine!"
             )
             return False
         if ctx.guild.owner_id == ctx.author.id:
@@ -414,7 +414,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
             )
         try:
             await user.send(
-                f'You were muted in {discord.utils.escape_markdown(ctx.guild.name)} for "{reason}"'
+                f'You were muted in {discord.utils.escape_markdown(ctx.guild.name)} for "{reason}."'
             )
             nodm = False
         except discord.HTTPException:
@@ -523,7 +523,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
             delete = int(delete[0]) if delete else 0
             if delete > 7 or delete < 1:  # idk if \d will match a negative number lol
                 return await ctx.error(
-                    f"I cannot delete {delete} days of messages. The maximum is 7 and the minimum is 1"
+                    f"I cannot delete {delete} days of messages. The maximum is 7 and the minimum is 1."
                 )
 
         try:
@@ -539,7 +539,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
             try:
                 if isinstance(user, discord.Member):
                     await user.send(
-                        f'You were banned from {discord.utils.escape_markdown(ctx.guild.name)} for "{reason}"'
+                        f'You were banned from {discord.utils.escape_markdown(ctx.guild.name)} for "{reason}."'
                     )
                     nodm = False
             except discord.HTTPException:
@@ -612,7 +612,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
         await ctx.trigger_typing()
 
         if not user:
-            return await ctx.send("You must specify a user")
+            return await ctx.send("You must specify a user.")
 
         try:
             await ctx.guild.unban(
