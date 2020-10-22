@@ -124,27 +124,30 @@ export class Util extends ClientUtil {
               .reduce((a, b) => a + b)
           : 0,
       commands: this.client.commandHandler.modules.size,
-      shards: (this.client.options.shards as Array<number>).map((shard) => {
+      shards: [...this.client.ws.shards.values()].map((shard) => {
         return {
-          id: shard,
+          id: shard.id,
+          wsPing: shard.ping,
           guilds: this.client.guilds.cache.filter(
-            (guild) => guild.shardID == shard
+            (guild) => guild.shardID == shard.id
           ).size,
           users:
-            this.client.guilds.cache.size >= 1
+            this.client.guilds.cache.size > 1
               ? this.client.guilds.cache
-                  .filter((guild) => guild.shardID == shard)
+                  .filter((guild) => guild.shardID == shard.id)
                   .map((guild) => guild.memberCount)
                   .reduce((a, b) => a + b)
-              : 0,
+              : this.client.guilds.cache.first().memberCount,
           publicGuilds: this.client.guilds.cache
             .filter(
-              (guild: FireGuild) => guild.shardID == shard && guild.isPublic()
+              (guild: FireGuild) =>
+                guild.shardID == shard.id && guild.isPublic()
             )
             .map((guild) => guild.id),
           discoverableGuilds: (this.client.guilds.cache
             .filter(
-              (guild: FireGuild) => guild.shardID == shard && guild.isPublic()
+              (guild: FireGuild) =>
+                guild.shardID == shard.id && guild.isPublic()
             )
             .array() as FireGuild[]).map((guild) =>
             guild.getDiscoverableData()
