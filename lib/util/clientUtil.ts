@@ -121,7 +121,7 @@ export class Util extends ClientUtil {
         ? humanFileSize(processInfo[0].monit.memory)
         : "Unknown MB",
       pid: process.pid,
-      version: this.client.config.dev  ? "dev" : getCommitHash().slice(0, 7),
+      version: this.client.config.dev ? "dev" : getCommitHash().slice(0, 7),
       versions: `Discord.JS v${djsver} | Node.JS ${process.version}`,
       guilds: this.client.guilds.cache.size,
       unavailableGuilds: this.client.guilds.cache.filter(
@@ -145,12 +145,14 @@ export class Util extends ClientUtil {
             (guild) => guild.shardID == shard.id && !guild.available
           ).size,
           users:
-            this.client.guilds.cache.size > 1
+            this.client.guilds.cache.filter(
+              (guild) => guild.shardID == shard.id
+            ).size >= 1
               ? this.client.guilds.cache
                   .filter((guild) => guild.shardID == shard.id)
                   .map((guild) => guild.memberCount)
                   .reduce((a, b) => a + b)
-              : this.client.guilds.cache.first().memberCount,
+              : 0,
           publicGuilds: this.client.guilds.cache
             .filter(
               (guild: FireGuild) =>
