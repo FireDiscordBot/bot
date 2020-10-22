@@ -286,6 +286,8 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           `Commands can nyow onwy be wun by those with the "Manyage Sewvew" pewmissiowon in;\n${channels}.`,
         ADMINONLY_RESET: "Admin onwy channyews have been weset",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to Discowod's sewvews",
+        PING_FOOTER: (shard: number, cluster: number) =>
+          `Shawd ID: ${shard} | Cwustew ID: ${cluster}`,
         PING_INITIAL_MESSAGE: "Pinging...",
         PING_FINAL_MESSAGE: "Pong!",
         PLONK_COMMAND_DESCRIPTION:

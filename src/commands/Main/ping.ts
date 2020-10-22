@@ -21,9 +21,18 @@ export default class Ping extends Command {
           (message.editedAt
             ? message.editedTimestamp || 0
             : message.createdTimestamp)
-        }ms.\n:heartpulse: ${this.client.ws.ping}ms.`
+        }ms.\n:heartpulse: ${
+          this.client.ws.shards.get(message.guild.shardID).ping
+        }ms.`
       )
       .setColor(message.member?.displayColor || "#ffffff")
+      .setFooter(
+        message.language.get(
+          "PING_FOOTER",
+          message.guild.shardID,
+          this.client.manager.id
+        )
+      )
       .setTimestamp(new Date());
 
     await pingMessage.edit(message.language.get("PING_FINAL_MESSAGE"), embed);

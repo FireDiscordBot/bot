@@ -313,6 +313,8 @@ Hint: Use the \`public\` command to get your server on the list`,
         MOD_INVALID: "You must provide a valid mod",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
+        PING_FOOTER: (shard: number, cluster: number) =>
+          `Shard ID: ${shard} | Cluster ID: ${cluster}`,
         PING_FINAL_MESSAGE: "Pong!",
         PLONK_COMMAND_DESCRIPTION:
           "make a user unable to use the best discord bot",
