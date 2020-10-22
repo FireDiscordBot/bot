@@ -35,32 +35,32 @@ class MemberUpdate(commands.Cog):
             'utils.badname') or f'John Doe {after.discriminator}'
         if before.nick != after.nick:
             try:
-                if after.nick is not None and badname in after.nick:
-                    raise Exception  # Escapes the try
-                if conf.get('mod.autodecancer') and after.guild.me.guild_permissions.manage_nicknames:
+                if after.guild.me.guild_permissions.manage_nicknames:
                     if not after.guild_permissions.manage_nicknames:
+                        if not after.nick or badname in after.nick:
+                            nick = after.name.replace('‘', '\'').replace(
+                                '“', '"').replace('“', '"')
+                        else:
+                            nick = after.nick.replace('‘', '\'').replace(
+                                '“', '"').replace('“', '"')
+                        change = True if (conf.get('mod.autodecancer') and not self.bot.isascii(
+                            nick)) else False
+                        if change:
+                            await after.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters')
+                            raise Exception() # Escapes the try to ensure the nickname isn't changed twice
+                        elif badname in after.nick:
+                            await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters)')
+                            raise Exception()
                         if not after.nick or badname in after.nick:
                             nick = after.name
                         else:
                             nick = after.nick
-                        change = True if (conf.get('mod.autodecancer') and self.bot.isascii(
-                            nick) or not conf.get('mod.autodecancer')) else False
-                        if not self.bot.isascii(nick.replace('‘', '\'').replace('“', '"').replace('“', '"')):
-                            await after.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters (DEBUG: MEMBER_UPDATE)')
-                        elif badname in after.nick and change:
-                            await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
-                if conf.get('mod.autodehoist') and after.guild.me.guild_permissions.manage_nicknames:
-                    if not after.guild_permissions.manage_nicknames:
-                        if not after.nick or badname in after.nick:
-                            nick = after.name
-                        else:
-                            nick = after.nick
-                        change = True if (conf.get('mod.autodehoist') and not self.bot.ishoisted(
-                            nick) or not conf.get('mod.autodehoist')) else False
-                        if self.bot.ishoisted(nick):
-                            await after.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character (DEBUG: MEMBER_UPDATE)')
-                        elif badname in after.nick and change:
-                            await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters) (DEBUG: MEMBER_UPDATE)')
+                        change = True if (conf.get('mod.autodehoist') and self.bot.ishoisted(
+                            nick) and badname in after.nick) else False
+                        if change:
+                            await after.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character')
+                        elif badname in after.nick:
+                            await after.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters)')
             except Exception:
                 pass
             logch = conf.get('log.action')
