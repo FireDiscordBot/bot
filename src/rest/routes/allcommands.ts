@@ -1,7 +1,6 @@
 import * as express from "express";
 
 import { Command } from "../../../lib/util/command";
-import { getCommandArguments } from "../utils";
 
 interface ResponseCommand {
   name: string;
@@ -19,7 +18,7 @@ export function allCommandsRoute(req: express.Request, res: express.Response) {
         !command.ownerOnly && command.category.id !== "Admin" && !command.hidden
     )
     .map((command: Command) => {
-      const args = getCommandArguments(command).join(" ");
+      const args = command.getArgumentsClean().join(" ");
       return {
         name: command.id,
         description: command.description(client.languages.modules.get("en-US")),

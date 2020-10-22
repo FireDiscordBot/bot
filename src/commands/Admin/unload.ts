@@ -15,6 +15,7 @@ export default class Unload extends Command {
         {
           id: "module",
           type: Argument.union("command", "language", "listener", "module"),
+          readableType: "command|language|listener|module",
           default: null,
           required: true,
         },

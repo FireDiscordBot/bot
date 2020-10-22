@@ -18,6 +18,7 @@ export default class Reload extends Command {
           type: Argument.union("command", "language", "listener", "module", [
             "*",
           ]),
+          readableType: "command|language|listener|module|*",
           default: null,
           required: true,
         },

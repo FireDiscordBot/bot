@@ -22,6 +22,11 @@ export class Command extends AkairoCommand {
     else options?.aliases?.push(id);
     if (options.args instanceof Array && options.args.length == 1)
       options.args[0].match = "rest";
+    if (options.args instanceof Array)
+      options.args.forEach((arg) => {
+        if (!arg.readableType && arg.type)
+          arg.readableType = arg.type.toString();
+      });
     super(id, options);
     this.hidden = options.hidden || false;
     if (this.ownerOnly) this.hidden = true;
@@ -32,6 +37,20 @@ export class Command extends AkairoCommand {
   async init() {}
 
   async unload() {}
+
+  getArgumentsClean() {
+    return typeof this.args !== "undefined" && Array.isArray(this.args)
+      ? this.args.map((argument) =>
+          argument.required
+            ? argument.flag
+              ? `[${argument.flag}]`
+              : `[<${argument.readableType}>]`
+            : argument.flag
+            ? `<${argument.flag}>`
+            : `<${argument.readableType}>`
+        )
+      : [];
+  }
 }
 
 export interface CommandOptions extends AkairoCommandOptions {
@@ -42,4 +61,5 @@ export interface CommandOptions extends AkairoCommandOptions {
 
 export interface ArgumentOptions extends AkairoArgumentOptions {
   required?: boolean;
+  readableType?: string;
 }
