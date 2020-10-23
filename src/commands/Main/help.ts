@@ -1,7 +1,8 @@
-import { ArgumentOptions, Command } from "../../../lib/util/command";
-import { FireMessage } from "../../../lib/extensions/message";
 import { titleCase, constants } from "../../../lib/util/constants";
+import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
+import { Command } from "../../../lib/util/command";
+
 const { categoryNames } = constants;
 
 export default class Help extends Command {
@@ -48,10 +49,12 @@ export default class Help extends Command {
     });
     const embed = {
       color: message.member?.displayColor || "#ffffff",
-      icon_url: this.client.user.displayAvatarURL({
-        size: 2048,
-        format: "png",
-      }),
+      author: {
+        icon_url: this.client.user.displayAvatarURL({
+          size: 2048,
+          format: "png",
+        }),
+      },
       fields,
       footer: {
         text: message.language.get(
@@ -61,7 +64,7 @@ export default class Help extends Command {
             `@${this.client.user.username} `
           ) || "$",
           this.client.manager.id
-        ),
+        ) as string,
       },
       timestamp: new Date(),
     };
