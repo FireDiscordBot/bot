@@ -9,7 +9,6 @@ export const fire = {
   dev: process.env.NODE_ENV == "development",
   premiumOnly: false,
   readyMessage: (client: Fire) => {
-    process.send("ready");
     client.console.log("-------------------------");
     client.console.log(
       `Bot: ${client?.user?.username}#${client?.user?.discriminator}`
@@ -23,6 +22,7 @@ export const fire = {
       client.console.log(`Started in ${humanize(duration, "en")}`);
     }
     client.console.log("-------------------------");
+    process.send("ready");
     client.manager.ws?.send(
       MessageUtil.encode(
         new Message(EventType.READY_CLIENT, { id: client.manager.id })
