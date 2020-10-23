@@ -22,7 +22,9 @@ export const fire = {
       client.console.log(`Started in ${humanize(duration, "en")}`);
     }
     client.console.log("-------------------------");
-    process.send("ready");
+    try {
+      process.send("ready");
+    } catch {}
     client.manager.ws?.send(
       MessageUtil.encode(
         new Message(EventType.READY_CLIENT, { id: client.manager.id })
