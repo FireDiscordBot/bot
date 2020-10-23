@@ -40,15 +40,27 @@ export class Command extends AkairoCommand {
 
   getArgumentsClean() {
     return typeof this.args !== "undefined" && Array.isArray(this.args)
-      ? this.args.map((argument) =>
-          argument.required
-            ? argument.flag
-              ? `[${argument.flag}]`
-              : `[<${argument.readableType}>]`
-            : argument.flag
-            ? `<${argument.flag}>`
-            : `<${argument.readableType}>`
-        )
+      ? this.args.map((argument) => {
+          if (argument.required) {
+            if (argument.flag)
+              return argument.type
+                ? `<${argument.flag} ${argument.readableType}>`
+                : `<${argument.flag}>`;
+            else
+              argument.match == "separate"
+                ? `<...${argument.readableType}>`
+                : `<${argument.readableType}>`;
+          } else {
+            if (argument.flag)
+              return argument.type
+                ? `[<${argument.flag} ${argument.readableType}>]`
+                : `[<${argument.flag}>]`;
+            else
+              argument.match == "separate"
+                ? `[<...${argument.readableType}>]`
+                : `[<${argument.readableType}>]`;
+          }
+        })
       : [];
   }
 }
