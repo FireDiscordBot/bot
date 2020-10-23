@@ -1,9 +1,12 @@
+import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
 import { FireMessage } from "../../../lib/extensions/message";
+import { EventType } from "../../../lib/ws/util/constants";
 import { FireGuild } from "../../../lib/extensions/guild";
 import { Language } from "../../../lib/util/language";
 import { Listener } from "../../../lib/util/listener";
 import { Command } from "../../../lib/util/command";
 import { Module } from "../../../lib/util/module";
+import { Message } from "../../../lib/ws/Message";
 import { Argument } from "discord-akairo";
 
 export default class Reload extends Command {
@@ -22,6 +25,12 @@ export default class Reload extends Command {
           default: null,
           required: true,
         },
+        {
+          id: "broadcast",
+          match: "flag",
+          flag: "--broadcast",
+          default: null,
+        },
       ],
       ownerOnly: true,
     });
@@ -29,35 +38,64 @@ export default class Reload extends Command {
 
   async exec(
     message: FireMessage,
-    args: { module?: Command | Language | Listener | Module | "*" }
+    args: {
+      module?: Command | Language | Listener | Module | "*";
+      broadcast?: string;
+    }
   ) {
     if (!args.module) return await message.error();
     if (args.module == "*") {
       try {
-        [
-          this.client.commandHandler,
-          this.client.languages,
-          this.client.listenerHandler,
-          this.client.modules,
-        ].forEach((handler) => handler.reloadAll());
-        this.client.guilds.cache.forEach((g: FireGuild) =>
-          this.updateGuildLanguage(g)
-        );
-        return await message.success();
+        if (args.broadcast) {
+          this.client.manager.ws.send(
+            MessageUtil.encode(
+              new Message(EventType.LOAD_MODULE, {
+                name: "*",
+                type: "*",
+                action: "reload",
+              })
+            )
+          );
+          return await message.react("🔁");
+        } else {
+          [
+            this.client.commandHandler,
+            this.client.languages,
+            this.client.listenerHandler,
+            this.client.modules,
+          ].forEach((handler) => handler.reloadAll());
+          this.client.guilds.cache.forEach((g: FireGuild) =>
+            this.updateGuildLanguage(g)
+          );
+          return await message.success();
+        }
       } catch {
         return await message.error();
       }
     }
     try {
-      args.module.reload();
-      if (args.module instanceof Language) {
-        this.client.guilds.cache
-          .filter(
-            (g: FireGuild) => g.language.id == (args.module as Language).id
+      if (args.broadcast) {
+        this.client.manager.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.LOAD_MODULE, {
+              name: args.module.id,
+              type: args.module.handler.classToHandle.name,
+              action: "reload",
+            })
           )
-          .forEach((g: FireGuild) => this.updateGuildLanguage(g));
+        );
+        return await message.react("🔁");
+      } else {
+        args.module.reload();
+        if (args.module instanceof Language) {
+          this.client.guilds.cache
+            .filter(
+              (g: FireGuild) => g.language.id == (args.module as Language).id
+            )
+            .forEach((g: FireGuild) => this.updateGuildLanguage(g));
+        }
+        return await message.success();
       }
-      return await message.success();
     } catch {
       return await message.error();
     }
