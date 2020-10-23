@@ -35,6 +35,12 @@ export default class Eval extends Command {
           flag: "--async",
           default: null,
         },
+        {
+          id: "depth",
+          match: "option",
+          flag: "--depth",
+          default: 1,
+        },
       ],
       aliases: ["ev"],
     });
@@ -52,7 +58,10 @@ export default class Eval extends Command {
     }
   }
 
-  async exec(message: FireMessage, args: { code: Codeblock; async: any }) {
+  async exec(
+    message: FireMessage,
+    args: { code: Codeblock; async?: string; depth: number }
+  ) {
     const { success, result, type } = await this.eval(message, args);
     if (success && result == null) return;
     const input = codeBlock(args.code.language || "ts", args.code.content);
@@ -80,7 +89,10 @@ export default class Eval extends Command {
     return await this.send(message, embed);
   }
 
-  async eval(message: FireMessage, args: { code: Codeblock; async: any }) {
+  async eval(
+    message: FireMessage,
+    args: { code: Codeblock; async?: string; depth: number }
+  ) {
     let {
       code: { content },
     } = args;
@@ -111,9 +123,13 @@ export default class Eval extends Command {
     } else if (result instanceof FireMessage && result.id > message.id)
       return { success: true, type, result: null };
 
-    if (typeof result !== "string") {
+    if (
+      typeof result == "object" ||
+      typeof result == "function" ||
+      typeof result == "symbol"
+    ) {
       result = inspect(result, {
-        depth: 0,
+        depth: args.depth,
         showHidden: false,
       });
     }
