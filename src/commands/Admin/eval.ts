@@ -44,12 +44,12 @@ export default class Eval extends Command {
           flag: "--depth",
           default: 1,
         },
-        {
-          id: "broadcast",
-          match: "flag",
-          flag: "--broadcast",
-          default: null,
-        },
+        // {
+        //   id: "broadcast",
+        //   match: "flag",
+        //   flag: "--broadcast",
+        //   default: null,
+        // },
       ],
       aliases: ["ev"],
     });
