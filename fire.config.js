@@ -10,6 +10,7 @@ module.exports = {
         NODE_ENV: "production",
       },
       wait_ready: true,
+      listen_timeout: 60000,
     },
     {
       name: "firedev",
