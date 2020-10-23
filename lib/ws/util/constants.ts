@@ -6,6 +6,7 @@ export enum EventType {
   RESTART_CLIENT = 4,
   SEND_STATS = 5,
   LOAD_MODULE = 6,
+  BROADCAST_EVAL = 7,
 }
 
 export enum WebsocketStates {

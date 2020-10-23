@@ -6,6 +6,9 @@ import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { Type } from "@klasa/type";
 import { inspect } from "util";
+import { Message } from "../../../lib/ws/Message";
+import { EventType } from "../../../lib/ws/util/constants";
+import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
 
 const { emojis } = constants;
 
@@ -41,6 +44,12 @@ export default class Eval extends Command {
           flag: "--depth",
           default: 1,
         },
+        {
+          id: "broadcast",
+          match: "flag",
+          flag: "--broadcast",
+          default: null,
+        },
       ],
       aliases: ["ev"],
     });
@@ -60,8 +69,18 @@ export default class Eval extends Command {
 
   async exec(
     message: FireMessage,
-    args: { code: Codeblock; async?: string; depth: number }
+    args: { code: Codeblock; async?: string; depth: number; broadcast?: string }
   ) {
+    if (args.broadcast) {
+      return this.client.manager.ws.send(
+        MessageUtil.encode(
+          new Message(EventType.BROADCAST_EVAL, {
+            messageId: message.id,
+            channelId: message.channel.id,
+          })
+        )
+      );
+    } 
     const { success, result, type } = await this.eval(message, args);
     if (success && result == null) return;
     const input = codeBlock(args.code.language || "ts", args.code.content);
