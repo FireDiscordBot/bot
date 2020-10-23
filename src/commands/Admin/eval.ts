@@ -80,7 +80,7 @@ export default class Eval extends Command {
           })
         )
       );
-    } 
+    }
     const { success, result, type } = await this.eval(message, args);
     if (success && result == null) return;
     const input = codeBlock(args.code.language || "ts", args.code.content);
@@ -104,6 +104,7 @@ export default class Eval extends Command {
       .addField(":inbox_tray: Input", input, false);
     if (!type.toString().includes("void") && output && output != "undefined")
       embed.addField(":outbox_tray: Output", output);
+    embed.setFooter(`Cluster ID: ${this.client.manager.id}`);
     success ? await message.success() : await message.error();
     return await this.send(message, embed);
   }
