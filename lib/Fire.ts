@@ -4,6 +4,7 @@ import {
   ListenerHandler,
   version as akairover,
 } from "discord-akairo";
+import { textChannelTypeCaster } from "../src/arguments/textChannel";
 import { memberRoleTypeCaster } from "../src/arguments/memberRole";
 import { userMemberTypeCaster } from "../src/arguments/userMember";
 import { codeblockTypeCaster } from "../src/arguments/codeblock";
@@ -139,6 +140,7 @@ export class Fire extends AkairoClient {
       member: memberTypeCaster,
       user: userTypeCaster,
       role: roleTypeCaster,
+      textChannel: textChannelTypeCaster,
       boolean: booleanTypeCaster,
       command: commandTypeCaster,
       language: languageTypeCaster,
