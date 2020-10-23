@@ -3,7 +3,6 @@ module.exports = {
     {
       name: "fire",
       script: "dist/src/index.js",
-      args: "start",
       exec_mode: "cluster",
       instances: 2,
       automation: false,
