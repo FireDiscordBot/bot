@@ -28,7 +28,7 @@
     "archiver": "^5.0.2",
     "centra": "^2.4.2",
     "discord-akairo": "^8.1.0",
-    "discord.js": "^12.4.0",
+    "discord.js": "^12.4.1",
     "dotenv-extended": "^2.9.0",
     "emoji-regex": "^9.0.0",
     "express": "^4.17.1",
