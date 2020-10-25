@@ -1,17 +1,26 @@
-import { Guild, Structures } from "discord.js";
+import {
+  Guild,
+  Structures,
+  TextChannel,
+  MessageEmbed,
+  MessageEmbedOptions,
+} from "discord.js";
 import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
 import { Fire } from "../Fire";
+import { Settings } from "../util/settings";
 
 export class FireGuild extends Guild {
   client: Fire;
   owner: FireMember;
+  settings: Settings;
   language: Language;
 
   constructor(client: Fire, data: object) {
     super(client, data);
+    this.settings = new Settings(client, this);
     this.language = client.getLanguage(
-      client.settings.get(this.id, "utils.language", "en-US")
+      this.settings.get("utils.language", "en-US")
     );
   }
 
@@ -74,6 +83,20 @@ export class FireGuild extends Guild {
 
       return fetchedMembers.first() as FireMember | null;
     }
+  }
+
+  async actionLog(log: string | MessageEmbed | MessageEmbedOptions) {
+    const channel = this.channels.cache.get(this.settings.get("log.action"));
+    if (!channel || channel.type != "text") return;
+    return await (channel as TextChannel).send(log);
+  }
+
+  async modLog(log: string | MessageEmbed | MessageEmbedOptions) {
+    const channel = this.channels.cache.get(
+      this.settings.get("log.moderation")
+    );
+    if (!channel || channel.type != "text") return;
+    return await (channel as TextChannel).send(log);
   }
 }
 
