@@ -371,6 +371,21 @@ Hint: Use the \`public\` command to get your server on the list`,
         PING_FOOTER: (shard: number, cluster: number) =>
           `Shard ID: ${shard} | Cluster ID: ${cluster}`,
         PING_FINAL_MESSAGE: "Pong!",
+        PUBLIC_COMMAND_DESCRIPTION:
+          "Set your server to public which allows it to be visible on Fire's Public Servers page (https://inv.wtf/discover)",
+        PUBLIC_VANITY_BLACKLIST:
+          "This guild has been blacklisted from vanity features and therefore cannot be public!",
+        PUBLIC_VANITY_REQUIRED: (prefix: string) =>
+          `You must set a vanity url with \`${prefix}vanityurl\` before your guild can be public`,
+        PUBLIC_ENABLED: (vanity: string) =>
+          `Your guild is now public & visible on <https://inv.wtf/discover>.
+People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>) to join`,
+        PUBLIC_ENABLED_LOG: (user: FireMember) =>
+          `${constants.statuspage.emojis.operational} Ths server was set to public by ${user} and will appear on Fire\'s public server list`,
+        PUBLIC_DISABLED:
+          "Your guild is no longer public and will no longer show on the Fire website",
+        PUBLIC_DISABLED_LOG: (user: FireMember) =>
+          `${constants.statuspage.emojis.majorOutage} Ths server was manually removed from Fire\'s public server list by ${user}`,
         PLONK_COMMAND_DESCRIPTION:
           "make a user unable to use the best discord bot",
         RELOAD_COMMAND_DESCRIPTION: "reload a command/language/listener/module",
