@@ -1,12 +1,13 @@
+import { version as djsver, PermissionString } from "discord.js";
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
 import { describe, ProcessDescription } from "pm2";
+import { humanize, titleCase } from "./constants";
 import { FireGuild } from "../extensions/guild";
-import { version as djsver } from "discord.js";
 import { FireUser } from "../extensions/user";
 import { ClientUtil } from "discord-akairo";
 import { getCommitHash } from "./gitUtils";
-import { humanize } from "./constants";
+import { Language } from "./language";
 import { promisify } from "util";
 import * as Centra from "centra";
 import * as moment from "moment";
@@ -170,6 +171,14 @@ export class Util extends ClientUtil {
         };
       }),
     };
+  }
+
+  cleanPermissionName(name: PermissionString, language?: Language): string {
+    if (language && language.get("PERMISSIONS").hasOwnProperty(name))
+      return language.get("PERMISSIONS")[name];
+    return titleCase(
+      name.toLowerCase().replace("_", "").replace("guild", "server")
+    );
   }
 
   async blacklist(

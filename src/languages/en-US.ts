@@ -48,6 +48,47 @@ export default class enUS extends Language {
           "us-east": "🇺🇸 US East",
           "us-west": "🇺🇸 US West",
         },
+        PERMISSIONS: {
+          CREATE_INSTANT_INVITE: "Create Invite",
+          KICK_MEMBERS: "Kick Members",
+          BAN_MEMBERS: "Ban Members",
+          ADMINISTRATOR: "Administrator",
+          MANAGE_CHANNELS: "Manage Channels",
+          MANAGE_GUILD: "Manage Server",
+          ADD_REACTIONS: "Add Reactions",
+          VIEW_AUDIT_LOG: "View Audit Log",
+          PRIORITY_SPEAKER: "Priority Speaker",
+          STREAM: "Video",
+          VIEW_CHANNEL: "Read Messages",
+          SEND_MESSAGES: "Send Messages",
+          SEND_TTS_MESSAGES: "Send TTS Messages",
+          MANAGE_MESSAGES: "Manage Messages",
+          EMBED_LINKS: "Embed Links",
+          ATTACH_FILES: "Attach Files",
+          READ_MESSAGE_HISTORY: "Read Message History",
+          MENTION_EVERYONE: "Mention @everyone, @here and All Roles",
+          USE_EXTERNAL_EMOJIS: "Use External Emojis",
+          VIEW_GUILD_INSIGHTS: "View Server Insights",
+          CONNECT: "Connect",
+          SPEAK: "Speak",
+          MUTE_MEMBERS: "Mute Members (voice)",
+          DEAFEN_MEMBERS: "Deafen Members",
+          MOVE_MEMBERS: "Move Members",
+          USE_VAD: "Use Voice Activity",
+          CHANGE_NICKNAME: "Change Nickname",
+          MANAGE_NICKNAMES: "Manage Nicknames",
+          MANAGE_ROLES: "Manage Roles",
+          MANAGE_WEBHOOKS: "Manage Webhooks",
+          MANAGE_EMOJIS: "Manage Emojis",
+        },
+        MISSING_PERMISSIONS_USER: (permissions: string[], command: string) =>
+          `You are missing ${permissions.join(
+            ", "
+          )} permission(s) to run ${command}.`,
+        MISSING_PERMISSIONS_CLIENT: (permissions: string[], command: string) =>
+          `I am missing ${permissions.join(
+            ", "
+          )} permission(s) to run ${command}.`,
         FEATURES: {
           ENABLED_DISCOVERABLE_BEFORE: "Enabled Discoverable Before",
           WELCOME_SCREEN_ENABLED: "Welcome Screen",
