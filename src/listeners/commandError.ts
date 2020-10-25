@@ -32,6 +32,8 @@ export default class CommandError extends Listener {
         "guild.name": message.guild.name,
         "channel.id": message.channel.id,
         "channel.name": (message.channel as TextChannel).name,
+        "command.name": command.id,
+        "command.args": JSON.stringify(args),
         env: process.env.NODE_ENV,
       });
       sentry.captureException(error);
