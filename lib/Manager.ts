@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/node";
 import { setupRoutes } from "../src/rest/routeManager";
 import { Reconnector } from "./ws/Reconnector";
 import { Websocket } from "./ws/Websocket";
+import { disconnect } from "pm2";
 import { Fire } from "./Fire";
 
 declare module "express-serve-static-core" {
@@ -107,5 +108,20 @@ export class Manager {
     this.client?.destroy();
     this.client = new Fire(this, this.sentry);
     this.launch(data);
+  }
+
+  kill(event: string) {
+    this.client?.console.warn("Destroying client...");
+    this.client?.user?.setStatus(
+      "invisible",
+      this.client.options.shards as number[]
+    );
+    this.client?.destroy();
+    this.ws?.close(
+      1001,
+      `Cluster ${this.id} is shutting down due to receiving ${event} event`
+    );
+    disconnect();
+    process.exit();
   }
 }

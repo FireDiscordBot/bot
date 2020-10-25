@@ -6,9 +6,9 @@ dotEnvExtended.load({
 });
 
 import { getCommitHash } from "../lib/util/gitUtils";
-import { connect, disconnect } from "pm2";
 import { Manager } from "../lib/Manager";
 import * as sentry from "@sentry/node";
+import { connect } from "pm2";
 
 let pm2 = true;
 
@@ -35,24 +35,9 @@ if (loadSentry) {
 const manager = new Manager(loadSentry ? sentry : undefined, pm2);
 manager.init();
 
-const exit = (event: string) => {
-  manager.client?.console.warn("Destroying client...");
-  manager.client?.user?.setStatus(
-    "invisible",
-    manager.client.options.shards as number[]
-  );
-  manager.client?.destroy();
-  manager.ws?.close(
-    1001,
-    `Cluster is shutting down due to receiving ${event} event`
-  );
-  disconnect();
-  process.exit();
-};
-
 process.on("exit", () => {
-  exit("exit");
+  manager.kill("exit");
 });
 process.on("SIGINT", () => {
-  exit("SIGINT");
+  manager.kill("SIGINT");
 });
