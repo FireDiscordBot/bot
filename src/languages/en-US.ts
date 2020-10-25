@@ -34,6 +34,7 @@ export default class enUS extends Language {
         MEMBERS: "Members",
         REGION: "Region",
         STATUS: "Status",
+        UUID: "UUID",
         REGION_DEPRECATED: "❓ Deprecated Region",
         REGIONS: {
           brazil: "🇧🇷 Brazil",
@@ -354,6 +355,14 @@ Hint: Use the \`public\` command to get your server on the list`,
           `${ign} has the UUID ${uuid}`,
         MOD_COMMAND_DESCRIPTION: "Get information about a Sk1er LLC mod",
         MOD_INVALID: "You must provide a valid mod",
+        MODCORE_COMMAND_DESCRIPTION: "Get a player's modcore profile",
+        MODCORE_INVALID_IGN:
+          "You must provide a valid IGN to get the ModCore profile of",
+        MODCORE_PROFILE_FETCH_FAIL: "Failed to fetch that player's profile",
+        MODCORE_PROFILE_TITLE: (player: string) =>
+          `${player}'s ModCore Profile`,
+        MODCORE_ENABLED_COSMETICS: "Enabled Cosmetics",
+        MODCORE_NO_COSMETICS: "No Cosmetics",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
         PING_FOOTER: (shard: number, cluster: number) =>
