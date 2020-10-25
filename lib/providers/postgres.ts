@@ -136,16 +136,18 @@ export class PostgresProvider extends Provider {
     );
   }
 
-  /**
-   * Clears an entry.
-   * @param {string} id - ID of entry.
-   * @returns {ResultIterator}
-   */
-  clear(id: string): ResultIterator {
-    this.items.delete(id);
-    return this.db.query(
-      `DELETE FROM ${this.tableName} WHERE ${this.idColumn} = $1`,
-      [id]
-    );
-  }
+  clear(id: string) {}
+
+  // /**
+  //  * Clears an entry.
+  //  * @param {string} id - ID of entry.
+  //  * @returns {ResultIterator}
+  //  */
+  // clear(id: string): ResultIterator {
+  //   this.items.delete(id);
+  //   return this.db.query(
+  //     `DELETE FROM ${this.tableName} WHERE ${this.idColumn} = $1`,
+  //     [id]
+  //   );
+  // }
 }
