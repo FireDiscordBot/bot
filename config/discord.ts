@@ -21,8 +21,9 @@ export const discord: ClientOptions = {
   },
   presence: {
     activity: {
-      name: "things load",
+      name: "things load...",
       type: "WATCHING",
     },
+    status: "idle",
   },
 };

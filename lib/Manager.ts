@@ -83,15 +83,18 @@ export class Manager {
   listen() {
     if (process.env.BOOT_SINGLE !== "false") {
       this.client.options.shardCount = 1;
-      this.client.options.shards = [this.id];
+      this.client.options.presence.shardID = this.client.options.shards = [
+        this.id,
+      ];
       return this.client.login();
     }
   }
 
   launch(data: { shardCount: number; shards: number[] }) {
     this.client.console.log("[Sharder] Attempting to login.");
+    this.client.options.presence.shardID = this.client.options.shards =
+      data.shards;
     this.client.options.shardCount = data.shardCount;
-    this.client.options.shards = data.shards;
     return this.client.login();
   }
 
