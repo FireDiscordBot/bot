@@ -13,7 +13,7 @@ const idRegex = /(\d{15,21})$/im;
 const userMentionRegex = /<@!?(\d{15,21})>$/im;
 const messageIDRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
 const messageLinkRegex = /^https?:\/\/(?:(ptb|canary)\.)?discord(?:app)?\.com\/channels\/(?:(\d{15,21})|(@me))\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})\/?$/im;
-const channelMentionRegex = /<@#(\d{15,21})>$/im;
+const channelMentionRegex = /<#(\d{15,21})>$/im;
 const roleMentionRegex = /<@&(\d{15,21})>$/im;
 
 const getIDMatch = (argument: string) => {

@@ -15,8 +15,8 @@ export default class AdminOnly extends Command {
       args: [
         {
           id: "channels",
-          type: "textChannel",
-          match: "separate",
+          type: Util.greedyArg(textChannelConverter),
+          readableType: "...channels",
           default: [],
           required: true,
         },
