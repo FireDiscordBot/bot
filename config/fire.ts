@@ -30,10 +30,12 @@ export const fire = {
         new Message(EventType.READY_CLIENT, { id: client.manager.id })
       )
     );
-    client.user.setStatus("dnd");
     client.ws.shards.forEach((shard) =>
-      client.user?.setActivity({
-        name: `with fire | ${shard.id}/${client.options.shardCount}`,
+      client.user?.setPresence({
+        activity: {
+          name: `with fire | ${shard.id}/${client.options.shardCount}`,
+        },
+        status: "dnd",
         shardID: shard.id,
       })
     );
