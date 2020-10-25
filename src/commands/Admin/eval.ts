@@ -146,7 +146,8 @@ export default class Eval extends Command {
     if (
       typeof result == "object" ||
       typeof result == "function" ||
-      typeof result == "symbol"
+      typeof result == "symbol" ||
+      typeof result == "undefined"
     ) {
       result = inspect(result, {
         depth: args.depth,
