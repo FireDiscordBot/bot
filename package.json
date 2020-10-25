@@ -24,7 +24,7 @@
     "@aero/ksoft": "^3.1.8",
     "@klasa/console": "^0.0.3",
     "@klasa/type": "^0.0.1",
-    "@sentry/node": "^5.25.0",
+    "@sentry/node": "^5.27.1",
     "archiver": "^5.0.2",
     "centra": "^2.4.2",
     "discord-akairo": "^8.1.0",
