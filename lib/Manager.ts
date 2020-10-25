@@ -17,7 +17,7 @@ export class Manager {
   sentry: typeof Sentry;
   pm2: boolean;
   client: Fire;
-  ws: Websocket;
+  ws?: Websocket;
   rest: express.Application;
   reconnector: Reconnector;
 
@@ -97,7 +97,10 @@ export class Manager {
 
   relaunch(data: { shardCount: number; shards: number[] }) {
     this.client?.console.warn("Destroying client...");
-    this.client?.user?.setStatus("invisible");
+    this.client?.user?.setStatus(
+      "invisible",
+      this.client.options.shards as number[]
+    );
     this.client?.destroy();
     this.client = new Fire(this, this.sentry);
     this.launch(data);
