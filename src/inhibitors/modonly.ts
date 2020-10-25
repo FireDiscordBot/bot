@@ -4,7 +4,7 @@ import { Inhibitor } from "../../lib/util/inhibitor";
 export default class ModOnlyInhibitor extends Inhibitor {
   constructor() {
     super("modonly", {
-      reason: "Makes commands only usable by moderators in specific channels",
+      reason: "modonly",
       priority: 4,
     });
   }

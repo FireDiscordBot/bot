@@ -4,7 +4,7 @@ import { Inhibitor } from "../../lib/util/inhibitor";
 export default class DisabledCommandsInhibitor extends Inhibitor {
   constructor() {
     super("disabledcommands", {
-      reason: "Prevents disabled commands from being used by non-moderators",
+      reason: "locallydisabled",
       priority: 4,
     });
   }

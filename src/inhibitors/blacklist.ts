@@ -4,7 +4,7 @@ import { Inhibitor } from "../../lib/util/inhibitor";
 export default class BlacklistInhibitor extends Inhibitor {
   constructor() {
     super("blacklist", {
-      reason: "User is blacklisted from using Fire",
+      reason: "blacklist",
       priority: 10,
       type: "all",
     });

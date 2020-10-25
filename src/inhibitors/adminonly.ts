@@ -4,8 +4,7 @@ import { Inhibitor } from "../../lib/util/inhibitor";
 export default class AdminOnlyInhibitor extends Inhibitor {
   constructor() {
     super("adminonly", {
-      reason:
-        "Makes commands only usable by administrators in specific channels",
+      reason: "adminonly",
       priority: 5,
     });
   }

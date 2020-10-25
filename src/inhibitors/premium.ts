@@ -4,7 +4,7 @@ import { Inhibitor } from "../../lib/util/inhibitor";
 export default class PremiumInhibitor extends Inhibitor {
   constructor() {
     super("premium", {
-      reason: "Command is for premium guilds only",
+      reason: "premium",
       priority: 5,
     });
   }
