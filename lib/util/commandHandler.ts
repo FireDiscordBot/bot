@@ -5,9 +5,9 @@ import {
   Constants,
 } from "discord-akairo";
 import { FireMessage } from "../extensions/message";
+import { Collection } from "discord.js";
 import { Command } from "./command";
 import { Fire } from "../Fire";
-import { Collection } from "discord.js";
 
 const { CommandHandlerEvents } = Constants;
 
@@ -50,5 +50,27 @@ export class CommandHandler extends AkairoCommandHandler {
         message.channel.stopTyping();
       }
     }
+  }
+
+  setup() {
+    this.client.once("ready", () => {
+      this.client.on("message", async (m) => {
+        if (m.partial) await m.fetch();
+        this.handle(m);
+      });
+
+      if (this.handleEdits) {
+        this.client.on("messageUpdate", async (o, m) => {
+          if (o.partial) return;
+          try {
+            if (m.partial) m = await m.fetch();
+          } catch {
+            return;
+          }
+          if (o.content === m.content) return;
+          if (this.handleEdits) this.handle(m as FireMessage);
+        });
+      }
+    });
   }
 }
