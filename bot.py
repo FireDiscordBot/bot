@@ -108,7 +108,7 @@ async def prefix(ctx, pfx: str = None):
 async def blacklist_check(ctx):
     if ctx.author.id == 287698408855044097:
         return True
-    elif str(ctx.author.id) in ctx.bot.plonked:
+    elif str(ctx.author.id) in bot.plonked:
         return False
     else:
         return True
