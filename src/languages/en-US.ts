@@ -363,6 +363,9 @@ Hint: Use the \`public\` command to get your server on the list`,
           `${player}'s ModCore Profile`,
         MODCORE_ENABLED_COSMETICS: "Enabled Cosmetics",
         MODCORE_NO_COSMETICS: "No Cosmetics",
+        OSS_COMMAND_DESCRIPTION: "Sends my GitHub repo link",
+        OSS_MESSAGE:
+          "You can find Fire's source code at <https://github.com/FireDiscordBot/bot/tree/rewrite/typescript>",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
         PING_FOOTER: (shard: number, cluster: number) =>
