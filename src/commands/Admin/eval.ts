@@ -1,14 +1,15 @@
+import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
 import { FireMessage } from "../../../lib/extensions/message";
 import { MessageAttachment, MessageEmbed } from "discord.js";
 import { zws, constants } from "../../../lib/util/constants";
+import { EventType } from "../../../lib/ws/util/constants";
 import { Codeblock } from "../../arguments/codeblock";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
+import { Message } from "../../../lib/ws/Message";
+import { transpile } from "typescript";
 import { Type } from "@klasa/type";
 import { inspect } from "util";
-import { Message } from "../../../lib/ws/Message";
-import { EventType } from "../../../lib/ws/util/constants";
-import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
 
 const { emojis } = constants;
 
@@ -81,6 +82,8 @@ export default class Eval extends Command {
         )
       );
     }
+    if (args.code.language == "ts")
+      args.code.content = transpile(args.code.content);
     const { success, result, type } = await this.eval(message, args);
     if (success && result == null) return;
     const input = codeBlock(args.code.language || "ts", args.code.content);
@@ -105,6 +108,7 @@ export default class Eval extends Command {
     if (!type.toString().includes("void") && output && output != "undefined")
       embed.addField(":outbox_tray: Output", output);
     embed.setFooter(`Cluster ID: ${this.client.manager.id}`);
+    if (embed.description == "null") embed.description = null;
     success ? await message.success() : await message.error();
     return await this.send(message, embed);
   }
