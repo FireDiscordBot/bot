@@ -24,6 +24,8 @@ export default class enUS extends Language {
           "Message not found! Make sure you're giving a valid id/link.",
         UNKNOWN_COMMAND: "Command not found",
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
+        COMMAND_PREMIUM_ONLY:
+          "Only premium guilds can use this command. Learn more at https://inv.wtf/premium",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
         NO_MODERATORS_SET: "There are no moderators set in this guild.",
