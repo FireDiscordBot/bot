@@ -12,6 +12,7 @@ export default class MinecraftUUID extends Command {
         {
           id: "ign",
           type: /\w{1,16}/im,
+          readableType: "ign",
           default: null,
           required: true,
         },
