@@ -53,7 +53,7 @@ export class FireGuild extends Guild {
       icon,
       splash,
       vanity: `https://discover.inv.wtf/${this.id}`,
-      members: this.memberCount.toLocaleString(),
+      members: this.memberCount,
     };
   }
 
