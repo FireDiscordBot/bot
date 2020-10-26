@@ -16,7 +16,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 
-from jishaku.models import copy_context_with
 from discord.ext import commands
 import datetime
 import discord
@@ -31,30 +30,6 @@ class MemberUpdate(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after: discord.Member):
-        # I am testing something that will hopefully get me the presences intent
-        if self.bot.dev and after.activities and after.id == "287698408855044097":
-            filters = self.bot.get_cog("Filters")
-            if filters:
-                for act in after.activities:
-                    if filters.run_replace(str(act.to_dict())) != str(act.to_dict()) and isinstance(act, discord.CustomActivity):
-                        warns = await self.bot.db.fetch('SELECT * FROM modlogs WHERE type=$1 AND uid=$2 LIMIT 1', "warn", str(after.id))
-                        if warns and warns[0]["reason"] != "Advertising in custom status":
-                            moderation = self.bot.get_cog("Mod Commands")
-                            if moderation:
-                                message = random.choice(
-                                    self.bot.cached_messages)
-                                ctx = await self.bot.get_context(message)
-                                alt_ctx = await copy_context_with(
-                                    ctx,
-                                    author=after.guild.me,
-                                    channel=random.choice(
-                                        after.guild.text_channels),
-                                    guild=after.guild,
-                                    content=f"{after.guild.me.mention} warn {after.id} Advertising in custom status",
-                                    silent=True
-                                )
-                                await moderation.warn(alt_ctx, after, "Advertising in custom status")
-                                break
         conf = self.bot.get_config(after.guild)
         badname = conf.get(
             'utils.badname') or f'John Doe {after.discriminator}'
