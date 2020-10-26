@@ -49,7 +49,9 @@ export function commandsRoute(req: express.Request, res: express.Response) {
               client.languages.modules.get("en-US")
             ),
             usage: `{prefix}${command.id} ${args}`.trim(),
-            aliases: command.aliases.join(", "),
+            aliases: command.aliases
+              .filter((alias) => alias != command.id)
+              .join(", "),
           };
         });
 

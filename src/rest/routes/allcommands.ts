@@ -23,7 +23,9 @@ export function allCommandsRoute(req: express.Request, res: express.Response) {
         name: command.id,
         description: command.description(client.languages.modules.get("en-US")),
         usage: `{prefix}${command.id} ${args}`.trim(),
-        aliases: command.aliases.join(", "),
+        aliases: command.aliases
+          .filter((alias) => alias != command.id)
+          .join(", "),
         category: command.category.toString(),
       } as ResponseCommand;
     });
