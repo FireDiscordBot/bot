@@ -35,6 +35,7 @@ export default class enUS extends Language {
         REGION: "Region",
         STATUS: "Status",
         UUID: "UUID",
+        REASON: "Reason",
         REGION_DEPRECATED: "❓ Deprecated Region",
         REGIONS: {
           brazil: "🇧🇷 Brazil",
@@ -388,6 +389,19 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           `${constants.statuspage.emojis.majorOutage} Ths server was manually removed from Fire\'s public server list by ${user}`,
         PLONK_COMMAND_DESCRIPTION:
           "make a user unable to use the best discord bot",
+        PURGE_COMMAND_DESCRIPTION:
+          "Bulk delete messages with optional flags to selectively delete messages based on certain factors",
+        PURGE_AMOUNT_INVALID: "Invalid amount. Minumum is 2, Maximum is 500",
+        PURGE_HISTORY_FAIL: "Failed to fetch messages",
+        PURGE_SUCCESS: (messages: number) =>
+          `Successfully deleted **${messages}** messages!`,
+        PURGE_FAIL: "Failed to purge messages...",
+        PURGE_LOG_DESCRIPTION: (amount: number, channel: TextChannel) =>
+          `**${amount} messages were purged in ${channel}**`,
+        PURGE_LOG_FOOTER: (user: FireUser, channel: TextChannel) =>
+          `Author ID: ${user.id} | Channel ID: ${channel.id}"`,
+        PURGED_MESSAGES: "Purged Messages",
+        PURGED_MESSAGES_FAILED: "Failed to upload messages to hastebin",
         RELOAD_COMMAND_DESCRIPTION: "reload a command/language/listener/module",
       },
       enabled: true,
