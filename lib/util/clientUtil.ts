@@ -73,8 +73,9 @@ export class Util extends ClientUtil {
           .send()
       ).json();
       return url + h.key;
-    } catch {
-      return await this.haste(text, true);
+    } catch (e) {
+      if (!fallback) return await this.haste(text, true);
+      else throw e;
     }
   }
 
