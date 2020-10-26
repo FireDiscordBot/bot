@@ -81,7 +81,7 @@ export default class Help extends Command {
     let args: string[] = command.getArgumentsClean();
     const embed = {
       color: message.member?.displayColor || "#ffffff",
-      title: command.id,
+      title: titleCase(command.id),
       description: command.description(message.language),
       fields: [
         {
