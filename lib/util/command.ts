@@ -46,19 +46,13 @@ export class Command extends AkairoCommand {
               return argument.type
                 ? `<${argument.flag} ${argument.readableType}>`
                 : `<${argument.flag}>`;
-            else
-              argument.match == "separate"
-                ? `<...${argument.readableType}>`
-                : `<${argument.readableType}>`;
+            else return `<${argument.readableType}>`;
           } else {
             if (argument.flag)
               return argument.type
                 ? `[<${argument.flag} ${argument.readableType}>]`
                 : `[<${argument.flag}>]`;
-            else
-              argument.match == "separate"
-                ? `[<...${argument.readableType}>]`
-                : `[<${argument.readableType}>]`;
+            else return `[<${argument.readableType}>]`;
           }
         })
       : [];
