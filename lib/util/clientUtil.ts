@@ -114,8 +114,8 @@ export class Util extends ClientUtil {
     return {
       id: this.client.manager.id,
       env: this.client.config.dev ? "dev" : "prod",
-      user: this.client.user.toString(),
-      userId: this.client.user.id,
+      user: this.client.user ? this.client.user.toString() : "Unknown#0000",
+      userId: this.client.user ? this.client.user.id : "",
       started: this.client.launchTime.toISOString(true),
       uptime: humanize(duration, "en"),
       cpu: processInfo.length ? `${processInfo[0].monit.cpu}%` : "Unknown%",

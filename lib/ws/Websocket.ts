@@ -24,6 +24,7 @@ export class Websocket extends Client {
     this.manager = manager;
     this.handler = new EventHandler(manager);
     this.on("open", () => {
+      this.manager.client.getModule("aetherstats").init();
       this.send(
         MessageUtil.encode(
           new Message(EventType.IDENTIFY_CLIENT, {

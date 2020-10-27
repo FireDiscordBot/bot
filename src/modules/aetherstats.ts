@@ -2,6 +2,7 @@ import { MessageUtil } from "../../lib/ws/util/MessageUtil";
 import { EventType } from "../../lib/ws/util/constants";
 import { Module } from "../../lib/util/module";
 import { Message } from "../../lib/ws/Message";
+import { inspect } from "util";
 
 export default class AetherStats extends Module {
   statsTask: NodeJS.Timeout;
@@ -10,16 +11,11 @@ export default class AetherStats extends Module {
   }
 
   async init() {
-    if (!!this.client.readyAt) return await this.start();
-    this.client.once("ready", () => this.start()); // Ensures client exists and start is called once ready
-  }
-
-  async start() {
-    if (!this.client.manager.ws) return this.unload();
+    if (!this.client.manager.ws) return;
     await this.sendStats();
     this.statsTask = setInterval(() => {
       this.sendStats();
-    }, 3000);
+    }, 500);
   }
 
   async unload() {
