@@ -402,6 +402,13 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           `Author ID: ${user.id} | Channel ID: ${channel.id}"`,
         PURGED_MESSAGES: "Purged Messages",
         PURGED_MESSAGES_FAILED: "Failed to upload messages to hastebin",
+        SKIN_COMMAND_DESCRIPTION: "See a player's Minecraft skin",
+        SKIN_INVALID_IGN: "You must provide a valid IGN to get the skin of",
+        SLOWMODE_COMMAND_DESCRIPTION:
+          "Set the slowmode for a channel or category",
+        SLOWMODE_INVALID_TYPE: "You must provide a text channel or category",
+        SLOWMODE_FAILED: (channels: string[]) =>
+          `Failed to set slowmode in ${channels.join(", ")}`,
         RELOAD_COMMAND_DESCRIPTION: "reload a command/language/listener/module",
       },
       enabled: true,

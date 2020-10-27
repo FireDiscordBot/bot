@@ -2,6 +2,7 @@ import {
   Role,
   TextChannel,
   VoiceChannel,
+  GuildChannel,
   CategoryChannel,
   FetchMembersOptions,
 } from "discord.js";
@@ -159,6 +160,43 @@ export const messageConverter = async (
     return (await channel.messages.fetch(messageID)) as FireMessage;
   } catch {
     if (!silent) await message.error("INVALID_MESSAGE");
+    return null;
+  }
+};
+
+export const guildChannelConverter = async (
+  message: FireMessage,
+  argument: string,
+  silent = false
+): Promise<GuildChannel | null> => {
+  const match = getIDMatch(argument) || getChannelMentionMatch(argument);
+  const guild = message.guild;
+  if (!guild) {
+    if (!silent) await message.error();
+    return null;
+  }
+
+  if (!match) {
+    const channel = guild.channels.cache
+      .filter(
+        (channel) =>
+          channel.name.toLowerCase() == argument.toLowerCase() &&
+          channel instanceof GuildChannel
+      )
+      .first();
+    if (channel) {
+      return channel;
+    }
+
+    if (!silent) await message.error("CHANNEL_NOT_FOUND");
+    return null;
+  } else {
+    const channel = guild.channels.cache.get(match);
+    if (channel && channel instanceof GuildChannel) {
+      return channel;
+    }
+
+    if (!silent) await message.error("INVALID_CHANNEL_ID");
     return null;
   }
 };

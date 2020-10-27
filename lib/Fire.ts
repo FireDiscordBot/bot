@@ -4,7 +4,18 @@ import {
   ListenerHandler,
   version as akairover,
 } from "discord-akairo";
-import { textChannelTypeCaster } from "../src/arguments/textChannel";
+import {
+  categoryChannelSilentTypeCaster,
+  categoryChannelTypeCaster,
+} from "../src/arguments/category";
+import {
+  textChannelSilentTypeCaster,
+  textChannelTypeCaster,
+} from "../src/arguments/textChannel";
+import {
+  guildChannelSilentTypeCaster,
+  guildChannelTypeCaster,
+} from "../src/arguments/guildChannel";
 import { memberRoleTypeCaster } from "../src/arguments/memberRole";
 import { userMemberTypeCaster } from "../src/arguments/userMember";
 import { codeblockTypeCaster } from "../src/arguments/codeblock";
@@ -141,6 +152,11 @@ export class Fire extends AkairoClient {
       user: userTypeCaster,
       role: roleTypeCaster,
       textChannel: textChannelTypeCaster,
+      textChannelSilent: textChannelSilentTypeCaster,
+      category: categoryChannelTypeCaster,
+      categorySilent: categoryChannelSilentTypeCaster,
+      guildChannel: guildChannelTypeCaster,
+      guildChannelSilent: guildChannelSilentTypeCaster,
       boolean: booleanTypeCaster,
       command: commandTypeCaster,
       language: languageTypeCaster,
