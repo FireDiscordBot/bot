@@ -155,6 +155,7 @@ export class Util extends ClientUtil {
                   .map((guild) => guild.memberCount)
                   .reduce((a, b) => a + b)
               : 0,
+          status: shard.status,
           publicGuilds: this.client.guilds.cache
             .filter(
               (guild: FireGuild) =>
