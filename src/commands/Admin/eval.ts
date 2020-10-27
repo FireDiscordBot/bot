@@ -43,7 +43,7 @@ export default class Eval extends Command {
           id: "depth",
           match: "option",
           flag: "--depth",
-          default: 1,
+          default: 0,
         },
         // {
         //   id: "broadcast",
@@ -125,11 +125,15 @@ export default class Eval extends Command {
     let type: Type;
     try {
       if (args.async) content = `(async () => {\n${content}\n})();`;
+      const me = message.member,
+        fire = message.client,
+        guild = message.guild,
+        channel = message.channel; // variables for eval since I can't really inject a scope
       result = eval(content);
-      type = new Type(result);
       if (this.client.util.isPromise(result)) {
         result = await result;
       }
+      type = new Type(result);
       success = true;
     } catch (error) {
       if (!type) type = new Type(error);
