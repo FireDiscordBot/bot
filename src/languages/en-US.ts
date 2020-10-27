@@ -386,7 +386,7 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         PUBLIC_DISABLED:
           "Your guild is no longer public and will no longer show on the Fire website",
         PUBLIC_DISABLED_LOG: (user: FireMember) =>
-          `${constants.statuspage.emojis.majorOutage} Ths server was manually removed from Fire\'s public server list by ${user}`,
+          `${constants.statuspage.emojis.major_outage} Ths server was manually removed from Fire\'s public server list by ${user}`,
         PLONK_COMMAND_DESCRIPTION:
           "make a user unable to use the best discord bot",
         PURGE_COMMAND_DESCRIPTION:
