@@ -2,7 +2,6 @@ import { FireMessage } from "../../../lib/extensions/message";
 import { TextChannel, CategoryChannel } from "discord.js";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import { Argument } from "discord-akairo";
 
 export default class Slowmode extends Command {
   constructor() {
