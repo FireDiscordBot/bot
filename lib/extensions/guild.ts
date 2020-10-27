@@ -44,8 +44,9 @@ export class FireGuild extends Guild {
         format: "png",
       }).replace("size=2048", "size=320");
     const icon = this.iconURL({
-      format: this.icon.startsWith("a_") ? "gif" : "png",
+      format: "png",
       size: 128,
+      dynamic: true,
     });
     return {
       name: this.name,

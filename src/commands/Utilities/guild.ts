@@ -166,7 +166,8 @@ export default class GuildCommand extends Command {
         message.guild.name,
         message.guild.iconURL({
           size: 2048,
-          format: message.guild.icon?.startsWith("a_") ? "gif" : "png",
+          format: "png",
+          dynamic: true,
         })
       )
       .addField(message.language.get("GUILD_ABOUT"), info)
