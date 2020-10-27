@@ -418,6 +418,11 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           "Seems like you were caught red handed while trying to steal that emoji. You have returned the emoji you attempted to steal",
         STEAL_STOLEN: (emoji: string) =>
           `Nice! You stole ${emoji} without getting caught by a nasty error :)`,
+        SUGGEST_COMMAND_DESCRIPTION:
+          "Suggest a feature for Fire. (Abuse of this command will lead to a temporary blacklist from Fire. Actual suggestions only)",
+        SUGGESTION_SUCCESS: (card: any) =>
+          `Thanks! Your suggestion was added to the Trello @ <${card.url}>. Make sure to check it every now and then for a response.
+Abuse of this command __**will**__ result in being blacklisted from Fire`,
         RELOAD_COMMAND_DESCRIPTION: "reload a command/language/listener/module",
       },
       enabled: true,
