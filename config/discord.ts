@@ -17,7 +17,8 @@ export const discord: ClientOptions = {
       intents.GUILD_BANS |
       intents.GUILD_INVITES |
       intents.GUILD_MESSAGES |
-      intents.GUILD_MESSAGE_REACTIONS,
+      intents.GUILD_MESSAGE_REACTIONS |
+      intents.DIRECT_MESSAGES,
   },
   presence: {
     activity: {
