@@ -22,6 +22,7 @@ export default class Debug extends Command {
           required: true,
         },
       ],
+      restrictTo: "all",
     });
   }
 
@@ -60,6 +61,14 @@ export default class Debug extends Command {
       });
     }
 
+    if (!message.guild && cmd.channel == "guild") {
+      return await message.channel.send({
+        embed: this.createEmbed(message, [
+          `${error} ${message.language.get("COMMAND_GUILD_ONLY")}`,
+        ]),
+      });
+    }
+
     const details: string[] = [];
     const permissionChecks = await this.client.commandHandler.runPermissionChecks(
       message,
@@ -69,7 +78,7 @@ export default class Debug extends Command {
     const clientPermissions = cmd.clientPermissions as PermissionString[];
     const userPermissions = cmd.userPermissions as PermissionString[];
 
-    if (permissionChecks) {
+    if (permissionChecks && message.guild) {
       const userMissing = userPermissions
         .filter((permission) => !message.member?.permissions.has(permission))
         .map((permission) => titleCase(permission.replace("_", " ")));
@@ -90,8 +99,9 @@ export default class Debug extends Command {
             (permMsg.user ? `\n${permMsg.user}` : "") +
             (permMsg.client ? `\n${permMsg.client}` : "")
         );
-    } else
-      details.push(`${success} ${message.language.get("DEBUG_PERMS_PASS")}`);
+    } else if (permissionChecks)
+      details.push(`${error} ${message.language.get("DEBUG_REQUIRES_PERMS")}`);
+    else details.push(`${success} ${message.language.get("DEBUG_PERMS_PASS")}`);
 
     const inhibitorCheck = await this.client.inhibitorHandler.test(
       "all",
@@ -101,10 +111,8 @@ export default class Debug extends Command {
 
     if (inhibitorCheck !== null) details.push(`${error} ${inhibitorCheck}`); // No Translation :(
 
-    const disabledCommands: string[] = message.guild.settings.get(
-      "disabled.commands",
-      []
-    );
+    const disabledCommands: string[] =
+      message.guild?.settings.get("disabled.commands", []) || [];
 
     if (disabledCommands.includes(cmd.id)) {
       if (message.member?.permissions.has("MANAGE_MESSAGES"))
@@ -120,7 +128,7 @@ export default class Debug extends Command {
         `${success} ${message.language.get("DEBUG_COMMAND_NOT_DISABLED")}`
       );
 
-    if (cmd.id == "mute") {
+    if (cmd.id == "mute" && message.guild) {
       const overwrites = (message.channel as TextChannel).permissionOverwrites;
       const bypass = overwrites
         .map((value, key) => {
@@ -150,7 +158,10 @@ export default class Debug extends Command {
         );
     }
 
-    if (message.guild.me?.permissions.has("EMBED_LINKS"))
+    if (
+      !message.guild ||
+      (message.guild && message.guild.me?.permissions.has("EMBED_LINKS"))
+    )
       return await message.channel.send(this.createEmbed(message, details));
     else {
       details.push(`${error} ${message.language.get("DEBUG_NO_EMBEDS")}`);
