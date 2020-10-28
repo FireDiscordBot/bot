@@ -11,6 +11,7 @@ export default class ModOnlyInhibitor extends Inhibitor {
 
   exec(message: FireMessage) {
     if (
+      message.guild &&
       (message.guild.settings.get("commands.modonly", []) as string[]).includes(
         message.channel.id
       )
