@@ -11,18 +11,19 @@ const getCategories = () => {
 
 export const constants = {
   emojis: {
-    success: "<:check:674359197378281472>",
-    error: "<:xmark:674359427830382603>",
-    warning: "<a:fireWarning:660148304486727730>",
+    // shoutout to blobhub for the ebic emotes, https://inv.wtf/blobhub
+    success: "<:yes:534174796888408074>",
+    error: "<:no:534174796938870792>",
+    warning: "<:maybe:534174796578160640>",
     // Yes these are the statuspage emotes but idc
     green: "<:operational:685538400639385649>",
     yellow: "<:partial_outage:685538400555499675>",
     red: "<:major_outage:685538400639385706>",
   },
   reactions: {
-    success: "check:674359197378281472",
-    error: "xmark:674359427830382603",
-    warning: "a:fireWarning:660148304486727730",
+    success: "yes:534174796888408074",
+    error: "no:534174796938870792",
+    warning: "maybe:534174796578160640",
   },
   poll: {
     1: "1️⃣",
