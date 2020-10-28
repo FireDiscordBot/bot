@@ -11,8 +11,7 @@ export default class DisabledCommandsInhibitor extends Inhibitor {
 
   exec(message: FireMessage) {
     if (
-      (this.client.settings.get(
-        message.guild.id,
+      (message.guild.settings.get(
         "disabled.commands",
         []
       ) as string[]).includes(message.util?.parsed.command.id)

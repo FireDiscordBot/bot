@@ -27,11 +27,7 @@ export default class LanguageCommand extends Command {
         message.language.id
       );
     else {
-      this.client.settings.set(
-        message.guild.id,
-        "utils.language",
-        args.language.id
-      );
+      message.guild.settings.set("utils.language", args.language.id);
       message.guild.language = args.language;
       message.language = args.language;
       return await message.success("LANGUAGE_COMMAND_HELLO");

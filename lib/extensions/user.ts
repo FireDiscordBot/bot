@@ -1,10 +1,13 @@
+import { UserSettings } from "../util/settings";
 import { Structures, User } from "discord.js";
 import { Fire } from "../Fire";
 
 export class FireUser extends User {
   client: Fire;
+  settings: UserSettings;
   constructor(client: Fire, data: object) {
     super(client, data);
+    this.settings = new UserSettings(this.client, this);
   }
 
   toString() {

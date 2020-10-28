@@ -33,21 +33,19 @@ export default class AddModerator extends Command {
       !modToAdd
     )
       return await this.getModeratorEmbed(message);
-    let current = this.client.settings.get(
-      message.guild.id,
+    let current = message.guild.settings.get(
       "utils.moderators",
       []
     ) as string[];
     if (!current.includes(modToAdd.id)) current.push(modToAdd.id);
     else current = current.filter((id) => id != modToAdd.id);
-    this.client.settings.set(message.guild.id, "utils.moderators", current);
+    message.guild.settings.set("utils.moderators", current);
     await message.success();
     return await this.getModeratorEmbed(message);
   }
 
   async getModeratorEmbed(message: FireMessage) {
-    const moderators = this.client.settings.get(
-      message.guild.id,
+    const moderators = message.guild.settings.get(
       "utils.moderators",
       []
     ) as string[];
@@ -68,11 +66,7 @@ export default class AddModerator extends Command {
     ];
     let filteredModerators = moderators.filter((id) => !invalid.includes(id));
     if (moderators != filteredModerators)
-      this.client.settings.set(
-        message.guild.id,
-        "utils.moderators",
-        filteredModerators
-      );
+      message.guild.settings.set("utils.moderators", filteredModerators);
     const embed = new MessageEmbed()
       .setColor(message.member.displayColor || "#ffffff")
       .addField(

@@ -27,8 +27,7 @@ export default class ModeratorOnly extends Command {
   async exec(message: FireMessage, args: { channels: TextChannel[] }) {
     let channels = args.channels;
     if (!channels.length) return message.error("MODONLY_NO_CHANNELS");
-    let current = this.client.settings.get(
-      message.guild.id,
+    let current = message.guild.settings.get(
       "commands.modonly",
       []
     ) as string[];
@@ -38,7 +37,7 @@ export default class ModeratorOnly extends Command {
       if (current.includes(channel.id))
         modonly = modonly.filter((cid) => cid != channel.id);
     });
-    this.client.settings.set(message.guild.id, "commands.modonly", modonly);
+    message.guild.settings.set("commands.modonly", modonly);
     let mentions: string[] = [];
     modonly.forEach((cid) => {
       const channel = message.guild.channels.cache.get(cid);

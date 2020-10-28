@@ -31,6 +31,7 @@ import { CommandHandler } from "./util/commandHandler";
 import { userTypeCaster } from "../src/arguments/user";
 import { roleTypeCaster } from "../src/arguments/role";
 import { Module, ModuleHandler } from "./util/module";
+import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
 import { version as djsver } from "discord.js";
 import { KlasaConsole } from "@klasa/console"; // Klasa console do be looking kinda nice doe
@@ -58,7 +59,8 @@ export class Fire extends AkairoClient {
   sentry: typeof Sentry | undefined;
 
   // Handlers
-  settings: PostgresProvider;
+  guildSettings: PostgresProvider;
+  userSettings: PostgresProvider;
   commandHandler: CommandHandler;
   inhibitorHandler: InhibitorHandler;
   listenerHandler: ListenerHandler;
@@ -113,8 +115,13 @@ export class Fire extends AkairoClient {
 
     this.config = config.fire;
 
-    this.settings = new PostgresProvider(this.db, "guildconfig", {
+    this.guildSettings = new PostgresProvider(this.db, "guildconfig", {
       idColumn: "gid",
+      dataColumn: "data",
+    });
+
+    this.userSettings = new PostgresProvider(this.db, "userconfig", {
+      idColumn: "uid",
       dataColumn: "data",
     });
 
@@ -124,13 +131,10 @@ export class Fire extends AkairoClient {
       handleEdits: true,
       storeMessages: true,
       automateCategories: true,
-      prefix: (message) => {
+      prefix: (message: FireMessage) => {
         return config.fire.dev
           ? "dev "
-          : [
-              this.settings.get(message.guild.id, "config.prefix", "$"),
-              "fire ",
-            ];
+          : [message.guild.settings.get("config.prefix", "$"), "fire "];
       },
     });
 
@@ -227,7 +231,8 @@ export class Fire extends AkairoClient {
         this.options.shardCount
       }).`
     );
-    await this.settings.init();
+    await this.guildSettings.init();
+    await this.userSettings.init();
     return super.login();
   }
 

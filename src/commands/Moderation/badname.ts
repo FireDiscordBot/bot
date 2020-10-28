@@ -22,15 +22,11 @@ export default class BadName extends Command {
   }
 
   exec(message: FireMessage, args: { name: string }) {
-    const current = this.client.settings.get(
-      message.guild.id,
-      "utils.badname",
-      null
-    );
+    const current = message.guild.settings.get("utils.badname", null);
 
     if (current == args.name) return message.success("BADNAME_NO_CHANGES");
 
-    this.client.settings.set(message.guild.id, "utils.badname", args.name);
+    message.guild.settings.set("utils.badname", args.name);
 
     return args.name
       ? message.success("BADNAME_SET", args.name)

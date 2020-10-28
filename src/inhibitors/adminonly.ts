@@ -11,8 +11,7 @@ export default class AdminOnlyInhibitor extends Inhibitor {
 
   exec(message: FireMessage) {
     if (
-      (this.client.settings.get(
-        message.guild.id,
+      (message.guild.settings.get(
         "commands.adminonly",
         []
       ) as string[]).includes(message.channel.id)

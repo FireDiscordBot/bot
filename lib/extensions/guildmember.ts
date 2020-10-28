@@ -2,14 +2,17 @@ import { Structures, GuildMember, Channel } from "discord.js";
 import { FireGuild } from "./guild";
 import { Fire } from "../Fire";
 import { FireUser } from "./user";
+import { UserSettings } from "../util/settings";
 
 export class FireMember extends GuildMember {
   client: Fire;
   guild: FireGuild;
   user: FireUser;
+  settings: UserSettings;
 
   constructor(client: Fire, data: object, guild: FireGuild) {
     super(client, data, guild);
+    this.settings = this.user.settings;
   }
 
   toString() {
@@ -21,8 +24,7 @@ export class FireMember extends GuildMember {
   }
 
   isModerator(channel?: Channel) {
-    const moderators = this.client.settings.get(
-      this.guild.id,
+    const moderators = this.guild.settings.get(
       "utils.moderators",
       []
     ) as string[];

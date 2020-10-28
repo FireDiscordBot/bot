@@ -101,8 +101,7 @@ export default class Debug extends Command {
 
     if (inhibitorCheck !== null) details.push(`${error} ${inhibitorCheck}`); // No Translation :(
 
-    const disabledCommands: string[] = this.client.settings.get(
-      message.guild.id,
+    const disabledCommands: string[] = message.guild.settings.get(
       "disabled.commands",
       []
     );

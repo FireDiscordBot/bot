@@ -5,20 +5,20 @@ import {
   MessageEmbed,
   MessageEmbedOptions,
 } from "discord.js";
+import { GuildSettings } from "../util/settings";
 import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
 import { Fire } from "../Fire";
-import { Settings } from "../util/settings";
 
 export class FireGuild extends Guild {
   client: Fire;
   owner: FireMember;
-  settings: Settings;
+  settings: GuildSettings;
   language: Language;
 
   constructor(client: Fire, data: object) {
     super(client, data);
-    this.settings = new Settings(client, this);
+    this.settings = new GuildSettings(client, this);
     this.language = client.getLanguage(
       this.settings.get("utils.language", "en-US")
     );
@@ -26,7 +26,7 @@ export class FireGuild extends Guild {
 
   isPublic() {
     return (
-      !!this.client.settings.get(this.id, "utils.public", false) ||
+      this.settings.get("utils.public", false) ||
       this.features.includes("DISCOVERABLE")
     );
   }

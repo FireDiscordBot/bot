@@ -11,11 +11,9 @@ export default class ModOnlyInhibitor extends Inhibitor {
 
   exec(message: FireMessage) {
     if (
-      (this.client.settings.get(
-        message.guild.id,
-        "commands.modonly",
-        []
-      ) as string[]).includes(message.channel.id)
+      (message.guild.settings.get("commands.modonly", []) as string[]).includes(
+        message.channel.id
+      )
     )
       return !message.member.isModerator(message.channel);
     return false;
