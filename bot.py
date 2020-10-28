@@ -15,7 +15,6 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from core.competing import Competing
 from discord.ext import commands
 from core.fire import Fire
 import discord
@@ -53,7 +52,7 @@ intents.value = 1607
 bot = Fire(
     command_prefix=get_pre,
     status=discord.Status.dnd,
-    activity=Competing(name="uptime with dyno (I'm winning)"),
+    activity=discord.Game("with fire | inv.wtf"),
     intents=intents,
     case_insensitive=True,
     owner_id=287698408855044097,
