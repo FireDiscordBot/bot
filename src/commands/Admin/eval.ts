@@ -103,7 +103,7 @@ export default class Eval extends Command {
           ? `${emojis.success} Evaluation Complete`
           : `${emojis.error} Evaluation Failed`
       )
-      .setColor(success ? message.member.displayColor || "#ffffff" : "#ef5350")
+      .setColor(success ? message.member?.displayColor || "#ffffff" : "#ef5350")
       .setDescription(type.toString() != "any" ? `Output Type: ${type}` : null)
       .addField(":inbox_tray: Input", input, false);
     if (!type.toString().includes("void") && output && output != "undefined")

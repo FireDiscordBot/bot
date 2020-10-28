@@ -55,8 +55,8 @@ export default class User extends Command {
       user = member.user;
     }
     const color = member
-      ? member.displayColor
-      : message.member.displayColor || "#ffffff";
+      ? member?.displayColor
+      : message.member?.displayColor || "#ffffff";
     const badges = this.getBadges(user);
     const info = this.getInfo(message, member ? member : user);
     const embed = new MessageEmbed()

@@ -68,7 +68,7 @@ export default class AddModerator extends Command {
     if (moderators != filteredModerators)
       message.guild.settings.set("utils.moderators", filteredModerators);
     const embed = new MessageEmbed()
-      .setColor(message.member.displayColor || "#ffffff")
+      .setColor(message.member?.displayColor || "#ffffff")
       .addField(
         message.language.get("MODERATORS_ROLES"),
         mentions.roles.join("\n") || message.language.get("NO_MODERATOR_ROLES"),

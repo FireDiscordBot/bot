@@ -54,7 +54,7 @@ export default class Mod extends Command {
     )[mod.mod_ids[0]];
     const embed = new MessageEmbed()
       .setTitle(mod.display)
-      .setColor(message?.member.displayColor || "#ffffff")
+      .setColor(message?.member?.displayColor || "#ffffff")
       .setURL(`https://sk1er.club/mods/${mod.mod_ids[0]}`)
       .setDescription(mod.short)
       .setTimestamp(new Date());
