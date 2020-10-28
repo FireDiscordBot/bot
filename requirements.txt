@@ -89,7 +89,6 @@ colormap == 1.0.2
 # Fire/commands/tips.py: 19,21
 # Fire/commands/user.py: 20,24
 # Fire/commands/vote.py: 19,21
-# Fire/core/chatwatch.py: 19,20
 # Fire/core/config/constants.py: 23
 # Fire/core/config/guild.py: 21
 # Fire/core/config/user.py: 21

@@ -204,13 +204,6 @@ class Fire(commands.Bot):
 
     def load_commands(self):
         try:
-            self.load_extension('core.chatwatch')
-        except Exception as e:
-            # errortb = ''.join(traceback.format_exception(
-            #     type(e), e, e.__traceback__))
-            self.logger.error(
-                f'$REDError while loading $CYANChatwatch', exc_info=e)
-        try:
             self.load_extension('jishaku')
         except Exception as e:
             # errortb = ''.join(traceback.format_exception(

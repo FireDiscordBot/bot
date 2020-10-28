@@ -119,13 +119,6 @@ class Config:
             f'$GREENSetting $CYANmod.autodehoist $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.autodehoist', value)
 
-    @ConfigOpt(name='mod.nospam', accepts=int, default=0, options=options)
-    async def spam_prevention(self, value: int):
-        '''Spam Prevention | Detect and delete spam using ChatWatch'''
-        self._bot.logger.info(
-            f'$GREENSetting $CYANmod.nospam $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('mod.nospam', value)
-
     @ConfigOpt(name='mod.autorole', accepts=discord.Role, default=None, options=options, premium=True)
     async def auto_role(self, value: discord.Role):
         '''Auto Role (Premium) | The role given to users upon joining the server'''

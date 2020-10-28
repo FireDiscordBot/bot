@@ -45,15 +45,6 @@ class UserInfo(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def get_chatwatch(self, user: typing.Union[discord.User, discord.Member]):
-        cwprofile = await self.bot.chatwatch.profile(user.id)
-        if cwprofile:
-            if cwprofile['blacklisted_reason'] and cwprofile['blacklisted']:
-                return f'<:no:534174796938870792> Blacklisted on Chatwatch for **{cwprofile["blacklisted_reason"]}**'
-            elif cwprofile['blacklisted_reason'] and not cwprofile['blacklisted']:
-                return f'Previously blacklisted for **{cwprofile["blacklisted_reason"]}**'
-        return ''
-
     async def get_ksoft_ban(self, user: typing.Union[discord.User, discord.Member]):
         ksoftban = await self.bot.ksoft.bans.check(user.id)
         if ksoftban:
@@ -191,17 +182,11 @@ class UserInfo(commands.Cog):
                                 value='Administrator', inline=False)
         if not uinfo.bot:
             gban = None
-            cwbl = None
             try:
                 gban = await self.get_ksoft_ban(uinfo)
             except Exception:
                 pass
-            if hasattr(self.bot, 'chatwatch') and self.bot.chatwatch.connected:
-                try:
-                    cwbl = await self.get_chatwatch(uinfo)
-                except Exception:
-                    pass
-            notes = [n for n in [gban, cwbl] if n]
+            notes = [n for n in [gban] if n]
             if notes:
                 embed.add_field(name=f'» Notes',
                                 value='\n'.join(notes), inline=False)
