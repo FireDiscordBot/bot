@@ -851,7 +851,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
             except discord.Forbidden:
                 nodm = True
                 await ctx.send(
-                    f"<a:fireWarning:660148304486727730> **{discord.utils.escape_markdown(str(user))}** was not warned due to having DMs off. The warning has been logged."
+                    f"<:maybe:534174796578160640> **{discord.utils.escape_markdown(str(user))}** was not warned due to having DMs off. The warning has been logged."
                 )
             logch = ctx.config.get("log.moderation")
             if logch:

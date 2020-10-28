@@ -24,8 +24,8 @@ import discord
 class Debug(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.error = '<:xmark:674359427830382603>'
-        self.check = '<:check:674359197378281472>'
+        self.error = '<:no:534174796938870792>'
+        self.check = '<:yes:534174796888408074>'
         self.admin_cmds = ['plonk', 'unplonk', 'guilds']
         self.common_perms = [
             'attach_files',

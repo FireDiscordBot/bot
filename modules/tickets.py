@@ -154,7 +154,7 @@ class Tickets(commands.Cog, name="Tickets"):
         self.bot.dispatch('ticket_create', ctx, ticket, open_msg)
         if creating:
             return await creating.edit(
-                content=f'<:check:674359197378281472> Successfully made your ticket, {ticket.mention}'
+                content=f'<:yes:534174796888408074> Successfully made your ticket, {ticket.mention}'
             )
 
     @commands.command(name='add', description='Add a user to the current ticket')

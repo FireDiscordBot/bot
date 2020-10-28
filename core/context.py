@@ -49,13 +49,13 @@ class Context(commands.Context):
         self.ticket_override = None
 
     async def success(self, message: str, **kwargs):
-        await self.send(f'<:check:674359197378281472> {message}', **kwargs)
+        await self.send(f'<:yes:534174796888408074> {message}', **kwargs)
 
     async def warning(self, message: str, **kwargs):
-        await self.send(f'<a:fireWarning:660148304486727730> {message}', **kwargs)
+        await self.send(f'<:maybe:534174796578160640> {message}', **kwargs)
 
     async def error(self, message: str, **kwargs):
-        await self.send(f'<:xmark:674359427830382603> {message}', **kwargs)
+        await self.send(f'<:no:534174796938870792> {message}', **kwargs)
 
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, allowed_mentions=None):
         if isinstance(content, discord.Embed):

@@ -743,12 +743,12 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                 route
             )
         except Exception as e:
-            return await progress.edit(content='<:xmark:674359427830382603> Something went wrong when getting the list of boosters')
+            return await progress.edit(content='<:no:534174796938870792> Something went wrong when getting the list of boosters')
         text = gist.get('files', {}).get(
             'boosters.json', {}).get('content', ['error'])
         current = json.loads(text)
         if 'error' in current:
-            return await progress.edit(content='<:xmark:674359427830382603> Something went wrong when getting the list of boosters')
+            return await progress.edit(content='<:no:534174796938870792> Something went wrong when getting the list of boosters')
         try:
             user = next(i for i in current if i["id"] == str(ctx.author.id))
             route = Route(
@@ -758,7 +758,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             try:
                 await self.bot.http.modcore.request(route, headers=self.modcoreheaders)
             except Exception as e:
-                return await progress.edit(f'<:xmark:674359427830382603> Failed to remove perks from previous user, {user["ign"]}')
+                return await progress.edit(f'<:no:534174796938870792> Failed to remove perks from previous user, {user["ign"]}')
             current.remove(user)
             user['uuid'] = str(uuid.UUID(mid))
             user['ign'] = ign
@@ -800,7 +800,7 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
             )
         except Exception:
             return await ctx.error('Failed to give you the perks in Hyperium')
-        return await progress.edit(content='<:check:674359197378281472> Successfully gave you the perks!')
+        return await progress.edit(content='<:yes:534174796888408074> Successfully gave you the perks!')
 
 
 def setup(bot):

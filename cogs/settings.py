@@ -622,8 +622,8 @@ class Settings(commands.Cog):
     @commands.bot_has_permissions(add_reactions=True, external_emojis=True)
     @commands.guild_only()
     async def gsettings(self, ctx):
-        firesuccess = discord.utils.get(self.bot.emojis, id=674359197378281472)
-        firefailed = discord.utils.get(self.bot.emojis, id=674359427830382603)
+        firesuccess = discord.utils.get(self.bot.emojis, id=534174796888408074)
+        firefailed = discord.utils.get(self.bot.emojis, id=534174796938870792)
         await ctx.send('Hey, I\'m going to guide you through my settings. This shouldn\'t take long, there\'s only 6 options to configure')
         await asyncio.sleep(3)
         await ctx.send('First, we\'ll configure logging. Please give a channel for moderation logs or say `skip` to disable...')
@@ -881,7 +881,7 @@ class Settings(commands.Cog):
             joinchan = ctx.config.get('greet.joinchannel')
             if not joinmsg:
                 embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(
-                    datetime.timezone.utc), description=f'<:xmark:674359427830382603> Please provide a channel and message for join messages.')
+                    datetime.timezone.utc), description=f'<:no:534174796938870792> Please provide a channel and message for join messages.')
                 embed.add_field(name='Variables', value='\n'.join(
                     [f'{k}: {v}' for k, v in variables.items()]), inline=False)
                 return await ctx.send(embed=embed)
@@ -938,7 +938,7 @@ class Settings(commands.Cog):
             leavechan = ctx.config.get('greet.leavechannel')
             if not leavemsg:
                 embed = discord.Embed(color=discord.Color.red(), timestamp=datetime.datetime.now(
-                    datetime.timezone.utc), description=f'<:xmark:674359427830382603> Please provide a channel and message for leave messages.')
+                    datetime.timezone.utc), description=f'<:no:534174796938870792> Please provide a channel and message for leave messages.')
                 embed.add_field(name='Variables', value='\n'.join(
                     [f'{k}: {v}' for k, v in variables.items()]), inline=False)
                 return await ctx.send(embed=embed)

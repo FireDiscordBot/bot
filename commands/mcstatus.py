@@ -28,9 +28,9 @@ class MCStatus(commands.Cog):
     @commands.command(description='View the current status of Minecraft services')
     async def mcstatus(self, ctx):
         emotes = {
-            'green': '<:check:674359197378281472>',
-            'yellow': '<a:fireWarning:660148304486727730>',
-            'red': '<:xmark:674359427830382603>'
+            'green': '<:yes:534174796888408074>',
+            'yellow': '<:maybe:534174796578160640>',
+            'red': '<:no:534174796938870792>'
         }
         statuses = {
             'green': 'No Issues',
