@@ -78,10 +78,10 @@ export default class Mod extends Command {
     if (analytics)
       embed.addField(
         "Analytics",
-        `Total: ${analytics.total.toLocaleString()}
-Online: ${analytics.online.toLocaleString()}
-Last Day: ${analytics.day.toLocaleString()}
-Last Week: ${analytics.week.toLocaleString()}`,
+        `Total: ${analytics.total.toLocaleString(message.language.id)}
+Online: ${analytics.online.toLocaleString(message.language.id)}
+Last Day: ${analytics.day.toLocaleString(message.language.id)}
+Last Week: ${analytics.week.toLocaleString(message.language.id)}`,
         false
       );
     return await message.channel.send(embed);

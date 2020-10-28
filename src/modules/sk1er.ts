@@ -154,7 +154,9 @@ export default class Sk1er extends Module {
         .guilds(this.guildId)
         .patch({
           data: {
-            description: `The Official Discord for Sk1er & Sk1er Mods (${count.toLocaleString()} total players)`,
+            description: `The Official Discord for Sk1er & Sk1er Mods (${count.toLocaleString(
+              this.guild.language.id
+            )} total players)`,
           },
           reason: "Description Updater Task",
         });

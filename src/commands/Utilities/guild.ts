@@ -50,7 +50,7 @@ export default class GuildCommand extends Command {
       message.language.get("GUILD_CREATED_AT", guild, created),
       `**${message.language.get(
         "MEMBERS"
-      )}:** ${guild.memberCount.toLocaleString()}`,
+      )}:** ${guild.memberCount.toLocaleString(message.language.id)}`,
       `**${message.language.get("REGION")}:** ${
         message.language.get("REGIONS")[guild.region] ||
         message.language.get("REGION_DEPRECATED")
@@ -65,7 +65,7 @@ export default class GuildCommand extends Command {
               .array()
               .sort((one, two) => (one.joinedAt > two.joinedAt ? 1 : -1))
               .indexOf(message.member) + 1
-          ).toLocaleString()
+          ).toLocaleString(message.language.id)
         )
       );
     return messages;
