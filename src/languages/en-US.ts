@@ -4,6 +4,7 @@ import { FireUser } from "../../lib/extensions/user";
 import { constants } from "../../lib/util/constants";
 import { Language } from "../../lib/util/language";
 import { TextChannel } from "discord.js";
+import { Ban } from "@aero/ksoft";
 
 export default class enUS extends Language {
   constructor() {
@@ -24,6 +25,9 @@ export default class enUS extends Language {
           "Message not found! Make sure you're giving a valid id/link.",
         UNKNOWN_COMMAND: "Command not found",
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
+        // invite will be changed when deployed to main bot
+        COMMAND_GUILD_ONLY:
+          "You can only use this command in a server. You can invite me to a server at <https://inv.wtf/tsbot>",
         COMMAND_PREMIUM_ONLY:
           "Only premium guilds can use this command. Learn more at https://inv.wtf/premium",
         COMMAND_ERROR_GENERIC: (id: string) =>
@@ -36,6 +40,15 @@ export default class enUS extends Language {
         STATUS: "Status",
         UUID: "UUID",
         REASON: "Reason",
+        MENTION: "Mention",
+        CREATED: "Created",
+        CREATED_GUILD: "Created Guild",
+        JOINED: "Joined",
+        JOIN_POSITION: "Join Position",
+        NICKNAME: "Nickname",
+        ABOUT: "About",
+        ROLES: "Roles",
+        NOTES: "Notes",
         REGION_DEPRECATED: "❓ Deprecated Region",
         REGIONS: {
           brazil: "🇧🇷 Brazil",
@@ -52,7 +65,10 @@ export default class enUS extends Language {
           "us-east": "🇺🇸 US East",
           "us-west": "🇺🇸 US West",
         },
+        KEY_PERMISSIONS: "Key Permissions",
+        PERMISSIONS_TEXT: "Permissions",
         PERMISSIONS: {
+          // If possible, use the translations from the Discord client here
           CREATE_INSTANT_INVITE: "Create Invite",
           KICK_MEMBERS: "Kick Members",
           BAN_MEMBERS: "Ban Members",
@@ -70,7 +86,8 @@ export default class enUS extends Language {
           EMBED_LINKS: "Embed Links",
           ATTACH_FILES: "Attach Files",
           READ_MESSAGE_HISTORY: "Read Message History",
-          MENTION_EVERYONE: "Mention @everyone, @here and All Roles",
+          MENTION_EVERYONE:
+            "Mention @\u200beveryone, @\u200bhere and All Roles",
           USE_EXTERNAL_EMOJIS: "Use External Emojis",
           VIEW_GUILD_INSIGHTS: "View Server Insights",
           CONNECT: "Connect",
@@ -146,6 +163,8 @@ This will **not** rename existing users`,
         DEBUG_NO_COMMAND: "You must provide a valid command to debug",
         DEBUGGING_DEBUG: "Debug command is working",
         DEBUG_PERMS_PASS: "No permissions missing",
+        DEBUG_REQUIRES_PERMS:
+          "This command requires extra permissions. You'll need to debug in a server to see permission info",
         DEBUG_PERMS_CHECKS_FAIL: "Permission Checks Failed!",
         DEBUG_PERMS_FAIL: (userMissing: string[], clientMissing: string[]) => {
           return {
@@ -425,6 +444,9 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         SUGGESTION_SUCCESS: (card: any) =>
           `Thanks! Your suggestion was added to the Trello @ <${card.url}>. Make sure to check it every now and then for a response.
 Abuse of this command __**will**__ result in being temporarily blacklisted from Fire`,
+        USER_COMMAND_DESCRIPTION: "Get a general overview of a user.",
+        USER_KSOFT_BANNED: (ban: Ban) =>
+          `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${ban.user.id}) for ${ban.reason} - [Proof](${ban.proof})`,
         RELOAD_COMMAND_DESCRIPTION: "reload a command/language/listener/module",
       },
       enabled: true,
