@@ -18,6 +18,8 @@ export default class GuildCreate extends Listener {
       this.client.config.premiumOnly
     )
       return await guild.leave();
+    if (!this.client.guildSettings.items.has(guild.id))
+      await this.client.guildSettings.init(guild.id);
     await (this.client.getCommand("description") as Description)
       .setDesc(
         this.client.guilds.cache.get("564052798044504084") as FireGuild,

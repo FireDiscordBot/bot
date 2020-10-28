@@ -39,5 +39,8 @@ export const fire = {
         shardID: shard.id,
       })
     );
+    client.guildSettings.items = client.guildSettings.items.filter(
+      (value, key) => client.guilds.cache.has(key)
+    ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
   },
 };

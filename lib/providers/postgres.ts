@@ -50,8 +50,14 @@ export class PostgresProvider extends Provider {
    * Initializes the provider.
    * @returns {Promise<void>}
    */
-  async init(): Promise<void> {
-    const rows = await this.db.query(`SELECT * FROM ${this.tableName}`);
+  async init(id?: string): Promise<void> {
+    const rows = id
+      ? await this.db.query(
+          `SELECT * FROM ${this.tableName} WHERE ${this.idColumn}=$1`,
+          [id]
+        )
+      : await this.db.query(`SELECT * FROM ${this.tableName}`);
+    if (!rows.rows.length) return;
     for await (const row of rows) {
       const idColumn = row.names.indexOf(this.idColumn);
       const dataColumn = row.names.indexOf(this.dataColumn);
