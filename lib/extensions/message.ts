@@ -31,7 +31,9 @@ export class FireMessage extends Message {
   ) {
     super(client, data, channel);
     this.language = this.author?.settings.get("utils.language")
-      ? this.author.language
+      ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
+        ? this.guild?.language
+        : this.author.language
       : this.guild?.language || client.getLanguage("en-US");
   }
 
