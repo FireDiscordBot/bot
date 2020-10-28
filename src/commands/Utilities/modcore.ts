@@ -36,9 +36,13 @@ export default class Modcore extends Command {
     const profileReq = await centra(
       `https://api.modcore.sk1er.club/profile/${uuid}`
     ).send();
-    if (profileReq.statusCode != 200)
-      return await message.error("MODCORE_PROFILE_FETCH_FAIL");
     const profile: ModcoreProfile = await profileReq.json();
+    if (
+      profileReq.statusCode != 200 ||
+      !profile.purchase_profile ||
+      !profile.purchase_settings
+    )
+      return await message.error("MODCORE_PROFILE_FETCH_FAIL");
     let purchases = Object.entries(profile.purchase_profile)
       .filter((purchase) => purchase[1])
       .map((purchase) => this.cosmeticNameFormat(purchase[0]));
