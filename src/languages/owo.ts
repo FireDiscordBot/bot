@@ -343,7 +343,7 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         KEY_PERMISSIONS: "Key Pewmissions",
         PERMISSIONS_TEXT: "Pewmissions",
         PERMISSIONS: {
-          // If possible, use the translations from the Discord client here
+          // If possible, use the translations from the Discord client here (but we can't, because discord does not have an owo lang)
           CREATE_INSTANT_INVITE: "Cweate Invite",
           KICK_MEMBERS: "Kick Membews",
           BAN_MEMBERS: "Ban Membews",
