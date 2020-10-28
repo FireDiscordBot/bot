@@ -27,7 +27,7 @@ For support, join the support discord;
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FGamingGeek%2FFire.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FGamingGeek%2FFire?ref=badge_large)
