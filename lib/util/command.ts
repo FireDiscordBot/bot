@@ -27,6 +27,8 @@ export class Command extends AkairoCommand {
         if (!arg.readableType && arg.type)
           arg.readableType = arg.type.toString();
       });
+    if (!options.restrictTo) options.channel = "guild";
+    else if (options.restrictTo != "all") options.channel = options.restrictTo;
     super(id, options);
     this.hidden = options.hidden || false;
     if (this.ownerOnly) this.hidden = true;
@@ -63,6 +65,7 @@ export interface CommandOptions extends AkairoCommandOptions {
   hidden?: boolean;
   premium?: boolean;
   args?: ArgumentOptions[] | ArgumentGenerator;
+  restrictTo?: "guild" | "dm" | "all";
 }
 
 export interface ArgumentOptions extends AkairoArgumentOptions {
