@@ -288,6 +288,70 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         ADMINONLY_SET: (channels: string) =>
           `Commands can nyow onwy be wun by those with the "Manyage Sewvew" pewmissiowon in;\n${channels}.`,
         ADMINONLY_RESET: "Admin onwy channyews have been weset",
+        MCSTATUS_COMMAND_DESCRIPTION: "Check the status of Minecwaft sewvices",
+        MCSTATUS_FETCH_FAIL: "Faiwed to fetch Minecwaft status",
+        MCSTATUS_STATUSES: {
+          green: "No Issues",
+          yellow: "Some Issues",
+          red: "Sewvice Unavaiwabwe",
+        },
+        MCSTATUS_SERVICES: {
+          "minecraft.net": "**Website**",
+          "sessionserver.mojang.com": "**Sessions**",
+          "authserver.mojang.com": "**Auth**",
+          "textures.minecraft.net": "**Skins**",
+          "api.mojang.com": "**API**",
+        },
+        MCUUID_COMMAND_DESCRIPTION:
+          "Get a pwayew's UUID (use --dashed to get the uuid with dashes)",
+        MCUUID_INVALID_IGN: "You must pwovide a vawid IGN to get the UUID of",
+        MCUUID_FETCH_FAIL:
+          "Faiwed to fetch the UUID, make suwe the IGN is a vawid pwayew",
+        MCUUID_UUID: (ign: string, uuid: string) =>
+          `${ign} has the UUID ${uuid}`,
+        MOD_COMMAND_DESCRIPTION: "Get infowmation about a Sk1er LLC mod",
+        MOD_INVALID: "You must pwovide a vawid mod",
+        PERMISSIONS: {
+          CREATE_INSTANT_INVITE: "Cweate Invite",
+          KICK_MEMBERS: "Kick Membews",
+          BAN_MEMBERS: "Ban Membews",
+          ADMINISTRATOR: "Administwatow",
+          MANAGE_CHANNELS: "Manage Channews",
+          MANAGE_GUILD: "Manage Sewvew",
+          ADD_REACTIONS: "Add Weactions",
+          VIEW_AUDIT_LOG: "View Audit Wog",
+          PRIORITY_SPEAKER: "Pwiowity Speakew",
+          STREAM: "Video",
+          VIEW_CHANNEL: "Wead Messages",
+          SEND_MESSAGES: "Send Messages",
+          SEND_TTS_MESSAGES: "Send TTS Messages",
+          MANAGE_MESSAGES: "Manage Messages",
+          EMBED_LINKS: "Embed Winks",
+          ATTACH_FILES: "Attach Fiwes",
+          READ_MESSAGE_HISTORY: "Wead Message Histowy",
+          MENTION_EVERYONE: "Mention @evewyonye, @hewe and Aww Wowes",
+          USE_EXTERNAL_EMOJIS: "Use Extewnaw Emojis",
+          VIEW_GUILD_INSIGHTS: "View Sewvew Insights",
+          CONNECT: "Connect",
+          SPEAK: "Speak",
+          MUTE_MEMBERS: "Mute Membews (voice)",
+          DEAFEN_MEMBERS: "Deafen Membews",
+          MOVE_MEMBERS: "Move Membews",
+          USE_VAD: "Use Voice Activity",
+          CHANGE_NICKNAME: "Change Nickname",
+          MANAGE_NICKNAMES: "Manage Nicknames",
+          MANAGE_ROLES: "Manage Wowes",
+          MANAGE_WEBHOOKS: "Manage Webhooks",
+          MANAGE_EMOJIS: "Manage Emojis",
+        },
+        MISSING_PERMISSIONS_USER: (permissions: string[], command: string) =>
+          `You awe missing ${permissions.join(
+            ", "
+          )} pewmission(s) to wun ${command}.`,
+        MISSING_PERMISSIONS_CLIENT: (permissions: string[], command: string) =>
+          `I am missing ${permissions.join(
+            ", "
+          )} pewmission(s) to wun ${command}.`,
         PING_COMMAND_DESCRIPTION: "Shows you my ping to Discowod's sewvews",
         PING_FOOTER: (shard: number, cluster: number) =>
           `Shawd ID: ${shard} | Cwustew ID: ${cluster}`,
