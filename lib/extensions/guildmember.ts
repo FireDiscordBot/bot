@@ -1,18 +1,21 @@
 import { Structures, GuildMember, Channel } from "discord.js";
+import { UserSettings } from "../util/settings";
+import { Language } from "../util/language";
 import { FireGuild } from "./guild";
 import { Fire } from "../Fire";
 import { FireUser } from "./user";
-import { UserSettings } from "../util/settings";
 
 export class FireMember extends GuildMember {
   client: Fire;
   guild: FireGuild;
   user: FireUser;
   settings: UserSettings;
+  language: Language;
 
   constructor(client: Fire, data: object, guild: FireGuild) {
     super(client, data, guild);
     this.settings = this.user.settings;
+    this.language = this.user.language;
   }
 
   toString() {

@@ -302,8 +302,10 @@ Hint: Use the \`public\` command to get your server on the list`,
             .join(
               ", "
             )}\n\nNote: Some languages may be unfinished so sometimes you'll see some English if the string hasn't been translated`,
-        LANGUAGE_COMMAND_HELLO:
-          "Hello! You have successfully set Fire's language to English (US) :D",
+        LANGUAGE_COMMAND_HELLO: (type: "guild" | "user") =>
+          type == "user"
+            ? "Hello! You have successfully set Fire's language to English (US) :D"
+            : "Hello! You have successfully set Fire's language in this guild to English (US). Want to set it just for you? Run the command in DMs",
         LEVELHEAD_COMMAND_DESCRIPTION: "Get a player's levelhead info",
         LEVELHEAD_NO_PLAYER:
           "You need to give a player for me to check the levelhead of",
@@ -422,7 +424,7 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           "Suggest a feature for Fire. (Abuse of this command will lead to a temporary blacklist from Fire. Actual suggestions only)",
         SUGGESTION_SUCCESS: (card: any) =>
           `Thanks! Your suggestion was added to the Trello @ <${card.url}>. Make sure to check it every now and then for a response.
-Abuse of this command __**will**__ result in being blacklisted from Fire`,
+Abuse of this command __**will**__ result in being temporarily blacklisted from Fire`,
         RELOAD_COMMAND_DESCRIPTION: "reload a command/language/listener/module",
       },
       enabled: true,

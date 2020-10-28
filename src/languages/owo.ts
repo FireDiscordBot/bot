@@ -254,8 +254,10 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
             .join(
               ", "
             )}\n\nNyote: Some wanguages may be unfinyished so sometimes you'ww see some Engwish if the stwing hasn't been twanswated`,
-        LANGUAGE_COMMAND_HELLO:
-          "Hewwo! You have successfuwwy set Fiwe's wanguage to OwO :D",
+        LANGUAGE_COMMAND_HELLO: (type: "guild" | "user") =>
+          type == "user"
+            ? "Hewwo! You have successfuwwy set Fiwe's wanguage to OwO :D"
+            : "Hewwo! You have successfuwwy set Fiwe's wanguage to OwO. Want to set it just fow you? Wun the command in DMs",
         LEVELHEAD_COMMAND_DESCRIPTION: "Get a pwayew's wevewhead info",
         LEVELHEAD_NO_PLAYER:
           "You nyeed to give a pwayew fow me to check the wevewhead of",

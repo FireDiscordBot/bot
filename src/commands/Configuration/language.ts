@@ -8,7 +8,6 @@ export default class LanguageCommand extends Command {
       description: (language: Language) =>
         language.get("LANGUAGE_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES"],
-      userPermissions: ["MANAGE_GUILD"],
       args: [
         {
           id: "language",
@@ -17,6 +16,7 @@ export default class LanguageCommand extends Command {
           required: false,
         },
       ],
+      restrictTo: "all",
     });
   }
 
@@ -26,11 +26,16 @@ export default class LanguageCommand extends Command {
         "LANGUAGE_COMMAND_CURRENT",
         message.language.id
       );
-    else {
+    else if (message.guild && message.member.hasPermission("MANAGE_GUILD")) {
       message.guild.settings.set("utils.language", args.language.id);
       message.guild.language = args.language;
       message.language = args.language;
-      return await message.success("LANGUAGE_COMMAND_HELLO");
+      return await message.success("LANGUAGE_COMMAND_HELLO", "guild");
+    } else {
+      message.author.settings.set("utils.language", args.language.id);
+      message.author.language = args.language;
+      message.language = args.language;
+      return await message.success("LANGUAGE_COMMAND_HELLO", "user");
     }
   }
 }
