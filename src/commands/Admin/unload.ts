@@ -30,6 +30,7 @@ export default class Unload extends Command {
         },
       ],
       ownerOnly: true,
+      restrictTo: "all",
     });
   }
 

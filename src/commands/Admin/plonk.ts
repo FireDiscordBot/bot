@@ -30,6 +30,7 @@ export default class Plonk extends Command {
       ],
       aliases: ["unplonk"],
       hidden: true,
+      restrictTo: "all",
     });
   }
 

@@ -16,6 +16,7 @@ export default class MinecraftStatus extends Command {
       description: (language: Language) =>
         language.get("MCSTATUS_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      restrictTo: "all",
     });
     this.emotes = {
       green: "<:check:674359197378281472>",

@@ -53,6 +53,7 @@ export default class Eval extends Command {
         // },
       ],
       aliases: ["ev"],
+      restrictTo: "all",
     });
     this.response = { id: null, message: null };
   }

@@ -20,6 +20,7 @@ export default class Avatar extends Command {
           required: false,
         },
       ],
+      restrictTo: "all",
     });
   }
 

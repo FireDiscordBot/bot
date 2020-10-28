@@ -33,6 +33,7 @@ export default class Reload extends Command {
         },
       ],
       ownerOnly: true,
+      restrictTo: "all",
     });
   }
 

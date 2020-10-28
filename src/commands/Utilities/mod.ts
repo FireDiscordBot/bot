@@ -23,6 +23,7 @@ export default class Mod extends Command {
           required: false,
         },
       ],
+      restrictTo: "all",
     });
   }
 

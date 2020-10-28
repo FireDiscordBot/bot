@@ -13,6 +13,7 @@ export default class DiscordStatus extends Command {
         language.get("STATUS_COMMAND_DESCRIPTION"),
       clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
       aliases: ["firestatus"],
+      restrictTo: "all",
       typing: true,
     });
   }

@@ -21,6 +21,7 @@ export default class Modcore extends Command {
           required: true,
         },
       ],
+      restrictTo: "all",
     });
   }
 
