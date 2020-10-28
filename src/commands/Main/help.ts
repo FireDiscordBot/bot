@@ -20,6 +20,7 @@ export default class Help extends Command {
           required: false,
         },
       ],
+      restrictTo: "all",
     });
   }
 
@@ -39,7 +40,11 @@ export default class Help extends Command {
       let category = this.client.commandHandler.categories.get(name);
       if (!category) return;
       let commands: string[] = [];
-      category.forEach((command) => commands.push(`\`${command.id}\``));
+      category
+        .filter((command) =>
+          !message.guild ? command.channel != "guild" : true
+        )
+        .forEach((command) => commands.push(`\`${command.id}\``));
       if (commands.length)
         fields.push({
           name: category.id,
