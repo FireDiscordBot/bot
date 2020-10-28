@@ -447,6 +447,8 @@ Abuse of this command __**will**__ result in being temporarily blacklisted from 
         USER_COMMAND_DESCRIPTION: "Get a general overview of a user.",
         USER_KSOFT_BANNED: (ban: Ban) =>
           `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${ban.user.id}) for ${ban.reason} - [Proof](${ban.proof})`,
+        VOTE_COMMAND_DESCRIPTION:
+          'Sends a link to Fire on a random bot list (sends direct vote link if you use the "vote" alias)',
         RELOAD_COMMAND_DESCRIPTION: "reload a command/language/listener/module",
       },
       enabled: true,
