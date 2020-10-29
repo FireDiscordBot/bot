@@ -195,7 +195,7 @@ export class PaginatorInterface {
     this.owner = options.owner;
     this.emojis = options.emoji || EMOJI_DEFAULTS;
     this.timeout = options.timeout || 600000;
-    this.deleteMessage = options.deleteMessage || false;
+    this.deleteMessage = options.deleteMessage || true;
 
     this.updateLock = new Semaphore(options.updateMax || 2);
 
@@ -323,10 +323,7 @@ export class PaginatorInterface {
       users: ReactionUserManager
     ) => {
       if (emoji == close) {
-        this.collector.stop();
-        if (!this.deleteMessage)
-          return await this.message.delete().catch(() => {});
-        else return;
+        return this.collector.stop();
       }
 
       if (emoji == start) this._displayPage = 0;
