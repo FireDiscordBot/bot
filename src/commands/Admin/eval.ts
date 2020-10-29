@@ -113,7 +113,7 @@ export default class Eval extends Command {
         message.client,
         paginator,
         {
-          owner: message.member,
+          owner: message.author,
           embed: paginatorEmbed,
         }
       );
