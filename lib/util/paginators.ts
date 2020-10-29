@@ -194,7 +194,7 @@ export class PaginatorInterface {
 
     this.owner = options.owner;
     this.emojis = options.emoji || EMOJI_DEFAULTS;
-    this.timeout = options.timeout || 600;
+    this.timeout = options.timeout || 600000;
     this.deleteMessage = options.deleteMessage || false;
 
     this.updateLock = new Semaphore(options.updateMax || 2);
@@ -212,12 +212,7 @@ export class PaginatorInterface {
 
   get pages() {
     let paginatorPages = this.paginator._pages;
-    if (this.paginator.currentPage.length > 1)
-      paginatorPages.push(
-        this.paginator.currentPage.join("\n") +
-          "\n" +
-          (this.paginator.suffix || "")
-      );
+    if (this.paginator.currentPage.length > 1) this.paginator.closePage();
     return paginatorPages;
   }
 
@@ -272,27 +267,27 @@ export class PaginatorInterface {
     if (!this.sentPageReactions && this.pageCount > 1)
       await this.sendAllReactions();
 
-    if (this.collector) this.collector.stop();
-
-    await this.collect();
+    if (!this.collector) await this.collect();
 
     return this;
   }
 
   async sendAllReactions() {
+    if (this.pageCount == 1)
+      return await this.message.react(this.emojis.end).catch(() => {});
     Object.values(this.emojis)
       .filter((value) => !!value)
-      .filter((emoji: EmojiResolvable) =>
-        this.message.reactions.cache.has(
-          emoji instanceof GuildEmoji || emoji instanceof ReactionEmoji
-            ? emoji.id
-            : emoji
-        )
+      .filter(
+        (emoji: EmojiResolvable) =>
+          !this.message.reactions.cache.has(
+            emoji instanceof GuildEmoji || emoji instanceof ReactionEmoji
+              ? emoji.id
+              : emoji
+          )
       )
-      .forEach(
-        async (emoji: EmojiResolvable) =>
-          await this.message.react(emoji).catch(() => {})
-      );
+      .forEach(async (emoji: EmojiResolvable) => {
+        await this.message.react(emoji).catch(() => {});
+      });
     this.sentPageReactions = true;
   }
 
@@ -311,6 +306,8 @@ export class PaginatorInterface {
 
       let emoji = reaction.emoji.name;
       if (!emoji || !Object.values(this.emojis).includes(emoji)) return false;
+
+      return true;
     };
 
     const handler = async (
@@ -318,11 +315,14 @@ export class PaginatorInterface {
       users: ReactionUserManager
     ) => {
       if (emoji == close) {
-        return await this.message.delete();
+        this.collector.stop();
+        if (!this.deleteMessage)
+          return await this.message.delete().catch(() => {});
+        else return;
       }
 
       if (emoji == start) this._displayPage = 0;
-      else if (emoji == end) this._displayPage = this.pageCount - 1;
+      else if (emoji == end) this._displayPage = this.pageCount;
       else if (emoji == back) this._displayPage -= 1;
       else if (emoji == forward) this._displayPage += 1;
 
@@ -336,8 +336,6 @@ export class PaginatorInterface {
           } catch {}
         });
     };
-
-    if (this.collector) this.collector.stop();
 
     this.collector = this.message.createReactionCollector(filter, {
       time: this.timeout,
