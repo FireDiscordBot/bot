@@ -29,7 +29,7 @@ export default class Meme extends Command {
         },
       ],
     });
-    this.imgExt = [".png", ".jpg", ".jpeg", ".gif"];
+    this.imgExt = [".png", ".jpg", ".jpeg", ".gif", ".gifv"];
   }
 
   async exec(
