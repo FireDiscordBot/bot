@@ -262,7 +262,7 @@ export class PaginatorInterface {
   async send(destination: TextChannel | NewsChannel | DMChannel) {
     this.message = (await destination.send(this.sendArgs)) as FireMessage;
 
-    await this.message.react(this.emojis.close);
+    this.message.react(this.emojis.close);
 
     if (!this.sentPageReactions && this.pageCount > 1)
       await this.sendAllReactions();
@@ -273,8 +273,16 @@ export class PaginatorInterface {
   }
 
   async sendAllReactions() {
-    if (this.pageCount == 1)
-      return await this.message.react(this.emojis.end).catch(() => {});
+    if (
+      this.pageCount == 1 &&
+      !this.message.reactions.cache.has(
+        this.emojis.close instanceof GuildEmoji ||
+          this.emojis.close instanceof ReactionEmoji
+          ? this.emojis.close.id
+          : this.emojis.close
+      )
+    )
+      return this.message.react(this.emojis.close).catch(() => {});
     Object.values(this.emojis)
       .filter((value) => !!value)
       .filter(
@@ -285,8 +293,8 @@ export class PaginatorInterface {
               : emoji
           )
       )
-      .forEach(async (emoji: EmojiResolvable) => {
-        await this.message.react(emoji).catch(() => {});
+      .forEach((emoji: EmojiResolvable) => {
+        this.message.react(emoji).catch(() => {});
       });
     this.sentPageReactions = true;
   }
