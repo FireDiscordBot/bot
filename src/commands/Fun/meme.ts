@@ -72,7 +72,7 @@ export default class Meme extends Command {
         })
       )
       .setFooter(
-        language.get("MEME_EMBED_FOOTER"),
+        language.get("POWERED_BY_KSOFT"),
         "https://cdn.ksoft.si/images/Logo1024.png"
       )
       .addField(language.get("TITLE"), meme.post.title, false)
