@@ -10,6 +10,10 @@ import { Message } from "../../../lib/ws/Message";
 import { transpile } from "typescript";
 import { Type } from "@klasa/type";
 import { inspect } from "util";
+import {
+  PaginatorEmbedInterface,
+  WrappedPaginator,
+} from "../../../lib/util/paginators";
 
 const { emojis } = constants;
 
@@ -88,15 +92,6 @@ export default class Eval extends Command {
     const { success, result, type } = await this.eval(message, args);
     if (success && result == null) return;
     const input = codeBlock(args.code.language || "ts", args.code.content);
-    const output = codeBlock("js", result);
-    if (output.length > 1024) {
-      try {
-        const haste = await this.client.util.haste(result);
-        return await message.success("EVAL_TOO_LONG", haste + ".js");
-      } catch {
-        return await message.error("EVAL_TOO_LONG");
-      }
-    }
     const embed = new MessageEmbed()
       .setTitle(
         success
@@ -106,10 +101,28 @@ export default class Eval extends Command {
       .setColor(success ? message.member?.displayColor || "#ffffff" : "#ef5350")
       .setDescription(type.toString() != "any" ? `Output Type: ${type}` : null)
       .addField(":inbox_tray: Input", input, false);
-    if (!type.toString().includes("void") && output && output != "undefined")
-      embed.addField(":outbox_tray: Output", output);
     embed.setFooter(`Cluster ID: ${this.client.manager.id}`);
     if (embed.description == "null") embed.description = null;
+    if (result.length > 1024) {
+      const paginator = new WrappedPaginator("```js", "```", 1200);
+      result.split("\n").forEach((line) => paginator.addLine(line));
+      const paginatorEmbed = new MessageEmbed().setColor(
+        success ? message.member?.displayColor || "#ffffff" : "#ef5350"
+      );
+      const paginatorInterface = new PaginatorEmbedInterface(
+        message.client,
+        paginator,
+        {
+          owner: message.member,
+          embed: paginatorEmbed,
+        }
+      );
+      await this.send(message, embed);
+      return await paginatorInterface.send(message.channel);
+    }
+    const output = codeBlock("js", result);
+    if (!type.toString().includes("void") && output && output != "undefined")
+      embed.addField(":outbox_tray: Output", output);
     success ? await message.success() : await message.error();
     return await this.send(message, embed);
   }
