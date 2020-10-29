@@ -1,4 +1,3 @@
-/* eslint-disable no-bitwise */
 import { constants } from "../lib/util/constants";
 import { ClientOptions } from "discord.js";
 const intents = constants.intents;
