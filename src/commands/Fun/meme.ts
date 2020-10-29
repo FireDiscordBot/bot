@@ -94,7 +94,7 @@ export default class Meme extends Command {
       embed.setImage(meme.url);
     else
       embed.addField(
-        language.get("MEME_NON_IMAGE"),
+        language.get("ATTACHMENT"),
         `[Click Here](${meme.url})`,
         false
       );
