@@ -135,6 +135,7 @@ export default class enUS extends Language {
           PREMIUM:
             "<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)",
         },
+        POWERED_BY_KSOFT: "Powered by KSoft.Si API",
         ADDMOD_COMMAND_DESCRIPTION:
           "Add a member/role as a moderator. If not set, anyone with the Manage Messages permission is considered a moderator",
         MODERATORS_ROLES: "Moderator Roles",
@@ -345,6 +346,18 @@ Hint: Use the \`public\` command to get your server on the list`,
         LEVELHEAD_TAB: "Tab",
         LEVELHEAD_CHAT: "Chat",
         LEVELHEAD_ADDON_LAYERS: "Addon Head Layers",
+        LYRICS_COMMAND_DESCRIPTION:
+          'Get the lyrics for a song. (For best results, use the format "artist_name song_title")',
+        LYRICS_NO_QUERY:
+          'You need to provide a song to get the lyrics for. For best results, use the format "artist_name song_title"',
+        LYRICS_NOT_FOUND: (error?: any) =>
+          error && error == "Error: No results"
+            ? `I couldn't find any lyrics for that song`
+            : `An error occurred while trying to fetch lyrics.`,
+        LYRICS_TITLE: (title: string, artist: string) =>
+          `${title} by ${artist}`,
+
+        MEME_COMMAND_DESCRIPTION: "Get a random meme",
         MEME_NOT_FOUND: (error?: any) =>
           error && error == "Error: subreddit not found"
             ? `I couldn't find any memes. Here's an idea! Try a subreddit that actually exists next time ;)`
@@ -353,7 +366,6 @@ Hint: Use the \`public\` command to get your server on the list`,
           "The meme I was given was marked as NSFW but this channel is not. If you're looking for NSFW memes, head to an NSFW channel, otherwise just try again",
         MEME_EMBED_TITLE: "Did someone order a spicy meme?",
         MEME_EMBED_AUTHOR: (user: FireUser) => `Requested by ${user}`,
-        MEME_EMBED_FOOTER: "Powered by KSoft.Si",
         MEME_SUBREDDIT: "Subreddit",
         MODONLY_COMMAND_DESCRIPTION:
           "Set channels to restrict commands for moderators",
