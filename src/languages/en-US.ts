@@ -32,6 +32,8 @@ export default class enUS extends Language {
           "Only premium guilds can use this command. Learn more at https://inv.wtf/premium",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
+        ERROR_NO_KSOFT:
+          "Unable to use KSoft.Si API due to lack of authentication",
         NO_MODERATORS_SET: "There are no moderators set in this guild.",
         MORE_INTEGRATIONS:
           "Want more integrations? Use the suggest command to suggest some!",
@@ -49,6 +51,9 @@ export default class enUS extends Language {
         ABOUT: "About",
         ROLES: "Roles",
         NOTES: "Notes",
+        TITLE: "Title",
+        STATS: "Stats",
+        ATTACHMENT: "Attachment",
         REGION_DEPRECATED: "❓ Deprecated Region",
         REGIONS: {
           brazil: "🇧🇷 Brazil",
@@ -340,6 +345,16 @@ Hint: Use the \`public\` command to get your server on the list`,
         LEVELHEAD_TAB: "Tab",
         LEVELHEAD_CHAT: "Chat",
         LEVELHEAD_ADDON_LAYERS: "Addon Head Layers",
+        MEME_NOT_FOUND: (error?: any) =>
+          error && error == "Error: subreddit not found"
+            ? `I couldn't find any memes. Here's an idea! Try a subreddit that actually exists next time ;)`
+            : `An error occurred while trying to fetch some spicy memes.`,
+        MEME_NSFW_FORBIDDEN:
+          "The meme I was given was marked as NSFW but this channel is not. If you're looking for NSFW memes, head to an NSFW channel, otherwise just try again",
+        MEME_EMBED_TITLE: "Did someone order a spicy meme?",
+        MEME_EMBED_AUTHOR: (user: FireUser) => `Requested by ${user}`,
+        MEME_EMBED_FOOTER: "Powered by KSoft.Si",
+        MEME_SUBREDDIT: "Subreddit",
         MODONLY_COMMAND_DESCRIPTION:
           "Set channels to restrict commands for moderators",
         MODONLY_NO_CHANNELS:
