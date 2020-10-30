@@ -99,8 +99,11 @@ export default class Google extends Command {
     await page.close();
     await context.close();
     await browser.close();
-    return await message.channel.send(null, {
+    await message.channel.send(null, {
       files: [{ attachment: screenshot, name: "google.png" }],
     });
+    this.currentlyRunning = this.currentlyRunning.filter(
+      (id) => id != message.author.id
+    );
   }
 }
