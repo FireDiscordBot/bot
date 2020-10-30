@@ -1,13 +1,12 @@
-import { chromium, ChromiumBrowser, ChromiumBrowserContext } from "playwright";
 import * as credentials from "../../../assistant-credentials.json";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
+import { chromium } from "playwright";
 
 export default class Google extends Command {
   assistant: Assistant;
-  currentlyRunning: string[];
 
   constructor() {
     super("google", {
@@ -23,6 +22,7 @@ export default class Google extends Command {
           required: true, // Default is set to Hi so that the assistant will likely ask what it can do
         },
       ],
+      lock: "user",
       typing: true, // This command takes a hot sec to run, especially when running locally so type while waiting
     });
     this.assistant = new Assistant(
@@ -38,13 +38,9 @@ export default class Google extends Command {
         deviceModelId: "fire0682-444871677176709141",
       }
     );
-    this.currentlyRunning = [];
   }
 
   async exec(message: FireMessage, args: { query: string }) {
-    if (this.currentlyRunning.includes(message.author.id))
-      return await message.error("GOOGLE_MAX_CONCURRENCY");
-    else this.currentlyRunning.push(message.author.id);
     const response = await this.assistant.query(args.query, {
       conversationState:
         this.client.conversationStates.get(message.author.id) || null,
@@ -79,12 +75,7 @@ export default class Google extends Command {
     "<div class='show_text_content'>I remember you telling me your name was ${message.author.username}.</div>"
   );};`
       );
-    if (!html) {
-      this.currentlyRunning = this.currentlyRunning.filter(
-        (id) => id != message.author.id
-      );
-      return await message.error("GOOGLE_SOMETHING_WENT_WRONG");
-    }
+    if (!html) return await message.error("GOOGLE_SOMETHING_WENT_WRONG");
     const browser = await chromium.launch({
       logger: null,
       args: ["--headless", "--disable-gpu", "--log-file=/dev/null"],
@@ -102,8 +93,5 @@ export default class Google extends Command {
     await message.channel.send(null, {
       files: [{ attachment: screenshot, name: "google.png" }],
     });
-    this.currentlyRunning = this.currentlyRunning.filter(
-      (id) => id != message.author.id
-    );
   }
 }

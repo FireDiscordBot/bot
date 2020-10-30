@@ -30,6 +30,9 @@ export default class enUS extends Language {
           "You can only use this command in a server. You can invite me to a server at <https://inv.wtf/tsbot>",
         COMMAND_PREMIUM_ONLY:
           "Only premium guilds can use this command. Learn more at https://inv.wtf/premium",
+        COMMAND_ERROR_CONCURRENCY:
+          // For different languages, you may want to change the "hold your horses" bit as it may not make sense in that language
+          "Whoa, hold your horses there! Wait for the command to finish before running it again",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
         ERROR_NO_KSOFT:
@@ -280,9 +283,6 @@ Hint: Use the \`public\` command to get your server on the list`,
               : "Unknown#0000"
           } ${created}**`,
         GOOGLE_COMMAND_DESCRIPTION: "Speak to the Google Assistant",
-        GOOGLE_MAX_CONCURRENCY:
-          // For different languages, you may want to change the "hold your horses" bit as it may not make sense in that language
-          "Whoa, hold your horses there! Wait for the command to finish before running it again",
         GOOGLE_SOMETHING_WENT_WRONG:
           "<a:okaygoogle:769207087674032129> Something went wrong. Try again later",
         GUILD_JOIN_POS: (pos: number) => `**Your Join Position:** ${pos}`,
