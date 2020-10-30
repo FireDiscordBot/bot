@@ -4,6 +4,7 @@ import * as Sentry from "@sentry/node";
 import { setupRoutes } from "../src/rest/routeManager";
 import { Reconnector } from "./ws/Reconnector";
 import { Websocket } from "./ws/Websocket";
+import { Command } from "./util/command";
 import { disconnect } from "pm2";
 import { Fire } from "./Fire";
 
@@ -105,6 +106,9 @@ export class Manager {
       "invisible",
       this.client.options.shards as number[]
     );
+    this.client.commandHandler.modules.forEach(
+      async (command: Command) => await command.unload()
+    );
     this.client?.destroy();
     this.client = new Fire(this, this.sentry);
     this.launch(data);
@@ -115,6 +119,9 @@ export class Manager {
     this.client?.user?.setStatus(
       "invisible",
       this.client.options.shards as number[]
+    );
+    this.client.commandHandler.modules.forEach(
+      async (command: Command) => await command.unload()
     );
     this.client?.destroy();
     this.ws?.close(

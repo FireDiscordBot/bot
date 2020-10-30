@@ -279,6 +279,12 @@ Hint: Use the \`public\` command to get your server on the list`,
               ? guild.owner
               : "Unknown#0000"
           } ${created}**`,
+        GOOGLE_COMMAND_DESCRIPTION: "Speak to the Google Assistant",
+        GOOGLE_MAX_CONCURRENCY:
+          // For different languages, you may want to change the "hold your horses" bit as it may not make sense in that language
+          "Whoa, hold your horses there! Wait for the command to finish before running it again",
+        GOOGLE_SOMETHING_WENT_WRONG:
+          "<a:okaygoogle:769207087674032129> Something went wrong. Try again later",
         GUILD_JOIN_POS: (pos: number) => `**Your Join Position:** ${pos}`,
         GUILD_VERIF_VERY_HIGH: "**Extreme Verification Level**",
         GUILD_VERIF_HIGH: "**High Verification Level**",

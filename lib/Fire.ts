@@ -72,6 +72,7 @@ export class Fire extends AkairoClient {
   util: Util;
   ksoft?: KSoftClient;
   config: typeof config.fire;
+  conversationStates: Map<string, Buffer>; // Google Command conversation states
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
@@ -217,6 +218,7 @@ export class Fire extends AkairoClient {
     });
     this.modules.loadAll();
 
+    this.conversationStates = new Map();
     this.ksoft = process.env.KSOFT_TOKEN
       ? new KSoftClient(process.env.KSOFT_TOKEN)
       : undefined;
