@@ -118,7 +118,7 @@ export class Util extends ClientUtil {
       userId: this.client.user ? this.client.user.id : "",
       started: this.client.launchTime.toISOString(true),
       uptime: humanize(duration, "en"),
-      cpu: processInfo.length ? `${processInfo[0].monit.cpu}%` : "Unknown%",
+      cpu: processInfo.length ? processInfo[0]?.monit?.cpu || 0 : 0,
       ram: processInfo.length
         ? humanFileSize(processInfo[0].monit.memory)
         : "Unknown MB",
