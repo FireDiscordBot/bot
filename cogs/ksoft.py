@@ -38,6 +38,8 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
             if sub is None:
                 meme = await self.ksoft.images.random_meme()
             else:
+                if sub.startswith("r/"):
+			        sub = sub[2:]
                 meme = await self.ksoft.images.random_reddit(sub)
         except ksoftapi.APIError as e:
             return await ctx.error(str(e))
