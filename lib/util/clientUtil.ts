@@ -122,6 +122,7 @@ export class Util extends ClientUtil {
       ram: processInfo.length
         ? humanFileSize(processInfo[0].monit.memory)
         : "Unknown MB",
+      ramBytes: processInfo.length ? processInfo[0]?.monit?.memory || 0 : 0,
       pid: process.pid,
       version: this.client.config.dev ? "dev" : getCommitHash().slice(0, 7),
       versions: `Discord.JS v${djsver} | Node.JS ${process.version}`,
