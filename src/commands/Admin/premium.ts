@@ -1,6 +1,9 @@
+import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
 import { FireMessage } from "../../../lib/extensions/message";
+import { EventType } from "../../../lib/ws/util/constants";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
+import { Message } from "../../../lib/ws/Message";
 import { Inhibitor } from "discord-akairo";
 
 export default class Premium extends Command {
@@ -73,6 +76,18 @@ export default class Premium extends Command {
       );
 
       if (result.status.startsWith("DELETE ")) {
+        if (this.client.manager.ws)
+          this.client.manager.ws.send(
+            MessageUtil.encode(
+              new Message(EventType.ADMIN_ACTION, {
+                user: `${message.author} (${message.author.id})`,
+                guild: `${message.guild} (${message.guild.id})`,
+                shard: message.guild.shardID,
+                cluster: this.client.manager.id,
+                action: `Premium was removed from ${guild}`,
+              })
+            )
+          );
         try {
           const inhibitor = this.client.inhibitorHandler.reload("premium");
           return inhibitor instanceof Inhibitor
@@ -99,6 +114,18 @@ export default class Premium extends Command {
       [guild, user, reason]
     );
     if (result.status.startsWith("INSERT 0 1")) {
+      if (this.client.manager.ws)
+        this.client.manager.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.ADMIN_ACTION, {
+              user: `${message.author} (${message.author.id})`,
+              guild: `${message.guild} (${message.guild.id})`,
+              shard: message.guild.shardID,
+              cluster: this.client.manager.id,
+              action: `${guild} was given premium`,
+            })
+          )
+        );
       try {
         const inhibitor = this.client.inhibitorHandler.reload("premium");
         return inhibitor instanceof Inhibitor

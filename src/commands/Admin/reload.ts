@@ -46,6 +46,18 @@ export default class Reload extends Command {
   ) {
     if (!args.module) return await message.error();
     if (args.module == "*") {
+      if (this.client.manager.ws)
+        this.client.manager.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.ADMIN_ACTION, {
+              user: `${message.author} (${message.author.id})`,
+              guild: `${message.guild} (${message.guild.id})`,
+              shard: message.guild.shardID,
+              cluster: this.client.manager.id,
+              action: `All commands/languages/listeners/modules were reloaded`,
+            })
+          )
+        );
       try {
         if (args.broadcast) {
           this.client.manager.ws.send(
@@ -75,6 +87,18 @@ export default class Reload extends Command {
       }
     }
     try {
+      if (this.client.manager.ws)
+        this.client.manager.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.ADMIN_ACTION, {
+              user: `${message.author} (${message.author.id})`,
+              guild: `${message.guild} (${message.guild.id})`,
+              shard: message.guild.shardID,
+              cluster: this.client.manager.id,
+              action: `${args.module.handler.classToHandle.name} ${args.module.id} was reloaded`,
+            })
+          )
+        );
       if (args.broadcast) {
         this.client.manager.ws.send(
           MessageUtil.encode(

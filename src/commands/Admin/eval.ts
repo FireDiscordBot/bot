@@ -90,6 +90,27 @@ export default class Eval extends Command {
     if (args.code.language == "ts")
       args.code.content = transpile(args.code.content);
     const { success, result, type } = await this.eval(message, args);
+    if (this.client.manager.ws) {
+      let input, output;
+      try {
+        input = await this.client.util.haste(args.code.content);
+        output = await this.client.util.haste(result);
+      } catch {
+        input = "Unknown";
+        output = "Unknown";
+      }
+      this.client.manager.ws.send(
+        MessageUtil.encode(
+          new Message(EventType.ADMIN_ACTION, {
+            user: `${message.author} (${message.author.id})`,
+            guild: `${message.guild} (${message.guild.id})`,
+            shard: message.guild.shardID,
+            cluster: this.client.manager.id,
+            action: `Eval Command Ran. Input: ${input} | Output: ${output}`,
+          })
+        )
+      );
+    }
     if (success && result == null) return;
     const input = codeBlock(args.code.language || "ts", args.code.content);
     const embed = new MessageEmbed()
