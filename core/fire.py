@@ -24,6 +24,7 @@ from sentry_sdk import push_scope
 from .context import Context
 from .config import Config
 import sentry_sdk
+import subprocess
 import aioredis
 import datetime
 import discord
@@ -49,6 +50,11 @@ class Fire(commands.Bot):
         self.db: asyncpg.pool.Pool = None
         self.dev = kwargs.pop('dev', False)
         self.plonked = []
+        try:
+            self.version = subprocess.check_output(
+                ['git', 'rev-parse', '--short', 'HEAD']).decode()
+        except Exception:
+            self.version = ""
 
         # CRAB
         self.crab = '🦀'
