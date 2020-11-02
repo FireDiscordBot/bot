@@ -64,9 +64,13 @@ export default class MakeAMeme extends Command {
     if (memeReq.statusCode != 200) return await message.error();
     else {
       const meme = memeReq.body;
-      return await message.channel.send("", {
-        files: [{ attachment: meme, name: `spicymeme.png` }],
-      });
+      return await message.channel
+        .send("", {
+          files: [{ attachment: meme, name: `spicymeme.png` }],
+        })
+        .catch(async (reason) => {
+          return await message.error("MAKEAMEME_UPLOAD_FAIL");
+        });
     }
   }
 }

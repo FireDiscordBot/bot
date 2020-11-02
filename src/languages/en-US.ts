@@ -367,6 +367,7 @@ Hint: Use the \`public\` command to get your server on the list`,
         MAKEAMEME_NO_IMAGE:
           "You need to provide a member (to use their avatar), image url or attach an image to make a meme",
         MAKEAMEME_NO_TEXT: "You must provide text separated by **|**",
+        MAKEAMEME_UPLOAD_FAIL: "Failed to upload spicy meme :(",
         MEME_COMMAND_DESCRIPTION: "Get a random meme",
         MEME_NOT_FOUND: (error?: any) =>
           error && error == "Error: subreddit not found"
