@@ -362,7 +362,11 @@ Hint: Use the \`public\` command to get your server on the list`,
             : `An error occurred while trying to fetch lyrics.`,
         LYRICS_TITLE: (title: string, artist: string) =>
           `${title} by ${artist}`,
-
+        MAKEAMEME_COMMAND_DESCRIPTION:
+          'Make your own meme using the "top text bottom text" format',
+        MAKEAMEME_NO_IMAGE:
+          "You need to provide a member (to use their avatar), image url or attach an image to make a meme",
+        MAKEAMEME_NO_TEXT: "You must provide text separated by **|**",
         MEME_COMMAND_DESCRIPTION: "Get a random meme",
         MEME_NOT_FOUND: (error?: any) =>
           error && error == "Error: subreddit not found"

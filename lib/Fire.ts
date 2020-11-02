@@ -16,6 +16,10 @@ import {
   guildChannelSilentTypeCaster,
   guildChannelTypeCaster,
 } from "../src/arguments/guildChannel";
+import {
+  memberSilentTypeCaster,
+  memberTypeCaster,
+} from "../src/arguments/member";
 import { memberRoleTypeCaster } from "../src/arguments/memberRole";
 import { userMemberTypeCaster } from "../src/arguments/userMember";
 import { codeblockTypeCaster } from "../src/arguments/codeblock";
@@ -24,7 +28,6 @@ import { listenerTypeCaster } from "../src/arguments/listener";
 import { booleanTypeCaster } from "../src/arguments/boolean";
 import { commandTypeCaster } from "../src/arguments/command";
 import { Language, LanguageHandler } from "./util/language";
-import { memberTypeCaster } from "../src/arguments/member";
 import { moduleTypeCaster } from "../src/arguments/module";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandHandler";
@@ -154,6 +157,7 @@ export class Fire extends AkairoClient {
       "user|member": userMemberTypeCaster,
       "member|role": memberRoleTypeCaster,
       member: memberTypeCaster,
+      memberSilent: memberSilentTypeCaster,
       user: userTypeCaster,
       role: roleTypeCaster,
       textChannel: textChannelTypeCaster,
