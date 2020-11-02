@@ -33,7 +33,7 @@ export const fire = {
     client.ws.shards.forEach((shard) =>
       client.user?.setPresence({
         activity: {
-          name: `with fire | ${shard.id}/${client.options.shardCount}`,
+          name: `with fire | ${shard.id + 1}/${client.options.shardCount}`,
         },
         status: "dnd",
         shardID: shard.id,
