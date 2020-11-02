@@ -52,7 +52,7 @@ export default class Reload extends Command {
             new Message(EventType.ADMIN_ACTION, {
               user: `${message.author} (${message.author.id})`,
               guild: message.guild ? `${message.guild} (${message.guild.id})` : "N/A",
-              shard: message.guild.shardID,
+              shard: message.guild ? message.guild.shardID : 0,
               cluster: this.client.manager.id,
               action: `All commands/languages/listeners/modules were reloaded`,
             })
@@ -93,7 +93,7 @@ export default class Reload extends Command {
             new Message(EventType.ADMIN_ACTION, {
               user: `${message.author} (${message.author.id})`,
               guild: message.guild ? `${message.guild} (${message.guild.id})` : "N/A",
-              shard: message.guild.shardID,
+              shard: message.guild ? message.guild.shardID : 0,
               cluster: this.client.manager.id,
               action: `${args.module.handler.classToHandle.name} ${args.module.id} was reloaded`,
             })
