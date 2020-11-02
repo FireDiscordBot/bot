@@ -45,7 +45,7 @@ export class UserSettings {
   }
 
   get(option: string, defaultValue: any = null) {
-    return this.client.guildSettings.get(
+    return this.client.userSettings.get(
       this.user instanceof FireUser ? this.user.id : this.user,
       option,
       defaultValue
@@ -53,7 +53,7 @@ export class UserSettings {
   }
 
   set(option: string, value: any = null) {
-    return this.client.guildSettings.set(
+    return this.client.userSettings.set(
       this.user instanceof FireUser ? this.user.id : this.user,
       option,
       value
@@ -61,7 +61,7 @@ export class UserSettings {
   }
 
   delete(option: string) {
-    return this.client.guildSettings.delete(
+    return this.client.userSettings.delete(
       this.user instanceof FireUser ? this.user.id : this.user,
       option
     );
