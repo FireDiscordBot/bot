@@ -24,12 +24,12 @@ export const fire = {
     client.console.log("-------------------------");
     try {
       process.send("ready");
+      client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.READY_CLIENT, { id: client.manager.id })
+        )
+      );
     } catch {}
-    client.manager.ws?.send(
-      MessageUtil.encode(
-        new Message(EventType.READY_CLIENT, { id: client.manager.id })
-      )
-    );
     client.ws.shards.forEach((shard) =>
       client.user?.setPresence({
         activity: {
