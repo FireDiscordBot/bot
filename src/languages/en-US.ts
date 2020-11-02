@@ -209,6 +209,9 @@ This will **not** rename existing users`,
         DESC_FAILED: "Failed to set guild description.",
         DESC_SET: "Successfully set guild description!",
         DESC_RESET: "Successfully reset guild description!",
+        DEEPFRY_COMMAND_DESCRIPTION:
+          "Deepfry an image or your avatar (your avatar is used if no argument is provided)",
+        DEEPFRY_UPLOAD_FAIL: "Deepfry machine broke :(",
         DISCOVER_COMMAND_DESCRIPTION: "Links to Fire's public servers page",
         DISCOVER_MESSAGE: `You can find Fire\'s public server list at <${constants.url.discovery}>
 Hint: Use the \`public\` command to get your server on the list`,
