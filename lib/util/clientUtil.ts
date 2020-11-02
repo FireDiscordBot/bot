@@ -126,6 +126,7 @@ export class Util extends ClientUtil {
       pid: process.pid,
       version: this.client.config.dev ? "dev" : getCommitHash().slice(0, 7),
       versions: `Discord.JS v${djsver} | Node.JS ${process.version}`,
+      socketStats: Object.fromEntries(this.client.manager.socketStats || []),
       guilds: this.client.guilds.cache.size,
       unavailableGuilds: this.client.guilds.cache.filter(
         (guild) => !guild.available

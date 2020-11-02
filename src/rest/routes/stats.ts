@@ -3,6 +3,7 @@ import * as express from "express";
 export async function statsRoute(req: express.Request, res: express.Response) {
   const client = req.app.client;
   const stats = await client.util.getClusterStats();
+  delete stats.socketStats; // Only for influx
   stats.shards.forEach((shard) => {
     delete shard.publicGuilds;
     delete shard.discoverableGuilds;

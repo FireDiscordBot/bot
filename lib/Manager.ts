@@ -22,6 +22,9 @@ export class Manager {
   ws?: Websocket;
   rest: express.Application;
   reconnector: Reconnector;
+  
+  // Statistics
+  socketStats: Map<string, number>;
 
   constructor(sentry?: typeof Sentry, pm2?: boolean) {
     this.id = parseInt(process.env.NODE_APP_INSTANCE || "0");
