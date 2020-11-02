@@ -81,7 +81,7 @@ export default class Premium extends Command {
             MessageUtil.encode(
               new Message(EventType.ADMIN_ACTION, {
                 user: `${message.author} (${message.author.id})`,
-                guild: `${message.guild} (${message.guild.id})`,
+                guild: message.guild ? `${message.guild} (${message.guild.id})` : "N/A",
                 shard: message.guild.shardID,
                 cluster: this.client.manager.id,
                 action: `Premium was removed from ${guild}`,
@@ -119,7 +119,7 @@ export default class Premium extends Command {
           MessageUtil.encode(
             new Message(EventType.ADMIN_ACTION, {
               user: `${message.author} (${message.author.id})`,
-              guild: `${message.guild} (${message.guild.id})`,
+              guild: message.guild ? `${message.guild} (${message.guild.id})` : "N/A",
               shard: message.guild.shardID,
               cluster: this.client.manager.id,
               action: `${guild} was given premium`,
