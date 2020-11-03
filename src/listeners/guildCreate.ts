@@ -11,13 +11,6 @@ export default class GuildCreate extends Listener {
   }
 
   async exec(guild: FireGuild) {
-    if (!this.client.util.loadedData.premium)
-      await this.client.util.sleep(1000);
-    if (
-      !this.client.util.premium.has(guild.id) &&
-      this.client.config.premiumOnly
-    )
-      return await guild.leave();
     if (!this.client.guildSettings.items.has(guild.id))
       await this.client.guildSettings.init(guild.id);
     await (this.client.getCommand("description") as Description)
