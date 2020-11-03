@@ -27,7 +27,7 @@ export class FireGuild extends Guild {
   isPublic() {
     return (
       this.settings.get("utils.public", false) ||
-      this.features.includes("DISCOVERABLE")
+      (this.features && this.features.includes("DISCOVERABLE"))
     );
   }
 
