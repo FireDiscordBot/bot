@@ -2,7 +2,6 @@ import { MessageUtil } from "../../lib/ws/util/MessageUtil";
 import { EventType } from "../../lib/ws/util/constants";
 import { Module } from "../../lib/util/module";
 import { Message } from "../../lib/ws/Message";
-import { inspect } from "util";
 
 export default class AetherStats extends Module {
   statsTask: NodeJS.Timeout;
