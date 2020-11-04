@@ -61,9 +61,51 @@ export const constants = {
   },
   regexes: {
     discord: {
-      cdn: /https:\/\/cdn.discordapp.com\/attachments\/(?:\d){17,19}\/(?:\d){17,19}\/(?:.+?)(?:.png|.jpg)/i,
+      cdn: /https:\/\/cdn.discordapp.com\/attachments\/(?:\d){15,21}\/(?:\d){15,21}\/(?:.+?)(?:.png|.jpg)/im,
+      invite: /discord\.gg\/([a-zA-Z0-9\-]{1,25})/im,
+      message: /(?:http(?:s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?/,
     },
+    invites: [
+      /(?<domain>(?:dsc|dis|discord|invite).(?:gd|gg|io|me))\/(?<code>[a-zA-Z0-9\-]+)/im,
+      /(?<domain>(?:discord(?:app)?|watchanimeattheoffice).com)\/invite\/(?<code>[a-zA-Z0-9\-]+)/im,
+      /(?<domain>(?:h\.|i\.)?inv\.wtf)\/(?<code>[a-zA-Z0-9\-]+)/im,
+    ],
   },
+  blockedGifts: [
+    "690195254191849478",
+    "712716640940326962",
+    "444871677176709141",
+    "715594662257229848",
+    "715724782011678821",
+    "590547469624934410",
+  ],
+  allowedInvites: [
+    // Below are guild ids of which invites for won't be deleted by the "discord" filter
+    // They are servers that people may find helpful (e.g. discord-owned servers, programming servers etc.)
+
+    // Pull requests to add to this list are welcome but will only be accepted if there is a legitimate reason
+    // for invites to it to be filtered.
+
+    // Official Servers
+    "613425648685547541", // DDevs
+    "197038439483310086", // Testers
+    "169256939211980800", // Townhall
+    "81384788765712384", // DAPI
+    "670065151621332992", // Demo Server (do invites for this even exist anymore?)
+
+    // Fire Discord
+    "564052798044504084", // Fire
+
+    // Programming / Discord Libraries
+    "267624335836053506", // Python
+    "336642139381301249", // Discord.py
+    "508357248330760243", // TypeScript
+    "222078108977594368", // Discord.JS
+    "305153029567676426", // Akairo
+    "749688635741437982", // Kotlin (unofficial)
+    "125227483518861312", // JDA
+    "745037351163527189", // Electron
+  ],
   intents: {
     GUILDS: 1 << 0,
     GUILD_MEMBERS: 1 << 1,

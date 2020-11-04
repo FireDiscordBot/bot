@@ -56,6 +56,8 @@ export default class enUS extends Language {
         NOTES: "Notes",
         TITLE: "Title",
         STATS: "Stats",
+        GUILD: "Guild",
+        CHANNEL: "Channel",
         ATTACHMENT: "Attachment",
         REGION_DEPRECATED: "❓ Deprecated Region",
         REGIONS: {
@@ -278,6 +280,9 @@ Hint: Use the \`public\` command to get your server on the list`,
           haste
             ? `Output was too long, uploaded to hastebin; ${haste}`
             : `Output was too long, failed to upload to hastebin`,
+        FILTER_INVITE_LOG_DESCRIPTION: (channel: TextChannel) =>
+          `**Invite link sent in** ${channel}`,
+        FILTER_INVITE_LOG_CODE: "Invite Code",
         GUILD_COMMAND_DESCRIPTION: "Get a general overview of the guild",
         GUILD_CREATED_AT: (guild: FireGuild, created: string) =>
           `**Created by ${
