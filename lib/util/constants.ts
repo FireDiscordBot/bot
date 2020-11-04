@@ -19,6 +19,20 @@ export const constants = {
     green: "<:operational:685538400639385649>",
     yellow: "<:partial_outage:685538400555499675>",
     red: "<:major_outage:685538400639385706>",
+    badges: {
+      DISCORD_EMPLOYEE: "<:DiscordStaff:698344463281422371>",
+      PARTNERED_SERVER_OWNER: "<a:PartnerShine:750451997244915862>",
+      HYPESQUAD_EVENTS: "<:HypesquadEvents:698349980192079882>",
+      BUGHUNTER_LEVEL_1: "<:BugHunter:698350213596971049>",
+      BUGHUNTER_LEVEL_2: "<:GoldBugHunter:698350544103669771>",
+      EARLY_SUPPORTER: "<:EarlySupporter:698350657073053726>",
+      VERIFIED_BOT:
+        "<:verifiedbot1:700325427998097449><:verifiedbot2:700325521665425429>",
+      EARLY_VERIFIED_BOT_DEVELOPER: "<:VerifiedBotDev:720179031785340938>",
+      EARLY_VERIFIED_DEVELOPER: "<:VerifiedBotDev:720179031785340938>",
+      FIRE_ADMIN: "<:FireVerified:671243744774848512>",
+      FIRE_PREMIUM: "<:FirePremium:680519037704208466>",
+    },
   },
   reactions: {
     success: "yes:534174796888408074",

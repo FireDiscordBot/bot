@@ -13,8 +13,10 @@ import { Command } from "../../../lib/util/command";
 import { Ban } from "@aero/ksoft";
 import * as moment from "moment";
 
-const { emojis } = constants;
-
+const {
+  emojis,
+  emojis: { badges },
+} = constants;
 export default class User extends Command {
   constructor() {
     super("user", {
@@ -146,27 +148,13 @@ export default class User extends Command {
 
   getBadges(user: FireUser) {
     const flags = user.flags.toArray();
-    const cache = this.client.emojis.cache;
-    const badges = {
-      DISCORD_EMPLOYEE: cache.get("698344463281422371"),
-      PARTNERED_SERVER_OWNER: cache.get("748876804562878504"),
-      HYPESQUAD_EVENTS: cache.get("698349980192079882"),
-      BUGHUNTER_LEVEL_1: cache.get("698350213596971049"),
-      BUGHUNTER_LEVEL_2: cache.get("698350544103669771"),
-      EARLY_SUPPORTER: cache.get("698350657073053726"),
-      VERIFIED_BOT:
-        cache.get("700325427998097449").toString() +
-        cache.get("700325521665425429").toString(),
-      EARLY_VERIFIED_BOT_DEVELOPER: cache.get("720179031785340938"), // docs say this
-      EARLY_VERIFIED_DEVELOPER: cache.get("720179031785340938"), // UserFlags#toArray says this so idk
-    };
     let emojis: string[] = Object.keys(badges)
       .filter((badge: UserFlagsString) => flags.includes(badge))
-      .map((badge) => badges[badge].toString());
+      .map((badge) => badges[badge]);
     if (this.client.util.admins.includes(user.id))
-      emojis.push(cache.get("671243744774848512").toString());
+      emojis.push(badges.FIRE_ADMIN);
     if ([...this.client.util.premium.values()].includes(user.id))
-      emojis.push(cache.get("680519037704208466").toString());
+      emojis.push(badges.FIRE_PREMIUM);
     if (emojis.length) emojis.push(zws);
     return emojis;
   }
