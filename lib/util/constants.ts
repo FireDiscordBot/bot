@@ -30,6 +30,8 @@ export const constants = {
         "<:verifiedbot1:700325427998097449><:verifiedbot2:700325521665425429>",
       EARLY_VERIFIED_BOT_DEVELOPER: "<:VerifiedBotDev:720179031785340938>",
       EARLY_VERIFIED_DEVELOPER: "<:VerifiedBotDev:720179031785340938>",
+      PARTNERED: "<:PartnerWithBanner:748876805011931188>",
+      VERIFIED: "<:VerifiedWithBanner:751196492517081189>",
       FIRE_ADMIN: "<:FireVerified:671243744774848512>",
       FIRE_PREMIUM: "<:FirePremium:680519037704208466>",
     },

@@ -3,8 +3,12 @@ import { FireMessage } from "../../../lib/extensions/message";
 import { FireGuild } from "../../../lib/extensions/guild";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import * as moment from "moment";
 import { MessageEmbed } from "discord.js";
+import * as moment from "moment";
+
+const {
+  emojis: { badges },
+} = constants;
 
 export default class GuildCommand extends Command {
   constructor() {
@@ -17,27 +21,19 @@ export default class GuildCommand extends Command {
   }
 
   getBadges(guild: FireGuild) {
-    const badges: string[] = [];
+    const emojis: string[] = [];
 
-    if (guild.id == "564052798044504084")
-      badges.push(
-        this.client.emojis.cache.get("671243744774848512").toString()
-      );
-    if (guild.features.includes("PARTNERED"))
-      badges.push(
-        this.client.emojis.cache.get("748876805011931188").toString()
-      );
-    if (guild.features.includes("VERIFIED"))
-      badges.push(
-        this.client.emojis.cache.get("751196492517081189").toString()
-      );
-    // TODO add premium badge
+    if (guild.id == "564052798044504084") emojis.push(badges.FIRE_ADMIN);
+    if (this.client.util.premium.has(guild.id))
+      emojis.push(badges.FIRE_PREMIUM);
+    if (guild.features.includes("PARTNERED")) emojis.push(badges.PARTNERED);
+    if (guild.features.includes("VERIFIED")) emojis.push(badges.VERIFIED);
 
-    if (badges.length > 0) {
-      badges.push(zws);
+    if (emojis.length > 0) {
+      emojis.push(zws);
     }
 
-    return badges;
+    return emojis;
   }
 
   getInfo(message: FireMessage, guild: FireGuild) {
