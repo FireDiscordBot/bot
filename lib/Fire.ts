@@ -109,15 +109,6 @@ export class Fire extends AkairoClient {
     );
     this.on("ready", () => config.fire.readyMessage(this));
 
-    this.on("raw", (payload) => {
-      if (!this.manager.socketStats || !payload.t) return;
-      if (!this.manager.socketStats.has(payload.t)) this.manager.socketStats.set(payload.t, 1);
-      else {
-        let current = this.manager.socketStats.get(payload.t);
-        this.manager.socketStats.set(payload.t, ++current);
-      }
-    });
-
     if (sentry) {
       this.sentry = sentry;
       this.sentry.setTag("shard", this.manager.id.toString());
