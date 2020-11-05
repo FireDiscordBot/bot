@@ -4,9 +4,9 @@ const intents = constants.intents;
 
 export const discord: ClientOptions = {
   allowedMentions: {},
-  messageCacheMaxSize: 2500,
-  messageCacheLifetime: 60,
+  messageCacheLifetime: 500,
   messageSweepInterval: 120,
+  messageEditHistoryMaxSize: 2,
   fetchAllMembers: false,
   partials: ["REACTION", "MESSAGE", "CHANNEL", "GUILD_MEMBER", "USER"],
   ws: {
