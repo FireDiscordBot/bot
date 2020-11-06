@@ -22,7 +22,6 @@ export default class Steal extends Command {
   }
 
   async exec(message: FireMessage, args: { emoji: string }) {
-    // emoji is any to please the left-hand side of an 'instanceof' expression
     let emoji = args.emoji;
     let name = "stolen_emoji";
     const emojiRegex = /<a?:(?<name>[a-zA-Z0-9\_]+):(?<id>\d{15,21})>/im;
