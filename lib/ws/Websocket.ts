@@ -30,9 +30,7 @@ export class Websocket extends Client {
           new Message(EventType.IDENTIFY_CLIENT, {
             id: manager.id,
             ready: !!manager.client.readyAt,
-            config: {
-              restPort: parseInt(process.env.REST_START_PORT) + manager.id,
-            },
+            config: {},
           })
         )
       );

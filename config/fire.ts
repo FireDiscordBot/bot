@@ -1,3 +1,4 @@
+import { getAllCommands, getCommands } from "../lib/util/commandUtil";
 import { MessageUtil } from "../lib/ws/util/MessageUtil";
 import { EventType } from "../lib/ws/util/constants";
 import { humanize } from "../lib/util/constants";
@@ -25,7 +26,14 @@ export const fire = {
       process.send("ready");
       client.manager.ws?.send(
         MessageUtil.encode(
-          new Message(EventType.READY_CLIENT, { id: client.manager.id })
+          new Message(EventType.READY_CLIENT, {
+            id: client.manager.id,
+            commands: getCommands(client),
+            allCommands: getAllCommands(client),
+            avatar: client.user.displayAvatarURL({
+              size: 4096,
+            }),
+          })
         )
       );
     } catch {}
@@ -39,7 +47,8 @@ export const fire = {
       })
     );
     client.guildSettings.items = client.guildSettings.items.filter(
-      (value, key) => client.guilds.cache.has(key)
+      (value, key) => client.guilds.cache.has(key) || key == "0"
     ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
+       // or "0" which may be used for something later
   },
 };

@@ -1,18 +1,9 @@
-import * as express from "express";
-import * as Sentry from "@sentry/node";
-
-import { setupRoutes } from "../src/rest/routeManager";
 import { Reconnector } from "./ws/Reconnector";
 import { Websocket } from "./ws/Websocket";
 import { Command } from "./util/command";
 import { disconnect } from "pm2";
 import { Fire } from "./Fire";
-
-declare module "express-serve-static-core" {
-  export interface Application {
-    client: Fire;
-  }
-}
+import * as Sentry from "@sentry/node";
 
 export class Manager {
   id: number;
@@ -20,7 +11,6 @@ export class Manager {
   pm2: boolean;
   client: Fire;
   ws?: Websocket;
-  rest: express.Application;
   reconnector: Reconnector;
 
   constructor(sentry?: typeof Sentry, pm2?: boolean) {
@@ -34,32 +24,12 @@ export class Manager {
       this.reconnector = new Reconnector(this);
     }
 
-    this.rest = express();
     this.listen();
   }
 
   init(reconnecting = false) {
-    if (!reconnecting) {
-      this.initRest();
-    }
     if (process.env.BOOT_SINGLE === "false") {
       this.initWebsocket();
-    }
-  }
-
-  private initRest() {
-    this.rest.client = this.client;
-    setupRoutes(this.rest);
-
-    try {
-      const port = parseInt(process.env.REST_START_PORT) + this.id;
-      this.client.console.log(
-        `[Rest] Attempting to start API on port ${port}...`
-      );
-      this.rest.listen(port);
-      this.client.console.log(`[Rest] Running.`);
-    } catch (e) {
-      this.client.console.error(`[Rest] Failed to start API!\n${e.stack}`);
     }
   }
 
