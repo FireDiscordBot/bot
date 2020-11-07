@@ -263,6 +263,6 @@ export class Fire extends AkairoClient {
   }
 
   public getListener(id: string) {
-    return this.listenerHandler.modules.get(id.toLowerCase()) as Listener;
+    return this.listenerHandler.modules.get(id) as Listener;
   }
 }
