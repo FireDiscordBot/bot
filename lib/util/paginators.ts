@@ -208,23 +208,19 @@ export class PaginatorInterface {
       );
     }
 
-    this.handler = async (
-      emoji: ReactionEmoji,
-      users: ReactionUserManager
-    ) => {
+    this.handler = async (emoji: ReactionEmoji, users: ReactionUserManager) => {
       if (emoji.name == this.emojis.close) {
         try {
           if (this.deleteMessage) await this.message.delete();
           else {
             await this.message.reactions.removeAll();
           }
-        } catch (e) {
-          console.log(e.stack);
-        }
+        } catch {}
       }
 
       if (emoji.name == this.emojis.start) this._displayPage = 0;
-      else if (emoji.name == this.emojis.end) this._displayPage = this.pageCount;
+      else if (emoji.name == this.emojis.end)
+        this._displayPage = this.pageCount;
       else if (emoji.name == this.emojis.back) this._displayPage -= 1;
       else if (emoji.name == this.emojis.forward) this._displayPage += 1;
 
