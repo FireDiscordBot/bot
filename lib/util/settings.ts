@@ -1,5 +1,8 @@
+import { MessageUtil } from "../ws/util/MessageUtil";
+import { EventType } from "../ws/util/constants";
 import { FireGuild } from "../extensions/guild";
 import { FireUser } from "../extensions/user";
+import { Message } from "../ws/Message";
 import { Fire } from "../Fire";
 
 export class GuildSettings {
@@ -53,17 +56,39 @@ export class UserSettings {
   }
 
   set(option: string, value: any = null) {
-    return this.client.userSettings.set(
+    const result = this.client.userSettings.set(
       this.user instanceof FireUser ? this.user.id : this.user,
       option,
       value
     );
+    this.client.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(EventType.SETTINGS_SYNC, {
+          id: this.client.manager.id,
+          user: this.user instanceof FireUser ? this.user.id : this.user,
+          setting: option,
+          value,
+        })
+      )
+    );
+    return result;
   }
 
   delete(option: string) {
-    return this.client.userSettings.delete(
+    const result = this.client.userSettings.delete(
       this.user instanceof FireUser ? this.user.id : this.user,
       option
     );
+    this.client.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(EventType.SETTINGS_SYNC, {
+          id: this.client.manager.id,
+          user: this.user instanceof FireUser ? this.user.id : this.user,
+          setting: option,
+          value: "deleteSetting",
+        })
+      )
+    );
+    return result;
   }
 }
