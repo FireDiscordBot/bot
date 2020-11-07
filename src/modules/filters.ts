@@ -11,7 +11,12 @@ export default class Filters extends Module {
   imgExt: string[];
   malware: string[];
   regexes: RegExp[];
-  filters: { [key: string]: Function[] };
+  filters: {
+    [key: string]: ((
+      message: FireMessage,
+      extra: string,
+    ) => Promise<any>)[];
+  };
 
   constructor() {
     super("filters");
@@ -46,7 +51,7 @@ export default class Filters extends Module {
   async runAll(
     message: FireMessage,
     extra: string = "",
-    exclude: string[] = []
+    exclude: string[] = [],
   ) {
     if (message.author.bot) return;
     const enabled: string[] = message.guild.settings.get("mod.linkfilter", "");
@@ -75,7 +80,10 @@ export default class Filters extends Module {
     return text;
   }
 
-  async handleInvite(message: FireMessage, extra: string = "") {
+  async handleInvite(
+    message: FireMessage,
+    extra: string = "",
+  ) {
     const deleteInvite = async (inv: Invite) => {
       if (
         inv.guild.id != message.guild.id &&
