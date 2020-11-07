@@ -6,13 +6,14 @@ import {
   DMChannel,
   MessageReaction,
 } from "discord.js";
-import { Fire } from "../Fire";
+import { PaginatorInterface } from "../util/paginators";
 import { CommandUtil } from "../util/commandUtil";
 import { constants } from "../util/constants";
 import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
+import { Fire } from "../Fire";
 
 const { emojis, reactions } = constants;
 
@@ -23,6 +24,7 @@ export class FireMessage extends Message {
   member: FireMember | null;
   author: FireUser;
   util?: CommandUtil;
+  paginator?: PaginatorInterface
 
   constructor(
     client: Fire,

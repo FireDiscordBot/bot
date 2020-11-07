@@ -1,8 +1,6 @@
 import {
   ReactionUserManager,
-  ReactionCollector,
   EmojiResolvable,
-  MessageReaction,
   ReactionEmoji,
   MessageEmbed,
   NewsChannel,
@@ -166,8 +164,13 @@ export class PaginatorInterface {
   sentPageReactions: boolean;
   message: FireMessage;
 
-  collector: ReactionCollector;
+  ready: boolean;
   updateLock: Semaphore;
+
+  handler: (
+    emoji: EmojiResolvable,
+    users: ReactionUserManager
+  ) => Promise<void>;
 
   constructor(
     bot: Fire,
@@ -204,6 +207,37 @@ export class PaginatorInterface {
         `Paginator passed has too large of a page size for this interface. (${this.pageSize} > 2000)`
       );
     }
+
+    this.handler = async (
+      emoji: ReactionEmoji,
+      users: ReactionUserManager
+    ) => {
+      if (emoji.name == this.emojis.close) {
+        try {
+          if (this.deleteMessage) await this.message.delete();
+          else {
+            await this.message.reactions.removeAll();
+          }
+        } catch (e) {
+          console.log(e.stack);
+        }
+      }
+
+      if (emoji.name == this.emojis.start) this._displayPage = 0;
+      else if (emoji.name == this.emojis.end) this._displayPage = this.pageCount;
+      else if (emoji.name == this.emojis.back) this._displayPage -= 1;
+      else if (emoji.name == this.emojis.forward) this._displayPage += 1;
+
+      this.update();
+
+      users.cache
+        .filter((user: FireUser) => user.id != this.bot.user.id)
+        .forEach(async (user: FireUser) => {
+          try {
+            await users.remove(user);
+          } catch {}
+        });
+    };
   }
 
   get locked() {
@@ -261,13 +295,14 @@ export class PaginatorInterface {
 
   async send(destination: TextChannel | NewsChannel | DMChannel) {
     this.message = (await destination.send(this.sendArgs)) as FireMessage;
+    this.message.paginator = this;
 
     this.message.react(this.emojis.close);
 
     if (!this.sentPageReactions && this.pageCount > 1)
       await this.sendAllReactions();
 
-    if (!this.collector) await this.collect();
+    if (!this.ready) this.ready = true;
 
     return this;
   }
@@ -297,68 +332,6 @@ export class PaginatorInterface {
         this.message.react(emoji).catch(() => {});
       });
     this.sentPageReactions = true;
-  }
-
-  get closed() {
-    if (this.collector) return this.collector.ended;
-    return false;
-  }
-
-  async collect() {
-    const { start, back, forward, end, close } = this.emojis;
-
-    const filter = (reaction: MessageReaction, user: FireUser) => {
-      if (reaction.message.id != this.message.id) return false;
-      if (user.id == this.bot.user.id) return false;
-      if (this.owner && user.id != this.owner.id) return false;
-
-      let emoji = reaction.emoji.name;
-      if (!emoji || !Object.values(this.emojis).includes(emoji)) return false;
-
-      return true;
-    };
-
-    const handler = async (
-      emoji: EmojiResolvable,
-      users: ReactionUserManager
-    ) => {
-      if (emoji == close) {
-        return this.collector.stop();
-      }
-
-      if (emoji == start) this._displayPage = 0;
-      else if (emoji == end) this._displayPage = this.pageCount;
-      else if (emoji == back) this._displayPage -= 1;
-      else if (emoji == forward) this._displayPage += 1;
-
-      this.update();
-
-      users.cache
-        .filter((user: FireUser) => user.id != this.bot.user.id)
-        .forEach(async (user: FireUser) => {
-          try {
-            await users.remove(user);
-          } catch {}
-        });
-    };
-
-    this.collector = this.message.createReactionCollector(filter, {
-      time: this.timeout,
-    });
-    this.collector.on(
-      "collect",
-      async (reaction: MessageReaction) =>
-        await handler(reaction.emoji.name, reaction.users).catch(() => {})
-    );
-    this.collector.on("end", () => {
-      try {
-        if (this.deleteMessage) return this.message.delete();
-        else {
-          return this.message.reactions.removeAll();
-        }
-      } catch {}
-    });
-    return this.collector;
   }
 
   async update() {
