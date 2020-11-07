@@ -71,7 +71,7 @@ export class Manager {
   }
 
   relaunch(data: { shardCount: number; shards: number[] }) {
-    this.client?.console.warn("Destroying client...");
+    this.client?.console.warn("[Manager] Destroying client...");
     this.client?.user?.setStatus(
       "invisible",
       this.client.options.shards as number[]
@@ -85,7 +85,7 @@ export class Manager {
   }
 
   kill(event: string) {
-    this.client?.console.warn("Destroying client...");
+    this.client?.console.warn("[Manager] Destroying client...");
     this.client?.user?.setStatus(
       "invisible",
       this.client.options.shards as number[]

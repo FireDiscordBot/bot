@@ -378,7 +378,9 @@ export default class Sk1er extends Module {
           possibleSolutions
         );
       } catch (e) {
-        this.client.console.error(e.stack);
+        this.client.console.error(
+          `[Sk1er] Failed to create log haste\n${e.stack}`
+        );
       }
     }
   }

@@ -38,7 +38,7 @@ export default class Filters extends Module {
         this.malware = malwareReq.body.toString().split("\n");
       else throw new Error("Non 200 status code");
     } catch (e) {
-      this.client.console.error(`Failed to fetch malware domains\n${e.stack}`);
+      this.client.console.error(`[Filters] Failed to fetch malware domains\n${e.stack}`);
     }
   }
 
@@ -57,14 +57,14 @@ export default class Filters extends Module {
     const enabled: string[] = message.guild.settings.get("mod.linkfilter", "");
     if (this.debug.includes(message.guild.id) && enabled.length)
       this.client.console.warn(
-        `Running handler(s) for filters ${enabled.join(", ")} in guild ${
+        `[Filters] Running handler(s) for filters ${enabled.join(", ")} in guild ${
           message.guild
         }`
       );
     Object.keys(this.filters).forEach((name) => {
       if (!exclude.includes(name) && enabled.includes(name)) {
         if (this.debug.includes(message.guild.id))
-          this.client.console.warn(`Running handler(s) for ${name}`);
+          this.client.console.warn(`[Filters] Running handler(s) for ${name}`);
         this.filters[name].map(
           async (handler) => await this.safeExc(handler, message, extra)
         );
