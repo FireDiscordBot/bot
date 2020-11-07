@@ -103,8 +103,8 @@ export default class Message extends Listener {
     // }
 
     if (
-      message.content.trim() ==
-      (message.guild.me as FireMember).toMention().trim()
+      message.content.replace("!", "").trim() ==
+      (message.guild.me as FireMember).toMention().replace("!", "").trim()
     )
       await message.send(
         "HELLO_PREFIX",
