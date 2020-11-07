@@ -35,6 +35,8 @@ export default class enUS extends Language {
           "Whoa, hold your horses there! Wait for the command to finish before running it again",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
+        HELLO_PREFIX: (prefix: string) =>
+          `Hey! My prefix here is \`${prefix}\` or you can mention me :)`,
         ERROR_NO_KSOFT:
           "Unable to use KSoft.Si API due to lack of authentication",
         NO_MODERATORS_SET: "There are no moderators set in this guild.",
