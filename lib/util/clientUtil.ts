@@ -115,9 +115,11 @@ export class Util extends ClientUtil {
     const env = (process.env.NODE_ENV || "DEVELOPMENT").toLowerCase();
     return {
       id: this.client.manager.id,
-      name: `${this.client.user.username
-        .replace(" ", "")
-        .toLowerCase()}-${env}-${this.client.manager.id}`,
+      name: this.client.user
+        ? `${this.client.user.username.replace(" ", "").toLowerCase()}-${env}-${
+            this.client.manager.id
+          }`
+        : `fire-${env}-${this.client.manager.id}`,
       env: env,
       user: this.client.user ? this.client.user.toString() : "Unknown#0000",
       userId: this.client.user ? this.client.user.id : "",
