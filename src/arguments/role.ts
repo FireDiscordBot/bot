@@ -7,3 +7,8 @@ export const roleTypeCaster: ArgumentTypeCaster = (
   message: FireMessage,
   phrase
 ): Promise<Role | null> => roleConverter(message, phrase);
+
+export const roleSilentTypeCaster: ArgumentTypeCaster = (
+  message: FireMessage,
+  phrase
+): Promise<Role | null> => roleConverter(message, phrase, true);
