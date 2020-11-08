@@ -147,7 +147,7 @@ export default class User extends Command {
   }
 
   getBadges(user: FireUser) {
-    const flags = user.flags.toArray();
+    const flags = user.flags?.toArray() || [];
     let emojis: string[] = Object.keys(badges)
       .filter((badge: UserFlagsString) => flags.includes(badge))
       .map((badge) => badges[badge]);
