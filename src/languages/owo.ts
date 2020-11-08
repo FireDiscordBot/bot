@@ -3,7 +3,7 @@ import { FireGuild } from "../../lib/extensions/guild";
 import { FireUser } from "../../lib/extensions/user";
 import { constants } from "../../lib/util/constants";
 import { Language } from "../../lib/util/language";
-import { TextChannel } from "discord.js";
+import { TextChannel, Role } from "discord.js";
 import { Ban } from "@aero/ksoft";
 
 export default class owo extends Language {

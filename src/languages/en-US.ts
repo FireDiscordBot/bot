@@ -3,7 +3,7 @@ import { FireGuild } from "../../lib/extensions/guild";
 import { FireUser } from "../../lib/extensions/user";
 import { constants } from "../../lib/util/constants";
 import { Language } from "../../lib/util/language";
-import { TextChannel } from "discord.js";
+import { TextChannel, Role } from "discord.js";
 import { Ban } from "@aero/ksoft";
 
 export default class enUS extends Language {
@@ -37,6 +37,8 @@ export default class enUS extends Language {
           `Something went wrong while running ${id}`,
         HELLO_PREFIX: (prefix: string) =>
           `Hey! My prefix here is \`${prefix}\` or you can mention me :)`,
+        ERROR_ROLE_UNUSABLE:
+          "This role cannot be used as it is either managed by an integration or higher than my top role",
         ERROR_NO_KSOFT:
           "Unable to use KSoft.Si API due to lack of authentication",
         NO_MODERATORS_SET: "There are no moderators set in this guild.",
@@ -482,6 +484,23 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           `Author ID: ${user.id} | Channel ID: ${channel.id}"`,
         PURGED_MESSAGES: "Purged Messages",
         PURGED_MESSAGES_FAILED: "Failed to upload messages to hastebin",
+        RANK_COMMAND_DESCRIPTION:
+          "List all available ranks and join a rank if provided",
+        RANKS_NONE_FOUND: "Seems like there's no ranks set for this guild",
+        RANKS_INFO: (role: Role) =>
+          `> ${role} (${role.members.size.toLocaleString(this.id)} members)`,
+        RANKS_AUTHOR: (guild: FireGuild) => `${guild}'s ranks`,
+        RANKS_JOIN_REASON: "Joined rank",
+        RANKS_LEAVE_REASON: "Left rank",
+        RANKS_INVALID_ROLE:
+          "That isn't a valid rank. Use the command without arguments to see a list of valid ranks",
+        RANKS_INVALID_ROLE_DEL:
+          "That isn't a valid rank. Use the rank command to see a list of valid ranks",
+        ADDRANK_COMMAND_DESCRIPTION:
+          "Add a role that users can join through the rank command.",
+        RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
+        DELRANK_COMMAND_DESCRIPTION:
+          "Remove a rank from the list of joinable roles.",
         SKIN_COMMAND_DESCRIPTION: "See a player's Minecraft skin",
         SKIN_INVALID_IGN: "You must provide a valid IGN to get the skin of",
         SLOWMODE_COMMAND_DESCRIPTION:
