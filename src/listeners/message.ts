@@ -86,6 +86,14 @@ export default class Message extends Listener {
 
     if (!message.member || message.author.bot) return;
 
+    const autoroleId = message.guild.settings.get("mod.autorole", null);
+    const delay = message.guild.settings.get("mod.autorole.waitformsg", false);
+    if (autoroleId && delay) {
+      const role = message.guild.roles.cache.get(autoroleId);
+      if (role && !message.member.roles.cache.has(role.id))
+        await message.member.roles.add(role).catch(() => {});
+    }
+
     // TODO add --remind when remind command added
 
     // const excluded: string[] = message.guild.settings.get(
