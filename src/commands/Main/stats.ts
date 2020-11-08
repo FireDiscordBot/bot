@@ -34,7 +34,7 @@ export default class Stats extends Command {
       await centra(
         process.env.NODE_ENV == "development"
           ? `http://127.0.0.1:${process.env.REST_PORT}/stats`
-          : `https://${process.env.WS_HOST}/stats`
+          : `https://${process.env.REST_HOST}/stats`
       )
         .header("User-Agent", "Fire Discord Bot")
         .send()
