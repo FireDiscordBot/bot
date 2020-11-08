@@ -32,9 +32,7 @@ class Premium(commands.Cog, name="Premium Commands"):
         self.loop = bot.loop
         self.bot.premium_guilds = {}
         # self.reactroles = {}
-        self.joinroles = {}
         self.bot.loop.create_task(self.load_premium())
-        self.bot.loop.create_task(self.load_ranks())
 
     async def load_premium(self):
         await self.bot.wait_until_ready()
@@ -45,19 +43,6 @@ class Premium(commands.Cog, name="Premium Commands"):
         for p in premium:
             self.bot.premium_guilds.update({int(p["gid"]): int(p["uid"])})
         self.bot.logger.info(f"$GREENLoaded premium guilds!")
-
-    async def load_ranks(self):
-        await self.bot.wait_until_ready()
-        self.bot.logger.info(f"$YELLOWLoading ranks...")
-        self.joinroles = {}
-        query = "SELECT * FROM joinableranks;"
-        ranks = await self.bot.db.fetch(query)
-        for r in ranks:
-            guild = int(r["gid"])
-            if guild not in self.joinroles:
-                self.joinroles[guild] = []
-            self.joinroles[guild].append(int(r["rid"]))
-        self.bot.logger.info(f"$GREENLoaded ranks!")
 
     async def cog_check(self, ctx: commands.Context):
         """
@@ -172,21 +157,11 @@ class Premium(commands.Cog, name="Premium Commands"):
             return await ctx.error(
                 "You cannot add a role that is managed by an integration."
             )
-        try:
-            if role.id in self.joinroles[ctx.guild.id]:
-                return await ctx.error("You cannot add an existing rank.")
-        except Exception:
-            pass
-        con = await self.bot.db.acquire()
-        async with con.transaction():
-            query = 'INSERT INTO joinableranks ("gid", "rid") VALUES ($1, $2);'
-            await self.bot.db.execute(query, str(ctx.guild.id), str(role.id))
-        await self.bot.db.release(con)
-        try:
-            self.joinroles[ctx.guild.id].append(role.id)
-        except KeyError:
-            self.joinroles[ctx.guild.id] = []
-            self.joinroles[ctx.guild.id].append(role.id)
+        current = ctx.config.get("utils.ranks")
+        if role in current:
+            return await ctx.error("You cannot add an existing rank.")
+        current.append(role)
+        await ctx.config.set("utils.ranks", current)
         await ctx.success(
             f"Successfully added the rank {role.name}!"
         )
@@ -214,15 +189,11 @@ class Premium(commands.Cog, name="Premium Commands"):
     @bot_has_permissions(manage_roles=True)
     @commands.guild_only()
     async def delrank(self, ctx, *, role: Role):
-        con = await self.bot.db.acquire()
-        async with con.transaction():
-            query = "DELETE FROM joinableranks WHERE rid = $1;"
-            await self.bot.db.execute(query, str(role.id))
-        await self.bot.db.release(con)
-        try:
-            self.joinroles[ctx.guild.id].remove(role.id)
-        except KeyError:
-            pass
+        current = ctx.config.get("utils.ranks")
+        if role not in current:
+            return await ctx.error("You cannot remove a rank that doesn't exist")
+        current.remove(role)
+        await ctx.config.set("utils.ranks", current)
         await ctx.success(
             f"Successfully removed the rank {role.name}!"
         )
@@ -251,82 +222,44 @@ class Premium(commands.Cog, name="Premium Commands"):
     @bot_has_permissions(manage_roles=True)
     @commands.guild_only()
     async def rank(self, ctx, *, role: Role = None):
+        ranks = ctx.config.get("utils.ranks")
         if not role:
-            try:
-                ranks = self.joinroles[ctx.guild.id]
-            except KeyError:
+            if not ranks:
                 return await ctx.error(
                     "Seems like there's no ranks set for this guild :c"
                 )
             roles = []
-            someremoved = 0
-            for rank in ranks:
-                role = discord.utils.get(ctx.guild.roles, id=rank)
-                if not role:
-                    con = await self.bot.db.acquire()
-                    async with con.transaction():
-                        query = "DELETE FROM joinableranks WHERE rid = $1;"
-                        await self.bot.db.execute(query, str(rank))
-                    await self.bot.db.release(con)
-                    self.joinroles[ctx.guild.id].remove(rank)
-                    someremoved += 1
-                else:
-                    roles.append(role)
-            if roles == []:
-                return await ctx.error(
-                    "Seems like there's no ranks set for this guild :c"
+            is_cached = len(ctx.guild.members) / ctx.guild.member_count
+            for r in ranks:
+                roles.append(
+                    f"> {r.mention} ({len(r.members):,d} members)"
+                    if is_cached > 0.98
+                    else f"> {r.mention}"
                 )
-                if someremoved > 0:
-                    embed = discord.Embed(
-                        color=discord.Color.red(),
-                        timestamp=datetime.datetime.now(datetime.timezone.utc),
-                    )
-                    embed.add_field(
-                        name="Error",
-                        value=f"I couldn't find some of the ranks. This may be due to the corresponding role being deleted.\n{someremoved} rank(s) have been deleted and may need to be re-added.",
-                    )
-                    await ctx.send(embed=embed)
-            else:
-                ranks = []
-                is_cached = len(ctx.guild.members) / ctx.guild.member_count
-                for role in roles:
-                    ranks.append(
-                        f"> {role.mention} ({len(role.members):,d} members)"
-                        if is_cached > 0.98
-                        else f"> {role.mention}"
-                    )
-                embed = discord.Embed(
-                    color=ctx.author.color,
-                    timestamp=datetime.datetime.now(datetime.timezone.utc),
-                    description="\n".join(ranks),
-                )
-                embed.set_author(
-                    name=f"{ctx.guild.name}'s ranks", icon_url=str(ctx.guild.icon_url)
-                )
-                await ctx.send(embed=embed)
+            embed = discord.Embed(
+                color=ctx.author.color,
+                timestamp=datetime.datetime.now(datetime.timezone.utc),
+                description="\n".join(roles),
+            )
+            embed.set_author(
+                name=f"{ctx.guild.name}'s ranks", icon_url=str(ctx.guild.icon_url)
+            )
+            await ctx.send(embed=embed)
         else:
-            if not role:
+            if role not in ranks:
                 return await ctx.error(
                     f"I cannot find the rank **{discord.utils.escape_markdown(role.name)}**. Type '{ctx.prefix}rank' to see a list of ranks"
                 )
-            try:
-                if role.id in self.joinroles[ctx.guild.id]:
-                    if role in ctx.author.roles:
-                        await ctx.author.remove_roles(role, reason="Left rank")
-                        await ctx.success(
-                            f"You successfully left the {discord.utils.escape_markdown(role.name)} rank."
-                        )
-                    else:
-                        await ctx.author.add_roles(role, reason="Joined rank")
-                        await ctx.success(
-                            f"You successfully joined the {discord.utils.escape_markdown(role.name)} rank."
-                        )
-                else:
-                    return await ctx.error(
-                        f"I cannot find the rank **{discord.utils.escape_markdown(role.name)}**. Type '{ctx.prefix}rank' to see a list of ranks"
-                    )
-            except KeyError:
-                return await ctx.send(f"I cannot find any ranks for this guild :c")
+            if role in ctx.author.roles:
+                await ctx.author.remove_roles(role, reason="Left rank")
+                await ctx.success(
+                    f"You successfully left the {discord.utils.escape_markdown(role.name)} rank."
+                )
+            else:
+                await ctx.author.add_roles(role, reason="Joined rank")
+                await ctx.success(
+                    f"You successfully joined the {discord.utils.escape_markdown(role.name)} rank."
+                )
 
     # @commands.Cog.listener()
     # async def on_reaction_add(self, reaction, member):

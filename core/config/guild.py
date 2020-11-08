@@ -119,6 +119,13 @@ class Config:
             f'$GREENSetting $CYANmod.autodehoist $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
         await self.update('mod.autodehoist', value)
 
+    @ConfigOpt(name='utils.ranks', accepts=[discord.Role], default=[], options=options, premium=True)
+    async def ranks(self, value: list):
+        '''Ranks | Roles users can join via the ranks command'''
+        self._bot.logger.info(
+            f'$GREENSetting $CYANutils.ranks $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
+        await self.update('utils.ranks', [str(r.id) for r in value])
+
     @ConfigOpt(name='mod.autorole', accepts=discord.Role, default=None, options=options, premium=True)
     async def auto_role(self, value: discord.Role):
         '''Auto Role (Premium) | The role given to users upon joining the server'''
@@ -283,7 +290,7 @@ class Config:
                     self._guild, DISCORD_CONVERTERS['guild'][accept])
             if converter and inspect.ismethod(converter):
                 if acceptlist:
-                    return [converter(int(d)) for d in self._data[option]]
+                    return [converter(int(d)) for d in self._data[option] if d]
                 return converter(int(self._data[option]))
         return self._data[option]
 
