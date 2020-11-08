@@ -3,7 +3,11 @@ import { ClientOptions } from "discord.js";
 const intents = constants.intents;
 
 export const discord: ClientOptions = {
-  allowedMentions: {},
+  allowedMentions: {
+    parse: [],
+    users: [],
+    roles: [],
+  },
   messageCacheLifetime: 500,
   messageSweepInterval: 120,
   messageEditHistoryMaxSize: 2,
