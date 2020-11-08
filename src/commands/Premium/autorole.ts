@@ -40,9 +40,13 @@ export default class Autorole extends Command {
     args: { role: Role; delay?: string; bot?: string }
   ) {
     let { role, delay, bot } = args;
-
-    // Discord Akairo's flags suck
+    if (
+      role.position > (message.guild.me?.roles.highest.position || 0) ||
+      role.managed
+    )
+      return await message.error("ERROR_ROLE_UNUSABLE");
     if (delay == "--bot") {
+      // Discord Akairo's flags suck
       delay = undefined;
       bot = "--bot";
     } else if (bot == "--delay") {
@@ -67,6 +71,9 @@ export default class Autorole extends Command {
       role.id
     );
 
-    await message.success(bot ? "AUTOROLE_ENABLED_BOT" : "AUTOROLE_ENABLED", role.toString());
+    await message.success(
+      bot ? "AUTOROLE_ENABLED_BOT" : "AUTOROLE_ENABLED",
+      role.toString()
+    );
   }
 }
