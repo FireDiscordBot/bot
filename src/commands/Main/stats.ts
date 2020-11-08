@@ -35,7 +35,9 @@ export default class Stats extends Command {
         process.env.NODE_ENV == "development"
           ? `http://127.0.0.1:${process.env.REST_PORT}/stats`
           : `https://${process.env.WS_HOST}/stats`
-      ).send()
+      )
+        .header("User-Agent", "Fire Discord Bot")
+        .send()
     ).json();
     if (args.cluster) {
       clusterStats = stats.clusters.find(
