@@ -19,7 +19,6 @@ export default class Stats extends Command {
           id: "cluster",
           flag: "--cluster",
           match: "option",
-          type: "number",
           default: null,
           required: false,
         },
@@ -27,7 +26,7 @@ export default class Stats extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { cluster?: number }) {
+  async exec(message: FireMessage, args: { cluster?: string }) {
     if (!this.client.manager.ws) return await this.singularStats(message);
     let clusterStats: Cluster;
     const stats: AetherStats = await (
@@ -39,10 +38,11 @@ export default class Stats extends Command {
         .header("User-Agent", "Fire Discord Bot")
         .send()
     ).json();
+    const clusterId = parseInt(args.cluster?.split(" ")[1]);
     if (args.cluster) {
       clusterStats = stats.clusters.find(
         (cluster) =>
-          cluster.id == args.cluster &&
+          cluster.id == clusterId &&
           cluster.env == process.env.NODE_ENV.toLowerCase()
       );
       if (!clusterStats)
@@ -63,7 +63,13 @@ export default class Stats extends Command {
         this.client.user.username,
         this.client.user.displayAvatarURL({ size: 2048, format: "png" })
       )
-      .setTitle(message.language.get("STATS_TITLE", clusterStats.name))
+      .setTitle(
+        message.language.get(
+          "STATS_TITLE",
+          clusterStats.name,
+          clusterStats.version
+        )
+      )
       .setTimestamp(new Date())
       .setFooter(message.language.get("STATS_FOOTER", message))
       .addField(
