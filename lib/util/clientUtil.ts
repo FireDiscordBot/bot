@@ -2,6 +2,7 @@ import { version as djsver, PermissionString } from "discord.js";
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
 import { describe, ProcessDescription } from "pm2";
+import { Cluster } from "../interfaces/stats";
 import { humanize, titleCase } from "./constants";
 import { FireGuild } from "../extensions/guild";
 import { FireUser } from "../extensions/user";
@@ -14,9 +15,9 @@ import * as moment from "moment";
 import { Fire } from "../Fire";
 import * as pm2 from "pm2";
 
-const describePromise = promisify(describe.bind(pm2));
+export const describePromise = promisify(describe.bind(pm2));
 
-const humanFileSize = (size: number) => {
+export const humanFileSize = (size: number) => {
   let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
   return (
     Number((size / Math.pow(1024, i)).toFixed(2)) * 1 +
@@ -102,7 +103,7 @@ export class Util extends ClientUtil {
     "-" +
     uuid.substr(20);
 
-  async getClusterStats() {
+  async getClusterStats(): Promise<Cluster> {
     let processInfo: ProcessDescription[] = [];
     if (this.client.manager.pm2) {
       try {
@@ -111,9 +112,13 @@ export class Util extends ClientUtil {
     }
     const now = moment();
     const duration = this.client.launchTime.diff(now);
+    const env = (process.env.NODE_ENV || "DEVELOPMENT").toLowerCase();
     return {
       id: this.client.manager.id,
-      env: this.client.config.dev ? "dev" : "prod",
+      name: `${this.client.user.username
+        .replace(" ", "")
+        .toLowerCase()}-${env}-${this.client.manager.id}`,
+      env: env,
       user: this.client.user ? this.client.user.toString() : "Unknown#0000",
       userId: this.client.user ? this.client.user.id : "",
       started: this.client.launchTime.toISOString(true),
@@ -137,6 +142,7 @@ export class Util extends ClientUtil {
               .reduce((a, b) => a + b)
           : 0,
       commands: this.client.commandHandler.modules.size,
+      events: this.client.events,
       shards: [...this.client.ws.shards.values()].map((shard) => {
         return {
           id: shard.id,

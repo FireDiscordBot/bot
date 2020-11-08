@@ -76,6 +76,7 @@ export class Fire extends AkairoClient {
   ksoft?: KSoftClient;
   config: typeof config.fire;
   conversationStates: Map<string, Buffer>; // Google Command conversation states
+  events: number;
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
@@ -103,11 +104,31 @@ export class Fire extends AkairoClient {
         process.exit(-1);
       });
 
+    this.db
+      .query("SELECT count FROM socketstats WHERE cluster=$1;", [
+        this.manager.id,
+      ])
+      .then(
+        (result) =>
+          (this.events = result.rows.length ? (result.rows[0][0] as number) : 0)
+      );
+
     this.on("warn", (warning) => this.console.warn(`[Discord] ${warning}`));
     this.on("error", (error) =>
       this.console.error(`[Discord]\n${error.stack}`)
     );
     this.on("ready", () => config.fire.readyMessage(this));
+    this.on("raw", () => this.events++);
+
+    if (!this.manager.ws)
+      setInterval(async () => {
+        await this.db
+          .query(
+            "INSERT INTO socketstats (cluster, count) VALUES ($1, $2) ON CONFLICT (cluster) DO UPDATE SET count = $2;",
+            [this.manager.id, this.events]
+          )
+          .catch(() => {});
+      }, 1500);
 
     if (sentry) {
       this.sentry = sentry;

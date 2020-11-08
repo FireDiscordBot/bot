@@ -1,4 +1,5 @@
 import { FireMember } from "../../lib/extensions/guildmember";
+import { FireMessage } from "../../lib/extensions/message";
 import { FireGuild } from "../../lib/extensions/guild";
 import { FireUser } from "../../lib/extensions/user";
 import { constants } from "../../lib/util/constants";
@@ -45,6 +46,7 @@ export default class enUS extends Language {
         MORE_INTEGRATIONS:
           "Want more integrations? Use the suggest command to suggest some!",
         MEMBERS: "Members",
+        USERS: "Users",
         REGION: "Region",
         STATUS: "Status",
         UUID: "UUID",
@@ -61,6 +63,7 @@ export default class enUS extends Language {
         TITLE: "Title",
         STATS: "Stats",
         GUILD: "Guild",
+        GUILDS: "Guilds",
         CHANNEL: "Channel",
         ATTACHMENT: "Attachment",
         REGION_DEPRECATED: "❓ Deprecated Region",
@@ -508,6 +511,20 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         SLOWMODE_INVALID_TYPE: "You must provide a text channel or category",
         SLOWMODE_FAILED: (channels: string[]) =>
           `Failed to set slowmode in ${channels.join(", ")}`,
+        STATS_COMMAND_DESCRIPTION:
+          "View cluster & overall stats. Use the --cluster flag to view stats for a specific cluster",
+        STATS_TITLE: (name: string, version: string) =>
+          `Stats for ${name} [${version}]`,
+        STATS_MEMORY_USAGE: "Memory Usage",
+        STATS_DJS_VER: "Discord.JS Version",
+        STATS_NODE_VER: "Node.JS Version",
+        STATS_UPTIME: "Uptime",
+        STATS_COMMANDS: "Commands",
+        STATS_EVENTS: "Events",
+        STATS_FOOTER: (message: FireMessage) =>
+          `PID: ${process.pid} | Cluster: ${
+            message.client.manager.id
+          } | Shard: ${message?.guild?.shardID || 0}`,
         STEAL_COMMAND_DESCRIPTION: "Steal an emote to use in your own server",
         STEAL_NOTHING:
           "You're a terrible criminal, you can't steal nothing! You must provide an emoji to steal",
