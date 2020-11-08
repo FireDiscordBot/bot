@@ -122,7 +122,7 @@ class Settings(commands.Cog):
         for g in guilds:
             invs = json.loads((await self.bot.redis.get(f'invites.{g}', encoding='utf-8')) or '{}')
             invites.update(invs)
-        return invites if not gid else invites[str(gid)]
+        return invites if not gid else invites.get(str(gid), {})
 
     @commands.Cog.listener()
     async def on_guild_channel_pins_update(self, channel, last_pin=0):
