@@ -41,8 +41,10 @@ export default class Help extends Command {
       if (!category) return;
       let commands: string[] = [];
       category
-        .filter((command) =>
-          !message.guild ? command.channel != "guild" : true
+        .filter(
+          (command) =>
+            (!message.guild ? command.channel != "guild" : true) &&
+            !command.hidden
         )
         .forEach((command) => commands.push(`\`${command.id}\``));
       if (commands.length)
