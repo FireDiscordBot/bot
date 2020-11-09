@@ -17,6 +17,7 @@ export default class Specs extends Command {
         {
           id: "user",
           type: "userSilent",
+          readableType: "user",
           default: null,
           required: false,
         },
@@ -39,14 +40,8 @@ export default class Specs extends Command {
     });
   }
 
-  condition(message: FireMessage) {
-    return (
-      message.util?.parsed?.command?.id == "specs" && // akairo moment
-      message.guild.id == "411619823445999637"
-    );
-  }
-
   async exec(message: FireMessage, args: { user?: FireUser }) {
+    if (message.guild.id != "411619823445999637") return;
     const user = args.user || message.author;
     const specs = await this.client.db
       .query("SELECT * FROM specs WHERE uid=$1", [user.id])
