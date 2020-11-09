@@ -89,8 +89,8 @@ export default class Levelhead extends Command {
       .setURL("https://purchase.sk1er.club/category/1050972")
       .setTimestamp(new Date())
       .setFooter(language.get("MORE_INTEGRATIONS"));
-    embed.addField("IGN", args.player, false);
-    embed.addField("Levelhead", `${header}:${footer}`, false);
+    embed.addField("IGN", args.player);
+    embed.addField("Levelhead", `${header}:${footer}`);
     if (proposal && proposal.hasOwnProperty("denied")) {
       const nheader = ((proposal.header as string) || "Level").replace(
         this.removeColor,
@@ -102,13 +102,11 @@ export default class Levelhead extends Command {
       );
       embed.addField(
         language.get("LEVELHEAD_PROPOSED"),
-        `${nheader}:${nfooter}`,
-        false
+        `${nheader}:${nfooter}`
       );
       embed.addField(
         language.get("LEVELHEAD_DENIED"),
-        titleCase(proposal.denied as string),
-        false
+        titleCase(proposal.denied as string)
       );
     }
     embed.addField(

@@ -37,7 +37,7 @@ export default class Purge extends Listener {
         )
       );
     if (reason)
-      embed.addField(message.guild.language.get("REASON"), reason, false);
+      embed.addField(message.guild.language.get("REASON"), reason);
     if (purged.length) {
       try {
         embed.addField(

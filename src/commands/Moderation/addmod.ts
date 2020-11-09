@@ -71,20 +71,17 @@ export default class AddModerator extends Command {
       .setColor(message.member?.displayColor || "#ffffff")
       .addField(
         message.language.get("MODERATORS_ROLES"),
-        mentions.roles.join("\n") || message.language.get("NO_MODERATOR_ROLES"),
-        false
+        mentions.roles.join("\n") || message.language.get("NO_MODERATOR_ROLES")
       )
       .addField(
         message.language.get("MODERATORS_MEMBERS"),
         mentions.members.join("\n") ||
-          message.language.get("NO_MODERATOR_MEMBERS"),
-        false
+          message.language.get("NO_MODERATOR_MEMBERS")
       );
     if (invalid.length)
       embed.addField(
         message.language.get("MODERATORS_REMOVE_INVALID"),
-        message.language.get("MODERATORS_REMOVED", invalid),
-        false
+        message.language.get("MODERATORS_REMOVED", invalid)
       );
     return await message.channel.send(embed);
   }

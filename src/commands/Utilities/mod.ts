@@ -62,7 +62,7 @@ export default class Mod extends Command {
     Object.keys(mod.latest).forEach((version) => {
       versions.push(`**${version}**: ${mod.latest[version]}`);
     });
-    if (versions.length) embed.addField("Versions", versions.join("\n"), false);
+    if (versions.length) embed.addField("Versions", versions.join("\n"));
     embed.addField(
       "Creator",
       `**__${mod.vendor.name}__**
@@ -81,8 +81,7 @@ export default class Mod extends Command {
         `Total: ${analytics.total.toLocaleString(message.language.id)}
 Online: ${analytics.online.toLocaleString(message.language.id)}
 Last Day: ${analytics.day.toLocaleString(message.language.id)}
-Last Week: ${analytics.week.toLocaleString(message.language.id)}`,
-        false
+Last Week: ${analytics.week.toLocaleString(message.language.id)}`
       );
     return await message.channel.send(embed);
     // TODO Rectrate Jishaku paginators and send changelogs

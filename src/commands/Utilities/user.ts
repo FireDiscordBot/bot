@@ -78,7 +78,7 @@ export default class User extends Command {
               dynamic: true,
             })
       )
-      .addField(`» ${message.language.get("ABOUT")}`, info.join("\n"), false);
+      .addField(`» ${message.language.get("ABOUT")}`, info.join("\n"));
     if (badges.length) embed.setDescription(badges.join("  "));
     if (member) {
       const roles = member.roles.cache

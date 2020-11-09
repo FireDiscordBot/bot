@@ -75,11 +75,10 @@ export default class Meme extends Command {
         language.get("POWERED_BY_KSOFT"),
         "https://cdn.ksoft.si/images/Logo1024.png"
       )
-      .addField(language.get("TITLE"), meme.post.title, false)
+      .addField(language.get("TITLE"), meme.post.title)
       .addField(
         language.get("MEME_SUBREDDIT"),
-        `[${meme.post.subreddit}](https://reddit.com/${meme.post.subreddit})`,
-        false
+        `[${meme.post.subreddit}](https://reddit.com/${meme.post.subreddit})`
       )
       .addField(
         message.language.get("STATS"),
@@ -87,16 +86,14 @@ export default class Meme extends Command {
           language.id
         )} | <:downvote:646857487353380867> ${meme.post.downvotes.toLocaleString(
           language.id
-        )}`,
-        false
+        )}`
       );
     if (meme.url && this.imgExt.filter((ext) => meme.url.endsWith(ext)).length)
       embed.setImage(meme.url);
     else
       embed.addField(
         language.get("ATTACHMENT"),
-        `[Click Here](${meme.url})`,
-        false
+        `[Click Here](${meme.url})`
       );
     return await message.channel.send(embed);
   }
