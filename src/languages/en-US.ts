@@ -525,6 +525,10 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           `PID: ${process.pid} | Cluster: ${
             message.client.manager.id
           } | Shard: ${message?.guild?.shardID || 0}`,
+        SPECS_COMMAND_DESCRIPTION:
+          "View/remove a users specs (locked to discord.gg/sk1er)",
+        SPECS_NOT_FOUND:
+          "Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec>",
         STEAL_COMMAND_DESCRIPTION: "Steal an emote to use in your own server",
         STEAL_NOTHING:
           "You're a terrible criminal, you can't steal nothing! You must provide an emoji to steal",
