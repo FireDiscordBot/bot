@@ -20,13 +20,8 @@ export default class Specs extends Command {
           default: null,
           required: false,
         },
-        {
-          id: "remove",
-          flag: "--remove",
-          default: null,
-          required: false,
-        },
       ],
+      aliases: ["delspecs"],
       hidden: true,
     });
   }
@@ -38,21 +33,17 @@ export default class Specs extends Command {
     );
   }
 
-  async exec(
-    message: FireMessage,
-    args: { user?: FireUser | string; remove?: string }
-  ) {
-    if (args.user == "--remove") {
-      args.user = null;
-      args.remove = "--remove";
-    }
-    const user = (args.user as FireUser) || message.author;
+  async exec(message: FireMessage, args: { user?: FireUser }) {
+    const user = args.user || message.author;
     const specs = await this.client.db
       .query("SELECT * FROM specs WHERE uid=$1", [user.id])
       .first();
     const member = (await message.guild.members.fetch(user)) as FireMember;
     if (!specs || !specs.data) return await message.error("SPECS_NOT_FOUND");
-    if (args.remove == "--remove" && message.member.isModerator()) {
+    if (
+      message.util.parsed.alias == "delspecs" &&
+      message.member.isModerator()
+    ) {
       try {
         await this.client.db.query("DELETE FROM specs WHERE uid=$1;", [
           user.id,
