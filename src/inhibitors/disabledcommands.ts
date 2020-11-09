@@ -15,7 +15,7 @@ export default class DisabledCommandsInhibitor extends Inhibitor {
       (message.guild.settings.get(
         "disabled.commands",
         []
-      ) as string[]).includes(message.util?.parsed.command.id)
+      ) as string[]).includes(message.util?.parsed?.command?.id)
     )
       return !message.member.isModerator(message.channel);
     return false;
