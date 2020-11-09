@@ -638,58 +638,6 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
                     pass
 
     @commands.command()
-    async def specs(self, ctx, user: typing.Union[Member, UserWithFallback] = None, flags: flags.FlagParser(
-            remove=bool
-    ) = flags.EmptyFlags):
-        user = user if user else ctx.author
-        uspecs = await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', str(user.id))
-        if not uspecs:
-            return await ctx.error(f'Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec>')
-        else:
-            if isinstance(flags, dict) and flags.get('remove', False) and ctx.author.guild_permissions.manage_messages:
-                con = await self.bot.db.acquire()
-                async with con.transaction():
-                    query = 'DELETE FROM specs WHERE uid=$1;'
-                    await self.bot.db.execute(query, str(user.id))
-                await self.bot.db.release(con)
-                member = self.guild.get_member(user.id)
-                if member:
-                    await member.remove_roles(self.guild.get_role(595626786549792793), reason=f'Specs removed by {ctx.author}')
-                return await ctx.success(f'Successfully removed specs for {user}')
-            uspecs = uspecs[0]
-
-            def escape(text: str):
-                text = discord.utils.escape_markdown(text)
-                text = re.sub(r'<a?:[a-zA-Z0-9\_]+:([0-9]+)>',
-                              '', text, 0, re.MULTILINE)
-                return text
-            embed = discord.Embed(
-                color=user.color,
-                timestamp=datetime.datetime.now(datetime.timezone.utc)
-            ).set_author(
-                name=str(user),
-                icon_url=user.avatar_url_as(static_format='png', size=2048),
-                url=f'https://inv.wtf/sk1spec'
-            ).add_field(
-                name='» CPU',
-                value=escape(uspecs['cpu'][:1024]),
-                inline=False
-            ).add_field(
-                name='» GPU',
-                value=escape(uspecs['gpu'][:1024]),
-                inline=False
-            ).add_field(
-                name='» RAM',
-                value=escape(uspecs['ram'][:1024]),
-                inline=False
-            ).add_field(
-                name='» Operating System',
-                value=escape(uspecs['os'][:1024]),
-                inline=False
-            )
-            return await ctx.send(embed=embed)
-
-    @commands.command()
     @commands.has_role(504372119589617674)
     async def mods(self, ctx, *, ign: str):
         if ctx.channel.id != 577203509863251989:
