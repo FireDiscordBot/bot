@@ -18,13 +18,15 @@ export default class Sk1erSpecsEvent extends Event {
     if (!data.success)
       return (this.manager.client.channels.cache.get(
         "411620555960352787"
-      ) as TextChannel).send(data.message);
+      ) as TextChannel).send(data.message, {
+        allowedMentions: { users: [data.user] },
+      });
     else {
       const member = (await guild.members.fetch({
         user: data.user,
       })) as FireMember;
       if (member.roles.cache.has("595626786549792793")) return;
-      else await member.roles.add("595626786549792793");
+      else await member.roles.add("595626786549792793", "Received Specs");
     }
   }
 }
