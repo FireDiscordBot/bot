@@ -92,7 +92,11 @@ export default class Stats extends Command {
         true
       )
       .addField(message.language.get("STATS_DJS_VER"), djsver, true)
-      .addField(message.language.get("STATS_NODE_VER"), process.version, true)
+      .addField(
+        message.language.get("STATS_NODE_VER"),
+        process.version.slice(1),
+        true
+      )
       .addField(message.language.get("STATS_UPTIME"), clusterStats.uptime, true)
       .addField(
         message.language.get("STATS_COMMANDS"),
@@ -101,7 +105,9 @@ export default class Stats extends Command {
       )
       .addField(
         message.language.get("STATS_EVENTS"),
-        `${clusterStats.events}/${stats.events}`,
+        `${clusterStats.events.toLocaleString(
+          message.language.id
+        )}/${stats.events.toLocaleString(message.language.id)}`,
         true
       );
     return await message.channel.send(embed);
@@ -136,10 +142,18 @@ export default class Stats extends Command {
         true
       )
       .addField(message.language.get("STATS_DJS_VER"), djsver, true)
-      .addField(message.language.get("STATS_NODE_VER"), process.version, true)
+      .addField(
+        message.language.get("STATS_NODE_VER"),
+        process.version.slice(1),
+        true
+      )
       .addField(message.language.get("STATS_UPTIME"), stats.uptime, true)
       .addField(message.language.get("STATS_COMMANDS"), stats.commands, true)
-      .addField(message.language.get("STATS_EVENTS"), stats.events, true);
+      .addField(
+        message.language.get("STATS_EVENTS"),
+        stats.events.toLocaleString(message.language.id),
+        true
+      );
     return await message.channel.send(embed);
   }
 }
