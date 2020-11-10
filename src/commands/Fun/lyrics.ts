@@ -2,9 +2,11 @@ import {
   PaginatorEmbedInterface,
   WrappedPaginator,
 } from "../../../lib/util/paginators";
+import { FireMember } from "../../../lib/extensions/guildmember";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
+import { Argument } from "discord-akairo";
 import { MessageEmbed } from "discord.js";
 import { Track } from "@aero/ksoft";
 
@@ -18,7 +20,8 @@ export default class Lyrics extends Command {
       args: [
         {
           id: "song",
-          type: "string",
+          type: Argument.union("memberSilent", "string"),
+          readableType: "member|string",
           match: "rest",
           default: null,
           required: false,
@@ -27,26 +30,32 @@ export default class Lyrics extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { song: string }) {
-    if (!args.song) {
-      if (
-        message.member?.presence?.activities &&
-        message.member.presence.activities.filter(
-          (activity) =>
-            activity.name == "Spotify" &&
-            !activity.applicationID &&
-            activity.type == "LISTENING"
-        )
-      ) {
-        const activity = message.member.presence.activities.find(
-          (activity) => activity.name == "Spotify"
-        );
-        args.song = `${activity.state} ${activity.details}`;
-      } else return await message.error("LYRICS_NO_QUERY");
-    }
+  getSpotify(member: FireMember) {
+    if (
+      member?.presence?.activities &&
+      member.presence.activities.filter(
+        (activity) =>
+          activity.name == "Spotify" &&
+          !activity.applicationID &&
+          activity.type == "LISTENING"
+      )
+    ) {
+      const activity = member.presence.activities.find(
+        (activity) => activity.name == "Spotify"
+      );
+      return `${activity.state} ${activity.details}`;
+    } else return null;
+  }
+
+  async exec(message: FireMessage, args: { song: FireMember | string }) {
+    const song =
+      args.song instanceof FireMember ? this.getSpotify(args.song) : args.song;
+    if (!song && message.member) {
+      args.song = this.getSpotify(message.member);
+    } else if (!args.song) return await message.error("LYRICS_NO_QUERY");
     let lyrics: Track;
     try {
-      lyrics = await this.client.ksoft.lyrics.get(args.song, {
+      lyrics = await this.client.ksoft.lyrics.get(song, {
         textOnly: false,
       });
     } catch (e) {
