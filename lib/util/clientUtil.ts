@@ -166,7 +166,7 @@ export class Util extends ClientUtil {
       try {
         processInfo = await describePromise(process.env.pm_id || "fire");
       } catch {}
-    }
+    } // lol
     const now = moment();
     const duration = this.client.launchTime.diff(now);
     const env = (process.env.NODE_ENV || "DEVELOPMENT").toLowerCase();
@@ -183,10 +183,8 @@ export class Util extends ClientUtil {
       started: this.client.launchTime.toISOString(true),
       uptime: humanize(duration, "en"),
       cpu: processInfo.length ? processInfo[0]?.monit?.cpu || 0 : 0,
-      ram: processInfo.length
-        ? humanFileSize(processInfo[0].monit.memory)
-        : "Unknown MB",
-      ramBytes: processInfo.length ? processInfo[0]?.monit?.memory || 0 : 0,
+      ram: humanFileSize(process.memoryUsage().heapUsed),
+      ramBytes: process.memoryUsage().heapUsed,
       pid: process.pid,
       version: this.client.config.dev ? "dev" : getCommitHash().slice(0, 7),
       versions: `Discord.JS v${djsver} | Node.JS ${process.version}`,
