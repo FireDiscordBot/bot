@@ -21,7 +21,7 @@ export default class Lyrics extends Command {
           type: "string",
           match: "rest",
           default: null,
-          required: true,
+          required: false,
         },
       ],
     });
