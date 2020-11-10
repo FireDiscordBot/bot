@@ -36,6 +36,13 @@ export const constants = {
       FIRE_PREMIUM: "<:FirePremium:680519037704208466>",
     },
   },
+  statusEmojis: {
+    online: "https://cdn.discordapp.com/emojis/775514569430663178.png?v=1",
+    dnd: "https://cdn.discordapp.com/emojis/775514595951378452.png?v=1",
+    idle: "https://cdn.discordapp.com/emojis/775514610925174784.png?v=1",
+    offline: "https://cdn.discordapp.com/emojis/775514629811208252.png?v=1",
+    streaming: "https://cdn.discordapp.com/emojis/775514644273954896.png?v=1",
+  },
   reactions: {
     success: "yes:534174796888408074",
     error: "no:534174796938870792",

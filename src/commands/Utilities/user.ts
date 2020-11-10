@@ -15,6 +15,7 @@ import * as moment from "moment";
 
 const {
   emojis,
+  statusEmojis,
   emojis: { badges },
 } = constants;
 export default class User extends Command {
@@ -57,7 +58,7 @@ export default class User extends Command {
       user = member.user;
     }
     const color = member
-      ? member?.displayColor
+      ? member.displayColor
       : message.member?.displayColor || "#ffffff";
     const badges = this.getBadges(user);
     const info = this.getInfo(message, member ? member : user);
@@ -142,7 +143,16 @@ export default class User extends Command {
           false
         );
     }
-    embed.setFooter(user.id);
+    member?.presence?.status
+      ? embed.setFooter(
+          user.id,
+          member.presence.activities.find(
+            (activity) => activity.type == "STREAMING"
+          )
+            ? statusEmojis.streaming
+            : statusEmojis[member.presence.status]
+        )
+      : embed.setFooter(user.id);
     return await message.channel.send(embed);
   }
 
