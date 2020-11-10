@@ -28,7 +28,22 @@ export default class Lyrics extends Command {
   }
 
   async exec(message: FireMessage, args: { song: string }) {
-    if (!args.song) return await message.error("LYRICS_NO_QUERY");
+    if (!args.song) {
+      if (
+        message.member?.presence?.activities &&
+        message.member.presence.activities.filter(
+          (activity) =>
+            activity.name == "Spotify" &&
+            !activity.applicationID &&
+            activity.type == "LISTENING"
+        )
+      ) {
+        const activity = message.member.presence.activities.find(
+          (activity) => activity.name == "Spotify"
+        );
+        args.song = `${activity.state} ${activity.details}`;
+      } else return await message.error("LYRICS_NO_QUERY");
+    }
     let lyrics: Track;
     try {
       lyrics = await this.client.ksoft.lyrics.get(args.song, {
