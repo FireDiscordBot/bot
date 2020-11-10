@@ -111,9 +111,9 @@ export class Util extends ClientUtil {
               .filter((guild) => !shard || guild.shardID == shard)
               .map(
                 (guild) =>
-                  guild.members.cache.map(
+                  guild.members.cache.filter(
                     (member) => member.presence.status == "online"
-                  ).length
+                  ).size
               )
               .reduce((a, b) => a + b)
           : 0,
@@ -123,9 +123,9 @@ export class Util extends ClientUtil {
               .filter((guild) => !shard || guild.shardID == shard)
               .map(
                 (guild) =>
-                  guild.members.cache.map(
+                  guild.members.cache.filter(
                     (member) => member.presence.status == "dnd"
-                  ).length
+                  ).size
               )
               .reduce((a, b) => a + b)
           : 0,
@@ -135,9 +135,9 @@ export class Util extends ClientUtil {
               .filter((guild) => !shard || guild.shardID == shard)
               .map(
                 (guild) =>
-                  guild.members.cache.map(
+                  guild.members.cache.filter(
                     (member) => member.presence.status == "idle"
-                  ).length
+                  ).size
               )
               .reduce((a, b) => a + b)
           : 0,
@@ -147,9 +147,9 @@ export class Util extends ClientUtil {
               .filter((guild) => !shard || guild.shardID == shard)
               .map(
                 (guild) =>
-                  guild.members.cache.map(
+                  guild.members.cache.filter(
                     (member) => member.presence.status == "offline"
-                  ).length
+                  ).size
               )
               .reduce((a, b) => a + b)
           : 0,
