@@ -14,8 +14,16 @@ export const fire = {
       `Bot: ${client?.user?.username}#${client?.user?.discriminator}`
     );
     client.console.log(`ID: ${client?.user?.id}`);
-    client.console.log(`Guilds: ${client.guilds.cache.size}`);
-    client.console.log(`Users: ${client.users.cache.size}`);
+    client.console.log(`Guilds: ${client.guilds.cache.size.toLocaleString()}`);
+    client.console.log(
+      `Users: ${client.users.cache.size.toLocaleString()}/${(client.guilds.cache
+        .size >= 1
+        ? client.guilds.cache
+            .map((guild) => guild.memberCount)
+            .reduce((a, b) => a + b)
+        : 0
+      ).toLocaleString()}`
+    );
     if (!client.started) {
       const now = moment();
       const duration = client.launchTime.diff(now);
@@ -49,6 +57,6 @@ export const fire = {
     client.guildSettings.items = client.guildSettings.items.filter(
       (value, key) => client.guilds.cache.has(key) || key == "0"
     ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
-       // or "0" which may be used for something later
+    // or "0" which may be used for something later
   },
 };
