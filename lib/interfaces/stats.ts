@@ -34,6 +34,7 @@ export interface Cluster {
   guilds: number;
   unavailableGuilds: number;
   users: number;
+  userStatuses: { online: number; dnd: number; idle: number; offline: number };
   commands: number;
   events: number;
   shards: Shard[];
@@ -45,5 +46,15 @@ export interface Shard {
   guilds: number;
   unavailableGuilds: number;
   users: number;
-  status: number;
+  userStatuses: { online: number; dnd: number; idle: number; offline: number };
+  status: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  publicGuilds?: string[];
+  discoverableGuilds?: {
+    name: string;
+    id: string;
+    icon: string;
+    splash: string;
+    vanity: string;
+    members: number;
+  }[];
 }

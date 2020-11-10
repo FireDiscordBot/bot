@@ -103,6 +103,59 @@ export class Util extends ClientUtil {
     "-" +
     uuid.substr(20);
 
+  getUserStatuses(shard?: number) {
+    return {
+      online:
+        this.client.guilds.cache.size >= 1
+          ? this.client.guilds.cache
+              .filter((guild) => !shard || guild.shardID == shard)
+              .map(
+                (guild) =>
+                  guild.members.cache.map(
+                    (member) => member.presence.status == "online"
+                  ).length
+              )
+              .reduce((a, b) => a + b)
+          : 0,
+      dnd:
+        this.client.guilds.cache.size >= 1
+          ? this.client.guilds.cache
+              .filter((guild) => !shard || guild.shardID == shard)
+              .map(
+                (guild) =>
+                  guild.members.cache.map(
+                    (member) => member.presence.status == "dnd"
+                  ).length
+              )
+              .reduce((a, b) => a + b)
+          : 0,
+      idle:
+        this.client.guilds.cache.size >= 1
+          ? this.client.guilds.cache
+              .filter((guild) => !shard || guild.shardID == shard)
+              .map(
+                (guild) =>
+                  guild.members.cache.map(
+                    (member) => member.presence.status == "idle"
+                  ).length
+              )
+              .reduce((a, b) => a + b)
+          : 0,
+      offline:
+        this.client.guilds.cache.size >= 1
+          ? this.client.guilds.cache
+              .filter((guild) => !shard || guild.shardID == shard)
+              .map(
+                (guild) =>
+                  guild.members.cache.map(
+                    (member) => member.presence.status == "offline"
+                  ).length
+              )
+              .reduce((a, b) => a + b)
+          : 0,
+    };
+  }
+
   async getClusterStats(): Promise<Cluster> {
     let processInfo: ProcessDescription[] = [];
     if (this.client.manager.pm2) {
@@ -143,6 +196,7 @@ export class Util extends ClientUtil {
               .map((guild) => guild.memberCount)
               .reduce((a, b) => a + b)
           : 0,
+      userStatuses: this.getUserStatuses(),
       commands: this.client.commandHandler.modules.size,
       events: this.client.events,
       shards: [...this.client.ws.shards.values()].map((shard) => {
@@ -164,7 +218,8 @@ export class Util extends ClientUtil {
                   .map((guild) => guild.memberCount)
                   .reduce((a, b) => a + b)
               : 0,
-          status: shard.status,
+          userStatuses: this.getUserStatuses(shard.id),
+          status: shard.status as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
           publicGuilds: this.client.guilds.cache
             .filter(
               (guild: FireGuild) =>
