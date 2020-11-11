@@ -4,12 +4,13 @@ export enum EventType {
   READY_CLIENT = 2,
   RECONNECT_CLIENT = 3,
   RESTART_CLIENT = 4,
-  SEND_STATS = 5,
-  LOAD_MODULE = 6,
-  BROADCAST_EVAL = 7,
-  ADMIN_ACTION = 8,
-  SETTINGS_SYNC = 9,
-  SK1ER_SPECS = 10,
+  REPLACE_CLIENT = 5,
+  SEND_STATS = 6,
+  LOAD_MODULE = 7,
+  BROADCAST_EVAL = 8,
+  ADMIN_ACTION = 9,
+  SETTINGS_SYNC = 10,
+  SK1ER_SPECS = 11,
 }
 
 export enum WebsocketStates {

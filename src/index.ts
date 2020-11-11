@@ -35,9 +35,9 @@ if (loadSentry) {
 const manager = new Manager(loadSentry ? sentry : undefined, pm2);
 manager.init();
 
-process.on("exit", () => {
-  manager.kill("exit");
-});
+// process.on("exit", () => {
+//   manager.kill("exit");
+// });
 process.on("SIGINT", () => {
   manager.kill("SIGINT");
 });

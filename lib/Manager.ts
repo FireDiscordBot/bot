@@ -1,9 +1,12 @@
+import { MessageUtil } from "./ws/util/MessageUtil";
+import { EventType } from "./ws/util/constants";
 import { Reconnector } from "./ws/Reconnector";
 import { Websocket } from "./ws/Websocket";
 import { Command } from "./util/command";
+import * as Sentry from "@sentry/node";
+import { Message } from "./ws/Message";
 import { disconnect } from "pm2";
 import { Fire } from "./Fire";
-import * as Sentry from "@sentry/node";
 
 export class Manager {
   id: number;
@@ -12,6 +15,7 @@ export class Manager {
   client: Fire;
   ws?: Websocket;
   reconnector: Reconnector;
+  replacementShardData?: { [shard: string]: { session: string; seq: number } };
 
   constructor(sentry?: typeof Sentry, pm2?: boolean) {
     this.id = parseInt(process.env.NODE_APP_INSTANCE || "0");
@@ -71,7 +75,7 @@ export class Manager {
   }
 
   relaunch(data: { shardCount: number; shards: number[] }) {
-    this.client?.console.warn("[Manager] Destroying client...");
+    this.client?.console.warn("[Manager] Relaunching client...");
     this.client?.user?.setStatus(
       "invisible",
       this.client.options.shards as number[]
@@ -80,6 +84,7 @@ export class Manager {
       async (command: Command) => await command.unload()
     );
     this.client?.destroy();
+    delete this.client;
     this.client = new Fire(this, this.sentry);
     this.launch(data);
   }
@@ -93,12 +98,61 @@ export class Manager {
     this.client.commandHandler.modules.forEach(
       async (command: Command) => await command.unload()
     );
-    this.client?.destroy();
     this.ws?.close(
       1001,
       `Cluster ${this.id} is shutting down due to receiving ${event} event`
     );
+    this.client?.destroy();
     disconnect();
     process.exit();
+  }
+
+  replace() {
+    this.client?.console.warn("[Manager] Replacing client...");
+    const shards: { [shard: number]: { session: string; seq: number } } = {};
+    this.client.ws.shards.forEach((shard) => {
+      shards[shard.id] = {
+        session: (shard as any).sessionID,
+        seq: (shard as any).sequence,
+      };
+    });
+    this.client.ws.shards.forEach((shard) => {
+      (shard as any).destroy({
+        closeCode: 4000,
+        reset: false,
+        emit: false,
+        log: false,
+      });
+      this.client.ws.shards.delete(shard.id);
+    });
+    this.ws.send(
+      MessageUtil.encode(
+        new Message(EventType.REPLACE_CLIENT, { id: this.id, shards })
+      )
+    );
+    this.ws.close(4000, `Cluster ${this.id} is being replaced`);
+    this.client?.console.warn("[Manager] Destroying client...");
+    (this.client.ws as any).destroyed = true;
+    this.client?.destroy();
+    disconnect();
+    process.exit();
+  }
+
+  launchReplacement(
+    shardCount: number,
+    shards: { [shard: string]: { session: string; seq: number } }
+  ) {
+    this.replacementShardData = shards;
+    // figure out how to set session and shit here
+    this.ws.send(
+      MessageUtil.encode(
+        new Message(EventType.IDENTIFY_CLIENT, {
+          id: this.id,
+          ready: !!this.client.readyAt,
+          config: {},
+        })
+      )
+    );
+    this.client.console.log("[Aether] Sending replacement identify event.");
   }
 }
