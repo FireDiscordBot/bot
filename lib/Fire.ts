@@ -21,6 +21,7 @@ import {
   memberTypeCaster,
 } from "../src/arguments/member";
 import { roleSilentTypeCaster, roleTypeCaster } from "../src/arguments/role";
+import { userSilentTypeCaster, userTypeCaster } from "../src/arguments/user";
 import { memberRoleTypeCaster } from "../src/arguments/memberRole";
 import { userMemberTypeCaster } from "../src/arguments/userMember";
 import { codeblockTypeCaster } from "../src/arguments/codeblock";
@@ -32,7 +33,6 @@ import { Language, LanguageHandler } from "./util/language";
 import { moduleTypeCaster } from "../src/arguments/module";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandHandler";
-import { userTypeCaster } from "../src/arguments/user";
 import { Module, ModuleHandler } from "./util/module";
 import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
@@ -182,6 +182,7 @@ export class Fire extends AkairoClient {
       member: memberTypeCaster,
       memberSilent: memberSilentTypeCaster,
       user: userTypeCaster,
+      userSilent: userSilentTypeCaster,
       role: roleTypeCaster,
       roleSilent: roleSilentTypeCaster,
       textChannel: textChannelTypeCaster,

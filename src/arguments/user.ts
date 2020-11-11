@@ -7,3 +7,8 @@ export const userTypeCaster: ArgumentTypeCaster = (
   message: FireMessage,
   phrase
 ): Promise<FireUser | null> => userConverter(message, phrase);
+
+export const userSilentTypeCaster: ArgumentTypeCaster = (
+  message: FireMessage,
+  phrase
+): Promise<FireUser | null> => userConverter(message, phrase, true);
