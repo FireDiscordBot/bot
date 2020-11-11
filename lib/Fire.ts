@@ -77,6 +77,7 @@ export class Fire extends AkairoClient {
   config: typeof config.fire;
   conversationStates: Map<string, Buffer>; // Google Command conversation states
   events: number;
+  userSweepTask: NodeJS.Timeout;
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
@@ -253,6 +254,8 @@ export class Fire extends AkairoClient {
     });
     this.modules.loadAll();
 
+    this.userSweepTask = setInterval(() => this.sweepUsers(), 60000);
+
     this.conversationStates = new Map();
     this.ksoft = process.env.KSOFT_TOKEN
       ? new KSoftClient(process.env.KSOFT_TOKEN)
@@ -273,7 +276,16 @@ export class Fire extends AkairoClient {
     return super.login();
   }
 
-  public getCommand(id: string) {
+  sweepUsers() {
+    this.guilds.cache.forEach((guild) =>
+      guild.members.cache.sweep((member) => member.presence.status == "offline")
+    );
+    this.users.cache.sweep((user) =>
+      this.guilds.cache.every((guild) => !guild.members.cache.has(user.id))
+    );
+  }
+
+  getCommand(id: string) {
     id = id.toLowerCase();
     if (this.commandHandler.modules.has(id))
       return this.commandHandler.modules.get(id) as Command;
@@ -285,15 +297,15 @@ export class Fire extends AkairoClient {
     }
   }
 
-  public getLanguage(id: string) {
+  getLanguage(id: string) {
     return this.languages.modules.get(id) as Language;
   }
 
-  public getModule(id: string) {
+  getModule(id: string) {
     return this.modules.modules.get(id.toLowerCase()) as Module;
   }
 
-  public getListener(id: string) {
+  getListener(id: string) {
     return this.listenerHandler.modules.get(id) as Listener;
   }
 }
