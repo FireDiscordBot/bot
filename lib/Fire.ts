@@ -34,6 +34,7 @@ import { moduleTypeCaster } from "../src/arguments/module";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandHandler";
 import { Module, ModuleHandler } from "./util/module";
+import { Experiment } from "./interfaces/experiments";
 import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
 import { version as djsver } from "discord.js";
@@ -77,6 +78,7 @@ export class Fire extends AkairoClient {
   config: typeof config.fire;
   conversationStates: Map<string, Buffer>; // Google Command conversation states
   events: number;
+  experiments: Map<string, Experiment>;
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
@@ -112,6 +114,8 @@ export class Fire extends AkairoClient {
         (result) =>
           (this.events = result.rows.length ? (result.rows[0][0] as number) : 0)
       );
+
+    this.experiments = new Map();
 
     this.on("warn", (warning) => this.console.warn(`[Discord] ${warning}`));
     this.on("error", (error) =>
