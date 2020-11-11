@@ -22,6 +22,7 @@ export default class Specs extends Command {
           required: false,
         },
       ],
+      guilds: ["411619823445999637"],
       aliases: ["delspecs"],
       hidden: true,
     });
@@ -41,7 +42,6 @@ export default class Specs extends Command {
   }
 
   async exec(message: FireMessage, args: { user?: FireUser }) {
-    if (message.guild.id != "411619823445999637") return;
     const user = args.user || message.author;
     const specs = await this.client.db
       .query("SELECT * FROM specs WHERE uid=$1", [user.id])
