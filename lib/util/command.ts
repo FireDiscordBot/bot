@@ -15,6 +15,7 @@ export class Command extends AkairoCommand {
   client: Fire;
   hidden: boolean;
   premium: boolean;
+  guilds: string[];
   args?: ArgumentOptions[] | ArgumentGenerator;
 
   constructor(id: string, options?: CommandOptions) {
@@ -33,6 +34,7 @@ export class Command extends AkairoCommand {
     this.hidden = options.hidden || false;
     if (this.ownerOnly) this.hidden = true;
     this.premium = options.premium || false;
+    this.guilds = options.guilds || [];
     this.args = options.args;
   }
 
@@ -64,6 +66,7 @@ export class Command extends AkairoCommand {
 export interface CommandOptions extends AkairoCommandOptions {
   hidden?: boolean;
   premium?: boolean;
+  guilds?: string[];
   args?: ArgumentOptions[] | ArgumentGenerator;
   restrictTo?: "guild" | "dm" | "all";
 }

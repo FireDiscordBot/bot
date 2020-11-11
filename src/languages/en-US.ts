@@ -31,6 +31,8 @@ export default class enUS extends Language {
           "You can only use this command in a server. You can invite me to a server at <https://inv.wtf/tsbot>",
         COMMAND_PREMIUM_ONLY:
           "Only premium guilds can use this command. Learn more at https://inv.wtf/premium",
+        COMMAND_GUILD_LOCKED:
+          "This command is restricted to certain guilds and this guild is not one of them.",
         COMMAND_ERROR_CONCURRENCY:
           // For different languages, you may want to change the "hold your horses" bit as it may not make sense in that language
           "Whoa, hold your horses there! Wait for the command to finish before running it again",
