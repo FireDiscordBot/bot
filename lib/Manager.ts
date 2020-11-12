@@ -28,14 +28,14 @@ export class Manager {
   }
 
   init(reconnecting = false) {
-    if (reconnecting && this.ws?.OPEN) return;
+    if (reconnecting && this.ws.readyState == this.ws.OPEN) return;
     if (process.env.BOOT_SINGLE === "false") {
       this.initWebsocket();
     }
   }
 
   private initWebsocket() {
-    if (this.ws.OPEN)
+    if (this.ws.readyState != this.ws.OPEN)
       return this.client.console.warn(
         `[Manager] Tried to initialize websocket while already open with state ${this.ws.readyState}`
       );

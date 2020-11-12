@@ -63,7 +63,8 @@ export class Reconnector {
   reconnect() {
     // it likes to try reconnect while already connected sometimes
     // why? not a single fucking clue
-    if (this.manager.ws?.OPEN) this.manager.ws.close(4000, "brb");
+    if (this.manager.ws?.readyState == this.manager.ws?.OPEN)
+      this.manager.ws.close(4000, "brb");
     this.manager.client.console.log(
       `[Aether] Attempting to reconnect with ${this.timeout}ms timeout.`
     );
