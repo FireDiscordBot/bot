@@ -34,9 +34,10 @@ export class Websocket extends Client {
           this.reconnector.state = WebsocketStates.CLOSING;
           return this.close(4009, "Did not receive pong in time");
         }
-        this.ping();
         this.waitingForPong = true;
+        this.ping();
       }, this.manager.client.config.aetherPingTimeout);
+      this.on("pong", () => (this.waitingForPong = false));
       this.manager.client.getModule("aetherstats").init();
       this.send(
         MessageUtil.encode(
