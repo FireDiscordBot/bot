@@ -12,6 +12,7 @@ export class Websocket extends Client {
   reconnector: Reconnector;
   keepAlive: NodeJS.Timeout;
   waitingForPong: boolean;
+  pongs: number;
 
   constructor(manager: Manager) {
     super(
@@ -27,17 +28,24 @@ export class Websocket extends Client {
     );
     this.manager = manager;
     this.waitingForPong = false;
+    this.pongs = 0;
     this.handler = new EventHandler(manager);
     this.on("open", () => {
       this.keepAlive = setInterval(() => {
         if (this.waitingForPong) {
+          this.manager.client.console.warn(
+            `[Aether] Did not receive pong in time. Closing connection with ${this.pongs} pongs...`
+          );
           this.reconnector.state = WebsocketStates.CLOSING;
           return this.close(4009, "Did not receive pong in time");
         }
         this.waitingForPong = true;
         this.ping();
       }, this.manager.client.config.aetherPingTimeout);
-      this.on("pong", () => (this.waitingForPong = false));
+      this.on("pong", () => {
+        this.waitingForPong = false;
+        this.pongs++;
+      });
       this.manager.client.getModule("aetherstats").init();
       this.send(
         MessageUtil.encode(
