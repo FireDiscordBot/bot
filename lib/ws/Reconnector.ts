@@ -52,6 +52,10 @@ export class Reconnector {
   }
 
   reconnect() {
+    if (this.manager.ws?.OPEN)
+      return this.manager.client.console.warn(
+        `[Aether] Attempted to reconnect while WebSocket is still open`
+      );
     this.manager.client.console.log(
       `[Aether] Attempting to reconnect with ${this.timeout}ms timeout.`
     );

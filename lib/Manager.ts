@@ -28,6 +28,7 @@ export class Manager {
   }
 
   init(reconnecting = false) {
+    if (reconnecting && this.ws?.OPEN) return;
     if (process.env.BOOT_SINGLE === "false") {
       this.initWebsocket();
     }
