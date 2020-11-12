@@ -60,4 +60,5 @@ export const fire = {
     ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
     // or "0" which may be used for something later
   },
+  aetherPingTimeout: 10000,
 };
