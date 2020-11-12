@@ -1,13 +1,17 @@
-import * as Client from "ws";
-import { Manager } from "../Manager";
 import { EventHandler } from "./event/EventHandler";
 import { MessageUtil } from "./util/MessageUtil";
+import { EventType, WebsocketStates } from "./util/constants";
+import { Reconnector } from "./Reconnector";
+import { Manager } from "../Manager";
 import { Message } from "./Message";
-import { EventType } from "./util/constants";
+import * as Client from "ws";
 
 export class Websocket extends Client {
   manager: Manager;
   handler: EventHandler;
+  reconnector: Reconnector;
+  keepAlive: NodeJS.Timeout;
+  waitingForPong: boolean;
 
   constructor(manager: Manager) {
     super(
@@ -22,8 +26,17 @@ export class Websocket extends Client {
       }
     );
     this.manager = manager;
+    this.waitingForPong = false;
     this.handler = new EventHandler(manager);
     this.on("open", () => {
+      this.keepAlive = setInterval(() => {
+        if (this.waitingForPong) {
+          this.reconnector.state = WebsocketStates.CLOSING;
+          return this.close(4009, "Did not receive pong in time");
+        }
+        this.ping();
+        this.waitingForPong = true;
+      }, this.manager.client.config.aetherPingTimeout);
       this.manager.client.getModule("aetherstats").init();
       this.send(
         MessageUtil.encode(
@@ -39,6 +52,7 @@ export class Websocket extends Client {
   }
 
   init() {
+    this.manager.client.console.log("[Aether] Initializing websocket...");
     this.handler.init();
 
     this.on("message", (message) => {

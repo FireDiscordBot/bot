@@ -19,14 +19,17 @@ export class Reconnector {
     if (this.state === WebsocketStates.RECONNECTING) {
       if (this.interval) clearInterval(this.interval);
       this.manager.client.console.log("[Aether] Reconnected to Websocket.");
-      this.state = WebsocketStates.IDLE;
+      this.state = WebsocketStates.CONNECTED;
     } else {
       this.manager.client.console.log("[Aether] Connected to Websocket.");
+      this.state = WebsocketStates.CONNECTED;
     }
   }
 
   handleClose(code: number, reason: string) {
-    if (this.state === WebsocketStates.IDLE) {
+    clearInterval(this.manager.ws.keepAlive);
+    if (this.state === WebsocketStates.CONNECTED) {
+      this.state = WebsocketStates.CLOSED;
       this.manager.client.console.warn(
         `[Aether] Disconnected from Websocket with code ${code} and reason ${reason}.`
       );
@@ -36,7 +39,13 @@ export class Reconnector {
 
   handleError(error: any) {
     if (error.code === "ECONNREFUSED") {
-      if (this.state === WebsocketStates.IDLE) {
+      if (
+        this.state === WebsocketStates.CLOSED ||
+        this.state == WebsocketStates.IDLE
+      ) {
+        this.manager.client.console.warn(
+          `[Aether] Connection refused, attempting to reconnect`
+        );
         this.activate();
       }
     } else {
@@ -52,15 +61,15 @@ export class Reconnector {
   }
 
   reconnect() {
-    if (this.manager.ws?.OPEN)
-      return this.manager.client.console.warn(
-        `[Aether] Attempted to reconnect while WebSocket is still open`
-      );
+    // it likes to try reconnect while already connected sometimes
+    // why? not a single fucking clue
+    if (this.manager.ws?.OPEN) this.manager.ws.close(4000, "brb");
     this.manager.client.console.log(
       `[Aether] Attempting to reconnect with ${this.timeout}ms timeout.`
     );
     this.state = WebsocketStates.RECONNECTING;
     this.manager.ws = new Websocket(this.manager);
+    this.manager.ws.reconnector = this;
     this.manager.init(true);
   }
 }
