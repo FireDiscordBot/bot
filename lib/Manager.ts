@@ -35,6 +35,10 @@ export class Manager {
   }
 
   private initWebsocket() {
+    if (this.ws.OPEN)
+      return this.client.console.warn(
+        `[Manager] Tried to initialize websocket while already open with state ${this.ws.readyState}`
+      );
     this.ws.init();
 
     this.ws.on("open", () => {
