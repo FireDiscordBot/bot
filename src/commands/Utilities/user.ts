@@ -143,7 +143,7 @@ export default class User extends Command {
           false
         );
     }
-    member?.presence?.status
+    member?.presence?.clientStatus
       ? embed.setFooter(
           user.id,
           member.presence.activities.find(

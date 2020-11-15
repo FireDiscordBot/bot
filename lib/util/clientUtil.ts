@@ -103,62 +103,62 @@ export class Util extends ClientUtil {
     "-" +
     uuid.substr(20);
 
-  getUserStatuses(shard?: number) {
-    try {
-      return {
-        online:
-          this.client.guilds.cache.size > 1
-            ? this.client.guilds.cache
-                .filter((guild) => !shard || guild.shardID == shard)
-                .map(
-                  (guild) =>
-                    guild.members.cache.filter(
-                      (member) => member.presence.status == "online"
-                    ).size
-                )
-                .reduce((a, b) => a + b)
-            : 0,
-        dnd:
-          this.client.guilds.cache.size > 1
-            ? this.client.guilds.cache
-                .filter((guild) => !shard || guild.shardID == shard)
-                .map(
-                  (guild) =>
-                    guild.members.cache.filter(
-                      (member) => member.presence.status == "dnd"
-                    ).size
-                )
-                .reduce((a, b) => a + b)
-            : 0,
-        idle:
-          this.client.guilds.cache.size > 1
-            ? this.client.guilds.cache
-                .filter((guild) => !shard || guild.shardID == shard)
-                .map(
-                  (guild) =>
-                    guild.members.cache.filter(
-                      (member) => member.presence.status == "idle"
-                    ).size
-                )
-                .reduce((a, b) => a + b)
-            : 0,
-        offline:
-          this.client.guilds.cache.size > 1
-            ? this.client.guilds.cache
-                .filter((guild) => !shard || guild.shardID == shard)
-                .map(
-                  (guild) =>
-                    guild.members.cache.filter(
-                      (member) => member.presence.status == "offline"
-                    ).size
-                )
-                .reduce((a, b) => a + b)
-            : 0,
-      };
-    } catch {
-      return { online: 0, dnd: 0, idle: 0, offline: 0 };
-    }
-  }
+  // getUserStatuses(shard?: number) {
+  //   try {
+  //     return {
+  //       online:
+  //         this.client.guilds.cache.size > 1
+  //           ? this.client.guilds.cache
+  //               .filter((guild) => !shard || guild.shardID == shard)
+  //               .map(
+  //                 (guild) =>
+  //                   guild.members.cache.filter(
+  //                     (member) => member.presence.status == "online"
+  //                   ).size
+  //               )
+  //               .reduce((a, b) => a + b)
+  //           : 0,
+  //       dnd:
+  //         this.client.guilds.cache.size > 1
+  //           ? this.client.guilds.cache
+  //               .filter((guild) => !shard || guild.shardID == shard)
+  //               .map(
+  //                 (guild) =>
+  //                   guild.members.cache.filter(
+  //                     (member) => member.presence.status == "dnd"
+  //                   ).size
+  //               )
+  //               .reduce((a, b) => a + b)
+  //           : 0,
+  //       idle:
+  //         this.client.guilds.cache.size > 1
+  //           ? this.client.guilds.cache
+  //               .filter((guild) => !shard || guild.shardID == shard)
+  //               .map(
+  //                 (guild) =>
+  //                   guild.members.cache.filter(
+  //                     (member) => member.presence.status == "idle"
+  //                   ).size
+  //               )
+  //               .reduce((a, b) => a + b)
+  //           : 0,
+  //       offline:
+  //         this.client.guilds.cache.size > 1
+  //           ? this.client.guilds.cache
+  //               .filter((guild) => !shard || guild.shardID == shard)
+  //               .map(
+  //                 (guild) =>
+  //                   guild.members.cache.filter(
+  //                     (member) => member.presence.status == "offline"
+  //                   ).size
+  //               )
+  //               .reduce((a, b) => a + b)
+  //           : 0,
+  //     };
+  //   } catch {
+  //     return { online: 0, dnd: 0, idle: 0, offline: 0 };
+  //   }
+  // }
 
   async getClusterStats(): Promise<Cluster> {
     let processInfo: ProcessDescription[] = [];
@@ -198,7 +198,7 @@ export class Util extends ClientUtil {
               .map((guild) => guild.memberCount)
               .reduce((a, b) => a + b)
           : 0,
-      userStatuses: this.getUserStatuses(),
+      // userStatuses: this.getUserStatuses(),
       commands: this.client.commandHandler.modules.size,
       events: this.client.events,
       shards: [...this.client.ws.shards.values()].map((shard) => {
@@ -220,7 +220,7 @@ export class Util extends ClientUtil {
                   .map((guild) => guild.memberCount)
                   .reduce((a, b) => a + b)
               : 0,
-          userStatuses: this.getUserStatuses(shard.id),
+          // userStatuses: this.getUserStatuses(shard.id),
           status: shard.status as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
           publicGuilds: this.client.guilds.cache
             .filter(

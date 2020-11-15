@@ -77,7 +77,7 @@ export class Fire extends AkairoClient {
   config: typeof config.fire;
   conversationStates: Map<string, Buffer>; // Google Command conversation states
   events: number;
-  userSweepTask: NodeJS.Timeout;
+  userSweepTask?: NodeJS.Timeout;
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
@@ -254,7 +254,7 @@ export class Fire extends AkairoClient {
     });
     this.modules.loadAll();
 
-    this.userSweepTask = setInterval(() => this.sweepUsers(), 60000);
+    // this.userSweepTask = setInterval(() => this.sweepUsers(), 60000);
 
     this.conversationStates = new Map();
     this.ksoft = process.env.KSOFT_TOKEN

@@ -18,7 +18,12 @@ export const discord: ClientOptions = {
     intents:
       intents.GUILDS |
       intents.GUILD_MEMBERS |
-      intents.GUILD_PRESENCES |
+
+      // I got presences for a feature I wanted to implement but
+      // JESUS FUCKING CHRIST cpu usage & memory usage go brrrrr with it enabled
+      // so for now it's getting yeeted (d.js would also cache all members with presences enabled idk why)
+      // intents.GUILD_PRESENCES |
+
       intents.GUILD_BANS |
       intents.GUILD_INVITES |
       intents.GUILD_MESSAGES |
