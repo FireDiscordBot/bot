@@ -1,5 +1,5 @@
+import { TextChannel, CategoryChannel, GuildChannel } from "discord.js";
 import { FireMessage } from "../../../lib/extensions/message";
-import { TextChannel, CategoryChannel } from "discord.js";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 
@@ -23,22 +23,29 @@ export default class Slowmode extends Command {
           type: "guildChannelSilent",
           readableType: "textChannel|category",
           default: null,
-          required: true,
+          required: false,
           unordered: true,
         },
       ],
+      aliases: ["slowmodeall"],
     });
   }
 
   async exec(
     message: FireMessage,
-    args: { delay: number; channel?: TextChannel | CategoryChannel }
+    args: {
+      delay: number;
+      channel?: TextChannel | CategoryChannel;
+    }
   ) {
-    if (!args.channel) args.channel = message.channel as TextChannel;
+    if (!args.channel && message.util?.parsed?.alias != "slowmodeall")
+      args.channel = message.channel as TextChannel;
+    else if (!args.channel && message.util?.parsed?.alias == "slowmodeall")
+      return await this.globalSlowmode(message, args.delay);
     if (!["text", "category", undefined].includes(args.channel?.type))
       return await message.error("SLOWMODE_INVALID_TYPE");
     let failed = [];
-    if (args.channel.type == "category") {
+    if (args.channel?.type == "category") {
       args.channel.children.forEach(async (channel) => {
         if (channel.type == "text")
           await (channel as TextChannel)
@@ -61,5 +68,32 @@ export default class Slowmode extends Command {
         });
       return await message.success();
     } else return await message.error();
+  }
+
+  async globalSlowmode(message: FireMessage, delay: number) {
+    let failed: string[] = [];
+    const slow = async (message: FireMessage) => {
+      message.guild.channels.cache
+        .filter((channel: GuildChannel) => channel.type == "text")
+        .forEach((channel: TextChannel) => {
+          if (
+            channel.rateLimitPerUser != delay &&
+            message.guild.me.permissionsIn(channel).has("MANAGE_CHANNELS")
+          )
+            channel
+              .setRateLimitPerUser(
+                delay,
+                `Slowmode set by ${message.author} in all channels`
+              )
+              .catch(() => {
+                failed.push(channel.toString());
+              });
+        });
+      return true;
+    };
+    await slow(message); // Ensures foreach finishes before continuing
+    return failed.length
+      ? await message.error("SLOWMODE_GLOBAL_FAIL_SOME", failed)
+      : await message.success();
   }
 }
