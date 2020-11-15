@@ -154,14 +154,18 @@ export default class enUS extends Language {
           "Add a member/role as a moderator. If not set, anyone with the Manage Messages permission is considered a moderator",
         AUTOROLE_COMMAND_DESCRIPTION:
           "Automatically add a role to a user/bot when they join or when they send their first message with the --delay flag",
+        AUTOROLE_ROLE_REQUIRED:
+          "You can't automatically give nothing, you need to provide a role",
         AUTOROLE_INVALID_FLAGS: "You cannot combine --bot and --delay",
         AUTOROLE_DISABLED:
           "Autorole has been disabled, users will no longer receive a role upon join/first message.",
         AUTOROLE_DISABLED_BOT:
           "Autorole has been disabled, bots will no longer receive a role upon join.",
-        AUTOROLE_ENABLED: (role: string) =>
-          `Autorole has been enabled, users will receive ${role} upon join/first message.`,
-        AUTOROLE_ENABLED_BOT: (role: string) =>
+        AUTOROLE_ENABLED: (role: string, delay: boolean) =>
+          `Autorole has been enabled, users will receive ${role} upon ${
+            delay ? "first message" : "join"
+          }.`,
+        AUTOROLE_ENABLED_BOT: (role: string, delay: boolean) =>
           `Autorole has been enabled, bots will receive ${role} upon join.`,
         MODERATORS_ROLES: "Moderator Roles",
         NO_MODERATOR_ROLES: "No roles have been set as moderators.",
@@ -509,10 +513,14 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         SKIN_COMMAND_DESCRIPTION: "See a player's Minecraft skin",
         SKIN_INVALID_IGN: "You must provide a valid IGN to get the skin of",
         SLOWMODE_COMMAND_DESCRIPTION:
-          "Set the slowmode for a channel or category",
+          "Set the slowmode for a channel or category. Use the --global flag to set it for all channels",
         SLOWMODE_INVALID_TYPE: "You must provide a text channel or category",
         SLOWMODE_FAILED: (channels: string[]) =>
           `Failed to set slowmode in ${channels.join(", ")}`,
+        SLOWMODE_GLOBAL_FAIL_SOME: (failed: string[]) =>
+          `I set slowmode in some channels but failed to set slowmode in ${failed.join(
+            ", "
+          )}`,
         STATS_COMMAND_DESCRIPTION:
           "View cluster & overall stats. Use the --cluster flag to view stats for a specific cluster",
         STATS_TITLE: (name: string, version: string) =>
