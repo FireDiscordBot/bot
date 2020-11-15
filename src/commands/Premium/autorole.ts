@@ -15,7 +15,7 @@ export default class Autorole extends Command {
       args: [
         {
           id: "role",
-          type: "role",
+          type: "roleSilent",
           default: null,
           required: true,
         },
@@ -40,11 +40,6 @@ export default class Autorole extends Command {
     args: { role: Role; delay?: string; bot?: string }
   ) {
     let { role, delay, bot } = args;
-    if (
-      role.position > (message.guild.me?.roles.highest.position || 0) ||
-      role.managed
-    )
-      return await message.error("ERROR_ROLE_UNUSABLE");
     if (delay == "--bot") {
       // Discord Akairo's flags suck
       delay = undefined;
@@ -62,7 +57,13 @@ export default class Autorole extends Command {
       );
     }
 
+    if (
+      role.position > (message.guild.me?.roles.highest.position || 0) ||
+      role.managed
+    )
+      return await message.error("ERROR_ROLE_UNUSABLE");
     if (bot && delay) return await message.error("AUTOROLE_INVALID_FLAGS");
+
     delay
       ? message.guild.settings.set("mod.autorole.waitformsg", true)
       : message.guild.settings.delete("mod.autorole.waitformsg");
@@ -73,7 +74,8 @@ export default class Autorole extends Command {
 
     await message.success(
       bot ? "AUTOROLE_ENABLED_BOT" : "AUTOROLE_ENABLED",
-      role.toString()
+      role.toString(),
+      !!delay
     );
   }
 }
