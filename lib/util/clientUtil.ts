@@ -1,13 +1,16 @@
 import { version as djsver, PermissionString } from "discord.js";
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
+import { MessageUtil } from "../ws/util/MessageUtil";
 import { describe, ProcessDescription } from "pm2";
-import { Cluster } from "../interfaces/stats";
 import { humanize, titleCase } from "./constants";
+import { EventType } from "../ws/util/constants";
 import { FireGuild } from "../extensions/guild";
+import { Cluster } from "../interfaces/stats";
 import { FireUser } from "../extensions/user";
 import { ClientUtil } from "discord-akairo";
 import { getCommitHash } from "./gitUtils";
+import { Message } from "../ws/Message";
 import { Language } from "./language";
 import { promisify } from "util";
 import * as Centra from "centra";
@@ -258,6 +261,15 @@ export class Util extends ClientUtil {
       if (this.client.util.plonked.includes(user.id))
         await this.updateBlacklist(user, reason, permanent);
       else await this.insertBlacklist(user, reason, permanent);
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.BLACKLIST_SYNC, {
+            id: this.client.manager.id,
+            user: user.id,
+            action: "blacklist",
+          })
+        )
+      );
       return true;
     } catch {
       return false;
@@ -267,6 +279,15 @@ export class Util extends ClientUtil {
   async unblacklist(user: FireMember | FireUser) {
     try {
       await this.deleteBlacklist(user);
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.BLACKLIST_SYNC, {
+            id: this.client.manager.id,
+            user: user.id,
+            action: "unblacklist",
+          })
+        )
+      );
       return true;
     } catch {
       return false;
