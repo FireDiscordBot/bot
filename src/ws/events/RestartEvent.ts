@@ -17,9 +17,6 @@ export default class RestartEvent extends Event {
       JSON.stringify(currentOptions.shards) == JSON.stringify(data.shards)
     )
       return;
-    this.manager.client.console.log(
-      "[Aether] Sharding options have changed, relaunching client."
-    );
     this.manager.relaunch(data || { shardCount: 1, shards: [0] });
   }
 }

@@ -56,12 +56,10 @@ export class Websocket extends Client {
           })
         )
       );
-      manager.client.console.log("[Aether] Sending identify event.");
     });
   }
 
   init() {
-    this.manager.client.console.log("[Aether] Initializing websocket...");
     this.handler.init();
 
     this.on("message", (message) => {
