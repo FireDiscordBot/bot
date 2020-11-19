@@ -24,7 +24,7 @@ export class FireMessage extends Message {
   member: FireMember | null;
   author: FireUser;
   util?: CommandUtil;
-  paginator?: PaginatorInterface
+  paginator?: PaginatorInterface;
 
   constructor(
     client: Fire,
@@ -46,17 +46,22 @@ export class FireMessage extends Message {
   success(
     key: string = "",
     ...args: any[]
-  ): Promise<MessageReaction | Message> {
+  ): Promise<MessageReaction | Message | void> {
+    if (!key && this.deleted) return;
     return !key
-      ? this.react(reactions.success)
+      ? this.react(reactions.success).catch(() => {})
       : this.channel.send(
           `${emojis.success} ${this.language.get(key, ...args)}`
         );
   }
 
-  error(key: string = "", ...args: any[]): Promise<MessageReaction | Message> {
+  error(
+    key: string = "",
+    ...args: any[]
+  ): Promise<MessageReaction | Message | void> {
+    if (!key && this.deleted) return;
     return !key
-      ? this.react(reactions.error)
+      ? this.react(reactions.error).catch(() => {})
       : this.channel.send(`${emojis.error} ${this.language.get(key, ...args)}`);
   }
 }
