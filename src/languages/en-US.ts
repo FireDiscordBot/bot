@@ -500,11 +500,21 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           `> ${role} (${role.members.size.toLocaleString(this.id)} members)`,
         RANKS_AUTHOR: (guild: FireGuild) => `${guild}'s ranks`,
         RANKS_JOIN_REASON: "Joined rank",
+        RANKS_JOIN_RANK: (role: string) =>
+          `You successfully joined the **${role}** rank.`,
         RANKS_LEAVE_REASON: "Left rank",
+        RANKS_LEFT_RANK: (role: string) =>
+          `You successfully left the **${role}** rank.`,
         RANKS_INVALID_ROLE:
           "That isn't a valid rank. Use the command without arguments to see a list of valid ranks",
         RANKS_INVALID_ROLE_DEL:
           "That isn't a valid rank. Use the rank command to see a list of valid ranks",
+        RANKS_SK1ER_NO_SPECS: (
+          mention: string
+        ) => `${mention} To become a beta tester, please provide your specs through this form: 
+<https://inv.wtf/sk1spec>
+                
+You will automatically gain access to beta channels after filling in the form`,
         ADDRANK_COMMAND_DESCRIPTION:
           "Add a role that users can join through the rank command.",
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
