@@ -99,7 +99,7 @@ export class Manager {
       async (command: Command) => await command.unload()
     );
     this.client?.destroy();
-    if (this.ws.readyState == this.ws.OPEN)
+    if (this.ws?.readyState == this.ws?.OPEN)
       this.ws?.close(
         1001,
         `Cluster ${this.id} is shutting down due to receiving ${event} event`
