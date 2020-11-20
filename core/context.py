@@ -24,7 +24,6 @@ import random
 class Context(commands.Context):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.bot: commands.Bot = self.bot
         self.colors = [
             discord.Color.blue(),
             discord.Color.blurple(),
