@@ -28,7 +28,7 @@ export default class User extends Command {
         {
           id: "user",
           type: "user|member",
-          default: null,
+          default: undefined,
           required: false,
         },
       ],
@@ -38,6 +38,7 @@ export default class User extends Command {
   }
 
   async exec(message: FireMessage, args: { user?: FireMember | FireUser }) {
+    if (args.user == null) return;
     let member: FireMember, user: FireUser;
     if (args.user instanceof FireMember) {
       member = args.user;
