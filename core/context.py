@@ -24,6 +24,7 @@ import random
 class Context(commands.Context):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.bot: commands.Bot = self.bot
         self.colors = [
             discord.Color.blue(),
             discord.Color.blurple(),
@@ -49,13 +50,26 @@ class Context(commands.Context):
         self.ticket_override = None
 
     async def success(self, message: str, **kwargs):
-        await self.send(f'<:yes:534174796888408074> {message}', **kwargs)
+        await self.reply(f'<:yes:534174796888408074> {message}', **kwargs)
 
     async def warning(self, message: str, **kwargs):
-        await self.send(f'<:maybe:534174796578160640> {message}', **kwargs)
+        await self.reply(f'<:maybe:534174796578160640> {message}', **kwargs)
 
     async def error(self, message: str, **kwargs):
-        await self.send(f'<:no:534174796938870792> {message}', **kwargs)
+        await self.reply(f'<:no:534174796938870792> {message}', **kwargs)
+
+    async def reply(self, content: str, **kwargs):
+        try:
+            await self.bot.http.request(discord.http.Route("POST", f"/channels/{self.channel.id}/messages"), json={
+                'content': content,
+                'message_reference': {'message_id': self.message.id},
+                'allowed_mentions': {
+                    'parse': [],
+                    'replied_user': False
+                }
+            })
+        except Exception:
+            self.send(content, **kwargs)
 
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, allowed_mentions=None):
         if isinstance(content, discord.Embed):
