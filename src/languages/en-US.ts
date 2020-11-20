@@ -575,6 +575,12 @@ Abuse of this command __**will**__ result in being temporarily blacklisted from 
         PREMIUM_INSERT_FAIL: "Failed to give premium.",
         PREMIUM_RELOAD_FAIL: "Failed to reload premium guilds",
         RELOAD_COMMAND_DESCRIPTION: "reload a command/language/listener/module",
+        TAG_COMMAND_DESCRIPTION: "See a list of all tags or view a tag",
+        TAG_NONE_FOUND:
+          "I searched near and far and could not find any tags...",
+        TAG_INVALID_TAG: (tag: string) =>
+          `There doesn't seem to be a tag called ${tag}. Run the command again with no arguments to see all tags`,
+        TAG_LIST: (guild: string) => `${guild}'s tags`,
       },
       enabled: true,
     });
