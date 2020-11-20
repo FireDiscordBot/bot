@@ -7,6 +7,8 @@ export const discord: ClientOptions = {
     parse: [],
     users: [],
     roles: [],
+    // @ts-ignore
+    replied_user: false,
   },
   messageEditHistoryMaxSize: 2,
   messageCacheLifetime: 300,
@@ -18,7 +20,6 @@ export const discord: ClientOptions = {
     intents:
       intents.GUILDS |
       intents.GUILD_MEMBERS |
-
       // I got presences for a feature I wanted to implement but
       // JESUS FUCKING CHRIST cpu usage & memory usage go brrrrr with it enabled
       // so for now it's getting yeeted (d.js would also cache all members with presences enabled idk why)
