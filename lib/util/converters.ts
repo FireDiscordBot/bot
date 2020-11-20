@@ -72,9 +72,9 @@ export const memberConverter = async (
       const [name] = argument.split("#");
       options.query = name;
     }
-    const member = (await guild.members.fetch(options)).first() as FireMember;
-    if (member) {
-      return member;
+    const member = await guild.members.fetch(options).catch(() => {});
+    if (member && member.size) {
+      return member.first() as FireMember;
     }
 
     if (!silent) await message.error("MEMBER_NOT_FOUND");
@@ -115,7 +115,7 @@ export const userConverter = async (
       return user as FireUser;
     }
 
-    const fetch = await message.client.users.fetch(userID);
+    const fetch = await message.client.users.fetch(userID).catch(() => {});
     if (fetch) {
       return fetch as FireUser;
     }
@@ -167,7 +167,9 @@ export const messageConverter = async (
     message.channel) as TextChannel;
 
   try {
-    return (await channel.messages.fetch(messageID)) as FireMessage;
+    return (await channel.messages
+      .fetch(messageID)
+      .catch(() => {})) as FireMessage;
   } catch {
     if (!silent) await message.error("INVALID_MESSAGE");
     return null;
