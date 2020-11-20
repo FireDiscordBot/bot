@@ -75,7 +75,10 @@ export default class Google extends Command {
     "<div class='show_text_content'>I remember you telling me your name was ${message.author.username}.</div>"
   );};`
       );
-    if (!html) return await message.error("GOOGLE_SOMETHING_WENT_WRONG");
+    if (!html)
+      return await message.replyRaw(
+        message.language.get("GOOGLE_SOMETHING_WENT_WRONG") as string
+      );
     const browser = await chromium.launch({
       logger: null,
       args: ["--headless", "--disable-gpu", "--log-file=/dev/null"],
