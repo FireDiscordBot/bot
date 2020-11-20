@@ -68,7 +68,7 @@ class Context(commands.Context):
                 }
             })
         except Exception:
-            self.send(content, **kwargs)
+            await self.send(content, **kwargs)
 
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, allowed_mentions=None):
         if isinstance(content, discord.Embed):
