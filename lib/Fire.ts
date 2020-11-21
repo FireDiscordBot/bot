@@ -279,6 +279,7 @@ export class Fire extends AkairoClient {
   }
 
   async loadExperiments() {
+    this.experiments = new Map();
     const experiments = await this.db.query("SELECT * FROM experiments;");
     for await (const experiment of experiments) {
       const data: Experiment = {
