@@ -76,9 +76,13 @@ export default class Google extends Command {
   );};`
       );
     if (!html)
-      return await message.replyRaw(
-        message.language.get("GOOGLE_SOMETHING_WENT_WRONG") as string
-      );
+      return !message.author.hasExperiment("MYT-k7UJ-XDwqH99A9yw6", 4)
+        ? await message.replyRaw(
+            message.language.get("GOOGLE_SOMETHING_WENT_WRONG") as string
+          )
+        : message.channel.send(
+            message.language.get("GOOGLE_SOMETHING_WENT_WRONG") as string
+          );
     const browser = await chromium.launch({
       logger: null,
       args: ["--headless", "--disable-gpu", "--log-file=/dev/null"],
