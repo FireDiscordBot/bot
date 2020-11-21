@@ -61,6 +61,18 @@ export class FireMember extends GuildMember {
   async unblacklist() {
     return await this.client.util.unblacklist(this);
   }
+
+  hasExperiment(id: string, treatmentId?: number) {
+    return this.user.hasExperiment(id, treatmentId);
+  }
+
+  giveExperiment(id: string, treatmentId: number) {
+    return this.user.giveExperiment(id, treatmentId);
+  }
+
+  removeExperiment(id: string) {
+    return this.user.removeExperiment(id);
+  }
 }
 
 Structures.extend("GuildMember", () => FireMember);
