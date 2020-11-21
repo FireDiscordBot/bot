@@ -14,9 +14,7 @@ export default class Ping extends Command {
   }
 
   async exec(message: FireMessage) {
-    let pingMessage: FireMessage;
-    if (!message.author.hasExperiment("MYT-k7UJ-XDwqH99A9yw6", 2))
-      pingMessage = (await message.send("PING_INITIAL_MESSAGE")) as FireMessage;
+    const pingMessage = await message.send("PING_INITIAL_MESSAGE");
     const embed = new MessageEmbed()
       .setTitle(
         `:ping_pong: ${
