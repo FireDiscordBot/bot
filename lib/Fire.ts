@@ -24,6 +24,7 @@ import { roleSilentTypeCaster, roleTypeCaster } from "../src/arguments/role";
 import { userSilentTypeCaster, userTypeCaster } from "../src/arguments/user";
 import { memberRoleTypeCaster } from "../src/arguments/memberRole";
 import { userMemberTypeCaster } from "../src/arguments/userMember";
+import { Experiment, Treatment } from "./interfaces/experiments";
 import { codeblockTypeCaster } from "../src/arguments/codeblock";
 import { languageTypeCaster } from "../src/arguments/language";
 import { listenerTypeCaster } from "../src/arguments/listener";
@@ -34,7 +35,6 @@ import { moduleTypeCaster } from "../src/arguments/module";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandHandler";
 import { Module, ModuleHandler } from "./util/module";
-import { Experiment } from "./interfaces/experiments";
 import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
 import { version as djsver } from "discord.js";
@@ -275,6 +275,22 @@ export class Fire extends AkairoClient {
     await this.guildSettings.init();
     await this.userSettings.init();
     return super.login();
+  }
+
+  async loadExperiments() {
+    const experiments = await this.db.query("SELECT * FROM experiments;");
+    for await (const experiment of experiments) {
+      const data: Experiment = {
+        id: experiment.get("id") as string,
+        kind: experiment.get("kind") as "user" | "guild",
+        label: experiment.get("label") as string,
+        defaultConfig: experiment.get("defaultConfig") as {
+          [key: string]: any;
+        },
+        treatments: (experiment.get("treatments") as unknown) as Treatment[],
+      };
+      this.experiments.set(data.id, data);
+    }
   }
 
   public getCommand(id: string) {
