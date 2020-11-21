@@ -289,7 +289,7 @@ export class Fire extends AkairoClient {
         id: experiment.get("id") as string,
         kind: experiment.get("kind") as "user" | "guild",
         label: experiment.get("label") as string,
-        defaultConfig: experiment.get("defaultConfig") as {
+        defaultConfig: experiment.get("defaultconfig") as {
           [key: string]: any;
         },
         treatments: (experiment.get("treatments") as unknown) as Treatment[],
