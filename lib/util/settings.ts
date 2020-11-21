@@ -14,6 +14,14 @@ export class GuildSettings {
     this.guild = guild;
   }
 
+  has(option: string) {
+    return Object.keys(
+      this.client.guildSettings.items.get(
+        this.guild instanceof FireGuild ? this.guild.id : this.guild
+      )
+    ).includes(option);
+  }
+
   get(option: string, defaultValue: any = null) {
     return this.client.guildSettings.get(
       this.guild instanceof FireGuild ? this.guild.id : this.guild,
@@ -45,6 +53,14 @@ export class UserSettings {
   constructor(client: Fire, user: FireUser) {
     this.client = client;
     this.user = user;
+  }
+
+  has(option: string) {
+    return Object.keys(
+      this.client.userSettings.items.get(
+        this.user instanceof FireUser ? this.user.id : this.user
+      )
+    ).includes(option);
   }
 
   get(option: string, defaultValue: any = null) {
