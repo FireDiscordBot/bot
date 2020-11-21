@@ -107,12 +107,14 @@ export class FireGuild extends Guild {
       const treatment = experiment.treatments.find((t) => t.id == treatmentId);
       if (!treatment) return false;
       return Object.keys(treatment.config).every((c) => {
-        this.settings.get(c, null) == treatment.config[c];
+        this.settings.get(c, experiment.defaultConfig[c] || null) ==
+          treatment.config[c];
       });
     } else
       return experiment.treatments.some((treatment) => {
         return Object.keys(treatment.config).every((c) => {
-          this.settings.get(c, null) == treatment.config[c];
+          this.settings.get(c, experiment.defaultConfig[c] || null) ==
+            treatment.config[c];
         });
       });
   }

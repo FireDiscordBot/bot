@@ -39,7 +39,8 @@ export class FireUser extends User {
       const treatment = experiment.treatments.find((t) => t.id == treatmentId);
       if (!treatment) return false;
       return Object.keys(treatment.config).every((c) => {
-        this.settings.get(c, null) == treatment.config[c];
+        this.settings.get(c, experiment.defaultConfig[c] || null) ==
+          treatment.config[c];
       });
     } else
       return experiment.treatments.some((treatment) =>
@@ -55,6 +56,10 @@ export class FireUser extends User {
       throw new Error("Experiment is not a user experiment");
     const treatment = experiment.treatments.find((t) => t.id == treatmentId);
     if (!treatment) throw new Error("Invalid Treatment ID");
+    Object.keys(experiment.defaultConfig).forEach(
+      // Set to default before applying treatment changes
+      (c) => this.settings.set(c, experiment.defaultConfig[c])
+    );
     Object.keys(treatment.config).forEach((c) =>
       this.settings.set(c, treatment.config[c])
     );
