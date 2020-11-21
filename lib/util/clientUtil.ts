@@ -1,13 +1,16 @@
 import { version as djsver, PermissionString } from "discord.js";
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
+import { MessageUtil } from "../ws/util/MessageUtil";
 import { describe, ProcessDescription } from "pm2";
-import { Cluster } from "../interfaces/stats";
 import { humanize, titleCase } from "./constants";
+import { EventType } from "../ws/util/constants";
 import { FireGuild } from "../extensions/guild";
+import { Cluster } from "../interfaces/stats";
 import { FireUser } from "../extensions/user";
 import { ClientUtil } from "discord-akairo";
 import { getCommitHash } from "./gitUtils";
+import { Message } from "../ws/Message";
 import { Language } from "./language";
 import { promisify } from "util";
 import * as Centra from "centra";
@@ -103,62 +106,62 @@ export class Util extends ClientUtil {
     "-" +
     uuid.substr(20);
 
-  getUserStatuses(shard?: number) {
-    try {
-      return {
-        online:
-          this.client.guilds.cache.size > 1
-            ? this.client.guilds.cache
-                .filter((guild) => !shard || guild.shardID == shard)
-                .map(
-                  (guild) =>
-                    guild.members.cache.filter(
-                      (member) => member.presence.status == "online"
-                    ).size
-                )
-                .reduce((a, b) => a + b)
-            : 0,
-        dnd:
-          this.client.guilds.cache.size > 1
-            ? this.client.guilds.cache
-                .filter((guild) => !shard || guild.shardID == shard)
-                .map(
-                  (guild) =>
-                    guild.members.cache.filter(
-                      (member) => member.presence.status == "dnd"
-                    ).size
-                )
-                .reduce((a, b) => a + b)
-            : 0,
-        idle:
-          this.client.guilds.cache.size > 1
-            ? this.client.guilds.cache
-                .filter((guild) => !shard || guild.shardID == shard)
-                .map(
-                  (guild) =>
-                    guild.members.cache.filter(
-                      (member) => member.presence.status == "idle"
-                    ).size
-                )
-                .reduce((a, b) => a + b)
-            : 0,
-        offline:
-          this.client.guilds.cache.size > 1
-            ? this.client.guilds.cache
-                .filter((guild) => !shard || guild.shardID == shard)
-                .map(
-                  (guild) =>
-                    guild.members.cache.filter(
-                      (member) => member.presence.status == "offline"
-                    ).size
-                )
-                .reduce((a, b) => a + b)
-            : 0,
-      };
-    } catch {
-      return { online: 0, dnd: 0, idle: 0, offline: 0 };
-    }
-  }
+  // getUserStatuses(shard?: number) {
+  //   try {
+  //     return {
+  //       online:
+  //         this.client.guilds.cache.size > 1
+  //           ? this.client.guilds.cache
+  //               .filter((guild) => !shard || guild.shardID == shard)
+  //               .map(
+  //                 (guild) =>
+  //                   guild.members.cache.filter(
+  //                     (member) => member.presence.status == "online"
+  //                   ).size
+  //               )
+  //               .reduce((a, b) => a + b)
+  //           : 0,
+  //       dnd:
+  //         this.client.guilds.cache.size > 1
+  //           ? this.client.guilds.cache
+  //               .filter((guild) => !shard || guild.shardID == shard)
+  //               .map(
+  //                 (guild) =>
+  //                   guild.members.cache.filter(
+  //                     (member) => member.presence.status == "dnd"
+  //                   ).size
+  //               )
+  //               .reduce((a, b) => a + b)
+  //           : 0,
+  //       idle:
+  //         this.client.guilds.cache.size > 1
+  //           ? this.client.guilds.cache
+  //               .filter((guild) => !shard || guild.shardID == shard)
+  //               .map(
+  //                 (guild) =>
+  //                   guild.members.cache.filter(
+  //                     (member) => member.presence.status == "idle"
+  //                   ).size
+  //               )
+  //               .reduce((a, b) => a + b)
+  //           : 0,
+  //       offline:
+  //         this.client.guilds.cache.size > 1
+  //           ? this.client.guilds.cache
+  //               .filter((guild) => !shard || guild.shardID == shard)
+  //               .map(
+  //                 (guild) =>
+  //                   guild.members.cache.filter(
+  //                     (member) => member.presence.status == "offline"
+  //                   ).size
+  //               )
+  //               .reduce((a, b) => a + b)
+  //           : 0,
+  //     };
+  //   } catch {
+  //     return { online: 0, dnd: 0, idle: 0, offline: 0 };
+  //   }
+  // }
 
   async getClusterStats(): Promise<Cluster> {
     let processInfo: ProcessDescription[] = [];
@@ -198,7 +201,7 @@ export class Util extends ClientUtil {
               .map((guild) => guild.memberCount)
               .reduce((a, b) => a + b)
           : 0,
-      userStatuses: this.getUserStatuses(),
+      // userStatuses: this.getUserStatuses(),
       commands: this.client.commandHandler.modules.size,
       events: this.client.events,
       shards: [...this.client.ws.shards.values()].map((shard) => {
@@ -220,7 +223,7 @@ export class Util extends ClientUtil {
                   .map((guild) => guild.memberCount)
                   .reduce((a, b) => a + b)
               : 0,
-          userStatuses: this.getUserStatuses(shard.id),
+          // userStatuses: this.getUserStatuses(shard.id),
           status: shard.status as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
           publicGuilds: this.client.guilds.cache
             .filter(
@@ -258,6 +261,15 @@ export class Util extends ClientUtil {
       if (this.client.util.plonked.includes(user.id))
         await this.updateBlacklist(user, reason, permanent);
       else await this.insertBlacklist(user, reason, permanent);
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.BLACKLIST_SYNC, {
+            id: this.client.manager.id,
+            user: user.id,
+            action: "blacklist",
+          })
+        )
+      );
       return true;
     } catch {
       return false;
@@ -267,6 +279,15 @@ export class Util extends ClientUtil {
   async unblacklist(user: FireMember | FireUser) {
     try {
       await this.deleteBlacklist(user);
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.BLACKLIST_SYNC, {
+            id: this.client.manager.id,
+            user: user.id,
+            action: "unblacklist",
+          })
+        )
+      );
       return true;
     } catch {
       return false;

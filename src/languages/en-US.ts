@@ -154,14 +154,18 @@ export default class enUS extends Language {
           "Add a member/role as a moderator. If not set, anyone with the Manage Messages permission is considered a moderator",
         AUTOROLE_COMMAND_DESCRIPTION:
           "Automatically add a role to a user/bot when they join or when they send their first message with the --delay flag",
+        AUTOROLE_ROLE_REQUIRED:
+          "You can't automatically give nothing, you need to provide a role",
         AUTOROLE_INVALID_FLAGS: "You cannot combine --bot and --delay",
         AUTOROLE_DISABLED:
           "Autorole has been disabled, users will no longer receive a role upon join/first message.",
         AUTOROLE_DISABLED_BOT:
           "Autorole has been disabled, bots will no longer receive a role upon join.",
-        AUTOROLE_ENABLED: (role: string) =>
-          `Autorole has been enabled, users will receive ${role} upon join/first message.`,
-        AUTOROLE_ENABLED_BOT: (role: string) =>
+        AUTOROLE_ENABLED: (role: string, delay: boolean) =>
+          `Autorole has been enabled, users will receive ${role} upon ${
+            delay ? "first message" : "join"
+          }.`,
+        AUTOROLE_ENABLED_BOT: (role: string, delay: boolean) =>
           `Autorole has been enabled, bots will receive ${role} upon join.`,
         MODERATORS_ROLES: "Moderator Roles",
         NO_MODERATOR_ROLES: "No roles have been set as moderators.",
@@ -496,11 +500,21 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           `> ${role} (${role.members.size.toLocaleString(this.id)} members)`,
         RANKS_AUTHOR: (guild: FireGuild) => `${guild}'s ranks`,
         RANKS_JOIN_REASON: "Joined rank",
+        RANKS_JOIN_RANK: (role: string) =>
+          `You successfully joined the **${role}** rank.`,
         RANKS_LEAVE_REASON: "Left rank",
+        RANKS_LEFT_RANK: (role: string) =>
+          `You successfully left the **${role}** rank.`,
         RANKS_INVALID_ROLE:
           "That isn't a valid rank. Use the command without arguments to see a list of valid ranks",
         RANKS_INVALID_ROLE_DEL:
           "That isn't a valid rank. Use the rank command to see a list of valid ranks",
+        RANKS_SK1ER_NO_SPECS: (
+          mention: string
+        ) => `${mention} To become a beta tester, please provide your specs through this form: 
+<https://inv.wtf/sk1spec>
+                
+You will automatically gain access to beta channels after filling in the form`,
         ADDRANK_COMMAND_DESCRIPTION:
           "Add a role that users can join through the rank command.",
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
@@ -509,10 +523,14 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         SKIN_COMMAND_DESCRIPTION: "See a player's Minecraft skin",
         SKIN_INVALID_IGN: "You must provide a valid IGN to get the skin of",
         SLOWMODE_COMMAND_DESCRIPTION:
-          "Set the slowmode for a channel or category",
+          "Set the slowmode for a channel or category. Use the --global flag to set it for all channels",
         SLOWMODE_INVALID_TYPE: "You must provide a text channel or category",
         SLOWMODE_FAILED: (channels: string[]) =>
           `Failed to set slowmode in ${channels.join(", ")}`,
+        SLOWMODE_GLOBAL_FAIL_SOME: (failed: string[]) =>
+          `I set slowmode in some channels but failed to set slowmode in ${failed.join(
+            ", "
+          )}`,
         STATS_COMMAND_DESCRIPTION:
           "View cluster & overall stats. Use the --cluster flag to view stats for a specific cluster",
         STATS_TITLE: (name: string, version: string) =>
@@ -557,6 +575,12 @@ Abuse of this command __**will**__ result in being temporarily blacklisted from 
         PREMIUM_INSERT_FAIL: "Failed to give premium.",
         PREMIUM_RELOAD_FAIL: "Failed to reload premium guilds",
         RELOAD_COMMAND_DESCRIPTION: "reload a command/language/listener/module",
+        TAG_COMMAND_DESCRIPTION: "See a list of all tags or view a tag",
+        TAG_NONE_FOUND:
+          "I searched near and far and could not find any tags...",
+        TAG_INVALID_TAG: (tag: string) =>
+          `There doesn't seem to be a tag called ${tag}. Run the command again with no arguments to see all tags`,
+        TAG_LIST: (guild: string) => `${guild}'s tags`,
       },
       enabled: true,
     });

@@ -10,8 +10,8 @@ import { FireMessage } from "../extensions/message";
 import { FireMember } from "../extensions/guildmember";
 import { FireUser } from "../extensions/user";
 
-const idRegex = /(\d{15,21})$/im;
-const userMentionRegex = /<@!?(\d{15,21})>$/im;
+const idRegex = /(1|\d{15,21})$/im;
+const userMentionRegex = /<@!?(1|\d{15,21})>$/im;
 const messageIDRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
 const messageLinkRegex = /^https?:\/\/(?:(ptb|canary)\.)?discord(?:app)?\.com\/channels\/(?:(\d{15,21})|(@me))\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})\/?$/im;
 const channelMentionRegex = /<#(\d{15,21})>$/im;
@@ -57,6 +57,11 @@ export const memberConverter = async (
     return null;
   }
 
+  if (argument == "^" && message.channel.messages.cache.size >= 2)
+    return message.channel.messages.cache
+      .filter((m) => m.id < message.id)
+      .last().member as FireMember;
+
   const userID = getIDMatch(argument) || getUserMentionMatch(argument);
   if (!userID) {
     let options: FetchMembersOptions = {
@@ -67,9 +72,9 @@ export const memberConverter = async (
       const [name] = argument.split("#");
       options.query = name;
     }
-    const member = (await guild.members.fetch(options)).first() as FireMember;
-    if (member) {
-      return member;
+    const member = await guild.members.fetch(options).catch(() => {});
+    if (member && member.size) {
+      return member.first() as FireMember;
     }
 
     if (!silent) await message.error("MEMBER_NOT_FOUND");
@@ -94,6 +99,11 @@ export const userConverter = async (
     return message.member?.user || message.author;
   }
 
+  if (argument == "^" && message.channel.messages.cache.size >= 2)
+    return message.channel.messages.cache
+      .filter((m) => m.id < message.id)
+      .last().author as FireUser;
+
   const userID = getIDMatch(argument) || getUserMentionMatch(argument);
   if (userID) {
     const user =
@@ -105,7 +115,7 @@ export const userConverter = async (
       return user as FireUser;
     }
 
-    const fetch = await message.client.users.fetch(userID);
+    const fetch = await message.client.users.fetch(userID).catch(() => {});
     if (fetch) {
       return fetch as FireUser;
     }
@@ -157,7 +167,9 @@ export const messageConverter = async (
     message.channel) as TextChannel;
 
   try {
-    return (await channel.messages.fetch(messageID)) as FireMessage;
+    return (await channel.messages
+      .fetch(messageID)
+      .catch(() => {})) as FireMessage;
   } catch {
     if (!silent) await message.error("INVALID_MESSAGE");
     return null;

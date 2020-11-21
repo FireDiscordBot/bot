@@ -3,8 +3,8 @@ import { FireMessage } from "../../../lib/extensions/message";
 import { FireUser } from "../../../lib/extensions/user";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import { Util } from "discord.js";
-import { MessageEmbed } from "discord.js";
+import { Util, MessageEmbed } from "discord.js";
+import { Argument } from "discord-akairo";
 
 export default class Specs extends Command {
   constructor() {
@@ -16,7 +16,7 @@ export default class Specs extends Command {
       args: [
         {
           id: "user",
-          type: "userSilent",
+          type: Argument.union("memberSilent", "userSilent"),
           readableType: "user",
           default: null,
           required: false,
@@ -41,8 +41,11 @@ export default class Specs extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { user?: FireUser }) {
-    const user = args.user || message.author;
+  async exec(message: FireMessage, args: { user?: FireMember | FireUser }) {
+    const user =
+      args.user instanceof FireMember
+        ? args.user.user
+        : args.user || message.author;
     const specs = await this.client.db
       .query("SELECT * FROM specs WHERE uid=$1", [user.id])
       .first();

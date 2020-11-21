@@ -9,7 +9,8 @@ export enum EventType {
   BROADCAST_EVAL = 7,
   ADMIN_ACTION = 8,
   SETTINGS_SYNC = 9,
-  SK1ER_SPECS = 10,
+  BLACKLIST_SYNC = 10,
+  SK1ER_SPECS = 11,
 }
 
 export enum WebsocketStates {

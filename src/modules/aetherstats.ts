@@ -22,7 +22,7 @@ export default class AetherStats extends Module {
   }
 
   async sendStats() {
-    if (this.client.manager.ws.readyState != this.client.manager.ws.OPEN)
+    if (this.client.manager.ws?.readyState != this.client.manager.ws?.OPEN)
       return;
     const stats = await this.client.util.getClusterStats();
     this.client.manager.ws.send(

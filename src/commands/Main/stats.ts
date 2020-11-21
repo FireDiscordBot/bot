@@ -38,6 +38,7 @@ export default class Stats extends Command {
         .header("User-Agent", "Fire Discord Bot")
         .send()
     ).json();
+    if (!stats.clusters.length) return await this.singularStats(message);
     const clusterId = parseInt(args.cluster?.split(" ")[1]);
     if (args.cluster) {
       clusterStats = stats.clusters.find(

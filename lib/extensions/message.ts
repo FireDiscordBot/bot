@@ -1,10 +1,10 @@
 import {
-  Structures,
-  Message,
+  MessageReaction,
   TextChannel,
   NewsChannel,
+  Structures,
   DMChannel,
-  MessageReaction,
+  Message,
 } from "discord.js";
 import { PaginatorInterface } from "../util/paginators";
 import { CommandUtil } from "../util/commandUtil";
@@ -14,6 +14,10 @@ import { FireMember } from "./guildmember";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
+import { APIMessage } from "discord.js";
+import { MessageOptions } from "discord.js";
+import { StringResolvable } from "discord.js";
+import { MessageAdditions } from "discord.js";
 
 const { emojis, reactions } = constants;
 
@@ -24,7 +28,7 @@ export class FireMessage extends Message {
   member: FireMember | null;
   author: FireUser;
   util?: CommandUtil;
-  paginator?: PaginatorInterface
+  paginator?: PaginatorInterface;
 
   constructor(
     client: Fire,
@@ -43,21 +47,47 @@ export class FireMessage extends Message {
     return this.channel.send(this.language.get(key, ...args));
   }
 
+  replyRaw(content: string): Promise<Message> {
+    return (
+      // @ts-ignore
+      this.client.api
+        // @ts-ignore
+        .channels(this.channel.id)
+        .messages.post({
+          data: {
+            content,
+            message_reference: { message_id: this.id },
+            allowed_mentions: this.client.options.allowedMentions,
+          },
+        })
+        .then(
+          // @ts-ignore
+          (m: object) => this.client.actions.MessageCreate.handle(m).message
+        )
+        .catch(() => {
+          return this.channel.send(content);
+        })
+    );
+  }
+
   success(
     key: string = "",
     ...args: any[]
-  ): Promise<MessageReaction | Message> {
+  ): Promise<MessageReaction | Message | void> {
+    if (!key && this.deleted) return;
     return !key
-      ? this.react(reactions.success)
-      : this.channel.send(
-          `${emojis.success} ${this.language.get(key, ...args)}`
-        );
+      ? this.react(reactions.success).catch(() => {})
+      : this.replyRaw(`${emojis.success} ${this.language.get(key, ...args)}`);
   }
 
-  error(key: string = "", ...args: any[]): Promise<MessageReaction | Message> {
+  error(
+    key: string = "",
+    ...args: any[]
+  ): Promise<MessageReaction | Message | void> {
+    if (!key && this.deleted) return;
     return !key
-      ? this.react(reactions.error)
-      : this.channel.send(`${emojis.error} ${this.language.get(key, ...args)}`);
+      ? this.react(reactions.error).catch(() => {})
+      : this.replyRaw(`${emojis.error} ${this.language.get(key, ...args)}`);
   }
 }
 

@@ -67,6 +67,17 @@ export default class Rank extends Command {
     }
 
     if (roles.includes(args.role)) {
+      if (args.role.id == "595626786549792793") {
+        const specs = await this.client.db.query(
+          "SELECT * FROM specs WHERE uid=$1;",
+          [message.member.id]
+        );
+        if (!specs.rows?.length)
+          return await message.send(
+            "RANKS_SK1ER_NO_SPECS",
+            message.member.toMention()
+          );
+      }
       message.member?.roles?.cache?.has(args.role.id)
         ? await message.member?.roles
             ?.remove(
@@ -74,12 +85,14 @@ export default class Rank extends Command {
               message.guild.language.get("RANKS_LEAVE_REASON") as string
             )
             .catch(() => {})
+            .then(() => message.success("RANKS_LEFT_RANK", args.role.name))
         : await message.member?.roles
             ?.add(
               args.role,
               message.guild.language.get("RANKS_JOIN_REASON") as string
             )
-            .catch(() => {});
+            .catch(() => {})
+            .then(() => message.success("RANKS_JOIN_RANK", args.role.name));
     } else return await message.error("RANKS_INVALID_ROLE");
   }
 }

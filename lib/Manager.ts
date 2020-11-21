@@ -28,12 +28,17 @@ export class Manager {
   }
 
   init(reconnecting = false) {
+    if (reconnecting && this.ws.readyState == this.ws.OPEN) return;
     if (process.env.BOOT_SINGLE === "false") {
       this.initWebsocket();
     }
   }
 
   private initWebsocket() {
+    if (this.ws.readyState == this.ws.OPEN)
+      return this.client.console.warn(
+        `[Manager] Tried to initialize websocket while already open with state ${this.ws.readyState}`
+      );
     this.ws.init();
 
     this.ws.on("open", () => {
@@ -94,10 +99,11 @@ export class Manager {
       async (command: Command) => await command.unload()
     );
     this.client?.destroy();
-    this.ws?.close(
-      1001,
-      `Cluster ${this.id} is shutting down due to receiving ${event} event`
-    );
+    if (this.ws?.readyState == this.ws?.OPEN)
+      this.ws?.close(
+        1001,
+        `Cluster ${this.id} is shutting down due to receiving ${event} event`
+      );
     disconnect();
     process.exit();
   }

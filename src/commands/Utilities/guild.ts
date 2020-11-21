@@ -36,12 +36,14 @@ export default class GuildCommand extends Command {
     return emojis;
   }
 
-  getInfo(message: FireMessage, guild: FireGuild) {
+  async getInfo(message: FireMessage, guild: FireGuild) {
     const created =
       humanize(
         moment(guild.createdAt).diff(moment()),
         guild.language.id.split("-")[0]
       ) + " ago";
+    if (!guild.members.cache.has(guild.ownerID))
+      await guild.members.fetch(guild.ownerID);
     let messages = [
       message.language.get("GUILD_CREATED_AT", guild, created),
       `**${message.language.get(
@@ -142,7 +144,7 @@ export default class GuildCommand extends Command {
 
   async exec(message: FireMessage) {
     const badges = this.getBadges(message.guild);
-    const info = this.getInfo(message, message.guild);
+    const info = await this.getInfo(message, message.guild);
     const security = this.getSecurity(message.guild);
 
     const featuresLocalization = message.language.get("FEATURES");
