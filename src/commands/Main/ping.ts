@@ -14,7 +14,9 @@ export default class Ping extends Command {
   }
 
   async exec(message: FireMessage) {
-    const pingMessage = await message.send("PING_INITIAL_MESSAGE");
+    const pingMessage = (await message.send(
+      "PING_INITIAL_MESSAGE"
+    )) as FireMessage;
     const embed = new MessageEmbed()
       .setTitle(
         `:ping_pong: ${
@@ -38,14 +40,19 @@ export default class Ping extends Command {
       .setTimestamp(new Date());
 
     message.author.hasExperiment("MYT-k7UJ-XDwqH99A9yw6", 2)
-      ? await this.replyEmbedPing(message, embed)
+      ? await this.replyEmbedPing(message, pingMessage, embed)
       : await pingMessage.edit(
           message.language.get("PING_FINAL_MESSAGE"),
           embed
         );
   }
 
-  async replyEmbedPing(message: FireMessage, embed: MessageEmbed) {
+  async replyEmbedPing(
+    message: FireMessage,
+    pingMessage: FireMessage,
+    embed: MessageEmbed
+  ) {
+    pingMessage.delete();
     return (
       // @ts-ignore
       this.client.api
