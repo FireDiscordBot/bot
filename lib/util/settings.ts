@@ -15,11 +15,11 @@ export class GuildSettings {
   }
 
   has(option: string) {
-    return Object.keys(
-      this.client.guildSettings.items.get(
-        this.guild instanceof FireGuild ? this.guild.id : this.guild
-      )
-    ).includes(option);
+    const guild = this.guild instanceof FireGuild ? this.guild.id : this.guild;
+    return (
+      this.client.guildSettings.items.has(guild) &&
+      Object.keys(this.client.guildSettings.items.get(guild)).includes(option)
+    );
   }
 
   get(option: string, defaultValue: any = null) {
@@ -56,11 +56,11 @@ export class UserSettings {
   }
 
   has(option: string) {
-    return Object.keys(
-      this.client.userSettings.items.get(
-        this.user instanceof FireUser ? this.user.id : this.user
-      )
-    ).includes(option);
+    const user = this.user instanceof FireUser ? this.user.id : this.user;
+    return (
+      this.client.userSettings.items.has(user) &&
+      Object.keys(this.client.userSettings.items.get(user)).includes(option)
+    );
   }
 
   get(option: string, defaultValue: any = null) {
