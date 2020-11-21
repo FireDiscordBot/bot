@@ -24,6 +24,7 @@ import { roleSilentTypeCaster, roleTypeCaster } from "../src/arguments/role";
 import { userSilentTypeCaster, userTypeCaster } from "../src/arguments/user";
 import { memberRoleTypeCaster } from "../src/arguments/memberRole";
 import { userMemberTypeCaster } from "../src/arguments/userMember";
+import { Experiment, Treatment } from "./interfaces/experiments";
 import { codeblockTypeCaster } from "../src/arguments/codeblock";
 import { languageTypeCaster } from "../src/arguments/language";
 import { listenerTypeCaster } from "../src/arguments/listener";
@@ -77,6 +78,7 @@ export class Fire extends AkairoClient {
   config: typeof config.fire;
   conversationStates: Map<string, Buffer>; // Google Command conversation states
   events: number;
+  experiments: Map<string, Experiment>;
   userSweepTask?: NodeJS.Timeout;
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
@@ -113,6 +115,8 @@ export class Fire extends AkairoClient {
         (result) =>
           (this.events = result.rows.length ? (result.rows[0][0] as number) : 0)
       );
+
+    this.experiments = new Map();
 
     this.on("warn", (warning) => this.console.warn(`[Discord] ${warning}`));
     this.on("error", (error) =>
@@ -271,9 +275,27 @@ export class Fire extends AkairoClient {
         this.options.shardCount
       }).`
     );
+    await this.loadExperiments();
     await this.guildSettings.init();
     await this.userSettings.init();
     return super.login();
+  }
+
+  async loadExperiments() {
+    this.experiments = new Map();
+    const experiments = await this.db.query("SELECT * FROM experiments;");
+    for await (const experiment of experiments) {
+      const data: Experiment = {
+        id: experiment.get("id") as string,
+        kind: experiment.get("kind") as "user" | "guild",
+        label: experiment.get("label") as string,
+        defaultConfig: experiment.get("defaultConfig") as {
+          [key: string]: any;
+        },
+        treatments: (experiment.get("treatments") as unknown) as Treatment[],
+      };
+      this.experiments.set(data.id, data);
+    }
   }
 
   sweepUsers() {

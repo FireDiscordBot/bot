@@ -99,6 +99,49 @@ export class FireGuild extends Guild {
     if (!channel || channel.type != "text") return;
     return await (channel as TextChannel).send(log);
   }
+
+  hasExperiment(id: string, treatmentId?: number) {
+    const experiment = this.client.experiments.get(id);
+    if (!experiment || experiment.kind != "guild") return false;
+    if (treatmentId != undefined) {
+      const treatment = experiment.treatments.find((t) => t.id == treatmentId);
+      if (!treatment) return false;
+      return Object.keys(treatment.config).every((c) => {
+        this.settings.get(c, null) == treatment.config[c];
+      });
+    } else
+      return experiment.treatments.some((treatment) => {
+        return Object.keys(treatment.config).every((c) => {
+          this.settings.get(c, null) == treatment.config[c];
+        });
+      });
+  }
+
+  giveExperiment(id: string, treatmentId: number) {
+    const experiment = this.client.experiments.get(id);
+    if (!experiment || experiment.kind != "guild")
+      throw new Error("Experiment is not a guild experiment");
+    const treatment = experiment.treatments.find((t) => t.id == treatmentId);
+    if (!treatment) throw new Error("Invalid Treatment ID");
+    Object.keys(experiment.defaultConfig).forEach(
+      // Set to default before applying treatment changes
+      (c) => this.settings.set(c, experiment.defaultConfig[c])
+    );
+    Object.keys(treatment.config).forEach((c) =>
+      this.settings.set(c, treatment.config[c])
+    );
+    return this.hasExperiment(id, treatmentId);
+  }
+
+  removeExperiment(id: string) {
+    const experiment = this.client.experiments.get(id);
+    if (!experiment || experiment.kind != "guild")
+      throw new Error("Experiment is not a guild experiment");
+    Object.keys(experiment.defaultConfig).forEach((c) =>
+      this.settings.set(c, experiment.defaultConfig[c])
+    );
+    return this.hasExperiment(id);
+  }
 }
 
 Structures.extend("Guild", () => FireGuild);
