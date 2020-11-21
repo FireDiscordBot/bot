@@ -60,6 +60,16 @@ export class FireUser extends User {
     );
     return this.hasExperiment(id, treatmentId);
   }
+
+  removeExperiment(id: string) {
+    const experiment = this.client.experiments.get(id);
+    if (!experiment || experiment.kind != "user")
+      throw new Error("Experiment is not a user experiment");
+    Object.keys(experiment.defaultConfig).forEach((c) =>
+      this.settings.set(c, experiment.defaultConfig[c])
+    );
+    return this.hasExperiment(id);
+  }
 }
 
 Structures.extend("User", () => FireUser);

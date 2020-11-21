@@ -123,10 +123,24 @@ export class FireGuild extends Guild {
       throw new Error("Experiment is not a guild experiment");
     const treatment = experiment.treatments.find((t) => t.id == treatmentId);
     if (!treatment) throw new Error("Invalid Treatment ID");
+    Object.keys(experiment.defaultConfig).forEach(
+      // Set to default before applying treatment changes
+      (c) => this.settings.set(c, experiment.defaultConfig[c])
+    );
     Object.keys(treatment.config).forEach((c) =>
       this.settings.set(c, treatment.config[c])
     );
     return this.hasExperiment(id, treatmentId);
+  }
+
+  removeExperiment(id: string) {
+    const experiment = this.client.experiments.get(id);
+    if (!experiment || experiment.kind != "guild")
+      throw new Error("Experiment is not a guild experiment");
+    Object.keys(experiment.defaultConfig).forEach((c) =>
+      this.settings.set(c, experiment.defaultConfig[c])
+    );
+    return this.hasExperiment(id);
   }
 }
 
