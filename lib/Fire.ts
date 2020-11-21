@@ -272,6 +272,7 @@ export class Fire extends AkairoClient {
         this.options.shardCount
       }).`
     );
+    await this.loadExperiments();
     await this.guildSettings.init();
     await this.userSettings.init();
     return super.login();
