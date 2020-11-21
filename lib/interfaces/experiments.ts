@@ -23,12 +23,7 @@ export interface Treatment {
 }
 
 export interface BuildOverride {
-  targetBuildOverride: TargetBuildOverride;
   releaseChannel: "development" | "production";
   validForUserIds: string[];
   expiresAt: Date;
-}
-
-export interface TargetBuildOverride {
-  [branch: string]: string;
 }
