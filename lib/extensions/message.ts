@@ -77,7 +77,12 @@ export class FireMessage extends Message {
     if (!key && this.deleted) return;
     return !key
       ? this.react(reactions.success).catch(() => {})
-      : this.replyRaw(`${emojis.success} ${this.language.get(key, ...args)}`);
+      : this.author.hasExperiment("MYT-k7UJ-XDwqH99A9yw6", 1) ||
+        this.author.hasExperiment("MYT-k7UJ-XDwqH99A9yw6", 3)
+      ? this.replyRaw(`${emojis.success} ${this.language.get(key, ...args)}`)
+      : this.channel.send(
+          `${emojis.success} ${this.language.get(key, ...args)}`
+        );
   }
 
   error(
@@ -87,7 +92,9 @@ export class FireMessage extends Message {
     if (!key && this.deleted) return;
     return !key
       ? this.react(reactions.error).catch(() => {})
-      : this.replyRaw(`${emojis.error} ${this.language.get(key, ...args)}`);
+      : !this.author.hasExperiment("MYT-k7UJ-XDwqH99A9yw6", 4)
+      ? this.replyRaw(`${emojis.error} ${this.language.get(key, ...args)}`)
+      : this.channel.send(`${emojis.error} ${this.language.get(key, ...args)}`);
   }
 }
 

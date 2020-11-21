@@ -14,7 +14,9 @@ export default class Ping extends Command {
   }
 
   async exec(message: FireMessage) {
-    const pingMessage = await message.send("PING_INITIAL_MESSAGE");
+    let pingMessage: FireMessage;
+    if (!message.author.hasExperiment("MYT-k7UJ-XDwqH99A9yw6", 2))
+      pingMessage = (await message.send("PING_INITIAL_MESSAGE")) as FireMessage;
     const embed = new MessageEmbed()
       .setTitle(
         `:ping_pong: ${
@@ -23,7 +25,8 @@ export default class Ping extends Command {
             ? message.editedTimestamp || 0
             : message.createdTimestamp)
         }ms.\n:heartpulse: ${
-          this.client.ws.shards.get(message.guild ? message.guild.shardID : 0).ping
+          this.client.ws.shards.get(message.guild ? message.guild.shardID : 0)
+            .ping
         }ms.`
       )
       .setColor(message.member?.displayColor || "#ffffff")
@@ -36,6 +39,34 @@ export default class Ping extends Command {
       )
       .setTimestamp(new Date());
 
-    await pingMessage.edit(message.language.get("PING_FINAL_MESSAGE"), embed);
+    message.author.hasExperiment("MYT-k7UJ-XDwqH99A9yw6", 2)
+      ? await this.replyEmbedPing(message, embed)
+      : await pingMessage.edit(
+          message.language.get("PING_FINAL_MESSAGE"),
+          embed
+        );
+  }
+
+  async replyEmbedPing(message: FireMessage, embed: MessageEmbed) {
+    return (
+      // @ts-ignore
+      this.client.api
+        // @ts-ignore
+        .channels(message.channel.id)
+        .messages.post({
+          data: {
+            embed: embed.toJSON(),
+            message_reference: { message_id: message.id },
+            allowed_mentions: this.client.options.allowedMentions,
+          },
+        })
+        .then(
+          // @ts-ignore
+          (m: object) => this.client.actions.MessageCreate.handle(m).message
+        )
+        .catch(() => {
+          return message.channel.send(embed);
+        })
+    );
   }
 }
