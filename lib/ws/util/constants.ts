@@ -12,6 +12,7 @@ export enum EventType {
   BLACKLIST_SYNC = 10,
   SK1ER_SPECS = 11,
   RELOAD_EXPERIMENTS = 12,
+  APPLY_EXPERIMENT = 13,
 }
 
 export enum WebsocketStates {
