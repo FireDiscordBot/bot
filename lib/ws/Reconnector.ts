@@ -65,7 +65,6 @@ export class Reconnector {
       this.manager.ws.close(4000, "brb");
     this.state = WebsocketStates.RECONNECTING;
     this.manager.ws = new Websocket(this.manager);
-    this.manager.ws.reconnector = this;
     this.manager.init(true);
   }
 }

@@ -9,7 +9,6 @@ import * as Client from "ws";
 export class Websocket extends Client {
   manager: Manager;
   handler: EventHandler;
-  reconnector: Reconnector;
   keepAlive: NodeJS.Timeout;
   waitingForPong: boolean;
   pongs: number;
@@ -36,7 +35,7 @@ export class Websocket extends Client {
           this.manager.client.console.warn(
             `[Aether] Did not receive pong in time. Closing connection with ${this.pongs} pongs...`
           );
-          this.reconnector.state = WebsocketStates.CLOSING;
+          this.manager.reconnector.state = WebsocketStates.CLOSING;
           return this.close(4009, "Did not receive pong in time");
         }
         this.waitingForPong = true;
