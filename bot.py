@@ -17,6 +17,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 from core.fire import Fire
+import datetime
 import discord
 import asyncio
 import asyncpg
@@ -118,8 +119,10 @@ bot.blacklist_check = blacklist_check
 @bot.check
 async def cmdperm_check(ctx):
     if ctx.author.bot:
-        return False
         # somehow bots can trigger auto quotes but not reminders even though it's the same code lol
+        return False
+    if ctx.author.created_at < (datetime.datetime.utcnow() + datetime.timedelta(days=1)):
+        return await ctx.error("Your account has been created too recently!")
     if isinstance(ctx.channel, discord.DMChannel):
         return True
     if ctx.bot.isadmin(ctx.author):
