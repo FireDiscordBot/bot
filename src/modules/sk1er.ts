@@ -71,7 +71,8 @@ export default class Sk1er extends Module {
     this.supportGuild = this.client.guilds.cache.get(
       this.supportGuildId
     ) as FireGuild;
-    if ([!this.guild, !this.supportGuild].includes(true)) return this.remove();
+    if ([!this.guild, !this.supportGuild].every((value) => value == true))
+      return this.remove();
     this.nitro = this.guild.roles.cache.get(this.nitroId);
     this.supportChannel = this.client.channels.cache.get(
       this.supportChannelId
