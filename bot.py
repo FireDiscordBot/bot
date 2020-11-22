@@ -121,9 +121,9 @@ async def cmdperm_check(ctx):
     if ctx.author.bot:
         # somehow bots can trigger auto quotes but not reminders even though it's the same code lol
         return False
-    tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
-    if tomorrow - ctx.author.created_at < datetime.timedelta(days=1):
-        return await ctx.error("Your account has been created too recently!")
+    if datetime.datetime.now() - ctx.author.created_at < datetime.timedelta(days=1):
+        await ctx.error("Your account has been created too recently!")
+        return False
     if isinstance(ctx.channel, discord.DMChannel):
         return True
     if ctx.bot.isadmin(ctx.author):
