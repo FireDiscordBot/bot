@@ -16,6 +16,10 @@ export default class CommandBlocked extends Listener {
       return await message.error("COMMAND_GUILD_ONLY");
     else if (reason == "premium")
       return await message.error("COMMAND_PREMIUM_ONLY");
+    else if (reason == "experimentlock")
+      return await message.error("COMMAND_EXPERIMENT_REQUIRED");
+    else if (reason == "accountage")
+      return await message.error("COMMAND_ACCOUNT_TOO_YOUNG");
     else if (reason == "guildlock")
       return await message.error("COMMAND_GUILD_LOCKED");
   }
