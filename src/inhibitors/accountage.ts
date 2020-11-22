@@ -11,7 +11,8 @@ export default class AccountAgeInhibitor extends Inhibitor {
   }
 
   exec(message: FireMessage) {
-    if (moment(new Date()).diff(message.author.createdAt)) return true;
+    if (moment(new Date()).diff(message.author.createdAt) < 86400000)
+      return true;
     return false;
   }
 }
