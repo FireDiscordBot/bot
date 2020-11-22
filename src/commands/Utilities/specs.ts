@@ -6,6 +6,14 @@ import { Command } from "../../../lib/util/command";
 import { Util, MessageEmbed } from "discord.js";
 import { Argument } from "discord-akairo";
 
+const escape = (text: string) => {
+  text = Util.escapeMarkdown(text).replace(
+    /<a?:[a-zA-Z0-9\_]+:([0-9]+)>/im,
+    ""
+  );
+  return text.slice(0, 1024);
+};
+
 export default class Specs extends Command {
   constructor() {
     super("specs", {
@@ -65,14 +73,6 @@ export default class Specs extends Command {
         return await message.error();
       }
     }
-
-    const escape = (text: string) => {
-      text = Util.escapeMarkdown(text).replace(
-        /<a?:[a-zA-Z0-9\_]+:([0-9]+)>/im,
-        ""
-      );
-      return text.slice(0, 1024);
-    };
 
     const embed = new MessageEmbed()
       .setColor(member ? member.displayColor : "#ffffff")
