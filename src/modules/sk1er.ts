@@ -170,6 +170,7 @@ export default class Sk1er extends Module {
   }
 
   async nitroChecker() {
+    if (!this.guild) return;
     let users: string[] = [];
     const modcoreResult = await this.client.db.query(
       "SELECT uid FROM modcore;"
@@ -178,22 +179,26 @@ export default class Sk1er extends Module {
       users.push(row.get("uid") as string);
     }
     const members = await this.guild.members.fetch({ user: users });
-    members.forEach(async (member: FireMember) => {
-      if (!member.roles.cache.has(this.nitroId)) {
-        this.client.console.warn(
-          `[Sk1er] Removing nitro perks from ${member} due to lack of booster role`
-        );
-        await this.removeNitroPerks(member);
-        users = users.filter((id) => id != member.id);
-      } else users = users.filter((id) => id != member.id);
-    });
+    const memberIds = members.map(m => m.id);
+    users = users.filter(u => !memberIds.includes(u));
+    const membersLoop = async () => {
+      members.forEach(async (member: FireMember) => {
+        if (!member.roles.cache.has(this.nitroId)) {
+          this.client.console.warn(
+            `[Sk1er] Removing nitro perks from ${member} due to lack of booster role`
+          );
+          await this.removeNitroPerks(member).catch(() => {});
+        }
+      });
+    };
+    await membersLoop(); // Ensures foreach finishes before continuing
     if (users.length) {
       users.forEach(async (id) => {
         this.client.console.warn(
           `[Sk1er] Removing nitro perks from ${id} due to lack of existence`
         );
-        const user = (await this.client.users.fetch(id)) as FireUser;
-        await this.removeNitroPerks(user);
+        const user = (await this.client.users.fetch(id).catch(() => {})) as FireUser;
+        if (user) await this.removeNitroPerks(user).catch(() => {});
       });
     }
   }
@@ -237,7 +242,11 @@ export default class Sk1er extends Module {
       .header("secret", this.modcoreHeaders.secret)
       .send();
 
-    return nitroReq.statusCode === 200;
+    if (nitroReq.statusCode === 200) {
+      const result = await this.client.db.query("DELETE FROM modcore WHERE uid=$1;", [user.id]);
+      if (result.status != "DELETE 0") return true;
+      else return false;
+    } else return false;
   }
 
   async giveNitroPerks(user: FireMember | FireUser, ign: string) {
