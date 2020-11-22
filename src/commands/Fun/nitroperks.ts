@@ -32,6 +32,8 @@ export default class NitroPerks extends Command {
       return await message.channel.send("no.");
     if (!args.ign) return await message.error("NITROPERKS_INVALID_IGN");
     const ign: string = args.ign.match[0];
+    const successOld = await sk1erModule.removeNitroPerks(message.author);
+    if (!successOld) return await message.error();
     const success = await sk1erModule.giveNitroPerks(message.author, ign);
     return success
       ? await message.success()
