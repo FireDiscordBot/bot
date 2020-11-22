@@ -1,13 +1,13 @@
-import { GuildMember, Role, TextChannel, User } from "discord.js";
-import * as archiver from "archiver";
-import * as centra from "centra";
-import * as moment from "moment";
-
+import { FireMember } from "../../lib/extensions/guildmember";
 import { FireMessage } from "../../lib/extensions/message";
 import * as solutions from "../../sk1er_solutions.json";
 import { FireGuild } from "../../lib/extensions/guild";
+import { Role, TextChannel, User } from "discord.js";
 import { Module } from "../../lib/util/module";
 import { createWriteStream } from "fs";
+import * as archiver from "archiver";
+import * as centra from "centra";
+import * as moment from "moment";
 
 interface Regexes {
   reupload: RegExp;
@@ -167,7 +167,7 @@ export default class Sk1er extends Module {
     } catch {}
   }
 
-  async getUUID(user: GuildMember | User) {
+  async getUUID(user: FireMember | User) {
     const rows = (
       await this.client.db.query("SELECT uuid FROM modcore WHERE uid=$1;", [
         user.id,
@@ -177,7 +177,7 @@ export default class Sk1er extends Module {
     return rows[0] ? rows[0][0]?.toString() : null;
   }
 
-  async setUUID(user: GuildMember | User, uuid: string) {
+  async setUUID(user: FireMember | User, uuid: string) {
     try {
       const current = await this.getUUID(user);
       if (current)
@@ -196,7 +196,7 @@ export default class Sk1er extends Module {
     }
   }
 
-  async removeNitroPerks(user: GuildMember | User) {
+  async removeNitroPerks(user: FireMember | User) {
     const uuid = await this.getUUID(user);
     if (!uuid) return false;
 
@@ -209,7 +209,7 @@ export default class Sk1er extends Module {
     return nitroReq.statusCode === 200;
   }
 
-  async giveNitroPerks(user: GuildMember | User, ign: string) {
+  async giveNitroPerks(user: FireMember | User, ign: string) {
     const uuid = await this.client.util.nameToUUID(ign);
     if (!uuid) return false;
 
