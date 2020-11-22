@@ -74,7 +74,7 @@ export default class Sk1er extends Module {
     ) as FireGuild;
     if ([!this.guild, !this.supportGuild].every((value) => value == true))
       return this.remove();
-    this.nitro = this.guild.roles.cache.get(this.nitroId);
+    this.nitro = this.guild?.roles.cache.get(this.nitroId);
     this.supportChannel = this.client.channels.cache.get(
       this.supportChannelId
     ) as TextChannel;
@@ -103,9 +103,11 @@ export default class Sk1er extends Module {
       "[DefaultDispatcher-worker-1] ERROR Installer",
       "[Client thread/INFO]:",
     ];
-    await this.statusChecker();
-    await this.descriptionUpdater();
-    await this.nitroChecker();
+    if (this.guild) {
+      await this.statusChecker();
+      await this.descriptionUpdater();
+      await this.nitroChecker();
+    }
   }
 
   async unload() {
@@ -170,7 +172,6 @@ export default class Sk1er extends Module {
   }
 
   async nitroChecker() {
-    if (!this.guild) return;
     let users: string[] = [];
     const modcoreResult = await this.client.db.query(
       "SELECT uid FROM modcore;"
