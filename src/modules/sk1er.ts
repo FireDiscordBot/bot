@@ -2,7 +2,8 @@ import { FireMember } from "../../lib/extensions/guildmember";
 import { FireMessage } from "../../lib/extensions/message";
 import * as solutions from "../../sk1er_solutions.json";
 import { FireGuild } from "../../lib/extensions/guild";
-import { Role, TextChannel, User } from "discord.js";
+import { FireUser } from "../../lib/extensions/user";
+import { Role, TextChannel } from "discord.js";
 import { Module } from "../../lib/util/module";
 import { createWriteStream } from "fs";
 import * as archiver from "archiver";
@@ -104,6 +105,7 @@ export default class Sk1er extends Module {
     ];
     await this.statusChecker();
     await this.descriptionUpdater();
+    await this.nitroChecker();
   }
 
   async unload() {
@@ -167,7 +169,36 @@ export default class Sk1er extends Module {
     } catch {}
   }
 
-  async getUUID(user: FireMember | User) {
+  async nitroChecker() {
+    let users: string[] = [];
+    const modcoreResult = await this.client.db.query(
+      "SELECT uid FROM modcore;"
+    );
+    for await (const row of modcoreResult) {
+      users.push(row.get("uid") as string);
+    }
+    const members = await this.guild.members.fetch({ user: users });
+    members.forEach(async (member: FireMember) => {
+      if (!member.roles.cache.has(this.nitroId)) {
+        this.client.console.warn(
+          `[Sk1er] Removing nitro perks from ${member} due to lack of booster role`
+        );
+        await this.removeNitroPerks(member);
+        users = users.filter((id) => id != member.id);
+      }
+    });
+    if (users.length) {
+      users.forEach(async (id) => {
+        this.client.console.warn(
+          `[Sk1er] Removing nitro perks from ${id} due to lack of existence`
+        );
+        const user = (await this.client.users.fetch(id)) as FireUser;
+        await this.removeNitroPerks(user);
+      });
+    }
+  }
+
+  async getUUID(user: FireMember | FireUser) {
     const rows = (
       await this.client.db.query("SELECT uuid FROM modcore WHERE uid=$1;", [
         user.id,
@@ -177,7 +208,7 @@ export default class Sk1er extends Module {
     return rows[0] ? rows[0][0]?.toString() : null;
   }
 
-  async setUUID(user: FireMember | User, uuid: string) {
+  async setUUID(user: FireMember | FireUser, uuid: string) {
     try {
       const current = await this.getUUID(user);
       if (current)
@@ -196,7 +227,7 @@ export default class Sk1er extends Module {
     }
   }
 
-  async removeNitroPerks(user: FireMember | User) {
+  async removeNitroPerks(user: FireMember | FireUser) {
     const uuid = await this.getUUID(user);
     if (!uuid) return false;
 
@@ -209,7 +240,7 @@ export default class Sk1er extends Module {
     return nitroReq.statusCode === 200;
   }
 
-  async giveNitroPerks(user: FireMember | User, ign: string) {
+  async giveNitroPerks(user: FireMember | FireUser, ign: string) {
     const uuid = await this.client.util.nameToUUID(ign);
     if (!uuid) return false;
 
