@@ -353,6 +353,10 @@ Hint: Use the \`public\` command to get your server on the list`,
           haste: string,
           solutions: string
         ) => `${user} ${msgType} a log, ${extra}\n${haste}\n\n${solutions}`,
+        SK1ER_NITRO_PERKS_REMOVED: (member: string) =>
+          `${member}, Your nitro perks have been removed. Boost the server to get them back :)`,
+        SK1ER_NITRO_PERKS_REMOVED_LEFT: (member: string) =>
+          `${member} left and their nitro perks have been removed.`,
         INVITE_COMMAND_DESCRIPTION:
           "Sends a link to invite me to a different Discord server.",
         LANGUAGE_COMMAND_DESCRIPTION:
@@ -455,6 +459,14 @@ Hint: Use the \`public\` command to get your server on the list`,
           `${player}'s ModCore Profile`,
         MODCORE_ENABLED_COSMETICS: "Enabled Cosmetics",
         MODCORE_NO_COSMETICS: "No Cosmetics",
+        NITROPERKS_COMMAND_DESCRIPTION:
+          "Claim nitro perks for a Minecraft account (locked to discord.gg/sk1er)",
+        NITROPERKS_INVALID_IGN:
+          "You must provide a valid IGN to claim nitro perks.",
+        NITROPERKS_MODULE_ERROR:
+          "I can't give nitro perks as the Sk1er module hasn't been loaded, <@287698408855044097> probably broke something...",
+        NITROPERKS_FAILED:
+          "Failed to give nitro perks! Make sure your IGN is valid and you've purchased the game.\nThere may also be an issue with the Mojang API or Sk1er's API causing this issue",
         OSS_COMMAND_DESCRIPTION: "Sends my GitHub repo link",
         OSS_MESSAGE:
           "You can find Fire's source code at <https://github.com/FireDiscordBot/bot/tree/rewrite/typescript>",
