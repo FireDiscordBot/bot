@@ -405,6 +405,8 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         return 'Possible solutions:\n' + '\n'.join(solutions)
 
     async def check_logs(self, message):
+        if (message.guild.id != 755794954743185438):
+            return
         noraw = re.findall(self.noraw, message.content, re.MULTILINE)
         if noraw:
             try:
