@@ -185,7 +185,7 @@ export default class Sk1er extends Module {
         );
         await this.removeNitroPerks(member);
         users = users.filter((id) => id != member.id);
-      }
+      } else users = users.filter((id) => id != member.id);
     });
     if (users.length) {
       users.forEach(async (id) => {
@@ -278,6 +278,7 @@ export default class Sk1er extends Module {
   }
 
   async checkLogs(message: FireMessage) {
+    if (message.author.bot) return; // you should see what it's like without this lol
     if (![this.guildId, this.supportGuildId].includes(message.guild.id)) return;
 
     let content = message.content;
