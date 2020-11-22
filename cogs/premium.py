@@ -246,6 +246,8 @@ class Premium(commands.Cog, name="Premium Commands"):
             )
             await ctx.send(embed=embed)
         else:
+            if role.id == 595626786549792793:
+                return await ctx.error(f"Please use `{ctx.message.content.replace(ctx.prefix, 'ts ')}` instead.")
             if role not in ranks:
                 return await ctx.error(
                     f"I cannot find the rank **{discord.utils.escape_markdown(role.name)}**. Type '{ctx.prefix}rank' to see a list of ranks"

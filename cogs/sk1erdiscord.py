@@ -139,23 +139,6 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         return False
 
     @commands.Cog.listener()
-    async def on_command_completion(self, ctx):
-        if ctx.guild.id != self.guild.id:
-            return
-        if 'rank' in ctx.command.name:
-            beta = self.guild.get_role(595626786549792793)
-            specs = await self.bot.db.fetch('SELECT * FROM specs WHERE uid=$1;', str(ctx.author.id))
-            if ctx.kwargs.get('role', None) == beta and beta in ctx.author.roles and not specs:
-                await ctx.author.remove_roles(beta, reason='User must provide specs')
-                await ctx.send(f'{ctx.author.mention} To become a beta tester,'
-                               f' please provide your specs through this form: '
-                               f'\n<https://inv.wtf/sk1spec>\n\n'
-                               f'You will automatically gain access to beta channels after filling in the form',
-                               allowed_mentions=discord.AllowedMentions(
-                                   users=True)
-                               )
-
-    @commands.Cog.listener()
     async def on_member_remove(self, member):
         if member.guild.id == self.guild.id:
             try:
