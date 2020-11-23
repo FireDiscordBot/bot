@@ -70,29 +70,6 @@ class Sk1er(commands.Cog, name='Sk1er Discord'):
         return False
 
     @commands.Cog.listener()
-    async def on_message(self, message):
-        if not message.guild:
-            return
-        if message.flags.is_crossposted and message.channel.id == 411620555960352787:
-            return await self.check_bot_status(message)
-        if message.author.bot or isinstance(message.author, discord.User):
-            return
-
-    @commands.Cog.listener()
-    async def on_message_edit(self, before, after):
-        if after.content == '[Original Message Deleted]' and after.guild.id == self.guild.id:
-            return await after.delete()
-        if after.flags.is_crossposted and after.channel.id == 411620555960352787:
-            if before.pinned and not after.pinned:
-                return
-            embeds = False
-            if before.embeds and after.embeds:
-                embeds = before.embeds[0].to_dict(
-                ) == after.embeds[0].to_dict()
-            if before.content != after.content or after.embeds and not embeds:
-                return await self.check_bot_status(after)
-
-    @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
         if payload.event_type != "REACTION_ADD" or payload.message_id != self.support_message_id:
             return
