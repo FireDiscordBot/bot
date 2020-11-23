@@ -29,7 +29,8 @@ export const discord: ClientOptions = {
       intents.GUILD_INVITES |
       intents.GUILD_MESSAGES |
       intents.GUILD_MESSAGE_REACTIONS |
-      intents.DIRECT_MESSAGES,
+      intents.DIRECT_MESSAGES |
+      intents.GUILD_VOICE_STATES,
   },
   presence: {
     activity: {
