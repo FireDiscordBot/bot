@@ -36,19 +36,6 @@ export default class Specs extends Command {
     });
   }
 
-  async init() {
-    this.client.once("ready", () => {
-      const shard = parseInt(
-        (
-          (411619823445999637n >> 22n) %
-          BigInt(this.client.options.shardCount)
-        ).toString()
-      );
-      if (!(this.client.options.shards as number[]).includes(shard))
-        this.remove();
-    });
-  }
-
   async exec(message: FireMessage, args: { user?: FireMember | FireUser }) {
     const user =
       args.user instanceof FireMember
