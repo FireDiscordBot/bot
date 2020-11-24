@@ -180,8 +180,8 @@ export default class Sk1er extends Module {
       users.push(row.get("uid") as string);
     }
     const members = await this.guild.members.fetch({ user: users });
-    const memberIds = members.map(m => m.id);
-    users = users.filter(u => !memberIds.includes(u));
+    const memberIds = members.map((m) => m.id);
+    users = users.filter((u) => !memberIds.includes(u));
     const membersLoop = async () => {
       members.forEach(async (member: FireMember) => {
         if (!member.roles.cache.has(this.nitroId)) {
@@ -198,7 +198,9 @@ export default class Sk1er extends Module {
         this.client.console.warn(
           `[Sk1er] Removing nitro perks from ${id} due to lack of existence`
         );
-        const user = (await this.client.users.fetch(id).catch(() => {})) as FireUser;
+        const user = (await this.client.users
+          .fetch(id)
+          .catch(() => {})) as FireUser;
         if (user) await this.removeNitroPerks(user).catch(() => {});
       });
     }
@@ -244,7 +246,10 @@ export default class Sk1er extends Module {
       .send();
 
     if (nitroReq.statusCode === 200) {
-      const result = await this.client.db.query("DELETE FROM modcore WHERE uid=$1;", [user.id]);
+      const result = await this.client.db.query(
+        "DELETE FROM modcore WHERE uid=$1;",
+        [user.id]
+      );
       if (result.status != "DELETE 0") return true;
       else return false;
     } else return false;
@@ -281,6 +286,8 @@ export default class Sk1er extends Module {
       currentSolutions.push(
         "- Update Optifine to either L5 or L6 (currently available as a preview version)"
       );
+
+    if (currentSolutions.length > 6) return "";
 
     return currentSolutions.length
       ? `Possible solutions:\n${currentSolutions.join("\n")}`
@@ -416,7 +423,7 @@ export default class Sk1er extends Module {
           "SK1ER_LOG_HASTE",
           message.author,
           msgType,
-          msgType == "sent" ? message.content : "",
+          msgType == "uploaded" ? message.content : "",
           haste,
           possibleSolutions
         );
