@@ -45,7 +45,7 @@ export default class Help extends Command {
           (command) =>
             (!message.guild ? command.channel != "guild" : true) &&
             !command.hidden &&
-            !command.guilds?.includes(message.guild.id)
+            !command.guilds?.includes(message.guild?.id)
         )
         .forEach((command) => commands.push(`\`${command.id}\``));
       if (commands.length)

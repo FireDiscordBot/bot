@@ -11,6 +11,7 @@ export default class BotCachedInhibitor extends Inhibitor {
   }
 
   async exec(message: FireMessage) {
+    if (!message.guild) return false;
     if (!message.guild.members.cache.has(this.client.user?.id))
       await message.guild.members.fetch(this.client.user.id); // Ensures bot is cached so permission checks work
     return false;

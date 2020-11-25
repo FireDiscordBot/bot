@@ -24,7 +24,7 @@ export default class ExperimentLockInhibitor extends Inhibitor {
         return true;
       else if (
         experiment.kind == "guild" &&
-        !message.guild.hasExperiment(
+        !message.guild?.hasExperiment(
           experiment.id,
           requiresExperiment.treatmentId
         )

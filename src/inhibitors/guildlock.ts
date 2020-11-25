@@ -14,7 +14,7 @@ export default class GuildLockInhibitor extends Inhibitor {
     if (
       command &&
       command.guilds?.length &&
-      !command.guilds.includes(message.guild.id)
+      !command.guilds.includes(message.guild?.id)
     )
       return true;
     return false;
