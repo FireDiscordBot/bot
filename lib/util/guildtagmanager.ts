@@ -42,10 +42,11 @@ export class GuildTagManager {
     return this.cache.size || this.names.length;
   }
 
-  async getTag(tag: string) {
+  async getTag(tag: string, useFuzzy = true) {
     if (this.names.length && !this.cache.size) await this.loadTags();
     for (const name of this.names) {
       if (
+        useFuzzy &&
         fuzz.ratio(tag.trim().toLowerCase(), name.trim().toLowerCase()) >= 60
       ) {
         return await this.getCachedTag(name);

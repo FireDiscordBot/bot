@@ -154,7 +154,7 @@ export default class Tag extends Command {
 
   async deleteTag(message: FireMessage, tag: string) {
     const manager = message.guild.tags;
-    const cachedTag = await manager.getTag(tag);
+    const cachedTag = await manager.getTag(tag, false);
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", tag);
     const deleted = await manager.deleteTag(tag).catch(() => false);
     if (typeof deleted == "boolean" && !deleted) return await message.error();
@@ -165,7 +165,7 @@ export default class Tag extends Command {
     if (["raw", "create", "delete", "edit", "alias"].includes(tag))
       return await message.error("TAGS_CREATE_COMMAND_NAME");
     const manager = message.guild.tags;
-    const cachedTag = await manager.getTag(tag);
+    const cachedTag = await manager.getTag(tag, false);
     if (cachedTag) return await message.error("TAGS_CREATE_ALREADY_EXISTS");
     if (
       manager.cache.size >= 20 &&
@@ -179,7 +179,7 @@ export default class Tag extends Command {
 
   async editTag(message: FireMessage, tag: string, content: string) {
     const manager = message.guild.tags;
-    const cachedTag = await manager.getTag(tag);
+    const cachedTag = await manager.getTag(tag, false);
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", tag);
     try {
       await manager.editTag(tag, content);
@@ -191,7 +191,7 @@ export default class Tag extends Command {
 
   async addAlias(message: FireMessage, tag: string, alias: string) {
     const manager = message.guild.tags;
-    const cachedTag = await manager.getTag(tag);
+    const cachedTag = await manager.getTag(tag, false);
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", tag);
     const aliased = await manager.addAlias(tag, alias);
     if (typeof aliased == "boolean" && !aliased) return await message.error();
