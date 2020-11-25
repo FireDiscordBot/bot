@@ -595,6 +595,28 @@ Abuse of this command __**will**__ result in being temporarily blacklisted from 
           "I searched near and far and could not find any tags...",
         TAG_INVALID_TAG: (tag: string) =>
           `There doesn't seem to be a tag called ${tag}. Run the command again with no arguments to see all tags`,
+        TAGS_RAW_MISSING_ARG:
+          "You need to provide a tag name to get the raw content of",
+        TAGS_DELETE_MISSING_ARG:
+          "Well, I can't really delete nothing can I? Provide a tag name to delete",
+        TAGS_CREATE_MISSING_NAME:
+          "Your shiny new tag needs a name, give it one!",
+        TAGS_CREATE_MISSING_CONTENT:
+          "A tag can't be empty, otherwise it has no purpose in life, like me...",
+        TAGS_CREATE_COMMAND_NAME:
+          "That name is already being used by a subcommand, try a different one",
+        TAGS_CREATE_ALREADY_EXISTS:
+          "A tag already exists with that name. Be original next time!",
+        TAGS_CREATE_LIMIT:
+          "You've reached the tag limit! Upgrade to premium for unlimited tags;\n<https://inv.wtf/premium>",
+        TAGS_EDIT_MISSING_NAME:
+          "I need to know what tag to edit. Give me the name of an existing tag",
+        TAGS_EDIT_MISSING_CONTENT:
+          "You need to provide the new content for the tag",
+        TAGS_ALIAS_MISSING_NAME:
+          "I can't make an alias for nothing. You need to provide an existing tag name",
+        TAGS_ALIAS_MISSING_ALIAS:
+          "You need to provide a new alias for the tag or an existing alias to delete it",
         TAG_LIST: (guild: string) => `${guild}'s tags`,
       },
       enabled: true,

@@ -9,12 +9,14 @@ import { GuildSettings } from "../util/settings";
 import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
 import { Fire } from "../Fire";
+import { GuildTagManager } from "../util/guildtagmanager";
 
 export class FireGuild extends Guild {
   client: Fire;
   owner: FireMember;
   settings: GuildSettings;
   language: Language;
+  tags: GuildTagManager;
 
   constructor(client: Fire, data: object) {
     super(client, data);
@@ -22,6 +24,7 @@ export class FireGuild extends Guild {
     this.language = client.getLanguage(
       this.settings.get("utils.language", "en-US")
     );
+    this.tags = new GuildTagManager(client, this);
   }
 
   isPublic() {
