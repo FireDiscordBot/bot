@@ -81,11 +81,15 @@ export default class Debug extends Command {
     if (permissionChecks && message.guild) {
       const userMissing = userPermissions
         .filter((permission) => !message.member?.permissions.has(permission))
-        .map((permission) => titleCase(permission.replace("_", " ")));
+        .map((permission) =>
+          this.client.util.cleanPermissionName(permission, message.language)
+        );
 
       const clientMissing = clientPermissions
         .filter((permission) => !message.guild.me?.permissions.has(permission))
-        .map((permission) => titleCase(permission.replace("_", " ")));
+        .map((permission) =>
+          this.client.util.cleanPermissionName(permission, message.language)
+        );
 
       const permMsg = message.language.get(
         "DEBUG_PERMS_FAIL",
