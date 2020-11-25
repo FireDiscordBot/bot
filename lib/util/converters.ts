@@ -48,7 +48,7 @@ export const memberConverter = async (
   silent = false
 ): Promise<FireMember | null> => {
   if (!argument) {
-    return message.member;
+    return;
   }
 
   const guild = message.guild;
@@ -96,7 +96,7 @@ export const userConverter = async (
   silent = false
 ): Promise<FireUser | null> => {
   if (!argument) {
-    return message.member?.user || message.author;
+    return;
   }
 
   if (argument == "^" && message.channel.messages.cache.size >= 2)
