@@ -1,10 +1,9 @@
-import { getAllCommands, getCommands } from "../../lib/util/commandUtil";
+import { getAllCommands, getCommands } from "../../lib/util/commandutil";
 import { MessageUtil } from "../../lib/ws/util/MessageUtil";
 import { EventType } from "../../lib/ws/util/constants";
 import { Listener } from "../../lib/util/listener";
 import { Message } from "../../lib/ws/Message";
 import { Command } from "../../lib/util/command";
-import { commandTypeCaster } from "../arguments/command";
 
 export default class Ready extends Listener {
   constructor() {

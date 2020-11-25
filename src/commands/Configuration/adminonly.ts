@@ -2,7 +2,7 @@ import { textChannelConverter } from "../../../lib/util/converters";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import { Util } from "../../../lib/util/clientUtil";
+import { Util } from "../../../lib/util/clientutil";
 import { TextChannel } from "discord.js";
 
 export default class AdminOnly extends Command {

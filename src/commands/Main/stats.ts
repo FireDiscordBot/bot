@@ -1,6 +1,6 @@
 import { Cluster, Stats as AetherStats } from "../../../lib/interfaces/stats";
 import { FireMessage } from "../../../lib/extensions/message";
-import { humanFileSize } from "../../../lib/util/clientUtil";
+import { humanFileSize } from "../../../lib/util/clientutil";
 import { MessageEmbed, version as djsver } from "discord.js";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";

@@ -7,7 +7,7 @@ import {
   Message,
 } from "discord.js";
 import { PaginatorInterface } from "../util/paginators";
-import { CommandUtil } from "../util/commandUtil";
+import { CommandUtil } from "../util/commandutil";
 import { constants } from "../util/constants";
 import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
