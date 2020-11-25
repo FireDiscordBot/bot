@@ -29,12 +29,27 @@ export default class owo extends Language {
           "You can onwy use this command in a sewvew. You can invite me to a sewvew at <https://inv.wtf/tsbot>",
         COMMAND_PREMIUM_ONLY:
           "Onwy pwemium guiwds can use this command. Weawn mowe at https://inv.wtf/premium",
+        COMMAND_EXPERIMENT_REQUIRED: "The maze wasn't meant fow you.",
+        COMMAND_ACCOUNT_TOO_YOUNG:
+          "Youw account has been cweated too wecentwy!",
+        COMMAND_GUILD_LOCKED:
+          "This command is westwicted to cewtain guiwds and this guiwd is not one of them.",
+        COMMAND_ERROR_CONCURRENCY:
+          // For different languages, you may want to change the "hold your horses" bit as it may not make sense in that language
+          "Whoa, howd youw howses thewe! Wait fow the command to finish befowe wunning it again",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wwong whiwe wunnying ${id}`,
+        HELLO_PREFIX: (prefix: string) =>
+          `Hey! My pwefix hewe is \`${prefix}\` ow you can mention me >w<`,
+        ERROR_ROLE_UNUSABLE:
+          "This wowe cannot be used as it is eithew managed by an integwation ow highew than my top wowe",
+        ERROR_NO_KSOFT:
+          "Unabwe to use KSoft.Si API due to wack of authentication",
         NO_MODERATORS_SET: "Thewe awe nyo mowodewatows set in this guiwd.",
         MORE_INTEGRATIONS:
           "Want mowe integwations? Use the suggest command to suggest some! >w<",
         MEMBERS: "Membews",
+        USERS: "Usews",
         REGION: "Wegion",
         STATUS: "Status",
         UUID: "UUID",
@@ -48,6 +63,12 @@ export default class owo extends Language {
         ABOUT: "About",
         ROLES: "Wowes",
         NOTES: "Notes",
+        TITLE: "Titwe",
+        STATS: "Stats",
+        GUILD: "Guiwd",
+        GUILDS: "Guiwds",
+        CHANNEL: "Channew",
+        ATTACHMENT: "Attachment",
         REGION_DEPRECATED: "❓ Depwecated Wegion",
         REGIONS: {
           brazil: "🇧🇷 Bwaziw",
@@ -85,6 +106,22 @@ export default class owo extends Language {
             "<:firelogo:665339492072292363> [Pwemiuwum](https://gaminggeek.dev/premium)",
           ADDMOD_COMMAND_DESCRIPTION:
             "Add a membew/wowe as a mowodewatow. If nyot set, anyone with the Manyage Messages pewmission is considewed a Mowodewatow",
+          AUTOROLE_COMMAND_DESCRIPTION:
+            "Automaticawwy add a wowe to a usew/bot when they join ow when they send theiw fiwst message with the --delay fwag",
+          AUTOROLE_ROLE_REQUIRED:
+            "You can't automaticawwy give nothing, you need to pwovide a wowe",
+          AUTOROLE_INVALID_FLAGS: "You cannot combine --bot and --delay",
+          AUTOROLE_DISABLED:
+            "Autowowe has been disabwed, usews wiww no wongew weceive a wowe upon join/fiwst message.",
+          AUTOROLE_DISABLED_BOT:
+            "Autowowe has been disabwed, bots wiww no wongew weceive a wowe upon join.",
+          AUTOROLE_ENABLED: (role: string, delay: boolean) =>
+            `Autowowe has been enabwed, usews wiww weceive ${role} upon ${
+            delay ? "fiwst message" : "join"
+          }.`,
+          AUTOROLE_ENABLED_BOT: (role: string, delay: boolean) =>
+            `Autowowe has been enabwed, bots wiww weceive ${role} upon join.`,
+          POWERED_BY_KSOFT: "Powewed by KSoft.Si API",
           MODERATORS_ROLES: "Mowodewatow Wowes",
           NO_MODERATOR_ROLES: "Nyo wowes have been set as mowodewatows.",
           MODERATORS_MEMBERS: "Mowodewatow Membews",
@@ -153,6 +190,9 @@ This wiww **nyot** wenyame existing usews`,
         DESC_FAILED: "Faiwed to set guiwd descwiption.",
         DESC_SET: "Successfuwwy set guiwd descwiption!",
         DESC_RESET: "Successfuwwy weset guiwd descwiption!",
+        DEEPFRY_COMMAND_DESCRIPTION:
+          "Deepfwy an image ow youw avataw (youw avataw is used if no awgument is pwovided)",
+        DEEPFRY_UPLOAD_FAIL: "Deepfwy machine bwoke :c",
         DISCOVER_COMMAND_DESCRIPTION: "Links to Fire's pubwic sewvews page",
         DISCOVER_MESSAGE: `You can find Fire\'s pubwic sewvew wist at <${constants.url.discovery}>
 Hint: Use the \`public\` command to get youw sewvew on the wist`,
@@ -220,12 +260,18 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
             ? `Output was too wong, upwoaded to hastebin; ${haste}`
             : `Output was too wong, faiwed to upwoad to hastebin`,
         GUILD_COMMAND_DESCRIPTION: "Get a genyewaw uvwview of the guiwd",
+        FILTER_INVITE_LOG_DESCRIPTION: (channel: TextChannel) =>
+          `**Invite wink sent in** ${channel}`,
+        FILTER_INVITE_LOG_CODE: "Invite Code",
         GUILD_CREATED_AT: (guild: FireGuild, created: string) =>
           `**Cweated by ${
             guild.owner.user.discriminator != null
               ? guild.owner
               : "Unknyown#0000"
           } ${created}**`,
+        GOOGLE_COMMAND_DESCRIPTION: "Speak to the Googwe Assistant",
+        GOOGLE_SOMETHING_WENT_WRONG:
+          "<a:okaygoogle:769207087674032129> Something went wwong. Twy again watew",
         GUILD_JOIN_POS: (pos: number) => `**Youw Join Position:** ${pos}`,
         GUILD_VERIF_VERY_HIGH: "**Extweme Vewification Wevew**",
         GUILD_VERIF_HIGH: "**High Vewification Wevew**",
@@ -262,6 +308,10 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           haste: string,
           solutions: string
         ) => `${user} ${msgType} a wog, ${extra}\n${haste}\n\n${solutions}`,
+        SK1ER_NITRO_PERKS_REMOVED: (member: string) =>
+          `${member}, Youw nitwo pewks have been wemuved. Boost the sewvew to get them back UwU`,
+        SK1ER_NITRO_PERKS_REMOVED_LEFT: (member: string) =>
+          `${member} weft and theiw nitwo pewks have been wemuved.`,
         INVITE_COMMAND_DESCRIPTION:
           "Sends a wink to invite me to a diffewent Discowod sewvew.",
         LANGUAGE_COMMAND_DESCRIPTION:
@@ -293,6 +343,32 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         LEVELHEAD_TAB: "Tab",
         LEVELHEAD_CHAT: "Chat",
         LEVELHEAD_ADDON_LAYERS: "Addon Head Wayews",
+        LYRICS_COMMAND_DESCRIPTION:
+          'Get the wywics fow a song. (Fow best wesuwts, use the fowmat "awtist_name song_titwe")',
+        LYRICS_NO_QUERY:
+          'You need to pwovide a song to get the wywics fow. Fow best wesuwts, use the fowmat "awtist_name song_titwe"',
+        LYRICS_NOT_FOUND: (error?: any) =>
+          error && error == "Ewwow: No wesuwts"
+            ? `I couwdn't find any wywics fow that song`
+            : `An ewwow occuwwed whiwe twying to fetch wywics.`,
+        LYRICS_TITLE: (title: string, artist: string) =>
+          `${title} by ${artist}`,
+        MAKEAMEME_COMMAND_DESCRIPTION:
+          'Make youw own meme using the "top text bottom text" fowmat',
+        MAKEAMEME_NO_IMAGE:
+          "You need to pwovide a membew (to use theiw avataw), image url ow attach an image to make a meme",
+        MAKEAMEME_NO_TEXT: "You must pwovide text sepawated by **|**",
+        MAKEAMEME_UPLOAD_FAIL: "Faiwed to upwoad spicy meme :c",
+        MEME_COMMAND_DESCRIPTION: "Get a wandom meme",
+        MEME_NOT_FOUND: (error?: any) =>
+          error && error == "Ewwow: subweddit not found"
+            ? `I couwdn't find any memes. Hewe's an idea! Twy a subweddit that actuawwy exists next time ^w^`
+            : `An ewwow occuwwed whiwe twying to fetch some spicy memes.`,
+        MEME_NSFW_FORBIDDEN:
+          "The meme I was given was mawked as NSFW but this channew is not. If you'we wooking fow NSFW memes, head to an NSFW channew, othewwise just twy again",
+        MEME_EMBED_TITLE: "Did someone owdew a spicy meme?",
+        MEME_EMBED_AUTHOR: (user: FireUser) => `Wequested by ${user}`,
+        MEME_SUBREDDIT: "Subweddit",
         MODONLY_COMMAND_DESCRIPTION:
           "Set channyews to westwict commands fow mowodewatows",
         MODONLY_NO_CHANNELS:
@@ -338,6 +414,14 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           `${player}'s ModCowe Pwofiwe`,
         MODCORE_ENABLED_COSMETICS: "Enabwed Cosmetics",
         MODCORE_NO_COSMETICS: "No Cosmetics",
+        NITROPERKS_COMMAND_DESCRIPTION:
+          "Claim nitwo pewks fow a Minecwaft account (wocked to discord.gg/sk1er)",
+        NITROPERKS_INVALID_IGN:
+          "You must pwovide a vawid IGN to cwaim nitwo pewks.",
+        NITROPERKS_MODULE_ERROR:
+          "I can't give nitwo pewks as the Sk1ew moduwe hasn't been woaded, <@287698408855044097> pwobabwy bwoke something... :c",
+        NITROPERKS_FAILED:
+          "Faiwed to give nitwo pewks! Make suwe youw IGN is vawid and you've puwchased the game.\nThewe may awso be an issue with the Mojang API ow Sk1ew's API causing this issue",
         OSS_COMMAND_DESCRIPTION: "Sends my GitHub wepo wink",
         OSS_MESSAGE:
           "You can find Fire's souwce code at <https://github.com/FireDiscordBot/bot/tree/rewrite/typescript>",
@@ -421,13 +505,59 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           `Authow ID: ${user.id} | Channew ID: ${channel.id}"`,
         PURGED_MESSAGES: "Puwged Messages",
         PURGED_MESSAGES_FAILED: "Faiwed to upwoad messages to hastebin",
+        RANK_COMMAND_DESCRIPTION:
+          "Wist aww avaiwabwe wanks and join a wank if pwovided",
+        RANKS_NONE_FOUND: "Seems wike thewe's no wanks set fow this guiwd",
+        RANKS_INFO: (role: Role) =>
+          `> ${role} (${role.members.size.toLocaleString(this.id)} membews)`,
+        RANKS_AUTHOR: (guild: FireGuild) => `${guild}'s wanks`,
+        RANKS_JOIN_REASON: "Joined wank",
+        RANKS_JOIN_RANK: (role: string) =>
+          `You successfuwwy joined the **${role}** wank.`,
+        RANKS_LEAVE_REASON: "Weft wank",
+        RANKS_LEFT_RANK: (role: string) =>
+          `You successfuwwy weft the **${role}** wank.`,
+        RANKS_INVALID_ROLE:
+          "That isn't a vawid wank. Use the command without awguments to see a wist of vawid wanks",
+        RANKS_INVALID_ROLE_DEL:
+          "That isn't a vawid wank. Use the wank command to see a wist of vawid wanks",
+        RANKS_SK1ER_NO_SPECS: (mention: string) =>
+          `${mention} To become a beta testew, pwease pwovide youw specs thwough this fowm: 
+<https://inv.wtf/sk1spec>
+                
+You wiww automaticawwy gain access to beta channews aftew fiwwing in the fowm`,
+        ADDRANK_COMMAND_DESCRIPTION:
+          "Add a role that users can join through the rank command.",
+        RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
+        DELRANK_COMMAND_DESCRIPTION:
+          "Remove a rank from the list of joinable roles.",
         SKIN_COMMAND_DESCRIPTION: "See a pwayew's Minecwaft skin",
         SKIN_INVALID_IGN: "You must pwovide a vawid IGN to get the skin of",
         SLOWMODE_COMMAND_DESCRIPTION:
-          "Set the swowmode fow a channew ow categowy",
+          "Set the swowmode fow a channew ow categowy. Use the --global fwag to set it fow aww channews",
+        SLOWMODE_GLOBAL_FAIL_SOME: (failed: string[]) =>
+          `I set swowmode in some channews but faiwed to set swowmode in ${failed.join(", ")}`,
         SLOWMODE_INVALID_TYPE: "You must pwovide a text channew ow categowy",
         SLOWMODE_FAILED: (channels: string[]) =>
           `Faiwed to set swowmode in ${channels.join(", ")}`,
+        STATS_COMMAND_DESCRIPTION:
+          "View cwustew & uvwaww stats. Use the --cluster fwag to view stats fow a specific cwustew",
+        STATS_TITLE: (name: string, version: string) =>
+          `Stats fow ${name} [${version}]`,
+        STATS_MEMORY_USAGE: "Memowy Usage",
+        STATS_DJS_VER: "Discowd.JS Vewsion",
+        STATS_NODE_VER: "Node.JS Vewsion",
+        STATS_UPTIME: "Uptime",
+        STATS_COMMANDS: "Commands",
+        STATS_EVENTS: "Events",
+        STATS_FOOTER: (message: FireMessage) =>
+          `PID: ${process.pid} | Cwustew: ${
+            message.client.manager.id
+          } | Shawd: ${message?.guild?.shardID || 0}`,
+        SPECS_COMMAND_DESCRIPTION:
+          "View/wemuve a usews specs (wocked to discord.gg/sk1er)",
+        SPECS_NOT_FOUND:
+          "Specs not found fow that usew. Teww them to fiww in this fowm\n<https://inv.wtf/sk1spec>",
         STEAL_COMMAND_DESCRIPTION: "Steaw an emote to use in youw own sewvew",
         STEAL_NOTHING:
           "You'we a tewwibwe cwiminaw, you can't steaw nothing! You must pwovide an emoji to steaw",
@@ -447,8 +577,42 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${ban.user.id}) fow ${ban.reason} - [Pwoof](${ban.proof})`,
         VOTE_COMMAND_DESCRIPTION:
           'Sends a wink to Fire on a wandom bot wist (sends diwect vote wink if you use the "vote" awias)',
+        PREMIUM_COMMAND_DESCRIPTION: "i wike money",
+        PREMIUM_MISSING_ARGUMENTS:
+          "You need to pwovide a guiwd id, usew id and weason to add a pwemium guiwd",
+        PREMIUM_DELETE_FAIL: "Faiwed to wemuv pwemium.",
+        PREMIUM_INSERT_FAIL: "Faiwed to give pwemium.",
+        PREMIUM_RELOAD_FAIL: "Faiwed to wewoad pwemium guiwds.",
         RELOAD_COMMAND_DESCRIPTION:
           "Wewoad a command/wanguage/wistenew/moduwe",
+        TAG_COMMAND_DESCRIPTION: "See a wist of aww tags ow view a tag",
+        TAG_NONE_FOUND:
+          "I seawched neaw and faw and couwd not find any tags... :c",
+        TAG_INVALID_TAG: (tag: string) =>
+          `Thewe doesn't seem to be a tag cawwed ${tag}. Wun the command again with no awguments to see aww tags`,
+        TAGS_RAW_MISSING_ARG:
+          "You need to pwovide a tag name to get the waw content of",
+        TAGS_DELETE_MISSING_ARG:
+          "Weww, I can't weawwy dewete nothing can I? Pwovide a tag name to dewete",
+        TAGS_CREATE_MISSING_NAME:
+          "Youw shiny new tag needs a name, give it one!",
+        TAGS_CREATE_MISSING_CONTENT:
+          "A tag can't be empty, othewwise it has no puwpose in wife, wike me... :c",
+        TAGS_CREATE_COMMAND_NAME:
+          "That name is awweady being used by a subcommand, twy a diffewent one",
+        TAGS_CREATE_ALREADY_EXISTS:
+          "A tag awweady exists with that name. Be owiginaw next time!",
+        TAGS_CREATE_LIMIT:
+          "You've weached the tag wimit! Upgwade to pwemium fow unwimited tags;\n<https://inv.wtf/premium>",
+        TAGS_EDIT_MISSING_NAME:
+          "I need to know what tag to edit. Give me the name of an existing tag ^w^",
+        TAGS_EDIT_MISSING_CONTENT:
+          "You need to pwovide the new content fow the tag",
+        TAGS_ALIAS_MISSING_NAME:
+          "I can't make an awias fow nothing. You need to pwovide an existing tag name",
+        TAGS_ALIAS_MISSING_ALIAS:
+          "You need to pwovide a new awias fow the tag ow an existing awias to dewete it",
+        TAG_LIST: (guild: string) => `${guild}'s tags`,
       },
       enabled: true,
     });
