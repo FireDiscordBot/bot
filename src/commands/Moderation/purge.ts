@@ -45,6 +45,7 @@ export default class Purge extends Command {
         {
           id: "includeEmbeds",
           flag: "--include_embeds",
+          match: "flag",
           required: false,
         },
         {
@@ -64,11 +65,13 @@ export default class Purge extends Command {
         {
           id: "attachments",
           flag: "--attachments",
+          match: "flag",
           required: false,
         },
         {
           id: "bot",
           flag: "--bot",
+          match: "flag",
           required: false,
         },
         {
@@ -86,7 +89,7 @@ export default class Purge extends Command {
     message: FireMessage,
     args: {
       amount: number;
-      user?: string;
+      user?: FireUser;
       match?: string;
       nomatch?: string;
       includeEmbeds?: string;
@@ -97,7 +100,7 @@ export default class Purge extends Command {
       reason?: string;
     }
   ) {
-    if (args.amount > 500 || args.amount <= 1)
+    if (args.amount > 100 || args.amount <= 1)
       return await message.error("PURGE_AMOUNT_INVALID");
     message.delete().catch(() => {});
     if (
@@ -163,7 +166,7 @@ export default class Purge extends Command {
     message: FireMessage,
     args: {
       amount: number;
-      user?: string;
+      user?: FireUser;
       match?: string;
       nomatch?: string;
       includeEmbeds?: string;
@@ -175,8 +178,6 @@ export default class Purge extends Command {
     }
   ) {
     const argValues = Object.values(args); // akairo + commands with multiple flags = wack so I check if the flag is in values
-    let user;
-    if (args.user) user = await userConverter(message, args.user, true);
     const filter = (message: FireMessage) => {
       let content = message.content.toLowerCase();
       if (argValues.includes("--include_embeds") && message.embeds.length)
@@ -184,7 +185,7 @@ export default class Purge extends Command {
           .map((embed) => this.getEmbedContent(embed).toLowerCase())
           .join("");
       let completed: boolean[] = [];
-      if (user) completed.push(user?.id == message.author.id);
+      if (args.user) completed.push(args.user?.id == message.author.id);
       if (args.match)
         completed.push(content.includes(args.match.toLowerCase()));
       if (args.nomatch)
