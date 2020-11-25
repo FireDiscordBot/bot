@@ -24,8 +24,7 @@ export default class Purge extends Command {
           id: "user",
           flag: "--user",
           match: "option",
-          type: "string", // setting this to user always returns the author
-          readableType: "user",
+          type: "user",
           default: null,
           required: false,
         },
