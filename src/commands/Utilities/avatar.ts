@@ -26,10 +26,7 @@ export default class Avatar extends Command {
 
   exec(message: FireMessage, args: { user: FireMember | FireUser | null }) {
     let user = args.user;
-    if (!user) return;
-
-    if (message.guild.member(user))
-      user = message.guild.member(user) as FireMember;
+    if (!user) user = message.member || message.author;
 
     const color =
       user instanceof FireMember
