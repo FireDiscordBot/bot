@@ -30,7 +30,7 @@ export class GuildTagManager {
       .then(async (result) => {
         for await (const tag of result) {
           this.names.push((tag.get("name") as string).toLowerCase());
-          (tag.get("aliases") as string[]).forEach((alias) =>
+          (tag.get("aliases") as string[])?.forEach((alias) =>
             this.names.push(alias.toLowerCase())
           );
         }
