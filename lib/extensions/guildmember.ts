@@ -2,8 +2,8 @@ import { Structures, GuildMember, Channel } from "discord.js";
 import { UserSettings } from "../util/settings";
 import { Language } from "../util/language";
 import { FireGuild } from "./guild";
-import { Fire } from "../Fire";
 import { FireUser } from "./user";
+import { Fire } from "../Fire";
 
 export class FireMember extends GuildMember {
   client: Fire;
@@ -27,6 +27,7 @@ export class FireMember extends GuildMember {
   }
 
   isModerator(channel?: Channel) {
+    if (this.permissionsIn(channel).has("ADMINISTRATOR")) return true;
     const moderators = this.guild.settings.get(
       "utils.moderators",
       []
