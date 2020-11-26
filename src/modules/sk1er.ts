@@ -245,7 +245,7 @@ export default class Sk1er extends Module {
       .header("secret", this.modcoreHeaders.secret)
       .send();
 
-    if (nitroReq.statusCode === 200) {
+    if (nitroReq.statusCode == 200) {
       const result = await this.client.db.query(
         "DELETE FROM modcore WHERE uid=$1;",
         [user.id]
@@ -268,7 +268,7 @@ export default class Sk1er extends Module {
       .header("secret", this.modcoreHeaders.secret)
       .send();
 
-    return nitroReq.statusCode === 200;
+    return nitroReq.statusCode == 200;
   }
 
   public getSolutions(log: string) {

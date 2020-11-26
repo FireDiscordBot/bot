@@ -154,7 +154,7 @@ export default class GuildCommand extends Command {
 
     const roles = message.guild.roles.cache
       .sort((one, two) => (one.position > two.position ? 1 : -1))
-      .filter((role) => message.guild.id !== role.id)
+      .filter((role) => message.guild.id != role.id)
       .map((role) => role.toString());
 
     const embed = new MessageEmbed()

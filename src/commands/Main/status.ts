@@ -45,9 +45,9 @@ export default class DiscordStatus extends Command {
         ...summary.components
           .filter((component) => {
             return (
-              component.group_id === group.id &&
-              (group.id !== "jmsbww1qjnz5" ||
-                component.status !== "operational")
+              component.group_id == group.id &&
+              (group.id != "jmsbww1qjnz5" ||
+                component.status != "operational")
             );
           })
           .map(

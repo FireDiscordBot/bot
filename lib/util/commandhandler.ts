@@ -67,7 +67,7 @@ export class CommandHandler extends AkairoCommandHandler {
           } catch {
             return;
           }
-          if (o.content === m.content) return;
+          if (o.content == m.content) return;
           if (this.handleEdits) this.handle(m as FireMessage);
         });
       }

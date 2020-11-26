@@ -19,7 +19,7 @@ export class Manager {
     this.pm2 = pm2;
     this.client = new Fire(this, sentry);
 
-    if (process.env.BOOT_SINGLE === "false") {
+    if (process.env.BOOT_SINGLE == "false") {
       this.ws = new Websocket(this);
       this.reconnector = new Reconnector(this);
     }
@@ -29,7 +29,7 @@ export class Manager {
 
   init(reconnecting = false) {
     if (reconnecting && this.ws.readyState == this.ws.OPEN) return;
-    if (process.env.BOOT_SINGLE === "false") {
+    if (process.env.BOOT_SINGLE == "false") {
       this.initWebsocket();
     }
   }
@@ -58,7 +58,7 @@ export class Manager {
   }
 
   listen() {
-    if (process.env.BOOT_SINGLE !== "false") {
+    if (process.env.BOOT_SINGLE != "false") {
       this.client.options.shardCount = 1;
       this.client.options.presence.shardID = this.client.options.shards = [
         this.id,

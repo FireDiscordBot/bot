@@ -113,7 +113,7 @@ export default class Debug extends Command {
       cmd
     );
 
-    if (inhibitorCheck !== null) details.push(`${error} ${inhibitorCheck}`); // No Translation :(
+    if (inhibitorCheck != null) details.push(`${error} ${inhibitorCheck}`); // No Translation :(
 
     const disabledCommands: string[] =
       message.guild?.settings.get("disabled.commands", []) || [];
@@ -143,7 +143,7 @@ export default class Debug extends Command {
             ? overwriteFor?.toString() || ""
             : "";
         })
-        .filter((s) => s !== "");
+        .filter((s) => s != "");
 
       if (bypass.length > 0)
         details.push(

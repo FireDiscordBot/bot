@@ -41,7 +41,7 @@ export const getCommands = (client: Fire) => {
       (category) =>
         !!category.findKey(
           (command) =>
-            command.category.id !== "Admin" &&
+            command.category.id != "Admin" &&
             !command.hidden &&
             !command.ownerOnly
         )
@@ -57,7 +57,7 @@ export const getCommands = (client: Fire) => {
         .filter(
           (command: Command) =>
             !command.ownerOnly &&
-            command.category.id !== "Admin" &&
+            command.category.id != "Admin" &&
             !command.hidden
         )
         .map((command) => {
@@ -86,7 +86,7 @@ export const getAllCommands = (client: Fire) => {
   const commands = client.commandHandler.modules
     .filter(
       (command: Command) =>
-        !command.ownerOnly && command.category.id !== "Admin" && !command.hidden
+        !command.ownerOnly && command.category.id != "Admin" && !command.hidden
     )
     .map((command: Command) => {
       const args = command.getArgumentsClean().join(" ");
