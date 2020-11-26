@@ -14,7 +14,7 @@ export class Reconnector {
   }
 
   handleOpen() {
-    if (this.state === WebsocketStates.RECONNECTING) {
+    if (this.state == WebsocketStates.RECONNECTING) {
       if (this.timeout) clearTimeout(this.timeout);
       this.manager.client.console.log("[Aether] Reconnected to Websocket.");
       this.state = WebsocketStates.CONNECTED;
@@ -25,11 +25,14 @@ export class Reconnector {
   }
 
   handleClose(code: number, reason: string) {
-    clearInterval(this.manager.ws.keepAlive);
+    clearInterval(this.manager.ws?.keepAlive);
     if (code == 4007)
       // Cluster has been overwriten
       this.manager.kill("overwrite");
-    if (this.state === WebsocketStates.CONNECTED) {
+    if (
+      this.state == WebsocketStates.CONNECTED ||
+      this.state == WebsocketStates.CLOSING
+    ) {
       this.state = WebsocketStates.CLOSED;
       this.manager.client.console.warn(
         `[Aether] Disconnected from Websocket with code ${code} and reason ${reason}.`
@@ -39,7 +42,7 @@ export class Reconnector {
   }
 
   handleError(error: any) {
-    if (error.code === "ECONNREFUSED") {
+    if (error.code == "ECONNREFUSED") {
       if (
         this.state == WebsocketStates.CLOSED ||
         this.state == WebsocketStates.IDLE
