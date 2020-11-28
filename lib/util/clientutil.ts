@@ -2,7 +2,6 @@ import { version as djsver, PermissionString } from "discord.js";
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
 import { MessageUtil } from "../ws/util/MessageUtil";
-import { describe, ProcessDescription } from "pm2";
 import { humanize, titleCase } from "./constants";
 import { EventType } from "../ws/util/constants";
 import { FireGuild } from "../extensions/guild";
@@ -12,13 +11,10 @@ import { ClientUtil } from "discord-akairo";
 import { getCommitHash } from "./gitUtils";
 import { Message } from "../ws/Message";
 import { Language } from "./language";
-import { promisify } from "util";
+import * as pidusage from "pidusage";
 import * as Centra from "centra";
 import * as moment from "moment";
 import { Fire } from "../Fire";
-import * as pm2 from "pm2";
-
-export const describePromise = promisify(describe.bind(pm2));
 
 export const humanFileSize = (size: number) => {
   let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -168,12 +164,7 @@ export class Util extends ClientUtil {
   }
 
   async getClusterStats(): Promise<Cluster> {
-    let processInfo: ProcessDescription[] = [];
-    if (this.client.manager.pm2) {
-      try {
-        processInfo = await describePromise(process.env.pm_id || "fire");
-      } catch {}
-    } // lol
+    const processStats = await pidusage(process.pid);
     const now = moment();
     const duration = this.client.launchTime.diff(now);
     const env = (process.env.NODE_ENV || "DEVELOPMENT").toLowerCase();
@@ -189,9 +180,9 @@ export class Util extends ClientUtil {
       userId: this.client.user ? this.client.user.id : "",
       started: this.client.launchTime.toISOString(true),
       uptime: humanize(duration, "en"),
-      cpu: processInfo.length ? processInfo[0]?.monit?.cpu || 0 : 0,
-      ram: humanFileSize(process.memoryUsage().heapUsed),
-      ramBytes: process.memoryUsage().heapUsed,
+      cpu: parseFloat(processStats.cpu.toFixed(2)),
+      ram: humanFileSize(processStats.memory),
+      ramBytes: processStats.memory,
       pid: process.pid,
       version: this.client.config.dev ? "dev" : getCommitHash().slice(0, 7),
       versions: `Discord.JS v${djsver} | Node.JS ${process.version}`,

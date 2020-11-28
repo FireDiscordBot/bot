@@ -8,16 +8,6 @@ dotEnvExtended.load({
 import { getCommitHash } from "../lib/util/gitUtils";
 import { Manager } from "../lib/Manager";
 import * as sentry from "@sentry/node";
-import { connect } from "pm2";
-
-let pm2 = true;
-
-connect((err) => {
-  if (err) {
-    pm2 = false;
-    console.warn(err.stack);
-  }
-});
 
 const version =
   process.env.NODE_ENV == "development" ? "dev" : getCommitHash().slice(0, 7);
@@ -32,7 +22,7 @@ if (loadSentry) {
   });
 }
 
-const manager = new Manager(loadSentry ? sentry : undefined, pm2);
+const manager = new Manager(loadSentry ? sentry : undefined);
 manager.init();
 
 process.on("exit", () => {

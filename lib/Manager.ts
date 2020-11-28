@@ -1,22 +1,19 @@
 import { Reconnector } from "./ws/Reconnector";
 import { Websocket } from "./ws/Websocket";
 import { Command } from "./util/command";
-import { disconnect } from "pm2";
-import { Fire } from "./Fire";
 import * as Sentry from "@sentry/node";
+import { Fire } from "./Fire";
 
 export class Manager {
   id: number;
   sentry: typeof Sentry;
-  pm2: boolean;
   client: Fire;
   ws?: Websocket;
   reconnector: Reconnector;
 
-  constructor(sentry?: typeof Sentry, pm2?: boolean) {
+  constructor(sentry?: typeof Sentry) {
     this.id = parseInt(process.env.NODE_APP_INSTANCE || "0");
     this.sentry = sentry;
-    this.pm2 = pm2;
     this.client = new Fire(this, sentry);
 
     if (process.env.BOOT_SINGLE == "false") {
@@ -104,7 +101,6 @@ export class Manager {
         1001,
         `Cluster ${this.id} is shutting down due to receiving ${event} event`
       );
-    disconnect();
     process.exit();
   }
 }
