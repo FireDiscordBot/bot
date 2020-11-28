@@ -12,6 +12,13 @@ export default class GuildMemberUpdate extends Listener {
   }
 
   async exec(oldMember: FireMember, newMember: FireMember) {
+    if (newMember.partial) return;
+
+    // Both of these will check permissions & whether
+    // dehoist/decancer is enabled so no need for checks here
+    await newMember.dehoist();
+    await newMember.decancer();
+
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     if (
       sk1erModule &&

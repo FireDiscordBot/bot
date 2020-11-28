@@ -1,6 +1,7 @@
 import { Structures, GuildMember, Channel } from "discord.js";
 import { UserSettings } from "../util/settings";
 import { Language } from "../util/language";
+import sanitizer from "@aero/sanitizer";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
@@ -27,7 +28,7 @@ export class FireMember extends GuildMember {
   }
 
   isModerator(channel?: Channel) {
-    if (this.permissionsIn(channel).has("ADMINISTRATOR")) return true;
+    if (this.isAdmin(channel)) return true;
     const moderators = this.guild.settings.get(
       "utils.moderators",
       []
@@ -73,6 +74,93 @@ export class FireMember extends GuildMember {
 
   removeExperiment(id: string) {
     return this.user.removeExperiment(id);
+  }
+
+  get hoisted() {
+    const badName = this.guild.settings.get(
+      "utils.badname",
+      `John Doe ${this.user.discriminator}`
+    );
+    if (this.nickname && this.nickname == badName)
+      return this.user.username[0] < "0";
+    return this.displayName[0] < "0";
+  }
+
+  get cancerous() {
+    const badName = this.guild.settings.get(
+      "utils.badname",
+      `John Doe ${this.user.discriminator}`
+    );
+    if (this.nickname && this.nickname == badName)
+      return !this.client.util.isASCII(this.user.username);
+    return !this.client.util.isASCII(this.displayName);
+  }
+
+  async dehoist() {
+    if (this.isModerator()) return;
+    if (!this.guild.settings.get("mod.autodehoist")) return;
+    const badName = this.guild.settings.get(
+      "utils.badname",
+      `John Doe ${this.user.discriminator}`
+    );
+    if (!this.hoisted && this.nickname == badName)
+      return await this.setNickname(
+        null,
+        this.guild.language.get("AUTODEHOIST_RESET_REASON") as string
+      );
+    else if (!this.hoisted) return;
+    if (this.hoisted && !this.user.hoisted) {
+      return await this.setNickname(
+        null,
+        this.guild.language.get("AUTODEHOIST_USERNAME_REASON") as string
+      );
+    }
+    if (this.displayName == badName) return;
+    try {
+      return await this.setNickname(
+        badName,
+        this.guild.language.get("AUTODEHOIST_REASON") as string
+      );
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async decancer() {
+    if (this.isModerator()) return;
+    if (!this.guild.settings.get("mod.autodecancer")) return;
+    let badName = this.guild.settings.get(
+      "utils.badname",
+      `John Doe ${this.user.discriminator}`
+    );
+    if (!this.cancerous && this.nickname == badName)
+      return await this.setNickname(
+        null,
+        this.guild.language.get("AUTODECANCER_RESET_REASON") as string
+      );
+    else if (!this.cancerous) return;
+    if (this.cancerous && !this.user.cancerous) {
+      return await this.setNickname(
+        null,
+        this.guild.language.get("AUTODECANCER_USERNAME_REASON") as string
+      );
+    }
+    if (this.displayName == badName) return;
+    const sanitized: string = sanitizer(this.displayName);
+    if (
+      sanitized.length > 2 &&
+      sanitized.length < 32 &&
+      sanitized != "gibberish"
+    )
+      badName = sanitized;
+    try {
+      return await this.setNickname(
+        badName,
+        this.guild.language.get("AUTODECANCER_REASON") as string
+      );
+    } catch (e) {
+      return false;
+    }
   }
 }
 

@@ -57,6 +57,15 @@ export default class Message extends Listener {
     await sk1erModule?.checkLogs(message).catch(() => {});
     await sk1erModule?.checkBotStatus(message).catch(() => {});
 
+    // Ensures people get dehoisted/decancered even if
+    // Fire missed them joining/changing name
+    if (message.member) {
+      // Both of these will check permissions & whether
+      // dehoist/decancer is enabled so no need for checks here
+      await message.member.dehoist();
+      await message.member.decancer();
+    }
+
     if (
       message.member &&
       (message.content.includes("@everyone") ||

@@ -10,16 +10,19 @@ export default class GuildMemberAdd extends Listener {
   }
 
   async exec(member: FireMember) {
+    if (member.partial) return;
+
+    // Both of these will check permissions & whether
+    // dehoist/decancer is enabled so no need for checks here
+    await member.dehoist();
+    await member.decancer();
+
     if (this.client.util.premium.has(member.guild.id)) {
       let autoroleId;
       const delay = member.guild.settings.get("mod.autorole.waitformsg", false);
       if (member.user.bot)
         autoroleId = member.guild.settings.get("mod.autobotrole", null);
-      else
-        autoroleId = member.guild.settings.get(
-          "mod.autorole",
-          null
-        );
+      else autoroleId = member.guild.settings.get("mod.autorole", null);
 
       if (autoroleId && (member.user.bot || !delay)) {
         const role = member.guild.roles.cache.get(autoroleId);

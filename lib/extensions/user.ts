@@ -80,6 +80,14 @@ export class FireUser extends User {
     );
     return this.hasExperiment(id);
   }
+
+  get hoisted() {
+    return this.username[0] < "0";
+  }
+
+  get cancerous() {
+    return !this.client.util.isASCII(this.username);
+  }
 }
 
 Structures.extend("User", () => FireUser);
