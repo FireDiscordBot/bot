@@ -177,10 +177,9 @@ export default class Purge extends Command {
       reason?: string;
     }
   ) {
-    const argValues = Object.values(args); // akairo + commands with multiple flags = wack so I check if the flag is in values
     const filter = (message: FireMessage) => {
       let content = message.content.toLowerCase();
-      if (argValues.includes("--include_embeds") && message.embeds.length)
+      if (args.includeEmbeds && message.embeds.length)
         content += message.embeds
           .map((embed) => this.getEmbedContent(embed).toLowerCase())
           .join("");
@@ -194,9 +193,8 @@ export default class Purge extends Command {
         completed.push(content.startsWith(args.startsWith.toLowerCase()));
       if (args.endsWith)
         completed.push(content.endsWith(args.endsWith.toLowerCase()));
-      if (argValues.includes("--attachments"))
-        completed.push(message.attachments.size >= 1);
-      if (argValues.includes("--bot")) completed.push(message.author.bot);
+      if (args.attachments) completed.push(message.attachments.size >= 1);
+      if (args.bot) completed.push(message.author.bot);
       return completed.filter((c) => !c).length == 0;
     };
     let recentPurge = [],
