@@ -22,6 +22,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@aero/ksoft": "^3.1.8",
+    "@aero/sanitizer": "^1.2.0",
     "@klasa/console": "^0.0.3",
     "@klasa/type": "^0.0.1",
     "@sentry/node": "^5.27.1",
