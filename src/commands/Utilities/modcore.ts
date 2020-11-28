@@ -37,31 +37,30 @@ export default class Modcore extends Command {
       `https://api.modcore.sk1er.club/profile/${uuid}`
     ).send();
     const profile: ModcoreProfile = await profileReq.json();
-    if (
-      profileReq.statusCode != 200 ||
-      !profile.purchase_profile ||
-      !profile.purchase_settings
-    )
+    if (profileReq.statusCode != 200)
       return await message.error("MODCORE_PROFILE_FETCH_FAIL");
-    let purchases = Object.entries(profile.purchase_profile)
-      .filter((purchase) => purchase[1])
-      .map((purchase) => this.cosmeticNameFormat(purchase[0]));
-    for (const [cosmetic, settings] of Object.entries(
-      profile.cosmetic_settings || {}
-    )) {
-      if (settings.enabled && settings.id) {
-        purchases = purchases.map((purchase) =>
-          purchase.replace(
-            this.cosmeticNameFormat(cosmetic),
-            `**[${this.cosmeticNameFormat(
-              cosmetic
-            )}](https://api.modcore.sk1er.club/serve/${
-              cosmetic.includes("CAPE") ? "cape" : "skin"
-            }/${cosmetic.includes("STATIC") ? "static" : "dynamic"}/${
-              settings.id
-            })**`
-          )
-        );
+    let purchases: string[] = [];
+    if (profile.purchase_profile) {
+      purchases = Object.entries(profile.purchase_profile)
+        .filter((purchase) => purchase[1])
+        .map((purchase) => this.cosmeticNameFormat(purchase[0]));
+      for (const [cosmetic, settings] of Object.entries(
+        profile.cosmetic_settings || {}
+      )) {
+        if (settings.enabled && settings.id) {
+          purchases = purchases.map((purchase) =>
+            purchase.replace(
+              this.cosmeticNameFormat(cosmetic),
+              `**[${this.cosmeticNameFormat(
+                cosmetic
+              )}](https://api.modcore.sk1er.club/serve/${
+                cosmetic.includes("CAPE") ? "cape" : "skin"
+              }/${cosmetic.includes("STATIC") ? "static" : "dynamic"}/${
+                settings.id
+              })**`
+            )
+          );
+        }
       }
     }
     const purchasesString = purchases.join(", ");
