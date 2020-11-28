@@ -29,7 +29,7 @@ class UserUpdate(commands.Cog):
             conf = self.bot.get_config(guild)
             badname = conf.get(
                 'utils.badname') or f'John Doe {after.discriminator}'
-            if before.name != after.name:
+            if before.name != after.name and not guild.get_member(764995504526327848):
                 try:
                     member = guild.get_member(after.id)
                     if not member:

@@ -29,13 +29,13 @@ class MemberUpdate(commands.Cog):
         self.last_role_fetch = {}
 
     @commands.Cog.listener()
-    async def on_member_update(self, before, after: discord.Member):
+    async def on_member_update(self, before, after):
         conf = self.bot.get_config(after.guild)
         badname = conf.get(
             'utils.badname') or f'John Doe {after.discriminator}'
         if before.nick != after.nick:
             try:
-                if after.guild.me.guild_permissions.manage_nicknames:
+                if after.guild.me.guild_permissions.manage_nicknames and not after.guild.get_member(764995504526327848):
                     if not after.guild_permissions.manage_nicknames:
                         if not after.nick or badname in after.nick:
                             nick = after.name.replace('‘', '\'').replace(
