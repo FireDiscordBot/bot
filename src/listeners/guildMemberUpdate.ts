@@ -12,8 +12,6 @@ export default class GuildMemberUpdate extends Listener {
   }
 
   async exec(oldMember: FireMember, newMember: FireMember) {
-    if (newMember.partial) return;
-
     // Both of these will check permissions & whether
     // dehoist/decancer is enabled so no need for checks here
     await newMember.dehoist();

@@ -146,8 +146,6 @@ export class FireMember extends GuildMember {
       );
     }
     if (this.displayName == badName) return;
-    // my typings work in dev but not prod so I'm just gonna ts-ignore this
-    // @ts-ignore
     const sanitized: string = sanitizer(this.displayName);
     if (
       sanitized.length > 2 &&
