@@ -59,6 +59,10 @@ export class Util extends ClientUtil {
     return value && typeof value.then == "function";
   }
 
+  isASCII(str: string, extended = false) {
+    return (extended ? /^[\x00-\xFF]*$/im : /^[\x00-\x7F]*$/im).test(str);
+  }
+
   shuffleArray(array: any[]) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
