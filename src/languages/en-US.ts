@@ -182,12 +182,22 @@ export default class enUS extends Language {
         AUTODECANCER_COMMAND_DESCRIPTION: `Toggle renaming those with "cancerous" (non-ascii) names`,
         AUTODECANCER_ENABLED: `Enabled autodecancer. **New** users with "cancerous" (non-ascii) names will be renamed`,
         AUTODECANCER_DISABLED: `Disabled autodecancer. **New** users with "cancerous" (non-ascii) names will no longer be renamed`,
+        AUTODECANCER_REASON:
+          "Name changed due to auto-decancer. The name contains non-ascii characters",
+        AUTODECANCER_RESET_REASON: "Name is fully ascii.",
+        AUTODECANCER_USERNAME_REASON:
+          "Nickname is non-ascii whereas username is, removing nickname.",
         AUTODEHOIST_COMMAND_DESCRIPTION:
           "Toggle renaming those with hoisted names",
         AUTODEHOIST_ENABLED:
           "Enabled autodehoist. **New** users with hoisted names will be renamed",
         AUTODEHOIST_DISABLED:
           "Disabled autodehoist. **New** users with hoisted names will no longer be renamed",
+        AUTODEHOIST_REASON:
+          "Name changed due to auto-dehoist. The name starts with a hoisted character",
+        AUTODEHOIST_RESET_REASON: "Name is no longer hoisted.",
+        AUTODEHOIST_USERNAME_REASON:
+          "Nickname is hoisted whereas username is not, removing nickname.",
         AVATAR_COMMAND_DESCRIPTION: "Get a user's avatar",
         BADNAME_COMMAND_DESCRIPTION:
           "Change the name used for auto dehoist/decancer",
