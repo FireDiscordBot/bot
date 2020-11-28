@@ -88,7 +88,7 @@ export class Fire extends AkairoClient {
     this.started = false;
 
     this.manager = manager;
-    this.console = new KlasaConsole();
+    this.console = new KlasaConsole(); // TODO make custom console that works in pm2 logs
     this.util = new Util(this);
 
     this.db = new PGClient({
@@ -258,7 +258,7 @@ export class Fire extends AkairoClient {
     });
     this.modules.loadAll();
 
-    // this.userSweepTask = setInterval(() => this.sweepUsers(), 60000);
+    this.userSweepTask = setInterval(() => this.sweepUsers(), 60000);
 
     this.conversationStates = new Map();
     this.ksoft = process.env.KSOFT_TOKEN
