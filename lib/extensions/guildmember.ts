@@ -1,7 +1,7 @@
 import { Structures, GuildMember, Channel } from "discord.js";
 import { UserSettings } from "../util/settings";
+import * as sanitizer from "@aero/sanitizer";
 import { Language } from "../util/language";
-import sanitizer from "@aero/sanitizer";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
@@ -146,6 +146,8 @@ export class FireMember extends GuildMember {
       );
     }
     if (this.displayName == badName) return;
+    // my typings work in dev but not prod so I'm just gonna ts-ignore this
+    // @ts-ignore
     const sanitized: string = sanitizer(this.displayName);
     if (
       sanitized.length > 2 &&
