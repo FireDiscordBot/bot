@@ -103,13 +103,13 @@ export class FireMember extends GuildMember {
       "utils.badname",
       `John Doe ${this.user.discriminator}`
     );
-    if (!this.hoisted && this.nickname == badName)
+    if (!this.hoisted && !this.cancerous && this.nickname == badName)
       return await this.setNickname(
         null,
         this.guild.language.get("AUTODEHOIST_RESET_REASON") as string
       );
     else if (!this.hoisted) return;
-    if (this.hoisted && !this.user.hoisted) {
+    if (this.hoisted && !this.user.hoisted && !this.cancerous) {
       return await this.setNickname(
         null,
         this.guild.language.get("AUTODEHOIST_USERNAME_REASON") as string
@@ -133,13 +133,13 @@ export class FireMember extends GuildMember {
       "utils.badname",
       `John Doe ${this.user.discriminator}`
     );
-    if (!this.cancerous && this.nickname == badName)
+    if (!this.cancerous && !this.hoisted && this.nickname == badName)
       return await this.setNickname(
         null,
         this.guild.language.get("AUTODECANCER_RESET_REASON") as string
       );
     else if (!this.cancerous) return;
-    if (this.cancerous && !this.user.cancerous) {
+    if (this.cancerous && !this.user.cancerous && !this.hoisted) {
       return await this.setNickname(
         null,
         this.guild.language.get("AUTODECANCER_USERNAME_REASON") as string
