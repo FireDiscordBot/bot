@@ -9,6 +9,8 @@ import { createWriteStream } from "fs";
 import * as archiver from "archiver";
 import * as centra from "centra";
 import * as moment from "moment";
+import { MessageReaction } from "discord.js";
+import { CategoryChannel } from "discord.js";
 
 interface Regexes {
   reupload: RegExp;
@@ -203,6 +205,56 @@ export default class Sk1er extends Module {
           .catch(() => {})) as FireUser;
         if (user) await this.removeNitroPerks(user).catch(() => {});
       });
+    }
+  }
+
+  async handleSupportReaction(
+    reaction: MessageReaction,
+    message: FireMessage,
+    user: FireUser
+  ) {
+    const member = (await this.supportGuild.members.fetch(user)) as FireMember;
+    if (!member) return; // how
+    const emoji = reaction.emoji.name;
+    reaction.users.cache
+      .filter((user: FireUser) => user.id != this.client.user.id)
+      .forEach(async (user: FireUser) => {
+        try {
+          await reaction.users.remove(user);
+        } catch {}
+      });
+    if (emoji == "🖥️") {
+      const category = this.supportGuild.channels.cache.get(
+        "755795962462732288"
+      ) as CategoryChannel;
+      if (!category) return "nocategory";
+      return await this.supportGuild.createTicket(
+        member,
+        "General Support",
+        category
+      );
+    }
+    if (emoji == "💸") {
+      const category = this.supportGuild.channels.cache.get(
+        "755796036198596688"
+      ) as CategoryChannel;
+      if (!category) return "nocategory";
+      return await this.supportGuild.createTicket(
+        member,
+        "Purchase Support",
+        category
+      );
+    }
+    if (emoji == "🐛") {
+      const category = this.supportGuild.channels.cache.get(
+        "755795994855211018"
+      ) as CategoryChannel;
+      if (!category) return "nocategory";
+      return await this.supportGuild.createTicket(
+        member,
+        "Bug Report",
+        category
+      );
     }
   }
 
