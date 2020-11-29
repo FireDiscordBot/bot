@@ -56,12 +56,12 @@ export default class Tag extends Command {
       }
       case "delete": {
         if (!args.tag) return await message.error("TAGS_DELETE_MISSING_ARG");
-        if (!message.member.permissions.has("MANAGE_GUILD"))
+        if (!message.member.permissions.has("MANAGE_MESSAGES"))
           return await message.error(
             "MISSING_PERMISSIONS_USER",
             [
               this.client.util.cleanPermissionName(
-                "MANAGE_GUILD",
+                "MANAGE_MESSAGES",
                 message.language
               ),
             ],
@@ -73,12 +73,12 @@ export default class Tag extends Command {
         if (!args.tag) return await message.error("TAGS_CREATE_MISSING_NAME");
         if (!args.content)
           return await message.error("TAGS_CREATE_MISSING_CONTENT");
-        if (!message.member.permissions.has("MANAGE_GUILD"))
+        if (!message.member.permissions.has("MANAGE_MESSAGES"))
           return await message.error(
             "MISSING_PERMISSIONS_USER",
             [
               this.client.util.cleanPermissionName(
-                "MANAGE_GUILD",
+                "MANAGE_MESSAGES",
                 message.language
               ),
             ],
@@ -90,12 +90,12 @@ export default class Tag extends Command {
         if (!args.tag) return await message.error("TAGS_EDIT_MISSING_NAME");
         if (!args.content)
           return await message.error("TAGS_EDIT_MISSING_CONTENT");
-        if (!message.member.permissions.has("MANAGE_GUILD"))
+        if (!message.member.permissions.has("MANAGE_MESSAGES"))
           return await message.error(
             "MISSING_PERMISSIONS_USER",
             [
               this.client.util.cleanPermissionName(
-                "MANAGE_GUILD",
+                "MANAGE_MESSAGES",
                 message.language
               ),
             ],
@@ -107,12 +107,12 @@ export default class Tag extends Command {
         if (!args.tag) return await message.error("TAGS_ALIAS_MISSING_NAME");
         if (!args.content)
           return await message.error("TAGS_ALIAS_MISSING_ALIAS");
-        if (!message.member.permissions.has("MANAGE_GUILD"))
+        if (!message.member.permissions.has("MANAGE_MESSAGES"))
           return await message.error(
             "MISSING_PERMISSIONS_USER",
             [
               this.client.util.cleanPermissionName(
-                "MANAGE_GUILD",
+                "MANAGE_MESSAGES",
                 message.language
               ),
             ],
