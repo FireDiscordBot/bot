@@ -33,7 +33,7 @@ export default class Deepfry extends Command {
         format: "png",
         dynamic: false,
       });
-    if (message.attachments.size) {
+    else if (message.attachments.size) {
       image = message.attachments.first().url;
     } else if (args.image instanceof FireMember)
       image = args.image.user.displayAvatarURL({
