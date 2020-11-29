@@ -15,6 +15,7 @@ import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
 import { v4 as uuidv4 } from "uuid";
 import { Fire } from "../Fire";
+import { FireUser } from "./user";
 
 export class FireGuild extends Guild {
   client: Fire;
@@ -247,13 +248,17 @@ export class FireGuild extends Guild {
   }
 
   async closeTicket(channel: TextChannel, author: FireMember, reason: string) {
-    let channels = (this.settings.get("tickets.channels", []) as string[])
-      .map((id) =>
-        this.channels.cache
-          .filter((channel) => channel.type == "text" && channel.id == id)
-          .get(id)
-      )
-      .filter((channel: TextChannel) => channel?.topic.includes(author.id));
+    if (author instanceof FireUser)
+      author = (await this.members.fetch(author).catch(() => {})) as FireMember;
+    if (!author) return "forbidden";
+    let channels = (this.settings.get(
+      "tickets.channels",
+      []
+    ) as string[]).map((id) =>
+      this.channels.cache
+        .filter((channel) => channel.type == "text" && channel.id == id)
+        .get(id)
+    );
     if (!channels.includes(channel)) return "nonticket";
     if (
       !author.permissions.has("MANAGE_CHANNELS") &&
@@ -296,6 +301,7 @@ export class FireGuild extends Guild {
             }
           )
           .catch(() => {});
+      else creator = author;
     }
     const log =
       (this.channels.cache.get(
