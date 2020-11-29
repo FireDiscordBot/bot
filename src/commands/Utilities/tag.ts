@@ -59,10 +59,12 @@ export default class Tag extends Command {
         if (!message.member.permissions.has("MANAGE_GUILD"))
           return await message.error(
             "MISSING_PERMISSIONS_USER",
-            this.client.util.cleanPermissionName(
-              "MANAGE_GUILD",
-              message.language
-            ),
+            [
+              this.client.util.cleanPermissionName(
+                "MANAGE_GUILD",
+                message.language
+              ),
+            ],
             "tag delete"
           );
         return await this.deleteTag(message, args.tag);
@@ -74,10 +76,12 @@ export default class Tag extends Command {
         if (!message.member.permissions.has("MANAGE_GUILD"))
           return await message.error(
             "MISSING_PERMISSIONS_USER",
-            this.client.util.cleanPermissionName(
-              "MANAGE_GUILD",
-              message.language
-            ),
+            [
+              this.client.util.cleanPermissionName(
+                "MANAGE_GUILD",
+                message.language
+              ),
+            ],
             "tag create"
           );
         return await this.createTag(message, args.tag, args.content);
@@ -89,10 +93,12 @@ export default class Tag extends Command {
         if (!message.member.permissions.has("MANAGE_GUILD"))
           return await message.error(
             "MISSING_PERMISSIONS_USER",
-            this.client.util.cleanPermissionName(
-              "MANAGE_GUILD",
-              message.language
-            ),
+            [
+              this.client.util.cleanPermissionName(
+                "MANAGE_GUILD",
+                message.language
+              ),
+            ],
             "tag edit"
           );
         return await this.editTag(message, args.tag, args.content);
@@ -104,10 +110,12 @@ export default class Tag extends Command {
         if (!message.member.permissions.has("MANAGE_GUILD"))
           return await message.error(
             "MISSING_PERMISSIONS_USER",
-            this.client.util.cleanPermissionName(
-              "MANAGE_GUILD",
-              message.language
-            ),
+            [
+              this.client.util.cleanPermissionName(
+                "MANAGE_GUILD",
+                message.language
+              ),
+            ],
             "tag alias"
           );
         return await this.addAlias(message, args.tag, args.content);
