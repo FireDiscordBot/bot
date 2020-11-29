@@ -44,6 +44,8 @@ export class GuildTagManager {
 
   async getTag(tag: string, useFuzzy = true) {
     if (this.names.length && !this.cache.size) await this.loadTags();
+    if (this.names.includes(tag.toLowerCase()))
+      return await this.getCachedTag(tag);
     for (const name of this.names) {
       if (
         useFuzzy &&
