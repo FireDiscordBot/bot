@@ -296,7 +296,12 @@ export default class Sk1er extends Module {
 
   async checkLogs(message: FireMessage) {
     if (message.author.bot) return; // you should see what it's like without this lol
-    if (![this.guildId, this.supportGuildId].includes(message.guild.id)) return;
+    if (
+      ![this.guildId, this.supportGuildId, "516977525906341928"].includes(
+        message.guild.id
+      )
+    )
+      return;
 
     let content = message.content;
 
