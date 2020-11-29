@@ -66,6 +66,10 @@ export class Util extends ClientUtil {
     }
   }
 
+  randomItem(array: any[]) {
+    return array[Math.floor(Math.random() * array.length)];
+  }
+
   async haste(text: string, fallback = false) {
     const url = fallback ? "https://h.inv.wtf/" : "https://hst.sh/";
     try {
