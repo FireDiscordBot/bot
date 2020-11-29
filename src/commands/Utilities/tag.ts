@@ -17,7 +17,7 @@ export default class Tag extends Command {
             ["raw", "create", "delete", "edit", "alias"],
             "string"
           ),
-          readableType: "tag name|raw|create|delete|edit|alias",
+          readableType: "tag-name|raw|create|delete|edit|alias",
           default: null,
           required: false,
         },
