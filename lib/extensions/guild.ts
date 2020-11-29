@@ -173,14 +173,20 @@ export class FireGuild extends Guild {
         .get(this.settings.get("tickets.parent")) as CategoryChannel);
     if (!category) return "disabled";
     const limit = this.settings.get("tickets.limit", 1);
-    let channels = (this.settings.get("tickets.channels", []) as string[])
-      .map((id) =>
-        this.channels.cache
-          .filter((channel) => channel.type == "text" && channel.id == id)
-          .get(id)
-      )
-      .filter((channel: TextChannel) => channel?.topic.includes(author.id));
-    if (channels.length >= limit) return "limit";
+    let channels = (this.settings.get(
+      "tickets.channels",
+      []
+    ) as string[]).map((id) =>
+      this.channels.cache
+        .filter((channel) => channel.type == "text" && channel.id == id)
+        .get(id)
+    );
+    if (
+      channels.filter((channel: TextChannel) =>
+        channel?.topic.includes(author.id)
+      ).length >= limit
+    )
+      return "limit";
     const words = (this.client.getCommand("ticket") as Tickets).words;
     let increment = this.settings.get("tickets.increment", 0) as number;
     const variables = {
