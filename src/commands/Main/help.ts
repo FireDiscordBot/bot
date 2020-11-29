@@ -30,7 +30,7 @@ export default class Help extends Command {
   }
 
   async sendHelp(message: FireMessage) {
-    let fields = [];
+    let fields: { name: string; value: string; inline: boolean }[] = [];
     categoryNames.forEach((name: string) => {
       if (
         name == "Admin" &&
@@ -54,6 +54,11 @@ export default class Help extends Command {
           value: commands.join(", "),
           inline: false,
         });
+    });
+    fields.push({
+      name: message.language.get("HELP_CREDITS_NAME") as string,
+      value: message.language.get("HELP_CREDITS_VALUE") as string,
+      inline: false,
     });
     const embed = {
       color: message.member?.displayColor || "#ffffff",
