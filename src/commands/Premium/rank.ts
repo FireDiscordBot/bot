@@ -25,6 +25,7 @@ export default class Rank extends Command {
         "selfroles",
         "selfranks",
       ],
+      premium: true,
     });
   }
 
