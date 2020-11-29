@@ -216,13 +216,9 @@ export default class Sk1er extends Module {
     const member = (await this.supportGuild.members.fetch(user)) as FireMember;
     if (!member) return; // how
     const emoji = reaction.emoji.name;
-    reaction.users.cache
-      .filter((user: FireUser) => user.id != this.client.user.id)
-      .forEach(async (user: FireUser) => {
-        try {
-          await reaction.users.remove(user);
-        } catch {}
-      });
+    try {
+      await reaction.users.remove(user);
+    } catch {}
     if (emoji == "🖥️") {
       const category = this.supportGuild.channels.cache.get(
         "755795962462732288"
