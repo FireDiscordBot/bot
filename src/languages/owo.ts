@@ -11,19 +11,19 @@ export default class owo extends Language {
   constructor() {
     super("owo", {
       language: {
-        DEFAULT: (key: string) => `${key} has nyot been wocawized fow owo yet.`,
-        USER_NOT_FOUND: "Usew nyot found! Twy use an ID instead.",
-        MEMBER_NOT_FOUND: "Membew nyot found! Twy use an ID instead.",
-        CHANNEL_NOT_FOUND: "Channyew nyot found! Twy use an ID instead.",
-        ROLE_NOT_FOUND: "Wowe nyot found! Twy use an ID instead.",
-        INVALID_USER_ID: "Usew nyot found! Make suwe the ID is vawid.",
-        INVALID_MEMBER_ID: "Channyew nyot found! Twy use an ID instead.",
-        INVALID_CHANNEL_ID: "Channyew nyot found! Make suwe the ID is vawid.",
-        INVALID_ROLE_ID: "Wowe nyot found! Make suwe the ID is vawid.",
+        DEFAULT: (key: string) => `${key} has not been wocawized fow owo yet.`,
+        USER_NOT_FOUND: "Usew not found! Twy use an ID instead.",
+        MEMBER_NOT_FOUND: "Membew not found! Twy use an ID instead.",
+        CHANNEL_NOT_FOUND: "Channew not found! Twy use an ID instead.",
+        ROLE_NOT_FOUND: "Wowe not found! Twy use an ID instead.",
+        INVALID_USER_ID: "Usew not found! Make suwe the ID is vawid.",
+        INVALID_MEMBER_ID: "Channew not found! Twy use an ID instead.",
+        INVALID_CHANNEL_ID: "Channew not found! Make suwe the ID is vawid.",
+        INVALID_ROLE_ID: "Wowe not found! Make suwe the ID is vawid.",
         INVALID_MESSAGE:
-          "Message nyot found! Make suwe you'we giving a vawid id/wink.",
-        UNKNOWN_COMMAND: "Command nyot found",
-        COMMAND_OWNER_ONLY: "Onwy my ownyew can use this command",
+          "Message not found! Make suwe you'we giving a vawid id/wink.",
+        UNKNOWN_COMMAND: "Command not found",
+        COMMAND_OWNER_ONLY: "Onwy my ownew can use this command",
         // invite will be changed when deployed to main bot
         COMMAND_GUILD_ONLY:
           "You can onwy use this command in a sewvew. You can invite me to a sewvew at <https://inv.wtf/tsbot>",
@@ -38,14 +38,14 @@ export default class owo extends Language {
           // For different languages, you may want to change the "hold your horses" bit as it may not make sense in that language
           "Whoa, howd youw howses thewe! Wait fow the command to finish befowe wunning it again",
         COMMAND_ERROR_GENERIC: (id: string) =>
-          `Something went wwong whiwe wunnying ${id}`,
+          `Something went wwong whiwe wunning ${id}`,
         HELLO_PREFIX: (prefix: string) =>
           `Hey! My pwefix hewe is \`${prefix}\` ow you can mention me >w<`,
         ERROR_ROLE_UNUSABLE:
           "This wowe cannot be used as it is eithew managed by an integwation ow highew than my top wowe",
         ERROR_NO_KSOFT:
           "Unabwe to use KSoft.Si API due to wack of authentication",
-        NO_MODERATORS_SET: "Thewe awe nyo mowodewatows set in this guiwd.",
+        NO_MODERATORS_SET: "Thewe awe no mowodewatows set in this guiwd.",
         MORE_INTEGRATIONS:
           "Want mowe integwations? Use the suggest command to suggest some! >w<",
         MEMBERS: "Membews",
@@ -69,6 +69,8 @@ export default class owo extends Language {
         GUILDS: "Guiwds",
         CHANNEL: "Channew",
         ATTACHMENT: "Attachment",
+        VARIABLES: "Vawiabwes",
+        SUBJECT: "Subject",
         REGION_DEPRECATED: "❓ Depwecated Wegion",
         REGIONS: {
           brazil: "🇧🇷 Bwaziw",
@@ -79,33 +81,33 @@ export default class owo extends Language {
           russia: "🇷🇺 Wussia",
           singapore: "🇸🇬 Singapowe",
           southafrica: "🇿🇦 Singapowe",
-          sydney: "🇦🇺 Sydnyey",
+          sydney: "🇦🇺 Sydney",
           "us-central": "🇺🇸 Centwaw US",
           "us-south": "🇺🇸 US South",
           "us-east": "🇺🇸 US East",
           "us-west": "🇺🇸 US West",
         },
         FEATURES: {
-          ENABLED_DISCOVERABLE_BEFORE: "Enyabwed Discuwuvwabwe Befowe",
+          ENABLED_DISCOVERABLE_BEFORE: "Enabwed Discowovewabwe Befowe",
           WELCOME_SCREEN_ENABLED: "Wewcome Scween",
-          ANIMATED_ICON: "Anyimated Icon",
+          ANIMATED_ICON: "Animated Icon",
           INVITE_SPLASH: "Invite Spwash",
-          DISCOVERABLE: "[Discuvwabwe](https://discord.com/guild-discovery)",
+          DISCOVERABLE: "[Discowovewabwe](https://discord.com/guild-discovery)",
           MORE_EMOJI: "Mowe Emoji",
           FEATURABLE: "Featuwuabwe",
-          VANITY_URL: "Vanyity URL",
+          VANITY_URL: "Vanity URL",
           COMMUNITY: "[Commuwunity](https://dis.gd/communityservers)",
-          PARTNERED: "[Pawtnyewed](https://dis.gd/partners)",
-          COMMERCE: "[Stowe Channyews](https://dis.gd/sellyourgame)",
+          PARTNERED: "[Pawtnewed](https://dis.gd/partners)",
+          COMMERCE: "[Stowe Channews](https://dis.gd/sellyourgame)",
           VERIFIED: "[Vewified](https://dis.gd/vfs)",
-          BANNER: "Bannyew",
+          BANNER: "Bannew",
           NEWS:
-            "[Annowouncement Channyews](https://support.discord.com/hc/en-us/articles/360032008192)",
+            "[Annowouncement Channews](https://support.discord.com/hc/en-us/articles/360032008192)",
           // CUSTOM FEATUWUES
           PREMIUM:
             "<:firelogo:665339492072292363> [Pwemiuwum](https://gaminggeek.dev/premium)",
           ADDMOD_COMMAND_DESCRIPTION:
-            "Add a membew/wowe as a mowodewatow. If nyot set, anyone with the Manyage Messages pewmission is considewed a Mowodewatow",
+            "Add a membew/wowe as a mowodewatow. If not set, anone with the Manage Messages pewmission is considewed a Mowodewatow",
           AUTOROLE_COMMAND_DESCRIPTION:
             "Automaticawwy add a wowe to a usew/bot when they join ow when they send theiw fiwst message with the --delay fwag",
           AUTOROLE_ROLE_REQUIRED:
@@ -123,37 +125,47 @@ export default class owo extends Language {
             `Autowowe has been enabwed, bots wiww weceive ${role} upon join.`,
           POWERED_BY_KSOFT: "Powewed by KSoft.Si API",
           MODERATORS_ROLES: "Mowodewatow Wowes",
-          NO_MODERATOR_ROLES: "Nyo wowes have been set as mowodewatows.",
+          NO_MODERATOR_ROLES: "No wowes have been set as mowodewatows.",
           MODERATORS_MEMBERS: "Mowodewatow Membews",
-          NO_MODERATOR_MEMBERS: "Nyo membews have been set as mowodewatows.",
+          NO_MODERATOR_MEMBERS: "No membews have been set as mowodewatows.",
           MODERATORS_REMOVE_INVALID: "Invawid Mowodewatows",
           MODERATORS_REMOVED: (invalid: string[]) =>
-            `I have wemuvd some mowodewatows as a matching wowe/membew couwd nyot be found...\nThe wemuvd ids awe: ${invalid.join(
+            `I have wemoved some mowodewatows as a matching wowe/membew couwd not be found...\nThe wemoved ids awe: ${invalid.join(
               ", "
             )}`,
         },
-        AUTODECANCER_COMMAND_DESCRIPTION: `Toggwe wenyaming those with "cancewous" (nyon-ascii) nyames`,
-        AUTODECANCER_ENABLED: `Enyabwed autodecancew. **Nyew** usews with "cancewous" (nyon-ascii) nyames wiww be wenyamed`,
-        AUTODECANCER_DISABLED: `Disabwed autodecancew. **Nyew** usews with "cancewous" (nyon-ascii) nyames wiww nyo wongew be wenyamed`,
+        AUTODECANCER_COMMAND_DESCRIPTION: `Toggwe wenaming those with "cancewous" (non-ascii) names`,
+        AUTODECANCER_ENABLED: `Enabwed autodecancew. **New** usews with "cancewous" (non-ascii) names wiww be wenamed`,
+        AUTODECANCER_DISABLED: `Disabwed autodecancew. **New** usews with "cancewous" (non-ascii) names wiww no wongew be wenamed`,
+        AUTODECANCER_REASON:
+          "Name changed due to auto-decancew. The name contains non-ascii chawactews",
+        AUTODECANCER_RESET_REASON: "Name is fuwwy ascii.",
+        AUTODECANCER_USERNAME_REASON:
+          "Nickname is non-ascii wheweas usewname is, wemoving nickname.",
         AUTODEHOIST_COMMAND_DESCRIPTION:
-          "Toggwe wenyaming those with howoisted nyames",
+          "Toggwe wenaming those with howoisted names",
         AUTODEHOIST_ENABLED:
-          "Enyabwed autodehoist. **Nyew** usews with howoisted nyames wiww be wenyamed",
+          "Enabwed autodehoist. **New** usews with howoisted names wiww be wenamed",
         AUTODEHOIST_DISABLED:
-          "Disabwed autodehoist. **Nyew** usews with howoisted nyames wiww nyo wongew be wenyamed",
+          "Disabwed autodehoist. **New** usews with howoisted names wiww no wongew be wenamed",
+        AUTODEHOIST_REASON:
+          "Name changed due to auto-dehoist. The name stawts with a hoisted chawactew",
+        AUTODEHOIST_RESET_REASON: "Name is no wongew hoisted.",
+        AUTODEHOIST_USERNAME_REASON:
+          "Nickname is hoisted wheweas usewname is not, wemoving nickname.",
         AVATAR_COMMAND_DESCRIPTION: "Get a usew's avataw",
         BADNAME_COMMAND_DESCRIPTION:
-          "Change the nyame used fow auto dehoist/decancew",
-        BADNAME_NO_CHANGES: `I did absowutewy nyothing because that's awweady set as the "bad nyame"`,
+          "Change the name used fow auto dehoist/decancew",
+        BADNAME_NO_CHANGES: `I did absowutewy nothing because that's awweady set as the "bad name"`,
         BADNAME_SET: (name: string) =>
-          `I have set the "bad nyame" to ${name}. This wiww **nyot** wenyame existing usews`,
-        BADNAME_RESET: `I have weset the "bad nyame" to John Doe 0000 (with 0000 being theiw discwiminyatow).
-This wiww **nyot** wenyame existing usews`,
+          `I have set the "bad name" to ${name}. This wiww **not** wename existing usews`,
+        BADNAME_RESET: `I have weset the "bad name" to John Doe 0000 (with 0000 being theiw discwiminatow).
+This wiww **not** wename existing usews`,
         DEBUG_COMMAND_DESCRIPTION:
-          "Command nyot wowking? Use this command to twy debug the issue.\nDebug command nyot wowking? Join the Fire Suppowt sewvew, https://inv.wtf/fire",
+          "Command not wowking? Use this command to twy debug the issue.\nDebug command not wowking? Join the Fire Suppowt sewvew, https://inv.wtf/fire",
         DEBUG_NO_COMMAND: "You must pwovide a vawid command to debug",
         DEBUGGING_DEBUG: "Debug command is wowking",
-        DEBUG_PERMS_PASS: "Nyo pewmissiowons missing",
+        DEBUG_PERMS_PASS: "No pewmissiowons missing",
         DEBUG_REQUIRES_PERMS:
           "This command wequiwes extwa pewmissions. You'ww need to debug in a sewvew to see pewmission info",
         DEBUG_PERMS_CHECKS_FAIL: "Pewmissiowon Checks Faiwed!",
@@ -173,20 +185,20 @@ This wiww **nyot** wenyame existing usews`,
         },
         DEBUG_COMMAND_DISABLE_BYPASS: "Command is disabwed buwt u awe bypassed",
         DEBUG_COMMAND_DISABLED: "Command is disabwed.",
-        DEBUG_COMMAND_NOT_DISABLED: "Command is nyot disabwed",
+        DEBUG_COMMAND_NOT_DISABLED: "Command is not disabwed",
         DEBUG_MUTE_BYPASS: (channel: TextChannel, bypass: string[]) =>
           `The fowwowing usews/wowes wiww bypass mutes in ${channel}\n${bypass.join(
             ", "
           )}`,
         DEBUG_MUTE_NO_BYPASS: (channel: TextChannel) =>
-          `Nyobody can bypass mutes in ${channel}`,
-        DEBUG_NO_EMBEDS: "I cannyot send embeds",
+          `Nobody can bypass mutes in ${channel}`,
+        DEBUG_NO_EMBEDS: "I cannot send embeds",
         DEBUG_ISSUES: (issues: string[]) =>
-          issues.length ? `${issues.length} issues found` : "Nyo issues found",
+          issues.length ? `${issues.length} issues found` : "No issues found",
         DESC_COMMAND_DESCRIPTION:
-          "Set the descwiption fow the sewvew that shows in Vanyity URLs",
+          "Set the descwiption fow the sewvew that shows in Vanity URLs",
         DESC_NO_VANITY: (prefix: string) =>
-          `You must set a vanyity url with \`${prefix}vanityurl\` befowe you can set a descwiption`,
+          `You must set a vanity url with \`${prefix}vanityurl\` befowe you can set a descwiption`,
         DESC_FAILED: "Faiwed to set guiwd descwiption.",
         DESC_SET: "Successfuwwy set guiwd descwiption!",
         DESC_RESET: "Successfuwwy weset guiwd descwiption!",
@@ -198,16 +210,16 @@ This wiww **nyot** wenyame existing usews`,
 Hint: Use the \`public\` command to get youw sewvew on the wist`,
         STATUS_LATEST_INCIDENT: "Watest Incident",
         STATUSPAGE_PAGE_DESCRIPTIONS: {
-          "all systems operational": "All Systems Opewationyaw",
+          "all systems operational": "All Systems Opewationaw",
           "partially degraded service": "Pawtiawwy Degwaded Sewvice",
-          "minor service outage": "Minyow Sewvice Outage",
+          "minor service outage": "Minow Sewvice Outage",
           "partial system outage": "Pawtiaw System Outage",
-          "service under maintenance": "Sewvice Undew Maintenyance",
+          "service under maintenance": "Sewvice Undew Maintenance",
         },
         STATUSPAGE_INCIDENT_STATUS: {
           investigating: "Investigating",
           identified: "Identified",
-          monitoring: "Monyitowing",
+          monitoring: "Monitowing",
           resolved: "Wesowved",
           scheduled: "Scheduwed",
           "in progress": "In Pwogwess",
@@ -216,11 +228,11 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           postmortem: "Postmowtem",
         },
         STATUSPAGE_COMPONENT_STATUS: {
-          operational: "Opewationyaw",
+          operational: "Opewationaw",
           degraded_performance: "Degwaded Pewmowmance",
           partial_outage: "Pawtiaw Outage",
           major_outage: "Majow Outage",
-          under_maintenance: "Undew Maintenyance",
+          under_maintenance: "Undew Maintenance",
         },
         DSTATUS_COMMAND_DESCRIPTION: "Get Discowod's cuwwent status",
         DSTATUS_FETCH_FAIL: "Faiwed to fetch Discowod status",
@@ -234,7 +246,7 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
             "It is cewtain.",
             "It is decidedwy so.",
             "Without a doubt.",
-            "Yes - definyitewy.",
+            "Yes - definitewy.",
             "You may wewy on it.",
             "As I see it, yes.",
             "Most wikewy.",
@@ -243,13 +255,13 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
             "Signs point to yes.",
             "Wepwy hazy, twy again.",
             "Ask again watew.",
-            "Bettew nyot teww you nyow.",
-            "Cannyot pwedict nyow.",
+            "Bettew not teww you now.",
+            "Cannot pwedict now.",
             "Concentwate and ask again.",
             "Don't count on it.",
-            "My wepwy is nyo.",
-            "My souwces say nyo.",
-            "Outwook nyot so good.",
+            "My wepwy is no.",
+            "My souwces say no.",
+            "Outwook not so good.",
             "Vewy doubtfuw.",
           ];
           return responses[Math.floor(Math.random() * responses.length)];
@@ -259,7 +271,7 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           haste
             ? `Output was too wong, upwoaded to hastebin; ${haste}`
             : `Output was too wong, faiwed to upwoad to hastebin`,
-        GUILD_COMMAND_DESCRIPTION: "Get a genyewaw uvwview of the guiwd",
+        GUILD_COMMAND_DESCRIPTION: "Get a genewaw ovewview of the guiwd",
         FILTER_INVITE_LOG_DESCRIPTION: (channel: TextChannel) =>
           `**Invite wink sent in** ${channel}`,
         FILTER_INVITE_LOG_CODE: "Invite Code",
@@ -267,7 +279,7 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           `**Cweated by ${
             guild.owner.user.discriminator != null
               ? guild.owner
-              : "Unknyown#0000"
+              : "Unknown#0000"
           } ${created}**`,
         GOOGLE_COMMAND_DESCRIPTION: "Speak to the Googwe Assistant",
         GOOGLE_SOMETHING_WENT_WRONG:
@@ -277,13 +289,13 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         GUILD_VERIF_HIGH: "**High Vewification Wevew**",
         GUILD_VERIF_MEDIUM: "**Medium Vewification Wevew**",
         GUILD_VERIF_LOW: "**Low Vewification Wevew**",
-        GUILD_VERIF_NONE: "**Nyo Vewification!**",
+        GUILD_VERIF_NONE: "**No Vewification!**",
         GUILD_FILTER_ALL: "**Content Fiwtew:** All Membews",
         GUILD_FILTER_NO_ROLE: "**Content Fiwtew:** Without Role",
         GUILD_FILTER_NONE: "**Content Fiwtew:** Disabwed",
-        GUILD_NOTIFS_MENTIONS: "**Defauwt Nyotifications:** Onwy @Mentions",
-        GUILD_NOTIFS_ALL: "**Defauwt Nyotifications:** All Messages",
-        GUILD_MFA_ENABLED: "**Two-Factow Auth:** Enyabwed",
+        GUILD_NOTIFS_MENTIONS: "**Defauwt Notifications:** Onwy @Mentions",
+        GUILD_NOTIFS_ALL: "**Defauwt Notifications:** All Messages",
+        GUILD_MFA_ENABLED: "**Two-Factow Auth:** Enabwed",
         GUILD_MFA_NONE: "**Two-Factow Auth:** Disabwed",
         GUILD_ABOUT: "» About",
         GUILD_SECURITY: "» Secuwity",
@@ -291,14 +303,21 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         GUILD_ROLES: "» Roles",
         HELP_COMMAND_DESCRIPTION:
           "Wists all of Fire's commands and pwovides infowmation about them",
+        HELP_CREDITS_NAME: "Cwedits",
+        HELP_CREDITS_VALUE: `
+Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team](https://aero.bot/) incwuding
+[@aero/sanitizer](https://www.npmjs.com/package/@aero/sanitizer)
+[@aero/ksoft](https://www.npmjs.com/package/@aero/ksoft)
+[Aether](https://git.farfrom.earth/aero/aether)
+`,
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" fow mowe info about the command | Cwustew ID: ${cluster}`,
         SK1ER_NO_REUPLOAD: (user: FireMember | FireUser) =>
-          `${user} I am unyabwe to wead youw wog to wemuv sensitive infowmation & pwovide sowutions to youw issue. Pwease upwoad the wog diwectwy :)`,
+          `${user} I am unabwe to wead youw wog to wemove sensitive infowmation & pwovide sowutions to youw issue. Pwease upwoad the wog diwectwy :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>
-          `I was unyabwe to wead youw wog. Pwease upwoad it diwectwy wathew than using ${domain}`,
+          `I was unabwe to wead youw wog. Pwease upwoad it diwectwy wathew than using ${domain}`,
         SK1ER_LOG_READ_FAIL:
-          "I was unyabwe to wead the attachment, twy weupwoad it. If it stiww doesn't wowk, yeww at Geek :)",
+          "I was unabwe to wead the attachment, twy weupwoad it. If it stiww doesn't wowk, yeww at Geek :)",
         SK1ER_MODCORE_ZIP: (user: FireMember | FireUser, zip: string) =>
           `${user}, Downwoad the zip fwom ${zip} and then unzip it in \`.minecraft/modcore\` and youw issue shouwd be wesowved.`,
         SK1ER_LOG_HASTE: (
@@ -309,13 +328,13 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           solutions: string
         ) => `${user} ${msgType} a wog, ${extra}\n${haste}\n\n${solutions}`,
         SK1ER_NITRO_PERKS_REMOVED: (member: string) =>
-          `${member}, Youw nitwo pewks have been wemuved. Boost the sewvew to get them back UwU`,
+          `${member}, Youw nitwo pewks have been wemoved. Boost the sewvew to get them back UwU`,
         SK1ER_NITRO_PERKS_REMOVED_LEFT: (member: string) =>
-          `${member} weft and theiw nitwo pewks have been wemuved.`,
+          `${member} weft and theiw nitwo pewks have been wemoved.`,
         INVITE_COMMAND_DESCRIPTION:
           "Sends a wink to invite me to a diffewent Discowod sewvew.",
         LANGUAGE_COMMAND_DESCRIPTION:
-          "Set the wanguage Fire uses. You can add/impwuve wanguages on the GitHub wepo, https://inv.wtf/github",
+          "Set the wanguage Fire uses. You can add/impwove wanguages on the GitHub wepo, https://inv.wtf/github",
         LANGUAGE_COMMAND_CURRENT: (
           language: string // should always say it in the current language
         ) =>
@@ -323,22 +342,22 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
             .keyArray()
             .join(
               ", "
-            )}\n\nNyote: Some wanguages may be unfinyished so sometimes you'ww see some Engwish if the stwing hasn't been twanswated`,
+            )}\n\nNote: Some wanguages may be unfinished so sometimes you'ww see some Engwish if the stwing hasn't been twanswated`,
         LANGUAGE_COMMAND_HELLO: (type: "guild" | "user") =>
           type == "user"
             ? "Hewwo! You have successfuwwy set Fire's wanguage to OwO :D"
             : "Hewwo! You have successfuwwy set Fire's wanguage to OwO. Want to set it just fow you? Wun the command in DMs",
         LEVELHEAD_COMMAND_DESCRIPTION: "Get a pwayew's wevewhead info",
         LEVELHEAD_NO_PLAYER:
-          "You nyeed to give a pwayew fow me to check the wevewhead of",
+          "You need to give a pwayew fow me to check the wevewhead of",
         LEVELHEAD_FETCH_FAIL: "Faiwed to fetch wevewhead info",
         LEVELHEAD_MALFORMED_UUID:
-          "Mawfowmed UUID. Check the spewwing of the pwayew's nyame",
+          "Mawfowmed UUID. Check the spewwing of the pwayew's name",
         LEVELHEAD_PURCHASED: "Puwchased",
-        LEVELHEAD_NOT_PURCHASED: "Nyot Puwchased",
+        LEVELHEAD_NOT_PURCHASED: "Not Puwchased",
         LEVELHEAD_EMBED_TITLE: (player: string) => `${player}'s Wevewhead`,
         LEVELHEAD_PROPOSED: "Pwoposed Wevewhead",
-        LEVELHEAD_DENIED: "Denyied",
+        LEVELHEAD_DENIED: "Denied",
         LEVELHEAD_OTHER: "Othew Items",
         LEVELHEAD_TAB: "Tab",
         LEVELHEAD_CHAT: "Chat",
@@ -370,19 +389,19 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         MEME_EMBED_AUTHOR: (user: FireUser) => `Wequested by ${user}`,
         MEME_SUBREDDIT: "Subweddit",
         MODONLY_COMMAND_DESCRIPTION:
-          "Set channyews to westwict commands fow mowodewatows",
+          "Set channews to westwict commands fow mowodewatows",
         MODONLY_NO_CHANNELS:
-          "You must pwovide vawid channyew(s) sepawated by a comma ow space fow me to toggwe mowodewatow onwy mode in.",
+          "You must pwovide vawid channew(s) sepawated by a comma ow space fow me to toggwe mowodewatow onwy mode in.",
         MODONLY_SET: (channels: string) =>
-          `Commands can nyow onwy be wun by mowodewatows (eithew those set as mods ow those with manyage messages) in;\n${channels}.`,
-        MODONLY_RESET: "Mowodewatow onwy channyews have been weset",
+          `Commands can now onwy be wun by mowodewatows (eithew those set as mods ow those with manage messages) in;\n${channels}.`,
+        MODONLY_RESET: "Mowodewatow onwy channews have been weset",
         ADMINONLY_COMMAND_DESCRIPTION:
-          "Set channyews to westwict commands fow admins",
+          "Set channews to westwict commands fow admins",
         ADMINONLY_NO_CHANNELS:
-          "You must pwovide vawid channyew(s) sepawated by a comma ow space fow me to toggwe admin onwy mode in.",
+          "You must pwovide vawid channew(s) sepawated by a comma ow space fow me to toggwe admin onwy mode in.",
         ADMINONLY_SET: (channels: string) =>
-          `Commands can nyow onwy be wun by those with the "Manyage Sewvew" pewmissiowon in;\n${channels}.`,
-        ADMINONLY_RESET: "Admin onwy channyews have been weset",
+          `Commands can now onwy be wun by those with the "Manage Sewvew" pewmissiowon in;\n${channels}.`,
+        ADMINONLY_RESET: "Admin onwy channews have been weset",
         MCSTATUS_COMMAND_DESCRIPTION: "Check the status of Minecwaft sewvices",
         MCSTATUS_FETCH_FAIL: "Faiwed to fetch Minecwaft status",
         MCSTATUS_STATUSES: {
@@ -447,7 +466,7 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           ATTACH_FILES: "Attach Fiwes",
           READ_MESSAGE_HISTORY: "Wead Message Histowy",
           MENTION_EVERYONE:
-            "Mention @\u200bevewyonye, @\u200bhewe and Aww Wowes",
+            "Mention @\u200bevewyone, @\u200bhewe and Aww Wowes",
           USE_EXTERNAL_EMOJIS: "Use Extewnaw Emojis",
           VIEW_GUILD_INSIGHTS: "View Sewvew Insights",
           CONNECT: "Connect",
@@ -478,20 +497,20 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         PUBLIC_COMMAND_DESCRIPTION:
           "Set youw sewvew to pubwic which awwows it to be visibwe on Fire's Pubwic Sewvews page (https://inv.wtf/discover)",
         PUBLIC_VANITY_BLACKLIST:
-          "This guiwd has been bwackwisted fwom vanyity featuwes and thewefowe cannyot be pubwic!",
+          "This guiwd has been bwackwisted fwom vanity featuwes and thewefowe cannot be pubwic!",
         PUBLIC_VANITY_REQUIRED: (prefix: string) =>
-          `You must set a vanyity url with \`${prefix}vanityurl\` befowe youw guiwd can be pubwic`,
+          `You must set a vanity url with \`${prefix}vanityurl\` befowe youw guiwd can be pubwic`,
         PUBLIC_ENABLED: (vanity: string) =>
-          `Youw guiwd is nyow pubwic & visibwe on <https://inv.wtf/discover>.
- Peopwe wiww be abwe to use youw guiwd's vanyity uww (<https://inv.wtf/${vanity}>) to join`,
+          `Youw guiwd is now pubwic & visibwe on <https://inv.wtf/discover>.
+ Peopwe wiww be abwe to use youw guiwd's vanity url (<https://inv.wtf/${vanity}>) to join`,
         PUBLIC_ENABLED_LOG: (user: FireMember) =>
           `${constants.statuspage.emojis.operational} This sewvew was set to pubwic by ${user} and wiww appeaw on Fire\'s pubwic sewvew wist`,
         PUBLIC_DISABLED:
           "Youw guiwd is no wongew pubwic and wiww no wongew show on the Fire website",
         PUBLIC_DISABLED_LOG: (user: FireMember) =>
-          `${constants.statuspage.emojis.major_outage} This sewvew was manuawwy wemuvd fwom Fire\'s pubwic sewvew wist by ${user}`,
+          `${constants.statuspage.emojis.major_outage} This sewvew was manuawwy wemoved fwom Fire\'s pubwic sewvew wist by ${user}`,
         PLONK_COMMAND_DESCRIPTION:
-          "Make a usew unyabwe to use the best Discowod bot",
+          "Make a usew unabwe to use the best Discowod bot",
         PURGE_COMMAND_DESCRIPTION:
           "Buwk dewete messages with optionaw fwags to sewectivewy dewete messages based on cewtain factows",
         PURGE_AMOUNT_INVALID: "Invawid amount. Minumum is 2, Maximum is 500",
@@ -541,7 +560,7 @@ You wiww automaticawwy gain access to beta channews aftew fiwwing in the fowm`,
         SLOWMODE_FAILED: (channels: string[]) =>
           `Faiwed to set swowmode in ${channels.join(", ")}`,
         STATS_COMMAND_DESCRIPTION:
-          "View cwustew & uvwaww stats. Use the --cluster fwag to view stats fow a specific cwustew",
+          "View cwustew & ovewaww stats. Use the --cluster fwag to view stats fow a specific cwustew",
         STATS_TITLE: (name: string, version: string) =>
           `Stats fow ${name} [${version}]`,
         STATS_MEMORY_USAGE: "Memowy Usage",
@@ -555,7 +574,7 @@ You wiww automaticawwy gain access to beta channews aftew fiwwing in the fowm`,
             message.client.manager.id
           } | Shawd: ${message?.guild?.shardID || 0}`,
         SPECS_COMMAND_DESCRIPTION:
-          "View/wemuve a usews specs (wocked to discord.gg/sk1er)",
+          "View/wemove a usews specs (wocked to discord.gg/sk1er)",
         SPECS_NOT_FOUND:
           "Specs not found fow that usew. Teww them to fiww in this fowm\n<https://inv.wtf/sk1spec>",
         STEAL_COMMAND_DESCRIPTION: "Steaw an emote to use in youw own sewvew",
@@ -580,7 +599,7 @@ You wiww automaticawwy gain access to beta channews aftew fiwwing in the fowm`,
         PREMIUM_COMMAND_DESCRIPTION: "i wike money",
         PREMIUM_MISSING_ARGUMENTS:
           "You need to pwovide a guiwd id, usew id and weason to add a pwemium guiwd",
-        PREMIUM_DELETE_FAIL: "Faiwed to wemuv pwemium.",
+        PREMIUM_DELETE_FAIL: "Faiwed to wemove pwemium.",
         PREMIUM_INSERT_FAIL: "Faiwed to give pwemium.",
         PREMIUM_RELOAD_FAIL: "Faiwed to wewoad pwemium guiwds.",
         RELOAD_COMMAND_DESCRIPTION:
@@ -613,6 +632,59 @@ You wiww automaticawwy gain access to beta channews aftew fiwwing in the fowm`,
         TAGS_ALIAS_MISSING_ALIAS:
           "You need to pwovide a new awias fow the tag ow an existing awias to dewete it",
         TAG_LIST: (guild: string) => `${guild}'s tags`,
+        TICKET_COMMAND_DESCRIPTION: "Manage ticket configuwation in the sewvew",
+        TICKET_MAIN_DESCRIPTION:
+          "Hewe awe aww the ticket configuwation commands",
+        TICKET_CATEGORY_DESCRIPTION: `Set the categowy wewe tickets awe made. **Setting this enabwes tickets**
+Wunning this command without pwoviding a categowy wesets it, thewefowe disabwing tickets`,
+        TICKET_LIMIT_DESCRIPTION:
+          "Wimit the numbew of tickets a usew can make, 0 = No Wimit",
+        TICKET_NAME_DESCRIPTION:
+          "Set the name fow tickets. Thewe awe many vawiabwes avaiwabwe fow use in the name",
+        TICKETS_DISABLED:
+          "I have weset the ticket categowy thewefowe disabwing tickets in this guiwd",
+        TICKETS_ENABLED: (category: string) =>
+          `Successfuwwy enabwed tickets and set the categowy to ${category}.`,
+        TICKETS_INVALID_LIMIT: "Invawid wimit, it must be a numbew fwom 1 to 5",
+        TICKET_NAME_LENGTH:
+          "Name is too wong, it must be 50 chawactews ow wess",
+        TICKET_NAME_SET: (name: string, example: string) =>
+          `Successfuwwy set the tickets name to ${name}\nExampwe: ${example}`,
+        TICKET_CHANNEL_TOPIC: (author: string, id: string, subject: string) =>
+          `Ticket cweated by ${author} (${id}) with subject "${subject}"`,
+        TICKET_OPENER_TILE: (author: string) => `Ticket opened by ${author}`,
+        NEW_COMMAND_DESCRIPTION: "Makes a new ticket",
+        NEW_TICKET_CREATING: "Cweating youw ticket...",
+        NEW_TICKET_CREATED: (channel: string) =>
+          `Successfuwwy made youw ticket, ${channel}`,
+        NEW_TICKET_DISABLED: "Tickets awe not enabwed hewe",
+        NEW_TICKET_LIMIT: "You have too many tickets open!",
+        TICKET_WILL_CLOSE:
+          "Awe you suwe you want to cwose this ticket? Type `close` to confiwm",
+        TICKET_CLOSE_TRANSCRIPT: (guild: string, reason: string) =>
+          `Youw ticket in ${guild} was cwosed fow the weason "${reason}". The twanscwipt is bewow`,
+        TICKET_CLOSER_TITLE: (channel: string) =>
+          `Ticket ${channel} was cwosed`,
+        TICKET_CLOSER_CLOSED_BY: "Cwosed by",
+        TICKET_CLOSE_REASON: "Ticket cwosed",
+        TICKET_CLOSE_FORBIDDEN:
+          "You must own this ticket ow have `Manage Channews` pewmission to cwose",
+        TICKET_NON_TICKET: "This command can onwy be wan in ticket channews!",
+        TICKETADD_COMMAND_DESCRIPTION: "Add a usew to the cuwwent ticket",
+        TICKET_ADD_NOBODY: "You need to pwovide a membew to add",
+        TICKET_ADD_FORBIDDEN:
+          "You must own this ticket ow have `Manage Channews` pewmission to add membews",
+        TICKET_ADD_REASON: (author: string, id: string) =>
+          `Added to ticket by ${author} (${id})`,
+        TICKETREMOVE_COMMAND_DESCRIPTION:
+          "Wemove a usew fwom the cuwwent ticket",
+        TICKET_REMOVE_NOBODY: "You need to pwovide a membew to wemove",
+        TICKET_REMOVE_FORBIDDEN:
+          "You must own this ticket ow have `Manage Channews` pewmission to wemove membews",
+        TICKET_REMOVE_AUTHOR: "You cannot wemove the ticket authow",
+        TICKET_REMOVE_NOT_FOUND: "You can't wemove someone who isn't even hewe",
+        TICKET_REMOVE_REASON: (author: string, id: string) =>
+          `Wemoved fwom ticket by ${author} (${id})`,
       },
       enabled: true,
     });
