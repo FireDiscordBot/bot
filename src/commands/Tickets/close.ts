@@ -19,11 +19,22 @@ export default class CloseTicket extends Command {
       ],
       restrictTo: "guild",
       aliases: ["close"],
+      lock: "channel",
     });
   }
 
   async exec(message: FireMessage, args: { reason: string }) {
     if (!message.member) return; // how
+    await message.send("TICKET_WILL_CLOSE");
+    const willClose = await message.channel
+      .awaitMessages(
+        (m: FireMessage) =>
+          m.content.toLowerCase().trim() == "close" &&
+          m.author.id == message.author.id,
+        { max: 1, time: 10000, errors: ["time"] }
+      )
+      .catch(() => {});
+    if (!willClose) return await message.error();
     const closure = await message.guild.closeTicket(
       message.channel as TextChannel,
       message.member,

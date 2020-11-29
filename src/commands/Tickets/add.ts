@@ -37,7 +37,7 @@ export default class TicketAdd extends Command {
       !message.member.permissions.has("MANAGE_CHANNELS")
     )
       return await message.error("TICKET_ADD_FORBIDDEN");
-    await channel
+    const updated = await channel
       .updateOverwrite(
         args.user,
         {
@@ -50,9 +50,7 @@ export default class TicketAdd extends Command {
           message.author.id
         ) as string
       )
-      .catch(() => {
-        return message.error();
-      });
-    return await message.success();
+      .catch(() => {});
+    return updated ? await message.success() : await message.error();
   }
 }

@@ -664,6 +664,8 @@ Running this command without providing a category resets it, therefore disabling
           `Successfully made your ticket, ${channel}`,
         NEW_TICKET_DISABLED: "Tickets are not enabled here",
         NEW_TICKET_LIMIT: "You have too many tickets open!",
+        TICKET_WILL_CLOSE:
+          "Are you sure you want to close this ticket? Type `close` to confirm",
         TICKET_CLOSE_TRANSCRIPT: (guild: string, reason: string) =>
           `Your ticket in ${guild} was closed for the reason "${reason}". The transcript is below`,
         TICKET_CLOSER_TITLE: (channel: string) =>
