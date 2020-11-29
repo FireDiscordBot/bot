@@ -10,14 +10,14 @@ import { FireMessage } from "../extensions/message";
 import { FireMember } from "../extensions/guildmember";
 import { FireUser } from "../extensions/user";
 
-const idRegex = /(1|\d{15,21})$/im;
+const idRegex = /(1|\d{15,21})/im;
 const userMentionRegex = /<@!?(1|\d{15,21})>$/im;
 const messageIDRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
 const messageLinkRegex = /^https?:\/\/(?:(ptb|canary)\.)?discord(?:app)?\.com\/channels\/(?:(\d{15,21})|(@me))\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})\/?$/im;
 const channelMentionRegex = /<#(\d{15,21})>$/im;
 const roleMentionRegex = /<@&(\d{15,21})>$/im;
 
-const getIDMatch = (argument: string) => {
+export const getIDMatch = (argument: string) => {
   const match = idRegex.exec(argument);
   return match ? match[1] : null;
 };
