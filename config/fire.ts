@@ -5,7 +5,6 @@ import * as moment from "moment";
 export const fire = {
   dev: process.env.NODE_ENV == "development",
   readyMessage: (client: Fire) => {
-    client.sweepUsers();
     client.console.log("-------------------------");
     client.console.log(
       `Bot: ${client?.user?.username}#${client?.user?.discriminator}`
