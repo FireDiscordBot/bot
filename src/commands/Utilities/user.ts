@@ -38,7 +38,8 @@ export default class User extends Command {
   }
 
   async exec(message: FireMessage, args: { user?: FireMember | FireUser }) {
-    if (!args.user) args.user = message?.member || message.author;
+    if (typeof args.user == "undefined")
+      args.user = message?.member || message.author;
     let member: FireMember, user: FireUser;
     if (args.user instanceof FireMember) {
       member = args.user;
