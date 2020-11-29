@@ -3,13 +3,18 @@ import {
   Structures,
   TextChannel,
   MessageEmbed,
+  CategoryChannel,
+  MessageAttachment,
   MessageEmbedOptions,
 } from "discord.js";
+import { GuildTagManager } from "../util/guildtagmanager";
+import Tickets from "../../src/commands/Tickets/tickets";
 import { GuildSettings } from "../util/settings";
+import { getIDMatch } from "../util/converters";
 import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
+import { v4 as uuidv4 } from "uuid";
 import { Fire } from "../Fire";
-import { GuildTagManager } from "../util/guildtagmanager";
 
 export class FireGuild extends Guild {
   client: Fire;
@@ -152,6 +157,171 @@ export class FireGuild extends Guild {
       this.settings.set(c, experiment.defaultConfig[c])
     );
     return this.hasExperiment(id);
+  }
+
+  async createTicket(
+    author: FireMember,
+    subject: string,
+    category?: CategoryChannel
+  ) {
+    if (author.guild?.id != this.id) return "author";
+    category =
+      category ||
+      (this.channels.cache
+        .filter((channel) => channel.type == "category")
+        .get(this.settings.get("tickets.parent")) as CategoryChannel);
+    if (!category) return "disabled";
+    const limit = this.settings.get("tickets.limit", 1);
+    let channels = (this.settings.get("tickets.channels", []) as string[])
+      .map((id) =>
+        this.channels.cache
+          .filter((channel) => channel.type == "text" && channel.id == id)
+          .get(id)
+      )
+      .filter((channel: TextChannel) => channel?.topic.includes(author.id));
+    if (channels.length >= limit) return "limit";
+    const words = (this.client.getCommand("ticket") as Tickets).words;
+    let increment = this.settings.get("tickets.increment", 0) as number;
+    const variables = {
+      "{increment}": increment.toString() as string,
+      "{name}": author.user.username,
+      "{id}": author.id,
+      "{word}": this.client.util.randomItem(words) as string,
+      "{uuid}": uuidv4().slice(0, 4),
+      "{crab}": "🦀", // CRAB IN DA CODE
+    };
+    let name = this.settings.get(
+      "tickets.name",
+      "ticket-{increment}"
+    ) as string;
+    for (const [key, value] of Object.entries(variables)) {
+      name = name.replace(key, value);
+    }
+    name = name.replace("crab", "🦀");
+    this.settings.set("tickets.increment", ++increment);
+    const ticket = await this.channels.create(name.slice(0, 50), {
+      parent: category,
+      permissionOverwrites: [
+        ...category.permissionOverwrites.array(),
+        { id: author.id, allow: ["VIEW_CHANNEL", "SEND_MESSAGES"] },
+        {
+          id: this.me.id,
+          allow: [
+            "VIEW_CHANNEL",
+            "SEND_MESSAGES",
+            "MANAGE_CHANNELS",
+            "MANAGE_ROLES",
+          ],
+        },
+        {
+          id: this.roles.everyone.id,
+          deny: ["VIEW_CHANNEL"],
+        },
+      ],
+      topic: this.language.get(
+        "TICKET_CHANNEL_TOPIC",
+        author.toString(),
+        author.id,
+        subject
+      ) as string,
+      reason: this.language.get(
+        "TICKET_CHANNEL_TOPIC",
+        author.toString(),
+        author.id,
+        subject
+      ) as string,
+    });
+    const embed = new MessageEmbed()
+      .setTitle(this.language.get("TICKET_OPENER_TILE", author.toString()))
+      .setTimestamp(new Date())
+      .setColor(author.displayColor || "#ffffff")
+      .addField(this.language.get("SUBJECT"), subject);
+    const opener = await ticket.send(embed);
+    channels.push(ticket);
+    this.settings.set(
+      "tickets.channels",
+      channels.map((channel) => channel.id)
+    );
+    this.client.emit("ticketCreate", author, ticket, opener);
+    return ticket;
+  }
+
+  async closeTicket(channel: TextChannel, author: FireMember, reason: string) {
+    let channels = (this.settings.get("tickets.channels", []) as string[])
+      .map((id) =>
+        this.channels.cache
+          .filter((channel) => channel.type == "text" && channel.id == id)
+          .get(id)
+      )
+      .filter((channel: TextChannel) => channel?.topic.includes(author.id));
+    if (!channels.includes(channel)) return "nonticket";
+    if (
+      !author.permissions.has("MANAGE_CHANNELS") &&
+      !channel.topic.includes(author.id)
+    )
+      return "forbidden";
+    channels = channels.filter((c) => c.id != channel.id);
+    this.settings.set(
+      "tickets.channels",
+      channels.map((c) => c.id)
+    );
+    let transcript: string[] = [];
+    (await channel.messages.fetch()).forEach((message) =>
+      transcript.push(
+        `${message.author} (${
+          message.author.id
+        }) at ${message.createdAt.toLocaleString(this.language.id)}\n${
+          message.content ||
+          message.embeds[0]?.description ||
+          message.attachments.first()?.proxyURL ||
+          `${message.embeds[0]?.fields[0]?.name} | ${message.embeds[0]?.fields[0]?.value}`
+        }`
+      )
+    );
+    transcript = transcript.reverse();
+    transcript.push(`${transcript.length} total messages, closed by ${author}`);
+    const buffer = Buffer.from(transcript.join("\n\n"));
+    const id = getIDMatch(channel.topic);
+    if (id) {
+      const member = (await this.members
+        .fetch(id)
+        .catch(() => {})) as FireMember;
+      if (member)
+        await member
+          .send(
+            member.language.get("TICKET_CLOSE_TRANSCRIPT", this.name, reason),
+            {
+              files: [
+                new MessageAttachment(buffer, `${channel.name}-transcript.txt`),
+              ],
+            }
+          )
+          .catch(() => {});
+    }
+    const log =
+      (this.channels.cache.get(
+        this.settings.get("tickets.transcript_logs")
+      ) as TextChannel) ||
+      (this.channels.cache.get(this.settings.get("log.action")) as TextChannel);
+    const embed = new MessageEmbed()
+      .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))
+      .setTimestamp(new Date())
+      .setColor(author.displayColor || "#ffffff")
+      .addField(
+        this.language.get("TICKET_CLOSER_CLOSED_BY"),
+        `${author} (${author.id})`
+      )
+      .addField(this.language.get("REASON"), reason);
+    await log.send({
+      embed,
+      files:
+        channel.parentID == "755796036198596688"
+          ? []
+          : [new MessageAttachment(buffer, `${channel.name}-transcript.txt`)],
+    });
+    return await channel.delete(
+      this.language.get("TICKET_CLOSE_REASON") as string
+    );
   }
 }
 

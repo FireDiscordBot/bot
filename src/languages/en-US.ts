@@ -71,6 +71,8 @@ export default class enUS extends Language {
         GUILDS: "Guilds",
         CHANNEL: "Channel",
         ATTACHMENT: "Attachment",
+        VARIABLES: "Variables",
+        SUBJECT: "Subject",
         REGION_DEPRECATED: "❓ Deprecated Region",
         REGIONS: {
           brazil: "🇧🇷 Brazil",
@@ -635,6 +637,57 @@ Abuse of this command __**will**__ result in being temporarily blacklisted from 
         TAGS_ALIAS_MISSING_ALIAS:
           "You need to provide a new alias for the tag or an existing alias to delete it",
         TAG_LIST: (guild: string) => `${guild}'s tags`,
+        TICKET_COMMAND_DESCRIPTION: "Manage ticket configuration in the server",
+        TICKET_MAIN_DESCRIPTION:
+          "Here are all the ticket configuration commands",
+        TICKET_CATEGORY_DESCRIPTION: `Set the category were tickets are made. **Setting this enables tickets**
+Running this command without providing a category resets it, therefore disabling tickets`,
+        TICKET_LIMIT_DESCRIPTION:
+          "Limit the number of tickets a user can make, 0 = No Limit",
+        TICKET_NAME_DESCRIPTION:
+          "Set the name for tickets. There are many variables available for use in the name",
+        TICKETS_DISABLED:
+          "I have reset the ticket category therefore disabling tickets in this guild",
+        TICKETS_ENABLED: (category: string) =>
+          `Successfully enabled tickets and set the category to ${category}.`,
+        TICKETS_INVALID_LIMIT: "Invalid limit, it must be a number from 1 to 5",
+        TICKET_NAME_LENGTH:
+          "Name is too long, it must be 50 characters or less",
+        TICKET_NAME_SET: (name: string, example: string) =>
+          `Successfully set the tickets name to ${name}\nExample: ${example}`,
+        TICKET_CHANNEL_TOPIC: (author: string, id: string, subject: string) =>
+          `Ticket created by ${author} (${id}) with subject "${subject}"`,
+        TICKET_OPENER_TILE: (author: string) => `Ticket opened by ${author}`,
+        NEW_COMMAND_DESCRIPTION: "Makes a new ticket",
+        NEW_TICKET_CREATING: "Creating your ticket...",
+        NEW_TICKET_CREATED: (channel: string) =>
+          `Successfully made your ticket, ${channel}`,
+        NEW_TICKET_DISABLED: "Tickets are not enabled here",
+        NEW_TICKET_LIMIT: "You have too many tickets open!",
+        TICKET_CLOSE_TRANSCRIPT: (guild: string, reason: string) =>
+          `Your ticket in ${guild} was closed for the reason "${reason}". The transcript is below`,
+        TICKET_CLOSER_TITLE: (channel: string) =>
+          `Ticket ${channel} was closed`,
+        TICKET_CLOSER_CLOSED_BY: "Closed by",
+        TICKET_CLOSE_REASON: "Ticket closed",
+        TICKET_CLOSE_FORBIDDEN:
+          "You must own this ticket or have `Manage Channels` permission to close",
+        TICKET_NON_TICKET: "This command can only be ran in ticket channels!",
+        TICKETADD_COMMAND_DESCRIPTION: "Add a user to the current ticket",
+        TICKET_ADD_NOBODY: "You need to provide a member to add",
+        TICKET_ADD_FORBIDDEN:
+          "You must own this ticket or have `Manage Channels` permission to add members",
+        TICKET_ADD_REASON: (author: string, id: string) =>
+          `Added to ticket by ${author} (${id})`,
+        TICKETREMOVE_COMMAND_DESCRIPTION:
+          "Remove a user from the current ticket",
+        TICKET_REMOVE_NOBODY: "You need to provide a member to remove",
+        TICKET_REMOVE_FORBIDDEN:
+          "You must own this ticket or have `Manage Channels` permission to remove members",
+        TICKET_REMOVE_AUTHOR: "You cannot remove the ticket author",
+        TICKET_REMOVE_NOT_FOUND: "You can't remove someone who isn't even here",
+        TICKET_REMOVE_REASON: (author: string, id: string) =>
+          `Removed from ticket by ${author} (${id})`,
       },
       enabled: true,
     });
