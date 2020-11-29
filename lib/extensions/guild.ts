@@ -282,14 +282,13 @@ export class FireGuild extends Guild {
     transcript.push(`${transcript.length} total messages, closed by ${author}`);
     const buffer = Buffer.from(transcript.join("\n\n"));
     const id = getIDMatch(channel.topic);
+    let creator = author;
     if (id) {
-      const member = (await this.members
-        .fetch(id)
-        .catch(() => {})) as FireMember;
-      if (member)
-        await member
+      creator = (await this.members.fetch(id).catch(() => {})) as FireMember;
+      if (creator)
+        await creator
           .send(
-            member.language.get("TICKET_CLOSE_TRANSCRIPT", this.name, reason),
+            creator.language.get("TICKET_CLOSE_TRANSCRIPT", this.name, reason),
             {
               files: [
                 new MessageAttachment(buffer, `${channel.name}-transcript.txt`),
@@ -319,6 +318,7 @@ export class FireGuild extends Guild {
           ? []
           : [new MessageAttachment(buffer, `${channel.name}-transcript.txt`)],
     });
+    this.client.emit("ticketClose", creator);
     return await channel.delete(
       this.language.get("TICKET_CLOSE_REASON") as string
     );
