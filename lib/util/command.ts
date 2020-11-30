@@ -40,9 +40,9 @@ export class Command extends AkairoCommand {
     this.args = options.args;
   }
 
-  async init() {}
+  async init(): Promise<any> {}
 
-  async unload() {}
+  async unload(): Promise<any> {}
 
   getArgumentsClean() {
     return typeof this.args !== "undefined" && Array.isArray(this.args)

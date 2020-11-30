@@ -173,6 +173,21 @@ export class Fire extends AkairoClient {
       "load",
       async (command: Command, isReload: boolean) => {
         await command?.init();
+        if (
+          command.guilds.length &&
+          !command.guilds.some((guild) =>
+            (this.options.shards as number[]).includes(
+              this.util.getShard(guild)
+            )
+          )
+        ) {
+          this.console.warn(
+            `[Commands] Removing ${command.id} due to being locked to ${
+              command.guilds.length > 1 ? "guilds" : "a guild"
+            } on a different cluster`
+          );
+          return command.remove();
+        }
       }
     );
 

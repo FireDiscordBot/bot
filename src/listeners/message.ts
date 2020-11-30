@@ -2,7 +2,8 @@ import { FireMember } from "../../lib/extensions/guildmember";
 import { FireMessage } from "../../lib/extensions/message";
 import { Listener } from "../../lib/util/listener";
 import { PrefixSupplier } from "discord-akairo";
-import Filters from "../modules/filters";
+// import Filters from "../modules/filters";
+import MCLogs from "../modules/mclogs";
 import Sk1er from "../modules/sk1er";
 import * as centra from "centra";
 
@@ -53,8 +54,9 @@ export default class Message extends Listener {
   async exec(message: FireMessage) {
     if (this.client.manager.id != 0 && !message.guild) return;
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-    // These won't run if the module isn't loaded
-    await sk1erModule?.checkLogs(message).catch(() => {});
+    const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
+    // These won't run if the modules aren't loaded
+    await mcLogsModule?.checkLogs(message).catch(() => {});
     await sk1erModule?.checkBotStatus(message).catch(() => {});
 
     // Ensures people get dehoisted/decancered even if

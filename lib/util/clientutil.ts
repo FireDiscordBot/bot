@@ -70,6 +70,11 @@ export class Util extends ClientUtil {
     return array[Math.floor(Math.random() * array.length)];
   }
 
+  getShard(guild: string | FireGuild) {
+    const id = guild instanceof FireGuild ? guild.id : guild;
+    return Number((BigInt(id) >> 22n) % BigInt(this.client.options.shardCount));
+  }
+
   async haste(text: string, fallback = false) {
     const url = fallback ? "https://h.inv.wtf/" : "https://hst.sh/";
     try {

@@ -9,9 +9,9 @@ export class Module extends AkairoModule {
     super(id, {});
   }
 
-  async init() {}
+  async init(): Promise<any> {}
 
-  async unload() {}
+  async unload(): Promise<any> {}
 }
 
 export class ModuleHandler extends AkairoHandler {

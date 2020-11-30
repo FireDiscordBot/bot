@@ -7,5 +7,5 @@ export class Listener extends AkairoListener {
     super(id, options);
   }
 
-  async init() {}
+  async init(): Promise<any> {}
 }

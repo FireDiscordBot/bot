@@ -14,22 +14,6 @@ export default class Ready extends Listener {
   }
 
   async exec() {
-    this.client.commandHandler.modules
-      .filter(
-        (command: Command) =>
-          command.guilds.length &&
-          command.guilds.every((id) => {
-            const shard = parseInt(
-              (
-                (BigInt(id) >> 22n) %
-                BigInt(this.client.options.shardCount)
-              ).toString()
-            );
-            if (!(this.client.options.shards as number[]).includes(shard))
-              return true;
-          })
-      )
-      .forEach((command) => command.remove());
     try {
       process.send("ready");
       this.client.manager.ws?.send(
