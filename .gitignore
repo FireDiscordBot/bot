@@ -104,5 +104,5 @@ dist
 .vscode/
 
 # Misc JSON Files
-sk1er_solutions.json
+mc_solutions.json
 assistant-credentials.json
