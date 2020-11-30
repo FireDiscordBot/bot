@@ -24,9 +24,9 @@ export default class Specs extends Command {
       args: [
         {
           id: "user",
-          type: Argument.union("memberSilent", "userSilent"),
+          type: Argument.union("member", "user"),
           readableType: "user",
-          default: null,
+          default: undefined,
           required: false,
         },
       ],
@@ -37,10 +37,9 @@ export default class Specs extends Command {
   }
 
   async exec(message: FireMessage, args: { user?: FireMember | FireUser }) {
-    const user =
-      args.user instanceof FireMember
-        ? args.user.user
-        : args.user || message.author;
+    let user = args.user instanceof FireMember ? args.user.user : args.user;
+    if (typeof user == "undefined") user = message.author;
+    else if (!user) return;
     const specs = await this.client.db
       .query("SELECT * FROM specs WHERE uid=$1", [user.id])
       .first();

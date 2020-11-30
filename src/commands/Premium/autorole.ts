@@ -16,6 +16,7 @@ export default class Autorole extends Command {
         {
           id: "role",
           type: "roleSilent",
+          readableType: "role",
           default: null,
           required: true,
         },

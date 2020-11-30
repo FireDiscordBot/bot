@@ -13,7 +13,8 @@ export default class TicketRemove extends Command {
       args: [
         {
           id: "user",
-          type: "member",
+          type: "memberSilent",
+          readableType: "member",
           default: null,
           required: true,
         },

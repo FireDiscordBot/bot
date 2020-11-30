@@ -17,6 +17,7 @@ export default class Avatar extends Command {
           id: "user",
           type: "user|member",
           match: "rest",
+          default: undefined,
           required: false,
         },
       ],
@@ -26,7 +27,8 @@ export default class Avatar extends Command {
 
   exec(message: FireMessage, args: { user: FireMember | FireUser | null }) {
     let user = args.user;
-    if (!user) user = message.member || message.author;
+    if (typeof user == "undefined") user = message.member || message.author;
+    else if (!user) return;
 
     const color =
       user instanceof FireMember

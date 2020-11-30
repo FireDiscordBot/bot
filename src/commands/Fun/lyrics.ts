@@ -20,9 +20,9 @@ export default class Lyrics extends Command {
       args: [
         {
           id: "song",
-          type: Argument.union("memberSilent", "string"),
-          readableType: "member|string",
-          // type: "string",
+          // type: Argument.union("memberSilent", "string"),
+          // readableType: "member|string",
+          type: "string",
           match: "rest",
           default: null,
           required: false,
@@ -48,15 +48,15 @@ export default class Lyrics extends Command {
     } else return null;
   }
 
-  async exec(message: FireMessage, args: { song: FireMember | string }) {
-    // async exec(message: FireMessage, args: { song: string }) {
-    const song =
-      args.song instanceof FireMember ? this.getSpotify(args.song) : args.song;
-    if (!song && message.member) {
-      args.song = this.getSpotify(message.member);
-    } else if (!args.song) return await message.error("LYRICS_NO_QUERY");
-    if (!args.song) return await message.error("LYRICS_NO_QUERY");
-    // const song = args.song;
+  // async exec(message: FireMessage, args: { song: FireMember | string }) {
+  async exec(message: FireMessage, args: { song: string }) {
+    // const song =
+    //   args.song instanceof FireMember ? this.getSpotify(args.song) : args.song;
+    // if (!song && message.member) {
+    //   args.song = this.getSpotify(message.member);
+    // } else if (!args.song) return await message.error("LYRICS_NO_QUERY");
+    // if (!args.song) return await message.error("LYRICS_NO_QUERY");
+    const song = args.song;
     let lyrics: Track;
     try {
       lyrics = await this.client.ksoft.lyrics.get(song, {

@@ -41,6 +41,7 @@ export default class Deepfry extends Command {
         dynamic: false,
       });
     else image = args.image;
+    if (!image) return await message.error();
     if (image.includes("cdn.discordapp.com") && !image.includes("?size="))
       image = image + "?size=2048";
     const deepfryReq = await centra(

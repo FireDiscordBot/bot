@@ -21,7 +21,7 @@ export default class Slowmode extends Command {
         {
           id: "channel",
           type: "guildChannelSilent",
-          readableType: "textChannel|category",
+          readableType: "text-channel|category",
           default: null,
           required: false,
           unordered: true,
