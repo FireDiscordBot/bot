@@ -27,16 +27,15 @@ class UserUpdate(commands.Cog):
     async def on_user_update(self, before, after):
         for guild in self.bot.guilds:
             if before.name != after.name and not guild.get_member(764995504526327848):
+                member = guild.get_member(after.id)
+                if not member:
+                    continue
                 try:
-                    member = guild.get_member(after.id)
-                    if not member:
-                        continue
-                    try:
-                        if member.guild.me.guild_permissions.manage_nicknames and not member.guild.get_member(764995504526327848):
-                            await self.bot.dehoist(member)
-                            await self.bot.decancer(member)
-                    except Exception:
-                        pass
+                    if member.guild.me.guild_permissions.manage_nicknames and not member.guild.get_member(764995504526327848):
+                        await self.bot.dehoist(member)
+                        await self.bot.decancer(member)
+                except Exception:
+                    pass
 
 
 def setup(bot):
