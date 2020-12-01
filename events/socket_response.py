@@ -34,6 +34,28 @@ class SocketResponse(commands.Cog):
                     guild, bot=self.bot, db=self.bot.db)
             if not self.bot.get_config(guild).loaded:
                 await self.bot.get_config(guild).load()
+        elif t == "GUILD_MEMBER_UPDATE":
+            name = payload['d']['user']['username']
+            nick = payload['d']['nick']
+            if nick:
+                if not self.bot.is_hoisted(name) and not self.bot.is_cancerous(name) and not self.bot.is_hoisted(nick) and not self.bot.is_cancerous(nick):
+                    return
+            else:
+                if not self.bot.is_hoisted(name) and not self.bot.is_cancerous(name):
+                    return
+            try:
+                guild = self.bot.get_guild(int(payload['d']['guild_id']))
+                if not guild:
+                    return
+                user_id = int(payload['d']['user']['id'])
+                member = guild.get_member(user_id)
+                if not member:
+                    member = await guild.fetch_member(user_id)
+                if member:
+                    await self.bot.dehoist(member)
+                    await self.bot.decancer(member)
+            except Exception:
+                pass
 
 
 def setup(bot):

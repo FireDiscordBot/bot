@@ -49,12 +49,6 @@ class GuildAdd(commands.Cog):
             except Exception as e:
                 self.bot.logger.warn(
                     f'$YELLOWFailed to post guild count to $CYAN{l.__class__.__name__}', exc_info=e)
-        if self.bot.should_chunk(guild):
-            try:
-                await guild.chunk()
-            except Exception as e:
-                self.bot.logger.error(
-                    f'$REDFailed to chunk guild $CYAN{guild}', exc_info=e)
 
 
 def setup(bot):

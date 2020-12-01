@@ -59,6 +59,7 @@ bot = Fire(
     owner_id=287698408855044097,
     max_messages=2500,
     chunk_guilds_at_startup=False,
+    member_cache_flags=discord.MemberCacheFlags.none(),
     dev=dev,
     allowed_mentions=discord.AllowedMentions(
         everyone=False, users=False, roles=False)

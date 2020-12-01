@@ -26,34 +26,17 @@ class UserUpdate(commands.Cog):
     @commands.Cog.listener()
     async def on_user_update(self, before, after):
         for guild in self.bot.guilds:
-            conf = self.bot.get_config(guild)
-            badname = conf.get(
-                'utils.badname') or f'John Doe {after.discriminator}'
             if before.name != after.name and not guild.get_member(764995504526327848):
                 try:
                     member = guild.get_member(after.id)
                     if not member:
                         continue
-                    if member.guild_permissions.manage_nicknames:
+                    try:
+                        if member.guild.me.guild_permissions.manage_nicknames and not member.guild.get_member(764995504526327848):
+                            await self.bot.dehoist(member)
+                            await self.bot.decancer(member)
+                    except Exception:
                         pass
-                    if guild.me.guild_permissions.manage_nicknames:
-                        nick = after.name.replace('‘', '\'').replace(
-                            '“', '"').replace('“', '"')
-                        change = True if (conf.get('mod.autodecancer') and not self.bot.isascii(
-                            nick)) else False
-                        if change:
-                            return await member.edit(nick=badname, reason=f'Name changed due to auto-decancer. The name contains non-ascii characters')
-                        elif badname in member.nick and not change:
-                            return await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters)')
-                        nick = after.name
-                        change = True if (conf.get('mod.autodehoist') and self.bot.ishoisted(
-                            nick)) else False
-                        if change:
-                            return await member.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character')
-                        elif badname in member.nick and not change:
-                            return await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters)')
-                except Exception:
-                    pass
 
 
 def setup(bot):
