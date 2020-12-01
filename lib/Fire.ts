@@ -103,7 +103,7 @@ export class Fire extends AkairoClient {
       .then(() => this.console.log("[DB] Connected"))
       .catch((err) => {
         this.console.error(`[DB] Failed to connect\n${err.stack}`);
-        process.exit(-1);
+        this.manager.kill("db_error");
       });
 
     this.db
