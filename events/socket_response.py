@@ -51,7 +51,7 @@ class SocketResponse(commands.Cog):
                 member = guild.get_member(user_id)
                 if not member:
                     member = await guild.fetch_member(user_id)
-                if member:
+                if member and guild.me.guild_permissions.manage_nicknames:
                     await self.bot.dehoist(member)
                     await self.bot.decancer(member)
             except Exception:
