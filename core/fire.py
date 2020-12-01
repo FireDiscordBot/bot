@@ -278,7 +278,7 @@ class Fire(commands.Bot):
             'utils.badname') or f'John Doe {member.discriminator}'
         if self.is_hoisted(member.display_name):
             return await member.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character')
-        elif member.nick and badname in member.nick and not self.is_cancerous(member.display_name):
+        elif member.nick and badname in member.nick and not self.is_cancerous(member.name):
             await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters)')
 
     async def decancer(self, member: discord.Member):
@@ -291,7 +291,7 @@ class Fire(commands.Bot):
             'utils.badname') or f'John Doe {member.discriminator}'
         if self.is_cancerous(member.display_name):
             return await member.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character')
-        elif member.nick and badname in member.nick and not self.is_hoisted(member.display_name):
+        elif member.nick and badname in member.nick and not self.is_hoisted(member.name):
             await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters)')
 
     async def is_team_owner(self, user: typing.Union[discord.User, discord.Member]):
