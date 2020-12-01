@@ -276,7 +276,7 @@ class Fire(commands.Bot):
             return
         badname = conf.get(
             'utils.badname') or f'John Doe {member.discriminator}'
-        if self.is_hoisted(member.display_name):
+        if self.is_hoisted(member.display_name if badname not in member.nick else member.name):
             return await member.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character')
         elif member.nick and badname in member.nick and not self.is_cancerous(member.name):
             await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters)')
@@ -289,7 +289,7 @@ class Fire(commands.Bot):
             return
         badname = conf.get(
             'utils.badname') or f'John Doe {member.discriminator}'
-        if self.is_cancerous(member.display_name):
+        if self.is_cancerous(member.display_name if badname not in member.nick else member.name):
             return await member.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character')
         elif member.nick and badname in member.nick and not self.is_hoisted(member.name):
             await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters)')
