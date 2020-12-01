@@ -36,7 +36,7 @@ class SocketResponse(commands.Cog):
                 await self.bot.get_config(guild).load()
         elif t == "GUILD_MEMBER_UPDATE":
             name = payload['d']['user']['username']
-            nick = payload['d']['nick']
+            nick = payload['d'].get('nick', None)
             if nick:
                 if not self.bot.is_hoisted(name) and not self.bot.is_cancerous(name) and not self.bot.is_hoisted(nick) and not self.bot.is_cancerous(nick):
                     return
