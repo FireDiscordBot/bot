@@ -97,6 +97,12 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
     async def on_message(self, message):
         if not message.guild:
             return
+        if message.guild.me.guild_permissions.manage_nicknames:
+            try:
+                await self.bot.dehoist(message.author)
+                await self.bot.decancer(message.author)
+            except Exception:
+                pass
         if isinstance(message.author, discord.Member) and any(m in message.content for m in ['@everyone', '@here']):
             if self.bot.get_config(message.guild).get('mod.antieveryone') and not message.author.permissions_in(message.channel).mention_everyone:
                 try:
