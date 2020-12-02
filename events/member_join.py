@@ -116,12 +116,6 @@ class MemberJoin(commands.Cog):
                 await logch.send(embed=embed)
             except Exception:
                 pass
-        try:
-            if member.guild.me.guild_permissions.manage_nicknames and not member.guild.get_member(764995504526327848):
-                await self.bot.dehoist(member)
-                await self.bot.decancer(member)
-        except Exception:
-            pass
 
 
 def setup(bot):

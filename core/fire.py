@@ -260,40 +260,6 @@ class Fire(commands.Bot):
                 f'$REDFailed to create haste on $CYAN{client.BASE_URL}/', exc_info=e)
         return 'Failed to create haste'
 
-    def is_hoisted(self, string: str):
-        if string.lower()[0] < '0':
-            return True
-        return False
-
-    def is_cancerous(self, string: str):
-        return len(string) != len(string.encode())
-
-    async def dehoist(self, member: discord.Member):
-        conf = self.get_config(member.guild)
-        if member.guild_permissions.manage_nicknames:
-            return
-        if not conf.get("mod.autodehoist"):
-            return
-        badname = conf.get(
-            'utils.badname') or f'John Doe {member.discriminator}'
-        if self.is_hoisted(member.nick if member.nick and badname not in member.nick else member.name):
-            return await member.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character')
-        elif member.nick and badname in member.nick and not self.is_cancerous(member.name):
-            await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters)')
-
-    async def decancer(self, member: discord.Member):
-        conf = self.get_config(member.guild)
-        if member.guild_permissions.manage_nicknames:
-            return
-        if not conf.get("mod.autodecancer"):
-            return
-        badname = conf.get(
-            'utils.badname') or f'John Doe {member.discriminator}'
-        if self.is_cancerous(member.nick if member.nick and badname not in member.nick else member.name):
-            return await member.edit(nick=badname, reason=f'Name changed due to auto-dehoist. The name starts with a hoisted character')
-        elif member.nick and badname in member.nick and not self.is_hoisted(member.name):
-            await member.edit(nick=None, reason=f'Name is no longer hoisted or "cancerous" (non-ascii characters)')
-
     async def is_team_owner(self, user: typing.Union[discord.User, discord.Member]):
         if user.id == self.owner_id:
             return True

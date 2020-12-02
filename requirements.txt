@@ -60,10 +60,7 @@ colormap == 1.0.2
 # Fire/cogs/utils.py: 24
 # Fire/cogs/youtube.py: 18,19
 # Fire/commands/at.py: 19,21
-# Fire/commands/autodecancer.py: 19,21
-# Fire/commands/autodehoist.py: 19,21
 # Fire/commands/avatar.py: 20,22
-# Fire/commands/badname.py: 19,21
 # Fire/commands/conf.py: 20,22
 # Fire/commands/debug.py: 19,22
 # Fire/commands/desc.py: 19,21
