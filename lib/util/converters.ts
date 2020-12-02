@@ -10,6 +10,7 @@ import { FireMessage } from "../extensions/message";
 import { FireMember } from "../extensions/guildmember";
 import { FireUser } from "../extensions/user";
 
+const idOnlyRegex = /(1|\d{15,21})$/im;
 const idRegex = /(1|\d{15,21})/im;
 const userMentionRegex = /<@!?(1|\d{15,21})>$/im;
 const messageIDRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
@@ -17,8 +18,8 @@ const messageLinkRegex = /^https?:\/\/(?:(ptb|canary)\.)?discord(?:app)?\.com\/c
 const channelMentionRegex = /<#(\d{15,21})>$/im;
 const roleMentionRegex = /<@&(\d{15,21})>$/im;
 
-export const getIDMatch = (argument: string) => {
-  const match = idRegex.exec(argument);
+export const getIDMatch = (argument: string, extra = false) => {
+  const match = extra ? idRegex.exec(argument) : idOnlyRegex.exec(argument);
   return match ? match[1] : null;
 };
 
@@ -68,10 +69,10 @@ export const memberConverter = async (
       query: argument,
       limit: 1,
     };
-    if (argument.includes("#")) {
-      const [name] = argument.split("#");
-      options.query = name;
-    }
+    // if (argument.includes("#")) {
+    //   const [name] = argument.split("#");
+    //   options.query = name;
+    // }
     const member = await guild.members.fetch(options).catch(() => {});
     if (member && member.size) {
       return member.first() as FireMember;
@@ -85,7 +86,7 @@ export const memberConverter = async (
       return member as FireMember;
     }
 
-    if (!silent) await message.error("INVAlID_MEMBER_ID");
+    if (!silent) await message.error("INVALID_MEMBER_ID");
     return null;
   }
 };
