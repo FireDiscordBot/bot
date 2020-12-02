@@ -292,7 +292,7 @@ export class FireGuild extends Guild {
     transcript = transcript.reverse();
     transcript.push(`${transcript.length} total messages, closed by ${author}`);
     const buffer = Buffer.from(transcript.join("\n\n"));
-    const id = getIDMatch(channel.topic);
+    const id = getIDMatch(channel.topic, true);
     let creator = author;
     if (id) {
       creator = (await this.members.fetch(id).catch(() => {})) as FireMember;
