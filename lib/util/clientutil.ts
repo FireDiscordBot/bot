@@ -85,6 +85,7 @@ export class Util extends ClientUtil {
           .header("User-Agent", "Fire Discord Bot")
           .send()
       ).json();
+      if (!h.key) throw new Error(JSON.stringify(h));
       return url + h.key;
     } catch (e) {
       if (!fallback) return await this.haste(text, true);
