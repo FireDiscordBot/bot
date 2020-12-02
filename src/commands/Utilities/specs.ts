@@ -24,7 +24,7 @@ export default class Specs extends Command {
       args: [
         {
           id: "user",
-          type: Argument.union("member", "user"),
+          type: Argument.union("memberSilent", "user"),
           readableType: "user",
           default: undefined,
           required: false,
