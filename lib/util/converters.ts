@@ -6,8 +6,8 @@ import {
   CategoryChannel,
   FetchMembersOptions,
 } from "discord.js";
-import { FireMessage } from "../extensions/message";
 import { FireMember } from "../extensions/guildmember";
+import { FireMessage } from "../extensions/message";
 import { FireUser } from "../extensions/user";
 
 const idOnlyRegex = /(1|\d{15,21})$/im;
@@ -23,7 +23,7 @@ export const getIDMatch = (argument: string, extra = false) => {
   return match ? match[1] : null;
 };
 
-const getUserMentionMatch = (argument: string) => {
+export const getUserMentionMatch = (argument: string) => {
   const match = userMentionRegex.exec(argument);
   return match ? match[1] : null;
 };
