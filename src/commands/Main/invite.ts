@@ -13,6 +13,6 @@ export default class Invite extends Command {
   }
 
   async exec(message: FireMessage) {
-    await message.channel.send("<https://inv.wtf/bot>");
+    await message.channel.send(`<${this.client.config.inviteLink}>`);
   }
 }
