@@ -14,7 +14,7 @@ export default class AetherStats extends Module {
     await this.sendStats();
     this.statsTask = setInterval(() => {
       this.sendStats();
-    }, 1500);
+    }, 5000);
   }
 
   async unload() {

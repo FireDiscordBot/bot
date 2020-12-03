@@ -132,7 +132,7 @@ export class Fire extends AkairoClient {
             [this.manager.id, this.events]
           )
           .catch(() => {});
-      }, 1500);
+      }, 5000);
 
     if (sentry) {
       this.sentry = sentry;
