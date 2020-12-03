@@ -14,7 +14,8 @@ export default class ExperimentLockInhibitor extends Inhibitor {
     const requiresExperiment = command.requiresExperiment;
     if (requiresExperiment) {
       const experiment = this.client.experiments.get(requiresExperiment.id);
-      if (
+      if (!experiment) return true;
+      else if (
         experiment.kind == "user" &&
         !message.author.hasExperiment(
           experiment.id,
@@ -30,7 +31,6 @@ export default class ExperimentLockInhibitor extends Inhibitor {
         )
       )
         return true;
-      else if (!experiment) return true;
     }
 
     return false;
