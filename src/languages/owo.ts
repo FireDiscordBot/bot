@@ -11,7 +11,6 @@ export default class owo extends Language {
   constructor() {
     super("owo", {
       language: {
-        DEFAULT: (key: string) => `${key} has not been wocawized fow owo yet.`,
         USER_NOT_FOUND: "Usew not found! Twy use an ID instead.",
         MEMBER_NOT_FOUND: "Membew not found! Twy use an ID instead.",
         CHANNEL_NOT_FOUND: "Channew not found! Twy use an ID instead.",
