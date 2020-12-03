@@ -12,8 +12,7 @@
     "node": ">=14.0.0"
   },
   "scripts": {
-    "dev": "NODE_ENV=development ts-node src/index.ts",
-    "devpm2": "NODE_ENV=development node dist/src/index.js",
+    "dev": "rm -rf dist/ && tsc && NODE_ENV=development node dist/src/index.js",
     "compile": "rm -rf dist/ && tsc",
     "start": "NODE_ENV=production node dist/src/index.js",
     "format": "prettier . --write"
@@ -58,7 +57,6 @@
     "@types/node": "^14.6.0",
     "@types/ws": "^7.2.6",
     "prettier": "^2.1.2",
-    "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
   }
 }
