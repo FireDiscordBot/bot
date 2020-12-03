@@ -410,6 +410,18 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
         LEVELHEAD_TAB: "Tab",
         LEVELHEAD_CHAT: "Chat",
         LEVELHEAD_ADDON_LAYERS: "Addon Head Layers",
+        LOCKDOWN_COMMAND_DESCRIPTION:
+          "Lock all channels in the server, useful for stopping raiders from sending messages. May cause issues if you haven't got permissions setup correctly",
+        LOCKDOWN_ACTION_REQUIRED:
+          "You must provide an action! Possible actions are `start`, `end` or `exclude`",
+        LOCKDOWN_EXCLUDE_REQUIRED:
+          "You must exclude at least one category from server lockdown before you can start/end lockdown",
+        LOCKDOWN_REASON: (user: string, reason: string) =>
+          `Server lockdown started by ${user} with reason "${reason}".`,
+        LOCKDOWN_END_NONE_LOCKED:
+          "It seems there's no locked channels so you can't end lockdown as it was never started",
+        LOCKDOWN_END_REASON: (user: string, reason: string) =>
+          `Server lockdown ended by ${user} with reason "${reason}".`,
         LYRICS_COMMAND_DESCRIPTION:
           'Get the lyrics for a song. (For best results, use the format "artist_name song_title")',
         LYRICS_NO_QUERY:
