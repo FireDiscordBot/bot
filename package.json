@@ -34,6 +34,7 @@
     "discord.js": "^12.5.1",
     "dotenv-extended": "^2.9.0",
     "emoji-regex": "^9.0.0",
+    "erlpack": "discord/erlpack",
     "fuzzball": "^1.3.0",
     "humanize-duration": "^3.23.1",
     "moment": "^2.27.0",
@@ -43,11 +44,12 @@
     "semaphore-async-await": "^1.5.1",
     "ts-postgres": "^1.1.3",
     "uuid": "^8.3.1",
-    "ws": "^7.2.3"
+    "ws": "^7.2.3",
+    "zlib-sync": "^0.1.7"
   },
   "optionalDependencies": {
-    "bufferutil": "^4.0.1",
-    "utf-8-validate": "^5.0.2"
+    "bufferutil": "^4.0.2",
+    "utf-8-validate": "^5.0.3"
   },
   "devDependencies": {
     "@types/archiver": "^3.1.0",
