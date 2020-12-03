@@ -25,7 +25,7 @@ export default class Purge extends Command {
           flag: "--user",
           match: "option",
           type: "user",
-          default: null,
+          default: undefined,
           required: false,
         },
         {
@@ -103,6 +103,7 @@ export default class Purge extends Command {
     if (args.amount > 100 || args.amount <= 1)
       return await message.error("PURGE_AMOUNT_INVALID");
     message.delete().catch(() => {});
+    if (args.user == null) return;
     if (
       args.user ||
       args.match ||
