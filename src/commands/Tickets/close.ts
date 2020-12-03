@@ -25,7 +25,7 @@ export default class CloseTicket extends Command {
 
   async exec(message: FireMessage, args: { reason: string }) {
     if (!message.member) return; // how
-    await message.send("TICKET_WILL_CLOSE");
+    await message.error("TICKET_WILL_CLOSE");
     const willClose = await message.channel
       .awaitMessages(
         (m: FireMessage) =>
