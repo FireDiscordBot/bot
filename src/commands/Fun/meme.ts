@@ -91,10 +91,7 @@ export default class Meme extends Command {
     if (meme.url && this.imgExt.filter((ext) => meme.url.endsWith(ext)).length)
       embed.setImage(meme.url);
     else
-      embed.addField(
-        language.get("ATTACHMENT"),
-        `[Click Here](${meme.url})`
-      );
+      embed.addField(language.get("ATTACHMENT"), `[Click Here](${meme.url})`);
     return await message.channel.send(embed);
   }
 }

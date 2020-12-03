@@ -19,7 +19,9 @@ export default class GuildCreate extends Listener {
         `Fire is an open-source, multi-purpose bot with ${this.client.commandHandler.modules.size} commands and is used in ${this.client.guilds.cache.size} servers.`
       )
       .catch(() =>
-        this.client.console.warn("[Listener] Failed to update description for Fire guild.")
+        this.client.console.warn(
+          "[Listener] Failed to update description for Fire guild."
+        )
       );
     this.client.console.log(
       `Fire joined a new guild! ${guild.name} (${guild.id}) with ${guild.memberCount} members`

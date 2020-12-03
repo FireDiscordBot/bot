@@ -11,5 +11,4 @@ export const guildChannelTypeCaster: ArgumentTypeCaster = (
 export const guildChannelSilentTypeCaster: ArgumentTypeCaster = (
   message: FireMessage,
   phrase
-): Promise<GuildChannel | null> =>
-  guildChannelConverter(message, phrase, true);
+): Promise<GuildChannel | null> => guildChannelConverter(message, phrase, true);

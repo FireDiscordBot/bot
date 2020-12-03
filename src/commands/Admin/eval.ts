@@ -103,7 +103,9 @@ export default class Eval extends Command {
         MessageUtil.encode(
           new Message(EventType.ADMIN_ACTION, {
             user: `${message.author} (${message.author.id})`,
-            guild: message.guild ? `${message.guild} (${message.guild.id})` : "N/A",
+            guild: message.guild
+              ? `${message.guild} (${message.guild.id})`
+              : "N/A",
             shard: message.guild ? message.guild.shardID : 0,
             cluster: this.client.manager.id,
             action: `Eval Command Ran. Input: ${input} | Output: ${output}`,

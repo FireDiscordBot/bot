@@ -119,8 +119,8 @@ export default class owo extends Language {
             "Autowowe has been disabwed, bots wiww no wongew weceive a wowe upon join.",
           AUTOROLE_ENABLED: (role: string, delay: boolean) =>
             `Autowowe has been enabwed, usews wiww weceive ${role} upon ${
-            delay ? "fiwst message" : "join"
-          }.`,
+              delay ? "fiwst message" : "join"
+            }.`,
           AUTOROLE_ENABLED_BOT: (role: string, delay: boolean) =>
             `Autowowe has been enabwed, bots wiww weceive ${role} upon join.`,
           POWERED_BY_KSOFT: "Powewed by KSoft.Si API",
@@ -555,7 +555,9 @@ You wiww automaticawwy gain access to beta channews aftew fiwwing in the fowm`,
         SLOWMODE_COMMAND_DESCRIPTION:
           "Set the swowmode fow a channew ow categowy. Use the --global fwag to set it fow aww channews",
         SLOWMODE_GLOBAL_FAIL_SOME: (failed: string[]) =>
-          `I set swowmode in some channews but faiwed to set swowmode in ${failed.join(", ")}`,
+          `I set swowmode in some channews but faiwed to set swowmode in ${failed.join(
+            ", "
+          )}`,
         SLOWMODE_INVALID_TYPE: "You must pwovide a text channew ow categowy",
         SLOWMODE_FAILED: (channels: string[]) =>
           `Faiwed to set swowmode in ${channels.join(", ")}`,
@@ -602,8 +604,7 @@ You wiww automaticawwy gain access to beta channews aftew fiwwing in the fowm`,
         PREMIUM_DELETE_FAIL: "Faiwed to wemove pwemium.",
         PREMIUM_INSERT_FAIL: "Faiwed to give pwemium.",
         PREMIUM_RELOAD_FAIL: "Faiwed to wewoad pwemium guiwds.",
-        RELOAD_COMMAND_DESCRIPTION:
-          "Wewoad a command/wanguage/wistenew/moduwe",
+        RELOAD_COMMAND_DESCRIPTION: "Wewoad a command/wanguage/wistenew/moduwe",
         TAG_COMMAND_DESCRIPTION: "See a wist of aww tags ow view a tag",
         TAG_NONE_FOUND:
           "I seawched neaw and faw and couwd not find any tags... :c",

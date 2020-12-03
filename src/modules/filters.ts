@@ -12,10 +12,7 @@ export default class Filters extends Module {
   malware: string[];
   regexes: RegExp[];
   filters: {
-    [key: string]: ((
-      message: FireMessage,
-      extra: string,
-    ) => Promise<any>)[];
+    [key: string]: ((message: FireMessage, extra: string) => Promise<any>)[];
   };
 
   constructor() {
@@ -38,7 +35,9 @@ export default class Filters extends Module {
         this.malware = malwareReq.body.toString().split("\n");
       else throw new Error("Non 200 status code");
     } catch (e) {
-      this.client.console.error(`[Filters] Failed to fetch malware domains\n${e.stack}`);
+      this.client.console.error(
+        `[Filters] Failed to fetch malware domains\n${e.stack}`
+      );
     }
   }
 
@@ -51,15 +50,15 @@ export default class Filters extends Module {
   async runAll(
     message: FireMessage,
     extra: string = "",
-    exclude: string[] = [],
+    exclude: string[] = []
   ) {
     if (message.author.bot) return;
     const enabled: string[] = message.guild.settings.get("mod.linkfilter", "");
     if (this.debug.includes(message.guild.id) && enabled.length)
       this.client.console.warn(
-        `[Filters] Running handler(s) for filters ${enabled.join(", ")} in guild ${
-          message.guild
-        }`
+        `[Filters] Running handler(s) for filters ${enabled.join(
+          ", "
+        )} in guild ${message.guild}`
       );
     Object.keys(this.filters).forEach((name) => {
       if (!exclude.includes(name) && enabled.includes(name)) {
@@ -80,10 +79,7 @@ export default class Filters extends Module {
     return text;
   }
 
-  async handleInvite(
-    message: FireMessage,
-    extra: string = "",
-  ) {
+  async handleInvite(message: FireMessage, extra: string = "") {
     const deleteInvite = async (inv: Invite) => {
       if (
         inv.guild.id != message.guild.id &&
