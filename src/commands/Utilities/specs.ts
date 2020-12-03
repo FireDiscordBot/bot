@@ -37,14 +37,17 @@ export default class Specs extends Command {
   }
 
   async exec(message: FireMessage, args: { user?: FireMember | FireUser }) {
-    let user = args.user instanceof FireMember ? args.user.user : args.user;
-    if (typeof user == "undefined") user = message.author;
-    else if (!user) return;
+    let user = args.user;
+    let member: FireMember;
+    if (!user) user = message.member;
     const specs = await this.client.db
       .query("SELECT * FROM specs WHERE uid=$1", [user.id])
       .first();
-    const member = (await message.guild.members.fetch(user)) as FireMember;
     if (!specs || !specs.data) return await message.error("SPECS_NOT_FOUND");
+    member =
+      user instanceof FireMember
+        ? user
+        : ((await message.guild.members.fetch(user)) as FireMember);
     if (
       message.util.parsed.alias == "delspecs" &&
       message.member.isModerator()
@@ -65,7 +68,7 @@ export default class Specs extends Command {
       .setTimestamp(new Date())
       .setAuthor(
         user.toString(),
-        user.displayAvatarURL({ size: 2048, dynamic: true }),
+        member.user.displayAvatarURL({ size: 2048, dynamic: true }),
         "https://inv.wtf/sk1spec"
       )
       .addField("» CPU", escape(specs.get("cpu") as string))
