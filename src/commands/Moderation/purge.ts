@@ -92,18 +92,18 @@ export default class Purge extends Command {
       user?: FireUser;
       match?: string;
       nomatch?: string;
-      includeEmbeds?: string;
+      includeEmbeds?: boolean;
       startsWith?: string;
       endsWith?: string;
-      attachments?: string;
-      bot?: string;
+      attachments?: boolean;
+      bot?: boolean;
       reason?: string;
     }
   ) {
     if (args.amount > 100 || args.amount <= 1)
       return await message.error("PURGE_AMOUNT_INVALID");
+    if (message.content.includes("--user") && args.user == null) return;
     message.delete().catch(() => {});
-    if (args.user == null) return;
     if (
       args.user ||
       args.match ||
@@ -170,11 +170,11 @@ export default class Purge extends Command {
       user?: FireUser;
       match?: string;
       nomatch?: string;
-      includeEmbeds?: string;
+      includeEmbeds?: boolean;
       startsWith?: string;
       endsWith?: string;
-      attachments?: string;
-      bot?: string;
+      attachments?: boolean;
+      bot?: boolean;
       reason?: string;
     }
   ) {
