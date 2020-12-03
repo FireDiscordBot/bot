@@ -20,13 +20,13 @@ export default class MCLogs extends Module {
   constructor() {
     super("mclogs");
     this.regexes = {
-      reupload: /(?:http(?:s)?:\/\/)?(paste\.ee|pastebin\.com|hastebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?(\w+)/im,
-      noRaw: /(?:http(?:s)?:\/\/)?(?:justpaste).(?:it)\/(\w+)/im,
-      secrets: /(club.sk1er.mods.levelhead.auth.MojangAuth|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :)/im,
-      email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}/im,
-      url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/im,
-      home: /(\/Users\/\w+|\/home\/\w+|C:\\Users\\\w+)/im,
-      settingUser: /\[Client thread\/INFO]: Setting user: (\w{1,16})/im,
+      reupload: /(?:http(?:s)?:\/\/)?(paste\.ee|pastebin\.com|hastebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?(\w+)/gim,
+      noRaw: /(?:http(?:s)?:\/\/)?(?:justpaste).(?:it)\/(\w+)/gim,
+      secrets: /(club.sk1er.mods.levelhead.auth.MojangAuth|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :)/gim,
+      email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}/gim,
+      url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
+      home: /(\/Users\/\w+|\/home\/\w+|C:\\Users\\\w+)/gim,
+      settingUser: /\[Client thread\/INFO]: Setting user: (\w{1,16})/gim,
     };
     this.logText = [
       "net.minecraft.launchwrapper.Launch",
