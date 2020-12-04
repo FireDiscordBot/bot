@@ -226,12 +226,6 @@
         "name": "Configuration",
         "commands": [
             {
-                "name": "settings",
-                "description": "Run through my setup process to configure a few settings",
-                "usage": "{prefix}settings",
-                "aliases": "setup"
-            },
-            {
                 "name": "log",
                 "description": "Set the channel(s) for logging",
                 "usage": "{prefix}log <type> <channel>",
@@ -380,30 +374,6 @@
                 "description": "Remove all roles from a user (The role must be below Fire's highest role to be removed)",
                 "usage": "{prefix}derank <user> [<reason>]",
                 "aliases": "dethrone"
-            },
-            {
-                "name": "antispam",
-                "description": "Enable ChatWatch spam prevention",
-                "usage": "{prefix}antispam [<chance of spam>]",
-                "aliases": null
-            },
-            {
-                "name": "badname",
-                "description": "Change the name used for auto dehoist/decancer",
-                "usage": "{prefix}badname [<new name>]",
-                "aliases": null
-            },
-            {
-                "name": "autodehoist",
-                "description": "Toggle renaming those with hoisted names",
-                "usage": "{prefix}autodehoist",
-                "aliases": null
-            },
-            {
-                "name": "autodecancer",
-                "description": "Toggle renaming those with \"cancerous\" (non-ascii) names",
-                "usage": "{prefix}autodecancer",
-                "aliases": null
             }
         ]
     },

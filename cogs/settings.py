@@ -816,6 +816,7 @@ class Settings(commands.Cog):
             return await ctx.success(f'No longer filtering links')
 
     @commands.command(name='filterexcl', description='Exclude channels, roles and members from the filter')
+    @commands.has_permissions(manage_guild=True)
     async def filterexclcmd(self, ctx, *ids: typing.Union[TextChannel, Role, Member]):
         current = ctx.config.get('excluded.filter')
         ids = [str(d.id) for d in ids]
