@@ -72,11 +72,6 @@ class MemberRemove(commands.Cog):
                                   color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
             embed.set_author(name=f'{user}', icon_url=str(
                 user.avatar_url_as(static_format='png', size=2048)))
-            delta = humanfriendly.format_timespan(
-                datetime.datetime.utcnow() - user.joined_at,
-                max_units=2
-            )
-            embed.add_field(name='Stayed for', value=delta, inline=False)
             if moderator and action:
                 embed.add_field(
                     name=f'{action} By', value=f'{moderator} ({moderator.id})', inline=False)

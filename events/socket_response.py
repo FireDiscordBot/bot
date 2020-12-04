@@ -44,7 +44,7 @@ class SocketResponse(commands.Cog):
                 user = discord.User(state=self.bot._connection,
                                     data=payload['d']['user'])
                 member_remove = self.bot.get_cog("MemberRemove")
-                member_remove.on_member_remove(user, guild)
+                await member_remove.on_member_remove(user, guild)
             except Exception:
                 pass
 
