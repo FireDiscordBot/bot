@@ -26,23 +26,24 @@ class MemberRemove(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
-    async def on_member_remove(self, member):
-        if not [g for g in self.bot.guilds if g.get_member(member.id)]:
-            self.bot.configs.pop(member.id, None)
-        conf = self.bot.get_config(member.guild)
+    # This doesn't get dispatched if the user isn't cached so I'm going to trigger it manually
+    # with different args to compensate for the lack of a member instance
+
+    # @commands.Cog.listener()
+    async def on_member_remove(self, user: discord.User, guild: discord.Guild):
+        conf = self.bot.get_config(guild)
         if conf.get('greet.leavemsg'):
             leavechan = conf.get('greet.leavechannel')
             leavemsg = conf.get('greet.leavemsg')
             if leavechan and leavemsg:
                 vars = {
-                    '{user.mention}': member.mention,
-                    '{user}': str(member),
-                    '{user.name}': member.name,
-                    '{user.discrim}': member.discriminator,
-                    '{server}': str(member.guild),
-                    '{guild}': str(member.guild),
-                    '{count}': str(member.guild.member_count)
+                    '{user.mention}': user.mention,
+                    '{user}': str(user),
+                    '{user.name}': user.name,
+                    '{user.discrim}': user.discriminator,
+                    '{server}': str(guild),
+                    '{guild}': str(guild),
+                    '{count}': str(guild.member_count)
                 }
                 message = leavemsg
                 for var, value in vars.items():
@@ -53,11 +54,11 @@ class MemberRemove(commands.Cog):
             moderator = None
             action = None
             reason = None
-            if member.guild.me.guild_permissions.view_audit_log:
-                async for e in member.guild.audit_logs(limit=5):
-                    if e.action in [discord.AuditLogAction.kick, discord.AuditLogAction.ban] and e.target.id == member.id:
+            if guild.me.guild_permissions.view_audit_log:
+                async for e in guild.audit_logs(limit=5):
+                    if e.action in [discord.AuditLogAction.kick, discord.AuditLogAction.ban] and e.target.id == user.id:
                         moderator = e.user
-                        if moderator == member.guild.me:
+                        if moderator == guild.me:
                             moderator = None
                             break
                         if e.action == discord.AuditLogAction.kick:
@@ -69,28 +70,20 @@ class MemberRemove(commands.Cog):
                         break
             embed = discord.Embed(title='Member Left', url='https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif',
                                   color=discord.Color.red(), timestamp=datetime.datetime.now(datetime.timezone.utc))
-            embed.set_author(name=f'{member}', icon_url=str(
-                member.avatar_url_as(static_format='png', size=2048)))
+            embed.set_author(name=f'{user}', icon_url=str(
+                user.avatar_url_as(static_format='png', size=2048)))
             delta = humanfriendly.format_timespan(
-                datetime.datetime.utcnow() - member.joined_at,
+                datetime.datetime.utcnow() - user.joined_at,
                 max_units=2
             )
             embed.add_field(name='Stayed for', value=delta, inline=False)
-            if member.nick:
-                embed.add_field(name='Nickname',
-                                value=member.nick, inline=False)
-            roles = [role.mention for role in member.roles if role !=
-                     member.guild.default_role]
-            if roles:
-                embed.add_field(
-                    name='Roles', value=', '.join(roles), inline=False)
             if moderator and action:
                 embed.add_field(
                     name=f'{action} By', value=f'{moderator} ({moderator.id})', inline=False)
             if action and reason:
                 embed.add_field(name=f'{action} for',
                                 value=reason, inline=False)
-            embed.set_footer(text=f'User ID: {member.id}')
+            embed.set_footer(text=f'User ID: {user.id}')
             try:
                 await logch.send(embed=embed)
             except Exception:

@@ -18,6 +18,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from discord.ext import commands
 from core.config import Config
+import discord
 
 
 class SocketResponse(commands.Cog):
@@ -34,6 +35,18 @@ class SocketResponse(commands.Cog):
                     guild, bot=self.bot, db=self.bot.db)
             if not self.bot.get_config(guild).loaded:
                 await self.bot.get_config(guild).load()
+        elif t == "GUILD_MEMBER_REMOVE":
+            guild_id = int(payload['d']['guild_id'])
+            guild = self.bot.get_guild(guild_id)
+            if not guild:
+                return
+            try:
+                user = discord.User(state=self.bot._connection,
+                                    data=payload['d']['user'])
+                member_remove = self.bot.get_cog("MemberRemove")
+                member_remove.on_member_remove(user, guild)
+            except Exception:
+                pass
 
 
 def setup(bot):
