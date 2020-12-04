@@ -144,7 +144,7 @@ export default class Lockdown extends Command {
     ) as string;
     for (const role of message.guild.roles.cache.values()) {
       for (const channel of channels.values()) {
-        if (lockdownMessages.find((msg) => msg.startsWith(channel.id))) {
+        if (lockdownMessages.find((msg) => msg?.startsWith(channel.id))) {
           const lockdownMessage = lockdownMessages
             .find((msg) => msg.startsWith(channel.id))
             .split("-")[1];
