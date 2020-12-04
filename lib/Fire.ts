@@ -20,6 +20,7 @@ import {
   memberSilentTypeCaster,
   memberTypeCaster,
 } from "../src/arguments/member";
+import { userMemberSnowflakeTypeCaster } from "../src/arguments/userMemberSnowflake";
 import { roleSilentTypeCaster, roleTypeCaster } from "../src/arguments/role";
 import { userSilentTypeCaster, userTypeCaster } from "../src/arguments/user";
 import { memberRoleTypeCaster } from "../src/arguments/memberRole";
@@ -197,6 +198,7 @@ export class Fire extends AkairoClient {
 
     this.commandHandler.resolver.addTypes({
       "user|member": userMemberTypeCaster,
+      "user|member|snowflake": userMemberSnowflakeTypeCaster,
       "member|role": memberRoleTypeCaster,
       member: memberTypeCaster,
       memberSilent: memberSilentTypeCaster,
