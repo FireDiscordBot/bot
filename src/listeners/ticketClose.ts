@@ -19,10 +19,22 @@ export default class TicketClose extends Listener {
       (sk1erModule.supportGuild.channels.cache.get(
         sk1erModule.supportChannelId
       ) as TextChannel);
-    await channel
-      .updateOverwrite(creator, {
-        VIEW_CHANNEL: null,
-      })
-      .catch(() => {});
+    if (!channel)
+      return this.client.console.warn(
+        `[Sk1er] Support channel doesn't exist in cache, unable to remove overwrite for ${creator}`
+      );
+    if (channel.permissionOverwrites.has(creator.id)) {
+      this.client.console.log(
+        `[Sk1er] Removing support overwrite for ${creator}...`
+      );
+      await channel.permissionOverwrites
+        .get(creator.id)
+        .delete()
+        .catch(() =>
+          this.client.console.warn(
+            `[Sk1er] Failed to remove overwrite for ${creator}`
+          )
+        );
+    }
   }
 }
