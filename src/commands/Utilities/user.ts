@@ -12,6 +12,10 @@ import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { Ban } from "@aero/ksoft";
 import * as moment from "moment";
+import { TextChannel } from "discord.js";
+import { DeconstructedSnowflake } from "discord.js";
+import { DMChannel } from "discord.js";
+import { GuildChannel } from "discord.js";
 
 const {
   emojis,
@@ -27,7 +31,7 @@ export default class User extends Command {
       args: [
         {
           id: "user",
-          type: "user|member",
+          type: "user|member|snowflake",
           default: undefined,
           required: false,
         },
@@ -37,15 +41,28 @@ export default class User extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { user?: FireMember | FireUser }) {
+  async exec(
+    message: FireMessage,
+    args: {
+      user?:
+        | FireMember
+        | FireUser
+        | ({ snowflake: string } & DeconstructedSnowflake);
+    }
+  ) {
     if (typeof args.user == "undefined")
       args.user = message?.member || message.author;
+    else if (args.user?.hasOwnProperty("snowflake"))
+      return await this.snowflakeInfo(
+        message,
+        args.user as { snowflake: string } & DeconstructedSnowflake
+      );
     else if (!args.user) return;
     let member: FireMember, user: FireUser;
     if (args.user instanceof FireMember) {
       member = args.user;
       user = member.user;
-    } else user = args.user;
+    } else user = args.user as FireUser;
     if (!user) {
       if (message.member) {
         member = message.member;
@@ -180,7 +197,7 @@ export default class User extends Command {
       humanize(
         moment(user.createdAt).diff(now),
         message.language.id.split("-")[0]
-      ) + " ago";
+      ) + message.language.get("AGO");
     let info = [
       `**${message.language.get("MENTION")}:** ${user.toMention()}`,
       `**${message.language.get("CREATED")}:** ${created} (${createdDelta})`,
@@ -191,7 +208,7 @@ export default class User extends Command {
         humanize(
           moment(member.joinedAt).diff(now),
           message.language.id.split("-")[0]
-        ) + " ago";
+        ) + message.language.get("AGO");
       if (message.guild && message.guild.ownerID == member.id)
         // 99% of the time the guild will never be transferred so it'll make sense most of the time
         info.push(
@@ -243,7 +260,6 @@ export default class User extends Command {
 
   shorten(items: any[], max: number = 1000, sep: string = ", ") {
     let text = "";
-    let next = 0;
     while (text.length < max && items.length) {
       text = text + `${items[0]}${sep}`;
       items.shift();
@@ -251,5 +267,177 @@ export default class User extends Command {
     if (text.endsWith(sep)) text = text.slice(0, text.length - sep.length);
     if (items.length >= 1) return text + ` and ${items.length} more...`;
     return text;
+  }
+
+  async snowflakeInfo(
+    message: FireMessage,
+    snowflake: { snowflake: string } & DeconstructedSnowflake
+  ) {
+    const created = snowflake.date.toLocaleString(message.language.id);
+    const now = moment();
+    const createdDelta =
+      humanize(
+        moment(snowflake.date).diff(now),
+        message.language.id.split("-")[0]
+      ) + message.language.get("AGO");
+
+    let info = [
+      `**${message.language.get("CREATED")}:** ${created} (${createdDelta})`,
+      `**${message.language.get("TIMESTAMP")}:** ${snowflake.timestamp}`,
+      `**${message.language.get("WORKER_ID")}:** ${snowflake.workerID}`,
+      `**${message.language.get("PROCESS_ID")}:** ${snowflake.processID}`,
+      `**${message.language.get("INCREMENT")}:** ${snowflake.increment}`,
+    ];
+
+    if (this.client.guilds.cache.has(snowflake.snowflake)) {
+      const guild = this.client.guilds.cache.get(snowflake.snowflake);
+      info.push(
+        guild.members.cache.has(message.author.id)
+          ? (message.language.get(
+              "USER_SNOWFLAKE_BELONGS_TO",
+              message.language.get("GUILD"),
+              guild.name
+            ) as string)
+          : (message.language.get(
+              "USER_SNOWFLAKE_BELONGS_TO",
+              message.language.get("GUILD")
+            ) as string)
+      );
+    }
+
+    if (this.client.emojis.cache.has(snowflake.snowflake))
+      info.push(
+        message.language.get(
+          "USER_SNOWFLAKE_BELONGS_TO",
+          message.language.get("EMOJI"),
+          this.client.emojis.cache.get(snowflake.snowflake).toString()
+        ) as string
+      );
+
+    if (this.client.channels.cache.has(snowflake.snowflake)) {
+      const channel = this.client.channels.cache.get(snowflake.snowflake);
+      if (channel.type == "dm") {
+        if ((channel as DMChannel).recipient.id == message.author.id)
+          info.push(
+            message.language.get(
+              "USER_SNOWFLAKE_BELONGS_TO",
+              message.language.get("CHANNEL"),
+              message.language.get("DM_CHANNEL")
+            ) as string
+          );
+      } else {
+        const member = (channel as GuildChannel).guild.members.cache.get(
+          message.author.id
+        );
+        info.push(
+          member?.permissionsIn(channel).has("VIEW_CHANNEL")
+            ? (message.language.get(
+                "USER_SNOWFLAKE_BELONGS_TO",
+                message.language.get("CHANNEL"),
+                channel.toString()
+              ) as string)
+            : (message.language.get(
+                "USER_SNOWFLAKE_BELONGS_TO",
+                message.language.get("CHANNEL")
+              ) as string)
+        );
+      }
+    }
+
+    if (
+      this.client.channels.cache
+        .filter((c) => c.type == "text")
+        .map((c: TextChannel) => c.messages.cache)
+        .find((m) => m.has(snowflake.snowflake))
+    ) {
+      let viewable = false;
+      const snowflakeMessage = this.client.channels.cache
+        .filter((c) => c.type == "text")
+        .map((c: TextChannel) => c.messages.cache)
+        .find((m) => m.has(snowflake.snowflake))
+        .get(snowflake.snowflake) as FireMessage;
+      const channel = snowflakeMessage.channel;
+      if (
+        channel.type == "dm" &&
+        (channel as DMChannel).recipient.id == message.author.id
+      )
+        viewable = true;
+      else {
+        const member = (channel as GuildChannel).guild.members.cache.get(
+          message.author.id
+        );
+        if (member?.permissionsIn(channel).has("VIEW_CHANNEL")) viewable = true;
+      }
+      info.push(
+        viewable
+          ? (message.language.get(
+              "USER_SNOWFLAKE_BELONGS_TO",
+              message.language.get("MESSAGE"),
+              `[${message.language.get("CLICK_TO_VIEW")}](${
+                snowflakeMessage.url
+              })`
+            ) as string)
+          : (message.language.get(
+              "USER_SNOWFLAKE_BELONGS_TO",
+              message.language.get("MESSAGE")
+            ) as string)
+      );
+    }
+
+    if (
+      this.client.channels.cache
+        .filter((c) => c.type == "text")
+        .map((c: TextChannel) => c.messages.cache)
+        .find((c) => c.find((m) => m.attachments.has(snowflake.snowflake)))
+    ) {
+      let viewable = false;
+      const snowflakeMessage = this.client.channels.cache
+        .filter((c) => c.type == "text")
+        .map((c: TextChannel) => c.messages.cache)
+        .find((c) => c.find((m) => m.attachments.has(snowflake.snowflake)))
+        .first() as FireMessage;
+      const channel = snowflakeMessage.channel;
+      if (
+        channel.type == "dm" &&
+        (channel as DMChannel).recipient.id == message.author.id
+      )
+        viewable = true;
+      else {
+        const member = (channel as GuildChannel).guild.members.cache.get(
+          message.author.id
+        );
+        if (member?.permissionsIn(channel).has("VIEW_CHANNEL")) viewable = true;
+      }
+      info.push(
+        viewable && snowflakeMessage.attachments.get(snowflake.snowflake)?.url
+          ? (message.language.get(
+              "USER_SNOWFLAKE_BELONGS_TO",
+              message.language.get("ATTACHMENT"),
+              `[${message.language.get("CLICK_TO_VIEW")}](${
+                snowflakeMessage.attachments.get(snowflake.snowflake).url
+              })`
+            ) as string)
+          : (message.language.get(
+              "USER_SNOWFLAKE_BELONGS_TO",
+              message.language.get("ATTACHMENT")
+            ) as string)
+      );
+    }
+
+    const embed = new MessageEmbed()
+      .setColor(message.member?.displayColor || "#ffffff")
+      .setTimestamp(snowflake.date)
+      .setAuthor(
+        message.author.toString(),
+        message.author.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        })
+      )
+      .setDescription(message.language.get("USER_SNOWFLAKE_DESCRIPTION"))
+      .addField(`» ${message.language.get("ABOUT")}`, info.join("\n"));
+
+    return await message.channel.send(embed);
   }
 }

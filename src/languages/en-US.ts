@@ -61,6 +61,7 @@ export default class enUS extends Language {
         CREATED_GUILD: "Created Guild",
         JOINED: "Joined",
         JOIN_POSITION: "Join Position",
+        CLICK_TO_VIEW: "Click To View", // message/attachment link
         NICKNAME: "Nickname",
         ABOUT: "About",
         ROLES: "Roles",
@@ -70,9 +71,17 @@ export default class enUS extends Language {
         GUILD: "Guild",
         GUILDS: "Guilds",
         CHANNEL: "Channel",
+        DM_CHANNEL: "Our DMs",
+        MESSAGE: "Message",
         ATTACHMENT: "Attachment",
+        EMOJI: "Emoji",
         VARIABLES: "Variables",
         SUBJECT: "Subject",
+        TIMESTAMP: "Timestamp",
+        WORKER_ID: "Worker ID",
+        PROCESS_ID: "Process ID",
+        INCREMENT: "Increment",
+        AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
         REGION_DEPRECATED: "❓ Deprecated Region",
         REGIONS: {
           brazil: "🇧🇷 Brazil",
@@ -577,6 +586,10 @@ You will automatically gain access to beta channels after filling in the form`,
           `I set slowmode in some channels but failed to set slowmode in ${failed.join(
             ", "
           )}`,
+        SPECS_COMMAND_DESCRIPTION:
+          "View/remove a users specs (locked to discord.gg/sk1er)",
+        SPECS_NOT_FOUND:
+          "Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec>",
         STATS_COMMAND_DESCRIPTION:
           "View cluster & overall stats. Use the --cluster flag to view stats for a specific cluster",
         STATS_TITLE: (name: string, version: string) =>
@@ -591,10 +604,6 @@ You will automatically gain access to beta channels after filling in the form`,
           `PID: ${process.pid} | Cluster: ${
             message.client.manager.id
           } | Shard: ${message?.guild?.shardID || 0}`,
-        SPECS_COMMAND_DESCRIPTION:
-          "View/remove a users specs (locked to discord.gg/sk1er)",
-        SPECS_NOT_FOUND:
-          "Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec>",
         STEAL_COMMAND_DESCRIPTION: "Steal an emote to use in your own server",
         STEAL_NOTHING:
           "You're a terrible criminal, you can't steal nothing! You must provide an emoji to steal",
@@ -610,6 +619,15 @@ You will automatically gain access to beta channels after filling in the form`,
           `Thanks! Your suggestion was added to the Trello @ <${card.url}>. Make sure to check it every now and then for a response.
 Abuse of this command __**will**__ result in being temporarily blacklisted from Fire`,
         USER_COMMAND_DESCRIPTION: "Get a general overview of a user.",
+        // don't change emote
+        USER_SNOWFLAKE_DESCRIPTION: `It looks like that isn't a valid user, but it is a valid snowflake! <:snowflak:784510818556706867>
+
+A [Snowflake](https://discord.com/developers/docs/reference#snowflakes) is essentially a unique ID for a resource (message, user, channel, etc) which contains a timestamp.
+
+You can copy the snowflakes from messages in Discord by right clicking on them.
+You must have Developer Mode enabled, which is found in User Settings > Appearance`,
+        USER_SNOWFLAKE_BELONGS_TO: (type: string, extra: string) =>
+          `**Belongs To**: ${type} ${extra ? "(" + extra + ")" : ""}`,
         USER_KSOFT_BANNED: (ban: Ban) =>
           `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${ban.user.id}) for ${ban.reason} - [Proof](${ban.proof})`,
         VOTE_COMMAND_DESCRIPTION:
