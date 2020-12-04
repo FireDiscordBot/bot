@@ -560,6 +560,10 @@ You wiww automaticawwy gain access to beta channews aftew fiwwing in the fowm`,
         SLOWMODE_INVALID_TYPE: "You must pwovide a text channew ow categowy",
         SLOWMODE_FAILED: (channels: string[]) =>
           `Faiwed to set swowmode in ${channels.join(", ")}`,
+        SPECS_COMMAND_DESCRIPTION:
+          "View/wemove a usews specs (wocked to discord.gg/sk1er)",
+        SPECS_NOT_FOUND:
+          "Specs not found fow that usew. Teww them to fiww in this fowm\n<https://inv.wtf/sk1spec>",
         STATS_COMMAND_DESCRIPTION:
           "View cwustew & ovewaww stats. Use the --cluster fwag to view stats fow a specific cwustew",
         STATS_TITLE: (name: string, version: string) =>
@@ -574,10 +578,6 @@ You wiww automaticawwy gain access to beta channews aftew fiwwing in the fowm`,
           `PID: ${process.pid} | Cwustew: ${
             message.client.manager.id
           } | Shawd: ${message?.guild?.shardID || 0}`,
-        SPECS_COMMAND_DESCRIPTION:
-          "View/wemove a usews specs (wocked to discord.gg/sk1er)",
-        SPECS_NOT_FOUND:
-          "Specs not found fow that usew. Teww them to fiww in this fowm\n<https://inv.wtf/sk1spec>",
         STEAL_COMMAND_DESCRIPTION: "Steaw an emote to use in youw own sewvew",
         STEAL_NOTHING:
           "You'we a tewwibwe cwiminaw, you can't steaw nothing! You must pwovide an emoji to steaw",
