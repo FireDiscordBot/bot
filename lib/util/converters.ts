@@ -3,8 +3,10 @@ import {
   TextChannel,
   VoiceChannel,
   GuildChannel,
+  SnowflakeUtil,
   CategoryChannel,
   FetchMembersOptions,
+  DeconstructedSnowflake,
 } from "discord.js";
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
@@ -43,14 +45,33 @@ const getRoleMentionMatch = (argument: string) => {
   return match ? match[1] : null;
 };
 
+export const snowflakeConverter = async (
+  message: FireMessage,
+  argument: string,
+  silent = false
+): Promise<({ snowflake: string } & DeconstructedSnowflake) | null> => {
+  if (!argument) return;
+
+  const snowflake = getIDMatch(argument.trim());
+  if (!snowflake) {
+    if (!silent) await message.error();
+    return null;
+  }
+  const deconstructed = SnowflakeUtil.deconstruct(snowflake);
+  if (deconstructed.timestamp < 1420070400000) return null;
+
+  return {
+    snowflake,
+    ...deconstructed,
+  };
+};
+
 export const memberConverter = async (
   message: FireMessage,
   argument: string,
   silent = false
 ): Promise<FireMember | null> => {
-  if (!argument) {
-    return;
-  }
+  if (!argument) return;
 
   const guild = message.guild;
   if (!guild) {
@@ -96,9 +117,7 @@ export const userConverter = async (
   argument: string,
   silent = false
 ): Promise<FireUser | null> => {
-  if (!argument) {
-    return;
-  }
+  if (!argument) return;
 
   if (argument == "^" && message.channel.messages.cache.size >= 2)
     return message.channel.messages.cache
