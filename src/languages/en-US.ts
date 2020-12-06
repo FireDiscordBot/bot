@@ -539,7 +539,7 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           "make a user unable to use the best discord bot",
         PURGE_COMMAND_DESCRIPTION:
           "Bulk delete messages with optional flags to selectively delete messages based on certain factors",
-        PURGE_AMOUNT_INVALID: "Invalid amount. Minumum is 2, Maximum is 500",
+        PURGE_AMOUNT_INVALID: "Invalid amount. Minumum is 2, Maximum is 100",
         PURGE_HISTORY_FAIL: "Failed to fetch messages",
         PURGE_SUCCESS: (messages: number) =>
           `Successfully deleted **${messages}** messages!`,
