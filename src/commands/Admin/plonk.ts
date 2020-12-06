@@ -42,11 +42,7 @@ export default class Plonk extends Command {
     args: { user: FireMember | FireUser; permanent: boolean; reason: string }
   ) {
     if (!args.user) return;
-    if (
-      !this.client.util.admins.includes(message.author.id) ||
-      this.client.util.admins.includes(args.user.id)
-    )
-      return;
+    if (!message.author.isSuperuser() || args.user.isSuperuser()) return;
 
     const user = args.user instanceof FireMember ? args.user.user : args.user;
     if (!user) return;

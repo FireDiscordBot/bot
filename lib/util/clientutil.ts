@@ -40,7 +40,6 @@ export class Util extends ClientUtil {
 
   constructor(client: Fire) {
     super(client);
-    this.admins = JSON.parse(process.env.ADMINS); // Will probably change this for a table in le database
     this.loadedData = { plonked: false, premium: false };
     this.plonked = [];
     this.premium = new Map();

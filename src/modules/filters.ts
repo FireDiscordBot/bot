@@ -160,7 +160,7 @@ export default class Filters extends Module {
   async getInviteFromExec(message: FireMessage, exec: RegExpExecArray) {
     if (
       ["h.inv.wtf", "i.inv.wtf"].includes(exec.groups.domain) &&
-      this.client.util.admins.includes(message.author.id)
+      message.author.isSuperuser()
     )
       return;
     if (message?.member.isModerator(message.channel)) return;

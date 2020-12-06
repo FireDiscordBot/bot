@@ -88,6 +88,10 @@ export class FireUser extends User {
   get cancerous() {
     return !this.client.util.isASCII(this.username);
   }
+
+  isSuperuser() {
+    return this.settings.get("utils.superuser", false);
+  }
 }
 
 Structures.extend("User", () => FireUser);

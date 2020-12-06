@@ -162,6 +162,10 @@ export class FireMember extends GuildMember {
       return false;
     }
   }
+
+  isSuperuser() {
+    return this.settings.get("utils.superuser", false);
+  }
 }
 
 Structures.extend("GuildMember", () => FireMember);

@@ -181,8 +181,7 @@ export default class User extends Command {
     let emojis: string[] = Object.keys(badges)
       .filter((badge: UserFlagsString) => flags.includes(badge))
       .map((badge) => badges[badge]);
-    if (this.client.util.admins.includes(user.id))
-      emojis.push(badges.FIRE_ADMIN);
+    if (user.isSuperuser()) emojis.push(badges.FIRE_ADMIN);
     if ([...this.client.util.premium.values()].includes(user.id))
       emojis.push(badges.FIRE_PREMIUM);
     if (emojis.length) emojis.push(zws);
