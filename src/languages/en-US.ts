@@ -77,6 +77,7 @@ export default class enUS extends Language {
         MESSAGE: "Message",
         ATTACHMENT: "Attachment",
         EMOJI: "Emoji",
+        ROLE: "Role",
         VARIABLES: "Variables",
         SUBJECT: "Subject",
         TIMESTAMP: "Timestamp",

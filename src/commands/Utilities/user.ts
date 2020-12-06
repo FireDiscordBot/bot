@@ -305,6 +305,15 @@ export default class User extends Command {
       );
     }
 
+    if (message.guild.roles.cache.has(snowflake.snowflake))
+      info.push(
+        message.language.get(
+          "USER_SNOWFLAKE_BELONGS_TO",
+          message.language.get("ROLE"),
+          message.guild.roles.cache.get(snowflake.snowflake).toString()
+        ) as string
+      );
+
     if (this.client.emojis.cache.has(snowflake.snowflake))
       info.push(
         message.language.get(
