@@ -16,8 +16,10 @@ export default class AdminOnlyInhibitor extends Inhibitor {
         "commands.adminonly",
         []
       ) as string[]).includes(message.channel.id)
-    )
+    ) {
+      if (message.member.isSuperuser()) return false;
       return !message.member.isAdmin();
+    }
     return false;
   }
 }
