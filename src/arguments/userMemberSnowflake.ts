@@ -24,4 +24,5 @@ export const userMemberSnowflakeTypeCaster: ArgumentTypeCaster = async (
   if (user) return user;
   const snowflake = await snowflakeConverter(message, phrase);
   if (snowflake) return snowflake;
+  if (phrase) return null;
 };

@@ -54,11 +54,15 @@ export const snowflakeConverter = async (
 
   const snowflake = getIDMatch(argument.trim());
   if (!snowflake) {
-    if (!silent) await message.error();
+    if (!silent) await message.error("INVALID_SNOWFLAKE");
     return null;
   }
+
   const deconstructed = SnowflakeUtil.deconstruct(snowflake);
-  if (deconstructed.timestamp < 1420070400000) return null;
+  if (deconstructed.timestamp < 1420070400000) {
+    if (!silent) await message.error("INVALID_SNOWFLAKE");
+    return null;
+  }
 
   return {
     snowflake,
