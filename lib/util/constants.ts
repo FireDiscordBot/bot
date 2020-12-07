@@ -69,7 +69,7 @@ export const constants = {
   regexes: {
     discord: {
       cdn: /https:\/\/cdn.discordapp.com\/attachments\/(?:\d){15,21}\/(?:\d){15,21}\/(?:.+?)(?:.png|.jpg)/im,
-      invite: /discord\.gg\/([a-zA-Z0-9\-]{1,25})/im,
+      invite: /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[a-zA-Z0-9\-]{1,25})/im,
       message: /(?:http(?:s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?/,
     },
     invites: [
