@@ -18,6 +18,8 @@ export default class enUS extends Language {
         INVALID_ROLE_ID: "Role not found! Make sure the ID is valid.",
         INVALID_SNOWFLAKE:
           "User not found and argument is not a valid snowflake. Try using an ID if you want to find a user.",
+        INVALID_MEMBER_ROLE_CHANNEL:
+          "That is not a valid member, role or channel. Make sure the name or ID you're providing is valid.",
         INVALID_MESSAGE:
           "Message not found! Make sure you're giving a valid id/link.",
         UNKNOWN_COMMAND: "Command not found",
@@ -329,6 +331,42 @@ Hint: Use the \`public\` command to get your server on the list`,
           haste
             ? `Output was too long, uploaded to hastebin; ${haste}`
             : `Output was too long, failed to upload to hastebin`,
+        FILTEREXCL_COMMAND_DESCRIPTION:
+          "Exclude a member/role/channel from link filtering",
+        FILTEREXCL_LIST_SOME_REMOVED: (mentions: string[], removed: string[]) =>
+          mentions.length
+            ? `Currently excluded from filtering ${
+                mentions.length > 1 ? "are" : "is"
+              }:\n${mentions.join(
+                ", "
+              )}\n\nI have also removed some items from the exclusion list due to not being found (member left, role/channel deleted):\n${removed.join(
+                ", "
+              )}`
+            : `I have reset the filter exclusion list due to some items from the exclusion list (${removed.join(
+                ", "
+              )}) not being found (member left, role/channel deleted)`,
+        FILTEREXCL_SET_SOME_REMOVED: (mentions: string[], removed: string[]) =>
+          mentions.length
+            ? `Successfully set filter exclusion list to:\n${mentions.join(
+                ", "
+              )}\n\nI have also removed some items from the exclusion list due to not being found (member left, role/channel deleted):\n${removed.join(
+                ", "
+              )}`
+            : `I have reset the filter exclusion list due to the remaining items on the exclusion list (${removed.join(
+                ", "
+              )}) not being found (member left, role/channel deleted)`,
+        FILTEREXCL_LIST: (mentions: string[], removed: string[]) =>
+          mentions.length
+            ? `Currently excluded from filtering ${
+                mentions.length > 1 ? "are" : "is"
+              }:\n${mentions.join(", ")}`
+            : "No members, roles or channels are excluded from the filter. Only moderators will bypass link filtering",
+        FILTEREXCL_SET: (mentions: string[], removed: string[]) =>
+          mentions.length
+            ? `Successfully set filter exclusion list to:\n${mentions.join(
+                ", "
+              )}`
+            : "Successfully reset filter exclusion list.",
         FILTER_INVITE_LOG_DESCRIPTION: (channel: string) =>
           `**Invite link sent in** ${channel}`,
         FILTER_INVITE_LOG_CODE: "Invite Code",
@@ -446,6 +484,18 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
         LEVELHEAD_TAB: "Tab",
         LEVELHEAD_CHAT: "Chat",
         LEVELHEAD_ADDON_LAYERS: "Addon Head Layers",
+        LINKFILTER_COMMAND_DESCRIPTION:
+          "Enable different link filters. Run the command without arguments to see all available filters",
+        LINKFILTER_FILTER_LIST: (valid: string[]) =>
+          `You must choose a valid filter to toggle. The available filters are:\n${valid.join(
+            ", "
+          )}`,
+        LINKFILTER_SET: (enabled: string[]) =>
+          `Successfully set link filters. Currently enabled filters are:\n${enabled.join(
+            ", "
+          )}`,
+        LINKFILTER_RESET: (enabled: string[]) =>
+          `Successfully disabled all filters.`,
         LOCKDOWN_COMMAND_DESCRIPTION:
           "Lock all channels in the server, useful for stopping raiders from sending messages. May cause issues if you haven't got permissions setup correctly",
         LOCKDOWN_ACTION_REQUIRED:
