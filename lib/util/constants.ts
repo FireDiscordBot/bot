@@ -68,16 +68,17 @@ export const constants = {
   },
   regexes: {
     discord: {
-      cdn: /https:\/\/cdn.discordapp.com\/attachments\/(?:\d){15,21}\/(?:\d){15,21}\/(?:.+?)(?:.png|.jpg)/im,
+      cdn: /cdn.discordapp.com\/attachments\/(?:\d){15,21}\/(?:\d){15,21}\/(?:.+?)(?:.png|.jpg)/im,
       invite: /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[a-zA-Z0-9\-]{1,25})/im,
-      message: /(?:http(?:s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?/,
+      message: /(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?/,
     },
     invites: [
       /(?<domain>(?:dsc|dis|discord|invite).(?:gd|gg|io|me))\/(?<code>[a-zA-Z0-9\-]+)/im,
       /(?<domain>(?:discord(?:app)?|watchanimeattheoffice).com)\/invite\/(?<code>[a-zA-Z0-9\-]+)/im,
       /(?<domain>(?:h\.|i\.)?inv\.wtf)\/(?<code>[a-zA-Z0-9\-]+)/im,
     ],
-    paypal: /((?:https?:)?\/\/)?((?:www|m)\.)?((?:paypal\.me))(\/)([\w\-]+)(\S+)?/im,
+    paypal: /paypal\.me\/(?<name>[\w\-]+)/im,
+    youtube: {},
   },
   blockedGifts: [
     "690195254191849478",
