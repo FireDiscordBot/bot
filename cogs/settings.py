@@ -493,7 +493,8 @@ class Settings(commands.Cog):
                     embed = discord.Embed(color=discord.Color.from_rgb(255, 115, 250), timestamp=datetime.datetime.now(
                         datetime.timezone.utc), description=f'**{after.name} got weakened to Level {after.premium_tier}**')
                 if embed:
-                    embed.set_author(name=after.name, icon_url=str(after.icon_url))
+                    embed.set_author(
+                        name=after.name, icon_url=str(after.icon_url))
                     embed.set_footer(text=f"Guild ID: {after.id}")
                     try:
                         await logch.send(embed=embed)
@@ -519,7 +520,7 @@ class Settings(commands.Cog):
             self.recentgban.remove(f'{member.id}-{guild.id}')
             return
         if isinstance(member, discord.User):
-            return # why it be called on_MEMBER_ban if it runs for users too smh my head
+            return  # why it be called on_MEMBER_ban if it runs for users too smh my head
         if member.guild.me.guild_permissions.view_audit_log:
             async for e in member.guild.audit_logs(limit=5):
                 if e.action in [discord.AuditLogAction.kick, discord.AuditLogAction.ban] and e.target.id == member.id:
@@ -791,54 +792,46 @@ class Settings(commands.Cog):
                 message = message.replace(k, v)
             return await ctx.success(f'Leave messages will show in {channel.mention}!\nExample: {message}', allowed_mentions=user_mention)
 
-    @commands.command(name='linkfilter', description='Configure the link filter for this server', aliases=['linkfilters', 'linkblock'])
-    @commands.has_permissions(manage_guild=True)
+    @commands.command()
+    async def autodecancer(self, ctx):
+        return await ctx.error(
+            """This feature has been removed due to issues.
+You can invite the in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
+Note: The separate bot is temporary and the rewrite will be ran on this bot when it is finished!"""
+        )
+
+    @commands.command()
+    async def autodehoist(self, ctx):
+        return await ctx.error(
+            """This feature has been removed due to issues.
+You can invite the in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
+Note: The separate bot is temporary and the rewrite will be ran on this bot when it is finished!"""
+        )
+
+    @commands.command()
+    async def badname(self, ctx):
+        return await ctx.error(
+            """This feature has been removed due to issues.
+You can invite the in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
+Note: The separate bot is temporary and the rewrite will be ran on this bot when it is finished!"""
+        )
+
+    @commands.command(name='linkfilter', aliases=['linkfilters', 'linkblock'])
     @commands.guild_only()
-    async def linkfiltercmd(self, ctx, *, enabled: str = None):
-        options = ['discord', 'youtube', 'twitch', 'twitter',
-                   'paypal', 'malware', 'shorteners', 'gifts']
-        if not enabled:
-            return await ctx.error(f'You must provide a valid filter(s). You can choose from {", ".join(options)}')
-        enabled = enabled.split(' ')
-        if any(e not in options for e in enabled):
-            invalid = [e for e in enabled if e not in options]
-            return await ctx.error(f'{", ".join(invalid)} are not valid filters')
-        filtered = ctx.config.get('mod.linkfilter')
-        for f in enabled:
-            if f in filtered:
-                filtered.remove(f)
-            else:
-                filtered.append(f)
-        new = await ctx.config.set('mod.linkfilter', filtered)
-        if new:
-            return await ctx.success(f'Now filtering {", ".join(new)} links.')
-        else:
-            return await ctx.success(f'No longer filtering links')
+    async def linkfiltercmd(self, ctx):
+        return await ctx.error(
+            """This feature has been removed due to issues.
+You can invite the in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
+Note: The separate bot is temporary and the rewrite will be ran on this bot when it is finished!"""
+        )
 
     @commands.command(name='filterexcl', description='Exclude channels, roles and members from the filter')
-    @commands.has_permissions(manage_guild=True)
-    async def filterexclcmd(self, ctx, *ids: typing.Union[TextChannel, Role, Member]):
-        current = ctx.config.get('excluded.filter')
-        ids = [str(d.id) for d in ids]
-        for sf in ids:
-            if sf not in current:
-                ids.remove(sf)
-                current.append(sf)
-        for sf in current:
-            if sf in ids:
-                current.remove(sf)
-        await ctx.config.set('excluded.filter', current)
-        excl = []
-        for sf in current:
-            if ctx.guild.get_member(sf):
-                excl.append(ctx.guild.get_member(sf))
-            elif ctx.guild.get_role(sf):
-                excl.append(ctx.guild.get_role(sf))
-            elif ctx.guild.get_channel(sf):
-                excl.append(ctx.guild.get_channel(sf))
-            else:
-                excl.append(sf)
-        await ctx.success(f'Successfully set objects excluded from link filters\nExcluded: {", ".join([str(e) for e in excl])}')
+    async def filterexclcmd(self, ctx):
+        return await ctx.error(
+            """This feature has been removed due to issues.
+You can invite the in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
+Note: The separate bot is temporary and the rewrite will be ran on this bot when it is finished!"""
+        )
 
     @commands.command(name='command', description='Enable and disable commands')
     @commands.has_permissions(manage_guild=True)
