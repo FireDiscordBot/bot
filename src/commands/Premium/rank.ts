@@ -47,7 +47,11 @@ export default class Rank extends Command {
       roles.forEach((role: Role) =>
         roleInfo.push(
           isCached > 0.98
-            ? (message.language.get("RANKS_INFO", role) as string)
+            ? (message.language.get(
+                "RANKS_INFO",
+                role.toString(),
+                role.members.size.toLocaleString(message.language.id)
+              ) as string)
             : `> ${role}`
         )
       );
@@ -56,7 +60,7 @@ export default class Rank extends Command {
         .setTimestamp(new Date())
         .setDescription(roleInfo.join("\n"))
         .setAuthor(
-          message.language.get("RANKS_AUTHOR", message.guild),
+          message.language.get("RANKS_AUTHOR", message.guild.toString()),
           message.guild.icon
             ? (message.guild.iconURL({
                 size: 2048,

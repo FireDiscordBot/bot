@@ -72,7 +72,13 @@ export default class Stats extends Command {
         )
       )
       .setTimestamp(new Date())
-      .setFooter(message.language.get("STATS_FOOTER", message))
+      .setFooter(
+        message.language.get(
+          "STATS_FOOTER",
+          this.client.manager.id,
+          message.guild?.shardID || 0
+        )
+      )
       .addField(
         message.language.get("GUILDS"),
         `${clusterStats.guilds.toLocaleString(
@@ -124,7 +130,13 @@ export default class Stats extends Command {
       )
       .setTitle(message.language.get("STATS_TITLE", stats.name, stats.version))
       .setTimestamp(new Date())
-      .setFooter(message.language.get("STATS_FOOTER", message))
+      .setFooter(
+        message.language.get(
+          "STATS_FOOTER",
+          this.client.manager.id,
+          message.guild?.shardID || 0
+        )
+      )
       .addField(
         message.language.get("GUILDS"),
         `${stats.guilds.toLocaleString(message.language.id)}`,

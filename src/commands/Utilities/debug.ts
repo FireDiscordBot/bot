@@ -149,7 +149,7 @@ export default class Debug extends Command {
         details.push(
           `${error} ${message.language.get(
             "DEBUG_MUTE_BYPASS",
-            message.channel,
+            message.channel.toString(),
             bypass
           )}`
         );
@@ -157,7 +157,7 @@ export default class Debug extends Command {
         details.push(
           `${success} ${message.language.get(
             "DEBUG_MUTE_NO_BYPASS",
-            message.channel
+            message.channel.toString()
           )}`
         );
     }

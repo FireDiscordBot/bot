@@ -18,7 +18,7 @@ export default class Purge extends Listener {
         message.guild.language.get(
           "PURGE_LOG_DESCRIPTION",
           purged.length,
-          message.channel
+          message.channel.toString()
         )
       )
       .setAuthor(
@@ -32,8 +32,8 @@ export default class Purge extends Listener {
       .setFooter(
         message.guild.language.get(
           "PURGE_LOG_FOOTER",
-          message.author,
-          message.channel
+          message.author.id,
+          message.channel.id
         )
       );
     if (reason) embed.addField(message.guild.language.get("REASON"), reason);

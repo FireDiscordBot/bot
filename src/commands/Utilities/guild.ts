@@ -43,9 +43,13 @@ export default class GuildCommand extends Command {
         guild.language.id.split("-")[0]
       ) + " ago";
     if (!guild.members.cache.has(guild.ownerID))
-      await guild.members.fetch(guild.ownerID);
+      await guild.members.fetch(guild.ownerID).catch(() => {});
     let messages = [
-      message.language.get("GUILD_CREATED_AT", guild, created),
+      message.language.get(
+        "GUILD_CREATED_AT",
+        guild.owner?.user?.discriminator != null ? guild.owner : "Unknown#0000",
+        created
+      ),
       `**${message.language.get(
         "MEMBERS"
       )}:** ${guild.memberCount.toLocaleString(message.language.id)}`,

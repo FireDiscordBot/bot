@@ -1,11 +1,5 @@
-import { FireMember } from "../../lib/extensions/guildmember";
-import { FireMessage } from "../../lib/extensions/message";
-import { FireGuild } from "../../lib/extensions/guild";
-import { FireUser } from "../../lib/extensions/user";
 import { constants } from "../../lib/util/constants";
 import { Language } from "../../lib/util/language";
-import { TextChannel, Role } from "discord.js";
-import { Ban } from "@aero/ksoft";
 
 export default class owo extends Language {
   constructor() {
@@ -185,11 +179,11 @@ This wiww **not** wename existing usews`,
         DEBUG_COMMAND_DISABLE_BYPASS: "Command is disabwed buwt u awe bypassed",
         DEBUG_COMMAND_DISABLED: "Command is disabwed.",
         DEBUG_COMMAND_NOT_DISABLED: "Command is not disabwed",
-        DEBUG_MUTE_BYPASS: (channel: TextChannel, bypass: string[]) =>
+        DEBUG_MUTE_BYPASS: (channel: string, bypass: string[]) =>
           `The fowwowing usews/wowes wiww bypass mutes in ${channel}\n${bypass.join(
             ", "
           )}`,
-        DEBUG_MUTE_NO_BYPASS: (channel: TextChannel) =>
+        DEBUG_MUTE_NO_BYPASS: (channel: string) =>
           `Nobody can bypass mutes in ${channel}`,
         DEBUG_NO_EMBEDS: "I cannot send embeds",
         DEBUG_ISSUES: (issues: string[]) =>
@@ -271,15 +265,11 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
             ? `Output was too wong, upwoaded to hastebin; ${haste}`
             : `Output was too wong, faiwed to upwoad to hastebin`,
         GUILD_COMMAND_DESCRIPTION: "Get a genewaw ovewview of the guiwd",
-        FILTER_INVITE_LOG_DESCRIPTION: (channel: TextChannel) =>
+        FILTER_INVITE_LOG_DESCRIPTION: (channel: string) =>
           `**Invite wink sent in** ${channel}`,
         FILTER_INVITE_LOG_CODE: "Invite Code",
-        GUILD_CREATED_AT: (guild: FireGuild, created: string) =>
-          `**Cweated by ${
-            guild.owner.user.discriminator != null
-              ? guild.owner
-              : "Unknown#0000"
-          } ${created}**`,
+        GUILD_CREATED_AT: (owner: string, created: string) =>
+          `**Cweated by ${owner} ${created}**`,
         GOOGLE_COMMAND_DESCRIPTION: "Speak to the Googwe Assistant",
         GOOGLE_SOMETHING_WENT_WRONG:
           "<a:okaygoogle:769207087674032129> Something went wwong. Twy again watew",
@@ -311,16 +301,16 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
 `,
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" fow mowe info about the command | Cwustew ID: ${cluster}`,
-        SK1ER_NO_REUPLOAD: (user: FireMember | FireUser) =>
+        SK1ER_NO_REUPLOAD: (user: string) =>
           `${user} I am unabwe to wead youw wog to wemove sensitive infowmation & pwovide sowutions to youw issue. Pwease upwoad the wog diwectwy :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>
           `I was unabwe to wead youw wog. Pwease upwoad it diwectwy wathew than using ${domain}`,
         SK1ER_LOG_READ_FAIL:
           "I was unabwe to wead the attachment, twy weupwoad it. If it stiww doesn't wowk, yeww at Geek :)",
-        SK1ER_MODCORE_ZIP: (user: FireMember | FireUser, zip: string) =>
+        SK1ER_MODCORE_ZIP: (user: string, zip: string) =>
           `${user}, Downwoad the zip fwom ${zip} and then unzip it in \`.minecraft/modcore\` and youw issue shouwd be wesowved.`,
         SK1ER_LOG_HASTE: (
-          user: FireMember | FireUser,
+          user: string,
           msgType: string,
           extra: string,
           haste: string,
@@ -385,7 +375,7 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         MEME_NSFW_FORBIDDEN:
           "The meme I was given was mawked as NSFW but this channew is not. If you'we wooking fow NSFW memes, head to an NSFW channew, othewwise just twy again",
         MEME_EMBED_TITLE: "Did someone owdew a spicy meme?",
-        MEME_EMBED_AUTHOR: (user: FireUser) => `Wequested by ${user}`,
+        MEME_EMBED_AUTHOR: (user: string) => `Wequested by ${user}`,
         MEME_SUBREDDIT: "Subweddit",
         MODONLY_COMMAND_DESCRIPTION:
           "Set channews to westwict commands fow mowodewatows",
@@ -502,11 +492,11 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         PUBLIC_ENABLED: (vanity: string) =>
           `Youw guiwd is now pubwic & visibwe on <https://inv.wtf/discover>.
  Peopwe wiww be abwe to use youw guiwd's vanity url (<https://inv.wtf/${vanity}>) to join`,
-        PUBLIC_ENABLED_LOG: (user: FireMember) =>
+        PUBLIC_ENABLED_LOG: (user: string) =>
           `${constants.statuspage.emojis.operational} This sewvew was set to pubwic by ${user} and wiww appeaw on Fire\'s pubwic sewvew wist`,
         PUBLIC_DISABLED:
           "Youw guiwd is no wongew pubwic and wiww no wongew show on the Fire website",
-        PUBLIC_DISABLED_LOG: (user: FireMember) =>
+        PUBLIC_DISABLED_LOG: (user: string) =>
           `${constants.statuspage.emojis.major_outage} This sewvew was manuawwy wemoved fwom Fire\'s pubwic sewvew wist by ${user}`,
         PLONK_COMMAND_DESCRIPTION:
           "Make a usew unabwe to use the best Discowod bot",
@@ -517,18 +507,18 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         PURGE_SUCCESS: (messages: number) =>
           `Successfuwwy deweted **${messages}** messages!`,
         PURGE_FAIL: "Faiwed to puwge messages...",
-        PURGE_LOG_DESCRIPTION: (amount: number, channel: TextChannel) =>
+        PURGE_LOG_DESCRIPTION: (amount: number, channel: string) =>
           `**${amount} messages wewe puwged in ${channel}**`,
-        PURGE_LOG_FOOTER: (user: FireUser, channel: TextChannel) =>
-          `Authow ID: ${user.id} | Channew ID: ${channel.id}"`,
+        PURGE_LOG_FOOTER: (user: string, channel: string) =>
+          `Authow ID: ${user} | Channew ID: ${channel}"`,
         PURGED_MESSAGES: "Puwged Messages",
         PURGED_MESSAGES_FAILED: "Faiwed to upwoad messages to hastebin",
         RANK_COMMAND_DESCRIPTION:
           "Wist aww avaiwabwe wanks and join a wank if pwovided",
         RANKS_NONE_FOUND: "Seems wike thewe's no wanks set fow this guiwd",
-        RANKS_INFO: (role: Role) =>
-          `> ${role} (${role.members.size.toLocaleString(this.id)} membews)`,
-        RANKS_AUTHOR: (guild: FireGuild) => `${guild}'s wanks`,
+        RANKS_INFO: (role: string, members: string) =>
+          `> ${role} (${members} membews)`,
+        RANKS_AUTHOR: (guild: string) => `${guild}'s wanks`,
         RANKS_JOIN_REASON: "Joined wank",
         RANKS_JOIN_RANK: (role: string) =>
           `You successfuwwy joined the **${role}** wank.`,
@@ -574,10 +564,8 @@ You wiww automaticawwy gain access to beta channews aftew fiwwing in the fowm`,
         STATS_UPTIME: "Uptime",
         STATS_COMMANDS: "Commands",
         STATS_EVENTS: "Events",
-        STATS_FOOTER: (message: FireMessage) =>
-          `PID: ${process.pid} | Cwustew: ${
-            message.client.manager.id
-          } | Shawd: ${message?.guild?.shardID || 0}`,
+        STATS_FOOTER: (manager: number, shard: number) =>
+          `PID: ${process.pid} | Cwustew: ${manager} | Shawd: ${shard}`,
         STEAL_COMMAND_DESCRIPTION: "Steaw an emote to use in youw own sewvew",
         STEAL_NOTHING:
           "You'we a tewwibwe cwiminaw, you can't steaw nothing! You must pwovide an emoji to steaw",
@@ -593,8 +581,8 @@ You wiww automaticawwy gain access to beta channews aftew fiwwing in the fowm`,
           `Thanks! Youw suggestion was added to the Trello @ <${card.url}>. Make suwe to check it evewy now and then fow a wesponse.
  Abuse of this command __**wiww**__ wesuwt in being temporarily bwackwisted fwom Fire`,
         USER_COMMAND_DESCRIPTION: "Get a genewaw ovewview of a usew.",
-        USER_KSOFT_BANNED: (ban: Ban) =>
-          `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${ban.user.id}) fow ${ban.reason} - [Pwoof](${ban.proof})`,
+        USER_KSOFT_BANNED: (user: string, reason: string, proof: string) =>
+          `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${user}) fow ${reason} - [Pwoof](${proof})`,
         VOTE_COMMAND_DESCRIPTION:
           'Sends a wink to Fire on a wandom bot wist (sends diwect vote wink if you use the "vote" awias)',
         PREMIUM_COMMAND_DESCRIPTION: "i wike money",

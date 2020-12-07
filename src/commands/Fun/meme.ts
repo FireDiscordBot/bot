@@ -64,7 +64,7 @@ export default class Meme extends Command {
       .setURL(meme.post.link)
       .setTimestamp(new Date())
       .setAuthor(
-        language.get("MEME_EMBED_AUTHOR", message.author),
+        language.get("MEME_EMBED_AUTHOR", message.author.toString()),
         message.author.displayAvatarURL({
           size: 2048,
           format: "png",

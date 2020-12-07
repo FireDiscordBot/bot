@@ -92,7 +92,7 @@ export default class MCLogs extends Module {
         });
       } catch {}
       return await message.channel.send(
-        message.language.get("SK1ER_NO_REUPLOAD", message.author),
+        message.language.get("SK1ER_NO_REUPLOAD", message.author.toMention()),
         {
           allowedMentions: { users: [message.author.id] },
         }
@@ -158,7 +158,11 @@ export default class MCLogs extends Module {
           } catch {}
 
           await message.channel.send(
-            message.language.get("SK1ER_MODCORE_ZIP", message.author, zip),
+            message.language.get(
+              "SK1ER_MODCORE_ZIP",
+              message.author.toMention(),
+              zip
+            ),
             {
               allowedMentions: { users: [message.author.id] },
             }
@@ -207,7 +211,7 @@ export default class MCLogs extends Module {
 
         return await message.send(
           "SK1ER_LOG_HASTE",
-          message.author,
+          message.author.toString(),
           msgType,
           msgType == "uploaded" ? message.content : "",
           haste,

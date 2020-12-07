@@ -252,7 +252,9 @@ export default class User extends Command {
     if (banned instanceof Ban)
       return `${emojis.error} ${message.language.get(
         "USER_KSOFT_BANNED",
-        banned
+        banned.user.id,
+        banned.reason,
+        banned.proof
       )}`;
     return "";
   }
