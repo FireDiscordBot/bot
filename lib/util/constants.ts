@@ -85,6 +85,7 @@ export const constants = {
       clip: /clips\.twitch\.tv\/(?<clip>\w+)/gim,
       channel: /twitch\.tv\/(?<channel>.+)/gim,
     },
+    twitter: /twitter\.com\/(?<username>\w+)(?:\/status\/(?<tweet>\d+)?|\/(?<path>likes|media|with_replies|followers|following|suggested))?/im,
   },
   blockedGifts: [
     "690195254191849478",
