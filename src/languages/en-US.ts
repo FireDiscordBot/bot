@@ -1,11 +1,5 @@
-import { FireMember } from "../../lib/extensions/guildmember";
-import { FireMessage } from "../../lib/extensions/message";
-import { FireGuild } from "../../lib/extensions/guild";
-import { FireUser } from "../../lib/extensions/user";
 import { constants } from "../../lib/util/constants";
 import { Language } from "../../lib/util/language";
-import { TextChannel, Role } from "discord.js";
-import { Ban } from "@aero/ksoft";
 
 export default class enUS extends Language {
   constructor() {
@@ -65,6 +59,7 @@ export default class enUS extends Language {
         JOIN_POSITION: "Join Position",
         CLICK_TO_VIEW: "Click To View", // message/attachment link
         NICKNAME: "Nickname",
+        NAME: "Name",
         ABOUT: "About",
         ROLES: "Roles",
         NOTES: "Notes",
@@ -84,6 +79,9 @@ export default class enUS extends Language {
         WORKER_ID: "Worker ID",
         PROCESS_ID: "Process ID",
         INCREMENT: "Increment",
+        STATISTICS: "Statistics",
+        DESCRIPTION: "Description",
+        CUSTOM_URL: "Custom URL",
         AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
         REGION_DEPRECATED: "❓ Deprecated Region",
         REGIONS: {
@@ -246,11 +244,11 @@ This will **not** rename existing users`,
           "Command is disabled but you are bypassed",
         DEBUG_COMMAND_DISABLED: "Command is disabled.",
         DEBUG_COMMAND_NOT_DISABLED: "Command is not disabled",
-        DEBUG_MUTE_BYPASS: (channel: TextChannel, bypass: string[]) =>
+        DEBUG_MUTE_BYPASS: (channel: string, bypass: string[]) =>
           `The following users/roles will bypass mutes in ${channel}\n${bypass.join(
             ", "
           )}`,
-        DEBUG_MUTE_NO_BYPASS: (channel: TextChannel) =>
+        DEBUG_MUTE_NO_BYPASS: (channel: string) =>
           `Nobody can bypass mutes in ${channel}`,
         DEBUG_NO_EMBEDS: "I cannot send embeds",
         DEBUG_ISSUES: (issues: string[]) =>
@@ -331,16 +329,42 @@ Hint: Use the \`public\` command to get your server on the list`,
           haste
             ? `Output was too long, uploaded to hastebin; ${haste}`
             : `Output was too long, failed to upload to hastebin`,
-        FILTER_INVITE_LOG_DESCRIPTION: (channel: TextChannel) =>
+        FILTER_INVITE_LOG_DESCRIPTION: (channel: string) =>
           `**Invite link sent in** ${channel}`,
         FILTER_INVITE_LOG_CODE: "Invite Code",
+        FILTER_MALWARE_FOUND: (author: string) =>
+          `A known malware URL was found in a message send by ${author} and I was unable to delete it!`,
+        FILTER_MALWARE_LOG_DESCRIPTION: (channel: string) =>
+          `**Malware link sent in** ${channel}`,
+        FILTER_PAYPAL_LOG_DESCRIPTION: (channel: string) =>
+          `**PayPal link sent in** ${channel}`,
+        FILTER_YOUTUBE_VIDEO_LOG_DESCRIPTION: (channel: string) =>
+          `**YouTube video sent in** ${channel}`,
+        FILTER_YOUTUBE_VIDEO_LOG_STATS: (
+          views: string,
+          likes: string,
+          dislikes: string,
+          comments: string
+        ) =>
+          `${views} views, ${likes} likes, ${dislikes} dislikes, ${comments} comments`,
+        FILTER_YOUTUBE_CHANNEL_LOG_DESCRIPTION: (channel: string) =>
+          `**YouTube channel sent in** ${channel}`,
+        FILTER_YOUTUBE_CHANNEL_LOG_STATS: (
+          subs: string,
+          views: string,
+          videos: string
+        ) => `${subs} subscribers, ${views} total views, ${videos} videos`,
+        FILTER_TWITCH_CLIP_LOG_DESCRIPTION: (channel: string) =>
+          `**Twitch clip sent in** ${channel}`,
+        FILTER_TWITCH_CHANNEL_LOG_DESCRIPTION: (channel: string) =>
+          `**Twitch channel sent in** ${channel}`,
+        FILTER_TWITTER_LOG_DESCRIPTION: (channel: string) =>
+          `**Twitter link sent in** ${channel}`,
+        FILTER_SHORT_LOG_DESCRIPTION: (channel: string) =>
+          `**Shortened link sent in** ${channel}`,
         GUILD_COMMAND_DESCRIPTION: "Get a general overview of the guild",
-        GUILD_CREATED_AT: (guild: FireGuild, created: string) =>
-          `**Created by ${
-            guild.owner.user.discriminator != null
-              ? guild.owner
-              : "Unknown#0000"
-          } ${created}**`,
+        GUILD_CREATED_AT: (owner: string, created: string) =>
+          `**Created by ${owner} ${created}**`,
         GOOGLE_COMMAND_DESCRIPTION: "Speak to the Google Assistant",
         GOOGLE_SOMETHING_WENT_WRONG:
           "<a:okaygoogle:769207087674032129> Something went wrong. Try again later",
@@ -372,16 +396,16 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
 `,
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" for more info about the command | Cluster ID: ${cluster}`,
-        SK1ER_NO_REUPLOAD: (user: FireMember | FireUser) =>
+        SK1ER_NO_REUPLOAD: (user: string) =>
           `${user} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>
           `I was unable to read your log. Please upload it directly rather than using ${domain}`,
         SK1ER_LOG_READ_FAIL:
           "I was unable to read the attachment, try reupload it. If it still doesn't work, yell at Geek :)",
-        SK1ER_MODCORE_ZIP: (user: FireMember | FireUser, zip: string) =>
+        SK1ER_MODCORE_ZIP: (user: string, zip: string) =>
           `${user}, Download the zip from ${zip} and then unzip it in \`.minecraft/modcore\` and your issue should be resolved.`,
         SK1ER_LOG_HASTE: (
-          user: FireMember | FireUser,
+          user: string,
           msgType: string,
           extra: string,
           haste: string,
@@ -458,7 +482,7 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
         MEME_NSFW_FORBIDDEN:
           "The meme I was given was marked as NSFW but this channel is not. If you're looking for NSFW memes, head to an NSFW channel, otherwise just try again",
         MEME_EMBED_TITLE: "Did someone order a spicy meme?",
-        MEME_EMBED_AUTHOR: (user: FireUser) => `Requested by ${user}`,
+        MEME_EMBED_AUTHOR: (user: string) => `Requested by ${user}`,
         MEME_SUBREDDIT: "Subreddit",
         MODONLY_COMMAND_DESCRIPTION:
           "Set channels to restrict commands for moderators",
@@ -530,11 +554,11 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
         PUBLIC_ENABLED: (vanity: string) =>
           `Your guild is now public & visible on <https://inv.wtf/discover>.
 People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>) to join`,
-        PUBLIC_ENABLED_LOG: (user: FireMember) =>
+        PUBLIC_ENABLED_LOG: (user: string) =>
           `${constants.statuspage.emojis.operational} Ths server was set to public by ${user} and will appear on Fire\'s public server list`,
         PUBLIC_DISABLED:
           "Your guild is no longer public and will no longer show on the Fire website",
-        PUBLIC_DISABLED_LOG: (user: FireMember) =>
+        PUBLIC_DISABLED_LOG: (user: string) =>
           `${constants.statuspage.emojis.major_outage} Ths server was manually removed from Fire\'s public server list by ${user}`,
         PLONK_COMMAND_DESCRIPTION:
           "make a user unable to use the best discord bot",
@@ -545,18 +569,18 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         PURGE_SUCCESS: (messages: number) =>
           `Successfully deleted **${messages}** messages!`,
         PURGE_FAIL: "Failed to purge messages...",
-        PURGE_LOG_DESCRIPTION: (amount: number, channel: TextChannel) =>
+        PURGE_LOG_DESCRIPTION: (amount: number, channel: string) =>
           `**${amount} messages were purged in ${channel}**`,
-        PURGE_LOG_FOOTER: (user: FireUser, channel: TextChannel) =>
-          `Author ID: ${user.id} | Channel ID: ${channel.id}"`,
+        PURGE_LOG_FOOTER: (user: string, channel: string) =>
+          `Author ID: ${user} | Channel ID: ${channel}"`,
         PURGED_MESSAGES: "Purged Messages",
         PURGED_MESSAGES_FAILED: "Failed to upload messages to hastebin",
         RANK_COMMAND_DESCRIPTION:
           "List all available ranks and join a rank if provided",
         RANKS_NONE_FOUND: "Seems like there's no ranks set for this guild",
-        RANKS_INFO: (role: Role) =>
-          `> ${role} (${role.members.size.toLocaleString(this.id)} members)`,
-        RANKS_AUTHOR: (guild: FireGuild) => `${guild}'s ranks`,
+        RANKS_INFO: (role: string, members: string) =>
+          `> ${role} (${members} members)`,
+        RANKS_AUTHOR: (guild: string) => `${guild}'s ranks`,
         RANKS_JOIN_REASON: "Joined rank",
         RANKS_JOIN_RANK: (role: string) =>
           `You successfully joined the **${role}** rank.`,
@@ -603,10 +627,8 @@ You will automatically gain access to beta channels after filling in the form`,
         STATS_UPTIME: "Uptime",
         STATS_COMMANDS: "Commands",
         STATS_EVENTS: "Events",
-        STATS_FOOTER: (message: FireMessage) =>
-          `PID: ${process.pid} | Cluster: ${
-            message.client.manager.id
-          } | Shard: ${message?.guild?.shardID || 0}`,
+        STATS_FOOTER: (manager: number, shard: number) =>
+          `PID: ${process.pid} | Cluster: ${manager} | Shard: ${shard}`,
         STEAL_COMMAND_DESCRIPTION: "Steal an emote to use in your own server",
         STEAL_NOTHING:
           "You're a terrible criminal, you can't steal nothing! You must provide an emoji to steal",
@@ -631,8 +653,8 @@ You can copy the snowflakes from messages in Discord by right clicking on them.
 You must have Developer Mode enabled, which is found in User Settings > Appearance`,
         USER_SNOWFLAKE_BELONGS_TO: (type: string, extra: string) =>
           `**Belongs To**: ${type} ${extra ? "(" + extra + ")" : ""}`,
-        USER_KSOFT_BANNED: (ban: Ban) =>
-          `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${ban.user.id}) for ${ban.reason} - [Proof](${ban.proof})`,
+        USER_KSOFT_BANNED: (user: string, reason: string, proof: string) =>
+          `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${user}) for ${reason} - [Proof](${proof})`,
         VOTE_COMMAND_DESCRIPTION:
           'Sends a link to Fire on a random bot list (sends direct vote link if you use the "vote" alias)',
         PREMIUM_COMMAND_DESCRIPTION: "i like money",

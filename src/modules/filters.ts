@@ -1,5 +1,5 @@
+import { constants, shortURLs } from "../../lib/util/constants";
 import { FireMessage } from "../../lib/extensions/message";
-import { constants } from "../../lib/util/constants";
 import { MessageEmbed, Invite } from "discord.js";
 import { Module } from "../../lib/util/module";
 import * as centra from "centra";
@@ -11,8 +11,9 @@ export default class Filters extends Module {
   imgExt: string[];
   malware: string[];
   regexes: RegExp[];
+  shortURLRegex: RegExp;
   filters: {
-    [key: string]: ((message: FireMessage, extra: string) => Promise<any>)[];
+    [key: string]: ((message: FireMessage, extra: string) => Promise<void>)[];
   };
 
   constructor() {
@@ -20,9 +21,25 @@ export default class Filters extends Module {
     this.debug = [];
     this.malware = [];
     this.imgExt = [".png", ".jpg", ".gif"];
-    this.regexes = [...regexes.invites];
+    this.shortURLRegex = new RegExp(
+      `(?:${shortURLs.join("|").replace(/\./gim, "\\.")})\/[a-z0-9]+`,
+      "gim"
+    );
+    this.regexes = [
+      ...regexes.invites,
+      ...Object.values(regexes.twitch),
+      ...Object.values(regexes.youtube),
+      regexes.paypal,
+      this.shortURLRegex,
+    ];
     this.filters = {
-      discord: [this.handleInvite],
+      discord: [this.handleInvite, this.handleExtInvite],
+      malware: [this.antiMalware],
+      paypal: [this.nobodyWantsToSendYouMoneyOnPayPal],
+      youtube: [this.handleYouTubeVideo, this.handleYouTubeChannel],
+      twitch: [this.handleTwitch],
+      twitter: [this.handleTwitter],
+      shorteners: [this.handleShort],
     };
   }
 
@@ -32,7 +49,11 @@ export default class Filters extends Module {
         "https://mirror.cedia.org.ec/malwaredomains/justdomains"
       ).send();
       if (malwareReq.statusCode == 200)
-        this.malware = malwareReq.body.toString().split("\n");
+        this.malware = malwareReq.body
+          .toString()
+          .trim()
+          .split("\n")
+          .filter((url) => url.length >= 2);
       else throw new Error("Non 200 status code");
     } catch (e) {
       this.client.console.error(
@@ -41,10 +62,15 @@ export default class Filters extends Module {
     }
   }
 
+  // Ensures next filter doesn't get stopped by an error in the previous
   async safeExc(promise: Function, ...args: any[]) {
     try {
       await promise(...args);
-    } catch {}
+    } catch (e) {
+      this.client.console.debug(
+        `[Filters] ${promise.name} did an oopsie\n${e.stack}`
+      );
+    }
   }
 
   shouldRun(message: FireMessage) {
@@ -62,6 +88,7 @@ export default class Filters extends Module {
       excluded.some((id) => roleIds.includes(id))
     )
       return false;
+    // For testing purposes
     return true;
   }
 
@@ -71,7 +98,7 @@ export default class Filters extends Module {
     exclude: string[] = []
   ) {
     if (!this.shouldRun(message)) return;
-    const enabled: string[] = message.guild.settings.get("mod.linkfilter", "");
+    const enabled: string[] = message.guild.settings.get("mod.linkfilter", []);
     if (this.debug.includes(message.guild.id) && enabled.length)
       this.client.console.warn(
         `[Filters] Running handler(s) for filters ${enabled.join(
@@ -83,7 +110,8 @@ export default class Filters extends Module {
         if (this.debug.includes(message.guild.id))
           this.client.console.warn(`[Filters] Running handler(s) for ${name}`);
         this.filters[name].map(
-          async (handler) => await this.safeExc(handler, message, extra)
+          async (handler) =>
+            await this.safeExc(handler.bind(this), message, extra)
         );
       }
     });
@@ -118,12 +146,16 @@ export default class Filters extends Module {
         .catch(() => {});
     const searchString =
       message.content +
-      message.embeds.map((embed) => embed.toJSON()).join("") +
+      " " +
+      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
       extra;
     let found: RegExpExecArray[] = [];
     regexes.invites.forEach((regex) => found.push(regex.exec(searchString)));
-    found = found.filter((exec) => !exec || !exec.length); // remove non matches
-    found.forEach(async (exec) => {
+    found = found.filter(
+      (exec, pos) => exec?.length && found.indexOf(exec) == pos
+    ); // remove non matches and duplicates
+    for (const exec of found) {
       let invite: Invite;
       try {
         invite = await this.getInviteFromExec(message, exec);
@@ -137,7 +169,7 @@ export default class Filters extends Module {
         .setDescription(
           message.guild.language.get(
             "FILTER_INVITE_LOG_DESCRIPTION",
-            message.channel
+            message.channel.toString()
           )
         )
         .setAuthor(
@@ -168,12 +200,43 @@ export default class Filters extends Module {
           )
           .addField(
             message.guild.language.get("MEMBERS"),
-            `⬤ ${invite.presenceCount} | ⭘ ${invite.memberCount}`,
+            `⬤ ${invite.presenceCount.toLocaleString(
+              message.guild.language.id
+            )} | ⭘ ${invite.memberCount.toLocaleString(
+              message.guild.language.id
+            )}`,
             false
           );
       }
       await message.guild.actionLog(embed).catch(() => {});
-    });
+    }
+  }
+
+  async handleExtInvite(message: FireMessage, extra: string = "") {
+    for (const embed of message.embeds) {
+      try {
+        if (
+          embed.provider.name == "Discord" &&
+          embed.url &&
+          [
+            "https://cdn.discordapp.com/",
+            "https://discord.com/assets/",
+          ].some((url) => embed.thumbnail.url.includes(url))
+        ) {
+          const req = await centra(embed.url)
+            .header("User-Agent", "Fire Discord Bot")
+            .send();
+          const inviteMatch = this.getInviteMatchFromReq(req);
+          if (inviteMatch && inviteMatch.groups.code) {
+            message.content = message.content.replace(
+              embed.url,
+              inviteMatch[0]
+            );
+            await this.safeExc(this.handleInvite.bind(this), message, "");
+          }
+        }
+      } catch {}
+    }
   }
 
   async getInviteFromExec(message: FireMessage, exec: RegExpExecArray) {
@@ -195,22 +258,401 @@ export default class Filters extends Module {
       invite = await this.client.fetchInvite(exec.groups.code);
     } else if (exec.groups.domain == "inv.wtf") {
       const vanity = await (
-        await centra(`https://inv.wtf/api/${exec.groups.code}`).send()
+        await centra(`https://inv.wtf/api/${exec.groups.code}`)
+          .header("User-Agent", "Fire Discord Bot")
+          .send()
       ).json();
       invite = await this.client.fetchInvite(vanity.invite);
       if (!invite.guild.description && vanity.description)
         invite.guild.description = vanity.description;
     } else {
-      const invReq = await centra(exec[0]).send();
-      let inviteMatch: RegExpExecArray;
-      if (regexes.discord.invite.test(invReq.headers.location))
-        inviteMatch = regexes.discord.invite.exec(invReq.headers.location);
-      else if (regexes.discord.invite.test(invReq.body.toString()))
-        inviteMatch = regexes.discord.invite.exec(invReq.body.toString());
+      const invReq = await centra("https://" + exec[0])
+        .header("User-Agent", "Fire Discord Bot")
+        .send();
+      const inviteMatch = this.getInviteMatchFromReq(invReq, exec);
       if (inviteMatch && inviteMatch.groups.code) {
         invite = await this.client.fetchInvite(inviteMatch.groups.code);
       } else throw new Error("Could not find actual invite");
     }
     return invite;
+  }
+
+  getInviteMatchFromReq(req: centra.Response, exec?: RegExpExecArray) {
+    let inviteMatch: RegExpExecArray;
+    if (regexes.discord.invite.test(req.headers.location))
+      inviteMatch = regexes.discord.invite.exec(req.headers.location);
+    else if (regexes.discord.invite.test(req.body.toString()))
+      inviteMatch = regexes.discord.invite.exec(req.body.toString());
+    else if (
+      regexes.invites.some((regex) => regex.exec(req.body.toString())?.length)
+    ) {
+      let found: RegExpExecArray[] = [];
+      regexes.invites.forEach((regex) =>
+        found.push(regex.exec(req.body.toString()))
+      );
+      found = found.filter(
+        (foundExec, pos) =>
+          foundExec?.length &&
+          found.indexOf(foundExec) == pos &&
+          (!exec || !exec?.includes(foundExec?.groups.domain))
+      ); // remove non matches and duplicates
+      if (found.length) inviteMatch = found[0];
+    }
+    return inviteMatch;
+  }
+
+  async antiMalware(message: FireMessage, extra: string = "") {
+    const searchString =
+      message.content +
+      " " +
+      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      extra;
+    if (this.malware.some((url) => searchString.includes(url))) {
+      await message
+        .delete({
+          reason: `Found known malware domain in message`,
+        })
+        .catch(() =>
+          message.send(
+            message.guild.language.get(
+              "FILTER_MALWARE_FOUND",
+              message.author.toString()
+            ) as string
+          )
+        );
+      const embed = new MessageEmbed()
+        .setColor(message.member?.displayColor || "#ffffff")
+        .setTimestamp(new Date())
+        .setDescription(
+          message.guild.language.get(
+            "FILTER_MALWARE_LOG_DESCRIPTION",
+            message.channel.toString()
+          )
+        )
+        .setAuthor(
+          message.author.toString(),
+          message.author.displayAvatarURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          })
+        )
+        .setFooter(message.author.id);
+      await message.guild.actionLog(embed).catch(() => {});
+    }
+  }
+
+  async nobodyWantsToSendYouMoneyOnPayPal(
+    message: FireMessage,
+    extra: string = ""
+  ) {
+    const searchString =
+      message.content +
+      " " +
+      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      extra;
+    const match = regexes.paypal.exec(searchString);
+    if (!match) return;
+    await message
+      .delete({
+        // I don't think this is even exposed anywhere lol
+        reason: `Nobody wants to send you money on PayPal, shut up.`,
+      })
+      .catch(() => {});
+    const embed = new MessageEmbed()
+      .setColor(message.member?.displayColor || "#ffffff")
+      .setTimestamp(new Date())
+      .setDescription(
+        message.guild.language.get(
+          "FILTER_PAYPAL_LOG_DESCRIPTION",
+          message.channel.toString()
+        )
+      )
+      .setAuthor(
+        message.author.toString(),
+        message.author.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        })
+      )
+      .setFooter(message.author.id);
+    await message.guild.actionLog(embed).catch(() => {});
+  }
+
+  async handleYouTubeVideo(message: FireMessage, extra: string = "") {
+    const searchString =
+      message.content +
+      " " +
+      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      extra;
+    const match = regexes.youtube.video.exec(searchString);
+    if (!match) return;
+    await message
+      .delete({
+        reason: `YouTube video link found in message`,
+      })
+      .catch(() => {});
+    const video = await this.client.util
+      .getYouTubeVideo(match.groups.video)
+      .catch(() => {});
+    const embed = new MessageEmbed()
+      .setColor(message.member?.displayColor || "#ffffff")
+      .setTimestamp(new Date())
+      .setDescription(
+        message.guild.language.get(
+          "FILTER_YOUTUBE_VIDEO_LOG_DESCRIPTION",
+          message.channel.toString()
+        )
+      )
+      .setAuthor(
+        message.author.toString(),
+        message.author.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        })
+      )
+      .setFooter(message.author.id);
+    if (video && video.items?.length) {
+      const details = video.items[0];
+      const statistics = {
+        views: parseInt(details.statistics?.viewCount || "0").toLocaleString(
+          message.guild.language.id
+        ),
+        likes: parseInt(details.statistics?.likeCount || "0").toLocaleString(
+          message.guild.language.id
+        ),
+        dislikes: parseInt(
+          details.statistics?.dislikeCount || "0"
+        ).toLocaleString(message.guild.language.id),
+        comments: parseInt(
+          details.statistics?.commentCount || "0"
+        ).toLocaleString(message.guild.language.id),
+      };
+      const description = details.snippet?.description
+        ? details.snippet.description.slice(0, 100)
+        : "Unknown";
+      embed
+        .addField(
+          message.guild.language.get("TITLE"),
+          `[${details.snippet?.title || "Unknown"}](https://youtu.be/${
+            details.id
+          })`
+        )
+        .addField(
+          message.guild.language.get("CHANNEL"),
+          `[${
+            details.snippet?.channelTitle || "Unknown"
+          }](https://youtube.com/channel/${
+            details.snippet?.channelId || "UCuAXFkgsw1L7xaCfnd5JJOw"
+          })`
+        )
+        .addField(
+          message.guild.language.get("STATISTICS"),
+          message.guild.language.get(
+            "FILTER_YOUTUBE_VIDEO_LOG_STATS",
+            ...Object.values(statistics)
+          )
+        )
+        .addField(
+          message.guild.language.get("DESCRIPTION"),
+          details.snippet?.description?.length >= 101
+            ? description + "..."
+            : description
+        );
+      await message.guild.actionLog(embed).catch(() => {});
+    }
+  }
+
+  async handleYouTubeChannel(message: FireMessage, extra: string = "") {
+    const searchString = (
+      message.content +
+      " " +
+      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      extra
+    ).replace(regexes.youtube.video, "[ youtube video ]"); // prevents videos being matched
+    const match = regexes.youtube.channel.exec(searchString);
+    if (!match) return;
+    await message
+      .delete({
+        reason: `YouTube channel link found in message`,
+      })
+      .catch(() => {});
+    const channel = await this.client.util
+      .getYouTubeChannel(match.groups.channel)
+      .catch(() => {});
+    const embed = new MessageEmbed()
+      .setColor(message.member?.displayColor || "#ffffff")
+      .setTimestamp(new Date())
+      .setDescription(
+        message.guild.language.get(
+          "FILTER_YOUTUBE_CHANNEL_LOG_DESCRIPTION",
+          message.channel.toString()
+        )
+      )
+      .setAuthor(
+        message.author.toString(),
+        message.author.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        })
+      )
+      .setFooter(message.author.id);
+    if (channel && channel.items?.length) {
+      const details = channel.items[0];
+      const statistics = {
+        subs: details.statistics?.hiddenSubscriberCount
+          ? "Hidden"
+          : parseInt(details.statistics?.subscriberCount || "0").toLocaleString(
+              message.guild.language.id
+            ),
+        views: parseInt(details.statistics?.viewCount || "0").toLocaleString(
+          message.guild.language.id
+        ),
+        videos: parseInt(details.statistics?.videoCount || "0").toLocaleString(
+          message.guild.language.id
+        ),
+      };
+      embed.addField(
+        message.guild.language.get("NAME"),
+        details.snippet?.title || "Unknown"
+      );
+      if (details.snippet?.customUrl)
+        embed.addField(
+          message.guild.language.get("CUSTOM_URL"),
+          `https://youtube.com/${details.snippet.customUrl}`
+        );
+      else
+        embed.addField(
+          message.guild.language.get("CHANNEL"),
+          `https://youtube.com/channel/${
+            details.id || "UCuAXFkgsw1L7xaCfnd5JJOw"
+          }`
+        );
+      embed.addField(
+        message.guild.language.get("STATISTICS"),
+        message.guild.language.get(
+          "FILTER_YOUTUBE_CHANNEL_LOG_STATS",
+          ...Object.values(statistics)
+        )
+      );
+    }
+    await message.guild.actionLog(embed).catch(() => {});
+  }
+
+  async handleTwitch(message: FireMessage, extra: string = "") {
+    const searchString =
+      message.content +
+      " " +
+      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      extra;
+    const clipMatch = regexes.twitch.clip.exec(searchString);
+    const channelMatch = regexes.twitch.channel.exec(searchString);
+    if (!clipMatch && !channelMatch) return;
+    await message
+      .delete({
+        reason: clipMatch
+          ? `Twitch clip link found in message`
+          : `Twitch channel link found in message`,
+      })
+      .catch(() => {});
+    const embed = new MessageEmbed()
+      .setColor(message.member?.displayColor || "#ffffff")
+      .setTimestamp(new Date())
+      .setDescription(
+        message.guild.language.get(
+          clipMatch
+            ? "FILTER_TWITCH_CLIP_LOG_DESCRIPTION"
+            : "FILTER_TWITCH_CHANNEL_LOG_DESCRIPTION",
+          message.channel.toString()
+        )
+      )
+      .setAuthor(
+        message.author.toString(),
+        message.author.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        })
+      )
+      .setFooter(message.author.id);
+    await message.guild.actionLog(embed).catch(() => {});
+  }
+
+  async handleTwitter(message: FireMessage, extra: string = "") {
+    const searchString =
+      message.content +
+      " " +
+      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      extra;
+    const match = regexes.twitter.exec(searchString);
+    if (!match) return;
+    await message
+      .delete({
+        reason: `Twitter link found in message`,
+      })
+      .catch(() => {});
+    const embed = new MessageEmbed()
+      .setColor(message.member?.displayColor || "#ffffff")
+      .setTimestamp(new Date())
+      .setDescription(
+        message.guild.language.get(
+          "FILTER_TWITTER_LOG_DESCRIPTION",
+          message.channel.toString()
+        )
+      )
+      .setAuthor(
+        message.author.toString(),
+        message.author.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        })
+      )
+      .setFooter(message.author.id);
+    await message.guild.actionLog(embed).catch(() => {});
+  }
+
+  async handleShort(message: FireMessage, extra: string = "") {
+    const searchString =
+      message.content +
+      " " +
+      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      extra;
+    const match = this.shortURLRegex.exec(searchString);
+    if (!match) return;
+    await message
+      .delete({
+        reason: `Shortened link found in message`,
+      })
+      .catch(() => {});
+    const embed = new MessageEmbed()
+      .setColor(message.member?.displayColor || "#ffffff")
+      .setTimestamp(new Date())
+      .setDescription(
+        message.guild.language.get(
+          "FILTER_SHORT_LOG_DESCRIPTION",
+          message.channel.toString()
+        )
+      )
+      .setAuthor(
+        message.author.toString(),
+        message.author.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        })
+      )
+      .setFooter(message.author.id);
+    await message.guild.actionLog(embed).catch(() => {});
   }
 }
