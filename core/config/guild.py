@@ -82,21 +82,12 @@ class Config:
     @ConfigOpt(name='mod.linkfilter', accepts=[str], default=[], options=options)
     async def link_filter(self, value: list):
         '''Link Filter | The filters of which any links found will be deleted (unless they have Manage Messages)'''
-        valid = ['discord', 'youtube', 'twitch', 'twitter',
-                 'paypal', 'malware', 'shorteners', 'gifts']
-        if any(v not in valid for v in value):
-            raise TypeMismatchError(type=', '.join(
-                [v for v in value if v not in valid]), accepted=', '.join(valid), option='mod.linkfilter')
-        self._bot.logger.info(
-            f'$GREENSetting $CYANmod.linkfilter $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('mod.linkfilter', value)
+        return
 
     @ConfigOpt(name='excluded.filter', accepts=[str], default=[], options=options)
     async def filter_exclude(self, value: list):
         '''Filter Exclusion | Channel, role and user IDs that are excluded from link filters and duplicate message deletion'''
-        self._bot.logger.info(
-            f'$GREENSetting $CYANexcluded.filter $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('excluded.filter', value)
+        return
 
     @ConfigOpt(name='mod.globalbans', accepts=bool, default=False, options=options)
     async def global_bans(self, value: bool):
@@ -108,16 +99,12 @@ class Config:
     @ConfigOpt(name='mod.autodecancer', accepts=bool, default=False, options=options)
     async def auto_decancer(self, value: bool):
         '''Auto Decancer | Renames those with "cancerous" names (non-ascii chars) to John Doe'''
-        self._bot.logger.info(
-            f'$GREENSetting $CYANmod.autodecancer $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('mod.autodecancer', value)
+        return
 
     @ConfigOpt(name='mod.autodehoist', accepts=bool, default=False, options=options)
     async def auto_dehoist(self, value: bool):
         '''Auto Dehoist | Renames those with "hoisted" names (starts with non a-z char) to John Doe'''
-        self._bot.logger.info(
-            f'$GREENSetting $CYANmod.autodehoist $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('mod.autodehoist', value)
+        return
 
     @ConfigOpt(name='utils.ranks', accepts=[discord.Role], default=[], options=options, premium=True)
     async def ranks(self, value: list):
@@ -207,9 +194,7 @@ class Config:
     @ConfigOpt(name='utils.badname', accepts=str, default=None, options=options)
     async def bad_name(self, value: str):
         '''Bad Name | The name used for decancer and dehoist. If not set, John Doe + discrim is used'''
-        self._bot.logger.info(
-            f'$GREENSetting $CYANutils.badname $GREENto $CYAN{value} $GREENfor guild $CYAN{self._guild}')
-        await self.update('utils.badname', value)
+        return
 
     @ConfigOpt(name='utils.public', accepts=bool, default=False, options=options)
     async def public_guild(self, value: bool):
