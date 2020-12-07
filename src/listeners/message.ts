@@ -2,7 +2,7 @@ import { FireMember } from "../../lib/extensions/guildmember";
 import { FireMessage } from "../../lib/extensions/message";
 import { Listener } from "../../lib/util/listener";
 import { PrefixSupplier } from "discord-akairo";
-// import Filters from "../modules/filters";
+import Filters from "../modules/filters";
 import MCLogs from "../modules/mclogs";
 import Sk1er from "../modules/sk1er";
 import * as centra from "centra";
@@ -107,8 +107,8 @@ export default class Message extends Listener {
 
     // TODO add --remind when remind command added
 
-    //   const filters = this.client.getModule("filters") as Filters;
-    //   await filters?.runAll(message, this.cleanContent(message));
+    const filters = this.client.getModule("filters") as Filters;
+    await filters?.runAll(message, this.cleanContent(message));
 
     if (
       message.content.replace("!", "").trim() ==
