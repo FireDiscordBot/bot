@@ -76,10 +76,10 @@ export const constants = {
       /(?<domain>(?:discord(?:app)?|watchanimeattheoffice)\.com)\/invite\/(?<code>[a-zA-Z\d-]+)/gim,
       /(?<domain>(?:h\.|i\.)?inv\.wtf)\/(?<code>[a-zA-Z\d-]+)/gim,
     ],
-    paypal: /paypal\.me\/(?<name>[\w-]+)/gim,
+    paypal: /(?:paypal\.me|paypal\.com\/paypalme)\/(?<name>[\w-]+)/gim,
     youtube: {
-      channel: /youtube\.com\/(?:c\/|channel\/|user\/)?(?<channel>.+)/gim,
-      video: /(youtube\.com|youtu\.be|invidio\.us)\/(?:[\w-]+\?v=|embed\/|v\/)?(?<video>[\w-]+)/gim,
+      channel: /youtube\.com\/(?:c\/|channel\/|user\/)?(?<channel>[^"\s]+)/gim,
+      video: /(youtu\.be\/|invidio\.us\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/)(?<video>[\w-]+)/gim,
     },
     twitch: {
       clip: /clips\.twitch\.tv\/(?<clip>\w+)/gim,
