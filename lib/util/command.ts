@@ -26,8 +26,10 @@ export class Command extends AkairoCommand {
       options.args[0].match = "rest";
     if (options.args instanceof Array)
       options.args.forEach((arg) => {
-        if (!arg.readableType && arg.type)
+        if (!arg.readableType && arg.type) {
           arg.readableType = arg.type.toString();
+          if (arg.readableType == "string") arg.readableType = arg.id;
+        }
       });
     if (!options.restrictTo) options.channel = "guild";
     else if (options.restrictTo != "all") options.channel = options.restrictTo;
