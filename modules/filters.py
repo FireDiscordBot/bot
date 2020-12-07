@@ -61,7 +61,7 @@ class Filters(commands.Cog):
     async def run_all(self, message, extra: str = '', exclude: list = []):
         if message.author.bot:  # Somehow this STILL gets triggered by bot messages
             return
-        enabled = self.bot.get_config(message.guild).get("mod.linkfilter")
+        enabled = self.bot.get_config(message.guild)._data.get("mod.linkfilter", [])
         if message.guild.id in self.debug and enabled:
             self.bot.logger.warn(
                 f'$YELLOWRunning handler(s) for filters $CYAN{", ".join(enabled)} $YELLOWin guild $CYAN{message.guild}')
