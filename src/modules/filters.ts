@@ -88,7 +88,6 @@ export default class Filters extends Module {
       excluded.some((id) => roleIds.includes(id))
     )
       return false;
-    // For testing purposes
     return true;
   }
 
