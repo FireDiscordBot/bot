@@ -125,6 +125,7 @@ export default class Message extends Listener {
       .replace("\u200b", "")
       .replace(" ", "")
       .replace("(.)", ".")
-      .replace("dot", ".");
+      .replace("dot", ".")
+      .replace(/<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|:|\'|/gim, "");
   }
 }
