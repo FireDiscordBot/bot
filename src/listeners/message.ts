@@ -107,19 +107,8 @@ export default class Message extends Listener {
 
     // TODO add --remind when remind command added
 
-    // const excluded: string[] = message.guild.settings.get(
-    //   "excluded.filter",
-    //   []
-    // );
-    // const roleIds = message.member.roles.cache.map((role) => role.id);
-    // if (
-    //   !excluded.includes(message.author.id) &&
-    //   !excluded.filter((id) => roleIds.includes(id)).length &&
-    //   !excluded.includes(message.channel.id)
-    // ) {
     //   const filters = this.client.getModule("filters") as Filters;
     //   await filters?.runAll(message, this.cleanContent(message));
-    // }
 
     if (
       message.content.replace("!", "").trim() ==

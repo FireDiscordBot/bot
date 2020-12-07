@@ -47,12 +47,30 @@ export default class Filters extends Module {
     } catch {}
   }
 
+  shouldRun(message: FireMessage) {
+    if (message.author.bot) return false;
+    if (!message.guild) return false;
+    if (message.member.isModerator()) return false;
+    const excluded: string[] = message.guild.settings.get(
+      "excluded.filter",
+      []
+    );
+    const roleIds = message.member.roles.cache.map((role) => role.id);
+    if (
+      excluded.includes(message.author.id) ||
+      excluded.includes(message.channel.id) ||
+      excluded.some((id) => roleIds.includes(id))
+    )
+      return false;
+    return true;
+  }
+
   async runAll(
     message: FireMessage,
     extra: string = "",
     exclude: string[] = []
   ) {
-    if (message.author.bot) return;
+    if (!this.shouldRun(message)) return;
     const enabled: string[] = message.guild.settings.get("mod.linkfilter", "");
     if (this.debug.includes(message.guild.id) && enabled.length)
       this.client.console.warn(
@@ -71,7 +89,8 @@ export default class Filters extends Module {
     });
   }
 
-  runReplace(text: string) {
+  runReplace(text: string, message?: FireMessage) {
+    if (message && !this.shouldRun(message)) return;
     this.regexes.forEach(
       (regex) =>
         (text = text.replace(regex, "[ hidden due to filtering rules ]"))
