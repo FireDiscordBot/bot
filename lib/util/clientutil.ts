@@ -378,7 +378,7 @@ export class Util extends ClientUtil {
   async getYouTubeChannel(id: string) {
     if (!process.env.YOUTUBE_KEY) return false;
     const channelReq = await Centra(
-      `https://www.googleapis.com/youtube/v3/videos`
+      `https://www.googleapis.com/youtube/v3/channels`
     )
       .query("key", process.env.YOUTUBE_KEY)
       .query(id.startsWith("UC") ? "id" : "forUsername", id)
