@@ -254,7 +254,7 @@ export const textChannelConverter = async (
       .filter(
         (channel) =>
           channel.name.toLowerCase() == argument.toLowerCase() &&
-          (channel.type == "text" || channel.type == "news")
+          channel.type == "text"
       )
       .first();
     if (channel) {
@@ -265,7 +265,7 @@ export const textChannelConverter = async (
     return null;
   } else {
     const channel = guild.channels.cache.get(match);
-    if (channel && (channel.type == "text" || channel.type == "news")) {
+    if (channel && channel.type == "text") {
       return channel as TextChannel;
     }
 
