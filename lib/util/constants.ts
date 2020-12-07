@@ -68,17 +68,23 @@ export const constants = {
   },
   regexes: {
     discord: {
-      cdn: /cdn.discordapp.com\/attachments\/(?:\d){15,21}\/(?:\d){15,21}\/(?:.+?)(?:.png|.jpg)/im,
-      invite: /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[a-zA-Z0-9\-]{1,25})/im,
-      message: /(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?/,
+      invite: /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[a-zA-Z\d-]{1,25})/im,
+      message: /(?:ptb.|canary.)?discord(?:app)?\.com\/channels(?:\/\d{15,21}){3}\/?/im,
     },
     invites: [
-      /(?<domain>(?:dsc|dis|discord|invite).(?:gd|gg|io|me))\/(?<code>[a-zA-Z0-9\-]+)/im,
-      /(?<domain>(?:discord(?:app)?|watchanimeattheoffice).com)\/invite\/(?<code>[a-zA-Z0-9\-]+)/im,
-      /(?<domain>(?:h\.|i\.)?inv\.wtf)\/(?<code>[a-zA-Z0-9\-]+)/im,
+      /(?<domain>(?:dsc|dis|discord|invite)\.(?:gd|gg|io|me))\/(?<code>[a-zA-Z\d-]+)/gim,
+      /(?<domain>(?:discord(?:app)?|watchanimeattheoffice)\.com)\/invite\/(?<code>[a-zA-Z\d-]+)/gim,
+      /(?<domain>(?:h\.|i\.)?inv\.wtf)\/(?<code>[a-zA-Z\d-]+)/gim,
     ],
-    paypal: /paypal\.me\/(?<name>[\w\-]+)/im,
-    youtube: {},
+    paypal: /paypal\.me\/(?<name>[\w-]+)/gim,
+    youtube: {
+      channel: /youtube\.com\/(?:c\/|channel\/|user\/)?(?<channel>.+)/gim,
+      video: /(youtube\.com|youtu\.be|invidio\.us)\/(?:[\w-]+\?v=|embed\/|v\/)?(?<video>[\w-]+)/gim,
+    },
+    twitch: {
+      clip: /clips\.twitch\.tv\/(?<clip>\w+)/gim,
+      channel: /twitch\.tv\/(?<channel>.+)/gim,
+    },
   },
   blockedGifts: [
     "690195254191849478",
