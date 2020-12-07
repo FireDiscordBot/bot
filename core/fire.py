@@ -50,6 +50,9 @@ class Fire(commands.Bot):
         self.db: asyncpg.pool.Pool = None
         self.dev = kwargs.pop('dev', False)
         self.plonked = []
+        self.has_ts_bot_raw = []
+        self.no_ts_bot = []
+
         try:
             self.version = subprocess.check_output(
                 ['git', 'rev-parse', '--short', 'HEAD']).decode()
@@ -259,6 +262,20 @@ class Fire(commands.Bot):
             self.logger.warn(
                 f'$REDFailed to create haste on $CYAN{client.BASE_URL}/', exc_info=e)
         return 'Failed to create haste'
+
+    async def has_ts_bot(self, guild: discord.Guild):
+        if guild.id in self.has_ts_bot_raw:
+            return True
+        elif guild.id in self.no_ts_bot:
+            return False
+        try:
+            member = await guild.fetch_member(764995504526327848)
+            if member:
+                self.has_ts_bot_raw.append(guild.id)
+                return True
+        except Exception:
+            self.no_ts_bot.append(guild.id)
+            return False
 
     async def is_team_owner(self, user: typing.Union[discord.User, discord.Member]):
         if user.id == self.owner_id:
