@@ -142,12 +142,14 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             )
             if alt_ctx.valid:
                 await alt_ctx.command.invoke(alt_ctx)
-        excluded = [int(e) for e in config.get('excluded.filter')]
-        roleids = [r.id for r in message.author.roles]
-        if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
-            filters = self.bot.get_cog('Filters')
-            # with suppress(Exception):
-            await filters.run_all(message)
+        if not await self.bot.has_ts_bot(message.guild):
+            excluded = [int(e)
+                        for e in config._data.get('excluded.filter', [])]
+            roleids = [r.id for r in message.author.roles]
+            if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
+                filters = self.bot.get_cog('Filters')
+                # with suppress(Exception):
+                await filters.run_all(message)
         if f'{message.content.strip()} ' in commands.when_mentioned(self.bot, message) and (await self.bot.blacklist_check(message)):
             prefix = self.bot.get_config(message.guild).get('main.prefix')
             await message.channel.send(f'Hey! My prefix here is `{prefix}` or you can mention me :)')

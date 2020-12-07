@@ -33,14 +33,16 @@ class MessageEdit(commands.Cog):
             try:
                 message.author = (await message.guild.query_members(user_ids=[message.author.id]))[0]
             except Exception as e:
-                self.bot.logger.warn("$YELLOWFailed to fetch member", exc_info=e)
-        excluded = [int(e) for e in self.bot.get_config(
-            message.guild).get('excluded.filter')]
-        roleids = [r.id for r in message.author.roles]
-        if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
-            filters = self.bot.get_cog('Filters')
-            # with suppress(Exception):
-            await filters.run_all(message)
+                self.bot.logger.warn(
+                    "$YELLOWFailed to fetch member", exc_info=e)
+        if not await self.bot.has_ts_bot(message.guild):
+            excluded = [int(e) for e in self.bot.get_config(
+                message.guild)._data.get('excluded.filter', [])]
+            roleids = [r.id for r in message.author.roles]
+            if message.author.id not in excluded and not any(r in excluded for r in roleids) and message.channel.id not in excluded:
+                filters = self.bot.get_cog('Filters')
+                # with suppress(Exception):
+                await filters.run_all(message)
         logch = self.bot.get_config(after.guild).get('log.action')
         if before.content == after.content or after.author.bot:
             return
