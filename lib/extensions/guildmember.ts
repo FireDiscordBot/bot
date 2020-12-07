@@ -107,13 +107,13 @@ export class FireMember extends GuildMember {
       return await this.setNickname(
         null,
         this.guild.language.get("AUTODEHOIST_RESET_REASON") as string
-      );
+      ).catch(() => false);
     else if (!this.hoisted) return;
     if (this.hoisted && !this.user.hoisted && !this.cancerous) {
       return await this.setNickname(
         null,
         this.guild.language.get("AUTODEHOIST_USERNAME_REASON") as string
-      );
+      ).catch(() => false);
     }
     if (this.displayName == badName) return;
     try {
@@ -137,13 +137,13 @@ export class FireMember extends GuildMember {
       return await this.setNickname(
         null,
         this.guild.language.get("AUTODECANCER_RESET_REASON") as string
-      );
+      ).catch(() => false);
     else if (!this.cancerous) return;
     if (this.cancerous && !this.user.cancerous && !this.hoisted) {
       return await this.setNickname(
         null,
         this.guild.language.get("AUTODECANCER_USERNAME_REASON") as string
-      );
+      ).catch(() => false);
     }
     if (this.displayName == badName) return;
     const sanitized: string = sanitizer(this.displayName);
