@@ -83,8 +83,6 @@ export default class Message extends Listener {
     // if (this.tokenRegex.test(toSearch) && process.env.GITHUB_TOKEN)
     //   await this.tokenGist(message, toSearch);
 
-    if (!message.guild) return;
-
     if (
       message.channel.id == "600070909365059584" &&
       message.embeds[0]?.title.includes("new commit") &&
