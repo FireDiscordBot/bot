@@ -29,6 +29,12 @@ class MemberJoin(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
+        if member.id == 764995504526327848:
+            try:
+                self.bot.has_ts_bot_raw.push(member.guild.id)
+                self.bot.no_ts_bot.remove(member.guild.id)
+            except Exception:
+                pass
         premium = self.bot.premium_guilds
         usedinvite = None
         if not member.bot:
