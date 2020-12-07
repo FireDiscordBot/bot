@@ -77,6 +77,7 @@ export const constants = {
       /(?<domain>(?:discord(?:app)?|watchanimeattheoffice).com)\/invite\/(?<code>[a-zA-Z0-9\-]+)/im,
       /(?<domain>(?:h\.|i\.)?inv\.wtf)\/(?<code>[a-zA-Z0-9\-]+)/im,
     ],
+    paypal: /((?:https?:)?\/\/)?((?:www|m)\.)?((?:paypal\.me))(\/)([\w\-]+)(\S+)?/im,
   },
   blockedGifts: [
     "690195254191849478",
