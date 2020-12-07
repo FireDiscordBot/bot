@@ -1,7 +1,8 @@
 import { version as djsver, PermissionString } from "discord.js";
+import { Channel, Video } from "../interfaces/youtube";
 import { FireMember } from "../extensions/guildmember";
-import { FireMessage } from "../extensions/message";
 import { MessageUtil } from "../ws/util/MessageUtil";
+import { FireMessage } from "../extensions/message";
 import { humanize, titleCase } from "./constants";
 import { EventType } from "../ws/util/constants";
 import { FireGuild } from "../extensions/guild";
@@ -359,4 +360,32 @@ export class Util extends ClientUtil {
       return converted.length ? converted : null;
     };
   };
+
+  async getYouTubeVideo(id: string) {
+    if (!process.env.YOUTUBE_KEY) return false;
+    const videoReq = await Centra(
+      `https://www.googleapis.com/youtube/v3/videos`
+    )
+      .query("key", process.env.YOUTUBE_KEY)
+      .query("id", id)
+      .query("part", "snippet,contentDetails,statistics")
+      .send();
+    if (videoReq.statusCode != 200) return false;
+    const video: Video = await videoReq.json();
+    return video;
+  }
+
+  async getYouTubeChannel(id: string) {
+    if (!process.env.YOUTUBE_KEY) return false;
+    const channelReq = await Centra(
+      `https://www.googleapis.com/youtube/v3/videos`
+    )
+      .query("key", process.env.YOUTUBE_KEY)
+      .query(id.startsWith("UC") ? "id" : "forUsername", id)
+      .query("part", "snippet,statistics")
+      .send();
+    if (channelReq.statusCode != 200) return false;
+    const channel: Channel = await channelReq.json();
+    return channel;
+  }
 }
