@@ -1,7 +1,7 @@
-import { ArgumentTypeCaster } from "discord-akairo";
 import { memberConverter, roleConverter } from "../../lib/util/converters";
 import { FireMember } from "../../lib/extensions/guildmember";
 import { FireMessage } from "../../lib/extensions/message";
+import { ArgumentTypeCaster } from "discord-akairo";
 import { Role } from "discord.js";
 
 export const memberRoleTypeCaster: ArgumentTypeCaster = async (
