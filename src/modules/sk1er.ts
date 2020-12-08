@@ -328,24 +328,24 @@ export default class Sk1er extends Module {
 
     switch (message.author.id) {
       // Fire Status
-      case "747786560123961443": {
-        if (message.embeds[0].fields[0].name == "Resolved" && message.pinned)
-          await message
-            .unpin({ reason: "Incident is resolved" })
-            .catch(() => {});
-        else if (
-          !message.pinned &&
-          message.embeds[0].description != "New scheduled maintenance"
-        )
-          await message
-            .pin({ reason: "New incident" })
-            .catch((reason) =>
-              this.client.console.warn(
-                `[Sk1er] Failed to pin Fire status update; ${reason}`
-              )
-            );
-        break;
-      }
+      // case "747786560123961443": {
+      //   if (message.embeds[0].fields[0].name == "Resolved" && message.pinned)
+      //     await message
+      //       .unpin({ reason: "Incident is resolved" })
+      //       .catch(() => {});
+      //   else if (
+      //     !message.pinned &&
+      //     message.embeds[0].description != "New scheduled maintenance"
+      //   )
+      //     await message
+      //       .pin({ reason: "New incident" })
+      //       .catch((reason) =>
+      //         this.client.console.warn(
+      //           `[Sk1er] Failed to pin Fire status update; ${reason}`
+      //         )
+      //       );
+      //   break;
+      // }
       // Groovy Status
       case "747787115974230156": {
         const emojiRe = /<a?:([a-zA-Z0-9\_]+):[0-9]+>/im;
