@@ -18,6 +18,7 @@ export class FireConsole {
   }
 
   debug(...args: any[]) {
+    if (this.logger.level != "debug") return;
     this.logger
       .bgColor("magenta")
       .bold()
