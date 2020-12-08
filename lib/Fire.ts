@@ -40,8 +40,8 @@ import { Module, ModuleHandler } from "./util/module";
 import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
 import { version as djsver } from "discord.js";
-import { KlasaConsole } from "@klasa/console"; // Klasa console do be looking kinda nice doe
 import { Inhibitor } from "./util/inhibitor";
+import { FireConsole } from "./util/console";
 import { Listener } from "./util/listener";
 import { KSoftClient } from "@aero/ksoft";
 import { Command } from "./util/command";
@@ -61,7 +61,7 @@ export class Fire extends AkairoClient {
   manager: Manager;
 
   // Logging
-  console: KlasaConsole;
+  console: FireConsole;
   sentry: typeof Sentry | undefined;
 
   // Handlers
@@ -89,7 +89,7 @@ export class Fire extends AkairoClient {
     this.started = false;
 
     this.manager = manager;
-    this.console = new KlasaConsole(); // TODO make custom console that works in pm2 logs
+    this.console = new FireConsole(); // TODO make custom console that works in pm2 logs
     this.util = new Util(this);
 
     this.db = new PGClient({

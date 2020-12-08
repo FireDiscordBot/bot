@@ -47,28 +47,10 @@
     lodash.camelcase "^4.3.0"
     protobufjs "^6.8.6"
 
-"@klasa/console@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@klasa/console/-/console-0.0.3.tgz#fbcf5e6cb22897168cff7606bff09f8c4f13219a"
-  integrity sha512-liZ83AqQd2K4NpqLIsSrelLL03o1jrKoC9vE5gltq6VyQ0QbjpbWnx4Mn9Ksx0elnO2mih33cnm5IXh0VoOCkA==
-  dependencies:
-    "@klasa/timestamp" "^0.0.1"
-    "@klasa/utils" "^0.0.8"
-
-"@klasa/timestamp@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@klasa/timestamp/-/timestamp-0.0.1.tgz#f7e2171438563affc1e082e9ff6cb013468062a1"
-  integrity sha512-Oreeh+YawFcLvF5SWREBYQie8Net+KihA15ZRG8hOPYqCLRkkeRcf1xrPUdZelsXFGKV3lqpbdTvhyGOau92mA==
-
 "@klasa/type@^0.0.1":
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/@klasa/type/-/type-0.0.1.tgz#ef2dda6069ba8d26d1835033bac227029106998d"
   integrity sha512-gCacZ/FtVyYw+lJy5FmuHPfVkrLwN0FiAwLck2BLVgpUcalaC4GHIyK9U2CiHcegwPYDK8/Ef7yBwUC/xkGi3Q==
-
-"@klasa/utils@^0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@klasa/utils/-/utils-0.0.8.tgz#8b017d8f7a771e5c1894b85f8dafefc219fc9d76"
-  integrity sha512-6G/P9/HM8fTanKUFPrODFmmD3ff8Jwr7gG//2BsTeWfGBBulDn/H8ObWRJjIu81nLKX1I4iQ1jNcK5uOfso6ug==
 
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
   version "1.1.2"
@@ -190,6 +172,11 @@
   dependencies:
     "@sentry/types" "5.27.6"
     tslib "^1.9.3"
+
+"@skyra/timestamp@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@skyra/timestamp/-/timestamp-1.0.0.tgz#6ca61d912c6809cefa7c81208c37ff841e7166a5"
+  integrity sha512-+qznTCEwwqmpp/7RypIzxH2z1ij9ZV/W5EZveC6yewGNtQxmfoNhjvPK2qujT32TUmy3FoakbDbTnO6pnOpG0g==
 
 "@types/archiver@^3.1.0":
   version "3.1.1"
@@ -1104,6 +1091,11 @@ needle@^2.5.0:
     debug "^3.2.6"
     iconv-lite "^0.4.4"
     sax "^1.2.4"
+
+node-color-log@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/node-color-log/-/node-color-log-5.2.0.tgz#fb5cc17a485d08ed590ae8a01265e0d13035c8ae"
+  integrity sha512-hQ6TG6WQJVAheRTeIUUxcxVFCv+guVcK+eNAla/4+lLr0u5axBXrSaUAnRwWoBQBswLtwlYYYgDX9J6ieyvl1w==
 
 node-fetch@^2.3.0, node-fetch@^2.6.1:
   version "2.6.1"
