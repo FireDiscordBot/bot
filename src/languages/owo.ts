@@ -533,7 +533,7 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           `${mention} To become a beta testew, pwease pwovide youw specs thwough this fowm: 
 <https://inv.wtf/sk1spec>
                 
-You wiww automaticawwy gain access to beta channews aftew fiwwing in the fowm`,
+Once you get the wowe, head uvw to <#595634170336641045> and check the pinnyed messages fow the watest betas.`,
         ADDRANK_COMMAND_DESCRIPTION:
           "Add a role that users can join through the rank command.",
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",

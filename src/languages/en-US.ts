@@ -646,7 +646,7 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         ) => `${mention} To become a beta tester, please provide your specs through this form: 
 <https://inv.wtf/sk1spec>
                 
-You will automatically gain access to beta channels after filling in the form`,
+Once you get the role, head over to <#595634170336641045> and check the pinned messages for the latest betas.`,
         ADDRANK_COMMAND_DESCRIPTION:
           "Add a role that users can join through the rank command.",
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
