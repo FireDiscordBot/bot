@@ -253,6 +253,7 @@ export class Fire extends AkairoClient {
       commandHandler: this.commandHandler,
       inhibitorHandler: this.inhibitorHandler,
       listenerHandler: this.listenerHandler,
+      gateway: this.ws,
     });
     this.listenerHandler.loadAll();
 
