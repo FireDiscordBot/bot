@@ -1,5 +1,6 @@
 import { FireMessage } from "../../lib/extensions/message";
 import { Inhibitor } from "../../lib/util/inhibitor";
+import { Command } from "../../lib/util/command";
 
 export default class ExperimentLockInhibitor extends Inhibitor {
   constructor() {
@@ -9,8 +10,7 @@ export default class ExperimentLockInhibitor extends Inhibitor {
     });
   }
 
-  exec(message: FireMessage) {
-    const command = message.util?.parsed?.command;
+  exec(message: FireMessage, command: Command) {
     const requiresExperiment = command.requiresExperiment;
     if (requiresExperiment) {
       const experiment = this.client.experiments.get(requiresExperiment.id);
@@ -25,10 +25,11 @@ export default class ExperimentLockInhibitor extends Inhibitor {
         return true;
       else if (
         experiment.kind == "guild" &&
-        !message.guild?.hasExperiment(
-          experiment.id,
-          requiresExperiment.treatmentId
-        )
+        (!message.guild ||
+          !message.guild?.hasExperiment(
+            experiment.id,
+            requiresExperiment.treatmentId
+          ))
       )
         return true;
     }

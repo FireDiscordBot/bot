@@ -1,5 +1,6 @@
 import { FireMessage } from "../../lib/extensions/message";
 import { Inhibitor } from "../../lib/util/inhibitor";
+import { Command } from "../../lib/util/command";
 
 export default class PremiumInhibitor extends Inhibitor {
   constructor() {
@@ -9,9 +10,11 @@ export default class PremiumInhibitor extends Inhibitor {
     });
   }
 
-  exec(message: FireMessage) {
-    if (message.util?.parsed?.command?.premium)
-      return !this.client.util.premium.has(message.guild.id);
+  exec(message: FireMessage, command: Command) {
+    if (command.premium)
+      return message.guild
+        ? !this.client.util.premium.has(message.guild.id)
+        : true;
     return false;
   }
 

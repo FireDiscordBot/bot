@@ -1,5 +1,6 @@
 import { FireMessage } from "../../lib/extensions/message";
 import { Inhibitor } from "../../lib/util/inhibitor";
+import { Command } from "../../lib/util/command";
 
 export default class BlacklistInhibitor extends Inhibitor {
   constructor() {
@@ -10,10 +11,11 @@ export default class BlacklistInhibitor extends Inhibitor {
     });
   }
 
-  exec(message: FireMessage) {
+  exec(message: FireMessage, command: Command) {
     return (
       this.client.util.plonked.includes(message.author.id) &&
-      !message.author.isSuperuser()
+      !message.author.isSuperuser() &&
+      command.id != "debug"
     );
   }
 

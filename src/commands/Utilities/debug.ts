@@ -53,22 +53,6 @@ export default class Debug extends Command {
       });
     }
 
-    if (cmd.ownerOnly && !this.client.isOwner(message.author)) {
-      return await message.channel.send({
-        embed: this.createEmbed(message, [
-          `${error} ${message.language.get("COMMAND_OWNER_ONLY")}`,
-        ]),
-      });
-    }
-
-    if (!message.guild && cmd.channel == "guild") {
-      return await message.channel.send({
-        embed: this.createEmbed(message, [
-          `${error} ${message.language.get("COMMAND_GUILD_ONLY")}`,
-        ]),
-      });
-    }
-
     const details: string[] = [];
     const permissionChecks = await this.client.commandHandler.runPermissionChecks(
       message,
@@ -107,13 +91,46 @@ export default class Debug extends Command {
       details.push(`${error} ${message.language.get("DEBUG_REQUIRES_PERMS")}`);
     else details.push(`${success} ${message.language.get("DEBUG_PERMS_PASS")}`);
 
-    const inhibitorCheck = await this.client.inhibitorHandler.test(
-      "all",
-      message,
-      cmd
-    );
+    let inhibitorChecks = [];
 
-    if (inhibitorCheck != null) details.push(`${error} ${inhibitorCheck}`); // No Translation :(
+    const inhibitors = [...this.client.inhibitorHandler.modules.values()].sort(
+      // @ts-ignore (idk why it thinks priority doesn't exist)
+      (a, b) => b.priority - a.priority
+    );
+    for (const inhibitor of inhibitors) {
+      let exec = inhibitor.exec(message, cmd);
+      if (this.client.util.isPromise(exec)) exec = await exec;
+      if (exec) inhibitorChecks.push(inhibitor.reason);
+    }
+
+    for (const inhibitorCheck of inhibitorChecks) {
+      if (inhibitorCheck != null) {
+        if (inhibitorCheck == "owner")
+          details.push(
+            `${error} ${message.language.get("COMMAND_OWNER_ONLY")}`
+          );
+        if (inhibitorCheck == "guild")
+          details.push(
+            `${error} ${message.language.get("COMMAND_GUILD_ONLY")}`
+          );
+        if (inhibitorCheck == "premium")
+          details.push(
+            `${error} ${message.language.get("COMMAND_PREMIUM_ONLY")}`
+          );
+        if (inhibitorCheck == "experimentlock")
+          details.push(
+            `${error} ${message.language.get("COMMAND_EXPERIMENT_REQUIRED")}`
+          );
+        if (inhibitorCheck == "accountage")
+          details.push(
+            `${error} ${message.language.get("COMMAND_ACCOUNT_TOO_YOUNG")}`
+          );
+        if (inhibitorCheck == "guildlock")
+          details.push(
+            `${error} ${message.language.get("COMMAND_GUILD_LOCKED")}`
+          );
+      }
+    }
 
     const disabledCommands: string[] =
       message.guild?.settings.get("disabled.commands", []) || [];

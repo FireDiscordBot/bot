@@ -1,5 +1,6 @@
 import { FireMessage } from "../../lib/extensions/message";
 import { Inhibitor } from "../../lib/util/inhibitor";
+import { Command } from "../../lib/util/command";
 
 export default class GuildLockInhibitor extends Inhibitor {
   constructor() {
@@ -9,8 +10,8 @@ export default class GuildLockInhibitor extends Inhibitor {
     });
   }
 
-  exec(message: FireMessage) {
-    const command = message.util?.parsed?.command;
+  exec(message: FireMessage, command: Command) {
+    if (!message.guild && command.guilds?.length) return true;
     if (
       command &&
       command.guilds?.length &&
