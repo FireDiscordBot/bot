@@ -2,6 +2,7 @@ import {
   CommandUtil as AkairoUtil,
   ParsedComponentData as AkairoParsed,
 } from "discord-akairo";
+import { Language } from "./language";
 import { Command } from "./command";
 import { Fire } from "../Fire";
 
@@ -65,7 +66,7 @@ export const getCommands = (client: Fire) => {
           return {
             name: command.id,
             description: command.description(
-              client.languages.modules.get("en-US")
+              client.languages.modules.get("en-US") as Language
             ),
             usage: `{prefix}${command.id} ${args}`.trim(),
             aliases: command.aliases
@@ -92,7 +93,9 @@ export const getAllCommands = (client: Fire) => {
       const args = command.getArgumentsClean().join(" ");
       return {
         name: command.id,
-        description: command.description(client.languages.modules.get("en-US")),
+        description: command.description(
+          client.languages.modules.get("en-US") as Language
+        ),
         usage: `{prefix}${command.id} ${args}`.trim(),
         aliases: command.aliases
           .filter((alias) => alias != command.id)
