@@ -1,11 +1,15 @@
 import {
+  APIMessageContentResolvable,
   GuildMemberResolvable,
+  MessageEditOptions,
   MessageAttachment,
   StringResolvable,
   MessageAdditions,
   MessageMentions,
   RoleResolvable,
   MessageOptions,
+  MessageManager,
+  MessageEmbed,
   TextChannel,
   NewsChannel,
   APIMessage,
@@ -27,6 +31,7 @@ export class SlashCommandMessage {
   id: string;
   client: Fire;
   flags: number;
+  sent: boolean;
   content: string;
   command: Command;
   guild: FireGuild;
@@ -52,6 +57,7 @@ export class SlashCommandMessage {
       this.slashCommand.channel_id
     ) as TextChannel | NewsChannel;
     this.channel = new FakeChannel(
+      this,
       client,
       command.id,
       command.token,
@@ -76,6 +82,7 @@ export class SlashCommandMessage {
         ? this.guild?.language
         : this.author.language
       : this.guild?.language || client.getLanguage("en-US");
+    this.sent = false;
   }
 
   setFlags(flags: number) {
@@ -129,7 +136,7 @@ export class SlashCommandMessage {
     return this.channel.send(this.language.get(key, ...args), {}, this.flags);
   }
 
-  success(key: string = "", ...args: any[]): Promise<void> {
+  success(key: string = "", ...args: any[]): Promise<SlashCommandMessage> {
     if (!key) return;
     return this.channel.send(
       `${emojis.success} ${this.language.get(key, ...args)}`,
@@ -138,13 +145,38 @@ export class SlashCommandMessage {
     );
   }
 
-  error(key: string = "", ...args: any[]): Promise<void> {
+  error(key: string = "", ...args: any[]): Promise<SlashCommandMessage> {
     if (!key) return;
     return this.channel.send(
       `${emojis.error} ${this.language.get(key, ...args)}`,
       {},
       this.flags ? this.flags : 64
     );
+  }
+
+  edit(
+    content:
+      | APIMessageContentResolvable
+      | MessageEditOptions
+      | MessageEmbed
+      | APIMessage,
+    options: MessageEditOptions | MessageEmbed
+  ) {
+    const { data } =
+      content instanceof APIMessage
+        ? content.resolveData()
+        : // @ts-ignore
+          APIMessage.create(this, content, options).resolveData();
+    // @ts-ignore
+    this.client.api
+      // @ts-ignore
+      .webhooks(this.id)(this.token)
+      .messages("@original")
+      .patch({
+        data,
+      })
+      .catch(() => {});
+    return this;
   }
 }
 
@@ -153,9 +185,12 @@ export class FakeChannel {
   client: Fire;
   token: string;
   msgFlags: number;
+  messages: MessageManager;
+  message: SlashCommandMessage;
   real: TextChannel | NewsChannel;
 
   constructor(
+    message: SlashCommandMessage,
     client: Fire,
     id: string,
     token: string,
@@ -166,7 +201,9 @@ export class FakeChannel {
     this.real = real;
     this.token = token;
     this.client = client;
+    this.message = message;
     this.msgFlags = msgFlags;
+    this.messages = real.messages;
   }
 
   permissionsFor(memberOrRole: GuildMemberResolvable | RoleResolvable) {
@@ -189,18 +226,18 @@ export class FakeChannel {
       .interactions(this.id)(this.token)
       .callback.post({ data: { type: 5 } })
       .catch(() => {});
+    this.message.sent = true;
   }
 
   async send(
     content: StringResolvable | APIMessage,
     options?: MessageOptions | MessageAdditions,
     flags?: number // Used for success/error, can also be set
-  ): Promise<void> {
+  ): Promise<SlashCommandMessage> {
     let apiMessage: APIMessage;
 
     if (content instanceof APIMessage) content.resolveData();
     else {
-      // TODO fix "this" not being a MessageTarget
       // @ts-ignore
       apiMessage = APIMessage.create(this, content, options).resolveData();
     }
@@ -212,18 +249,36 @@ export class FakeChannel {
     // @ts-ignore
     if (flags) data.flags = flags;
 
-    // @ts-ignore
-    await this.client.api
+    if (!this.message.sent)
       // @ts-ignore
-      .interactions(this.id)(this.token)
-      .callback.post({
-        data: {
-          // @ts-ignore
-          type: (data.flags & 64) == 64 && !data.embeds?.length ? 3 : 4,
-          data,
-        },
-        files,
-      })
-      .catch(() => {});
+      await this.client.api
+        // @ts-ignore
+        .interactions(this.id)(this.token)
+        .callback.post({
+          data: {
+            // @ts-ignore
+            type: (data.flags & 64) == 64 && !data.embeds?.length ? 3 : 4,
+            data,
+          },
+          files,
+        })
+        .then(() => (this.message.sent = true))
+        .catch(() => {});
+    else {
+      // @ts-ignore
+      await this.client.api
+        // @ts-ignore
+        .webhooks(this.id)(this.token)
+        .messages.post({
+          data: {
+            // @ts-ignore
+            type: (data.flags & 64) == 64 && !data.embeds?.length ? 3 : 4,
+            data,
+          },
+          files,
+        })
+        .catch(() => {});
+    }
+    return this.message;
   }
 }
