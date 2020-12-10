@@ -22,6 +22,8 @@ export default class ModOnlyInhibitor extends Inhibitor {
       )
     ) {
       if (message.member.isSuperuser()) return false;
+      if (message instanceof SlashCommandMessage && message.command.ephemeral)
+        return false;
       return !message.member.isModerator(channel);
     }
     return false;

@@ -23,6 +23,8 @@ export default class AdminOnlyInhibitor extends Inhibitor {
       ) as string[]).includes(channel.id)
     ) {
       if (message.member.isSuperuser()) return false;
+      if (message instanceof SlashCommandMessage && message.command.ephemeral)
+        return false;
       return !message.member.isAdmin(channel);
     }
     return false;
