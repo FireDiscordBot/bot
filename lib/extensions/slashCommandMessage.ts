@@ -178,6 +178,8 @@ export class SlashCommandMessage {
       .catch(() => {});
     return this;
   }
+
+  delete() {}
 }
 
 export class FakeChannel {
