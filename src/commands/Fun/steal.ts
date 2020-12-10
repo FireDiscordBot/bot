@@ -14,10 +14,13 @@ export default class Steal extends Command {
           id: "emoji",
           type: "string",
           readableType: "emoji/emoji id/emoji url",
+          slashCommandType: "emoji",
           default: null,
           required: true,
         },
       ],
+      enableSlashCommand: true,
+      ephemeral: true,
     });
   }
 

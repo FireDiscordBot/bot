@@ -20,6 +20,7 @@ export default class Help extends Command {
           required: false,
         },
       ],
+      enableSlashCommand: true,
       restrictTo: "all",
     });
   }

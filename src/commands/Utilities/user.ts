@@ -32,10 +32,13 @@ export default class User extends Command {
         {
           id: "user",
           type: "user|member|snowflake",
+          description: (language: Language) =>
+            language.get("USER_SNOWFLAKE_ARGUMENT_DESCRIPTION"),
           default: undefined,
           required: false,
         },
       ],
+      enableSlashCommand: true,
       aliases: ["userinfo", "infouser", "whois", "u"],
       restrictTo: "all",
     });

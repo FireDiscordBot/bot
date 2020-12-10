@@ -20,6 +20,7 @@ export default class DelRank extends Command {
         },
       ],
       aliases: ["delselfrole", "deljoinrole", "deljoinablerole", "delselfrank"],
+      enableSlashCommand: true,
       premium: true,
     });
   }

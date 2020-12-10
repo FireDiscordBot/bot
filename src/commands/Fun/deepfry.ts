@@ -17,8 +17,11 @@ export default class Deepfry extends Command {
           id: "image",
           type: Argument.union("memberSilent", "string"),
           readableType: "member|image",
+          slashCommandType: "image",
+          description: (language: Language) =>
+            language.get("IMAGE_ARGUMENT_DESCRIPTION"),
           default: null,
-          required: true,
+          required: false,
         },
       ],
       aliases: ["df"],
@@ -56,7 +59,7 @@ export default class Deepfry extends Command {
         .send("", {
           files: [{ attachment: meme, name: `f'deepfried.png` }],
         })
-        .catch(async (reason) => {
+        .catch(async () => {
           return await message.error("DEEPFRY_UPLOAD_FAIL");
         });
     }

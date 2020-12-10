@@ -18,6 +18,8 @@ export default class BadName extends Command {
           required: false,
         },
       ],
+      enableSlashCommand: true,
+      restrictTo: "guild",
     });
   }
 

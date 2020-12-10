@@ -19,6 +19,7 @@ export default class Description extends Command {
           required: true,
         },
       ],
+      enableSlashCommand: true,
     });
   }
 

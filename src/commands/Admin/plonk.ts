@@ -31,9 +31,10 @@ export default class Plonk extends Command {
           match: "rest",
         },
       ],
+      enableSlashCommand: true,
       aliases: ["unplonk"],
-      hidden: true,
       restrictTo: "all",
+      hidden: true,
     });
   }
 

@@ -8,7 +8,9 @@ export default class Invite extends Command {
       description: (language: Language) =>
         language.get("INVITE_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES"],
+      enableSlashCommand: true,
       restrictTo: "all",
+      ephemeral: true,
     });
   }
 

@@ -23,6 +23,7 @@ export default class Stats extends Command {
           required: false,
         },
       ],
+      enableSlashCommand: true,
     });
   }
 

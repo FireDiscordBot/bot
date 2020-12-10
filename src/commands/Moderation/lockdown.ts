@@ -15,6 +15,7 @@ export default class Lockdown extends Command {
         {
           id: "action",
           type: ["start", "end", "exclude"],
+          slashCommandType: "action",
           default: null,
           required: true,
         },
@@ -27,6 +28,8 @@ export default class Lockdown extends Command {
         },
       ],
       requiresExperiment: { id: "H78gbvKTG6pepfWgPYxDR", treatmentId: 1 },
+      enableSlashCommand: true,
+      restrictTo: "guild",
     });
   }
 

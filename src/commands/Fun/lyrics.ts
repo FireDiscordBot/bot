@@ -28,6 +28,7 @@ export default class Lyrics extends Command {
           required: false,
         },
       ],
+      enableSlashCommand: true,
     });
   }
 

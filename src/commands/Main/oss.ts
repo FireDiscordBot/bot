@@ -9,7 +9,9 @@ export default class OpenSource extends Command {
         language.get("OSS_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES"],
       aliases: ["github", "source", "code"],
+      enableSlashCommand: true,
       restrictTo: "all",
+      ephemeral: true,
     });
   }
 

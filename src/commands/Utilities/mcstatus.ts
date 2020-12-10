@@ -1,9 +1,12 @@
 import { MojangStatus } from "../../../lib/interfaces/mojangstatus";
 import { FireMessage } from "../../../lib/extensions/message";
+import { constants } from "../../../lib/util/constants";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import * as centra from "centra";
 import { MessageEmbed } from "discord.js";
+import * as centra from "centra";
+
+const { emojis } = constants;
 
 export default class MinecraftStatus extends Command {
   emotes: {
@@ -16,12 +19,13 @@ export default class MinecraftStatus extends Command {
       description: (language: Language) =>
         language.get("MCSTATUS_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      enableSlashCommand: true,
       restrictTo: "all",
     });
     this.emotes = {
-      green: "<:check:674359197378281472>",
-      yellow: "<a:fireWarning:660148304486727730>",
-      red: "<:xmark:674359427830382603>",
+      green: emojis.green,
+      yellow: emojis.yellow,
+      red: emojis.red,
     };
   }
 

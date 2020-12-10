@@ -17,6 +17,7 @@ export default class Purge extends Command {
         {
           id: "amount",
           type: "number",
+          readableType: "amount",
           default: -1,
           required: true,
         },
@@ -82,6 +83,7 @@ export default class Purge extends Command {
           required: false,
         },
       ],
+      enableSlashCommand: true,
     });
   }
 

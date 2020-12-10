@@ -31,6 +31,7 @@ export default class Specs extends Command {
         },
       ],
       guilds: ["411619823445999637"],
+      enableSlashCommand: true,
       aliases: ["delspecs"],
       hidden: true,
     });

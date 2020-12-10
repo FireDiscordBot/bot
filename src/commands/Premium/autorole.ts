@@ -23,32 +23,26 @@ export default class Autorole extends Command {
         {
           id: "delay",
           flag: "--delay",
-          default: null,
+          match: "flag",
           required: false,
         },
         {
           id: "bot",
           flag: "--bot",
+          match: "flag",
           default: null,
           required: false,
         },
       ],
+      enableSlashCommand: true,
     });
   }
 
   async exec(
     message: FireMessage,
-    args: { role: Role; delay?: string; bot?: string }
+    args: { role: Role; delay?: boolean; bot?: boolean }
   ) {
     let { role, delay, bot } = args;
-    if (delay == "--bot") {
-      // Discord Akairo's flags suck
-      delay = undefined;
-      bot = "--bot";
-    } else if (bot == "--delay") {
-      bot = undefined;
-      delay = "--delay";
-    }
 
     if (!role) {
       message.guild.settings.delete(bot ? "mod.autobotrole" : "mod.autorole");

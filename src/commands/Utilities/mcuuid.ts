@@ -21,7 +21,9 @@ export default class MinecraftUUID extends Command {
           flag: "--dashed",
         },
       ],
+      enableSlashCommand: true,
       restrictTo: "all",
+      ephemeral: true,
     });
   }
 

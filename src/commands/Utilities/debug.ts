@@ -22,6 +22,7 @@ export default class Debug extends Command {
           required: true,
         },
       ],
+      enableSlashCommand: true,
       restrictTo: "all",
     });
   }

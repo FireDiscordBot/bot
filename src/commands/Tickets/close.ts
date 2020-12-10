@@ -17,6 +17,7 @@ export default class CloseTicket extends Command {
           required: false,
         },
       ],
+      enableSlashCommand: true,
       restrictTo: "guild",
       aliases: ["close"],
       lock: "channel",

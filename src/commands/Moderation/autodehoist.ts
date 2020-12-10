@@ -9,6 +9,8 @@ export default class AutoDehoist extends Command {
         language.get("AUTODEHOIST_COMMAND_DESCRIPTION"),
       userPermissions: ["MANAGE_NICKNAMES"],
       clientPermissions: ["SEND_MESSAGES", "MANAGE_NICKNAMES"],
+      enableSlashCommand: true,
+      restrictTo: "guild",
     });
   }
 

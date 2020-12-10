@@ -24,7 +24,9 @@ export default class NewTicket extends Command {
           required: false,
         },
       ],
+      enableSlashCommand: true,
       aliases: ["new"],
+      ephemeral: true,
     });
   }
 

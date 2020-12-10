@@ -19,8 +19,10 @@ export default class TicketRemove extends Command {
           required: true,
         },
       ],
+      enableSlashCommand: true,
       restrictTo: "guild",
       aliases: ["remove"],
+      ephemeral: true,
     });
   }
 

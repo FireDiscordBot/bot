@@ -9,7 +9,9 @@ export default class Vote extends Command {
         language.get("VOTE_COMMAND_DESCRIPTION"),
       aliases: ["dbl", "top.gg", "dboats", "discord.boats"],
       clientPermissions: ["SEND_MESSAGES"],
+      enableSlashCommand: true,
       restrictTo: "all",
+      ephemeral: true,
     });
   }
 

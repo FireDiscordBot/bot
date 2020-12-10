@@ -22,11 +22,13 @@ export default class Slowmode extends Command {
           id: "channel",
           type: "guildChannelSilent",
           readableType: "text-channel|category",
+          slashCommandType: "channel",
           default: null,
           required: false,
           unordered: true,
         },
       ],
+      enableSlashCommand: true,
       aliases: ["slowmodeall"],
     });
   }

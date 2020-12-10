@@ -26,6 +26,8 @@ export default class Rank extends Command {
         "selfroles",
         "selfranks",
       ],
+      enableSlashCommand: true,
+      ephemeral: true,
       premium: true,
     });
   }

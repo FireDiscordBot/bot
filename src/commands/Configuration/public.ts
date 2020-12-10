@@ -9,6 +9,8 @@ export default class Public extends Command {
         language.get("PUBLIC_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES"],
       userPermissions: ["MANAGE_GUILD"],
+      enableSlashCommand: true,
+      restrictTo: "guild",
     });
   }
 

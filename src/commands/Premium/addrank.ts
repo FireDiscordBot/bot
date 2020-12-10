@@ -20,6 +20,7 @@ export default class AddRank extends Command {
         },
       ],
       aliases: ["addselfrole", "addjoinrole", "addjoinablerole", "addselfrank"],
+      enableSlashCommand: true,
       premium: true,
     });
   }

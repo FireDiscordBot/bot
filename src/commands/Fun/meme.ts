@@ -23,11 +23,13 @@ export default class Meme extends Command {
         {
           id: "span",
           type: ["hour", "day", "week", "month", "year", "all"],
+          slashCommandType: "span",
           flag: "--span",
           match: "option",
           default: "month",
         },
       ],
+      enableSlashCommand: true,
     });
     this.imgExt = [".png", ".jpg", ".jpeg", ".gif", ".gifv"];
   }
