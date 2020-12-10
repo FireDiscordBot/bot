@@ -14,10 +14,6 @@ import { FireMember } from "./guildmember";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
-import { APIMessage } from "discord.js";
-import { MessageOptions } from "discord.js";
-import { StringResolvable } from "discord.js";
-import { MessageAdditions } from "discord.js";
 
 const { emojis, reactions } = constants;
 
