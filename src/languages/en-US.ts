@@ -567,8 +567,7 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           "textures.minecraft.net": "**Skins**",
           "api.mojang.com": "**API**",
         },
-        MCUUID_COMMAND_DESCRIPTION:
-          "Get a player's UUID (use --dashed to get the uuid with dashes)",
+        MCUUID_COMMAND_DESCRIPTION: "Get a player's UUID",
         MCUUID_INVALID_IGN: "You must provide a valid IGN to get the UUID of",
         MCUUID_FETCH_FAIL:
           "Failed to fetch the UUID, make sure the IGN is a valid player",
@@ -660,7 +659,7 @@ Once you get the role, head over to <#595634170336641045> and check the pinned m
         SKIN_COMMAND_DESCRIPTION: "See a player's Minecraft skin",
         SKIN_INVALID_IGN: "You must provide a valid IGN to get the skin of",
         SLOWMODE_COMMAND_DESCRIPTION:
-          "Set the slowmode for a channel or category. Use the --global flag to set it for all channels",
+          "Set the slowmode for a channel or category. Use the slowmodeall alias to set it for all channels",
         SLOWMODE_INVALID_TYPE: "You must provide a text channel or category",
         SLOWMODE_FAILED: (channels: string[]) =>
           `Failed to set slowmode in ${channels.join(", ")}`,
@@ -672,8 +671,7 @@ Once you get the role, head over to <#595634170336641045> and check the pinned m
           "View/remove a users specs (locked to discord.gg/sk1er)",
         SPECS_NOT_FOUND:
           "Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec>",
-        STATS_COMMAND_DESCRIPTION:
-          "View cluster & overall stats. Use the --cluster flag to view stats for a specific cluster",
+        STATS_COMMAND_DESCRIPTION: "View cluster & overall stats.",
         STATS_TITLE: (name: string, version: string) =>
           `Stats for ${name} [${version}]`,
         STATS_MEMORY_USAGE: "Memory Usage",

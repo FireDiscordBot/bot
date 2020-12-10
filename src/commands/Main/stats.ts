@@ -19,6 +19,7 @@ export default class Stats extends Command {
           id: "cluster",
           flag: "--cluster",
           match: "option",
+          type: "string",
           default: null,
           required: false,
         },

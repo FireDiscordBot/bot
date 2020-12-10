@@ -27,6 +27,12 @@ export default class Slowmode extends Command {
           required: false,
           unordered: true,
         },
+        {
+          id: "global",
+          flag: "--global",
+          match: "flag",
+          required: false,
+        },
       ],
       enableSlashCommand: true,
       aliases: ["slowmodeall"],
@@ -38,11 +44,18 @@ export default class Slowmode extends Command {
     args: {
       delay: number;
       channel?: TextChannel | CategoryChannel;
+      global?: boolean;
     }
   ) {
-    if (!args.channel && message.util?.parsed?.alias != "slowmodeall")
+    if (
+      !args.channel &&
+      (message.util?.parsed?.alias != "slowmodeall" || args.global)
+    )
       args.channel = message.channel as TextChannel;
-    else if (!args.channel && message.util?.parsed?.alias == "slowmodeall")
+    else if (
+      !args.channel &&
+      (message.util?.parsed?.alias == "slowmodeall" || args.global)
+    )
       return await this.globalSlowmode(message, args.delay);
     if (!["text", "category", undefined].includes(args.channel?.type))
       return await message.error("SLOWMODE_INVALID_TYPE");

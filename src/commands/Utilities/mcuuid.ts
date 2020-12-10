@@ -19,6 +19,8 @@ export default class MinecraftUUID extends Command {
         {
           id: "dashed",
           flag: "--dashed",
+          match: "flag",
+          required: false,
         },
       ],
       enableSlashCommand: true,
