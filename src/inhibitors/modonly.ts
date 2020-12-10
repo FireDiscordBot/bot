@@ -1,3 +1,4 @@
+import { SlashCommandMessage } from "../../lib/extensions/slashCommandMessage";
 import { FireMessage } from "../../lib/extensions/message";
 import { Inhibitor } from "../../lib/util/inhibitor";
 
@@ -10,14 +11,18 @@ export default class ModOnlyInhibitor extends Inhibitor {
   }
 
   exec(message: FireMessage) {
+    const channel =
+      message instanceof SlashCommandMessage
+        ? message.channel.real
+        : message.channel;
     if (
       message.guild &&
       (message.guild.settings.get("commands.modonly", []) as string[]).includes(
-        message.channel.id
+        channel.id
       )
     ) {
       if (message.member.isSuperuser()) return false;
-      return !message.member.isModerator();
+      return !message.member.isModerator(channel);
     }
     return false;
   }

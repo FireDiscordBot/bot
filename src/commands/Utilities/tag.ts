@@ -147,12 +147,14 @@ export default class Tag extends Command {
     const cachedTag = await manager.getTag(tag);
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", tag);
     await manager.useTag(cachedTag.name);
+    let referenced: FireMessage;
     if (message.reference?.messageID) {
-      const referenced = (await message.channel.messages.fetch(
-        message.reference.messageID
-      )) as FireMessage;
-      referenced.replyRaw(cachedTag.content, true);
-    } else return await message.channel.send(cachedTag.content);
+      referenced = (await message.channel.messages
+        .fetch(message.reference.messageID)
+        .catch(() => {})) as FireMessage;
+    }
+    if (referenced) referenced.replyRaw(cachedTag.content, true);
+    else return await message.channel.send(cachedTag.content);
   }
 
   async sendTagRaw(message: FireMessage, tag: string) {

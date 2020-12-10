@@ -1,3 +1,4 @@
+import { SlashCommandMessage } from "../../../lib/extensions/slashCommandMessage";
 import { PermissionString, TextChannel, MessageEmbed } from "discord.js";
 import { constants, titleCase } from "../../../lib/util/constants";
 import { FireMessage } from "../../../lib/extensions/message";
@@ -29,9 +30,13 @@ export default class Debug extends Command {
 
   async exec(message: FireMessage, args: { command: Command }) {
     const cmd = args.command;
+    const channel =
+      message instanceof SlashCommandMessage
+        ? message.channel.real
+        : message.channel;
 
     if (!cmd) {
-      return await message.channel.send({
+      return await channel.send({
         embed: this.createEmbed(message, [
           `${error} ${message.language.get("DEBUG_NO_COMMAND")}`,
         ]),
@@ -39,7 +44,7 @@ export default class Debug extends Command {
     }
 
     if (!cmd.id) {
-      return await message.channel.send({
+      return await channel.send({
         embed: this.createEmbed(message, [
           `${error} ${message.language.get("UNKNOWN_COMMAND")}`,
         ]),
@@ -47,7 +52,7 @@ export default class Debug extends Command {
     }
 
     if (cmd.id == this.id) {
-      return await message.channel.send({
+      return await channel.send({
         embed: this.createEmbed(message, [
           `${success} ${message.language.get("DEBUGGING_DEBUG")}`,
         ]),
@@ -151,7 +156,7 @@ export default class Debug extends Command {
       );
 
     if (cmd.id == "mute" && message.guild) {
-      const overwrites = (message.channel as TextChannel).permissionOverwrites;
+      const overwrites = (channel as TextChannel).permissionOverwrites;
       const bypass = overwrites
         .map((value, key) => {
           const overwriteFor =
@@ -167,7 +172,7 @@ export default class Debug extends Command {
         details.push(
           `${error} ${message.language.get(
             "DEBUG_MUTE_BYPASS",
-            message.channel.toString(),
+            channel.toString(),
             bypass
           )}`
         );
@@ -175,7 +180,7 @@ export default class Debug extends Command {
         details.push(
           `${success} ${message.language.get(
             "DEBUG_MUTE_NO_BYPASS",
-            message.channel.toString()
+            channel.toString()
           )}`
         );
     }
@@ -184,10 +189,10 @@ export default class Debug extends Command {
       !message.guild ||
       (message.guild && message.guild.me?.permissions.has("EMBED_LINKS"))
     )
-      return await message.channel.send(this.createEmbed(message, details));
+      return await channel.send(this.createEmbed(message, details));
     else {
       details.push(`${error} ${message.language.get("DEBUG_NO_EMBEDS")}`);
-      return await message.channel.send(details.join("\n"));
+      return await channel.send(details.join("\n"));
     }
   }
 

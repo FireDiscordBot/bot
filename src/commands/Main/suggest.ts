@@ -1,8 +1,9 @@
+import { SlashCommandMessage } from "../../../lib/extensions/slashCommandMessage";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import * as centra from "centra";
 import { TextChannel } from "discord.js";
+import * as centra from "centra";
 
 export default class Discover extends Command {
   constructor() {
@@ -30,6 +31,10 @@ export default class Discover extends Command {
       !process.env.TRELLO_TOKEN
     )
       return await message.error();
+    const channel =
+      message instanceof SlashCommandMessage
+        ? message.channel.real
+        : message.channel;
     let card = await centra("https://api.trello.com/1/cards", "POST")
       .query("key", process.env.TRELLO_KEY)
       .query("token", process.env.TRELLO_TOKEN)
@@ -38,8 +43,8 @@ export default class Discover extends Command {
         "desc",
         `Suggested by ${message.author.username} (${
           message.author.id
-        }) in channel ${(message.channel as TextChannel).name} (${
-          message.channel.id
+        }) in channel ${(channel as TextChannel).name} (${
+          channel.id
         }) in guild ${message.guild.name} (${
           message.guild.id
         }) at ${new Date().toLocaleString()}`

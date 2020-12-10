@@ -37,7 +37,7 @@ export default class CommandError extends Listener {
         "guild.id": message.guild?.id,
         "guild.name": message.guild?.name,
         "guild.shard": message.guild?.shardID || 0,
-        "channel.id": message.channel.id,
+        "channel.id": channel.id,
         "channel.name":
           channel instanceof GuildChannel
             ? (channel as TextChannel).name
