@@ -14,10 +14,7 @@ export default class Vote extends Command {
   }
 
   async exec(message: FireMessage) {
-    await message.channel.send(
-      `<https://fire-is-the.best/${
-        message.util?.parsed?.alias == "vote" ? "vote" : ""
-      }>`
-    );
+    // TODO add back /vote (rn it just 404s)
+    await message.channel.send(`<https://fire-is-the.best/>`);
   }
 }
