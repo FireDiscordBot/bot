@@ -42,5 +42,40 @@ export default class Ready extends Listener {
       (value, key) => this.client.guilds.cache.has(key) || key == "0"
     ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
     // or "0" which may be used for something later
+
+    for (const cmd of this.client.commandHandler.modules.values()) {
+      const command = cmd as Command;
+      if (command.enableSlashCommand) await command.registerSlashCommand();
+    }
+
+    const slashCommands: {
+      id: string;
+      application_id: string;
+      name: string;
+      description: string;
+      // @ts-ignore
+    }[] = await this.client.api
+      // @ts-ignore
+      .applications(this.client.user.id)
+      .commands.get();
+
+    for (const slashCommand of slashCommands) {
+      if (!this.client.getCommand(slashCommand.name)) {
+        this.client.console.warn(
+          `[Commands] Deleting slash command /${slashCommand.name} due to command not being found`
+        );
+        // @ts-ignore
+        await this.client.api
+          // @ts-ignore
+          .applications(this.client.user.id)
+          .commands(slashCommand.id)
+          .delete()
+          .catch(() =>
+            this.client.console.error(
+              `[Commands] Failed to delete slash command /${slashCommand.name}`
+            )
+          );
+      }
+    }
   }
 }
