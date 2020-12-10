@@ -1,6 +1,6 @@
 import { APIGuildMember as Member } from "discord-api-types";
 
-export interface Command {
+export interface SlashCommand {
   type: number;
   token: string;
   member: Member;
