@@ -62,7 +62,10 @@ export default class Ping extends Command {
           data: {
             embed: embed.toJSON(),
             message_reference: { message_id: message.id },
-            allowed_mentions: this.client.options.allowedMentions,
+            allowed_mentions: {
+              ...this.client.options.allowedMentions,
+              replied_user: false,
+            },
           },
         })
         .then(
