@@ -140,6 +140,7 @@ export class Command extends AkairoCommand {
       }
       options["choices"] = choices;
     } else if (argument.flag && argument.match == "flag") {
+      options["name"] = argument.id;
       options["type"] = ApplicationCommandOptionType.BOOLEAN;
     }
     return options;
