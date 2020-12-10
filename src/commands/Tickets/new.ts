@@ -3,7 +3,6 @@ import { constants } from "../../../lib/util/constants";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { TextChannel } from "discord.js";
-import { SlashCommandMessage } from "../../../lib/extensions/slashCommandMessage";
 
 export default class NewTicket extends Command {
   constructor() {
