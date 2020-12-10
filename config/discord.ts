@@ -7,8 +7,6 @@ export const discord: ClientOptions = {
     parse: [],
     users: [],
     roles: [],
-    // @ts-ignore
-    replied_user: false,
   },
   messageEditHistoryMaxSize: 2,
   messageCacheLifetime: 300,
