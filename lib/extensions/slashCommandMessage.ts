@@ -1,11 +1,13 @@
 import {
   APIMessageContentResolvable,
   GuildMemberResolvable,
+  AwaitMessagesOptions,
   MessageEditOptions,
   MessageResolvable,
   MessageAttachment,
   StringResolvable,
   MessageAdditions,
+  CollectorFilter,
   MessageMentions,
   RoleResolvable,
   MessageOptions,
@@ -233,6 +235,10 @@ export class FakeChannel {
     filterOld?: boolean
   ) {
     return this.real.bulkDelete(messages, filterOld);
+  }
+
+  awaitMessages(filter: CollectorFilter, options?: AwaitMessagesOptions) {
+    return this.real.awaitMessages(filter, options);
   }
 
   // Acknowledges without sending a message
