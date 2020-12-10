@@ -64,9 +64,13 @@ export class SlashCommandMessage {
     this.author =
       (client.users.cache.get(command.member.user.id) as FireUser) ||
       new FireUser(client, command.member.user);
+    if (!client.users.cache.has(this.author.id))
+      client.users.add(command.member.user);
     this.member =
       (this.guild.members.cache.get(this.author.id) as FireMember) ||
       new FireMember(client, command.member, this.guild);
+    if (!this.guild.members.cache.has(this.member.id))
+      this.guild.members.add(command.member);
     this.language = this.author?.settings.get("utils.language")
       ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
         ? this.guild?.language
