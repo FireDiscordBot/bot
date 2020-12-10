@@ -9,6 +9,7 @@ export default class Eightball extends Command {
         language.get("EIGHTBALL_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES"],
       enableSlashCommand: true,
+      ephemeral: true,
       args: [
         {
           id: "question",
