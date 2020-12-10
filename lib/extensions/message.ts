@@ -47,7 +47,7 @@ export class FireMessage extends Message {
     return this.channel.send(this.language.get(key, ...args));
   }
 
-  replyRaw(content: string): Promise<Message> {
+  replyRaw(content: string, mention: boolean = false): Promise<Message> {
     return (
       // @ts-ignore
       this.client.api
@@ -57,7 +57,10 @@ export class FireMessage extends Message {
           data: {
             content,
             message_reference: { message_id: this.id },
-            allowed_mentions: this.client.options.allowedMentions,
+            allowed_mentions: {
+              ...this.client.options.allowedMentions,
+              replied_user: mention,
+            },
           },
         })
         .then(
