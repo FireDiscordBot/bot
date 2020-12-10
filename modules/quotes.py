@@ -138,8 +138,9 @@ class Quotes(commands.Cog, name="Quotes"):
                 if message.guild != ctx.guild:
                     member = message.guild.get_member(ctx.author.id)
                     if not member:
-                        member = await message.guild.fetch_member(ctx.author.id)
-                        if not member:
+                        try:
+                            member = await message.guild.fetch_member(ctx.author.id)
+                        except Exception:
                             if ctx.guild.id in self.debug:
                                 self.bot.logger.warn(
                                     f"$YELLOWAttempted to quote message without a member in the guild")
@@ -151,8 +152,9 @@ class Quotes(commands.Cog, name="Quotes"):
             elif message.channel.overwrites_for(message.guild.default_role).read_messages not in [None, True]:
                 member = message.guild.get_member(ctx.author.id)
                 if not member:
-                    member = await message.guild.fetch_member(ctx.author.id)
-                    if not member:
+                    try:
+                        member = await message.guild.fetch_member(ctx.author.id)
+                    except Exception:
                         if ctx.guild.id in self.debug:
                             self.bot.logger.warn(
                                 f"$YELLOWAttempted to quote message without a member in the guild and @everyone disallowed")
