@@ -8,6 +8,7 @@ import {
   GuildEmoji,
   DMChannel,
 } from "discord.js";
+import { FakeChannel } from "../extensions/slashCommandMessage";
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
 import { FireUser } from "../extensions/user";
@@ -289,7 +290,11 @@ export class PaginatorInterface {
     }
   }
 
-  async send(destination: TextChannel | NewsChannel | DMChannel) {
+  async send(destination: TextChannel | NewsChannel | DMChannel | FakeChannel) {
+    if (destination instanceof FakeChannel) {
+      await destination.ack();
+      destination = destination.real;
+    }
     this.message = (await destination.send(this.sendArgs)) as FireMessage;
     this.message.paginator = this;
 
