@@ -9,12 +9,21 @@ export default class Eightball extends Command {
         language.get("EIGHTBALL_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES"],
       enableSlashCommand: true,
+      args: [
+        {
+          id: "question",
+          type: "string",
+          required: true,
+          default: null,
+        },
+      ],
+      aliases: ["eightball"],
       restrictTo: "all",
     });
   }
 
-  async exec(message: FireMessage) {
-    if (!message.content.trim().endsWith("?"))
+  async exec(message: FireMessage, args: { question?: string }) {
+    if (!args.question.trim().endsWith("?"))
       return await message.send("EIGHTBALL_NO_QUESTION");
     await message.send("EIGHTBALL_ANSWER");
   }
