@@ -2,6 +2,7 @@ import {
   APIMessageContentResolvable,
   GuildMemberResolvable,
   MessageEditOptions,
+  MessageResolvable,
   MessageAttachment,
   StringResolvable,
   MessageAdditions,
@@ -14,6 +15,8 @@ import {
   NewsChannel,
   APIMessage,
   Collection,
+  Snowflake,
+  Message,
 } from "discord.js";
 import { SlashCommand } from "../interfaces/slashCommands";
 import { ArgumentOptions, Command } from "../util/command";
@@ -220,6 +223,16 @@ export class FakeChannel {
 
   stopTyping(force?: boolean) {
     return this.real.stopTyping(force);
+  }
+
+  bulkDelete(
+    messages:
+      | Collection<Snowflake, Message>
+      | readonly MessageResolvable[]
+      | number,
+    filterOld?: boolean
+  ) {
+    return this.real.bulkDelete(messages, filterOld);
   }
 
   // Acknowledges without sending a message
