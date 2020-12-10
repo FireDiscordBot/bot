@@ -1,4 +1,5 @@
 import { Structures, GuildMember, Channel } from "discord.js";
+import { FakeChannel } from "./slashCommandMessage";
 import { UserSettings } from "../util/settings";
 import * as sanitizer from "@aero/sanitizer";
 import { Language } from "../util/language";
@@ -28,6 +29,7 @@ export class FireMember extends GuildMember {
   }
 
   isModerator(channel?: Channel) {
+    if (channel instanceof FakeChannel) channel = channel.real;
     if (this.isAdmin(channel)) return true;
     const moderators = this.guild.settings.get(
       "utils.moderators",
@@ -51,6 +53,7 @@ export class FireMember extends GuildMember {
   }
 
   isAdmin(channel?: Channel) {
+    if (channel instanceof FakeChannel) channel = channel.real;
     return channel
       ? this.permissionsIn(channel).has("MANAGE_GUILD")
       : this.permissions.has("MANAGE_GUILD");
