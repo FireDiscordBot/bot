@@ -179,7 +179,9 @@ export class SlashCommandMessage {
     return this;
   }
 
-  delete() {}
+  async delete() {
+    return this;
+  }
 }
 
 export class FakeChannel {
