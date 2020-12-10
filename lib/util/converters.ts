@@ -123,9 +123,9 @@ export const userConverter = async (
 ): Promise<FireUser | null> => {
   if (!argument) return;
 
-  if (argument == "^" && message.channel.messages.cache.size >= 2)
+  if (argument == "^" && message.channel.messages.cache.size >= 4)
     return message.channel.messages.cache
-      .filter((m) => m.id < message.id)
+      .filter((m) => m.id < message.id && m.author.id != message.author.id)
       .last().author as FireUser;
 
   const userID = getIDMatch(argument) || getUserMentionMatch(argument);
@@ -161,7 +161,7 @@ export const userConverter = async (
     }
 
     const match = message.client.users.cache.filter(
-      (user) => user.username.toLowerCase() == argument.toLowerCase()
+      (user) => user.username?.toLowerCase() == argument?.toLowerCase()
     );
 
     if (match.size > 0) {
