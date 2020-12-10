@@ -106,16 +106,18 @@ export default class Message extends Listener {
     // TODO add --remind when remind command added
 
     const filters = this.client.getModule("filters") as Filters;
-    await filters?.runAll(message, this.cleanContent(message));
+    await filters?.runAll(message, this.cleanContent(message)).catch(() => {});
 
     if (
       message.content.replace("!", "").trim() ==
       (message.guild.me as FireMember).toMention().replace("!", "").trim()
     )
-      await message.send(
-        "HELLO_PREFIX",
-        (this.client.commandHandler.prefix as PrefixSupplier)(message)
-      );
+      await message
+        .send(
+          "HELLO_PREFIX",
+          (this.client.commandHandler.prefix as PrefixSupplier)(message)
+        )
+        .catch(() => {});
   }
 
   cleanContent(message: FireMessage) {
