@@ -6,7 +6,7 @@ import { TextChannel } from "discord.js";
 
 export default class TicketAdd extends Command {
   constructor() {
-    super("ticketadd", {
+    super("add", {
       description: (language: Language) =>
         language.get("TICKETADD_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "MANAGE_ROLES"],
@@ -21,7 +21,7 @@ export default class TicketAdd extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
-      aliases: ["add"],
+      aliases: ["ticketadd"],
       ephemeral: true,
     });
   }

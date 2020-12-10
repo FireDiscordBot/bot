@@ -6,7 +6,7 @@ import { TextChannel } from "discord.js";
 
 export default class TicketRemove extends Command {
   constructor() {
-    super("ticketremove", {
+    super("remove", {
       description: (language: Language) =>
         language.get("TICKETREMOVE_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "MANAGE_ROLES"],
@@ -21,7 +21,7 @@ export default class TicketRemove extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
-      aliases: ["remove"],
+      aliases: ["ticketremove"],
       ephemeral: true,
     });
   }

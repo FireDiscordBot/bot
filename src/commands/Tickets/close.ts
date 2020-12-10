@@ -5,7 +5,7 @@ import { TextChannel } from "discord.js";
 
 export default class CloseTicket extends Command {
   constructor() {
-    super("closeticket", {
+    super("close", {
       description: (language: Language) =>
         language.get("CLOSE_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "MANAGE_CHANNELS", "MANAGE_ROLES"],
@@ -19,7 +19,7 @@ export default class CloseTicket extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
-      aliases: ["close"],
+      aliases: ["closeticket"],
       lock: "channel",
     });
   }
