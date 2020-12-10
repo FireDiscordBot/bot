@@ -26,6 +26,7 @@ import re
 class Quotes(commands.Cog, name="Quotes"):
     def __init__(self, bot):
         self.bot = bot
+        self.debug = []
 
     def quote_embed(self, context_channel, message, user):
         if not message.system_content and message.embeds and message.author.bot:
@@ -93,13 +94,6 @@ class Quotes(commands.Cog, name="Quotes"):
                     return
             message_regex = r'(?:http(?:s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
             botquote_regex = r'.{1,25}\s?quote (http(s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels'
-
-            # Replies are an experimental feature. It basically is quotes on steroids so Fire shouldn't quote when it's being used.
-            # While you can manually reply cross server, it's not as convinient as Fire quotes so I don't think quotes are going anywhere just yet
-            reply_regex = r'Replying to (?:<@!?[0-9]+> from )?(?:http(?:s)?)?:\/\/(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/\d{15,21}\/\d{15,21}\/\d{15,21}\/?'
-            reply = re.findall(reply_regex, message.content, re.MULTILINE)
-            if reply:
-                return
             botquote = re.findall(
                 botquote_regex, message.content, re.MULTILINE)
             if botquote:
@@ -128,6 +122,9 @@ class Quotes(commands.Cog, name="Quotes"):
         if not message:
             return await ctx.error('Please specify a message ID/URL to quote. Use `auto` to toggle auto message quotes.')
         if not isinstance(message, discord.Message):
+            if ctx.guild.id in self.debug:
+                self.bot.logger.warn(
+                    f"$YELLOWAttempted to quote non-message in {ctx.guild}/#{ctx.channel}, $CYAN{message}")
             return
 
         # Prevent quoting from known system users
@@ -139,27 +136,38 @@ class Quotes(commands.Cog, name="Quotes"):
         if message.guild:
             if 'DISCOVERABLE' not in message.guild.features:
                 if message.guild != ctx.guild:
-                    if message.guild.chunked:
-                        member = message.guild.get_member(ctx.author.id)
-                    else:
-                        member = await message.guild.fetch_member(ctx.author.id)
+                    member = message.guild.get_member(ctx.author.id)
                     if not member:
-                        return
-                    if not member.permissions_in(message.channel).read_messages:
-                        return
-                elif not ctx.author.permissions_in(message.channel).read_messages:
+                        member = await message.guild.fetch_member(ctx.author.id)
+                        if not member:
+                            if ctx.guild.id in self.debug:
+                                self.bot.logger.warn(
+                                    f"$YELLOWAttempted to quote message without a member in the guild")
+                            return
+                else:
+                    member = ctx.author
+                if not member.permissions_in(message.channel).read_messages:
                     return
             elif message.channel.overwrites_for(message.guild.default_role).read_messages not in [None, True]:
                 member = message.guild.get_member(ctx.author.id)
                 if not member:
-                    return
+                    member = await message.guild.fetch_member(ctx.author.id)
+                    if not member:
+                        if ctx.guild.id in self.debug:
+                            self.bot.logger.warn(
+                                f"$YELLOWAttempted to quote message without a member in the guild and @everyone disallowed")
+                        return
                 if not member.permissions_in(message.channel).read_messages:
                     return
         else:
             if hasattr(ctx.channel, 'recipient') and ctx.channel.recipient.id != ctx.author.id:
+                if ctx.guild.id in self.debug:
+                    self.bot.logger.warn(
+                        f"$YELLOWAttempted to quote message from dm that isn't owned by the command author")
                 return
 
-        usehooks = ctx.config.get('utils.quotehooks')
+        config = ctx.config
+        usehooks = config.get('utils.quotehooks')
         if ctx.guild.me.permissions_in(ctx.channel).manage_webhooks and usehooks:
             existing = [w for w in (await ctx.channel.webhooks()) if w.token]
             if not existing:
@@ -191,6 +199,12 @@ class Quotes(commands.Cog, name="Quotes"):
                     content = content + \
                         attchurls if content and len(
                             content + attchurls) < 2000 else content
+                    excluded = [int(e)
+                                for e in config._data.get('excluded.filter', [])]
+                    roleids = [r.id for r in ctx.author.roles]
+                    if ctx.author.id not in excluded and not any(r in excluded for r in roleids) and ctx.channel.id not in excluded:
+                        content = self.bot.get_cog(
+                            "Filters").run_replace(content, message.guild)
                     return await existing[0].send(
                         content=content,
                         username=str(message.author).replace('#0000', ''),

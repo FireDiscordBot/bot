@@ -61,7 +61,8 @@ class Filters(commands.Cog):
     async def run_all(self, message, extra: str = '', exclude: list = []):
         if message.author.bot:  # Somehow this STILL gets triggered by bot messages
             return
-        enabled = self.bot.get_config(message.guild)._data.get("mod.linkfilter", [])
+        enabled = self.bot.get_config(
+            message.guild)._data.get("mod.linkfilter", [])
         if message.guild.id in self.debug and enabled:
             self.bot.logger.warn(
                 f'$YELLOWRunning handler(s) for filters $CYAN{", ".join(enabled)} $YELLOWin guild $CYAN{message.guild}')
@@ -78,23 +79,30 @@ class Filters(commands.Cog):
         for name, handlers in filters.items():
             if name not in exclude and name in enabled:
                 if message.guild.id in self.debug:
-                    self.bot.logger.warn(f'$YELLOWRunning handler(s) for $CYAN{name}')
+                    self.bot.logger.warn(
+                        f'$YELLOWRunning handler(s) for $CYAN{name}')
                 [await self.safe_exc(handler, message, extra) for handler in handlers]
 
-    def run_replace(self, text):
-        filters = [
-            replacechannel,
-            replacevideo,
-            replacetwitter,
-            replaceshort,
-            replaceinvite,
-            replacepaypal,
-            replacetwitch,
-            replacegift,
-            replacesku
-        ]
-        for f in filters:
-            text = f(text)
+    def run_replace(self, text, guild=None):
+        filters = {
+            'discord': [replaceinvite],
+            'paypal': [replacepaypal],
+            'youtube': [replacechannel, replacevideo],
+            'twitch': [replacetwitch],
+            'twitter': [replacetwitter],
+            'shorteners': [replaceshort],
+            'gifts': [replacegift, replacesku]
+        }
+        if not guild:
+            for f in filters.values():
+                for r in f:
+                    text = r(text)
+        else:
+            enabled = self.bot.get_config(
+                guild)._data.get("mod.linkfilter", [])
+            for f in [v for k, v in filters.items() if k in enabled]:
+                for r in f:
+                    text = r(text)
         return text
 
     async def handle_invite(self, message, extra):
