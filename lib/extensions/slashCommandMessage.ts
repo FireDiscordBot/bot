@@ -165,7 +165,7 @@ export class SlashCommandMessage {
       | MessageEditOptions
       | MessageEmbed
       | APIMessage,
-    options: MessageEditOptions | MessageEmbed
+    options?: MessageEditOptions | MessageEmbed
   ) {
     const { data } =
       content instanceof APIMessage
@@ -175,7 +175,7 @@ export class SlashCommandMessage {
     // @ts-ignore
     this.client.api
       // @ts-ignore
-      .webhooks(this.id)(this.token)
+      .webhooks(this.client.user.id, this.slashCommand.token)
       .messages("@original")
       .patch({
         data,
@@ -291,13 +291,9 @@ export class FakeChannel {
       // @ts-ignore
       await this.client.api
         // @ts-ignore
-        .webhooks(this.id)(this.token)
-        .messages.post({
-          data: {
-            // @ts-ignore
-            type: (data.flags & 64) == 64 && !data.embeds?.length ? 3 : 4,
-            data,
-          },
+        .webhooks(this.client.user.id)(this.token)
+        .post({
+          data,
           files,
         })
         .catch(() => {});
