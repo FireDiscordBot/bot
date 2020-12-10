@@ -1,3 +1,4 @@
+import { SlashCommandMessage } from "../../lib/extensions/slashCommandMessage";
 import { FireMessage } from "../../lib/extensions/message";
 import { Listener } from "../../lib/util/listener";
 import { Command } from "../../lib/util/command";
@@ -14,7 +15,7 @@ export default class CommandError extends Listener {
   }
 
   async exec(
-    message: FireMessage,
+    message: FireMessage | SlashCommandMessage,
     command: Command,
     args: any[],
     error: Error
@@ -27,6 +28,10 @@ export default class CommandError extends Listener {
         id: message.author.id,
         username: `${message.author.username}#${message.author.discriminator}`,
       });
+      const channel =
+        message instanceof SlashCommandMessage
+          ? message.realChannel
+          : message.channel;
       sentry.setExtras({
         "message.id": message.id,
         "guild.id": message.guild?.id,
@@ -34,9 +39,9 @@ export default class CommandError extends Listener {
         "guild.shard": message.guild?.shardID || 0,
         "channel.id": message.channel.id,
         "channel.name":
-          message.channel instanceof GuildChannel
-            ? (message.channel as TextChannel).name
-            : message.channel.recipient.toString(),
+          channel instanceof GuildChannel
+            ? (channel as TextChannel).name
+            : channel.recipient.toString(),
         "command.name": command.id,
         "command.args": JSON.stringify(args),
         env: process.env.NODE_ENV,
