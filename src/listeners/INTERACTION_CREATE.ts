@@ -29,7 +29,6 @@ export default class InteractionCreate extends Listener {
       if (typeof handled == "boolean" && !handled)
         return await message.error("SLASH_COMMAND_HANDLE_FAIL");
     } catch (error) {
-      this.client.console.debug(error.stack);
       if (typeof this.client.sentry !== "undefined") {
         const sentry = this.client.sentry;
         sentry.setExtras({
