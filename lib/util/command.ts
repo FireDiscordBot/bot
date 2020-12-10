@@ -53,7 +53,8 @@ export class Command extends AkairoCommand {
         if (!arg.readableType && arg.type) {
           arg.readableType = arg.type.toString();
           if (arg.readableType == "string") arg.readableType = arg.id;
-        }
+        } else if (arg.flag && arg.match == "flag")
+          arg.readableType = "boolean";
         if (!arg.slashCommandType) {
           arg.slashCommandType = arg.readableType?.split("|")[0];
         }
