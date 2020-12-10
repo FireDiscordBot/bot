@@ -102,7 +102,7 @@ export default class owo extends Language {
           ADDMOD_COMMAND_DESCRIPTION:
             "Add a membew/wowe as a mowodewatow. If not set, anone with the Manage Messages pewmission is considewed a Mowodewatow",
           AUTOROLE_COMMAND_DESCRIPTION:
-            "Automaticawwy add a wowe to a usew/bot when they join ow when they send theiw fiwst message with the --delay fwag",
+            "Automaticawwy add a wowe to a usew/bot when they join/send theiw fiwst message",
           AUTOROLE_ROLE_REQUIRED:
             "You can't automaticawwy give nothing, you need to pwovide a wowe",
           AUTOROLE_INVALID_FLAGS: "You cannot combine --bot and --delay",
@@ -155,7 +155,7 @@ export default class owo extends Language {
         BADNAME_RESET: `I have weset the "bad name" to John Doe 0000 (with 0000 being theiw discwiminatow).
 This wiww **not** wename existing usews`,
         DEBUG_COMMAND_DESCRIPTION:
-          "Command not wowking? Use this command to twy debug the issue.\nDebug command not wowking? Join the Fire Suppowt sewvew, https://inv.wtf/fire",
+          "Command not wowking? Use this command to twy debug the issue.",
         DEBUG_NO_COMMAND: "You must pwovide a vawid command to debug",
         DEBUGGING_DEBUG: "Debug command is wowking",
         DEBUG_PERMS_PASS: "No pewmissiowons missing",
@@ -484,7 +484,7 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         PING_INITIAL_MESSAGE: "Pinging...",
         PING_FINAL_MESSAGE: "Pong!",
         PUBLIC_COMMAND_DESCRIPTION:
-          "Set youw sewvew to pubwic which awwows it to be visibwe on Fire's Pubwic Sewvews page (https://inv.wtf/discover)",
+          "Set youw sewvew to pubwic awwowing it to be visibwe on Fire's Pubwic Sewvews page",
         PUBLIC_VANITY_BLACKLIST:
           "This guiwd has been bwackwisted fwom vanity featuwes and thewefowe cannot be pubwic!",
         PUBLIC_VANITY_REQUIRED: (prefix: string) =>

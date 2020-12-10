@@ -39,6 +39,11 @@ export default class enUS extends Language {
           "Whoa, hold your horses there! Wait for the command to finish before running it again",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
+        SLASH_COMMAND_HANDLE_FAIL: "I failed to handle that slash command",
+        USER_SNOWFLAKE_ARGUMENT_DESCRIPTION:
+          "A mention, username, user id or any valid snowflake",
+        IMAGE_ARGUMENT_DESCRIPTION:
+          "Anything I can grab an image from, e.g. a user for their avatar or an image url",
         HELLO_PREFIX: (prefix: string) =>
           `Hey! My prefix here is \`${prefix}\` or you can mention me :)`,
         ERROR_ROLE_UNUSABLE:
@@ -170,7 +175,7 @@ export default class enUS extends Language {
         ADDMOD_COMMAND_DESCRIPTION:
           "Add a member/role as a moderator. If not set, anyone with the Manage Messages permission is considered a moderator",
         AUTOROLE_COMMAND_DESCRIPTION:
-          "Automatically add a role to a user/bot when they join or when they send their first message with the --delay flag",
+          "Automatically add a role to a user/bot when they join/send their first message",
         AUTOROLE_ROLE_REQUIRED:
           "You can't automatically give nothing, you need to provide a role",
         AUTOROLE_INVALID_FLAGS: "You cannot combine --bot and --delay",
@@ -221,7 +226,7 @@ export default class enUS extends Language {
         BADNAME_RESET: `I have reset the "bad name" to John Doe 0000 (with 0000 being their discriminator).
 This will **not** rename existing users`,
         DEBUG_COMMAND_DESCRIPTION:
-          "Command not working? Use this command to try debug the issue.\nDebug command not working? Join the Fire Support server, https://inv.wtf/fire",
+          "Command not working? Use this command to try debug the issue",
         DEBUG_NO_COMMAND: "You must provide a valid command to debug",
         DEBUGGING_DEBUG: "Debug command is working",
         DEBUG_PERMS_PASS: "No permissions missing",
@@ -497,7 +502,7 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
         LINKFILTER_RESET: (enabled: string[]) =>
           `Successfully disabled all filters.`,
         LOCKDOWN_COMMAND_DESCRIPTION:
-          "Lock all channels in the server, useful for stopping raiders from sending messages. May cause issues if you haven't got permissions setup correctly",
+          "Lock all channels in the server, useful for stopping raids",
         LOCKDOWN_ACTION_REQUIRED:
           "You must provide an action! Possible actions are `start`, `end` or `exclude`",
         LOCKDOWN_EXCLUDE_REQUIRED:
@@ -596,7 +601,7 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           `Shard ID: ${shard} | Cluster ID: ${cluster}`,
         PING_FINAL_MESSAGE: "Pong!",
         PUBLIC_COMMAND_DESCRIPTION:
-          "Set your server to public which allows it to be visible on Fire's Public Servers page (https://inv.wtf/discover)",
+          "Set your server to public allowing it to be visible on Fire's Public Servers page",
         PUBLIC_VANITY_BLACKLIST:
           "This guild has been blacklisted from vanity features and therefore cannot be public!",
         PUBLIC_VANITY_REQUIRED: (prefix: string) =>
@@ -688,8 +693,7 @@ Once you get the role, head over to <#595634170336641045> and check the pinned m
           "Seems like you were caught red handed while trying to steal that emoji. You have returned the emoji you attempted to steal",
         STEAL_STOLEN: (emoji: string) =>
           `Nice! You stole ${emoji} without getting caught by a nasty error :)`,
-        SUGGEST_COMMAND_DESCRIPTION:
-          "Suggest a feature for Fire. (Abuse of this command will lead to a temporary blacklist from Fire. Actual suggestions only)",
+        SUGGEST_COMMAND_DESCRIPTION: "Suggest a feature for Fire.",
         SUGGESTION_SUCCESS: (card: any) =>
           `Thanks! Your suggestion was added to the Trello @ <${card.url}>. Make sure to check it every now and then for a response.
 Abuse of this command __**will**__ result in being temporarily blacklisted from Fire`,
