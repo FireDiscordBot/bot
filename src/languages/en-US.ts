@@ -40,6 +40,8 @@ export default class enUS extends Language {
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
         SLASH_COMMAND_HANDLE_FAIL: "I failed to handle that slash command",
+        SLASH_COMMAND_BOT_REQUIRED: (invite: string) =>
+          `This command requires you to have the bot present. You can invite it @ <${invite}>`,
         USER_SNOWFLAKE_ARGUMENT_DESCRIPTION:
           "A mention, username, user id or any valid snowflake",
         IMAGE_ARGUMENT_DESCRIPTION:

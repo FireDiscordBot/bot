@@ -22,7 +22,11 @@ export default class InteractionCreate extends Listener {
           `[Commands] Got slash command request for unknown command, /${command.data.name}`
         );
         return await message.error("UNKNOWN_COMMAND");
-      }
+      } else if (!message.guild && message.command.channel == "guild")
+        return await message.error(
+          "SLASH_COMMAND_BOT_REQUIRED",
+          this.client.config.inviteLink
+        );
       await message.generateContent();
       // @ts-ignore
       const handled = await this.client.commandHandler.handle(message);
