@@ -12,8 +12,13 @@ export default class CommandBlocked extends Listener {
 
   async exec(message: FireMessage, command: Command, reason: string) {
     if (reason == "owner") return await message.error("COMMAND_OWNER_ONLY");
+    else if (reason == "superuser")
+      return await message.error("COMMAND_SUPERUSER_ONLY");
     else if (reason == "guild")
-      return await message.error("COMMAND_GUILD_ONLY");
+      return await message.error(
+        "COMMAND_GUILD_ONLY",
+        this.client.config.inviteLink
+      );
     else if (reason == "premium")
       return await message.error("COMMAND_PREMIUM_ONLY");
     else if (reason == "experimentlock")

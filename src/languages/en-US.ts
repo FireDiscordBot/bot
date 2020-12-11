@@ -24,9 +24,10 @@ export default class enUS extends Language {
           "Message not found! Make sure you're giving a valid id/link.",
         UNKNOWN_COMMAND: "Command not found",
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
-        // invite will be changed when deployed to main bot
-        COMMAND_GUILD_ONLY:
-          "You can only use this command in a server. You can invite me to a server at <https://inv.wtf/tsbot>",
+        COMMAND_SUPERUSER_ONLY:
+          "Only a select few are powerful enough to use this command",
+        COMMAND_GUILD_ONLY: (invite: string) =>
+          `You can only use this command in a server. You can invite me to a server at <${invite}>`,
         COMMAND_PREMIUM_ONLY:
           "Only premium guilds can use this command. Learn more at https://inv.wtf/premium",
         COMMAND_EXPERIMENT_REQUIRED: "The maze wasn't meant for you.",

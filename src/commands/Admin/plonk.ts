@@ -33,7 +33,9 @@ export default class Plonk extends Command {
       ],
       enableSlashCommand: true,
       aliases: ["unplonk"],
+      superuserOnly: true,
       restrictTo: "all",
+      ephemeral: true,
       hidden: true,
     });
   }
@@ -43,7 +45,6 @@ export default class Plonk extends Command {
     args: { user: FireMember | FireUser; permanent: boolean; reason: string }
   ) {
     if (!args.user) return;
-    if (!message.author.isSuperuser() || args.user.isSuperuser()) return;
 
     const user = args.user instanceof FireMember ? args.user.user : args.user;
     if (!user) return;

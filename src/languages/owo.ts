@@ -17,9 +17,10 @@ export default class owo extends Language {
           "Message not found! Make suwe you'we giving a vawid id/wink.",
         UNKNOWN_COMMAND: "Command not found",
         COMMAND_OWNER_ONLY: "Onwy my ownew can use this command",
-        // invite will be changed when deployed to main bot
-        COMMAND_GUILD_ONLY:
-          "You can onwy use this command in a sewvew. You can invite me to a sewvew at <https://inv.wtf/tsbot>",
+        COMMAND_SUPERUSER_ONLY:
+          "Onwy a sewect few awe powewfuw enyough to use this command",
+        COMMAND_GUILD_ONLY: (invite: string) =>
+          `You can onwy use this command in a sewvew. You can invite me to a sewvew at <${invite}>`,
         COMMAND_PREMIUM_ONLY:
           "Onwy pwemium guiwds can use this command. Weawn mowe at https://inv.wtf/premium",
         COMMAND_EXPERIMENT_REQUIRED: "The maze wasn't meant fow you.",

@@ -38,6 +38,7 @@ export class Command extends AkairoCommand {
   premium: boolean;
   guilds: string[];
   ephemeral: boolean;
+  superuserOnly: boolean;
   enableSlashCommand: boolean;
   description: (language: Language) => string;
   requiresExperiment?: { id: string; treatmentId?: number };
@@ -64,13 +65,14 @@ export class Command extends AkairoCommand {
     if (!options.restrictTo) options.channel = "guild";
     else if (options.restrictTo != "all") options.channel = options.restrictTo;
     super(id, options);
+    if (this.ownerOnly || options.superuserOnly) this.hidden = true;
     this.enableSlashCommand = options.enableSlashCommand || false;
-    this.ephemeral = options.ephemeral || false;
-    this.hidden = options.hidden || false;
-    if (this.ownerOnly) this.hidden = true;
-    this.premium = options.premium || false;
-    this.guilds = options.guilds || [];
     this.requiresExperiment = options.requiresExperiment || null;
+    this.superuserOnly = options.superuserOnly || false;
+    this.ephemeral = options.ephemeral || false;
+    this.premium = options.premium || false;
+    this.hidden = options.hidden || false;
+    this.guilds = options.guilds || [];
     this.args = options.args;
   }
 
@@ -190,18 +192,19 @@ export class Command extends AkairoCommand {
 }
 
 export interface CommandOptions extends AkairoCommandOptions {
-  hidden?: boolean;
-  premium?: boolean;
-  guilds?: string[];
-  enableSlashCommand?: boolean;
-  ephemeral?: boolean;
   requiresExperiment?: { id: string; treatmentId?: number };
   args?: ArgumentOptions[] | ArgumentGenerator;
   restrictTo?: "guild" | "dm" | "all";
+  enableSlashCommand?: boolean;
+  superuserOnly?: boolean;
+  ephemeral?: boolean;
+  premium?: boolean;
+  guilds?: string[];
+  hidden?: boolean;
 }
 
 export interface ArgumentOptions extends AkairoArgumentOptions {
-  required?: boolean;
-  readableType?: string;
   slashCommandType?: string;
+  readableType?: string;
+  required?: boolean;
 }

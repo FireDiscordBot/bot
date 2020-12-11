@@ -41,7 +41,8 @@ export default class Help extends Command {
         .filter(
           (command) =>
             (!message.guild ? command.channel != "guild" : true) &&
-            !command.hidden &&
+            !(command.superuserOnly && message.author.isSuperuser()) &&
+            !(command.ownerOnly && this.client.ownerID == message.author.id) &&
             !command.guilds?.includes(message.guild?.id)
         )
         .forEach((command) => commands.push(`\`${command.id}\``));

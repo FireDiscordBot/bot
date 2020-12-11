@@ -117,7 +117,10 @@ export default class Debug extends Command {
           );
         if (inhibitorCheck == "guild")
           details.push(
-            `${error} ${message.language.get("COMMAND_GUILD_ONLY")}`
+            `${error} ${message.language.get(
+              "COMMAND_GUILD_ONLY",
+              this.client.config.inviteLink
+            )}`
           );
         if (inhibitorCheck == "premium")
           details.push(
