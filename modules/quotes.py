@@ -206,14 +206,14 @@ class Quotes(commands.Cog, name="Quotes"):
                     roleids = [r.id for r in ctx.author.roles]
                     if ctx.author.id not in excluded and not any(r in excluded for r in roleids) and ctx.channel.id not in excluded:
                         content = self.bot.get_cog(
-                            "Filters").run_replace(content, message.guild)
+                            "Filters").run_replace(content, ctx.guild)
                     return await existing[0].send(
                         content=content,
                         username=str(message.author).replace('#0000', ''),
                         avatar_url=str(message.author.avatar_url_as(
                             static_format='png')),
-                        embeds=[e for e in message.embeds if not (
-                            'url' in e.to_dict() and e.to_dict()['url'] in (content or ''))],
+                        embeds=[
+                            e for e in message.embeds if 'url' not in e.to_dict()],
                         files=[(await a.to_file()) for a in message.attachments if a.size < 8388608]
                     )
                 except Exception as e:
