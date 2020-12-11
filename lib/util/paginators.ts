@@ -292,7 +292,7 @@ export class PaginatorInterface {
 
   async send(destination: TextChannel | NewsChannel | DMChannel | FakeChannel) {
     if (destination instanceof FakeChannel) {
-      await destination.ack();
+      if (!destination.message.sent) await destination.ack(true);
       destination = destination.real;
     }
     this.message = (await destination.send(this.sendArgs)) as FireMessage;

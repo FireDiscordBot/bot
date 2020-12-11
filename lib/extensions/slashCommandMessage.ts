@@ -242,12 +242,12 @@ export class FakeChannel {
   }
 
   // Acknowledges without sending a message
-  async ack() {
+  async ack(source: boolean = false) {
     // @ts-ignore
     await this.client.api
       // @ts-ignore
       .interactions(this.id)(this.token)
-      .callback.post({ data: { type: 5 } })
+      .callback.post({ data: { type: source ? 5 : 2 } })
       .catch(() => {});
     this.message.sent = true;
   }
