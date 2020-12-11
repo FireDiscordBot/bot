@@ -18,15 +18,21 @@ export default class Steal extends Command {
           default: null,
           required: true,
         },
+        {
+          id: "name",
+          type: "string",
+          default: null,
+          required: false,
+        },
       ],
       enableSlashCommand: true,
       ephemeral: true,
     });
   }
 
-  async exec(message: FireMessage, args: { emoji: string }) {
+  async exec(message: FireMessage, args: { emoji: string; name?: string }) {
     let emoji = args.emoji;
-    let name = "stolen_emoji";
+    let name = args.name || "stolen_emoji";
     const emojiRegex = /<a?:(?<name>[a-zA-Z0-9\_]+):(?<id>\d{15,21})>/im;
     if (!emoji) return await message.error("STEAL_NOTHING");
     if (/^(\d{15,21})$/im.test(emoji.toString()))
