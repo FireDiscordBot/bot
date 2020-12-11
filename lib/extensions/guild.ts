@@ -9,13 +9,14 @@ import {
 } from "discord.js";
 import { GuildTagManager } from "../util/guildtagmanager";
 import Tickets from "../../src/commands/Tickets/tickets";
+import { FakeChannel } from "./slashCommandMessage";
 import { GuildSettings } from "../util/settings";
 import { getIDMatch } from "../util/converters";
 import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
 import { v4 as uuidv4 } from "uuid";
-import { Fire } from "../Fire";
 import { FireUser } from "./user";
+import { Fire } from "../Fire";
 
 export class FireGuild extends Guild {
   client: Fire;
@@ -254,6 +255,7 @@ export class FireGuild extends Guild {
   }
 
   async closeTicket(channel: TextChannel, author: FireMember, reason: string) {
+    if (channel instanceof FakeChannel) channel = channel.real as TextChannel;
     if (author instanceof FireUser)
       author = (await this.members.fetch(author).catch(() => {})) as FireMember;
     if (!author) return "forbidden";
