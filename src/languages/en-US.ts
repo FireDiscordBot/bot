@@ -461,6 +461,8 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           `${member}, Your nitro perks have been removed. Boost the server to get them back :)`,
         SK1ER_NITRO_PERKS_REMOVED_LEFT: (member: string) =>
           `${member} left and their nitro perks have been removed.`,
+        SK1ER_BETA_SUCCESS: (member: string) =>
+          `${member}, you now have access to betas! Download beta versions in <#595634170336641045> and ask questions/report bugs with **betas only** in <#595625113282412564>`,
         INVITE_COMMAND_DESCRIPTION:
           "Sends a link to invite me to a different Discord server.",
         LANGUAGE_COMMAND_DESCRIPTION:
