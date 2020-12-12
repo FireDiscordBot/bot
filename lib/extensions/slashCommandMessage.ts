@@ -301,7 +301,7 @@ export class FakeChannel {
       .catch(() => {});
     if (ackMessage && ackMessage.id)
       this.message.ackMessage = ackMessage.id as string;
-    this.message.sent = true;
+    return (this.message.sent = true);
   }
 
   async send(
