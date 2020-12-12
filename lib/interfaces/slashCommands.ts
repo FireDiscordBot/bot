@@ -11,7 +11,7 @@ export interface SlashCommand {
 }
 
 export interface CommandData {
-  options: Option[];
+  options?: Option[];
   name: string;
   id: string;
 }

@@ -55,7 +55,7 @@ export class SlashCommandMessage {
     this.client = client;
     this.id = command.id;
     this.slashCommand = command;
-    if (command.data.options.length && command.data.options[0]?.options) {
+    if (command.data.options?.length && command.data.options[0]?.options) {
       command.data.name = `${command.data.name}-${command.data.options[0].name}`;
       command.data.options = command.data.options[0].options;
     }
