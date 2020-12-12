@@ -248,7 +248,7 @@ export class FireGuild extends Guild {
     channels.push(ticket);
     this.settings.set(
       "tickets.channels",
-      channels.map((channel) => channel.id)
+      channels.map((channel) => channel && channel.id)
     );
     this.client.emit("ticketCreate", author, ticket, opener);
     return ticket;
