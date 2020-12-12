@@ -305,16 +305,28 @@ export class FakeChannel {
   }
 
   async send(
-    content: StringResolvable | APIMessage,
+    content: StringResolvable | APIMessage | MessageEmbed,
     options?: MessageOptions | MessageAdditions,
     flags?: number // Used for success/error, can also be set
   ): Promise<SlashCommandMessage> {
     let apiMessage: APIMessage;
 
+    if (content instanceof MessageEmbed) {
+      options = {
+        ...options,
+        embed: content,
+      };
+      content = null;
+    }
+
     if (content instanceof APIMessage) content.resolveData();
     else {
-      // @ts-ignore
-      apiMessage = APIMessage.create(this, content, options).resolveData();
+      apiMessage = APIMessage.create(
+        // @ts-ignore
+        { client: this.client },
+        content,
+        options
+      ).resolveData();
     }
 
     const { data, files } = await apiMessage.resolveFiles();
@@ -322,7 +334,11 @@ export class FakeChannel {
     // @ts-ignore
     data.flags = this.msgFlags;
     // @ts-ignore
-    if (flags) data.flags = flags;
+    if (typeof flags == "number") data.flags = flags;
+
+    // embeds in ephemeral wen eta
+    // @ts-ignore
+    if (data.embeds?.length) data.flags -= 1 << 6;
 
     if (!this.message.sent)
       // @ts-ignore
