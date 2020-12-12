@@ -8,7 +8,6 @@ const { regexes } = constants;
 
 export default class Filters extends Module {
   debug: string[];
-  imgExt: string[];
   malware: string[];
   regexes: RegExp[];
   shortURLRegex: RegExp;
@@ -20,7 +19,6 @@ export default class Filters extends Module {
     super("filters");
     this.debug = [];
     this.malware = [];
-    this.imgExt = [".png", ".jpg", ".gif"];
     this.shortURLRegex = new RegExp(
       `(?:${shortURLs.join("|").replace(/\./gim, "\\.")})\/[a-z0-9]+`,
       "gim"
@@ -113,10 +111,9 @@ export default class Filters extends Module {
   }
 
   runReplace(text: string, message?: FireMessage) {
-    if (message && !this.shouldRun(message)) return;
+    if (message && !this.shouldRun(message)) return text;
     this.regexes.forEach(
-      (regex) =>
-        (text = text.replace(regex, "[ hidden due to filtering rules ]"))
+      (regex) => (text = text.replace(regex, "[ filtered ]"))
     );
     return text;
   }
