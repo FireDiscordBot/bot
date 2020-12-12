@@ -76,13 +76,9 @@ export default class Filters extends Module {
       member = userOrMember;
     } else if (userOrMember && userOrMember instanceof FireUser)
       user = userOrMember;
-    if ((message && message.author.bot) || (user && user.bot)) return false;
-    if (!message.guild || !member) return false;
-    if (
-      (message && message.member.isModerator()) ||
-      (member && member.isModerator())
-    )
-      return false;
+    if (message?.author?.bot || user?.bot) return false;
+    if (!message?.guild || !member) return false;
+    if (message?.member?.isModerator() || member?.isModerator()) return false;
     const excluded: string[] = message.guild.settings.get(
       "excluded.filter",
       []
@@ -91,7 +87,7 @@ export default class Filters extends Module {
       ? message.member.roles.cache.map((role) => role.id)
       : member.roles.cache.map((role) => role.id);
     if (
-      excluded.includes(message?.author?.id || user.id) ||
+      excluded.includes(message?.author?.id || user?.id) ||
       excluded.includes(message?.channel?.id) ||
       excluded.some((id) => roleIds.includes(id))
     )
