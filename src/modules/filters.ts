@@ -1,5 +1,7 @@
 import { constants, shortURLs } from "../../lib/util/constants";
+import { FireMember } from "../../lib/extensions/guildmember";
 import { FireMessage } from "../../lib/extensions/message";
+import { FireUser } from "../../lib/extensions/user";
 import { MessageEmbed, Invite } from "discord.js";
 import { Module } from "../../lib/util/module";
 import * as centra from "centra";
@@ -67,18 +69,30 @@ export default class Filters extends Module {
     } catch {}
   }
 
-  shouldRun(message: FireMessage) {
-    if (message.author.bot) return false;
-    if (!message.guild) return false;
-    if (message.member.isModerator()) return false;
+  shouldRun(message?: FireMessage, userOrMember?: FireMember | FireUser) {
+    let user: FireUser, member: FireMember;
+    if (userOrMember && userOrMember instanceof FireMember) {
+      user = userOrMember.user;
+      member = userOrMember;
+    } else if (userOrMember && userOrMember instanceof FireUser)
+      user = userOrMember;
+    if ((message && message.author.bot) || (user && user.bot)) return false;
+    if (!message.guild || !member) return false;
+    if (
+      (message && message.member.isModerator()) ||
+      (member && member.isModerator())
+    )
+      return false;
     const excluded: string[] = message.guild.settings.get(
       "excluded.filter",
       []
     );
-    const roleIds = message.member.roles.cache.map((role) => role.id);
+    const roleIds = message
+      ? message.member.roles.cache.map((role) => role.id)
+      : member.roles.cache.map((role) => role.id);
     if (
-      excluded.includes(message.author.id) ||
-      excluded.includes(message.channel.id) ||
+      excluded.includes(message?.author?.id || user.id) ||
+      excluded.includes(message?.channel?.id) ||
       excluded.some((id) => roleIds.includes(id))
     )
       return false;
@@ -110,8 +124,14 @@ export default class Filters extends Module {
     });
   }
 
-  runReplace(text: string, message?: FireMessage) {
-    if (message && !this.shouldRun(message)) return text;
+  runReplace(text: string, context?: FireMessage | FireMember | FireUser) {
+    if (context) {
+      const check =
+        context instanceof FireMessage
+          ? this.shouldRun(context)
+          : this.shouldRun(null, context);
+      if (!check) return text;
+    }
     this.regexes.forEach(
       (regex) => (text = text.replace(regex, "[ filtered ]"))
     );

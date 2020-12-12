@@ -152,7 +152,7 @@ export class FireMessage extends Message {
     if (this.content) {
       content = this.content.replace("[", "\\[").replace("]", "\\]");
       const filters = this.client.getModule("filters") as Filters;
-      content = filters.runReplace(content, this);
+      content = filters.runReplace(content, quoter);
     }
     return await hook
       .send(content, {
