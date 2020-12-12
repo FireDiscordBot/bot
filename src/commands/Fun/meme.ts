@@ -1,12 +1,13 @@
 import { FireMessage } from "../../../lib/extensions/message";
+import { constants } from "../../../lib/util/constants";
 import { MessageEmbed, TextChannel } from "discord.js";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { RedditImage } from "@aero/ksoft";
 
-export default class Meme extends Command {
-  imgExt: string[];
+const { imageExts } = constants;
 
+export default class Meme extends Command {
   constructor() {
     super("meme", {
       description: (language: Language) =>
@@ -31,7 +32,6 @@ export default class Meme extends Command {
       ],
       enableSlashCommand: true,
     });
-    this.imgExt = [".png", ".jpg", ".jpeg", ".gif", ".gifv"];
   }
 
   async exec(
@@ -90,7 +90,7 @@ export default class Meme extends Command {
           language.id
         )}`
       );
-    if (meme.url && this.imgExt.filter((ext) => meme.url.endsWith(ext)).length)
+    if (meme.url && imageExts.filter((ext) => meme.url.endsWith(ext)).length)
       embed.setImage(meme.url);
     else
       embed.addField(language.get("ATTACHMENT"), `[Click Here](${meme.url})`);
