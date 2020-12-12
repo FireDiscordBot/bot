@@ -20,20 +20,26 @@ export default class Sk1erSpecsEvent extends Event {
       );
       return;
     }
-    if (!data.success)
-      return (this.manager.client.channels.cache.get(
-        "411620555960352787"
-      ) as TextChannel).send(data.message, {
-        allowedMentions: { users: [data.user] },
-      });
-    else {
+    const member = (await guild.members.fetch({
+      user: data.user,
+    })) as FireMember;
+    if (!member) return;
+    if (!data.success) {
+      try {
+        return await member.send(data.message, {
+          allowedMentions: { users: [data.user] },
+        });
+      } catch {
+        return (this.manager.client.channels.cache.get(
+          "411620555960352787"
+        ) as TextChannel).send(data.message, {
+          allowedMentions: { users: [data.user] },
+        });
+      }
+    } else {
       this.manager.client.console.log(
         `[Sk1er] Giving Beta Testing role to ${data.user}`
       );
-      const member = (await guild.members.fetch({
-        user: data.user,
-      })) as FireMember;
-      if (!member) return;
       if (member.roles.cache.has("595626786549792793")) return;
       else await member.roles.add("595626786549792793", "Received Specs");
       try {
