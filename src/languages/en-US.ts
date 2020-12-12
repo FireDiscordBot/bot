@@ -41,6 +41,10 @@ export default class enUS extends Language {
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
         SLASH_COMMAND_HANDLE_FAIL: "I failed to handle that slash command",
+        // this is used when it'd react with the success emoji
+        // but you can't react to the slash command message when responding
+        // with no source or the source message isn't found
+        SLASH_COMMAND_HANDLE_SUCCESS: "Command ran successfully!",
         SLASH_COMMAND_BOT_REQUIRED: (invite: string) =>
           `This command requires you to have the bot present. You can invite it @ <${invite}>`,
         USER_SNOWFLAKE_ARGUMENT_DESCRIPTION:
@@ -745,6 +749,7 @@ You must have Developer Mode enabled, which is found in User Settings > Appearan
           "I need to know what tag to edit. Give me the name of an existing tag",
         TAGS_EDIT_MISSING_CONTENT:
           "You need to provide the new content for the tag",
+        TAGS_EDIT_LIMIT: "This tag cannot be modified!",
         TAGS_ALIAS_MISSING_NAME:
           "I can't make an alias for nothing. You need to provide an existing tag name",
         TAGS_ALIAS_MISSING_ALIAS:
