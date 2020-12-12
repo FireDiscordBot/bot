@@ -9,6 +9,7 @@ import {
   MessageAdditions,
   CollectorFilter,
   MessageMentions,
+  MessageReaction,
   RoleResolvable,
   MessageOptions,
   MessageManager,
@@ -30,13 +31,14 @@ import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
 
-const { emojis } = constants;
+const { emojis, reactions } = constants;
 
 export class SlashCommandMessage {
   id: string;
   client: Fire;
   flags: number;
   sent: boolean;
+  ackMessage: string;
   content: string;
   command: Command;
   guild: FireGuild;
@@ -45,10 +47,10 @@ export class SlashCommandMessage {
   member: FireMember;
   language: Language;
   channel: FakeChannel;
-  attachments: Collection<string, MessageAttachment>;
   mentions: MessageMentions;
   slashCommand: SlashCommand;
   realChannel: TextChannel | NewsChannel;
+  attachments: Collection<string, MessageAttachment>;
 
   constructor(client: Fire, command: SlashCommand) {
     this.client = client;
@@ -141,8 +143,24 @@ export class SlashCommandMessage {
     return this.channel.send(this.language.get(key, ...args), {}, this.flags);
   }
 
-  success(key: string = "", ...args: any[]): Promise<SlashCommandMessage> {
-    if (!key) return;
+  success(
+    key: string = "",
+    ...args: any[]
+  ): Promise<SlashCommandMessage | MessageReaction | void> {
+    if (!key) {
+      const message = this.realChannel.messages.cache.find(
+        (message) =>
+          (typeof message.type == "undefined" &&
+            message.system &&
+            message.author.id == this.member.id &&
+            message.content.startsWith(
+              `</${this.command.id}:${this.slashCommand.id}>`
+            )) ||
+          (this.ackMessage && message.id == this.ackMessage)
+      );
+      if (message) return message.react(reactions.success).catch(() => {});
+      return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
+    }
     return this.channel.send(
       `${emojis.success} ${this.language.get(key, ...args)}`,
       {},
@@ -150,8 +168,24 @@ export class SlashCommandMessage {
     );
   }
 
-  error(key: string = "", ...args: any[]): Promise<SlashCommandMessage> {
-    if (!key) return;
+  error(
+    key: string = "",
+    ...args: any[]
+  ): Promise<SlashCommandMessage | MessageReaction | void> {
+    if (!key) {
+      const message = this.realChannel.messages.cache.find(
+        (message) =>
+          (typeof message.type == "undefined" &&
+            message.system &&
+            message.author.id == this.member.id &&
+            message.content.startsWith(
+              `</${this.command.id}:${this.slashCommand.id}>`
+            )) ||
+          (this.ackMessage && message.id == this.ackMessage)
+      );
+      if (message) return message.react(reactions.error).catch(() => {});
+      return this.error("SLASH_COMMAND_HANDLE_FAIL");
+    }
     return this.channel.send(
       `${emojis.error} ${this.language.get(key, ...args)}`,
       {},
@@ -244,11 +278,13 @@ export class FakeChannel {
   // Acknowledges without sending a message
   async ack(source: boolean = false) {
     // @ts-ignore
-    await this.client.api
+    const ackMessage = await this.client.api
       // @ts-ignore
       .interactions(this.id)(this.token)
       .callback.post({ data: { type: source ? 5 : 2 } })
       .catch(() => {});
+    if (ackMessage && ackMessage.id)
+      this.message.ackMessage = ackMessage.id as string;
     this.message.sent = true;
   }
 
