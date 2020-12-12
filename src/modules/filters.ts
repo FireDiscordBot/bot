@@ -66,11 +66,7 @@ export default class Filters extends Module {
   async safeExc(promise: Function, ...args: any[]) {
     try {
       await promise(...args);
-    } catch (e) {
-      this.client.console.debug(
-        `[Filters] ${promise.name} did an oopsie\n${e.stack}`
-      );
-    }
+    } catch {}
   }
 
   shouldRun(message: FireMessage) {
