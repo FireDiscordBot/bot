@@ -34,6 +34,8 @@ const slashCommandTypeMappings = {
 
 export class Command extends AkairoCommand {
   client: Fire;
+  group: boolean;
+  parent?: string;
   hidden: boolean;
   premium: boolean;
   guilds: string[];
@@ -72,6 +74,8 @@ export class Command extends AkairoCommand {
     this.ephemeral = options.ephemeral || false;
     this.premium = options.premium || false;
     this.hidden = options.hidden || false;
+    this.parent = options.parent || null;
+    this.group = options.group || false;
     this.guilds = options.guilds || [];
     this.args = options.args;
   }
@@ -103,14 +107,29 @@ export class Command extends AkairoCommand {
   getSlashCommandJSON() {
     let data = {
       name: titleCase(this.id),
-      description: this.description(this.client.getLanguage("en-US")),
+      description:
+        typeof this.description == "function"
+          ? this.description(this.client.getLanguage("en-US"))
+          : this.description || "No Description Provided",
     };
-    if (this.args?.length)
+    if (!this.group) {
+      if (this.args?.length)
+        data["options"] = [
+          ...(this.args as ArgumentOptions[])
+            .filter((arg) => arg.readableType)
+            .map((arg) => this.getSlashCommandOption(arg)),
+        ];
+    } else {
+      const subcommands = this.client.commandHandler.modules.filter(
+        (command: Command) => command.parent == this.id
+      );
       data["options"] = [
+        ...subcommands.map((command: Command) => command.getSubcommand()),
         ...(this.args as ArgumentOptions[])
           .filter((arg) => arg.readableType)
           .map((arg) => this.getSlashCommandOption(arg)),
       ];
+    }
     return data;
   }
 
@@ -152,7 +171,37 @@ export class Command extends AkairoCommand {
     return options;
   }
 
+  getSubcommand() {
+    if (!this.parent) return;
+    let data = {
+      name: this.id.replace(`${this.parent}-`, ""),
+      description:
+        typeof this.description == "function"
+          ? this.description(this.client.getLanguage("en-US"))
+          : this.description || "No Description Provided",
+      type: ApplicationCommandOptionType.SUB_COMMAND,
+    };
+    if (this.args?.length)
+      data["options"] = [
+        ...(this.args as ArgumentOptions[])
+          .filter((arg) => arg.readableType)
+          .map((arg) => this.getSlashCommandOption(arg)),
+      ];
+    return data;
+  }
+
+  getChildren() {
+    if (!this.group) return null;
+    const subcommands = this.client.commandHandler.modules.filter(
+      (command: Command) => command.parent == this.id
+    );
+    return [
+      ...subcommands.map((command) => [command.id, ...command.aliases]),
+    ].flat(1);
+  }
+
   async registerSlashCommand() {
+    if (this.parent) return;
     const command = this.getSlashCommandJSON();
     let commands = [];
     if (!this.guilds.length) {
@@ -201,6 +250,8 @@ export interface CommandOptions extends AkairoCommandOptions {
   premium?: boolean;
   guilds?: string[];
   hidden?: boolean;
+  group?: boolean;
+  parent?: string;
 }
 
 export interface ArgumentOptions extends AkairoArgumentOptions {
