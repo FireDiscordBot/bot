@@ -3,8 +3,11 @@
 
 import { SlashCommandMessage } from "../../lib/extensions/slashCommandMessage";
 import { SlashCommand } from "../../lib/interfaces/slashCommands";
+import { constants } from "../../lib/util/constants";
 import { Listener } from "../../lib/util/listener";
 import { Scope } from "@sentry/node";
+
+const { emojis } = constants;
 
 export default class InteractionCreate extends Listener {
   constructor() {
@@ -28,11 +31,31 @@ export default class InteractionCreate extends Listener {
           this.client.config.inviteLink
         );
       await message.generateContent();
+      if (!message.command.ephemeral) await message.channel.ack(true);
       // @ts-ignore
       const handled = await this.client.commandHandler.handle(message);
       if (typeof handled == "boolean" && !handled)
         return await message.error("SLASH_COMMAND_HANDLE_FAIL");
     } catch (error) {
+      const guild = this.client.guilds.cache.get(command.guild_id);
+      if (!guild) {
+        // @ts-ignore
+        await this.client.api
+          // @ts-ignore
+          .interactions(this.id)(this.token)
+          .callback.post({
+            data: {
+              // @ts-ignore
+              type: 3,
+              data: {
+                content: `${emojis.error} An error occured while trying to handle this command that may be caused by the bot not being present
+
+Try inviting the bot (<${this.client.config.inviteLink}>) and try again.`,
+              },
+            },
+          })
+          .catch(() => {});
+      }
       if (typeof this.client.sentry !== "undefined") {
         const sentry = this.client.sentry;
         sentry.setExtras({
