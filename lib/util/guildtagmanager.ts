@@ -161,8 +161,7 @@ export class GuildTagManager {
     existing = existing.toLowerCase();
     alias = alias.toLowerCase();
     const exists = await this.getTag(alias);
-    if (exists && (exists.name == alias || !exists.aliases.includes(alias)))
-      return false;
+    if (exists && exists.name == alias) return false;
     const cached = this.cache.find(
       (cached) =>
         cached.name.toLowerCase() == existing ||
@@ -186,6 +185,7 @@ export class GuildTagManager {
     const cached = this.cache.find(
       (cached) => cached.name == name || cached.aliases.includes(name)
     );
+    if (!cached) return false;
     await this.client.db.query(
       "UPDATE tags SET content=$1 WHERE name=$2 AND gid=$3;",
       [newContent, cached.name, this.guild.id]
