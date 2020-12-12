@@ -55,7 +55,11 @@ export class SlashCommandMessage {
     this.client = client;
     this.id = command.id;
     this.slashCommand = command;
-    this.command = this.client.getCommand(this.slashCommand.data.name);
+    if (command.data.options.length && command.data.options[0]?.options) {
+      command.data.name = `${command.data.name}-${command.data.options[0].name}`;
+      command.data.options = command.data.options[0].options;
+    }
+    this.command = this.client.getCommand(command.data.name);
     this.flags = 0;
     if (this.command?.ephemeral) this.setFlags(64);
     this.guild = client.guilds.cache.get(command.guild_id) as FireGuild;
@@ -169,7 +173,9 @@ export class SlashCommandMessage {
           message.system &&
           message.author.id == this.member.id &&
           message.content.startsWith(
-            `</${this.command.id}:${this.slashCommand.data.id}>`
+            `</${this.command.parent ? this.command.parent : this.command.id}:${
+              this.slashCommand.data.id
+            }>`
           )
       );
       if (message) return message.react(reactions.success).catch(() => {});
