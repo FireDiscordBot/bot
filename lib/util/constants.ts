@@ -66,10 +66,11 @@ export const constants = {
     discordStatus: "https://discordstatus.com",
     fireStatus: "https://status.gaminggeek.dev",
   },
+  imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
   regexes: {
     discord: {
       invite: /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[a-zA-Z\d-]{1,25})/im,
-      message: /(?:ptb.|canary.)?discord(?:app)?\.com\/channels(?:\/\d{15,21}){3}\/?/im,
+      message: /(?:ptb\.|canary\.)?discord\.com\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/gim,
     },
     invites: [
       /(?<domain>(?:dsc|dis|discord|invite)\.(?:gd|gg|io|me))\/(?<code>[a-zA-Z\d-]+)/gim,
@@ -86,6 +87,7 @@ export const constants = {
       channel: /twitch\.tv\/(?<channel>.+)/gim,
     },
     twitter: /twitter\.com\/(?<username>\w+)(?:\/status\/(?<tweet>\d+)?|\/(?<path>likes|media|with_replies|followers|following|suggested))?/im,
+    imageURL: /((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.jpeg|\.gif|\.gifv|\.webp)))/gim,
   },
   blockedGifts: [
     "690195254191849478",
