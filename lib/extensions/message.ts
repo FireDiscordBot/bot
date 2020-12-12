@@ -1,13 +1,16 @@
 import {
   MessageReaction,
+  MessageEmbed,
   TextChannel,
   NewsChannel,
   Structures,
   DMChannel,
+  Webhook,
   Message,
 } from "discord.js";
 import { PaginatorInterface } from "../util/paginators";
 import { CommandUtil } from "../util/commandutil";
+import Filters from "../../src/modules/filters";
 import { constants } from "../util/constants";
 import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
@@ -15,7 +18,7 @@ import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
 
-const { emojis, reactions } = constants;
+const { emojis, reactions, regexes, imageExts } = constants;
 
 export class FireMessage extends Message {
   client: Fire;
@@ -94,6 +97,149 @@ export class FireMessage extends Message {
       : !this.author.hasExperiment("MYT-k7UJ-XDwqH99A9yw6", 4)
       ? this.replyRaw(`${emojis.error} ${this.language.get(key, ...args)}`)
       : this.channel.send(`${emojis.error} ${this.language.get(key, ...args)}`);
+  }
+
+  async quote(destination: TextChannel, quoter: FireMember) {
+    if (this.channel.type == "dm") return "dm";
+    const channel = this.channel as TextChannel;
+    if (this.author.system && !quoter.isSuperuser()) return "system";
+    if (channel.nsfw && !destination.nsfw) return "nsfw";
+    let member: FireMember;
+    if (
+      !this.guild.features.includes("DISCOVERABLE") ||
+      (this.guild.features.includes("DISCOVERABLE") &&
+        this.channel.permissionOverwrites
+          .get(this.guild.roles.everyone.id)
+          .deny.has("VIEW_CHANNEL"))
+    ) {
+      if (this.guild.id != destination.guild.id) {
+        member = (await this.guild.members
+          .fetch({ user: quoter, cache: false })
+          .catch(() => {})) as FireMember;
+      } else member = quoter;
+      if (!member || !member.permissionsIn(this.channel).has("VIEW_CHANNEL"))
+        return "permissions";
+    }
+
+    const useWebhooks = (destination.guild as FireGuild).settings.get(
+      "utils.quotehooks",
+      true
+    );
+    return useWebhooks
+      ? await this.webhookQuote(destination, quoter)
+      : await this.embedQuote(destination, quoter);
+  }
+
+  private async webhookQuote(destination: TextChannel, quoter: FireMember) {
+    const hooks = await destination.fetchWebhooks().catch(() => {});
+    let hook: Webhook;
+    if (hooks) hook = hooks.filter((hook) => !!hook.token).first();
+    if (!hook) {
+      hook = await destination
+        .createWebhook(`Fire Quotes #${destination.name}`, {
+          avatar: this.client.user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+          }),
+          reason: (destination.guild as FireGuild).language.get(
+            "QUOTE_WEBHOOK_CREATE_REASON"
+          ) as string,
+        })
+        .catch(() => null);
+      if (!hook) return await this.embedQuote(destination, quoter);
+    }
+    let content: string = null;
+    if (this.content) {
+      content = this.content.replace("[", "\\[").replace("]", "\\]");
+      const filters = this.client.getModule("filters") as Filters;
+      content = filters.runReplace(content, this);
+    }
+    return await hook
+      .send(content, {
+        username: this.author.toString().replace("#0000", ""),
+        avatarURL: this.author.displayAvatarURL({ size: 2048, format: "png" }),
+        embeds: this.embeds,
+        files: [...this.attachments.values()],
+        allowedMentions: this.client.options.allowedMentions,
+      })
+      .catch(async () => {
+        return await this.embedQuote(destination, quoter);
+      });
+  }
+
+  private async embedQuote(destination: TextChannel, quoter: FireMember) {
+    const { language } = destination.guild as FireGuild;
+    if (!this.content && this.author.bot && this.embeds?.length == 1) {
+      return await destination.send(
+        language.get(
+          "QUOTE_EMBED_FROM",
+          this.author.toString(),
+          (this.channel as TextChannel).name
+        ),
+        this.embeds[0]
+      );
+    }
+    const embed = new MessageEmbed()
+      .setColor(this.member?.displayColor || quoter.displayColor || "#ffffff")
+      .setTimestamp(this.createdAt)
+      .setAuthor(
+        this.author.toString(),
+        this.author.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        })
+      );
+    if (this.content) {
+      let content = this.content;
+      const imageMatches = regexes.imageURL.exec(content);
+      if (imageMatches) {
+        embed.setImage(imageMatches[0]);
+        content = content.replace(imageMatches[0], "");
+      }
+      embed.setDescription(content);
+    }
+    embed.addField(
+      language.get("JUMP_URL"),
+      `[${language.get("CLICK_TO_VIEW")}](${this.url})`
+    );
+    if (this.attachments?.size) {
+      if (
+        this.attachments.size == 1 &&
+        imageExts.filter((ext) => this.attachments.first().url.endsWith(ext))
+          .length &&
+        !embed.image?.url
+      )
+        embed.setImage(this.attachments.first().url);
+      else {
+        for (const attachment of this.attachments.values()) {
+          embed.addField(
+            language.get("ATTACHMENT"),
+            `[${attachment.name}](${attachment.url})`
+          );
+        }
+      }
+    }
+    if (this.channel != destination) {
+      if (this.guild.id != destination.guild.id)
+        embed.setFooter(
+          language.get(
+            "QUOTE_EMBED_FOOTER_ALL",
+            quoter,
+            (this.channel as TextChannel).name,
+            this.guild.name
+          )
+        );
+      else
+        embed.setFooter(
+          language.get(
+            "QUOTE_EMBED_FOOTER_SOME",
+            quoter,
+            (this.channel as TextChannel).name
+          )
+        );
+    } else embed.setFooter(language.get("QUOTE_EMBED_FOOTER", quoter));
+    return await destination.send(embed).catch(() => {});
   }
 }
 

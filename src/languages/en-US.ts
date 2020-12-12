@@ -72,6 +72,7 @@ export default class enUS extends Language {
         JOINED: "Joined",
         JOIN_POSITION: "Join Position",
         CLICK_TO_VIEW: "Click To View", // message/attachment link
+        JUMP_URL: "Jump URL",
         NICKNAME: "Nickname",
         NAME: "Name",
         ABOUT: "About",
@@ -639,6 +640,25 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           `Author ID: ${user} | Channel ID: ${channel}"`,
         PURGED_MESSAGES: "Purged Messages",
         PURGED_MESSAGES_FAILED: "Failed to upload messages to hastebin",
+        QUOTE_COMMAND_DESCRIPTION: "Quote a message from an ID or URL",
+        AUTOQUOTE_COMMAND_DESCRIPTION:
+          "Enable automatic quoting when a message URL is sent",
+        AUTOQUOTE_ENABLED:
+          "Successfully enabled auto quoting. Message links found in a message will be quoted",
+        AUTOQUOTE_DISABLED:
+          "Successfully disabled auto quoting. Message links found in a message will no longer be quoted",
+        QUOTE_WEBHOOK_CREATE_REASON:
+          "This webhook will be used for quoting messages in this channel",
+        QUOTE_EMBED_FROM: (author: string, channel: string) =>
+          `Raw embed from ${author} in #${channel}`,
+        QUOTE_EMBED_FOOTER_ALL: (
+          user: string,
+          channel: string,
+          guild: string
+        ) => `Quoted by: ${user} | #${channel} | ${guild}`,
+        QUOTE_EMBED_FOOTER_SOME: (user: string, channel: string) =>
+          `Quoted by: ${user} | #${channel}`,
+        QUOTE_EMBED_FOOTER: (user: string) => `Quoted by: ${user}`,
         RANK_COMMAND_DESCRIPTION:
           "List all available ranks and join a rank if provided",
         RANKS_NONE_FOUND: "Seems like there's no ranks set for this guild",

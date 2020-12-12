@@ -1,21 +1,27 @@
 import { FireMember } from "../../lib/extensions/guildmember";
+import { messageConverter } from "../../lib/util/converters";
 import { FireMessage } from "../../lib/extensions/message";
+import { constants } from "../../lib/util/constants";
 import { Listener } from "../../lib/util/listener";
 import { PrefixSupplier } from "discord-akairo";
+import Quote from "../commands/Utilities/quote";
 import Filters from "../modules/filters";
 import MCLogs from "../modules/mclogs";
 import Sk1er from "../modules/sk1er";
 import * as centra from "centra";
 
+const { regexes } = constants;
 export default class Message extends Listener {
   tokenRegex: RegExp;
+  botQuoteRegex: RegExp;
 
   constructor() {
     super("message", {
       emitter: "client",
       event: "message",
     });
-    this.tokenRegex = /[MN][A-Za-z\d]{23}\.[\w-]{6}\.[\w-]{27}/im;
+    this.tokenRegex = /[MN][A-Za-z\d]{23}\.[\w-]{6}\.[\w-]{27}/gim;
+    this.botQuoteRegex = /.{1,25}\s?quote (?:ptb\.|canary\.)?discord\.com\/channels\/(?:\/\d{15,21}){3}/gim;
   }
 
   async tokenGist(message: FireMessage, foundIn: string) {
@@ -108,6 +114,8 @@ export default class Message extends Listener {
     const filters = this.client.getModule("filters") as Filters;
     await filters?.runAll(message, this.cleanContent(message)).catch(() => {});
 
+    if (!message.deleted) await this.quoteLinks(message);
+
     if (
       message.content.replace("!", "").trim() ==
       (message.guild.me as FireMember).toMention().replace("!", "").trim()
@@ -127,5 +135,39 @@ export default class Message extends Listener {
       .replace("(.)", ".")
       .replace("dot", ".")
       .replace(/<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|:|\'|/gim, "");
+  }
+
+  async quoteLinks(message: FireMessage) {
+    if (this.botQuoteRegex.test(message.content)) return;
+
+    let matches = [];
+    let messageLink: RegExpExecArray;
+    while ((messageLink = regexes.discord.message.exec(message.content))) {
+      if (!matches.includes(messageLink.groups))
+        matches.push(messageLink.groups);
+    }
+
+    const quoteCommand = this.client.getCommand("quote") as Quote;
+    const inhibited = await this.client.inhibitorHandler.test(
+      "all",
+      message,
+      quoteCommand
+    );
+    if (!inhibited) {
+      for (const quote of matches) {
+        const convertedMessage = await messageConverter(
+          message,
+          null,
+          true,
+          quote
+        );
+        if (convertedMessage) {
+          await quoteCommand
+            .exec(message, { quote: convertedMessage })
+            .catch(() => {});
+          await this.client.util.sleep(500);
+        }
+      }
+    }
   }
 }
