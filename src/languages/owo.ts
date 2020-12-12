@@ -30,7 +30,7 @@ export default class owo extends Language {
           "This command is westwicted to cewtain guiwds and this guiwd is not one of them.",
         COMMAND_ERROR_CONCURRENCY:
           // For different languages, you may want to change the "hold your horses" bit as it may not make sense in that language
-          "Whoa, howd youw howses thewe! Wait fow the command to finish befowe wunning it again",
+          "Whoa, howd youw howses! Wait fow the command to finish befowe wunning it again",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wwong whiwe wunning ${id}`,
         HELLO_PREFIX: (prefix: string) =>

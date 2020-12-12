@@ -37,7 +37,7 @@ export default class enUS extends Language {
           "This command is restricted to certain guilds and this guild is not one of them.",
         COMMAND_ERROR_CONCURRENCY:
           // For different languages, you may want to change the "hold your horses" bit as it may not make sense in that language
-          "Whoa, hold your horses there! Wait for the command to finish before running it again",
+          "Whoa, hold your horses! Wait for the command to finish before running it again",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
         SLASH_COMMAND_HANDLE_FAIL: "I failed to handle that slash command",
