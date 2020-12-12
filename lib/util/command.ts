@@ -17,7 +17,15 @@ type ArgumentGenerator = (
 const slashCommandTypeMappings = {
   SUB_COMMAND: [],
   SUB_COMMAND_GROUP: [],
-  STRING: ["string", "codeblock", "command", "language", "listener", "module"],
+  STRING: [
+    "string",
+    "codeblock",
+    "command",
+    "language",
+    "listener",
+    "module",
+    "message",
+  ],
   INTEGER: ["number"],
   BOOLEAN: ["boolean"],
   USER: ["user", "member", "user|member", "userSilent", "memberSilent"],
