@@ -26,8 +26,9 @@ export default class GuildDelete extends Listener {
             "[Listener] Failed to update description for Fire guild."
           )
         );
+    const owner = this.client.users.fetch(guild.ownerID, false);
     this.client.console.log(
-      `Fire left a guild! ${guild.name} (${guild.id}) with ${guild.memberCount} members owned by ${guild.owner}`
+      `Fire left a guild! ${guild.name} (${guild.id}) with ${guild.memberCount} members owned by ${owner}`
     );
     // TODO Add botlist guild count posting
   }
