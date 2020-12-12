@@ -32,6 +32,7 @@ import { languageTypeCaster } from "../src/arguments/language";
 import { listenerTypeCaster } from "../src/arguments/listener";
 import { booleanTypeCaster } from "../src/arguments/boolean";
 import { commandTypeCaster } from "../src/arguments/command";
+import { messageTypeCaster } from "../src/arguments/message";
 import { Language, LanguageHandler } from "./util/language";
 import { moduleTypeCaster } from "../src/arguments/module";
 import { PostgresProvider } from "./providers/postgres";
@@ -215,6 +216,7 @@ export class Fire extends AkairoClient {
       categorySilent: categoryChannelSilentTypeCaster,
       guildChannel: guildChannelTypeCaster,
       guildChannelSilent: guildChannelSilentTypeCaster,
+      message: messageTypeCaster,
       boolean: booleanTypeCaster,
       command: commandTypeCaster,
       language: languageTypeCaster,

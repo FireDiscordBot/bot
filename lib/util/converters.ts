@@ -11,12 +11,13 @@ import {
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
 import { FireUser } from "../extensions/user";
+import { constants } from "./constants";
 
+const { regexes } = constants;
 const idOnlyRegex = /(1|\d{15,21})$/im;
 const idRegex = /(1|\d{15,21})/im;
 const userMentionRegex = /<@!?(1|\d{15,21})>$/im;
 const messageIDRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
-const messageLinkRegex = /^https?:\/\/(?:(ptb|canary)\.)?discord(?:app)?\.com\/channels\/(?:(\d{15,21})|(@me))\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})\/?$/im;
 const channelMentionRegex = /<#(\d{15,21})>$/im;
 const roleMentionRegex = /<@&(\d{15,21})>$/im;
 
@@ -33,7 +34,7 @@ export const getUserMentionMatch = (argument: string) => {
 const getMessageIDMatch = (argument: string) => argument.match(messageIDRegex);
 
 const getMessageLinkMatch = (argument: string) =>
-  argument.match(messageLinkRegex);
+  regexes.discord.message.exec(argument);
 
 const getChannelMentionMatch = (argument: string) => {
   const match = channelMentionRegex.exec(argument);
@@ -176,24 +177,43 @@ export const userConverter = async (
 export const messageConverter = async (
   message: FireMessage,
   argument: string,
-  silent = false
+  silent = false,
+  groups: { guild_id: string; message_id: string; channel_id: string } = null
 ): Promise<FireMessage | null> => {
-  const match = getMessageIDMatch(argument) || getMessageLinkMatch(argument);
-  if (!match) {
+  let linkMatch: RegExpExecArray, idMatch: RegExpMatchArray;
+  if (argument) {
+    linkMatch = getMessageLinkMatch(argument);
+    idMatch = getMessageIDMatch(argument);
+  }
+  if (!linkMatch && !idMatch && !groups?.message_id) {
     if (!silent) await message.error("INVALID_MESSAGE");
     return null;
   }
 
-  const groups = match.groups;
-  const messageID = groups.message_id;
-  const channelID = groups.channel_id;
+  let messageID: string, channelID: string;
+  if (linkMatch || groups?.message_id) {
+    groups =
+      groups ||
+      (linkMatch.groups as {
+        guild_id: string;
+        message_id: string;
+        channel_id: string;
+      });
+    if (!groups) {
+      if (!silent) await message.error("INVALID_MESSAGE");
+      return null;
+    }
+    messageID = groups.message_id;
+    channelID = groups.channel_id;
+  } else {
+    messageID = idMatch[0];
+    channelID = message.channel.id;
+  }
   const channel = (message.client.channels.cache.get(channelID) ||
     message.channel) as TextChannel;
 
   try {
-    return (await channel.messages
-      .fetch(messageID)
-      .catch(() => {})) as FireMessage;
+    return (await channel.messages.fetch(messageID)) as FireMessage;
   } catch {
     if (!silent) await message.error("INVALID_MESSAGE");
     return null;
