@@ -164,6 +164,7 @@ export class Fire extends AkairoClient {
       handleEdits: true,
       storeMessages: true,
       automateCategories: true,
+      aliasReplacement: /-/g,
       prefix: (message: FireMessage) => {
         return config.fire.dev
           ? "dev "
