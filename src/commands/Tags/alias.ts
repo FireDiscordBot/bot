@@ -18,8 +18,8 @@ export default class TagAlias extends Command {
         {
           id: "alias",
           type: "string",
-          default: null,
           required: false,
+          default: null,
         },
       ],
       aliases: ["tags-alias", "dtag-alias", "dtags-alias"],

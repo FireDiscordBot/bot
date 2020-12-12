@@ -18,8 +18,9 @@ export default class TagEdit extends Command {
         {
           id: "content",
           type: "string",
-          default: null,
           required: true,
+          match: "rest",
+          default: null,
         },
       ],
       aliases: ["tags-edit", "dtag-edit", "dtags-edit"],

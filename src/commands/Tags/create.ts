@@ -18,8 +18,9 @@ export default class TagCreate extends Command {
         {
           id: "content",
           type: "string",
-          default: null,
           required: true,
+          match: "rest",
+          default: null,
         },
       ],
       aliases: ["tags-create", "dtag-create", "dtags-create"],
