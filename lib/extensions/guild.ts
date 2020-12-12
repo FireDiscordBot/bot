@@ -273,7 +273,7 @@ export class FireGuild extends Guild {
       !channel.topic.includes(author.id)
     )
       return "forbidden";
-    channels = channels.filter((c) => c.id != channel.id);
+    channels = channels.filter((c) => c && c.id != channel.id);
     this.settings.set(
       "tickets.channels",
       channels.map((c) => c.id)
