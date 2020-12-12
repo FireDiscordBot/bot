@@ -85,6 +85,8 @@ class Quotes(commands.Cog, name="Quotes"):
         if ctx.valid:
             return
         if message.guild and isinstance(message.author, discord.Member):
+            if await self.bot.has_ts_bot(message.guild):
+                return
             if not self.bot.get_config(message.guild).get('utils.autoquote'):
                 return
             perms = message.guild.me.permissions_in(message.channel)
