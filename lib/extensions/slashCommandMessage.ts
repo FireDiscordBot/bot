@@ -340,7 +340,7 @@ export class FakeChannel {
 
     // embeds in ephemeral wen eta
     // @ts-ignore
-    if (data.embeds?.length) data.flags -= 1 << 6;
+    if (data.embeds?.length && (data.flags & 64) == 64) data.flags -= 1 << 6;
 
     if (!this.message.sent)
       // @ts-ignore
