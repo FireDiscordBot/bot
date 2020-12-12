@@ -204,7 +204,7 @@ class Quotes(commands.Cog, name="Quotes"):
                     excluded = [int(e)
                                 for e in config._data.get('excluded.filter', [])]
                     roleids = [r.id for r in ctx.author.roles]
-                    if ctx.author.id not in excluded and not any(r in excluded for r in roleids) and ctx.channel.id not in excluded:
+                    if content and ctx.author.id not in excluded and not any(r in excluded for r in roleids) and ctx.channel.id not in excluded:
                         content = self.bot.get_cog(
                             "Filters").run_replace(content, ctx.guild)
                     return await existing[0].send(
