@@ -14,7 +14,12 @@ export default class Sk1erSpecsEvent extends Event {
     const guild = this.manager.client.guilds.cache.get(
       "411619823445999637"
     ) as FireGuild;
-    if (!guild) return;
+    if (!guild) {
+      this.manager.client.console.warn(
+        `[Sk1er] Received specs for ${data.user} but guild is not cached`
+      );
+      return;
+    }
     if (!data.success)
       return (this.manager.client.channels.cache.get(
         "411620555960352787"
@@ -22,6 +27,9 @@ export default class Sk1erSpecsEvent extends Event {
         allowedMentions: { users: [data.user] },
       });
     else {
+      this.manager.client.console.log(
+        `[Sk1er] Giving Beta Testing role to ${data.user}`
+      );
       const member = (await guild.members.fetch({
         user: data.user,
       })) as FireMember;
