@@ -325,7 +325,7 @@ export class FireGuild extends Guild {
         `${author} (${author.id})`
       )
       .addField(this.language.get("REASON"), reason);
-    await log.send({
+    await log?.send({
       embed,
       files:
         channel.parentID == "755796036198596688"
