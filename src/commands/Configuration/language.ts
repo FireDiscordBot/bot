@@ -1,3 +1,4 @@
+import { SlashCommandMessage } from "../../../lib/extensions/slashCommandMessage";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
@@ -18,7 +19,6 @@ export default class LanguageCommand extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "all",
-      ephemeral: true,
     });
   }
 
@@ -41,6 +41,7 @@ export default class LanguageCommand extends Command {
         : message.author.settings.set("utils.language", args.language.id);
       message.author.language = args.language;
       message.language = args.language;
+      if (message instanceof SlashCommandMessage) message.setFlags(64);
       return await message.success("LANGUAGE_COMMAND_HELLO", "user");
     }
   }
