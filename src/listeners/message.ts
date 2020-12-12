@@ -21,7 +21,7 @@ export default class Message extends Listener {
       event: "message",
     });
     this.tokenRegex = /[MN][A-Za-z\d]{23}\.[\w-]{6}\.[\w-]{27}/gim;
-    this.botQuoteRegex = /.{1,25}\s?quote (?:ptb\.|canary\.)?discord\.com\/channels\/(?:\/\d{15,21}){3}/gim;
+    this.botQuoteRegex = /.{1,25}\s?quote (?:https?:\/\/)?(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/(?:\d{15,21}\/?){3}/gim;
   }
 
   async tokenGist(message: FireMessage, foundIn: string) {
