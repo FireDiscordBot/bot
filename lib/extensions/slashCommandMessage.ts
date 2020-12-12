@@ -38,7 +38,6 @@ export class SlashCommandMessage {
   client: Fire;
   flags: number;
   sent: boolean;
-  ackMessage: string;
   content: string;
   command: Command;
   author: FireUser;
@@ -166,13 +165,12 @@ export class SlashCommandMessage {
     if (!key) {
       const message = this.realChannel.messages.cache.find(
         (message) =>
-          (typeof message.type == "undefined" &&
-            message.system &&
-            message.author.id == this.member.id &&
-            message.content.startsWith(
-              `</${this.command.id}:${this.slashCommand.id}>`
-            )) ||
-          (this.ackMessage && message.id == this.ackMessage)
+          typeof message.type == "undefined" &&
+          message.system &&
+          message.author.id == this.member.id &&
+          message.content.startsWith(
+            `</${this.command.id}:${this.slashCommand.data.id}>`
+          )
       );
       if (message) return message.react(reactions.success).catch(() => {});
       return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
@@ -191,13 +189,12 @@ export class SlashCommandMessage {
     if (!key) {
       const message = this.realChannel.messages.cache.find(
         (message) =>
-          (typeof message.type == "undefined" &&
-            message.system &&
-            message.author.id == this.member.id &&
-            message.content.startsWith(
-              `</${this.command.id}:${this.slashCommand.id}>`
-            )) ||
-          (this.ackMessage && message.id == this.ackMessage)
+          typeof message.type == "undefined" &&
+          message.system &&
+          message.author.id == this.member.id &&
+          message.content.startsWith(
+            `</${this.command.id}:${this.slashCommand.data.id}>`
+          )
       );
       if (message) return message.react(reactions.error).catch(() => {});
       return this.error("SLASH_COMMAND_HANDLE_FAIL");
@@ -294,13 +291,12 @@ export class FakeChannel {
   // Acknowledges without sending a message
   async ack(source: boolean = false) {
     // @ts-ignore
-    const ackMessage = await this.client.api
+    await this.client.api
       // @ts-ignore
       .interactions(this.id)(this.token)
       .callback.post({ data: { type: source ? 5 : 2 } })
+      .then(() => (this.message.sent = true))
       .catch(() => {});
-    if (ackMessage && ackMessage.id)
-      this.message.ackMessage = ackMessage.id as string;
     return (this.message.sent = true);
   }
 
