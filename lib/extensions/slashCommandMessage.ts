@@ -41,15 +41,15 @@ export class SlashCommandMessage {
   ackMessage: string;
   content: string;
   command: Command;
-  guild: FireGuild;
   author: FireUser;
+  guild?: FireGuild;
   util: CommandUtil;
-  member: FireMember;
   language: Language;
+  member?: FireMember;
   channel: FakeChannel;
   mentions: MessageMentions;
   slashCommand: SlashCommand;
-  realChannel: TextChannel | NewsChannel;
+  realChannel?: TextChannel | NewsChannel;
   attachments: Collection<string, MessageAttachment>;
 
   constructor(client: Fire, command: SlashCommand) {
@@ -60,6 +60,40 @@ export class SlashCommandMessage {
     this.flags = 0;
     if (this.command?.ephemeral) this.setFlags(64);
     this.guild = client.guilds.cache.get(command.guild_id) as FireGuild;
+    // @ts-ignore
+    this.mentions = new MessageMentions(this, [], [], false);
+    this.attachments = new Collection();
+    this.author =
+      (client.users.cache.get(command.member.user.id) as FireUser) ||
+      new FireUser(client, command.member.user);
+    if (!client.users.cache.has(this.author.id))
+      client.users.add(command.member.user);
+    if (this.guild) {
+      this.member =
+        (this.guild.members.cache.get(this.author.id) as FireMember) ||
+        new FireMember(client, command.member, this.guild);
+      if (!this.guild.members.cache.has(this.member.id))
+        this.guild.members.add(command.member);
+    }
+    this.language = this.author?.settings.get("utils.language")
+      ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
+        ? this.guild?.language
+        : this.author.language
+      : this.guild?.language || client.getLanguage("en-US");
+    if (!this.guild) {
+      // this should only happen if a guild authorizes slash commands
+      // but doesn't have the bot. INTERACTION_CREATE will give an error
+      // if the guild is necessary
+      this.channel = new FakeChannel(
+        this,
+        client,
+        command.id,
+        command.token,
+        null,
+        this.flags
+      );
+      return this;
+    }
     this.realChannel = this.guild.channels.cache.get(
       this.slashCommand.channel_id
     ) as TextChannel | NewsChannel;
@@ -71,24 +105,6 @@ export class SlashCommandMessage {
       this.realChannel,
       this.flags
     );
-    // @ts-ignore
-    this.mentions = new MessageMentions(this, [], [], false);
-    this.attachments = new Collection();
-    this.author =
-      (client.users.cache.get(command.member.user.id) as FireUser) ||
-      new FireUser(client, command.member.user);
-    if (!client.users.cache.has(this.author.id))
-      client.users.add(command.member.user);
-    this.member =
-      (this.guild.members.cache.get(this.author.id) as FireMember) ||
-      new FireMember(client, command.member, this.guild);
-    if (!this.guild.members.cache.has(this.member.id))
-      this.guild.members.add(command.member);
-    this.language = this.author?.settings.get("utils.language")
-      ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
-        ? this.guild?.language
-        : this.author.language
-      : this.guild?.language || client.getLanguage("en-US");
     this.sent = false;
   }
 
@@ -237,7 +253,7 @@ export class FakeChannel {
     client: Fire,
     id: string,
     token: string,
-    real: TextChannel | NewsChannel,
+    real?: TextChannel | NewsChannel,
     msgFlags?: number
   ) {
     this.id = id;
@@ -246,7 +262,7 @@ export class FakeChannel {
     this.client = client;
     this.message = message;
     this.msgFlags = msgFlags;
-    this.messages = real.messages;
+    this.messages = real?.messages;
   }
 
   permissionsFor(memberOrRole: GuildMemberResolvable | RoleResolvable) {
