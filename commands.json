@@ -70,21 +70,9 @@
         "name": "Minecraft",
         "commands": [
             {
-                "name": "skin",
-                "description": "See a player's Minecraft skin",
-                "usage": "{prefix}skin <ign/UUID>",
-                "aliases": null
-            },
-            {
                 "name": "mcstatus",
                 "description": "Check the status of Minecraft services",
                 "usage": "{prefix}mcstatus",
-                "aliases": null
-            },
-            {
-                "name": "mcuuid",
-                "description": "Get a player's UUID (without dashes)",
-                "usage": "{prefix}mcuuid <ign>",
                 "aliases": null
             }
         ]
@@ -104,77 +92,11 @@
                 "description": "Get the lyrics for a song (Provide a member to search for their current song on Spotify)",
                 "usage": "{prefix}lyrics [<query/member>]",
                 "aliases": null
-            },
-            {
-                "name": "baninfo",
-                "description": "Get info about a ban on KSoft.Si",
-                "usage": "{prefix}baninfo <user id>",
-                "aliases": null
             }
         ]
     },
     {
         "id": 3,
-        "name": "Sk1er",
-        "commands": [
-            {
-                "name": "levelhead",
-                "description": "Get a player's levelhead info",
-                "usage": "{prefix}levelhead <player>",
-                "aliases": null
-            },
-            {
-                "name": "modcore",
-                "description": "Get a player's modcore profile",
-                "usage": "{prefix}modcore <player>",
-                "aliases": null
-            },
-            {
-                "name": "mod",
-                "description": "Get information about a Sk1er LLC mod",
-                "usage": "{prefix}mod <mod name>",
-                "aliases": "mods"
-            }
-        ]
-    },
-    {
-        "id": 4,
-        "name": "YouTube",
-        "commands": [
-            {
-                "name": "yt",
-                "description": "Get the top 5 trending videos in the US",
-                "usage": "{prefix}yt",
-                "aliases": null
-            },
-            {
-                "name": "yt info",
-                "description": "Get a video's info from an ID or URL",
-                "usage": "{prefix}yt info <id/url>",
-                "aliases": null
-            }
-        ]
-    },
-    {
-        "id": 5,
-        "name": "Image Manipulation",
-        "commands": [
-            {
-                "name": "makeameme",
-                "description": "Make your own meme using the \"top text, bottom text\" format",
-                "usage": "{prefix}makeameme <member/image url> <top text>/<bottom text>",
-                "aliases": null
-            },
-            {
-                "name": "deepfry",
-                "description": "Deepfry an image or your avatar (your avatar is used if no argument is provided)",
-                "usage": "{prefix}deepfry [<member/image url>]",
-                "aliases": "df"
-            }
-        ]
-    },
-    {
-        "id": 6,
         "name": "Tickets",
         "commands": [
             {
@@ -222,7 +144,7 @@
         ]
     },
     {
-        "id": 7,
+        "id": 4,
         "name": "Configuration",
         "commands": [
             {
@@ -282,7 +204,7 @@
         ]
     },
     {
-        "id": 8,
+        "id": 5,
         "name": "Moderation",
         "commands": [
             {
@@ -378,7 +300,7 @@
         ]
     },
     {
-        "id": 9,
+        "id": 6,
         "name": "Info",
         "commands": [
             {
@@ -402,7 +324,7 @@
         ]
     },
     {
-        "id": 10,
+        "id": 7,
         "name": "Tags",
         "Note": "Creating/deleting tags requires \"Manage Messages\" permission. Tag names can only be one word.",
         "commands": [
@@ -433,7 +355,7 @@
         ]
     },
     {
-        "id": 11,
+        "id": 8,
         "name": "Utilities",
         "commands": [
             {
@@ -495,17 +417,11 @@
                 "description": "Creates a vanity invite for your Discord using inv.wtf",
                 "usage": "{prefix}vanityurl [<code>/\"disable\"]",
                 "aliases": null
-            },
-            {
-                "name": "google",
-                "description": "Talk to the Google Assistant",
-                "usage": "{prefix}google <query>",
-                "aliases": null
             }
         ]
     },
     {
-        "id": 12,
+        "id": 9,
         "name": "Purge",
         "Note": "The purge command makes use of a flag system for different options. \nFor example, \"purge 10 --user Geek --match oof\" would purge the last 10 messages from the user Geek if it contains oof",
         "commands": [
@@ -575,7 +491,7 @@
         ]
     },
     {
-        "id": 13,
+        "id": 10,
         "name": "Premium",
         "commands": [
             {
