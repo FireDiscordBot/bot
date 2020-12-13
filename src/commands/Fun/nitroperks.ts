@@ -29,7 +29,10 @@ export default class NitroPerks extends Command {
   ) {
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     if (!sk1erModule) return await message.error("NITROPERKS_MODULE_ERROR");
-    if (!message?.member?.roles.cache.has(sk1erModule.nitroId))
+    if (
+      !message.member?.roles.cache.has(sk1erModule.nitroId) &&
+      !message.author.isSuperuser()
+    )
       return await message.channel.send("no.");
     if (!args.ign) return await message.error("NITROPERKS_INVALID_IGN");
     const ign: string = args.ign.match[0];
