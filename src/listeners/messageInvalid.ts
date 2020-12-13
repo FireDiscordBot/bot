@@ -3,6 +3,7 @@ import { FireMessage } from "../../lib/extensions/message";
 import { constants } from "../../lib/util/constants";
 import { Listener } from "../../lib/util/listener";
 import Quote from "../commands/Utilities/quote";
+import { match } from "assert";
 
 const { regexes } = constants;
 
@@ -24,9 +25,10 @@ export default class MessageInvalid extends Listener {
     let matches = [];
     let messageLink: RegExpExecArray;
     while ((messageLink = regexes.discord.message.exec(message.content))) {
-      if (!matches.includes(messageLink.groups))
-        matches.push(messageLink.groups);
+      matches.push(messageLink.groups);
     }
+
+    matches = matches.filter((match, pos) => matches.indexOf(match) == pos); // remove dupes
 
     const quoteCommand = this.client.getCommand("quote") as Quote;
     const inhibited = await this.client.inhibitorHandler.test(
