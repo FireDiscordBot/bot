@@ -15,7 +15,7 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-from fire.converters import TextChannel, Role, Member
+from fire.converters import TextChannel
 from discord.ext import commands, tasks
 import humanfriendly
 import datetime

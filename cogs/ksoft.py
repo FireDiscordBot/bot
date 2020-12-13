@@ -69,39 +69,6 @@ class KSoft(commands.Cog, name="KSoft.SI API"):
                             value=f'[Click Here]({meme.source})')
         await ctx.send(embed=embed)
 
-    @commands.command(name='baninfo', description='Check the info of a ban on the KSoft.Si API')
-    async def baninfo(self, ctx, bannedboi: int):
-        try:
-            inf = await self.ksoft.bans.info(bannedboi)
-        except ksoftapi.APIError as e:
-            embed = discord.Embed(
-                title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color, timestamp=datetime.datetime.now(datetime.timezone.utc))
-            embed.add_field(name='Error', value=e.message, inline=False)
-            embed.add_field(name='Code', value=e.code, inline=False)
-            return await ctx.send(embed=embed)
-        embed = discord.Embed(title=f"Ban info for {bannedboi}.", colour=ctx.message.author.color,
-                              timestamp=datetime.datetime.now(datetime.timezone.utc))
-        embed.set_author(name=f"Requested by {ctx.message.author}", icon_url=str(
-            ctx.message.author.avatar_url_as(static_format='png', size=2048)))
-        embed.set_footer(text='Ban info from KSoft.Si API (https://api.ksoft.si/)',
-                         icon_url='https://cdn.ksoft.si/images/Logo128.png')
-        embed.add_field(
-            name='User', value=f'{inf.name}#{inf.discriminator}' if inf.name != 'Unknown' else 'Unknown#0000')
-        embed.add_field(name='Mod ID', value=inf.moderator_id)
-        embed.add_field(name='Active', value=inf.is_ban_active)
-        embed.add_field(name='Appeal Possible', value=inf.can_be_appealed)
-        embed.add_field(name='Reason', value=inf.reason, inline=False)
-        embed.add_field(
-            name='Proof', value=f'[Click Here]({inf.proof})' if inf.proof != 'https://bans.ksoft.si' else 'None Provided')
-        # Amazing date formatting code. I call it the date formatter-inator (yes, I am Dr. Doofenshmirtz)
-        embed.add_field(name='Timestamp', value=inf.timestamp.replace(
-            'T', ' ').split('.')[0])
-        if inf.appeal_reason and inf.appeal_date:
-            embed.add_field(name='Appeal Reason', value=inf.appeal_reason)
-            embed.add_field(name='Appeal Date', value=inf.appeal_date.replace(
-                'T', ' ').split('.')[0])
-        await ctx.send(embed=embed)
-
     @commands.command(name='lyrics')
     async def lyrics(self, ctx, *, query: str = None):
         lyrics = None

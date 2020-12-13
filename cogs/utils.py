@@ -145,7 +145,6 @@ class Utils(commands.Cog, name='Utility Commands'):
         self.bot.isascii = lambda s: len(s) == len(s.encode())
         self.bot.getperms = self.getperms
         self.bot.getguildperms = self.getguildperms
-        self.bot.ishoisted = self.ishoisted
         self.tags = {}
         self.reminders = {}
         self.bot.loop.create_task(self.loadtags())
@@ -175,12 +174,6 @@ class Utils(commands.Cog, name='Utility Commands'):
             if value:
                 perms.append(perm)
         return perms
-
-    def ishoisted(self, string: str):
-        if string.lower()[0] < '0':
-            return True
-        else:
-            return False
 
     async def loadtags(self):
         await self.bot.wait_until_ready()
