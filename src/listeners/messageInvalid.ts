@@ -9,6 +9,7 @@ const { regexes } = constants;
 
 export default class MessageInvalid extends Listener {
   botQuoteRegex: RegExp;
+  slashCommandRegex: RegExp;
 
   constructor() {
     super("messageInvalid", {
@@ -16,10 +17,15 @@ export default class MessageInvalid extends Listener {
       event: "messageInvalid",
     });
     this.botQuoteRegex = /.{1,25}\s?quote (?:https?:\/\/)?(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/(?:\d{15,21}\/?){3}/gim;
+    this.slashCommandRegex = /<\/\w+:\d{15,21}>/gim;
   }
 
   async exec(message: FireMessage) {
-    if (this.botQuoteRegex.test(message.content)) return;
+    if (
+      this.botQuoteRegex.test(message.content) ||
+      this.slashCommandRegex.test(message.content)
+    )
+      return;
     if (!message.guild.settings.get("utils.autoquote", false)) return;
 
     let matches = [];
