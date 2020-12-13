@@ -15,7 +15,7 @@ export default class Ready extends Listener {
 
   async exec() {
     try {
-      process.send("ready");
+      if (typeof process.send == "function") process.send("ready");
       this.client.manager.ws?.send(
         MessageUtil.encode(
           new Message(EventType.READY_CLIENT, {
@@ -28,7 +28,9 @@ export default class Ready extends Listener {
           })
         )
       );
-    } catch {}
+    } catch (e) {
+      this.client.console.error(e.stack);
+    }
     this.client.ws.shards.forEach((shard) =>
       this.client.user?.setPresence({
         activity: {
