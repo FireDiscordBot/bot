@@ -23,6 +23,7 @@ export default class FilterExclude extends Command {
       aliases: ["filterwhitelist", "filterexcl"],
       enableSlashCommand: true,
       restrictTo: "guild",
+      ephemeral: false,
     });
   }
 
