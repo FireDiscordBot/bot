@@ -6,7 +6,7 @@ export default class TagEdit extends Command {
   constructor() {
     super("tag-edit", {
       description: (language: Language) =>
-        language.get("TAG_COMMAND_DESCRIPTION"),
+        language.get("TAG_EDIT_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
       args: [
         {

@@ -7,7 +7,7 @@ export default class TagRaw extends Command {
   constructor() {
     super("tag-raw", {
       description: (language: Language) =>
-        language.get("TAG_COMMAND_DESCRIPTION"),
+        language.get("TAG_RAW_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
       args: [
         {
@@ -31,7 +31,7 @@ export default class TagRaw extends Command {
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", tag);
     const content = Util.escapeMarkdown(cachedTag.content)
       .replace("<", "\\<\\")
-      .replace(">", "\\>\\");
+      .replace(">", "\\>");
     return await message.channel.send(content);
   }
 }

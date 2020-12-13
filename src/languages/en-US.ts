@@ -678,9 +678,7 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         RANKS_SK1ER_NO_SPECS: (
           mention: string
         ) => `${mention} To become a beta tester, please provide your specs through this form: 
-<https://inv.wtf/sk1spec>
-                
-Once you get the role, head over to <#595634170336641045> and check the pinned messages for the latest betas.`,
+<https://inv.wtf/sk1spec>`,
         ADDRANK_COMMAND_DESCRIPTION:
           "Add a role that users can join through the rank command.",
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
@@ -751,10 +749,13 @@ You must have Developer Mode enabled, which is found in User Settings > Appearan
           "I searched near and far and could not find any tags...",
         TAG_INVALID_TAG: (tag: string) =>
           `There doesn't seem to be a tag called ${tag}. Run the command again with no arguments to see all tags`,
+        TAG_RAW_COMMAND_DESCRIPTION: "View the raw content of a tag",
         TAGS_RAW_MISSING_ARG:
           "You need to provide a tag name to get the raw content of",
+        TAG_DELETE_COMMAND_DESCRIPTION: "Delete a tag",
         TAGS_DELETE_MISSING_ARG:
           "Well, I can't really delete nothing can I? Provide a tag name to delete",
+        TAG_CREATE_COMMAND_DESCRIPTION: "Create a new tag",
         TAGS_CREATE_MISSING_NAME:
           "Your shiny new tag needs a name, give it one!",
         TAGS_CREATE_MISSING_CONTENT:
@@ -765,11 +766,13 @@ You must have Developer Mode enabled, which is found in User Settings > Appearan
           "A tag already exists with that name. Be original next time!",
         TAGS_CREATE_LIMIT:
           "You've reached the tag limit! Upgrade to premium for unlimited tags;\n<https://inv.wtf/premium>",
+        TAG_EDIT_COMMAND_DESCRIPTION: "Edit the content of a tag",
         TAGS_EDIT_MISSING_NAME:
           "I need to know what tag to edit. Give me the name of an existing tag",
         TAGS_EDIT_MISSING_CONTENT:
           "You need to provide the new content for the tag",
         TAGS_EDIT_LIMIT: "This tag cannot be modified!",
+        TAG_ALIAS_COMMAND_DESCRIPTION: "Create an alias for a tag",
         TAGS_ALIAS_MISSING_NAME:
           "I can't make an alias for nothing. You need to provide an existing tag name",
         TAGS_ALIAS_MISSING_ALIAS:

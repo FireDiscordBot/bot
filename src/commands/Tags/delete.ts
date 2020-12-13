@@ -6,7 +6,7 @@ export default class TagDelete extends Command {
   constructor() {
     super("tag-delete", {
       description: (language: Language) =>
-        language.get("TAG_COMMAND_DESCRIPTION"),
+        language.get("TAG_DELETE_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
       userPermissions: ["MANAGE_MESSAGES"],
       args: [

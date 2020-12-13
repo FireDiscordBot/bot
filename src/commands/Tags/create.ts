@@ -6,7 +6,7 @@ export default class TagCreate extends Command {
   constructor() {
     super("tag-create", {
       description: (language: Language) =>
-        language.get("TAG_COMMAND_DESCRIPTION"),
+        language.get("TAG_CREATE_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
       args: [
         {
