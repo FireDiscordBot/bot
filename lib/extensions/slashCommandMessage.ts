@@ -46,6 +46,7 @@ export class SlashCommandMessage {
   language: Language;
   member?: FireMember;
   channel: FakeChannel;
+  latestResponse: string;
   mentions: MessageMentions;
   slashCommand: SlashCommand;
   realChannel?: TextChannel | NewsChannel;
@@ -108,6 +109,7 @@ export class SlashCommandMessage {
       this.realChannel,
       this.flags
     );
+    this.latestResponse = "@original";
     this.sent = false;
   }
 
@@ -229,7 +231,7 @@ export class SlashCommandMessage {
     this.client.api
       // @ts-ignore
       .webhooks(this.client.user.id, this.slashCommand.token)
-      .messages("@original")
+      .messages(this.latestResponse)
       .patch({
         data,
       })
@@ -303,7 +305,6 @@ export class FakeChannel {
       .callback.post({ data: { type: source ? 5 : 2 } })
       .then(() => (this.message.sent = true))
       .catch(() => {});
-    return (this.message.sent = true);
   }
 
   async send(
@@ -359,7 +360,7 @@ export class FakeChannel {
         .catch(() => {});
     else {
       // @ts-ignore
-      await this.client.api
+      const webhook = await this.client.api
         // @ts-ignore
         .webhooks(this.client.user.id)(this.token)
         .post({
@@ -367,6 +368,7 @@ export class FakeChannel {
           files,
         })
         .catch(() => {});
+      if (webhook?.id) this.message.latestResponse = webhook.id;
     }
     return this.message;
   }
