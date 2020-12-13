@@ -406,8 +406,7 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           "textures.minecraft.net": "**Skins**",
           "api.mojang.com": "**API**",
         },
-        MCUUID_COMMAND_DESCRIPTION:
-          "Get a pwayew's UUID (use --dashed to get the uuid with dashes)",
+        MCUUID_COMMAND_DESCRIPTION: "Get a pwayew's Minecwaft UUID",
         MCUUID_INVALID_IGN: "You must pwovide a vawid IGN to get the UUID of",
         MCUUID_FETCH_FAIL:
           "Faiwed to fetch the UUID, make suwe the IGN is a vawid pwayew",
@@ -543,7 +542,7 @@ Once you get the wowe, head uvw to <#595634170336641045> and check the pinnyed m
         SKIN_COMMAND_DESCRIPTION: "See a pwayew's Minecwaft skin",
         SKIN_INVALID_IGN: "You must pwovide a vawid IGN to get the skin of",
         SLOWMODE_COMMAND_DESCRIPTION:
-          "Set the swowmode fow a channew ow categowy. Use the --global fwag to set it fow aww channews",
+          "Set the swowmode fow a channew ow categowy. Use the slowmodeall awias to set it fow aww channews",
         SLOWMODE_GLOBAL_FAIL_SOME: (failed: string[]) =>
           `I set swowmode in some channews but faiwed to set swowmode in ${failed.join(
             ", "
@@ -556,7 +555,7 @@ Once you get the wowe, head uvw to <#595634170336641045> and check the pinnyed m
         SPECS_NOT_FOUND:
           "Specs not found fow that usew. Teww them to fiww in this fowm\n<https://inv.wtf/sk1spec>",
         STATS_COMMAND_DESCRIPTION:
-          "View cwustew & ovewaww stats. Use the --cluster fwag to view stats fow a specific cwustew",
+          "View cwustew & ovewaww stats.",
         STATS_TITLE: (name: string, version: string) =>
           `Stats fow ${name} [${version}]`,
         STATS_MEMORY_USAGE: "Memowy Usage",

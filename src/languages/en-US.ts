@@ -578,7 +578,7 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           "textures.minecraft.net": "**Skins**",
           "api.mojang.com": "**API**",
         },
-        MCUUID_COMMAND_DESCRIPTION: "Get a player's UUID",
+        MCUUID_COMMAND_DESCRIPTION: "Get a player's Minecraft UUID",
         MCUUID_INVALID_IGN: "You must provide a valid IGN to get the UUID of",
         MCUUID_FETCH_FAIL:
           "Failed to fetch the UUID, make sure the IGN is a valid player",
