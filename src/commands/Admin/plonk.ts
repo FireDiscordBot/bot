@@ -18,6 +18,7 @@ export default class Plonk extends Command {
           id: "user",
           type: "user|member",
           required: true,
+          default: undefined,
         },
         {
           id: "permanent",
@@ -44,7 +45,8 @@ export default class Plonk extends Command {
     message: FireMessage,
     args: { user: FireMember | FireUser; permanent: boolean; reason: string }
   ) {
-    if (!args.user) return;
+    if (!args.user && typeof args.user == "undefined")
+      return await message.error("PLONK_USER_REQUIRED");
 
     const user = args.user instanceof FireMember ? args.user.user : args.user;
     if (!user) return;

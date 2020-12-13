@@ -627,6 +627,7 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           `${constants.statuspage.emojis.major_outage} Ths server was manually removed from Fire\'s public server list by ${user}`,
         PLONK_COMMAND_DESCRIPTION:
           "make a user unable to use the best discord bot",
+        PLONK_USER_REQUIRED: "You must provide a user to plonk",
         PURGE_COMMAND_DESCRIPTION:
           "Bulk delete messages with optional flags to selectively delete messages based on certain factors",
         PURGE_AMOUNT_INVALID: "Invalid amount. Minumum is 2, Maximum is 100",
