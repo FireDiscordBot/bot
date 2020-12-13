@@ -28,7 +28,10 @@ export default class MessageInvalid extends Listener {
       matches.push(messageLink.groups);
     }
 
-    matches = matches.filter((match, pos) => matches.indexOf(match) == pos); // remove dupes
+    const messageIds = matches.map((match) => match.message_id);
+    matches = matches.filter(
+      (match, pos) => messageIds.indexOf(match.message_id) == pos
+    ); // remove dupes
 
     const quoteCommand = this.client.getCommand("quote") as Quote;
     const inhibited = await this.client.inhibitorHandler.test(
