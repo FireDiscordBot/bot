@@ -4,6 +4,8 @@ import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { TextChannel } from "discord.js";
 
+const { emojis } = constants;
+
 export default class NewTicket extends Command {
   constructor() {
     super("new", {
@@ -26,7 +28,6 @@ export default class NewTicket extends Command {
       ],
       enableSlashCommand: true,
       aliases: ["newticket"],
-      ephemeral: true,
     });
   }
 
@@ -40,11 +41,22 @@ export default class NewTicket extends Command {
     if (ticket == "author") return;
     // how?
     else if (ticket == "disabled")
-      return await message.error("NEW_TICKET_DISABLED");
-    else if (ticket == "limit") return await message.error("NEW_TICKET_LIMIT");
+      return await creating.edit(
+        `${emojis.error} ${message.language.get(
+          "NEW_TICKET_DISABLED",
+          ticket.toString()
+        )}`
+      );
+    else if (ticket == "limit")
+      return await creating.edit(
+        `${emojis.error} ${message.language.get(
+          "NEW_TICKET_LIMIT",
+          ticket.toString()
+        )}`
+      );
     else if (ticket instanceof TextChannel)
       return await creating.edit(
-        `${constants.emojis.success} ${message.language.get(
+        `${emojis.success} ${message.language.get(
           "NEW_TICKET_CREATED",
           ticket.toString()
         )}`
