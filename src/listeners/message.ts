@@ -121,10 +121,9 @@ export default class Message extends Listener {
 
   cleanContent(message: FireMessage) {
     return message.content
-      .replace("\u200b", "")
-      .replace(" ", "")
-      .replace("(.)", ".")
-      .replace("dot", ".")
+      .replace(/[\u200B-\u200D\uFEFF]/gim, "")
+      .replace(/\(\.\)/gim, ".")
+      .replace(/dot/gim, ".")
       .replace(/<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|:|\'|/gim, "");
   }
 }
