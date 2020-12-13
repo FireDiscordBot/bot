@@ -23,7 +23,8 @@ export default class MessageInvalid extends Listener {
   async exec(message: FireMessage) {
     if (
       this.botQuoteRegex.test(message.content) ||
-      this.slashCommandRegex.test(message.content)
+      this.slashCommandRegex.test(message.content) ||
+      !message.guild
     )
       return;
     if (!message.guild.settings.get("utils.autoquote", false)) return;
