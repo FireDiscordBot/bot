@@ -67,7 +67,6 @@ bot = Fire(
 
 
 extensions = [
-    "cogs.imagegen",
     "cogs.koding",
     "cogs.ksoft",
     "cogs.moderation",
