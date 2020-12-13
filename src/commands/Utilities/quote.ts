@@ -1,3 +1,4 @@
+import { SlashCommandMessage } from "../../../lib/extensions/slashCommandMessage";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
@@ -25,7 +26,9 @@ export default class Quote extends Command {
   async exec(message: FireMessage, args: { quote: FireMessage }) {
     if (!args.quote) return;
     return await args.quote.quote(
-      message.channel as TextChannel,
+      message instanceof SlashCommandMessage
+        ? (message.realChannel as TextChannel)
+        : (message.channel as TextChannel),
       message.member
     );
   }
