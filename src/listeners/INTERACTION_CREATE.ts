@@ -42,7 +42,7 @@ export default class InteractionCreate extends Listener {
         await this.callbackError(command, error).catch(
           async () => await this.webhookError(command, error).catch(() => {})
         );
-      if (typeof this.client.sentry !== "undefined") {
+      if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
         sentry.setExtras({
           slashCommand: JSON.stringify(command.data),

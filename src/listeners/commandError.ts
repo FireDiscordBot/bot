@@ -22,7 +22,7 @@ export default class CommandError extends Listener {
   ) {
     await message.error();
 
-    if (typeof this.client.sentry !== "undefined") {
+    if (typeof this.client.sentry != "undefined") {
       const sentry = this.client.sentry;
       sentry.setUser({
         id: message.author.id,

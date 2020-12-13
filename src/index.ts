@@ -13,7 +13,7 @@ const version =
   process.env.NODE_ENV == "development" ? "dev" : getCommitHash().slice(0, 7);
 
 const loadSentry =
-  typeof process.env.SENTRY_DSN !== "undefined" &&
+  typeof process.env.SENTRY_DSN != "undefined" &&
   process.env.SENTRY_DSN.length > 0;
 if (loadSentry) {
   sentry.init({
