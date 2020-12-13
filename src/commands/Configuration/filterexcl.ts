@@ -6,35 +6,37 @@ import { TextChannel, Role } from "discord.js";
 
 export default class FilterExclude extends Command {
   constructor() {
-    super("filterexcl", {
+    super("filterexclude", {
       description: (language: Language) =>
         language.get("FILTEREXCL_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "MANAGE_MESSAGES"],
       userPermissions: ["MANAGE_GUILD"],
       args: [
         {
-          id: "toexcl",
+          id: "toexclude",
           type: "member|role|channel",
+          slashCommandType: "string",
           default: undefined,
           required: false,
         },
       ],
+      aliases: ["filterwhitelist", "filterexcl"],
+      enableSlashCommand: true,
       restrictTo: "guild",
-      aliases: ["filterwhitelist", "filterexclude"],
     });
   }
 
   async exec(
     message: FireMessage,
-    args: { toexcl?: FireMember | Role | TextChannel }
+    args: { toexclude?: FireMember | Role | TextChannel }
   ) {
-    if (typeof args.toexcl == "undefined")
+    if (typeof args.toexclude == "undefined")
       return await this.sendCurrent(message);
-    else if (!args.toexcl) return;
+    else if (!args.toexclude) return;
     let current: string[] = message.guild.settings.get("excluded.filter", []);
-    if (current.includes(args.toexcl.id))
-      current = current.filter((id) => id != args.toexcl.id);
-    else current.push(args.toexcl.id);
+    if (current.includes(args.toexclude.id))
+      current = current.filter((id) => id != args.toexclude.id);
+    else current.push(args.toexclude.id);
     await message.guild.settings.set("excluded.filter", current);
     return await this.sendCurrent(message, true);
   }
