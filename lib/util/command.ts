@@ -64,7 +64,11 @@ export class Command extends AkairoCommand {
         if (!arg.readableType && arg.type) {
           if (arg.type instanceof Array) arg.readableType = arg.type.join("|");
           else arg.readableType = arg.type.toString();
-          if (["string", "snowflake"].includes(arg.readableType))
+          if (
+            ["string", "snowflake", "boolean", "number"].includes(
+              arg.readableType
+            )
+          )
             arg.readableType = arg.id;
         } else if (arg.flag && arg.match == "flag")
           arg.readableType = "boolean";
