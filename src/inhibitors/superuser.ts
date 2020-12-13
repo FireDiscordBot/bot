@@ -10,11 +10,7 @@ export default class SuperuserInhibitor extends Inhibitor {
     });
   }
 
-  exec(message: FireMessage, command: Command) {
-    return (
-      command.superuserOnly &&
-      !message.author.isSuperuser() &&
-      command.id != "debug"
-    );
+  exec(message: FireMessage, command?: Command) {
+    return command?.superuserOnly && !message.author.isSuperuser();
   }
 }

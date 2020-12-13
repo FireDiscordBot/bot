@@ -11,7 +11,7 @@ export default class GuildLockInhibitor extends Inhibitor {
   }
 
   exec(message: FireMessage, command: Command) {
-    if (!message.guild && command.guilds?.length) return true;
+    if (!message.guild && command?.guilds?.length) return true;
     if (
       command &&
       command.guilds?.length &&

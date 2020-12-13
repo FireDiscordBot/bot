@@ -11,10 +11,10 @@ export default class AccountAgeInhibitor extends Inhibitor {
     });
   }
 
-  exec(message: FireMessage, command: Command) {
+  exec(message: FireMessage, command?: Command) {
     if (
       moment(new Date()).diff(message.author.createdAt) < 86400000 &&
-      command.id != "debug"
+      command?.id != "debug"
     )
       return true;
     return false;

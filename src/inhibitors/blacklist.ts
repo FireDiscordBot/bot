@@ -11,11 +11,11 @@ export default class BlacklistInhibitor extends Inhibitor {
     });
   }
 
-  exec(message: FireMessage, command: Command) {
+  exec(message: FireMessage, command?: Command) {
     return (
       this.client.util.plonked.includes(message.author.id) &&
       !message.author.isSuperuser() &&
-      command.id != "debug"
+      command?.id != "debug"
     );
   }
 
