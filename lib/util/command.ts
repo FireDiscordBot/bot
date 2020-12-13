@@ -62,8 +62,10 @@ export class Command extends AkairoCommand {
     if (options.args instanceof Array)
       options.args.forEach((arg) => {
         if (!arg.readableType && arg.type) {
-          arg.readableType = arg.type.toString();
-          if (arg.readableType == "string") arg.readableType = arg.id;
+          if (arg.type instanceof Array) arg.readableType = arg.type.join("|");
+          else arg.readableType = arg.type.toString();
+          if (["string", "snowflake"].includes(arg.readableType))
+            arg.readableType = arg.id;
         } else if (arg.flag && arg.match == "flag")
           arg.readableType = "boolean";
         else if (arg.flag && arg.match == "option" && !arg.type)
@@ -93,7 +95,7 @@ export class Command extends AkairoCommand {
   async unload(): Promise<any> {}
 
   getArgumentsClean() {
-    return typeof this.args !== "undefined" && Array.isArray(this.args)
+    return typeof this.args != "undefined" && Array.isArray(this.args)
       ? this.args.map((argument) => {
           if (argument.required) {
             if (argument.flag)
