@@ -76,8 +76,8 @@ export default class Filters extends Module {
       member = userOrMember;
     } else if (userOrMember && userOrMember instanceof FireUser)
       user = userOrMember;
-    if (message?.author?.bot || user?.bot) return false;
-    if (!message?.guild || !member) return false;
+    if ((message && message.author.bot) || (user && user.bot)) return false;
+    if (!message?.guild && !member) return false;
     if (message?.member?.isModerator() || member?.isModerator()) return false;
     const excluded: string[] = message.guild.settings.get(
       "excluded.filter",
