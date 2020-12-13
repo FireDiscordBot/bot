@@ -53,12 +53,13 @@ export class Reconnector {
       this.manager.client.console.error(
         `[Aether] Received error event: ${error}`
       );
+      this.activate(15000);
     }
   }
 
-  activate() {
+  activate(timeout: number = 5000) {
     if (this.timeout) clearTimeout(this.timeout);
-    this.timeout = setTimeout(this.reconnect.bind(this), 5000);
+    this.timeout = setTimeout(this.reconnect.bind(this), timeout);
   }
 
   reconnect() {
