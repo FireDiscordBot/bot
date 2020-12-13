@@ -18,7 +18,6 @@ export default class InteractionCreate extends Listener {
   }
 
   async exec(command: SlashCommand) {
-    let hasAcked: boolean;
     try {
       const message = new SlashCommandMessage(this.client, command);
       if (!message.command) {
@@ -32,8 +31,7 @@ export default class InteractionCreate extends Listener {
           this.client.config.inviteLink
         );
       await message.generateContent();
-      if (!message.command.ephemeral)
-        hasAcked = await message.channel.ack(true);
+      if (!message.command.ephemeral) await message.channel.ack(true);
       // @ts-ignore
       const handled = await this.client.commandHandler.handle(message);
       if (typeof handled == "boolean" && !handled)
@@ -41,9 +39,9 @@ export default class InteractionCreate extends Listener {
     } catch (error) {
       const guild = this.client.guilds.cache.get(command.guild_id);
       if (!guild)
-        hasAcked
-          ? await this.webhookError(command, error).catch(() => {})
-          : await this.callbackError(command, error).catch(() => {});
+        await this.callbackError(command, error).catch(
+          async () => await this.webhookError(command, error).catch(() => {})
+        );
       if (typeof this.client.sentry !== "undefined") {
         const sentry = this.client.sentry;
         sentry.setExtras({
