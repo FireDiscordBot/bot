@@ -6,9 +6,10 @@ import { Command } from "../../../lib/util/command";
 import { Util, MessageEmbed } from "discord.js";
 import { Argument } from "discord-akairo";
 
+const emojiRegex = /<a?:[a-zA-Z0-9\_]+:([0-9]+)>/gim
 const escape = (text: string) => {
   text = Util.escapeMarkdown(text).replace(
-    /<a?:[a-zA-Z0-9\_]+:([0-9]+)>/im,
+    emojiRegex,
     ""
   );
   return text.slice(0, 1024);

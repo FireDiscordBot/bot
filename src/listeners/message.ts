@@ -6,6 +6,9 @@ import Filters from "../modules/filters";
 import MCLogs from "../modules/mclogs";
 import Sk1er from "../modules/sk1er";
 import * as centra from "centra";
+
+const zwsRegex = /[\u200B-\u200D\uFEFF]/im;
+const symbolRegex = /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|:|\'|/im;
 export default class Message extends Listener {
   tokenRegex: RegExp;
 
@@ -123,9 +126,9 @@ export default class Message extends Listener {
 
   cleanContent(message: FireMessage) {
     return message.content
-      .replace(/[\u200B-\u200D\uFEFF]/gim, "")
-      .replace(/\(\.\)/gim, ".")
-      .replace(/dot/gim, ".")
-      .replace(/<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|:|\'|/gim, "");
+      .replace(zwsRegex, "")
+      .replace("(.)", ".")
+      .replace("dot", ".")
+      .replace(symbolRegex, "");
   }
 }

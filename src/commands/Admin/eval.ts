@@ -157,7 +157,7 @@ export default class Eval extends Command {
     let {
       code: { content },
     } = args;
-    content = content.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+    content = content.replace(/[“”]/gim, '"').replace(/[‘’]/gim, "'");
     let success: boolean, result: any;
     let type: Type;
     try {

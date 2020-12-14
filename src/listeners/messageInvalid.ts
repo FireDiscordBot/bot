@@ -26,13 +26,18 @@ export default class MessageInvalid extends Listener {
       this.botQuoteRegex.test(message.content) ||
       this.slashCommandRegex.test(message.content) ||
       !message.guild
-    )
+    ) {
+      this.botQuoteRegex.lastIndex = 0;
+      this.slashCommandRegex.lastIndex = 0;
       return;
+    }
     if (!message.guild.settings.get("utils.autoquote", false)) return;
 
     let matches = [];
     let messageLink: RegExpExecArray;
-    while ((messageLink = regexes.discord.messageGlobal.exec(message.content))) {
+    while (
+      (messageLink = regexes.discord.messageGlobal.exec(message.content))
+    ) {
       if (messageLink) matches.push(messageLink.groups);
     }
 

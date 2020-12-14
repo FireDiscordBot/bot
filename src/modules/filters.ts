@@ -23,7 +23,7 @@ export default class Filters extends Module {
     this.malware = [];
     this.shortURLRegex = new RegExp(
       `(?:${shortURLs.join("|").replace(/\./gim, "\\.")})\/[a-z0-9]+`,
-      "gim"
+      "im"
     );
     this.regexes = [
       ...regexes.invites,
@@ -128,9 +128,10 @@ export default class Filters extends Module {
           : this.shouldRun(null, context);
       if (!check) return text;
     }
-    this.regexes.forEach(
-      (regex) => (text = text.replace(regex, "[ filtered ]"))
-    );
+    this.regexes.forEach((regex) => {
+      while (regex.test(text)) text = text.replace(regex, "[ filtered ]");
+      regex.lastIndex = 0;
+    });
     return text;
   }
 
@@ -159,7 +160,10 @@ export default class Filters extends Module {
       " " +
       extra;
     let found: RegExpExecArray[] = [];
-    regexes.invites.forEach((regex) => found.push(regex.exec(searchString)));
+    let regexec;
+    regexes.invites.forEach((regex) => {
+      while ((regexec = regex.exec(searchString))) found.push(regexec);
+    });
     found = found.filter(
       (exec, pos) => exec?.length && found.indexOf(exec) == pos
     ); // remove non matches and duplicates
@@ -287,17 +291,23 @@ export default class Filters extends Module {
 
   getInviteMatchFromReq(req: centra.Response, exec?: RegExpExecArray) {
     let inviteMatch: RegExpExecArray;
+    let regexec;
     if (regexes.discord.invite.test(req.headers.location))
       inviteMatch = regexes.discord.invite.exec(req.headers.location);
     else if (regexes.discord.invite.test(req.body.toString()))
       inviteMatch = regexes.discord.invite.exec(req.body.toString());
     else if (
-      regexes.invites.some((regex) => regex.exec(req.body.toString())?.length)
+      regexes.invites.some((regex) => {
+        let exec;
+        exec = regex.exec(req.body.toString())?.length;
+        regex.lastIndex = 0;
+        return exec;
+      })
     ) {
       let found: RegExpExecArray[] = [];
-      regexes.invites.forEach((regex) =>
-        found.push(regex.exec(req.body.toString()))
-      );
+      regexes.invites.forEach((regex) => {
+        while ((regexec = regex.exec(req.body.toString()))) found.push(regexec);
+      });
       found = found.filter(
         (foundExec, pos) =>
           foundExec?.length &&

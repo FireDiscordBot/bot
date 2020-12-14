@@ -86,6 +86,7 @@ export default class MCLogs extends Module {
     let content = message.content;
 
     if (this.regexes.noRaw.test(content)) {
+      this.regexes.noRaw.lastIndex = 0;
       try {
         await message.delete({
           reason: "Unable to reupload log from source to hastebin",
@@ -100,6 +101,7 @@ export default class MCLogs extends Module {
     }
 
     const reupload = this.regexes.reupload.exec(content);
+    this.regexes.reupload.lastIndex = 0;
     if (reupload != null && reupload.length >= 3) {
       const domain = reupload[1];
       const key = reupload[2];
@@ -179,10 +181,13 @@ export default class MCLogs extends Module {
       if (!match.includes("sk1er.club"))
         text = text.replace(match, "[removed url]");
     });
+    this.regexes.url.lastIndex = 0;
 
     lines.forEach((line) => {
-      if (this.regexes.secrets.test(line))
+      if (this.regexes.secrets.test(line)) {
         text = text.replace(line, "[line removed to protect sensitive info]");
+        this.regexes.secrets.lastIndex = 0;
+      }
     });
 
     // TODO add filter run replace for log content
@@ -197,6 +202,7 @@ export default class MCLogs extends Module {
 
         let possibleSolutions = this.getSolutions(text);
         const user = this.regexes.settingUser.exec(text);
+        this.regexes.settingUser.lastIndex = 0;
         if (user?.length) {
           try {
             const uuid = await this.client.util.nameToUUID(user[1]);
