@@ -2,6 +2,8 @@ import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 
+const emojiRegex = /<a?:(?<name>[a-zA-Z0-9\_]+):(?<id>\d{15,21})>/im;
+
 export default class Steal extends Command {
   constructor() {
     super("steal", {
@@ -33,7 +35,6 @@ export default class Steal extends Command {
   async exec(message: FireMessage, args: { emoji: string; name?: string }) {
     let emoji = args.emoji;
     let name = args.name || "stolen_emoji";
-    const emojiRegex = /<a?:(?<name>[a-zA-Z0-9\_]+):(?<id>\d{15,21})>/im;
     if (!emoji) return await message.error("STEAL_NOTHING");
     if (/^(\d{15,21})$/im.test(emoji.toString()))
       emoji = `https://cdn.discordapp.com/emojis/${emoji}.png?v=1`;
