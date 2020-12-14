@@ -685,6 +685,10 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
         DELRANK_COMMAND_DESCRIPTION:
           "Remove a rank from the list of joinable roles.",
+        REMINDER_MESSAGE: (text: string, time: string, link?: string) =>
+          link
+            ? `You asked me ${time} ago to remind you about "${text}"\n${link}`
+            : `You asked me ${time} ago to remind you about "${text}"`,
         SKIN_COMMAND_DESCRIPTION: "See a player's Minecraft skin",
         SKIN_INVALID_IGN: "You must provide a valid IGN to get the skin of",
         SLOWMODE_COMMAND_DESCRIPTION:
