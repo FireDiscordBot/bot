@@ -1,10 +1,13 @@
-import { EventType } from "../../../lib/ws/util/constants";
+import { DeconstructedSnowflake, SnowflakeUtil } from "discord.js";
+import { constants, humanize } from "../../../lib/util/constants";
 import { Reminder } from "../../../lib/interfaces/reminders";
+import { EventType } from "../../../lib/ws/util/constants";
 import { FireUser } from "../../../lib/extensions/user";
-import { humanize } from "../../../lib/util/constants";
 import { Event } from "../../../lib/ws/event/Event";
 import { Manager } from "../../../lib/Manager";
 import * as moment from "moment";
+
+const { regexes } = constants;
 
 export default class ReminderSendEvent extends Event {
   sent: string[];
@@ -23,10 +26,13 @@ export default class ReminderSendEvent extends Event {
       `[Aether] Got request to send reminder to ${user} (${data.user})`
     );
     if (!user) return; // how?
-    const date = new Date(data.legacy ? data.timestamp * 1000 : data.timestamp);
+    const snowflake = regexes.discord.message.exec(data.link)?.groups
+      ?.message_id;
+    let deconstructed: DeconstructedSnowflake;
+    if (snowflake) deconstructed = SnowflakeUtil.deconstruct(snowflake);
 
     const now = moment();
-    const duration = moment(date).diff(now);
+    const duration = moment(deconstructed.date || now).diff(now);
 
     const message = await user
       .send(
@@ -34,13 +40,17 @@ export default class ReminderSendEvent extends Event {
           ? user.language.get(
               "REMINDER_MESSAGE",
               data.text,
-              humanize(duration, user.language.id.split("-")[0]),
+              duration != 0
+                ? humanize(duration, user.language.id.split("-")[0])
+                : "an unknown time ago",
               data.link
             )
           : user.language.get(
               "REMINDER_MESSAGE",
               data.text,
-              humanize(duration, user.language.id.split("-")[0])
+              duration != 0
+                ? humanize(duration, user.language.id.split("-")[0])
+                : "an unknown time ago"
             )
       )
       .catch(() => {});

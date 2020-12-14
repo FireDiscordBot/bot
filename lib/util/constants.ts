@@ -70,24 +70,41 @@ export const constants = {
   regexes: {
     discord: {
       invite: /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[a-zA-Z\d-]{1,25})/im,
-      message: /(?:ptb\.|canary\.)?discord(?:app)?\.com\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/gim,
+      message: /(?:ptb\.|canary\.)?discord(?:app)?\.com\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
+      messageGlobal: /(?:ptb\.|canary\.)?discord(?:app)?\.com\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/gim,
     },
     invites: [
       /(?<domain>(?:dsc|dis|discord|invite)\.(?:gd|gg|io|me))\/(?<code>[a-zA-Z\d-]+)/gim,
       /(?<domain>(?:discord(?:app)?|watchanimeattheoffice)\.com)\/invite\/(?<code>[a-zA-Z\d-]+)/gim,
       /(?<domain>(?:h\.|i\.)?inv\.wtf)\/(?<code>[a-zA-Z\d-]+)/gim,
     ],
-    paypal: /(?:paypal\.me|paypal\.com\/paypalme)\/(?<name>[\w-]+)/gim,
+    paypal: /(?:paypal\.me|paypal\.com\/paypalme)\/(?<name>[\w-]+)/im,
     youtube: {
-      channel: /youtube\.com\/(?:c\/|channel\/|user\/)?(?<channel>[^"\s]+)/gim,
-      video: /(youtu\.be\/|invidio\.us\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/)(?<video>[\w-]+)/gim,
+      channel: /youtube\.com\/(?:c\/|channel\/|user\/)?(?<channel>[^"\s]+)/im,
+      video: /(youtu\.be\/|invidio\.us\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/)(?<video>[\w-]+)/im,
     },
     twitch: {
-      clip: /clips\.twitch\.tv\/(?<clip>\w+)/gim,
-      channel: /twitch\.tv\/(?<channel>.+)/gim,
+      clip: /clips\.twitch\.tv\/(?<clip>\w+)/im,
+      channel: /twitch\.tv\/(?<channel>.+)/im,
     },
     twitter: /twitter\.com\/(?<username>\w+)(?:\/status\/(?<tweet>\d+)?|\/(?<path>likes|media|with_replies|followers|following|suggested))?/im,
-    imageURL: /((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.jpeg|\.gif|\.gifv|\.webp)))/gim,
+    imageURL: /((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.jpeg|\.gif|\.gifv|\.webp)))/im,
+    reminders: {
+      phrasing: [
+        /(?:me in |in )?(?:(?<months>\d+)(?:months|month|mo| months| month| mo))(?: about | that | to )?/im,
+        /(?:me in |in )?(?:(?<weeks>\d+)(?:wks|wk|weeks|week| wks| wk| weeks| week))(?: about | that | to )?/im,
+        /(?:me in |in )?(?:(?<days>\d+)(?:d|days|day| days| day))(?: about | that | to )?/im,
+        /(?:me in |in )?(?:(?<hours>\d+)(?:h|hours|hour| hours| hour))(?: about | that | to )?/im,
+        /(?:me in |in )?(?:(?<minutes>\d+)(?:minutes|minute|mins|min|m| minutes| minute| mins| min| m))(?: about | that | to )?/im,
+        /(?:me in |in )?(?:(?<seconds>\d+)(?:s|seconds|second| seconds| second))(?: about | that | to )?/im,
+      ],
+      month: /(?<months>\d+)(?:months|month|mo| months| month| mo)/im,
+      week: /(?<weeks>\d+)(?:wk|weeks|week| weeks| week)/im,
+      day: /(?<days>\d+)(?:days|day| days|d| day| d)/im,
+      hours: /(?<hours>\d+)(?:hours|hour|hrs|hr|h| hours| hour| hrs| hr| h)/im,
+      minutes: /(?<minutes>\d+)(?:minutes|minute|mins|min| minutes| minute| mins| min)/im,
+      seconds: /(?<seconds>\d+)(?:seconds|second|secs|sec|s| seconds| second| secs| sec| s)/im,
+    },
   },
   blockedGifts: [
     "690195254191849478",
@@ -176,6 +193,34 @@ export const humanize = (seconds: number, language: string) =>
     language: language,
     fallbacks: ["en"],
   });
+
+export const parseTime = (content: string, replace: boolean = false) => {
+  const {
+    regexes: { reminders },
+  } = constants;
+  if (replace) {
+    for (const phrase of reminders.phrasing)
+      content = content.replace(phrase, "");
+    return content.replace(/\s{2,}/gim, " ").trimStart();
+  }
+  content = content.trim();
+  const matches = {
+    months: reminders.month.exec(content)?.groups?.months,
+    weeks: reminders.week.exec(content)?.groups?.weeks,
+    days: reminders.day.exec(content)?.groups?.days,
+    hours: reminders.hours.exec(content)?.groups?.hours,
+    minutes: reminders.minutes.exec(content)?.groups?.minutes,
+    seconds: reminders.seconds.exec(content)?.groups?.seconds,
+  };
+  let minutes = parseInt(matches.minutes || "0");
+  if (matches.seconds) minutes += parseInt(matches.seconds || "0") / 60;
+  if (matches.hours) minutes += parseInt(matches.hours || "0") * 60;
+  if (matches.days) minutes += parseInt(matches.days || "0") * 1440;
+  if (matches.weeks) minutes += parseInt(matches.weeks || "0") * 10080;
+  if (matches.months) minutes += parseInt(matches.months || "0") * 43800;
+
+  return minutes;
+};
 
 export const shortURLs = [
   "0rz.tw",

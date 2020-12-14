@@ -689,6 +689,39 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           link
             ? `You asked me ${time} ago to remind you about "${text}"\n${link}`
             : `You asked me ${time} ago to remind you about "${text}"`,
+        REMIND_COMMAND_DESCRIPTION:
+          "Ask me to remind you something and I'll remind you, provided Discord isn't dying",
+        REMIND_ARG_DESCRIPTION:
+          'Your reminder, including the time in the format "X mins X days" etc.',
+        REMINDER_MISSING_ARG:
+          "I can't remind you about nothing, you need to provide the reminder text and duration",
+        REMINDER_MISSING_TIME:
+          'You need to include a duration for your reminder, e.g. "69 mins" for 69 minutes',
+        REMINDER_MISSING_CONTENT: "I need something to remind you about...",
+        REMINDER_TIME_LIMIT:
+          "Reminders are currently limited to 3 months (90 days). This may increase in the future",
+        REMINDER_TOO_SHORT:
+          "If you need a bot to remind you about something in less than two minutes, there's an issue that you should probably look into...",
+        REMINDER_CREATED: (duration: string) =>
+          `Got it! I'll remind you in ${duration}`,
+        REMINDERS_COMMAND_DESCRIPTION: "List all reminders you have set",
+        REMINDERS_NONE_FOUND:
+          "You must have a good memory because I found no reminders",
+        DELREMIND_COMMAND_DESCRIPTION:
+          "Delete a reminder using the index from the reminders command",
+        DELREMIND_ARG_DESCRIPTION:
+          "The reminder you want to delete. Use the [number] from the reminders command",
+        DELREMIND_MISSING_ARG: "You need to provide a reminder to delete",
+        DELREMIND_TOO_HIGH: "You don't have that many reminders",
+        DELREMIND_CONFIRM: (reminder: { date: Date; text: string }) =>
+          `Reminder for ${reminder.date.toLocaleString(this.id)}, ${
+            reminder.text
+          }\n\nAre you sure you want to delete this reminder? Say "yes" to delete.`,
+        DELREMIND_NO: "Ok, I won't delete it",
+        DELREMIND_TIME:
+          "You didn't respond quick enough. The reminder has not been deleted",
+        DELREMIND_YES:
+          "It is gone! Remember, when using this command again, the indexes will have changed so make sure you're using the right one",
         SKIN_COMMAND_DESCRIPTION: "See a player's Minecraft skin",
         SKIN_INVALID_IGN: "You must provide a valid IGN to get the skin of",
         SLOWMODE_COMMAND_DESCRIPTION:

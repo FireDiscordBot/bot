@@ -73,8 +73,6 @@ export default class Levelhead extends Command {
       ""
     );
     const footer = (levelhead.strlevel as string).replace(this.removeColor, "");
-    const level = levelhead.level;
-    const nocustom = header == "Level" ? true : false;
     const tab =
       purchase?.tab || false
         ? message.language.get("LEVELHEAD_PURCHASED")
