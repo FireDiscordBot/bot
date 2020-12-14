@@ -32,7 +32,7 @@ export default class ReminderSendEvent extends Event {
     if (snowflake) deconstructed = SnowflakeUtil.deconstruct(snowflake);
 
     const now = moment();
-    const duration = moment(deconstructed.date || now).diff(now);
+    const duration = moment(deconstructed?.date || now).diff(now);
 
     const message = await user
       .send(
