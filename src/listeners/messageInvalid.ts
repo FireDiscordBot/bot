@@ -32,8 +32,8 @@ export default class MessageInvalid extends Listener {
 
     let matches = [];
     let messageLink: RegExpExecArray;
-    while ((messageLink = regexes.discord.message.exec(message.content))) {
-      matches.push(messageLink.groups);
+    while ((messageLink = regexes.discord.messageGlobal.exec(message.content))) {
+      if (messageLink) matches.push(messageLink.groups);
     }
 
     const messageIds = matches.map((match) => match.message_id);
