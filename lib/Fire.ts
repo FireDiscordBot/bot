@@ -99,7 +99,7 @@ export class Fire extends AkairoClient {
       database: process.env.POSTGRES_DB,
     });
 
-    this.console.log("[DB] Attempting to connect...");
+    this.console.warn("[DB] Attempting to connect...");
 
     this.db
       .connect()
@@ -288,7 +288,7 @@ export class Fire extends AkairoClient {
 
   async login() {
     if (!this.options.shards) this.options.shards = [this.manager.id];
-    this.console.log(
+    this.console.warn(
       `[Discord] Attempting to login on cluster ${
         this.manager.id
       } with shards [${(this.options.shards as number[]).join(", ")}] (Total: ${
