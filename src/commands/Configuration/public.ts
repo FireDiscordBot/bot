@@ -7,7 +7,6 @@ export default class Public extends Command {
     super("public", {
       description: (language: Language) =>
         language.get("PUBLIC_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       userPermissions: ["MANAGE_GUILD"],
       enableSlashCommand: true,
       restrictTo: "guild",

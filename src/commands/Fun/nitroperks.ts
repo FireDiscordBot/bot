@@ -8,7 +8,6 @@ export default class NitroPerks extends Command {
     super("nitroperks", {
       description: (language: Language) =>
         language.get("NITROPERKS_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       args: [
         {
           id: "ign",

@@ -55,8 +55,14 @@ export class Command extends AkairoCommand {
   args?: ArgumentOptions[] | ArgumentGenerator;
 
   constructor(id: string, options?: CommandOptions) {
-    if (!options?.aliases) options.aliases = [id];
+    if (!options?.aliases?.length) options.aliases = [id];
     else options?.aliases?.push(id);
+    if (!options?.clientPermissions)
+      options.clientPermissions = [
+        "SEND_MESSAGES",
+        "USE_EXTERNAL_EMOJIS",
+        "ADD_REACTIONS",
+      ];
     if (options.args instanceof Array && options.args.length == 1)
       options.args[0].match = "rest";
     if (options.args instanceof Array)

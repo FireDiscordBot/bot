@@ -14,7 +14,6 @@ export default class Debug extends Command {
     super("debug", {
       description: (language: Language) =>
         language.get("DEBUG_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       args: [
         {
           id: "command",

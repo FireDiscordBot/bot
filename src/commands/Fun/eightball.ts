@@ -7,7 +7,6 @@ export default class Eightball extends Command {
     super("8ball", {
       description: (language: Language) =>
         language.get("EIGHTBALL_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       enableSlashCommand: true,
       ephemeral: true,
       args: [

@@ -8,7 +8,6 @@ export default class LanguageCommand extends Command {
     super("language", {
       description: (language: Language) =>
         language.get("LANGUAGE_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       args: [
         {
           id: "language",

@@ -10,7 +10,6 @@ export default class AdminOnly extends Command {
     super("adminonly", {
       description: (language: Language) =>
         language.get("ADMINONLY_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       userPermissions: ["ADMINISTRATOR"],
       args: [
         {

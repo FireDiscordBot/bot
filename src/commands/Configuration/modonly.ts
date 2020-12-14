@@ -10,7 +10,6 @@ export default class ModeratorOnly extends Command {
     super("modonly", {
       description: (language: Language) =>
         language.get("MODONLY_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       userPermissions: ["MANAGE_GUILD"],
       args: [
         {

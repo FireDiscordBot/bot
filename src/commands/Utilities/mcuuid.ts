@@ -7,7 +7,6 @@ export default class MinecraftUUID extends Command {
     super("mcuuid", {
       description: (language: Language) =>
         language.get("MCUUID_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       args: [
         {
           id: "ign",

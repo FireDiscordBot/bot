@@ -10,7 +10,6 @@ export default class Discover extends Command {
     super("suggest", {
       description: (language: Language) =>
         language.get("SUGGEST_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       enableSlashCommand: true,
       ephemeral: true,
       args: [

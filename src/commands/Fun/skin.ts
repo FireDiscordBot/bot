@@ -8,7 +8,6 @@ export default class Skin extends Command {
     super("skin", {
       description: (language: Language) =>
         language.get("SKIN_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       args: [
         {
           id: "ign",

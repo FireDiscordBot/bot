@@ -7,7 +7,6 @@ export default class Discover extends Command {
     super("discover", {
       description: (language: Language) =>
         language.get("DISCOVER_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       enableSlashCommand: true,
       restrictTo: "all",
       ephemeral: true,

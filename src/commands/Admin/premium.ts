@@ -11,7 +11,6 @@ export default class Premium extends Command {
     super("premium", {
       description: (language: Language) =>
         language.get("PREMIUM_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       restrictTo: "all",
       ownerOnly: true,
       args: [

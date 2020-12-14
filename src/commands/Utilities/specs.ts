@@ -19,7 +19,6 @@ export default class Specs extends Command {
     super("specs", {
       description: (language: Language) =>
         language.get("SPECS_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       restrictTo: "guild",
       args: [
         {

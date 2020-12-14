@@ -7,7 +7,6 @@ export default class AutoQuote extends Command {
     super("autoquote", {
       description: (language: Language) =>
         language.get("DISCOVER_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES"],
       userPermissions: ["MANAGE_MESSAGES"],
       enableSlashCommand: true,
       restrictTo: "all",
