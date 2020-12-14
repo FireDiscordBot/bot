@@ -2,6 +2,7 @@ import { FireMessage } from "../../lib/extensions/message";
 import * as solutions from "../../mc_solutions.json";
 import { Module } from "../../lib/util/module";
 import * as centra from "centra";
+import Filters from "./filters";
 import Sk1er from "./sk1er";
 
 export default class MCLogs extends Module {
@@ -190,7 +191,9 @@ export default class MCLogs extends Module {
       }
     });
 
-    // TODO add filter run replace for log content
+    const filters = this.client.getModule("filters") as Filters;
+    text = filters.runReplace(text, message);
+
     if (this.hasLogText(text)) {
       try {
         const haste = await this.client.util.haste(text);
