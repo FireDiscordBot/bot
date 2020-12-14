@@ -172,7 +172,7 @@ export const zws = "\u200b";
 export const humanize = (seconds: number, language: string) =>
   humanizeDuration(seconds, {
     largest: 2,
-    delimiter: " and ",
+    delimiter: " ",
     language: language,
     fallbacks: ["en"],
   });
