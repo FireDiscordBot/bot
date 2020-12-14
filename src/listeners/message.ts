@@ -18,7 +18,9 @@ export default class Message extends Listener {
   }
 
   async tokenGist(message: FireMessage, foundIn: string) {
-    const tokens = this.tokenRegex.exec(foundIn);
+    let tokens = [];
+    let exec;
+    while ((exec = this.tokenRegex.exec(foundIn))) if (exec) tokens.push(exec);
     let files: { [key: string]: { content: string } } = {};
     for (const token in tokens)
       files[`token_leak_${Date.now()}`] = {
