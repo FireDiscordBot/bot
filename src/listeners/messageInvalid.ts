@@ -2,9 +2,8 @@ import { messageConverter } from "../../lib/util/converters";
 import { FireMessage } from "../../lib/extensions/message";
 import { constants } from "../../lib/util/constants";
 import { Listener } from "../../lib/util/listener";
+import Remind from "../commands/Utilities/remind";
 import Quote from "../commands/Utilities/quote";
-import { match } from "assert";
-import { TextChannel } from "discord.js";
 
 const { regexes } = constants;
 
@@ -25,12 +24,35 @@ export default class MessageInvalid extends Listener {
     if (
       this.botQuoteRegex.test(message.content) ||
       this.slashCommandRegex.test(message.content) ||
-      !message.guild
+      !message.guild ||
+      message.editedAt
     ) {
       this.botQuoteRegex.lastIndex = 0;
       this.slashCommandRegex.lastIndex = 0;
       return;
     }
+
+    let inhibited = false;
+    const inhibitors = [...this.client.inhibitorHandler.modules.values()].sort(
+      // @ts-ignore (idk why it thinks priority doesn't exist)
+      (a, b) => b.priority - a.priority
+    );
+
+    if (message.content.includes("--remind")) {
+      const remindCommand = this.client.getCommand("remind") as Remind;
+      for (const inhibitor of inhibitors) {
+        if (inhibited) continue;
+        let exec = inhibitor.exec(message, remindCommand);
+        if (this.client.util.isPromise(exec)) exec = await exec;
+        if (exec) inhibited = true;
+      }
+      await remindCommand
+        .exec(message, {
+          reminder: message.content.replace("--remind", " "),
+        })
+        .catch(() => {});
+    }
+
     if (!message.guild.settings.get("utils.autoquote", false)) return;
 
     let matches = [];
@@ -48,11 +70,6 @@ export default class MessageInvalid extends Listener {
 
     const quoteCommand = this.client.getCommand("quote") as Quote;
 
-    let inhibited = false;
-    const inhibitors = [...this.client.inhibitorHandler.modules.values()].sort(
-      // @ts-ignore (idk why it thinks priority doesn't exist)
-      (a, b) => b.priority - a.priority
-    );
     for (const inhibitor of inhibitors) {
       if (inhibited) continue;
       let exec = inhibitor.exec(message, quoteCommand);
@@ -67,7 +84,7 @@ export default class MessageInvalid extends Listener {
           null,
           true,
           quote
-        );
+        ).catch(() => {});
         if (convertedMessage) {
           await quoteCommand
             .exec(message, { quote: convertedMessage })
