@@ -13,6 +13,9 @@ export enum EventType {
   SK1ER_SPECS = 11,
   RELOAD_EXPERIMENTS = 12,
   APPLY_EXPERIMENT = 13,
+  REMINDER_SEND = 14,
+  REMINDER_CREATE = 15,
+  REMINDER_DELETE = 16,
 }
 
 export enum WebsocketStates {
