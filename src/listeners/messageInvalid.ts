@@ -4,6 +4,7 @@ import { constants } from "../../lib/util/constants";
 import { Listener } from "../../lib/util/listener";
 import Quote from "../commands/Utilities/quote";
 import { match } from "assert";
+import { TextChannel } from "discord.js";
 
 const { regexes } = constants;
 
@@ -41,11 +42,19 @@ export default class MessageInvalid extends Listener {
     ); // remove dupes
 
     const quoteCommand = this.client.getCommand("quote") as Quote;
-    const inhibited = await this.client.inhibitorHandler.test(
-      "all",
-      message,
-      quoteCommand
+
+    let inhibited = false;
+    const inhibitors = [...this.client.inhibitorHandler.modules.values()].sort(
+      // @ts-ignore (idk why it thinks priority doesn't exist)
+      (a, b) => b.priority - a.priority
     );
+    for (const inhibitor of inhibitors) {
+      if (inhibited) continue;
+      let exec = inhibitor.exec(message, quoteCommand);
+      if (this.client.util.isPromise(exec)) exec = await exec;
+      if (exec) inhibited = true;
+    }
+
     if (!inhibited) {
       for (const quote of matches) {
         const convertedMessage = await messageConverter(
