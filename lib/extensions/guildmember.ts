@@ -169,6 +169,14 @@ export class FireMember extends GuildMember {
   isSuperuser() {
     return this.settings.get("utils.superuser", false);
   }
+
+  createReminder(when: Date, why: string, link: string) {
+    this.user.createReminder(when, why, link);
+  }
+
+  deleteReminder(timestamp: number) {
+    this.user.deleteReminder(timestamp);
+  }
 }
 
 Structures.extend("GuildMember", () => FireMember);

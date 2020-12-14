@@ -2,6 +2,9 @@ import { UserSettings } from "../util/settings";
 import { Structures, User } from "discord.js";
 import { Language } from "../util/language";
 import { Fire } from "../Fire";
+import { MessageUtil } from "../ws/util/MessageUtil";
+import { Message } from "../ws/Message";
+import { EventType } from "../ws/util/constants";
 
 export class FireUser extends User {
   client: Fire;
@@ -91,6 +94,52 @@ export class FireUser extends User {
 
   isSuperuser() {
     return this.settings.get("utils.superuser", false);
+  }
+
+  async createReminder(when: Date, why: string, link: string) {
+    if (!this.client.manager.ws) return false;
+    const timestamp = +when;
+    const reminder = await this.client.db
+      .query(
+        "INSERT INTO remind (uid, forwhen, reminder, link) VALUES ($1, $2, $3, $4);",
+        [this.id, timestamp, why, link]
+      )
+      .catch(() => {});
+    if (!reminder) return false;
+    this.client.manager?.ws.send(
+      MessageUtil.encode(
+        new Message(EventType.REMINDER_CREATE, {
+          user: this.id,
+          text: why,
+          link,
+          legacy: false,
+          timestamp,
+        })
+      )
+    );
+    return true;
+  }
+
+  async deleteReminder(timestamp: number) {
+    this.client.console.warn(
+      `[Reminders] Deleting reminder for user ${this} with timestamp ${timestamp}`
+    );
+    const deleted = await this.client.db
+      .query("DELETE FROM remind WHERE uid=$1 AND forwhen=$2;", [
+        this.id,
+        timestamp,
+      ])
+      .catch(() => false);
+    if (typeof deleted == "boolean" && !deleted) return false;
+    this.client.manager?.ws.send(
+      MessageUtil.encode(
+        new Message(EventType.REMINDER_DELETE, {
+          user: this.id,
+          timestamp,
+        })
+      )
+    );
+    return true;
   }
 }
 
