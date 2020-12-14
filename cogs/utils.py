@@ -146,10 +146,7 @@ class Utils(commands.Cog, name='Utility Commands'):
         self.bot.getperms = self.getperms
         self.bot.getguildperms = self.getguildperms
         self.tags = {}
-        self.reminders = {}
         self.bot.loop.create_task(self.loadtags())
-        self.bot.loop.create_task(self.loadremind())
-        self.remindcheck.start()
 
     def is_emoji(self, s):
         return s in UNICODE_EMOJI
@@ -189,119 +186,6 @@ class Utils(commands.Cog, name='Utility Commands'):
                 self.tags[guild] = {}
             self.tags[guild][tagname] = content
         self.bot.logger.info(f'$GREENLoaded tags!')
-
-    async def loadremind(self):
-        await self.bot.wait_until_ready()
-        self.bot.logger.info(f'$YELLOWLoading reminders...')
-        self.reminders = {}
-        query = 'SELECT * FROM remind;'
-        reminders = await self.bot.db.fetch(query)
-        for r in reminders:
-            user = int(r['uid'])
-            forwhen = r['forwhen']
-            reminder = r['reminder']
-            if user not in self.reminders:
-                self.reminders[user] = []
-            self.reminders[user].append({'for': forwhen, 'reminder': reminder})
-        self.bot.logger.info(f'$GREENLoaded reminders!')
-
-    async def deleteremind(self, uid: int, forwhen: str):
-        con = await self.bot.db.acquire()
-        async with con.transaction():
-            query = 'DELETE FROM remind WHERE uid = $1 AND forwhen = $2;'
-            await self.bot.db.execute(query, str(uid), forwhen)
-        await self.bot.db.release(con)
-        await self.loadremind()
-
-    def cog_unload(self):
-        self.remindcheck.cancel()
-
-    @tasks.loop(minutes=1)
-    async def remindcheck(self):
-        reminders = self.reminders.copy()
-        fornow = datetime.datetime.now(datetime.timezone.utc).timestamp()
-        try:
-            for u in reminders:
-                user = self.reminders[u]
-                for r in user:
-                    reminder = r['reminder']
-                    if float(r['for']) <= fornow:
-                        quotes = []
-                        # When the client switches to discord.com, this go bye bye ok
-                        reminder = reminder.replace(
-                            'discordapp.com', 'discord.com')
-                        if 'discord.com/channels/' in reminder:
-                            for i in reminder.split():
-                                word = i.lower()
-                                urlbranch = None
-                                if word.startswith('https://canary.discord.com/channels/'):
-                                    urlbranch = 'canary.'
-                                    word = word.strip(
-                                        'https://canary.discord.com/channels/')
-                                elif word.startswith('https://ptb.discord.com/channels/'):
-                                    urlbranch = 'ptb.'
-                                    word = word.strip(
-                                        'https://ptb.discord.com/channels/')
-                                elif word.startswith('https://discord.com/channels/'):
-                                    urlbranch = ''
-                                    word = word.strip(
-                                        'https://discord.com/channels/')
-                                else:
-                                    continue
-                                list_ids = word.split('/')
-                                if len(list_ids) == 3 and urlbranch is not None:
-                                    try:
-                                        message = await self.bot.http.get_message(list_ids[1], list_ids[2])
-                                        channel = self.bot.get_channel(
-                                            int(message["channel_id"]))
-                                        if isinstance(channel, discord.TextChannel):
-                                            m = channel.guild.get_member(u)
-                                            if not m:
-                                                pass
-                                            if m.permissions_in(channel).read_messages:
-                                                fullurl = f'https://{urlbranch}discord.com/channels/{list_ids[0]}/{list_ids[1]}/{list_ids[2]}'
-                                                reminder = reminder.replace(
-                                                    f'{fullurl}/', '').replace(fullurl, '').replace('<>', '')
-                                                quotes.append(f'"{message["content"]}" (<{fullurl}>)'.replace(
-                                                    f'{message["content"]}/', message["content"]))
-                                    except Exception as e:
-                                        if isinstance(e, discord.HTTPException):
-                                            pass
-                                        else:
-                                            self.bot.logger.warn(
-                                                f'$YELLOWSomething went wrong when trying to remind someone', exc_info=e)
-                                            # print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
-                        tosend = await self.bot.fetch_user(u) if not self.bot.get_user(u) else self.bot.get_user(u)
-                        await self.deleteremind(u, r['for'])
-                        try:
-                            if quotes:
-                                if len(quotes) == 1:
-                                    quotes = f'You also quoted {quotes[0]}'
-                                else:
-                                    quotes = 'You also quoted these messages...\n' + \
-                                        '\n'.join(quotes)
-                                await tosend.send(f'You wanted me to remind you about "{reminder}"\n\n{quotes}')
-                            else:
-                                await tosend.send(f'You wanted me to remind you about "{reminder}"')
-                        except discord.Forbidden:
-                            continue  # How sad, no reminder for you.
-                        except Exception as e:
-                            self.bot.logger.warn(
-                                f'$YELLOWTried to send reminder to {tosend} but an exception occured (and no, it wasn\'t forbidden)', exc_info=e)
-                            # print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
-        except Exception as e:
-            self.bot.logger.warn(
-                f'$YELLOWSomething went wrong in the reminder check', exc_info=e)
-            # print('\n'.join(traceback.format_exception(type(e), e, e.__traceback__)))
-
-    # @commands.Cog.listener()
-    # async def on_ready(self):
-    # 	await asyncio.sleep(5)
-    # 	await self.loadvanitys()
-    # 	await self.loadtags()
-    # 	await self.loaddescs()
-    # 	await self.loadremind()
-    # 	print('Utilities loaded!')
 
     @commands.command(name='plonk', description='Add someone to the blacklist', hidden=True)
     async def blacklist_add(self, ctx, user: UserWithFallback = None, reason: str = 'bad boi', permanent: bool = False):
@@ -427,76 +311,27 @@ class Utils(commands.Cog, name='Utility Commands'):
 
     @commands.command(aliases=['remind', 'reminder'], description='Sets a reminder for a time in the future')
     async def remindme(self, ctx, *, reminder: str):
-        if parse_time(reminder):
-            days, hours, minutes, seconds = parse_time(reminder)
-            reminder = parse_time(reminder, True)
-            if not reminder.replace(' ', '') or not reminder:
-                return await ctx.error('Invalid format. Please provide a reminder along with the time')
-        else:
-            return await ctx.error('Invalid format. Please use the format "DAYSd HOURSh MINUTESm SECONDSs" along with your reminder')
-        if not days and not hours and not minutes and not seconds:
-            return await ctx.error('Invalid format. Please provide a time')
-        if not days and not hours and not minutes and seconds < 120:
-            return await ctx.error('If you need a bot to remind you about something in less than two minutes you should *probably* be worried...')
-        try:
-            forwhen = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
-                days=days, seconds=seconds, minutes=minutes, hours=hours)
-        except OverflowError:
-            return await ctx.error(f'Somehow I don\'t think Discord is gonna be around for that long. Reminders are limited to 3 months anyways')
-        limit = datetime.datetime.now(
-            datetime.timezone.utc) + datetime.timedelta(days=90)
-        if forwhen > limit and not await self.bot.is_owner(ctx.author):
-            return await ctx.error('Reminders currently cannot be set for more than 3 months (90 days)')
-        if ctx.author.id not in self.reminders:
-            try:
-                await ctx.author.send('Hey, I\'m just checking to see if I can DM you as this is where I will send your reminder :)')
-            except discord.Forbidden:
-                return await ctx.error('I was unable to DM you.\nI send reminders in DMs so you must make sure "Allow direct messages from server members." is enabled in at least one mutual server')
-        reminder = reminder.strip()
-        con = await self.bot.db.acquire()
-        async with con.transaction():
-            query = 'INSERT INTO remind (\"uid\", \"forwhen\", \"reminder\") VALUES ($1, $2, $3);'
-            await self.bot.db.execute(query, str(ctx.author.id), str(forwhen.timestamp()), reminder)
-        await self.bot.db.release(con)
-        await self.loadremind()
-        return await ctx.success(f'Reminder set for {humanfriendly.format_timespan(datetime.timedelta(days=days, seconds=seconds, minutes=minutes, hours=hours))} from now')
+        return await ctx.error(
+            """This feature has been removed due to terrible code.
+You can invite Fire's in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
+Note: The separate bot is temporary and the rewrite will be ran on this bot when it is finished!"""
+        )
 
     @commands.command()
     async def reminders(self, ctx):
-        mine = sorted(self.reminders.get(
-            ctx.author.id, []), key=lambda r: float(r['for']))
-        if not mine:
-            return await ctx.error('You have no reminders.')
-        paginator = WrappedPaginator(prefix='', suffix='', max_size=1980)
-        for i, r in enumerate(mine):
-            forwhen = datetime.datetime.fromtimestamp(
-                float(r['for']), datetime.timezone.utc).strftime('%b %-d %Y @ %I:%M %p')
-            delta = humanfriendly.format_timespan(datetime.datetime.fromtimestamp(
-                float(r['for']), datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc), max_units=2)
-            paginator.add_line(
-                f'[{i + 1}] {r["reminder"]} - {forwhen} ({delta})')
-        interface = PaginatorEmbedInterface(
-            ctx.bot, paginator, owner=ctx.author)
-        return await interface.send_to(ctx)
+        return await ctx.error(
+            """This feature has been removed due to terrible code.
+You can invite Fire's in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
+Note: The separate bot is temporary and the rewrite will be ran on this bot when it is finished!"""
+        )
 
     @commands.command(aliases=['deleteremind', 'delreminder', 'deletereminder'])
     async def delremind(self, ctx, i: int = None):
-        mine = sorted(self.reminders.get(
-            ctx.author.id, []), key=lambda r: float(r['for']))
-        if not mine:
-            return await ctx.error('You have no reminders.')
-        if not i:
-            return await ctx.error(f'You must specify the reminder to delete. Use the [number] from `{ctx.prefix}reminders` to select a reminder')
-        i -= 1  # Arrays start at 0
-        if i >= len(mine):
-            return await ctx.error(f'You don\'t have that many reminders. Use the [number] from `{ctx.prefix}reminders` to select a reminder')
-        r = mine[i]
-        forwhen = datetime.datetime.fromtimestamp(
-            float(r['for']), datetime.timezone.utc).strftime('%b %-d %Y @ %I:%M %p')
-        delta = humanfriendly.format_timespan(datetime.datetime.fromtimestamp(
-            float(r['for']), datetime.timezone.utc) - datetime.datetime.now(datetime.timezone.utc), max_units=2)
-        await self.deleteremind(ctx.author.id, r['for'])
-        return await ctx.success(f'Your reminder, "{r["reminder"]}" for {forwhen} ({delta} from now), has been deleted!')
+        return await ctx.error(
+            """This feature has been removed due to terrible code.
+You can invite Fire's in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
+Note: The separate bot is temporary and the rewrite will be ran on this bot when it is finished!"""
+        )
 
     def get_fuzzy_tag(self, ctx, arg):
         taglist = self.tags[ctx.guild.id] if ctx.guild.id in self.tags else False

@@ -132,16 +132,6 @@ If you have any queries about this gist, feel free to email tokens@gaminggeek.de
             return
         if message.author.bot:
             return
-        if '--remind' in message.content and not self.bot.dev:
-            content = re.sub(r'\s?--remind\s?', '',
-                             message.content, 0, re.MULTILINE)
-            ctx = await self.bot.get_context(message)
-            alt_ctx = await copy_context_with(
-                ctx,
-                content=ctx.config.get('main.prefix') + f'remind {content}'
-            )
-            if alt_ctx.valid:
-                await alt_ctx.command.invoke(alt_ctx)
         if not await self.bot.has_ts_bot(message.guild):
             excluded = [int(e)
                         for e in config._data.get('excluded.filter', [])]

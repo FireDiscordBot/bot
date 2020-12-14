@@ -796,7 +796,7 @@ class Settings(commands.Cog):
     async def autodecancer(self, ctx):
         return await ctx.error(
             """This feature has been removed due to issues.
-You can invite the in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
+You can invite Fire's in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
 Note: The separate bot is temporary and the rewrite will be ran on this bot when it is finished!"""
         )
 
@@ -804,7 +804,7 @@ Note: The separate bot is temporary and the rewrite will be ran on this bot when
     async def autodehoist(self, ctx):
         return await ctx.error(
             """This feature has been removed due to issues.
-You can invite the in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
+You can invite Fire's in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
 Note: The separate bot is temporary and the rewrite will be ran on this bot when it is finished!"""
         )
 
@@ -812,7 +812,7 @@ Note: The separate bot is temporary and the rewrite will be ran on this bot when
     async def badname(self, ctx):
         return await ctx.error(
             """This feature has been removed due to issues.
-You can invite the in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
+You can invite Fire's in development rewrite bot which has this feature (and hopefully no issues) @ https://inv.wtf/tsbot
 Note: The separate bot is temporary and the rewrite will be ran on this bot when it is finished!"""
         )
 
