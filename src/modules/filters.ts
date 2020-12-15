@@ -79,10 +79,8 @@ export default class Filters extends Module {
     if ((message && message.author.bot) || (user && user.bot)) return false;
     if (!message?.guild && !member) return false;
     if (message?.member?.isModerator() || member?.isModerator()) return false;
-    const excluded: string[] = message?.guild.settings.get(
-      "excluded.filter",
-      []
-    ) || [];
+    const excluded: string[] =
+      message?.guild.settings.get("excluded.filter", []) || [];
     const roleIds = message
       ? message.member.roles.cache.map((role) => role.id)
       : member.roles.cache.map((role) => role.id);
@@ -165,7 +163,10 @@ export default class Filters extends Module {
       while ((regexec = regex.exec(searchString))) found.push(regexec);
     });
     found = found.filter(
-      (exec, pos) => exec?.length && found.indexOf(exec) == pos
+      (exec, pos) =>
+        exec?.length &&
+        found.indexOf(exec) == pos &&
+        !found.find((regexec) => regexec[0] == exec[0])
     ); // remove non matches and duplicates
     for (const exec of found) {
       let invite: Invite;
