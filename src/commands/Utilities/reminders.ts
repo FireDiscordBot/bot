@@ -34,7 +34,7 @@ export default class Reminders extends Command {
       const legacy = (reminder.get("legacy") as boolean) || false;
       const forwhen = new Date(
         legacy
-          ? parseFloat(reminder.get("forwhen") as string)
+          ? parseFloat(reminder.get("forwhen") as string) * 1000
           : parseInt(reminder.get("forwhen") as string)
       );
       const delta = humanize(
