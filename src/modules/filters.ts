@@ -79,10 +79,10 @@ export default class Filters extends Module {
     if ((message && message.author.bot) || (user && user.bot)) return false;
     if (!message?.guild && !member) return false;
     if (message?.member?.isModerator() || member?.isModerator()) return false;
-    const excluded: string[] = message.guild.settings.get(
+    const excluded: string[] = message?.guild.settings.get(
       "excluded.filter",
       []
-    );
+    ) || [];
     const roleIds = message
       ? message.member.roles.cache.map((role) => role.id)
       : member.roles.cache.map((role) => role.id);
