@@ -187,7 +187,7 @@ export default class GuildCommand extends Command {
     embed
       .addField(
         message.language.get("GUILD_ROLES") +
-          `[${message.guild.roles.cache.array().length}]`,
+          ` [${message.guild.roles.cache.array().length}]`,
         this.shorten(roles, 1000, " - ")
       )
       .setFooter(message.guild.id)
