@@ -16,6 +16,7 @@ export enum EventType {
   REMINDER_SEND = 14,
   REMINDER_CREATE = 15,
   REMINDER_DELETE = 16,
+  CROSS_CLUSTER_QUOTE = 17,
 }
 
 export enum WebsocketStates {

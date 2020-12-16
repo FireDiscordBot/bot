@@ -1,5 +1,6 @@
 import {
   MessageReaction,
+  WebhookClient,
   MessageEmbed,
   TextChannel,
   NewsChannel,
@@ -8,6 +9,7 @@ import {
   Webhook,
   Message,
 } from "discord.js";
+import { PartialQuoteDestination } from "../interfaces/messages";
 import { PaginatorInterface } from "../util/paginators";
 import { CommandUtil } from "../util/commandutil";
 import Filters from "../../src/modules/filters";
@@ -99,11 +101,15 @@ export class FireMessage extends Message {
       : this.channel.send(`${emojis.error} ${this.language.get(key, ...args)}`);
   }
 
-  async quote(destination: TextChannel, quoter: FireMember) {
+  async quote(
+    destination: TextChannel | PartialQuoteDestination,
+    quoter: FireMember,
+    webhook?: WebhookClient
+  ) {
     if (this.channel.type == "dm") return "dm";
     const channel = this.channel as TextChannel;
     if (this.author.system && !quoter.isSuperuser()) return "system";
-    if (channel.nsfw && !destination.nsfw) return "nsfw";
+    if (channel.nsfw && !destination?.nsfw) return "nsfw";
     let member: FireMember;
     if (
       !this.guild.features.includes("DISCOVERABLE") ||
@@ -126,15 +132,22 @@ export class FireMessage extends Message {
       true
     );
     return useWebhooks
-      ? await this.webhookQuote(destination, quoter)
+      ? await this.webhookQuote(destination, quoter, webhook)
       : await this.embedQuote(destination, quoter);
   }
 
-  private async webhookQuote(destination: TextChannel, quoter: FireMember) {
-    const hooks = await destination.fetchWebhooks().catch(() => {});
-    let hook: Webhook;
-    if (hooks) hook = hooks.filter((hook) => !!hook.token).first();
-    if (!hook) {
+  private async webhookQuote(
+    destination: TextChannel | PartialQuoteDestination,
+    quoter: FireMember,
+    webhook?: WebhookClient
+  ) {
+    const hooks =
+      destination instanceof TextChannel
+        ? await destination.fetchWebhooks().catch(() => {})
+        : null;
+    let hook: Webhook | WebhookClient = webhook;
+    if (hooks && !hook) hook = hooks?.filter((hook) => !!hook.token)?.first();
+    if (!hook && destination instanceof TextChannel) {
       hook = await destination
         .createWebhook(`Fire Quotes #${destination.name}`, {
           avatar: this.client.user.displayAvatarURL({
@@ -148,6 +161,9 @@ export class FireMessage extends Message {
         .catch(() => null);
       if (!hook) return await this.embedQuote(destination, quoter);
     }
+    // if hook doesn't exist by now, something went wrong
+    // and it's best to just ignore it
+    if (!hook) return;
     let content: string = null;
     if (this.content) {
       content = this.content.replace("[", "\\[").replace("]", "\\]");
@@ -167,7 +183,14 @@ export class FireMessage extends Message {
       });
   }
 
-  private async embedQuote(destination: TextChannel, quoter: FireMember) {
+  private async embedQuote(
+    destination: TextChannel | PartialQuoteDestination,
+    quoter: FireMember
+  ) {
+    // PartialQuoteDestination needs to be set for type here
+    // since this#quote can take either but it should never
+    // actually end up at this point
+    if (!(destination instanceof TextChannel)) return;
     const { language } = destination.guild as FireGuild;
     if (!this.content && this.author.bot && this.embeds?.length == 1) {
       return await destination.send(
