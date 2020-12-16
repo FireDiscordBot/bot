@@ -23,7 +23,7 @@ export default class Eightball extends Command {
   }
 
   async exec(message: FireMessage, args: { question?: string }) {
-    if (!args.question.trim().endsWith("?"))
+    if (!args.question?.trim().endsWith("?"))
       return await message.send("EIGHTBALL_NO_QUESTION");
     await message.send("EIGHTBALL_ANSWER");
   }
