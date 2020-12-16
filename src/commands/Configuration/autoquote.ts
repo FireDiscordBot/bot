@@ -6,7 +6,7 @@ export default class AutoQuote extends Command {
   constructor() {
     super("autoquote", {
       description: (language: Language) =>
-        language.get("DISCOVER_COMMAND_DESCRIPTION"),
+        language.get("AUTOQUOTE_COMMAND_DESCRIPTION"),
       userPermissions: ["MANAGE_MESSAGES"],
       enableSlashCommand: true,
       restrictTo: "all",
