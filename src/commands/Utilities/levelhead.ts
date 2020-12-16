@@ -103,10 +103,7 @@ export default class Levelhead extends Command {
         language.get("LEVELHEAD_PROPOSED"),
         `${nheader}:${nfooter}`
       );
-      embed.addField(
-        language.get("LEVELHEAD_DENIED"),
-        titleCase(proposal.denied as string)
-      );
+      embed.addField(language.get("LEVELHEAD_DENIED"), proposal.denied);
     }
     embed.addField(
       language.get("LEVELHEAD_OTHER"),
