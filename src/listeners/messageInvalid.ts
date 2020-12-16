@@ -93,10 +93,10 @@ export default class MessageInvalid extends Listener {
       for (const quote of matches) {
         if (!shards.includes(this.client.util.getShard(quote.guild_id))) {
           if (!this.client.manager.ws) return;
-          const webhookURL = this.getQuoteWebhookURL(
+          const webhookURL = await this.getQuoteWebhookURL(
             message.channel as TextChannel
           );
-          if (!webhookURL) return;
+          if (!webhookURL || typeof webhookURL != "string") return;
           this.client.manager.ws.send(
             MessageUtil.encode(
               new Message(EventType.CROSS_CLUSTER_QUOTE, {
