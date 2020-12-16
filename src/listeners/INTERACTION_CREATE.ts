@@ -31,16 +31,8 @@ export default class InteractionCreate extends Listener {
           this.client.config.inviteLink
         );
       await message.generateContent();
-      if (!message.command.ephemeral) await message.channel.ack(true);
       // @ts-ignore
-      const handled = await this.client.commandHandler.handle(message);
-      if (
-        typeof handled == "boolean" &&
-        !handled &&
-        // Prevent sending failure if another message has been sent
-        message.latestResponse == "@original"
-      )
-        return await message.error("SLASH_COMMAND_HANDLE_FAIL");
+      await this.client.commandHandler.handle(message);
     } catch (error) {
       const guild = this.client.guilds.cache.get(command.guild_id);
       if (!guild)
