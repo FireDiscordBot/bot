@@ -118,7 +118,7 @@ export class FireMessage extends Message {
           .get(this.guild.roles.everyone.id)
           .deny.has("VIEW_CHANNEL"))
     ) {
-      if (this.guild.id != destination.guild.id) {
+      if (this.guild.id != destination?.guild.id) {
         member = (await this.guild.members
           .fetch({ user: quoter, cache: false })
           .catch(() => {})) as FireMember;

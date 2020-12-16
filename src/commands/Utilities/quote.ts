@@ -44,7 +44,9 @@ export default class Quote extends Command {
       regexes.discord.webhook.lastIndex = 0;
       if (!match?.groups.id || !match?.groups.token) return;
       webhook = new WebhookClient(match.groups.id, match.groups.token);
-      return await args.quote.quote(null, args.quoter, webhook).catch(() => {});
+      return await args.quote
+        .quote(args.destination, args.quoter, webhook)
+        .catch(() => {});
     } else if (!message) return;
     return await args.quote
       .quote(
