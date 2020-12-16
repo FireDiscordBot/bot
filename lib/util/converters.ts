@@ -14,7 +14,7 @@ import { FireUser } from "../extensions/user";
 import { constants } from "./constants";
 
 const { regexes } = constants;
-const idOnlyRegex = /(1|\d{15,21})$/im;
+const idOnlyRegex = /^(1|\d{15,21})$/im;
 const idRegex = /(1|\d{15,21})/im;
 const userMentionRegex = /<@!?(1|\d{15,21})>$/im;
 const messageIDRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
@@ -95,19 +95,25 @@ export const memberConverter = async (
       query: argument,
       limit: 1,
     };
-    // if (argument.includes("#")) {
-    //   const [name] = argument.split("#");
-    //   options.query = name;
-    // }
-    const member = await guild.members.fetch(options).catch(() => {});
+    let member;
+    if (argument.includes("#")) {
+      const [name] = argument.split("#");
+      options.query = name;
+      delete options.limit;
+      const members = await guild.members.fetch(options).catch(() => {});
+      member = members
+        ? members.find((member: FireMember) => member.toString() == argument)
+        : null;
+    } else member = await guild.members.fetch(options).catch(() => {});
+
     if (member && member.size) {
       return member.first() as FireMember;
-    }
+    } else if (member) return member as FireMember;
 
     if (!silent) await message.error("MEMBER_NOT_FOUND");
     return null;
   } else {
-    const member = guild.members.cache.get(userID);
+    const member = await guild.members.fetch(userID);
     if (member) {
       return member as FireMember;
     }
