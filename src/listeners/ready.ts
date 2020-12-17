@@ -76,10 +76,6 @@ export default class Ready extends Listener {
               existing.options.find((option) => option.name == b.name)
             )
         );
-        this.client.console.debug(
-          command.id,
-          JSON.stringify(slashCommandJSON) == JSON.stringify(existing)
-        );
         // this isn't perfect and sometimes returns false even
         // though they're the same due to placement of keys
         // but it minimises requests needed
