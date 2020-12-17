@@ -7,7 +7,8 @@ export default class TagAlias extends Command {
     super("tag-alias", {
       description: (language: Language) =>
         language.get("TAG_ALIAS_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+        clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+        userPermissions: ["MANAGE_MESSAGES"],
       args: [
         {
           id: "tag",

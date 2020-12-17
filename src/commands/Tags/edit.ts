@@ -8,6 +8,7 @@ export default class TagEdit extends Command {
       description: (language: Language) =>
         language.get("TAG_EDIT_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      userPermissions: ["MANAGE_MESSAGES"],
       args: [
         {
           id: "tag",

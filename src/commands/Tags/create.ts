@@ -8,6 +8,7 @@ export default class TagCreate extends Command {
       description: (language: Language) =>
         language.get("TAG_CREATE_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      userPermissions: ["MANAGE_MESSAGES"],
       args: [
         {
           id: "tag",
