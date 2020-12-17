@@ -5,7 +5,10 @@ import {
   CommandOptions as AkairoCommandOptions,
   Flag,
 } from "discord-akairo";
-import { ApplicationCommandOptionType } from "../interfaces/slashCommands";
+import {
+  ApplicationCommandOptionType,
+  Option,
+} from "../interfaces/slashCommands";
 import { titleCase } from "./constants";
 import { Language } from "./language";
 import { Fire } from "../Fire";
@@ -124,9 +127,13 @@ export class Command extends AkairoCommand {
       : [];
   }
 
-  getSlashCommandJSON() {
+  getSlashCommandJSON(): {
+    name: string;
+    description: string;
+    options?: Option[];
+  } {
     let data = {
-      name: titleCase(this.id),
+      name: this.id,
       description:
         typeof this.description == "function"
           ? this.description(this.client.getLanguage("en-US"))
@@ -155,6 +162,12 @@ export class Command extends AkairoCommand {
 
   getSlashCommandOption(argument: ArgumentOptions) {
     let options = {
+      type:
+        ApplicationCommandOptionType[
+          Object.keys(slashCommandTypeMappings).find((type) =>
+            slashCommandTypeMappings[type].includes(argument.type)
+          ) || "STRING"
+        ],
       name: argument.slashCommandType
         ? argument.slashCommandType
         : argument.readableType.split("|")[0],
@@ -162,12 +175,6 @@ export class Command extends AkairoCommand {
         typeof argument.description == "function"
           ? argument.description(this.client.getLanguage("en-US"))
           : argument.description || "No Description Provided",
-      type:
-        ApplicationCommandOptionType[
-          Object.keys(slashCommandTypeMappings).find((type) =>
-            slashCommandTypeMappings[type].includes(argument.type)
-          ) || "STRING"
-        ],
       required: argument.required,
     };
     if (

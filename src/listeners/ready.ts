@@ -1,5 +1,6 @@
 import { getAllCommands, getCommands } from "../../lib/util/commandutil";
 import { MessageUtil } from "../../lib/ws/util/MessageUtil";
+import { Option } from "../../lib/interfaces/slashCommands";
 import { EventType } from "../../lib/ws/util/constants";
 import { Listener } from "../../lib/util/listener";
 import { Message } from "../../lib/ws/Message";
@@ -45,21 +46,48 @@ export default class Ready extends Listener {
     ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
     // or "0" which may be used for something later
 
-    for (const cmd of this.client.commandHandler.modules.values()) {
-      const command = cmd as Command;
-      if (command.enableSlashCommand) await command.registerSlashCommand();
-    }
-
     const slashCommands: {
       id: string;
       application_id: string;
       name: string;
       description: string;
+      options?: Option[];
       // @ts-ignore
     }[] = await this.client.api
       // @ts-ignore
       .applications(this.client.user.id)
       .commands.get();
+
+    for (const cmd of this.client.commandHandler.modules.values()) {
+      const command = cmd as Command;
+      if (slashCommands.find((slashCommand) => slashCommand.name == cmd.id)) {
+        let existing = slashCommands.find(
+          (slashCommand) => slashCommand.name == cmd.id
+        );
+        delete existing.id;
+        delete existing.application_id;
+        const slashCommandJSON = command.getSlashCommandJSON();
+        slashCommandJSON.options?.sort(
+          (a, b) =>
+            existing.options.indexOf(
+              existing.options.find((option) => option.name == a.name)
+            ) -
+            existing.options.indexOf(
+              existing.options.find((option) => option.name == b.name)
+            )
+        );
+        this.client.console.debug(
+          command.id,
+          JSON.stringify(slashCommandJSON) == JSON.stringify(existing)
+        );
+        // this isn't perfect and sometimes returns false even
+        // though they're the same due to placement of keys
+        // but it minimises requests needed
+        if (JSON.stringify(slashCommandJSON) == JSON.stringify(existing))
+          continue;
+      }
+      if (command.enableSlashCommand) await command.registerSlashCommand();
+    }
 
     for (const slashCommand of slashCommands) {
       if (!this.client.getCommand(slashCommand.name)) {
