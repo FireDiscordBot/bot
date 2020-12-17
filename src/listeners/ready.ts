@@ -29,9 +29,7 @@ export default class Ready extends Listener {
           })
         )
       );
-    } catch (e) {
-      this.client.console.error(e.stack);
-    }
+    } catch {}
     this.client.ws.shards.forEach((shard) =>
       this.client.user?.setPresence({
         activity: {
