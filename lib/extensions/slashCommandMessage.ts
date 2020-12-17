@@ -169,7 +169,7 @@ export class SlashCommandMessage {
     ...args: any[]
   ): Promise<SlashCommandMessage | MessageReaction | void> {
     if (!key) {
-      const message = this.realChannel.messages.cache.find(
+      const message = this.realChannel?.messages.cache.find(
         (message) =>
           typeof message.type == "undefined" &&
           message.system &&
@@ -195,7 +195,7 @@ export class SlashCommandMessage {
     ...args: any[]
   ): Promise<SlashCommandMessage | MessageReaction | void> {
     if (!key) {
-      const message = this.realChannel.messages.cache.find(
+      const message = this.realChannel?.messages.cache.find(
         (message) =>
           typeof message.type == "undefined" &&
           message.system &&
