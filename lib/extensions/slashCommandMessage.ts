@@ -270,6 +270,10 @@ export class FakeChannel {
     this.messages = real?.messages;
   }
 
+  toString() {
+    return this.real?.toString();
+  }
+
   permissionsFor(memberOrRole: GuildMemberResolvable | RoleResolvable) {
     return this.real.permissionsFor(memberOrRole);
   }
