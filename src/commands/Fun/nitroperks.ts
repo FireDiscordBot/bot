@@ -18,6 +18,8 @@ export default class NitroPerks extends Command {
         },
       ],
       guilds: ["411619823445999637"],
+      enableSlashCommand: true,
+      ephemeral: true,
       hidden: true,
     });
   }
