@@ -30,6 +30,7 @@ export default class InteractionCreate extends Listener {
           "SLASH_COMMAND_BOT_REQUIRED",
           this.client.config.inviteLink
         );
+      await message.channel.ack();
       await message.generateContent();
       // @ts-ignore
       await this.client.commandHandler.handle(message);
