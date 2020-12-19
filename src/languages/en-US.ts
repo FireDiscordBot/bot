@@ -233,6 +233,12 @@ export default class enUS extends Language {
           `I have set the "bad name" to \"${name}\". This will **not** rename existing users`,
         BADNAME_RESET: `I have reset the "bad name" to John Doe 0000 (with 0000 being their discriminator).
 This will **not** rename existing users`,
+        COMMAND_COMMAND_DESCRIPTION: "Enable/disable a command in your server",
+        COMMAND_DISABLE_FORBIDDEN: "You cannot disable this command!",
+        COMMAND_ENABLE: (command: string) => `Successfully enabled ${command}!`,
+        COMMAND_DISABLE: (command: string) =>
+          `Successfully disabled ${command}, only moderators can use it now.`,
+        COMMAND_NO_ARG: "You need to provide a command to toggle",
         DEBUG_COMMAND_DESCRIPTION:
           "Command not working? Use this command to try debug the issue",
         DEBUG_NO_COMMAND: "You must provide a valid command to debug",
