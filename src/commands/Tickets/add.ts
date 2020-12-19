@@ -19,10 +19,8 @@ export default class TicketAdd extends Command {
           required: true,
         },
       ],
-      enableSlashCommand: true,
-      restrictTo: "guild",
       aliases: ["ticketadd"],
-      ephemeral: true,
+      restrictTo: "guild",
     });
   }
 
