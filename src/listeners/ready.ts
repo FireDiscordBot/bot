@@ -84,9 +84,12 @@ export default class Ready extends Listener {
     }
 
     for (const slashCommand of slashCommands) {
-      if (!this.client.getCommand(slashCommand.name)) {
+      if (
+        !this.client.getCommand(slashCommand.name) ||
+        !this.client.getCommand(slashCommand.name).enableSlashCommand
+      ) {
         this.client.console.warn(
-          `[Commands] Deleting slash command /${slashCommand.name} due to command not being found`
+          `[Commands] Deleting slash command /${slashCommand.name} due to command not being found or slash command disabled`
         );
         // @ts-ignore
         await this.client.api
