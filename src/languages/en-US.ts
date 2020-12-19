@@ -628,6 +628,13 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         PLONK_COMMAND_DESCRIPTION:
           "make a user unable to use the best discord bot",
         PLONK_USER_REQUIRED: "You must provide a user to plonk",
+        PREFIX_COMMAND_DESCRIPTION:
+          "Set the prefix used to trigger Fire's command",
+        PREFIX_MISSING_ARG: "You must provide a new prefix",
+        PREFIX_GLOBAL: `"fire " is a global prefix and can be used anywhere. There's no need to set it as a server prefix`,
+        PREFIX_ALREADY_SET: "That's already set as this server's prefix",
+        PREFIX_SET: (old: string, newp: string) =>
+          `This server's prefix has been set from "${old}" to "${newp}"`,
         PURGE_COMMAND_DESCRIPTION:
           "Bulk delete messages with optional flags to selectively delete messages based on certain factors",
         PURGE_AMOUNT_INVALID: "Invalid amount. Minumum is 2, Maximum is 100",
