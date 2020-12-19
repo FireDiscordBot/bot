@@ -59,9 +59,9 @@ export default class Ready extends Listener {
     for (const cmd of this.client.commandHandler.modules.values()) {
       const command = cmd as Command;
       if (slashCommands.find((slashCommand) => slashCommand.name == cmd.id)) {
-        let existing = slashCommands.find(
-          (slashCommand) => slashCommand.name == cmd.id
-        );
+        let existing = {
+          ...slashCommands.find((slashCommand) => slashCommand.name == cmd.id),
+        }; // Creates a copy so the lines below don't delete it in slashCommands
         delete existing.id;
         delete existing.application_id;
         const slashCommandJSON = command.getSlashCommandJSON();
