@@ -14,7 +14,6 @@ import { PaginatorInterface } from "../util/paginators";
 import { CommandUtil } from "../util/commandutil";
 import Filters from "../../src/modules/filters";
 import { constants } from "../util/constants";
-import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
@@ -24,7 +23,6 @@ const { emojis, reactions, regexes, imageExts } = constants;
 
 export class FireMessage extends Message {
   client: Fire;
-  language: Language;
   guild: FireGuild;
   member: FireMember | null;
   author: FireUser;
@@ -37,11 +35,14 @@ export class FireMessage extends Message {
     channel: DMChannel | TextChannel | NewsChannel
   ) {
     super(client, data, channel);
-    this.language = this.author?.settings.get("utils.language")
+  }
+
+  get language() {
+    return this.author?.settings.get("utils.language")
       ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
         ? this.guild?.language
         : this.author.language
-      : this.guild?.language || client.getLanguage("en-US");
+      : this.guild?.language || this.client.getLanguage("en-US");
   }
 
   send(key: string = "", ...args: any[]) {

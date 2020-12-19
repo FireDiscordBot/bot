@@ -1,8 +1,6 @@
 import { Structures, GuildMember, Channel } from "discord.js";
 import { FakeChannel } from "./slashCommandMessage";
-import { UserSettings } from "../util/settings";
 import * as sanitizer from "@aero/sanitizer";
-import { Language } from "../util/language";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
@@ -11,13 +9,17 @@ export class FireMember extends GuildMember {
   client: Fire;
   guild: FireGuild;
   user: FireUser;
-  settings: UserSettings;
-  language: Language;
 
   constructor(client: Fire, data: object, guild: FireGuild) {
     super(client, data, guild);
-    this.settings = this.user.settings;
-    this.language = this.user.language;
+  }
+
+  get language() {
+    return this.user.language;
+  }
+
+  get settings() {
+    return this.user.settings;
   }
 
   toString() {

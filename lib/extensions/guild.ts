@@ -12,7 +12,6 @@ import Tickets from "../../src/commands/Tickets/tickets";
 import { FakeChannel } from "./slashCommandMessage";
 import { GuildSettings } from "../util/settings";
 import { getIDMatch } from "../util/converters";
-import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
 import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
@@ -22,16 +21,18 @@ export class FireGuild extends Guild {
   client: Fire;
   owner: FireMember;
   settings: GuildSettings;
-  language: Language;
   tags: GuildTagManager;
 
   constructor(client: Fire, data: object) {
     super(client, data);
     this.settings = new GuildSettings(client, this);
-    this.language = client.getLanguage(
+    this.tags = new GuildTagManager(client, this);
+  }
+
+  get language() {
+    return this.client.getLanguage(
       this.settings.get("utils.language", "en-US")
     );
-    this.tags = new GuildTagManager(client, this);
   }
 
   isPublic() {

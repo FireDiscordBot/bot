@@ -31,15 +31,11 @@ export default class LanguageCommand extends Command {
       args.language.id == "en-US"
         ? message.guild.settings.delete("utils.language") // en-US is default so we can delete the setting instead
         : message.guild.settings.set("utils.language", args.language.id);
-      message.guild.language = args.language;
-      message.language = args.language;
       return await message.success("LANGUAGE_COMMAND_HELLO", "guild");
     } else {
       args.language.id == "en-US"
         ? message.author.settings.delete("utils.language")
         : message.author.settings.set("utils.language", args.language.id);
-      message.author.language = args.language;
-      message.language = args.language;
       if (message instanceof SlashCommandMessage) message.setFlags(64);
       return await message.success("LANGUAGE_COMMAND_HELLO", "user");
     }

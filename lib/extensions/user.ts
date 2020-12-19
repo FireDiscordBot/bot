@@ -1,20 +1,21 @@
+import { MessageUtil } from "../ws/util/MessageUtil";
+import { EventType } from "../ws/util/constants";
 import { UserSettings } from "../util/settings";
 import { Structures, User } from "discord.js";
-import { Language } from "../util/language";
-import { Fire } from "../Fire";
-import { MessageUtil } from "../ws/util/MessageUtil";
 import { Message } from "../ws/Message";
-import { EventType } from "../ws/util/constants";
+import { Fire } from "../Fire";
 
 export class FireUser extends User {
   client: Fire;
   settings: UserSettings;
-  language: Language;
 
   constructor(client: Fire, data: object) {
     super(client, data);
     this.settings = new UserSettings(this.client, this);
-    this.language = client.getLanguage(
+  }
+
+  get language() {
+    return this.client.getLanguage(
       this.settings.get("utils.language", "en-US")
     );
   }

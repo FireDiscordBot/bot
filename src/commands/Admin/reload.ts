@@ -79,9 +79,6 @@ export default class Reload extends Command {
             this.client.listenerHandler,
             this.client.modules,
           ].forEach((handler) => handler.reloadAll());
-          this.client.guilds.cache.forEach((g: FireGuild) =>
-            this.updateGuildLanguage(g)
-          );
           return await message.success();
         }
       } catch {
@@ -116,21 +113,10 @@ export default class Reload extends Command {
         return await message.react("🔁");
       } else {
         args.module.reload();
-        if (args.module instanceof Language) {
-          this.client.guilds.cache
-            .filter(
-              (g: FireGuild) => g.language.id == (args.module as Language).id
-            )
-            .forEach((g: FireGuild) => this.updateGuildLanguage(g));
-        }
         return await message.success();
       }
     } catch {
       return await message.error();
     }
-  }
-
-  updateGuildLanguage(guild: FireGuild) {
-    guild.language = this.client.getLanguage(guild.language.id);
   }
 }
