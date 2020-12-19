@@ -2,6 +2,7 @@ import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { MessageEmbed, Role } from "discord.js";
+import { SlashCommandMessage } from "../../../lib/extensions/slashCommandMessage";
 
 export default class Rank extends Command {
   constructor() {
@@ -27,7 +28,6 @@ export default class Rank extends Command {
         "selfranks",
       ],
       enableSlashCommand: true,
-      ephemeral: true,
       premium: true,
     });
   }
@@ -73,6 +73,8 @@ export default class Rank extends Command {
         );
       return await message.channel.send(embed);
     }
+
+    if (message instanceof SlashCommandMessage) message.setFlags(64);
 
     if (roles.includes(args.role)) {
       if (args.role.id == "595626786549792793") {
