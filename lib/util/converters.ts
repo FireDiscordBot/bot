@@ -113,7 +113,7 @@ export const memberConverter = async (
     if (!silent) await message.error("MEMBER_NOT_FOUND");
     return null;
   } else {
-    const member = await guild.members.fetch(userID);
+    const member = await guild.members.fetch(userID).catch(() => {});
     if (member) {
       return member as FireMember;
     }
