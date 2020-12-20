@@ -26,8 +26,8 @@ export default class MessageUpdate extends Listener {
     if (after.member) {
       // Both of these will check permissions & whether
       // dehoist/decancer is enabled so no need for checks here
-      await after.member?.dehoist();
-      await after.member?.decancer();
+      await after.member.dehoist();
+      await after.member.decancer();
     }
 
     if (
