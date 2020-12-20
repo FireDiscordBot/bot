@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import { GuildTagManager } from "../util/guildtagmanager";
 import Tickets from "../../src/commands/Tickets/tickets";
+import { FireMemberManager } from "../util/managers";
 import { FakeChannel } from "./slashCommandMessage";
 import { GuildSettings } from "../util/settings";
 import { getIDMatch } from "../util/converters";
@@ -18,13 +19,15 @@ import { FireUser } from "./user";
 import { Fire } from "../Fire";
 
 export class FireGuild extends Guild {
-  client: Fire;
-  owner: FireMember;
+  members: FireMemberManager;
   settings: GuildSettings;
   tags: GuildTagManager;
+  owner: FireMember;
+  client: Fire;
 
   constructor(client: Fire, data: object) {
     super(client, data);
+    this.members = new FireMemberManager(this);
     this.settings = new GuildSettings(client, this);
     this.tags = new GuildTagManager(client, this);
   }

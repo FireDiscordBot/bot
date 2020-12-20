@@ -39,6 +39,7 @@ import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandhandler";
 import { Module, ModuleHandler } from "./util/module";
 import { FireMessage } from "./extensions/message";
+import { FireUserManager } from "./util/managers";
 import { Client as PGClient } from "ts-postgres";
 import { version as djsver } from "discord.js";
 import { Inhibitor } from "./util/inhibitor";
@@ -74,6 +75,9 @@ export class Fire extends AkairoClient {
   languages: LanguageHandler;
   modules: ModuleHandler;
 
+  // Discord.JS Managers
+  users: FireUserManager;
+
   // Common Attributes
   db: PGClient;
   util: Util;
@@ -89,6 +93,8 @@ export class Fire extends AkairoClient {
 
     this.launchTime = moment();
     this.started = false;
+
+    this.users = new FireUserManager(this);
 
     this.manager = manager;
     this.console = new FireConsole(); // TODO make custom console that works in pm2 logs
@@ -322,7 +328,6 @@ export class Fire extends AkairoClient {
       this.guilds.cache.forEach((guild) =>
         guild.members.cache.sweep((member) => member.id != this.user?.id)
       );
-      this.users.cache.sweep((user) => user.id != this.user?.id);
     }, 20000);
     return super.login();
   }
