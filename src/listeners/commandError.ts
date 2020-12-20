@@ -37,11 +37,11 @@ export default class CommandError extends Listener {
         "guild.id": message.guild?.id,
         "guild.name": message.guild?.name,
         "guild.shard": message.guild?.shardID || 0,
-        "channel.id": channel.id,
+        "channel.id": channel?.id || "0",
         "channel.name":
           channel instanceof GuildChannel
             ? (channel as TextChannel).name
-            : channel.recipient.toString(),
+            : channel?.recipient?.toString() || "Unknown",
         "command.name": command.id,
         "command.args": JSON.stringify(args),
         env: process.env.NODE_ENV,
@@ -53,7 +53,7 @@ export default class CommandError extends Listener {
       });
     }
 
-    if (!this.client.isOwner(message.author)) {
+    if (!message.author.isSuperuser()) {
       return await message.error(
         "COMMAND_ERROR_GENERIC",
         message.util?.parsed?.alias
