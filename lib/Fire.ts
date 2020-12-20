@@ -82,6 +82,7 @@ export class Fire extends AkairoClient {
   conversationStates: Map<string, Buffer>; // Google Command conversation states
   events: number;
   experiments: Map<string, Experiment>;
+  userCacheSweep: NodeJS.Timeout;
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
@@ -317,6 +318,12 @@ export class Fire extends AkairoClient {
         return command.remove();
       }
     });
+    this.userCacheSweep = setInterval(() => {
+      this.guilds.cache.forEach((guild) =>
+        guild.members.cache.sweep((member) => member.id != this.user?.id)
+      );
+      this.users.cache.sweep((user) => user.id != this.user?.id);
+    }, 20000);
     return super.login();
   }
 
