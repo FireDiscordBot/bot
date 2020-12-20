@@ -22,12 +22,12 @@ import { Fire } from "../Fire";
 const { emojis, reactions, regexes, imageExts } = constants;
 
 export class FireMessage extends Message {
-  paginator?: PaginatorInterface;
-  _member?: FireMember;
-  util?: CommandUtil;
-  guild: FireGuild;
-  author: FireUser;
   client: Fire;
+  guild: FireGuild;
+  member: FireMember | null;
+  author: FireUser;
+  util?: CommandUtil;
+  paginator?: PaginatorInterface;
 
   constructor(
     client: Fire,
@@ -35,23 +35,6 @@ export class FireMessage extends Message {
     channel: DMChannel | TextChannel | NewsChannel
   ) {
     super(client, data, channel);
-    if (this.guild && !this.member) {
-      // @ts-ignore
-      if (data?.member)
-        // @ts-ignore
-        this._member = new FireMember(client, data.member, this.guild);
-      else
-        this.guild.members
-          .fetch(this.author)
-          .then((member: FireMember) => (this._member = member))
-          .catch(() => {});
-    }
-  }
-
-  // @ts-ignore
-  get member(): FireMember {
-    if (this._member) return this._member;
-    else return super.member as FireMember;
   }
 
   get language() {
