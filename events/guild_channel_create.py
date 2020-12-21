@@ -16,6 +16,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from discord.ext import commands
+import asyncio
 import discord
 
 
@@ -29,6 +30,8 @@ class GuildChannelCreate(commands.Cog):
             'mod.mutedrole') or discord.utils.get(channel.guild.roles, name="Muted")
         mute_perm_fail = False
         if muted and channel.guild.me.guild_permissions.manage_roles:
+            # wait a bit just incase a bot changes perms
+            await asyncio.sleep(5)
             overwrites = channel.overwrites
             overwrites.update(
                 {muted: discord.PermissionOverwrite(send_messages=False)})
