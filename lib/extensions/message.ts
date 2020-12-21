@@ -36,17 +36,6 @@ export class FireMessage extends Message {
     super(client, data, channel);
   }
 
-  // @ts-ignore
-  get member(): FireMember {
-    if (super.member) return super.member as FireMember;
-    else {
-      this.guild.members
-        .fetch(this.author.id)
-        .then((member: FireMember) => member);
-      return this.member;
-    }
-  }
-
   get language() {
     return this.author?.settings.get("utils.language")
       ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
