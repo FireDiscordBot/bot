@@ -6,12 +6,16 @@ import { FireUser } from "./user";
 import { Fire } from "../Fire";
 
 export class FireMember extends GuildMember {
-  client: Fire;
   guild: FireGuild;
+  pending: boolean;
   user: FireUser;
+  client: Fire;
 
   constructor(client: Fire, data: object, guild: FireGuild) {
     super(client, data, guild);
+    // @ts-ignore
+    if ("pending" in data) this.pending = data.pending;
+    else this.pending = false;
   }
 
   get language() {

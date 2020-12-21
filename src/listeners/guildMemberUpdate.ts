@@ -17,6 +17,30 @@ export default class GuildMemberUpdate extends Listener {
     await newMember.dehoist();
     await newMember.decancer();
 
+    if (
+      this.client.util.premium.has(newMember.guild.id) &&
+      !newMember.pending
+    ) {
+      let autoroleId: string;
+      const delay = newMember.guild.settings.get(
+        "mod.autorole.waitformsg",
+        false
+      );
+      if (newMember.user.bot)
+        autoroleId = newMember.guild.settings.get("mod.autobotrole", null);
+      else autoroleId = newMember.guild.settings.get("mod.autorole", null);
+
+      if (
+        autoroleId &&
+        (newMember.user.bot || !delay) &&
+        !newMember.roles.cache.has(autoroleId)
+      ) {
+        const role = newMember.guild.roles.cache.get(autoroleId);
+        if (role && newMember.guild.me.hasPermission("MANAGE_ROLES"))
+          await newMember.roles.add(role).catch(() => {});
+      }
+    }
+
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     if (
       sk1erModule &&
