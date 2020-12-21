@@ -33,7 +33,7 @@ class GuildChannelCreate(commands.Cog):
             overwrites.update(
                 {muted: discord.PermissionOverwrite(send_messages=False)})
             try:
-                await channel.edit(overwrites=overwrites, reason="Adding muted override")
+                await channel.edit(overwrites=overwrites, reason="Adding muted overwrite")
             except discord.HTTPException:
                 mute_perm_fail = True
         logch = self.bot.get_config(channel.guild).get('log.action')

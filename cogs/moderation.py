@@ -404,7 +404,7 @@ class Moderation(commands.Cog, name="Mod Commands"):
                         {muted: discord.PermissionOverwrite(
                             send_messages=False)}
                     )
-                    await channel.edit(overwrites=overwrites)
+                    await channel.edit(overwrites=overwrites, reason="Adding muted overwrite")
             except discord.Forbidden:
                 return await ctx.error("I have no permissions to make a muted role")
             await user.add_roles(muted)
