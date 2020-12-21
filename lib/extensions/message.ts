@@ -39,7 +39,7 @@ export class FireMessage extends Message {
       //@ts-ignore
       if (!data.member)
         this.guild.members
-          .fetch(this.author.id)
+          .fetch(this.author?.id)
           .then((member: FireMember) => (this._member = member))
           .catch(() => {});
       else
