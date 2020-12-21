@@ -27,6 +27,8 @@ class Slowmode(commands.Cog):
         self.bot = bot
 
     @commands.command(name='slowmode')
+    @commands.has_permissions(manage_channels=True)
+    @commands.bot_has_permissions(manage_channels=True)
     async def slowmodecmd(self, ctx, delay: int = 0, channel: typing.Union[TextChannel, Category] = None):
         if not channel:
             channel = ctx.channel
