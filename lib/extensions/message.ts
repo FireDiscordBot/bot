@@ -36,16 +36,23 @@ export class FireMessage extends Message {
   ) {
     super(client, data, channel);
     if (this.guild && !this.member) {
-      this.guild.members
-        .fetch(this.author.id)
-        .then((member: FireMember) => (this._member = member))
-        .catch(() => {});
+      //@ts-ignore
+      if (!data.member)
+        this.guild.members
+          .fetch(this.author.id)
+          .then((member: FireMember) => (this._member = member))
+          .catch(() => {});
+      else
+        try {
+          // @ts-ignore
+          this._member = new FireMember(client, data.member, this.guild);
+        } catch {}
     }
   }
 
   // @ts-ignore
-  get member() {
-    return super.member || this._member;
+  get member(): FireMember {
+    return (super.member as FireMember) || this._member;
   }
 
   get language() {
