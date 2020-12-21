@@ -30,13 +30,8 @@ class GuildChannelCreate(commands.Cog):
             'mod.mutedrole') or discord.utils.get(channel.guild.roles, name="Muted")
         mute_perm_fail = False
         if muted and channel.guild.me.guild_permissions.manage_roles:
-            # wait a bit just incase a bot changes perms
-            await asyncio.sleep(5)
-            overwrites = channel.overwrites
-            overwrites.update(
-                {muted: discord.PermissionOverwrite(send_messages=False)})
             try:
-                await channel.edit(overwrites=overwrites, reason="Adding muted overwrite")
+                await channel.set_permissions(muted, read_messages=False)
             except discord.HTTPException:
                 mute_perm_fail = True
         logch = self.bot.get_config(channel.guild).get('log.action')
