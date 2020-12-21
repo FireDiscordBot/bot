@@ -65,42 +65,42 @@ class Premium(commands.Cog, name="Premium Commands"):
         else:
             return False
 
-    # 	def gencrabrave(self, t, filename):
-    # 		clip = VideoFileClip("crabtemplate.mp4")
-    # 		text = TextClip(t[0], fontsize=48, color='white', font='Verdana')
-    # 		text2 = TextClip("____________________", fontsize=48, color='white', font='Verdana')\
-    # 			.set_position(("center", 210)).set_duration(15.4)
-    # 		text = text.set_position(("center", 200)).set_duration(15.4)
-    # 		text3 = TextClip(t[1], fontsize=48, color='white', font='Verdana')\
-    # 			.set_position(("center", 270)).set_duration(15.4)
+    #     def gencrabrave(self, t, filename):
+    #         clip = VideoFileClip("crabtemplate.mp4")
+    #         text = TextClip(t[0], fontsize=48, color='white', font='Verdana')
+    #         text2 = TextClip("____________________", fontsize=48, color='white', font='Verdana')\
+    #             .set_position(("center", 210)).set_duration(15.4)
+    #         text = text.set_position(("center", 200)).set_duration(15.4)
+    #         text3 = TextClip(t[1], fontsize=48, color='white', font='Verdana')\
+    #             .set_position(("center", 270)).set_duration(15.4)
     #
-    # 		video = CompositeVideoClip([clip, text.crossfadein(1), text2.crossfadein(1), text3.crossfadein(1)]).set_duration(15.4)
+    #         video = CompositeVideoClip([clip, text.crossfadein(1), text2.crossfadein(1), text3.crossfadein(1)]).set_duration(15.4)
     #
-    # 		video.write_videofile(filename, preset='superfast', verbose=False)
-    # 		clip.close()
-    # 		video.close()
+    #         video.write_videofile(filename, preset='superfast', verbose=False)
+    #         clip.close()
+    #         video.close()
     #
-    # 	@commands.command(name='crabrave', description='Make a Crab Rave meme!', hidden=True)
-    # 	async def crabmeme(self, ctx, *, text: str):
-    # 		'''Limited to owner only (for now, it may return) due to this command using like 90% CPU'''
-    # 		if not await self.bot.is_owner(ctx.author):
-    # 			return
-    # 		if not '|' in text:
-    # 			raise commands.ArgumentParsingError('Text should be separated by |')
-    # 		if not text:
-    # 			raise commands.MissingRequiredArgument('You need to provide text for the meme')
-    # 		filename = str(ctx.author.id) + '.mp4'
-    # 		t = text.upper().replace('| ', '|').split('|')
-    # 		if len(t) != 2:
-    # 			raise commands.ArgumentParsingError('Text should have 2 sections, separated by |')
-    # 		if (not t[0] and not t[0].strip()) or (not t[1] and not t[1].strip()):
-    # 			raise commands.ArgumentParsingError('Cannot use an empty string')
-    # 		msg = await ctx.send('🦀 Generating Crab Rave 🦀')
-    # 		await self.loop.run_in_executor(None, func=functools.partial(self.gencrabrave, t, filename))
-    # 		meme = discord.File(filename, 'crab.mp4')
-    # 		await msg.delete()
-    # 		await ctx.send(file=meme)
-    # 		os.remove(filename)
+    #     @commands.command(name='crabrave', description='Make a Crab Rave meme!', hidden=True)
+    #     async def crabmeme(self, ctx, *, text: str):
+    #         '''Limited to owner only (for now, it may return) due to this command using like 90% CPU'''
+    #         if not await self.bot.is_owner(ctx.author):
+    #             return
+    #         if not '|' in text:
+    #             raise commands.ArgumentParsingError('Text should be separated by |')
+    #         if not text:
+    #             raise commands.MissingRequiredArgument('You need to provide text for the meme')
+    #         filename = str(ctx.author.id) + '.mp4'
+    #         t = text.upper().replace('| ', '|').split('|')
+    #         if len(t) != 2:
+    #             raise commands.ArgumentParsingError('Text should have 2 sections, separated by |')
+    #         if (not t[0] and not t[0].strip()) or (not t[1] and not t[1].strip()):
+    #             raise commands.ArgumentParsingError('Cannot use an empty string')
+    #         msg = await ctx.send('🦀 Generating Crab Rave 🦀')
+    #         await self.loop.run_in_executor(None, func=functools.partial(self.gencrabrave, t, filename))
+    #         meme = discord.File(filename, 'crab.mp4')
+    #         await msg.delete()
+    #         await ctx.send(file=meme)
+    #         os.remove(filename)
 
     @commands.command(
         name="autorole", description="Automatically add a role to a user when they join"
@@ -110,7 +110,10 @@ class Premium(commands.Cog, name="Premium Commands"):
     @commands.guild_only()
     async def autorole(self, ctx, role: typing.Union[Role, str] = None):
         if not role:
-            return await ctx.error("You must provide a role!")
+            await ctx.config.set("mod.autorole", None)
+            return await ctx.success(
+                f"Successfully disabled auto-role in {ctx.guild.name}"
+            )
         if isinstance(role, str) and role in ["delay", "wait"]:
             current = ctx.config.get("mod.autorole.waitformsg")
             current = await ctx.config.set("mod.autorole.waitformsg", not current)
@@ -131,11 +134,6 @@ class Premium(commands.Cog, name="Premium Commands"):
         if role.managed or role.is_default():
             return await ctx.error(
                 "That role is managed by an integration or the default role, I cannot give it to anyone."
-            )
-        if not role:
-            await ctx.config.set("mod.autorole", None)
-            return await ctx.success(
-                f"Successfully disabled auto-role in {ctx.guild.name}"
             )
         else:
             await ctx.config.set("mod.autorole", role)
@@ -265,72 +263,74 @@ class Premium(commands.Cog, name="Premium Commands"):
 
     # @commands.Cog.listener()
     # async def on_reaction_add(self, reaction, member):
-    # 	if type(member) == discord.Member:
-    # 		try:
-    # 			if await self.member_guild_check(member):
-    # 				guild = user.guild
-    # 				message = reaction.message
-    # 				rr = self.reactroles[guild.id]
-    # 				roleid = rr["role"]
-    # 				msgid = rr["message"]
-    # 				emote = rr["emote"]
-    # 				if roleid is not None:
-    # 					if msgid is not None:
-    # 						if emote is not None:
-    # 							emotecheck = None
-    # 							try:
-    # 								emote = int(emote)
-    # 								if emote == reaction.emoji.id:
-    # 									emotecheck = True
-    # 							except Exception:
-    # 								emote = str(emote)
-    # 								if emote == reaction.emoji:
-    # 									emotecheck = True
-    # 							if emotecheck:
-    # 								role = discord.utils.get(guild.roles, id=roleid)
-    # 								if role is not None:
-    # 									try:
-    # 										await user.add_roles(role, reason='Reaction Role')
-    # 									except Exception:
-    # 										pass
-    # 		except Exception:
-    # 			return
+    #     if type(member) == discord.Member:
+    #         try:
+    #             if await self.member_guild_check(member):
+    #                 guild = user.guild
+    #                 message = reaction.message
+    #                 rr = self.reactroles[guild.id]
+    #                 roleid = rr["role"]
+    #                 msgid = rr["message"]
+    #                 emote = rr["emote"]
+    #                 if roleid is not None:
+    #                     if msgid is not None:
+    #                         if emote is not None:
+    #                             emotecheck = None
+    #                             try:
+    #                                 emote = int(emote)
+    #                                 if emote == reaction.emoji.id:
+    #                                     emotecheck = True
+    #                             except Exception:
+    #                                 emote = str(emote)
+    #                                 if emote == reaction.emoji:
+    #                                     emotecheck = True
+    #                             if emotecheck:
+    #                                 role = discord.utils.get(guild.roles, id=roleid)
+    #                                 if role is not None:
+    #                                     try:
+    #                                         await user.add_roles(role, reason='Reaction Role')
+    #                                     except Exception:
+    #                                         pass
+    #         except Exception:
+    #             return
 
     # @commands.Cog.listener()
     # async def on_reaction_remove(self, reaction, user):
-    # 	if type(user) == discord.Member:
-    # 		try:
-    # 			if await self.member_guild_check(user):
-    # 				guild = user.guild
-    # 				message = reaction.message
-    # 				rr = self.reactroles[guild.id]
-    # 				roleid = rr["role"]
-    # 				msgid = rr["message"]
-    # 				emote = rr["emote"]
-    # 				if roleid is not None:
-    # 					if msgid is not None:
-    # 						if emote is not None:
-    # 							emotecheck = None
-    # 							try:
-    # 								emote = int(emote)
-    # 								if emote == reaction.emoji.id:
-    # 									emotecheck = True
-    # 							except Exception:
-    # 								emote = str(emote)
-    # 								if emote == reaction.emoji:
-    # 									emotecheck = True
-    # 							if emotecheck:
-    # 								role = discord.utils.get(guild.roles, id=roleid)
-    # 								if role is not None:
-    # 									try:
-    # 										await user.remove_roles(role, reason='Reaction Role')
-    # 									except Exception:
-    # 										pass
-    # 		except Exception:
-    # 			return
+    #     if type(user) == discord.Member:
+    #         try:
+    #             if await self.member_guild_check(user):
+    #                 guild = user.guild
+    #                 message = reaction.message
+    #                 rr = self.reactroles[guild.id]
+    #                 roleid = rr["role"]
+    #                 msgid = rr["message"]
+    #                 emote = rr["emote"]
+    #                 if roleid is not None:
+    #                     if msgid is not None:
+    #                         if emote is not None:
+    #                             emotecheck = None
+    #                             try:
+    #                                 emote = int(emote)
+    #                                 if emote == reaction.emoji.id:
+    #                                     emotecheck = True
+    #                             except Exception:
+    #                                 emote = str(emote)
+    #                                 if emote == reaction.emoji:
+    #                                     emotecheck = True
+    #                             if emotecheck:
+    #                                 role = discord.utils.get(guild.roles, id=roleid)
+    #                                 if role is not None:
+    #                                     try:
+    #                                         await user.remove_roles(role, reason='Reaction Role')
+    #                                     except Exception:
+    #                                         pass
+    #         except Exception:
+    #             return
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
+        if await self.bot.has_ts_bot(member.guild):
+            return
         if member.guild.id in self.bot.premium_guilds:
             try:
                 role = self.bot.get_config(member.guild).get("mod.autorole")
@@ -343,6 +343,8 @@ class Premium(commands.Cog, name="Premium Commands"):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        if await self.bot.has_ts_bot(message.guild):
+            return
         member = message.author if isinstance(
             message.author, discord.Member) else None
         if member and member.guild.id in self.bot.premium_guilds:
