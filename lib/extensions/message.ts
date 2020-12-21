@@ -23,7 +23,6 @@ const { emojis, reactions, regexes, imageExts } = constants;
 
 export class FireMessage extends Message {
   paginator?: PaginatorInterface;
-  _member?: FireMember;
   util?: CommandUtil;
   author: FireUser;
   guild: FireGuild;
@@ -35,24 +34,17 @@ export class FireMessage extends Message {
     channel: DMChannel | TextChannel | NewsChannel
   ) {
     super(client, data, channel);
-    if (this.guild && !this.member) {
-      //@ts-ignore
-      if (!data.member)
-        this.guild.members
-          .fetch(this.author?.id)
-          .then((member: FireMember) => (this._member = member))
-          .catch(() => {});
-      else
-        try {
-          // @ts-ignore
-          this._member = new FireMember(client, data.member, this.guild);
-        } catch {}
-    }
   }
 
   // @ts-ignore
   get member(): FireMember {
-    return (super.member as FireMember) || this._member;
+    if (super.member) return super.member as FireMember;
+    else {
+      this.guild.members
+        .fetch(this.author.id)
+        .then((member: FireMember) => member);
+      return this.member;
+    }
   }
 
   get language() {
