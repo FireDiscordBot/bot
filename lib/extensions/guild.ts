@@ -280,7 +280,7 @@ export class FireGuild extends Guild {
       channels.map((c) => c.id)
     );
     let transcript: string[] = [];
-    (await channel.messages.fetch()).forEach((message) =>
+    (await channel.messages.fetch({ limit: 100 })).forEach((message) =>
       transcript.push(
         `${message.author} (${
           message.author.id
@@ -293,7 +293,9 @@ export class FireGuild extends Guild {
       )
     );
     transcript = transcript.reverse();
-    transcript.push(`${transcript.length} total messages, closed by ${author}`);
+    transcript.push(
+      `${transcript.length} messages (only the last 100 can be fetched due to Discord limitations), closed by ${author}`
+    );
     const buffer = Buffer.from(transcript.join("\n\n"));
     const id = getIDMatch(channel.topic, true);
     let creator = author;
