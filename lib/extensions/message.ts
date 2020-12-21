@@ -23,6 +23,7 @@ const { emojis, reactions, regexes, imageExts } = constants;
 
 export class FireMessage extends Message {
   paginator?: PaginatorInterface;
+  member: FireMember;
   util?: CommandUtil;
   author: FireUser;
   guild: FireGuild;
