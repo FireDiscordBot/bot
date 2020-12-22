@@ -554,8 +554,7 @@ Once you get the wowe, head uvw to <#595634170336641045> and check the pinnyed m
           "View/wemove a usews specs (wocked to discord.gg/sk1er)",
         SPECS_NOT_FOUND:
           "Specs not found fow that usew. Teww them to fiww in this fowm\n<https://inv.wtf/sk1spec>",
-        STATS_COMMAND_DESCRIPTION:
-          "View cwustew & ovewaww stats.",
+        STATS_COMMAND_DESCRIPTION: "View cwustew & ovewaww stats.",
         STATS_TITLE: (name: string, version: string) =>
           `Stats fow ${name} [${version}]`,
         STATS_MEMORY_USAGE: "Memowy Usage",
