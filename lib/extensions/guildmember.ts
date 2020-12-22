@@ -14,8 +14,7 @@ export class FireMember extends GuildMember {
   constructor(client: Fire, data: object, guild: FireGuild) {
     super(client, data, guild);
     // @ts-ignore
-    if ("pending" in data) this.pending = data.pending;
-    else this.pending = false;
+    this.pending = data?.pending ?? false;
   }
 
   get language() {
@@ -32,6 +31,12 @@ export class FireMember extends GuildMember {
 
   toMention() {
     return super.toString();
+  }
+
+  _patch(data: any) {
+    // @ts-ignore
+    super._patch(data);
+    this.pending = data?.pending ?? false;
   }
 
   isModerator(channel?: Channel) {

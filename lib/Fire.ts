@@ -38,6 +38,7 @@ import { moduleTypeCaster } from "../src/arguments/module";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandhandler";
 import { Module, ModuleHandler } from "./util/module";
+import { FireMember } from "./extensions/guildmember";
 import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
 import { version as djsver } from "discord.js";
@@ -320,7 +321,9 @@ export class Fire extends AkairoClient {
     });
     this.userCacheSweep = setInterval(() => {
       this.guilds.cache.forEach((guild) =>
-        guild.members.cache.sweep((member) => member.id != this.user?.id)
+        guild.members.cache.sweep(
+          (member: FireMember) => !member.pending && member.id != this.user?.id
+        )
       );
       this.users.cache.sweep((user) => user.id != this.user?.id);
     }, 20000);
