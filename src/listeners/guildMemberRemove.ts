@@ -26,5 +26,22 @@ export default class GuildMemberRemove extends Listener {
           )
         );
     }
+
+    const tickets = member.guild.tickets;
+    for (const channel of tickets) {
+      if (
+        channel.topic.startsWith(
+          member.guild.language.get(
+            "TICKET_CHANNEL_TOPIC",
+            member.toString(),
+            member.id,
+            null
+          ) as string
+        )
+      )
+        await channel.send(
+          member.guild.language.get("TICKET_AUTHOR_LEFT", member.toString())
+        );
+    }
   }
 }

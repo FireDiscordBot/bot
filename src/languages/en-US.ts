@@ -846,8 +846,12 @@ Running this command without providing a category resets it, therefore disabling
         TICKET_NAME_SET: (name: string, example: string) =>
           `Successfully set the tickets name to ${name}\nExample: ${example}`,
         TICKET_CHANNEL_TOPIC: (author: string, id: string, subject: string) =>
-          `Ticket created by ${author} (${id}) with subject "${subject}"`,
+          subject
+            ? `Ticket created by ${author} (${id}) with subject "${subject}"`
+            : `Ticket created by ${author} (${id})`,
         TICKET_OPENER_TILE: (author: string) => `Ticket opened by ${author}`,
+        TICKET_AUTHOR_LEFT: (author: string) =>
+          `The ticket author (${author}) seems to have left the server, how sad :(`,
         NEW_COMMAND_DESCRIPTION: "Makes a new ticket",
         NEW_TICKET_CREATING: "Creating your ticket...",
         NEW_TICKET_CREATED: (channel: string) =>
