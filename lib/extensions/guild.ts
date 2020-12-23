@@ -162,6 +162,14 @@ export class FireGuild extends Guild {
     return this.hasExperiment(id);
   }
 
+  get tickets() {
+    return (this.settings.get("tickets.channels", []) as string[]).map((id) =>
+      this.channels.cache
+        .filter((channel) => channel.type == "text" && channel.id == id)
+        .get(id)
+    ) as TextChannel[];
+  }
+
   async createTicket(
     author: FireMember,
     subject: string,
