@@ -395,8 +395,8 @@ Hint: Use the \`public\` command to get your server on the list`,
           `**Malware link sent in** ${channel}`,
         FILTER_PAYPAL_LOG_DESCRIPTION: (channel: string) =>
           `**PayPal link sent in** ${channel}`,
-        FILTER_YOUTUBE_VIDEO_LOG_DESCRIPTION: (channel: string) =>
-          `**YouTube video sent in** ${channel}`,
+        FILTER_YOUTUBE_LOG_DESCRIPTION: (channel: string) =>
+          `**YouTube link sent in** ${channel}`,
         FILTER_YOUTUBE_VIDEO_LOG_STATS: (
           views: string,
           likes: string,
@@ -404,8 +404,6 @@ Hint: Use the \`public\` command to get your server on the list`,
           comments: string
         ) =>
           `${views} views, ${likes} likes, ${dislikes} dislikes, ${comments} comments`,
-        FILTER_YOUTUBE_CHANNEL_LOG_DESCRIPTION: (channel: string) =>
-          `**YouTube channel sent in** ${channel}`,
         FILTER_YOUTUBE_CHANNEL_LOG_STATS: (
           subs: string,
           views: string,

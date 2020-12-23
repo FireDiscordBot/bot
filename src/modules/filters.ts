@@ -423,7 +423,7 @@ export default class Filters extends Module {
       .setTimestamp(new Date())
       .setDescription(
         message.guild.language.get(
-          "FILTER_YOUTUBE_VIDEO_LOG_DESCRIPTION",
+          "FILTER_YOUTUBE_LOG_DESCRIPTION",
           message.channel.toString()
         )
       )
@@ -510,7 +510,7 @@ export default class Filters extends Module {
       .setTimestamp(new Date())
       .setDescription(
         message.guild.language.get(
-          "FILTER_YOUTUBE_CHANNEL_LOG_DESCRIPTION",
+          "FILTER_YOUTUBE_LOG_DESCRIPTION",
           message.channel.toString()
         )
       )
