@@ -42,18 +42,12 @@ export class Reconnector {
   }
 
   handleError(error: any) {
-    if (error.code == "ECONNREFUSED") {
-      if (
-        this.state == WebsocketStates.CLOSED ||
-        this.state == WebsocketStates.IDLE
-      ) {
-        this.activate();
-      }
-    } else {
+    if (error.code == "ECONNREFUSED") this.activate(15000);
+    else {
       this.manager.client.console.error(
         `[Aether] Received error event: ${error}`
       );
-      this.activate(15000);
+      this.activate(5000);
     }
   }
 
