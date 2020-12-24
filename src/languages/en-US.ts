@@ -38,6 +38,7 @@ export default class enUS extends Language {
         COMMAND_ERROR_CONCURRENCY:
           // For different languages, you may want to change the "hold your horses" bit as it may not make sense in that language
           "Whoa, hold your horses! Wait for the command to finish before running it again",
+        COMMAND_ERROR_CACHE: "Something went wrong while checking my cache",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
         SLASH_COMMAND_HANDLE_FAIL: "I failed to handle that slash command",

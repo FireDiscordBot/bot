@@ -27,5 +27,7 @@ export default class CommandBlocked extends Listener {
       return await message.error("COMMAND_ACCOUNT_TOO_YOUNG");
     else if (reason == "guildlock")
       return await message.error("COMMAND_GUILD_LOCKED");
+    else if (reason == "cache")
+      return await message.error("COMMAND_ERROR_CACHE");
   }
 }
