@@ -18,9 +18,11 @@ export default class CacheInhibitor extends Inhibitor {
       await message.guild.members.fetch(this.client.user.id).catch(() => {});
     if (message.guild && message.author?.id && !message.member)
       await message.guild.members.fetch(message?.author).catch(() => {});
-    return (
-      typeof message.guild.me == "undefined" &&
-      typeof message.member == "undefined"
-    );
+    if (message.guild)
+      return (
+        typeof message.guild.me == "undefined" &&
+        typeof message.member == "undefined"
+      );
+    else return !this.client.users.cache.has(this.client.user?.id);
   }
 }
