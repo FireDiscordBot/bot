@@ -100,7 +100,7 @@ export class FireGuild extends Guild {
   async actionLog(log: string | MessageEmbed | MessageEmbedOptions) {
     const channel = this.channels.cache.get(this.settings.get("log.action"));
     if (!channel || channel.type != "text") return;
-    return await (channel as TextChannel).send(log);
+    return await (channel as TextChannel).send(log).catch(() => {});
   }
 
   async modLog(log: string | MessageEmbed | MessageEmbedOptions) {
@@ -108,7 +108,7 @@ export class FireGuild extends Guild {
       this.settings.get("log.moderation")
     );
     if (!channel || channel.type != "text") return;
-    return await (channel as TextChannel).send(log);
+    return await (channel as TextChannel).send(log).catch(() => {});
   }
 
   hasExperiment(id: string, treatmentId?: number) {
