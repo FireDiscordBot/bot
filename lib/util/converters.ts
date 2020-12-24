@@ -84,10 +84,14 @@ export const memberConverter = async (
     return null;
   }
 
-  if (argument == "^" && message.channel.messages.cache.size >= 2)
+  if (argument == "^" && message.channel.messages.cache.size >= 4)
     return message.channel.messages.cache
-      .filter((m) => m.id < message.id)
+      .filter((m) => m.id < message.id && m.author?.id != message.author?.id)
       .last().member as FireMember;
+  else if (argument == "^") {
+    await message.error();
+    return null;
+  }
 
   const userID = getIDMatch(argument) || getUserMentionMatch(argument);
   if (!userID) {
@@ -132,8 +136,12 @@ export const userConverter = async (
 
   if (argument == "^" && message.channel.messages.cache.size >= 4)
     return message.channel.messages.cache
-      .filter((m) => m.id < message.id && m.author.id != message.author.id)
+      .filter((m) => m.id < message.id && m.author?.id != message.author?.id)
       .last().author as FireUser;
+  else if (argument == "^") {
+    await message.error();
+    return null;
+  }
 
   const userID = getIDMatch(argument) || getUserMentionMatch(argument);
   if (userID) {
