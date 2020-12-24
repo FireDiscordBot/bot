@@ -39,12 +39,7 @@ export default class Ping extends Command {
       )
       .setTimestamp(new Date());
 
-    message.author.hasExperiment("MYT-k7UJ-XDwqH99A9yw6", 2)
-      ? await this.replyEmbedPing(message, pingMessage, embed)
-      : await pingMessage.edit(
-          message.language.get("PING_FINAL_MESSAGE"),
-          embed
-        );
+    await this.replyEmbedPing(message, pingMessage, embed);
   }
 
   async replyEmbedPing(
