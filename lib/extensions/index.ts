@@ -1,4 +1,5 @@
-import "./guild";
 import "./guildmember";
+import "./textchannel"
 import "./message";
+import "./guild";
 import "./user";

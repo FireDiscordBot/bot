@@ -1,6 +1,6 @@
 import { FireMessage } from "../../lib/extensions/message";
-import { TextChannel, MessageEmbed } from "discord.js";
 import { Listener } from "../../lib/util/listener";
+import { MessageEmbed } from "discord.js";
 
 export default class Purge extends Listener {
   constructor() {

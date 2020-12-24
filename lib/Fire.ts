@@ -58,6 +58,7 @@ import "./extensions";
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
   started: boolean;
+  restPing: number;
 
   // Sharding
   manager: Manager;
@@ -90,6 +91,7 @@ export class Fire extends AkairoClient {
 
     this.launchTime = moment();
     this.started = false;
+    this.restPing = 0;
 
     this.manager = manager;
     this.console = new FireConsole(); // TODO make custom console that works in pm2 logs

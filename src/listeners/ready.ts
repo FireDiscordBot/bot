@@ -44,6 +44,7 @@ export default class Ready extends Listener {
     ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
     // or "0" which may be used for something later
 
+    const start = +new Date();
     const slashCommands: {
       id: string;
       application_id: string;
@@ -55,6 +56,7 @@ export default class Ready extends Listener {
       // @ts-ignore
       .applications(this.client.user.id)
       .commands.get();
+    this.client.restPing = +new Date() - start;
 
     for (const cmd of this.client.commandHandler.modules.values()) {
       const command = cmd as Command;
@@ -91,6 +93,7 @@ export default class Ready extends Listener {
         this.client.console.warn(
           `[Commands] Deleting slash command /${slashCommand.name} due to command not being found or slash command disabled`
         );
+        const start = +new Date();
         // @ts-ignore
         await this.client.api
           // @ts-ignore
@@ -102,6 +105,7 @@ export default class Ready extends Listener {
               `[Commands] Failed to delete slash command /${slashCommand.name}`
             )
           );
+        this.client.restPing = +new Date() - start;
       }
     }
   }

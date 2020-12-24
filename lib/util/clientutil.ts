@@ -210,6 +210,7 @@ export class Util extends ClientUtil {
       userStatuses: this.getUserStatuses(),
       commands: this.client.commandHandler.modules.size,
       events: this.client.events,
+      restPing: this.client.restPing,
       shards: [...this.client.ws.shards.values()].map((shard) => {
         return {
           id: shard.id,

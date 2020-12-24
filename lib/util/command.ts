@@ -232,12 +232,14 @@ export class Command extends AkairoCommand {
     const command = this.getSlashCommandJSON();
     let commands = [];
     if (!this.guilds.length) {
+      const start = +new Date();
       // @ts-ignore
       const commandRaw = await this.client.api
         // @ts-ignore
         .applications(this.client.user.id)
         .commands.post({ data: command })
         .catch((e) => e);
+      this.client.restPing = +new Date() - start;
       if (commandRaw?.id) commands.push(commandRaw);
       else
         this.client.console.warn(
@@ -246,6 +248,7 @@ export class Command extends AkairoCommand {
         );
     } else {
       this.guilds.forEach(async (guild) => {
+        const start = +new Date();
         // @ts-ignore
         const commandRaw = await this.client.api
           // @ts-ignore
@@ -253,6 +256,7 @@ export class Command extends AkairoCommand {
           .guilds(guild)
           .commands.post({ data: command })
           .catch((e) => e);
+        this.client.restPing = +new Date() - start;
         if (commandRaw?.id) commands.push(commandRaw);
         else {
           if (commandRaw.httpStatus != 403 && commandRaw.code != 50001)

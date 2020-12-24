@@ -18,10 +18,10 @@ import { FireUser } from "./user";
 import { Fire } from "../Fire";
 
 export class FireGuild extends Guild {
-  client: Fire;
-  owner: FireMember;
   settings: GuildSettings;
   tags: GuildTagManager;
+  owner: FireMember;
+  client: Fire;
 
   constructor(client: Fire, data: object) {
     super(client, data);

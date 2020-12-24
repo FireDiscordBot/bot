@@ -37,6 +37,7 @@ export interface Cluster {
   userStatuses?: { online: number; dnd: number; idle: number; offline: number };
   commands: number;
   events: number;
+  restPing: number;
   shards: Shard[];
 }
 
