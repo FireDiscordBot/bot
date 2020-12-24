@@ -887,6 +887,8 @@ Running this command without providing a category resets it, therefore disabling
         TICKET_REMOVE_NOT_FOUND: "You can't remove someone who isn't even here",
         TICKET_REMOVE_REASON: (author: string, id: string) =>
           `Removed from ticket by ${author} (${id})`,
+        TRANS_COMMAND_DESCRIPTION: "Generate a trans pride avatar",
+        TEST_COMMAND_DESCRIPTION: "test?",
       },
       enabled: true,
     });
