@@ -1,6 +1,7 @@
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
+import * as centra from "centra";
 
 const emojiRegex = /<a?:(?<name>[a-zA-Z0-9\_]+):(?<id>\d{15,21})>/im;
 
@@ -36,11 +37,17 @@ export default class Steal extends Command {
     let emoji = args.emoji;
     let name = args.name || "stolen_emoji";
     if (!emoji) return await message.error("STEAL_NOTHING");
-    if (/^(\d{15,21})$/im.test(emoji.toString()))
-      emoji = `https://cdn.discordapp.com/emojis/${emoji}.png?v=1`;
-    else if (emojiRegex.test(emoji)) {
+    if (/^(\d{15,21})$/im.test(emoji.toString())) {
+      emoji = `https://cdn.discordapp.com/emojis/${emoji}`;
+      const format = await this.getFormat(emoji);
+      if (!format) return await message.error("STEAL_INVALID_EMOJI");
+      else emoji += format;
+    } else if (emojiRegex.test(emoji)) {
       const match = emojiRegex.exec(emoji);
-      emoji = `https://cdn.discordapp.com/emojis/${match.groups.id}.png?v=1`;
+      emojiRegex.lastIndex = 0;
+      emoji = `https://cdn.discordapp.com/emojis/${match.groups.id}.${
+        match[0].startsWith("<a") ? "gif" : "png"
+      }`;
       name = match.groups.name;
     } else if (
       !/^https?:\/\/cdn\.discordapp\.com(\/emojis\/\d{15,21})\.\w{3,4}/im.test(
@@ -55,5 +62,14 @@ export default class Steal extends Command {
       return await message.error("STEAL_CAUGHT");
     }
     return await message.success("STEAL_STOLEN", created.toString());
+  }
+
+  async getFormat(url: string) {
+    const emojiReq = await centra(`${url}.gif`)
+      .header("User-Agent", "Fire Discord Bot")
+      .send();
+    if (emojiReq.statusCode == 415) return ".png";
+    else if ([200, 304].includes(emojiReq.statusCode)) return ".gif";
+    else return false;
   }
 }
