@@ -158,15 +158,17 @@ export default class Filters extends Module {
       " " +
       extra;
     let found: RegExpExecArray[] = [];
-    let regexec;
+    let invites: string[] = [];
+    let regexec: RegExpExecArray;
     regexes.invites.forEach((regex) => {
-      while ((regexec = regex.exec(searchString))) found.push(regexec);
+      while ((regexec = regex.exec(searchString))) {
+        found.push(regexec);
+        if (regexec?.length >= 3 && !invites.includes(regexec[2]))
+          invites.push(regexec[2]);
+      }
     });
     found = found.filter(
-      (exec, pos) =>
-        exec?.length &&
-        found.indexOf(exec) == pos &&
-        !found.find((regexec) => regexec[0] == exec[0])
+      (exec, pos) => exec?.length >= 3 && invites.indexOf(exec[2]) == pos
     ); // remove non matches and duplicates
     for (const exec of found) {
       let invite: Invite;
@@ -292,7 +294,7 @@ export default class Filters extends Module {
 
   getInviteMatchFromReq(req: centra.Response, exec?: RegExpExecArray) {
     let inviteMatch: RegExpExecArray;
-    let regexec;
+    let regexec: RegExpExecArray;
     if (regexes.discord.invite.test(req.headers.location))
       inviteMatch = regexes.discord.invite.exec(req.headers.location);
     else if (regexes.discord.invite.test(req.body.toString()))
@@ -306,14 +308,17 @@ export default class Filters extends Module {
       })
     ) {
       let found: RegExpExecArray[] = [];
+      let invites: string[] = [];
       regexes.invites.forEach((regex) => {
-        while ((regexec = regex.exec(req.body.toString()))) found.push(regexec);
+        while ((regexec = regex.exec(req.body.toString()))) {
+          found.push(regexec);
+          if (regexec?.length >= 3 && !invites.includes(regexec[2]))
+            invites.push(regexec[2]);
+        }
       });
       found = found.filter(
         (foundExec, pos) =>
-          foundExec?.length &&
-          found.indexOf(foundExec) == pos &&
-          (!exec || !exec?.includes(foundExec?.groups.domain))
+          foundExec?.length && invites.indexOf(foundExec[2]) == pos
       ); // remove non matches and duplicates
       if (found.length) inviteMatch = found[0];
     }
