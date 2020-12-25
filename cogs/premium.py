@@ -220,7 +220,10 @@ class Premium(commands.Cog, name="Premium Commands"):
     @bot_has_permissions(manage_roles=True)
     @commands.guild_only()
     async def rank(self, ctx, *, role: Role = None):
-        ranks = ctx.config.get("utils.ranks")
+        ranks = [r for r in ctx.config.get("utils.ranks") if r]
+        ranks_raw = ctx.config.get("utils.ranks")
+        if ranks != ranks_raw:
+            await ctx.config.set("utils.ranks", ranks)
         if not role:
             if not ranks:
                 return await ctx.error(
