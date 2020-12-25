@@ -31,7 +31,7 @@ class GuildChannelCreate(commands.Cog):
         mute_perm_fail = False
         if muted and channel.guild.me.guild_permissions.manage_roles:
             try:
-                await channel.set_permissions(muted, read_messages=False)
+                await channel.set_permissions(muted, send_messages=False)
             except discord.HTTPException:
                 mute_perm_fail = True
         logch = self.bot.get_config(channel.guild).get('log.action')
