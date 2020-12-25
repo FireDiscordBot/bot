@@ -133,6 +133,7 @@ export default class Sk1er extends Module {
       )) as [{ combined_total: number }, { total: number }, { all: number }];
       const count = jsons[0].combined_total + jsons[1].total + jsons[2].all;
 
+      const start = +new Date();
       // @ts-ignore
       const newData = await this.client.api
         // @ts-ignore
@@ -144,10 +145,13 @@ export default class Sk1er extends Module {
             )} total players)`,
           },
           reason: "Description Updater Task",
-        });
+        })
+        .catch(() => {});
+      this.client.restPing = +new Date() - start;
 
-      // @ts-ignore
-      this.client.actions.GuildUpdate.handle(newData);
+      if (newData)
+        // @ts-ignore
+        this.client.actions.GuildUpdate.handle(newData);
     } catch {}
   }
 
