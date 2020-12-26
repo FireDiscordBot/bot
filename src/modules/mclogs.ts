@@ -1,7 +1,10 @@
 import { FireMessage } from "../../lib/extensions/message";
 import * as solutions from "../../mc_solutions.json";
+import { humanize } from "../../lib/util/constants";
 import { Module } from "../../lib/util/module";
+import { en as chrono } from "chrono-node";
 import * as centra from "centra";
+import * as moment from "moment";
 import Filters from "./filters";
 import Sk1er from "./sk1er";
 
@@ -15,6 +18,7 @@ export default class MCLogs extends Module {
     url: RegExp;
     home: RegExp;
     settingUser: RegExp;
+    date: RegExp;
   };
   logText: string[];
 
@@ -28,6 +32,7 @@ export default class MCLogs extends Module {
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
       home: /(\/Users\/\w+|\/home\/\w+|C:\\Users\\\w+)/gim,
       settingUser: /\[Client thread\/INFO]: Setting user: (\w{1,16})/gim,
+      date: /Time: (?<date>\d{1,2}\/\d{1,2}\/\d{1,2} \d{1,2}:\d{1,2}(?: (?:AM|PM))?)/gim,
     };
     this.logText = [
       "net.minecraft.launchwrapper.Launch",
@@ -136,9 +141,7 @@ export default class MCLogs extends Module {
           const text = await (await centra(attach.url).send()).text();
           await this.handleLogText(message, text, "uploaded");
         } catch {
-          await message.channel.send(
-            message.language.get("SK1ER_LOG_READ_FAIL")
-          );
+          await message.channel.send(message.language.get("MC_LOG_READ_FAIL"));
         }
       });
   }
@@ -191,6 +194,24 @@ export default class MCLogs extends Module {
       }
     });
 
+    let diff: string;
+    if (this.regexes.date.test(text)) {
+      this.regexes.date.lastIndex = 0;
+      const rawDate = this.regexes.date.exec(text);
+      this.regexes.date.lastIndex = 0;
+      const parsedDate =
+        message.language.id == "en-GB"
+          ? chrono.GB.parseDate(rawDate.groups.date)
+          : chrono.parseDate(rawDate.groups.date);
+      if (parsedDate) {
+        const now = moment();
+        diff = humanize(
+          moment(parsedDate).diff(now),
+          message.guild.language.id.split("-")[0]
+        );
+      }
+    }
+
     const filters = this.client.getModule("filters") as Filters;
     text = filters.runReplace(text, message);
 
@@ -219,8 +240,9 @@ export default class MCLogs extends Module {
         }
 
         return await message.send(
-          "SK1ER_LOG_HASTE",
+          "MC_LOG_HASTE",
           message.author.toString(),
+          diff,
           msgType,
           msgType == "uploaded" ? message.content : "",
           haste,

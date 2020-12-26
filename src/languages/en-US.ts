@@ -456,17 +456,21 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           `${user} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>
           `I was unable to read your log. Please upload it directly rather than using ${domain}`,
-        SK1ER_LOG_READ_FAIL:
+        MC_LOG_READ_FAIL:
           "I was unable to read the attachment, try reupload it. If it still doesn't work, yell at Geek :)",
         SK1ER_MODCORE_ZIP: (user: string, zip: string) =>
           `${user}, Download the zip from ${zip} and then unzip it in \`.minecraft/modcore\` and your issue should be resolved.`,
-        SK1ER_LOG_HASTE: (
+        MC_LOG_HASTE: (
           user: string,
+          diff: string,
           msgType: string,
           extra: string,
           haste: string,
           solutions: string
-        ) => `${user} ${msgType} a log, ${extra}\n${haste}\n\n${solutions}`,
+        ) =>
+          `${user} ${msgType} a log${
+            diff ? " from " + diff + " ago" : ""
+          }, ${extra}\n${haste}\n\n${solutions}`,
         SK1ER_NITRO_PERKS_REMOVED: (member: string) =>
           `${member}, Your nitro perks have been removed. Boost the server to get them back :)`,
         SK1ER_NITRO_PERKS_REMOVED_LEFT: (member: string) =>

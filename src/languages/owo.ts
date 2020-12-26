@@ -306,17 +306,21 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           `${user} I am unabwe to wead youw wog to wemove sensitive infowmation & pwovide sowutions to youw issue. Pwease upwoad the wog diwectwy :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>
           `I was unabwe to wead youw wog. Pwease upwoad it diwectwy wathew than using ${domain}`,
-        SK1ER_LOG_READ_FAIL:
+        MC_LOG_READ_FAIL:
           "I was unabwe to wead the attachment, twy weupwoad it. If it stiww doesn't wowk, yeww at Geek :)",
         SK1ER_MODCORE_ZIP: (user: string, zip: string) =>
           `${user}, Downwoad the zip fwom ${zip} and then unzip it in \`.minecraft/modcore\` and youw issue shouwd be wesowved.`,
-        SK1ER_LOG_HASTE: (
+        MC_LOG_HASTE: (
           user: string,
+          diff: string,
           msgType: string,
           extra: string,
           haste: string,
           solutions: string
-        ) => `${user} ${msgType} a wog, ${extra}\n${haste}\n\n${solutions}`,
+        ) =>
+          `${user} ${msgType} a wog${
+            diff ? " fwom " + diff + " ago" : ""
+          }, ${extra}\n${haste}\n\n${solutions}`,
         SK1ER_NITRO_PERKS_REMOVED: (member: string) =>
           `${member}, Youw nitwo pewks have been wemoved. Boost the sewvew to get them back UwU`,
         SK1ER_NITRO_PERKS_REMOVED_LEFT: (member: string) =>
