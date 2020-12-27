@@ -369,7 +369,7 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         MAKEAMEME_COMMAND_DESCRIPTION:
           'Make youw own meme using the "top text bottom text" fowmat',
         MAKEAMEME_NO_IMAGE:
-          "You need to pwovide a membew (to use theiw avataw), image url ow attach an image to make a meme",
+          "You need to pwovide an image url ow attach an image to make a meme",
         MAKEAMEME_NO_TEXT: "You must pwovide text sepawated by **|**",
         MAKEAMEME_UPLOAD_FAIL: "Faiwed to upwoad spicy meme :c",
         MEME_COMMAND_DESCRIPTION: "Get a wandom meme",

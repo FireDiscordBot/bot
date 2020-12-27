@@ -50,8 +50,6 @@ export default class enUS extends Language {
           `This command requires you to have the bot present. You can invite it @ <${invite}>`,
         USER_SNOWFLAKE_ARGUMENT_DESCRIPTION:
           "A mention, username, user id or any valid snowflake",
-        IMAGE_ARGUMENT_DESCRIPTION:
-          "Anything I can grab an image from, e.g. a user for their avatar or an image url",
         HELLO_PREFIX: (prefix: string) =>
           `Hey! My prefix here is \`${prefix}\` or you can mention me :)`,
         ERROR_ROLE_UNUSABLE:
@@ -546,7 +544,7 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
         MAKEAMEME_COMMAND_DESCRIPTION:
           'Make your own meme using the "top text bottom text" format',
         MAKEAMEME_NO_IMAGE:
-          "You need to provide a member (to use their avatar), image url or attach an image to make a meme",
+          "You need to provide an image url or attach an image to make a meme",
         MAKEAMEME_NO_TEXT: "You must provide text separated by **|**",
         MAKEAMEME_UPLOAD_FAIL: "Failed to upload spicy meme :(",
         MEME_COMMAND_DESCRIPTION: "Get a random meme",
