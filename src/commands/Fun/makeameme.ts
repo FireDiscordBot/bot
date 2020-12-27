@@ -5,6 +5,7 @@ import { Command } from "../../../lib/util/command";
 import { Argument } from "discord-akairo";
 import * as centra from "centra";
 import { getIDMatch, getUserMentionMatch } from "../../../lib/util/converters";
+import { FireUser } from "../../../lib/extensions/user";
 
 export default class MakeAMeme extends Command {
   constructor() {
@@ -16,7 +17,7 @@ export default class MakeAMeme extends Command {
       args: [
         {
           id: "image",
-          type: "string",
+          type: Argument.union("memberSilent", "userSilent", "string"),
           readableType: "member id/mention|image",
           default: null,
           required: true,
@@ -32,27 +33,31 @@ export default class MakeAMeme extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { image: string; text: string }) {
+  async exec(
+    message: FireMessage,
+    args: { image: FireMember | FireUser | string; text: string }
+  ) {
     if (!process.env.MEME_TOKEN) return await message.error();
     let image: string, text: string[];
     if (!args.image && !message.attachments.size)
       return await message.error("MAKEAMEME_NO_IMAGE");
     if (!args.text || args.text.split("|").length != 2)
       return await message.error("MAKEAMEME_NO_TEXT");
-    const userID = getIDMatch(args.image) || getUserMentionMatch(args.image);
-    if (userID) {
-      const member = await message.guild.members.fetch(userID);
-      if (member)
-        image = member.user.displayAvatarURL({
-          size: 2048,
-          format: "png",
-        });
-    }
+    if (args.image instanceof FireMember)
+      image = args.image.user.displayAvatarURL({
+        size: 2048,
+        format: "png",
+      });
+    else if (args.image instanceof FireUser)
+      image = args.image.displayAvatarURL({
+        size: 2048,
+        format: "png",
+      });
     text = args.text.replace("<", "").replace(">", "").split("|");
     if (message.attachments.size) {
       image = message.attachments.first().url;
       text[0] = args.image + " " + text[0];
-    } else image = args.image;
+    } else image = image || (args.image as string);
     if (!image) return await message.error("MAKEAMEME_NO_IMAGE");
     if (image.includes("cdn.discordapp.com") && !image.includes("?size="))
       image = image + "?size=2048";
