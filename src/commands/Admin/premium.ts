@@ -2,10 +2,10 @@ import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
 import { FireMessage } from "../../../lib/extensions/message";
 import { EventType } from "../../../lib/ws/util/constants";
 import { FireGuild } from "../../../lib/extensions/guild";
+import { Inhibitor } from "../../../lib/util/inhibitor";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { Message } from "../../../lib/ws/Message";
-import { Inhibitor } from "discord-akairo";
 
 export default class Premium extends Command {
   constructor() {
