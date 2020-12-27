@@ -38,13 +38,13 @@ export default class Message extends Listener {
     try {
       const gist = await (
         await centra("https://api.github.com/gists", "POST")
-          .header("Authorization", `token ${process.env.GITHUB_TOKEN}`)
+          .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
           .body(body, "json")
           .send()
       ).json();
       await this.client.util.sleep(30000);
       await centra(`https://api.github.com/gists/${gist.id}`, "DELETE")
-        .header("Authorization", `token ${process.env.GITHUB_TOKEN}`)
+        .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
         .send();
     } catch (e) {
       this.client.console.error(
@@ -84,7 +84,7 @@ export default class Message extends Listener {
     // let toSearch =
     //   message.content +
     //   message.embeds.map((embed) => JSON.stringify(embed)).join(" ");
-    // if (this.tokenRegex.test(toSearch) && process.env.GITHUB_TOKEN)
+    // if (this.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN)
     //   await this.tokenGist(message, toSearch);
 
     if (

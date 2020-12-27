@@ -44,7 +44,7 @@ export default class MessageUpdate extends Listener {
     // let toSearch =
     //   after.content +
     //   after.embeds.map((embed) => JSON.stringify(embed)).join(" ");
-    // if (messageListener.tokenRegex.test(toSearch) && process.env.GITHUB_TOKEN)
+    // if (messageListener.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN)
     //   await messageListener.tokenGist(after, toSearch);
 
     if (!after.member || after.author.bot) return;
