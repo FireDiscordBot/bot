@@ -293,7 +293,11 @@ class Moderation(commands.Cog, name="Mod Commands"):
                     if not guild:
                         del self.mutes[mute["gid"]]
                         continue
-                    user = guild.get_member(mute["uid"])
+                    user = None
+                    try:
+                        user = await guild.fetch_member(mute["uid"])
+                    except Exception:
+                        pass
                     muted = self.bot.get_config(guild).get(
                         "mod.mutedrole"
                     ) or discord.utils.get(guild.roles, name="Muted")
