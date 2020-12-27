@@ -100,35 +100,6 @@ export class FireMessage extends Message {
       : this.replyRaw(`${emojis.error} ${this.language.get(key, ...args)}`);
   }
 
-  async edit(
-    content:
-      | APIMessageContentResolvable
-      | MessageEditOptions
-      | MessageEmbed
-      | APIMessage,
-    options?: MessageEditOptions | MessageEmbed
-  ) {
-    const start = +new Date();
-    let error: Error;
-    const edited = await super.edit(content, options).catch((e) => {
-      error = e;
-    });
-    this.client.restPing = +new Date() - start;
-    if (error) throw error;
-    return edited as FireMessage;
-  }
-
-  async delete(options?: { timeout?: number; reason?: string }) {
-    const start = +new Date();
-    let error: Error;
-    const deleted = await super.delete(options).catch((e) => {
-      error = e;
-    });
-    this.client.restPing = +new Date() - start;
-    if (error) throw error;
-    return deleted as FireMessage;
-  }
-
   async quote(
     destination: TextChannel | PartialQuoteDestination,
     quoter: FireMember,

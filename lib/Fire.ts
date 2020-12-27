@@ -54,6 +54,7 @@ import { config } from "../config";
 import * as moment from "moment";
 
 import "./extensions";
+import { RESTManager } from "./rest/RESTManager";
 
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
@@ -88,6 +89,9 @@ export class Fire extends AkairoClient {
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
+
+    // @ts-ignore
+    this.rest = new RESTManager(this);
 
     this.launchTime = moment();
     this.started = false;

@@ -59,7 +59,6 @@ export default class InteractionCreate extends Listener {
   }
 
   async callbackError(command: SlashCommand, error: Error) {
-    const start = +new Date();
     // @ts-ignore
     await this.client.api
       // @ts-ignore
@@ -79,11 +78,9 @@ Error Message: ${error.message}`,
         },
       })
       .catch(() => {});
-    this.client.restPing = +new Date() - start;
   }
 
   async webhookError(command: SlashCommand, error: Error) {
-    const start = +new Date();
     // @ts-ignore
     await this.client.api
       // @ts-ignore
@@ -98,7 +95,5 @@ Error Message: ${error.message}`,
         },
       })
       .catch(() => {});
-
-    this.client.restPing = +new Date() - start;
   }
 }

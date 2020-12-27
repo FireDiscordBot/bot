@@ -227,7 +227,6 @@ export class SlashCommandMessage {
         ? content.resolveData()
         : // @ts-ignore
           APIMessage.create(this, content, options).resolveData();
-    const start = +new Date();
     // @ts-ignore
     await this.client.api
       // @ts-ignore
@@ -237,7 +236,6 @@ export class SlashCommandMessage {
         data,
       })
       .catch(() => {});
-    this.client.restPing = +new Date() - start;
     return this;
   }
 
@@ -349,7 +347,6 @@ export class FakeChannel {
     // @ts-ignore
     if (data.embeds?.length && (data.flags & 64) == 64) data.flags -= 1 << 6;
 
-    const start = +new Date();
     if (!this.message.sent)
       // @ts-ignore
       await this.client.api
@@ -377,7 +374,6 @@ export class FakeChannel {
         .catch(() => {});
       if (webhook?.id) this.message.latestResponse = webhook.id;
     }
-    this.client.restPing = +new Date() - start;
     return this.message;
   }
 }
