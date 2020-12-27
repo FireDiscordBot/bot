@@ -1,5 +1,5 @@
 import { FireMessage } from "../../lib/extensions/message";
-import * as solutions from "../../mc_solutions.json";
+// import * as solutions from "../../mc_solutions.json";
 import { humanize } from "../../lib/util/constants";
 import { Module } from "../../lib/util/module";
 import { en as chrono } from "chrono-node";
@@ -21,9 +21,11 @@ export default class MCLogs extends Module {
     date: RegExp;
   };
   logText: string[];
+  solutions: { [key: string]: string };
 
   constructor() {
     super("mclogs");
+    this.solutions = {};
     this.regexes = {
       reupload: /(?:http(?:s)?:\/\/)?(paste\.ee|pastebin\.com|hastebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?(\w+)/gim,
       noRaw: /(?:http(?:s)?:\/\/)?(?:justpaste).(?:it)\/(\w+)/gim,
@@ -60,17 +62,27 @@ export default class MCLogs extends Module {
       )
     )
       return this.remove();
+    this.solutions = {};
+    const solutionsReq = await centra(
+      `https://api.github.com/repos/GamingGeek/BlockGameSolutions/contents/mc_solutions.json`
+    )
+      .header("User-Agent", "Fire Discord Bot")
+      .header("Authorization", `token ${process.env.GITHUB_SOLUTIONS_TOKEN}`)
+      .send();
+    if (solutionsReq.statusCode == 200) {
+      const solutions = await solutionsReq.json();
+      this.solutions = JSON.parse(
+        Buffer.from(solutions.content, "base64").toString("ascii")
+      );
+    }
   }
 
   public getSolutions(log: string) {
     const currentSolutions: string[] = [];
 
-    Object.keys(solutions).forEach((err) => {
-      if (
-        log.includes(err) &&
-        !currentSolutions.includes(`- ${solutions[err]}`)
-      )
-        currentSolutions.push(`- ${solutions[err]}`);
+    Object.entries(this.solutions).forEach(([err, sol]) => {
+      if (log.includes(err) && !currentSolutions.includes(`- ${sol}`))
+        currentSolutions.push(`- ${sol}`);
     });
 
     if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_L5|_L6|_M5/im))
