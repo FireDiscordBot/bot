@@ -1,11 +1,10 @@
 import { FireMember } from "../../../lib/extensions/guildmember";
 import { FireMessage } from "../../../lib/extensions/message";
+import { FireUser } from "../../../lib/extensions/user";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { Argument } from "discord-akairo";
 import * as centra from "centra";
-import { getIDMatch, getUserMentionMatch } from "../../../lib/util/converters";
-import { FireUser } from "../../../lib/extensions/user";
 
 export default class MakeAMeme extends Command {
   constructor() {
