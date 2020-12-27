@@ -75,7 +75,7 @@ export class APIRequest {
     );
     const request = centra(url, this.method).body(
       body instanceof FormData ? body.getBuffer() : body,
-      body instanceof FormData ? "form" : "json"
+      body instanceof FormData ? "buffer" : "json"
     );
     for (const [name, value] of Object.entries(headers))
       request.header(name, value);
