@@ -376,4 +376,8 @@ export class Fire extends AkairoClient {
   getListener(id: string) {
     return this.listenerHandler.modules.get(id) as Listener;
   }
+
+  getInhibitor(id: string) {
+    return this.inhibitorHandler.modules.get(id) as Inhibitor;
+  }
 }

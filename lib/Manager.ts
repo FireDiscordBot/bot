@@ -5,11 +5,11 @@ import * as Sentry from "@sentry/node";
 import { Fire } from "./Fire";
 
 export class Manager {
-  id: number;
-  sentry: typeof Sentry;
-  client: Fire;
-  ws?: Websocket;
   reconnector: Reconnector;
+  sentry: typeof Sentry;
+  ws?: Websocket;
+  client: Fire;
+  id: number;
 
   constructor(sentry?: typeof Sentry) {
     this.id = parseInt(process.env.NODE_APP_INSTANCE || "0");

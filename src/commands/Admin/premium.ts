@@ -1,6 +1,7 @@
 import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
 import { FireMessage } from "../../../lib/extensions/message";
 import { EventType } from "../../../lib/ws/util/constants";
+import { FireGuild } from "../../../lib/extensions/guild";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { Message } from "../../../lib/ws/Message";
@@ -42,6 +43,7 @@ export default class Premium extends Command {
           required: false,
         },
       ],
+      guilds: ["564052798044504084"],
     });
   }
 
@@ -75,7 +77,7 @@ export default class Premium extends Command {
       );
 
       if (result.status.startsWith("DELETE ")) {
-        if (this.client.manager.ws)
+        if (this.client.manager.ws) {
           this.client.manager.ws.send(
             MessageUtil.encode(
               new Message(EventType.ADMIN_ACTION, {
@@ -89,6 +91,8 @@ export default class Premium extends Command {
               })
             )
           );
+          this.sync(guild, "remove");
+        }
         try {
           const inhibitor = this.client.inhibitorHandler.reload("premium");
           return inhibitor instanceof Inhibitor
@@ -115,7 +119,7 @@ export default class Premium extends Command {
       [guild, user, reason]
     );
     if (result.status.startsWith("INSERT 0 1")) {
-      if (this.client.manager.ws)
+      if (this.client.manager.ws) {
         this.client.manager.ws.send(
           MessageUtil.encode(
             new Message(EventType.ADMIN_ACTION, {
@@ -129,6 +133,8 @@ export default class Premium extends Command {
             })
           )
         );
+        this.sync(guild, "add");
+      }
       try {
         const inhibitor = this.client.inhibitorHandler.reload("premium");
         return inhibitor instanceof Inhibitor
@@ -138,5 +144,17 @@ export default class Premium extends Command {
         return await message.error("PREMIUM_RELOAD_FAIL");
       }
     } else return await message.error("PREMIUM_INSERT_FAIL");
+  }
+
+  sync(guild: FireGuild | string, action: "add" | "remove") {
+    const guildId = guild instanceof FireGuild ? guild.id : guild;
+    this.client.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(EventType.PREMIUM_SYNC, {
+          id: guildId,
+          action,
+        })
+      )
+    );
   }
 }
