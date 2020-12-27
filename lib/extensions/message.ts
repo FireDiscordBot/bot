@@ -1,13 +1,10 @@
 import {
-  APIMessageContentResolvable,
-  MessageEditOptions,
   MessageReaction,
   WebhookClient,
   MessageEmbed,
   TextChannel,
   NewsChannel,
   Structures,
-  APIMessage,
   DMChannel,
   Webhook,
   Message,
@@ -20,6 +17,7 @@ import { constants } from "../util/constants";
 import { FireMember } from "./guildmember";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
+import * as centra from "centra";
 import { Fire } from "../Fire";
 
 const { emojis, reactions, regexes, imageExts } = constants;
@@ -169,12 +167,21 @@ export class FireMessage extends Message {
       const filters = this.client.getModule("filters") as Filters;
       content = filters.runReplace(content, quoter);
     }
+    let attachments: Buffer[] = [];
+    for (const url of this.attachments.map((attachment) => attachment.url)) {
+      const attachReq = await centra(url)
+        .header("User-Agent", "Fire Discord Bot")
+        .send()
+        .catch(() => {});
+      // @ts-ignore
+      if (attachReq?.statusCode == 200) attachments.push(attachReq.body);
+    }
     return await hook
       .send(content, {
         username: this.author.toString().replace("#0000", ""),
         avatarURL: this.author.displayAvatarURL({ size: 2048, format: "png" }),
         embeds: this.embeds,
-        files: [...this.attachments.values()],
+        files: attachments,
         allowedMentions: this.client.options.allowedMentions,
       })
       .catch(async () => {
