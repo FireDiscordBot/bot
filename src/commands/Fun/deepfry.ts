@@ -1,5 +1,6 @@
 import { FireMember } from "../../../lib/extensions/guildmember";
 import { FireMessage } from "../../../lib/extensions/message";
+import { FireUser } from "../../../lib/extensions/user";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { Argument } from "discord-akairo";
@@ -15,7 +16,7 @@ export default class Deepfry extends Command {
       args: [
         {
           id: "image",
-          type: Argument.union("memberSilent", "string"),
+          type: Argument.union("memberSilent", "userSilent", "string"),
           readableType: "member|image",
           slashCommandType: "image",
           description: (language: Language) =>
@@ -28,7 +29,10 @@ export default class Deepfry extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { image: FireMember | string }) {
+  async exec(
+    message: FireMessage,
+    args: { image: FireMember | FireUser | string }
+  ) {
     if (!process.env.MEME_TOKEN) return await message.error();
     let image: string;
     if (!args.image && !message.attachments.size)
@@ -43,7 +47,12 @@ export default class Deepfry extends Command {
         format: "png",
         dynamic: false,
       });
-    else image = args.image;
+    else if (args.image instanceof FireUser)
+      image = args.image.displayAvatarURL({
+        format: "png",
+        dynamic: false,
+      });
+    else image = args.image as string;
     if (!image) return await message.error();
     if (image.includes("cdn.discordapp.com") && !image.includes("?size="))
       image = image + "?size=2048";
