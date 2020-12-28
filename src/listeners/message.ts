@@ -7,8 +7,8 @@ import MCLogs from "../modules/mclogs";
 import Sk1er from "../modules/sk1er";
 import * as centra from "centra";
 
-const zwsRegex = /[\u200B-\u200D\uFEFF]/im;
-const symbolRegex = /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|:|\'|/im;
+const zwsRegex = /[\u200B-\u200D\uFEFF]/gim;
+const symbolRegex = /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|:|\'|/gim;
 export default class Message extends Listener {
   tokenRegex: RegExp;
 
