@@ -131,6 +131,7 @@ export default class Message extends Listener {
       .replace("dot", ".")
       .replace("//", "/")
       .replace("/.", ".")
-      .replace(symbolRegex, "");
+      .replace(symbolRegex, "")
+      .replace(" ", "");
   }
 }
