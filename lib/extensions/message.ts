@@ -167,14 +167,14 @@ export class FireMessage extends Message {
       const filters = this.client.getModule("filters") as Filters;
       content = filters.runReplace(content, quoter);
     }
-    let attachments: Buffer[] = [];
-    for (const url of this.attachments.map((attachment) => attachment.url)) {
-      const attachReq = await centra(url)
+    let attachments: { attachment: Buffer; name: string }[] = [];
+    for (const attach of this.attachments.values()) {
+      const attachReq = await centra(attach.url)
         .header("User-Agent", "Fire Discord Bot")
         .send()
         .catch(() => {});
-      // @ts-ignore
-      if (attachReq?.statusCode == 200) attachments.push(attachReq.body);
+      if (attachReq && attachReq?.statusCode == 200)
+        attachments.push({ attachment: attachReq.body, name: attach.name });
     }
     return await hook
       .send(content, {
