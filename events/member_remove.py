@@ -38,12 +38,12 @@ class MemberRemove(commands.Cog):
             if leavechan and leavemsg:
                 vars = {
                     '{user.mention}': user.mention,
-                    '{user}': str(user),
-                    '{user.name}': user.name,
+                    '{user}': discord.utils.escape_markdown(str(user)),
+                    '{user.name}': discord.utils.escape_markdown(user.name),
                     '{user.discrim}': user.discriminator,
-                    '{server}': str(guild),
-                    '{guild}': str(guild),
-                    '{count}': str(guild.member_count)
+                    '{server}': discord.utils.escape_markdown(str(user.guild)),
+                    '{guild}': discord.utils.escape_markdown(str(user.guild)),
+                    '{count}': str(user.guild.member_count)
                 }
                 message = leavemsg
                 for var, value in vars.items():

@@ -81,11 +81,11 @@ class MemberJoin(commands.Cog):
             joinmsg = conf.get('greet.joinmsg')
             vars = {
                 '{user.mention}': member.mention,
-                '{user}': str(member),
-                '{user.name}': member.name,
+                '{user}': discord.utils.escape_markdown(str(member)),
+                '{user.name}': discord.utils.escape_markdown(member.name),
                 '{user.discrim}': member.discriminator,
-                '{server}': str(member.guild),
-                '{guild}': str(member.guild),
+                '{server}': discord.utils.escape_markdown(str(member.guild)),
+                '{guild}': discord.utils.escape_markdown(str(member.guild)),
                 '{count}': str(member.guild.member_count)
             }
 
