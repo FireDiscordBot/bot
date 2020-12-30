@@ -112,7 +112,7 @@ export const memberConverter = async (
 
     if (member && member.size) {
       return member.first() as FireMember;
-    } else if (member) return member as FireMember;
+    } else if (member instanceof FireMember) return member;
 
     if (!silent) await message.error("MEMBER_NOT_FOUND");
     return null;
