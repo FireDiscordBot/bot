@@ -255,7 +255,7 @@ export class Util extends ClientUtil {
     if (language && language.get("PERMISSIONS").hasOwnProperty(name))
       return language.get("PERMISSIONS")[name];
     return titleCase(
-      name.toLowerCase().replace(/_/gim, "").replace(/guild/gim, "server")
+      name.toLowerCase().replace(/_/gim, " ").replace(/guild/gim, "server")
     );
   }
 
