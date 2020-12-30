@@ -1,7 +1,6 @@
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import { Util } from "discord.js";
 
 export default class TagRaw extends Command {
   constructor() {
@@ -9,7 +8,6 @@ export default class TagRaw extends Command {
       description: (language: Language) =>
         language.get("TAG_RAW_COMMAND_DESCRIPTION"),
       clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
-      userPermissions: ["MANAGE_MESSAGES"],
       args: [
         {
           id: "tag",
@@ -30,9 +28,10 @@ export default class TagRaw extends Command {
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(tag);
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", tag);
-    const content = Util.escapeMarkdown(cachedTag.content)
-      .replace("<", "\\<\\")
-      .replace(">", "\\>");
+    const content = cachedTag.content.replace(
+      /(?<markdown>[_\\~|\*`])/gim,
+      "\\$<markdown>"
+    );
     return await message.channel.send(content);
   }
 }
