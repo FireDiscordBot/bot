@@ -17,7 +17,7 @@ export default class Help extends Command {
         {
           id: "command",
           type: "command",
-          default: null,
+          default: undefined,
           required: false,
         },
       ],
@@ -27,7 +27,8 @@ export default class Help extends Command {
   }
 
   async exec(message: FireMessage, args: { command: Command }) {
-    if (!args.command) return await this.sendHelp(message);
+    if (typeof args.command == "undefined") return await this.sendHelp(message);
+    else if (!args.command) return await message.error("HELP_NO_COMMAND");
     else return await this.sendUsage(message, args.command);
   }
 
@@ -87,7 +88,9 @@ export default class Help extends Command {
     let permissions: string[] = [];
     ((command.userPermissions || []) as Array<string>).forEach(
       (perm: string) => {
-        permissions.push(this.client.util.cleanPermissionName(perm as PermissionString));
+        permissions.push(
+          this.client.util.cleanPermissionName(perm as PermissionString)
+        );
       }
     );
     let args: string[] = command.getArgumentsClean();
@@ -99,7 +102,7 @@ export default class Help extends Command {
         {
           name: "» Usage",
           value: `${message.util.parsed.prefix || "$"}${command.id} ${
-            args?.join(" ") || ""
+            args?.join(" ").replace(/\] \[/gim, " ") || ""
           }`,
           inline: false,
         },

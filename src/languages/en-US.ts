@@ -441,6 +441,8 @@ Hint: Use the \`public\` command to get your server on the list`,
         GUILD_ROLES: "» Roles",
         HELP_COMMAND_DESCRIPTION:
           "Lists all of Fire's commands and provides information about them",
+        HELP_NO_COMMAND:
+          "You must provide a valid command for info or no command for a full list",
         HELP_CREDITS_NAME: "Credits",
         HELP_CREDITS_VALUE: `
 Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team](https://aero.bot/) including
