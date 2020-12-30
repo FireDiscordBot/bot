@@ -24,7 +24,14 @@ export default class TagCreate extends Command {
           default: null,
         },
       ],
-      aliases: ["tags-create", "dtag-create", "dtags-create"],
+      aliases: [
+        "tags-create",
+        "tags-add",
+        "dtag-create",
+        "dtag-add",
+        "dtags-create",
+        "dtags-add",
+      ],
       restrictTo: "guild",
       parent: "tag",
     });
