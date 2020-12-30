@@ -29,7 +29,7 @@ export default class MCLogs extends Module {
     this.regexes = {
       reupload: /(?:http(?:s)?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?(\w+)/gim,
       noRaw: /(?:http(?:s)?:\/\/)?(?:justpaste).(?:it)\/(\w+)/gim,
-      secrets: /(club.sk1er.mods.levelhead.auth.MojangAuth|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :)/gim,
+      secrets: /(club.sk1er.mods.levelhead.auth.MojangAuth|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*)/gim,
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}/gim,
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
       home: /(\/Users\/\w+|\/home\/\w+|C:\\Users\\\w+)/gim,
@@ -196,14 +196,15 @@ export default class MCLogs extends Module {
     this.regexes.url.exec(text)?.forEach((match) => {
       if (!match.includes("sk1er.club"))
         text = text.replace(match, "[removed url]");
+      this.regexes.url.lastIndex = 0;
     });
-    this.regexes.url.lastIndex = 0;
 
     lines.forEach((line) => {
       if (this.regexes.secrets.test(line)) {
-        text = text.replace(line, "[line removed to protect sensitive info]");
         this.regexes.secrets.lastIndex = 0;
+        text = text.replace(line, "[line removed to protect sensitive info]");
       }
+      this.regexes.secrets.lastIndex = 0;
     });
 
     let diff: string;
