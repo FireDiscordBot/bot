@@ -268,9 +268,6 @@ export default class MCLogs extends Module {
       }
     }
   }
-  createModcoreZip() {
-    throw new Error("Method not implemented.");
-  }
 
   hasLogText(text: string) {
     return this.logText.some((logText) => text.includes(logText));
