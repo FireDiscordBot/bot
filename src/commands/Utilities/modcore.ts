@@ -81,10 +81,9 @@ export default class Modcore extends Command {
   cosmeticNameFormat(text: string) {
     return titleCase(
       text
-        .replace("_", " ")
-        .replace("_", " ") // for some reason it doesn't replace all underscores unless I have two .replace's
-        .replace("STATIC", "(Static)")
-        .replace("DYNAMIC", "(Dynamic)")
+        .replace(/_/gim, " ")
+        .replace(/STATIC/gim, "(Static)")
+        .replace(/DYNAMIC/gim, "(Dynamic)")
     );
   }
 }

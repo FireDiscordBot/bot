@@ -214,7 +214,7 @@ export class FireGuild extends Guild {
     for (const [key, value] of Object.entries(variables)) {
       name = name.replace(key, value);
     }
-    name = name.replace("crab", "🦀");
+    name = name.replace(/crab/gim, "🦀");
     this.settings.set("tickets.increment", ++increment);
     const ticket = await this.channels.create(name.slice(0, 50), {
       parent: category,

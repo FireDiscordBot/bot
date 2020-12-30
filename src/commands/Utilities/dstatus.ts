@@ -43,7 +43,7 @@ export default class DiscordStatus extends Command {
         `├${constants.statuspage.emojis[group.status]} **${group.name}**: ${
           message.language.get("STATUSPAGE_COMPONENT_STATUS")[
             group.status.toLowerCase()
-          ] || titleCase(group.status.replace("_", " "))
+          ] || titleCase(group.status.replace(/_/gim, " "))
         }`,
         ...summary.components
           .filter((component) => {
@@ -60,7 +60,7 @@ export default class DiscordStatus extends Command {
               }**: ${
                 message.language.get("STATUSPAGE_COMPONENT_STATUS")[
                   groupComponent.status.toLowerCase()
-                ] || titleCase(groupComponent.status.replace("_", " "))
+                ] || titleCase(groupComponent.status.replace(/_/gim, " "))
               }`
           ),
       ]);

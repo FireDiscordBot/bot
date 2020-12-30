@@ -163,7 +163,7 @@ export class FireMessage extends Message {
     if (!hook) return;
     let content: string = null;
     if (this.content) {
-      content = this.content.replace("[", "\\[").replace("]", "\\]");
+      content = this.content.replace(/\[/gim, "\\[").replace(/\]/gim, "\\]");
       const filters = this.client.getModule("filters") as Filters;
       content = filters.runReplace(content, quoter);
     }
@@ -178,7 +178,7 @@ export class FireMessage extends Message {
     }
     return await hook
       .send(content, {
-        username: this.author.toString().replace("#0000", ""),
+        username: this.author.toString().replace(/#0000/gim, ""),
         avatarURL: this.author.displayAvatarURL({ size: 2048, format: "png" }),
         embeds: this.embeds,
         files: attachments,

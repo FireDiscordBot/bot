@@ -182,9 +182,9 @@ export class Util extends ClientUtil {
     return {
       id: this.client.manager.id,
       name: this.client.user
-        ? `${this.client.user.username.replace(" ", "").toLowerCase()}-${env}-${
-            this.client.manager.id
-          }`
+        ? `${this.client.user.username
+            .replace(/\s/gim, "")
+            .toLowerCase()}-${env}-${this.client.manager.id}`
         : `fire-${env}-${this.client.manager.id}`,
       env: env,
       user: this.client.user ? this.client.user.toString() : "Unknown#0000",
@@ -255,7 +255,7 @@ export class Util extends ClientUtil {
     if (language && language.get("PERMISSIONS").hasOwnProperty(name))
       return language.get("PERMISSIONS")[name];
     return titleCase(
-      name.toLowerCase().replace("_", "").replace("guild", "server")
+      name.toLowerCase().replace(/_/gim, "").replace(/guild/gim, "server")
     );
   }
 
@@ -349,7 +349,7 @@ export class Util extends ClientUtil {
       let converted: any[] = [];
       let splitPhrase: string[];
       if (phrase.includes(","))
-        splitPhrase = phrase.replace(", ", ",").split(",");
+        splitPhrase = phrase.replace(/, /gim, ",").split(",");
       else splitPhrase = phrase.split(" ");
       const converters = async () => {
         splitPhrase.forEach(async (phrase) => {

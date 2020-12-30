@@ -113,8 +113,8 @@ export default class Message extends Listener {
     await filters?.runAll(message, this.cleanContent(message)).catch(() => {});
 
     if (
-      message.content.replace("!", "").trim() ==
-      (message.guild.me as FireMember).toMention().replace("!", "").trim()
+      message.content.replace(/!/gim, "").trim() ==
+      (message.guild.me as FireMember).toMention().replace(/!/gim, "").trim()
     )
       await message
         .send(
@@ -127,11 +127,11 @@ export default class Message extends Listener {
   cleanContent(message: FireMessage) {
     return message.content
       .replace(zwsRegex, "")
-      .replace("(.)", ".")
-      .replace("dot", ".")
-      .replace("//", "/")
-      .replace("/.", ".")
+      .replace(/\(\.\)/gim, ".")
+      .replace(/dot/gim, ".")
+      .replace(/\/\//gim, "/")
+      .replace(/\/\./gim, ".")
       .replace(symbolRegex, "")
-      .replace(" ", "");
+      .replace(/\s/gim, "");
   }
 }

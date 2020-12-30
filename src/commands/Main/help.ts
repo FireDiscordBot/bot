@@ -2,6 +2,7 @@ import { titleCase, constants } from "../../../lib/util/constants";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
+import { PermissionString } from "discord.js";
 
 const { categoryNames } = constants;
 
@@ -86,7 +87,7 @@ export default class Help extends Command {
     let permissions: string[] = [];
     ((command.userPermissions || []) as Array<string>).forEach(
       (perm: string) => {
-        permissions.push(titleCase(perm.replace("_", " ")));
+        permissions.push(this.client.util.cleanPermissionName(perm as PermissionString));
       }
     );
     let args: string[] = command.getArgumentsClean();

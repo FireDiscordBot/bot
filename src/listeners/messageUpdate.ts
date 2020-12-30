@@ -63,8 +63,8 @@ export default class MessageUpdate extends Listener {
     await filters?.runAll(after, messageListener.cleanContent(after));
 
     if (
-      after.content.replace("!", "").trim() ==
-      (after.guild.me as FireMember).toMention().replace("!", "").trim()
+      after.content.replace(/!/gim, "").trim() ==
+      (after.guild.me as FireMember).toMention().replace(/!/gim, "").trim()
     )
       await after.send(
         "HELLO_PREFIX",
