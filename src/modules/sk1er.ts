@@ -166,7 +166,7 @@ export default class Sk1er extends Module {
     users = users.filter((u) => !memberIds.includes(u));
     const membersLoop = async () => {
       members.forEach(async (member: FireMember) => {
-        if (!member.roles.cache.has(this.nitroId)) {
+        if (!member.roles.cache.has(this.nitroId) && !member.isSuperuser()) {
           this.client.console.warn(
             `[Sk1er] Removing nitro perks from ${member} due to lack of booster role`
           );
