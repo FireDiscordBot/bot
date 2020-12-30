@@ -69,9 +69,15 @@ export default class MessageInvalid extends Listener {
     while (
       (messageLink = regexes.discord.messageGlobal.exec(message.content))
     ) {
-      if (messageLink)
+      if (
+        messageLink &&
+        !messageLink[0].startsWith("<") &&
+        !messageLink[0].endsWith(">")
+      )
         matches.push((messageLink.groups as unknown) as MessageLinkMatch);
     }
+
+    if (!matches.length) return;
 
     const messageIds = matches.map((match) => match.message_id);
     matches = matches.filter(
