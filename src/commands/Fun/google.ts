@@ -3,6 +3,7 @@ import { Assistant, AssistantLanguage } from "nodejs-assistant";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
+import Filters from "../../modules/filters";
 import { chromium } from "playwright";
 
 export default class Google extends Command {
@@ -58,6 +59,7 @@ export default class Google extends Command {
       message.author.id,
       response.conversationState
     );
+    const filters = this.client.getModule("filters") as Filters;
     const html = response.html
       ?.replace(
         "<html>",
@@ -67,11 +69,11 @@ export default class Google extends Command {
         "Assistant.micTimeoutMs = 0;",
         `window.onload = () => {window.document.body.innerHTML = window.document.body.innerHTML
   .replace(
-    /<div class=\"show_text_content\">Your name is \\w+\\.<\\/div>/im,
+    /<div class=\"show_text_content\">Your name is \\w+\\.<\\/div>/gim,
     "<div class='show_text_content'>Your name is ${message.author.username}.</div>"
   )
   .replace(
-    /<div class=\"show_text_content\">I remember you telling me your name was \\w+\\.<\\/div>/im,
+    /<div class=\"show_text_content\">I remember you telling me your name was \\w+\\.<\\/div>/gim,
     "<div class='show_text_content'>I remember you telling me your name was ${message.author.username}.</div>"
   );};`
       );
@@ -87,8 +89,10 @@ export default class Google extends Command {
       viewport: { width: 1920, height: 1080 },
     });
     const page = await context.newPage();
-    await page.setContent(html, { waitUntil: "load" });
-    await this.client.util.sleep(500);
+    await page.setContent(filters.runReplace(html), {
+      waitUntil: "load",
+    });
+    await this.client.util.sleep(250);
     const screenshot = await page.screenshot({ type: "png", fullPage: true });
     await page.close();
     await context.close();
