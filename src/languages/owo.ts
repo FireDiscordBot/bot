@@ -65,7 +65,8 @@ export default class owo extends Language {
         ATTACHMENT: "Attachment",
         VARIABLES: "Vawiabwes",
         SUBJECT: "Subject",
-        REGION_DEPRECATED: "❓ Depwecated Wegion",
+        REGION_DEPRECATED:
+          "<:wumpus_land:759529118671831040> Depwecated Wegion",
         REGIONS: {
           brazil: "🇧🇷 Bwaziw",
           europe: "🇪🇺 Euwope",
