@@ -596,7 +596,9 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
         MCUUID_UUID: (ign: string, uuid: string) =>
           `${ign} has the UUID ${uuid}`,
         MOD_COMMAND_DESCRIPTION: "Get information about a Sk1er LLC mod",
+        MOD_FETCH_FAIL: "Failed to fetch mod data",
         MOD_INVALID: "You must provide a valid mod",
+        MOD_LIST: "All Mods",
         MODCORE_COMMAND_DESCRIPTION: "Get a player's modcore profile",
         MODCORE_INVALID_IGN:
           "You must provide a valid IGN to get the ModCore profile of",

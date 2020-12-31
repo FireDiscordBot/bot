@@ -1,8 +1,4 @@
-import {
-  ModAnalytics,
-  Sk1erMod,
-  Sk1erMods,
-} from "../../../lib/interfaces/sk1ermod";
+import { ModAnalytics, Sk1erMod } from "../../../lib/interfaces/sk1ermod";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
@@ -24,39 +20,66 @@ export default class Mod extends Command {
         },
       ],
       enableSlashCommand: true,
+      aliases: ["mods"],
       restrictTo: "all",
     });
   }
 
   async exec(message: FireMessage, args: { mod?: string }) {
-    const mods: Sk1erMods = await (
-      await centra("https://api.sk1er.club/mods").send()
-    ).json();
-    let arg = args.mod?.toLowerCase();
-    const modIds = Object.keys(mods);
-    let modNames = {};
-    if (arg) {
-      Object.values(mods).forEach((mod) => {
-        modNames[mod.display.toLowerCase()] = mod.mod_ids[0];
-        mod.mod_ids.forEach((mid) => (modNames[mid] = mod.mod_ids[0]));
+    const modsReq = await centra("https://api.sk1er.club/mods")
+      .send()
+      .catch(() => {});
+    if (!modsReq || modsReq.statusCode != 200) return await message.error();
+    const mods: Sk1erMod[] = Object.values(
+      await modsReq.json().catch(() => {
+        return {};
+      })
+    );
+    if (message.util?.parsed?.alias == "mods") {
+      const names = mods.map((mod) => mod.display);
+      const embed = new MessageEmbed()
+        .setColor(message?.member?.displayColor || "#ffffff")
+        .setTitle(message.language.get("MOD_LIST"))
+        .setDescription(names.join(", "))
+        .setTimestamp(new Date());
+      return await message.channel.send(embed).catch(async () => {
+        return await message.error("MOD_FETCH_FAIL");
       });
-      if (!Object.keys(modNames).includes(arg.toLowerCase()))
-        return await message.error("MOD_INVALID");
-      else arg = modNames[arg.toLowerCase()];
     }
-    let mod: Sk1erMod = mods[arg];
-    if (!mod) {
-      mod = mods[modIds[0]];
+    let arg = args.mod?.toLowerCase();
+    let mod: Sk1erMod;
+    if (arg)
+      mod = mods.find(
+        (mod) =>
+          mod.display.toLowerCase() == arg.toLowerCase() ||
+          mod.mod_ids.includes(arg)
+      );
+    else {
+      this.client.util.shuffleArray(mods);
+      mod = mods[0];
     }
-    const analytics: ModAnalytics = (
-      await (
-        await centra("https://api.sk1er.club/mods_analytics").send()
-      ).json()
-    )[mod.mod_ids[0]];
+    if (!mod) return await message.error("MOD_INVALID");
+    const analyticsReq = await centra("https://api.sk1er.club/mods_analytics")
+      .send()
+      .catch(() => {});
+    if (!analyticsReq || analyticsReq.statusCode != 200)
+      return await message.error("MOD_FETCH_FAIL");
+    const allAnalytics: {
+      [mod_id: string]: ModAnalytics;
+    } = await analyticsReq.json().catch(() => {
+      return {};
+    });
+    const [id, analytics] = Object.entries(allAnalytics).find(
+      ([id]) =>
+        mod.mod_ids.includes(id.trim().toLowerCase()) ||
+        mod.display.trim().toLowerCase() == id.trim().toLowerCase()
+    ) || ["", 0];
+    if (allAnalytics == {} || typeof analytics != "object")
+      return await message.error("MOD_FETCH_FAIL");
     const embed = new MessageEmbed()
       .setTitle(mod.display)
       .setColor(message?.member?.displayColor || "#ffffff")
-      .setURL(`https://sk1er.club/mods/${mod.mod_ids[0]}`)
+      .setURL(`https://sk1er.club/mods/${id}`)
       .setDescription(mod.short)
       .setTimestamp(new Date());
     let versions: string[] = [];
