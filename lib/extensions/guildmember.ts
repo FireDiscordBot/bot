@@ -97,7 +97,9 @@ export class FireMember extends GuildMember {
     );
     if (this.nickname && this.nickname == badName)
       return this.user.username[0] < "0";
-    return this.displayName[0] < "0";
+    return this.permissions.has("CHANGE_NICKNAME")
+      ? this.displayName[0] < "0"
+      : this.user.username[0] < "0";
   }
 
   get cancerous() {
@@ -107,7 +109,11 @@ export class FireMember extends GuildMember {
     );
     if (this.nickname && this.nickname == badName)
       return !this.client.util.isASCII(this.user.username);
-    return !this.client.util.isASCII(this.displayName);
+    return !this.client.util.isASCII(
+      this.permissions.has("CHANGE_NICKNAME")
+        ? this.displayName
+        : this.user.username
+    );
   }
 
   async dehoist() {
