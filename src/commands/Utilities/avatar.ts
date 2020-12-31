@@ -41,6 +41,7 @@ export default class Avatar extends Command {
     const embed = new MessageEmbed()
       .setColor(color)
       .setTimestamp(new Date())
+      .setTitle(`${user.toString()}'s avatar`)
       .setImage(
         user?.displayAvatarURL({
           size: 2048,
