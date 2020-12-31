@@ -82,8 +82,8 @@ export default class Filters extends Module {
     const excluded: string[] =
       message?.guild.settings.get("excluded.filter", []) || [];
     const roleIds = message
-      ? message.member.roles.cache.map((role) => role.id)
-      : member.roles.cache.map((role) => role.id);
+      ? message.member?.roles.cache.map((role) => role.id)
+      : member?.roles.cache.map((role) => role.id);
     if (
       excluded.includes(message?.author?.id || user?.id) ||
       excluded.includes(message?.channel?.id) ||
