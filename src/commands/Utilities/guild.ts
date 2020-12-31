@@ -7,7 +7,7 @@ import { MessageEmbed } from "discord.js";
 import * as moment from "moment";
 
 const {
-  emojis: { badges },
+  emojis: { badges, channels },
 } = constants;
 
 export default class GuildCommand extends Command {
@@ -31,7 +31,7 @@ export default class GuildCommand extends Command {
     if (guild.features.includes("PARTNERED")) emojis.push(badges.PARTNERED);
     if (guild.features.includes("VERIFIED")) emojis.push(badges.VERIFIED);
 
-    if (emojis.length > 0) {
+    if (emojis.length) {
       emojis.push(zws);
     }
 
@@ -55,6 +55,17 @@ export default class GuildCommand extends Command {
       `**${message.language.get(
         "MEMBERS"
       )}:** ${guild.memberCount.toLocaleString(message.language.id)}`,
+      `**${message.language.get(
+        "CHANNELS"
+      )}:** ${guild.channels.cache.size.toLocaleString(message.language.id)} (${
+        channels.text
+      } ${
+        guild.channels.cache.filter((channel) => channel.type == "text").size
+      }, ${channels.voice} ${
+        guild.channels.cache.filter((channel) => channel.type == "voice").size
+      }, ${channels.news} ${
+        guild.channels.cache.filter((channel) => channel.type == "news").size
+      })`,
       `**${message.language.get("REGION")}:** ${
         message.language.get("REGIONS")[guild.region] ||
         message.language.get("REGION_DEPRECATED")

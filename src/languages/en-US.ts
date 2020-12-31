@@ -60,6 +60,7 @@ export default class enUS extends Language {
         MORE_INTEGRATIONS:
           "Want more integrations? Use the suggest command to suggest some!",
         MEMBERS: "Members",
+        CHANNELS: "Channels",
         USERS: "Users",
         REGION: "Region",
         STATUS: "Status",
@@ -97,7 +98,8 @@ export default class enUS extends Language {
         DESCRIPTION: "Description",
         CUSTOM_URL: "Custom URL",
         AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
-        REGION_DEPRECATED: "❓ Deprecated Region",
+        REGION_DEPRECATED:
+          "<:wumpus_land:759529118671831040> Deprecated Region",
         REGIONS: {
           brazil: "🇧🇷 Brazil",
           europe: "🇪🇺 Europe",

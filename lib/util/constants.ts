@@ -35,6 +35,11 @@ export const constants = {
       FIRE_ADMIN: "<:FireVerified:671243744774848512>",
       FIRE_PREMIUM: "<:FirePremium:680519037704208466>",
     },
+    channels: {
+      text: "<:channeltext:794243232648921109>",
+      voice: "<:channelvoice:794243248444407838>",
+      news: "<:channelannouncements:794243262822350919>",
+    },
   },
   statusEmojis: {
     online: "https://cdn.discordapp.com/emojis/775514569430663178.png?v=1",
