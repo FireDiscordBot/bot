@@ -15,7 +15,17 @@ import { getIDMatch } from "../util/converters";
 import { FireMember } from "./guildmember";
 import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
+import { nanoid } from "nanoid";
 import { Fire } from "../Fire";
+
+type ModLogTypes =
+  | "warn"
+  | "ban"
+  | "unban"
+  | "kick"
+  | "block"
+  | "unblock"
+  | "derank";
 
 export class FireGuild extends Guild {
   settings: GuildSettings;
@@ -347,6 +357,26 @@ export class FireGuild extends Guild {
     return await channel.delete(
       this.language.get("TICKET_CLOSE_REASON") as string
     );
+  }
+
+  async createModLogEntry(
+    user: FireUser | FireMember,
+    moderator: FireMember,
+    type: ModLogTypes,
+    reason: string
+  ) {
+    const date = new Date().toLocaleString(this.language.id);
+    const caseID = nanoid();
+    const entryResult = await this.client.db
+      .query(
+        "INSERT INTO modlogs (gid, uid, modid, reason, date, type, caseid) VALUES ($1, $2, $3, $4, $5, $6, $7);",
+        [this.id, user.id, moderator.id, reason, date, type, caseID]
+      )
+      .catch(() => {});
+    if (!entryResult) return false;
+    // amazing success detection
+    else if (entryResult.status.startsWith("INSERT")) return true;
+    return false;
   }
 }
 
