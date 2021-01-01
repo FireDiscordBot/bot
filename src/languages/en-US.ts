@@ -59,6 +59,7 @@ export default class enUS extends Language {
         NO_MODERATORS_SET: "There are no moderators set in this guild.",
         MORE_INTEGRATIONS:
           "Want more integrations? Use the suggest command to suggest some!",
+        ERROR: "Error",
         MEMBERS: "Members",
         CHANNELS: "Channels",
         USERS: "Users",
@@ -97,6 +98,7 @@ export default class enUS extends Language {
         STATISTICS: "Statistics",
         DESCRIPTION: "Description",
         CUSTOM_URL: "Custom URL",
+        MODERATOR: "Moderator",
         AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
         REGION_DEPRECATED:
           "<:wumpus_land:759529118671831040> Deprecated Region",
@@ -897,6 +899,14 @@ Running this command without providing a category resets it, therefore disabling
           `Removed from ticket by ${author} (${id})`,
         TRANS_COMMAND_DESCRIPTION: "Generate a trans pride avatar",
         TEST_COMMAND_DESCRIPTION: "test?",
+        WARN_LOG_AUTHOR: (user: string) => `Warn | ${user}`,
+        WARN_LOG_DM_FAIL: "Unable to send DM, user was not warned.",
+        WARN_DM: (guild: string, reason: string) =>
+          `You were warned in ${guild} for "${reason}"`,
+        WARN_SUCCESS: (user: string) =>
+          `${constants.emojis.success} **${user}** has been warned.`,
+        WARN_FAIL: (user: string) =>
+          `${constants.emojis.error} **${user}** was not warned due to having DMs off. The warning has been logged.`,
       },
       enabled: true,
     });

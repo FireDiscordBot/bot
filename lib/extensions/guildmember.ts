@@ -1,4 +1,11 @@
-import { Structures, GuildMember, Channel } from "discord.js";
+import {
+  MessageEmbed,
+  GuildMember,
+  TextChannel,
+  Structures,
+  Channel,
+  Util,
+} from "discord.js";
 import { FakeChannel } from "./slashCommandMessage";
 import * as sanitizer from "@aero/sanitizer";
 import { FireGuild } from "./guild";
@@ -181,6 +188,49 @@ export class FireMember extends GuildMember {
     } catch (e) {
       return false;
     }
+  }
+
+  async warn(reason: string, moderator: FireMember, channel?: TextChannel) {
+    const embed = new MessageEmbed()
+      .setColor("#E67E22")
+      .setTimestamp(new Date())
+      .setAuthor(
+        this.guild.language.get("WARN_LOG_AUTHOR", this.toString()),
+        this.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+      )
+      .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.guild.language.get("REASON"), reason)
+      .setFooter(`${this.id} | ${moderator.id}`);
+    const logEntry = await this.guild
+      .createModLogEntry(this, moderator, "warn", reason)
+      .catch(() => {});
+    if (!logEntry) return false;
+    let noDM: boolean = false;
+    await this.send(
+      this.language.get("WARN_DM", Util.escapeMarkdown(this.guild.name), reason)
+    ).catch(() => {
+      noDM = true;
+    });
+    if (noDM)
+      embed.addField(
+        this.guild.language.get("ERROR"),
+        this.guild.language.get("WARN_LOG_DM_FAIL")
+      );
+    await this.guild.modLog(embed).catch(() => {});
+    if (channel)
+      return noDM
+        ? await channel.send(
+            this.guild.language.get(
+              "WARN_FAIL",
+              Util.escapeMarkdown(this.toString())
+            )
+          )
+        : await channel.send(
+            this.guild.language.get(
+              "WARN_SUCCESS",
+              Util.escapeMarkdown(this.toString())
+            )
+          );
   }
 
   isSuperuser() {
