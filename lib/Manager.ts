@@ -6,6 +6,7 @@ import { Fire } from "./Fire";
 
 export class Manager {
   reconnector: Reconnector;
+  killing: boolean = false;
   sentry: typeof Sentry;
   ws?: Websocket;
   client: Fire;
@@ -89,7 +90,9 @@ export class Manager {
   }
 
   async kill(event: string) {
-    this.client?.console.warn("[Manager] Destroying client...");
+    if (this.killing) return;
+    this.killing = true;
+    this.client?.console.warn(`[Manager] Destroying client (${event})`);
     await this.client?.user?.setStatus(
       "invisible",
       this.client.options.shards as number[]
