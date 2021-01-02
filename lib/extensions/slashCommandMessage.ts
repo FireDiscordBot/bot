@@ -19,7 +19,6 @@ import {
   APIMessage,
   Collection,
   Snowflake,
-  Message,
 } from "discord.js";
 import { SlashCommand } from "../interfaces/slashCommands";
 import { ArgumentOptions, Command } from "../util/command";
@@ -27,6 +26,7 @@ import { CommandUtil } from "../util/commandutil";
 import { constants } from "../util/constants";
 import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
+import { FireMessage } from "./message";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
@@ -37,7 +37,7 @@ export class SlashCommandMessage {
   id: string;
   client: Fire;
   flags: number;
-  sent: boolean;
+  sent: false | "ack" | "message";
   content: string;
   command: Command;
   author: FireUser;
@@ -48,6 +48,7 @@ export class SlashCommandMessage {
   channel: FakeChannel;
   latestResponse: string;
   mentions: MessageMentions;
+  sourceMessage: FireMessage;
   slashCommand: SlashCommand;
   realChannel?: TextChannel | NewsChannel;
   attachments: Collection<string, MessageAttachment>;
@@ -288,7 +289,7 @@ export class FakeChannel {
 
   bulkDelete(
     messages:
-      | Collection<Snowflake, Message>
+      | Collection<Snowflake, FireMessage>
       | readonly MessageResolvable[]
       | number,
     filterOld?: boolean
@@ -306,8 +307,25 @@ export class FakeChannel {
     await this.client.api
       // @ts-ignore
       .interactions(this.id)(this.token)
-      .callback.post({ data: { type: source ? 5 : 2 } })
-      .then(() => (this.message.sent = true))
+      .callback.post({ data: { type: source ? 5 : 2 }, query: { wait: true } })
+      .then(() => {
+        this.message.sent = "ack";
+        const sourceMessage = this.real.messages.cache.find(
+          (message) =>
+            typeof message.type == "undefined" &&
+            message.system &&
+            message.author.id == this.message.member.id &&
+            message.content.startsWith(
+              `</${
+                this.message.command.parent
+                  ? this.message.command.parent
+                  : this.message.command.id
+              }:${this.message.slashCommand.data.id}>`
+            )
+        );
+        if (sourceMessage)
+          this.message.sourceMessage = sourceMessage as FireMessage;
+      })
       .catch(() => {});
   }
 
@@ -360,7 +378,10 @@ export class FakeChannel {
           },
           files,
         })
-        .then(() => (this.message.sent = true))
+        .then(() => {
+          // @ts-ignore
+          if ((data.flags & 64) != 64) this.message.sent = "message";
+        })
         .catch(() => {});
     else {
       // @ts-ignore
@@ -370,6 +391,10 @@ export class FakeChannel {
         .post({
           data,
           files,
+        })
+        .then(() => {
+          // @ts-ignore
+          if ((data.flags & 64) != 64) this.message.sent = "message";
         })
         .catch(() => {});
       if (webhook?.id) this.message.latestResponse = webhook.id;

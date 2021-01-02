@@ -34,6 +34,8 @@ export default class InteractionCreate extends Listener {
       await message.generateContent();
       // @ts-ignore
       await this.client.commandHandler.handle(message);
+      if (message.sent != "message")
+        await message.sourceMessage?.delete().catch(() => {});
     } catch (error) {
       const guild = this.client.guilds.cache.get(command.guild_id);
       if (!guild)
