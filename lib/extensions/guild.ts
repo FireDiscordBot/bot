@@ -7,6 +7,7 @@ import {
   MessageAttachment,
   MessageEmbedOptions,
 } from "discord.js";
+import { ActionLogType, ModLogType } from "../util/constants";
 import { GuildTagManager } from "../util/guildtagmanager";
 import Tickets from "../../src/commands/Tickets/tickets";
 import { FakeChannel } from "./slashCommandMessage";
@@ -17,15 +18,6 @@ import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
 import { Fire } from "../Fire";
-
-type ModLogTypes =
-  | "warn"
-  | "ban"
-  | "unban"
-  | "kick"
-  | "block"
-  | "unblock"
-  | "derank";
 
 export class FireGuild extends Guild {
   settings: GuildSettings;
@@ -94,26 +86,29 @@ export class FireGuild extends Guild {
   async fetchMember(name: string): Promise<FireMember | null> {
     const member = this.getMember(name);
 
-    if (member) {
-      return member;
-    } else {
-      const fetchedMembers = await this.members.fetch({
-        user: this.members.cache.size ? [...this.members.cache.array()] : [],
-        query: name,
-        limit: 1,
-      });
+    if (member) return member;
+    const fetchedMembers = await this.members.fetch({
+      user: this.members.cache.size ? [...this.members.cache.array()] : [],
+      query: name,
+      limit: 1,
+    });
 
-      return fetchedMembers.first() as FireMember | null;
-    }
+    return fetchedMembers.first() as FireMember | null;
   }
 
-  async actionLog(log: string | MessageEmbed | MessageEmbedOptions) {
+  async actionLog(
+    log: string | MessageEmbed | MessageEmbedOptions,
+    type?: ActionLogType
+  ) {
     const channel = this.channels.cache.get(this.settings.get("log.action"));
     if (!channel || channel.type != "text") return;
     return await (channel as TextChannel).send(log).catch(() => {});
   }
 
-  async modLog(log: string | MessageEmbed | MessageEmbedOptions) {
+  async modLog(
+    log: string | MessageEmbed | MessageEmbedOptions,
+    type?: ModLogType
+  ) {
     const channel = this.channels.cache.get(
       this.settings.get("log.moderation")
     );
@@ -362,7 +357,7 @@ export class FireGuild extends Guild {
   async createModLogEntry(
     user: FireUser | FireMember,
     moderator: FireMember,
-    type: ModLogTypes,
+    type: ModLogType,
     reason: string
   ) {
     const date = new Date().toLocaleString(this.language.id);

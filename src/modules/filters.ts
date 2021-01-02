@@ -223,7 +223,7 @@ export default class Filters extends Module {
             false
           );
       }
-      await message.guild.actionLog(embed).catch(() => {});
+      await message.guild.actionLog(embed, "linkfilter").catch(() => {});
     }
   }
 
@@ -363,7 +363,7 @@ export default class Filters extends Module {
           })
         )
         .setFooter(message.author.id);
-      await message.guild.actionLog(embed).catch(() => {});
+      await message.guild.actionLog(embed, "linkfilter").catch(() => {});
     }
   }
 
@@ -403,7 +403,7 @@ export default class Filters extends Module {
         })
       )
       .setFooter(message.author.id);
-    await message.guild.actionLog(embed).catch(() => {});
+    await message.guild.actionLog(embed, "linkfilter").catch(() => {});
   }
 
   async handleYouTubeVideo(message: FireMessage, extra: string = "") {
@@ -488,7 +488,7 @@ export default class Filters extends Module {
             ? description + "..."
             : description
         );
-      await message.guild.actionLog(embed).catch(() => {});
+      await message.guild.actionLog(embed, "linkfilter").catch(() => {});
     }
   }
 
@@ -567,7 +567,7 @@ export default class Filters extends Module {
         )
       );
     }
-    await message.guild.actionLog(embed).catch(() => {});
+    await message.guild.actionLog(embed, "linkfilter").catch(() => {});
   }
 
   async handleTwitch(message: FireMessage, extra: string = "") {
@@ -607,7 +607,7 @@ export default class Filters extends Module {
         })
       )
       .setFooter(message.author.id);
-    await message.guild.actionLog(embed).catch(() => {});
+    await message.guild.actionLog(embed, "linkfilter").catch(() => {});
   }
 
   async handleTwitter(message: FireMessage, extra: string = "") {
@@ -642,7 +642,7 @@ export default class Filters extends Module {
         })
       )
       .setFooter(message.author.id);
-    await message.guild.actionLog(embed).catch(() => {});
+    await message.guild.actionLog(embed, "linkfilter").catch(() => {});
   }
 
   async handleShort(message: FireMessage, extra: string = "") {
@@ -677,6 +677,6 @@ export default class Filters extends Module {
         })
       )
       .setFooter(message.author.id);
-    await message.guild.actionLog(embed).catch(() => {});
+    await message.guild.actionLog(embed, "linkfilter").catch(() => {});
   }
 }

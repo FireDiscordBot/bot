@@ -52,6 +52,6 @@ export default class Purge extends Listener {
         );
       }
     }
-    return await message.guild.actionLog(embed);
+    return await message.guild.actionLog(embed, "purge");
   }
 }
