@@ -42,19 +42,27 @@ export default class Google extends Command {
   }
 
   async exec(message: FireMessage, args: { query: string }) {
-    const response = await this.assistant.query(args.query, {
-      conversationState:
-        this.client.conversationStates.get(message.author.id) || null,
-      audioInConfig: {
-        encoding: 1,
-        sampleRateHertz: 16000,
-      },
-      audioOutConfig: {
-        encoding: 1,
-        sampleRateHertz: 16000,
-        volumePercentage: 0,
-      },
-    });
+    const response = await this.assistant
+      .query(args.query, {
+        conversationState:
+          this.client.conversationStates.get(message.author.id) || null,
+        audioInConfig: {
+          encoding: 1,
+          sampleRateHertz: 16000,
+        },
+        audioOutConfig: {
+          encoding: 1,
+          sampleRateHertz: 16000,
+          volumePercentage: 0,
+        },
+      })
+      .catch((e: Error) => e);
+    if (
+      response instanceof Error &&
+      response.message.includes("text_query too long.")
+    )
+      return await message.error("GOOGLE_TOO_LONG");
+    else if (response instanceof Error) return await message.error();
     this.client.conversationStates.set(
       message.author.id,
       response.conversationState
