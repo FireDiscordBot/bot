@@ -90,8 +90,11 @@ export default class Eval extends Command {
     if (args.code.language == "ts")
       args.code.content = transpile(args.code.content);
     const { success, result, type } = await this.eval(message, args);
+    success
+      ? await message.success().catch(() => {})
+      : await message.error().catch(() => {});
     if (this.client.manager.ws) {
-      let input, output;
+      let input: string, output: string;
       try {
         input = await this.client.util.haste(args.code.content);
         output = await this.client.util.haste(result);
@@ -113,7 +116,12 @@ export default class Eval extends Command {
         )
       );
     }
-    if (success && result == null) return;
+    if (
+      (success && result == null) ||
+      type.toString() == "void" ||
+      type.toString() == "Promise<void>"
+    )
+      return;
     const input = codeBlock(args.code.language || "ts", args.code.content);
     const embed = new MessageEmbed()
       .setTitle(
@@ -144,9 +152,8 @@ export default class Eval extends Command {
       return await paginatorInterface.send(message.channel);
     }
     const output = codeBlock("js", result);
-    if (!type.toString().includes("void") && output && output != "undefined")
+    if (output && output != "undefined")
       embed.addField(":outbox_tray: Output", output);
-    success ? await message.success() : await message.error();
     return await this.send(message, embed);
   }
 
@@ -161,6 +168,9 @@ export default class Eval extends Command {
     let success: boolean, result: any;
     let type: Type;
     try {
+      setTimeout(async () => {
+        if (typeof success == "undefined") await message.react("▶️");
+      }, 1000);
       if (args.async) content = `(async () => {\n${content}\n})();`;
       const me = message.member,
         fire = message.client,
