@@ -26,7 +26,11 @@ export class CommandHandler extends AkairoCommandHandler {
    * @param {any} args - Arguments to use.
    * @returns {Promise<void>}
    */
-  async runCommand(message: FireMessage, command: Command, args: any[]): Promise<void> {
+  async runCommand(
+    message: FireMessage,
+    command: Command,
+    args: any[]
+  ): Promise<void> {
     if (command.typing) {
       message.channel.startTyping();
     }
@@ -55,8 +59,8 @@ export class CommandHandler extends AkairoCommandHandler {
   setup() {
     this.client.once("ready", () => {
       this.client.on("message", async (m) => {
-        if (m.partial) await m.fetch();
-        this.handle(m);
+        if (m.partial) await m.fetch().catch(() => {});
+        if (!m.partial) this.handle(m);
       });
 
       if (this.handleEdits) {
@@ -67,7 +71,7 @@ export class CommandHandler extends AkairoCommandHandler {
           } catch {
             return;
           }
-          if (o.content == m.content) return;
+          if (o.content.trim() == m.content.trim()) return;
           if (this.handleEdits) this.handle(m as FireMessage);
         });
       }
