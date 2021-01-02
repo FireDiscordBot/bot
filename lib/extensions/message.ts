@@ -176,7 +176,7 @@ export class FireMessage extends Message {
           .send()
           .catch(() => {})
       )
-    );
+    ).catch(() => []);
     for (const [index, req] of attachReqs.entries()) {
       if (req && req.statusCode == 200)
         attachments.push({ attachment: req.body, name: names[index] });

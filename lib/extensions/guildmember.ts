@@ -219,18 +219,22 @@ export class FireMember extends GuildMember {
     await this.guild.modLog(embed).catch(() => {});
     if (channel)
       return noDM
-        ? await channel.send(
-            this.guild.language.get(
-              "WARN_FAIL",
-              Util.escapeMarkdown(this.toString())
+        ? await channel
+            .send(
+              this.guild.language.get(
+                "WARN_FAIL",
+                Util.escapeMarkdown(this.toString())
+              )
             )
-          )
-        : await channel.send(
-            this.guild.language.get(
-              "WARN_SUCCESS",
-              Util.escapeMarkdown(this.toString())
+            .catch(() => {})
+        : await channel
+            .send(
+              this.guild.language.get(
+                "WARN_SUCCESS",
+                Util.escapeMarkdown(this.toString())
+              )
             )
-          );
+            .catch(() => {});
   }
 
   isSuperuser() {
