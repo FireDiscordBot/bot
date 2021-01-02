@@ -190,7 +190,6 @@ export default class Sk1er extends Module {
 
   async handleSupportReaction(
     reaction: MessageReaction,
-    message: FireMessage,
     user: FireUser
   ) {
     const member = (await this.supportGuild.members.fetch(user)) as FireMember;
