@@ -64,16 +64,23 @@ export class CommandHandler extends AkairoCommandHandler {
       });
 
       if (this.handleEdits) {
-        this.client.on("messageUpdate", async (o, m) => {
-          if (o.partial) return;
-          try {
-            if (m.partial) m = await m.fetch();
-          } catch {
-            return;
+        this.client.on(
+          "messageUpdate",
+          async (o: FireMessage, m: FireMessage) => {
+            if (o.partial) return;
+            try {
+              if (m.partial) m = (await m.fetch()) as FireMessage;
+            } catch {
+              return;
+            }
+            if (o.content.trim() == m.content.trim()) return;
+            if (o.paginator)
+              await o.paginator
+                .handler(o.paginator.emojis.close, null)
+                .catch(() => {});
+            if (this.handleEdits) this.handle(m);
           }
-          if (o.content.trim() == m.content.trim()) return;
-          if (this.handleEdits) this.handle(m as FireMessage);
-        });
+        );
       }
     });
   }
