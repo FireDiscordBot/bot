@@ -217,6 +217,7 @@ export class PaginatorInterface {
             await this.message.reactions.removeAll();
           }
         } catch {}
+        return;
       }
 
       if (emoji.name == this.emojis.start) this._displayPage = 0;
@@ -227,13 +228,11 @@ export class PaginatorInterface {
 
       this.update();
 
-      users.cache
-        .filter((user: FireUser) => user.id != this.bot.user.id)
-        .forEach(async (user: FireUser) => {
-          try {
-            await users.remove(user);
-          } catch {}
-        });
+      await Promise.all(
+        users.cache
+          .filter((user: FireUser) => user.id != this.bot.user.id)
+          .map((user) => users.remove(user).catch(() => {}))
+      ).catch(() => {});
     };
   }
 
