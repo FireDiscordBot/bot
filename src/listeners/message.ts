@@ -128,6 +128,7 @@ export default class Message extends Listener {
     return message.content
       .replace(zwsRegex, "")
       .replace(/\(\.\)/gim, ".")
+      .replace(/\.\//gim, "/")
       .replace(/dot/gim, ".")
       .replace(/\/\//gim, "/")
       .replace(/\/\./gim, ".")
