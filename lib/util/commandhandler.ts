@@ -26,7 +26,7 @@ export class CommandHandler extends AkairoCommandHandler {
    * @param {any} args - Arguments to use.
    * @returns {Promise<void>}
    */
-  async runCommand(message: FireMessage, command: Command, args: any[]) {
+  async runCommand(message: FireMessage, command: Command, args: any[]): Promise<void> {
     if (command.typing) {
       message.channel.startTyping();
     }
