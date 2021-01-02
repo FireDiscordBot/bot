@@ -38,8 +38,8 @@ export default class NewTicket extends Command {
       message.member,
       args.subject
     );
-    if (ticket == "author") return;
     // how?
+    if (ticket == "author") return;
     else if (ticket == "disabled")
       return await creating.edit(
         `${emojis.error} ${message.language.get(
@@ -53,6 +53,14 @@ export default class NewTicket extends Command {
           "NEW_TICKET_LIMIT",
           ticket.toString()
         )}`
+      );
+    else if (ticket instanceof Error)
+      return this.client.commandHandler.emit(
+        "commandError",
+        message,
+        this,
+        args,
+        ticket
       );
     else if (ticket instanceof TextChannel)
       return await creating.edit(

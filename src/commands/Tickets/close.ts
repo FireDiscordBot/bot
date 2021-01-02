@@ -45,6 +45,14 @@ export default class CloseTicket extends Command {
       return await message.error("TICKET_CLOSE_FORBIDDEN");
     else if (closure == "nonticket")
       return await message.error("TICKET_NON_TICKET");
+    else if (closure instanceof Error)
+      return this.client.commandHandler.emit(
+        "commandError",
+        message,
+        this,
+        args,
+        closure
+      );
     return await message.success();
   }
 }

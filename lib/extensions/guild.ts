@@ -14,6 +14,7 @@ import { FakeChannel } from "./slashCommandMessage";
 import { GuildSettings } from "../util/settings";
 import { getIDMatch } from "../util/converters";
 import { FireMember } from "./guildmember";
+import { FireMessage } from "./message";
 import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
@@ -221,44 +222,47 @@ export class FireGuild extends Guild {
     }
     name = name.replace(/crab/gim, "🦀");
     this.settings.set("tickets.increment", ++increment);
-    const ticket = await this.channels.create(name.slice(0, 50), {
-      parent: category,
-      permissionOverwrites: [
-        ...category.permissionOverwrites.array(),
-        { id: author.id, allow: ["VIEW_CHANNEL", "SEND_MESSAGES"] },
-        {
-          id: this.me.id,
-          allow: [
-            "VIEW_CHANNEL",
-            "SEND_MESSAGES",
-            "MANAGE_CHANNELS",
-            "MANAGE_ROLES",
-          ],
-        },
-        {
-          id: this.roles.everyone.id,
-          deny: ["VIEW_CHANNEL"],
-        },
-      ],
-      topic: this.language.get(
-        "TICKET_CHANNEL_TOPIC",
-        author.toString(),
-        author.id,
-        subject
-      ) as string,
-      reason: this.language.get(
-        "TICKET_CHANNEL_TOPIC",
-        author.toString(),
-        author.id,
-        subject
-      ) as string,
-    });
+    const ticket = await this.channels
+      .create(name.slice(0, 50), {
+        parent: category,
+        permissionOverwrites: [
+          ...category.permissionOverwrites.array(),
+          { id: author.id, allow: ["VIEW_CHANNEL", "SEND_MESSAGES"] },
+          {
+            id: this.me.id,
+            allow: [
+              "VIEW_CHANNEL",
+              "SEND_MESSAGES",
+              "MANAGE_CHANNELS",
+              "MANAGE_ROLES",
+            ],
+          },
+          {
+            id: this.roles.everyone.id,
+            deny: ["VIEW_CHANNEL"],
+          },
+        ],
+        topic: this.language.get(
+          "TICKET_CHANNEL_TOPIC",
+          author.toString(),
+          author.id,
+          subject
+        ) as string,
+        reason: this.language.get(
+          "TICKET_CHANNEL_TOPIC",
+          author.toString(),
+          author.id,
+          subject
+        ) as string,
+      })
+      .catch((e: Error) => e);
+    if (ticket instanceof Error) return ticket;
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_OPENER_TILE", author.toString()))
       .setTimestamp(new Date())
       .setColor(author.displayColor || "#ffffff")
       .addField(this.language.get("SUBJECT"), subject);
-    const opener = await ticket.send(embed);
+    const opener = await ticket.send(embed).catch(() => {});
     channels.push(ticket);
     this.settings.set(
       "tickets.channels",
@@ -293,7 +297,9 @@ export class FireGuild extends Guild {
       channels.map((c) => c.id)
     );
     let transcript: string[] = [];
-    (await channel.messages.fetch({ limit: 100 })).forEach((message) =>
+    (
+      await channel.messages.fetch({ limit: 100 }).catch(() => [])
+    ).forEach((message: FireMessage) =>
       transcript.push(
         `${message.author} (${
           message.author.id
@@ -307,7 +313,11 @@ export class FireGuild extends Guild {
     );
     transcript = transcript.reverse();
     transcript.push(
-      `${transcript.length} messages (only the last 100 can be fetched due to Discord limitations), closed by ${author}`
+      `${transcript.length} messages${
+        transcript.length == 100
+          ? " (only the last 100 can be fetched due to Discord limitations)"
+          : ""
+      }, closed by ${author}`
     );
     const buffer = Buffer.from(transcript.join("\n\n"));
     const id = getIDMatch(channel.topic, true);
@@ -341,17 +351,19 @@ export class FireGuild extends Guild {
         `${author} (${author.id})`
       )
       .addField(this.language.get("REASON"), reason);
-    await log?.send({
-      embed,
-      files:
-        channel.parentID == "755796036198596688"
-          ? []
-          : [new MessageAttachment(buffer, `${channel.name}-transcript.txt`)],
-    });
+    await log
+      ?.send({
+        embed,
+        files:
+          channel.parentID == "755796036198596688"
+            ? []
+            : [new MessageAttachment(buffer, `${channel.name}-transcript.txt`)],
+      })
+      .catch(() => {});
     this.client.emit("ticketClose", creator);
-    return await channel.delete(
-      this.language.get("TICKET_CLOSE_REASON") as string
-    );
+    return (await channel
+      .delete(this.language.get("TICKET_CLOSE_REASON") as string)
+      .catch((e: Error) => e)) as TextChannel | Error;
   }
 
   async createModLogEntry(
