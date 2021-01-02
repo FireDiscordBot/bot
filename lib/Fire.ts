@@ -307,9 +307,11 @@ export class Fire extends AkairoClient {
         this.options.shardCount
       }).`
     );
-    await this.loadExperiments();
-    await this.guildSettings.init();
-    await this.userSettings.init();
+    await Promise.all([
+      this.loadExperiments(),
+      this.guildSettings.init(),
+      this.userSettings.init(),
+    ]);
     this.commandHandler.modules.forEach((command: Command) => {
       if (
         command.guilds.length &&
