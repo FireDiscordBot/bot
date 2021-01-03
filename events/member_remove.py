@@ -41,9 +41,9 @@ class MemberRemove(commands.Cog):
                     '{user}': discord.utils.escape_markdown(str(user)),
                     '{user.name}': discord.utils.escape_markdown(user.name),
                     '{user.discrim}': user.discriminator,
-                    '{server}': discord.utils.escape_markdown(str(user.guild)),
-                    '{guild}': discord.utils.escape_markdown(str(user.guild)),
-                    '{count}': str(user.guild.member_count)
+                    '{server}': discord.utils.escape_markdown(str(guild)),
+                    '{guild}': discord.utils.escape_markdown(str(guild)),
+                    '{count}': str(guild.member_count)
                 }
                 message = leavemsg
                 for var, value in vars.items():
