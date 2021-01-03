@@ -15,10 +15,23 @@ export default class RateLimit extends Listener {
     path: string,
     route: string
   ) {
-    this.client.console.warn(
-      `[Rest] Limited on route ${route} ${
-        method ? "while trying to" + method.toUpperCase() : ""
-      } with limit ${limit}, waiting for timeout of ${timeout}ms`
-    );
+    if (!route)
+      this.client.console.warn(
+        `[Rest] Limited on an unknown route, with timeout ${
+          typeof timeout == "object"
+            ? JSON.stringify(timeout)
+            : timeout.toString() + "ms"
+        }`
+      );
+    else
+      this.client.console.warn(
+        `[Rest] Limited on route ${route}${
+          method ? " while trying to" + method.toUpperCase() : ""
+        } with limit ${limit ? limit : "unknown"}, waiting for timeout of ${
+          typeof timeout == "object"
+            ? JSON.stringify(timeout)
+            : timeout.toString() + "ms"
+        }ms`
+      );
   }
 }
