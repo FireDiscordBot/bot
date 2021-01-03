@@ -41,11 +41,12 @@ class MemberJoin(commands.Cog):
             if member.guild.id in premium:
                 before = await self.bot.get_invites(member.guild.id)
                 after = await self.bot.load_invites(member.guild.id)
-                for inv in before:
-                    a = after.get(inv, False)
-                    b = before[inv]
-                    if b != a:
-                        usedinvite = inv
+                if before is not None and after is not None:
+                    for inv in before:
+                        a = after.get(inv, False)
+                        b = before[inv]
+                        if b != a:
+                            usedinvite = inv
             if usedinvite:
                 self.bot.dispatch('invite_join', member, usedinvite)
             if not usedinvite and 'DISCOVERABLE' in member.guild.features:
