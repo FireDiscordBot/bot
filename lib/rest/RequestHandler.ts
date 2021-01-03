@@ -91,6 +91,7 @@ export class RequestHandler {
     try {
       res = await request.make();
     } catch (error) {
+      this.checkLatency(request, res);
       // Retry the specified number of times for request abortions
       if (request.retries === this.manager.client.options.retryLimit) {
         throw new HTTPError(
@@ -105,6 +106,8 @@ export class RequestHandler {
       request.retries++;
       return this.execute(request);
     }
+
+    this.checkLatency(request, res);
 
     if (res && res.headers) {
       const serverDate = res.headers.date;
@@ -194,5 +197,36 @@ export class RequestHandler {
 
     // Fallback in the rare case a status code outside the range 200..=599 is returned
     return null;
+  }
+
+  checkLatency(request: APIRequest, response?: centra.Response) {
+    const latency = request.client.restPing;
+    const useHigher = !!(request.options.files && request.options.files.length);
+    let type: "high" | "extreme";
+    if (useHigher ? latency > 5000 : latency > 1000) type = "high";
+    else if (useHigher ? latency > 10000 : latency > 5000) type = "extreme";
+    if (!type) return;
+    const API =
+      request.options.versioned === false
+        ? request.client.options.http.api
+        : `${request.client.options.http.api}/v${request.client.options.http.version}`;
+    const url = API + request.path;
+    request.client.console.error(
+      `[Rest] Encountered ${type} latency of ${latency}ms on ${request.method} ${request.path}`
+    );
+    request.client.sentry.captureEvent({
+      message: `Encountered ${type} latency of ${latency}ms on ${request.method} ${request.path}`,
+      request: {
+        url,
+        method: request.method,
+        data: JSON.stringify(request.options?.data) || "",
+        headers: request.options?.headers || {},
+      },
+      tags: {
+        reason: request.options?.reason || "Unknown",
+        "cf-ray": (response?.headers["cf-ray"] as string) || "Unknown",
+        status: response?.statusCode || 0,
+      },
+    });
   }
 }
