@@ -195,7 +195,10 @@ export default class Eval extends Command {
       } catch {
         return { success: false, type, result: result };
       }
-    } else if (result instanceof FireMessage && result.id > message.id)
+    } else if (
+      (result instanceof FireMessage && result.id > message.id) ||
+      result?.trim() == ""
+    )
       return { success: true, type, result: null };
 
     if (
