@@ -197,7 +197,7 @@ export default class Eval extends Command {
       }
     } else if (
       (result instanceof FireMessage && result.id > message.id) ||
-      result?.trim() == ""
+      (typeof result?.trim == "function" && result?.trim() == "")
     )
       return { success: true, type, result: null };
 
