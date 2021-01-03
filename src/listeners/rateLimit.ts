@@ -16,7 +16,9 @@ export default class RateLimit extends Listener {
     route: string
   ) {
     this.client.console.warn(
-      `[Rest] Limited on route ${route} while trying to ${method.toUpperCase()} with limit ${limit}, waiting for timeout of ${timeout}ms`
+      `[Rest] Limited on route ${route} ${
+        method ? "while trying to" + method.toUpperCase() : ""
+      } with limit ${limit}, waiting for timeout of ${timeout}ms`
     );
   }
 }
