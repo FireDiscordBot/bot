@@ -203,7 +203,7 @@ export class RequestHandler {
     const latency = request.client.restPing;
     const useHigher = !!(request.options.files && request.options.files.length);
     let type: "high" | "extreme";
-    if (useHigher ? latency > 5000 : latency > 1000) type = "high";
+    if (useHigher ? latency > 5000 : latency > 2000) type = "high";
     else if (useHigher ? latency > 10000 : latency > 5000) type = "extreme";
     if (!type) return;
     const API =
