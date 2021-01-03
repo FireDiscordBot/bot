@@ -80,7 +80,7 @@ export class APIRequest {
     for (const [name, value] of Object.entries(headers))
       request.header(name, value);
     if (this.options.debug)
-      this.client.console.debug(
+      this.client.console.warn(
         `[Rest] Sending request to ${this.method.toUpperCase()} ${this.path}`
       );
     const start = +new Date();
@@ -88,7 +88,7 @@ export class APIRequest {
       this.client.clearTimeout(timeout);
       this.client.restPing = +new Date() - start;
       if (this.options.debug)
-        this.client.console.debug(
+        this.client.console.warn(
           `[Rest] Finished request to ${this.method.toUpperCase()} ${
             this.path
           } in ${this.client.restPing}ms`

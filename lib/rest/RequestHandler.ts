@@ -9,11 +9,11 @@ const {
 } = Constants;
 
 const parseResponse = async (res: centra.Response) => {
-  if (res.headers["content-type"].startsWith("application/json")) {
+  if (res.headers["content-type"].includes("application/json")) {
     const json = await res.json();
     return json;
   }
-  return res.body;
+  return res.body.toString();
 };
 
 const getAPIOffset = (serverDate: string) => {
