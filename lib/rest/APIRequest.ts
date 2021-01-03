@@ -89,7 +89,9 @@ export class APIRequest {
       this.client.restPing = +new Date() - start;
       if (this.options.debug)
         this.client.console.debug(
-          `[Rest] Finished request to ${this.method.toUpperCase()} ${this.path}`
+          `[Rest] Finished request to ${this.method.toUpperCase()} ${
+            this.path
+          } in ${this.client.restPing}ms`
         );
     });
   }
