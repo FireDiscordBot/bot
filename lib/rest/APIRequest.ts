@@ -41,6 +41,10 @@ export class APIRequest {
   }
 
   make() {
+    if (this.options.debug)
+      this.client.console.warn(
+        `[Rest] Creating request for ${this.method.toUpperCase()} ${this.path}`
+      );
     const API =
       this.options.versioned === false
         ? this.client.options.http.api
