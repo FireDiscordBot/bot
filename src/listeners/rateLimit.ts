@@ -8,38 +8,19 @@ export default class RateLimit extends Listener {
     });
   }
 
-  async exec(
-    timeout:
-      | number
-      | {
-          timeout: number;
-          limit: number;
-          method: string;
-          path: string;
-          route: string;
-        },
-    limit: number,
-    method: string,
-    path: string,
-    route: string
-  ) {
-    if (typeof timeout == "object")
-      this.client.console.warn(
-        `[Rest] Limited on route ${
-          timeout.route
-        } while trying to ${timeout.method?.toUpperCase()} with limit ${
-          timeout.limit
-        }, waiting for timeout of ${timeout.timeout}ms`
-      );
-    else
-      this.client.console.warn(
-        `[Rest] Limited on route ${route}${
-          method ? " while trying to" + method.toUpperCase() : ""
-        } with limit ${limit ? limit : "unknown"}, waiting for timeout of ${
-          typeof timeout == "object"
-            ? JSON.stringify(timeout)
-            : timeout.toString() + "ms"
-        }ms`
-      );
+  async exec(rateLimit: {
+    timeout: number;
+    limit: number;
+    method: string;
+    path: string;
+    route: string;
+  }) {
+    this.client.console.warn(
+      `[Rest] Limited on route ${
+        rateLimit.route
+      } while trying to ${rateLimit.method?.toUpperCase()} with limit ${
+        rateLimit.limit
+      }, waiting for timeout of ${rateLimit.timeout}ms`
+    );
   }
 }
