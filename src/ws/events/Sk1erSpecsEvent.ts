@@ -20,9 +20,11 @@ export default class Sk1erSpecsEvent extends Event {
       );
       return;
     }
-    const member = (await guild.members.fetch({
-      user: data.user,
-    })) as FireMember;
+    const member = (await guild.members
+      .fetch({
+        user: data.user,
+      })
+      .catch(() => {})) as FireMember;
     if (!member) return;
     if (!data.success) {
       try {
