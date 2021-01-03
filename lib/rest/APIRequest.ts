@@ -79,10 +79,18 @@ export class APIRequest {
     );
     for (const [name, value] of Object.entries(headers))
       request.header(name, value);
+    if (this.options.debug)
+      this.client.console.debug(
+        `[Rest] Sending request to ${this.method.toUpperCase()} ${this.path}`
+      );
     const start = +new Date();
     return request.send().finally(() => {
       this.client.clearTimeout(timeout);
       this.client.restPing = +new Date() - start;
+      if (this.options.debug)
+        this.client.console.debug(
+          `[Rest] Finished request to ${this.method.toUpperCase()} ${this.path}`
+        );
     });
   }
 }
