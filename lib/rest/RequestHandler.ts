@@ -211,11 +211,15 @@ export class RequestHandler {
         ? request.client.options.http.api
         : `${request.client.options.http.api}/v${request.client.options.http.version}`;
     const url = API + request.path;
-    request.client.console.error(
-      `[Rest] Encountered ${type} latency of ${latency}ms on ${request.method} ${request.path}`
+    request.client.console[type == "high" ? "warn" : "error"](
+      `[Rest] Encountered ${type} latency of ${latency}ms on ${request.method.toUpperCase()} ${
+        request.path
+      }`
     );
     request.client.sentry.captureEvent({
-      message: `Encountered ${type} latency of ${latency}ms on ${request.method} ${request.path}`,
+      message: `Encountered ${type} latency of ${latency}ms on ${request.method.toUpperCase()} ${
+        request.path
+      }`,
       request: {
         url,
         method: request.method,
