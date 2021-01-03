@@ -10,10 +10,9 @@ export default class GuildMemberAdd extends Listener {
   }
 
   async exec(member: FireMember) {
-    // Both of these will check permissions & whether
+    // This will check permissions & whether
     // dehoist/decancer is enabled so no need for checks here
-    await member.dehoist();
-    await member.decancer();
+    member.dehoistAndDecancer();
 
     if (
       this.client.util.premium.has(member.guild.id) &&

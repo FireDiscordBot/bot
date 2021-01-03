@@ -13,6 +13,7 @@ import { FireUser } from "./user";
 import { Fire } from "../Fire";
 
 export class FireMember extends GuildMember {
+  changingNick?: boolean;
   guild: FireGuild;
   pending: boolean;
   user: FireUser;
@@ -22,6 +23,7 @@ export class FireMember extends GuildMember {
     super(client, data, guild);
     // @ts-ignore
     this.pending = data?.pending ?? false;
+    this.changingNick = false;
   }
 
   get language() {
@@ -124,38 +126,54 @@ export class FireMember extends GuildMember {
   }
 
   async dehoist() {
-    if (this.isModerator()) return;
+    if (this.isModerator() || this.changingNick) return;
     if (!this.guild.settings.get("mod.autodehoist")) return;
+    this.changingNick = true;
     const badName = this.guild.settings.get(
       "utils.badname",
       `John Doe ${this.user.discriminator}`
     );
     if (!this.hoisted && !this.cancerous && this.nickname == badName)
-      return await this.setNickname(
+      return this.setNickname(
         null,
         this.guild.language.get("AUTODEHOIST_RESET_REASON") as string
-      ).catch(() => false);
-    else if (!this.hoisted) return;
+      )
+        .catch(() => false)
+        .finally(() => {
+          this.changingNick = false;
+        });
+    else if (!this.hoisted) {
+      this.changingNick = false;
+      return;
+    }
     if (this.hoisted && !this.user.hoisted && !this.cancerous) {
-      return await this.setNickname(
+      return this.setNickname(
         null,
         this.guild.language.get("AUTODEHOIST_USERNAME_REASON") as string
-      ).catch(() => false);
+      )
+        .catch(() => false)
+        .finally(() => {
+          this.changingNick = false;
+        });
     }
-    if (this.displayName == badName) return;
-    try {
-      return await this.setNickname(
-        badName,
-        this.guild.language.get("AUTODEHOIST_REASON") as string
-      );
-    } catch (e) {
-      return false;
+    if (this.displayName == badName) {
+      this.changingNick = false;
+      return;
     }
+    return await this.setNickname(
+      badName,
+      this.guild.language.get("AUTODEHOIST_REASON") as string
+    )
+      .catch(() => false)
+      .finally(() => {
+        this.changingNick = false;
+      });
   }
 
   async decancer() {
-    if (this.isModerator()) return;
+    if (this.isModerator() || this.changingNick) return;
     if (!this.guild.settings.get("mod.autodecancer")) return;
+    this.changingNick = true;
     let badName = this.guild.settings.get(
       "utils.badname",
       `John Doe ${this.user.discriminator}`
@@ -164,15 +182,29 @@ export class FireMember extends GuildMember {
       return await this.setNickname(
         null,
         this.guild.language.get("AUTODECANCER_RESET_REASON") as string
-      ).catch(() => false);
-    else if (!this.cancerous) return;
+      )
+        .catch(() => false)
+        .finally(() => {
+          this.changingNick = false;
+        });
+    else if (!this.cancerous) {
+      this.changingNick = false;
+      return;
+    }
     if (this.cancerous && !this.user.cancerous && !this.hoisted) {
       return await this.setNickname(
         null,
         this.guild.language.get("AUTODECANCER_USERNAME_REASON") as string
-      ).catch(() => false);
+      )
+        .catch(() => false)
+        .finally(() => {
+          this.changingNick = false;
+        });
     }
-    if (this.displayName == badName) return;
+    if (this.displayName == badName) {
+      this.changingNick = false;
+      return;
+    }
     const sanitized: string = sanitizer(this.displayName);
     if (
       sanitized.length > 2 &&
@@ -180,14 +212,22 @@ export class FireMember extends GuildMember {
       sanitized != "gibberish"
     )
       badName = sanitized;
-    try {
-      return await this.setNickname(
-        badName,
-        this.guild.language.get("AUTODECANCER_REASON") as string
-      );
-    } catch (e) {
-      return false;
-    }
+    return await this.setNickname(
+      badName,
+      this.guild.language.get("AUTODECANCER_REASON") as string
+    )
+      .catch(() => false)
+      .finally(() => {
+        this.changingNick = false;
+      });
+  }
+
+  async dehoistAndDecancer() {
+    // This will be used when dehoisting/decancering and
+    // not awaiting (as the result isn't really needed)
+    // preventing them from delaying other functions
+    await this.dehoist();
+    await this.decancer();
   }
 
   async warn(reason: string, moderator: FireMember, channel?: TextChannel) {
