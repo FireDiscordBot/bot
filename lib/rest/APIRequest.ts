@@ -82,7 +82,42 @@ export class APIRequest {
     const start = +new Date();
     return request.send().finally(() => {
       this.client.clearTimeout(timeout);
-      this.client.restPing = +new Date() - start;
+      const latency = +new Date() - start;
+      this.client.restPing = latency;
+      if (latency > 5000) {
+        this.client.console.error(
+          `[Rest] Encountered extreme latency of ${latency}ms on ${this.path}`
+        );
+        this.client.sentry.captureEvent({
+          message: `Encountered extreme latency of ${latency}ms on ${this.path}`,
+          request: {
+            url,
+            method: this.method,
+            data: JSON.stringify(this.options?.data) || "",
+            headers: this.options?.headers || {},
+          },
+          tags: {
+            reason: this.options?.reason || "Unknown",
+          },
+        });
+      } else if (latency > 1000) {
+        this.client.console.warn(
+          `[Rest] Encountered high latency of ${latency}ms on ${this.path}`
+        );
+        this.client.sentry.captureEvent({
+          message: `Encountered high latency of ${latency}ms on ${this.path}`,
+          request: {
+            url,
+            method: this.method,
+            data: JSON.stringify(this.options?.data) || "",
+            headers: this.options?.headers || {},
+          },
+          tags: {
+            reason: this.options?.reason || "Unknown",
+            
+          },
+        });
+      }
     });
   }
 }
