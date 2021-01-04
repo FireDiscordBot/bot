@@ -26,6 +26,11 @@ export default class Modcore extends Command {
     });
   }
 
+  async init() {
+    // hmmmmmmmmmmmmmmmmmmmm
+    this.remove();
+  }
+
   async exec(
     message: FireMessage,
     args: { ign?: { match: any[]; matches: any[] } }
