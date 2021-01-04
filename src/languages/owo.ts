@@ -320,7 +320,7 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           solutions: string
         ) =>
           `${user} ${msgType} a wog${
-            diff ? " fwom " + diff + " ago" : ""
+            diff ? " fwom " + diff : ""
           }, ${extra}\n${haste}\n\n${solutions}`,
         SK1ER_NITRO_PERKS_REMOVED: (member: string) =>
           `${member}, Youw nitwo pewks have been wemoved. Boost the sewvew to get them back UwU`,

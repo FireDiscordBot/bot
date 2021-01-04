@@ -34,7 +34,7 @@ export default class MCLogs extends Module {
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
       home: /(\/Users\/\w+|\/home\/\w+|C:\\Users\\\w+)/gim,
       settingUser: /\[Client thread\/INFO]: Setting user: (\w{1,16})/gim,
-      date: /^time: (?<date>[\w\s\/:-]+)/gim,
+      date: /^time: (?<date>[\w \/:-]+)$/gim,
     };
     this.logText = [
       "net.minecraft.launchwrapper.Launch",
@@ -210,19 +210,8 @@ export default class MCLogs extends Module {
     let diff: string;
     if (this.regexes.date.test(text)) {
       this.regexes.date.lastIndex = 0;
-      const rawDate = this.regexes.date.exec(text);
+      diff = this.regexes.date.exec(text)[1];
       this.regexes.date.lastIndex = 0;
-      const parsedDate =
-        message.language.id == "en-GB"
-          ? chrono.GB.parseDate(rawDate.groups.date)
-          : chrono.parseDate(rawDate.groups.date);
-      if (parsedDate) {
-        const now = moment();
-        diff = humanize(
-          moment(parsedDate).diff(now),
-          message.guild.language.id.split("-")[0]
-        );
-      }
     }
 
     const filters = this.client.getModule("filters") as Filters;

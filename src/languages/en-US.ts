@@ -475,7 +475,7 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           solutions: string
         ) =>
           `${user} ${msgType} a log${
-            diff ? " from " + diff + " ago" : ""
+            diff ? " from " + diff : ""
           }, ${extra}\n${haste}\n\n${solutions}`,
         SK1ER_NITRO_PERKS_REMOVED: (member: string) =>
           `${member}, Your nitro perks have been removed. Boost the server to get them back :)`,
