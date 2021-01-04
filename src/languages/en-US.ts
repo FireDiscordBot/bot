@@ -236,6 +236,15 @@ export default class enUS extends Language {
           `I have set the "bad name" to \"${name}\". This will **not** rename existing users`,
         BADNAME_RESET: `I have reset the "bad name" to John Doe 0000 (with 0000 being their discriminator).
 This will **not** rename existing users`,
+        BAN_LOG_AUTHOR: (user: string) => `Ban | ${user}`,
+        BAN_DM: (guild: string, reason: string) =>
+          `You were banned from ${guild} for "${reason}"`,
+        BAN_DM_FAIL: "Unable to DM user, they may have dms off or blocked me",
+        BAN_SUCCESS: (user: string, guild: string) =>
+          `${constants.emojis.success} **${user}** has been banished from ${guild}.`,
+        BAN_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not banned.`,
+        BAN_FAILED_BAN: `${constants.emojis.error} Failed to ban user, please try again.`,
+        BAN_FAILED_BAN_AND_ENTRY: `${constants.emojis.error} Failed to ban user and was unable to delete the created mod log entry.`,
         COMMAND_COMMAND_DESCRIPTION: "Enable/disable a command in your server",
         COMMAND_DISABLE_FORBIDDEN: "You cannot disable this command!",
         COMMAND_ENABLE: (command: string) => `Successfully enabled ${command}!`,
@@ -901,6 +910,13 @@ Running this command without providing a category resets it, therefore disabling
           `Removed from ticket by ${author} (${id})`,
         TRANS_COMMAND_DESCRIPTION: "Generate a trans pride avatar",
         TEST_COMMAND_DESCRIPTION: "test?",
+        UNBAN_LOG_AUTHOR: (user: string) => `Unban | ${user}`,
+        UNBAN_SUCCESS: (user: string, guild: string) =>
+          `${constants.emojis.success} **${user}** has been unbanished from ${guild}.`,
+        UNBAN_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not unbanned.`,
+        UNBAN_FAILED_UNBAN: `${constants.emojis.error} Failed to unban user, please try again.`,
+        UNBAN_FAILED_UNBAN_AND_ENTRY: `${constants.emojis.error} Failed to unban user and was unable to delete the created mod log entry.`,
+        WARN_FAILED_ENTRY: `${constants.emojis.error} User was not warned due to an error logging the warn`,
         WARN_LOG_AUTHOR: (user: string) => `Warn | ${user}`,
         WARN_LOG_DM_FAIL: "Unable to send DM, user was not warned.",
         WARN_DM: (guild: string, reason: string) =>
@@ -908,7 +924,7 @@ Running this command without providing a category resets it, therefore disabling
         WARN_SUCCESS: (user: string) =>
           `${constants.emojis.success} **${user}** has been warned.`,
         WARN_FAIL: (user: string) =>
-          `${constants.emojis.error} **${user}** was not warned due to having DMs off. The warning has been logged.`,
+          `${constants.emojis.warning} **${user}** was not warned due to having DMs off. The warning has been logged.`,
       },
       enabled: true,
     });

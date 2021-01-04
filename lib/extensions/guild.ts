@@ -1,4 +1,5 @@
 import {
+  Util,
   Guild,
   Structures,
   TextChannel,
@@ -382,8 +383,65 @@ export class FireGuild extends Guild {
       .catch(() => {});
     if (!entryResult) return false;
     // amazing success detection
-    else if (entryResult.status.startsWith("INSERT")) return true;
+    else if (entryResult.status.startsWith("INSERT")) return caseID;
     return false;
+  }
+
+  async deleteModLogEntry(caseID: string) {
+    const entryResult = await this.client.db
+      .query("DELETE FROM modlogs WHERE gid=$1 AND caseid=$2;", [
+        this.id,
+        caseID,
+      ])
+      .catch(() => {});
+    if (!entryResult) return false;
+    else if (entryResult.status.startsWith("DELETE")) return true;
+    return false;
+  }
+
+  async unban(
+    user: FireUser,
+    reason: string,
+    moderator: FireMember,
+    channel?: TextChannel
+  ) {
+    if (!reason || !moderator) return "args";
+    if (!moderator.isModerator(channel)) return "forbidden";
+    const ban = await this.fetchBan(user).catch(() => {});
+    if (!ban) return "no_ban";
+    const logEntry = await this.createModLogEntry(
+      user,
+      moderator,
+      "unban",
+      reason
+    ).catch(() => {});
+    if (!logEntry) return "entry";
+    const unbanned = await this.members.unban(user, reason).catch(() => {});
+    if (!unbanned) {
+      const deleted = await this.deleteModLogEntry(logEntry);
+      return deleted ? "unban" : "unban_and_entry";
+    }
+    const embed = new MessageEmbed()
+      .setColor("#E74C3C")
+      .setTimestamp(new Date())
+      .setAuthor(
+        this.language.get("UNBAN_LOG_AUTHOR", this.toString()),
+        user.avatarURL({ size: 2048, format: "png", dynamic: true })
+      )
+      .addField(this.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.language.get("REASON"), reason)
+      .setFooter(`${this.id} | ${moderator.id}`);
+    await this.modLog(embed).catch(() => {});
+    if (channel)
+      return await channel
+        .send(
+          this.language.get(
+            "UNBAN_SUCCESS",
+            Util.escapeMarkdown(user.toString()),
+            Util.escapeMarkdown(this.name)
+          )
+        )
+        .catch(() => {});
   }
 }
 

@@ -231,6 +231,8 @@ export class FireMember extends GuildMember {
   }
 
   async warn(reason: string, moderator: FireMember, channel?: TextChannel) {
+    if (!reason || !moderator) return "args";
+    if (!moderator.isModerator(channel)) return "forbidden";
     const embed = new MessageEmbed()
       .setColor("#E67E22")
       .setTimestamp(new Date())
@@ -244,7 +246,7 @@ export class FireMember extends GuildMember {
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, "warn", reason)
       .catch(() => {});
-    if (!logEntry) return false;
+    if (!logEntry) return "entry";
     let noDM: boolean = false;
     await this.send(
       this.language.get("WARN_DM", Util.escapeMarkdown(this.guild.name), reason)
@@ -275,6 +277,57 @@ export class FireMember extends GuildMember {
               )
             )
             .catch(() => {});
+  }
+
+  async bean(
+    reason: string,
+    moderator: FireMember,
+    days: number = 0,
+    channel?: TextChannel
+  ) {
+    if (!reason || !moderator) return "args";
+    if (!moderator.isModerator(channel)) return "forbidden";
+    const logEntry = await this.guild
+      .createModLogEntry(this, moderator, "ban", reason)
+      .catch(() => {});
+    if (!logEntry) return "entry";
+    const banned = await this.ban({ reason, days }).catch(() => {});
+    if (!banned) {
+      const deleted = await this.guild.deleteModLogEntry(logEntry);
+      return deleted ? "ban" : "ban_and_entry";
+    }
+    const embed = new MessageEmbed()
+      .setColor(this.displayHexColor || "#E74C3C")
+      .setTimestamp(new Date())
+      .setAuthor(
+        this.guild.language.get("BAN_LOG_AUTHOR", this.toString()),
+        this.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+      )
+      .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.guild.language.get("REASON"), reason)
+      .setFooter(`${this.id} | ${moderator.id}`);
+    let noDM: boolean = false;
+    await this.send(
+      this.language.get("BAN_DM", Util.escapeMarkdown(this.guild.name), reason)
+    ).catch(() => {
+      noDM = true;
+    });
+    if (noDM)
+      embed.addField(
+        this.guild.language.get("ERROR"),
+        this.guild.language.get("BAN_DM_FAIL")
+      );
+    await this.guild.modLog(embed).catch(() => {});
+    if (channel)
+      return await channel
+        .send(
+          this.guild.language.get(
+            "BAN_SUCCESS",
+            Util.escapeMarkdown(this.toString()),
+            Util.escapeMarkdown(this.guild.name)
+          )
+        )
+        .catch(() => {});
   }
 
   isSuperuser() {
