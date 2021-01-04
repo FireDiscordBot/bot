@@ -14,6 +14,9 @@ export default class TicketClose extends Listener {
   async exec(creator: FireMember) {
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     if (creator.guild.id != sk1erModule.supportGuildId) return;
+    this.client.console.warn(
+      `[Sk1er] Got closeTicket event with creator ${creator}`
+    );
     const channel =
       sk1erModule.supportChannel ||
       (sk1erModule.supportGuild.channels.cache.get(
