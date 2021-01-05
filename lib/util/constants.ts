@@ -97,7 +97,7 @@ export const constants = {
     paypal: /(?:paypal\.me|paypal\.com\/paypalme)\/(?<name>[\w-]+)/im,
     youtube: {
       channel: /youtube\.com\/(?:c\/|channel\/|user\/)?(?<channel>[^"\s]+)/im,
-      video: /(youtu\.be\/|invidio\.us\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/)(?<video>[\w-]+)/im,
+      video: /(youtu\.be\/|invidio\.us\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/shorts\/)(?<video>[\w-]+)/im,
     },
     twitch: {
       clip: /clips\.twitch\.tv\/(?<clip>\w+)/im,
