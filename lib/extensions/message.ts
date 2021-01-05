@@ -124,10 +124,14 @@ export class FireMessage extends Message {
         return "permissions";
     }
 
-    const useWebhooks = (destination.guild as FireGuild).settings.get(
-      "utils.quotehooks",
-      true
-    );
+    const canUpload =
+      !this.attachments.size ||
+      // limit attachment size to 5mb to prevent issues
+      this.attachments.filter((attachment) => attachment.size > 5242880).size ==
+        0;
+    const useWebhooks =
+      (destination.guild as FireGuild).settings.get("utils.quotehooks", true) &&
+      canUpload;
     return useWebhooks
       ? await this.webhookQuote(destination, quoter, webhook)
       : await this.embedQuote(destination, quoter);
