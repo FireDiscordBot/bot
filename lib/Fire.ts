@@ -78,14 +78,15 @@ export class Fire extends AkairoClient {
   modules: ModuleHandler;
 
   // Common Attributes
-  db: PGClient;
   util: Util;
+  db: PGClient;
+  events: number;
   ksoft?: KSoftClient;
   config: typeof config.fire;
-  conversationStates: Collection<string, Buffer>; // Google Command conversation states
-  events: number;
-  experiments: Collection<string, Experiment>;
   userCacheSweep: NodeJS.Timeout;
+  aliases: Collection<string, string[]>;
+  experiments: Collection<string, Experiment>;
+  conversationStates: Collection<string, Buffer>; // Google Command conversation states
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
@@ -127,6 +128,7 @@ export class Fire extends AkairoClient {
       );
 
     this.experiments = new Collection();
+    this.aliases = new Collection();
 
     this.on("warn", (warning) => this.console.warn(`[Discord] ${warning}`));
     this.on("error", (error) =>
@@ -309,6 +311,7 @@ export class Fire extends AkairoClient {
     );
     await Promise.all([
       this.loadExperiments(),
+      this.loadAliases(),
       this.guildSettings.init(),
       this.userSettings.init(),
     ]);
@@ -340,7 +343,10 @@ export class Fire extends AkairoClient {
 
   async loadExperiments() {
     this.experiments = new Collection();
-    const experiments = await this.db.query("SELECT * FROM experiments;");
+    const experiments = await this.db
+      .query("SELECT * FROM experiments;")
+      .catch(() => {});
+    if (!experiments) return;
     for await (const experiment of experiments) {
       const data: Experiment = {
         id: experiment.get("id") as string,
@@ -352,6 +358,20 @@ export class Fire extends AkairoClient {
         treatments: (experiment.get("treatments") as unknown) as Treatment[],
       };
       this.experiments.set(data.id, data);
+    }
+  }
+
+  async loadAliases() {
+    this.aliases = new Collection();
+    const aliases = await this.db
+      .query("SELECT * FROM aliases;")
+      .catch(() => {});
+    if (!aliases) return;
+    for await (const alias of aliases) {
+      this.aliases.set(
+        alias.get("uid") as string,
+        (alias.get("aliases") as string[]).map((a) => a.toLowerCase())
+      );
     }
   }
 

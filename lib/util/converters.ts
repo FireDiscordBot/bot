@@ -93,6 +93,11 @@ export const memberConverter = async (
     return null;
   }
 
+  const alias = message.client.aliases.findKey((aliases) =>
+    aliases.includes(argument.toLowerCase())
+  );
+  if (alias) argument = alias;
+
   const userID = getIDMatch(argument) || getUserMentionMatch(argument);
   if (!userID) {
     let options: FetchMembersOptions = {
@@ -142,6 +147,11 @@ export const userConverter = async (
     await message.error();
     return null;
   }
+
+  const alias = message.client.aliases.findKey((aliases) =>
+    aliases.includes(argument.toLowerCase())
+  );
+  if (alias) argument = alias;
 
   const userID = getIDMatch(argument) || getUserMentionMatch(argument);
   if (userID) {
