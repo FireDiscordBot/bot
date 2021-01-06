@@ -62,11 +62,12 @@ export class FireGuild extends Guild {
         size: 2048,
         format: "png",
       }).replace("size=2048", "size=320");
-    const icon = this.iconURL({
-      format: "png",
-      size: 128,
-      dynamic: true,
-    });
+    const icon =
+      this.iconURL({
+        format: "png",
+        size: 128,
+        dynamic: true,
+      }) || "https://cdn.discordapp.com/embed/avatars/0.png";
     return {
       name: this.name,
       id: this.id,
