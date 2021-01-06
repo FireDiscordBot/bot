@@ -40,7 +40,7 @@ export default class TagAlias extends Command {
     if (
       manager.cache.size > 20 &&
       manager.cache.keyArray().indexOf(cachedTag.name) > 20 &&
-      !this.client.util.premium.has(message.guild.id)
+      !message.guild.premium
     )
       return await message.error("TAGS_EDIT_LIMIT");
     const aliased = await manager.addAlias(tag, alias);

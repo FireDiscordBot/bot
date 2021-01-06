@@ -15,7 +15,7 @@ export default class GuildMemberAdd extends Listener {
     member.dehoistAndDecancer();
 
     if (
-      this.client.util.premium.has(member.guild.id) &&
+      member.guild.premium &&
       // @ts-ignore
       !member.guild.features.includes("PREVIEW_ENABLED")
     ) {

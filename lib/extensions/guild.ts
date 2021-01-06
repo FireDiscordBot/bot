@@ -39,6 +39,10 @@ export class FireGuild extends Guild {
     );
   }
 
+  get premium() {
+    return this.client.util?.premium.has(this.id);
+  }
+
   isPublic() {
     return (
       this.settings.get("utils.public", false) ||

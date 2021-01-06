@@ -26,8 +26,7 @@ export default class GuildCommand extends Command {
     const emojis: string[] = [];
 
     if (guild.id == "564052798044504084") emojis.push(badges.FIRE_ADMIN);
-    if (this.client.util.premium.has(guild.id))
-      emojis.push(badges.FIRE_PREMIUM);
+    if (guild.premium) emojis.push(badges.FIRE_PREMIUM);
     if (guild.features.includes("PARTNERED")) emojis.push(badges.PARTNERED);
     if (guild.features.includes("VERIFIED")) emojis.push(badges.VERIFIED);
 

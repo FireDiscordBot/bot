@@ -49,7 +49,7 @@ export default class TagCreate extends Command {
     if (cachedTag) return await message.error("TAGS_CREATE_ALREADY_EXISTS");
     if (
       manager.cache.size >= 20 &&
-      !this.client.util.premium.has(message.guild.id)
+      !message.guild.premium
     )
       return await message.error("TAGS_CREATE_LIMIT");
     const newTag = await manager.createTag(tag, content, message.member);

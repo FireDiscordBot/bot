@@ -12,10 +12,7 @@ export default class PremiumInhibitor extends Inhibitor {
   }
 
   exec(message: FireMessage, command: Command) {
-    if (command?.premium)
-      return message.guild
-        ? !this.client.util.premium.has(message.guild.id)
-        : true;
+    if (command?.premium) return message.guild ? !message.guild.premium : true;
     return false;
   }
 

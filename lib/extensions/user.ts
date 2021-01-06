@@ -20,6 +20,10 @@ export class FireUser extends User {
     );
   }
 
+  get premium() {
+    return [...this.client.util.premium.values()].includes(this.id);
+  }
+
   toString() {
     return `${this.username}#${this.discriminator}`;
   }
