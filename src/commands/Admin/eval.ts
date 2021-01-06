@@ -134,7 +134,7 @@ export default class Eval extends Command {
       .addField(":inbox_tray: Input", input);
     embed.setFooter(`Cluster ID: ${this.client.manager.id}`);
     if (embed.description == "null") embed.description = null;
-    if (result.length > 1024) {
+    if (result.length > 1014) {
       const paginator = new WrappedPaginator("```js", "```", 1200);
       result.split("\n").forEach((line: string) => paginator.addLine(line));
       const paginatorEmbed = new MessageEmbed().setColor(
