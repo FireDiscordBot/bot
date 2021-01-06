@@ -1,8 +1,10 @@
+import { FireMember } from "../../../lib/extensions/guildmember";
 import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
 import { FireMessage } from "../../../lib/extensions/message";
 import { EventType } from "../../../lib/ws/util/constants";
 import { FireGuild } from "../../../lib/extensions/guild";
 import { Inhibitor } from "../../../lib/util/inhibitor";
+import { FireUser } from "../../../lib/extensions/user";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { Message } from "../../../lib/ws/Message";
@@ -43,7 +45,6 @@ export default class Premium extends Command {
           required: false,
         },
       ],
-      guilds: ["564052798044504084"],
     });
   }
 
@@ -91,7 +92,7 @@ export default class Premium extends Command {
               })
             )
           );
-          this.sync(guild, "remove");
+          this.sync(guild, null, "remove");
         }
         try {
           const inhibitor = this.client.inhibitorHandler.reload("premium");
@@ -133,7 +134,7 @@ export default class Premium extends Command {
             })
           )
         );
-        this.sync(guild, "add");
+        this.sync(guild, user, "add");
       }
       try {
         const inhibitor = this.client.inhibitorHandler.reload("premium");
@@ -146,12 +147,19 @@ export default class Premium extends Command {
     } else return await message.error("PREMIUM_INSERT_FAIL");
   }
 
-  sync(guild: FireGuild | string, action: "add" | "remove") {
+  sync(
+    guild: FireGuild | string,
+    user: FireMember | FireUser | string,
+    action: "add" | "remove"
+  ) {
     const guildId = guild instanceof FireGuild ? guild.id : guild;
+    const userId =
+      user instanceof FireMember || user instanceof FireUser ? user.id : user;
     this.client.manager.ws?.send(
       MessageUtil.encode(
         new Message(EventType.PREMIUM_SYNC, {
-          id: guildId,
+          guild_id: guildId,
+          user_id: userId,
           action,
         })
       )
