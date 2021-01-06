@@ -11,7 +11,10 @@ export default class ApplyExperimentEvent extends Event {
   async run(data: { user: string; experiment: string; treatment: number }) {
     let user = this.manager.client.users.cache.get(data.user) as FireUser;
     if (!user)
-      user = (await this.manager.client.users.fetch(data.user)) as FireUser;
+      user = (await this.manager.client.users
+        .fetch(data.user)
+        .catch(() => {})) as FireUser;
+    if (!user) return;
     this.manager.client.console.log(
       `[Aether] Received request to apply experiment ${data.experiment} for ${user} (${user.id}).`
     );
