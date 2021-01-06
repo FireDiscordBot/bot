@@ -35,13 +35,14 @@ import { commandTypeCaster } from "../src/arguments/command";
 import { messageTypeCaster } from "../src/arguments/message";
 import { Language, LanguageHandler } from "./util/language";
 import { moduleTypeCaster } from "../src/arguments/module";
+import { Collection, version as djsver } from "discord.js";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandhandler";
 import { Module, ModuleHandler } from "./util/module";
 import { FireMember } from "./extensions/guildmember";
 import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
-import { version as djsver } from "discord.js";
+import { RESTManager } from "./rest/RESTManager";
 import { Inhibitor } from "./util/inhibitor";
 import { FireConsole } from "./util/console";
 import { Listener } from "./util/listener";
@@ -54,7 +55,6 @@ import { config } from "../config";
 import * as moment from "moment";
 
 import "./extensions";
-import { RESTManager } from "./rest/RESTManager";
 
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
@@ -82,9 +82,9 @@ export class Fire extends AkairoClient {
   util: Util;
   ksoft?: KSoftClient;
   config: typeof config.fire;
-  conversationStates: Map<string, Buffer>; // Google Command conversation states
+  conversationStates: Collection<string, Buffer>; // Google Command conversation states
   events: number;
-  experiments: Map<string, Experiment>;
+  experiments: Collection<string, Experiment>;
   userCacheSweep: NodeJS.Timeout;
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
@@ -126,7 +126,7 @@ export class Fire extends AkairoClient {
           (this.events = result.rows.length ? (result.rows[0][0] as number) : 0)
       );
 
-    this.experiments = new Map();
+    this.experiments = new Collection();
 
     this.on("warn", (warning) => this.console.warn(`[Discord] ${warning}`));
     this.on("error", (error) =>
@@ -292,7 +292,7 @@ export class Fire extends AkairoClient {
     });
     this.modules.loadAll();
 
-    this.conversationStates = new Map();
+    this.conversationStates = new Collection();
     this.ksoft = process.env.KSOFT_TOKEN
       ? new KSoftClient(process.env.KSOFT_TOKEN)
       : undefined;
@@ -339,7 +339,7 @@ export class Fire extends AkairoClient {
   }
 
   async loadExperiments() {
-    this.experiments = new Map();
+    this.experiments = new Collection();
     const experiments = await this.db.query("SELECT * FROM experiments;");
     for await (const experiment of experiments) {
       const data: Experiment = {

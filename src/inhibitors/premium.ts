@@ -1,6 +1,7 @@
 import { FireMessage } from "../../lib/extensions/message";
 import { Inhibitor } from "../../lib/util/inhibitor";
 import { Command } from "../../lib/util/command";
+import { Collection } from "discord.js";
 
 export default class PremiumInhibitor extends Inhibitor {
   constructor() {
@@ -19,7 +20,7 @@ export default class PremiumInhibitor extends Inhibitor {
   }
 
   async init() {
-    this.client.util.premium = new Map();
+    this.client.util.premium = new Collection();
     this.client.util.loadedData.premium = false;
     const premium = await this.client.db.query("SELECT * FROM premium;");
     for await (const row of premium) {

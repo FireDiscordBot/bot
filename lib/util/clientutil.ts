@@ -1,4 +1,4 @@
-import { version as djsver, PermissionString } from "discord.js";
+import { version as djsver, Collection, PermissionString } from "discord.js";
 import { Channel, Video } from "../interfaces/youtube";
 import { FireMember } from "../extensions/guildmember";
 import { MessageUtil } from "../ws/util/MessageUtil";
@@ -36,15 +36,15 @@ export class Util extends ClientUtil {
   admins: string[];
   loadedData: { plonked: boolean; premium: boolean };
   plonked: string[];
-  premium: Map<string, string>;
-  uuidCache: Map<string, string>;
+  premium: Collection<string, string>;
+  uuidCache: Collection<string, string>;
 
   constructor(client: Fire) {
     super(client);
     this.loadedData = { plonked: false, premium: false };
     this.plonked = [];
-    this.premium = new Map();
-    this.uuidCache = new Map();
+    this.premium = new Collection();
+    this.uuidCache = new Collection();
   }
 
   sleep(ms: number) {
