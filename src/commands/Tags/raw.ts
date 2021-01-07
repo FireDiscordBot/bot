@@ -32,6 +32,8 @@ export default class TagRaw extends Command {
       /(?<markdown>[_\\~|\*`])/gim,
       "\\$<markdown>"
     );
-    return await message.channel.send(content);
+    if (content.length <= 2000) return await message.channel.send(content);
+    else
+      return await message.channel.send(await this.client.util.haste(content));
   }
 }
