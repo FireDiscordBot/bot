@@ -76,6 +76,12 @@ export default class Purge extends Command {
           required: false,
         },
         {
+          id: "inverse",
+          flag: "-i",
+          match: "flag",
+          required: false,
+        },
+        {
           id: "reason",
           flag: "--reason",
           match: "option",
@@ -83,7 +89,6 @@ export default class Purge extends Command {
           required: false,
         },
       ],
-      enableSlashCommand: true,
     });
   }
 
@@ -99,6 +104,7 @@ export default class Purge extends Command {
       endsWith?: string;
       attachments?: boolean;
       bot?: boolean;
+      inverse?: boolean;
       reason?: string;
     }
   ) {
@@ -177,27 +183,55 @@ export default class Purge extends Command {
       endsWith?: string;
       attachments?: boolean;
       bot?: boolean;
+      inverse?: boolean;
       reason?: string;
     }
   ) {
     const filter = (message: FireMessage) => {
       let content = message.content.toLowerCase();
-      if (args.includeEmbeds && message.embeds.length)
+      if (args.includeEmbeds && message.embeds.length && !args.inverse)
         content += message.embeds
           .map((embed) => this.getEmbedContent(embed).toLowerCase())
           .join("");
       let completed: boolean[] = [];
-      if (args.user) completed.push(args.user?.id == message.author.id);
+      if (args.user)
+        completed.push(
+          args.inverse
+            ? args.user?.id != message.author.id
+            : args.user?.id == message.author.id
+        );
       if (args.match)
-        completed.push(content.includes(args.match.toLowerCase()));
+        completed.push(
+          args.inverse
+            ? !content.includes(args.match.toLowerCase())
+            : content.includes(args.match.toLowerCase())
+        );
       if (args.nomatch)
-        completed.push(!content.includes(args.nomatch.toLowerCase()));
+        completed.push(
+          args.inverse
+            ? content.includes(args.nomatch.toLowerCase())
+            : !content.includes(args.nomatch.toLowerCase())
+        );
       if (args.startsWith)
-        completed.push(content.startsWith(args.startsWith.toLowerCase()));
+        completed.push(
+          args.inverse
+            ? !content.startsWith(args.startsWith.toLowerCase())
+            : content.startsWith(args.startsWith.toLowerCase())
+        );
       if (args.endsWith)
-        completed.push(content.endsWith(args.endsWith.toLowerCase()));
-      if (args.attachments) completed.push(message.attachments.size >= 1);
-      if (args.bot) completed.push(message.author.bot);
+        completed.push(
+          args.inverse
+            ? !content.endsWith(args.endsWith.toLowerCase())
+            : content.endsWith(args.endsWith.toLowerCase())
+        );
+      if (args.attachments)
+        completed.push(
+          args.inverse
+            ? !message.attachments.size
+            : message.attachments.size >= 1
+        );
+      if (args.bot)
+        completed.push(args.inverse ? !message.author.bot : message.author.bot);
       return completed.filter((c) => !c).length == 0;
     };
     let recentPurge = [],
