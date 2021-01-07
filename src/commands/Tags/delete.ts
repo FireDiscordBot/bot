@@ -17,7 +17,15 @@ export default class TagDelete extends Command {
           required: true,
         },
       ],
-      aliases: ["tags-delete", "dtag-delete", "dtags-delete"],
+      aliases: [
+        "tag--",
+        "tags-delete",
+        "tags--",
+        "dtag-delete",
+        "dtag--",
+        "dtags-delete",
+        "dtags--",
+      ],
       restrictTo: "guild",
       parent: "tag",
     });

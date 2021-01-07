@@ -25,12 +25,17 @@ export default class TagCreate extends Command {
         },
       ],
       aliases: [
+        "tag-add",
+        "tag-+",
         "tags-create",
         "tags-add",
+        "tags-+",
         "dtag-create",
         "dtag-add",
+        "dtag-+",
         "dtags-create",
         "dtags-add",
+        "dtags-+",
       ],
       restrictTo: "guild",
       parent: "tag",
@@ -42,15 +47,12 @@ export default class TagCreate extends Command {
     else if (!args.content)
       return await message.error("TAGS_CREATE_MISSING_CONTENT");
     const { tag, content } = args;
-    if (this.client.getCommand("tag").getChildren().includes(`tag-${tag}`))
+    if (this.client.getCommand(`tag-${tag}`)?.parent == "tag")
       return await message.error("TAGS_CREATE_COMMAND_NAME");
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(tag, false);
     if (cachedTag) return await message.error("TAGS_CREATE_ALREADY_EXISTS");
-    if (
-      manager.cache.size >= 20 &&
-      !message.guild.premium
-    )
+    if (manager.cache.size >= 20 && !message.guild.premium)
       return await message.error("TAGS_CREATE_LIMIT");
     const newTag = await manager.createTag(tag, content, message.member);
     if (typeof newTag == "boolean" && !newTag) return await message.error();
