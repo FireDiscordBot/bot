@@ -22,13 +22,9 @@ export default class Modcore extends Command {
         },
       ],
       enableSlashCommand: true,
+      superuserOnly: true, // temp
       restrictTo: "all",
     });
-  }
-
-  async init() {
-    // hmmmmmmmmmmmmmmmmmmmm
-    this.remove();
   }
 
   async exec(
@@ -40,7 +36,7 @@ export default class Modcore extends Command {
     let uuid = await this.client.util.nameToUUID(ign);
     if (!uuid) return await message.error("MCUUID_FETCH_FAIL");
     const profileReq = await centra(
-      `https://api.modcore.sk1er.club/profile/${uuid}`
+      `https://api.modcore.net/api/v1/profile/${uuid}`
     ).send();
     const profile: ModcoreProfile = await profileReq.json();
     if (profileReq.statusCode != 200)
@@ -59,7 +55,7 @@ export default class Modcore extends Command {
               this.cosmeticNameFormat(cosmetic),
               `**[${this.cosmeticNameFormat(
                 cosmetic
-              )}](https://api.modcore.sk1er.club/serve/${
+              )}](https://api.modcore.net/api/serve/${
                 cosmetic.includes("CAPE") ? "cape" : "skin"
               }/${cosmetic.includes("STATIC") ? "static" : "dynamic"}/${
                 settings.id

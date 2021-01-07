@@ -188,10 +188,7 @@ export default class Sk1er extends Module {
     }
   }
 
-  async handleSupportReaction(
-    reaction: MessageReaction,
-    user: FireUser
-  ) {
+  async handleSupportReaction(reaction: MessageReaction, user: FireUser) {
     const member = (await this.supportGuild.members.fetch(user)) as FireMember;
     if (!member) return; // how
     const emoji = reaction.emoji.name;
@@ -267,7 +264,7 @@ export default class Sk1er extends Module {
     if (!uuid) return false;
 
     const nitroReq = await centra(
-      `https://api.modcore.sk1er.club/nitro/${uuid}/false`
+      `https://api.modcore.net/api/v1/nitro/${uuid}/false`
     )
       .header("secret", this.modcoreHeaders.secret)
       .send();
@@ -290,7 +287,7 @@ export default class Sk1er extends Module {
     if (!setUUID) return false;
 
     const nitroReq = await centra(
-      `https://api.modcore.sk1er.club/nitro/${uuid}/true`
+      `https://api.modcore.net/api/v1/nitro/${uuid}/true`
     )
       .header("secret", this.modcoreHeaders.secret)
       .send();
@@ -306,7 +303,7 @@ export default class Sk1er extends Module {
     archive.pipe(out);
 
     const versions = await (
-      await centra("https://api.sk1er.club/modcore_versions").send()
+      await centra("https://api.modcore.net/api/v1/versions").send()
     ).json();
     const current = versions["1.8.9"];
     const modcore = (
