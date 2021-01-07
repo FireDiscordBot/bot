@@ -519,21 +519,21 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         PURGED_MESSAGES: "Puwged Messages",
         PURGED_MESSAGES_FAILED: "Faiwed to upwoad messages to hastebin",
         RANK_COMMAND_DESCRIPTION:
-          "Wist aww avaiwabwe wanks and join a wank if pwovided",
-        RANKS_NONE_FOUND: "Seems wike thewe's no wanks set fow this guiwd",
+          "Wist aww avaiwabwe ranks and join a rank if pwovided",
+        RANKS_NONE_FOUND: "Seems wike thewe's no ranks set fow this guiwd",
         RANKS_INFO: (role: string, members: string) =>
           `> ${role} (${members} membews)`,
-        RANKS_AUTHOR: (guild: string) => `${guild}'s wanks`,
-        RANKS_JOIN_REASON: "Joined wank",
+        RANKS_AUTHOR: (guild: string) => `${guild}'s ranks`,
+        RANKS_JOIN_REASON: "Joined rank",
         RANKS_JOIN_RANK: (role: string) =>
-          `You successfuwwy joined the **${role}** wank.`,
-        RANKS_LEAVE_REASON: "Weft wank",
+          `You successfuwwy joined the **${role}** rank.`,
+        RANKS_LEAVE_REASON: "Weft rank",
         RANKS_LEFT_RANK: (role: string) =>
-          `You successfuwwy weft the **${role}** wank.`,
+          `You successfuwwy weft the **${role}** rank.`,
         RANKS_INVALID_ROLE:
-          "That isn't a vawid wank. Use the command without awguments to see a wist of vawid wanks",
+          "That isn't a vawid rank. Use the command without awguments to see a wist of vawid ranks",
         RANKS_INVALID_ROLE_DEL:
-          "That isn't a vawid wank. Use the wank command to see a wist of vawid wanks",
+          "That isn't a vawid rank. Use the rank command to see a wist of vawid ranks",
         RANKS_SK1ER_NO_SPECS: (mention: string) =>
           `${mention} To become a beta testew, pwease pwovide youw specs thwough this fowm: 
 <https://inv.wtf/sk1spec>
