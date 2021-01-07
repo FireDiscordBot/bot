@@ -5,6 +5,7 @@ import { FireUser } from "../../lib/extensions/user";
 import { MessageEmbed, Invite } from "discord.js";
 import { Module } from "../../lib/util/module";
 import * as centra from "centra";
+import { TextChannel } from "discord.js";
 
 const { regexes } = constants;
 
@@ -87,6 +88,7 @@ export default class Filters extends Module {
     if (
       excluded.includes(message?.author?.id || user?.id) ||
       excluded.includes(message?.channel?.id) ||
+      excluded.includes((message?.channel as TextChannel)?.parentID) ||
       excluded.some((id) => roleIds.includes(id))
     )
       return false;

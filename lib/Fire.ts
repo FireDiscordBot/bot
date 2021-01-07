@@ -20,6 +20,7 @@ import {
   memberSilentTypeCaster,
   memberTypeCaster,
 } from "../src/arguments/member";
+import { memberRoleChannelCategoryTypeCaster } from "../src/arguments/memberRoleChannelCategory";
 import { userMemberSnowflakeTypeCaster } from "../src/arguments/userMemberSnowflake";
 import { memberRoleChannelTypeCaster } from "../src/arguments/memberRoleChannel";
 import { roleSilentTypeCaster, roleTypeCaster } from "../src/arguments/role";
@@ -218,6 +219,7 @@ export class Fire extends AkairoClient {
       "user|member|snowflake": userMemberSnowflakeTypeCaster,
       "member|role": memberRoleTypeCaster,
       "member|role|channel": memberRoleChannelTypeCaster,
+      "member|role|channel|category": memberRoleChannelCategoryTypeCaster,
       member: memberTypeCaster,
       memberSilent: memberSilentTypeCaster,
       user: userTypeCaster,

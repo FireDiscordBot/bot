@@ -1,8 +1,8 @@
 import { FireMember } from "../../../lib/extensions/guildmember";
+import { CategoryChannel, TextChannel, Role } from "discord.js";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import { TextChannel, Role } from "discord.js";
 
 export default class FilterExclude extends Command {
   constructor() {
@@ -14,7 +14,7 @@ export default class FilterExclude extends Command {
       args: [
         {
           id: "toexclude",
-          type: "member|role|channel",
+          type: "member|role|channel|category",
           slashCommandType: "string",
           default: undefined,
           required: false,
@@ -29,7 +29,7 @@ export default class FilterExclude extends Command {
 
   async exec(
     message: FireMessage,
-    args: { toexclude?: FireMember | Role | TextChannel }
+    args: { toexclude?: FireMember | Role | TextChannel | CategoryChannel }
   ) {
     if (typeof args.toexclude == "undefined")
       return await this.sendCurrent(message);
