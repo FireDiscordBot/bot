@@ -11,7 +11,6 @@ export default class Autorole extends Command {
       clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS", "MANAGE_ROLES"],
       userPermissions: ["MANAGE_GUILD"],
       restrictTo: "guild",
-      premium: true,
       args: [
         {
           id: "role",
