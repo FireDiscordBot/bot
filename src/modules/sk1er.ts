@@ -171,7 +171,7 @@ export default class Sk1er extends Module {
             `[Sk1er] Removing nitro perks from ${member} due to lack of booster role`
           );
           const removed = await this.removeNitroPerks(member).catch(() => {});
-          if (!removed)
+          if (!removed || typeof removed == "number")
             this.client.console.error(
               `[Sk1er] Failed to remove nitro perks from ${member}${
                 typeof removed == "number"
@@ -201,7 +201,26 @@ export default class Sk1er extends Module {
         const user = (await this.client.users
           .fetch(id)
           .catch(() => {})) as FireUser;
-        if (user) await this.removeNitroPerks(user).catch(() => {});
+        if (user) {
+          const removed = await this.removeNitroPerks(user).catch(() => {});
+          if (!removed || typeof removed == "number")
+            this.client.console.error(
+              `[Sk1er] Failed to remove nitro perks from ${user}${
+                typeof removed == "number"
+                  ? " with status code " + removed.toString()
+                  : ""
+              }`
+            );
+          else if (typeof removed == "boolean" && removed)
+            (this.guild.channels.cache.get(
+              "411620457754787841"
+            ) as TextChannel).send(
+              this.guild.language.get(
+                "SK1ER_NITRO_PERKS_REMOVED_LEFT",
+                user.toString()
+              )
+            );
+        }
       });
     }
   }
