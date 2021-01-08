@@ -14,13 +14,14 @@ export default class GuildMemberRemove extends Listener {
   async exec(member: FireMember) {
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     if (sk1erModule && member.guild.id == sk1erModule.guildId) {
-      let removed = false;
-      removed = await sk1erModule.removeNitroPerks(member).catch(() => false);
-      if (removed)
+      const removed = await sk1erModule
+        .removeNitroPerks(member)
+        .catch(() => false);
+      if (typeof removed == "boolean" && removed)
         (sk1erModule.guild.channels.cache.get(
           "411620457754787841"
         ) as TextChannel).send(
-          member.language.get(
+          sk1erModule.guild.language.get(
             "SK1ER_NITRO_PERKS_REMOVED_LEFT",
             member.toString()
           )

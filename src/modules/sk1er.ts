@@ -179,6 +179,16 @@ export default class Sk1er extends Module {
                   : ""
               }`
             );
+          else if (typeof removed == "boolean" && removed)
+            (this.guild.channels.cache.get(
+              "411620457754787841"
+            ) as TextChannel).send(
+              this.guild.language.get(
+                "SK1ER_NITRO_PERKS_REMOVED",
+                member.toMention()
+              ),
+              { allowedMentions: { users: [member.id] } }
+            );
         }
       });
     };

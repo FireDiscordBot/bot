@@ -43,21 +43,21 @@ export default class GuildMemberUpdate extends Listener {
       !newMember.partial &&
       newMember.guild.id == sk1erModule.guildId
     ) {
-      let removed = false;
-      if (!newMember.roles.cache.has("585534346551754755"))
-        removed = await sk1erModule
+      if (!newMember.roles.cache.has("585534346551754755")) {
+        const removed = await sk1erModule
           .removeNitroPerks(newMember)
           .catch(() => false);
-      if (removed)
-        (sk1erModule.guild.channels.cache.get(
-          "411620457754787841"
-        ) as TextChannel).send(
-          newMember.language.get(
-            "SK1ER_NITRO_PERKS_REMOVED",
-            newMember.toMention()
-          ),
-          { allowedMentions: { users: [newMember.id] } }
-        );
+        if (typeof removed == "boolean" && removed)
+          (sk1erModule.guild.channels.cache.get(
+            "411620457754787841"
+          ) as TextChannel).send(
+            sk1erModule.guild.language.get(
+              "SK1ER_NITRO_PERKS_REMOVED",
+              newMember.toMention()
+            ),
+            { allowedMentions: { users: [newMember.id] } }
+          );
+      }
     }
   }
 }
