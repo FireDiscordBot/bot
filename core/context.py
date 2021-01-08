@@ -24,58 +24,32 @@ import random
 class Context(commands.Context):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.colors = [
-            discord.Color.blue(),
-            discord.Color.blurple(),
-            discord.Color.dark_blue(),
-            discord.Color.dark_gold(),
-            discord.Color.dark_green(),
-            discord.Color.dark_magenta(),
-            discord.Color.dark_orange(),
-            discord.Color.dark_purple(),
-            discord.Color.dark_red(),
-            discord.Color.dark_teal(),
-            discord.Color.gold(),
-            discord.Color.green(),
-            discord.Color.magenta(),
-            discord.Color.orange(),
-            discord.Color.purple(),
-            discord.Color.red(),
-            discord.Color.teal()
-        ]
         self.config: Config = self.bot.get_config(
             self.guild.id) if self.guild else None
         self.silent = False
         self.ticket_override = None
 
     async def success(self, message: str, **kwargs):
-        await self.reply(f'<:yes:534174796888408074> {message}', **kwargs)
+        return await self.reply(f'<:yes:534174796888408074> {message}', **kwargs)
 
     async def warning(self, message: str, **kwargs):
-        await self.reply(f'<:maybe:534174796578160640> {message}', **kwargs)
+        return await self.reply(f'<:maybe:534174796578160640> {message}', **kwargs)
 
     async def error(self, message: str, **kwargs):
-        await self.reply(f'<:no:534174796938870792> {message}', **kwargs)
+        return await self.reply(f'<:no:534174796938870792> {message}', **kwargs)
 
     async def reply(self, content: str, **kwargs):
         try:
-            await self.bot.http.request(discord.http.Route("POST", f"/channels/{self.channel.id}/messages"), json={
-                'content': content,
-                'message_reference': {'message_id': self.message.id},
-                'allowed_mentions': {
-                    'parse': [],
-                    'replied_user': False
-                }
-            })
+            return await self.reply(content, **kwargs)
         except Exception:
-            await self.send(content, **kwargs)
+            return await self.send(content, **kwargs)
 
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, allowed_mentions=None):
         if isinstance(content, discord.Embed):
             embed = content.copy()
             content = None
         if isinstance(embed, discord.Embed) and embed.color in [discord.Embed.Empty, discord.Color.default()]:
-            embed.color = random.choice(self.colors)
+            embed.color = discord.Color.random()
         if not (file or files):
             resp = discord.utils.get(
                 self.bot.cached_messages, id=self.bot.cmdresp.get(self.message.id, 0))
