@@ -93,30 +93,36 @@ export default class MessageInvalid extends Listener {
       if (exec) inhibited = true;
     }
 
+    if (inhibited) return;
+
     const shards = this.client.options.shards as number[];
 
-    if (!inhibited) {
-      for (const quote of matches) {
-        if (!shards.includes(this.client.util.getShard(quote.guild_id))) {
-          if (!this.client.manager.ws) return;
-          const webhookURL = await this.getQuoteWebhookURL(
-            message.channel as TextChannel
-          );
-          if (!webhookURL || typeof webhookURL != "string") return;
-          this.client.manager.ws.send(
-            MessageUtil.encode(
-              new Message(EventType.CROSS_CLUSTER_QUOTE, {
-                shard: this.client.util.getShard(quote.guild_id),
-                quoter: message.author.id,
-                webhook: webhookURL,
-                message: quote,
-                destination: {
-                  nsfw: (message.channel as TextChannel)?.nsfw || false,
-                } as PartialQuoteDestination,
-              })
-            )
-          );
-        }
+    for (const quote of matches) {
+      const shard = this.client.util.getShard(quote.guild_id);
+      if (!shards.includes(shard)) {
+        if (!this.client.manager.ws) continue;
+        const webhookURL = await this.getQuoteWebhookURL(
+          message.channel as TextChannel
+        );
+        if (!webhookURL || typeof webhookURL != "string") continue;
+        if (!message.channel.typing) await message.channel.startTyping();
+        this.client.console.info(
+          `[Listener] Sending cross cluster quote request to shard ${shard} for guild ${quote.guild_id}`
+        );
+        this.client.manager.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.CROSS_CLUSTER_QUOTE, {
+              shard,
+              quoter: message.author.id,
+              webhook: webhookURL,
+              message: quote,
+              destination: {
+                nsfw: (message.channel as TextChannel)?.nsfw || false,
+              } as PartialQuoteDestination,
+            })
+          )
+        );
+      } else {
         const convertedMessage = await messageConverter(
           message,
           null,
