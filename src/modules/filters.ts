@@ -2,10 +2,9 @@ import { constants, shortURLs } from "../../lib/util/constants";
 import { FireMember } from "../../lib/extensions/guildmember";
 import { FireMessage } from "../../lib/extensions/message";
 import { FireUser } from "../../lib/extensions/user";
-import { MessageEmbed, Invite } from "discord.js";
+import { MessageEmbed, TextChannel, Invite } from "discord.js";
 import { Module } from "../../lib/util/module";
 import * as centra from "centra";
-import { TextChannel } from "discord.js";
 
 const { regexes } = constants;
 
@@ -159,6 +158,10 @@ export default class Filters extends Module {
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
       extra;
+    const noExtra =
+      message.content +
+      " " +
+      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ");
     let found: RegExpExecArray[] = [];
     let invites: string[] = [];
     let regexec: RegExpExecArray;
@@ -178,6 +181,13 @@ export default class Filters extends Module {
         invite = await this.getInviteFromExec(message, exec);
         await deleteInvite(invite);
       } catch (e) {
+        if (
+          (e.message?.includes("actual invite") ||
+            e.message?.includes("Unknown Invite")) &&
+          !noExtra.includes(exec[0]) &&
+          extra.includes(exec[0])
+        )
+          continue;
         await deleteFail(e);
       }
       const embed = new MessageEmbed()
@@ -224,7 +234,12 @@ export default class Filters extends Module {
             )}`,
             false
           );
-      }
+      } else
+        embed.addField(
+          message.guild.language.get("FILTER_INVITE_LOG_LINK"),
+          exec[0],
+          false
+        );
       await message.guild.actionLog(embed, "linkfilter").catch(() => {});
     }
   }
@@ -279,9 +294,11 @@ export default class Filters extends Module {
           .header("User-Agent", "Fire Discord Bot")
           .send()
       ).json();
-      invite = await this.client.fetchInvite(vanity.invite);
-      if (!invite.guild.description && vanity.description)
-        invite.guild.description = vanity.description;
+      if (vanity?.invite) {
+        invite = await this.client.fetchInvite(vanity.invite);
+        if (!invite.guild.description && vanity.description)
+          invite.guild.description = vanity.description;
+      } else throw new Error("Could not find actual invite");
     } else {
       const invReq = await centra("https://" + exec[0])
         .header("User-Agent", "Fire Discord Bot")
@@ -303,7 +320,7 @@ export default class Filters extends Module {
       inviteMatch = regexes.discord.invite.exec(req.body.toString());
     else if (
       regexes.invites.some((regex) => {
-        let exec;
+        let exec: number;
         exec = regex.exec(req.body.toString())?.length;
         regex.lastIndex = 0;
         return exec;
