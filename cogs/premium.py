@@ -332,15 +332,29 @@ class Premium(commands.Cog, name="Premium Commands"):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        if await self.bot.has_ts_bot(member.guild):
+        if await self.bot.has_ts_bot(member.guild) or "PREVIEW_ENABLED" in member.guild.features:
             return
         if member.guild.id in self.bot.premium_guilds:
             try:
-                role = self.bot.get_config(member.guild).get("mod.autorole")
-                wait = self.bot.get_config(member.guild).get(
-                    "mod.autorole.waitformsg")
+                config = self.bot.get_config(member.guild)
+                role = config.get("mod.autorole")
+                wait = config.get("mod.autorole.waitformsg")
                 if role is not None and not wait and not role in member.roles:
                     await member.add_roles(role, reason="Auto-Role")
+            except Exception:
+                pass
+
+    @commands.Cog.listener()
+    async def on_member_update(self, before, after):
+        if await self.bot.has_ts_bot(after.guild):
+            return
+        if after.guild.id in self.bot.premium_guilds and not after.pending:
+            try:
+                config = self.bot.get_config(after.guild)
+                role = config.get("mod.autorole")
+                wait = config.get("mod.autorole.waitformsg")
+                if role is not None and not wait and not role in after.roles:
+                    await after.add_roles(role, reason="Auto-Role")
             except Exception:
                 pass
 
@@ -350,7 +364,7 @@ class Premium(commands.Cog, name="Premium Commands"):
             return
         member = message.author if isinstance(
             message.author, discord.Member) else None
-        if member and member.guild.id in self.bot.premium_guilds:
+        if member and member.guild.id in self.bot.premium_guilds and not member.pending:
             try:
                 config = self.bot.get_config(member.guild)
                 role = config.get("mod.autorole")
@@ -359,7 +373,7 @@ class Premium(commands.Cog, name="Premium Commands"):
                     await member.add_roles(
                         role, reason="Auto-Role (Waited for message before adding)"
                     )
-            except Exception as e:
+            except Exception:
                 pass
 
 
