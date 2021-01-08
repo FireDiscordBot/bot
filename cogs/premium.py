@@ -103,45 +103,6 @@ class Premium(commands.Cog, name="Premium Commands"):
     #         os.remove(filename)
 
     @commands.command(
-        name="autorole", description="Automatically add a role to a user when they join"
-    )
-    @has_permissions(manage_roles=True)
-    @bot_has_permissions(manage_roles=True)
-    @commands.guild_only()
-    async def autorole(self, ctx, role: typing.Union[Role, str] = None):
-        if not role:
-            await ctx.config.set("mod.autorole", None)
-            return await ctx.success(
-                f"Successfully disabled auto-role in {ctx.guild.name}"
-            )
-        if isinstance(role, str) and role in ["delay", "wait"]:
-            current = ctx.config.get("mod.autorole.waitformsg")
-            current = await ctx.config.set("mod.autorole.waitformsg", not current)
-            if not current:
-                return await ctx.success(
-                    f"I will no longer wait for a message to give users your auto-role."
-                )
-            else:
-                return await ctx.success(
-                    f"I will now wait for a message before giving your auto-role. This will also apply to existing users who don't have the role."
-                )
-        elif isinstance(role, str):
-            raise commands.BadArgument('Role not found :(')
-        if role.position >= ctx.guild.me.top_role.position:
-            return await ctx.error(
-                "That role is higher than my top role, I cannot give it to anyone."
-            )
-        if role.managed or role.is_default():
-            return await ctx.error(
-                "That role is managed by an integration or the default role, I cannot give it to anyone."
-            )
-        else:
-            await ctx.config.set("mod.autorole", role)
-            return await ctx.success(
-                f"Successfully enabled auto-role in {ctx.guild.name}! All new members will recieve the {role.name} role."
-            )
-
-    @commands.command(
         name="addrank",
         description="Add a role that users can join through the rank command.",
     )
@@ -329,52 +290,6 @@ class Premium(commands.Cog, name="Premium Commands"):
     #                                         pass
     #         except Exception:
     #             return
-
-    @commands.Cog.listener()
-    async def on_member_join(self, member):
-        if await self.bot.has_ts_bot(member.guild) or "PREVIEW_ENABLED" in member.guild.features:
-            return
-        if member.guild.id in self.bot.premium_guilds:
-            try:
-                config = self.bot.get_config(member.guild)
-                role = config.get("mod.autorole")
-                wait = config.get("mod.autorole.waitformsg")
-                if role is not None and not wait and not role in member.roles:
-                    await member.add_roles(role, reason="Auto-Role")
-            except Exception:
-                pass
-
-    @commands.Cog.listener()
-    async def on_member_update(self, before, after):
-        if await self.bot.has_ts_bot(after.guild):
-            return
-        if after.guild.id in self.bot.premium_guilds and not after.pending:
-            try:
-                config = self.bot.get_config(after.guild)
-                role = config.get("mod.autorole")
-                wait = config.get("mod.autorole.waitformsg")
-                if role is not None and not wait and not role in after.roles:
-                    await after.add_roles(role, reason="Auto-Role")
-            except Exception:
-                pass
-
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if await self.bot.has_ts_bot(message.guild):
-            return
-        member = message.author if isinstance(
-            message.author, discord.Member) else None
-        if member and member.guild.id in self.bot.premium_guilds and not member.pending:
-            try:
-                config = self.bot.get_config(member.guild)
-                role = config.get("mod.autorole")
-                wait = config.get("mod.autorole.waitformsg")
-                if role is not None and wait and role not in member.roles:
-                    await member.add_roles(
-                        role, reason="Auto-Role (Waited for message before adding)"
-                    )
-            except Exception:
-                pass
 
 
 def setup(bot):
