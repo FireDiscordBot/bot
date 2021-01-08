@@ -38,6 +38,12 @@ class Context(commands.Context):
     async def error(self, message: str, **kwargs):
         return await self.reply(f'<:no:534174796938870792> {message}', **kwargs)
 
+    async def reply(self, message: str, **kwargs):
+        try:
+            return await commands.Context.reply(self, message, **kwargs)
+        except Exception:
+            return await self.send(message, **kwargs)
+
     async def send(self, content=None, *, tts=False, embed=None, file=None, files=None, delete_after=None, allowed_mentions=None):
         if isinstance(content, discord.Embed):
             embed = content.copy()
