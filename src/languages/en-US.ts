@@ -922,10 +922,10 @@ Running this command without providing a category resets it, therefore disabling
         WARN_LOG_DM_FAIL: "Unable to send DM, user was not warned.",
         WARN_DM: (guild: string, reason: string) =>
           `You were warned in ${guild} for "${reason}"`,
-        WARN_SUCCESS: (user: string) =>
-          `${constants.emojis.success} **${user}** has been warned.`,
-        WARN_FAIL: (user: string) =>
-          `${constants.emojis.warning} **${user}** was not warned due to having DMs off. The warning has been logged.`,
+        WARN_SUCCESS: (user: string, times: string) =>
+          `${constants.emojis.success} **${user}** has been warned for the ${times} time.`,
+        WARN_FAIL: (user: string, times: string) =>
+          `${constants.emojis.warning} **${user}** was not warned due to having DMs off. The warning has been logged and is their ${times} warning.`,
       },
       enabled: true,
     });

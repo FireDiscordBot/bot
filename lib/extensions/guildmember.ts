@@ -11,6 +11,7 @@ import * as sanitizer from "@aero/sanitizer";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
+import { time } from "console";
 
 export class FireMember extends GuildMember {
   changingNick?: boolean;
@@ -259,13 +260,33 @@ export class FireMember extends GuildMember {
         this.guild.language.get("WARN_LOG_DM_FAIL")
       );
     await this.guild.modLog(embed).catch(() => {});
+    const count = await this.client.db
+      .query("SELECT * FROM modlogs WHERE gid=$1 AND type=$2 AND uid=$3;", [
+        this.guild.id,
+        "warn",
+        this.id,
+      ])
+      .then((value) => value.rows.length)
+      .catch(() => 0);
+    let times: string = count.toString();
+    // shit code tm
+    if (times.endsWith("1")) times = times + (times == "11" ? "th" : "st");
+    else if (times.endsWith("2")) times = times + (times == "12" ? "th" : "nd");
+    else if (times.endsWith("3")) times = times + (times == "13" ? "th" : "rd");
+    else if (
+      ["4", "5", "6", "7", "8", "9", "0"].some((num) =>
+        times.toString().endsWith(num)
+      )
+    )
+      times = times.toString() + "th";
     if (channel)
       return noDM
         ? await channel
             .send(
               this.guild.language.get(
                 "WARN_FAIL",
-                Util.escapeMarkdown(this.toString())
+                Util.escapeMarkdown(this.toString()),
+                times
               )
             )
             .catch(() => {})
@@ -273,7 +294,8 @@ export class FireMember extends GuildMember {
             .send(
               this.guild.language.get(
                 "WARN_SUCCESS",
-                Util.escapeMarkdown(this.toString())
+                Util.escapeMarkdown(this.toString()),
+                times
               )
             )
             .catch(() => {});
