@@ -15,8 +15,8 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-
-from discord.ext import commands, has_permissions, bot_has_permissions
+from discord.ext.commands import has_permissions, bot_has_permissions
+from discord.ext import commands
 from fire.converters import Role
 import discord
 import typing
