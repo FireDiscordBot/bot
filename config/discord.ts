@@ -10,7 +10,7 @@ export const discord: ClientOptions = {
   },
   messageEditHistoryMaxSize: 2,
   messageCacheLifetime: 300,
-  messageCacheMaxSize: 100,
+  messageCacheMaxSize: 50,
   messageSweepInterval: 60,
   fetchAllMembers: false,
   partials: ["REACTION", "MESSAGE", "CHANNEL", "GUILD_MEMBER", "USER"],
