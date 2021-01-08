@@ -91,8 +91,8 @@ export default class Eval extends Command {
       args.code.content = transpile(args.code.content);
     const { success, result, type } = await this.eval(message, args);
     success
-      ? await message.success().catch(() => {})
-      : await message.error().catch(() => {});
+      ? await message.success()?.catch(() => {})
+      : await message.error()?.catch(() => {});
     if (this.client.manager.ws) {
       let input: string, output: string;
       try {
