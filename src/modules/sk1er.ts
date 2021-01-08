@@ -170,7 +170,15 @@ export default class Sk1er extends Module {
           this.client.console.warn(
             `[Sk1er] Removing nitro perks from ${member} due to lack of booster role`
           );
-          await this.removeNitroPerks(member).catch(() => {});
+          const removed = await this.removeNitroPerks(member).catch(() => {});
+          if (!removed)
+            this.client.console.error(
+              `[Sk1er] Failed to remove nitro perks from ${member}${
+                typeof removed == "number"
+                  ? " with status code " + removed.toString()
+                  : ""
+              }`
+            );
         }
       });
     };
@@ -276,7 +284,7 @@ export default class Sk1er extends Module {
       );
       if (result.status != "DELETE 0") return true;
       else return false;
-    } else return false;
+    } else return nitroReq.statusCode;
   }
 
   async giveNitroPerks(user: FireMember | FireUser, ign: string) {
