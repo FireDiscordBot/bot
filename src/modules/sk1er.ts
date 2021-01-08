@@ -301,7 +301,8 @@ export default class Sk1er extends Module {
     if (!uuid) return false;
 
     const nitroReq = await centra(
-      `https://api.modcore.net/api/v1/nitro/${uuid}/false`
+      `https://api.modcore.net/api/v1/nitro/${uuid}/false`,
+      "POST"
     )
       .header("secret", this.modcoreHeaders.secret)
       .send();
@@ -324,7 +325,8 @@ export default class Sk1er extends Module {
     if (!setUUID) return false;
 
     const nitroReq = await centra(
-      `https://api.modcore.net/api/v1/nitro/${uuid}/true`
+      `https://api.modcore.net/api/v1/nitro/${uuid}/true`,
+      "POST"
     )
       .header("secret", this.modcoreHeaders.secret)
       .send();
