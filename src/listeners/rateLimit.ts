@@ -1,3 +1,4 @@
+import { Routes } from "discord-api-types";
 import { Listener } from "../../lib/util/listener";
 
 export default class RateLimit extends Listener {
@@ -15,6 +16,7 @@ export default class RateLimit extends Listener {
     path: string;
     route: string;
   }) {
+    if (rateLimit.route.includes("/messages/:id/reactions")) return;
     this.client.console.warn(
       `[Rest] Limited on route ${
         rateLimit.route
