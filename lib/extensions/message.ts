@@ -28,6 +28,7 @@ export class FireMessage extends Message {
   util?: CommandUtil;
   author: FireUser;
   guild: FireGuild;
+  links: string[];
   client: Fire;
 
   constructor(
@@ -36,6 +37,14 @@ export class FireMessage extends Message {
     channel: DMChannel | TextChannel | NewsChannel
   ) {
     super(client, data, channel);
+    this.links = [];
+    if (this.content) {
+      let exec: RegExpExecArray;
+      (this.client.getModule("filters") as Filters).regexes.forEach((regex) => {
+        while ((exec = regex.exec(this.content))) this.links.push(exec[0]);
+        regex.lastIndex = 0;
+      });
+    }
   }
 
   get language() {
