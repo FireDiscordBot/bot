@@ -105,7 +105,7 @@ export default class MessageInvalid extends Listener {
           message.channel as TextChannel
         );
         if (!webhookURL || typeof webhookURL != "string") continue;
-        if (!message.channel.typing) await message.channel.startTyping();
+        if (!message.channel.typing) message.channel.startTyping();
         this.client.console.info(
           `[Listener] Sending cross cluster quote request to shard ${shard} for guild ${quote.guild_id}`
         );
