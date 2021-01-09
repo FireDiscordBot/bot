@@ -34,7 +34,7 @@ export default class MCLogs extends Module {
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
       home: /(\/Users\/\w+|\/home\/\w+|C:\\Users\\\w+)/gim,
       settingUser: /\[Client thread\/INFO]: Setting user: (\w{1,16})/gim,
-      date: /^time: (?<date>[\w \/:-\.]+)$/gim,
+      date: /^time: (?<date>[\w \/\.:-]+)$/gim,
     };
     this.logText = [
       "net.minecraft.launchwrapper.Launch",
