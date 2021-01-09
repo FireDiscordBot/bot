@@ -14,8 +14,8 @@ import { FireUser } from "../extensions/user";
 import { constants } from "./constants";
 
 const { regexes } = constants;
-const idOnlyRegex = /^(1|\d{15,21})$/im;
-const idRegex = /(1|\d{15,21})/im;
+const idOnlyRegex = /^(\d{15,21})$/im;
+const idRegex = /(\d{15,21})/im;
 const userMentionRegex = /<@!?(1|\d{15,21})>$/im;
 const messageIDRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
 const channelMentionRegex = /<#(\d{15,21})>$/im;
