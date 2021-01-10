@@ -1,4 +1,3 @@
-import { Routes } from "discord-api-types";
 import { Listener } from "../../lib/util/listener";
 
 export default class RateLimit extends Listener {
