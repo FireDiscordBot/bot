@@ -315,7 +315,9 @@ export class FireMember extends GuildMember {
     if (!logEntry) return "entry";
     const banned = await this.ban({ reason, days }).catch(() => {});
     if (!banned) {
-      const deleted = await this.guild.deleteModLogEntry(logEntry);
+      const deleted = await this.guild
+        .deleteModLogEntry(logEntry)
+        .catch(() => false);
       return deleted ? "ban" : "ban_and_entry";
     }
     const embed = new MessageEmbed()
@@ -348,6 +350,110 @@ export class FireMember extends GuildMember {
             Util.escapeMarkdown(this.toString()),
             Util.escapeMarkdown(this.guild.name)
           )
+        )
+        .catch(() => {});
+  }
+
+  async yeet(reason: string, moderator: FireMember, channel?: TextChannel) {
+    if (!reason || !moderator) return "args";
+    if (!moderator.isModerator(channel)) return "forbidden";
+    const logEntry = await this.guild
+      .createModLogEntry(this, moderator, "kick", reason)
+      .catch(() => {});
+    if (!logEntry) return "entry";
+    const kicked = await this.kick(reason).catch(() => {});
+    if (!kicked) {
+      const deleted = await this.guild
+        .deleteModLogEntry(logEntry)
+        .catch(() => false);
+      return deleted ? "kick" : "kick_and_entry";
+    }
+    const embed = new MessageEmbed()
+      .setColor(this.displayHexColor || "#E74C3C")
+      .setTimestamp(new Date())
+      .setAuthor(
+        this.guild.language.get("KICK_LOG_AUTHOR", this.toString()),
+        this.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+      )
+      .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.guild.language.get("REASON"), reason)
+      .setFooter(`${this.id} | ${moderator.id}`);
+    await this.guild.modLog(embed).catch(() => {});
+    if (channel)
+      return await channel
+        .send(
+          this.guild.language.get(
+            "KICK_SUCCESS",
+            Util.escapeMarkdown(this.toString())
+          )
+        )
+        .catch(() => {});
+  }
+
+  async derank(reason: string, moderator: FireMember, channel?: TextChannel) {
+    if (!reason || !moderator) return "args";
+    if (!moderator.isModerator(channel)) return "forbidden";
+    const logEntry = await this.guild
+      .createModLogEntry(this, moderator, "derank", reason)
+      .catch(() => {});
+    if (!logEntry) return "entry";
+    let failed = false;
+    const beforeIds = this.roles.cache
+      .filter((role) => role.id != this.guild.roles.everyone.id)
+      .map((role) => role.id);
+    await this.roles
+      .remove(
+        this.roles.cache.filter(
+          (role) => role.id != this.guild.roles.everyone.id
+        ),
+        reason
+      )
+      .catch(() => {});
+    const afterIds = this.roles.cache
+      .filter((role) => role.id != this.guild.roles.everyone.id)
+      .map((role) => role.id);
+    if (beforeIds.length == afterIds.length) {
+      const deleted = await this.guild
+        .deleteModLogEntry(logEntry)
+        .catch(() => false);
+      return deleted ? "derank" : "derank_and_entry";
+    }
+    if (afterIds.length >= 1) failed = true;
+    const embed = new MessageEmbed()
+      .setColor(this.displayHexColor || "#E74C3C")
+      .setTimestamp(new Date())
+      .setAuthor(
+        this.guild.language.get("DERANK_LOG_AUTHOR", this.toString()),
+        this.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+      )
+      .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.guild.language.get("REASON"), reason)
+      .setFooter(`${this.id} | ${moderator.id}`);
+    if (failed)
+      embed.addField(
+        this.guild.language.get("DERANK_FAILED_TO_REMOVE"),
+        this.guild.roles.cache
+          .filter((role) => afterIds.includes(role.id))
+          .map((role) => role.toString())
+          .join(", ")
+      );
+    await this.guild.modLog(embed).catch(() => {});
+    if (channel)
+      return await channel
+        .send(
+          failed
+            ? this.guild.language.get(
+                "DERANK_SUCCESS",
+                Util.escapeMarkdown(this.toString())
+              )
+            : this.guild.language.get(
+                "DERANK_FAILED",
+                Util.escapeMarkdown(this.toString()),
+                this.guild.roles.cache
+                  .filter((role) => afterIds.includes(role.id))
+                  .map((role) => Util.escapeMarkdown(role.name))
+                  .join(", ")
+              )
         )
         .catch(() => {});
   }

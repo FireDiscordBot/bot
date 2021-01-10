@@ -1,5 +1,6 @@
 import {
   Util,
+  Role,
   Guild,
   Structures,
   TextChannel,
@@ -20,6 +21,7 @@ import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
 import { Fire } from "../Fire";
+import { PermissionOverwriteOption } from "discord.js";
 
 export class FireGuild extends Guild {
   settings: GuildSettings;
@@ -431,7 +433,7 @@ export class FireGuild extends Guild {
     if (!logEntry) return "entry";
     const unbanned = await this.members.unban(user, reason).catch(() => {});
     if (!unbanned) {
-      const deleted = await this.deleteModLogEntry(logEntry);
+      const deleted = await this.deleteModLogEntry(logEntry).catch(() => false);
       return deleted ? "unban" : "unban_and_entry";
     }
     const embed = new MessageEmbed()
@@ -455,6 +457,142 @@ export class FireGuild extends Guild {
           )
         )
         .catch(() => {});
+  }
+
+  async block(
+    blockee: FireMember | Role,
+    reason: string,
+    moderator: FireMember,
+    channel: TextChannel
+  ) {
+    if (!reason || !moderator) return "args";
+    if (!moderator.isModerator(channel)) return "forbidden";
+    let logEntry: string | false | void;
+    if (blockee instanceof FireMember) {
+      logEntry = await this.createModLogEntry(
+        blockee,
+        moderator,
+        "block",
+        reason
+      ).catch(() => {});
+      if (!logEntry) return "entry";
+    }
+    const overwrite: PermissionOverwriteOption = {
+      SEND_MESSAGES: false,
+      ADD_REACTIONS: false,
+    };
+    const blocked = await channel
+      .updateOverwrite(blockee, overwrite, reason)
+      .catch(() => {});
+    if (!blocked) {
+      let deleted = true; // ensures "block" is used if logEntry doesn't exist
+      if (logEntry)
+        deleted = await this.deleteModLogEntry(logEntry).catch(() => false);
+      return deleted ? "block" : "block_and_entry";
+    }
+    const embed = new MessageEmbed()
+      .setColor(
+        blockee instanceof FireMember
+          ? blockee.displayHexColor
+          : null || "#E74C3C"
+      )
+      .setTimestamp(new Date())
+      .setAuthor(
+        this.language.get(
+          "BLOCK_LOG_AUTHOR",
+          blockee instanceof FireMember ? blockee.toString() : blockee.name
+        ),
+        blockee instanceof FireMember
+          ? blockee.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+          : this.iconURL({ size: 2048, format: "png", dynamic: true }),
+        "https://static.inv.wtf/blocked.gif" // hehe
+      )
+      .addField(this.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.language.get("REASON"), reason)
+      .setFooter(`${this.id} | ${moderator.id}`);
+    await this.modLog(embed).catch(() => {});
+    return await channel
+      .send(
+        this.language.get(
+          "BLOCK_SUCCESS",
+          Util.escapeMarkdown(
+            blockee instanceof FireMember ? blockee.toString() : blockee.name
+          )
+        )
+      )
+      .catch(() => {});
+  }
+
+  async unblock(
+    unblockee: FireMember | Role,
+    reason: string,
+    moderator: FireMember,
+    channel: TextChannel
+  ) {
+    if (!reason || !moderator) return "args";
+    if (!moderator.isModerator(channel)) return "forbidden";
+    let logEntry: string | false | void;
+    if (unblockee instanceof FireMember) {
+      logEntry = await this.createModLogEntry(
+        unblockee,
+        moderator,
+        "unblock",
+        reason
+      ).catch(() => {});
+      if (!logEntry) return "entry";
+    }
+    const overwrite: PermissionOverwriteOption = {
+      SEND_MESSAGES: null,
+      ADD_REACTIONS: null,
+    };
+    const unblocked = await channel
+      .updateOverwrite(unblockee, overwrite, reason)
+      .catch(() => {});
+    if (
+      channel.permissionOverwrites.get(unblockee.id)?.allow.bitfield == 0 &&
+      channel.permissionOverwrites.get(unblockee.id)?.deny.bitfield == 0 &&
+      unblockee.id != this.roles.everyone.id
+    )
+      await channel.permissionOverwrites
+        .get(unblockee.id)
+        .delete()
+        .catch(() => {}); // this doesn't matter *too* much
+    if (!unblocked) {
+      let deleted = true; // ensures "unblock" is used if logEntry doesn't exist
+      if (logEntry)
+        deleted = await this.deleteModLogEntry(logEntry).catch(() => false);
+      return deleted ? "unblock" : "unblock_and_entry";
+    }
+    const embed = new MessageEmbed()
+      .setColor(
+        unblockee instanceof FireMember
+          ? unblockee.displayHexColor
+          : null || "#E74C3C"
+      )
+      .setTimestamp(new Date())
+      .setAuthor(
+        this.language.get(
+          "UNBLOCK_LOG_AUTHOR",
+          unblockee instanceof FireMember ? unblockee.toString() : unblockee.name
+        ),
+        unblockee instanceof FireMember
+          ? unblockee.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+          : this.iconURL({ size: 2048, format: "png", dynamic: true })
+      )
+      .addField(this.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.language.get("REASON"), reason)
+      .setFooter(`${this.id} | ${moderator.id}`);
+    await this.modLog(embed).catch(() => {});
+    return await channel
+      .send(
+        this.language.get(
+          "UNBLOCK_SUCCESS",
+          Util.escapeMarkdown(
+            unblockee instanceof FireMember ? unblockee.toString() : unblockee.name
+          )
+        )
+      )
+      .catch(() => {});
   }
 }
 

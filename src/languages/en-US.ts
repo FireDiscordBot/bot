@@ -239,12 +239,18 @@ This will **not** rename existing users`,
         BAN_LOG_AUTHOR: (user: string) => `Ban | ${user}`,
         BAN_DM: (guild: string, reason: string) =>
           `You were banned from ${guild} for "${reason}"`,
-        BAN_DM_FAIL: "Unable to DM user, they may have dms off or blocked me",
+        BAN_DM_FAIL: "Unable to DM user, they may have DMs off or blocked me",
         BAN_SUCCESS: (user: string, guild: string) =>
           `${constants.emojis.success} **${user}** has been banished from ${guild}.`,
         BAN_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not banned.`,
         BAN_FAILED_BAN: `${constants.emojis.error} Failed to ban user, please try again.`,
         BAN_FAILED_BAN_AND_ENTRY: `${constants.emojis.error} Failed to ban user and was unable to delete the created mod log entry.`,
+        BLOCK_LOG_AUTHOR: (blockee: string) => `Block | ${blockee}`,
+        BLOCK_SUCCESS: (blockee: string) =>
+          `${constants.emojis.success} **${blockee}** has been blocked.`,
+        BLOCK_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user/role was not blocked.`,
+        BLOCK_FAILED_BLOCK: `${constants.emojis.error} Failed to block user/role, please try again.`,
+        BLOCK_FAILED_BLOCK_AND_ENTRY: `${constants.emojis.error} Failed to block user and was unable to delete the created mod log entry.`,
         COMMAND_COMMAND_DESCRIPTION: "Enable/disable a command in your server",
         COMMAND_DISABLE_FORBIDDEN: "You cannot disable this command!",
         COMMAND_ENABLE: (command: string) => `Successfully enabled ${command}!`,
@@ -299,6 +305,15 @@ This will **not** rename existing users`,
         DISCOVER_COMMAND_DESCRIPTION: "Links to Fire's public servers page",
         DISCOVER_MESSAGE: `You can find Fire\'s public server list at <${constants.url.discovery}>
 Hint: Use the \`public\` command to get your server on the list`,
+        DERANK_LOG_AUTHOR: (user: string) => `Derank | ${user}`,
+        DERANK_SUCCESS: (user: string) =>
+          `${constants.emojis.success} **${user}** has been deranked.`,
+        DERANK_FAILED: (user: string, roles: string) =>
+          `${constants.emojis.warning} **${user}** has been partially deranked as I failed to remove ${roles}`,
+        DERANK_FAILED_TO_REMOVE: "Failed to remove",
+        DERANK_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not deranked.`,
+        DERANK_FAILED_DERANK: `${constants.emojis.error} Failed to derank user, please try again.`,
+        DERANK_FAILED_DERANK_AND_ENTRY: `${constants.emojis.error} Failed to derank user (although some roles may have been removed) and was unable to delete the created mod log entry.`,
         STATUS_LATEST_INCIDENT: "Latest Incident",
         STATUSPAGE_PAGE_DESCRIPTIONS: {
           "all systems operational": "All Systems Operational",
@@ -468,6 +483,12 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
 `,
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" for more info about the command | Cluster ID: ${cluster}`,
+        KICK_LOG_AUTHOR: (user: string) => `Kick | ${user}`,
+        KICK_SUCCESS: (user: string) =>
+          `${constants.emojis.success} **${user}** has been kicked.`,
+        KICK_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not kicked.`,
+        KICK_FAILED_KICK: `${constants.emojis.error} Failed to kick user, please try again.`,
+        KICK_FAILED_KICK_AND_ENTRY: `${constants.emojis.error} Failed to kick user and was unable to delete the created mod log entry.`,
         SK1ER_NO_REUPLOAD: (user: string) =>
           `${user} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>
@@ -914,9 +935,16 @@ Running this command without providing a category resets it, therefore disabling
         UNBAN_LOG_AUTHOR: (user: string) => `Unban | ${user}`,
         UNBAN_SUCCESS: (user: string, guild: string) =>
           `${constants.emojis.success} **${user}** has been unbanished from ${guild}.`,
+        UNBAN_FAILED_NO_BAN: `${constants.emojis.error} Don't quote me on this but uh, I think a user needs to be banned before you can unban them and they do not appear to be banned`,
         UNBAN_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not unbanned.`,
         UNBAN_FAILED_UNBAN: `${constants.emojis.error} Failed to unban user, please try again.`,
         UNBAN_FAILED_UNBAN_AND_ENTRY: `${constants.emojis.error} Failed to unban user and was unable to delete the created mod log entry.`,
+        UNBLOCK_LOG_AUTHOR: (blockee: string) => `Unblock | ${blockee}`,
+        UNBLOCK_SUCCESS: (blockee: string) =>
+          `${constants.emojis.success} **${blockee}** has been unblocked.`,
+        UNBLOCK_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user/role was not unblocked.`,
+        UNBLOCK_FAILED_BLOCK: `${constants.emojis.error} Failed to unblock user/role, please try again.`,
+        UNBLOCK_FAILED_BLOCK_AND_ENTRY: `${constants.emojis.error} Failed to unblock user and was unable to delete the created mod log entry.`,
         WARN_FAILED_ENTRY: `${constants.emojis.error} User was not warned due to an error logging the warn`,
         WARN_LOG_AUTHOR: (user: string) => `Warn | ${user}`,
         WARN_LOG_DM_FAIL: "Unable to send DM, user was not warned.",
