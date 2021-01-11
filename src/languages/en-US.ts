@@ -990,6 +990,12 @@ If the user gets automatically muted again, just try unmute them again and it'll
         WARN_REASON_MISSING: "You must provide a reason to warn a user",
         WARNINGS_COMMAND_DESCRIPTION: "View warnings for a user",
         WARNINGS_NONE_FOUND: "No warnings found, they have been a good user :)",
+        CLEARWARNINGS_COMMAND_DESCRIPTION:
+          "Clear warnings, either by user or by case id",
+        CLEARWARNINGS_ARGUMENT_REQUIRED:
+          "You must provide a member or case id to clear warn(s)",
+        CLEARWARN_CASEID_REQUIRED:
+          'You must provide a case id when using "clearwarn" or "clearwarning"',
       },
       enabled: true,
     });
