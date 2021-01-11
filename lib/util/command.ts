@@ -241,7 +241,7 @@ export class Command extends AkairoCommand {
         .commands.post({ data: command })
         .catch((e) => e);
       if (commandRaw?.id) commands.push(commandRaw);
-      else
+      else if (commandRaw?.code != 30032)
         this.client.console.warn(
           `[Commands] Failed to register slash command for ${this.id}`,
           commandRaw
