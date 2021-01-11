@@ -89,6 +89,7 @@ export default class Purge extends Command {
           required: false,
         },
       ],
+      moderatorOnly: true,
     });
   }
 

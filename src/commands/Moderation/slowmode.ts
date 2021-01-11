@@ -36,6 +36,7 @@ export default class Slowmode extends Command {
       ],
       enableSlashCommand: true,
       aliases: ["slowmodeall"],
+      moderatorOnly: true,
     });
   }
 

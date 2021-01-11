@@ -7,9 +7,9 @@ export default class AutoDehoist extends Command {
     super("autodehoist", {
       description: (language: Language) =>
         language.get("AUTODEHOIST_COMMAND_DESCRIPTION"),
-      userPermissions: ["MANAGE_NICKNAMES"],
       clientPermissions: ["SEND_MESSAGES", "MANAGE_NICKNAMES"],
       enableSlashCommand: true,
+      moderatorOnly: true,
       restrictTo: "guild",
     });
   }

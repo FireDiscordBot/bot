@@ -19,6 +19,7 @@ export default class BadName extends Command {
         },
       ],
       enableSlashCommand: true,
+      moderatorOnly: true,
       restrictTo: "guild",
     });
   }

@@ -52,6 +52,7 @@ export class Command extends AkairoCommand {
   guilds: string[];
   ephemeral: boolean;
   superuserOnly: boolean;
+  moderatorOnly: boolean;
   enableSlashCommand: boolean;
   description: (language: Language) => string;
   requiresExperiment?: { id: string; treatmentId?: number };
@@ -94,6 +95,7 @@ export class Command extends AkairoCommand {
     this.enableSlashCommand = options.enableSlashCommand || false;
     this.requiresExperiment = options.requiresExperiment || null;
     this.superuserOnly = options.superuserOnly || false;
+    this.moderatorOnly = options.moderatorOnly || false;
     this.ephemeral = options.ephemeral || false;
     this.premium = options.premium || false;
     this.hidden = options.hidden || false;
@@ -273,6 +275,7 @@ export interface CommandOptions extends AkairoCommandOptions {
   restrictTo?: "guild" | "dm" | "all";
   enableSlashCommand?: boolean;
   superuserOnly?: boolean;
+  moderatorOnly?: boolean;
   ephemeral?: boolean;
   premium?: boolean;
   guilds?: string[];

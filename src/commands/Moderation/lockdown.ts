@@ -29,6 +29,7 @@ export default class Lockdown extends Command {
       ],
       requiresExperiment: { id: "H78gbvKTG6pepfWgPYxDR", treatmentId: 1 },
       enableSlashCommand: true,
+      moderatorOnly: true,
       restrictTo: "guild",
     });
   }
