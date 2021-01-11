@@ -138,7 +138,7 @@ export class FireGuild extends Guild {
       );
     }
     if (this.muteCheckTask) clearInterval(this.muteCheckTask);
-    this.muteCheckTask = setInterval(this.checkMutes, 60000);
+    this.muteCheckTask = setInterval(this.checkMutes.bind(this), 60000);
   }
 
   private async checkMutes() {
