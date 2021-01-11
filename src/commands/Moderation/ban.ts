@@ -28,7 +28,7 @@ export default class Ban extends Command {
         {
           id: "reason",
           type: "string",
-          required: true,
+          required: false,
           default: null,
           match: "rest",
         },
@@ -40,7 +40,7 @@ export default class Ban extends Command {
 
   async exec(
     message: FireMessage,
-    args: { user: FireMember | FireUser; days?: number; reason: string }
+    args: { user: FireMember | FireUser; days?: number; reason?: string }
   ) {
     if (!args.user) return await message.error("BAN_USER_REQUIRED");
     else if (
