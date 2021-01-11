@@ -10,7 +10,9 @@ export type ModLogType =
   | "kick"
   | "block"
   | "unblock"
-  | "derank";
+  | "derank"
+  | "mute"
+  | "unmute";
 
 const getCategories = () => {
   const commandsFolder = resolve("src/commands");

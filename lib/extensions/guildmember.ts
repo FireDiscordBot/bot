@@ -458,6 +458,72 @@ export class FireMember extends GuildMember {
         .catch(() => {});
   }
 
+  async unmute(reason: string, moderator: FireMember, channel?: TextChannel) {
+    if (!reason || !moderator) return "args";
+    if (!moderator.isModerator(channel)) return "forbidden";
+    if (!this.guild.mutes.has(this.id)) {
+      if (this.roles.cache.has(this.guild.muteRole?.id)) {
+        const unmuted = await this.roles
+          .remove(this.guild.muteRole, reason)
+          .catch(() => {});
+        if (channel && unmuted)
+          return await channel.send(
+            this.guild.language.get("UNMUTE_UNKNOWN_REMOVED")
+          );
+        else return "unknown";
+      } else return "not_muted";
+    }
+    if (!this.roles.cache.has(this.guild.muteRole?.id)) {
+      this.guild.mutes.delete(this.id);
+      return "not_muted";
+    }
+    const logEntry = await this.guild
+      .createModLogEntry(this, moderator, "unmute", reason)
+      .catch(() => {});
+    if (!logEntry) return "entry";
+    const unmuted = await this.roles
+      .remove(this.guild.muteRole, reason)
+      .catch(() => {});
+    if (!unmuted) {
+      const deleted = await this.guild
+        .deleteModLogEntry(logEntry)
+        .catch(() => false);
+      return deleted ? "unmute" : "unmute_and_entry";
+    }
+    this.guild.mutes.delete(this.id);
+    const dbremove = await this.client.db
+      .query("DELETE FROM mutes WHERE gid=$1 AND uid=$2;", [
+        this.guild.id,
+        this.id,
+      ])
+      .catch(() => {});
+    const embed = new MessageEmbed()
+      .setColor(this.displayHexColor || "#2ECC71")
+      .setTimestamp(new Date())
+      .setAuthor(
+        this.guild.language.get("UNMUTE_LOG_AUTHOR", this.toString()),
+        this.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+      )
+      .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.guild.language.get("REASON"), reason)
+      .setFooter(`${this.id} | ${moderator.id}`);
+    if (!dbremove)
+      embed.addField(
+        this.guild.language.get("ERROR"),
+        this.guild.language.get("UNMUTE_FAILED_DB_REMOVE")
+      );
+    await this.guild.modLog(embed).catch(() => {});
+    if (channel)
+      return await channel
+        .send(
+          this.guild.language.get(
+            "UNMUTE_SUCCESS",
+            Util.escapeMarkdown(this.toString())
+          )
+        )
+        .catch(() => {});
+  }
+
   isSuperuser() {
     return this.settings.get("utils.superuser", false);
   }

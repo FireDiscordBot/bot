@@ -2,12 +2,14 @@ import {
   Util,
   Role,
   Guild,
+  Collection,
   Structures,
   TextChannel,
   MessageEmbed,
   CategoryChannel,
   MessageAttachment,
   MessageEmbedOptions,
+  PermissionOverwriteOption,
 } from "discord.js";
 import { ActionLogType, ModLogType } from "../util/constants";
 import { GuildTagManager } from "../util/guildtagmanager";
@@ -21,9 +23,18 @@ import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
 import { Fire } from "../Fire";
-import { PermissionOverwriteOption } from "discord.js";
+
+const parseUntil = (time?: string) => {
+  if (!time) return 0;
+  if (time.includes(".")) {
+    // legacy py time
+    return parseInt((parseFloat(time) * 1000).toString().split(".")[0]);
+  } else return parseInt(time);
+};
 
 export class FireGuild extends Guild {
+  muteCheckTask: NodeJS.Timeout;
+  mutes: Collection<string, number>;
   settings: GuildSettings;
   tags: GuildTagManager;
   owner: FireMember;
@@ -33,6 +44,7 @@ export class FireGuild extends Guild {
     super(client, data);
     this.settings = new GuildSettings(client, this);
     this.tags = new GuildTagManager(client, this);
+    this.loadMutes();
   }
 
   get language() {
@@ -43,6 +55,152 @@ export class FireGuild extends Guild {
 
   get premium() {
     return this.client.util?.premium.has(this.id);
+  }
+
+  get muteRole() {
+    const id: string = this.settings.get(
+      "mod.mutedrole",
+      this.roles.cache.find((role) => role.name == "Muted")?.id
+    );
+    if (!id) return null;
+    return this.roles.cache.get(id);
+  }
+
+  async initMuteRole() {
+    if (this.muteRole) return this.muteRole;
+    const role = await this.roles
+      .create({
+        data: {
+          position: this.me.roles.highest.rawPosition - 1,
+          mentionable: false,
+          color: "#24242c",
+          permissions: 0,
+          name: "Muted",
+          hoist: false,
+        },
+        reason: this.language.get("MUTE_ROLE_CREATE_REASON") as string,
+      })
+      .catch(() => {});
+    if (!role) return false;
+    this.settings.set("mod.mutedrole", role.id);
+    for (const [, channel] of this.channels.cache) {
+      await channel
+        .updateOverwrite(
+          role,
+          {
+            SEND_MESSAGES: false,
+            ADD_REACTIONS: false,
+          },
+          this.language.get("MUTE_ROLE_CREATE_REASON") as string
+        )
+        .catch(() => {});
+    }
+    return role;
+  }
+
+  async changeMuteRole(role: Role) {
+    const changed = await role
+      .edit({
+        position: this.me.roles.highest.rawPosition - 1,
+        permissions: 0,
+      })
+      .catch(() => {});
+    if (!changed) return false;
+    this.settings.set("mod.mutedrole", role.id);
+    for (const [, channel] of this.channels.cache) {
+      await channel
+        .updateOverwrite(
+          role,
+          {
+            SEND_MESSAGES: false,
+            ADD_REACTIONS: false,
+          },
+          this.language.get("MUTE_ROLE_CREATE_REASON") as string
+        )
+        .catch(() => {});
+    }
+    return changed;
+  }
+
+  private async loadMutes() {
+    this.mutes = new Collection();
+    const mutes = await this.client.db
+      .query("SELECT * FROM mutes WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!mutes)
+      return this.client.console.error(
+        `[Guild] Failed to load mutes for ${this.name} (${this.id})`
+      );
+    for await (const mute of mutes) {
+      this.mutes.set(
+        mute.get("uid") as string,
+        parseUntil(mute.get("until") as string)
+      );
+    }
+    if (this.muteCheckTask) clearInterval(this.muteCheckTask);
+    this.muteCheckTask = setInterval(this.checkMutes, 60000);
+  }
+
+  private async checkMutes() {
+    if (!this.client.user) return; // likely not ready yet
+    const me =
+      this.me instanceof FireMember
+        ? this.me
+        : ((await this.members
+            .fetch(this.client.user.id)
+            .catch(() => {})) as FireMember);
+    if (!me) return; // could mean discord issues so return
+    const now = +new Date();
+    for (const [id] of this.mutes.filter(
+      // likely never gonna be equal but if somehow it is then you're welcome
+      (time) => !!time && now >= time
+    )) {
+      const member = (await this.members
+        .fetch(id)
+        .catch(() => {})) as FireMember;
+      if (member) {
+        const unmuted = await member.unmute(
+          this.language.get("UNMUTE_AUTOMATIC") as string,
+          this.me as FireMember
+        );
+        this.mutes.delete(id); // ensures id is removed from cache even if above fails to do so
+        if (typeof unmuted == "string") {
+          this.client.console.warn(
+            `[Guild] Failed to remove mute for ${member} (${id}) in ${this.name} (${this.id}) due to ${unmuted}`
+          );
+          await this.modLog(
+            this.language.get(
+              "UNMUTE_AUTO_FAIL",
+              `${member} (${id})`,
+              this.language.get(`UNMUTE_FAILED_${unmuted.toUpperCase()}`)
+            )
+          );
+        } else continue;
+      } else {
+        this.mutes.delete(this.id);
+        const dbremove = await this.client.db
+          .query("DELETE FROM mutes WHERE gid=$1 AND uid=$2;", [
+            this.id,
+            this.id,
+          ])
+          .catch(() => {});
+        const embed = new MessageEmbed()
+          .setColor("#2ECC71")
+          .setTimestamp(now)
+          .setAuthor(
+            this.language.get("UNMUTE_LOG_AUTHOR", id),
+            this.iconURL({ size: 2048, format: "png", dynamic: true })
+          )
+          .addField(this.language.get("MODERATOR"), `${me}`)
+          .setFooter(`${id}`);
+        if (!dbremove)
+          embed.addField(
+            this.language.get("ERROR"),
+            this.language.get("UNMUTE_FAILED_DB_REMOVE")
+          );
+        await this.modLog(embed).catch(() => {});
+      }
+    }
   }
 
   isPublic() {
@@ -567,16 +725,22 @@ export class FireGuild extends Guild {
       .setColor(
         unblockee instanceof FireMember
           ? unblockee.displayHexColor
-          : null || "#E74C3C"
+          : null || "#2ECC71"
       )
       .setTimestamp(new Date())
       .setAuthor(
         this.language.get(
           "UNBLOCK_LOG_AUTHOR",
-          unblockee instanceof FireMember ? unblockee.toString() : unblockee.name
+          unblockee instanceof FireMember
+            ? unblockee.toString()
+            : unblockee.name
         ),
         unblockee instanceof FireMember
-          ? unblockee.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+          ? unblockee.user.avatarURL({
+              size: 2048,
+              format: "png",
+              dynamic: true,
+            })
           : this.iconURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.language.get("MODERATOR"), `${moderator}`)
@@ -588,7 +752,9 @@ export class FireGuild extends Guild {
         this.language.get(
           "UNBLOCK_SUCCESS",
           Util.escapeMarkdown(
-            unblockee instanceof FireMember ? unblockee.toString() : unblockee.name
+            unblockee instanceof FireMember
+              ? unblockee.toString()
+              : unblockee.name
           )
         )
       )

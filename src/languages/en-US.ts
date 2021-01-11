@@ -26,6 +26,8 @@ export default class enUS extends Language {
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
         COMMAND_SUPERUSER_ONLY:
           "Only a select few are powerful enough to use this command",
+        COMMAND_MODERATOR_ONLY:
+          "Only those strong enough to wield the ban hammer (moderators) can use this command",
         COMMAND_GUILD_ONLY: (invite: string) =>
           `You can only use this command in a server. You can invite me to a server at <${invite}>`,
         COMMAND_PREMIUM_ONLY:
@@ -642,6 +644,7 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           `${player}'s ModCore Profile`,
         MODCORE_ENABLED_COSMETICS: "Enabled Cosmetics",
         MODCORE_NO_COSMETICS: "No Cosmetics",
+        MUTE_ROLE_CREATE_REASON: "Setting up muted role...",
         NITROPERKS_COMMAND_DESCRIPTION:
           "Claim nitro perks for a Minecraft account (locked to discord.gg/sk1er)",
         NITROPERKS_INVALID_IGN:
@@ -945,6 +948,23 @@ Running this command without providing a category resets it, therefore disabling
         UNBLOCK_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user/role was not unblocked.`,
         UNBLOCK_FAILED_BLOCK: `${constants.emojis.error} Failed to unblock user/role, please try again.`,
         UNBLOCK_FAILED_BLOCK_AND_ENTRY: `${constants.emojis.error} Failed to unblock user and was unable to delete the created mod log entry.`,
+        UNMUTE_AUTOMATIC: "Time's up!",
+        UNMUTE_AUTO_FAIL: (
+          member: string,
+          reason: string
+        ) => `Failed to unmute ${member} with reason "${reason}"
+Please remove the role manually.`,
+        UNMUTE_UNKNOWN_REMOVED: `${constants.emojis.warning} My records don't show any indication of that user being muted, but I've gone ahead and removed the mute anyways`,
+        UNMUTE_LOG_AUTHOR: (user: string) => `Unmute | ${user}`,
+        UNMUTE_SUCCESS: (user: string) =>
+          `${constants.emojis.success} **${user}** has been unmuted.`,
+        UNMUTE_FAILED_UNKNOWN: `${constants.emojis.error} According to my records, that user was not muted and I was unable to unmute them.`,
+        UNMUTE_FAILED_NOT_MUTED: `${constants.emojis.error} According to my records & the user's roles, they were not muted.`,
+        UNMUTE_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not unmuted.`,
+        UNMUTE_FAILED_UNMUTE: `${constants.emojis.error} Failed to unmute user, please try again.`,
+        UNMUTE_FAILED_UNMUTE_AND_ENTRY: `${constants.emojis.error} Failed to unmute user and was unable to delete the created mod log entry.`,
+        UNMUTE_FAILED_DB_REMOVE: `There may have been an error while removing the mute from my database.
+If the user gets automatically muted again, just try unmute them again and it'll likely work`,
         WARN_FAILED_ENTRY: `${constants.emojis.error} User was not warned due to an error logging the warn`,
         WARN_LOG_AUTHOR: (user: string) => `Warn | ${user}`,
         WARN_LOG_DM_FAIL: "Unable to send DM, user was not warned.",
