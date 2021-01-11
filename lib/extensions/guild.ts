@@ -71,7 +71,7 @@ export class FireGuild extends Guild {
     const role = await this.roles
       .create({
         data: {
-          position: this.me.roles.highest.rawPosition - 1,
+          position: this.me.roles.highest.rawPosition - 2, // -1 seems to fail a lot more than -2 so just do -2 to be safe
           mentionable: false,
           color: "#24242c",
           permissions: 0,
@@ -101,7 +101,7 @@ export class FireGuild extends Guild {
   async changeMuteRole(role: Role) {
     const changed = await role
       .edit({
-        position: this.me.roles.highest.rawPosition - 1,
+        position: this.me.roles.highest.rawPosition - 2,
         permissions: 0,
       })
       .catch(() => {});
