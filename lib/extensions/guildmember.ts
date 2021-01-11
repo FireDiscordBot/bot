@@ -458,6 +458,74 @@ export class FireMember extends GuildMember {
         .catch(() => {});
   }
 
+  async mute(
+    reason: string,
+    moderator: FireMember,
+    until?: number,
+    channel?: TextChannel
+  ) {
+    if (!reason || !moderator) return "args";
+    if (!moderator.isModerator(channel)) return "forbidden";
+    if (!this.guild.muteRole) {
+      const role = await this.guild.initMuteRole();
+      if (!role) return "role";
+    }
+    const logEntry = await this.guild
+      .createModLogEntry(this, moderator, "unmute", reason)
+      .catch(() => {});
+    if (!logEntry) return "entry";
+    const unmuted = await this.roles
+      .add(this.guild.muteRole, reason)
+      .catch(() => {});
+    if (!unmuted) {
+      const deleted = await this.guild
+        .deleteModLogEntry(logEntry)
+        .catch(() => false);
+      return deleted ? "mute" : "mute_and_entry";
+    }
+    if (this.guild.mutes.has(this.id))
+      // delete existing mute first
+      await this.client.db
+        .query("DELETE FROM mutes WHERE gid=$1 AND uid=$2;", [
+          this.guild.id,
+          this.id,
+        ])
+        .catch(() => {});
+    this.guild.mutes.set(this.id, until);
+    const dbadd = await this.client.db
+      .query("INSERT INTO mutes SET (gid, uid, until) VALUES ($1, $2, $3);", [
+        this.guild.id,
+        this.id,
+        until.toString() || "0",
+      ])
+      .catch(() => {});
+    const embed = new MessageEmbed()
+      .setColor(this.displayHexColor || "#2ECC71")
+      .setTimestamp(new Date())
+      .setAuthor(
+        this.guild.language.get("MUTE_LOG_AUTHOR", this.toString()),
+        this.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+      )
+      .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.guild.language.get("REASON"), reason)
+      .setFooter(`${this.id} | ${moderator.id}`);
+    await this.guild.modLog(embed).catch(() => {});
+    if (channel)
+      return await channel
+        .send(
+          !dbadd
+            ? this.guild.language.get(
+                "MUTE_SEMI_SUCCESS",
+                Util.escapeMarkdown(this.toString())
+              )
+            : this.guild.language.get(
+                "MUTE_SUCCESS",
+                Util.escapeMarkdown(this.toString())
+              )
+        )
+        .catch(() => {});
+  }
+
   async unmute(reason: string, moderator: FireMember, channel?: TextChannel) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
