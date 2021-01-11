@@ -2,11 +2,11 @@ import { FireGuild } from "../../lib/extensions/guild";
 import { TextChannel, DMChannel } from "discord.js";
 import { Listener } from "../../lib/util/listener";
 
-export default class ChannelCreate extends Listener {
+export default class ChannelUpdate extends Listener {
   constructor() {
-    super("channelCreate", {
+    super("channelUpdate", {
       emitter: "client",
-      event: "channelCreate",
+      event: "channelUpdate",
     });
   }
 
