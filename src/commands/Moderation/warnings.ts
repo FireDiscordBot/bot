@@ -43,7 +43,7 @@ export default class Warnings extends Command {
     for await (const warn of warnings) {
       paginator.addLine(`**Case ID**: ${warn.get("caseid")}
 **Reason**: ${warn.get("reason")}
-**Moderator ID**: ${warn.get("modid")}
+**Moderator ID**: ${warn.get("modid") || "¯\\_(ツ)_/¯"}
 **Date**: ${warn.get("date")}
 **-----------------**`);
     }
