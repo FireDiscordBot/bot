@@ -49,7 +49,7 @@ export default class Ban extends Command {
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     if (args.days && (args.days < 1 || args.days > 7))
-      return await message.error("BAN_REASON_MISSING");
+      return await message.error("BAN_INVALID_DAYS");
     await message.delete().catch(() => {});
     const beaned =
       args.user instanceof FireMember
