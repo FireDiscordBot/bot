@@ -614,6 +614,8 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
         ADMINONLY_SET: (channels: string) =>
           `Commands can now only be run by those with the "Manage Server" permission in;\n${channels}.`,
         ADMINONLY_RESET: "Admin only channels have been reset",
+        MODERATOR_ACTION_DISALLOWED:
+          "You are not allowed to perform this action on this user!",
         MCSTATUS_COMMAND_DESCRIPTION: "Check the status of Minecraft services",
         MCSTATUS_FETCH_FAIL: "Failed to fetch Minecraft status",
         MCSTATUS_STATUSES: {
@@ -984,8 +986,10 @@ If the user gets automatically muted again, just try unmute them again and it'll
           `${constants.emojis.success} **${user}** has been warned for the ${times} time.`,
         WARN_FAIL: (user: string, times: string) =>
           `${constants.emojis.warning} **${user}** was not warned due to having DMs off. The warning has been logged and is their ${times} warning.`,
-        WARN_COMMAND_DESCRIPTION: "Warn a user.",
+        WARN_COMMAND_DESCRIPTION: "Warn a user",
         WARN_REASON_MISSING: "You must provide a reason to warn a user",
+        WARNINGS_COMMAND_DESCRIPTION: "View warnings for a user",
+        WARNINGS_NONE_FOUND: "No warnings found, they have been a good user :)",
       },
       enabled: true,
     });
