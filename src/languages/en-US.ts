@@ -647,6 +647,14 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
         MODCORE_ENABLED_COSMETICS: "Enabled Cosmetics",
         MODCORE_NO_COSMETICS: "No Cosmetics",
         MUTE_ROLE_CREATE_REASON: "Setting up muted role...",
+        MUTE_LOG_AUTHOR: (user: string) => `Mute | ${user}`,
+        MUTE_SUCCESS: (user: string) =>
+          `${constants.emojis.success} **${user}** has been muted.`,
+        MUTE_SEMI_SUCCESS: (user: string) =>
+          `${constants.emojis.warning} **${user}** has been muted but I was unable to save it in my database. The mute may not persist but if it's not too long, it should be fine or you can try again`,
+        MUTE_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not muted.`,
+        MUTE_FAILED_MUTE: `${constants.emojis.error} Failed to mute user, please try again.`,
+        MUTE_FAILED_MUTE_AND_ENTRY: `${constants.emojis.error} Failed to mute user and was unable to delete the created mod log entry.`,
         NITROPERKS_COMMAND_DESCRIPTION:
           "Claim nitro perks for a Minecraft account (locked to discord.gg/sk1er)",
         NITROPERKS_INVALID_IGN:
@@ -976,6 +984,8 @@ If the user gets automatically muted again, just try unmute them again and it'll
           `${constants.emojis.success} **${user}** has been warned for the ${times} time.`,
         WARN_FAIL: (user: string, times: string) =>
           `${constants.emojis.warning} **${user}** was not warned due to having DMs off. The warning has been logged and is their ${times} warning.`,
+        WARN_COMMAND_DESCRIPTION: "Warn a user.",
+        WARN_REASON_MISSING: "You must provide a reason to warn a user",
       },
       enabled: true,
     });
