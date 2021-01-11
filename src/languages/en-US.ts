@@ -211,9 +211,12 @@ export default class enUS extends Language {
           `I have removed some moderators as a matching role/member could not be found...\nThe removed ids are: ${invalid.join(
             ", "
           )}`,
-        AUTODECANCER_COMMAND_DESCRIPTION: `Toggle renaming those with "cancerous" (non-ascii) names`,
-        AUTODECANCER_ENABLED: `Enabled autodecancer. **New** users with "cancerous" (non-ascii) names will be renamed`,
-        AUTODECANCER_DISABLED: `Disabled autodecancer. **New** users with "cancerous" (non-ascii) names will no longer be renamed`,
+        AUTODECANCER_COMMAND_DESCRIPTION:
+          'Toggle renaming those with "cancerous" (non-ascii) names',
+        AUTODECANCER_ENABLED:
+          'Enabled autodecancer. **New** users with "cancerous" (non-ascii) names will be renamed',
+        AUTODECANCER_DISABLED:
+          'Disabled autodecancer. **New** users with "cancerous" (non-ascii) names will no longer be renamed',
         AUTODECANCER_REASON:
           "Name changed due to auto-decancer. The name contains non-ascii characters",
         AUTODECANCER_RESET_REASON: "Name is fully ascii.",
@@ -244,18 +247,23 @@ This will **not** rename existing users`,
         BAN_DM_FAIL: "Unable to DM user, they may have DMs off or blocked me",
         BAN_SUCCESS: (user: string, guild: string) =>
           `${constants.emojis.success} **${user}** has been banished from ${guild}.`,
-        BAN_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not banned.`,
-        BAN_FAILED_BAN: `${constants.emojis.error} Failed to ban user, please try again.`,
-        BAN_FAILED_BAN_AND_ENTRY: `${constants.emojis.error} Failed to ban user and was unable to delete the created mod log entry.`,
+        BAN_FAILED_ENTRY:
+          "Failed to create mod log entry, user was not banned.",
+        BAN_FAILED_BAN: "Failed to ban user, please try again.",
+        BAN_FAILED_BAN_AND_ENTRY:
+          "Failed to ban user and was unable to delete the created mod log entry.",
         BAN_COMMAND_DESCRIPTION:
           "Ban a user from the server. Use the --days flag to delete message history",
         BAN_USER_REQUIRED: "You must provide a user to ban!",
+        BAN_INVALID_DAYS: "Days must be a number from 1 to 7",
         BLOCK_LOG_AUTHOR: (blockee: string) => `Block | ${blockee}`,
         BLOCK_SUCCESS: (blockee: string) =>
           `${constants.emojis.success} **${blockee}** has been blocked.`,
-        BLOCK_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user/role was not blocked.`,
-        BLOCK_FAILED_BLOCK: `${constants.emojis.error} Failed to block user/role, please try again.`,
-        BLOCK_FAILED_BLOCK_AND_ENTRY: `${constants.emojis.error} Failed to block user and was unable to delete the created mod log entry.`,
+        BLOCK_FAILED_ENTRY:
+          "Failed to create mod log entry, user/role was not blocked.",
+        BLOCK_FAILED_BLOCK: "Failed to block user/role, please try again.",
+        BLOCK_FAILED_BLOCK_AND_ENTRY:
+          "Failed to block user and was unable to delete the created mod log entry.",
         COMMAND_COMMAND_DESCRIPTION: "Enable/disable a command in your server",
         COMMAND_DISABLE_FORBIDDEN: "You cannot disable this command!",
         COMMAND_ENABLE: (command: string) => `Successfully enabled ${command}!`,
@@ -316,9 +324,11 @@ Hint: Use the \`public\` command to get your server on the list`,
         DERANK_FAILED: (user: string, roles: string) =>
           `${constants.emojis.warning} **${user}** has been partially deranked as I failed to remove ${roles}`,
         DERANK_FAILED_TO_REMOVE: "Failed to remove",
-        DERANK_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not deranked.`,
-        DERANK_FAILED_DERANK: `${constants.emojis.error} Failed to derank user, please try again.`,
-        DERANK_FAILED_DERANK_AND_ENTRY: `${constants.emojis.error} Failed to derank user (although some roles may have been removed) and was unable to delete the created mod log entry.`,
+        DERANK_FAILED_ENTRY:
+          "Failed to create mod log entry, user was not deranked.",
+        DERANK_FAILED_DERANK: "Failed to derank user, please try again.",
+        DERANK_FAILED_DERANK_AND_ENTRY:
+          "Failed to derank user (although some roles may have been removed) and was unable to delete the created mod log entry.",
         STATUS_LATEST_INCIDENT: "Latest Incident",
         STATUSPAGE_PAGE_DESCRIPTIONS: {
           "all systems operational": "All Systems Operational",
@@ -381,7 +391,7 @@ Hint: Use the \`public\` command to get your server on the list`,
         EVAL_TOO_LONG: (haste?: string) =>
           haste
             ? `Output was too long, uploaded to hastebin; ${haste}`
-            : `Output was too long, failed to upload to hastebin`,
+            : "Output was too long, failed to upload to hastebin",
         FILTEREXCL_COMMAND_DESCRIPTION:
           "Exclude a member/role/channel from link filtering",
         FILTEREXCL_LIST_SOME_REMOVED: (mentions: string[], removed: string[]) =>
@@ -493,9 +503,11 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
         KICK_LOG_AUTHOR: (user: string) => `Kick | ${user}`,
         KICK_SUCCESS: (user: string) =>
           `${constants.emojis.success} **${user}** has been kicked.`,
-        KICK_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not kicked.`,
-        KICK_FAILED_KICK: `${constants.emojis.error} Failed to kick user, please try again.`,
-        KICK_FAILED_KICK_AND_ENTRY: `${constants.emojis.error} Failed to kick user and was unable to delete the created mod log entry.`,
+        KICK_FAILED_ENTRY:
+          "Failed to create mod log entry, user was not kicked.",
+        KICK_FAILED_KICK: "Failed to kick user, please try again.",
+        KICK_FAILED_KICK_AND_ENTRY:
+          "Failed to kick user and was unable to delete the created mod log entry.",
         SK1ER_NO_REUPLOAD: (user: string) =>
           `${user} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>
@@ -564,7 +576,7 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
             ", "
           )}`,
         LINKFILTER_RESET: (enabled: string[]) =>
-          `Successfully disabled all filters.`,
+          "Successfully disabled all filters.",
         LOCKDOWN_COMMAND_DESCRIPTION:
           "Lock all channels in the server, useful for stopping raids",
         LOCKDOWN_ACTION_REQUIRED:
@@ -583,8 +595,8 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           'You need to provide a song to get the lyrics for. For best results, use the format "artist_name song_title"',
         LYRICS_NOT_FOUND: (error?: any) =>
           error && error == "Error: No results"
-            ? `I couldn't find any lyrics for that song`
-            : `An error occurred while trying to fetch lyrics.`,
+            ? "I couldn't find any lyrics for that song"
+            : "An error occurred while trying to fetch lyrics.",
         LYRICS_TITLE: (title: string, artist: string) =>
           `${title} by ${artist}`,
         MAKEAMEME_COMMAND_DESCRIPTION:
@@ -596,8 +608,8 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
         MEME_COMMAND_DESCRIPTION: "Get a random meme",
         MEME_NOT_FOUND: (error?: any) =>
           error && error == "Error: subreddit not found"
-            ? `I couldn't find any memes. Here's an idea! Try a subreddit that actually exists next time ;)`
-            : `An error occurred while trying to fetch some spicy memes.`,
+            ? "I couldn't find any memes. Here's an idea! Try a subreddit that actually exists next time ;)"
+            : "An error occurred while trying to fetch some spicy memes.",
         MEME_NSFW_FORBIDDEN:
           "The meme I was given was marked as NSFW but this channel is not. If you're looking for NSFW memes, head to an NSFW channel, otherwise just try again",
         MEME_EMBED_TITLE: "Did someone order a spicy meme?",
@@ -658,9 +670,11 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           `${constants.emojis.success} **${user}** has been muted.`,
         MUTE_SEMI_SUCCESS: (user: string) =>
           `${constants.emojis.warning} **${user}** has been muted but I was unable to save it in my database. The mute may not persist but if it's not too long, it should be fine or you can try again`,
-        MUTE_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not muted.`,
-        MUTE_FAILED_MUTE: `${constants.emojis.error} Failed to mute user, please try again.`,
-        MUTE_FAILED_MUTE_AND_ENTRY: `${constants.emojis.error} Failed to mute user and was unable to delete the created mod log entry.`,
+        MUTE_FAILED_ENTRY:
+          "Failed to create mod log entry, user was not muted.",
+        MUTE_FAILED_MUTE: "Failed to mute user, please try again.",
+        MUTE_FAILED_MUTE_AND_ENTRY:
+          "Failed to mute user and was unable to delete the created mod log entry.",
         NITROPERKS_COMMAND_DESCRIPTION:
           "Claim nitro perks for a Minecraft account (locked to discord.gg/sk1er)",
         NITROPERKS_INVALID_IGN:
@@ -954,16 +968,23 @@ Running this command without providing a category resets it, therefore disabling
         UNBAN_LOG_AUTHOR: (user: string) => `Unban | ${user}`,
         UNBAN_SUCCESS: (user: string, guild: string) =>
           `${constants.emojis.success} **${user}** has been unbanished from ${guild}.`,
-        UNBAN_FAILED_NO_BAN: `${constants.emojis.error} Don't quote me on this but uh, I think a user needs to be banned before you can unban them and they do not appear to be banned`,
-        UNBAN_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not unbanned.`,
-        UNBAN_FAILED_UNBAN: `${constants.emojis.error} Failed to unban user, please try again.`,
-        UNBAN_FAILED_UNBAN_AND_ENTRY: `${constants.emojis.error} Failed to unban user and was unable to delete the created mod log entry.`,
+        UNBAN_FAILED_NO_BAN:
+          "Don't quote me on this but uh, I think a user needs to be banned before you can unban them and they do not appear to be banned",
+        UNBAN_FAILED_ENTRY:
+          "Failed to create mod log entry, user was not unbanned.",
+        UNBAN_FAILED_UNBAN: "Failed to unban user, please try again.",
+        UNBAN_FAILED_UNBAN_AND_ENTRY:
+          "Failed to unban user and was unable to delete the created mod log entry.",
+        UNBAN_COMMAND_DESCRIPTION: "Unban a user from the server",
+        UNBAN_USER_REQUIRED: "You must provide a user to unban",
         UNBLOCK_LOG_AUTHOR: (blockee: string) => `Unblock | ${blockee}`,
         UNBLOCK_SUCCESS: (blockee: string) =>
           `${constants.emojis.success} **${blockee}** has been unblocked.`,
-        UNBLOCK_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user/role was not unblocked.`,
-        UNBLOCK_FAILED_BLOCK: `${constants.emojis.error} Failed to unblock user/role, please try again.`,
-        UNBLOCK_FAILED_BLOCK_AND_ENTRY: `${constants.emojis.error} Failed to unblock user and was unable to delete the created mod log entry.`,
+        UNBLOCK_FAILED_ENTRY:
+          "Failed to create mod log entry, user/role was not unblocked.",
+        UNBLOCK_FAILED_BLOCK: "Failed to unblock user/role, please try again.",
+        UNBLOCK_FAILED_BLOCK_AND_ENTRY:
+          "Failed to unblock user and was unable to delete the created mod log entry.",
         UNMUTE_AUTOMATIC: "Time's up!",
         UNMUTE_AUTO_FAIL: (
           member: string,
@@ -974,14 +995,19 @@ Please remove the role manually.`,
         UNMUTE_LOG_AUTHOR: (user: string) => `Unmute | ${user}`,
         UNMUTE_SUCCESS: (user: string) =>
           `${constants.emojis.success} **${user}** has been unmuted.`,
-        UNMUTE_FAILED_UNKNOWN: `${constants.emojis.error} According to my records, that user was not muted and I was unable to unmute them.`,
-        UNMUTE_FAILED_NOT_MUTED: `${constants.emojis.error} According to my records & the user's roles, they were not muted.`,
-        UNMUTE_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not unmuted.`,
-        UNMUTE_FAILED_UNMUTE: `${constants.emojis.error} Failed to unmute user, please try again.`,
-        UNMUTE_FAILED_UNMUTE_AND_ENTRY: `${constants.emojis.error} Failed to unmute user and was unable to delete the created mod log entry.`,
+        UNMUTE_FAILED_UNKNOWN:
+          "According to my records, that user was not muted and I was unable to unmute them.",
+        UNMUTE_FAILED_NOT_MUTED:
+          "According to my records & the user's roles, they were not muted.",
+        UNMUTE_FAILED_ENTRY:
+          "Failed to create mod log entry, user was not unmuted.",
+        UNMUTE_FAILED_UNMUTE: "Failed to unmute user, please try again.",
+        UNMUTE_FAILED_UNMUTE_AND_ENTRY:
+          "Failed to unmute user and was unable to delete the created mod log entry.",
         UNMUTE_FAILED_DB_REMOVE: `There may have been an error while removing the mute from my database.
 If the user gets automatically muted again, just try unmute them again and it'll likely work`,
-        WARN_FAILED_ENTRY: `${constants.emojis.error} User was not warned due to an error logging the warn`,
+        WARN_FAILED_ENTRY:
+          "User was not warned due to an error logging the warn",
         WARN_LOG_AUTHOR: (user: string) => `Warn | ${user}`,
         WARN_LOG_DM_FAIL: "Unable to send DM, user was not warned.",
         WARN_DM: (guild: string, reason: string) =>
