@@ -1,8 +1,10 @@
+import { MessageEmbed, TextChannel, Structures, User, Util } from "discord.js";
 import { MessageUtil } from "../ws/util/MessageUtil";
 import { EventType } from "../ws/util/constants";
 import { UserSettings } from "../util/settings";
-import { Structures, User } from "discord.js";
+import { FireMember } from "./guildmember";
 import { Message } from "../ws/Message";
+import { FireGuild } from "./guild";
 import { Fire } from "../Fire";
 
 export class FireUser extends User {
@@ -145,6 +147,51 @@ export class FireUser extends User {
       )
     );
     return true;
+  }
+
+  async bean(
+    guild: FireGuild,
+    reason: string,
+    moderator: FireMember,
+    days: number = 0,
+    channel?: TextChannel
+  ) {
+    if (!reason || !moderator) return "args";
+    if (!moderator.isModerator(channel)) return "forbidden";
+    const logEntry = await guild
+      .createModLogEntry(this, moderator, "ban", reason)
+      .catch(() => {});
+    if (!logEntry) return "entry";
+    const banned = await guild.members
+      .ban(this, { reason, days })
+      .catch(() => {});
+    if (!banned) {
+      const deleted = await guild
+        .deleteModLogEntry(logEntry)
+        .catch(() => false);
+      return deleted ? "ban" : "ban_and_entry";
+    }
+    const embed = new MessageEmbed()
+      .setColor("#E74C3C")
+      .setTimestamp(new Date())
+      .setAuthor(
+        guild.language.get("BAN_LOG_AUTHOR", this.toString()),
+        this.avatarURL({ size: 2048, format: "png", dynamic: true })
+      )
+      .addField(guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(guild.language.get("REASON"), reason)
+      .setFooter(`${this.id} | ${moderator.id}`);
+    await guild.modLog(embed).catch(() => {});
+    if (channel)
+      return await channel
+        .send(
+          guild.language.get(
+            "BAN_SUCCESS",
+            Util.escapeMarkdown(this.toString()),
+            Util.escapeMarkdown(guild.name)
+          )
+        )
+        .catch(() => {});
   }
 }
 
