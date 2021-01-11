@@ -32,6 +32,8 @@ export default class Warn extends Command {
 
   async exec(message: FireMessage, args: { user: FireMember; reason: string }) {
     if (!args.user) return;
+    else if (args.user.isModerator(message.channel))
+      return await message.error("MODERATOR_ACTION_DISALLOWED");
     if (!args.reason) return await message.error("WARN_REASON_MISSING");
     await message.delete().catch(() => {});
     const warned = await args.user.warn(
