@@ -55,11 +55,20 @@ export default class Help extends Command {
           inline: false,
         });
     });
-    fields.push({
-      name: message.language.get("HELP_CREDITS_NAME") as string,
-      value: message.language.get("HELP_CREDITS_VALUE") as string,
-      inline: false,
-    });
+    fields.push(
+      ...[
+        {
+          name: message.language.get("HELP_CREDITS_NAME") as string,
+          value: message.language.get("HELP_CREDITS_VALUE") as string,
+          inline: false,
+        },
+        {
+          name: message.language.get("HELP_LINKS_NAME") as string,
+          value: message.language.get("HELP_LINKS_VALUE") as string,
+          inline: false,
+        },
+      ]
+    );
     const embed = {
       color: message.member?.displayColor || "#ffffff",
       author: {

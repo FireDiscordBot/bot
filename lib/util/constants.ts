@@ -79,9 +79,12 @@ export const constants = {
   },
   // urls
   url: {
-    discovery: "https://inv.wtf/discover",
+    discovery: "https://fire-ts.gaminggeek.dev/discover",
     discordStatus: "https://discordstatus.com",
     fireStatus: "https://status.gaminggeek.dev",
+    website: "https://fire-ts.gaminggeek.dev/",
+    terms: "https://inv.wtf/terms",
+    privacy: "https://inv.wtf/privacy",
   },
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
   regexes: {

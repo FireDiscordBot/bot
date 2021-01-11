@@ -483,6 +483,8 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
 [@aero/ksoft](https://www.npmjs.com/package/@aero/ksoft)
 [Aether](https://git.farfrom.earth/aero/aether)
 `,
+        HELP_LINKS_NAME: "Useful Links",
+        HELP_LINKS_VALUE: `[Website](${constants.url.website}) - [Terms of Service](${constants.url.terms}) - [Privacy Policy](${constants.url.privacy}) - [Status](${constants.url.fireStatus})`,
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" for more info about the command | Cluster ID: ${cluster}`,
         KICK_LOG_AUTHOR: (user: string) => `Kick | ${user}`,
