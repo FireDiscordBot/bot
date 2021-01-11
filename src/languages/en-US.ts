@@ -247,6 +247,9 @@ This will **not** rename existing users`,
         BAN_FAILED_ENTRY: `${constants.emojis.error} Failed to create mod log entry, user was not banned.`,
         BAN_FAILED_BAN: `${constants.emojis.error} Failed to ban user, please try again.`,
         BAN_FAILED_BAN_AND_ENTRY: `${constants.emojis.error} Failed to ban user and was unable to delete the created mod log entry.`,
+        BAN_COMMAND_DESCRIPTION:
+          "Ban a user from the server. Use the --days flag to delete message history",
+        BAN_USER_REQUIRED: "You must provide a user to ban!",
         BLOCK_LOG_AUTHOR: (blockee: string) => `Block | ${blockee}`,
         BLOCK_SUCCESS: (blockee: string) =>
           `${constants.emojis.success} **${blockee}** has been blocked.`,
@@ -616,6 +619,7 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
         ADMINONLY_RESET: "Admin only channels have been reset",
         MODERATOR_ACTION_DISALLOWED:
           "You are not allowed to perform this action on this user!",
+        MODERATOR_ACTION_DEFAULT_REASON: "No reason provided.",
         MCSTATUS_COMMAND_DESCRIPTION: "Check the status of Minecraft services",
         MCSTATUS_FETCH_FAIL: "Failed to fetch Minecraft status",
         MCSTATUS_STATUSES: {
