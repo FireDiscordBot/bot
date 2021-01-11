@@ -28,7 +28,7 @@ export default class Warnings extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { user: FireMember; reason: string }) {
+  async exec(message: FireMessage, args: { user: FireMember }) {
     if (!args.user) args.user = message.member;
     const warnings = await this.client.db
       .query("SELECT * FROM modlogs WHERE uid=$1 AND gid=$2 AND type=$3", [
