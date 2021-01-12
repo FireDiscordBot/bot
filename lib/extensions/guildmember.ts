@@ -492,7 +492,7 @@ export class FireMember extends GuildMember {
           this.id,
         ])
         .catch(() => {});
-    this.guild.mutes.set(this.id, until);
+    this.guild.mutes.set(this.id, until || 0);
     const dbadd = await this.client.db
       .query("INSERT INTO mutes (gid, uid, until) VALUES ($1, $2, $3);", [
         this.guild.id,
