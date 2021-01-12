@@ -19,6 +19,7 @@ export default class MuteRole extends Command {
       enableSlashCommand: true,
       moderatorOnly: true,
       restrictTo: "guild",
+      typing: true,
     });
   }
 
