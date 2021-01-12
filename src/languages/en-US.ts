@@ -101,6 +101,7 @@ export default class enUS extends Language {
         DESCRIPTION: "Description",
         CUSTOM_URL: "Custom URL",
         MODERATOR: "Moderator",
+        UNTIL: "Until",
         AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
         REGION_DEPRECATED:
           "<:wumpus_land:759529118671831040> Deprecated Region",
@@ -678,11 +679,19 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           `${constants.emojis.success} **${user}** has been muted.`,
         MUTE_SEMI_SUCCESS: (user: string) =>
           `${constants.emojis.warning} **${user}** has been muted but I was unable to save it in my database. The mute may not persist but if it's not too long, it should be fine or you can try again`,
+        MUTE_FAILED_ROLE:
+          "Failed to create muted role, please ensure I have the correct permissions",
         MUTE_FAILED_ENTRY:
           "Failed to create mod log entry, user was not muted.",
         MUTE_FAILED_MUTE: "Failed to mute user, please try again.",
         MUTE_FAILED_MUTE_AND_ENTRY:
           "Failed to mute user and was unable to delete the created mod log entry.",
+        MUTE_COMMAND_DESCRIPTION:
+          "Mute a user either until manually unmuted or for a time (e.g. 1 hour)",
+        MUTE_USER_REQUIRED: "You must provide a user to mute!",
+        MUTE_FAILED_PARSE_TIME:
+          "I was unable to parse the time in your message",
+        MUTE_TIME_TOO_SHORT: "That time is too short!",
         NITROPERKS_COMMAND_DESCRIPTION:
           "Claim nitro perks for a Minecraft account (locked to discord.gg/sk1er)",
         NITROPERKS_INVALID_IGN:
