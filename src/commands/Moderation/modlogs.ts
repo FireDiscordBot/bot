@@ -8,11 +8,11 @@ import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { MessageEmbed } from "discord.js";
 
-export default class Warnings extends Command {
+export default class Modlogs extends Command {
   constructor() {
-    super("warnings", {
+    super("modlogs", {
       description: (language: Language) =>
-        language.get("WARNINGS_COMMAND_DESCRIPTION"),
+        language.get("MODLOGS_COMMAND_DESCRIPTION"),
       enableSlashCommand: true,
       args: [
         {
@@ -30,25 +30,25 @@ export default class Warnings extends Command {
 
   async exec(message: FireMessage, args: { user: FireMember }) {
     if (!args.user) args.user = message.member;
-    const warnings = await this.client.db
-      .query("SELECT * FROM modlogs WHERE uid=$1 AND gid=$2 AND type=$3;", [
+    const logs = await this.client.db
+      .query("SELECT * FROM modlogs WHERE uid=$1 AND gid=$2;", [
         args.user.id,
         message.guild.id,
-        "warn",
       ])
       .catch(() => {});
-    if (!warnings || !warnings.rows.length)
-      return await message.error("WARNINGS_NONE_FOUND");
+    if (!logs || !logs.rows.length)
+      return await message.error("MODLOGS_NONE_FOUND");
     const paginator = new WrappedPaginator("", "", 800);
-    for await (const warn of warnings) {
+    for await (const action of logs) {
       paginator.addLine(`**${message.language.get(
         "MODLOGS_CASE_ID"
-      )}**: ${warn.get("caseid")}
-**${message.language.get("REASON")}**: ${warn.get("reason")}
+      )}**: ${action.get("caseid")}
+**${message.language.get("REASON")}**: ${action.get("reason")}
 **${message.language.get("MODLOGS_MODERATOR_ID")}**: ${
-        warn.get("modid") || "¯\\_(ツ)_/¯"
+        action.get("modid") || "¯\\_(ツ)_/¯"
       }
-**${message.language.get("DATE")}**: ${warn.get("date")}
+**${message.language.get("DATE")}**: ${action.get("date")}
+**${message.language.get("TYPE")}**: ${action.get("type")}
 **-----------------**`);
     }
     const embed = new MessageEmbed()

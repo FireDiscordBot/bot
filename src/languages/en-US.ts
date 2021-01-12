@@ -69,6 +69,8 @@ export default class enUS extends Language {
         STATUS: "Status",
         UUID: "UUID",
         REASON: "Reason",
+        DATE: "Date",
+        TYPE: "Type",
         MENTION: "Mention",
         CREATED: "Created",
         CREATED_GUILD: "Created Guild",
@@ -641,6 +643,11 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
         MODERATOR_ACTION_DISALLOWED:
           "You are not allowed to perform this action on this user!",
         MODERATOR_ACTION_DEFAULT_REASON: "No reason provided.",
+        MODLOGS_COMMAND_DESCRIPTION: "	View moderation logs for a user",
+        MODLOGS_NONE_FOUND:
+          "No moderation logs found for that user, their record is squeaky clean!",
+        MODLOGS_CASE_ID: "Case ID",
+        MODLOGS_MODERATOR_ID: "Moderator ID",
         MCSTATUS_COMMAND_DESCRIPTION: "Check the status of Minecraft services",
         MCSTATUS_FETCH_FAIL: "Failed to fetch Minecraft status",
         MCSTATUS_STATUSES: {
