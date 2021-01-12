@@ -443,16 +443,16 @@ export class FireMember extends GuildMember {
         .send(
           failed
             ? this.guild.language.get(
-                "DERANK_SUCCESS",
-                Util.escapeMarkdown(this.toString())
-              )
-            : this.guild.language.get(
                 "DERANK_FAILED",
                 Util.escapeMarkdown(this.toString()),
                 this.guild.roles.cache
                   .filter((role) => afterIds.includes(role.id))
                   .map((role) => Util.escapeMarkdown(role.name))
                   .join(", ")
+              )
+            : this.guild.language.get(
+                "DERANK_SUCCESS",
+                Util.escapeMarkdown(this.toString())
               )
         )
         .catch(() => {});
