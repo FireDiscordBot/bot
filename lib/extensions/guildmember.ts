@@ -472,7 +472,7 @@ export class FireMember extends GuildMember {
       if (!role) return "role";
     }
     const logEntry = await this.guild
-      .createModLogEntry(this, moderator, "unmute", reason)
+      .createModLogEntry(this, moderator, "mute", reason)
       .catch(() => {});
     if (!logEntry) return "entry";
     const unmuted = await this.roles
