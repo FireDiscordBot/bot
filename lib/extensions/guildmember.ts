@@ -8,10 +8,11 @@ import {
 } from "discord.js";
 import { FakeChannel } from "./slashCommandMessage";
 import * as sanitizer from "@aero/sanitizer";
+import { humanize } from "../util/constants";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
+import * as moment from "moment";
 import { Fire } from "../Fire";
-import { time } from "console";
 
 export class FireMember extends GuildMember {
   changingNick?: boolean;
@@ -239,7 +240,7 @@ export class FireMember extends GuildMember {
       .setTimestamp(new Date())
       .setAuthor(
         this.guild.language.get("WARN_LOG_AUTHOR", this.toString()),
-        this.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+        this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
       .addField(this.guild.language.get("REASON"), reason)
@@ -325,7 +326,7 @@ export class FireMember extends GuildMember {
       .setTimestamp(new Date())
       .setAuthor(
         this.guild.language.get("BAN_LOG_AUTHOR", this.toString()),
-        this.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+        this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
       .addField(this.guild.language.get("REASON"), reason)
@@ -373,7 +374,7 @@ export class FireMember extends GuildMember {
       .setTimestamp(new Date())
       .setAuthor(
         this.guild.language.get("KICK_LOG_AUTHOR", this.toString()),
-        this.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+        this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
       .addField(this.guild.language.get("REASON"), reason)
@@ -424,7 +425,7 @@ export class FireMember extends GuildMember {
       .setTimestamp(new Date())
       .setAuthor(
         this.guild.language.get("DERANK_LOG_AUTHOR", this.toString()),
-        this.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+        this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
       .addField(this.guild.language.get("REASON"), reason)
@@ -493,10 +494,10 @@ export class FireMember extends GuildMember {
         .catch(() => {});
     this.guild.mutes.set(this.id, until);
     const dbadd = await this.client.db
-      .query("INSERT INTO mutes SET (gid, uid, until) VALUES ($1, $2, $3);", [
+      .query("INSERT INTO mutes (gid, uid, until) VALUES ($1, $2, $3);", [
         this.guild.id,
         this.id,
-        until.toString() || "0",
+        until?.toString() || "0",
       ])
       .catch(() => {});
     const embed = new MessageEmbed()
@@ -504,11 +505,21 @@ export class FireMember extends GuildMember {
       .setTimestamp(new Date())
       .setAuthor(
         this.guild.language.get("MUTE_LOG_AUTHOR", this.toString()),
-        this.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+        this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
+    if (until) {
+      const duration = moment(until).diff(moment());
+      embed.addField(
+        this.guild.language.get("UNTIL"),
+        `${new Date(until).toLocaleString(this.guild.language.id)} (${humanize(
+          duration,
+          this.guild.language.id.split("-")[0]
+        )})`
+      );
+    }
     await this.guild.modLog(embed).catch(() => {});
     if (channel)
       return await channel
@@ -570,7 +581,7 @@ export class FireMember extends GuildMember {
       .setTimestamp(new Date())
       .setAuthor(
         this.guild.language.get("UNMUTE_LOG_AUTHOR", this.toString()),
-        this.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+        this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
       .addField(this.guild.language.get("REASON"), reason)
