@@ -264,6 +264,10 @@ This will **not** rename existing users`,
         BLOCK_FAILED_BLOCK: "Failed to block user/role, please try again.",
         BLOCK_FAILED_BLOCK_AND_ENTRY:
           "Failed to block user and was unable to delete the created mod log entry.",
+        BLOCK_COMMAND_DESCRIPTION:
+          "Block a user or role from chatting in the current channel",
+        BLOCK_ARG_REQUIRED:
+          "You must provide a user or role to block from chatting in the current channel!",
         COMMAND_COMMAND_DESCRIPTION: "Enable/disable a command in your server",
         COMMAND_DISABLE_FORBIDDEN: "You cannot disable this command!",
         COMMAND_ENABLE: (command: string) => `Successfully enabled ${command}!`,
@@ -329,6 +333,8 @@ Hint: Use the \`public\` command to get your server on the list`,
         DERANK_FAILED_DERANK: "Failed to derank user, please try again.",
         DERANK_FAILED_DERANK_AND_ENTRY:
           "Failed to derank user (although some roles may have been removed) and was unable to delete the created mod log entry.",
+        DERANK_COMMAND_DESCRIPTION: "Remove all roles from a user",
+        DERANK_USER_REQUIRED: "You must provide a user to derank!",
         STATUS_LATEST_INCIDENT: "Latest Incident",
         STATUSPAGE_PAGE_DESCRIPTIONS: {
           "all systems operational": "All Systems Operational",
@@ -508,6 +514,8 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
         KICK_FAILED_KICK: "Failed to kick user, please try again.",
         KICK_FAILED_KICK_AND_ENTRY:
           "Failed to kick user and was unable to delete the created mod log entry.",
+        KICK_COMMAND_DESCRIPTION: "Kick a user from the server",
+        KICK_USER_REQUIRED: "You must provide a user to kick!",
         SK1ER_NO_REUPLOAD: (user: string) =>
           `${user} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>
@@ -985,6 +993,10 @@ Running this command without providing a category resets it, therefore disabling
         UNBLOCK_FAILED_BLOCK: "Failed to unblock user/role, please try again.",
         UNBLOCK_FAILED_BLOCK_AND_ENTRY:
           "Failed to unblock user and was unable to delete the created mod log entry.",
+        UNBLOCK_COMMAND_DESCRIPTION:
+          "Unblock a user or role and allow them to chat in this channel",
+        UNBLOCK_ARG_REQUIRED:
+          "You must provide a user or role to unblock from this channel",
         UNMUTE_AUTOMATIC: "Time's up!",
         UNMUTE_AUTO_FAIL: (
           member: string,
