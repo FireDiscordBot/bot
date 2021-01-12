@@ -599,7 +599,7 @@ export class FireGuild extends Guild {
       .setTimestamp(new Date())
       .setAuthor(
         this.language.get("UNBAN_LOG_AUTHOR", this.toString()),
-        user.avatarURL({ size: 2048, format: "png", dynamic: true })
+        user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.language.get("MODERATOR"), `${moderator}`)
       .addField(this.language.get("REASON"), reason)
@@ -661,7 +661,7 @@ export class FireGuild extends Guild {
           blockee instanceof FireMember ? blockee.toString() : blockee.name
         ),
         blockee instanceof FireMember
-          ? blockee.user.avatarURL({ size: 2048, format: "png", dynamic: true })
+          ? blockee.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
           : this.iconURL({ size: 2048, format: "png", dynamic: true }),
         "https://static.inv.wtf/blocked.gif" // hehe
       )
@@ -736,7 +736,7 @@ export class FireGuild extends Guild {
             : unblockee.name
         ),
         unblockee instanceof FireMember
-          ? unblockee.user.avatarURL({
+          ? unblockee.user.displayAvatarURL({
               size: 2048,
               format: "png",
               dynamic: true,
