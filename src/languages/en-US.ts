@@ -1027,6 +1027,8 @@ Please remove the role manually.`,
           "Failed to unmute user and was unable to delete the created mod log entry.",
         UNMUTE_FAILED_DB_REMOVE: `There may have been an error while removing the mute from my database.
 If the user gets automatically muted again, just try unmute them again and it'll likely work`,
+        UNMUTE_COMMAND_DESCRIPTION: "Unmute a user",
+        UNMUTE_USER_REQUIRED: "You must provide a user to unmute!",
         WARN_FAILED_ENTRY:
           "User was not warned due to an error logging the warn",
         WARN_LOG_AUTHOR: (user: string) => `Warn | ${user}`,
