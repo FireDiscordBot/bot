@@ -26,6 +26,7 @@ export default class Unban extends Command {
           match: "rest",
         },
       ],
+      aliases: ["unbanish"],
       restrictTo: "guild",
       moderatorOnly: true,
     });
