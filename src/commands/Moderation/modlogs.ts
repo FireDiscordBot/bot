@@ -24,7 +24,6 @@ export default class Modlogs extends Command {
       ],
       restrictTo: "guild",
       moderatorOnly: true,
-      aliases: ["warns"],
     });
   }
 
