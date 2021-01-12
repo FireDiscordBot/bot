@@ -4,6 +4,7 @@ import {
 } from "../../../lib/util/paginators";
 import { FireMember } from "../../../lib/extensions/guildmember";
 import { FireMessage } from "../../../lib/extensions/message";
+import { titleCase } from "../../../lib/util/constants";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { MessageEmbed } from "discord.js";
@@ -47,7 +48,7 @@ export default class Modlogs extends Command {
         action.get("modid") || "¯\\_(ツ)_/¯"
       }
 **${message.language.get("DATE")}**: ${action.get("date")}
-**${message.language.get("TYPE")}**: ${action.get("type")}
+**${message.language.get("TYPE")}**: ${titleCase(action.get("type") as string)}
 **-----------------**`);
     }
     const embed = new MessageEmbed()
