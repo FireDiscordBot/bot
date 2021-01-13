@@ -1,8 +1,8 @@
 import { FireMember } from "../../lib/extensions/guildmember";
+import { humanize } from "../../lib/util/constants";
 import { Listener } from "../../lib/util/listener";
 import { MessageEmbed } from "discord.js";
 import * as moment from "moment";
-import { humanize } from "../../lib/util/constants";
 
 export default class GuildMemberAdd extends Listener {
   constructor() {
