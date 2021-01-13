@@ -70,6 +70,10 @@ export class Util extends ClientUtil {
     return array[Math.floor(Math.random() * array.length)];
   }
 
+  randInt(min: number = 0, max: number = 69) {
+    return Math.floor(Math.random() * max) + min;
+  }
+
   getShard(guild: string | FireGuild) {
     const id = guild instanceof FireGuild ? guild.id : guild;
     return Number((BigInt(id) >> 22n) % BigInt(this.client.options.shardCount));
