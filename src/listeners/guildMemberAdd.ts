@@ -21,7 +21,8 @@ export default class GuildMemberAdd extends Listener {
     if (
       member.guild.premium &&
       !member.user.bot &&
-      member.guild.me.permissions.has("MANAGE_GUILD")
+      member.guild.me.permissions.has("MANAGE_GUILD") &&
+      member.guild.invites
     ) {
       const before = member.guild.invites.clone();
       const after = await member.guild.loadInvites();
@@ -42,7 +43,12 @@ export default class GuildMemberAdd extends Listener {
             "JOINED_WITHOUT_INVITE"
           ) as string;
       }
-    }
+    } else if (
+      member.guild.premium &&
+      member.guild.me.permissions.has("MANAGE_GUILD") &&
+      !member.guild.invites
+    )
+      await member.guild.loadInvites();
 
     if (
       // @ts-ignore
