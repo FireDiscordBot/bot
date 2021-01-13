@@ -191,6 +191,9 @@ export default class enUS extends Language {
             "<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)",
         },
         POWERED_BY_KSOFT: "Powered by KSoft.Si API",
+        AUDIT_ACTION_MEMBER_BAN_ADD: "Banned",
+        AUDIT_ACTION_MEMBER_KICK: "Kicked",
+        AUDIT_ACTION_BY: (action: string) => `${action} By`, // e.g. Kicked By or Banned By
         ADDMOD_COMMAND_DESCRIPTION:
           "Add a member/role as a moderator. If not set, anyone with the Manage Messages permission is considered a moderator",
         AUTOROLE_COMMAND_DESCRIPTION:
@@ -638,6 +641,7 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           "Want to see what invite they used?",
         MEMBERJOIN_LOG_PREMIUM_UPSELL_VALUE:
           "Fire Premium allows you to do that and more.\n[Learn More](https://gaminggeek.dev/premium)",
+        MEMBERLEAVE_LOG_AUTHOR: (member: string) => `Member Leave | ${member}`,
         MEME_COMMAND_DESCRIPTION: "Get a random meme",
         MEME_NOT_FOUND: (error?: any) =>
           error && error == "Error: subreddit not found"

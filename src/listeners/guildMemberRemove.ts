@@ -1,7 +1,9 @@
 import { FireMember } from "../../lib/extensions/guildmember";
+import { MessageEmbed, TextChannel } from "discord.js";
 import { Listener } from "../../lib/util/listener";
-import { TextChannel } from "discord.js";
+import { humanize } from "../../lib/util/constants";
 import Sk1er from "../modules/sk1er";
+import * as moment from "moment";
 
 export default class GuildMemberRemove extends Listener {
   constructor() {
@@ -43,6 +45,73 @@ export default class GuildMemberRemove extends Listener {
         await channel.send(
           member.guild.language.get("TICKET_AUTHOR_LEFT", member.toString())
         );
+    }
+
+    const language = member.guild.language;
+
+    if (member.guild.settings.has("temp.log.members")) {
+      let moderator: FireMember, action: string, reason: string;
+      if (member.guild.me.permissions.has("VIEW_AUDIT_LOG")) {
+        const auditLogActions = await member.guild
+          .fetchAuditLogs({ limit: 5 })
+          .catch(() => {});
+        if (auditLogActions) {
+          const auditAction = auditLogActions.entries.find(
+            (entry) =>
+              ["MEMBER_BAN_ADD", "MEMBER_KICK"].includes(entry.action) &&
+              // @ts-ignore
+              entry.target?.id == member.id
+          );
+          if (auditAction) {
+            moderator = (await member.guild.members
+              .fetch(auditAction.executor)
+              .catch(() => {})) as FireMember;
+            action = language.get(
+              `AUDIT_ACTION_${auditAction.action}`
+            ) as string;
+            reason =
+              auditAction.reason ||
+              (language.get("MODERATOR_ACTION_DEFAULT_REASON") as string);
+          }
+        }
+      }
+      const embed = new MessageEmbed()
+        .setColor("#E74C3C")
+        .setTimestamp(new Date())
+        .setAuthor(
+          language.get("MEMBERLEAVE_LOG_AUTHOR", member.toString()),
+          member.user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          }),
+          "https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif"
+        )
+        .setFooter(member.id);
+      if (moderator && action)
+        embed.addField(
+          language.get("AUDIT_ACTION_BY", action),
+          `${moderator} (${moderator.id})`
+        );
+      if (action && reason) embed.addField(language.get("REASON"), reason);
+      if (!member.partial) {
+        const joinedDelta =
+          humanize(
+            moment(member.user.createdAt).diff(moment()),
+            language.id.split("-")[0]
+          ) + language.get("AGO");
+        embed.addField(language.get("JOINED"), joinedDelta);
+        if (member.nickname)
+          embed.addField(language.get("NICKNAME"), member.nickname);
+        const roles = member.roles.cache
+          .array()
+          .filter((role) => role.id != member.guild.roles.everyone.id)
+          .map((role) => role.toString())
+          .join(", ");
+        if (roles && roles.length <= 1024)
+          embed.addField(language.get("ROLES"), roles);
+      }
+      await member.guild.memberLog(embed, "leave");
     }
   }
 }
