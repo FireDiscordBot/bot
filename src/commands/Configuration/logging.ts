@@ -19,7 +19,7 @@ export default class Logging extends Command {
       args: [
         {
           id: "type",
-          type: ["mod", "moderation", "action", "actions", "member", "members"],
+          type: valid,
           readableType: "mod|action|member",
           required: true,
           default: null,
