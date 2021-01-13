@@ -77,7 +77,7 @@ class MemberJoin(commands.Cog):
                         return
             except Exception:
                 pass
-        if conf.get('greet.joinmsg'):
+        if conf.get('greet.joinmsg') and not await self.bot.has_ts_bot(member.guild):
             joinchan = conf.get('greet.joinchannel')
             joinmsg = conf.get('greet.joinmsg')
             vars = {

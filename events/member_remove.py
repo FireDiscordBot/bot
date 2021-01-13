@@ -32,7 +32,7 @@ class MemberRemove(commands.Cog):
     # @commands.Cog.listener()
     async def on_member_remove(self, user: discord.User, guild: discord.Guild):
         conf = self.bot.get_config(guild)
-        if conf.get('greet.leavemsg'):
+        if conf.get('greet.leavemsg') and not await self.bot.has_ts_bot(guild):
             leavechan = conf.get('greet.leavechannel')
             leavemsg = conf.get('greet.leavemsg')
             if leavechan and leavemsg:
