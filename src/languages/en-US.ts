@@ -74,6 +74,7 @@ export default class enUS extends Language {
         MENTION: "Mention",
         CREATED: "Created",
         CREATED_GUILD: "Created Guild",
+        ACCOUNT_CREATED: "Account Created",
         JOINED: "Joined",
         JOIN_POSITION: "Join Position",
         CLICK_TO_VIEW: "Click To View", // message/attachment link
@@ -103,6 +104,7 @@ export default class enUS extends Language {
         DESCRIPTION: "Description",
         CUSTOM_URL: "Custom URL",
         MODERATOR: "Moderator",
+        INVITED_BY: "Invited By",
         UNTIL: "Until",
         AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
         REGION_DEPRECATED:
@@ -628,6 +630,11 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           "You need to provide an image url or attach an image to make a meme",
         MAKEAMEME_NO_TEXT: "You must provide text separated by **|**",
         MAKEAMEME_UPLOAD_FAIL: "Failed to upload spicy meme :(",
+        MEMBERJOIN_LOG_AUTHOR: (member: string) => `Member Join | ${member}`,
+        MEMBERJOIN_LOG_PREMIUM_UPSELL_TITLE:
+          "Want to see what invite they used?",
+        MEMBERJOIN_LOG_PREMIUM_UPSELL_VALUE:
+          "Fire Premium allows you to do that and more.\n[Learn More](https://gaminggeek.dev/premium)",
         MEME_COMMAND_DESCRIPTION: "Get a random meme",
         MEME_NOT_FOUND: (error?: any) =>
           error && error == "Error: subreddit not found"

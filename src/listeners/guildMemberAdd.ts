@@ -1,5 +1,8 @@
 import { FireMember } from "../../lib/extensions/guildmember";
 import { Listener } from "../../lib/util/listener";
+import { MessageEmbed } from "discord.js";
+import * as moment from "moment";
+import { humanize } from "../../lib/util/constants";
 
 export default class GuildMemberAdd extends Listener {
   constructor() {
@@ -33,6 +36,54 @@ export default class GuildMemberAdd extends Listener {
         if (role && member.guild.me.hasPermission("MANAGE_ROLES"))
           await member.roles.add(role).catch(() => {});
       }
+    }
+
+    const language = member.guild.language;
+
+    if (member.guild.settings.has("temp.log.members")) {
+      const createdDelta =
+        humanize(
+          moment(member.user.createdAt).diff(moment()),
+          language.id.split("-")[0]
+        ) + language.get("AGO");
+      const embed = new MessageEmbed()
+        .setColor("#2ECC71")
+        .setTimestamp(new Date())
+        .setAuthor(
+          language.get("MEMBERJOIN_LOG_AUTHOR", member.toString()),
+          member.user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          }),
+          "https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif"
+        )
+        .addField(language.get("ACCOUNT_CREATED"), createdDelta)
+        .setFooter(member.id);
+      const randInt = this.client.util.randInt(0, 100);
+      if (!member.guild.premium && randInt == 69)
+        embed.addField(
+          language.get("MEMBERJOIN_LOG_PREMIUM_UPSELL_TITLE"),
+          language.get("MEMBERJOIN_LOG_PREMIUM_UPSELL_VALUE")
+        );
+      if (member.user.bot) {
+        const auditLogActions = await member.guild
+          .fetchAuditLogs({ limit: 2, type: "BOT_ADD" })
+          .catch(() => {});
+        if (auditLogActions) {
+          const action = auditLogActions.entries.find(
+            (entry) =>
+              // @ts-ignore
+              entry.target && entry.target?.id == member.id
+          );
+          if (action)
+            embed.addField(
+              language.get("INVITED_BY"),
+              `${action.executor} (${action.executor.id})`
+            );
+        }
+      }
+      await member.guild.memberLog(embed, "join");
     }
   }
 }
