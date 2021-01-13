@@ -89,6 +89,14 @@ export const constants = {
   },
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
   regexes: {
+    joinleavemsgs: {
+      user: /{user}/gim,
+      mention: /{user\.mention}/gim,
+      name: /{user\.(?:user)?name}/gim,
+      discrim: /{user\.discrim(?:inator)?}/gim,
+      guild: /{(?:guild|server)}/gim,
+      count: /{count}/gim,
+    },
     discord: {
       invite: /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[a-zA-Z\d-]{1,25})/im,
       message: /(?:ptb\.|canary\.)?discord(?:app)?\.com\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,

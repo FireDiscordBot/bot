@@ -517,6 +517,19 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           `Use "${prefix}help <command>" for more info about the command | Cluster ID: ${cluster}`,
         JOINED_WITHOUT_INVITE:
           "Joined without an invite (Preview Mode/Server Discovery)",
+        JOINMSG_COMMAND_DESCRIPTION:
+          "Set the join message and a channel to send it in",
+        JOINMSG_ARGUMENT_INVALID:
+          'You must provide either a channel or "disable"',
+        JOINMSG_MESSAGE_REQUIRED:
+          "You must provide a message for me to send on join. Run the command without arguments to see the variables you can uses",
+        JOINMSG_SETUP_REQUIRED: `${constants.emojis.error} Please provide a channel and message for join messages.`,
+        JOINMSG_CURRENT_SETTINGS: (prefix: string) =>
+          `**Current Join Message Settings**\nDo __${prefix}joinmsg disable__ to disable join messages`,
+        JOINMSG_DISABLE_ALREADY: "Join messages are already disabled",
+        JOINMSG_SET_SUCCESS: (channel: string) =>
+          // this will be used in a string with the example since I cannot set allowed mentions with Message#success
+          `Join messages will show in ${channel}!\nExample:`,
         KICK_LOG_AUTHOR: (user: string) => `Kick | ${user}`,
         KICK_SUCCESS: (user: string) =>
           `${constants.emojis.success} **${user}** has been kicked.`,
@@ -569,6 +582,19 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           type == "user"
             ? "Hello! You have successfully set Fire's language to English (US) :D"
             : "Hello! You have successfully set Fire's language in this guild to English (US). Want to set it just for you? Run the command in DMs",
+        LEAVEMSG_COMMAND_DESCRIPTION:
+          "Set the leave message and a channel to send it in",
+        LEAVEMSG_ARGUMENT_INVALID:
+          'You must provide either a channel or "disable"',
+        LEAVEMSG_MESSAGE_REQUIRED:
+          "You must provide a message for me to send on leave. Run the command without arguments to see the variables you can uses",
+        LEAVEMSG_SETUP_REQUIRED: `${constants.emojis.error} Please provide a channel and message for leave messages.`,
+        LEAVEMSG_CURRENT_SETTINGS: (prefix: string) =>
+          `**Current Leave Message Settings**\nDo __${prefix}leavemsg disable__ to disable leave messages`,
+        LEAVEMSG_DISABLE_ALREADY: "Leave messages are already disabled",
+        LEAVEMSG_SET_SUCCESS: (channel: string) =>
+          // this will be used in a string with the example since I cannot set allowed mentions with Message#success
+          `Leave messages will show in ${channel}!\nExample:`,
         LEVELHEAD_COMMAND_DESCRIPTION: "Get a player's levelhead info",
         LEVELHEAD_NO_PLAYER:
           "You need to give a player for me to check the levelhead of",

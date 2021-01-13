@@ -1,9 +1,13 @@
+import { constants, humanize } from "../../lib/util/constants";
 import { FireMember } from "../../lib/extensions/guildmember";
 import { MessageEmbed, TextChannel } from "discord.js";
 import { Listener } from "../../lib/util/listener";
-import { humanize } from "../../lib/util/constants";
 import Sk1er from "../modules/sk1er";
 import * as moment from "moment";
+
+const {
+  regexes: { joinleavemsgs },
+} = constants;
 
 export default class GuildMemberRemove extends Listener {
   constructor() {
@@ -48,6 +52,30 @@ export default class GuildMemberRemove extends Listener {
     }
 
     const language = member.guild.language;
+
+    let leaveMessage = member.guild.settings.get("greet.leavemsg") as string;
+    const channel = member.guild.channels.cache.get(
+      member.guild.settings.get("greet.leavechannel")
+    );
+    if (leaveMessage && channel instanceof TextChannel) {
+      const regexes = [
+        [joinleavemsgs.user, member.toString()],
+        [joinleavemsgs.mention, member.toMention()],
+        [joinleavemsgs.name, member.user.username],
+        [joinleavemsgs.discrim, member.user.discriminator],
+        [joinleavemsgs.guild, member.guild.name],
+        [
+          joinleavemsgs.count,
+          member.guild.memberCount.toLocaleString(member.guild.language.id),
+        ],
+      ];
+      for (const [regex, replacement] of regexes)
+        leaveMessage = leaveMessage.replace(
+          regex as RegExp,
+          replacement as string
+        );
+      await channel.send(leaveMessage).catch(() => {});
+    }
 
     if (member.guild.settings.has("temp.log.members")) {
       let moderator: FireMember, action: string, reason: string;
