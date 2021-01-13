@@ -4,6 +4,7 @@ import {
 } from "../../../lib/util/paginators";
 import { FireMember } from "../../../lib/extensions/guildmember";
 import { FireMessage } from "../../../lib/extensions/message";
+import { FireUser } from "../../../lib/extensions/user";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { MessageEmbed } from "discord.js";
@@ -17,7 +18,7 @@ export default class Warnings extends Command {
       args: [
         {
           id: "user",
-          type: "memberSilent",
+          type: "user|member",
           required: true,
           default: null,
         },
@@ -28,8 +29,8 @@ export default class Warnings extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { user: FireMember }) {
-    if (!args.user) args.user = message.member;
+  async exec(message: FireMessage, args: { user: FireMember | FireUser }) {
+    if (!args.user) return;
     const warnings = await this.client.db
       .query("SELECT * FROM modlogs WHERE uid=$1 AND gid=$2 AND type=$3;", [
         args.user.id,
@@ -46,7 +47,7 @@ export default class Warnings extends Command {
       )}**: ${warn.get("caseid")}
 **${message.language.get("REASON")}**: ${warn.get("reason")}
 **${message.language.get("MODLOGS_MODERATOR_ID")}**: ${
-        warn.get("modid") || "¯\\_(ツ)_/¯"
+        warn.get("modid") || "¯\\\\_(ツ)_/¯"
       }
 **${message.language.get("DATE")}**: ${warn.get("date")}
 **-----------------**`);

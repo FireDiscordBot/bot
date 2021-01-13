@@ -4,6 +4,7 @@ import {
 } from "../../../lib/util/paginators";
 import { FireMember } from "../../../lib/extensions/guildmember";
 import { FireMessage } from "../../../lib/extensions/message";
+import { FireUser } from "../../../lib/extensions/user";
 import { titleCase } from "../../../lib/util/constants";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
@@ -18,7 +19,7 @@ export default class Modlogs extends Command {
       args: [
         {
           id: "user",
-          type: "memberSilent",
+          type: "user|member",
           required: true,
           default: null,
         },
@@ -28,8 +29,8 @@ export default class Modlogs extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { user: FireMember }) {
-    if (!args.user) args.user = message.member;
+  async exec(message: FireMessage, args: { user: FireMember | FireUser }) {
+    if (!args.user) return;
     const logs = await this.client.db
       .query("SELECT * FROM modlogs WHERE uid=$1 AND gid=$2;", [
         args.user.id,
