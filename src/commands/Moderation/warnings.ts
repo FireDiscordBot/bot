@@ -48,7 +48,7 @@ export default class Warnings extends Command {
         )}**: ${warn.get("caseid")}
 **${message.language.get("REASON")}**: ${warn.get("reason")}
 **${message.language.get("MODLOGS_MODERATOR_ID")}**: ${
-          warn.get("modid") || "¯\\\\_(ツ)\\_/¯"
+          warn.get("modid") || "¯\\\\_(ツ)_/¯"
         }
 **${message.language.get("DATE")}**: ${warn.get("date")}
 **-----------------**`)
