@@ -1,5 +1,4 @@
 import { FireMessage } from "../../lib/extensions/message";
-import { FireGuild } from "../../lib/extensions/guild";
 import { Inhibitor } from "../../lib/util/inhibitor";
 import { Command } from "../../lib/util/command";
 import { Collection } from "discord.js";
