@@ -17,6 +17,33 @@ export default class GuildMemberAdd extends Listener {
     // dehoist/decancer is enabled so no need for checks here
     member.dehoistAndDecancer();
 
+    let usedInvite: string;
+    if (
+      member.guild.premium &&
+      !member.user.bot &&
+      member.guild.me.permissions.has("MANAGE_GUILD")
+    ) {
+      const before = member.guild.invites.clone();
+      const after = await member.guild.loadInvites();
+      if (before.size && after.size) {
+        for (const [code, uses] of before) {
+          if (
+            after.has(code) &&
+            after.get(code) != uses &&
+            after.get(code) > uses
+          ) {
+            usedInvite = code;
+            break;
+          }
+        }
+        if (usedInvite) this.client.emit("inviteJoin", member, usedInvite);
+        else if (member.guild.features.includes("DISCOVERABLE"))
+          usedInvite = member.guild.language.get(
+            "JOINED_WITHOUT_INVITE"
+          ) as string;
+      }
+    }
+
     if (
       // @ts-ignore
       !member.guild.features.includes("PREVIEW_ENABLED")
@@ -83,6 +110,7 @@ export default class GuildMemberAdd extends Listener {
             );
         }
       }
+      if (usedInvite) embed.addField(language.get("INVITE_USED"), usedInvite);
       await member.guild.memberLog(embed, "join");
     }
   }

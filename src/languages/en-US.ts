@@ -105,6 +105,7 @@ export default class enUS extends Language {
         CUSTOM_URL: "Custom URL",
         MODERATOR: "Moderator",
         INVITED_BY: "Invited By",
+        INVITE_USED: "Invite Used",
         UNTIL: "Until",
         AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
         REGION_DEPRECATED:
@@ -511,6 +512,8 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
         HELP_LINKS_VALUE: `[Website](${constants.url.website}) - [Terms of Service](${constants.url.terms}) - [Privacy Policy](${constants.url.privacy}) - [Status](${constants.url.fireStatus})`,
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" for more info about the command | Cluster ID: ${cluster}`,
+        JOINED_WITHOUT_INVITE:
+          "Joined without an invite (Preview Mode/Server Discovery)",
         KICK_LOG_AUTHOR: (user: string) => `Kick | ${user}`,
         KICK_SUCCESS: (user: string) =>
           `${constants.emojis.success} **${user}** has been kicked.`,

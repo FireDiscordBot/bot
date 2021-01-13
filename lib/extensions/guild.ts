@@ -33,8 +33,9 @@ const parseUntil = (time?: string) => {
 };
 
 export class FireGuild extends Guild {
-  muteCheckTask: NodeJS.Timeout;
+  invites: Collection<string, number>;
   mutes: Collection<string, number>;
+  muteCheckTask: NodeJS.Timeout;
   settings: GuildSettings;
   tags: GuildTagManager;
   owner: FireMember;
@@ -202,6 +203,19 @@ export class FireGuild extends Guild {
         await this.modLog(embed, "unmute").catch(() => {});
       }
     }
+  }
+
+  async loadInvites() {
+    this.invites = new Collection();
+    if (!this.premium) return;
+    const invites = await this.fetchInvites().catch(() => {});
+    if (!invites) return this.invites;
+    for (const [code, invite] of invites) this.invites.set(code, invite.uses);
+    if (this.features.includes("VANITY_URL")) {
+      const vanity = await this.fetchVanityData().catch(() => {});
+      if (vanity) this.invites.set(vanity.code, vanity.uses);
+    }
+    return this.invites;
   }
 
   isPublic() {
