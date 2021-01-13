@@ -706,6 +706,7 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           `${player}'s ModCore Profile`,
         MODCORE_ENABLED_COSMETICS: "Enabled Cosmetics",
         MODCORE_NO_COSMETICS: "No Cosmetics",
+        MUTEROLE_COMMAND_DESCRIPTION: "Change the role used to mute members",
         MUTE_ROLE_CREATE_REASON: "Setting up muted role...",
         MUTE_LOG_AUTHOR: (user: string) => `Mute | ${user}`,
         MUTE_SUCCESS: (user: string) =>
