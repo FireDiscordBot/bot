@@ -76,7 +76,9 @@ export default class GuildMemberRemove extends Listener {
         }
       }
       const embed = new MessageEmbed()
-        .setColor("#E74C3C")
+        .setColor(
+          member.partial ? "#E74C3C" : member.displayHexColor || "#E74C3C"
+        )
         .setTimestamp(new Date())
         .setAuthor(
           language.get("MEMBERLEAVE_LOG_AUTHOR", member.toString()),
