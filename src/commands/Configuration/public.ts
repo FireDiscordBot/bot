@@ -40,11 +40,8 @@ export default class Public extends Command {
     } else {
       await message.success("PUBLIC_DISABLED");
       await message.guild.actionLog(
-        message.language.get(
-          "PUBLIC_DISABLED_LOG",
-          message.author.toString(),
-          "public_toggle"
-        )
+        message.language.get("PUBLIC_DISABLED_LOG", message.author.toString()),
+        "public_toggle"
       );
     }
   }

@@ -39,6 +39,7 @@ export class GuildSettings {
   }
 
   delete(option: string) {
+    if (!this.has(option)) return true;
     return this.client.guildSettings.delete(
       this.guild instanceof FireGuild ? this.guild.id : this.guild,
       option
@@ -91,6 +92,7 @@ export class UserSettings {
   }
 
   delete(option: string) {
+    if (!this.has(option)) return true;
     const result = this.client.userSettings.delete(
       this.user instanceof FireUser ? this.user.id : this.user,
       option

@@ -11,7 +11,7 @@ import {
   MessageEmbedOptions,
   PermissionOverwriteOption,
 } from "discord.js";
-import { ActionLogType, ModLogType } from "../util/constants";
+import { ActionLogType, MemberLogType, ModLogType } from "../util/constants";
 import { GuildTagManager } from "../util/guildtagmanager";
 import Tickets from "../../src/commands/Tickets/tickets";
 import { FakeChannel } from "./slashCommandMessage";
@@ -173,7 +173,8 @@ export class FireGuild extends Guild {
               "UNMUTE_AUTO_FAIL",
               `${member} (${id})`,
               this.language.get(`UNMUTE_FAILED_${unmuted.toUpperCase()}`)
-            )
+            ),
+            "unmute"
           );
         } else continue;
       } else {
@@ -198,7 +199,7 @@ export class FireGuild extends Guild {
             this.language.get("ERROR"),
             this.language.get("UNMUTE_FAILED_DB_REMOVE")
           );
-        await this.modLog(embed).catch(() => {});
+        await this.modLog(embed, "unmute").catch(() => {});
       }
     }
   }
@@ -265,19 +266,32 @@ export class FireGuild extends Guild {
 
   async actionLog(
     log: string | MessageEmbed | MessageEmbedOptions,
-    type?: ActionLogType
+    type: ActionLogType
   ) {
-    const channel = this.channels.cache.get(this.settings.get("log.action"));
+    const channel = this.channels.cache.get(
+      this.settings.get("temp.log.action")
+    );
     if (!channel || channel.type != "text") return;
     return await (channel as TextChannel).send(log).catch(() => {});
   }
 
   async modLog(
     log: string | MessageEmbed | MessageEmbedOptions,
-    type?: ModLogType
+    type: ModLogType
   ) {
     const channel = this.channels.cache.get(
-      this.settings.get("log.moderation")
+      this.settings.get("temp.log.moderation")
+    );
+    if (!channel || channel.type != "text") return;
+    return await (channel as TextChannel).send(log).catch(() => {});
+  }
+
+  async memberLog(
+    log: string | MessageEmbed | MessageEmbedOptions,
+    type: MemberLogType
+  ) {
+    const channel = this.channels.cache.get(
+      this.settings.get("temp.log.members")
     );
     if (!channel || channel.type != "text") return;
     return await (channel as TextChannel).send(log).catch(() => {});
@@ -604,7 +618,7 @@ export class FireGuild extends Guild {
       .addField(this.language.get("MODERATOR"), `${moderator}`)
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
-    await this.modLog(embed).catch(() => {});
+    await this.modLog(embed, "unban").catch(() => {});
     if (channel)
       return await channel
         .send(
@@ -661,14 +675,18 @@ export class FireGuild extends Guild {
           blockee instanceof FireMember ? blockee.toString() : blockee.name
         ),
         blockee instanceof FireMember
-          ? blockee.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
+          ? blockee.user.displayAvatarURL({
+              size: 2048,
+              format: "png",
+              dynamic: true,
+            })
           : this.iconURL({ size: 2048, format: "png", dynamic: true }),
         "https://static.inv.wtf/blocked.gif" // hehe
       )
       .addField(this.language.get("MODERATOR"), `${moderator}`)
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
-    await this.modLog(embed).catch(() => {});
+    await this.modLog(embed, "block").catch(() => {});
     return await channel
       .send(
         this.language.get(
@@ -746,7 +764,7 @@ export class FireGuild extends Guild {
       .addField(this.language.get("MODERATOR"), `${moderator}`)
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
-    await this.modLog(embed).catch(() => {});
+    await this.modLog(embed, "unblock").catch(() => {});
     return await channel
       .send(
         this.language.get(

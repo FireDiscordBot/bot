@@ -13,6 +13,7 @@ export type ModLogType =
   | "derank"
   | "mute"
   | "unmute";
+export type MemberLogType = "join" | "leave";
 
 const getCategories = () => {
   const commandsFolder = resolve("src/commands");

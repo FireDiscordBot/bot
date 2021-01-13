@@ -260,7 +260,7 @@ export class FireMember extends GuildMember {
         this.guild.language.get("ERROR"),
         this.guild.language.get("WARN_LOG_DM_FAIL")
       );
-    await this.guild.modLog(embed).catch(() => {});
+    await this.guild.modLog(embed, "warn").catch(() => {});
     const count = await this.client.db
       .query("SELECT * FROM modlogs WHERE gid=$1 AND type=$2 AND uid=$3;", [
         this.guild.id,
@@ -342,7 +342,7 @@ export class FireMember extends GuildMember {
         this.guild.language.get("ERROR"),
         this.guild.language.get("BAN_DM_FAIL")
       );
-    await this.guild.modLog(embed).catch(() => {});
+    await this.guild.modLog(embed, "ban").catch(() => {});
     if (channel)
       return await channel
         .send(
@@ -379,7 +379,7 @@ export class FireMember extends GuildMember {
       .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
-    await this.guild.modLog(embed).catch(() => {});
+    await this.guild.modLog(embed, "kick").catch(() => {});
     if (channel)
       return await channel
         .send(
@@ -438,7 +438,7 @@ export class FireMember extends GuildMember {
           .map((role) => role.toString())
           .join(", ")
       );
-    await this.guild.modLog(embed).catch(() => {});
+    await this.guild.modLog(embed, "derank").catch(() => {});
     if (channel)
       return await channel
         .send(
@@ -520,7 +520,7 @@ export class FireMember extends GuildMember {
         )})`
       );
     }
-    await this.guild.modLog(embed).catch(() => {});
+    await this.guild.modLog(embed, "mute").catch(() => {});
     if (channel)
       return await channel
         .send(
@@ -591,7 +591,7 @@ export class FireMember extends GuildMember {
         this.guild.language.get("ERROR"),
         this.guild.language.get("UNMUTE_FAILED_DB_REMOVE")
       );
-    await this.guild.modLog(embed).catch(() => {});
+    await this.guild.modLog(embed, "unmute").catch(() => {});
     if (channel)
       return await channel
         .send(
