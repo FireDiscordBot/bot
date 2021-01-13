@@ -53,6 +53,7 @@ export class Command extends AkairoCommand {
   ephemeral: boolean;
   superuserOnly: boolean;
   moderatorOnly: boolean;
+  channel?: "guild" | "dm";
   enableSlashCommand: boolean;
   description: (language: Language) => string;
   requiresExperiment?: { id: string; treatmentId?: number };

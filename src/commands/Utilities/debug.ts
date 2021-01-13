@@ -1,9 +1,10 @@
 import { SlashCommandMessage } from "../../../lib/extensions/slashCommandMessage";
 import { PermissionString, TextChannel, MessageEmbed } from "discord.js";
-import { constants, titleCase } from "../../../lib/util/constants";
 import { FireMessage } from "../../../lib/extensions/message";
+import { constants } from "../../../lib/util/constants";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
+import * as moment from "moment";
 
 const {
   emojis: { success, error },
@@ -34,28 +35,60 @@ export default class Debug extends Command {
         ? message.channel.real
         : message.channel;
 
-    if (!cmd) {
-      return await channel.send({
-        embed: this.createEmbed(message, [
-          `${error} ${message.language.get("DEBUG_NO_COMMAND")}`,
-        ]),
-      });
-    }
+    if (!cmd) return await this.sendSingleError(message, "DEBUG_NO_COMMAND");
+    if (!cmd.id) return await this.sendSingleError(message, "UNKNOWN_COMMAND");
+    if (cmd.id == this.id)
+      return await this.sendSingleSuccess(message, "DEBUGGING_DEBUG");
+    if (moment(new Date()).diff(message.author.createdAt) < 86400000)
+      return await this.sendSingleError(message, "COMMAND_ACCOUNT_TOO_YOUNG");
+    if (cmd.ownerOnly && !this.client.isOwner(message.author))
+      return await this.sendSingleError(message, "COMMAND_OWNER_ONLY");
+    if (cmd.superuserOnly && !message.author.isSuperuser())
+      return await this.sendSingleError(message, "COMMAND_SUPERUSER_ONLY");
+    if (cmd.moderatorOnly && !message.member?.isModerator())
+      return await this.sendSingleError(message, "COMMAND_MODERATOR_ONLY");
+    if (cmd.channel == "guild" && !message.guild)
+      return await this.sendSingleError(
+        message,
+        "COMMAND_GUILD_ONLY",
+        this.client.config.inviteLink
+      );
+    if (cmd.guilds.length && !cmd.guilds.includes(message.guild?.id))
+      return await this.sendSingleError(message, "COMMAND_GUILD_LOCKED");
+    if (cmd.premium && !message.guild?.premium)
+      return await this.sendSingleError(message, "COMMAND_PREMIUM_ONLY");
 
-    if (!cmd.id) {
-      return await channel.send({
-        embed: this.createEmbed(message, [
-          `${error} ${message.language.get("UNKNOWN_COMMAND")}`,
-        ]),
-      });
-    }
-
-    if (cmd.id == this.id) {
-      return await channel.send({
-        embed: this.createEmbed(message, [
-          `${success} ${message.language.get("DEBUGGING_DEBUG")}`,
-        ]),
-      });
+    const requiresExperiment = cmd.requiresExperiment;
+    if (requiresExperiment) {
+      const experiment = this.client.experiments.get(requiresExperiment.id);
+      if (!experiment)
+        return await this.sendSingleError(
+          message,
+          "COMMAND_EXPERIMENT_REQUIRED"
+        );
+      else if (
+        experiment.kind == "user" &&
+        !message.author.hasExperiment(
+          experiment.id,
+          requiresExperiment.treatmentId
+        )
+      )
+        return await this.sendSingleError(
+          message,
+          "COMMAND_EXPERIMENT_REQUIRED"
+        );
+      else if (
+        experiment.kind == "guild" &&
+        (!message.guild ||
+          !message.guild?.hasExperiment(
+            experiment.id,
+            requiresExperiment.treatmentId
+          ))
+      )
+        return await this.sendSingleError(
+          message,
+          "COMMAND_EXPERIMENT_REQUIRED"
+        );
     }
 
     const details: string[] = [];
@@ -96,50 +129,6 @@ export default class Debug extends Command {
       details.push(`${error} ${message.language.get("DEBUG_REQUIRES_PERMS")}`);
     else details.push(`${success} ${message.language.get("DEBUG_PERMS_PASS")}`);
 
-    let inhibitorChecks = [];
-
-    const inhibitors = [...this.client.inhibitorHandler.modules.values()].sort(
-      // @ts-ignore (idk why it thinks priority doesn't exist)
-      (a, b) => b.priority - a.priority
-    );
-    for (const inhibitor of inhibitors) {
-      let exec = inhibitor.exec(message, cmd);
-      if (this.client.util.isPromise(exec)) exec = await exec;
-      if (exec) inhibitorChecks.push(inhibitor.reason);
-    }
-
-    for (const inhibitorCheck of inhibitorChecks) {
-      if (inhibitorCheck != null) {
-        if (inhibitorCheck == "owner")
-          details.push(
-            `${error} ${message.language.get("COMMAND_OWNER_ONLY")}`
-          );
-        if (inhibitorCheck == "guild")
-          details.push(
-            `${error} ${message.language.get(
-              "COMMAND_GUILD_ONLY",
-              this.client.config.inviteLink
-            )}`
-          );
-        if (inhibitorCheck == "premium")
-          details.push(
-            `${error} ${message.language.get("COMMAND_PREMIUM_ONLY")}`
-          );
-        if (inhibitorCheck == "experimentlock")
-          details.push(
-            `${error} ${message.language.get("COMMAND_EXPERIMENT_REQUIRED")}`
-          );
-        if (inhibitorCheck == "accountage")
-          details.push(
-            `${error} ${message.language.get("COMMAND_ACCOUNT_TOO_YOUNG")}`
-          );
-        if (inhibitorCheck == "guildlock")
-          details.push(
-            `${error} ${message.language.get("COMMAND_GUILD_LOCKED")}`
-          );
-      }
-    }
-
     const disabledCommands: string[] =
       message.guild?.settings.get("disabled.commands", []) || [];
 
@@ -152,7 +141,7 @@ export default class Debug extends Command {
         details.push(
           `${error} ${message.language.get("DEBUG_COMMAND_DISABLE")}`
         );
-    } else
+    } else if (message.guild)
       details.push(
         `${success} ${message.language.get("DEBUG_COMMAND_NOT_DISABLED")}`
       );
@@ -205,5 +194,29 @@ export default class Debug extends Command {
       .setColor(message.member?.displayColor || "#ffffff")
       .setTimestamp(new Date())
       .setDescription(details.join("\n"));
+  }
+
+  private async sendSingleError(
+    message: FireMessage,
+    key: string,
+    ...args: any[]
+  ) {
+    return await message.channel.send({
+      embed: this.createEmbed(message, [
+        `${error} ${message.language.get(key, ...args)}`,
+      ]),
+    });
+  }
+
+  private async sendSingleSuccess(
+    message: FireMessage,
+    key: string,
+    ...args: any[]
+  ) {
+    return await message.channel.send({
+      embed: this.createEmbed(message, [
+        `${success} ${message.language.get(key, ...args)}`,
+      ]),
+    });
   }
 }
