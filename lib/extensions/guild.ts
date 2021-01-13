@@ -179,7 +179,7 @@ export class FireGuild extends Guild {
           );
         } else continue;
       } else {
-        this.mutes.delete(this.id);
+        this.mutes.delete(id);
         const dbremove = await this.client.db
           .query("DELETE FROM mutes WHERE gid=$1 AND uid=$2;", [
             this.id,
