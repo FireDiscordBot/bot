@@ -600,6 +600,18 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           "It seems there's no locked channels so you can't end lockdown as it was never started",
         LOCKDOWN_END_REASON: (user: string, reason: string) =>
           `Server lockdown ended by ${user} with reason "${reason}".`,
+        LOGGING_COMMAND_DESCRIPTION: "Set the channel(s) for logging",
+        LOGGING_INVALID_TYPE: (types: string) =>
+          `That is not a valid log type! Current types are ${types}`,
+        LOGGING_DISABLED_MODERATION: "Moderation logs have been disabled.",
+        LOGGING_DISABLED_ACTION: "Action logs have been disabled.",
+        LOGGING_DISABLED_MEMBERS: "Member logs have been disabled.",
+        LOGGING_ENABLED_MODERATION:
+          "Moderation logs have been enabled! Moderation actions such as warnings, mutes, kicks, bans etc. will be logged in your chosen channel.",
+        LOGGING_ENABLED_ACTION:
+          "Action logs have been enabled! Actions such as message edits/deletes, filtered messages, channel creates/deletes etc. will be logged in your chosen channel.",
+        LOGGING_ENABLED_MEMBERS:
+          "Member logs have been enabled! Actions such as member joins & leaves will be logged in your chosen channel.",
         LYRICS_COMMAND_DESCRIPTION:
           'Get the lyrics for a song. (For best results, use the format "artist_name song_title")',
         LYRICS_NO_QUERY:
