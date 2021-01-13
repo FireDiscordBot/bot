@@ -47,7 +47,7 @@ export default class Modlogs extends Command {
         )}**: ${action.get("caseid")}
 **${message.language.get("REASON")}**: ${action.get("reason")}
 **${message.language.get("MODLOGS_MODERATOR_ID")}**: ${
-          action.get("modid") || "¯\\_(ツ)_/¯"
+          action.get("modid") || "¯\\\\_(ツ)\\_/¯"
         }
 **${message.language.get("DATE")}**: ${action.get("date")}
 **${message.language.get("TYPE")}**: ${titleCase(action.get("type") as string)}
