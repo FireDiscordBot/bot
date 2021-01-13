@@ -31,9 +31,5 @@ export default class PremiumInhibitor extends Inhibitor {
     this.client.console.log(
       `[Premium] Successfully loaded ${this.client.util.premium.size} premium guilds`
     );
-    const guilds = this.client.guilds.cache
-      .filter((guild: FireGuild) => guild.premium)
-      .values() as IterableIterator<FireGuild>;
-    for (const guild of guilds) await guild.loadInvites();
   }
 }

@@ -2,6 +2,7 @@ import { getAllCommands, getCommands } from "../../lib/util/commandutil";
 import { MessageUtil } from "../../lib/ws/util/MessageUtil";
 import { Option } from "../../lib/interfaces/slashCommands";
 import { EventType } from "../../lib/ws/util/constants";
+import { FireGuild } from "../../lib/extensions/guild";
 import { Listener } from "../../lib/util/listener";
 import { Message } from "../../lib/ws/Message";
 import { Command } from "../../lib/util/command";
@@ -43,6 +44,11 @@ export default class Ready extends Listener {
       (value, key) => this.client.guilds.cache.has(key) || key == "0"
     ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
     // or "0" which may be used for something later
+
+    const guilds = this.client.guilds.cache
+      .filter((guild: FireGuild) => guild.premium)
+      .values() as IterableIterator<FireGuild>;
+    for (const guild of guilds) await guild.loadInvites();
 
     const slashCommands: {
       id: string;
