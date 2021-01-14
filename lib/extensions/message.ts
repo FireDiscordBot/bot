@@ -40,7 +40,7 @@ export class FireMessage extends Message {
     this.silent = false;
     if (this.content?.toLowerCase().endsWith(" --silent")) {
       this.content = this.content.slice(0, this.content.length - 9).trimEnd();
-      this.silent = true;
+      if (!this.attachments.size) this.silent = true;
     }
   }
 
