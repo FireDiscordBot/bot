@@ -13,7 +13,7 @@ export default class Kick extends Command {
       args: [
         {
           id: "user",
-          type: "member",
+          type: "memberSilent",
           required: true,
           default: null,
         },
