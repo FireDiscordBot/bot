@@ -55,9 +55,10 @@ export default class MessageInvalid extends Listener {
         if (this.client.util.isPromise(exec)) exec = await exec;
         if (exec) inhibited = true;
       }
+      if (inhibited) return;
       await remindCommand
         .exec(message, {
-          reminder: message.content.replace("--remind", " "),
+          reminder: message.content.replace("--remind", " ").trimEnd(),
         })
         .catch(() => {});
     }
