@@ -216,21 +216,22 @@ export class RequestHandler {
         request.path
       }`
     );
-    request.client.sentry.captureEvent({
-      message: `Encountered ${type} latency of ${latency}ms on ${request.method.toUpperCase()} ${
-        request.path
-      }`,
-      request: {
-        url,
-        method: request.method,
-        data: JSON.stringify(request.options?.data) || "",
-        headers: request.options?.headers || {},
-      },
-      tags: {
-        reason: request.options?.reason || "Unknown",
-        "cf-ray": (response?.headers["cf-ray"] as string) || "Unknown",
-        status: response?.statusCode || 0,
-      },
-    });
+    if (!this.manager.client.config.dev)
+      request.client.sentry.captureEvent({
+        message: `Encountered ${type} latency of ${latency}ms on ${request.method.toUpperCase()} ${
+          request.path
+        }`,
+        request: {
+          url,
+          method: request.method,
+          data: JSON.stringify(request.options?.data) || "",
+          headers: request.options?.headers || {},
+        },
+        tags: {
+          reason: request.options?.reason || "Unknown",
+          "cf-ray": (response?.headers["cf-ray"] as string) || "Unknown",
+          status: response?.statusCode || 0,
+        },
+      });
   }
 }
