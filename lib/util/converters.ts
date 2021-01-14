@@ -203,7 +203,7 @@ export const messageConverter = async (
   argument: string,
   silent = false,
   groups: { guild_id: string; message_id: string; channel_id: string } = null
-): Promise<FireMessage | null> => {
+): Promise<FireMessage | "cross_cluster" | null> => {
   let linkMatch: RegExpExecArray, idMatch: RegExpMatchArray;
   if (argument) {
     linkMatch = getMessageLinkMatch(argument);
@@ -213,6 +213,15 @@ export const messageConverter = async (
     if (!silent) await message.error("INVALID_MESSAGE");
     return null;
   }
+
+  if (
+    linkMatch.groups?.guild_id &&
+    !(message.client.options.shards as number[]).includes(
+      message.client.util.getShard(linkMatch.groups?.guild_id)
+    ) &&
+    message.util?.parsed?.command?.id == "quote"
+  )
+    return "cross_cluster";
 
   let messageID: string, channelID: string;
   if (linkMatch || groups?.message_id) {

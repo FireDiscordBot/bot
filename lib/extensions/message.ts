@@ -178,18 +178,25 @@ export class FireMessage extends Message {
       content = filters.runReplace(content, quoter);
     }
     let attachments: { attachment: Buffer; name: string }[] = [];
-    const names = this.attachments.map((attach) => attach.name);
-    const attachReqs = await Promise.all(
-      this.attachments.map((attachment) =>
-        centra(attachment.url)
-          .header("User-Agent", "Fire Discord Bot")
-          .send()
-          .catch(() => {})
-      )
-    ).catch(() => []);
-    for (const [index, req] of attachReqs.entries()) {
-      if (req && req.statusCode == 200)
-        attachments.push({ attachment: req.body, name: names[index] });
+    if (
+      (destination instanceof TextChannel &&
+        quoter.permissionsIn(destination).has("ATTACH_FILES")) ||
+      (!(destination instanceof TextChannel) &&
+        (destination.permissions & 0x8000) == 0x8000)
+    ) {
+      const names = this.attachments.map((attach) => attach.name);
+      const attachReqs = await Promise.all(
+        this.attachments.map((attachment) =>
+          centra(attachment.url)
+            .header("User-Agent", "Fire Discord Bot")
+            .send()
+            .catch(() => {})
+        )
+      ).catch(() => []);
+      for (const [index, req] of attachReqs.entries()) {
+        if (req && req.statusCode == 200)
+          attachments.push({ attachment: req.body, name: names[index] });
+      }
     }
     return await hook
       .send(content, {

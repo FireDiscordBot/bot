@@ -102,7 +102,7 @@ export default class MessageInvalid extends Listener {
       const shard = this.client.util.getShard(quote.guild_id);
       if (!shards.includes(shard)) {
         if (!this.client.manager.ws) continue;
-        const webhookURL = await this.getQuoteWebhookURL(
+        const webhookURL = await this.client.util.getQuoteWebhookURL(
           message.channel as TextChannel
         );
         if (!webhookURL || typeof webhookURL != "string") continue;
@@ -118,6 +118,9 @@ export default class MessageInvalid extends Listener {
               message: quote,
               destination: {
                 nsfw: (message.channel as TextChannel)?.nsfw || false,
+                permissions: message.guild
+                  ? message.member.permissions.bitfield
+                  : 0,
               } as PartialQuoteDestination,
             })
           )
@@ -131,31 +134,11 @@ export default class MessageInvalid extends Listener {
         ).catch(() => {});
         if (convertedMessage) {
           await quoteCommand
-            .exec(message, { quote: convertedMessage })
+            .exec(message, { quote: convertedMessage as FireMessage })
             .catch(() => {});
           await this.client.util.sleep(500);
         }
       }
     }
-  }
-
-  async getQuoteWebhookURL(destination: TextChannel) {
-    const hooks = await destination.fetchWebhooks().catch(() => {});
-    let hook: Webhook;
-    if (hooks) hook = hooks.filter((hook) => !!hook.token).first();
-    if (!hook) {
-      hook = await destination
-        .createWebhook(`Fire Quotes #${destination.name}`, {
-          avatar: this.client.user.displayAvatarURL({
-            size: 2048,
-            format: "png",
-          }),
-          reason: (destination.guild as FireGuild).language.get(
-            "QUOTE_WEBHOOK_CREATE_REASON"
-          ) as string,
-        })
-        .catch(() => null);
-    }
-    return hook?.url;
   }
 }

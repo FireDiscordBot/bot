@@ -1,4 +1,10 @@
-import { version as djsver, Collection, PermissionString } from "discord.js";
+import {
+  version as djsver,
+  Collection,
+  PermissionString,
+  TextChannel,
+  Webhook,
+} from "discord.js";
 import { Channel, Video } from "../interfaces/youtube";
 import { FireMember } from "../extensions/guildmember";
 import { MessageUtil } from "../ws/util/MessageUtil";
@@ -392,5 +398,25 @@ export class Util extends ClientUtil {
     if (channelReq.statusCode != 200) return false;
     const channel: Channel = await channelReq.json();
     return channel;
+  }
+
+  async getQuoteWebhookURL(destination: TextChannel) {
+    const hooks = await destination.fetchWebhooks().catch(() => {});
+    let hook: Webhook;
+    if (hooks) hook = hooks.filter((hook) => !!hook.token).first();
+    if (!hook) {
+      hook = await destination
+        .createWebhook(`Fire Quotes #${destination.name}`, {
+          avatar: this.client.user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+          }),
+          reason: (destination.guild as FireGuild).language.get(
+            "QUOTE_WEBHOOK_CREATE_REASON"
+          ) as string,
+        })
+        .catch(() => null);
+    }
+    return hook?.url;
   }
 }
