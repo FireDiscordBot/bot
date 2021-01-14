@@ -43,7 +43,7 @@ export default class Ban extends Command {
     message: FireMessage,
     args: { user: FireMember | FireUser; days?: number; reason?: string }
   ) {
-    if (!args.user) return await message.error("BAN_USER_REQUIRED");
+    if (!args.user) return; // TODO user|member has no silent variety so add one future me kthx
     else if (
       args.user instanceof FireMember &&
       args.user.isModerator(message.channel)
