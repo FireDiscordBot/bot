@@ -18,6 +18,7 @@ export class EventStore extends Collection<number, Event> {
       : "/src/ws/events/";
     const files = readdirSync(join(process.cwd(), eventsFolder));
     for (const file of files) {
+      if (file.includes(".map")) continue;
       const eventModule = require(join(process.cwd(), eventsFolder, file));
       const eventClass = eventModule.default;
       const instance: Event = new eventClass(this.manager);
