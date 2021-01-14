@@ -215,9 +215,9 @@ export const messageConverter = async (
   }
 
   if (
-    linkMatch.groups?.guild_id &&
+    linkMatch?.groups?.guild_id &&
     !(message.client.options.shards as number[]).includes(
-      message.client.util.getShard(linkMatch.groups?.guild_id)
+      message.client.util.getShard(linkMatch?.groups?.guild_id)
     ) &&
     message.util?.parsed?.command?.id == "quote"
   )

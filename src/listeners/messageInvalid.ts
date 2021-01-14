@@ -41,6 +41,9 @@ export default class MessageInvalid extends Listener {
       return;
     }
 
+    this.botQuoteRegex.lastIndex = 0;
+    this.slashCommandRegex.lastIndex = 0;
+
     let inhibited = false;
     const inhibitors = [...this.client.inhibitorHandler.modules.values()].sort(
       // @ts-ignore (idk why it thinks priority doesn't exist)
