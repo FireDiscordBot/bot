@@ -1,4 +1,5 @@
 import * as dotEnvExtended from "dotenv-extended";
+import "source-map-support/register";
 
 dotEnvExtended.load({
   path: process.env.NODE_ENV == "development" ? "dev.env" : ".env",
