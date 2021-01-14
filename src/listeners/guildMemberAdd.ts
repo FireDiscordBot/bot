@@ -54,6 +54,10 @@ export default class GuildMemberAdd extends Listener {
     )
       await member.guild.loadInvites();
 
+    if (member.guild.mutes.has(member.id)) {
+      await member.roles.add(member.guild.muteRole).catch(() => {});
+    }
+
     if (
       // @ts-ignore
       !member.guild.features.includes("PREVIEW_ENABLED")

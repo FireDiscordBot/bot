@@ -16,6 +16,13 @@ export default class GuildMemberUpdate extends Listener {
     // dehoist/decancer is enabled so no need for checks here
     newMember.dehoistAndDecancer();
 
+    if (
+      newMember.guild.mutes.has(newMember.id) &&
+      !newMember.roles.cache.has(newMember.guild.muteRole.id)
+    ) {
+      await newMember.roles.add(newMember.guild.muteRole).catch(() => {});
+    }
+
     if (!newMember.pending) {
       let autoroleId: string;
       const delay = newMember.guild.settings.get(
