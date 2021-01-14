@@ -28,6 +28,7 @@ export class FireMessage extends Message {
   util?: CommandUtil;
   author: FireUser;
   guild: FireGuild;
+  silent?: boolean;
   client: Fire;
 
   constructor(
@@ -36,6 +37,11 @@ export class FireMessage extends Message {
     channel: DMChannel | TextChannel | NewsChannel
   ) {
     super(client, data, channel);
+    this.silent = false;
+    if (this.content?.toLowerCase().endsWith(" --silent")) {
+      this.content = this.content.slice(0, this.content.length - 9).trimEnd();
+      this.silent = true;
+    }
   }
 
   get language() {
