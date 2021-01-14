@@ -860,6 +860,12 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           'Your reminder, including the time in the format "X mins X days" etc.',
         REMINDER_MISSING_ARG:
           "I can't remind you about nothing, you need to provide the reminder text and duration",
+        REMINDER_INVALID_REPEAT:
+          "The repeat flag value is invalid, it must range from 1 to 5",
+        REMINDER_SEPARATE_FLAGS:
+          "The step and repeat flags must be used together, they cannot be used individually",
+        REMINDER_INVALID_STEP:
+          'The step flag value is invalid. Use this flag to set multiple reminders with a predefined "step" after each',
         REMINDER_MISSING_TIME:
           'You need to include a duration for your reminder, e.g. "69 mins" for 69 minutes',
         REMINDER_MISSING_CONTENT: "I need something to remind you about...",
@@ -867,8 +873,16 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           "Reminders are currently limited to 3 months (90 days). This may increase in the future",
         REMINDER_TOO_SHORT:
           "If you need a bot to remind you about something in less than two minutes, there's an issue that you should probably look into...",
-        REMINDER_CREATED: (duration: string) =>
-          `Got it! I'll remind you in ${duration}`,
+        REMINDER_CREATED: (success: string[], failed: string[]) =>
+          success.length == 1
+            ? `Got it! I'll remind you in ${success[0]}`
+            : `Got it! I've set reminders for the following times,
+${success.map((s) => "- " + s).join("\n")}${
+                failed.length
+                  ? "\n\nI unfortunately failed to set reminders for the following times,\n" +
+                    failed.map((f) => "- " + f).join("\n")
+                  : ""
+              }`,
         REMINDERS_COMMAND_DESCRIPTION: "List all reminders you have set",
         REMINDERS_NONE_FOUND:
           "You must have a good memory because I found no reminders",
