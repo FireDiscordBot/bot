@@ -14,7 +14,7 @@ export default class Mute extends Command {
       args: [
         {
           id: "user",
-          type: "member",
+          type: "memberSilent",
           required: true,
           default: null,
         },

@@ -35,7 +35,7 @@ export default class Kick extends Command {
     message: FireMessage,
     args: { user: FireMember; reason?: string }
   ) {
-    if (!args.user) return;
+    if (!args.user) return await message.error("KICK_USER_REQUIRED");
     else if (
       args.user instanceof FireMember &&
       args.user.isModerator(message.channel)
