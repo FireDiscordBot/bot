@@ -202,7 +202,9 @@ export class FireMessage extends Message {
       .send(content, {
         username: this.author.toString().replace(/#0000/gim, ""),
         avatarURL: this.author.displayAvatarURL({ size: 2048, format: "png" }),
-        embeds: this.embeds,
+        embeds: this.embeds.filter(
+          (embed) => !this.content.includes(embed.url)
+        ),
         files: attachments,
         allowedMentions: this.client.options.allowedMentions,
       })
