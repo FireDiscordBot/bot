@@ -14,7 +14,7 @@ const filteredReplaceRegex = /https?:\/\/\[ filtered \]/gim;
 export default class Filters extends Module {
   debug: string[];
   malware: string[];
-  regexes: RegExp[];
+  regexes: { [key: string]: RegExp[] };
   shortURLRegex: RegExp;
   filters: {
     [key: string]: ((message: FireMessage, extra: string) => Promise<void>)[];
@@ -28,14 +28,14 @@ export default class Filters extends Module {
       `(?:${shortURLs.join("|").replace(/\./gim, "\\.")})\/[a-z0-9]+`,
       "im"
     );
-    this.regexes = [
-      ...regexes.invites,
-      ...Object.values(regexes.twitch),
-      ...Object.values(regexes.youtube),
-      regexes.paypal,
-      regexes.twitter,
-      this.shortURLRegex,
-    ];
+    this.regexes = {
+      discord: regexes.invites,
+      twitch: Object.values(regexes.twitch),
+      youtube: Object.values(regexes.youtube),
+      paypal: [regexes.paypal],
+      twitter: [regexes.twitter],
+      shorteners: [this.shortURLRegex],
+    };
     this.filters = {
       discord: [this.handleInvite, this.handleExtInvite],
       malware: [this.antiMalware],
@@ -137,9 +137,16 @@ export default class Filters extends Module {
           : this.shouldRun(null, context);
       if (!check) return text;
     }
-    this.regexes.forEach((regex) => {
-      while (regex.test(text)) text = text.replace(regex, "[ filtered ]");
-      regex.lastIndex = 0;
+    const enabled: string[] =
+      context instanceof FireUser
+        ? null
+        : context.guild?.settings.get("mod.linkfilter", []);
+    Object.entries(this.regexes).forEach(([name, regexes]) => {
+      if (enabled instanceof Array && !enabled.includes(name)) return;
+      regexes.forEach((regex) => {
+        while (regex.test(text)) text = text.replace(regex, "[ filtered ]");
+        regex.lastIndex = 0;
+      });
     });
     text = text.replace(filteredReplaceRegex, "[ filtered ]");
     return text;
