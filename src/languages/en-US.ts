@@ -874,7 +874,8 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           "Reminders are currently limited to 3 months (90 days). This may increase in the future",
         REMINDER_TOO_SHORT:
           "If you need a bot to remind you about something in less than two minutes, there's an issue that you should probably look into...",
-          REMINDER_STEP_TOO_SHORT: "The step flag value must be 2 minutes or more",
+        REMINDER_STEP_TOO_SHORT:
+          "The step flag value must be 2 minutes or more",
         REMINDER_CREATED: (success: string[], failed: string[]) =>
           success.length == 1
             ? `Got it! I'll remind you in ${success[0]}`
