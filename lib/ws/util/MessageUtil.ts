@@ -1,12 +1,17 @@
+import { deflateSync, inflateSync } from "zlib";
 import { Message } from "../Message";
 
 export class MessageUtil {
-  static encode(message: any) {
-    return JSON.stringify(message);
+  static encode(message: Message) {
+    const deflated = deflateSync(JSON.stringify(message), { level: 5 });
+    return deflated.toString("base64");
   }
 
   static decode(message: string) {
-    const parsed = JSON.parse(message);
+    const inflated = inflateSync(Buffer.from(message, "base64"), {
+      level: 5,
+    }).toString();
+    const parsed = JSON.parse(inflated);
     return new Message(parsed.t, parsed.d);
   }
 }
