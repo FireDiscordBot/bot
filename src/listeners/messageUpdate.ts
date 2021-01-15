@@ -2,10 +2,10 @@ import { FireMember } from "../../lib/extensions/guildmember";
 import { FireMessage } from "../../lib/extensions/message";
 import { Listener } from "../../lib/util/listener";
 import { PrefixSupplier } from "discord-akairo";
+import { MessageEmbed } from "discord.js";
 import Filters from "../modules/filters";
 import Sk1er from "../modules/sk1er";
 import Message from "./message";
-import { MessageEmbed } from "discord.js";
 
 export default class MessageUpdate extends Listener {
   constructor() {
