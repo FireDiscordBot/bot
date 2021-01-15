@@ -103,6 +103,7 @@ export const memberConverter = async (
     let options: FetchMembersOptions = {
       query: argument,
       limit: 1,
+      withPresences: true,
     };
     let member;
     if (argument.includes("#")) {
@@ -122,7 +123,9 @@ export const memberConverter = async (
     if (!silent) await message.error("MEMBER_NOT_FOUND");
     return null;
   } else {
-    const member = await guild.members.fetch(userID).catch(() => {});
+    const member = await guild.members
+      .fetch({ user: userID, withPresences: true })
+      .catch(() => {});
     if (member) {
       return member as FireMember;
     }
