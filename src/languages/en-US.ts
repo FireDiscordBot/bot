@@ -803,7 +803,7 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         PURGE_LOG_DESCRIPTION: (amount: number, channel: string) =>
           `**${amount} messages were purged in ${channel}**`,
         PURGE_LOG_FOOTER: (user: string, channel: string) =>
-          `Author ID: ${user} | Channel ID: ${channel}"`,
+          `Author ID: ${user} | Channel ID: ${channel}`,
         PURGED_MESSAGES: "Purged Messages",
         PURGED_MESSAGES_FAILED: "Failed to upload messages to hastebin",
         QUOTE_COMMAND_DESCRIPTION: "Quote a message from an ID or URL",
