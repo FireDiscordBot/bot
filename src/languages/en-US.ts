@@ -92,6 +92,8 @@ export default class enUS extends Language {
         DM_CHANNEL: "Our DMs",
         MESSAGE: "Message",
         ATTACHMENT: "Attachment",
+        ATTACHMENTS: "Attachments",
+        ACTIVITY: "Activity",
         EMOJI: "Emoji",
         ROLE: "Role",
         VARIABLES: "Variables",
@@ -163,6 +165,12 @@ export default class enUS extends Language {
           MANAGE_ROLES: "Manage Roles",
           MANAGE_WEBHOOKS: "Manage Webhooks",
           MANAGE_EMOJIS: "Manage Emojis",
+        },
+        ACTIVITY_TYPES: {
+          1: "Join",
+          2: "Spectate",
+          3: "Listen",
+          5: "Join Request",
         },
         MISSING_PERMISSIONS_USER: (permissions: string[], command: string) =>
           `You are missing ${permissions.join(
@@ -736,6 +744,13 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
         MODCORE_NO_COSMETICS: "No Cosmetics",
         MSGEDITLOG_DESCRIPTION: (author: string, channel: string) =>
           `**${author} edited a message in ${channel}**`,
+        MSGDELETELOG_DESCRIPTION: (author: string, channel: string) =>
+          `**${author}'s message in ${channel} was deleted**`,
+        MSGDELETELOG_ATTACH_WARN:
+          "__Attachment URLs are invalidated once the message is deleted.__",
+        MSGDELETELOG_SPOTIFY_ACTIVITY: "Spotify Invite",
+        MSGDELETELOG_ACTIVITY: (partyID: string, type: number) =>
+          `Party ID: ${partyID}\nType: ${this.get("ACTIVITY_TYPES")[type]}`,
         MUTEROLE_COMMAND_DESCRIPTION: "Change the role used to mute members",
         MUTE_ROLE_CREATE_REASON: "Setting up muted role...",
         MUTE_LOG_AUTHOR: (user: string) => `Mute | ${user}`,

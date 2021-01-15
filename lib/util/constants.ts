@@ -6,7 +6,8 @@ export type ActionLogType =
   | "public_toggle"
   | "purge"
   | "linkfilter"
-  | "message_edit";
+  | "message_edit"
+  | "message_delete";
 export type ModLogType =
   | "warn"
   | "ban"
