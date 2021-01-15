@@ -5,6 +5,7 @@ import { PrefixSupplier } from "discord-akairo";
 import Filters from "../modules/filters";
 import Sk1er from "../modules/sk1er";
 import Message from "./message";
+import { MessageEmbed } from "discord.js";
 
 export default class MessageUpdate extends Listener {
   constructor() {
@@ -56,10 +57,54 @@ export default class MessageUpdate extends Listener {
         await after.member.roles.add(role).catch(() => {});
     }
 
-    // TODO add --remind when remind command added
-
     const filters = this.client.getModule("filters") as Filters;
     await filters?.runAll(after, messageListener.cleanContent(after));
+
+    if (before.content.trim() == after.content.trim()) return;
+
+    if (
+      after.guild?.settings.has("temp.log.action") &&
+      !before.partial &&
+      // if it's too long to show any changes
+      // (since it is sliced to prevent huge embeds),
+      // don't bother logging the edit
+      before.content.slice(0, 501) + "..." !=
+        after.content.slice(0, 501) + "..."
+    ) {
+      const embed = new MessageEmbed()
+        .setColor(after.member.displayHexColor || "#ffffff")
+        .setTimestamp(after.editedAt)
+        .setAuthor(
+          after.author.toString(),
+          after.author.displayAvatarURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          }),
+          after.url
+        )
+        .setDescription(
+          after.guild.language.get(
+            "MSGEDITLOG_DESCRIPTION",
+            after.author.toMention(),
+            after.channel.toString()
+          )
+        )
+        .addField(
+          after.guild.language.get("BEFORE"),
+          before.content.length <= 500
+            ? before.content
+            : before.content.slice(0, 501) + "..."
+        )
+        .addField(
+          after.guild.language.get("AFTER"),
+          after.content.length <= 500
+            ? after.content
+            : after.content.slice(0, 501) + "..."
+        )
+        .setFooter(`${after.author.id} | ${after.id} | ${after.channel.id}`);
+      await after.guild.actionLog(embed, "message_edit");
+    }
 
     if (
       after.content.replace(/!/gim, "").trim() ==

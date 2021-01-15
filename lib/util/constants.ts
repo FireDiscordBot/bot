@@ -2,7 +2,11 @@ import humanizeDuration = require("humanize-duration");
 import { readdirSync, statSync } from "fs";
 import { join, resolve } from "path";
 
-export type ActionLogType = "public_toggle" | "purge" | "linkfilter";
+export type ActionLogType =
+  | "public_toggle"
+  | "purge"
+  | "linkfilter"
+  | "message_edit";
 export type ModLogType =
   | "warn"
   | "ban"

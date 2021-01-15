@@ -108,6 +108,8 @@ export default class enUS extends Language {
         INVITE_USED: "Invite Used",
         UNTIL: "Until",
         AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
+        BEFORE: "Before",
+        AFTER: "After",
         REGION_DEPRECATED:
           "<:wumpus_land:759529118671831040> Deprecated Region",
         REGIONS: {
@@ -732,6 +734,8 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           `${player}'s ModCore Profile`,
         MODCORE_ENABLED_COSMETICS: "Enabled Cosmetics",
         MODCORE_NO_COSMETICS: "No Cosmetics",
+        MSGEDITLOG_DESCRIPTION: (author: string, channel: string) =>
+          `**${author} edited a message in ${channel}**`,
         MUTEROLE_COMMAND_DESCRIPTION: "Change the role used to mute members",
         MUTE_ROLE_CREATE_REASON: "Setting up muted role...",
         MUTE_LOG_AUTHOR: (user: string) => `Mute | ${user}`,
