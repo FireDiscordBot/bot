@@ -22,7 +22,7 @@ export default class PlaywrightRequestEvent extends Event {
       return await channel.send(
         this.manager.client
           .getLanguage(data.lang)
-          ?.get(`GOOGLE_WS_ERROR_${data.error}`) ||
+          ?.get(`GOOGLE_WS_ERROR_${data.error.toUpperCase()}`) ||
           "Something went terribly wrong!"
       );
     else if (data.screenshot) {
