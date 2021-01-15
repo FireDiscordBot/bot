@@ -1,12 +1,15 @@
+import { SlashCommandMessage } from "../../lib/extensions/slashCommandMessage";
 import { constants, shortURLs } from "../../lib/util/constants";
+import { MessageEmbed, TextChannel, Invite } from "discord.js";
 import { FireMember } from "../../lib/extensions/guildmember";
 import { FireMessage } from "../../lib/extensions/message";
 import { FireUser } from "../../lib/extensions/user";
-import { MessageEmbed, TextChannel, Invite } from "discord.js";
 import { Module } from "../../lib/util/module";
 import * as centra from "centra";
 
 const { regexes } = constants;
+
+const filteredReplaceRegex = /https?:\/\/\[ filtered \]/gim;
 
 export default class Filters extends Module {
   debug: string[];
@@ -30,6 +33,7 @@ export default class Filters extends Module {
       ...Object.values(regexes.twitch),
       ...Object.values(regexes.youtube),
       regexes.paypal,
+      regexes.twitter,
       this.shortURLRegex,
     ];
     this.filters = {
@@ -69,7 +73,10 @@ export default class Filters extends Module {
     } catch {}
   }
 
-  shouldRun(message?: FireMessage, userOrMember?: FireMember | FireUser) {
+  shouldRun(
+    message?: FireMessage | SlashCommandMessage,
+    userOrMember?: FireMember | FireUser
+  ) {
     let user: FireUser, member: FireMember;
     if (userOrMember && userOrMember instanceof FireMember) {
       user = userOrMember.user;
@@ -119,10 +126,13 @@ export default class Filters extends Module {
     });
   }
 
-  runReplace(text: string, context?: FireMessage | FireMember | FireUser) {
+  runReplace(
+    text: string,
+    context?: FireMessage | SlashCommandMessage | FireMember | FireUser
+  ) {
     if (context) {
       const check =
-        context instanceof FireMessage
+        context instanceof FireMessage || context instanceof SlashCommandMessage
           ? this.shouldRun(context)
           : this.shouldRun(null, context);
       if (!check) return text;
@@ -131,6 +141,7 @@ export default class Filters extends Module {
       while (regex.test(text)) text = text.replace(regex, "[ filtered ]");
       regex.lastIndex = 0;
     });
+    text = text.replace(filteredReplaceRegex, "[ filtered ]");
     return text;
   }
 
