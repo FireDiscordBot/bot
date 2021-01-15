@@ -46,7 +46,7 @@ export default class ReminderSendEvent extends Event {
               data.text,
               duration != 0
                 ? humanize(duration, user.language.id.split("-")[0])
-                : "an unknown time",
+                : user.language.get("REMINDER_TIME_UNKNOWN"),
               data.link
             )
           : user.language.get(
@@ -54,7 +54,7 @@ export default class ReminderSendEvent extends Event {
               data.text,
               duration != 0
                 ? humanize(duration, user.language.id.split("-")[0])
-                : "an unknown time"
+                : user.language.get("REMINDER_TIME_UNKNOWN")
             )
       )
       .catch(() => {});
