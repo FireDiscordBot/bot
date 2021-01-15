@@ -16,6 +16,7 @@ export default class Ready extends Listener {
   }
 
   async exec() {
+    this.client.cacheSweep();
     try {
       if (typeof process.send == "function") process.send("ready");
       this.client.manager.ws?.send(

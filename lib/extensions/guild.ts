@@ -43,6 +43,7 @@ export class FireGuild extends Guild {
 
   constructor(client: Fire, data: object) {
     super(client, data);
+
     this.settings = new GuildSettings(client, this);
     this.tags = new GuildTagManager(client, this);
     this.loadMutes();
@@ -65,6 +66,14 @@ export class FireGuild extends Guild {
     );
     if (!id) return null;
     return this.roles.cache.get(id);
+  }
+
+  _patch(data: any) {
+    delete data.members;
+    delete data.presences;
+
+    // @ts-ignore
+    super._patch(data);
   }
 
   async initMuteRole() {

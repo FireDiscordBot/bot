@@ -83,8 +83,9 @@ export class Fire extends AkairoClient {
   db: PGClient;
   events: number;
   ksoft?: KSoftClient;
+  cacheSweep: () => void;
   config: typeof config.fire;
-  userCacheSweep: NodeJS.Timeout;
+  cacheSweepTask: NodeJS.Timeout;
   aliases: Collection<string, string[]>;
   experiments: Collection<string, Experiment>;
   conversationStates: Collection<string, Buffer>; // Google Command conversation states
@@ -178,13 +179,14 @@ export class Fire extends AkairoClient {
       automateCategories: true,
       aliasReplacement: /-/im,
       prefix: (message: FireMessage) => {
-        return config.fire.dev
-          ? "dev "
-          : [
-              message.guild.settings.get("config.prefix", "$"),
-              message.guild.settings.get("config.prefix", "$") + " ",
-              "fire ",
-            ];
+        return config.fire.dev ? "dev " : ["ts", "ts ", "beta", "beta "];
+        // return config.fire.dev
+        //   ? "dev "
+        //   : [
+        //       message.guild.settings.get("config.prefix", "$"),
+        //       message.guild.settings.get("config.prefix", "$") + " ",
+        //       "fire ",
+        //     ];
       },
     });
 
@@ -332,14 +334,17 @@ export class Fire extends AkairoClient {
         return command.remove();
       }
     });
-    this.userCacheSweep = setInterval(() => {
-      this.guilds.cache.forEach((guild) =>
+    this.cacheSweep = () => {
+      this.guilds.cache.forEach((guild) => {
         guild.members.cache.sweep(
           (member: FireMember) => !member.pending && member.id != this.user?.id
-        )
-      );
+        );
+        guild.presences.cache.sweep((p) => true);
+      });
       this.users.cache.sweep((user) => user.id != this.user?.id);
-    }, 20000);
+      if (global.gc) global.gc();
+    };
+    this.cacheSweepTask = setInterval(this.cacheSweep, 300000);
     return super.login();
   }
 
