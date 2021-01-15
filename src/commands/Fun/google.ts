@@ -52,7 +52,7 @@ export default class Google extends Command {
       !this.client.manager.ws ||
       this.client.manager.ws.readyState != this.client.manager.ws.OPEN
     )
-      return await message.error("GOOGLE_WS_ERROR_NOT_READY");
+      return await message.send("GOOGLE_WS_ERROR_NOT_READY");
     const response = await this.assistant
       .query(args.query, {
         conversationState:
