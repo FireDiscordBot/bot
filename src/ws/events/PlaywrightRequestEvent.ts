@@ -29,7 +29,7 @@ export default class PlaywrightRequestEvent extends Event {
       const screenshot = Buffer.from(data.screenshot.data);
       await channel
         .send(null, {
-          files: [{ attachment: screenshot, name: "google.jpeg" }],
+          files: [{ attachment: screenshot, name: "google.png" }],
         })
         .catch(() => {});
     }
