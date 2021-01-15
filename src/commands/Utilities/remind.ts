@@ -49,6 +49,8 @@ export default class Remind extends Command {
     const stepMinutes = parseTime(step) as number;
     if (step && !stepMinutes)
       return await message.error("REMINDER_INVALID_STEP");
+    else if (stepMinutes < 2)
+      return await message.error("REMINDER_STEP_TOO_SHORT");
     const parsedMinutes = parseTime(args.reminder) as number;
     if (!parsedMinutes) return await message.error("REMINDER_MISSING_TIME");
     else if (parsedMinutes < 2)
