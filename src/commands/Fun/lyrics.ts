@@ -32,35 +32,46 @@ export default class Lyrics extends Command {
     });
   }
 
-  getSpotify(member: FireMember) {
+  async getSpotify(member: FireMember) {
     if (
-      member?.presence?.activities &&
+      member.presence?.clientStatus == null &&
+      member.presence?.status == "offline"
+    )
+      member = (await member.guild.members
+        .fetch({
+          user: member,
+          withPresences: true,
+        })
+        .catch(() => {})) as FireMember;
+    if (!member) return null;
+    if (
+      member.presence?.activities &&
       member.presence.activities.filter(
         (activity) =>
           activity.name == "Spotify" &&
           !activity.applicationID &&
           activity.type == "LISTENING"
-      )
+      ).length
     ) {
       const activity = member.presence.activities.find(
         (activity) => activity.name == "Spotify"
       );
-      return `${activity.state} ${activity.details}`;
+      return `${activity.state.replace(/;/gim, ",")} ${activity.details}`;
     } else return null;
   }
 
-  // async exec(message: FireMessage, args: { song: FireMember | string }) {
-  async exec(message: FireMessage, args: { song: string }) {
-    // const song =
-    //   args.song instanceof FireMember ? this.getSpotify(args.song) : args.song;
-    // if (!song && message.member) {
-    //   args.song = this.getSpotify(message.member);
-    // } else if (!args.song) return await message.error("LYRICS_NO_QUERY");
-    // if (!args.song) return await message.error("LYRICS_NO_QUERY");
-    const song = args.song;
+  async exec(message: FireMessage, args: { song: FireMember | string }) {
+    // async exec(message: FireMessage, args: { song: string }) {
+    if (!args.song && message.member) {
+      args.song = await this.getSpotify(message.member);
+    } else if (args.song instanceof FireMember)
+      args.song = await this.getSpotify(args.song);
+    else if (!args.song) return await message.error("LYRICS_NO_QUERY");
+    if (!args.song) return await message.error("LYRICS_NO_QUERY");
+    // const song = args.song;
     let lyrics: Track;
     try {
-      lyrics = await this.client.ksoft.lyrics.get(song, {
+      lyrics = await this.client.ksoft.lyrics.get(args.song, {
         textOnly: false,
       });
     } catch (e) {
