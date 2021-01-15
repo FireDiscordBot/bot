@@ -76,6 +76,18 @@ export default class User extends Command {
       member = user;
       user = user.user;
     }
+    if (
+      member?.presence?.clientStatus == null &&
+      member?.presence?.status == "offline"
+    )
+      member = (await member.guild.members
+        .fetch({
+          user: member,
+          withPresences: true,
+        })
+        .catch(() => {})) as FireMember;
+    // revert back to message member if fetching w/presence fails
+    if (!member && user.id == message.author.id) member = message.member;
     if (user instanceof ClientUser) {
       member = message.guild.members.cache.get(user.id) as FireMember;
       user = member.user;
