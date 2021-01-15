@@ -1,17 +1,14 @@
-import { chromium, ChromiumBrowser, ChromiumBrowserContext } from "playwright";
 import * as credentials from "../../../assistant-credentials.json";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
+import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
 import { FireMessage } from "../../../lib/extensions/message";
+import { EventType } from "../../../lib/ws/util/constants";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import Filters from "../../modules/filters";
-import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
 import { Message } from "../../../lib/ws/Message";
-import { EventType } from "../../../lib/ws/util/constants";
+import Filters from "../../modules/filters";
 
 export default class Google extends Command {
-  context: ChromiumBrowserContext;
-  browser: ChromiumBrowser;
   assistant: Assistant;
 
   constructor() {
