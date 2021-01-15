@@ -82,6 +82,8 @@ export default class Google extends Command {
       message.author.id,
       response.conversationState
     );
+    if (!response.html)
+      return await message.react("a:okaygoogle:769207087674032129");
     const filters = this.client.getModule("filters") as Filters;
     const html = filters.runReplace(
       response.html
