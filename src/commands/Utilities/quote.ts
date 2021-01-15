@@ -71,9 +71,13 @@ export default class Quote extends Command {
         const shard = this.client.util.getShard(quote.guild_id);
         if (!shards.includes(shard)) {
           if (!this.client.manager.ws) continue;
-          const webhookURL = await this.client.util.getQuoteWebhookURL(
-            message.channel as TextChannel
-          );
+          const webhookURL = await this.client.util
+            .getQuoteWebhookURL(
+              message instanceof SlashCommandMessage
+                ? (message.realChannel as TextChannel)
+                : (message.channel as TextChannel)
+            )
+            .catch(() => {});
           if (!webhookURL || typeof webhookURL != "string") continue;
           this.client.console.info(
             `[Command] Sending cross cluster quote request to shard ${shard} for guild ${quote.guild_id}`
