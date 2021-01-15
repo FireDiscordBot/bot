@@ -138,7 +138,7 @@ export default class Filters extends Module {
       if (!check) return text;
     }
     const enabled: string[] =
-      context instanceof FireUser
+      !context || context instanceof FireUser
         ? null
         : context.guild?.settings.get("mod.linkfilter", []);
     Object.entries(this.regexes).forEach(([name, regexes]) => {
