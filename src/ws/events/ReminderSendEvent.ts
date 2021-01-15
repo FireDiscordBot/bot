@@ -31,6 +31,10 @@ export default class ReminderSendEvent extends Event {
     let deconstructed: DeconstructedSnowflake;
     if (snowflake) deconstructed = SnowflakeUtil.deconstruct(snowflake);
 
+    // should prevent it from displaying the accurate number of seconds since
+    // due to reminders being checked every 5 seconds
+    deconstructed?.date?.setSeconds(0);
+
     const now = moment();
     const duration = moment(deconstructed?.date || now).diff(now);
 
