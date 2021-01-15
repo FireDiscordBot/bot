@@ -57,24 +57,28 @@ export default class Remind extends Command {
     if (!reminder.replace(/\s/gim, "").length)
       return await message.error("REMINDER_MISSING_CONTENT");
     const time = new Date();
+    const refMoment = moment(time);
     time.setMinutes(time.getMinutes() + parsedMinutes);
     const largestTime = new Date();
-    largestTime.setMinutes(largestTime.getMinutes() + stepMinutes * repeat);
+    largestTime.setMinutes(
+      largestTime.getMinutes() +
+        (stepMinutes ? stepMinutes * repeat : parsedMinutes)
+    );
     if (
-      moment(largestTime).diff(moment(), "days") > 90.1 &&
+      moment(largestTime).diff(moment(), "days") >= 91 &&
       !message.author.isSuperuser()
     )
       return await message.error("REMINDER_TIME_LIMIT");
     let created: { [duration: string]: boolean } = {};
     for (let i = 0; i < repeat; i++) {
-      const currentTime = new Date();
+      const currentTime = new Date(time);
       currentTime.setMinutes(time.getMinutes() + stepMinutes * i);
       const remind = await message.author.createReminder(
         currentTime,
         reminder,
         message.url
       );
-      const duration = moment(currentTime).diff(moment());
+      const duration = moment(currentTime).diff(refMoment);
       created[humanize(duration, message.language.id.split("-")[0])] = remind;
     }
     const success = Object.entries(created)
