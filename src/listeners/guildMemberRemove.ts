@@ -127,7 +127,7 @@ export default class GuildMemberRemove extends Listener {
       if (!member.partial) {
         const joinedDelta =
           humanize(
-            moment(member.user.createdAt).diff(moment()),
+            moment(member.joinedAt).diff(moment()),
             language.id.split("-")[0]
           ) + language.get("AGO");
         embed.addField(language.get("JOINED"), joinedDelta);
