@@ -19,6 +19,7 @@ export enum EventType {
   CROSS_CLUSTER_QUOTE = 17,
   PREMIUM_SYNC = 18,
   UPDATE_SOLUTIONS = 19,
+  PLAYWRIGHT_REQUEST = 20,
 }
 
 export enum WebsocketStates {

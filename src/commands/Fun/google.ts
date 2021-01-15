@@ -5,6 +5,9 @@ import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import Filters from "../../modules/filters";
+import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
+import { Message } from "../../../lib/ws/Message";
+import { EventType } from "../../../lib/ws/util/constants";
 
 export default class Google extends Command {
   context: ChromiumBrowserContext;
@@ -25,7 +28,7 @@ export default class Google extends Command {
           required: true, // Default is set to Hi so that the assistant will likely ask what it can do
         },
       ],
-      cooldown: 3000,
+      cooldown: 5000,
       lock: "user",
       typing: true, // This command takes a hot sec to run, especially when running locally so type while waiting
     });
@@ -42,24 +45,10 @@ export default class Google extends Command {
         deviceModelId: "fire0682-444871677176709141",
       }
     );
-    chromium
-      .launch({
-        logger: null,
-        args: ["--headless", "--disable-gpu", "--log-file=/dev/null"],
-      })
-      .then((browser) => {
-        this.browser = browser;
-        this.browser
-          .newContext({
-            viewport: { width: 1920, height: 1080 },
-          })
-          .then((context) => (this.context = context));
-      });
   }
 
   async exec(message: FireMessage, args: { query: string }) {
-    if (!this.browser || !this.context)
-      return await message.error("GOOGLE_NOT_READY");
+    if (!this.client.manager.ws) return await message.error("GOOGLE_NOT_READY");
     const response = await this.assistant
       .query(args.query, {
         conversationState:
@@ -80,20 +69,28 @@ export default class Google extends Command {
       response.message.includes("text_query too long.")
     )
       return await message.error("GOOGLE_TOO_LONG");
-    else if (response instanceof Error) return await message.error();
+    else if (response instanceof Error)
+      return this.client.commandHandler.emit(
+        "commandError",
+        message,
+        this,
+        args,
+        response
+      );
     this.client.conversationStates.set(
       message.author.id,
       response.conversationState
     );
     const filters = this.client.getModule("filters") as Filters;
-    const html = response.html
-      ?.replace(
-        "<html>",
-        `<html style="background-image: url('https://picsum.photos/1920/1080')">`
-      )
-      .replace(
-        "Assistant.micTimeoutMs = 0;",
-        `window.onload = () => {window.document.body.innerHTML = window.document.body.innerHTML
+    const html = filters.runReplace(
+      response.html
+        ?.replace(
+          "<html>",
+          `<html style="background-image: url('https://picsum.photos/1920/1080')">`
+        )
+        .replace(
+          "Assistant.micTimeoutMs = 0;",
+          `window.onload = () => {window.document.body.innerHTML = window.document.body.innerHTML
   .replace(
     /<div class=\"show_text_content\">Your name is \\w+\\.<\\/div>/gim,
     "<div class='show_text_content'>Your name is ${message.author.username}.</div>"
@@ -102,21 +99,21 @@ export default class Google extends Command {
     /<div class=\"show_text_content\">I remember you telling me your name was \\w+\\.<\\/div>/gim,
     "<div class='show_text_content'>I remember you telling me your name was ${message.author.username}.</div>"
   );};`
-      );
+        ),
+      message?.member || message.author
+    );
     if (!html)
       return await message.replyRaw(
-        message.language.get("GOOGLE_SOMETHING_WENT_WRONG") as string
+        message.language.get("GOOGLE_WS_ERROR_UNKNOWN") as string
       );
-    const page = await this.context.newPage();
-    await page.setContent(filters.runReplace(html), {
-      waitUntil: "load",
-    });
-    await this.client.util.sleep(250);
-    const screenshot = await page.screenshot({ type: "png", fullPage: true });
-    await page.close();
-    await message.channel.send(null, {
-      files: [{ attachment: screenshot, name: "google.png" }],
-    });
-    if (global.gc) global.gc();
+    this.client.manager.ws.send(
+      MessageUtil.encode(
+        new Message(EventType.PLAYWRIGHT_REQUEST, {
+          lang: message.language.id,
+          channel_id: message.channel.id,
+          html,
+        })
+      )
+    );
   }
 }
