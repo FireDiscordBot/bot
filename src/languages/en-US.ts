@@ -489,6 +489,8 @@ Hint: Use the \`public\` command to get your server on the list`,
         GUILD_CREATED_AT: (owner: string, created: string) =>
           `**Created by ${owner} ${created}**`,
         GOOGLE_COMMAND_DESCRIPTION: "Speak to the Google Assistant",
+        GOOGLE_NOT_READY:
+          "<a:okaygoogle:769207087674032129> I'm still booting up, please try again in a moment",
         GOOGLE_TOO_LONG:
           "<a:okaygoogle:769207087674032129> Your query is too long!",
         GOOGLE_SOMETHING_WENT_WRONG:

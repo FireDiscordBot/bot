@@ -1,12 +1,14 @@
+import { chromium, ChromiumBrowser, ChromiumBrowserContext } from "playwright";
 import * as credentials from "../../../assistant-credentials.json";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import Filters from "../../modules/filters";
-import { chromium } from "playwright";
 
 export default class Google extends Command {
+  context: ChromiumBrowserContext;
+  browser: ChromiumBrowser;
   assistant: Assistant;
 
   constructor() {
@@ -23,6 +25,7 @@ export default class Google extends Command {
           required: true, // Default is set to Hi so that the assistant will likely ask what it can do
         },
       ],
+      cooldown: 3000,
       lock: "user",
       typing: true, // This command takes a hot sec to run, especially when running locally so type while waiting
     });
@@ -39,9 +42,24 @@ export default class Google extends Command {
         deviceModelId: "fire0682-444871677176709141",
       }
     );
+    chromium
+      .launch({
+        logger: null,
+        args: ["--headless", "--disable-gpu", "--log-file=/dev/null"],
+      })
+      .then((browser) => {
+        this.browser = browser;
+        this.browser
+          .newContext({
+            viewport: { width: 1920, height: 1080 },
+          })
+          .then((context) => (this.context = context));
+      });
   }
 
   async exec(message: FireMessage, args: { query: string }) {
+    if (!this.browser || !this.context)
+      return await message.error("GOOGLE_NOT_READY");
     const response = await this.assistant
       .query(args.query, {
         conversationState:
@@ -89,24 +107,16 @@ export default class Google extends Command {
       return await message.replyRaw(
         message.language.get("GOOGLE_SOMETHING_WENT_WRONG") as string
       );
-    const browser = await chromium.launch({
-      logger: null,
-      args: ["--headless", "--disable-gpu", "--log-file=/dev/null"],
-    });
-    const context = await browser.newContext({
-      viewport: { width: 1920, height: 1080 },
-    });
-    const page = await context.newPage();
+    const page = await this.context.newPage();
     await page.setContent(filters.runReplace(html), {
       waitUntil: "load",
     });
     await this.client.util.sleep(250);
     const screenshot = await page.screenshot({ type: "png", fullPage: true });
     await page.close();
-    await context.close();
-    await browser.close();
     await message.channel.send(null, {
       files: [{ attachment: screenshot, name: "google.png" }],
     });
+    if (global.gc) global.gc();
   }
 }
