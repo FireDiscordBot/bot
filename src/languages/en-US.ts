@@ -491,10 +491,10 @@ Hint: Use the \`public\` command to get your server on the list`,
         GOOGLE_COMMAND_DESCRIPTION: "Speak to the Google Assistant",
         GOOGLE_WS_ERROR_NOT_READY:
           "<a:okaygoogle:769207087674032129> I'm still booting up, please try again in a moment",
-        GOOGLE_TOO_LONG:
-          "<a:okaygoogle:769207087674032129> Your query is too long!",
         GOOGLE_WS_ERROR_UNKNOWN:
           "<a:okaygoogle:769207087674032129> Something went wrong. Try again later",
+        GOOGLE_TOO_LONG:
+          "<a:okaygoogle:769207087674032129> Your query is too long!",
         GUILD_JOIN_POS: (pos: number) => `**Your Join Position:** ${pos}`,
         GUILD_VERIF_VERY_HIGH: "**Extreme Verification Level**",
         GUILD_VERIF_HIGH: "**High Verification Level**",

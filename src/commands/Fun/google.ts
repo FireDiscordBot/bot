@@ -48,7 +48,11 @@ export default class Google extends Command {
   }
 
   async exec(message: FireMessage, args: { query: string }) {
-    if (!this.client.manager.ws) return await message.error("GOOGLE_NOT_READY");
+    if (
+      !this.client.manager.ws ||
+      this.client.manager.ws.readyState != this.client.manager.ws.OPEN
+    )
+      return await message.error("GOOGLE_WS_ERROR_NOT_READY");
     const response = await this.assistant
       .query(args.query, {
         conversationState:
