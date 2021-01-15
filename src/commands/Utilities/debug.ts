@@ -32,7 +32,7 @@ export default class Debug extends Command {
     const cmd = args.command;
     const channel =
       message instanceof SlashCommandMessage
-        ? message.channel.real
+        ? message.realChannel
         : message.channel;
 
     if (!cmd) return await this.sendSingleError(message, "DEBUG_NO_COMMAND");

@@ -14,7 +14,7 @@ export default class DisabledCommandsInhibitor extends Inhibitor {
   exec(message: FireMessage, command: Command) {
     const channel =
       message instanceof SlashCommandMessage
-        ? message.channel.real
+        ? message.realChannel
         : message.channel;
     if (
       message.guild &&

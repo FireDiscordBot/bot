@@ -13,7 +13,7 @@ export default class AdminOnlyInhibitor extends Inhibitor {
   exec(message: FireMessage) {
     const channel =
       message instanceof SlashCommandMessage
-        ? message.channel.real
+        ? message.realChannel
         : message.channel;
     if (
       message.guild &&

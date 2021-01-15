@@ -32,7 +32,7 @@ export default class Discover extends Command {
       return await message.error();
     const channel =
       message instanceof SlashCommandMessage
-        ? message.channel.real
+        ? message.realChannel
         : message.channel;
     let card = await centra("https://api.trello.com/1/cards", "POST")
       .query("key", process.env.TRELLO_KEY)
