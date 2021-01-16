@@ -118,6 +118,6 @@ export default class RolePersist extends Command {
         member.guild.language.get("ROLES"),
         roles.map((role) => role.toString()).join(" - ")
       );
-    return member.guild.modLog(embed, "role_persist").catch(() => {});
+    return await member.guild.modLog(embed, "role_persist").catch(() => {});
   }
 }
