@@ -242,7 +242,7 @@ export class FireMember extends GuildMember {
         this.guild.language.get("WARN_LOG_AUTHOR", this.toString()),
         this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
-      .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     const logEntry = await this.guild
@@ -328,7 +328,7 @@ export class FireMember extends GuildMember {
         this.guild.language.get("BAN_LOG_AUTHOR", this.toString()),
         this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
-      .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     let noDM: boolean = false;
@@ -376,7 +376,7 @@ export class FireMember extends GuildMember {
         this.guild.language.get("KICK_LOG_AUTHOR", this.toString()),
         this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
-      .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     await this.guild.modLog(embed, "kick").catch(() => {});
@@ -427,7 +427,7 @@ export class FireMember extends GuildMember {
         this.guild.language.get("DERANK_LOG_AUTHOR", this.toString()),
         this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
-      .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     if (failed)
@@ -507,7 +507,7 @@ export class FireMember extends GuildMember {
         this.guild.language.get("MUTE_LOG_AUTHOR", this.toString()),
         this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
-      .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     if (until) {
@@ -583,7 +583,7 @@ export class FireMember extends GuildMember {
         this.guild.language.get("UNMUTE_LOG_AUTHOR", this.toString()),
         this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
-      .addField(this.guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     if (!dbremove)

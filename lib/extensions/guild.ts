@@ -206,8 +206,8 @@ export class FireGuild extends Guild {
             this.language.get("UNMUTE_LOG_AUTHOR", id),
             this.iconURL({ size: 2048, format: "png", dynamic: true })
           )
-          .addField(this.language.get("MODERATOR"), `${me}`)
-          .setFooter(`${id}`);
+          .addField(this.language.get("MODERATOR"), me.toString())
+          .setFooter(id.toString());
         if (!dbremove)
           embed.addField(
             this.language.get("ERROR"),
@@ -676,7 +676,7 @@ export class FireGuild extends Guild {
         this.language.get("UNBAN_LOG_AUTHOR", this.toString()),
         user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
-      .addField(this.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     await this.modLog(embed, "unban").catch(() => {});
@@ -744,7 +744,7 @@ export class FireGuild extends Guild {
           : this.iconURL({ size: 2048, format: "png", dynamic: true }),
         "https://static.inv.wtf/blocked.gif" // hehe
       )
-      .addField(this.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     await this.modLog(embed, "block").catch(() => {});
@@ -822,7 +822,7 @@ export class FireGuild extends Guild {
             })
           : this.iconURL({ size: 2048, format: "png", dynamic: true })
       )
-      .addField(this.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     await this.modLog(embed, "unblock").catch(() => {});

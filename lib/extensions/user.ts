@@ -178,7 +178,7 @@ export class FireUser extends User {
         guild.language.get("BAN_LOG_AUTHOR", this.toString()),
         this.avatarURL({ size: 2048, format: "png", dynamic: true })
       )
-      .addField(guild.language.get("MODERATOR"), `${moderator}`)
+      .addField(guild.language.get("MODERATOR"), moderator.toString())
       .addField(guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     await guild.modLog(embed, "ban").catch(() => {});
