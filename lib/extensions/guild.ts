@@ -33,6 +33,8 @@ const parseUntil = (time?: string) => {
 };
 
 export class FireGuild extends Guild {
+  persistedRoles: Collection<string, string[]>;
+  inviteRoles: Collection<string, string>;
   invites: Collection<string, number>;
   mutes: Collection<string, number>;
   muteCheckTask: NodeJS.Timeout;
@@ -202,8 +204,8 @@ export class FireGuild extends Guild {
             this.language.get("UNMUTE_LOG_AUTHOR", id),
             this.iconURL({ size: 2048, format: "png", dynamic: true })
           )
-          .addField(this.language.get("MODERATOR"), `${me}`)
-          .setFooter(`${id}`);
+          .addField(this.language.get("MODERATOR"), me.toString())
+          .setFooter(id.toString());
         if (!dbremove)
           embed.addField(
             this.language.get("ERROR"),
@@ -212,6 +214,40 @@ export class FireGuild extends Guild {
         await this.modLog(embed, "unmute").catch(() => {});
       }
     }
+  }
+
+  async loadInviteRoles() {
+    this.inviteRoles = new Collection();
+    if (!this.premium) return;
+    const invroles = await this.client.db
+      .query("SELECT * FROM invrole WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!invroles)
+      return this.client.console.error(
+        `[Guild] Failed to load invite roles for ${this.name} (${this.id})`
+      );
+    for (const invrole of invroles)
+      this.inviteRoles.set(
+        invrole.get("inv") as string,
+        invrole.get("rid") as string
+      );
+  }
+
+  async loadPersistedRoles() {
+    this.persistedRoles = new Collection();
+    if (!this.premium) return;
+    const persisted = await this.client.db
+      .query("SELECT * FROM rolepersists WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!persisted)
+      return this.client.console.error(
+        `[Guild] Failed to load persisted roles for ${this.name} (${this.id})`
+      );
+    for (const role of persisted)
+      this.persistedRoles.set(
+        role.get("uid") as string,
+        role.get("roles") as string[]
+      );
   }
 
   async loadInvites() {
@@ -638,7 +674,7 @@ export class FireGuild extends Guild {
         this.language.get("UNBAN_LOG_AUTHOR", this.toString()),
         user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
-      .addField(this.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     await this.modLog(embed, "unban").catch(() => {});
@@ -706,7 +742,7 @@ export class FireGuild extends Guild {
           : this.iconURL({ size: 2048, format: "png", dynamic: true }),
         "https://static.inv.wtf/blocked.gif" // hehe
       )
-      .addField(this.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     await this.modLog(embed, "block").catch(() => {});
@@ -784,7 +820,7 @@ export class FireGuild extends Guild {
             })
           : this.iconURL({ size: 2048, format: "png", dynamic: true })
       )
-      .addField(this.language.get("MODERATOR"), `${moderator}`)
+      .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     await this.modLog(embed, "unblock").catch(() => {});

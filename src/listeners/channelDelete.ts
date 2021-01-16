@@ -1,13 +1,19 @@
-import { GuildChannel, MessageEmbed, TextChannel, DMChannel } from "discord.js";
+import {
+  TextBasedChannel,
+  GuildChannel,
+  MessageEmbed,
+  TextChannel,
+  DMChannel,
+} from "discord.js";
 import { FireGuild } from "../../lib/extensions/guild";
 import { humanize } from "../../lib/util/constants";
 import { Listener } from "../../lib/util/listener";
 
-export default class ChannelCreate extends Listener {
+export default class ChannelDelete extends Listener {
   constructor() {
-    super("channelCreate", {
+    super("channelDelete", {
       emitter: "client",
-      event: "channelCreate",
+      event: "channelDelete",
     });
   }
 
@@ -15,40 +21,38 @@ export default class ChannelCreate extends Listener {
     if (channel instanceof DMChannel) return;
     const guild = channel.guild as FireGuild,
       language = guild.language;
-    const muteRole = guild.muteRole;
-    let muteFail = false;
-    if (muteRole && channel instanceof TextChannel)
-      await channel
-        .updateOverwrite(
-          muteRole,
-          {
-            SEND_MESSAGES: false,
-            ADD_REACTIONS: false,
-          },
-          guild.language.get("MUTE_ROLE_CREATE_REASON") as string
-        )
-        .catch(() => (muteFail = true));
 
     if (guild.settings.has("temp.log.action")) {
+      const data = {
+        ...channel,
+        permissionOverwrites: channel.permissionOverwrites.toJSON(),
+        messages: null,
+      };
+      if (channel.hasOwnProperty("messages"))
+        // @ts-ignore
+        data.messages = channel.messages?.cache;
+      delete data.client;
+      delete data.guild;
+      // @ts-ignore
+      delete data._typing;
+      const raw = await this.client.util
+        .haste(JSON.stringify(data, null, 4))
+        .catch(() => {});
       const embed = new MessageEmbed()
-        .setColor("#2ECC71")
-        .setTimestamp(channel.createdAt)
+        .setColor("#E74C3C")
+        .setTimestamp(new Date())
         .setAuthor(
-          language.get("CHANNELCREATELOG_AUTHOR", channel.type, guild.name),
+          language.get("CHANNELDELETELOG_AUTHOR", channel.type, guild.name),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
-        .addField(language.get("NAME"), channel.name);
+        .addField(language.get("NAME"), channel.name)
+        .setFooter(channel.id);
       if (channel instanceof TextChannel && channel.topic)
         embed.addField(language.get("TOPIC"), channel.topic);
       if (channel instanceof TextChannel && channel.rateLimitPerUser)
         embed.addField(
           language.get("SLOWMODE"),
           humanize(channel.rateLimitPerUser, language.id.split("-")[0])
-        );
-      if (muteFail)
-        embed.addField(
-          language.get("WARNING"),
-          language.get("CHANNELCREATELOG_MUTE_PERMS_FAIL")
         );
       if (channel.permissionOverwrites.size > 1) {
         const canView = channel.permissionOverwrites
@@ -80,7 +84,7 @@ export default class ChannelCreate extends Listener {
       }
       if (guild.me.permissions.has("VIEW_AUDIT_LOG")) {
         const auditLogActions = await guild
-          .fetchAuditLogs({ limit: 2, type: "CHANNEL_CREATE" })
+          .fetchAuditLogs({ limit: 2, type: "CHANNEL_DELETE" })
           .catch(() => {});
         if (auditLogActions) {
           const action = auditLogActions.entries.find(
@@ -88,14 +92,18 @@ export default class ChannelCreate extends Listener {
               // @ts-ignore
               entry.targetType == "CHANNEL" && entry.target?.id == channel.id
           );
-          if (action)
+          if (action) {
             embed.addField(
-              language.get("CREATED_BY"),
+              language.get("DELETED_BY"),
               `${action.executor} (${action.executor.id})`
             );
+            if (action.reason)
+              embed.addField(language.get("REASON"), action.reason);
+          }
         }
       }
-      await guild.actionLog(embed, "channel_create").catch(() => {});
+      if (raw) embed.addField(language.get("RAW"), raw);
+      await guild.actionLog(embed, "channel_delete").catch(() => {});
     }
   }
 }

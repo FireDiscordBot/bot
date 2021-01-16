@@ -8,11 +8,12 @@ export const discord: ClientOptions = {
     users: [],
     roles: [],
   },
-  messageEditHistoryMaxSize: 2,
-  messageCacheLifetime: 300,
-  messageCacheMaxSize: 50,
+  messageEditHistoryMaxSize: 1,
+  messageCacheLifetime: 150,
   messageSweepInterval: 60,
+  messageCacheMaxSize: 30,
   fetchAllMembers: false,
+  restSweepInterval: 30,
   partials: ["REACTION", "MESSAGE", "CHANNEL", "GUILD_MEMBER", "USER"],
   ws: {
     intents:

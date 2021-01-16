@@ -1,4 +1,5 @@
 import { FireMember } from "../../lib/extensions/guildmember";
+import RolePersist from "../commands/Premium/rolepersist";
 import { Listener } from "../../lib/util/listener";
 import { TextChannel } from "discord.js";
 import Sk1er from "../modules/sk1er";
@@ -21,6 +22,47 @@ export default class GuildMemberUpdate extends Listener {
       !newMember.roles.cache.has(newMember.guild.muteRole.id)
     ) {
       await newMember.roles.add(newMember.guild.muteRole).catch(() => {});
+    }
+
+    if (newMember.guild.persistedRoles?.has(newMember.id)) {
+      const ids = newMember.guild.persistedRoles.get(newMember.id);
+      const roles = newMember.guild.persistedRoles
+        .get(newMember.id)
+        .map((id) => newMember.roles.cache.get(id))
+        .filter((role) => !!role);
+      if (ids.length != roles.length && roles.length >= 1) {
+        newMember.guild.persistedRoles.set(
+          newMember.id,
+          roles.map((role) => role.id)
+        );
+        await this.client.db
+          .query("UPDATE rolepersists SET roles=$1 WHERE gid=$2 AND uid=$3;", [
+            roles.map((role) => role.id),
+            newMember.guild.id,
+            newMember.id,
+          ])
+          .catch(() => {});
+      } else if (ids.length != roles.length && !roles.length) {
+        newMember.guild.persistedRoles.delete(newMember.id);
+        await this.client.db
+          .query("DELETE FROM rolepersists WHERE gid=$1 AND uid=$2;", [
+            newMember.guild.id,
+            newMember.id,
+          ])
+          .catch(() => {});
+      }
+
+      if (
+        newMember.guild.settings.has("temp.log.moderation") &&
+        ids.length != roles.length
+      ) {
+        const command = this.client.getCommand("rolepersist") as RolePersist;
+        await command.sendLog(
+          newMember,
+          roles,
+          newMember.guild.me as FireMember
+        );
+      }
     }
 
     if (!newMember.pending) {

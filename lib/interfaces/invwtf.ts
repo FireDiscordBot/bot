@@ -3,4 +3,6 @@ export interface VanityURL {
   invite: string;
   code: string;
   description: string;
+  clicks?: number;
+  links?: number;
 }

@@ -7,7 +7,15 @@ export type ActionLogType =
   | "purge"
   | "linkfilter"
   | "message_edit"
-  | "message_delete";
+  | "message_delete"
+  | "invite_role_create"
+  | "invite_role_delete"
+  | "channel_create"
+  | "channel_update"
+  | "channel_delete"
+  | "invite_create"
+  | "invite_delete"
+  | "guild_update";
 export type ModLogType =
   | "warn"
   | "ban"
@@ -17,7 +25,8 @@ export type ModLogType =
   | "unblock"
   | "derank"
   | "mute"
-  | "unmute";
+  | "unmute"
+  | "role_persist";
 export type MemberLogType = "join" | "leave";
 
 const getCategories = () => {
@@ -124,21 +133,21 @@ export const constants = {
     },
     twitter: /twitter\.com\/(?<username>\w+)(?:\/status\/(?<tweet>\d+)?|\/(?<path>likes|media|with_replies|followers|following|suggested))?/im,
     imageURL: /((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.jpeg|\.gif|\.gifv|\.webp)))/im,
-    reminders: {
+    time: {
       phrasing: [
-        /(?:me in |in )?(?:(?<months>\d+)(?:months|month|mo| months| month| mo))(?: about | that | to )?/im,
-        /(?:me in |in )?(?:(?<weeks>\d+)(?:wks|wk|weeks|week| wks| wk| weeks| week))(?: about | that | to )?/im,
-        /(?:me in |in )?(?:(?<days>\d+)(?:d|days|day| days| day))(?: about | that | to )?/im,
-        /(?:me in |in )?(?:(?<hours>\d+)(?:h|hours|hour| hours| hour))(?: about | that | to )?/im,
-        /(?:me in |in )?(?:(?<minutes>\d+)(?:minutes|minute|mins|min|m| minutes| minute| mins| min| m))(?: about | that | to )?/im,
-        /(?:me in |in )?(?:(?<seconds>\d+)(?:s|seconds|second| seconds| second))(?: about | that | to )?/im,
+        /(?:me to (?<reminder>.+) in | ?me in | ?in )?(?:(?<months>\d+)(?: ?months?| ?mos?))(?: ?about | ?that | ?to )?/im,
+        /(?:me to (?<reminder>.+) in | ?me in | ?in )?(?:(?<weeks>\d+)(?: ?w(?:ee)?k?s?))(?: ?about | ?that | ?to )?/im,
+        /(?:me to (?<reminder>.+) in | ?me in | ?in )?(?:(?<days>\d+)(?: ?d(?:ay)?s?))(?: ?about | ?that | ?to )?/im,
+        /(?:me to (?<reminder>.+) in | ?me in | ?in )?(?:(?<hours>\d+)(?: ?h(?:(?:ou)?rs?)s?))(?: ?about | ?that | ?to )?/im,
+        /(?:me to (?<reminder>.+) in | ?me in | ?in )?(?:(?<minutes>\d+)(?: ?m(?:in)?(?:utes?)?))(?: ?about | ?that | ?to )?/im,
+        /(?:me to (?<reminder>.+) in | ?me in | ?in )?(?:(?<seconds>\d+)(?: ?s(?:ec)?(?:onds?)?))(?: ?about | ?that | ?to )?/im,
       ],
-      month: /(?<months>\d+)(?:months|month|mo| months| month| mo)/im,
-      week: /(?<weeks>\d+)(?:wk|weeks|week| weeks| week)/im,
-      day: /(?<days>\d+)(?:days|day| days|d| day| d)/im,
-      hours: /(?<hours>\d+)(?:hours|hour|hrs|hr|h| hours| hour| hrs| hr| h)/im,
-      minutes: /(?<minutes>\d+)(?:minutes|minute|mins|min| minutes| minute| mins| min)/im,
-      seconds: /(?<seconds>\d+)(?:seconds|second|secs|sec|s| seconds| second| secs| sec| s)/im,
+      month: /(?<months>\d+)(?: ?months?| ?mos?)/im,
+      week: /(?<weeks>\d+)(?: ?w(?:ee)?k?s?)/im,
+      day: /(?<days>\d+)(?: ?d(?:ay)?s?)/im,
+      hours: /(?<hours>\d+)(?: ?h(?:(?:ou)?rs?)s?)/im,
+      minutes: /(?<minutes>\d+)(?: ?m(?:in)?(?:utes?)?)/im,
+      seconds: /(?<seconds>\d+)(?: ?s(?:ec)?(?:onds?)?)/im,
     },
   },
   blockedGifts: [
@@ -231,21 +240,24 @@ export const humanize = (seconds: number, language: string) =>
 
 export const parseTime = (content: string, replace: boolean = false) => {
   const {
-    regexes: { reminders },
+    regexes: { time: regexes },
   } = constants;
   if (replace) {
-    for (const phrase of reminders.phrasing)
-      content = content.replace(phrase, "");
+    for (const phrase of regexes.phrasing) {
+      const match = phrase.exec(content);
+      phrase.lastIndex = 0;
+      content = content.replace(phrase, match?.groups?.reminder || "");
+    }
     return content.replace(/\s{2,}/gim, " ").trimStart();
   }
   content = content.trim();
   const matches = {
-    months: reminders.month.exec(content)?.groups?.months,
-    weeks: reminders.week.exec(content)?.groups?.weeks,
-    days: reminders.day.exec(content)?.groups?.days,
-    hours: reminders.hours.exec(content)?.groups?.hours,
-    minutes: reminders.minutes.exec(content)?.groups?.minutes,
-    seconds: reminders.seconds.exec(content)?.groups?.seconds,
+    months: regexes.month.exec(content)?.groups?.months,
+    weeks: regexes.week.exec(content)?.groups?.weeks,
+    days: regexes.day.exec(content)?.groups?.days,
+    hours: regexes.hours.exec(content)?.groups?.hours,
+    minutes: regexes.minutes.exec(content)?.groups?.minutes,
+    seconds: regexes.seconds.exec(content)?.groups?.seconds,
   };
   let minutes = parseInt(matches.minutes || "0");
   if (matches.seconds) minutes += parseInt(matches.seconds || "0") / 60;

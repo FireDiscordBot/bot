@@ -2,8 +2,11 @@ import { FireMessage } from "../../../lib/extensions/message";
 import { FireGuild } from "../../../lib/extensions/guild";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
+import VanityURLs from "../../modules/vanityurls";
 
 export default class Description extends Command {
+  module: VanityURLs;
+
   constructor() {
     super("description", {
       aliases: ["desc"],
@@ -24,11 +27,15 @@ export default class Description extends Command {
   }
 
   async setDesc(guild: FireGuild, desc: string) {
+    if (!this.module)
+      this.module = this.client.getModule("vanityurls") as VanityURLs;
     await this.client.db.query(
       'UPDATE vanity SET "description" = $2 WHERE gid = $1;',
       [guild.id, desc]
     );
-    // TODO Add Vanity Fetch
+    await this.module
+      ?.requestFetch(`Guild ${guild.name} updated it's description`)
+      .catch(() => {});
   }
 
   async exec(message: FireMessage, args: { desc: string }) {

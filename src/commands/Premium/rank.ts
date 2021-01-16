@@ -16,7 +16,7 @@ export default class Rank extends Command {
           id: "role",
           type: "roleSilent",
           readableType: "role",
-          required: true,
+          required: false,
           default: null,
         },
       ],

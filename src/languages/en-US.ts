@@ -61,57 +61,73 @@ export default class enUS extends Language {
         NO_MODERATORS_SET: "There are no moderators set in this guild.",
         MORE_INTEGRATIONS:
           "Want more integrations? Use the suggest command to suggest some!",
-        ERROR: "Error",
-        MEMBERS: "Members",
-        CHANNELS: "Channels",
-        USERS: "Users",
-        REGION: "Region",
-        STATUS: "Status",
+        RAW: "Raw",
+        AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
         UUID: "UUID",
-        REASON: "Reason",
         DATE: "Date",
         TYPE: "Type",
-        MENTION: "Mention",
-        CREATED: "Created",
-        CREATED_GUILD: "Created Guild",
-        ACCOUNT_CREATED: "Account Created",
-        JOINED: "Joined",
-        JOIN_POSITION: "Join Position",
-        CLICK_TO_VIEW: "Click To View", // message/attachment link
-        JUMP_URL: "Jump URL",
-        NICKNAME: "Nickname",
         NAME: "Name",
+        ROLE: "Role",
+        ICON: "Icon",
+        UNTIL: "Until",
+        AFTER: "After",
+        TOPIC: "Topic",
+        LINKS: "Links",
         ABOUT: "About",
         ROLES: "Roles",
         NOTES: "Notes",
         TITLE: "Title",
         STATS: "Stats",
         GUILD: "Guild",
-        GUILDS: "Guilds",
-        CHANNEL: "Channel",
-        DM_CHANNEL: "Our DMs",
-        MESSAGE: "Message",
-        ATTACHMENT: "Attachment",
-        ATTACHMENTS: "Attachments",
-        ACTIVITY: "Activity",
         EMOJI: "Emoji",
-        ROLE: "Role",
-        VARIABLES: "Variables",
+        ERROR: "Error",
+        USERS: "Users",
+        OWNER: "Owner",
+        BEFORE: "Before",
+        CLICKS: "Clicks",
+        GUILDS: "Guilds",
+        INVITE: "Invite",
+        STATUS: "Status",
+        REGION: "Region",
+        REASON: "Reason",
+        JOINED: "Joined",
+        CHANNEL: "Channel",
+        MESSAGE: "Message",
         SUBJECT: "Subject",
+        MEMBERS: "Members",
+        WARNING: "Warning",
+        MENTION: "Mention",
+        CREATED: "Created",
+        JUMP_URL: "Jump URL",
+        NICKNAME: "Nickname",
+        CHANNELS: "Channels",
+        CATEGORY: "Category",
+        SLOWMODE: "Slowmode",
+        ACTIVITY: "Activity",
+        NO_TOPIC: "No Topic",
+        DM_CHANNEL: "Our DMs",
+        VARIABLES: "Variables",
         TIMESTAMP: "Timestamp",
         WORKER_ID: "Worker ID",
-        PROCESS_ID: "Process ID",
         INCREMENT: "Increment",
-        STATISTICS: "Statistics",
-        DESCRIPTION: "Description",
-        CUSTOM_URL: "Custom URL",
         MODERATOR: "Moderator",
+        ATTACHMENT: "Attachment",
+        PROCESS_ID: "Process ID",
+        STATISTICS: "Statistics",
+        CUSTOM_URL: "Custom URL",
         INVITED_BY: "Invited By",
+        CREATED_BY: "Created By",
+        DELETED_BY: "Deleted By",
+        VIEWABLE_BY: "Viewable By",
+        ATTACHMENTS: "Attachments",
+        DESCRIPTION: "Description",
         INVITE_USED: "Invite Used",
-        UNTIL: "Until",
-        AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
-        BEFORE: "Before",
-        AFTER: "After",
+        CREATED_GUILD: "Created Guild",
+        JOIN_POSITION: "Join Position",
+        CLICK_TO_VIEW: "Click To View", // message/attachment link
+        ACCOUNT_CREATED: "Account Created",
+        ADDED_OVERWRITES: "Added Permissions",
+        REMOVED_OVERWRITES: "Removed Permissions",
         REGION_DEPRECATED:
           "<:wumpus_land:759529118671831040> Deprecated Region",
         REGIONS: {
@@ -287,6 +303,20 @@ This will **not** rename existing users`,
           "Block a user or role from chatting in the current channel",
         BLOCK_ARG_REQUIRED:
           "You must provide a user or role to block from chatting in the current channel!",
+        CHANNELCREATELOG_AUTHOR: (type: string, guild: string) =>
+          `${
+            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
+          } Channel Create | ${guild}`,
+        CHANNELCREATELOG_MUTE_PERMS_FAIL: `I was unable to set permissions for the muted role in this channel, users may be able to bypass mutes here.
+Make sure I have permission to manage roles`,
+        CHANNELDELETELOG_AUTHOR: (type: string, guild: string) =>
+          `${
+            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
+          } Channel Delete | ${guild}`,
+        CHANNELUPDATELOG_AUTHOR: (type: string, guild: string) =>
+          `${
+            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
+          } Channel Update | ${guild}`,
         COMMAND_COMMAND_DESCRIPTION: "Enable/disable a command in your server",
         COMMAND_DISABLE_FORBIDDEN: "You cannot disable this command!",
         COMMAND_ENABLE: (command: string) => `Successfully enabled ${command}!`,
@@ -491,6 +521,7 @@ Hint: Use the \`public\` command to get your server on the list`,
         GOOGLE_COMMAND_DESCRIPTION: "Speak to the Google Assistant",
         GOOGLE_TOO_LONG:
           "<a:okaygoogle:769207087674032129> Your query is too long!",
+        GUILDUPDATELOG_AUTHOR: (name: string) => `Guild Update | ${name}`,
         GUILD_JOIN_POS: (pos: number) => `**Your Join Position:** ${pos}`,
         GUILD_VERIF_VERY_HIGH: "**Extreme Verification Level**",
         GUILD_VERIF_HIGH: "**High Verification Level**",
@@ -523,6 +554,39 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
         HELP_LINKS_VALUE: `[Website](${constants.url.website}) - [Terms of Service](${constants.url.terms}) - [Privacy Policy](${constants.url.privacy}) - [Status](${constants.url.fireStatus})`,
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" for more info about the command | Cluster ID: ${cluster}`,
+        INVCREATE_LOG_AUTHOR: (guild: string) => `Invite Create | ${guild}`,
+        INVDELETE_LOG_AUTHOR: (guild: string) => `Invite Delete | ${guild}`,
+        INVITE_ROLE_REASON: (invite: string) =>
+          `Invite role for invite ${invite}`,
+        INVITEROLE_COMMAND_DESCRIPTION:
+          "Automatically add a role to a user when they join with a specific invite",
+        INVITEROLE_GUILD_INVITE_REQUIRED:
+          "You must provide a valid invite and it must be for this guild",
+        INVITEROLE_ROLE_INVALID:
+          "I am unable to give users this role. It must be lower than my top role & your top role, not managed & not the everyone role",
+        INVITEROLE_ROLE_REQUIRED:
+          "You must provide either an existing invite to delete an existing invite role or an invite & role to add an invite role",
+        INVITEROLE_LOG_AUTHOR: "Invite Roles",
+        INVITEROLE_DELETE_SUCCESS: (invite: string, role?: string) =>
+          `Successfully deleted invite role for discord.gg\\/${invite}${
+            role ? " & " + role : ""
+          }`,
+        INVITEROLE_DELETE_FAILED: (invite: string, role?: string) =>
+          `Failed to delete invite role for discord.gg\\/${invite}${
+            role ? " & " + role : ""
+          }`,
+        INVITEROLE_CREATE_SUCCESS: (
+          invite: string,
+          role?: string,
+          created: boolean = true
+        ) =>
+          `Successfully ${
+            created ? "created" : "updated"
+          } invite role for discord.gg\\/${invite}${role ? " & " + role : ""}`,
+        INVITEROLE_CREATE_FAILED: (invite: string, role?: string) =>
+          `Failed to create invite role for discord.gg\\/${invite}${
+            role ? " & " + role : ""
+          }`,
         JOINED_WITHOUT_INVITE:
           "Joined without an invite (Preview Mode/Server Discovery)",
         JOINMSG_COMMAND_DESCRIPTION:
@@ -925,6 +989,30 @@ ${success.map((s) => "- " + s).join("\n")}${
           "You didn't respond quick enough. The reminder has not been deleted",
         DELREMIND_YES:
           "It is gone! Remember, when using this command again, the indexes will have changed so make sure you're using the right one",
+        ROLEPERSIST_REASON: "Adding persisted roles",
+        ROLEPERSIST_COMMAND_DESCRIPTION:
+          "Add a role(s) that will stay with the user, even if they leave and rejoin.",
+        ROLEPERSIST_ROLE_INVALID:
+          "I am unable to persist this role. It must be lower than my top role & your top role, not managed & not the everyone role",
+        ROLEPERSIST_SELF: "You cannot persist roles to yourself!",
+        ROLEPERSIST_GOD:
+          "You cannot persist roles to someone higher than yourself (and I don't mean high on drugs smh)",
+        ROLEPERSIST_MODLOG_REASON: (roles: string[]) =>
+          roles.length
+            ? `Persisted roles ${roles.join(", ")}`
+            : "Removed all persisted roles.",
+        ROLEPERSIST_LOG_AUTHOR: (member: string) => `Role Persist | ${member}`,
+        ROLEPERSIST_SUCCESS: (member: string, roles: string[]) =>
+          roles.length
+            ? `Success! ${member} now has the role${
+                roles.length > 1 ? "s" : ""
+              } ${roles.join(", ")} persisted to them. Remove ${
+                roles.length > 1 ? "a" : "the"
+              } role to unpersist it`
+            : // below should be impossible to get since you remove persisted
+              // roles by removing the role from the user but just in case
+              `${member} no longer has any roles persisted to them.`,
+        ROLEPERSIST_FAILED: "I was unable to persist that role to that user",
         SKIN_COMMAND_DESCRIPTION: "See a player's Minecraft skin",
         SKIN_INVALID_IGN: "You must provide a valid IGN to get the skin of",
         SLOWMODE_COMMAND_DESCRIPTION:
@@ -1127,6 +1215,21 @@ Please remove the role manually.`,
 If the user gets automatically muted again, just try unmute them again and it'll likely work`,
         UNMUTE_COMMAND_DESCRIPTION: "Unmute a user",
         UNMUTE_USER_REQUIRED: "You must provide a user to unmute!",
+        VANITYURL_COMMAND_DESCRIPTION:
+          "Creates a vanity invite for your Discord using inv.wtf",
+        VANITYURL_CODE_REQUIRED:
+          'You must provide a code (and optional invite) to create a vanity url or "delete" to delete your existing vanity url',
+        VANITYURL_REGEX_FAIL:
+          "Vanity URLs can only contain characters A-Z0-9 and be between 3 and 10 characters",
+        VANITYURL_ALREADY_EXISTS: "That code is already in use!",
+        VANITYURL_INVITE_CREATE_REASON:
+          "Creating an invite to be used with the server's custom inv.wtf vanity",
+        VANITYURL_INVITE_FAILED:
+          "I failed to find an invite to use. Try providing one after your custom code",
+        VANITYURL_BLACKLISTED:
+          "This guild has been blacklisted from vanity features",
+        VANITYURL_CREATED: (code: string, dev: boolean) =>
+          `Your Vanity URL is <https://${dev ? "test." : ""}inv.wtf/${code}>`,
         WARN_FAILED_ENTRY:
           "User was not warned due to an error logging the warn",
         WARN_LOG_AUTHOR: (user: string) => `Warn | ${user}`,

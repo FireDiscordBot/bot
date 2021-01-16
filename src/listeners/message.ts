@@ -8,7 +8,8 @@ import Sk1er from "../modules/sk1er";
 import * as centra from "centra";
 
 const zwsRegex = /[\u200B-\u200D\uFEFF]/gim;
-const symbolRegex = /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|:|\'|/gim;
+const symbolRegex = /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim;
+const protocolRegex = /\w{1,10}:\/\//gim;
 export default class Message extends Listener {
   tokenRegex: RegExp;
 
@@ -125,13 +126,16 @@ export default class Message extends Listener {
 
   cleanContent(message: FireMessage) {
     return message.content
+      .replace(/\\:/gim, ":")
+      .replace(/\\\./gim, ".")
       .replace(zwsRegex, "")
       .replace(/\(\.\)/gim, ".")
       .replace(/\.\//gim, "/")
       .replace(/dot/gim, ".")
-      .replace(/\/\//gim, "/")
       .replace(/\/\./gim, ".")
+      .replace(protocolRegex, "")
       .replace(symbolRegex, "")
+      .replace(/\\\/\//gim, "/")
       .replace(/\s/gim, "");
   }
 }
