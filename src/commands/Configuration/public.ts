@@ -1,6 +1,7 @@
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
+import VanityURLs from "../../modules/vanityurls";
 
 export default class Public extends Command {
   constructor() {
@@ -15,11 +16,8 @@ export default class Public extends Command {
 
   async exec(message: FireMessage) {
     const current = message.guild.settings.get("utils.public", false);
-    const isBlacklisted = await this.client.db.query(
-      "SELECT * FROM vanitybl WHERE gid=$1;",
-      [message.guild.id]
-    );
-    if (isBlacklisted.rows.length)
+    const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
+    if (vanityurls.blacklisted.includes(message.guild.id))
       return await message.error("PUBLIC_VANITY_BLACKLIST");
     const vanitys = await this.client.db.query(
       "SELECT code FROM vanity WHERE gid=$1 AND redirect IS NULL",
