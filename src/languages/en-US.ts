@@ -489,10 +489,6 @@ Hint: Use the \`public\` command to get your server on the list`,
         GUILD_CREATED_AT: (owner: string, created: string) =>
           `**Created by ${owner} ${created}**`,
         GOOGLE_COMMAND_DESCRIPTION: "Speak to the Google Assistant",
-        GOOGLE_WS_ERROR_NOT_READY:
-          "<a:okaygoogle:769207087674032129> I'm still booting up, please try again in a moment",
-        GOOGLE_WS_ERROR_UNKNOWN:
-          "<a:okaygoogle:769207087674032129> Something went wrong. Try again later",
         GOOGLE_TOO_LONG:
           "<a:okaygoogle:769207087674032129> Your query is too long!",
         GUILD_JOIN_POS: (pos: number) => `**Your Join Position:** ${pos}`,
@@ -807,6 +803,10 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         PLONK_COMMAND_DESCRIPTION:
           "make a user unable to use the best discord bot",
         PLONK_USER_REQUIRED: "You must provide a user to plonk",
+        PLAYWRIGHT_ERROR_NOT_READY:
+          "Aether has not loaded fully yet, please try again in a moment.",
+        PLAYWRIGHT_ERROR_BAD_REQUEST: "The request to Aether was malformed.",
+        PLAYWRIGHT_ERROR_UNKNOWN: "Something went wrong. Try again later",
         PREFIX_COMMAND_DESCRIPTION:
           "Set the prefix used to trigger Fire's command",
         PREFIX_MISSING_ARG: "You must provide a new prefix",

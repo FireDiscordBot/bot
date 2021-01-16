@@ -49,7 +49,7 @@ export default class Google extends Command {
       !this.client.manager.ws ||
       this.client.manager.ws.readyState != this.client.manager.ws.OPEN
     )
-      return await message.send("GOOGLE_WS_ERROR_NOT_READY");
+      return await message.error("PLAYWRIGHT_ERROR_NOT_READY");
     const response = await this.assistant
       .query(args.query, {
         conversationState:
@@ -69,7 +69,7 @@ export default class Google extends Command {
       response instanceof Error &&
       response.message.includes("text_query too long.")
     )
-      return await message.error("GOOGLE_TOO_LONG");
+      return await message.send("GOOGLE_TOO_LONG");
     else if (response instanceof Error)
       return this.client.commandHandler.emit(
         "commandError",
@@ -107,7 +107,7 @@ export default class Google extends Command {
     );
     if (!html)
       return await message.replyRaw(
-        message.language.get("GOOGLE_WS_ERROR_UNKNOWN") as string
+        message.language.get("PLAYWRIGHT_ERROR_UNKNOWN") as string
       );
     this.client.manager.ws.send(
       MessageUtil.encode(
