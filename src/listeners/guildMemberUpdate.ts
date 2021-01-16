@@ -24,7 +24,7 @@ export default class GuildMemberUpdate extends Listener {
       await newMember.roles.add(newMember.guild.muteRole).catch(() => {});
     }
 
-    if (newMember.guild.persistedRoles.has(newMember.id)) {
+    if (newMember.guild.persistedRoles?.has(newMember.id)) {
       const ids = newMember.guild.persistedRoles.get(newMember.id);
       const roles = newMember.guild.persistedRoles
         .get(newMember.id)
