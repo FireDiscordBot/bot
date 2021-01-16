@@ -107,7 +107,8 @@ export default class ChannelUpdate extends Listener {
         .setAuthor(
           language.get("CHANNELUPDATELOG_AUTHOR", after.type, guild.name),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
-        );
+        )
+        .setFooter(after.id);
       if (before.name != after.name)
         embed.addField(language.get("NAME"), `${before.name} ➜ ${after.name}`);
       if (before.parentID != after.parentID)
