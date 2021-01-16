@@ -1,10 +1,9 @@
 import { VanityURL } from "../../lib/interfaces/invwtf";
+import { FireGuild } from "../../lib/extensions/guild";
+import { Language } from "../../lib/util/language";
+import { MessageEmbed, Invite } from "discord.js";
 import { Module } from "../../lib/util/module";
 import * as centra from "centra";
-import { FireGuild } from "../../lib/extensions/guild";
-import { Invite } from "discord.js";
-import { MessageEmbed } from "discord.js";
-import { Language } from "../../lib/util/language";
 
 export default class VanityURLs extends Module {
   blacklisted: string[];
