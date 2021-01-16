@@ -1,5 +1,4 @@
 import { GuildChannel, MessageEmbed, TextChannel, DMChannel } from "discord.js";
-import { FireMember } from "../../lib/extensions/guildmember";
 import { FireGuild } from "../../lib/extensions/guild";
 import { Listener } from "../../lib/util/listener";
 
