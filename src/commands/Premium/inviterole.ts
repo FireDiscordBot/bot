@@ -8,6 +8,7 @@ export default class InviteRole extends Command {
     super("inviterole", {
       description: (language: Language) =>
         language.get("INVITEROLE_COMMAND_DESCRIPTION"),
+      userPermissions: ["MANAGE_GUILD"],
       args: [
         {
           id: "invite",
