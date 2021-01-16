@@ -46,10 +46,12 @@ export default class Ready extends Listener {
     ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
     // or "0" which may be used for something later
 
-    const guilds = this.client.guilds.cache
-      .filter((guild: FireGuild) => guild.premium)
-      .values() as IterableIterator<FireGuild>;
-    for (const guild of guilds) await guild.loadInvites();
+    const guilds = this.client.guilds.cache.values() as IterableIterator<FireGuild>;
+    for (const guild of guilds) {
+      await guild.loadInvites();
+      await guild.loadInviteRoles();
+      await guild.loadPersistedRoles();
+    }
 
     const slashCommands: {
       id: string;

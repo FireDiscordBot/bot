@@ -49,8 +49,6 @@ export class FireGuild extends Guild {
     this.settings = new GuildSettings(client, this);
     this.tags = new GuildTagManager(client, this);
     this.loadMutes();
-    this.loadInviteRoles();
-    this.loadPersistedRoles();
   }
 
   get language() {
@@ -239,7 +237,7 @@ export class FireGuild extends Guild {
     this.persistedRoles = new Collection();
     if (!this.premium) return;
     const persisted = await this.client.db
-      .query("SELECT * FROM invrole WHERE gid=$1;", [this.id])
+      .query("SELECT * FROM rolepersists WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!persisted)
       return this.client.console.error(
