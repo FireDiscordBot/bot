@@ -7,6 +7,7 @@ import { fail } from "assert";
 
 const repeatRegex = /--repeat (\d*)/gim;
 const stepRegex = /--step ([^-]*)/gim;
+
 export default class Remind extends Command {
   constructor() {
     super("remind", {
@@ -47,9 +48,7 @@ export default class Remind extends Command {
     args.reminder = args.reminder.replace(stepRegex, "").trimEnd();
     if (!args.reminder) return await message.error("REMINDER_MISSING_ARG");
     const stepMinutes = parseTime(step) as number;
-    if (step && !stepMinutes)
-      return await message.error("REMINDER_INVALID_STEP");
-    else if (stepMinutes < 2)
+    if (step && stepMinutes > 0 && stepMinutes < 2)
       return await message.error("REMINDER_STEP_TOO_SHORT");
     const parsedMinutes = parseTime(args.reminder) as number;
     if (!parsedMinutes) return await message.error("REMINDER_MISSING_TIME");
