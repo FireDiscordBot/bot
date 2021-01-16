@@ -175,9 +175,9 @@ export class Fire extends AkairoClient {
         : "./src/commands/",
       commandUtil: true,
       handleEdits: true,
-      storeMessages: true,
-      automateCategories: true,
       aliasReplacement: /-/im,
+      automateCategories: true,
+      commandUtilLifetime: 30000,
       prefix: (message: FireMessage) => {
         return config.fire.dev ? "dev " : ["ts", "ts ", "beta", "beta "];
         // return config.fire.dev
