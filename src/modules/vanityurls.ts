@@ -60,22 +60,33 @@ export default class VanityURLs extends Module {
     const currentResult = await this.client.db
       .query("SELECT code FROM vanity WHERE gid=$1;", [guild.id])
       .first();
-    if (!currentResult)
-      return await this.client.db
+    if (!currentResult) {
+      const created = await this.client.db
         .query(
           "INSERT INTO vanity (gid, code, invite) VALUES ($1, $2, $3) RETURNING *;",
           [guild.id, code, invite.code]
         )
         .first()
         .catch(() => {});
-    else
-      return await this.client.db
+      if (created)
+        await this.requestFetch(
+          `Created vanity for guild ${guild.name} with code ${code}`
+        );
+      return created;
+    } else {
+      const updated = await this.client.db
         .query(
           "UPDATE vanity SET (code, invite) = ($1, $2) WHERE code=$3 RETURNING *;",
           [code, invite.code, currentResult.get("code") as string]
         )
         .first()
         .catch(() => {});
+      if (updated)
+        await this.requestFetch(
+          `Updated vanity for guild ${guild.name} with code ${code}`
+        );
+      return updated;
+    }
   }
 
   async delete(code: FireGuild | string) {
@@ -88,7 +99,14 @@ export default class VanityURLs extends Module {
       )
       .first()
       .catch(() => {});
-    if (deleteResult) this.client.emit("vanityDelete", original, deleteResult);
+    if (deleteResult) {
+      await this.requestFetch(`Deleted vanity ${deleteResult.get("code")}`);
+      const invite = await this.client
+        .fetchInvite(deleteResult.get("invite") as string)
+        .catch(() => {});
+      if (invite) await invite.delete().catch(() => {});
+      this.client.emit("vanityDelete", original, deleteResult);
+    }
   }
 
   async current(guild: FireGuild, code: string, language?: Language) {
