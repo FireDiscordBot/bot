@@ -3,7 +3,6 @@ import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import * as moment from "moment";
-import { fail } from "assert";
 
 const repeatRegex = /--repeat (\d*)/gim;
 const stepRegex = /--step ([^-]*)/gim;
