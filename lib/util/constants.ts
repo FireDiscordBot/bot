@@ -11,6 +11,7 @@ export type ActionLogType =
   | "invite_role_create"
   | "invite_role_delete"
   | "channel_create"
+  | "channel_update"
   | "channel_delete"
   | "invite_create"
   | "invite_delete";

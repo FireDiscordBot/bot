@@ -99,8 +99,10 @@ export default class enUS extends Language {
         CHANNEL: "Channel",
         MESSAGE: "Message",
         SUBJECT: "Subject",
+        CATEGORY: "Category",
         SLOWMODE: "Slowmode",
         ACTIVITY: "Activity",
+        NO_TOPIC: "No Topic",
         DM_CHANNEL: "Our DMs",
         VARIABLES: "Variables",
         TIMESTAMP: "Timestamp",
@@ -122,6 +124,8 @@ export default class enUS extends Language {
         AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
         BEFORE: "Before",
         AFTER: "After",
+        ADDED_OVERWRITES: "Added Permissions",
+        REMOVED_OVERWRITES: "Removed Permissions",
         REGION_DEPRECATED:
           "<:wumpus_land:759529118671831040> Deprecated Region",
         REGIONS: {
@@ -307,6 +311,10 @@ Make sure I have permission to manage roles`,
           `${
             type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
           } Channel Delete | ${guild}`,
+        CHANNELUPDATELOG_AUTHOR: (type: string, guild: string) =>
+          `${
+            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
+          } Channel Update | ${guild}`,
         COMMAND_COMMAND_DESCRIPTION: "Enable/disable a command in your server",
         COMMAND_DISABLE_FORBIDDEN: "You cannot disable this command!",
         COMMAND_ENABLE: (command: string) => `Successfully enabled ${command}!`,
