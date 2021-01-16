@@ -28,7 +28,7 @@ export default class GuildMemberUpdate extends Listener {
       const ids = newMember.guild.persistedRoles.get(newMember.id);
       const roles = newMember.guild.persistedRoles
         .get(newMember.id)
-        .map((id) => newMember.guild.roles.cache.get(id))
+        .map((id) => newMember.roles.cache.get(id))
         .filter((role) => !!role);
       if (ids.length != roles.length && roles.length >= 1) {
         newMember.guild.persistedRoles.set(
