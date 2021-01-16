@@ -1,4 +1,5 @@
 import { FireMember } from "../../lib/extensions/guildmember";
+import RolePersist from "../commands/Premium/rolepersist";
 import { Listener } from "../../lib/util/listener";
 import { TextChannel } from "discord.js";
 import Sk1er from "../modules/sk1er";
@@ -55,9 +56,12 @@ export default class GuildMemberUpdate extends Listener {
         newMember.guild.settings.has("temp.log.moderation") &&
         ids.length != roles.length
       ) {
-        const command = this.client.getCommand("rolepersist");
-        // @ts-ignore (for now, need to actually make the method)
-        await command.sendLog(newMember, roles, newMember.guild.me);
+        const command = this.client.getCommand("rolepersist") as RolePersist;
+        await command.sendLog(
+          newMember,
+          roles,
+          newMember.guild.me as FireMember
+        );
       }
     }
 

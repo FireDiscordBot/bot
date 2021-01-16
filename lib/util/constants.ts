@@ -17,7 +17,8 @@ export type ModLogType =
   | "unblock"
   | "derank"
   | "mute"
-  | "unmute";
+  | "unmute"
+  | "role_persist";
 export type MemberLogType = "join" | "leave";
 
 const getCategories = () => {

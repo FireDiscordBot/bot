@@ -530,7 +530,7 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
         INVITEROLE_GUILD_INVITE_REQUIRED:
           "You must provide a valid invite and it must be for this guild",
         INVITEROLE_ROLE_INVALID:
-          "I am unable to give users this role. It must be lower than my top role, not managed & not the everyone role",
+          "I am unable to give users this role. It must be lower than my top role & your top role, not managed & not the everyone role",
         INVITEROLE_ROLE_REQUIRED:
           "You must provide either an existing invite to delete an existing invite role or an invite & role to add an invite role",
         INVITEROLE_DELETE_SUCCESS: (invite: string, role?: string) =>
@@ -956,6 +956,29 @@ ${success.map((s) => "- " + s).join("\n")}${
         DELREMIND_YES:
           "It is gone! Remember, when using this command again, the indexes will have changed so make sure you're using the right one",
         ROLEPERSIST_REASON: "Adding persisted roles",
+        ROLEPERSIST_COMMAND_DESCRIPTION:
+          "Add a role(s) that will stay with the user, even if they leave and rejoin.",
+        ROLEPERSIST_ROLE_INVALID:
+          "I am unable to persist this role. It must be lower than my top role & your top role, not managed & not the everyone role",
+        ROLEPERSIST_SELF: "You cannot persist roles to yourself!",
+        ROLEPERSIST_GOD:
+          "You cannot persist roles to someone higher than yourself (and I don't mean high on drugs smh)",
+        ROLEPERSIST_MODLOG_REASON: (roles: string[]) =>
+          roles.length
+            ? `Persisted roles ${roles.join(", ")}`
+            : "Removed all persisted roles.",
+        ROLEPERSIST_LOG_AUTHOR: (member: string) => `Role Persist | ${member}`,
+        ROLEPERSIST_SUCCESS: (member: string, roles: string[]) =>
+          roles.length
+            ? `Success! ${member} now has the role${
+                roles.length > 1 ? "s" : ""
+              } ${roles.join(", ")} persisted to them. Remove ${
+                roles.length > 1 ? "a" : "the"
+              } role to unpersist it`
+            : // below should be impossible to get since you remove persisted
+              // roles by removing the role from the user but just in case
+              `${member} no longer has any roles persisted to them.`,
+        ROLEPERSIST_FAILED: "I was unable to persist that role to that user",
         SKIN_COMMAND_DESCRIPTION: "See a player's Minecraft skin",
         SKIN_INVALID_IGN: "You must provide a valid IGN to get the skin of",
         SLOWMODE_COMMAND_DESCRIPTION:
