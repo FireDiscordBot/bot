@@ -11,7 +11,9 @@ export type ActionLogType =
   | "invite_role_create"
   | "invite_role_delete"
   | "channel_create"
-  | "channel_delete";
+  | "channel_delete"
+  | "invite_create"
+  | "invite_delete";
 export type ModLogType =
   | "warn"
   | "ban"
