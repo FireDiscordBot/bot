@@ -69,6 +69,17 @@ export default class GuildMemberAdd extends Listener {
       await member.roles.add(member.guild.muteRole).catch(() => {});
     }
 
+    if (member.guild.persistedRoles.has(member.id)) {
+      const roles = member.guild.persistedRoles
+        .get(member.id)
+        .map((id) => member.guild.roles.cache.get(id))
+        .filter((role) => !!role);
+      if (roles.length)
+        await member.roles
+          .add(roles, member.guild.language.get("ROLEPERSIST_REASON") as string)
+          .catch(() => {});
+    }
+
     if (
       // @ts-ignore
       !member.guild.features.includes("PREVIEW_ENABLED")

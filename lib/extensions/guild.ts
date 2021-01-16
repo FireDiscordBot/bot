@@ -33,6 +33,7 @@ const parseUntil = (time?: string) => {
 };
 
 export class FireGuild extends Guild {
+  persistedRoles: Collection<string, string[]>;
   inviteRoles: Collection<string, string>;
   invites: Collection<string, number>;
   mutes: Collection<string, number>;
@@ -49,6 +50,7 @@ export class FireGuild extends Guild {
     this.tags = new GuildTagManager(client, this);
     this.loadMutes();
     this.loadInviteRoles();
+    this.loadPersistedRoles();
   }
 
   get language() {
@@ -230,6 +232,23 @@ export class FireGuild extends Guild {
       this.inviteRoles.set(
         invrole.get("inv") as string,
         invrole.get("rid") as string
+      );
+  }
+
+  async loadPersistedRoles() {
+    this.persistedRoles = new Collection();
+    if (!this.premium) return;
+    const persisted = await this.client.db
+      .query("SELECT * FROM invrole WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!persisted)
+      return this.client.console.error(
+        `[Guild] Failed to load persisted roles for ${this.name} (${this.id})`
+      );
+    for (const role of persisted)
+      this.persistedRoles.set(
+        role.get("uid") as string,
+        role.get("roles") as string[]
       );
   }
 

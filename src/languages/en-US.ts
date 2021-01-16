@@ -955,6 +955,7 @@ ${success.map((s) => "- " + s).join("\n")}${
           "You didn't respond quick enough. The reminder has not been deleted",
         DELREMIND_YES:
           "It is gone! Remember, when using this command again, the indexes will have changed so make sure you're using the right one",
+        ROLEPERSIST_REASON: "Adding persisted roles",
         SKIN_COMMAND_DESCRIPTION: "See a player's Minecraft skin",
         SKIN_INVALID_IGN: "You must provide a valid IGN to get the skin of",
         SLOWMODE_COMMAND_DESCRIPTION:
