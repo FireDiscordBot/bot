@@ -1,5 +1,6 @@
 import {
   Role,
+  Collection,
   TextChannel,
   VoiceChannel,
   GuildChannel,
@@ -114,20 +115,22 @@ export const memberConverter = async (
       member = members
         ? members.find((member: FireMember) => member.toString() == argument)
         : null;
-    } else member = await guild.members.fetch(options).catch(() => {});
+    } else
+      member = await guild.members
+        .fetch(options)
+        .then((coll) => coll.first())
+        .catch(() => {});
 
-    if (member && member.size) {
-      return member.first() as FireMember;
-    } else if (member instanceof FireMember) return member;
+    if (member instanceof FireMember) return member;
 
     if (!silent) await message.error("MEMBER_NOT_FOUND");
     return null;
   } else {
-    const member = await guild.members
-      .fetch({ user: userID, withPresences: true })
-      .catch(() => {});
-    if (member) {
-      return member as FireMember;
+    const member = ((await guild.members
+      .fetch({ user: userID, limit: 1, withPresences: true })
+      .catch(() => {})) as unknown) as Collection<string, FireMember>;
+    if (member && member.size) {
+      return member.first() as FireMember;
     }
 
     if (!silent) await message.error("INVALID_MEMBER_ID");
