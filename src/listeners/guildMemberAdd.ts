@@ -41,8 +41,19 @@ export default class GuildMemberAdd extends Listener {
             break;
           }
         }
-        if (usedInvite) this.client.emit("inviteJoin", member, usedInvite);
-        else if (member.guild.features.includes("DISCOVERABLE"))
+        if (usedInvite) {
+          const roleId = member.guild.inviteRoles.get(usedInvite);
+          if (roleId) {
+            const role = member.guild.roles.cache.get(roleId);
+            await member.roles.add(
+              role,
+              member.guild.language.get(
+                "INVITE_ROLE_REASON",
+                usedInvite
+              ) as string
+            );
+          }
+        } else if (member.guild.features.includes("DISCOVERABLE"))
           usedInvite = member.guild.language.get(
             "JOINED_WITHOUT_INVITE"
           ) as string;

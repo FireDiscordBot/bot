@@ -33,6 +33,7 @@ const parseUntil = (time?: string) => {
 };
 
 export class FireGuild extends Guild {
+  inviteRoles: Collection<string, string>;
   invites: Collection<string, number>;
   mutes: Collection<string, number>;
   muteCheckTask: NodeJS.Timeout;
@@ -47,6 +48,7 @@ export class FireGuild extends Guild {
     this.settings = new GuildSettings(client, this);
     this.tags = new GuildTagManager(client, this);
     this.loadMutes();
+    this.loadInviteRoles();
   }
 
   get language() {
@@ -212,6 +214,23 @@ export class FireGuild extends Guild {
         await this.modLog(embed, "unmute").catch(() => {});
       }
     }
+  }
+
+  async loadInviteRoles() {
+    this.inviteRoles = new Collection();
+    if (!this.premium) return;
+    const invroles = await this.client.db
+      .query("SELECT * FROM invrole WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!invroles)
+      return this.client.console.error(
+        `[Guild] Failed to load invite roles for ${this.name} (${this.id})`
+      );
+    for (const invrole of invroles)
+      this.inviteRoles.set(
+        invrole.get("inv") as string,
+        invrole.get("rid") as string
+      );
   }
 
   async loadInvites() {

@@ -523,6 +523,8 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
         HELP_LINKS_VALUE: `[Website](${constants.url.website}) - [Terms of Service](${constants.url.terms}) - [Privacy Policy](${constants.url.privacy}) - [Status](${constants.url.fireStatus})`,
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" for more info about the command | Cluster ID: ${cluster}`,
+        INVITE_ROLE_REASON: (invite: string) =>
+          `Invite role for invite ${invite}`,
         JOINED_WITHOUT_INVITE:
           "Joined without an invite (Preview Mode/Server Discovery)",
         JOINMSG_COMMAND_DESCRIPTION:
