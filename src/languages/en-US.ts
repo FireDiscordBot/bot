@@ -1185,6 +1185,21 @@ Please remove the role manually.`,
 If the user gets automatically muted again, just try unmute them again and it'll likely work`,
         UNMUTE_COMMAND_DESCRIPTION: "Unmute a user",
         UNMUTE_USER_REQUIRED: "You must provide a user to unmute!",
+        VANITYURL_COMMAND_DESCRIPTION:
+          "Creates a vanity invite for your Discord using inv.wtf",
+        VANITYURL_CODE_REQUIRED:
+          'You must provide a code (and optional invite) to create a vanity url or "delete" to delete your existing vanity url',
+        VANITYURL_REGEX_FAIL:
+          "Vanity URLs can only contain characters A-Z0-9 and be between 3 and 10 characters",
+        VANITYURL_ALREADY_EXISTS: "That code is already in use!",
+        VANITYURL_INVITE_CREATE_REASON:
+          "Creating an invite to be used with the server's custom inv.wtf vanity",
+        VANITYURL_INVITE_FAILED:
+          "I failed to find an invite to use. Try providing one after your custom code",
+        VANITYURL_BLACKLISTED:
+          "This guild has been blacklisted from vanity features",
+        VANITYURL_CREATED: (code: string, dev: boolean) =>
+          `Your Vanity URL is <https://${dev ? "test." : ""}inv.wtf/${code}>`,
         WARN_FAILED_ENTRY:
           "User was not warned due to an error logging the warn",
         WARN_LOG_AUTHOR: (user: string) => `Warn | ${user}`,
