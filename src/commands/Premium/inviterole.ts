@@ -1,7 +1,7 @@
 import { FireMessage } from "../../../lib/extensions/message";
+import { MessageEmbed, Invite, Role } from "discord.js";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import { Invite, Role } from "discord.js";
 
 export default class InviteRole extends Command {
   constructor() {
@@ -52,6 +52,29 @@ export default class InviteRole extends Command {
       const deleted = await this.client.db
         .query("DELETE FROM invrole WHERE inv=$1;", [invite])
         .catch(() => {});
+      if (deleted) {
+        const embed = new MessageEmbed()
+          .setTimestamp(new Date())
+          .setColor("#E74C3C")
+          .setAuthor(
+            message.guild.language.get("INVITEROLE_LOG_AUTHOR"),
+            message.guild.iconURL({
+              size: 2048,
+              format: "png",
+              dynamic: true,
+            })
+          )
+          .addField(message.guild.language.get("INVITE"), invite)
+          .addField(message.guild.language.get("ROLE"), role.name)
+          .addField(
+            message.guild.language.get("MODERATOR"),
+            message.author.toString()
+          )
+          .setFooter(`${role.id} | ${message.author.id}`);
+        await message.guild
+          .actionLog(embed, "invite_role_delete")
+          .catch(() => {});
+      }
       return deleted && deleted.status.startsWith("DELETE")
         ? await message.success(
             "INVITEROLE_DELETE_SUCCESS",
@@ -76,7 +99,30 @@ export default class InviteRole extends Command {
         [message.guild.id, invite, role.id]
       )
       .catch(() => {});
-    if (added) message.guild.inviteRoles.set(invite, role.id);
+    if (added) {
+      message.guild.inviteRoles.set(invite, role.id);
+      const embed = new MessageEmbed()
+        .setTimestamp(new Date())
+        .setColor("#2ECC71")
+        .setAuthor(
+          message.guild.language.get("INVITEROLE_LOG_AUTHOR"),
+          message.guild.iconURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          })
+        )
+        .addField(message.guild.language.get("INVITE"), invite)
+        .addField(message.guild.language.get("ROLE"), role.name)
+        .addField(
+          message.guild.language.get("MODERATOR"),
+          message.author.toString()
+        )
+        .setFooter(`${role.id} | ${message.author.id}`);
+      await message.guild
+        .actionLog(embed, "invite_role_create")
+        .catch(() => {});
+    }
     return added &&
       (added.status.startsWith("INSERT") || added.status.startsWith("UPDATE"))
       ? await message.success(

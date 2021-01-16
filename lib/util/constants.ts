@@ -7,7 +7,9 @@ export type ActionLogType =
   | "purge"
   | "linkfilter"
   | "message_edit"
-  | "message_delete";
+  | "message_delete"
+  | "invite_role_create"
+  | "invite_role_delete";
 export type ModLogType =
   | "warn"
   | "ban"

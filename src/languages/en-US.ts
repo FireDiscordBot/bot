@@ -88,9 +88,10 @@ export default class enUS extends Language {
         STATS: "Stats",
         GUILD: "Guild",
         GUILDS: "Guilds",
+        INVITE: "Invite",
         CHANNEL: "Channel",
-        DM_CHANNEL: "Our DMs",
         MESSAGE: "Message",
+        DM_CHANNEL: "Our DMs",
         ATTACHMENT: "Attachment",
         ATTACHMENTS: "Attachments",
         ACTIVITY: "Activity",
@@ -533,6 +534,7 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           "I am unable to give users this role. It must be lower than my top role & your top role, not managed & not the everyone role",
         INVITEROLE_ROLE_REQUIRED:
           "You must provide either an existing invite to delete an existing invite role or an invite & role to add an invite role",
+        INVITEROLE_LOG_AUTHOR: "Invite Roles",
         INVITEROLE_DELETE_SUCCESS: (invite: string, role?: string) =>
           `Successfully deleted invite role for discord.gg\\/${invite}${
             role ? " & " + role : ""
