@@ -81,6 +81,7 @@ export default class enUS extends Language {
         CLICK_TO_VIEW: "Click To View", // message/attachment link
         JUMP_URL: "Jump URL",
         NICKNAME: "Nickname",
+        RAW: "Raw",
         NAME: "Name",
         ROLE: "Role",
         TOPIC: "Topic",
@@ -98,6 +99,7 @@ export default class enUS extends Language {
         CHANNEL: "Channel",
         MESSAGE: "Message",
         SUBJECT: "Subject",
+        SLOWMODE: "Slowmode",
         ACTIVITY: "Activity",
         DM_CHANNEL: "Our DMs",
         VARIABLES: "Variables",
@@ -111,6 +113,8 @@ export default class enUS extends Language {
         CUSTOM_URL: "Custom URL",
         INVITED_BY: "Invited By",
         CREATED_BY: "Created By",
+        DELETED_BY: "Deleted By",
+        VIEWABLE_BY: "Viewable By",
         ATTACHMENTS: "Attachments",
         DESCRIPTION: "Description",
         INVITE_USED: "Invite Used",
@@ -299,6 +303,10 @@ This will **not** rename existing users`,
           } Channel Create | ${guild}`,
         CHANNELCREATELOG_MUTE_PERMS_FAIL: `I was unable to set permissions for the muted role in this channel, users may be able to bypass mutes here.
 Make sure I have permission to manage roles`,
+        CHANNELDELETELOG_AUTHOR: (type: string, guild: string) =>
+          `${
+            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
+          } Channel Delete | ${guild}`,
         COMMAND_COMMAND_DESCRIPTION: "Enable/disable a command in your server",
         COMMAND_DISABLE_FORBIDDEN: "You cannot disable this command!",
         COMMAND_ENABLE: (command: string) => `Successfully enabled ${command}!`,
