@@ -2,8 +2,7 @@ import { FireMember } from "../../../lib/extensions/guildmember";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import { Role } from "discord.js";
-import { MessageEmbed } from "discord.js";
+import { MessageEmbed, Role } from "discord.js";
 
 export default class RolePersist extends Command {
   constructor() {
@@ -65,7 +64,7 @@ export default class RolePersist extends Command {
 
     const added = await this.client.db
       .query(
-        existing.length
+        existing
           ? "UPDATE rolepersists SET roles=$1 WHERE gid=$2 AND uid=$3;"
           : "INSERT INTO rolepersists (roles, gid, uid) VALUES ($1, $2, $3);",
         [roles.map((role) => role.id), message.guild.id, args.user.id]
@@ -76,7 +75,8 @@ export default class RolePersist extends Command {
         args.user.id,
         roles.map((role) => role.id)
       );
-      await this.sendLog(args.user, roles, message.member);
+      await args.user.roles.add(roles).catch(() => {});
+      await this.sendLog(args.user, roles, message.member).catch(() => {});
     }
     return added &&
       (added.status.startsWith("INSERT") || added.status.startsWith("UPDATE"))
@@ -112,11 +112,12 @@ export default class RolePersist extends Command {
         })
       )
       .addField(member.guild.language.get("MODERATOR"), moderator.toString())
-      .addField(
+      .setFooter(`${member.id} | ${moderator.id}`);
+    if (roles.length)
+      embed.addField(
         member.guild.language.get("ROLES"),
         roles.map((role) => role.toString()).join(" - ")
-      )
-      .setFooter(`${member.id} | ${moderator.id}`);
+      );
     return member.guild.modLog(embed, "role_persist").catch(() => {});
   }
 }
