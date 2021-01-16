@@ -525,6 +525,34 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           `Use "${prefix}help <command>" for more info about the command | Cluster ID: ${cluster}`,
         INVITE_ROLE_REASON: (invite: string) =>
           `Invite role for invite ${invite}`,
+        INVITEROLE_COMMAND_DESCRIPTION:
+          "Automatically add a role to a user when they join with a specific invite",
+        INVITEROLE_GUILD_INVITE_REQUIRED:
+          "You must provide a valid invite and it must be for this guild",
+        INVITEROLE_ROLE_INVALID:
+          "I am unable to give users this role. It must be lower than my top role, not managed & not the everyone role",
+        INVITEROLE_ROLE_REQUIRED:
+          "You must provide either an existing invite to delete an existing invite role or an invite & role to add an invite role",
+        INVITEROLE_DELETE_SUCCESS: (invite: string, role?: string) =>
+          `Successfully deleted invite role for discord.gg\\/${invite}${
+            role ? " & " + role : ""
+          }`,
+        INVITEROLE_DELETE_FAILED: (invite: string, role?: string) =>
+          `Failed to delete invite role for discord.gg\\/${invite}${
+            role ? " & " + role : ""
+          }`,
+        INVITEROLE_CREATE_SUCCESS: (
+          invite: string,
+          role?: string,
+          created: boolean = true
+        ) =>
+          `Successfully ${
+            created ? "created" : "updated"
+          } invite role for discord.gg\\/${invite}${role ? " & " + role : ""}`,
+        INVITEROLE_CREATE_FAILED: (invite: string, role?: string) =>
+          `Failed to create invite role for discord.gg\\/${invite}${
+            role ? " & " + role : ""
+          }`,
         JOINED_WITHOUT_INVITE:
           "Joined without an invite (Preview Mode/Server Discovery)",
         JOINMSG_COMMAND_DESCRIPTION:
