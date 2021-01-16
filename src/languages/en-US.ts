@@ -68,6 +68,7 @@ export default class enUS extends Language {
         REGION: "Region",
         STATUS: "Status",
         UUID: "UUID",
+        WARNING: "Warning",
         REASON: "Reason",
         DATE: "Date",
         TYPE: "Type",
@@ -82,6 +83,7 @@ export default class enUS extends Language {
         NICKNAME: "Nickname",
         NAME: "Name",
         ROLE: "Role",
+        TOPIC: "Topic",
         LINKS: "Links",
         ABOUT: "About",
         ROLES: "Roles",
@@ -108,6 +110,7 @@ export default class enUS extends Language {
         STATISTICS: "Statistics",
         CUSTOM_URL: "Custom URL",
         INVITED_BY: "Invited By",
+        CREATED_BY: "Created By",
         ATTACHMENTS: "Attachments",
         DESCRIPTION: "Description",
         INVITE_USED: "Invite Used",
@@ -290,6 +293,12 @@ This will **not** rename existing users`,
           "Block a user or role from chatting in the current channel",
         BLOCK_ARG_REQUIRED:
           "You must provide a user or role to block from chatting in the current channel!",
+        CHANNELCREATELOG_AUTHOR: (type: string, guild: string) =>
+          `${
+            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
+          } Channel Create | ${guild}`,
+        CHANNELCREATELOG_MUTE_PERMS_FAIL: `I was unable to set permissions for the muted role in this channel, users may be able to bypass mutes here.
+Make sure I have permission to manage roles`,
         COMMAND_COMMAND_DESCRIPTION: "Enable/disable a command in your server",
         COMMAND_DISABLE_FORBIDDEN: "You cannot disable this command!",
         COMMAND_ENABLE: (command: string) => `Successfully enabled ${command}!`,

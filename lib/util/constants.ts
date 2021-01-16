@@ -9,7 +9,9 @@ export type ActionLogType =
   | "message_edit"
   | "message_delete"
   | "invite_role_create"
-  | "invite_role_delete";
+  | "invite_role_delete"
+  | "channel_create"
+  | "channel_delete";
 export type ModLogType =
   | "warn"
   | "ban"
