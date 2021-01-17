@@ -68,7 +68,7 @@ export default class Redirects extends Module {
       (typeof exists != "boolean" && exists.uid != user.id)
     )
       return "exists";
-    if (!current) {
+    if (!exists) {
       const created = await this.client.db
         .query(
           "INSERT INTO vanity (uid, code, redirect) VALUES ($1, $2, $3) RETURNING *;",
@@ -95,11 +95,11 @@ export default class Redirects extends Module {
     }
   }
 
-  async delete(code: string) {
+  async delete(code: string, user: FireMember | FireUser) {
     return await this.client.db
       .query(
-        "DELETE FROM vanity WHERE code=$1 OR code=$2 OR uid=$1 RETURNING *;",
-        [code, code.toLowerCase()]
+        "DELETE FROM vanity WHERE code=$1 OR code=$2 AND uid=$3 RETURNING *;",
+        [code, code.toLowerCase(), user.id]
       )
       .first()
       .catch(() => {});
