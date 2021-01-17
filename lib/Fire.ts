@@ -57,6 +57,7 @@ import * as moment from "moment";
 
 import "./extensions";
 
+// Rewrite completed - 15:10 17/1/2021
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
   started: boolean;
