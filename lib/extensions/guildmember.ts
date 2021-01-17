@@ -36,6 +36,10 @@ export class FireMember extends GuildMember {
     return this.user.settings;
   }
 
+  get premium() {
+    return this.user.premium;
+  }
+
   toString() {
     return `${this.user.username}#${this.user.discriminator}`;
   }

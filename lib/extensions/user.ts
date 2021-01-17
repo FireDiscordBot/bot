@@ -23,7 +23,8 @@ export class FireUser extends User {
   }
 
   get premium() {
-    return [...this.client.util.premium.values()].includes(this.id);
+    return [...this.client.util.premium.values()].filter((id) => id == this.id)
+      .length;
   }
 
   toString() {
