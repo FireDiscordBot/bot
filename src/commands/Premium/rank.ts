@@ -59,7 +59,7 @@ export default class Rank extends Command {
       );
       const embed = new MessageEmbed()
         .setColor(message.member?.displayColor || "#ffffff")
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setDescription(roleInfo.join("\n"))
         .setAuthor(
           message.language.get("RANKS_AUTHOR", message.guild.toString()),

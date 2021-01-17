@@ -237,7 +237,7 @@ export class FireMember extends GuildMember {
     if (!moderator.isModerator(channel)) return "forbidden";
     const embed = new MessageEmbed()
       .setColor("#E67E22")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setAuthor(
         this.guild.language.get("WARN_LOG_AUTHOR", this.toString()),
         this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
@@ -323,7 +323,7 @@ export class FireMember extends GuildMember {
     }
     const embed = new MessageEmbed()
       .setColor(this.displayHexColor || "#E74C3C")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setAuthor(
         this.guild.language.get("BAN_LOG_AUTHOR", this.toString()),
         this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
@@ -371,7 +371,7 @@ export class FireMember extends GuildMember {
     }
     const embed = new MessageEmbed()
       .setColor(this.displayHexColor || "#E74C3C")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setAuthor(
         this.guild.language.get("KICK_LOG_AUTHOR", this.toString()),
         this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
@@ -422,7 +422,7 @@ export class FireMember extends GuildMember {
     if (afterIds.length >= 1) failed = true;
     const embed = new MessageEmbed()
       .setColor(this.displayHexColor || "#E74C3C")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setAuthor(
         this.guild.language.get("DERANK_LOG_AUTHOR", this.toString()),
         this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
@@ -502,7 +502,7 @@ export class FireMember extends GuildMember {
       .catch(() => {});
     const embed = new MessageEmbed()
       .setColor(this.displayHexColor || "#2ECC71")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setAuthor(
         this.guild.language.get("MUTE_LOG_AUTHOR", this.toString()),
         this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
@@ -578,7 +578,7 @@ export class FireMember extends GuildMember {
       .catch(() => {});
     const embed = new MessageEmbed()
       .setColor(this.displayHexColor || "#2ECC71")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setAuthor(
         this.guild.language.get("UNMUTE_LOG_AUTHOR", this.toString()),
         this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })

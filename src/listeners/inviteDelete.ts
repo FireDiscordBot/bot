@@ -18,7 +18,7 @@ export default class InviteDelete extends Listener {
     if (guild.settings.has("temp.log.action")) {
       const embed = new MessageEmbed()
         .setColor("#E74C3C")
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setAuthor(
           language.get("INVDELETE_LOG_AUTHOR", guild.name),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })

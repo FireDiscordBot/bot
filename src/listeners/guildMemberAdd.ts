@@ -135,7 +135,7 @@ export default class GuildMemberAdd extends Listener {
         ) + language.get("AGO");
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setAuthor(
           language.get("MEMBERJOIN_LOG_AUTHOR", member.toString()),
           member.user.displayAvatarURL({

@@ -71,7 +71,7 @@ export default class JoinMSG extends Command {
       if (!msg) {
         const embed = new MessageEmbed()
           .setColor("#E74C3C")
-          .setTimestamp(new Date())
+          .setTimestamp()
           .setDescription(message.language.get("JOINMSG_SETUP_REQUIRED"))
           .addField(
             message.language.get("VARIABLES"),
@@ -84,7 +84,7 @@ export default class JoinMSG extends Command {
       );
       const embed = new MessageEmbed()
         .setColor(message.member?.displayHexColor || "#ffffff")
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setDescription(
           message.language.get(
             "JOINMSG_CURRENT_SETTINGS",

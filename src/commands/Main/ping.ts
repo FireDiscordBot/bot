@@ -37,7 +37,7 @@ export default class Ping extends Command {
           this.client.manager.id
         )
       )
-      .setTimestamp(new Date());
+      .setTimestamp();
 
     await this.replyEmbedPing(message, pingMessage, embed);
   }

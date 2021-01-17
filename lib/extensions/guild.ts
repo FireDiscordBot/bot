@@ -498,7 +498,7 @@ export class FireGuild extends Guild {
     if (ticket instanceof Error) return ticket;
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_OPENER_TILE", author.toString()))
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setColor(author.displayColor || "#ffffff")
       .addField(this.language.get("SUBJECT"), subject);
     const opener = await ticket.send(embed).catch(() => {});
@@ -587,7 +587,7 @@ export class FireGuild extends Guild {
       (this.channels.cache.get(this.settings.get("log.action")) as TextChannel);
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setColor(author.displayColor || "#ffffff")
       .addField(
         this.language.get("TICKET_CLOSER_CLOSED_BY"),
@@ -669,7 +669,7 @@ export class FireGuild extends Guild {
     }
     const embed = new MessageEmbed()
       .setColor("#E74C3C")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setAuthor(
         this.language.get("UNBAN_LOG_AUTHOR", this.toString()),
         user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
@@ -727,7 +727,7 @@ export class FireGuild extends Guild {
           ? blockee.displayHexColor
           : null || "#E74C3C"
       )
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setAuthor(
         this.language.get(
           "BLOCK_LOG_AUTHOR",
@@ -804,7 +804,7 @@ export class FireGuild extends Guild {
           ? unblockee.displayHexColor
           : null || "#2ECC71"
       )
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setAuthor(
         this.language.get(
           "UNBLOCK_LOG_AUTHOR",

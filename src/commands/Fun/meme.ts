@@ -64,7 +64,7 @@ export default class Meme extends Command {
       .setTitle(language.get("MEME_EMBED_TITLE"))
       .setColor(message?.member.displayColor || "#ffffff")
       .setURL(meme.post.link)
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setAuthor(
         language.get("MEME_EMBED_AUTHOR", message.author.toString()),
         message.author.displayAvatarURL({

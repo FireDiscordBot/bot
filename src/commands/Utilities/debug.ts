@@ -192,7 +192,7 @@ export default class Debug extends Command {
     return new MessageEmbed()
       .setTitle(message.language.get("DEBUG_ISSUES", issues))
       .setColor(message.member?.displayColor || "#ffffff")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setDescription(details.join("\n"));
   }
 

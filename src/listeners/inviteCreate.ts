@@ -18,7 +18,7 @@ export default class InviteCreate extends Listener {
     if (guild.settings.has("temp.log.action")) {
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setAuthor(
           language.get("INVCREATE_LOG_AUTHOR", guild.name),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })

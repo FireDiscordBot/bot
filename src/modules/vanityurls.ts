@@ -135,7 +135,7 @@ export default class VanityURLs extends Module {
       )
       .setColor("#2ECC71")
       .addField("URL", `https://inv.wtf/${code}`)
-      .setTimestamp(new Date());
+      .setTimestamp();
     if (guild.premium) {
       embed.addField(language.get("CLICKS"), data.clicks);
       embed.addField(language.get("LINKS"), data.links);

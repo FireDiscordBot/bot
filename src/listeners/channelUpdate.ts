@@ -103,7 +103,7 @@ export default class ChannelUpdate extends Listener {
       const language = guild.language;
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setAuthor(
           language.get("CHANNELUPDATELOG_AUTHOR", after.type, guild.name),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })

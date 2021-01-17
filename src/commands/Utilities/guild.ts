@@ -201,7 +201,7 @@ export default class GuildCommand extends Command {
         this.shorten(roles, 1000, " - ")
       )
       .setFooter(message.guild.id)
-      .setTimestamp(new Date());
+      .setTimestamp();
 
     await message.channel.send(embed);
   }

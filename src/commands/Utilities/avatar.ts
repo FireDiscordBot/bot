@@ -40,7 +40,7 @@ export default class Avatar extends Command {
 
     const embed = new MessageEmbed()
       .setColor(color)
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setTitle(`${user.toString()}'s avatar`)
       .setImage(
         user?.displayAvatarURL({

@@ -77,7 +77,7 @@ export default class Tickets extends Command {
             .join("\n");
           const embed = new MessageEmbed()
             .setColor(message.member?.displayColor || "#ffffff")
-            .setTimestamp(new Date())
+            .setTimestamp()
             .addField(message.language.get("VARIABLES"), variableString);
           return await message.channel.send(embed);
         } else {
@@ -96,7 +96,7 @@ export default class Tickets extends Command {
   async sendDefaultMessage(message: FireMessage) {
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#ffffff")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setDescription(message.language.get("TICKET_MAIN_DESCRIPTION"))
       .setAuthor(
         message.author.toString(),

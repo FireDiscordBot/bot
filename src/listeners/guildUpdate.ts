@@ -34,7 +34,7 @@ export default class GuildUpdate extends Listener {
       const language = after.language;
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setAuthor(
           language.get("GUILDUPDATELOG_AUTHOR", after.name),
           after.iconURL({ size: 2048, format: "png", dynamic: true })

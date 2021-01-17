@@ -41,7 +41,7 @@ export default class Mod extends Command {
         .setColor(message?.member?.displayColor || "#ffffff")
         .setTitle(message.language.get("MOD_LIST"))
         .setDescription(names.join(", "))
-        .setTimestamp(new Date());
+        .setTimestamp();
       return await message.channel.send(embed).catch(async () => {
         return await message.error("MOD_FETCH_FAIL");
       });
@@ -81,7 +81,7 @@ export default class Mod extends Command {
       .setColor(message?.member?.displayColor || "#ffffff")
       .setURL(`https://sk1er.club/mods/${id}`)
       .setDescription(mod.short)
-      .setTimestamp(new Date());
+      .setTimestamp();
     let versions: string[] = [];
     Object.keys(mod.latest).forEach((version) => {
       versions.push(`**${version}**: ${mod.latest[version]}`);

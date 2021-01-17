@@ -40,7 +40,7 @@ export default class ChannelDelete extends Listener {
         .catch(() => {});
       const embed = new MessageEmbed()
         .setColor("#E74C3C")
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setAuthor(
           language.get("CHANNELDELETELOG_AUTHOR", channel.type, guild.name),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })

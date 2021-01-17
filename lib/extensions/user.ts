@@ -173,7 +173,7 @@ export class FireUser extends User {
     }
     const embed = new MessageEmbed()
       .setColor("#E74C3C")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setAuthor(
         guild.language.get("BAN_LOG_AUTHOR", this.toString()),
         this.avatarURL({ size: 2048, format: "png", dynamic: true })

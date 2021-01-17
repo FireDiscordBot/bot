@@ -107,7 +107,7 @@ export default class GuildMemberRemove extends Listener {
         .setColor(
           member.partial ? "#E74C3C" : member.displayHexColor || "#E74C3C"
         )
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setAuthor(
           language.get("MEMBERLEAVE_LOG_AUTHOR", member.toString()),
           member.user.displayAvatarURL({

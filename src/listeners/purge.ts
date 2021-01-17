@@ -13,7 +13,7 @@ export default class Purge extends Listener {
   async exec(message: FireMessage, reason?: string, purged = []) {
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#ffffff")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setDescription(
         message.guild.language.get(
           "PURGE_LOG_DESCRIPTION",

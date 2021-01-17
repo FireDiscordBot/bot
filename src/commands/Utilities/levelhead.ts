@@ -45,7 +45,7 @@ export default class Levelhead extends Command {
         .setTitle(language.get("LEVELHEAD_EMBED_TITLE", args.player))
         .setColor(message?.member?.displayColor || "#ffffff")
         .setURL("https://purchase.sk1er.club/category/1050972")
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setDescription(`Level: ${levelhead.level}`);
       return await message.channel.send(embed);
     }
@@ -86,7 +86,7 @@ export default class Levelhead extends Command {
       .setTitle(language.get("LEVELHEAD_EMBED_TITLE", args.player))
       .setColor(message?.member?.displayColor || "#ffffff")
       .setURL("https://purchase.sk1er.club/category/1050972")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setFooter(language.get("MORE_INTEGRATIONS"));
     embed.addField("IGN", args.player);
     embed.addField("Levelhead", `${header}:${footer}`);
