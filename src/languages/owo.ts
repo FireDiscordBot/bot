@@ -13,16 +13,24 @@ export default class owo extends Language {
         INVALID_MEMBER_ID: "Channew not found! Twy use an ID instead.",
         INVALID_CHANNEL_ID: "Channew not found! Make suwe the ID is vawid.",
         INVALID_ROLE_ID: "Wowe not found! Make suwe the ID is vawid.",
+        INVALID_SNOWFLAKE:
+          "Usew not found and awgument is not a vawid snowfwake. Twy using an ID if you want to find a usew.",
+        INVALID_MEMBER_ROLE_CHANNEL:
+          "That is not a vawid membew, wowe ow channew. Make suwe the name ow ID you'we pwoviding is vawid.",
         INVALID_MESSAGE:
           "Message not found! Make suwe you'we giving a vawid id/wink.",
         UNKNOWN_COMMAND: "Command not found",
         COMMAND_OWNER_ONLY: "Onwy my ownew can use this command",
         COMMAND_SUPERUSER_ONLY:
           "Onwy a sewect few awe powewfuw enyough to use this command",
+        COMMAND_MODERATOR_ONLY:
+          "Onwy those stwong enough to wiewd the ban hammew (modewatows) can use this command",
         COMMAND_GUILD_ONLY: (invite: string) =>
           `You can onwy use this command in a sewvew. You can invite me to a sewvew at <${invite}>`,
         COMMAND_PREMIUM_GUILD_ONLY:
           "Onwy pwemium guiwds can use this command. Weawn mowe at https://inv.wtf/premium",
+        COMMAND_PREMIUM_USER_ONLY:
+          "Onwy usews with a cuwwent pwemium subscwiption can use this command. Weawn mowe at https://inv.wtf/premium",
         COMMAND_EXPERIMENT_REQUIRED: "The maze wasn't meant fow you.",
         COMMAND_ACCOUNT_TOO_YOUNG:
           "Youw account has been cweated too wecentwy!",
@@ -31,8 +39,18 @@ export default class owo extends Language {
         COMMAND_ERROR_CONCURRENCY:
           // For different languages, you may want to change the "hold your horses" bit as it may not make sense in that language
           "Whoa, howd youw howses! Wait fow the command to finish befowe wunning it again",
+        COMMAND_ERROR_CACHE: "Something went wwong whiwe checking my cache",
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wwong whiwe wunning ${id}`,
+        SLASH_COMMAND_HANDLE_FAIL: "I faiwed to handwe that swash command",
+        // this is used when it'd react with the success emoji
+        // but you can't react to the slash command message when responding
+        // with no source or the source message isn't found
+        SLASH_COMMAND_HANDLE_SUCCESS: "Command wan successfuwwy!",
+        SLASH_COMMAND_BOT_REQUIRED: (invite: string) =>
+          `This command wequiwes you to have the bot pwesent. You can invite it @ <${invite}>`,
+        USER_SNOWFLAKE_ARGUMENT_DESCRIPTION:
+          "A mention, usewname, usew id ow any vawid snowfwake",
         HELLO_PREFIX: (prefix: string) =>
           `Hey! My pwefix hewe is \`${prefix}\` ow you can mention me >w<`,
         ERROR_ROLE_UNUSABLE:
@@ -42,29 +60,78 @@ export default class owo extends Language {
         NO_MODERATORS_SET: "Thewe awe no mowodewatows set in this guiwd.",
         MORE_INTEGRATIONS:
           "Want mowe integwations? Use the suggest command to suggest some! >w<",
-        MEMBERS: "Membews",
-        USERS: "Usews",
-        REGION: "Wegion",
-        STATUS: "Status",
+        RAW: "Waw",
+        AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
         UUID: "UUID",
-        REASON: "Weason",
-        MENTION: "Mention",
-        CREATED: "Cweated",
-        CREATED_GUILD: "Cweated Guiwd",
-        JOINED: "Joined",
-        JOIN_POSITION: "Join Position",
-        NICKNAME: "Nickname",
+        DATE: "Date",
+        TYPE: "Type",
+        ROLE: "Wole",
+        ICON: "Icon",
+        UNTIL: "Untiw",
+        AFTER: "Aftew",
+        TOPIC: "Topic",
+        LINKS: "Winks",
         ABOUT: "About",
         ROLES: "Wowes",
         NOTES: "Notes",
         TITLE: "Titwe",
         STATS: "Stats",
         GUILD: "Guiwd",
+        EMOJI: "Emoji",
+        ERROR: "Ewwow",
+        USERS: "Usews",
+        OWNER: "Ownew",
+        BEFORE: "Befowe",
+        CLICKS: "Cwicks",
         GUILDS: "Guiwds",
+        INVITE: "Invite",
+        STATUS: "Status",
+        REGION: "Wegion",
+        REASON: "Weason",
+        JOINED: "Joined",
         CHANNEL: "Channew",
-        ATTACHMENT: "Attachment",
-        VARIABLES: "Vawiabwes",
+        MESSAGE: "Message",
         SUBJECT: "Subject",
+        MEMBERS: "Membews",
+        WARNING: "Wawning",
+        MENTION: "Mention",
+        CREATED: "Cweated",
+        JUMP_URL: "Jump URL",
+        NICKNAME: "Nickname",
+        CHANNELS: "Channews",
+        CATEGORY: "Categowy",
+        SLOWMODE: "Slowmode",
+        ACTIVITY: "Activity",
+        NO_TOPIC: "No Topic",
+        DM_CHANNEL: "Ouw DMs",
+        VARIABLES: "Vawiabwes",
+        TIMESTAMP: "Timestamp",
+        WORKER_ID: "Wowkew ID",
+        INCREMENT: "Incwement",
+        MODERATOR: "Modewatow",
+        ATTACHMENT: "Attachment",
+        PROCESS_ID: "Pwocess ID",
+        PINNED_BY: "Pinned By",
+        STATISTICS: "Statistics",
+        CUSTOM_URL: "Custom URL"
+        INVITED_BY: "Invited By",
+        CREATED_BY: "Cweated By",
+        DELETED_BY: "Deweted By",
+        VIEWABLE_BY: "Viewabwe By",
+        ATTACHMENTS: "Attachments",
+        DESCRIPTION: "Descwiption",
+        INVITE_USED: "Invite Used",
+        CREATED_GUILD: "Cweated Guiwd",
+        JOIN_POSITION: "Join Position",
+        CLICK_TO_VIEW: "Cwick To View", // message/attachment link
+        ADDED_FEATURES: "Added Featuwes",
+        SYSTEM_CHANNEL: "System Channew",
+        ACCOUNT_CREATED: "Account Cweated",
+        REMOVED_FEATURES: "Wemoved Featuwes",
+        ADDED_OVERWRITES: "Added Pewmissions",
+        VERIFICATION_LEVEL: "Vewification Wevew",
+        REMOVED_OVERWRITES: "Wemoved Pewmissions",
+        EXPLICIT_CONTENT_FILTER: "Expwicit Content Fiwtew",
         REGION_DEPRECATED:
           "<:wumpus_land:759529118671831040> Depwecated Wegion",
         REGIONS: {
@@ -119,6 +186,9 @@ export default class owo extends Language {
           AUTOROLE_ENABLED_BOT: (role: string, delay: boolean) =>
             `Autowowe has been enabwed, bots wiww weceive ${role} upon join.`,
           POWERED_BY_KSOFT: "Powewed by KSoft.Si API",
+          AUDIT_ACTION_MEMBER_BAN_ADD: "Banned",
+          AUDIT_ACTION_MEMBER_KICK: "Kicked",
+          AUDIT_ACTION_BY: (action: string) => `${action} By`, // e.g. Kicked By or Banned By
           MODERATORS_ROLES: "Mowodewatow Wowes",
           NO_MODERATOR_ROLES: "No wowes have been set as mowodewatows.",
           MODERATORS_MEMBERS: "Mowodewatow Membews",
@@ -129,9 +199,12 @@ export default class owo extends Language {
               ", "
             )}`,
         },
-        AUTODECANCER_COMMAND_DESCRIPTION: `Toggwe wenaming those with "cancewous" (non-ascii) names`,
-        AUTODECANCER_ENABLED: `Enabwed autodecancew. **New** usews with "cancewous" (non-ascii) names wiww be wenamed`,
-        AUTODECANCER_DISABLED: `Disabwed autodecancew. **New** usews with "cancewous" (non-ascii) names wiww no wongew be wenamed`,
+        AUTODECANCER_COMMAND_DESCRIPTION: 
+          'Toggwe wenaming those with "cancewous" (non-ascii) names',
+        AUTODECANCER_ENABLED: 
+          'Enabwed autodecancew. **New** usews with "cancewous" (non-ascii) names wiww be wenamed',
+        AUTODECANCER_DISABLED:
+          'Disabwed autodecancew. **New** usews with "cancewous" (non-ascii) names wiww no wongew be wenamed',
         AUTODECANCER_REASON:
           "Name changed due to auto-decancew. The name contains non-ascii chawactews",
         AUTODECANCER_RESET_REASON: "Name is fuwwy ascii.",
@@ -156,6 +229,53 @@ export default class owo extends Language {
           `I have set the "bad name" to ${name}. This wiww **not** wename existing usews`,
         BADNAME_RESET: `I have weset the "bad name" to John Doe 0000 (with 0000 being theiw discwiminatow).
 This wiww **not** wename existing usews`,
+        BAN_LOG_AUTHOR: (user: string) => `Ban | ${user}`,
+        BAN_DM: (guild: string, reason: string) =>
+          `You wewe banned fwom ${guild} fow "${reason}"`,
+        BAN_DM_FAIL: "Unabwe to DM usew, they may have DMs off ow bwocked me",
+        BAN_SUCCESS: (user: string, guild: string) =>
+          `${constants.emojis.success} **${user}** has been banished fwom ${guild}.`,
+        BAN_FAILED_ENTRY:
+          "Faiwed to cweate mod wog entwy, usew was not banned.",
+        BAN_FAILED_BAN: "Faiwed to ban usew, pwease twy again.",
+        BAN_FAILED_BAN_AND_ENTRY:
+          "Faiwed to ban usew and was unabwe to dewete the cweated mod wog entwy.",
+        BAN_COMMAND_DESCRIPTION:
+          "Ban a usew fwom the sewvew. Use the --days fwag to dewete message histowy",
+        BAN_USER_REQUIRED: "You must pwovide a usew to ban!",
+        BAN_INVALID_DAYS: "Days must be a numbew fwom 1 to 7",
+        BLOCK_LOG_AUTHOR: (blockee: string) => `Bwock | ${blockee}`,
+        BLOCK_SUCCESS: (blockee: string) =>
+          `${constants.emojis.success} **${blockee}** has been bwocked.`,
+        BLOCK_FAILED_ENTRY:
+          "Faiwed to cweate mod wog entwy, usew/wowe was not bwocked.",
+        BLOCK_FAILED_BLOCK: "Faiwed to bwock usew/wowe, pwease twy again.",
+        BLOCK_FAILED_BLOCK_AND_ENTRY:
+          "Faiwed to bwock usew and was unabwe to dewete the cweated mod wog entwy.",
+        BLOCK_COMMAND_DESCRIPTION:
+          "Bwock a usew ow wowe fwom chatting in the cuwwent channew",
+        BLOCK_ARG_REQUIRED:
+          "You must pwovide a usew ow wowe to bwock fwom chatting in the cuwwent channew!",
+        CHANNELCREATELOG_AUTHOR: (type: string, guild: string) =>
+          `${
+            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
+          } Channew Cweate | ${guild}`,
+        CHANNELCREATELOG_MUTE_PERMS_FAIL: `I was unabwe to set pewmissions fow the muted wowe in this channew, usews may be abwe to bypass mutes hewe.
+Make suwe I have pewmission to manage wowes`,
+        CHANNELDELETELOG_AUTHOR: (type: string, guild: string) =>
+          `${
+            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
+          } Channew Dewete | ${guild}`,
+        COMMAND_COMMAND_DESCRIPTION: "Enabwe/disabwe a command in youw sewvew",
+        CHANNELUPDATELOG_AUTHOR: (type: string, guild: string) =>
+          `${
+            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
+          } Channew Update | ${guild}`,
+        COMMAND_DISABLE_FORBIDDEN: "You cannot disabwe this command!",
+        COMMAND_ENABLE: (command: string) => `Successfuwwy enabwed ${command}!`,
+        COMMAND_DISABLE: (command: string) =>
+          `Successfuwwy disabwed ${command}, onwy modewatows can use it now.`,
+        COMMAND_NO_ARG: "You need to pwovide a command to toggwe",
         DEBUG_COMMAND_DESCRIPTION:
           "Command not wowking? Use this command to twy debug the issue.",
         DEBUG_NO_COMMAND: "You must pwovide a vawid command to debug",
@@ -203,6 +323,19 @@ This wiww **not** wename existing usews`,
         DISCOVER_COMMAND_DESCRIPTION: "Links to Fire's pubwic sewvews page",
         DISCOVER_MESSAGE: `You can find Fire\'s pubwic sewvew wist at <${constants.url.discovery}>
 Hint: Use the \`public\` command to get youw sewvew on the wist`,
+        DERANK_LOG_AUTHOR: (user: string) => `Dewank | ${user}`,
+        DERANK_SUCCESS: (user: string) =>
+          `${constants.emojis.success} **${user}** has been dewanked.`,
+        DERANK_FAILED: (user: string, roles: string) =>
+          `${constants.emojis.warning} **${user}** has been pawtiawwy dewanked as I faiwed to wemove ${roles}`,
+        DERANK_FAILED_TO_REMOVE: "Faiwed to wemove",
+        DERANK_FAILED_ENTRY:
+          "Faiwed to cweate mod wog entwy, usew was not dewanked.",
+        DERANK_FAILED_DERANK: "Faiwed to dewank usew, pwease twy again.",
+        DERANK_FAILED_DERANK_AND_ENTRY: 
+          "Faiwed to dewank usew (awthough some wowes may have been wemoved) and was unabwe to dewete the cweated mod wog entwy.",
+        DERANK_COMMAND_DESCRIPTION: "Wemove aww wowes fwom a usew",
+        DERANK_USER_REQUIRED: "You must pwovide a usew to dewank!",
         STATUS_LATEST_INCIDENT: "Watest Incident",
         STATUSPAGE_PAGE_DESCRIPTIONS: {
           "all systems operational": "All Systems Opewationaw",
@@ -265,16 +398,87 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         EVAL_TOO_LONG: (haste?: string) =>
           haste
             ? `Output was too wong, upwoaded to hastebin; ${haste}`
-            : `Output was too wong, faiwed to upwoad to hastebin`,
-        GUILD_COMMAND_DESCRIPTION: "Get a genewaw ovewview of the guiwd",
+            : "Output was too wong, faiwed to upwoad to hastebin",
+        EXPLICIT_CONTENT_FILTER_DISABLED: "No Fiwtew",
+        EXPLICIT_CONTENT_FILTER_MEMBERS_WITHOUT_ROLES: "Membews Without Wowes",
+        EXPLICIT_CONTENT_FILTER_ALL_MEMBERS: "Aww Membews",
+        FILTEREXCL_COMMAND_DESCRIPTION:
+          "Excwude a membew/wowe/channew fwom wink fiwtewing",
+        FILTEREXCL_LIST_SOME_REMOVED: (mentions: string[], removed: string[]) =>
+          mentions.length
+            ? `Cuwwentwy excwuded fwom fiwtewing ${
+                mentions.length > 1 ? "are" : "is"
+              }:\n${mentions.join(
+                ", "
+              )}\n\nI have awso wemuved some items fwom the excwusion wist due to not being found (membew weft, wowe/channew deweted):\n${removed.join(
+                ", "
+              )}`
+            : `I have weset the fiwtew excwusion wist due to some items fwom the excwusion wist (${removed.join(
+                ", "
+              )}) not being found (membew weft, wowe/channew deweted)`,
+        FILTEREXCL_SET_SOME_REMOVED: (mentions: string[], removed: string[]) =>
+          mentions.length
+            ? `Successfuwwy set fiwtew excwusion wist to:\n${mentions.join(
+                ", "
+              )}\n\nI have awso wemuved some items fwom the excwusion wist due to not being found (membew weft, wowe/channew deweted):\n${removed.join(
+                ", "
+              )}`
+            : `I have weset the fiwtew excwusion wist due to the wemaining items on the excwusion wist (${removed.join(
+                ", "
+              )}) not being found (membew weft, wowe/channew deweted)`,
+        FILTEREXCL_LIST: (mentions: string[], removed: string[]) =>
+          mentions.length
+            ? `Cuwwentwy excwuded fwom fiwtewing ${
+                mentions.length > 1 ? "awe" : "is"
+              }:\n${mentions.join(", ")}`
+            : "No membews, wowes ow channews awe excwuded fwom the fiwtew. Onwy modewatows wiww bypass wink fiwtewing",
+        FILTEREXCL_SET: (mentions: string[], removed: string[]) =>
+          mentions.length
+            ? `Successfuwwy set fiwtew excwusion wist to:\n${mentions.join(
+                ", "
+              )}`
+            : "Successfuwwy weset fiwtew excwusion wist.",
         FILTER_INVITE_LOG_DESCRIPTION: (channel: string) =>
           `**Invite wink sent in** ${channel}`,
         FILTER_INVITE_LOG_CODE: "Invite Code",
+        FILTER_INVITE_LOG_LINK: "Invite Wink",
+        FILTER_MALWARE_FOUND: (author: string) =>
+          `A known mawwawe URL was found in a message send by ${author} and I was unabwe to dewete it!`,
+        FILTER_MALWARE_LOG_DESCRIPTION: (channel: string) =>
+          `**Mawwawe wink sent in** ${channel}`,
+        FILTER_PAYPAL_LOG_DESCRIPTION: (channel: string) =>
+          `**PayPaw wink sent in** ${channel}`,
+        FILTER_YOUTUBE_LOG_DESCRIPTION: (channel: string) =>
+          `**YouTube wink sent in** ${channel}`,
+        FILTER_YOUTUBE_VIDEO_LOG_STATS: (
+          views: string,
+          likes: string,
+          dislikes: string,
+          comments: string
+        ) =>
+          `${views} views, ${likes} wikes, ${dislikes} diswikes, ${comments} comments`,
+        FILTER_YOUTUBE_CHANNEL_LOG_STATS: (
+          subs: string,
+          views: string,
+          videos: string
+        ) => `${subs} subscwibews, ${views} totaw views, ${videos} videos`,
+        FILTER_TWITCH_CLIP_LOG_DESCRIPTION: (channel: string) =>
+          `**Twitch cwip sent in** ${channel}`,
+        FILTER_TWITCH_CHANNEL_LOG_DESCRIPTION: (channel: string) =>
+          `**Twitch channew sent in** ${channel}`,
+        FILTER_TWITTER_LOG_DESCRIPTION: (channel: string) =>
+          `**Twittew wink sent in** ${channel}`,
+        FILTER_SHORT_LOG_DESCRIPTION: (channel: string) =>
+          `**Showtened wink sent in** ${channel}`,
+        GUILD_COMMAND_DESCRIPTION: "Get a genewaw ovewview of the guiwd",
         GUILD_CREATED_AT: (owner: string, created: string) =>
           `**Cweated by ${owner} ${created}**`,
         GOOGLE_COMMAND_DESCRIPTION: "Speak to the Googwe Assistant",
-        GOOGLE_SOMETHING_WENT_WRONG:
-          "<a:okaygoogle:769207087674032129> Something went wwong. Twy again watew",
+        GOOGLE_TOO_LONG:
+          "<a:okaygoogle:769207087674032129> Youw quewy is too wong!",
+        GUILDUPDATELOG_AUTHOR: (name: string) => `Guiwd Update | ${name}`,
+        GUILDUPDATELOG_ICON_CHANGED: "Icon Changed",
+        GUILDUPDATELOG_SPLASH_CHANGED: "Invite Spwash Changed",
         GUILD_JOIN_POS: (pos: number) => `**Youw Join Position:** ${pos}`,
         GUILD_VERIF_VERY_HIGH: "**Extweme Vewification Wevew**",
         GUILD_VERIF_HIGH: "**High Vewification Wevew**",
@@ -294,6 +498,8 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         GUILD_ROLES: "» Roles",
         HELP_COMMAND_DESCRIPTION:
           "Wists all of Fire's commands and pwovides infowmation about them",
+        HELP_NO_COMMAND:
+          "You must pwovide a vawid command fow info ow no command fow a fuww wist",
         HELP_CREDITS_NAME: "Cwedits",
         HELP_CREDITS_VALUE: `
 Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team](https://aero.bot/) incwuding
@@ -301,8 +507,70 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
 [@aero/ksoft](https://www.npmjs.com/package/@aero/ksoft)
 [Aether](https://git.farfrom.earth/aero/aether)
 `,
+        HELP_LINKS_NAME: "Usefuw Winks",
+        HELP_LINKS_VALUE: `[Website](${constants.url.website}) - [Tewms of Sewvice](${constants.url.terms}) - [Pwivacy Powicy](${constants.url.privacy}) - [Status](${constants.url.fireStatus})`,
         HELP_FOOTER: (prefix: string, cluster: number) =>
-          `Use "${prefix}help <command>" fow mowe info about the command | Cwustew ID: ${cluster}`,
+          `Use "${prefix}help <command>" fow mowe info about the command | Cwustew ID: ${cluster}`,\
+        INVCREATE_LOG_AUTHOR: (guild: string) => `Invite Cweate | ${guild}`,
+        INVDELETE_LOG_AUTHOR: (guild: string) => `Invite Dewete | ${guild}`,
+        INVITE_ROLE_REASON: (invite: string) =>
+          `Invite wowe fow invite ${invite}`,
+        INVITEROLE_COMMAND_DESCRIPTION:
+          "Automaticawwy add a wowe to a usew when they join with a specific invite",
+        INVITEROLE_GUILD_INVITE_REQUIRED:
+          "You must pwovide a vawid invite and it must be fow this guiwd",
+        INVITEROLE_LOG_AUTHOR: "Invite Wowes",
+        INVITEROLE_ROLE_INVALID:
+          "I am unabwe to give usews this wowe. It must be wowew than my top wowe & youw top rowe, not managed & not the evewyone wowe",
+        INVITEROLE_ROLE_REQUIRED:
+          "You must pwovide eithew an existing invite to dewete an existing invite wowe ow an invite & wowe to add an invite wowe",
+        INVITEROLE_DELETE_SUCCESS: (invite: string, role?: string) =>
+          `Successfuwwy deweted invite wowe fow discord.gg\\/${invite}${
+            role ? " & " + role : ""
+          }`,
+        INVITEROLE_DELETE_FAILED: (invite: string, role?: string) =>
+          `Faiwed to dewete invite wowe fow discord.gg\\/${invite}${
+            role ? " & " + role : ""
+          }`,
+        INVITEROLE_CREATE_SUCCESS: (
+          invite: string,
+          role?: string,
+          created: boolean = true
+        ) =>
+          `Successfuwwy ${
+            created ? "cweated" : "updated"
+          } invite wowe fow discord.gg\\/${invite}${role ? " & " + role : ""}`,
+        INVITEROLE_CREATE_FAILED: (invite: string, role?: string) =>
+          `Faiwed to cweate invite wowe fow discord.gg\\/${invite}${
+            role ? " & " + role : ""
+          }`,
+
+        JOINED_WITHOUT_INVITE:
+          "Joined without an invite (Pweview Mode/Sewvew Discovewy)",
+        JOINMSG_COMMAND_DESCRIPTION:
+          "Set the join message and a channew to send it in",
+        JOINMSG_ARGUMENT_INVALID:
+          'You must pwovide eithew a channew ow "disabwe"',
+        JOINMSG_MESSAGE_REQUIRED:
+          "You must pwovide a message fow me to send on join. Wun the command without awguments to see the vawiabwes you can uses",
+        JOINMSG_SETUP_REQUIRED: `${constants.emojis.error} Pwease pwovide a channew and message fow join messages.`,
+        JOINMSG_CURRENT_SETTINGS: (prefix: string) =>
+          `**Cuwwent Join Message Settings**\nDo __${prefix}joinmsg disable__ to disabwe join messages`,
+        JOINMSG_DISABLE_ALREADY: "Join messages awe awweady disabwed",
+        JOINMSG_SET_SUCCESS: (channel: string) =>
+          // this will be used in a string with the example since I cannot set allowed mentions with Message#success
+          `Join messages wiww show in ${channel}!\nExampwe:`,
+
+        KICK_LOG_AUTHOR: (user: string) => `Kick | ${user}`,
+        KICK_SUCCESS: (user: string) =>
+          `${constants.emojis.success} **${user}** has been kicked.`,
+        KICK_FAILED_ENTRY:
+          "Faiwed to cweate mod wog entwy, usew was not kicked.",
+        KICK_FAILED_KICK: "Faiwed to kick usew, pwease twy again.",
+        KICK_FAILED_KICK_AND_ENTRY:
+          "Faiwed to kick usew and was unabwe to dewete the cweated mod wog entwy.",
+        KICK_COMMAND_DESCRIPTION: "Kick a usew fwom the sewvew",
+        KICK_USER_REQUIRED: "You must pwovide a usew to kick!",
         SK1ER_NO_REUPLOAD: (user: string) =>
           `${user} I am unabwe to wead youw wog to wemove sensitive infowmation & pwovide sowutions to youw issue. Pwease upwoad the wog diwectwy :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>
@@ -326,6 +594,9 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           `${member}, Youw nitwo pewks have been wemoved. Boost the sewvew to get them back UwU`,
         SK1ER_NITRO_PERKS_REMOVED_LEFT: (member: string) =>
           `${member} weft and theiw nitwo pewks have been wemoved.`,
+        SK1ER_BETA_SUCCESS: (member: string) =>
+          `${member}, you now have access to betas!
+Downwoad beta vewsions in <#595634170336641045> (check the pins fow the watest vewsions) and ask questions/wepowt bugs with **betas onwy** in <#595625113282412564>`,
         INVITE_COMMAND_DESCRIPTION:
           "Sends a wink to invite me to a diffewent Discowod sewvew.",
         LANGUAGE_COMMAND_DESCRIPTION:
@@ -341,7 +612,20 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         LANGUAGE_COMMAND_HELLO: (type: "guild" | "user") =>
           type == "user"
             ? "Hewwo! You have successfuwwy set Fire's wanguage to OwO :D"
-            : "Hewwo! You have successfuwwy set Fire's wanguage to OwO. Want to set it just fow you? Wun the command in DMs",
+            : "Hewwo! You have successfuwwy set Fire's wanguage to OwO. Want to set it just fow you? Wun the command in DMs",\
+        LEAVEMSG_COMMAND_DESCRIPTION:
+          "Set the weave message and a channew to send it in",
+        LEAVEMSG_ARGUMENT_INVALID:
+          'You must pwovide eithew a channew ow "disabwe"',
+        LEAVEMSG_MESSAGE_REQUIRED:
+          "You must pwovide a message fow me to send on weave. Wun the command without awguments to see the vawiabwes you can uses",
+        LEAVEMSG_SETUP_REQUIRED: `${constants.emojis.error} Pwease pwovide a channew and message fow weave messages.`,
+        LEAVEMSG_CURRENT_SETTINGS: (prefix: string) =>
+          `**Cuwwent Weave Message Settings**\nDo __${prefix}leavemsg disable__ to disabwe weave messages`,
+        LEAVEMSG_DISABLE_ALREADY: "Weave messages awe awweady disabwed",
+        LEAVEMSG_SET_SUCCESS: (channel: string) =>
+          // this will be used in a string with the example since I cannot set allowed mentions with Message#success
+          `Weave messages wiww show in ${channel}!\nExampwe:`,
         LEVELHEAD_COMMAND_DESCRIPTION: "Get a pwayew's wevewhead info",
         LEVELHEAD_NO_PLAYER:
           "You need to give a pwayew fow me to check the wevewhead of",
@@ -357,14 +641,50 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         LEVELHEAD_TAB: "Tab",
         LEVELHEAD_CHAT: "Chat",
         LEVELHEAD_ADDON_LAYERS: "Addon Head Wayews",
+        LINKFILTER_COMMAND_DESCRIPTION:
+          "Enabwe diffewent wink fiwtews. Wun the command without awguments to see aww avaiwabwe fiwtews",
+        LINKFILTER_FILTER_LIST: (valid: string[]) =>
+          `You must choose a vawid fiwtew to toggwe. The avaiwabwe fiwtews awe:\n${valid.join(
+            ", "
+          )}`,
+        LINKFILTER_SET: (enabled: string[]) =>
+          `Successfuwwy set wink fiwtews. Cuwwentwy enabwed fiwtews awe:\n${enabled.join(
+            ", "
+          )}`,
+        LINKFILTER_RESET: (enabled: string[]) =>
+          "Successfuwwy disabwed aww fiwtews.",
+        LOCKDOWN_COMMAND_DESCRIPTION:
+          "Wock aww channyews in the sewvew, usefuw fow stopping waidews fwom sending messages. May cause issues if you haven't got pewmissions setup cowwectwy",
+        LOCKDOWN_ACTION_REQUIRED:
+          "You must pwovide an action! Possibwe actions awe `start`, `end` ow `exclude`",
+        LOCKDOWN_EXCLUDE_REQUIRED:
+          "You must excwude at weast one categowy fwom sewvew wockdown befowe you can stawt/end wockdown",
+        LOCKDOWN_REASON: (user: string, reason: string) =>
+          `Sewvew wockdown stawted by ${user} with weason "${reason}".`,
+        LOCKDOWN_END_NONE_LOCKED:
+          "It seems thewe's no wocked channews so you can't end wockdown as it was nevew stawted",
+        LOCKDOWN_END_REASON: (user: string, reason: string) =>
+          `Sewvew wockdown ended by ${user} with weason "${reason}".`,
+        LOGGING_COMMAND_DESCRIPTION: "Set the channew(s) fow wogging",
+        LOGGING_INVALID_TYPE: (types: string) =>
+          `That is not a vawid wog type! Cuwwent types awe ${types}`,
+        LOGGING_DISABLED_MODERATION: "Modewation wogs have been disabwed.",
+        LOGGING_DISABLED_ACTION: "Action wogs have been disabwed.",
+        LOGGING_DISABLED_MEMBERS: "Membew wogs have been disabwed.",
+        LOGGING_ENABLED_MODERATION:
+          "Modewation wogs have been enabwed! Modewation actions such as wawnings, mutes, kicks, bans etc. wiww be wogged in youw chosen channew.",
+        LOGGING_ENABLED_ACTION:
+          "Action wogs have been enabwed! Actions such as message edits/dewetes, fiwtewed messages, channew cweates/dewetes etc. wiww be wogged in youw chosen channew.",
+        LOGGING_ENABLED_MEMBERS:
+          "Membew wogs have been enabwed! Actions such as membew joins & weaves wiww be wogged in youw chosen channew.",
         LYRICS_COMMAND_DESCRIPTION:
           'Get the wywics fow a song. (Fow best wesuwts, use the fowmat "awtist_name song_titwe")',
         LYRICS_NO_QUERY:
           'You need to pwovide a song to get the wywics fow. Fow best wesuwts, use the fowmat "awtist_name song_titwe"',
         LYRICS_NOT_FOUND: (error?: any) =>
-          error && error == "Ewwow: No wesuwts"
-            ? `I couwdn't find any wywics fow that song`
-            : `An ewwow occuwwed whiwe twying to fetch wywics.`,
+          error && error == "Error: No results"
+            ? "I couwdn't find any wywics fow that song"
+            : "An ewwow occuwwed whiwe twying to fetch wywics.",
         LYRICS_TITLE: (title: string, artist: string) =>
           `${title} by ${artist}`,
         MAKEAMEME_COMMAND_DESCRIPTION:
@@ -373,11 +693,17 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           "You need to pwovide an image url ow attach an image to make a meme",
         MAKEAMEME_NO_TEXT: "You must pwovide text sepawated by **|**",
         MAKEAMEME_UPLOAD_FAIL: "Faiwed to upwoad spicy meme :c",
+        MEMBERJOIN_LOG_AUTHOR: (member: string) => `Membew Join | ${member}`,
+        MEMBERJOIN_LOG_PREMIUM_UPSELL_TITLE:
+          "Want to see what invite they used?",
+        MEMBERJOIN_LOG_PREMIUM_UPSELL_VALUE:
+          "Fiwe Pwemium awwows you to do that and mowe.\n[Weawn Mowe](https://gaminggeek.dev/premium)",
+        MEMBERLEAVE_LOG_AUTHOR: (member: string) => `Membew Weave | ${member}`,
         MEME_COMMAND_DESCRIPTION: "Get a wandom meme",
         MEME_NOT_FOUND: (error?: any) =>
-          error && error == "Ewwow: subweddit not found"
-            ? `I couwdn't find any memes. Hewe's an idea! Twy a subweddit that actuawwy exists next time ^w^`
-            : `An ewwow occuwwed whiwe twying to fetch some spicy memes.`,
+          error && error == "Error: subreddit not found"
+            ? "I couwdn't find any memes. Hewe's an idea! Twy a subweddit that actuawwy exists next time ^w^"
+            : "An ewwow occuwwed whiwe twying to fetch some spicy memes.",
         MEME_NSFW_FORBIDDEN:
           "The meme I was given was mawked as NSFW but this channew is not. If you'we wooking fow NSFW memes, head to an NSFW channew, othewwise just twy again",
         MEME_EMBED_TITLE: "Did someone owdew a spicy meme?",
@@ -397,6 +723,14 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         ADMINONLY_SET: (channels: string) =>
           `Commands can now onwy be wun by those with the "Manage Sewvew" pewmissiowon in;\n${channels}.`,
         ADMINONLY_RESET: "Admin onwy channews have been weset",
+        MODERATOR_ACTION_DISALLOWED:
+          "You awe not awwowed to pewfowm this action on this usew!",
+        MODERATOR_ACTION_DEFAULT_REASON: "No weason pwovided.",
+        MODLOGS_COMMAND_DESCRIPTION: "	View modewation wogs fow a usew",
+        MODLOGS_NONE_FOUND:
+          "No modewation wogs found fow that usew, theiw wecowd is squeaky cwean!",
+        MODLOGS_CASE_ID: "Case ID",
+        MODLOGS_MODERATOR_ID: "Modewatow ID",
         MCSTATUS_COMMAND_DESCRIPTION: "Check the status of Minecwaft sewvices",
         MCSTATUS_FETCH_FAIL: "Faiwed to fetch Minecwaft status",
         MCSTATUS_STATUSES: {
@@ -418,7 +752,9 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         MCUUID_UUID: (ign: string, uuid: string) =>
           `${ign} has the UUID ${uuid}`,
         MOD_COMMAND_DESCRIPTION: "Get infowmation about a Sk1er LLC mod",
+        MOD_FETCH_FAIL: "Faiwed to fetch mod data",
         MOD_INVALID: "You must pwovide a vawid mod",
+        MOD_LIST: "Aww Mods",
         MODCORE_COMMAND_DESCRIPTION: "Get a pwayew's modcowe pwofiwe",
         MODCORE_INVALID_IGN:
           "You must pwovide a vawid IGN to get the ModCowe pwofiwe of",
@@ -427,6 +763,35 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           `${player}'s ModCowe Pwofiwe`,
         MODCORE_ENABLED_COSMETICS: "Enabwed Cosmetics",
         MODCORE_NO_COSMETICS: "No Cosmetics",
+        MSGEDITLOG_DESCRIPTION: (author: string, channel: string) =>
+          `**${author} edited a message in ${channel}**`,
+        MSGDELETELOG_DESCRIPTION: (author: string, channel: string) =>
+          `**${author}'s message in ${channel} was deweted**`,
+        MSGDELETELOG_ATTACH_WARN:
+          "__Attachment UWWs awe invawidated once the message is deweted.__",
+        MSGDELETELOG_SPOTIFY_ACTIVITY: "Spotify Invite",
+        MSGDELETELOG_ACTIVITY: (partyID: string, type: number) =>
+          `Pawty ID: ${partyID}\nType: ${this.get("ACTIVITY_TYPES")[type]}`,
+        MUTEROLE_COMMAND_DESCRIPTION: "Change the wowe used to mute membews",
+        MUTE_ROLE_CREATE_REASON: "Setting up muted wowe...",
+        MUTE_LOG_AUTHOR: (user: string) => `Mute | ${user}`,
+        MUTE_SUCCESS: (user: string) =>
+          `${constants.emojis.success} **${user}** has been muted.`,
+        MUTE_SEMI_SUCCESS: (user: string) =>
+          `${constants.emojis.warning} **${user}** has been muted but I was unabwe to save it in my database. The mute may not pewsist but if it's not too wong, it shouwd be fine ow you can twy again`,
+        MUTE_FAILED_ROLE:
+          "Faiwed to cweate muted wowe, pwease ensuwe I have the cowwect pewmissions",
+        MUTE_FAILED_ENTRY:
+          "Faiwed to cweate mod wog entwy, usew was not muted.",
+        MUTE_FAILED_MUTE: "Faiwed to mute usew, pwease twy again.",
+        MUTE_FAILED_MUTE_AND_ENTRY:
+          "Faiwed to mute usew and was unabwe to dewete the cweated mod wog entwy.",
+        MUTE_COMMAND_DESCRIPTION:
+          "Mute a usew eithew untiw manuawwy unmuted ow fow a time (e.g. 1 houw)",
+        MUTE_USER_REQUIRED: "You must pwovide a usew to mute!",
+        MUTE_FAILED_PARSE_TIME:
+          "I was unabwe to pawse the time in youw message",
+        MUTE_TIME_TOO_SHORT: "That time is too showt!",
         NITROPERKS_COMMAND_DESCRIPTION:
           "Claim nitwo pewks fow a Minecwaft account (wocked to discord.gg/sk1er)",
         NITROPERKS_INVALID_IGN:
@@ -475,6 +840,12 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           MANAGE_WEBHOOKS: "Manage Webhooks",
           MANAGE_EMOJIS: "Manage Emojis",
         },
+        ACTIVITY_TYPES: {
+          1: "Join",
+          2: "Spectate",
+          3: "Wisten",
+          5: "Join Wequest",
+        },
         MISSING_PERMISSIONS_USER: (permissions: string[], command: string) =>
           `You awe missing ${permissions.join(
             ", "
@@ -488,6 +859,7 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           `Shawd ID: ${shard} | Cwustew ID: ${cluster}`,
         PING_INITIAL_MESSAGE: "Pinging...",
         PING_FINAL_MESSAGE: "Pong!",
+        PINSADDLOG_AUTHOR: (channel: string) => `Message Pinned | ${channel}`,
         PUBLIC_COMMAND_DESCRIPTION:
           "Set youw sewvew to pubwic awwowing it to be visibwe on Fire's Pubwic Sewvews page",
         PUBLIC_VANITY_BLACKLIST:
@@ -505,6 +877,18 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           `${constants.statuspage.emojis.major_outage} This sewvew was manuawwy wemoved fwom Fire\'s pubwic sewvew wist by ${user}`,
         PLONK_COMMAND_DESCRIPTION:
           "Make a usew unabwe to use the best Discowod bot",
+        PLONK_USER_REQUIRED: "You must pwovide a usew to pwonk",
+        PLAYWRIGHT_ERROR_NOT_READY:
+          "Aethew has not woaded fuwwy yet, pwease twy again in a moment.",
+        PLAYWRIGHT_ERROR_BAD_REQUEST: "The wequest to Aethew was mawfowmed.",
+        PLAYWRIGHT_ERROR_UNKNOWN: "Something went wwong. Twy again watew",
+        PREFIX_COMMAND_DESCRIPTION:
+          "Set the pwefix used to twiggew Fiwe's command",
+        PREFIX_MISSING_ARG: "You must pwovide a new pwefix",
+        PREFIX_GLOBAL: `"fire " is a gwobaw pwefix and can be used anywhewe. Thewe's no need to set it as a sewvew pwefix`,
+        PREFIX_ALREADY_SET: "That's awweady set as this sewvew's pwefix",
+        PREFIX_SET: (old: string, newp: string) =>
+          `This sewvew's pwefix has been set fwom "${old}" to "${newp}"`,
         PURGE_COMMAND_DESCRIPTION:
           "Buwk dewete messages with optionaw fwags to sewectivewy dewete messages based on cewtain factows",
         PURGE_AMOUNT_INVALID: "Invawid amount. Minumum is 2, Maximum is 100",
@@ -515,9 +899,28 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         PURGE_LOG_DESCRIPTION: (amount: number, channel: string) =>
           `**${amount} messages wewe puwged in ${channel}**`,
         PURGE_LOG_FOOTER: (user: string, channel: string) =>
-          `Authow ID: ${user} | Channew ID: ${channel}"`,
+          `Authow ID: ${user} | Channew ID: ${channel}`,
         PURGED_MESSAGES: "Puwged Messages",
         PURGED_MESSAGES_FAILED: "Faiwed to upwoad messages to hastebin",
+        QUOTE_COMMAND_DESCRIPTION: "Quote a message fwom an ID ow URL",
+        AUTOQUOTE_COMMAND_DESCRIPTION:
+          "Enabwe automatic quoting when a message URL is sent",
+        AUTOQUOTE_ENABLED:
+          "Successfuwwy enabwed auto quoting. Message winks found in a message wiww be quoted",
+        AUTOQUOTE_DISABLED:
+          "Successfuwwy disabwed auto quoting. Message winks found in a message wiww no wongew be quoted",
+        QUOTE_WEBHOOK_CREATE_REASON:
+          "This webhook wiww be used fow quoting messages in this channew",
+        QUOTE_EMBED_FROM: (author: string, channel: string) =>
+          `Waw embed fwom ${author} in #${channel}`,
+        QUOTE_EMBED_FOOTER_ALL: (
+          user: string,
+          channel: string,
+          guild: string
+        ) => `Quoted by: ${user} | #${channel} | ${guild}`,
+        QUOTE_EMBED_FOOTER_SOME: (user: string, channel: string) =>
+          `Quoted by: ${user} | #${channel}`,
+        QUOTE_EMBED_FOOTER: (user: string) => `Quoted by: ${user}`,
         RANK_COMMAND_DESCRIPTION:
           "Wist aww avaiwabwe ranks and join a rank if pwovided",
         RANKS_NONE_FOUND: "Seems wike thewe's no ranks set fow this guiwd",
@@ -536,14 +939,119 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           "That isn't a vawid rank. Use the rank command to see a wist of vawid ranks",
         RANKS_SK1ER_NO_SPECS: (mention: string) =>
           `${mention} To become a beta testew, pwease pwovide youw specs thwough this fowm: 
-<https://inv.wtf/sk1spec>
-                
-Once you get the wowe, head uvw to <#595634170336641045> and check the pinnyed messages fow the watest betas.`,
+<https://inv.wtf/sk1spec>`,
         ADDRANK_COMMAND_DESCRIPTION:
-          "Add a role that users can join through the rank command.",
-        RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
+          "Add a wowe that usews can join thwough the wank command.",
+        RANKS_ALREADY_ADDED: "You can't add a wank twice siwwy",
         DELRANK_COMMAND_DESCRIPTION:
-          "Remove a rank from the list of joinable roles.",
+          "Wemove a wank fwom the wist of joinabwe wowes.",
+        REDIRECT_SHORT_URL: "Showt URL",
+        REDIRECT_COMMAND_DESCRIPTION:
+          "Cweate a wediwect to any website using inv.wtf, e.g. inv.wtf/bot.",
+        REDIRECT_ARGS_REQUIRED:
+          "You must pwovide a code and uww to cweate a wediwect",
+        REDIRECT_LIST_AUTHOR: "Youw wediwects",
+        REDIRECT_LIST_DESCRIPTION: (
+          codes: string[],
+          remaining: number,
+          prefix: string
+        ) =>
+          `${codes.join(", ")}
+You can cweate ${remaining} mowe wediwects! (Each pwemium sewvew you have gives 5 wediwects)
+Use \`${prefix}redirect <code>\` to view infowmation about a wediwect`,
+        REDIRECT_NOT_FOUND: "You don't seem to have a wediwect with that code.",
+        REDIRECT_URL_INVALID:
+          "That URL is invawid! It must be https and not a Discowd invite/inv.wtf URL",
+        REDIRECT_REGEX_FAIL:
+          "Wediwects can onwy contain chawactews A-Z0-9 and be between 2 and 15 chawactews",
+        REDIRECT_ERROR_PREMIUM:
+          "You must have an active pwemium subscwiption to cweate wediwects!",
+        REDIRECT_CREATED: (code: string, url: string, dev: boolean) =>
+          `Wediwect cweated! <https://${
+            dev ? "test." : ""
+          }inv.wtf/${code}> wiww now wead to <${url}>`,
+        REDIRECT_ERROR_LIMIT:
+          "You've hit the wimit! You must dewete a wediwect to cweate anothew",
+        REDIRECT_ERROR_EXISTS:
+          "A Vanity UWW ow Wediwect awweady exists with that code!",
+        REMINDER_TIME_UNKNOWN: "an unknown time", // used for time below, e.g. an unknown time ago
+        REMINDER_MESSAGE: (text: string, time: string, link?: string) =>
+          link
+            ? `You asked me ${time} ago to wemind you about "${text}"\n${link}`
+            : `You asked me ${time} ago to wemind you about "${text}"`,
+        REMIND_COMMAND_DESCRIPTION:
+          "Ask me to wemind you something and I'ww wemind you, pwovided Discowd isn't dying",
+        REMIND_ARG_DESCRIPTION:
+          'Youw wemindew, incwuding the time in the fowmat "X mins X days" etc.',
+        REMINDER_MISSING_ARG:
+          "I can't wemind you about nothing, you need to pwovide the wemindew text and duwation",
+        REMINDER_INVALID_REPEAT:
+          "The wepeat fwag vawue is invawid, it must wange fwom 1 to 5",
+        REMINDER_SEPARATE_FLAGS:
+          "The step and wepeat fwags must be used togethew, they cannot be used individuawwy",
+        REMINDER_INVALID_STEP:
+          'The step fwag vawue is invawid. Use this fwag to set muwtipwe wemindews with a pwedefined "step" aftew each',
+        REMINDER_MISSING_TIME:
+          'You need to incwude a duwation fow youw wemindew, e.g. "69 mins" fow 69 minutes',
+        REMINDER_MISSING_CONTENT: "I need something to wemind you about...",
+        REMINDER_TIME_LIMIT:
+          "Wemindews awe cuwwentwy wimited to 3 months (90 days). This may incwease in the futuwe",
+        REMINDER_TOO_SHORT:
+          "If you need a bot to wemind you about something in wess than two minutes, thewe's an issue that you shouwd pwobabwy wook into...",
+        REMINDER_STEP_TOO_SHORT:
+          "The step fwag vawue must be 2 minutes ow mowe",
+        REMINDER_CREATED: (success: string[], failed: string[]) =>
+          success.length == 1
+            ? `Got it! I'ww wemind you in ${success[0]}`
+            : `Got it! I've set wemindews fow the fowwowing times,
+${success.map((s) => "- " + s).join("\n")}${
+                failed.length
+                  ? "\n\nI unfowtunatewy faiwed to set wemindews fow the fowwowing times,\n" +
+                    failed.map((f) => "- " + f).join("\n")
+                  : ""
+              }`,
+        REMINDERS_COMMAND_DESCRIPTION: "Wist aww wemindews you have set",
+        REMINDERS_NONE_FOUND:
+          "You must have a good memowy because I found no wemindews",
+        DELREMIND_COMMAND_DESCRIPTION:
+          "Dewete a wemindew using the index fwom the wemindews command",
+        DELREMIND_ARG_DESCRIPTION:
+          "The wemindew you want to dewete. Use the [numbew] fwom the wemindews command",
+        DELREMIND_MISSING_ARG: "You need to pwovide a wemindew to dewete",
+        DELREMIND_TOO_HIGH: "You don't have that many wemindews",
+        DELREMIND_CONFIRM: (reminder: { date: Date; text: string }) =>
+          `Wemindew fow ${reminder.date.toLocaleString(this.id)}, ${
+            reminder.text
+          }\n\nAwe you suwe you want to dewete this wemindew? Say "yes" to dewete.`,
+        DELREMIND_NO: "Ok, I won't dewete it",
+        DELREMIND_TIME:
+          "You didn't wespond quick enough. The wemindew has not been deweted",
+        DELREMIND_YES:
+          "It is gone! Wemembew, when using this command again, the indexes wiww have changed so make suwe you'we using the wight one",
+        ROLEPERSIST_REASON: "Adding pewsisted wowes",
+        ROLEPERSIST_COMMAND_DESCRIPTION:
+          "Add a wowe(s) that wiww stay with the usew, even if they weave and wejoin.",
+        ROLEPERSIST_ROLE_INVALID:
+          "I am unabwe to pewsist this wowe. It must be wowew than my top wowe & youw top wowe, not managed & not the evewyone wowe",
+        ROLEPERSIST_SELF: "You cannot pewsist wowes to youwsewf!",
+        ROLEPERSIST_GOD:
+          "You cannot pewsist wowes to someone highew than youwsewf (and I don't mean high on dwugs smh)",
+        ROLEPERSIST_MODLOG_REASON: (roles: string[]) =>
+          roles.length
+            ? `Pewsisted wowes ${roles.join(", ")}`
+            : "Wemoved aww pewsisted wowes.",
+        ROLEPERSIST_LOG_AUTHOR: (member: string) => `Wowe Pewsist | ${member}`,
+        ROLEPERSIST_SUCCESS: (member: string, roles: string[]) =>
+          roles.length
+            ? `Success! ${member} now has the wowe${
+                roles.length > 1 ? "s" : ""
+              } ${roles.join(", ")} pewsisted to them. Wemove ${
+                roles.length > 1 ? "a" : "the"
+              } wowe to unpewsist it`
+            : // below should be impossible to get since you remove persisted
+              // roles by removing the role from the user but just in case
+              `${member} no wongew has any wowes pewsisted to them.`,
+        ROLEPERSIST_FAILED: "I was unabwe to pewsist that wowe to that user",
         SKIN_COMMAND_DESCRIPTION: "See a pwayew's Minecwaft skin",
         SKIN_INVALID_IGN: "You must pwovide a vawid IGN to get the skin of",
         SLOWMODE_COMMAND_DESCRIPTION:
@@ -585,6 +1093,15 @@ Once you get the wowe, head uvw to <#595634170336641045> and check the pinnyed m
           `Thanks! Youw suggestion was added to the Trello @ <${card.url}>. Make suwe to check it evewy now and then fow a wesponse.
  Abuse of this command __**wiww**__ wesuwt in being temporarily bwackwisted fwom Fire`,
         USER_COMMAND_DESCRIPTION: "Get a genewaw ovewview of a usew.",
+        // don't change emote
+        USER_SNOWFLAKE_DESCRIPTION: `It wooks wike that isn't a vawid usew, but it is a vawid snowfwake! <:snowflak:784510818556706867>
+
+ A [Snowfwake](https://discord.com/developers/docs/reference#snowflakes) is essentiawwy a unique ID fow a wesouwce (message, usew, channew, etc) which contains a timestamp.
+
+ You can copy the snowfwakes fwom messages in Discowd by wight cwicking on them.
+ You must have Devewopew Mode enabwed, which is found in Usew Settings > Appeawance`,
+        USER_SNOWFLAKE_BELONGS_TO: (type: string, extra: string) =>
+          `**Bewongs To**: ${type} ${extra ? "(" + extra + ")" : ""}`,
         USER_KSOFT_BANNED: (user: string, reason: string, proof: string) =>
           `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${user}) fow ${reason} - [Pwoof](${proof})`,
         VOTE_COMMAND_DESCRIPTION:
@@ -601,10 +1118,13 @@ Once you get the wowe, head uvw to <#595634170336641045> and check the pinnyed m
           "I seawched neaw and faw and couwd not find any tags... :c",
         TAG_INVALID_TAG: (tag: string) =>
           `Thewe doesn't seem to be a tag cawwed ${tag}. Wun the command again with no awguments to see aww tags`,
+        TAG_RAW_COMMAND_DESCRIPTION: "View the waw content of a tag",
         TAGS_RAW_MISSING_ARG:
           "You need to pwovide a tag name to get the waw content of",
+        TAG_DELETE_COMMAND_DESCRIPTION: "Dewete a tag",
         TAGS_DELETE_MISSING_ARG:
           "Weww, I can't weawwy dewete nothing can I? Pwovide a tag name to dewete",
+        TAG_CREATE_COMMAND_DESCRIPTION: "Cweate a new tag",
         TAGS_CREATE_MISSING_NAME:
           "Youw shiny new tag needs a name, give it one!",
         TAGS_CREATE_MISSING_CONTENT:
@@ -617,8 +1137,11 @@ Once you get the wowe, head uvw to <#595634170336641045> and check the pinnyed m
           "You've weached the tag wimit! Upgwade to pwemium fow unwimited tags;\n<https://inv.wtf/premium>",
         TAGS_EDIT_MISSING_NAME:
           "I need to know what tag to edit. Give me the name of an existing tag ^w^",
+        TAG_EDIT_COMMAND_DESCRIPTION: "Edit the content of a tag",
         TAGS_EDIT_MISSING_CONTENT:
           "You need to pwovide the new content fow the tag",
+        TAGS_EDIT_LIMIT: "This tag cannot be modified!",
+        TAG_ALIAS_COMMAND_DESCRIPTION: "Cweate an awias for a tag",
         TAGS_ALIAS_MISSING_NAME:
           "I can't make an awias fow nothing. You need to pwovide an existing tag name",
         TAGS_ALIAS_MISSING_ALIAS:
@@ -643,14 +1166,20 @@ Wunning this command without pwoviding a categowy wesets it, thewefowe disabwing
         TICKET_NAME_SET: (name: string, example: string) =>
           `Successfuwwy set the tickets name to ${name}\nExampwe: ${example}`,
         TICKET_CHANNEL_TOPIC: (author: string, id: string, subject: string) =>
-          `Ticket cweated by ${author} (${id}) with subject "${subject}"`,
+          subject
+            ? `Ticket cweated by ${author} (${id}) with subject "${subject}"`
+            : `Ticket cweated by ${author} (${id})`,
         TICKET_OPENER_TILE: (author: string) => `Ticket opened by ${author}`,
+        TICKET_AUTHOR_LEFT: (author: string) =>
+          `The ticket authow (${author}) seems to have weft the sewvew, how sad :(`,
         NEW_COMMAND_DESCRIPTION: "Makes a new ticket",
         NEW_TICKET_CREATING: "Cweating youw ticket...",
         NEW_TICKET_CREATED: (channel: string) =>
           `Successfuwwy made youw ticket, ${channel}`,
         NEW_TICKET_DISABLED: "Tickets awe not enabwed hewe",
         NEW_TICKET_LIMIT: "You have too many tickets open!",
+        CLOSE_COMMAND_DESCRIPTION:
+          "Cwoses a ticket, upwoads the twanscwipt to action wogs channew and sends to the ticket authow",
         TICKET_WILL_CLOSE:
           "Awe you suwe you want to cwose this ticket? Type `close` to confiwm",
         TICKET_CLOSE_TRANSCRIPT: (guild: string, reason: string) =>
@@ -677,6 +1206,91 @@ Wunning this command without pwoviding a categowy wesets it, thewefowe disabwing
         TICKET_REMOVE_NOT_FOUND: "You can't wemove someone who isn't even hewe",
         TICKET_REMOVE_REASON: (author: string, id: string) =>
           `Wemoved fwom ticket by ${author} (${id})`,
+        TRANS_COMMAND_DESCRIPTION: "Genewate a twans pwide avataw",
+        TEST_COMMAND_DESCRIPTION: "test?",
+        UNBAN_LOG_AUTHOR: (user: string) => `Unban | ${user}`,
+        UNBAN_SUCCESS: (user: string, guild: string) =>
+          `${constants.emojis.success} **${user}** has been unbanished fwom ${guild}.`,
+        UNBAN_FAILED_ENTRY:
+          "Faiwed to cweate mod wog entwy, usew was not unbanned.",
+        UNBAN_FAILED_NO_BAN:
+          "Don't quote me on this but uh, I think a usew needs to be banned befowe you can unban them and they do not appeaw to be banned",
+        UNBAN_FAILED_UNBAN: "Faiwed to unban usew, pwease twy again.",
+        UNBAN_FAILED_UNBAN_AND_ENTRY:
+          "Faiwed to unban usew and was unabwe to dewete the cweated mod wog entwy.",
+        UNBAN_COMMAND_DESCRIPTION: "Unban a usew fwom the sewvew",
+        UNBAN_USER_REQUIRED: "You must pwovide a usew to unban",
+        UNBLOCK_LOG_AUTHOR: (blockee: string) => `Unbwock | ${blockee}`,
+        UNBLOCK_SUCCESS: (blockee: string) =>
+          `${constants.emojis.success} **${blockee}** has been unbwocked.`,
+        UNBLOCK_FAILED_ENTRY:
+          "Faiwed to cweate mod wog entwy, usew/wowe was not unbwocked.",
+        UNBLOCK_FAILED_BLOCK: "Faiwed to unbwock usew/wowe, pwease twy again.",
+        UNBLOCK_FAILED_BLOCK_AND_ENTRY:
+          "Faiwed to unbwock usew and was unabwe to dewete the cweated mod wog entwy.",
+        UNBLOCK_COMMAND_DESCRIPTION:
+          "Unbwock a usew ow wowe and awwow them to chat in this channew",
+        UNBLOCK_ARG_REQUIRED:
+          "You must pwovide a usew ow wowe to unbwock fwom this channew",
+        UNMUTE_AUTOMATIC: "Time's up!",
+        UNMUTE_AUTO_FAIL: (
+          member: string,
+          reason: string
+        ) => `Faiwed to unmute ${member} with weason "${reason}"
+Pwease wemove the wowe manuawwy.`,
+        UNMUTE_UNKNOWN_REMOVED: `${constants.emojis.warning} My wecowds don't show any indication of that usew being muted, but I've gone ahead and wemoved the mute anyways`,
+        UNMUTE_LOG_AUTHOR: (user: string) => `Unmute | ${user}`,
+        UNMUTE_SUCCESS: (user: string) =>
+          `${constants.emojis.success} **${user}** has been unmuted.`,
+        UNMUTE_FAILED_UNKNOWN:
+          "Accowding to my wecowds, that usew was not muted and I was unabwe to unmute them.",
+        UNMUTE_FAILED_NOT_MUTED:
+          "Accowding to my wecowds & the usew's wowes, they wewe not muted.",
+        UNMUTE_FAILED_ENTRY:
+          "Faiwed to cweate mod wog entwy, usew was not unmuted.",
+        UNMUTE_FAILED_UNMUTE:
+          "Faiwed to unmute usew, pwease twy again.",
+        UNMUTE_FAILED_UNMUTE_AND_ENTRY:
+          "Faiwed to unmute usew and was unabwe to dewete the cweated mod wog entwy."
+        UNMUTE_FAILED_DB_REMOVE: `Thewe may have been an ewwow whiwe wemoving the mute fwom my database.
+If the usew gets automaticawwy muted again, just twy unmute them again and it'ww wikewy wowk`,
+        UNMUTE_COMMAND_DESCRIPTION: "Unmute a usew",
+        UNMUTE_USER_REQUIRED: "You must pwovide a usew to unmute!",
+        VANITYURL_COMMAND_DESCRIPTION:
+          "Cweates a vanity invite fow youw Discowd using inv.wtf",
+        VANITYURL_CODE_REQUIRED:
+          'You must pwovide a code (and optionaw invite) to cweate a vanity uww ow "dewete" to dewete youw existing vanity uww',
+        VANITYURL_REGEX_FAIL:
+          "Vanity UWWs can onwy contain chawactews A-Z0-9 and be between 3 and 10 chawactews",
+        VANITYURL_ALREADY_EXISTS: "That code is awweady in use!",
+        VANITYURL_INVITE_CREATE_REASON:
+          "Cweating an invite to be used with the sewvew's custom inv.wtf vanity",
+        VANITYURL_INVITE_FAILED:
+          "I faiwed to find an invite to use. Twy pwoviding one aftew youw custom code",
+        VANITYURL_BLACKLISTED:
+          "This guiwd has been bwackwisted fwom vanity featuwes",
+        VANITYURL_CREATED: (code: string, dev: boolean) =>
+          `Youw Vanity UWW is <https://${dev ? "test." : ""}inv.wtf/${code}>`,
+        WARN_FAILED_ENTRY: 
+          "Usew was not wawned due to an ewwow wogging the wawn",
+        WARN_LOG_AUTHOR: (user: string) => `Wawn | ${user}`,
+        WARN_LOG_DM_FAIL: "Unabwe to send DM, usew was not wawned.",
+        WARN_DM: (guild: string, reason: string) =>
+          `You wewe wawned in ${guild} fow "${reason}"`,
+        WARN_SUCCESS: (user: string, times: string) =>
+          `${constants.emojis.success} **${user}** has been wawned fow the ${times} time..`,
+        WARN_FAIL: (user: string, times: string) =>
+          `${constants.emojis.warning} **${user}** was not wawned due to having DMs off. The wawning has been wogged and is theiw ${times} wawning.`,
+        WARN_COMMAND_DESCRIPTION: "Wawn a usew",
+        WARN_REASON_MISSING: "You must pwovide a weason to wawn a usew",
+        WARNINGS_COMMAND_DESCRIPTION: "View wawnings fow a usew",
+        WARNINGS_NONE_FOUND: "No wawnings found, they have been a good usew :)",
+        CLEARWARNINGS_COMMAND_DESCRIPTION:
+          "Cweaw wawnings, eithew by usew ow by case id",
+        CLEARWARNINGS_ARGUMENT_REQUIRED:
+          "You must pwovide a membew ow case id to cweaw wawn(s)",
+        CLEARWARN_CASEID_REQUIRED:
+          'You must pwovide a case id when using "clearwarn" ow "clearwarning"',
       },
       enabled: true,
     });
