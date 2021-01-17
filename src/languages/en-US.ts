@@ -30,8 +30,10 @@ export default class enUS extends Language {
           "Only those strong enough to wield the ban hammer (moderators) can use this command",
         COMMAND_GUILD_ONLY: (invite: string) =>
           `You can only use this command in a server. You can invite me to a server at <${invite}>`,
-        COMMAND_PREMIUM_ONLY:
+        COMMAND_PREMIUM_GUILD_ONLY:
           "Only premium guilds can use this command. Learn more at https://inv.wtf/premium",
+        COMMAND_PREMIUM_USER_ONLY:
+          "Only users with a current premium subscription can use this command. Learn more at https://inv.wtf/premium",
         COMMAND_EXPERIMENT_REQUIRED: "The maze wasn't meant for you.",
         COMMAND_ACCOUNT_TOO_YOUNG:
           "Your account has been created too recently!",
@@ -936,6 +938,35 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         DELRANK_COMMAND_DESCRIPTION:
           "Remove a rank from the list of joinable roles.",
         REDIRECT_SHORT_URL: "Short URL",
+        REDIRECT_COMMAND_DESCRIPTION:
+          "Create a redirect to any website using inv.wtf, e.g. inv.wtf/bot.",
+        REDIRECT_ARGS_REQUIRED:
+          "You must provide a code and url to create a redirect",
+        REDIRECT_LIST_AUTHOR: "Your redirects",
+        REDIRECT_LIST_DESCRIPTION: (
+          codes: string[],
+          remaining: number,
+          prefix: string
+        ) =>
+          `${codes.join(", ")}
+
+You can create ${remaining} more redirects! (Each premium server you have gives 5 redirects)
+Use \`${prefix}redirect <code>\` to view information about a redirect`,
+        REDIRECT_NOT_FOUND: "You don't seem to have a redirect with that code.",
+        REDIRECT_URL_INVALID:
+          "That URL is invalid! It must be https and not a Discord invite/inv.wtf URL",
+        REDIRECT_REGEX_FAIL:
+          "Redirects can only contain characters A-Z0-9 and be between 2 and 15 characters",
+        REDIRECT_ERROR_PREMIUM:
+          "You must have an active premium subscription to create redirects!",
+        REDIRECT_CREATED: (code: string, url: string, dev: boolean) =>
+          `Redirect created! <https://${
+            dev ? "test." : ""
+          }inv.wtf/${code}> will now lead to <${url}>`,
+        REDIRECT_ERROR_LIMIT:
+          "You've hit the limit! You must delete a redirect to create another",
+        REDIRECT_ERROR_EXISTS:
+          "A Vanity URL or Redirect already exists with that code!",
         REMINDER_TIME_UNKNOWN: "an unknown time", // used for time below, e.g. an unknown time ago
         REMINDER_MESSAGE: (text: string, time: string, link?: string) =>
           link
