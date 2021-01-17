@@ -676,7 +676,7 @@ export class FireGuild extends Guild {
       )
       .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
-      .setFooter(`${this.id} | ${moderator.id}`);
+      .setFooter(`${user.id} | ${moderator.id}`);
     await this.modLog(embed, "unban").catch(() => {});
     if (channel)
       return await channel
