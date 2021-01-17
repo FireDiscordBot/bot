@@ -29,13 +29,6 @@ export type ModLogType =
   | "role_persist";
 export type MemberLogType = "join" | "leave";
 
-const getCategories = () => {
-  const commandsFolder = resolve("src/commands");
-  return readdirSync(commandsFolder).filter((name) =>
-    statSync(join(commandsFolder, name)).isDirectory()
-  );
-};
-
 export const constants = {
   emojis: {
     // shoutout to blobhub for the ebic emotes, https://inv.wtf/blobhub
@@ -218,7 +211,6 @@ export const constants = {
       under_maintenance: "<:maintenance:685538400337395743>",
     },
   },
-  categoryNames: getCategories(),
 };
 
 export const titleCase = (string: string) =>
