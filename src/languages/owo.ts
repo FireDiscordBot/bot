@@ -21,7 +21,7 @@ export default class owo extends Language {
           "Onwy a sewect few awe powewfuw enyough to use this command",
         COMMAND_GUILD_ONLY: (invite: string) =>
           `You can onwy use this command in a sewvew. You can invite me to a sewvew at <${invite}>`,
-        COMMAND_PREMIUM_ONLY:
+        COMMAND_PREMIUM_GUILD_ONLY:
           "Onwy pwemium guiwds can use this command. Weawn mowe at https://inv.wtf/premium",
         COMMAND_EXPERIMENT_REQUIRED: "The maze wasn't meant fow you.",
         COMMAND_ACCOUNT_TOO_YOUNG:

@@ -22,7 +22,7 @@ export default class CommandBlocked extends Listener {
         this.client.config.inviteLink
       );
     else if (reason == "premium")
-      return await message.error("COMMAND_PREMIUM_ONLY");
+      return await message.error("COMMAND_PREMIUM_GUILD_ONLY");
     else if (reason == "experimentlock")
       return await message.error("COMMAND_EXPERIMENT_REQUIRED");
     else if (reason == "accountage")
