@@ -935,6 +935,7 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
         DELRANK_COMMAND_DESCRIPTION:
           "Remove a rank from the list of joinable roles.",
+        REDIRECT_SHORT_URL: "Short URL",
         REMINDER_TIME_UNKNOWN: "an unknown time", // used for time below, e.g. an unknown time ago
         REMINDER_MESSAGE: (text: string, time: string, link?: string) =>
           link
