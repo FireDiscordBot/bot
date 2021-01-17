@@ -62,7 +62,7 @@ export default class Message extends Listener {
     if (this.client.manager.id != 0 && !message.guild) return;
 
     if (message.type == "PINS_ADD")
-      this.client.emit("channelPinsAdd", message.reference);
+      this.client.emit("channelPinsAdd", message.reference, message.member);
 
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
