@@ -113,7 +113,7 @@ export default class owo extends Language {
         PROCESS_ID: "Pwocess ID",
         PINNED_BY: "Pinned By",
         STATISTICS: "Statistics",
-        CUSTOM_URL: "Custom URL"
+        CUSTOM_URL: "Custom URL",
         INVITED_BY: "Invited By",
         CREATED_BY: "Cweated By",
         DELETED_BY: "Deweted By",
@@ -510,7 +510,7 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         HELP_LINKS_NAME: "Usefuw Winks",
         HELP_LINKS_VALUE: `[Website](${constants.url.website}) - [Tewms of Sewvice](${constants.url.terms}) - [Pwivacy Powicy](${constants.url.privacy}) - [Status](${constants.url.fireStatus})`,
         HELP_FOOTER: (prefix: string, cluster: number) =>
-          `Use "${prefix}help <command>" fow mowe info about the command | Cwustew ID: ${cluster}`,\
+          `Use "${prefix}help <command>" fow mowe info about the command | Cwustew ID: ${cluster}`,
         INVCREATE_LOG_AUTHOR: (guild: string) => `Invite Cweate | ${guild}`,
         INVDELETE_LOG_AUTHOR: (guild: string) => `Invite Dewete | ${guild}`,
         INVITE_ROLE_REASON: (invite: string) =>
@@ -612,7 +612,7 @@ Downwoad beta vewsions in <#595634170336641045> (check the pins fow the watest v
         LANGUAGE_COMMAND_HELLO: (type: "guild" | "user") =>
           type == "user"
             ? "Hewwo! You have successfuwwy set Fire's wanguage to OwO :D"
-            : "Hewwo! You have successfuwwy set Fire's wanguage to OwO. Want to set it just fow you? Wun the command in DMs",\
+            : "Hewwo! You have successfuwwy set Fire's wanguage to OwO. Want to set it just fow you? Wun the command in DMs",
         LEAVEMSG_COMMAND_DESCRIPTION:
           "Set the weave message and a channew to send it in",
         LEAVEMSG_ARGUMENT_INVALID:
@@ -1251,7 +1251,7 @@ Pwease wemove the wowe manuawwy.`,
         UNMUTE_FAILED_UNMUTE:
           "Faiwed to unmute usew, pwease twy again.",
         UNMUTE_FAILED_UNMUTE_AND_ENTRY:
-          "Faiwed to unmute usew and was unabwe to dewete the cweated mod wog entwy."
+          "Faiwed to unmute usew and was unabwe to dewete the cweated mod wog entwy.",
         UNMUTE_FAILED_DB_REMOVE: `Thewe may have been an ewwow whiwe wemoving the mute fwom my database.
 If the usew gets automaticawwy muted again, just twy unmute them again and it'ww wikewy wowk`,
         UNMUTE_COMMAND_DESCRIPTION: "Unmute a usew",
