@@ -13,6 +13,13 @@ export default class GuildCreate extends Listener {
   async exec(guild: FireGuild) {
     if (!this.client.guildSettings.items.has(guild.id))
       await this.client.guildSettings.init(guild.id);
+
+    // these make sure the collection exists,
+    // doesn't fill with data unless premium
+    await guild.loadInvites();
+    await guild.loadInviteRoles();
+    await guild.loadPersistedRoles();
+
     if (
       (this.client.options.shards as number[]).includes(
         this.client.util.getShard("564052798044504084")
