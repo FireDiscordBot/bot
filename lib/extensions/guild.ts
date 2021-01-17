@@ -671,7 +671,7 @@ export class FireGuild extends Guild {
       .setColor("#E74C3C")
       .setTimestamp()
       .setAuthor(
-        this.language.get("UNBAN_LOG_AUTHOR", this.toString()),
+        this.language.get("UNBAN_LOG_AUTHOR", user.toString()),
         user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.language.get("MODERATOR"), moderator.toString())
