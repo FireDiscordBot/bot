@@ -117,6 +117,7 @@ export default class enUS extends Language {
         PROCESS_ID: "Process ID",
         STATISTICS: "Statistics",
         CUSTOM_URL: "Custom URL",
+        PINNED_BY: "Pinned By",
         INVITED_BY: "Invited By",
         CREATED_BY: "Created By",
         DELETED_BY: "Deleted By",
@@ -851,6 +852,7 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
         PING_FOOTER: (shard: number, cluster: number) =>
           `Shard ID: ${shard} | Cluster ID: ${cluster}`,
         PING_FINAL_MESSAGE: "Pong!",
+        PINSADDLOG_AUTHOR: (channel: string) => `Message Pinned | ${channel}`,
         PUBLIC_COMMAND_DESCRIPTION:
           "Set your server to public allowing it to be visible on Fire's Public Servers page",
         PUBLIC_VANITY_BLACKLIST:
