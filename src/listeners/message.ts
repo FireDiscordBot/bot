@@ -25,10 +25,12 @@ export default class Message extends Listener {
     let tokens = [];
     let exec;
     while ((exec = this.tokenRegex.exec(foundIn))) if (exec) tokens.push(exec);
+    this.tokenRegex.lastIndex = 0;
     let files: { [key: string]: { content: string } } = {};
     for (const token in tokens)
-      files[`token_leak_${Date.now()}`] = {
-        // the account the gists get uploaded to is hidden from the public so the content doesn't matter, it just needs the token
+      files[`token_leak_${+new Date()}`] = {
+        // the account the gists get uploaded to is hidden from the public
+        // so the content doesn't matter, it just needs the token ;)
         content: `some fuckin loser leaked their token LUL anyways here it is ${token}`,
       };
     const body = {
@@ -39,12 +41,14 @@ export default class Message extends Listener {
     try {
       const gist = await (
         await centra("https://api.github.com/gists", "POST")
+          .header("User-Agent", "Fire Discord Bot")
           .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
           .body(body, "json")
           .send()
       ).json();
       await this.client.util.sleep(30000);
       await centra(`https://api.github.com/gists/${gist.id}`, "DELETE")
+        .header("User-Agent", "Fire Discord Bot")
         .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
         .send();
     } catch (e) {
@@ -54,10 +58,12 @@ export default class Message extends Listener {
     }
   }
 
-  // A few things are commented out since the normal bot will handle them for now
-  // Once deployed, they will be uncommented
   async exec(message: FireMessage) {
     if (this.client.manager.id != 0 && !message.guild) return;
+
+    if (message.type == "PINS_ADD")
+      this.client.emit("channelPinsAdd", message.reference);
+
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
     // These won't run if the modules aren't loaded
@@ -81,11 +87,13 @@ export default class Message extends Listener {
     )
       await message.delete().catch(() => {});
 
-    // let toSearch =
-    //   message.content +
-    //   message.embeds.map((embed) => JSON.stringify(embed)).join(" ");
-    // if (this.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN)
-    //   await this.tokenGist(message, toSearch);
+    let toSearch =
+      message.content +
+      message.embeds.map((embed) => JSON.stringify(embed)).join(" ");
+    if (this.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN) {
+      this.tokenRegex.lastIndex = 0;
+      await this.tokenGist(message, toSearch);
+    }
 
     if (
       message.channel.id == "600070909365059584" &&
