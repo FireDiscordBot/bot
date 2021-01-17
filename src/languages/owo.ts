@@ -13,6 +13,8 @@ export default class owo extends Language {
         INVALID_MEMBER_ID: "Channew not found! Twy use an ID instead.",
         INVALID_CHANNEL_ID: "Channew not found! Make suwe the ID is vawid.",
         INVALID_ROLE_ID: "Wowe not found! Make suwe the ID is vawid.",
+        INVALID_SNOWFLAKE:
+          "Usew not found and awgument is not a vawid snowfwake. Twy using an ID if you want to find a usew.",
         INVALID_MESSAGE:
           "Message not found! Make suwe you'we giving a vawid id/wink.",
         UNKNOWN_COMMAND: "Command not found",
@@ -53,6 +55,7 @@ export default class owo extends Language {
         CREATED_GUILD: "Cweated Guiwd",
         JOINED: "Joined",
         JOIN_POSITION: "Join Position",
+        CLICK_TO_VIEW: "Cwick To View", // message/attachment link
         NICKNAME: "Nickname",
         ABOUT: "About",
         ROLES: "Wowes",
@@ -62,9 +65,18 @@ export default class owo extends Language {
         GUILD: "Guiwd",
         GUILDS: "Guiwds",
         CHANNEL: "Channew",
+        DM_CHANNEL: "Ouw DMs",
+        MESSAGE: "Message",
         ATTACHMENT: "Attachment",
+        EMOJI: "Emoji",
+        ROLE: "Rowe",
         VARIABLES: "Vawiabwes",
         SUBJECT: "Subject",
+        TIMESTAMP: "Timestamp",
+        WORKER_ID: "Wowkew ID",
+        PROCESS_ID: "Pwocess ID",
+        INCREMENT: "Incwement",
+        AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
         REGION_DEPRECATED:
           "<:wumpus_land:759529118671831040> Depwecated Wegion",
         REGIONS: {
@@ -357,6 +369,18 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         LEVELHEAD_TAB: "Tab",
         LEVELHEAD_CHAT: "Chat",
         LEVELHEAD_ADDON_LAYERS: "Addon Head Wayews",
+        LOCKDOWN_COMMAND_DESCRIPTION:
+          "Wock aww channyews in the sewvew, usefuw fow stopping waidews fwom sending messages. May cause issues if you haven't got pewmissions setup cowwectwy",
+        LOCKDOWN_ACTION_REQUIRED:
+          "You must pwovide an action! Possibwe actions awe `start`, `end` ow `exclude`",
+        LOCKDOWN_EXCLUDE_REQUIRED:
+          "You must excwude at weast one categowy fwom sewvew wockdown befowe you can stawt/end wockdown",
+        LOCKDOWN_REASON: (user: string, reason: string) =>
+          `Sewvew wockdown stawted by ${user} with weason "${reason}".`,
+        LOCKDOWN_END_NONE_LOCKED:
+          "It seems thewe's no wocked channews so you can't end wockdown as it was nevew stawted",
+        LOCKDOWN_END_REASON: (user: string, reason: string) =>
+          `Sewvew wockdown ended by ${user} with weason "${reason}".`,
         LYRICS_COMMAND_DESCRIPTION:
           'Get the wywics fow a song. (Fow best wesuwts, use the fowmat "awtist_name song_titwe")',
         LYRICS_NO_QUERY:
@@ -585,6 +609,15 @@ Once you get the wowe, head uvw to <#595634170336641045> and check the pinnyed m
           `Thanks! Youw suggestion was added to the Trello @ <${card.url}>. Make suwe to check it evewy now and then fow a wesponse.
  Abuse of this command __**wiww**__ wesuwt in being temporarily bwackwisted fwom Fire`,
         USER_COMMAND_DESCRIPTION: "Get a genewaw ovewview of a usew.",
+        // don't change emote
+        USER_SNOWFLAKE_DESCRIPTION: `It wooks wike that isn't a vawid usew, but it is a vawid snowfwake! <:snowflak:784510818556706867>
+
+ A [Snowfwake](https://discord.com/developers/docs/reference#snowflakes) is essentiawwy a unique ID fow a wesouwce (message, usew, channew, etc) which contains a timestamp.
+
+ You can copy the snowfwakes fwom messages in Discowd by wight cwicking on them.
+ You must have Devewopew Mode enabwed, which is found in Usew Settings > Appeawance`,
+        USER_SNOWFLAKE_BELONGS_TO: (type: string, extra: string) =>
+          `**Bewongs To**: ${type} ${extra ? "(" + extra + ")" : ""}`,
         USER_KSOFT_BANNED: (user: string, reason: string, proof: string) =>
           `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${user}) fow ${reason} - [Pwoof](${proof})`,
         VOTE_COMMAND_DESCRIPTION:
