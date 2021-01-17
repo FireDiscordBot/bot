@@ -44,14 +44,11 @@ export default class Redirects extends Module {
     return redirect as Redirect;
   }
 
-  async list(user: FireMember | FireUser, code?: string) {
+  async list(user: FireMember | FireUser) {
     const result = await this.client.db
-      .query(
-        code
-          ? "SELECT * FROM vanity WHERE uid=$1 AND code=$2 AND redirect IS NOT NULL;"
-          : "SELECT * FROM vanity WHERE uid=$1 AND redirect IS NOT NULL;",
-        code ? [user.id, code] : [user.id]
-      )
+      .query("SELECT code FROM vanity WHERE uid=$1 AND redirect IS NOT NULL;", [
+        user.id,
+      ])
       .catch(() => {});
 
     if (!result) return [];
@@ -65,6 +62,12 @@ export default class Redirects extends Module {
     code = code.toLowerCase();
     const current = await this.list(user);
     if (current.length >= limit && !user.isSuperuser()) return "limit";
+    const exists = await this.getRedirect(code);
+    if (
+      (typeof exists == "boolean" && exists) ||
+      (typeof exists != "boolean" && exists.uid != user.id)
+    )
+      return "exists";
     if (!current) {
       const created = await this.client.db
         .query(
