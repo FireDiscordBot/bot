@@ -13,7 +13,7 @@ export default class MessageDelete extends Listener {
   async exec(message: FireMessage) {
     if (message.partial || message.author.bot) return;
 
-    if (message.guild?.settings.has("temp.log.action")) {
+    if (message.guild?.settings.has("log.action")) {
       const description = message.guild.language.get(
         "MSGDELETELOG_DESCRIPTION",
         message.author.toMention(),

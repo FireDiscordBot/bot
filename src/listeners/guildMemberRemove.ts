@@ -77,7 +77,7 @@ export default class GuildMemberRemove extends Listener {
       await channel.send(leaveMessage).catch(() => {});
     }
 
-    if (member.guild.settings.has("temp.log.members")) {
+    if (member.guild.settings.has("log.members")) {
       let moderator: FireMember, action: string, reason: string;
       if (member.guild.me.permissions.has("VIEW_AUDIT_LOG")) {
         const auditLogActions = await member.guild

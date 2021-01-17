@@ -15,7 +15,7 @@ export default class InviteCreate extends Listener {
     const language = guild.language;
     if (guild.premium) guild.invites.set(invite.code, 0);
 
-    if (guild.settings.has("temp.log.action")) {
+    if (guild.settings.has("log.action")) {
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
         .setTimestamp()

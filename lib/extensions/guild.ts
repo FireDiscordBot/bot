@@ -328,7 +328,7 @@ export class FireGuild extends Guild {
     type: ActionLogType
   ) {
     const channel = this.channels.cache.get(
-      this.settings.get("temp.log.action")
+      this.settings.get("log.action")
     );
     if (!channel || channel.type != "text") return;
     return await (channel as TextChannel).send(log).catch(() => {});
@@ -339,7 +339,7 @@ export class FireGuild extends Guild {
     type: ModLogType
   ) {
     const channel = this.channels.cache.get(
-      this.settings.get("temp.log.moderation")
+      this.settings.get("log.moderation")
     );
     if (!channel || channel.type != "text") return;
     return await (channel as TextChannel).send(log).catch(() => {});
@@ -350,7 +350,7 @@ export class FireGuild extends Guild {
     type: MemberLogType
   ) {
     const channel = this.channels.cache.get(
-      this.settings.get("temp.log.members")
+      this.settings.get("log.members")
     );
     if (!channel || channel.type != "text") return;
     return await (channel as TextChannel).send(log).catch(() => {});

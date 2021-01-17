@@ -127,7 +127,7 @@ export default class GuildMemberAdd extends Listener {
       await channel.send(joinMessage).catch(() => {});
     }
 
-    if (member.guild.settings.has("temp.log.members")) {
+    if (member.guild.settings.has("log.members")) {
       const createdDelta =
         humanize(
           moment(member.user.createdAt).diff(moment()),

@@ -25,7 +25,7 @@ export default class ChannelPinsAdd extends Listener {
       .catch(() => {});
     if (!message) return;
 
-    if (guild.settings.has("temp.log.action")) {
+    if (guild.settings.has("log.action")) {
       const embed = new MessageEmbed()
         .setColor(member?.displayHexColor || "#ffffff")
         .setTimestamp()

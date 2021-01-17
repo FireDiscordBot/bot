@@ -37,7 +37,7 @@ export default class GuildUpdate extends Listener {
         .catch(() => {})) as FireMember;
     }
 
-    if (after.settings.has("temp.log.action") && notableChanges) {
+    if (after.settings.has("log.action") && notableChanges) {
       const language = after.language;
       const embed = new MessageEmbed()
         .setColor("#2ECC71")

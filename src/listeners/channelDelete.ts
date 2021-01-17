@@ -22,7 +22,7 @@ export default class ChannelDelete extends Listener {
     const guild = channel.guild as FireGuild,
       language = guild.language;
 
-    if (guild.settings.has("temp.log.action")) {
+    if (guild.settings.has("log.action")) {
       const data = {
         ...channel,
         permissionOverwrites: channel.permissionOverwrites.toJSON(),

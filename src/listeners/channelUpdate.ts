@@ -99,7 +99,7 @@ export default class ChannelUpdate extends Listener {
       // @ts-ignore
       before.topic != after.topic;
 
-    if (guild.settings.has("temp.log.action") && notableChanges) {
+    if (guild.settings.has("log.action") && notableChanges) {
       const language = guild.language;
       const embed = new MessageEmbed()
         .setColor("#2ECC71")

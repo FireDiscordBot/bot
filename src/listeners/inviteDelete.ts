@@ -15,7 +15,7 @@ export default class InviteDelete extends Listener {
     const language = guild.language;
     guild.invites?.delete(invite.code);
 
-    if (guild.settings.has("temp.log.action")) {
+    if (guild.settings.has("log.action")) {
       const embed = new MessageEmbed()
         .setColor("#E74C3C")
         .setTimestamp()
