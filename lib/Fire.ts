@@ -179,14 +179,13 @@ export class Fire extends AkairoClient {
       automateCategories: true,
       commandUtilLifetime: 30000,
       prefix: (message: FireMessage) => {
-        return config.fire.dev ? "dev " : ["ts", "ts ", "beta", "beta "];
-        // return config.fire.dev
-        //   ? "dev "
-        //   : [
-        //       message.guild.settings.get("config.prefix", "$"),
-        //       message.guild.settings.get("config.prefix", "$") + " ",
-        //       "fire ",
-        //     ];
+        return config.fire.dev
+          ? "dev "
+          : [
+              message.guild.settings.get("config.prefix", "$"),
+              message.guild.settings.get("config.prefix", "$") + " ",
+              "fire ",
+            ];
       },
     });
 
