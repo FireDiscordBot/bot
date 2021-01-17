@@ -63,7 +63,7 @@ export default class MessageUpdate extends Listener {
     if (before.content.trim() == after.content.trim()) return;
 
     if (
-      after.guild?.settings.has("temp.log.action") &&
+      after.guild?.settings.has("log.action") &&
       !before.partial &&
       // if it's too long to show any changes
       // (since it is sliced to prevent huge embeds),

@@ -53,7 +53,7 @@ export default class GuildMemberUpdate extends Listener {
       }
 
       if (
-        newMember.guild.settings.has("temp.log.moderation") &&
+        newMember.guild.settings.has("log.moderation") &&
         ids.length != roles.length
       ) {
         const command = this.client.getCommand("rolepersist") as RolePersist;

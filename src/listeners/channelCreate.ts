@@ -29,7 +29,7 @@ export default class ChannelCreate extends Listener {
         )
         .catch(() => (muteFail = true));
 
-    if (guild.settings.has("temp.log.action")) {
+    if (guild.settings.has("log.action")) {
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
         .setTimestamp(channel.createdAt)

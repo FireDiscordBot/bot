@@ -57,6 +57,7 @@ import * as moment from "moment";
 
 import "./extensions";
 
+// Rewrite completed - 15:10 17/1/2021
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
   started: boolean;
@@ -179,14 +180,13 @@ export class Fire extends AkairoClient {
       automateCategories: true,
       commandUtilLifetime: 30000,
       prefix: (message: FireMessage) => {
-        return config.fire.dev ? "dev " : ["ts", "ts ", "beta", "beta "];
-        // return config.fire.dev
-        //   ? "dev "
-        //   : [
-        //       message.guild.settings.get("config.prefix", "$"),
-        //       message.guild.settings.get("config.prefix", "$") + " ",
-        //       "fire ",
-        //     ];
+        return config.fire.dev
+          ? "dev "
+          : [
+              message.guild.settings.get("config.prefix", "$"),
+              message.guild.settings.get("config.prefix", "$") + " ",
+              "fire ",
+            ];
       },
     });
 

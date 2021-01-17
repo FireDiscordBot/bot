@@ -30,8 +30,10 @@ export default class enUS extends Language {
           "Only those strong enough to wield the ban hammer (moderators) can use this command",
         COMMAND_GUILD_ONLY: (invite: string) =>
           `You can only use this command in a server. You can invite me to a server at <${invite}>`,
-        COMMAND_PREMIUM_ONLY:
+        COMMAND_PREMIUM_GUILD_ONLY:
           "Only premium guilds can use this command. Learn more at https://inv.wtf/premium",
+        COMMAND_PREMIUM_USER_ONLY:
+          "Only users with a current premium subscription can use this command. Learn more at https://inv.wtf/premium",
         COMMAND_EXPERIMENT_REQUIRED: "The maze wasn't meant for you.",
         COMMAND_ACCOUNT_TOO_YOUNG:
           "Your account has been created too recently!",
@@ -115,6 +117,7 @@ export default class enUS extends Language {
         PROCESS_ID: "Process ID",
         STATISTICS: "Statistics",
         CUSTOM_URL: "Custom URL",
+        PINNED_BY: "Pinned By",
         INVITED_BY: "Invited By",
         CREATED_BY: "Created By",
         DELETED_BY: "Deleted By",
@@ -125,9 +128,14 @@ export default class enUS extends Language {
         CREATED_GUILD: "Created Guild",
         JOIN_POSITION: "Join Position",
         CLICK_TO_VIEW: "Click To View", // message/attachment link
+        ADDED_FEATURES: "Added Features",
+        SYSTEM_CHANNEL: "System Channel",
         ACCOUNT_CREATED: "Account Created",
+        REMOVED_FEATURES: "Removed Features",
         ADDED_OVERWRITES: "Added Permissions",
+        VERIFICATION_LEVEL: "Verification Level",
         REMOVED_OVERWRITES: "Removed Permissions",
+        EXPLICIT_CONTENT_FILTER: "Explicit Content Filter",
         REGION_DEPRECATED:
           "<:wumpus_land:759529118671831040> Deprecated Region",
         REGIONS: {
@@ -447,6 +455,9 @@ Hint: Use the \`public\` command to get your server on the list`,
           haste
             ? `Output was too long, uploaded to hastebin; ${haste}`
             : "Output was too long, failed to upload to hastebin",
+        EXPLICIT_CONTENT_FILTER_DISABLED: "No Filter",
+        EXPLICIT_CONTENT_FILTER_MEMBERS_WITHOUT_ROLES: "Members Without Roles",
+        EXPLICIT_CONTENT_FILTER_ALL_MEMBERS: "All Members",
         FILTEREXCL_COMMAND_DESCRIPTION:
           "Exclude a member/role/channel from link filtering",
         FILTEREXCL_LIST_SOME_REMOVED: (mentions: string[], removed: string[]) =>
@@ -522,6 +533,8 @@ Hint: Use the \`public\` command to get your server on the list`,
         GOOGLE_TOO_LONG:
           "<a:okaygoogle:769207087674032129> Your query is too long!",
         GUILDUPDATELOG_AUTHOR: (name: string) => `Guild Update | ${name}`,
+        GUILDUPDATELOG_ICON_CHANGED: "Icon Changed",
+        GUILDUPDATELOG_SPLASH_CHANGED: "Invite Splash Changed",
         GUILD_JOIN_POS: (pos: number) => `**Your Join Position:** ${pos}`,
         GUILD_VERIF_VERY_HIGH: "**Extreme Verification Level**",
         GUILD_VERIF_HIGH: "**High Verification Level**",
@@ -849,6 +862,7 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
         PING_FOOTER: (shard: number, cluster: number) =>
           `Shard ID: ${shard} | Cluster ID: ${cluster}`,
         PING_FINAL_MESSAGE: "Pong!",
+        PINSADDLOG_AUTHOR: (channel: string) => `Message Pinned | ${channel}`,
         PUBLIC_COMMAND_DESCRIPTION:
           "Set your server to public allowing it to be visible on Fire's Public Servers page",
         PUBLIC_VANITY_BLACKLIST:
@@ -935,6 +949,36 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
         DELRANK_COMMAND_DESCRIPTION:
           "Remove a rank from the list of joinable roles.",
+        REDIRECT_SHORT_URL: "Short URL",
+        REDIRECT_COMMAND_DESCRIPTION:
+          "Create a redirect to any website using inv.wtf, e.g. inv.wtf/bot.",
+        REDIRECT_ARGS_REQUIRED:
+          "You must provide a code and url to create a redirect",
+        REDIRECT_LIST_AUTHOR: "Your redirects",
+        REDIRECT_LIST_DESCRIPTION: (
+          codes: string[],
+          remaining: number,
+          prefix: string
+        ) =>
+          `${codes.join(", ")}
+
+You can create ${remaining} more redirects! (Each premium server you have gives 5 redirects)
+Use \`${prefix}redirect <code>\` to view information about a redirect`,
+        REDIRECT_NOT_FOUND: "You don't seem to have a redirect with that code.",
+        REDIRECT_URL_INVALID:
+          "That URL is invalid! It must be https and not a Discord invite/inv.wtf URL",
+        REDIRECT_REGEX_FAIL:
+          "Redirects can only contain characters A-Z0-9 and be between 2 and 15 characters",
+        REDIRECT_ERROR_PREMIUM:
+          "You must have an active premium subscription to create redirects!",
+        REDIRECT_CREATED: (code: string, url: string, dev: boolean) =>
+          `Redirect created! <https://${
+            dev ? "test." : ""
+          }inv.wtf/${code}> will now lead to <${url}>`,
+        REDIRECT_ERROR_LIMIT:
+          "You've hit the limit! You must delete a redirect to create another",
+        REDIRECT_ERROR_EXISTS:
+          "A Vanity URL or Redirect already exists with that code!",
         REMINDER_TIME_UNKNOWN: "an unknown time", // used for time below, e.g. an unknown time ago
         REMINDER_MESSAGE: (text: string, time: string, link?: string) =>
           link

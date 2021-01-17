@@ -56,7 +56,7 @@ export default class Debug extends Command {
     if (cmd.guilds.length && !cmd.guilds.includes(message.guild?.id))
       return await this.sendSingleError(message, "COMMAND_GUILD_LOCKED");
     if (cmd.premium && !message.guild?.premium)
-      return await this.sendSingleError(message, "COMMAND_PREMIUM_ONLY");
+      return await this.sendSingleError(message, "COMMAND_PREMIUM_GUILD_ONLY");
 
     const requiresExperiment = cmd.requiresExperiment;
     if (requiresExperiment) {
@@ -192,7 +192,7 @@ export default class Debug extends Command {
     return new MessageEmbed()
       .setTitle(message.language.get("DEBUG_ISSUES", issues))
       .setColor(message.member?.displayColor || "#ffffff")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setDescription(details.join("\n"));
   }
 

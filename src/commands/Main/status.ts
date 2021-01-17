@@ -86,7 +86,7 @@ export default class DiscordStatus extends Command {
         }**`,
         true
       )
-      .setTimestamp(new Date());
+      .setTimestamp();
 
     await message.channel.send(embed);
   }

@@ -22,7 +22,7 @@ export default class ChannelDelete extends Listener {
     const guild = channel.guild as FireGuild,
       language = guild.language;
 
-    if (guild.settings.has("temp.log.action")) {
+    if (guild.settings.has("log.action")) {
       const data = {
         ...channel,
         permissionOverwrites: channel.permissionOverwrites.toJSON(),
@@ -40,7 +40,7 @@ export default class ChannelDelete extends Listener {
         .catch(() => {});
       const embed = new MessageEmbed()
         .setColor("#E74C3C")
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setAuthor(
           language.get("CHANNELDELETELOG_AUTHOR", channel.type, guild.name),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })

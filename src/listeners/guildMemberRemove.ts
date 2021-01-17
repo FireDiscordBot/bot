@@ -77,7 +77,7 @@ export default class GuildMemberRemove extends Listener {
       await channel.send(leaveMessage).catch(() => {});
     }
 
-    if (member.guild.settings.has("temp.log.members")) {
+    if (member.guild.settings.has("log.members")) {
       let moderator: FireMember, action: string, reason: string;
       if (member.guild.me.permissions.has("VIEW_AUDIT_LOG")) {
         const auditLogActions = await member.guild
@@ -107,7 +107,7 @@ export default class GuildMemberRemove extends Listener {
         .setColor(
           member.partial ? "#E74C3C" : member.displayHexColor || "#E74C3C"
         )
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setAuthor(
           language.get("MEMBERLEAVE_LOG_AUTHOR", member.toString()),
           member.user.displayAvatarURL({

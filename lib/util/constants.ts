@@ -1,6 +1,4 @@
 import humanizeDuration = require("humanize-duration");
-import { readdirSync, statSync } from "fs";
-import { join, resolve } from "path";
 
 export type ActionLogType =
   | "public_toggle"
@@ -15,7 +13,9 @@ export type ActionLogType =
   | "channel_delete"
   | "invite_create"
   | "invite_delete"
-  | "guild_update";
+  | "guild_update"
+  | "user_unban"
+  | "pins_add";
 export type ModLogType =
   | "warn"
   | "ban"
@@ -28,13 +28,6 @@ export type ModLogType =
   | "unmute"
   | "role_persist";
 export type MemberLogType = "join" | "leave";
-
-const getCategories = () => {
-  const commandsFolder = resolve("src/commands");
-  return readdirSync(commandsFolder).filter((name) =>
-    statSync(join(commandsFolder, name)).isDirectory()
-  );
-};
 
 export const constants = {
   emojis: {
@@ -218,7 +211,6 @@ export const constants = {
       under_maintenance: "<:maintenance:685538400337395743>",
     },
   },
-  categoryNames: getCategories(),
 };
 
 export const titleCase = (string: string) =>

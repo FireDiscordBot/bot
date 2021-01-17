@@ -4,8 +4,6 @@ import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { PermissionString } from "discord.js";
 
-const { categoryNames } = constants;
-
 export default class Help extends Command {
   constructor() {
     super("help", {
@@ -34,7 +32,7 @@ export default class Help extends Command {
 
   async sendHelp(message: FireMessage) {
     let fields: { name: string; value: string; inline: boolean }[] = [];
-    categoryNames.forEach((name: string) => {
+    for (const name of this.client.commandHandler.categories.keyArray()) {
       if (name == "Admin" && !message.author.isSuperuser()) return;
       let category = this.client.commandHandler.categories.get(name);
       if (!category) return;
@@ -54,7 +52,7 @@ export default class Help extends Command {
           value: commands.join(", "),
           inline: false,
         });
-    });
+    }
     fields.push(
       ...[
         {

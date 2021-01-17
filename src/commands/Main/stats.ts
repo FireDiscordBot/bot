@@ -73,7 +73,7 @@ export default class Stats extends Command {
           clusterStats.version
         )
       )
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setFooter(
         message.language.get(
           "STATS_FOOTER",
@@ -131,7 +131,7 @@ export default class Stats extends Command {
         this.client.user.displayAvatarURL({ size: 2048, format: "png" })
       )
       .setTitle(message.language.get("STATS_TITLE", stats.name, stats.version))
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setFooter(
         message.language.get(
           "STATS_FOOTER",

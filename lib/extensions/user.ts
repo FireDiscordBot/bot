@@ -23,7 +23,8 @@ export class FireUser extends User {
   }
 
   get premium() {
-    return [...this.client.util.premium.values()].includes(this.id);
+    return [...this.client.util.premium.values()].filter((id) => id == this.id)
+      .length;
   }
 
   toString() {
@@ -173,7 +174,7 @@ export class FireUser extends User {
     }
     const embed = new MessageEmbed()
       .setColor("#E74C3C")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setAuthor(
         guild.language.get("BAN_LOG_AUTHOR", this.toString()),
         this.avatarURL({ size: 2048, format: "png", dynamic: true })

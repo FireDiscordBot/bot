@@ -6,3 +6,10 @@ export interface VanityURL {
   clicks?: number;
   links?: number;
 }
+
+export interface Redirect {
+  url: string;
+  uid: string;
+  clicks?: number;
+  links?: number;
+}

@@ -55,14 +55,14 @@ export default class Logging extends Command {
     if (!args.channel) {
       let deleted: any;
       try {
-        deleted = await message.guild.settings.delete(`temp.log.${type}`);
+        deleted = await message.guild.settings.delete(`log.${type}`);
       } catch {}
       return deleted
         ? await message.success(`LOGGING_DISABLED_${type.toUpperCase()}`)
         : await message.error();
     } else {
       const set = await message.guild.settings
-        .set(`temp.log.${type}`, args.channel.id)
+        .set(`log.${type}`, args.channel.id)
         .catch(() => {});
       return set
         ? await message.success(`LOGGING_ENABLED_${type.toUpperCase()}`)

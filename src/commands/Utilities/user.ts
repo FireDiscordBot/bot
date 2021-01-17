@@ -99,7 +99,7 @@ export default class User extends Command {
     const info = this.getInfo(message, member ? member : user);
     const embed = new MessageEmbed()
       .setColor(color)
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setAuthor(
         user.toString(),
         user instanceof FireMember

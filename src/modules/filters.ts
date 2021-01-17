@@ -210,7 +210,7 @@ export default class Filters extends Module {
       }
       const embed = new MessageEmbed()
         .setColor(message.member?.displayColor || "#ffffff")
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setDescription(
           message.guild.language.get(
             "FILTER_INVITE_LOG_DESCRIPTION",
@@ -384,7 +384,7 @@ export default class Filters extends Module {
         );
       const embed = new MessageEmbed()
         .setColor(message.member?.displayColor || "#ffffff")
-        .setTimestamp(new Date())
+        .setTimestamp()
         .setDescription(
           message.guild.language.get(
             "FILTER_MALWARE_LOG_DESCRIPTION",
@@ -424,7 +424,7 @@ export default class Filters extends Module {
       .catch(() => {});
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#ffffff")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setDescription(
         message.guild.language.get(
           "FILTER_PAYPAL_LOG_DESCRIPTION",
@@ -462,7 +462,7 @@ export default class Filters extends Module {
       .catch(() => {});
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#ffffff")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setDescription(
         message.guild.language.get(
           "FILTER_YOUTUBE_LOG_DESCRIPTION",
@@ -549,7 +549,7 @@ export default class Filters extends Module {
       .catch(() => {});
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#ffffff")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setDescription(
         message.guild.language.get(
           "FILTER_YOUTUBE_LOG_DESCRIPTION",
@@ -626,7 +626,7 @@ export default class Filters extends Module {
       .catch(() => {});
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#ffffff")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setDescription(
         message.guild.language.get(
           clipMatch
@@ -663,7 +663,7 @@ export default class Filters extends Module {
       .catch(() => {});
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#ffffff")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setDescription(
         message.guild.language.get(
           "FILTER_TWITTER_LOG_DESCRIPTION",
@@ -698,7 +698,7 @@ export default class Filters extends Module {
       .catch(() => {});
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#ffffff")
-      .setTimestamp(new Date())
+      .setTimestamp()
       .setDescription(
         message.guild.language.get(
           "FILTER_SHORT_LOG_DESCRIPTION",
