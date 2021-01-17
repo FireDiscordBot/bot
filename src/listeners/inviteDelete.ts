@@ -13,7 +13,7 @@ export default class InviteDelete extends Listener {
   async exec(invite: Invite) {
     const guild = invite.guild as FireGuild;
     const language = guild.language;
-    if (guild.premium) guild.invites.set(invite.code, 0);
+    guild.invites?.delete(invite.code);
 
     if (guild.settings.has("temp.log.action")) {
       const embed = new MessageEmbed()
