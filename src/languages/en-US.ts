@@ -128,9 +128,14 @@ export default class enUS extends Language {
         CREATED_GUILD: "Created Guild",
         JOIN_POSITION: "Join Position",
         CLICK_TO_VIEW: "Click To View", // message/attachment link
+        ADDED_FEATURES: "Added Features",
+        SYSTEM_CHANNEL: "System Channel",
         ACCOUNT_CREATED: "Account Created",
+        REMOVED_FEATURES: "Removed Features",
         ADDED_OVERWRITES: "Added Permissions",
+        VERIFICATION_LEVEL: "Verification Level",
         REMOVED_OVERWRITES: "Removed Permissions",
+        EXPLICIT_CONTENT_FILTER: "Explicit Content Filter",
         REGION_DEPRECATED:
           "<:wumpus_land:759529118671831040> Deprecated Region",
         REGIONS: {
@@ -450,6 +455,9 @@ Hint: Use the \`public\` command to get your server on the list`,
           haste
             ? `Output was too long, uploaded to hastebin; ${haste}`
             : "Output was too long, failed to upload to hastebin",
+        EXPLICIT_CONTENT_FILTER_DISABLED: "No Filter",
+        EXPLICIT_CONTENT_FILTER_MEMBERS_WITHOUT_ROLES: "Members Without Roles",
+        EXPLICIT_CONTENT_FILTER_ALL_MEMBERS: "All Members",
         FILTEREXCL_COMMAND_DESCRIPTION:
           "Exclude a member/role/channel from link filtering",
         FILTEREXCL_LIST_SOME_REMOVED: (mentions: string[], removed: string[]) =>
@@ -525,6 +533,8 @@ Hint: Use the \`public\` command to get your server on the list`,
         GOOGLE_TOO_LONG:
           "<a:okaygoogle:769207087674032129> Your query is too long!",
         GUILDUPDATELOG_AUTHOR: (name: string) => `Guild Update | ${name}`,
+        GUILDUPDATELOG_ICON_CHANGED: "Icon Changed",
+        GUILDUPDATELOG_SPLASH_CHANGED: "Invite Splash Changed",
         GUILD_JOIN_POS: (pos: number) => `**Your Join Position:** ${pos}`,
         GUILD_VERIF_VERY_HIGH: "**Extreme Verification Level**",
         GUILD_VERIF_HIGH: "**High Verification Level**",
