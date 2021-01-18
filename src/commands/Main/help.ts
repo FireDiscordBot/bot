@@ -35,7 +35,7 @@ export default class Help extends Command {
     for (const name of this.client.commandHandler.categories.keyArray()) {
       if (name == "Admin" && !message.author.isSuperuser()) continue;
       let category = this.client.commandHandler.categories.get(name);
-      if (!category) return;
+      if (!category) continue;
       let commands: string[] = [];
       category
         .filter(
