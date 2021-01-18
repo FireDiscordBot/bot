@@ -337,7 +337,7 @@ export class Fire extends AkairoClient {
     this.cacheSweep = () => {
       this.guilds.cache.forEach((guild) => {
         guild.members.cache.sweep(
-          (member: FireMember) => !member.pending && member.id != this.user?.id
+          (member: FireMember) => member.id != this.user?.id
         );
         guild.presences.cache.sweep((p) => true);
       });
