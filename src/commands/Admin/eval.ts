@@ -130,8 +130,8 @@ export default class Eval extends Command {
           : `${emojis.error} Evaluation Failed`
       )
       .setColor(success ? message.member?.displayColor || "#ffffff" : "#ef5350")
-      .setDescription(type.toString() != "any" ? `Output Type: ${type}` : null)
-      .addField(":inbox_tray: Input", input);
+      .setDescription(type.toString() != "any" ? `Output Type: ${type}` : null);
+    if (input.length <= 1024) embed.addField(":inbox_tray: Input", input);
     embed.setFooter(`Cluster ID: ${this.client.manager.id}`);
     if (embed.description == "null") embed.description = null;
     if (result.length > 1014) {
