@@ -21,7 +21,8 @@ export default class GuildMemberUpdate extends Listener {
       newMember.guild.mutes.has(newMember.id) &&
       !newMember.roles.cache.has(newMember.guild.muteRole.id)
     ) {
-      await newMember.roles.add(newMember.guild.muteRole).catch(() => {});
+      if (+new Date() < newMember.guild.mutes.get(newMember.id))
+        await newMember.roles.add(newMember.guild.muteRole).catch(() => {});
     }
 
     if (newMember.guild.persistedRoles?.has(newMember.id)) {
