@@ -25,8 +25,8 @@ export default class InviteCreate extends Listener {
         )
         .addField(language.get("FILTER_INVITE_LOG_CODE"), invite.code)
         .addField(language.get("CHANNEL"), invite.channel.name)
-        .addField(language.get("CREATED_BY"), invite.inviter.toString())
-        .setFooter(`${invite.channel.id} | ${invite.inviter.id}`);
+        .addField(language.get("CREATED_BY"), invite.inviter?.toString() || "¯\\\\_(ツ)_/¯")
+        .setFooter(`${invite.channel.id} | ${invite.inviter?.id || ""}`);
       await guild.actionLog(embed, "invite_create").catch(() => {});
     }
   }
