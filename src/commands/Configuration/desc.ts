@@ -30,7 +30,7 @@ export default class Description extends Command {
     if (!this.module)
       this.module = this.client.getModule("vanityurls") as VanityURLs;
     await this.client.db.query(
-      'UPDATE vanity SET "description" = $2 WHERE gid = $1;',
+      "UPDATE vanity SET description=$2 WHERE gid=$1;",
       [guild.id, desc]
     );
     await this.module
