@@ -48,7 +48,7 @@ export default class Help extends Command {
             return false;
           if (
             command.guilds.length &&
-            !command.guilds.includes(message.guild.id)
+            !command.guilds.includes(message.guild?.id)
           )
             return false;
           if (command.channel == "guild" && !message.guild) return false;
