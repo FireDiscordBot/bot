@@ -41,8 +41,8 @@ export default class ChannelUpdate extends Listener {
       afterOverwrites: string[] = [];
 
     if (
-      before.permissionOverwrites.keyArray() !=
-      after.permissionOverwrites.keyArray()
+      before.permissionOverwrites.keyArray().sort((a, b) => (a > b ? 1 : -1)) !=
+      after.permissionOverwrites.keyArray().sort((a, b) => (a > b ? 1 : -1))
     ) {
       if (before.permissionOverwrites.size > 1) {
         const roleOverwrites = before.permissionOverwrites
