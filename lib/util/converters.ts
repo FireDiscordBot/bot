@@ -126,12 +126,12 @@ export const memberConverter = async (
     if (!silent) await message.error("MEMBER_NOT_FOUND");
     return null;
   } else {
-    const member = ((await guild.members
+    const member = await guild.members
       .fetch({ user: userID, limit: 1, withPresences: true })
-      .catch(() => {})) as unknown) as Collection<string, FireMember>;
-    if (member && member.size) {
+      .catch(() => {});
+    if (member instanceof Collection && member.size) {
       return member.first() as FireMember;
-    }
+    } else if (member) return member as FireMember;
 
     if (!silent) await message.error("INVALID_MEMBER_ID");
     return null;
