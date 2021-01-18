@@ -105,7 +105,7 @@ export default class ChannelUpdate extends Listener {
         .setColor("#2ECC71")
         .setTimestamp()
         .setAuthor(
-          language.get("CHANNELUPDATELOG_AUTHOR", after.type, guild.name),
+          language.get("CHANNELUPDATELOG_AUTHOR", after.type, after.name),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .setFooter(after.id);

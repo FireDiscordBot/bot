@@ -267,10 +267,10 @@ Make suwe I have pewmission to manage wowes`,
             type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
           } Channew Dewete | ${guild}`,
         COMMAND_COMMAND_DESCRIPTION: "Enabwe/disabwe a command in youw sewvew",
-        CHANNELUPDATELOG_AUTHOR: (type: string, guild: string) =>
+        CHANNELUPDATELOG_AUTHOR: (type: string, channel: string) =>
           `${
             type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
-          } Channew Update | ${guild}`,
+          } Channew Update | ${channel}`,
         COMMAND_DISABLE_FORBIDDEN: "You cannot disabwe this command!",
         COMMAND_ENABLE: (command: string) => `Successfuwwy enabwed ${command}!`,
         COMMAND_DISABLE: (command: string) =>

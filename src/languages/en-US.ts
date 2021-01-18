@@ -321,10 +321,10 @@ Make sure I have permission to manage roles`,
           `${
             type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
           } Channel Delete | ${guild}`,
-        CHANNELUPDATELOG_AUTHOR: (type: string, guild: string) =>
+        CHANNELUPDATELOG_AUTHOR: (type: string, channel: string) =>
           `${
             type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
-          } Channel Update | ${guild}`,
+          } Channel Update | ${channel}`,
         COMMAND_COMMAND_DESCRIPTION: "Enable/disable a command in your server",
         COMMAND_DISABLE_FORBIDDEN: "You cannot disable this command!",
         COMMAND_ENABLE: (command: string) => `Successfully enabled ${command}!`,
