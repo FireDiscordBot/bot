@@ -48,6 +48,9 @@ export class FireGuild extends Guild {
 
     this.settings = new GuildSettings(client, this);
     this.tags = new GuildTagManager(client, this);
+    this.persistedRoles = new Collection();
+    this.inviteRoles = new Collection();
+    this.invites = new Collection();
     this.loadMutes();
   }
 
@@ -327,9 +330,7 @@ export class FireGuild extends Guild {
     log: string | MessageEmbed | MessageEmbedOptions,
     type: ActionLogType
   ) {
-    const channel = this.channels.cache.get(
-      this.settings.get("log.action")
-    );
+    const channel = this.channels.cache.get(this.settings.get("log.action"));
     if (!channel || channel.type != "text") return;
     return await (channel as TextChannel).send(log).catch(() => {});
   }
@@ -349,9 +350,7 @@ export class FireGuild extends Guild {
     log: string | MessageEmbed | MessageEmbedOptions,
     type: MemberLogType
   ) {
-    const channel = this.channels.cache.get(
-      this.settings.get("log.members")
-    );
+    const channel = this.channels.cache.get(this.settings.get("log.members"));
     if (!channel || channel.type != "text") return;
     return await (channel as TextChannel).send(log).catch(() => {});
   }
