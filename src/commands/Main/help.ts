@@ -33,7 +33,7 @@ export default class Help extends Command {
   async sendHelp(message: FireMessage) {
     let fields: { name: string; value: string; inline: boolean }[] = [];
     for (const name of this.client.commandHandler.categories.keyArray()) {
-      if (name == "Admin" && !message.author.isSuperuser()) return;
+      if (name == "Admin" && !message.author.isSuperuser()) continue;
       let category = this.client.commandHandler.categories.get(name);
       if (!category) return;
       let commands: string[] = [];
