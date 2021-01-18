@@ -131,7 +131,7 @@ export const memberConverter = async (
       .catch(() => {});
     if (member instanceof Collection && member.size) {
       return member.first() as FireMember;
-    } else if (member) return member as FireMember;
+    } else if (member instanceof FireMember) return member;
 
     if (!silent) await message.error("INVALID_MEMBER_ID");
     return null;
