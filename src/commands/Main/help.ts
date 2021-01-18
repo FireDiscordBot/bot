@@ -38,13 +38,24 @@ export default class Help extends Command {
       if (!category) continue;
       let commands: string[] = [];
       category
-        .filter(
-          (command) =>
-            (!message.guild ? command.channel != "guild" : true) &&
-            !(command.superuserOnly && message.author.isSuperuser()) &&
-            !(command.ownerOnly && this.client.ownerID == message.author.id) &&
-            !command.guilds?.includes(message.guild?.id)
-        )
+        .filter((command) => {
+          if (command.ownerOnly && this.client.ownerID != message.author.id)
+            return false;
+          if (command.superuserOnly && !message.author.isSuperuser())
+            return false;
+          if (
+            command.moderatorOnly &&
+            !message.member?.isModerator(message.channel)
+          )
+            return false;
+          if (
+            command.guilds.length &&
+            !command.guilds.includes(message.guild.id)
+          )
+            return false;
+          if (command.channel == "guild" && !message.guild) return false;
+          return true;
+        })
         .forEach((command) => commands.push(`\`${command.id}\``));
       if (commands.length)
         fields.push({
