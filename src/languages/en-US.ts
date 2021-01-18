@@ -1087,7 +1087,7 @@ ${success.map((s) => "- " + s).join("\n")}${
         STEAL_NOTHING:
           "You're a terrible criminal, you can't steal nothing! You must provide an emoji to steal",
         STEAL_INVALID_EMOJI:
-          "If you're going to try and steal an emoji, at least make it a valid one...\nOtherwise it's a waste of time and you'll likely get caught ¯\\_(ツ)_/¯",
+          "If you're going to try and steal an emoji, at least make it a valid one...\nOtherwise it's a waste of time and you'll likely get caught ¯\\\\_(ツ)_/¯",
         STEAL_CAUGHT:
           "Seems like you were caught red handed while trying to steal that emoji. You have returned the emoji you attempted to steal",
         STEAL_STOLEN: (emoji: string) =>
