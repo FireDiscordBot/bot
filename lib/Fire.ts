@@ -346,7 +346,7 @@ export class Fire extends AkairoClient {
       this.users.cache.sweep((user) => user.id != this.user?.id);
       if (global.gc) global.gc();
     };
-    this.cacheSweepTask = setInterval(this.cacheSweep, 300000);
+    this.cacheSweepTask = setInterval(this.cacheSweep, 30000);
     return super.login();
   }
 
