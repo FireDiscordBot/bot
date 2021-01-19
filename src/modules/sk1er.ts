@@ -341,10 +341,11 @@ export default class Sk1er extends Module {
     });
     archive.pipe(out);
 
-    const versions = await (
+    const versionsReq = await (
       await centra("https://api.modcore.net/api/v1/versions").send()
     ).json();
-    const current = versions["1.8.9"];
+    const current = versionsReq.versions["1.8.9"];
+    if (!current) return false;
     const modcore = (
       await centra(
         `https://static.sk1er.club/repo/mods/modcore/${current}/1.8.9/ModCore-${current}%20(1.8.9).jar`
