@@ -1,6 +1,6 @@
 import { discord } from "./discord";
-import { fire } from "./fire";
 import { akairo } from "./akairo";
+import { fire } from "./fire";
 
 export const config = {
   fire,
