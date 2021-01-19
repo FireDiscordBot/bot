@@ -5,7 +5,7 @@ import * as moment from "moment";
 export const fire = {
   dev: process.env.NODE_ENV == "development",
   readyMessage: (client: Fire) => {
-    client.console.log("--------------------------");
+    client.console.log("-------------------------");
     client.console.log(
       `Bot: ${client?.user?.username}#${client?.user?.discriminator}`
     );
@@ -24,7 +24,7 @@ export const fire = {
       const duration = client.launchTime.diff(now);
       client.console.log(`Started in ${humanize(duration, "en")}`);
     }
-    client.console.log("--------------------------");
+    client.console.log("-------------------------");
   },
   aetherPingTimeout: 10000,
   hasteLogEnabled: [
