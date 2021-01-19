@@ -5,6 +5,8 @@ module.exports = {
       script: "dist/src/index.js",
       exec_mode: "cluster",
       instances: 2,
+      wait_ready: true,
+      listen_timeout: 20000,
       automation: false,
       env: {
         NODE_ENV: "production",
