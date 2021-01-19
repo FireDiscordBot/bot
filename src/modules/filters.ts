@@ -13,7 +13,6 @@ const filteredReplaceRegex = /https?:\/\/\[ filtered \]/gim;
 
 export default class Filters extends Module {
   debug: string[];
-  malware: string[];
   regexes: { [key: string]: RegExp[] };
   shortURLRegex: RegExp;
   filters: {
@@ -23,7 +22,6 @@ export default class Filters extends Module {
   constructor() {
     super("filters");
     this.debug = [];
-    this.malware = [];
     this.shortURLRegex = new RegExp(
       `(?:${shortURLs.join("|").replace(/\./gim, "\\.")})\/[a-z0-9]+`,
       "im"
@@ -38,32 +36,12 @@ export default class Filters extends Module {
     };
     this.filters = {
       discord: [this.handleInvite, this.handleExtInvite],
-      malware: [this.antiMalware],
       paypal: [this.nobodyWantsToSendYouMoneyOnPayPal],
       youtube: [this.handleYouTubeVideo, this.handleYouTubeChannel],
       twitch: [this.handleTwitch],
       twitter: [this.handleTwitter],
       shorteners: [this.handleShort],
     };
-  }
-
-  async init() {
-    try {
-      const malwareReq = await centra(
-        "https://mirror.cedia.org.ec/malwaredomains/justdomains"
-      ).send();
-      if (malwareReq.statusCode == 200)
-        this.malware = malwareReq.body
-          .toString()
-          .trim()
-          .split("\n")
-          .filter((url) => url.length >= 2);
-      else throw new Error("Non 200 status code");
-    } catch (e) {
-      this.client.console.error(
-        `[Filters] Failed to fetch malware domains\n${e.stack}`
-      );
-    }
   }
 
   // Ensures next filter doesn't get stopped by an error in the previous
@@ -360,48 +338,6 @@ export default class Filters extends Module {
       if (found.length) inviteMatch = found[0];
     }
     return inviteMatch;
-  }
-
-  async antiMalware(message: FireMessage, extra: string = "") {
-    const searchString =
-      message.content +
-      " " +
-      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
-      " " +
-      extra;
-    if (this.malware.some((url) => searchString.includes(url))) {
-      await message
-        .delete({
-          reason: `Found known malware domain in message`,
-        })
-        .catch(() =>
-          message.send(
-            message.guild.language.get(
-              "FILTER_MALWARE_FOUND",
-              message.author.toString()
-            ) as string
-          )
-        );
-      const embed = new MessageEmbed()
-        .setColor(message.member?.displayColor || "#ffffff")
-        .setTimestamp()
-        .setDescription(
-          message.guild.language.get(
-            "FILTER_MALWARE_LOG_DESCRIPTION",
-            message.channel.toString()
-          )
-        )
-        .setAuthor(
-          message.author.toString(),
-          message.author.displayAvatarURL({
-            size: 2048,
-            format: "png",
-            dynamic: true,
-          })
-        )
-        .setFooter(message.author.id);
-      await message.guild.actionLog(embed, "linkfilter").catch(() => {});
-    }
   }
 
   async nobodyWantsToSendYouMoneyOnPayPal(

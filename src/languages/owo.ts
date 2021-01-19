@@ -442,10 +442,6 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           `**Invite wink sent in** ${channel}`,
         FILTER_INVITE_LOG_CODE: "Invite Code",
         FILTER_INVITE_LOG_LINK: "Invite Wink",
-        FILTER_MALWARE_FOUND: (author: string) =>
-          `A known mawwawe URL was found in a message send by ${author} and I was unabwe to dewete it!`,
-        FILTER_MALWARE_LOG_DESCRIPTION: (channel: string) =>
-          `**Mawwawe wink sent in** ${channel}`,
         FILTER_PAYPAL_LOG_DESCRIPTION: (channel: string) =>
           `**PayPaw wink sent in** ${channel}`,
         FILTER_YOUTUBE_LOG_DESCRIPTION: (channel: string) =>

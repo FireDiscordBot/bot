@@ -498,10 +498,6 @@ Hint: Use the \`public\` command to get your server on the list`,
           `**Invite link sent in** ${channel}`,
         FILTER_INVITE_LOG_CODE: "Invite Code",
         FILTER_INVITE_LOG_LINK: "Invite Link",
-        FILTER_MALWARE_FOUND: (author: string) =>
-          `A known malware URL was found in a message send by ${author} and I was unable to delete it!`,
-        FILTER_MALWARE_LOG_DESCRIPTION: (channel: string) =>
-          `**Malware link sent in** ${channel}`,
         FILTER_PAYPAL_LOG_DESCRIPTION: (channel: string) =>
           `**PayPal link sent in** ${channel}`,
         FILTER_YOUTUBE_LOG_DESCRIPTION: (channel: string) =>
