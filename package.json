@@ -13,9 +13,9 @@
   },
   "scripts": {
     "dev": "yarn compile && yarn rundev",
-    "rundev": "NODE_ENV=development node --expose-gc dist/src/index.js",
+    "rundev": "NODE_ENV=development yarn node --expose-gc dist/src/index.js",
     "compile": "rm -rf dist/ && tsc",
-    "start": "NODE_ENV=production node --expose-gc dist/src/index.js",
+    "start": "NODE_ENV=production yarn node --expose-gc dist/src/index.js",
     "format": "prettier . --write"
   },
   "private": true,
@@ -23,9 +23,11 @@
   "dependencies": {
     "@aero/ksoft": "^3.1.8",
     "@aero/sanitizer": "^1.2.0",
+    "@discordjs/form-data": "^3.0.1",
     "@klasa/type": "^0.0.1",
     "@sentry/node": "^5.27.1",
     "@skyra/timestamp": "^1.0.0",
+    "abort-controller": "^3.0.0",
     "archiver": "^5.0.2",
     "centra": "^2.4.2",
     "chrono-node": "^2.1.10",
@@ -40,6 +42,7 @@
     "moment": "^2.27.0",
     "nanoid": "^3.1.20",
     "node-color-log": "^5.2.0",
+    "node-gyp": "^7.1.2",
     "nodejs-assistant": "^0.8.0",
     "pidusage": "^2.0.21",
     "semaphore-async-await": "^1.5.1",
