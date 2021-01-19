@@ -19,7 +19,7 @@
     "format": "prettier . --write"
   },
   "private": true,
-  "license": "UNLICENSED",
+  "license": "AGPL",
   "dependencies": {
     "@aero/ksoft": "^3.1.8",
     "@aero/sanitizer": "^1.2.0",
