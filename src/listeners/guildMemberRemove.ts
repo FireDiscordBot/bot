@@ -37,6 +37,7 @@ export default class GuildMemberRemove extends Listener {
     const tickets = member.guild.tickets;
     for (const channel of tickets) {
       if (
+        channel &&
         channel.topic.startsWith(
           member.guild.language.get(
             "TICKET_CHANNEL_TOPIC",

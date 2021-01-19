@@ -407,11 +407,12 @@ export class FireGuild extends Guild {
   }
 
   get tickets() {
-    return (this.settings.get("tickets.channels", []) as string[]).map((id) =>
-      this.channels.cache
-        .filter((channel) => channel.type == "text" && channel.id == id)
-        .get(id)
-    ) as TextChannel[];
+    const textChannels = this.channels.cache.filter(
+      (channel) => channel.type == "text"
+    );
+    return (this.settings.get("tickets.channels", []) as string[])
+      .map((id) => textChannels.get(id))
+      .filter((channel) => !!channel) as TextChannel[];
   }
 
   async createTicket(
