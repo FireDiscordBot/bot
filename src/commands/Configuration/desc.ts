@@ -1,0 +1,63 @@
+import { FireMessage } from "../../../lib/extensions/message";
+import { FireGuild } from "../../../lib/extensions/guild";
+import { Language } from "../../../lib/util/language";
+import { Command } from "../../../lib/util/command";
+import VanityURLs from "../../modules/vanityurls";
+
+export default class Description extends Command {
+  module: VanityURLs;
+
+  constructor() {
+    super("description", {
+      aliases: ["desc"],
+      description: (language: Language) =>
+        language.get("DESC_COMMAND_DESCRIPTION"),
+      userPermissions: ["MANAGE_GUILD"],
+      clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
+      args: [
+        {
+          id: "desc",
+          type: "string",
+          match: "rest",
+          required: true,
+        },
+      ],
+      enableSlashCommand: true,
+    });
+  }
+
+  async setDesc(guild: FireGuild, desc: string) {
+    if (!this.module)
+      this.module = this.client.getModule("vanityurls") as VanityURLs;
+    await this.client.db.query(
+      "UPDATE vanity SET description=$2 WHERE gid=$1;",
+      [guild.id, desc]
+    );
+    await this.module
+      ?.requestFetch(`Guild ${guild.name} updated it's description`)
+      .catch(() => {});
+  }
+
+  async exec(message: FireMessage, args: { desc: string }) {
+    const vanity = await this.client.db.query(
+      "SELECT * FROM vanity WHERE gid=$1;",
+      [message.guild.id]
+    );
+
+    if (!vanity.rows.length) {
+      return await message.error(
+        "DESC_NO_VANITY",
+        message?.util?.parsed?.prefix
+      );
+    }
+
+    try {
+      await this.setDesc(message.guild, args.desc);
+      return args.desc
+        ? await message.success("DESC_SET")
+        : await message.success("DESC_RESET");
+    } catch (e) {
+      return await message.error("DESC_FAILED");
+    }
+  }
+}
