@@ -142,85 +142,85 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/core@npm:5.30.0":
-  version: 5.30.0
-  resolution: "@sentry/core@npm:5.30.0"
+"@sentry/core@npm:6.0.0":
+  version: 6.0.0
+  resolution: "@sentry/core@npm:6.0.0"
   dependencies:
-    "@sentry/hub": 5.30.0
-    "@sentry/minimal": 5.30.0
-    "@sentry/types": 5.30.0
-    "@sentry/utils": 5.30.0
+    "@sentry/hub": 6.0.0
+    "@sentry/minimal": 6.0.0
+    "@sentry/types": 6.0.0
+    "@sentry/utils": 6.0.0
     tslib: ^1.9.3
-  checksum: 359863ce060b2664ff2ad3593292457a20bccd37b8885abbd9213c359d11905c771aa42734e09f87665d566f09ba047d19cf1c3a82233ef00dcf703e177aa261
+  checksum: 6d5d3b8f4ca0abd3534920bdbf41044136a276fd4d2e9a4b365e628caabe543804e11b25315f1fa4e97f373e16815a7f6ba065d381393b4256c3a182b5d9d178
   languageName: node
   linkType: hard
 
-"@sentry/hub@npm:5.30.0":
-  version: 5.30.0
-  resolution: "@sentry/hub@npm:5.30.0"
+"@sentry/hub@npm:6.0.0":
+  version: 6.0.0
+  resolution: "@sentry/hub@npm:6.0.0"
   dependencies:
-    "@sentry/types": 5.30.0
-    "@sentry/utils": 5.30.0
+    "@sentry/types": 6.0.0
+    "@sentry/utils": 6.0.0
     tslib: ^1.9.3
-  checksum: 9d70208834e473f843937895d90ba81f170fefd6eafbb1016dc02b80854652eab6b0b1747d57855ff799ae214fadef4cc567826ef4e253cd4391a5434ac08d73
+  checksum: 9bcdfe2e4bc0ba44006fd0a8d83e183e288eb618599c56e71168e254cdd44dd2addacba59b7391652aae7bfec6cd1451d7673ab8a172b37b20d555b1abb00612
   languageName: node
   linkType: hard
 
-"@sentry/minimal@npm:5.30.0":
-  version: 5.30.0
-  resolution: "@sentry/minimal@npm:5.30.0"
+"@sentry/minimal@npm:6.0.0":
+  version: 6.0.0
+  resolution: "@sentry/minimal@npm:6.0.0"
   dependencies:
-    "@sentry/hub": 5.30.0
-    "@sentry/types": 5.30.0
+    "@sentry/hub": 6.0.0
+    "@sentry/types": 6.0.0
     tslib: ^1.9.3
-  checksum: 0ad27f2f72da62f88564a08af35ae3b438dde23f13ae1d97514e693cd7c9ab8ce5adff855645b7d8406fd0f95f4518fae1f6c674258de97d198e33f85653965c
+  checksum: 538e6e6976c1e3faf3c4cbc1276c958d9994625fd973ce09f5985d57f25ad2da6f31b3f2b7efb287e2ce4ea45b5679753089b5c0d4704674bb9b98b7948a0cb9
   languageName: node
   linkType: hard
 
-"@sentry/node@npm:^5.27.1":
-  version: 5.30.0
-  resolution: "@sentry/node@npm:5.30.0"
+"@sentry/node@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@sentry/node@npm:6.0.0"
   dependencies:
-    "@sentry/core": 5.30.0
-    "@sentry/hub": 5.30.0
-    "@sentry/tracing": 5.30.0
-    "@sentry/types": 5.30.0
-    "@sentry/utils": 5.30.0
+    "@sentry/core": 6.0.0
+    "@sentry/hub": 6.0.0
+    "@sentry/tracing": 6.0.0
+    "@sentry/types": 6.0.0
+    "@sentry/utils": 6.0.0
     cookie: ^0.4.1
     https-proxy-agent: ^5.0.0
     lru_map: ^0.3.3
     tslib: ^1.9.3
-  checksum: 60f642dd0d874efcbced667f81b0c1faf54b0cc45da91ed91564ec9f630011e8c9c2c1826775ddaf2d029af622f92469a2589e1ac4feb1eedba3485e1d4e7918
+  checksum: 8a09969051965184240bccc93b7ba11b7cc0828d6baeb8188563ff1a1556826c80069e8f4a0a9b5d8e6e17f407a96b923490b5f87ac53e14bf5a4d542f21f66f
   languageName: node
   linkType: hard
 
-"@sentry/tracing@npm:5.30.0":
-  version: 5.30.0
-  resolution: "@sentry/tracing@npm:5.30.0"
+"@sentry/tracing@npm:6.0.0":
+  version: 6.0.0
+  resolution: "@sentry/tracing@npm:6.0.0"
   dependencies:
-    "@sentry/hub": 5.30.0
-    "@sentry/minimal": 5.30.0
-    "@sentry/types": 5.30.0
-    "@sentry/utils": 5.30.0
+    "@sentry/hub": 6.0.0
+    "@sentry/minimal": 6.0.0
+    "@sentry/types": 6.0.0
+    "@sentry/utils": 6.0.0
     tslib: ^1.9.3
-  checksum: 8896203ce3f68975b14d21fe1f3f627c545238695f5003735518e15f1ce2a317d395d21ae93300aff3b6f201cff04e95981a753da5419e505ab530ee7502747c
+  checksum: de46d7d9de04e426e4ad2d646f276d9cf764db4b85f9fb81925d151ccf4ba3ff559b53bcf0405ddb0c3eb4dcc4c9f294e5045aa2fbfd70b3939accb0bc951da1
   languageName: node
   linkType: hard
 
-"@sentry/types@npm:5.30.0":
-  version: 5.30.0
-  resolution: "@sentry/types@npm:5.30.0"
-  checksum: 36955c4db69a7b5ff558d4c404b37f2135a55a579da5c84dbf11817ecf594dead5e565efaf970395ea79f9978a735b946c082f7e2684a514eb56e158855625ec
+"@sentry/types@npm:6.0.0":
+  version: 6.0.0
+  resolution: "@sentry/types@npm:6.0.0"
+  checksum: 5989fd6badb4024f77c7efcd2d97a40b2489e414ac0cd8721fddf97b485f7663a8ed0ed0f75ce299f074c5672cdb8ca4197b13fffd9b6493a8885f1f4551ca50
   languageName: node
   linkType: hard
 
-"@sentry/utils@npm:5.30.0":
-  version: 5.30.0
-  resolution: "@sentry/utils@npm:5.30.0"
+"@sentry/utils@npm:6.0.0":
+  version: 6.0.0
+  resolution: "@sentry/utils@npm:6.0.0"
   dependencies:
-    "@sentry/types": 5.30.0
+    "@sentry/types": 6.0.0
     tslib: ^1.9.3
-  checksum: 5126166e06947283dd57f8b79a247c5227cacff1f7c9d838c8a4846db621722c97c327c161ed2c4e2949c4e9e66054c464ba0e73aa3a22feda31d7208fdb4acd
+  checksum: b0b66e0934d586644ed07502fa66caf62500235f2556f4cef8df92708e58db1d816cdb46437c522d0d78f09ddad1657c39778784841257ad827adc9f36892cda
   languageName: node
   linkType: hard
 
@@ -231,12 +231,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/archiver@npm:^3.1.0":
-  version: 3.1.1
-  resolution: "@types/archiver@npm:3.1.1"
+"@types/archiver@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "@types/archiver@npm:5.1.0"
   dependencies:
     "@types/glob": "*"
-  checksum: db001eb73e5289fb3bcce904b45b01eb21b3107a85dc33de9f88fe46ba82efa03164561efe29448a9ab5205d2f0ec5379a70961153e118cb06b8e1e8ae2a7cf5
+  checksum: a19ed13f86c3a3b6bcb2a1aa68f14bc568e46ac1d68946ed1fd4d3c24404a664d3b613da714a42c67d81fed92a49996d116d27ad140c94e88d5780839f131f9d
   languageName: node
   linkType: hard
 
@@ -933,13 +933,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-erlpack@discord/erlpack:
+"erlpack@npm:^0.1.3":
   version: 0.1.3
-  resolution: "erlpack@https://github.com/discord/erlpack.git#commit=e27db8f82892bdb9b28a0547cc394d68b5d2242d"
+  resolution: "erlpack@npm:0.1.3"
   dependencies:
     bindings: ^1.5.0
     nan: ^2.14.0
-  checksum: 00802addc83beb0960bd196c3f8d30d118123a1f2f25c147e40890f580c4e65344d2f04b80bd1b3c0fd905660880dab258f09f1c660f6cca90536920b2c07fd1
+    node-gyp: latest
+  checksum: 19a0d4c7e3d264c2adf6a2b7b582102ec279562e91a30d2886ead000da5dd5ded83ba6e39babf5fb4fd4ff178a804ca60897102950847cbc20ffffaf15e95a03
   languageName: node
   linkType: hard
 
@@ -1014,9 +1015,9 @@ erlpack@discord/erlpack:
     "@aero/sanitizer": ^1.2.0
     "@discordjs/form-data": ^3.0.1
     "@klasa/type": ^0.0.1
-    "@sentry/node": ^5.27.1
+    "@sentry/node": ^6.0.0
     "@skyra/timestamp": ^1.0.0
-    "@types/archiver": ^3.1.0
+    "@types/archiver": ^5.1.0
     "@types/centra": ^2.2.0
     "@types/humanize-duration": ^3.18.1
     "@types/node": ^14.6.0
@@ -1033,7 +1034,7 @@ erlpack@discord/erlpack:
     discord.js: ^12.5.1
     dotenv-extended: ^2.9.0
     emoji-regex: ^9.0.0
-    erlpack: discord/erlpack
+    erlpack: ^0.1.3
     fuzzball: ^1.3.0
     humanize-duration: ^3.23.1
     moment: ^2.27.0
