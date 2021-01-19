@@ -121,13 +121,13 @@ export default class Message extends Listener {
     await filters?.runAll(message, this.cleanContent(message)).catch(() => {});
 
     if (
-      message.content.replace(/!/gim, "").trim() ==
-      (message.guild.me as FireMember).toMention().replace(/!/gim, "").trim()
+      message.content.trim() ==
+      (message.guild.me as FireMember).toMention().trim()
     )
       await message
         .send(
           "HELLO_PREFIX",
-          (this.client.commandHandler.prefix as PrefixSupplier)(message)
+          message.guild ? message.guild.settings.get("main.prefix", "$") : "$"
         )
         .catch(() => {});
   }
