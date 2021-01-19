@@ -182,11 +182,13 @@ export class Fire extends AkairoClient {
       prefix: (message: FireMessage) => {
         return config.fire.dev
           ? "dev "
-          : [
+          : message.guild
+          ? [
               message.guild.settings.get("config.prefix", "$"),
               message.guild.settings.get("config.prefix", "$") + " ",
               "fire ",
-            ];
+            ]
+          : ["$", "fire "];
       },
     });
 
