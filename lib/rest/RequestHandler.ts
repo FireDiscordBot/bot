@@ -203,8 +203,8 @@ export class RequestHandler {
     const latency = request.client.restPing;
     const useHigher = !!(request.options.files && request.options.files.length);
     let type: "high" | "extreme";
-    if (useHigher ? latency > 5000 : latency > 2000) type = "high";
-    else if (useHigher ? latency > 10000 : latency > 5000) type = "extreme";
+    if (useHigher ? latency > 10000 : latency > 5000) type = "high";
+    else if (useHigher ? latency > 20000 : latency > 10000) type = "extreme";
     if (!type) return;
     const API =
       request.options.versioned === false
@@ -216,7 +216,7 @@ export class RequestHandler {
         request.path
       }`
     );
-    if (!this.manager.client.config.dev)
+    if (!this.manager.client.config.dev && latency > 10000)
       request.client.sentry.captureEvent({
         message: `Encountered ${type} latency of ${latency}ms on ${request.method.toUpperCase()} ${
           request.path
