@@ -27,6 +27,7 @@ export const fire = {
     client.console.log("-------------------------");
   },
   aetherPingTimeout: 10000,
+  fireGuildId: "564052798044504084",
   hasteLogEnabled: [
     "411619823445999637",
     "755794954743185438",
