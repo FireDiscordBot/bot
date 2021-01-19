@@ -34,5 +34,5 @@ export const fire = {
     "780181693100982273",
     "767833575185580062",
   ],
-  inviteLink: "https://inv.wtf/tsbot",
+  inviteLink: "https://inv.wtf/bot",
 };
