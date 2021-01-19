@@ -1,9 +1,9 @@
 {
-  "name": "fire",
+  "name": "firediscordbot",
   "version": "1.0.0",
   "description": "Fire is a Discord bot that hopes to be the only one you'll need!",
   "main": "dist/index",
-  "repository": "https://github.com/FireDiscordBot/bot-ts.git",
+  "repository": "https://github.com/FireDiscordBot/bot.git",
   "author": "GamingGeek <geek@gaminggeek.dev> (https://gaminggeek.dev/)",
   "contributors": [
     "The Aero Team <team@aero.bot> (https://aero.bot)"
@@ -26,8 +26,6 @@
     "@klasa/type": "^0.0.1",
     "@sentry/node": "^5.27.1",
     "@skyra/timestamp": "^1.0.0",
-    "@types/pidusage": "^2.0.1",
-    "@types/uuid": "^8.3.0",
     "archiver": "^5.0.2",
     "centra": "^2.4.2",
     "chrono-node": "^2.1.10",
@@ -60,6 +58,8 @@
     "@types/centra": "^2.2.0",
     "@types/humanize-duration": "^3.18.1",
     "@types/node": "^14.6.0",
+    "@types/pidusage": "^2.0.1",
+    "@types/uuid": "^8.3.0",
     "@types/ws": "^7.2.6",
     "prettier": "^2.1.2",
     "typescript": "^4.0.3"
