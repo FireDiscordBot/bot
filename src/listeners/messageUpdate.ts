@@ -15,8 +15,6 @@ export default class MessageUpdate extends Listener {
     });
   }
 
-  // A few things are commented out since the normal bot will handle them for now
-  // Once deployed, they will be uncommented
   async exec(before: FireMessage, after: FireMessage) {
     if (this.client.manager.id != 0 && !after.guild) return;
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
@@ -41,11 +39,11 @@ export default class MessageUpdate extends Listener {
 
     const messageListener = this.client.getListener("message") as Message;
 
-    // let toSearch =
-    //   after.content +
-    //   after.embeds.map((embed) => JSON.stringify(embed)).join(" ");
-    // if (messageListener.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN)
-    //   await messageListener.tokenGist(after, toSearch);
+    let toSearch =
+      after.content +
+      after.embeds.map((embed) => JSON.stringify(embed)).join(" ");
+    if (messageListener.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN)
+      await messageListener.tokenGist(after, toSearch);
 
     if (!after.member || after.author.bot) return;
 

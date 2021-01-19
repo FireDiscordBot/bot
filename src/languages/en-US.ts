@@ -856,7 +856,7 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           "Failed to give nitro perks! Make sure your IGN is valid and you've purchased the game.\nThere may also be an issue with the Mojang API or Sk1er's API causing this issue",
         OSS_COMMAND_DESCRIPTION: "Sends my GitHub repo link",
         OSS_MESSAGE:
-          "You can find Fire's source code at <https://github.com/FireDiscordBot/bot/tree/rewrite/typescript>",
+          "You can find Fire's source code at <https://github.com/FireDiscordBot/bot>",
         PING_COMMAND_DESCRIPTION: "Shows you my ping to discord's servers",
         PING_INITIAL_MESSAGE: "Pinging...",
         PING_FOOTER: (shard: number, cluster: number) =>

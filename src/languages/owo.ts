@@ -802,7 +802,7 @@ Downwoad beta vewsions in <#595634170336641045> (check the pins fow the watest v
           "Faiwed to give nitwo pewks! Make suwe youw IGN is vawid and you've puwchased the game.\nThewe may awso be an issue with the Mojang API ow Sk1ew's API causing this issue",
         OSS_COMMAND_DESCRIPTION: "Sends my GitHub wepo wink",
         OSS_MESSAGE:
-          "You can find Fire's souwce code at <https://github.com/FireDiscordBot/bot/tree/rewrite/typescript>",
+          "You can find Fire's souwce code at <https://github.com/FireDiscordBot/bot>",
         KEY_PERMISSIONS: "Key Pewmissions",
         PERMISSIONS_TEXT: "Pewmissions",
         PERMISSIONS: {
