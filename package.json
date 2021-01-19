@@ -25,7 +25,7 @@
     "@aero/sanitizer": "^1.2.0",
     "@discordjs/form-data": "^3.0.1",
     "@klasa/type": "^0.0.1",
-    "@sentry/node": "^6.0.0",
+    "@sentry/node": "^5.27.1",
     "@skyra/timestamp": "^1.0.0",
     "abort-controller": "^3.0.0",
     "archiver": "^5.0.2",
@@ -36,7 +36,7 @@
     "discord.js": "^12.5.1",
     "dotenv-extended": "^2.9.0",
     "emoji-regex": "^9.0.0",
-    "erlpack": "^0.1.3",
+    "erlpack": "discord/erlpack",
     "fuzzball": "^1.3.0",
     "humanize-duration": "^3.23.1",
     "moment": "^2.27.0",
@@ -57,7 +57,7 @@
     "utf-8-validate": "^5.0.3"
   },
   "devDependencies": {
-    "@types/archiver": "^5.1.0",
+    "@types/archiver": "^3.1.0",
     "@types/centra": "^2.2.0",
     "@types/humanize-duration": "^3.18.1",
     "@types/node": "^14.6.0",
