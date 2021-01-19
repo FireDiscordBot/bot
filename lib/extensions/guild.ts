@@ -530,10 +530,6 @@ export class FireGuild extends Guild {
       !channel.topic.includes(author.id)
     )
       return "forbidden";
-    if (this.id == "755794954743185438")
-      this.client.console.info(
-        `[Sk1er] Closing ticket ${channel.name} with reason ${reason} by request of ${author}...`
-      );
     channels = channels.filter((c) => c && c.id != channel.id);
     this.settings.set(
       "tickets.channels",
@@ -603,10 +599,6 @@ export class FireGuild extends Guild {
             : [new MessageAttachment(buffer, `${channel.name}-transcript.txt`)],
       })
       .catch(() => {});
-    if (this.id == "755794954743185438")
-      this.client.console.info(
-        `[Sk1er] Emitting ticketClose for ticket ${channel.name}...`
-      );
     this.client.emit("ticketClose", creator);
     return (await channel
       .delete(this.language.get("TICKET_CLOSE_REASON") as string)
