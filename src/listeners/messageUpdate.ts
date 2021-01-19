@@ -65,6 +65,8 @@ export default class MessageUpdate extends Listener {
     if (
       after.guild?.settings.has("log.action") &&
       !before.partial &&
+      before.content &&
+      after.content &&
       // if it's too long to show any changes
       // (since it is sliced to prevent huge embeds),
       // don't bother logging the edit
