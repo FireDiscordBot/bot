@@ -9,8 +9,8 @@ export default class UpdateFireDescriptionEvent extends Event {
     super(manager, EventType.UPDATE_FIRE_DESCRIPTION);
   }
 
-  async run(data: { commands: number; count: number }) {
-    const { commands, count } = data;
+  async run(data: { commands: number; guilds: number }) {
+    const { commands, guilds } = data;
     const { client } = this.manager;
 
     if (
@@ -28,7 +28,7 @@ export default class UpdateFireDescriptionEvent extends Event {
     await command
       .setDesc(
         guild,
-        `Fire is an open-source, multi-purpose bot with ${commands} commands in ${count} servers.`
+        `Fire is an open-source, multi-purpose bot with ${commands} commands in ${guilds} servers.`
       )
       .catch(() => {});
   }
