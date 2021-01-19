@@ -185,7 +185,7 @@ export class Util extends ClientUtil {
 
   async getClusterStats(): Promise<Cluster> {
     const processStats = await pidusage(process.pid);
-    // processStats.memory = process.memoryUsage().heapUsed; // Use heapUsed instead
+    processStats.memory = process.memoryUsage().heapUsed;
     const now = moment();
     const duration = this.client.launchTime.diff(now);
     const env = (process.env.NODE_ENV || "DEVELOPMENT").toLowerCase();
