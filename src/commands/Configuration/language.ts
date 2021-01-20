@@ -2,6 +2,7 @@ import { SlashCommandMessage } from "../../../lib/extensions/slashCommandMessage
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
+import { constants } from "../../../lib/util/constants";
 
 export default class LanguageCommand extends Command {
   constructor() {
@@ -32,7 +33,13 @@ export default class LanguageCommand extends Command {
       args.language.id == "en-US"
         ? message.guild.settings.delete("utils.language") // en-US is default so we can delete the setting instead
         : message.guild.settings.set("utils.language", args.language.id);
-      return await message.success("LANGUAGE_COMMAND_HELLO", "guild");
+      return await message.channel.send(
+        // message.success will use message.language which will use author's language if not default
+        `${constants.emojis.success} ${args.language.get(
+          "LANGUAGE_COMMAND_HELLO",
+          "guild"
+        )}`
+      );
     } else {
       args.language.id == "en-US"
         ? message.author.settings.delete("utils.language")
