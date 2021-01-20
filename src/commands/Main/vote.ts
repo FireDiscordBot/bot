@@ -7,10 +7,8 @@ export default class Vote extends Command {
     super("vote", {
       description: (language: Language) =>
         language.get("VOTE_COMMAND_DESCRIPTION"),
-      aliases: ["dbl", "top.gg", "dboats", "discord.boats"],
-      enableSlashCommand: true,
+      enableSlashCommand: false,
       restrictTo: "all",
-      ephemeral: true,
     });
   }
 

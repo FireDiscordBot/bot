@@ -115,8 +115,6 @@ export default class Message extends Listener {
         await message.member.roles.add(role).catch(() => {});
     }
 
-    // TODO add --remind when remind command added
-
     const filters = this.client.getModule("filters") as Filters;
     await filters?.runAll(message, this.cleanContent(message)).catch(() => {});
 

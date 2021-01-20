@@ -108,6 +108,5 @@ Last Day: ${analytics.day.toLocaleString(message.language.id)}
 Last Week: ${analytics.week.toLocaleString(message.language.id)}`
       );
     return await message.channel.send(embed);
-    // TODO Rectrate Jishaku paginators and send changelogs
   }
 }
