@@ -30,6 +30,7 @@ export default class Remind extends Command {
   }
 
   async exec(message: FireMessage, args: { reminder?: string }) {
+    if (!args.reminder) return await message.error("REMINDER_MISSING_ARG");
     let repeat: number, step: string;
     const repeatExec = repeatRegex.exec(args.reminder);
     if (repeatExec?.length == 2) repeat = parseInt(repeatExec[1]);
@@ -45,7 +46,6 @@ export default class Remind extends Command {
     if ((!step && repeat > 1) || (step && repeat == 1))
       return await message.error("REMINDER_SEPARATE_FLAGS");
     args.reminder = args.reminder.replace(stepRegex, "").trimEnd();
-    if (!args.reminder) return await message.error("REMINDER_MISSING_ARG");
     const stepMinutes = parseTime(step) as number;
     if (step && stepMinutes > 0 && stepMinutes < 2)
       return await message.error("REMINDER_STEP_TOO_SHORT");
