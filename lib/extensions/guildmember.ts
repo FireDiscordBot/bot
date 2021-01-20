@@ -80,6 +80,7 @@ export class FireMember extends GuildMember {
   }
 
   isAdmin(channel?: Channel) {
+    if (this.id == this.client.user?.id) return true;
     if (channel instanceof FakeChannel) channel = channel.real;
     return channel
       ? this.permissionsIn(channel).has("MANAGE_GUILD")
