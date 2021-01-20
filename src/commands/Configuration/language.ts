@@ -17,6 +17,7 @@ export default class LanguageCommand extends Command {
         },
       ],
       enableSlashCommand: true,
+      aliases: ["lang"],
       restrictTo: "all",
     });
   }
