@@ -85,7 +85,11 @@ export class Util extends ClientUtil {
     return Number((BigInt(id) >> 22n) % BigInt(this.client.options.shardCount));
   }
 
-  async haste(text: string, fallback = false): Promise<string> {
+  async haste(
+    text: string,
+    fallback = false,
+    language: string = ""
+  ): Promise<string> {
     const url = fallback ? "https://h.inv.wtf/" : "https://hst.sh/";
     try {
       const h: { key: string } = await (
@@ -96,7 +100,7 @@ export class Util extends ClientUtil {
           .send()
       ).json();
       if (!h.key) throw new Error(JSON.stringify(h));
-      return url + h.key;
+      return url + h.key + "." + language;
     } catch (e) {
       if (!fallback) return await this.haste(text, true);
       else throw e;
