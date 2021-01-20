@@ -23,8 +23,8 @@ export default class Filters extends Module {
     super("filters");
     this.debug = [];
     this.shortURLRegex = new RegExp(
-      `(?:${shortURLs.join("|").replace(/\./gim, "\\.")})\/[a-z0-9]+`,
-      "im"
+      `(?:${shortURLs.join("|").replace(/\./gim, "\\.")})\/.{1,50}`,
+      "gim"
     );
     this.regexes = {
       discord: regexes.invites,
