@@ -1078,7 +1078,7 @@ ${success.map((s) => "- " + s).join("\n")}${
         STEAL_NOTHING:
           "You'we a tewwibwe cwiminaw, you can't steaw nothing! You must pwovide an emoji to steaw",
         STEAL_INVALID_EMOJI:
-          "If you'we going to twy and steaw an emoji, at weast make it a vawid one...\nOthewwise it's a waste of time and you'ww wikewy get caught ¯\\\\_(ツ)_/¯",
+          "If you'we going to twy and steaw an emoji, at weast make it a vawid one...\nOthewwise it's a waste of time and you'ww wikewy get caught ¯\\\\_(ツ)\\_/¯",
         STEAL_CAUGHT:
           "Seems wike you wewe caught wed handed whiwe twying to steaw that emoji. You have wetuwned the emoji you attempted to steaw",
         STEAL_STOLEN: (emoji: string) =>
