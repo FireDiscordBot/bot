@@ -55,6 +55,7 @@ export class FireMember extends GuildMember {
   }
 
   isModerator(channel?: Channel) {
+    if (this.id == this.client.user?.id) return true;
     if (channel instanceof FakeChannel) channel = channel.real;
     if (this.isAdmin(channel)) return true;
     const moderators = this.guild.settings.get(
