@@ -2,6 +2,8 @@ import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 
+const markdownRegex = /[_\\~|\*`]/gim;
+
 export default class TagRaw extends Command {
   constructor() {
     super("tag-raw", {
@@ -28,8 +30,12 @@ export default class TagRaw extends Command {
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(tag);
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", tag);
-    return await message.channel.send(
-      await this.client.util.haste(cachedTag.content, false, "md")
-    );
+    const hasMarkdown = markdownRegex.test(cachedTag.content);
+    markdownRegex.lastIndex = 0;
+    if (hasMarkdown || cachedTag.content.length >= 2000)
+      return await message.channel.send(
+        await this.client.util.haste(cachedTag.content, false, "md")
+      );
+    else return await message.channel.send(cachedTag.content);
   }
 }
