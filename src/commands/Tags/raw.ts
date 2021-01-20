@@ -28,12 +28,8 @@ export default class TagRaw extends Command {
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(tag);
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", tag);
-    const content = cachedTag.content.replace(
-      /(?<markdown>[_\\~|\*`])/gim,
-      "\\$<markdown>"
+    return await message.channel.send(
+      await this.client.util.haste(cachedTag.content)
     );
-    if (content.length <= 2000) return await message.channel.send(content);
-    else
-      return await message.channel.send(await this.client.util.haste(content));
   }
 }
