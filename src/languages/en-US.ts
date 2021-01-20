@@ -1246,6 +1246,8 @@ Please remove the role manually.`,
           "According to my records, that user was not muted and I was unable to unmute them.",
         UNMUTE_FAILED_NOT_MUTED:
           "According to my records & the user's roles, they were not muted.",
+        UNMUTE_FAILED_FORBIDDEN:
+          "I seem to be lacking permission to unmute this user.",
         UNMUTE_FAILED_ENTRY:
           "Failed to create mod log entry, user was not unmuted.",
         UNMUTE_FAILED_UNMUTE: "Failed to unmute user, please try again.",

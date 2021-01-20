@@ -199,9 +199,9 @@ export default class owo extends Language {
               ", "
             )}`,
         },
-        AUTODECANCER_COMMAND_DESCRIPTION: 
+        AUTODECANCER_COMMAND_DESCRIPTION:
           'Toggwe wenaming those with "cancewous" (non-ascii) names',
-        AUTODECANCER_ENABLED: 
+        AUTODECANCER_ENABLED:
           'Enabwed autodecancew. **New** usews with "cancewous" (non-ascii) names wiww be wenamed',
         AUTODECANCER_DISABLED:
           'Disabwed autodecancew. **New** usews with "cancewous" (non-ascii) names wiww no wongew be wenamed',
@@ -332,7 +332,7 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
         DERANK_FAILED_ENTRY:
           "Faiwed to cweate mod wog entwy, usew was not dewanked.",
         DERANK_FAILED_DERANK: "Faiwed to dewank usew, pwease twy again.",
-        DERANK_FAILED_DERANK_AND_ENTRY: 
+        DERANK_FAILED_DERANK_AND_ENTRY:
           "Faiwed to dewank usew (awthough some wowes may have been wemoved) and was unabwe to dewete the cweated mod wog entwy.",
         DERANK_COMMAND_DESCRIPTION: "Wemove aww wowes fwom a usew",
         DERANK_USER_REQUIRED: "You must pwovide a usew to dewank!",
@@ -1242,10 +1242,11 @@ Pwease wemove the wowe manuawwy.`,
           "Accowding to my wecowds, that usew was not muted and I was unabwe to unmute them.",
         UNMUTE_FAILED_NOT_MUTED:
           "Accowding to my wecowds & the usew's wowes, they wewe not muted.",
+        UNMUTE_FAILED_FORBIDDEN:
+          "I seem to be wacking pewmission to unmute this usew.",
         UNMUTE_FAILED_ENTRY:
           "Faiwed to cweate mod wog entwy, usew was not unmuted.",
-        UNMUTE_FAILED_UNMUTE:
-          "Faiwed to unmute usew, pwease twy again.",
+        UNMUTE_FAILED_UNMUTE: "Faiwed to unmute usew, pwease twy again.",
         UNMUTE_FAILED_UNMUTE_AND_ENTRY:
           "Faiwed to unmute usew and was unabwe to dewete the cweated mod wog entwy.",
         UNMUTE_FAILED_DB_REMOVE: `Thewe may have been an ewwow whiwe wemoving the mute fwom my database.
@@ -1267,7 +1268,7 @@ If the usew gets automaticawwy muted again, just twy unmute them again and it'ww
           "This guiwd has been bwackwisted fwom vanity featuwes",
         VANITYURL_CREATED: (code: string, dev: boolean) =>
           `Youw Vanity UWW is <https://${dev ? "test." : ""}inv.wtf/${code}>`,
-        WARN_FAILED_ENTRY: 
+        WARN_FAILED_ENTRY:
           "Usew was not wawned due to an ewwow wogging the wawn",
         WARN_LOG_AUTHOR: (user: string) => `Wawn | ${user}`,
         WARN_LOG_DM_FAIL: "Unabwe to send DM, usew was not wawned.",
