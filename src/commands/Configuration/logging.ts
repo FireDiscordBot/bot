@@ -20,7 +20,9 @@ export default class Logging extends Command {
         {
           id: "type",
           type: valid,
+          slashCommandOptions: ["moderation", "actions", "members"],
           readableType: "mod|action|member",
+          slashCommandType: "type",
           required: true,
           default: null,
         },

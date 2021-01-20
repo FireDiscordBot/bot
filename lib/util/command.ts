@@ -171,9 +171,10 @@ export class Command extends AkairoCommand {
             slashCommandTypeMappings[type].includes(argument.type)
           ) || "STRING"
         ],
-      name: argument.slashCommandType
+      name: (argument.slashCommandType
         ? argument.slashCommandType
-        : argument.readableType.split("|")[0],
+        : argument.readableType.split("|")[0]
+      ).replace("Silent", ""),
       description:
         typeof argument.description == "function"
           ? argument.description(this.client.getLanguage("en-US"))
@@ -185,7 +186,8 @@ export class Command extends AkairoCommand {
       argument.type.every((value) => typeof value == "string")
     ) {
       let choices: { name: string; value: string }[] = [];
-      for (const type of argument.type as string[]) {
+      for (const type of (argument.slashCommandOptions ||
+        argument.type) as string[]) {
         choices.push({
           name: titleCase(type),
           value: type,
@@ -286,6 +288,7 @@ export interface CommandOptions extends AkairoCommandOptions {
 }
 
 export interface ArgumentOptions extends AkairoArgumentOptions {
+  slashCommandOptions?: Array<string>;
   slashCommandType?: string;
   readableType?: string;
   required?: boolean;
