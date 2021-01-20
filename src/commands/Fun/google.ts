@@ -52,8 +52,6 @@ export default class Google extends Command {
       return await message.error("PLAYWRIGHT_ERROR_NOT_READY");
     const response = await this.assistant
       .query(args.query, {
-        conversationState:
-          this.client.conversationStates.get(message.author.id) || null,
         audioInConfig: {
           encoding: 1,
           sampleRateHertz: 16000,
@@ -78,10 +76,6 @@ export default class Google extends Command {
         args,
         response
       );
-    this.client.conversationStates.set(
-      message.author.id,
-      response.conversationState
-    );
     if (!response.html)
       return await message.react("a:okaygoogle:769207087674032129");
     const filters = this.client.getModule("filters") as Filters;

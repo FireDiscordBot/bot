@@ -89,7 +89,6 @@ export class Fire extends AkairoClient {
   cacheSweepTask: NodeJS.Timeout;
   aliases: Collection<string, string[]>;
   experiments: Collection<string, Experiment>;
-  conversationStates: Collection<string, Buffer>; // Google Command conversation states
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
@@ -102,7 +101,7 @@ export class Fire extends AkairoClient {
     this.restPing = 0;
 
     this.manager = manager;
-    this.console = new FireConsole(); // TODO make custom console that works in pm2 logs
+    this.console = new FireConsole();
     this.util = new Util(this);
 
     this.db = new PGClient({
@@ -300,7 +299,6 @@ export class Fire extends AkairoClient {
     });
     this.modules.loadAll();
 
-    this.conversationStates = new Collection();
     this.ksoft = process.env.KSOFT_TOKEN
       ? new KSoftClient(process.env.KSOFT_TOKEN)
       : undefined;
