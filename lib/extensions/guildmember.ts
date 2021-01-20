@@ -560,6 +560,12 @@ export class FireMember extends GuildMember {
     }
     if (!this.roles.cache.has(this.guild.muteRole?.id)) {
       this.guild.mutes.delete(this.id);
+      await this.client.db
+        .query("DELETE FROM mutes WHERE gid=$1 AND uid=$2;", [
+          this.guild.id,
+          this.id,
+        ])
+        .catch(() => {});
       return "not_muted";
     }
     const logEntry = await this.guild
