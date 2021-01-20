@@ -11,14 +11,14 @@ module.exports = {
       env: {
         NODE_ENV: "production",
       },
-      node_args: "--expose-gc",
+      // node_args: "--expose-gc",
     },
     {
       name: "firedev",
       script: "yarn",
       args: "run rundev",
       automation: false,
-      node_args: "--expose-gc",
+      // node_args: "--expose-gc",
     },
     {
       name: "firedev-clustered",
@@ -26,7 +26,7 @@ module.exports = {
       args: "run rundev",
       instances: 1,
       automation: false,
-      node_args: "--expose-gc",
+      // node_args: "--expose-gc",
     },
   ],
 };
