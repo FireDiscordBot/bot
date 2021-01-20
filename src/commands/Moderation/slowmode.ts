@@ -53,7 +53,7 @@ export default class Slowmode extends Command {
       global?: boolean;
     }
   ) {
-    if (args.delay < 0) return await message.error();
+    if (args.delay < 0 || args.delay > 21600) return await message.error();
     if (
       !args.channel &&
       (message.util?.parsed?.alias != "slowmodeall" || args.global)
