@@ -34,6 +34,7 @@ import { listenerTypeCaster } from "../src/arguments/listener";
 import { booleanTypeCaster } from "../src/arguments/boolean";
 import { commandTypeCaster } from "../src/arguments/command";
 import { messageTypeCaster } from "../src/arguments/message";
+import { PresenceUpdateAction } from "./util/PresenceUpdate";
 import { Language, LanguageHandler } from "./util/language";
 import { moduleTypeCaster } from "../src/arguments/module";
 import { Collection, version as djsver } from "discord.js";
@@ -95,6 +96,9 @@ export class Fire extends AkairoClient {
 
     // @ts-ignore
     this.rest = new RESTManager(this);
+
+    // @ts-ignore
+    this.actions["PresenceUpdate"] = new PresenceUpdateAction(this);
 
     this.launchTime = moment();
     this.started = false;
@@ -334,14 +338,21 @@ export class Fire extends AkairoClient {
         return command.remove();
       }
     });
+    // this.cacheSweep = () => {
+    //   this.guilds.cache.forEach((guild) => {
+    //     guild.members.cache.sweep(
+    //       (member: FireMember) => member.id != this.user?.id
+    //     );
+    //     guild.presences.cache.sweep((p) => true);
+    //   });
+    //   this.users.cache.sweep((user) => user.id != this.user?.id);
+    // };
     this.cacheSweep = () => {
       this.guilds.cache.forEach((guild) => {
-        guild.members.cache.sweep(
-          (member: FireMember) => member.id != this.user?.id
-        );
-        guild.presences.cache.sweep((p) => true);
+        guild.members.cache.sweep(() => true);
+        guild.presences.cache.sweep(() => true);
       });
-      this.users.cache.sweep((user) => user.id != this.user?.id);
+      this.users.cache.sweep(() => true);
     };
     this.cacheSweepTask = setInterval(this.cacheSweep, 30000);
     return super.login();
