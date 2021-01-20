@@ -1,4 +1,9 @@
-import { TextChannel, CategoryChannel, GuildChannel } from "discord.js";
+import {
+  MessageReaction,
+  TextChannel,
+  CategoryChannel,
+  GuildChannel,
+} from "discord.js";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
@@ -48,6 +53,7 @@ export default class Slowmode extends Command {
       global?: boolean;
     }
   ) {
+    if (args.delay < 0) return await message.error();
     if (
       !args.channel &&
       (message.util?.parsed?.alias != "slowmodeall" || args.global)
@@ -77,11 +83,12 @@ export default class Slowmode extends Command {
         ? await message.error("SLOWMODE_FAILED", failed)
         : await message.success();
     } else if (args.channel.type == "text") {
-      args.channel
+      const limited = await args.channel
         .setRateLimitPerUser(args.delay, `Slowmode set by ${message.author}`)
         .catch(async () => {
           return await message.error();
         });
+      if (limited instanceof MessageReaction) return;
       return await message.success();
     } else return await message.error();
   }
