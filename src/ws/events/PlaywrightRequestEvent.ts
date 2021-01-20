@@ -11,7 +11,7 @@ export default class PlaywrightRequestEvent extends Event {
 
   async run(data: {
     error?: string;
-    screenshot: { type: string; data: number[] };
+    screenshot: { type: "Buffer"; data: number[] };
     channel_id: string;
     lang: string;
   }) {
@@ -34,6 +34,7 @@ export default class PlaywrightRequestEvent extends Event {
           files: [{ attachment: screenshot, name: "playwright.png" }],
         })
         .catch(() => {});
+      delete data.screenshot;
     }
   }
 }
