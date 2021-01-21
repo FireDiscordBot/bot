@@ -7,7 +7,7 @@ import { MessageEmbed } from "discord.js";
 import * as moment from "moment";
 
 const {
-  emojis: { badges, channels },
+  emojis: { badges, channels, badlyDrawnChannels },
 } = constants;
 
 export default class GuildCommand extends Command {
@@ -38,6 +38,7 @@ export default class GuildCommand extends Command {
   }
 
   async getInfo(message: FireMessage, guild: FireGuild) {
+    const bad = message.author.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
     const created =
       humanize(
         moment(guild.createdAt).diff(moment()),
@@ -57,12 +58,12 @@ export default class GuildCommand extends Command {
       `**${message.language.get(
         "CHANNELS"
       )}:** ${guild.channels.cache.size.toLocaleString(message.language.id)} (${
-        channels.text
+        bad ? channels.text : badlyDrawnChannels.text
       } ${
         guild.channels.cache.filter((channel) => channel.type == "text").size
-      }, ${channels.voice} ${
+      }, ${bad ? channels.voice : badlyDrawnChannels.voice} ${
         guild.channels.cache.filter((channel) => channel.type == "voice").size
-      }, ${channels.news} ${
+      }, ${bad ? channels.news : badlyDrawnChannels} ${
         guild.channels.cache.filter((channel) => channel.type == "news").size
       })`,
       `**${message.language.get("REGION")}:** ${

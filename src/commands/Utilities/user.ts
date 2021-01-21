@@ -20,7 +20,7 @@ import { GuildChannel } from "discord.js";
 const {
   emojis,
   statusEmojis,
-  emojis: { badges },
+  emojis: { badges, badlyDrawnBadges },
 } = constants;
 export default class User extends Command {
   constructor() {
@@ -192,10 +192,11 @@ export default class User extends Command {
   }
 
   getBadges(user: FireUser) {
+    const bad = user.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
     const flags = user.flags?.toArray() || [];
-    let emojis: string[] = Object.keys(badges)
+    let emojis: string[] = Object.keys(bad ? badges : badlyDrawnBadges)
       .filter((badge: UserFlagsString) => flags.includes(badge))
-      .map((badge) => badges[badge]);
+      .map((badge) => (bad ? badges[badge] : badlyDrawnBadges[badge]));
     if (user.isSuperuser()) emojis.push(badges.FIRE_ADMIN);
     if (user.premium) emojis.push(badges.FIRE_PREMIUM);
     if (emojis.length) emojis.push(zws);
