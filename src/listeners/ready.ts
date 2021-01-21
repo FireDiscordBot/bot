@@ -5,7 +5,6 @@ import { EventType } from "../../lib/ws/util/constants";
 import { FireGuild } from "../../lib/extensions/guild";
 import { Listener } from "../../lib/util/listener";
 import { Message } from "../../lib/ws/Message";
-import { Command } from "../../lib/util/command";
 
 export default class Ready extends Listener {
   constructor() {
@@ -65,15 +64,20 @@ export default class Ready extends Listener {
       .applications(this.client.user.id)
       .commands.get();
 
+    let commands: {
+      name: string;
+      description: string;
+      options?: Option[];
+    }[] = [];
+
     for (const cmd of this.client.commandHandler.modules.values()) {
-      const command = cmd as Command;
       if (slashCommands.find((slashCommand) => slashCommand.name == cmd.id)) {
         let existing = {
           ...slashCommands.find((slashCommand) => slashCommand.name == cmd.id),
         }; // Creates a copy so the lines below don't delete it in slashCommands
         delete existing.id;
         delete existing.application_id;
-        const slashCommandJSON = command.getSlashCommandJSON();
+        const slashCommandJSON = cmd.getSlashCommandJSON();
         slashCommandJSON.options?.sort(
           (a, b) =>
             existing.options.indexOf(
@@ -89,8 +93,26 @@ export default class Ready extends Listener {
         if (JSON.stringify(slashCommandJSON) == JSON.stringify(existing))
           continue;
       }
-      if (command.enableSlashCommand) await command.registerSlashCommand();
+      if (cmd.enableSlashCommand && slashCommands.find((s) => s.name == cmd.id))
+        commands.push(cmd.getSlashCommandJSON());
     }
+
+    // @ts-ignore
+    await this.client.api
+      // @ts-ignore
+      .applications(this.client.user.id)
+      .commands.put({ data: commands })
+      // TODO make api slash command interface
+      .then((updated: any[]) =>
+        this.client.console.info(
+          `[Commands] Successfully bulk updated ${updated.length} slash commands`
+        )
+      )
+      .catch((e: Error) =>
+        this.client.console.error(
+          `[Commands] Failed to update slash commands\n${e.stack}`
+        )
+      );
 
     for (const slashCommand of slashCommands) {
       if (
