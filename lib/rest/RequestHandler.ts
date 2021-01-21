@@ -170,12 +170,19 @@ export class RequestHandler {
         );
       }
 
-      throw new DiscordAPIError(
-        request.path,
-        data,
-        request.method,
-        res.statusCode
-      );
+      if (
+        !(
+          request.route.endsWith("/messages/:id") &&
+          request.method == "delete" &&
+          res.statusCode == 404
+        )
+      )
+        throw new DiscordAPIError(
+          request.path,
+          data,
+          request.method,
+          res.statusCode
+        );
     }
 
     // Handle 5xx responses
