@@ -100,9 +100,9 @@ export class Util extends ClientUtil {
           .send()
       ).json();
       if (!h.key) throw new Error(JSON.stringify(h));
-      return url + h.key + "." + language;
+      return url + h.key + (language ? "." + language : "");
     } catch (e) {
-      if (!fallback) return await this.haste(text, true);
+      if (!fallback) return await this.haste(text, true, language);
       else throw e;
     }
   }
