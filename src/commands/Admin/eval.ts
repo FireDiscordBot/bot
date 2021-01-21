@@ -171,7 +171,8 @@ export default class Eval extends Command {
       setTimeout(async () => {
         if (typeof success == "undefined") await message.react("▶️");
       }, 1000);
-      if (args.async) content = `(async () => {\n${content}\n})();`;
+      if (args.async || content.includes("await "))
+        content = `(async () => {\n${content}\n})();`;
       const me = message.member,
         fire = message.client,
         guild = message.guild,
