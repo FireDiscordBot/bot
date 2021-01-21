@@ -1,13 +1,15 @@
 import { humanize, zws, constants } from "../../../lib/util/constants";
+import { FireMember } from "../../../lib/extensions/guildmember";
 import { FireMessage } from "../../../lib/extensions/message";
 import { FireGuild } from "../../../lib/extensions/guild";
+import { FireUser } from "../../../lib/extensions/user";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { MessageEmbed } from "discord.js";
 import * as moment from "moment";
 
 const {
-  emojis: { badges, channels, badlyDrawnChannels },
+  emojis: { badges, badlyDrawnBadges, channels, badlyDrawnChannels },
 } = constants;
 
 export default class GuildCommand extends Command {
@@ -22,13 +24,16 @@ export default class GuildCommand extends Command {
     });
   }
 
-  getBadges(guild: FireGuild) {
+  getBadges(guild: FireGuild, author?: FireMember | FireUser) {
+    const bad = author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
     const emojis: string[] = [];
 
     if (guild.id == "564052798044504084") emojis.push(badges.FIRE_ADMIN);
     if (guild.premium) emojis.push(badges.FIRE_PREMIUM);
-    if (guild.features.includes("PARTNERED")) emojis.push(badges.PARTNERED);
-    if (guild.features.includes("VERIFIED")) emojis.push(badges.VERIFIED);
+    if (guild.features.includes("PARTNERED"))
+      emojis.push(bad ? badges.PARTNERED : badlyDrawnBadges.PARTNERED);
+    if (guild.features.includes("VERIFIED"))
+      emojis.push(bad ? badges.VERIFIED : badlyDrawnBadges.VERIFIED);
 
     if (emojis.length) {
       emojis.push(zws);
@@ -160,7 +165,7 @@ export default class GuildCommand extends Command {
   }
 
   async exec(message: FireMessage) {
-    const badges = this.getBadges(message.guild);
+    const badges = this.getBadges(message.guild, message.author);
     const info = await this.getInfo(message, message.guild);
     const security = this.getSecurity(message.guild);
 

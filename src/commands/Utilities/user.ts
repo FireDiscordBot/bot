@@ -95,7 +95,7 @@ export default class User extends Command {
     const color = member
       ? member.displayColor
       : message.member?.displayColor || "#ffffff";
-    const badges = this.getBadges(user);
+    const badges = this.getBadges(user, message.author);
     const info = this.getInfo(message, member ? member : user);
     const embed = new MessageEmbed()
       .setColor(color)
@@ -191,10 +191,10 @@ export default class User extends Command {
     return await message.channel.send(embed);
   }
 
-  getBadges(user: FireUser) {
-    const bad = user.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
+  getBadges(user: FireUser, author?: FireMember | FireUser) {
+    const bad = author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
     const flags = user.flags?.toArray() || [];
-    let emojis: string[] = Object.keys(bad ? badges : badlyDrawnBadges)
+    let emojis: string[] = Object.keys(badges)
       .filter((badge: UserFlagsString) => flags.includes(badge))
       .map((badge) => (bad ? badges[badge] : badlyDrawnBadges[badge]));
     if (user.isSuperuser()) emojis.push(badges.FIRE_ADMIN);
