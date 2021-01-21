@@ -16,7 +16,12 @@ export default class GuildUnavailable extends Listener {
     this.client.sentry.captureEvent({
       message: `Guild ${guild.name} (${guild.id}) has gone unavailable`,
       tags: {
+        channelCount: guild.channels.cache.size,
+        maxPresences: guild.maximumPresences,
+        roleCount: guild.roles.cache.size,
+        maxMembers: guild.maximumMembers,
         memberCount: guild.memberCount,
+        shard: guild.shardID,
       },
     });
   }
