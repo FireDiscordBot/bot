@@ -71,28 +71,6 @@ export default class Ready extends Listener {
     }[] = [];
 
     for (const cmd of this.client.commandHandler.modules.values()) {
-      if (slashCommands.find((slashCommand) => slashCommand.name == cmd.id)) {
-        let existing = {
-          ...slashCommands.find((slashCommand) => slashCommand.name == cmd.id),
-        }; // Creates a copy so the lines below don't delete it in slashCommands
-        delete existing.id;
-        delete existing.application_id;
-        const slashCommandJSON = cmd.getSlashCommandJSON();
-        slashCommandJSON.options?.sort(
-          (a, b) =>
-            existing.options.indexOf(
-              existing.options.find((option) => option.name == a.name)
-            ) -
-            existing.options.indexOf(
-              existing.options.find((option) => option.name == b.name)
-            )
-        );
-        // this isn't perfect and sometimes returns false even
-        // though they're the same due to placement of keys
-        // but it minimises requests needed
-        if (JSON.stringify(slashCommandJSON) == JSON.stringify(existing))
-          continue;
-      }
       if (cmd.enableSlashCommand && slashCommands.find((s) => s.name == cmd.id))
         commands.push(cmd.getSlashCommandJSON());
     }
