@@ -114,7 +114,7 @@ export default class ChannelUpdate extends Listener {
       if (before.parentID != after.parentID)
         embed.addField(
           language.get("CATEGORY"),
-          `${before.parent.name} ➜ ${after.parent.name}`
+          `${before.parent?.name || "???"} ➜ ${after.parent?.name || "???"}`
         );
       // @ts-ignore
       if (before.topic != after.topic)
