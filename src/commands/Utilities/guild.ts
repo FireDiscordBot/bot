@@ -31,9 +31,9 @@ export default class GuildCommand extends Command {
     if (guild.id == "564052798044504084") emojis.push(badges.FIRE_ADMIN);
     if (guild.premium) emojis.push(badges.FIRE_PREMIUM);
     if (guild.features.includes("PARTNERED"))
-      emojis.push(bad ? badges.PARTNERED : badlyDrawnBadges.PARTNERED);
+      emojis.push(bad ? badlyDrawnBadges.PARTNERED : badges.PARTNERED);
     if (guild.features.includes("VERIFIED"))
-      emojis.push(bad ? badges.VERIFIED : badlyDrawnBadges.VERIFIED);
+      emojis.push(bad ? badlyDrawnBadges.VERIFIED : badges.VERIFIED);
 
     if (emojis.length) {
       emojis.push(zws);
@@ -63,12 +63,12 @@ export default class GuildCommand extends Command {
       `**${message.language.get(
         "CHANNELS"
       )}:** ${guild.channels.cache.size.toLocaleString(message.language.id)} (${
-        bad ? channels.text : badlyDrawnChannels.text
+        bad ? badlyDrawnChannels.text : channels.text
       } ${
         guild.channels.cache.filter((channel) => channel.type == "text").size
-      }, ${bad ? channels.voice : badlyDrawnChannels.voice} ${
+      }, ${bad ? badlyDrawnChannels.voice : channels.voice} ${
         guild.channels.cache.filter((channel) => channel.type == "voice").size
-      }, ${bad ? channels.news : badlyDrawnChannels} ${
+      }, ${bad ? badlyDrawnChannels.news : channels.news} ${
         guild.channels.cache.filter((channel) => channel.type == "news").size
       })`,
       `**${message.language.get("REGION")}:** ${

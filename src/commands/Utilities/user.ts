@@ -196,7 +196,7 @@ export default class User extends Command {
     const flags = user.flags?.toArray() || [];
     let emojis: string[] = Object.keys(badges)
       .filter((badge: UserFlagsString) => flags.includes(badge))
-      .map((badge) => (bad ? badges[badge] : badlyDrawnBadges[badge]));
+      .map((badge) => (bad ? badlyDrawnBadges[badge] : badges[badge]));
     if (user.isSuperuser()) emojis.push(badges.FIRE_ADMIN);
     if (user.premium) emojis.push(badges.FIRE_PREMIUM);
     if (emojis.length) emojis.push(zws);
