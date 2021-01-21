@@ -16,7 +16,12 @@ export default class CacheInhibitor extends Inhibitor {
       await this.client.users.fetch(this.client.user.id).catch(() => {});
     if (message.guild)
       await message.guild.members.fetch(this.client.user.id).catch(() => {});
-    if (message.guild && message.author?.id && !message.member)
+    if (
+      message.guild &&
+      message.author?.id &&
+      !message.member &&
+      !message.webhookID
+    )
       await message.guild.members.fetch(message?.author).catch(() => {});
     if (message.guild)
       return (
