@@ -12,8 +12,9 @@ import { Fire } from "../Fire";
 const { CommandHandlerEvents } = Constants;
 
 export class CommandHandler extends AkairoCommandHandler {
-  client: Fire;
   categories: Collection<string, Category<string, Command>>;
+  modules: Collection<string, Command>;
+  client: Fire;
 
   constructor(client: Fire, options: CommandHandlerOptions) {
     super(client, options);
