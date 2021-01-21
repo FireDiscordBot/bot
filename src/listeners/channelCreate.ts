@@ -69,6 +69,8 @@ export default class ChannelCreate extends Listener {
         const memberIds = canView.filter(
           (id) => !roles.find((role) => role.id == id)
         );
+        // owner can always see
+        memberIds.push(guild.ownerID);
         const members: string[] = memberIds.length
           ? await guild.members
               .fetch({ user: memberIds })
