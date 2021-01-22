@@ -1,10 +1,11 @@
 import { SlashCommandMessage } from "../../../lib/extensions/slashCommandMessage";
-import { PermissionString, TextChannel, MessageEmbed } from "discord.js";
+import { PermissionString, GuildChannel, MessageEmbed } from "discord.js";
 import { FireMessage } from "../../../lib/extensions/message";
 import { constants } from "../../../lib/util/constants";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import * as moment from "moment";
+import { FireMember } from "../../../lib/extensions/guildmember";
 
 const {
   emojis: { success, error },
@@ -146,18 +147,37 @@ export default class Debug extends Command {
         `${success} ${message.language.get("DEBUG_COMMAND_NOT_DISABLED")}`
       );
 
-    if (cmd.id == "mute" && message.guild) {
-      const overwrites = (channel as TextChannel).permissionOverwrites;
-      const bypass = overwrites
-        .map((value, key) => {
-          const overwriteFor =
-            message.guild.roles.cache.get(key) ||
-            message.guild.members.cache.get(key);
-          return value.allow.has("SEND_MESSAGES")
-            ? overwriteFor?.toString() || ""
-            : "";
-        })
-        .filter((s) => s != "");
+    if (cmd.id == "mute" && message.guild && channel instanceof GuildChannel) {
+      const canSend = channel.permissionOverwrites
+        .filter((overwrite) => overwrite.allow.has("SEND_MESSAGES"))
+        .map((overwrite) => overwrite.id);
+      const roles = [
+        ...canSend
+          .map((id) => message.guild.roles.cache.get(id))
+          .filter((role) => !!role),
+        ...message.guild.roles.cache
+          .filter(
+            (role) =>
+              role.permissions.has("ADMINISTRATOR") &&
+              !canSend.find((id) => id == role.id)
+          )
+          .values(),
+      ];
+      const memberIds = canSend.filter(
+        (id) => !roles.find((role) => role.id == id)
+      );
+      // owner can always bypass
+      memberIds.push(message.guild.ownerID);
+      const members: string[] = memberIds.length
+        ? await message.guild.members
+            .fetch({ user: memberIds })
+            .then((found) =>
+              found.map((member: FireMember) => member.toMention())
+            )
+            .catch(() => [])
+        : [];
+
+      const bypass = [...roles, ...members];
 
       if (bypass.length > 0)
         details.push(
