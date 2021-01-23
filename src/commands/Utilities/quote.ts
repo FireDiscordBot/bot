@@ -28,6 +28,12 @@ export default class Quote extends Command {
           required: true,
           default: null,
         },
+        {
+          id: "debug",
+          match: "flag",
+          flag: "--flag",
+          default: false,
+        },
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
@@ -41,6 +47,7 @@ export default class Quote extends Command {
       quoter?: FireMember;
       quote: FireMessage | "cross_cluster";
       webhook?: string;
+      debug?: boolean;
     }
   ) {
     if (!args?.quote) return;
@@ -110,7 +117,7 @@ export default class Quote extends Command {
         .quote(args.destination, args.quoter, webhook)
         .catch(() => {});
     } else if (!message) return;
-    return await args.quote
+    const quoted = await args.quote
       .quote(
         message instanceof SlashCommandMessage
           ? (message.realChannel as TextChannel)
@@ -119,5 +126,7 @@ export default class Quote extends Command {
         webhook
       )
       .catch(() => {});
+    if (args.debug && typeof quoted == "string")
+      return await message.channel.send(quoted);
   }
 }
