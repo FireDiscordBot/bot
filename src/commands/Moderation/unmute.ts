@@ -42,7 +42,7 @@ export default class Unmute extends Command {
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     await message.delete().catch(() => {});
     const unmuted = await args.user.unmute(
-      args.reason ||
+      args.reason?.trim() ||
         (message.guild.language.get(
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),

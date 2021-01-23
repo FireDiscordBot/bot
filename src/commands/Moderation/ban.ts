@@ -55,7 +55,7 @@ export default class Ban extends Command {
     const beaned =
       args.user instanceof FireMember
         ? await args.user.bean(
-            args.reason ||
+            args.reason?.trim() ||
               (message.guild.language.get(
                 "MODERATOR_ACTION_DEFAULT_REASON"
               ) as string),
@@ -65,7 +65,7 @@ export default class Ban extends Command {
           )
         : await args.user.bean(
             message.guild,
-            args.reason ||
+            args.reason?.trim() ||
               (message.guild.language.get(
                 "MODERATOR_ACTION_DEFAULT_REASON"
               ) as string),

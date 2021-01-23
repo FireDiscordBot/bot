@@ -43,7 +43,7 @@ export default class Kick extends Command {
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     await message.delete().catch(() => {});
     const yeeted = await args.user.yeet(
-      args.reason ||
+      args.reason?.trim() ||
         (message.guild.language.get(
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),

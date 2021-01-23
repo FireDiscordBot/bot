@@ -42,7 +42,7 @@ export default class Derank extends Command {
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     await message.delete().catch(() => {});
     const deranked = await args.user.derank(
-      args.reason ||
+      args.reason?.trim() ||
         (message.guild.language.get(
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),

@@ -43,7 +43,7 @@ export default class Unblock extends Command {
     await message.delete().catch(() => {});
     const blocked = await message.guild.unblock(
       args.tounblock,
-      args.reason ||
+      args.reason?.trim() ||
         (message.guild.language.get(
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),
