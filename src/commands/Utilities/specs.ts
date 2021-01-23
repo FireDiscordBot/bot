@@ -27,7 +27,7 @@ export default class Specs extends Command {
           required: false,
         },
       ],
-      guilds: ["411619823445999637"],
+      guilds: ["411619823445999637", "755794954743185438"],
       enableSlashCommand: true,
       aliases: ["delspecs"],
       hidden: true,
@@ -48,6 +48,7 @@ export default class Specs extends Command {
         : ((await message.guild.members.fetch(user)) as FireMember);
     if (
       message.util.parsed.alias == "delspecs" &&
+      message.guild.id == "411619823445999637" &&
       message.member.isModerator()
     ) {
       try {
