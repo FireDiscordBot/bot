@@ -576,6 +576,7 @@ export const shortURLs = [
   "usat.ly",
   "use.my",
   "vb.ly",
+  "vee.gg",
   "vgn.am",
   "vl.am",
   "vm.lc",
