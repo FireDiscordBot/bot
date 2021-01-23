@@ -31,7 +31,7 @@ export default class Quote extends Command {
         {
           id: "debug",
           match: "flag",
-          flag: "--flag",
+          flag: "--debug",
           default: false,
         },
       ],
