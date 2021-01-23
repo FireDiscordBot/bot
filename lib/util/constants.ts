@@ -105,10 +105,10 @@ export const constants = {
   },
   // urls
   url: {
-    discovery: "https://fire-ts.gaminggeek.dev/discover",
+    discovery: "https://fire.gaminggeek.dev/discover",
     discordStatus: "https://discordstatus.com",
     fireStatus: "https://status.gaminggeek.dev",
-    website: "https://fire-ts.gaminggeek.dev/",
+    website: "https://fire.gaminggeek.dev/",
     terms: "https://inv.wtf/terms",
     privacy: "https://inv.wtf/privacy",
   },
