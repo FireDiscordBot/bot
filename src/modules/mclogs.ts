@@ -85,10 +85,8 @@ export default class MCLogs extends Module {
         currentSolutions.push(`- ${sol}`);
     });
 
-    if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_L5|_L6|_M5/im))
-      currentSolutions.push(
-        "- Update Optifine to either L5 or L6 (currently available as a preview version)"
-      );
+    if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_M5/im))
+      currentSolutions.push("- Update Optifine to the latest version, M5");
 
     if (currentSolutions.length > 6) return "";
 
