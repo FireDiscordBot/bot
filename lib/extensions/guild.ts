@@ -469,12 +469,7 @@ export class FireGuild extends Guild {
           { id: author.id, allow: ["VIEW_CHANNEL", "SEND_MESSAGES"] },
           {
             id: this.me.id,
-            allow: [
-              "VIEW_CHANNEL",
-              "SEND_MESSAGES",
-              "MANAGE_CHANNELS",
-              "MANAGE_ROLES",
-            ],
+            allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_CHANNELS"],
           },
           {
             id: this.roles.everyone.id,
