@@ -80,10 +80,10 @@ export default class MCLogs extends Module {
   public getSolutions(log: string) {
     const currentSolutions: string[] = [];
 
-    Object.entries(this.solutions).forEach(([err, sol]) => {
+    for (const [err, sol] of Object.entries(this.solutions)) {
       if (log.includes(err) && !currentSolutions.includes(`- ${sol}`))
         currentSolutions.push(`- ${sol}`);
-    });
+    }
 
     if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_M5/im))
       currentSolutions.push("- Update Optifine to the latest version, M5");
@@ -170,7 +170,7 @@ export default class MCLogs extends Module {
   }
 
   async handleLogText(message: FireMessage, text: string, msgType: string) {
-    const lines = text.split("\n");
+    let lines = text.split("\n");
     if (
       /ModCoreInstaller:download:\d{1,5}]: MAX: \d+/im.test(
         lines[lines.length - 1]
@@ -210,13 +210,13 @@ export default class MCLogs extends Module {
       this.regexes.url.lastIndex = 0;
     });
 
-    lines.forEach((line) => {
+    for (const line of lines) {
       if (this.regexes.secrets.test(line)) {
         this.regexes.secrets.lastIndex = 0;
         text = text.replace(line, "[line removed to protect sensitive info]");
       }
       this.regexes.secrets.lastIndex = 0;
-    });
+    }
 
     let diff: string;
     if (this.regexes.date.test(text)) {
@@ -227,6 +227,25 @@ export default class MCLogs extends Module {
 
     const filters = this.client.getModule("filters") as Filters;
     text = filters.runReplace(text, message);
+
+    text = text
+      .split("\n")
+      .filter(
+        (line) =>
+          !line.includes("has a security seal for path org.lwjgl") &&
+          !line.includes("[OptiFine] CustomItems: mcpatcher/") &&
+          !line.includes("[OptiFine] File not found: mcpatcher/") &&
+          !line.includes("[OptiFine] ConnectedTextures: mcpatcher/") &&
+          !line.includes("[OptiFine] CustomSky properties: mcpatcher/") &&
+          !line.includes("[OptiFine] CustomSky properties: mcpatcher/") &&
+          !line.includes(
+            "[OptiFine] CustomSky: Texture not found: minecraft:mcpatcher/"
+          ) &&
+          !line.includes(
+            "Using missing texture, unable to load minecraft:mcpatcher/"
+          )
+      )
+      .join("\n");
 
     if (this.hasLogText(text)) {
       try {
