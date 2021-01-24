@@ -113,15 +113,16 @@ export class FireMessage extends Message {
     const channel = this.channel as TextChannel;
     if (this.author.system && !quoter.isSuperuser()) return "system";
     if (channel.nsfw && !destination?.nsfw) return "nsfw";
+    const isLurkable =
+      this.guild.roles.everyone.permissionsIn(channel).has("VIEW_CHANNEL") &&
+      this.guild.roles.everyone
+        .permissionsIn(channel)
+        .has("READ_MESSAGE_HISTORY");
     let member: FireMember;
     if (this.guild.id == destination?.guild?.id) member = quoter;
     if (
       !this.guild.features.includes("DISCOVERABLE") ||
-      (this.guild.features.includes("DISCOVERABLE") &&
-        this.guild.roles.everyone.permissionsIn(channel).has("VIEW_CHANNEL") &&
-        this.guild.roles.everyone
-          .permissionsIn(channel)
-          .has("READ_MESSAGE_HISTORY"))
+      (this.guild.features.includes("DISCOVERABLE") && !isLurkable)
     ) {
       if (this.guild.id != destination?.guild.id) {
         member = (await this.guild.members
@@ -130,8 +131,9 @@ export class FireMessage extends Message {
       } else member = quoter;
     }
 
-    if (!member || !member.permissionsIn(this.channel).has("VIEW_CHANNEL"))
-      return "permissions";
+    if (!isLurkable)
+      if (!member || !member.permissionsIn(this.channel).has("VIEW_CHANNEL"))
+        return "permissions";
 
     const canUpload =
       !this.attachments.size ||
