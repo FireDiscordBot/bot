@@ -89,6 +89,7 @@ export default class VanityURL extends Command {
           .createInvite({
             unique: true,
             temporary: false,
+            maxAge: 0,
             reason: message.guild.language.get(
               "VANITYURL_INVITE_CREATE_REASON"
             ) as string,
