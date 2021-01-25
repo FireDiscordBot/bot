@@ -22,12 +22,13 @@ export default class Message extends Listener {
   }
 
   async tokenGist(message: FireMessage, foundIn: string) {
-    let tokens = [];
-    let exec;
-    while ((exec = this.tokenRegex.exec(foundIn))) if (exec) tokens.push(exec);
+    let tokens: string[] = [];
+    let exec: RegExpExecArray;
+    while ((exec = this.tokenRegex.exec(foundIn)))
+      if (exec) tokens.push(exec[0]);
     this.tokenRegex.lastIndex = 0;
     let files: { [key: string]: { content: string } } = {};
-    for (const token in tokens)
+    for (const token of tokens)
       files[`token_leak_${+new Date()}`] = {
         // the account the gists get uploaded to is hidden from the public
         // so the content doesn't matter, it just needs the token ;)
@@ -46,14 +47,25 @@ export default class Message extends Listener {
           .body(body, "json")
           .send()
       ).json();
-      await this.client.util.sleep(30000);
+      this.client.console.warn(
+        `[Listener] Created gist with ${tokens.length} tokens for user${
+          tokens.length > 1 ? "s" : ""
+        } ${tokens
+          .map((token) =>
+            Buffer.from(token.split(".")[0], "base64").toString("ascii")
+          )
+          .join(", ")} found in ${message.guild.name} sent by ${
+          message.author
+        }. Waiting 10 seconds to delete gist...`
+      );
+      await this.client.util.sleep(10000);
       await centra(`https://api.github.com/gists/${gist.id}`, "DELETE")
         .header("User-Agent", "Fire Discord Bot")
         .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
         .send();
     } catch (e) {
       this.client.console.error(
-        `[Listener] Failed to create tokens gist\n${e.stack}`
+        `[Listener] Failed to create/delete tokens gist\n${e.stack}`
       );
     }
   }
