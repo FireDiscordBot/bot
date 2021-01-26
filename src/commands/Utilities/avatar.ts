@@ -33,8 +33,8 @@ export default class Avatar extends Command {
 
     const color =
       user instanceof FireMember
-        ? user?.displayColor
-        : message.member?.displayColor || "#ffffff";
+        ? user?.displayHexColor
+        : message.member?.displayHexColor || "#ffffff";
 
     if (user instanceof FireMember) user = user.user as FireUser;
 

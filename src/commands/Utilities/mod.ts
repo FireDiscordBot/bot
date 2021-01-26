@@ -38,7 +38,7 @@ export default class Mod extends Command {
     if (message.util?.parsed?.alias == "mods") {
       const names = mods.map((mod) => mod.display);
       const embed = new MessageEmbed()
-        .setColor(message?.member?.displayColor || "#ffffff")
+        .setColor(message.member?.displayHexColor || "#ffffff")
         .setTitle(message.language.get("MOD_LIST"))
         .setDescription(names.join(", "))
         .setTimestamp();
@@ -78,7 +78,7 @@ export default class Mod extends Command {
       return await message.error("MOD_FETCH_FAIL");
     const embed = new MessageEmbed()
       .setTitle(mod.display)
-      .setColor(message?.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setURL(`https://sk1er.club/mods/${id}`)
       .setDescription(mod.short)
       .setTimestamp();

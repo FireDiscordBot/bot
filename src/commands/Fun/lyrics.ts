@@ -82,7 +82,7 @@ export default class Lyrics extends Command {
     const paginator = new WrappedPaginator("", "", 1000);
     lyrics.lyrics.split("\n").forEach((line) => paginator.addLine(line));
     const embed = new MessageEmbed()
-      .setColor(message?.member.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setTitle(
         message.language.get("LYRICS_TITLE", lyrics.name, lyrics.artist.name)
       );

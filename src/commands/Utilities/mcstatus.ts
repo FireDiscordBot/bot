@@ -58,7 +58,7 @@ export default class MinecraftStatus extends Command {
       }
     });
     const embed = new MessageEmbed()
-      .setColor(message?.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setDescription(statuses.join("\n"));
     return await message.channel.send(embed);
   }

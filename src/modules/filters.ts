@@ -187,7 +187,7 @@ export default class Filters extends Module {
         await deleteFail(e);
       }
       const embed = new MessageEmbed()
-        .setColor(message.member?.displayColor || "#ffffff")
+        .setColor(message.member?.displayHexColor || "#ffffff")
         .setTimestamp()
         .setDescription(
           message.guild.language.get(
@@ -359,7 +359,7 @@ export default class Filters extends Module {
       })
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -397,7 +397,7 @@ export default class Filters extends Module {
       .getYouTubeVideo(match.groups.video)
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -484,7 +484,7 @@ export default class Filters extends Module {
       .getYouTubeChannel(match.groups.channel)
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -561,7 +561,7 @@ export default class Filters extends Module {
       })
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -598,7 +598,7 @@ export default class Filters extends Module {
       })
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -633,7 +633,7 @@ export default class Filters extends Module {
       })
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(

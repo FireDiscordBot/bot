@@ -181,7 +181,7 @@ export default class GuildCommand extends Command {
 
     const embed = new MessageEmbed()
       .setDescription(badges.join(" "))
-      .setColor(message.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setAuthor(
         message.guild.name,
         message.guild.iconURL({

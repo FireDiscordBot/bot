@@ -58,7 +58,7 @@ export default class Tag extends Command {
         message.language.get("TAG_LIST", message.guild.name),
         message.guild.iconURL({ size: 2048, format: "png", dynamic: true })
       )
-      .setColor(message?.member.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setDescription(names.join(", "));
     return await message.channel.send(embed);
   }

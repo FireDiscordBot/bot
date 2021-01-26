@@ -63,7 +63,7 @@ export default class Specs extends Command {
     }
 
     const embed = new MessageEmbed()
-      .setColor(member ? member.displayColor : "#ffffff")
+      .setColor(member ? member.displayHexColor : "#ffffff")
       .setTimestamp()
       .setAuthor(
         user.toString(),

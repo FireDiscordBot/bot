@@ -68,7 +68,7 @@ export default class Modcore extends Command {
     const purchasesString = purchases.join(", ");
     const embed = new MessageEmbed()
       .setTitle(message.language.get("MODCORE_PROFILE_TITLE", ign))
-      .setColor(message.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .addField(message.language.get("UUID"), uuid)
       .addField(
         message.language.get("MODCORE_ENABLED_COSMETICS"),

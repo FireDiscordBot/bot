@@ -97,7 +97,7 @@ export default class Google extends Command {
     "<div class='show_text_content'>I remember you telling me your name was ${message.author.username}.</div>"
   );};`
         ),
-      message?.member || message.author
+      message.member || message.author
     );
     if (!html)
       return await message.replyRaw(

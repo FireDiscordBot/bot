@@ -505,7 +505,7 @@ export class FireGuild extends Guild {
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_OPENER_TILE", author.toString()))
       .setTimestamp()
-      .setColor(author.displayColor || "#ffffff")
+      .setColor(author.displayHexColor || "#ffffff")
       .addField(this.language.get("SUBJECT"), subject);
     const opener = await ticket.send(embed).catch(() => {});
     channels.push(ticket);
@@ -590,7 +590,7 @@ export class FireGuild extends Guild {
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))
       .setTimestamp()
-      .setColor(author.displayColor || "#ffffff")
+      .setColor(author.displayHexColor || "#ffffff")
       .addField(
         this.language.get("TICKET_CLOSER_CLOSED_BY"),
         `${author} (${author.id})`

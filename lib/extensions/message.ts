@@ -238,7 +238,7 @@ export class FireMessage extends Message {
       );
     }
     const embed = new MessageEmbed()
-      .setColor(this.member?.displayColor || quoter.displayColor || "#ffffff")
+      .setColor(this.member?.displayHexColor || quoter.displayHexColor || "#ffffff")
       .setTimestamp(this.createdAt)
       .setAuthor(
         this.author.toString(),

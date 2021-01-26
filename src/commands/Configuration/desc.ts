@@ -47,7 +47,7 @@ export default class Description extends Command {
     if (!vanity.rows.length) {
       return await message.error(
         "DESC_NO_VANITY",
-        message?.util?.parsed?.prefix
+        message.util?.parsed?.prefix
       );
     }
 

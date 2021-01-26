@@ -211,7 +211,7 @@ export default class Debug extends Command {
     const issues = details.filter((detail) => detail.startsWith(error));
     return new MessageEmbed()
       .setTitle(message.language.get("DEBUG_ISSUES", issues))
-      .setColor(message.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp()
       .setDescription(details.join("\n"));
   }

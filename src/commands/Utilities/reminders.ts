@@ -48,13 +48,13 @@ export default class Reminders extends Command {
       );
     }
     const embed = new MessageEmbed().setColor(
-      message.member?.displayColor || "#ffffff"
+      message.member?.displayHexColor || "#ffffff"
     );
     const paginatorInterface = new PaginatorEmbedInterface(
       this.client,
       paginator,
       {
-        owner: message?.member || message.author,
+        owner: message.member || message.author,
         embed,
       }
     );

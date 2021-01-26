@@ -76,7 +76,7 @@ export default class Tickets extends Command {
             .map((key) => `${key[0]}: ${key[1]}`)
             .join("\n");
           const embed = new MessageEmbed()
-            .setColor(message.member?.displayColor || "#ffffff")
+            .setColor(message.member?.displayHexColor || "#ffffff")
             .setTimestamp()
             .addField(message.language.get("VARIABLES"), variableString);
           return await message.channel.send(embed);
@@ -95,7 +95,7 @@ export default class Tickets extends Command {
 
   async sendDefaultMessage(message: FireMessage) {
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp()
       .setDescription(message.language.get("TICKET_MAIN_DESCRIPTION"))
       .setAuthor(

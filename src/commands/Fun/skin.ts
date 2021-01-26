@@ -31,7 +31,7 @@ export default class Skin extends Command {
     let uuid = await this.client.util.nameToUUID(ign);
     if (!uuid) return await message.error("MCUUID_FETCH_FAIL");
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setImage(`https://visage.surgeplay.com/full/512/${uuid}`)
       .setFooter(
         `Requested by ${message.author}`,

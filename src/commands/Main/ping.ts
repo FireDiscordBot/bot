@@ -29,7 +29,7 @@ export default class Ping extends Command {
             .ping
         }ms.`
       )
-      .setColor(message.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setFooter(
         message.language.get(
           "PING_FOOTER",

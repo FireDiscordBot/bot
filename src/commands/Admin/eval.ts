@@ -129,7 +129,7 @@ export default class Eval extends Command {
           ? `${emojis.success} Evaluation Complete`
           : `${emojis.error} Evaluation Failed`
       )
-      .setColor(success ? message.member?.displayColor || "#ffffff" : "#ef5350")
+      .setColor(success ? message.member?.displayHexColor || "#ffffff" : "#ef5350")
       .setDescription(type.toString() != "any" ? `Output Type: ${type}` : null);
     if (input.length <= 1024) embed.addField(":inbox_tray: Input", input);
     embed.setFooter(`Cluster ID: ${this.client.manager.id}`);
@@ -138,7 +138,7 @@ export default class Eval extends Command {
       const paginator = new WrappedPaginator("```js", "```", 1200);
       result.split("\n").forEach((line: string) => paginator.addLine(line));
       const paginatorEmbed = new MessageEmbed().setColor(
-        success ? message.member?.displayColor || "#ffffff" : "#ef5350"
+        success ? message.member?.displayHexColor || "#ffffff" : "#ef5350"
       );
       const paginatorInterface = new PaginatorEmbedInterface(
         message.client,

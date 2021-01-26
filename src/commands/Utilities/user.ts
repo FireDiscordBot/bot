@@ -54,7 +54,7 @@ export default class User extends Command {
     }
   ) {
     if (typeof args.user == "undefined")
-      args.user = message?.member || message.author;
+      args.user = message.member || message.author;
     else if (args.user?.hasOwnProperty("snowflake"))
       return await this.snowflakeInfo(
         message,
@@ -93,8 +93,8 @@ export default class User extends Command {
       user = member.user;
     }
     const color = member
-      ? member.displayColor
-      : message.member?.displayColor || "#ffffff";
+      ? member.displayHexColor
+      : message.member?.displayHexColor || "#ffffff";
     const badges = this.getBadges(user, message.author);
     const info = this.getInfo(message, member ? member : user);
     const embed = new MessageEmbed()
@@ -450,7 +450,7 @@ export default class User extends Command {
     }
 
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor || "#ffffff")
+      .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp(snowflake.date)
       .setAuthor(
         message.author.toString(),

@@ -77,7 +77,7 @@ export default class Help extends Command {
       ]
     );
     const embed = {
-      color: message.member?.displayColor || "#ffffff",
+      color: message.member?.displayHexColor || "#ffffff",
       author: {
         icon_url: this.client.user.displayAvatarURL({
           size: 2048,
@@ -111,7 +111,7 @@ export default class Help extends Command {
     );
     let args: string[] = command.getArgumentsClean();
     const embed = {
-      color: message.member?.displayColor || "#ffffff",
+      color: message.member?.displayHexColor || "#ffffff",
       title: titleCase(command.id),
       description: command.description(message.language),
       fields: [
