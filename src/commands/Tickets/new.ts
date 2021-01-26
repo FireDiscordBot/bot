@@ -34,10 +34,10 @@ export default class NewTicket extends Command {
   async exec(message: FireMessage, args: { subject: string }) {
     if (!message.member) return; // how
     const creating = await message.send("NEW_TICKET_CREATING");
-    const ticket = await message.guild.createTicket(
-      message.member,
-      args.subject
-    );
+    const ticket = await message.guild
+      .createTicket(message.member, args.subject)
+      // return author as it'll just return
+      .catch(() => "author");
     // how?
     if (ticket == "author") return;
     else if (ticket == "disabled")

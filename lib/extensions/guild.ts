@@ -431,7 +431,7 @@ export class FireGuild extends Guild {
     subject: string,
     category?: CategoryChannel
   ) {
-    if (author.guild?.id != this.id) return "author";
+    if (author?.guild?.id != this.id) return "author";
     category =
       category ||
       (this.channels.cache
