@@ -15,6 +15,16 @@ export default class Ready extends Listener {
   }
 
   async exec() {
+    const unavailableGuilds = this.client.guilds.cache.filter(
+      (guild) => !guild.available
+    );
+    if (unavailableGuilds.size) {
+      unavailableGuilds.forEach((guild) => {
+        this.client.console.warn(
+          `[Guilds] Guild ${guild.id} unavailable on connection open`
+        );
+      });
+    }
     this.client.cacheSweep();
     try {
       if (typeof process.send == "function") process.send("ready");
