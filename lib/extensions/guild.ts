@@ -157,7 +157,7 @@ export class FireGuild extends Guild {
   }
 
   private async checkMutes() {
-    if (!this.client.user) return; // likely not ready yet
+    if (!this.client.user || !this.available) return; // likely not ready yet or guild is unavailable
     const me =
       this.me instanceof FireMember
         ? this.me
@@ -221,7 +221,7 @@ export class FireGuild extends Guild {
 
   async loadInviteRoles() {
     this.inviteRoles = new Collection();
-    if (!this.premium) return;
+    if (!this.premium || !this.available) return;
     const invroles = await this.client.db
       .query("SELECT * FROM invrole WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -238,7 +238,7 @@ export class FireGuild extends Guild {
 
   async loadPersistedRoles() {
     this.persistedRoles = new Collection();
-    if (!this.premium) return;
+    if (!this.premium || !this.available) return;
     const persisted = await this.client.db
       .query("SELECT * FROM rolepersists WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -255,7 +255,7 @@ export class FireGuild extends Guild {
 
   async loadInvites() {
     this.invites = new Collection();
-    if (!this.premium) return;
+    if (!this.premium || !this.available) return;
     const invites = await this.fetchInvites().catch(() => {});
     if (!invites) return this.invites;
     for (const [code, invite] of invites) this.invites.set(code, invite.uses);
@@ -267,6 +267,7 @@ export class FireGuild extends Guild {
   }
 
   isPublic() {
+    if (!this.available) return false;
     return (
       this.settings.get("utils.public", false) ||
       (this.features && this.features.includes("DISCOVERABLE"))
