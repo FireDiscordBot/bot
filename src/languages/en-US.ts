@@ -1058,7 +1058,7 @@ ${success.map((s) => "- " + s).join("\n")}${
         SLOWMODE_COMMAND_DESCRIPTION:
           "Set the slowmode for a channel or category. Use the slowmodeall alias to set it for all channels",
         SLOWMODE_INVALID_TYPE: "You must provide a text channel or category",
-        SLOWMODE_FAILED: (channels: string[]) =>
+      SLOWMODE_FAILED: (channels: string[]) =>
           `Failed to set slowmode in ${channels.join(", ")}`,
         SLOWMODE_SETTING_GLOBAL: (channels: number) =>
           `Attempting to set slowmode in ${channels} channels, this may take a while`,
