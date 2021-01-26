@@ -19,7 +19,7 @@ export const discord: ClientOptions = {
     intents:
       intents.GUILDS |
       intents.GUILD_MEMBERS |
-      intents.GUILD_PRESENCES |
+      // intents.GUILD_PRESENCES |
       intents.GUILD_VOICE_STATES |
       intents.GUILD_BANS |
       intents.GUILD_INVITES |
