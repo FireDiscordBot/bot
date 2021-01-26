@@ -45,7 +45,9 @@ import { FireMember } from "./extensions/guildmember";
 import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
 import { RESTManager } from "./rest/RESTManager";
+import { FireGuild } from "./extensions/guild";
 import { Inhibitor } from "./util/inhibitor";
+import { APIGuild } from "discord-api-types";
 import { FireConsole } from "./util/console";
 import { Listener } from "./util/listener";
 import { KSoftClient } from "@aero/ksoft";
@@ -283,6 +285,16 @@ export class Fire extends AkairoClient {
     });
     this.listenerHandler.loadAll();
 
+    this.ws.on("GUILD_CREATE", (guild: APIGuild) => {
+      const existing = this.guilds.cache.get(guild.id) as FireGuild;
+      if (!existing?.available && !guild.unavailable) {
+        this.console.warn(
+          `[Guilds] Guild ${guild.name} (${guild.id}) has become available`
+        );
+        existing._patch(guild);
+      }
+    });
+
     this.languages = new LanguageHandler(this, {
       directory: __dirname.includes("/dist/")
         ? "./dist/src/languages/"
@@ -347,13 +359,6 @@ export class Fire extends AkairoClient {
       });
       this.users.cache.sweep((user) => user.id != this.user?.id);
     };
-    // this.cacheSweep = () => {
-    //   this.guilds.cache.forEach((guild) => {
-    //     guild.members.cache.sweep(() => true);
-    //     guild.presences.cache.sweep(() => true);
-    //   });
-    //   this.users.cache.sweep(() => true);
-    // };
     this.cacheSweepTask = setInterval(this.cacheSweep, 30000);
     return super.login();
   }
