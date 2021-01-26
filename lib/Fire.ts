@@ -285,16 +285,6 @@ export class Fire extends AkairoClient {
     });
     this.listenerHandler.loadAll();
 
-    this.ws.on("GUILD_CREATE", (guild: APIGuild) => {
-      const existing = this.guilds.cache.get(guild.id) as FireGuild;
-      if (existing.name && !existing.available && !guild.unavailable) {
-        this.console.warn(
-          `[Guilds] Guild ${guild.name} (${guild.id}) has become available`
-        );
-        existing._patch(guild);
-      }
-    });
-
     this.languages = new LanguageHandler(this, {
       directory: __dirname.includes("/dist/")
         ? "./dist/src/languages/"
