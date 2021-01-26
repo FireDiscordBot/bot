@@ -1060,6 +1060,8 @@ ${success.map((s) => "- " + s).join("\n")}${
         SLOWMODE_INVALID_TYPE: "You must provide a text channel or category",
         SLOWMODE_FAILED: (channels: string[]) =>
           `Failed to set slowmode in ${channels.join(", ")}`,
+        SLOWMODE_SETTING_GLOBAL: (channels: number) =>
+          `Attempting to set slowmode in ${channels} channels, this may take a while`,
         SLOWMODE_GLOBAL_FAIL_SOME: (failed: string[]) =>
           `I set slowmode in some channels but failed to set slowmode in ${failed.join(
             ", "
