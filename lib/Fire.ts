@@ -287,7 +287,7 @@ export class Fire extends AkairoClient {
 
     this.ws.on("GUILD_CREATE", (guild: APIGuild) => {
       const existing = this.guilds.cache.get(guild.id) as FireGuild;
-      if (existing && !existing.available && !guild.unavailable) {
+      if (existing.name && !existing.available && !guild.unavailable) {
         this.console.warn(
           `[Guilds] Guild ${guild.name} (${guild.id}) has become available`
         );
