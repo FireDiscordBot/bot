@@ -9,7 +9,7 @@ export default class AutoQuote extends Command {
         language.get("AUTOQUOTE_COMMAND_DESCRIPTION"),
       userPermissions: ["MANAGE_MESSAGES"],
       enableSlashCommand: true,
-      restrictTo: "all",
+      restrictTo: "guild",
     });
   }
 
