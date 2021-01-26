@@ -46,9 +46,7 @@ export class FireMessage extends Message {
 
   get language() {
     return this.author?.settings.has("utils.language")
-      ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
-        ? this.guild?.language
-        : this.author.language
+      ? this.author.language
       : this.guild?.language || this.client.getLanguage("en-US");
   }
 
@@ -238,7 +236,9 @@ export class FireMessage extends Message {
       );
     }
     const embed = new MessageEmbed()
-      .setColor(this.member?.displayHexColor || quoter.displayHexColor || "#ffffff")
+      .setColor(
+        this.member?.displayHexColor || quoter.displayHexColor || "#ffffff"
+      )
       .setTimestamp(this.createdAt)
       .setAuthor(
         this.author.toString(),
