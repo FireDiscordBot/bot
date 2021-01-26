@@ -67,13 +67,15 @@ export default class CommandError extends Listener {
       });
     }
 
-    if (!message.author.isSuperuser()) {
-      return await message.error(
-        "COMMAND_ERROR_GENERIC",
-        message.util?.parsed?.alias
-      );
-    } else {
-      return await message.channel.send("```js\n" + error.stack + "```");
-    }
+    try {
+      if (!message.author.isSuperuser()) {
+        return await message.error(
+          "COMMAND_ERROR_GENERIC",
+          message.util?.parsed?.alias
+        );
+      } else {
+        return await message.channel.send("```js\n" + error.stack + "```");
+      }
+    } catch {}
   }
 }
