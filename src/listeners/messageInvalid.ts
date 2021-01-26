@@ -122,7 +122,7 @@ export default class MessageInvalid extends Listener {
               destination: {
                 nsfw: (message.channel as TextChannel)?.nsfw || false,
                 permissions: message.guild
-                  ? message.member.permissions.bitfield
+                  ? message.member?.permissions.bitfield || 0
                   : 0,
               } as PartialQuoteDestination,
             })
