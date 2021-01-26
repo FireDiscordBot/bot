@@ -17,6 +17,7 @@ import Tickets from "../../src/commands/Tickets/tickets";
 import { FakeChannel } from "./slashCommandMessage";
 import { GuildSettings } from "../util/settings";
 import { getIDMatch } from "../util/converters";
+import { APIGuild } from "discord-api-types";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
 import { v4 as uuidv4 } from "uuid";
@@ -73,7 +74,7 @@ export class FireGuild extends Guild {
     return this.roles.cache.get(id);
   }
 
-  _patch(data: any) {
+  _patch(data: APIGuild) {
     delete data.members;
     delete data.presences;
 
