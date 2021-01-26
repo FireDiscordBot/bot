@@ -271,15 +271,15 @@ export class FakeChannel {
   }
 
   permissionsFor(memberOrRole: GuildMemberResolvable | RoleResolvable) {
-    return this.real.permissionsFor(memberOrRole) || new Permissions(0);
+    return this.real?.permissionsFor(memberOrRole) || new Permissions(0);
   }
 
   startTyping(count?: number) {
-    return this.real.startTyping(count);
+    return this.real?.startTyping(count);
   }
 
   stopTyping(force?: boolean) {
-    return this.real.stopTyping(force);
+    return this.real?.stopTyping(force);
   }
 
   bulkDelete(
@@ -289,11 +289,11 @@ export class FakeChannel {
       | number,
     filterOld?: boolean
   ) {
-    return this.real.bulkDelete(messages, filterOld);
+    return this.real?.bulkDelete(messages, filterOld);
   }
 
   awaitMessages(filter: CollectorFilter, options?: AwaitMessagesOptions) {
-    return this.real.awaitMessages(filter, options);
+    return this.real?.awaitMessages(filter, options);
   }
 
   // Acknowledges without sending a message
