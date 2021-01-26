@@ -14,7 +14,7 @@ export const fire = {
     client.console.log(
       `Users: ${(client.guilds.cache.size >= 1
         ? client.guilds.cache
-            .map((guild) => guild.memberCount)
+            .map((guild) => guild.memberCount || 0)
             .reduce((a, b) => a + b)
         : 0
       ).toLocaleString()}`
