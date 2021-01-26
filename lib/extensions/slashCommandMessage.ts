@@ -15,6 +15,7 @@ import {
   MessageManager,
   MessageEmbed,
   TextChannel,
+  Permissions,
   NewsChannel,
   APIMessage,
   Collection,
@@ -129,9 +130,8 @@ export class SlashCommandMessage {
     let content = prefix as string;
     content += this.slashCommand.data.name + " ";
     if (this.command.args?.length && this.slashCommand.data.options?.length) {
-      const argNames = (this.command.args as ArgumentOptions[]).map(
-        (opt) => opt.id
-      );
+      const commandArgs = this.command.args as ArgumentOptions[];
+      const argNames = commandArgs.map((opt) => opt.id);
       const sortedArgs = this.slashCommand.data.options.sort(
         (a, b) =>
           argNames.indexOf(a.name.toLowerCase()) -
@@ -139,19 +139,14 @@ export class SlashCommandMessage {
       );
       let args = sortedArgs.map((opt) => {
         if (
-          (this.command.args as ArgumentOptions[]).find(
+          commandArgs.find(
             (arg) => arg.id == opt.name && arg.flag && arg.match == "flag"
-          )
+          ) &&
+          opt.value
         ) {
-          const arg = (this.command.args as ArgumentOptions[]).find(
-            (arg) => arg.id == opt.name
-          );
+          const arg = commandArgs.find((arg) => arg.id == opt.name);
           return arg.flag;
-        } else if (
-          (this.command.args as ArgumentOptions[]).find(
-            (arg) => arg.id == opt.name && arg.flag
-          )
-        )
+        } else if (commandArgs.find((arg) => arg.id == opt.name && arg.flag))
           return `--${opt.name} ${opt.value}`;
         return opt.value;
       });
@@ -276,7 +271,7 @@ export class FakeChannel {
   }
 
   permissionsFor(memberOrRole: GuildMemberResolvable | RoleResolvable) {
-    return this.real.permissionsFor(memberOrRole);
+    return this.real.permissionsFor(memberOrRole) || new Permissions(0);
   }
 
   startTyping(count?: number) {
