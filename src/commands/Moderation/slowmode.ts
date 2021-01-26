@@ -56,7 +56,8 @@ export default class Slowmode extends Command {
     if (args.delay < 0 || args.delay > 21600) return await message.error();
     if (
       !args.channel &&
-      (message.util?.parsed?.alias != "slowmodeall" || args.global)
+      message.util?.parsed?.alias != "slowmodeall" &&
+      !args.global
     )
       args.channel = message.channel as TextChannel;
     else if (
@@ -95,26 +96,30 @@ export default class Slowmode extends Command {
 
   async globalSlowmode(message: FireMessage, delay: number) {
     let failed: string[] = [];
-    const slow = async (message: FireMessage) => {
-      message.guild.channels.cache
-        .filter((channel: GuildChannel) => channel.type == "text")
-        .forEach((channel: TextChannel) => {
-          if (
-            channel.rateLimitPerUser != delay &&
-            message.guild.me.permissionsIn(channel).has("MANAGE_CHANNELS")
+    const channels = message.guild.channels.cache
+      .filter((channel: GuildChannel) => channel.type == "text")
+      .array() as TextChannel[];
+    let warning: FireMessage;
+    if (channels.length > 50)
+      warning = (await message.send(
+        "SLOWMODE_SETTING_GLOBAL",
+        channels.length
+      )) as FireMessage;
+    for (const channel of channels) {
+      if (
+        channel.rateLimitPerUser != delay &&
+        message.guild.me.permissionsIn(channel).has("MANAGE_CHANNELS")
+      )
+        await channel
+          .setRateLimitPerUser(
+            delay,
+            `Slowmode set by ${message.author} in all channels`
           )
-            channel
-              .setRateLimitPerUser(
-                delay,
-                `Slowmode set by ${message.author} in all channels`
-              )
-              .catch(() => {
-                failed.push(channel.toString());
-              });
-        });
-      return true;
-    };
-    await slow(message); // Ensures foreach finishes before continuing
+          .catch(() => {
+            failed.push(channel.toString());
+          });
+    }
+    if (warning) await warning.delete().catch(() => {});
     return failed.length
       ? await message.error("SLOWMODE_GLOBAL_FAIL_SOME", failed)
       : await message.success();
