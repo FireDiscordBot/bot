@@ -211,7 +211,7 @@ export class Util extends ClientUtil {
       pid: process.pid,
       version: this.client.config.dev ? "dev" : getCommitHash().slice(0, 7),
       versions: `Discord.JS v${djsver} | Node.JS ${process.version}`,
-      guilds: this.client.guilds.cache.size,
+      guilds: this.client.guilds.cache.filter((guild) => guild.available).size,
       unavailableGuilds: this.client.guilds.cache.filter(
         (guild) => !guild.available
       ).size,
@@ -230,7 +230,7 @@ export class Util extends ClientUtil {
           id: shard.id,
           wsPing: shard.ping,
           guilds: this.client.guilds.cache.filter(
-            (guild) => guild.shardID == shard.id
+            (guild) => guild.shardID == shard.id && guild.available
           ).size,
           unavailableGuilds: this.client.guilds.cache.filter(
             (guild) => guild.shardID == shard.id && !guild.available
