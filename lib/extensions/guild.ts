@@ -472,11 +472,19 @@ export class FireGuild extends Guild {
     }
     name = name.replace(/crab/gim, "🦀");
     this.settings.set("tickets.increment", ++increment);
+    const overwriteTheOverwrites = [
+      author.id,
+      this.me.id,
+      this.roles.everyone.id,
+    ];
     const ticket = await this.channels
       .create(name.slice(0, 50), {
         parent: category,
         permissionOverwrites: [
-          ...category.permissionOverwrites.array(),
+          ...category.permissionOverwrites.array().filter(
+            // ensure the overwrites below are used instead
+            (overwrite) => !overwriteTheOverwrites.includes(overwrite.id)
+          ),
           { id: author.id, allow: ["VIEW_CHANNEL", "SEND_MESSAGES"] },
           {
             id: this.me.id,
