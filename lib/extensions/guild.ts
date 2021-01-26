@@ -275,6 +275,15 @@ export class FireGuild extends Guild {
 
   getDiscoverableData() {
     let splash = "https://i.imgur.com/jWRMBRd.png";
+    if (!this.available)
+      return {
+        name: "",
+        id: this.id,
+        icon: "https://cdn.discordapp.com/embed/avatars/0.png",
+        splash,
+        vanity: `https://discover.inv.wtf/${this.id}`,
+        members: 0,
+      };
     if (this.splash)
       splash = this.splashURL({
         size: 2048,

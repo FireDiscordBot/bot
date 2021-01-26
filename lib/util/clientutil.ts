@@ -218,7 +218,7 @@ export class Util extends ClientUtil {
       users:
         this.client.guilds.cache.size >= 1
           ? this.client.guilds.cache
-              .map((guild) => guild.memberCount)
+              .map((guild) => guild.memberCount || 0)
               .reduce((a, b) => a + b)
           : 0,
       userStatuses: this.getUserStatuses(),
@@ -241,7 +241,7 @@ export class Util extends ClientUtil {
             ).size >= 1
               ? this.client.guilds.cache
                   .filter((guild) => guild.shardID == shard.id)
-                  .map((guild) => guild.memberCount)
+                  .map((guild) => guild.memberCount || 0)
                   .reduce((a, b) => a + b)
               : 0,
           userStatuses: this.getUserStatuses(shard.id),
