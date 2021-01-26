@@ -190,7 +190,7 @@ export class RequestHandler {
       // Retry the specified number of times for possible serverside issues
       if (request.retries === this.manager.client.options.retryLimit) {
         throw new HTTPError(
-          "what",
+          res.coreRes.statusMessage,
           res.constructor.name,
           res.statusCode,
           request.method,
