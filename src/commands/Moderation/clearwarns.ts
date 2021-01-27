@@ -14,7 +14,7 @@ export default class ClearWarnings extends Command {
         {
           id: "userOrCaseID",
           type: Argument.union("memberSilent", "string"),
-          readableType: "string",
+          readableType: "userOrCaseID",
           required: true,
           default: null,
         },
