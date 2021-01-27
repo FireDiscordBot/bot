@@ -24,6 +24,7 @@ import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
 import { Fire } from "../Fire";
+import { VoiceChannel } from "discord.js";
 
 const parseUntil = (time?: string) => {
   if (!time) return 0;
@@ -36,6 +37,7 @@ const parseUntil = (time?: string) => {
 export class FireGuild extends Guild {
   persistedRoles: Collection<string, string[]>;
   inviteRoles: Collection<string, string>;
+  vcRoles: Collection<string, string>;
   invites: Collection<string, number>;
   mutes: Collection<string, number>;
   muteCheckTask: NodeJS.Timeout;
@@ -51,6 +53,7 @@ export class FireGuild extends Guild {
     this.tags = new GuildTagManager(client, this);
     this.persistedRoles = new Collection();
     this.inviteRoles = new Collection();
+    this.vcRoles = new Collection();
     this.invites = new Collection();
     this.loadMutes();
   }
@@ -252,6 +255,54 @@ export class FireGuild extends Guild {
         role.get("uid") as string,
         role.get("roles") as string[]
       );
+  }
+
+  async loadVcRoles() {
+    this.vcRoles = new Collection();
+    if (!this.premium || !this.available) return;
+    const voiceroles = await this.client.db
+      .query("SELECT * FROM vcroles WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!voiceroles)
+      return this.client.console.error(
+        `[Guild] Failed to load voice roles for ${this.name} (${this.id})`
+      );
+    for (const vcrole of voiceroles) {
+      this.vcRoles.set(
+        vcrole.get("cid") as string,
+        vcrole.get("rid") as string
+      );
+      const channel = this.channels.cache.get(
+        vcrole.get("cid") as string
+      ) as VoiceChannel;
+      if (!channel) continue;
+      const role = this.roles.cache.get(vcrole.get("rid") as string);
+      if (!role) continue;
+      for (const [, member] of channel.members)
+        await member.roles
+          .add(
+            role,
+            this.language.get(
+              "VCROLE_ADD_REASON",
+              channel?.name || "???"
+            ) as string
+          )
+          .catch(() => {});
+      for (const [, state] of this.voiceStates.cache.filter(
+        (state) =>
+          state.channelID == channel.id &&
+          !state.member.roles.cache.has(role.id)
+      ))
+        await state.member.roles
+          .add(
+            role,
+            this.language.get(
+              "VCROLE_ADD_REASON",
+              channel?.name || "???"
+            ) as string
+          )
+          .catch(() => {});
+    }
   }
 
   async loadInvites() {

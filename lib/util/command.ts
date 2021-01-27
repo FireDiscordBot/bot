@@ -34,6 +34,7 @@ const slashCommandTypeMappings = {
   USER: ["user", "member", "user|member", "userSilent", "memberSilent"],
   CHANNEL: [
     "textChannel",
+    "voiceChannel",
     "textChannelSilent",
     "category",
     "categorySilent",

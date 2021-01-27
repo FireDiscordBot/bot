@@ -1279,6 +1279,24 @@ If the user gets automatically muted again, just try unmute them again and it'll
           "This guild has been blacklisted from vanity features",
         VANITYURL_CREATED: (code: string, dev: boolean) =>
           `Your Vanity URL is <https://${dev ? "test." : ""}inv.wtf/${code}>`,
+        VCROLE_ADD_REASON: (channel: string) =>
+          `Giving VC role for voice channel ${channel}`,
+        VCROLE_REMOVE_REASON: (channel: string) =>
+          `Removing VC role for voice channel ${channel}`,
+        VCROLE_COMMAND_DESCRIPTION:
+          "Automatically assign a role to a user when they join a voice channel",
+        VCROLE_CHANNEL_REQUIRED:
+          "You must provide a channel to set or reset the vcrole for",
+        VCROLE_ROLE_REQUIRED:
+          "That channel does not have an existing vc role, you'll need to provide a role to set one",
+        VCROLE_RESET:
+          "Successfully reset the vc role for that channel and removed the role from members currently in the voice channel",
+        VCROLE_RESET_FAILED:
+          "Failed to reset vc role for that channel, try again with your fingers crossed, that might help",
+        VCROLE_SET: (channel: string, role: string) =>
+          `Successfully set the vc role for ${channel} to ${role}`,
+        VCROLE_SET_FAILED:
+          "Failed to set vc role for that channel, try again with your fingers crossed, that might help",
         WARN_FAILED_ENTRY:
           "User was not warned due to an error logging the warn",
         WARN_LOG_AUTHOR: (user: string) => `Warn | ${user}`,

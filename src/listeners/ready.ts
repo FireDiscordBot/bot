@@ -25,7 +25,6 @@ export default class Ready extends Listener {
         );
       });
     }
-    this.client.cacheSweep();
     try {
       if (typeof process.send == "function") process.send("ready");
       this.client.manager.ws?.send(
@@ -58,6 +57,7 @@ export default class Ready extends Listener {
     const guilds = this.client.guilds.cache.values() as IterableIterator<FireGuild>;
     for (const guild of guilds) {
       await guild.loadInvites();
+      await guild.loadVcRoles();
       await guild.loadInviteRoles();
       await guild.loadPersistedRoles();
     }
@@ -123,5 +123,7 @@ export default class Ready extends Listener {
           );
       }
     }
+
+    this.client.cacheSweep();
   }
 }

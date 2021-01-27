@@ -16,6 +16,7 @@ export default class GuildCreate extends Listener {
     // these make sure the collection exists,
     // doesn't fill with data unless premium
     await guild.loadInvites();
+    await guild.loadVcRoles();
     await guild.loadInviteRoles();
     await guild.loadPersistedRoles();
 
