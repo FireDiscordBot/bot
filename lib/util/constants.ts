@@ -111,6 +111,8 @@ export const constants = {
     website: "https://fire.gaminggeek.dev/",
     terms: "https://inv.wtf/terms",
     privacy: "https://inv.wtf/privacy",
+    // selfhosted instance of https://git.farfrom.earth/aero/imagegen (but with profile removed since I don't need it)
+    imageGen: "https://gen.inv.wtf/",
   },
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
   regexes: {

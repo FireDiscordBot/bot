@@ -325,6 +325,11 @@ Make sure I have permission to manage roles`,
           `${
             type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
           } Channel Update | ${channel}`,
+        COLOR_COMMAND_DESCRIPTION: "Get information about a color",
+        COLOR_ARGUMENT_INVALID: (random: string) =>
+          `That does not seem to be a valid color, maybe try ${random}`,
+        COLOR_HEADING: (color: string) =>
+          `Information about the color **${color}**`,
         COMMAND_COMMAND_DESCRIPTION: "Enable/disable a command in your server",
         COMMAND_DISABLE_FORBIDDEN: "You cannot disable this command!",
         COMMAND_ENABLE: (command: string) => `Successfully enabled ${command}!`,
