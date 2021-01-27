@@ -46,14 +46,11 @@ export class GuildTagManager {
     if (this.names.length && !this.cache.size) await this.loadTags();
     if (this.names.includes(tag.toLowerCase()))
       return await this.getCachedTag(tag);
-    for (const name of this.names) {
-      if (
-        useFuzzy &&
+    const fuzzy = this.names.find(
+      (name) =>
         fuzz.ratio(tag.trim().toLowerCase(), name.trim().toLowerCase()) >= 60
-      ) {
-        return await this.getCachedTag(name);
-      }
-    }
+    );
+    if (useFuzzy && fuzzy) return await this.getCachedTag(fuzzy);
     return await this.getCachedTag(tag);
   }
 
