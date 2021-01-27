@@ -34,8 +34,11 @@ export default class Deepfry extends Command {
       image = message.attachments.first().url;
     } else image = args.image as string;
     if (!image) return await message.error();
-    if (image.includes("cdn.discordapp.com") && !image.includes("?size="))
-      image = image + "?size=2048";
+    try {
+      const url = new URL(image);
+      if (url.hostname == "cdn.discordapp.com" && !url.search)
+        image = image + "?size=2048";
+    } catch {}
     const deepfryReq = await centra(
       `https://memes.aero.bot/api/deepfry?avatar1=${image}`
     )

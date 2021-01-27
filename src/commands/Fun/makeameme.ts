@@ -41,8 +41,11 @@ export default class MakeAMeme extends Command {
       text[0] = args.image + " " + text[0];
     } else image = image || (args.image as string);
     if (!image) return await message.error("MAKEAMEME_NO_IMAGE");
-    if (image.includes("cdn.discordapp.com") && !image.includes("?size="))
-      image = image + "?size=2048";
+    try {
+      const url = new URL(image);
+      if (url.hostname == "cdn.discordapp.com" && !url.search)
+        image = image + "?size=2048";
+    } catch {}
     if (!text.length) return await message.error("MAKEAMEME_NO_TEXT");
     else text = text.map((value) => encodeURI(value));
     const memeReq = await centra(

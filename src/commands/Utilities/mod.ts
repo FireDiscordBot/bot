@@ -87,12 +87,16 @@ export default class Mod extends Command {
       versions.push(`**${version}**: ${mod.latest[version]}`);
     });
     if (versions.length) embed.addField("Versions", versions.join("\n"));
+    let twurl: URL;
+    try {
+      twurl = new URL(mod.vendor.twitter);
+    } catch {}
     embed.addField(
       "Creator",
       `**__${mod.vendor.name}__**
 [Website](${mod.vendor.website})
 [Twitter](${
-        mod.vendor.twitter.includes("twitter.com")
+        twurl && twurl.hostname == "twitter.com"
           ? mod.vendor.twitter
           : `https://twitter.com/${mod.vendor.twitter}`
       })
