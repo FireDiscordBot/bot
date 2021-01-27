@@ -13,6 +13,7 @@ import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
 import { FireUser } from "../extensions/user";
 import { constants } from "./constants";
+import * as fuzz from "fuzzball";
 
 const { regexes } = constants;
 const idOnlyRegex = /^(\d{15,21})$/im;
@@ -264,6 +265,8 @@ export const guildChannelConverter = async (
   argument: string,
   silent = false
 ): Promise<GuildChannel | null> => {
+  if (!argument) return;
+
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
@@ -301,6 +304,8 @@ export const textChannelConverter = async (
   argument: string,
   silent = false
 ): Promise<TextChannel | null> => {
+  if (!argument) return;
+
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
@@ -338,6 +343,8 @@ export const voiceChannelConverter = async (
   argument: string,
   silent = false
 ): Promise<VoiceChannel | null> => {
+  if (!argument) return;
+
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
@@ -375,6 +382,8 @@ export const categoryChannelConverter = async (
   argument: string,
   silent = false
 ): Promise<CategoryChannel | null> => {
+  if (!argument) return;
+
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
@@ -412,6 +421,8 @@ export const roleConverter = async (
   argument: string,
   silent = false
 ): Promise<Role | null> => {
+  if (!argument) return;
+
   const match = getIDMatch(argument) || getRoleMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
@@ -429,6 +440,15 @@ export const roleConverter = async (
     if (role) {
       return role as Role;
     }
+
+    const fuzzy = guild.roles.cache.find(
+      (role) =>
+        fuzz.ratio(
+          role.name.trim().toLowerCase(),
+          argument.trim().toLowerCase()
+        ) >= 75
+    );
+    if (fuzzy) return fuzzy;
 
     if (!silent) await message.error("ROLE_NOT_FOUND");
     return null;
