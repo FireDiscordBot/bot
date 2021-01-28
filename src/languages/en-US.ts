@@ -65,6 +65,7 @@ export default class enUS extends Language {
           "Want more integrations? Use the suggest command to suggest some!",
         RAW: "Raw",
         AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
+        FROM_NOW: " from now", // Also used for dates, e.g. 20 seconds from now.
         UUID: "UUID",
         DATE: "Date",
         TYPE: "Type",

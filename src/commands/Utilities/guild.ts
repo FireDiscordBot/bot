@@ -48,7 +48,7 @@ export default class GuildCommand extends Command {
       humanize(
         moment(guild.createdAt).diff(moment()),
         guild.language.id.split("-")[0]
-      ) + " ago";
+      ) + guild.language.get("AGO");
     if (!guild.members.cache.has(guild.ownerID))
       await guild.members.fetch(guild.ownerID).catch(() => {});
     let messages = [

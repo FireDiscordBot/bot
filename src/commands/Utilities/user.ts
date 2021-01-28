@@ -1,8 +1,12 @@
 import {
+  DeconstructedSnowflake,
   UserFlagsString,
   PermissionString,
+  GuildChannel,
   MessageEmbed,
+  TextChannel,
   ClientUser,
+  DMChannel,
 } from "discord.js";
 import { constants, humanize, zws } from "../../../lib/util/constants";
 import { FireMember } from "../../../lib/extensions/guildmember";
@@ -12,10 +16,6 @@ import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { Ban } from "@aero/ksoft";
 import * as moment from "moment";
-import { TextChannel } from "discord.js";
-import { DeconstructedSnowflake } from "discord.js";
-import { DMChannel } from "discord.js";
-import { GuildChannel } from "discord.js";
 
 const {
   emojis,
@@ -39,7 +39,7 @@ export default class User extends Command {
         },
       ],
       enableSlashCommand: true,
-      aliases: ["userinfo", "infouser", "whois", "u"],
+      aliases: ["userinfo", "infouser", "whois", "u", "snowflake"],
       restrictTo: "all",
     });
   }
@@ -295,7 +295,10 @@ export default class User extends Command {
       humanize(
         moment(snowflake.date).diff(now),
         message.language.id.split("-")[0]
-      ) + message.language.get("AGO");
+      ) +
+      (now.isBefore(snowflake.date)
+        ? message.language.get("FROM_NOW")
+        : message.language.get("AGO"));
 
     let info = [
       `**${message.language.get("CREATED")}:** ${created} (${createdDelta})`,

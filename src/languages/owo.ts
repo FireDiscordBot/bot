@@ -62,6 +62,7 @@ export default class owo extends Language {
           "Want mowe integwations? Use the suggest command to suggest some! >w<",
         RAW: "Waw",
         AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
+        FROM_NOW: " fwom now", // Also used for dates, e.g. 20 seconds from now.
         UUID: "UUID",
         DATE: "Date",
         TYPE: "Type",
