@@ -96,13 +96,15 @@ export default class Redirects extends Module {
   }
 
   async delete(code: string, user: FireMember | FireUser) {
-    return await this.client.db
+    const deleted = await this.client.db
       .query(
         "DELETE FROM vanity WHERE code=$1 OR code=$2 AND uid=$3 RETURNING *;",
         [code, code.toLowerCase(), user.id]
       )
       .first()
       .catch(() => {});
+    if (deleted) await this.requestFetch(`Deleted redirect with code ${code}`);
+    return deleted;
   }
 
   async current(
