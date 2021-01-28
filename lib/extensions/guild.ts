@@ -278,23 +278,20 @@ export class FireGuild extends Guild {
       if (!channel) continue;
       const role = this.roles.cache.get(vcrole.get("rid") as string);
       if (!role) continue;
-      for (const [, member] of channel.members)
-        await member.roles
-          .add(
-            role,
-            this.language.get(
-              "VCROLE_ADD_REASON",
-              channel?.name || "???"
-            ) as string
-          )
-          .catch(() => {});
+      const members = await this.members
+        .fetch({
+          user: this.voiceStates.cache.map((state) => state.id),
+        })
+        .catch(() => {});
+      if (!members) return;
       for (const [, state] of this.voiceStates.cache.filter(
         (state) =>
           state.channelID == channel.id &&
-          !state.member.roles.cache.has(role.id)
+          !members.get(state.id)?.roles.cache.has(role.id)
       ))
-        await state.member.roles
-          .add(
+        await members
+          .get(state.id)
+          ?.roles.add(
             role,
             this.language.get(
               "VCROLE_ADD_REASON",

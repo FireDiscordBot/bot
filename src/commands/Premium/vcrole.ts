@@ -48,8 +48,18 @@ export default class VCRole extends Command {
         .catch(() => {});
       if (removed) {
         message.guild.vcRoles.delete(args.channel.id);
-        for (const [, member] of args.channel.members)
-          await member.roles.remove(existing).catch(() => {});
+        const states = message.guild.voiceStates.cache.filter(
+          (state) => state.channelID == args.channel.id
+        );
+        const members = await message.guild.members
+          .fetch({
+            user: states.map((state) => state.id),
+          })
+          .catch(() => {});
+        if (members) {
+          for (const [, member] of members)
+            await member.roles.remove(existing).catch(() => {});
+        }
         return await message.success("VCROLE_RESET");
       } else return await message.error("VCROLE_RESET_FAILED");
     }
@@ -66,8 +76,18 @@ export default class VCRole extends Command {
       .catch(() => {});
     if (inserted) {
       message.guild.vcRoles.set(args.channel.id, args.role.id);
-      for (const [, member] of args.channel.members)
-        await member.roles.add(args.role).catch(() => {});
+      const states = message.guild.voiceStates.cache.filter(
+        (state) => state.channelID == args.channel.id
+      );
+      const members = await message.guild.members
+        .fetch({
+          user: states.map((state) => state.id),
+        })
+        .catch(() => {});
+      if (members) {
+        for (const [, member] of members)
+          await member.roles.add(args.role).catch(() => {});
+      }
       return await message.success(
         "VCROLE_SET",
         args.channel.name,
