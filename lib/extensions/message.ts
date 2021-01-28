@@ -206,7 +206,8 @@ export class FireMessage extends Message {
         username: this.author.toString().replace(/#0000/gim, ""),
         avatarURL: this.author.displayAvatarURL({ size: 2048, format: "png" }),
         embeds: this.embeds.filter(
-          (embed) => !this.content.includes(embed.url)
+          (embed) =>
+            !this.content.includes(embed.url) && !this.isImageEmbed(embed)
         ),
         files: attachments,
         allowedMentions: this.client.options.allowedMentions,
@@ -214,6 +215,20 @@ export class FireMessage extends Message {
       .catch(async () => {
         return await this.embedQuote(destination, quoter);
       });
+  }
+
+  private isImageEmbed(embed: MessageEmbed) {
+    return (
+      !embed.title &&
+      !embed.description &&
+      !embed.timestamp &&
+      !embed.color &&
+      !embed.fields.length &&
+      !embed.image &&
+      !embed.author &&
+      !embed.footer &&
+      embed.url == embed.thumbnail.url
+    );
   }
 
   private async embedQuote(
