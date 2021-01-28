@@ -251,6 +251,8 @@ export const humanize = (seconds: number, language: string) =>
   });
 
 export const parseTime = (content: string, replace: boolean = false) => {
+  if (!content && !replace) return 0;
+  else if (!content) return content;
   const {
     regexes: { time: regexes },
   } = constants;
