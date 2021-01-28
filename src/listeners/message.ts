@@ -117,6 +117,23 @@ export default class Message extends Listener {
       } catch {}
     }
 
+    if (
+      message.channel.id == "388850472632451073" &&
+      message.embeds.length &&
+      message.webhookID == "388850414398734346"
+    ) {
+      // @ts-ignore
+      await this.client.api
+        // @ts-ignore
+        .channels("731330454422290463")
+        .messages.post({
+          data: {
+            embeds: message.embeds.map((embed) => embed.toJSON()),
+          },
+        })
+        .catch(() => {});
+    }
+
     if (!message.member || message.author.bot) return;
 
     const autoroleId = message.guild.settings.get("mod.autorole", null);
