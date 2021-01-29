@@ -37,7 +37,8 @@ export default class Block extends Command {
     if (!args.toblock) return await message.error("BLOCK_ARG_REQUIRED");
     else if (
       args.toblock instanceof FireMember &&
-      args.toblock.isModerator(message.channel)
+      args.toblock.isModerator(message.channel) &&
+      message.author.id != message.guild.ownerID
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     await message.delete().catch(() => {});

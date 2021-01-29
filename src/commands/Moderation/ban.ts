@@ -43,10 +43,12 @@ export default class Ban extends Command {
     message: FireMessage,
     args: { user: FireMember | FireUser; days?: number; reason?: string }
   ) {
-    if (!args.user) return; // TODO user|member has no silent variety so add one future me kthx
+    if (!args.user) return;
+    // TODO user|member has no silent variety so add one future me kthx
     else if (
       args.user instanceof FireMember &&
-      args.user.isModerator(message.channel)
+      args.user.isModerator(message.channel) &&
+      message.author.id != message.guild.ownerID
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     if (args.days && (args.days < 1 || args.days > 7))

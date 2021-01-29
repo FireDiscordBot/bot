@@ -38,7 +38,8 @@ export default class Kick extends Command {
     if (!args.user) return await message.error("KICK_USER_REQUIRED");
     else if (
       args.user instanceof FireMember &&
-      args.user.isModerator(message.channel)
+      args.user.isModerator(message.channel) &&
+      message.author.id != message.guild.ownerID
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     await message.delete().catch(() => {});

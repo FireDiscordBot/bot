@@ -37,7 +37,8 @@ export default class Unblock extends Command {
     if (!args.tounblock) return await message.error("UNBLOCK_ARG_REQUIRED");
     else if (
       args.tounblock instanceof FireMember &&
-      args.tounblock.isModerator(message.channel)
+      args.tounblock.isModerator(message.channel) &&
+      message.author.id != message.guild.ownerID
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     await message.delete().catch(() => {});
