@@ -553,7 +553,11 @@ export class FireMember extends GuildMember {
         const unmuted = await this.roles
           .remove(this.guild.muteRole, reason)
           .catch(() => {});
-        if (channel && unmuted)
+        if (
+          channel &&
+          unmuted &&
+          !this.roles.cache.has(this.guild.muteRole?.id)
+        )
           return await channel.send(
             this.guild.language.get("UNMUTE_UNKNOWN_REMOVED")
           );
