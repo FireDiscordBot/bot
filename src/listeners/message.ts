@@ -117,11 +117,7 @@ export default class Message extends Listener {
       } catch {}
     }
 
-    if (
-      message.channel.id == "388850472632451073" &&
-      message.embeds.length &&
-      message.webhookID == "388850414398734346"
-    ) {
+    if (message.channel.id == "388850472632451073" && message.embeds.length) {
       // @ts-ignore
       await this.client.api
         // @ts-ignore
@@ -131,7 +127,11 @@ export default class Message extends Listener {
             embeds: message.embeds.map((embed) => embed.toJSON()),
           },
         })
-        .catch(() => {});
+        .catch((e: Error) => {
+          this.client.console.warn(
+            `[Listener] Failed to post datamining message\n${e.stack}`
+          );
+        });
     }
 
     if (!message.member || message.author.bot) return;
