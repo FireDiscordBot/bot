@@ -27,8 +27,8 @@ export default class MCLogs extends Module {
     super("mclogs");
     this.solutions = {};
     this.regexes = {
-      reupload: /(?:http(?:s)?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?(\w+)/gim,
-      noRaw: /(?:http(?:s)?:\/\/)?(?:justpaste).(?:it)\/(\w+)/gim,
+      reupload: /(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh|cdn\.discordapp\.com\/attachments\/\d{15,21}\/\d{15,21})\/(?:raw\/|p\/)?(\w+(?:\.log|\.txt)?)/gim,
+      noRaw: /(justpaste\.it)\/(\w+)/gim,
       secrets: /(club.sk1er.mods.levelhead.auth.MojangAuth|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*)/gim,
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}/gim,
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
@@ -85,7 +85,7 @@ export default class MCLogs extends Module {
         currentSolutions.push(`- ${sol}`);
     }
 
-    if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_M5/im))
+    if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_M5$/im))
       currentSolutions.push("- Update Optifine to the latest version, M5");
 
     if (currentSolutions.length > 6) return "";
@@ -114,7 +114,7 @@ export default class MCLogs extends Module {
           allowedMentions: { users: [message.author.id] },
         }
       );
-    }
+    } else this.regexes.noRaw.lastIndex = 0;
 
     const reupload = this.regexes.reupload.exec(content);
     this.regexes.reupload.lastIndex = 0;
@@ -122,7 +122,13 @@ export default class MCLogs extends Module {
       const domain = reupload[1];
       const key = reupload[2];
       const rawReq = await centra(
-        `https://${domain}/${domain.includes("paste.ee") ? "r" : "raw"}/${key}`
+        `https://${domain}/${
+          domain.includes("paste.ee")
+            ? "r/"
+            : domain.includes("cdn.discordapp.com")
+            ? ""
+            : "raw/"
+        }${key}`
       ).send();
       if (rawReq.statusCode.toString()[0] != "2") {
         return await message.channel.send(
@@ -233,11 +239,18 @@ export default class MCLogs extends Module {
       .filter(
         (line) =>
           !line.includes("has a security seal for path org.lwjgl") &&
-          !line.includes("[OptiFine] CustomItems: mcpatcher/") &&
-          !line.includes("[OptiFine] File not found: mcpatcher/") &&
-          !line.includes("[OptiFine] ConnectedTextures: mcpatcher/") &&
-          !line.includes("[OptiFine] CustomSky properties: mcpatcher/") &&
-          !line.includes("[OptiFine] CustomSky properties: mcpatcher/") &&
+          !line.includes(
+            "[club.sk1er.patcher.tweaker.PatcherTweaker:detectIncompatibleMods"
+          ) &&
+          !line.includes("[net.modcore.loader.ModCoreLoader:isInClassPath:") &&
+          !line.includes(": mcpatcher/") &&
+          !line.includes("Colormap mcpatcher/") &&
+          !line.includes("[OptiFine] (Reflector) Class not present:") &&
+          !line.includes("[OptiFine] Scaled non power of 2:") &&
+          !line.includes("[OptiFine] *** Re") &&
+          !line.includes("[OptiFine] BetterGrass:") &&
+          !line.includes("[OptiFine] Multi") &&
+          !line.includes("[OptiFine] Mipmap") &&
           !line.includes(
             "[OptiFine] CustomSky: Texture not found: minecraft:mcpatcher/"
           ) &&
