@@ -58,12 +58,13 @@ export default class MessageInvalid extends Listener {
         if (this.client.util.isPromise(exec)) exec = await exec;
         if (exec) inhibited = true;
       }
-      if (inhibited) return;
-      await remindCommand
-        .exec(message, {
-          reminder: message.content.replace("--remind", " ").trimEnd(),
-        })
-        .catch(() => {});
+      if (!inhibited) {
+        await remindCommand
+          .exec(message, {
+            reminder: message.content.replace("--remind", " ").trimEnd(),
+          })
+          .catch(() => {});
+      }
     }
 
     if (!message.guild.settings.get("utils.autoquote", false)) return;
@@ -89,6 +90,9 @@ export default class MessageInvalid extends Listener {
     ); // remove dupes
 
     const quoteCommand = this.client.getCommand("quote") as Quote;
+
+    // reset inhibited
+    inhibited = false;
 
     for (const inhibitor of inhibitors) {
       if (inhibited) continue;
