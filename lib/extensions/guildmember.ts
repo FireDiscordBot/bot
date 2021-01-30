@@ -322,6 +322,11 @@ export class FireMember extends GuildMember {
       .createModLogEntry(this, moderator, "ban", reason)
       .catch(() => {});
     if (!logEntry) return "entry";
+    if (this.guild.mutes.has(this.id))
+      await this.unmute(
+        this.guild.language.get("BAN_MUTED_REASON") as string,
+        this.guild.me as FireMember
+      ).catch(() => {});
     const banned = await this.ban({ reason, days }).catch(() => {});
     if (!banned) {
       const deleted = await this.guild

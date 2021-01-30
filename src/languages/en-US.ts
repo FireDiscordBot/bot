@@ -300,6 +300,8 @@ This will **not** rename existing users`,
           "Ban a user from the server. Use the --days flag to delete message history",
         BAN_USER_REQUIRED: "You must provide a user to ban!",
         BAN_INVALID_DAYS: "Days must be a number from 1 to 7",
+        BAN_MUTED_REASON:
+          "User is about to be banned, mute will no longer be needed",
         BLOCK_LOG_AUTHOR: (blockee: string) => `Block | ${blockee}`,
         BLOCK_SUCCESS: (blockee: string) =>
           `${constants.emojis.success} **${blockee}** has been blocked.`,
