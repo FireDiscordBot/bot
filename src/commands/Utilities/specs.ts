@@ -37,7 +37,8 @@ export default class Specs extends Command {
   async exec(message: FireMessage, args: { user?: FireMember | FireUser }) {
     let user = args.user;
     let member: FireMember;
-    if (!user) user = message.member;
+    if (!user && typeof user == "undefined") user = message.member;
+    else if (!user) return;
     const specs = await this.client.db
       .query("SELECT * FROM specs WHERE uid=$1", [user.id])
       .first();
