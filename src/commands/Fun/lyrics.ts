@@ -22,6 +22,7 @@ export default class Lyrics extends Command {
           id: "song",
           // type: Argument.union("memberSilent", "string"),
           // readableType: "member|string",
+          // slashCommandType: "query",
           type: "string",
           match: "rest",
           default: null,
