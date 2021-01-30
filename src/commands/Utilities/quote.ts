@@ -89,6 +89,14 @@ export default class Quote extends Command {
           this.client.console.info(
             `[Command] Sending cross cluster quote request to shard ${shard} for guild ${quote.guild_id}`
           );
+          if (
+            message.guild &&
+            message.author?.id &&
+            !message.member &&
+            !message.webhookID
+          )
+            // ensure member is cached so message.member.permissions works
+            await message.guild.members.fetch(message.author).catch(() => {});
           this.client.manager.ws.send(
             MessageUtil.encode(
               new Message(EventType.CROSS_CLUSTER_QUOTE, {
@@ -98,7 +106,9 @@ export default class Quote extends Command {
                 message: quote,
                 destination: {
                   nsfw: (message.channel as TextChannel)?.nsfw || false,
-                  permissions: message.member.permissions.bitfield,
+                  permissions: message.guild
+                    ? message.member.permissions.bitfield
+                    : 0,
                 } as PartialQuoteDestination,
               })
             )
