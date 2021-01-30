@@ -14,6 +14,7 @@ import { FireMessage } from "../extensions/message";
 import { FireUser } from "../extensions/user";
 import { constants } from "./constants";
 import * as fuzz from "fuzzball";
+import message from "../../src/listeners/message";
 
 const { regexes } = constants;
 const idOnlyRegex = /^(\d{15,21})$/im;
@@ -91,8 +92,18 @@ export const memberConverter = async (
       .filter((m) => m.id < message.id && m.author?.id != message.author?.id)
       .last().member as FireMember;
   else if (argument == "^") {
-    await message.error();
-    return null;
+    const messages = await message.channel.messages
+      .fetch({ limit: 5 })
+      .catch(() => {});
+    if (!messages || !messages.size) {
+      await message.error();
+      return null;
+    }
+    const authoredMessage = messages
+      .filter((m) => m.id < message.id && m.author?.id != message.author?.id)
+      .last() as FireMessage;
+    if (authoredMessage.member) return authoredMessage.member as FireMember;
+    else argument = authoredMessage.author.id; // continue on with author id
   }
 
   const alias = message.client.aliases.findKey((aliases) =>
@@ -151,8 +162,21 @@ export const userConverter = async (
       .filter((m) => m.id < message.id && m.author?.id != message.author?.id)
       .last().author as FireUser;
   else if (argument == "^") {
-    await message.error();
-    return null;
+    const messages = await message.channel.messages
+      .fetch({ limit: 5 })
+      .catch(() => {});
+    if (!messages || !messages.size) {
+      await message.error();
+      return null;
+    }
+    const authoredMessage = messages
+      .filter((m) => m.id < message.id && m.author?.id != message.author?.id)
+      .last() as FireMessage;
+    if (authoredMessage.author) return authoredMessage.author as FireUser;
+    else {
+      await message.error();
+      return null;
+    }
   }
 
   const alias = message.client.aliases.findKey((aliases) =>
