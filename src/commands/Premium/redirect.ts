@@ -103,7 +103,6 @@ export default class Redirect extends Command {
       )
         throw new Error("invite");
     } catch (e) {
-      this.client.console.debug(e.message);
       return await message.error("REDIRECT_URL_INVALID");
     }
 
