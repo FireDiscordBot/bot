@@ -44,6 +44,7 @@ export class FireUser extends User {
   }
 
   hasExperiment(id: string, treatmentId?: number) {
+    if (this.client.config.dev) return true;
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "user") return false;
     for (const c of Object.keys(experiment.defaultConfig)) {

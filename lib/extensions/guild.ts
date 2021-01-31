@@ -25,6 +25,7 @@ import { FireUser } from "./user";
 import { nanoid } from "nanoid";
 import { Fire } from "../Fire";
 import { VoiceChannel } from "discord.js";
+import guild from "../../src/commands/Utilities/guild";
 
 const parseUntil = (time?: string) => {
   if (!time) return 0;
@@ -415,6 +416,7 @@ export class FireGuild extends Guild {
   }
 
   hasExperiment(id: string, treatmentId?: number) {
+    if (this.client.config.dev) return true;
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "guild") return false;
     for (const c of Object.keys(experiment.defaultConfig)) {
