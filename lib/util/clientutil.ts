@@ -251,8 +251,10 @@ export class Util extends ClientUtil {
           roleUpdateLogs: Object.assign(
             {},
             ...this.client.guilds.cache
-              .filter((guild: FireGuild) =>
-                this.hasRoleUpdates.includes(guild.id)
+              .filter(
+                (guild: FireGuild) =>
+                  this.hasRoleUpdates.includes(guild.id) &&
+                  guild.shardID == shard.id
               )
               .map((guild: FireGuild) => {
                 return { [guild.id]: guild.roleUpdateLogs };
