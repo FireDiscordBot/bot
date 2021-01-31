@@ -97,7 +97,9 @@ export default class GuildMemberAdd extends Listener {
       ) {
         const role = member.guild.roles.cache.get(autoroleId);
         if (role && member.guild.me.hasPermission("MANAGE_ROLES"))
-          await member.roles.add(role).catch(() => {});
+          await member.roles
+            .add(role, member.guild.language.get("AUTOROLE_REASON") as string)
+            .catch(() => {});
       }
     }
 

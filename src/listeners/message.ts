@@ -141,7 +141,12 @@ export default class Message extends Listener {
     if (autoroleId && delay) {
       const role = message.guild.roles.cache.get(autoroleId);
       if (role && !message.member.roles.cache.has(role.id))
-        await message.member.roles.add(role).catch(() => {});
+        await message.member.roles
+          .add(
+            role,
+            message.member.guild.language.get("AUTOROLE_REASON") as string
+          )
+          .catch(() => {});
     }
 
     const filters = this.client.getModule("filters") as Filters;

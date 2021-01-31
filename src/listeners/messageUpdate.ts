@@ -42,7 +42,10 @@ export default class MessageUpdate extends Listener {
     let toSearch =
       after.content +
       after.embeds.map((embed) => JSON.stringify(embed)).join(" ");
-    if (messageListener.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN)
+    if (
+      messageListener.tokenRegex.test(toSearch) &&
+      process.env.GITHUB_TOKENS_TOKEN
+    )
       await messageListener.tokenGist(after, toSearch);
 
     if (!after.member || after.author.bot) return;
@@ -52,7 +55,12 @@ export default class MessageUpdate extends Listener {
     if (autoroleId && delay) {
       const role = after.guild.roles.cache.get(autoroleId);
       if (role && !after.member.roles.cache.has(role.id))
-        await after.member.roles.add(role).catch(() => {});
+        await after.member.roles
+          .add(
+            role,
+            after.member.guild.language.get("AUTOROLE_REASON") as string
+          )
+          .catch(() => {});
     }
 
     const filters = this.client.getModule("filters") as Filters;

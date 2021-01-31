@@ -58,7 +58,12 @@ export default class VCRole extends Command {
           .catch(() => {});
         if (members) {
           for (const [, member] of members)
-            await member.roles.remove(existing).catch(() => {});
+            await member.roles
+              .remove(
+                existing,
+                message.guild.language.get("VCROLE_REMOVE_REASON") as string
+              )
+              .catch(() => {});
         }
         return await message.success("VCROLE_RESET");
       } else return await message.error("VCROLE_RESET_FAILED");
