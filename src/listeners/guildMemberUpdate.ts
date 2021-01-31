@@ -151,13 +151,21 @@ export default class GuildMemberUpdate extends Listener {
 
     for (const [, action] of filteredActions) {
       for (const change of action.changes) {
-        if (change.key == "$add")
+        if (
+          change.key == "$add" &&
+          (newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP", 1) ||
+            newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP", 3))
+        )
           await this.logRoleAdd(
             action,
             change,
             newMember.guild
           ).catch(() => {});
-        else if (change.key == "$remove")
+        else if (
+          change.key == "$remove" &&
+          (newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP", 2) ||
+            newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP", 3))
+        )
           await this.logRoleRemove(
             action,
             change,
