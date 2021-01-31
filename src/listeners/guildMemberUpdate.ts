@@ -118,22 +118,33 @@ export default class GuildMemberUpdate extends Listener {
     }
 
     if (
-      !newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP") &&
+      (!newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP") ||
+        !newMember.guild.settings.has("log.action")) &&
       !this.client.config.dev
     )
       return;
+
+    if (newMember.guild.fetchingRoleUpdates) {
+      await this.client.util.sleep(5000);
+      // if below is true, another update got their first
+      // so just return since the other update
+      // will probably log the changes from this update
+      if (newMember.guild.fetchingRoleUpdates) return;
+    }
 
     const latestId: string = newMember.guild.settings.get(
       "auditlog.member_role_update.latestid",
       "0"
     );
 
+    newMember.guild.fetchingRoleUpdates = true;
     const auditLogActions = await newMember.guild
       .fetchAuditLogs({
         limit: latestId == "0" ? 1 : 5,
         type: "MEMBER_ROLE_UPDATE",
       })
       .catch(() => {});
+    newMember.guild.fetchingRoleUpdates = false;
     if (!auditLogActions || !auditLogActions.entries?.size) return;
 
     let filteredActions = auditLogActions.entries.filter(

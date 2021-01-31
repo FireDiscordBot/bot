@@ -42,6 +42,7 @@ export class FireGuild extends Guild {
   invites: Collection<string, number>;
   mutes: Collection<string, number>;
   muteCheckTask: NodeJS.Timeout;
+  fetchingRoleUpdates: boolean;
   settings: GuildSettings;
   roleUpdateLogs: number;
   tags: GuildTagManager;
@@ -57,7 +58,11 @@ export class FireGuild extends Guild {
     this.inviteRoles = new Collection();
     this.vcRoles = new Collection();
     this.invites = new Collection();
+    // temporary
     this.roleUpdateLogs = 0;
+    // not temporary,
+    // will be used to prevent fetching while fetching
+    this.fetchingRoleUpdates = false;
     this.loadMutes();
   }
 
