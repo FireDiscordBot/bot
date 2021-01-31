@@ -246,6 +246,7 @@ export default class enUS extends Language {
           }.`,
         AUTOROLE_ENABLED_BOT: (role: string, delay: boolean) =>
           `Autorole has been enabled, bots will receive ${role} upon join.`,
+        AUTOROLE_REASON: "Adding autorole",
         MODERATORS_ROLES: "Moderator Roles",
         NO_MODERATOR_ROLES: "No roles have been set as moderators.",
         MODERATORS_MEMBERS: "Moderator Members",
@@ -1037,6 +1038,8 @@ ${success.map((s) => "- " + s).join("\n")}${
           "You didn't respond quick enough. The reminder has not been deleted",
         DELREMIND_YES:
           "It is gone! Remember, when using this command again, the indexes will have changed so make sure you're using the right one",
+        ROLEADDLOG_FIELD_TITLE: "Added Roles",
+        ROLEREMOVELOG_FIELD_TITLE: "Removed Roles",
         ROLEPERSIST_REASON: "Adding persisted roles",
         ROLEPERSIST_COMMAND_DESCRIPTION:
           "Add a role(s) that will stay with the user, even if they leave and rejoin.",
