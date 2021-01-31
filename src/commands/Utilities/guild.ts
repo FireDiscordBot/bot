@@ -54,7 +54,11 @@ export default class GuildCommand extends Command {
     let messages = [
       message.language.get(
         "GUILD_CREATED_AT",
-        guild.owner?.user?.discriminator != null ? guild.owner : "Unknown#0000",
+        guild.owner.joinedTimestamp - message.guild.createdTimestamp < 5000
+          ? guild.owner?.user?.discriminator != null
+            ? guild.owner
+            : "Unknown#0000"
+          : null,
         created
       ),
       `**${message.language.get(

@@ -469,7 +469,9 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           `**Showtened wink sent in** ${channel}`,
         GUILD_COMMAND_DESCRIPTION: "Get a genewaw ovewview of the guiwd",
         GUILD_CREATED_AT: (owner: string, created: string) =>
-          `**Cweated by ${owner} ${created}**`,
+          owner
+            ? `**Cweated by ${owner} ${created}**`
+            : `**Cweated:** ${created}`,
         GOOGLE_COMMAND_DESCRIPTION: "Speak to the Googwe Assistant",
         GOOGLE_TOO_LONG:
           "<a:okaygoogle:769207087674032129> Youw quewy is too wong!",

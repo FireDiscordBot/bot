@@ -223,8 +223,11 @@ export default class User extends Command {
           moment(member.joinedAt).diff(now),
           message.language.id.split("-")[0]
         ) + message.language.get("AGO");
-      if (message.guild && message.guild.ownerID == member.id)
-        // 99% of the time the guild will never be transferred so it'll make sense most of the time
+      if (
+        message.guild &&
+        message.guild.ownerID == member.id &&
+        member.joinedTimestamp - message.guild.createdTimestamp < 5000
+      )
         info.push(
           `**${message.language.get(
             "CREATED_GUILD"

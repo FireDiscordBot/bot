@@ -533,7 +533,9 @@ Hint: Use the \`public\` command to get your server on the list`,
           `**Shortened link sent in** ${channel}`,
         GUILD_COMMAND_DESCRIPTION: "Get a general overview of the guild",
         GUILD_CREATED_AT: (owner: string, created: string) =>
-          `**Created by ${owner} ${created}**`,
+          owner
+            ? `**Created by ${owner} ${created}**`
+            : `**Created:** ${created}`,
         GOOGLE_COMMAND_DESCRIPTION: "Speak to the Google Assistant",
         GOOGLE_TOO_LONG:
           "<a:okaygoogle:769207087674032129> Your query is too long!",
