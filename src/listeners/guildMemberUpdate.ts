@@ -124,13 +124,7 @@ export default class GuildMemberUpdate extends Listener {
     )
       return;
 
-    if (newMember.guild.fetchingRoleUpdates) {
-      await this.client.util.sleep(5000);
-      // if below is true, another update got their first
-      // so just return since the other update
-      // will probably log the changes from this update
-      if (newMember.guild.fetchingRoleUpdates) return;
-    }
+    if (newMember.guild.fetchingRoleUpdates) return;
 
     const latestId: string = newMember.guild.settings.get(
       "auditlog.member_role_update.latestid",
@@ -140,7 +134,7 @@ export default class GuildMemberUpdate extends Listener {
     newMember.guild.fetchingRoleUpdates = true;
     const auditLogActions = await newMember.guild
       .fetchAuditLogs({
-        limit: latestId == "0" ? 1 : 5,
+        limit: latestId == "0" ? 3 : 10,
         type: "MEMBER_ROLE_UPDATE",
       })
       .catch(() => {});
