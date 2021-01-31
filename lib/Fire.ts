@@ -165,12 +165,12 @@ export class Fire extends AkairoClient {
 
     this.config = config.fire;
 
-    this.guildSettings = new PostgresProvider(this.db, "guildconfig", {
+    this.guildSettings = new PostgresProvider(this.db, this, "guildconfig", {
       idColumn: "gid",
       dataColumn: "data",
     });
 
-    this.userSettings = new PostgresProvider(this.db, "userconfig", {
+    this.userSettings = new PostgresProvider(this.db, this, "userconfig", {
       idColumn: "uid",
       dataColumn: "data",
     });
