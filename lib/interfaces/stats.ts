@@ -49,6 +49,7 @@ export interface Shard {
   users: number;
   userStatuses?: { online: number; dnd: number; idle: number; offline: number };
   status: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  roleUpdateLogs?: { [id: string]: number };
   publicGuilds?: string[];
   discoverableGuilds?: {
     name: string;

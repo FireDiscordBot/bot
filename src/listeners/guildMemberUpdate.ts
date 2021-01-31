@@ -117,7 +117,11 @@ export default class GuildMemberUpdate extends Listener {
       }
     }
 
-    if (!newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP")) return;
+    if (
+      !newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP") &&
+      !this.client.config.dev
+    )
+      return;
 
     const latestId: string = newMember.guild.settings.get(
       "auditlog.member_role_update.latestid",

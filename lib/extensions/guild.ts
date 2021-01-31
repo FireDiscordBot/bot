@@ -42,6 +42,7 @@ export class FireGuild extends Guild {
   mutes: Collection<string, number>;
   muteCheckTask: NodeJS.Timeout;
   settings: GuildSettings;
+  roleUpdateLogs: number;
   tags: GuildTagManager;
   owner: FireMember;
   client: Fire;
@@ -55,6 +56,7 @@ export class FireGuild extends Guild {
     this.inviteRoles = new Collection();
     this.vcRoles = new Collection();
     this.invites = new Collection();
+    this.roleUpdateLogs = 0;
     this.loadMutes();
   }
 
@@ -199,10 +201,7 @@ export class FireGuild extends Guild {
       } else {
         this.mutes.delete(id);
         const dbremove = await this.client.db
-          .query("DELETE FROM mutes WHERE gid=$1 AND uid=$2;", [
-            this.id,
-            id,
-          ])
+          .query("DELETE FROM mutes WHERE gid=$1 AND uid=$2;", [this.id, id])
           .catch(() => {});
         const embed = new MessageEmbed()
           .setColor("#2ECC71")
@@ -391,6 +390,7 @@ export class FireGuild extends Guild {
   ) {
     const channel = this.channels.cache.get(this.settings.get("log.action"));
     if (!channel || channel.type != "text") return;
+    if (type == "roles_add" || type == "roles_remove") this.roleUpdateLogs++;
     return await (channel as TextChannel).send(log).catch(() => {});
   }
 

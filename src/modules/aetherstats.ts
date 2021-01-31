@@ -1,5 +1,6 @@
 import { MessageUtil } from "../../lib/ws/util/MessageUtil";
 import { EventType } from "../../lib/ws/util/constants";
+import { FireGuild } from "../../lib/extensions/guild";
 import { Module } from "../../lib/util/module";
 import { Message } from "../../lib/ws/Message";
 
@@ -28,5 +29,9 @@ export default class AetherStats extends Module {
     this.client.manager.ws.send(
       MessageUtil.encode(new Message(EventType.SEND_STATS, stats))
     );
+    for (const [, guild] of this.client.guilds.cache.filter(
+      (guild: FireGuild) => !!guild.roleUpdateLogs
+    ))
+      (guild as FireGuild).roleUpdateLogs = 0;
   }
 }

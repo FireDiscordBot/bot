@@ -246,6 +246,14 @@ export class Util extends ClientUtil {
               : 0,
           userStatuses: this.getUserStatuses(shard.id),
           status: shard.status as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
+          roleUpdateLogs: Object.assign(
+            {},
+            ...this.client.guilds.cache
+              .filter((guild: FireGuild) => !!guild.roleUpdateLogs)
+              .map((guild: FireGuild) => {
+                return { [guild.id]: guild.roleUpdateLogs };
+              })
+          ),
           publicGuilds: this.client.guilds.cache
             .filter(
               (guild: FireGuild) =>
