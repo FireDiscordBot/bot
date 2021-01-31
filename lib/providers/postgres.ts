@@ -1,56 +1,29 @@
-import { Provider } from "discord-akairo";
 import { Client, ResultIterator } from "ts-postgres";
+import { Provider } from "discord-akairo";
+import { Fire } from "../Fire";
 
-/**
- * Provider using the `ts-postgres` library.
- * @param {Client} db - Postgres database from `ts-postgres`.
- * @param {string} tableName - Name of table to handle.
- * @param {ProviderOptions} [options={}] - Options to use.
- * @extends {Provider}
- */
 export class PostgresProvider extends Provider {
-  db: Client;
+  dataColumn: string;
   tableName: string;
   idColumn: string;
-  dataColumn: string;
+  db: Client;
+  bot: Fire;
 
   constructor(
     db: Client,
+    bot: Fire,
     tableName: string,
     { idColumn = "gid", dataColumn = "data" } = {}
   ) {
     super();
-
-    /**
-     * Postgres database.
-     * @type {Client}
-     */
-    this.db = db;
-
-    /**
-     * Name of the table.
-     * @type {string}
-     */
-    this.tableName = tableName;
-
-    /**
-     * Column for ID.
-     * @type {string}
-     */
-    this.idColumn = idColumn;
-
-    /**
-     * Column for JSON data.
-     * @type {?string}
-     */
     this.dataColumn = dataColumn;
+    this.tableName = tableName;
+    this.idColumn = idColumn;
+    this.bot = bot;
+    this.db = db;
   }
 
-  /**
-   * Initializes the provider.
-   * @returns {Promise<void>}
-   */
-  async init(id?: string): Promise<void> {
+  async init(id?: string) {
     const rows = id
       ? await this.db.query(
           `SELECT * FROM ${this.tableName} WHERE ${this.idColumn}=$1`,
@@ -58,27 +31,26 @@ export class PostgresProvider extends Provider {
         )
       : await this.db.query(`SELECT * FROM ${this.tableName}`);
     if (!rows.rows.length) return;
+    const shards = this.bot.options.shards as number[];
     for await (const row of rows) {
-      const idColumn = row.names.indexOf(this.idColumn);
-      const dataColumn = row.names.indexOf(this.dataColumn);
+      const id = row.get(this.idColumn) as string;
+      if (this.tableName == "guildconfig") {
+        const shard = this.bot.util.getShard(id);
+        if (!shards.includes(shard)) continue;
+      }
+      const data = row.get(this.dataColumn) as any;
       this.items.set(
-        row.data[idColumn] as string,
+        id,
         this.dataColumn
-          ? typeof row.data[dataColumn] === "string"
-            ? JSON.parse(row.data[dataColumn] as string)
-            : row.data[dataColumn]
+          ? typeof data === "string"
+            ? JSON.parse(data as string)
+            : data
           : row
       );
     }
+    return this.items;
   }
 
-  /**
-   * Gets a value.
-   * @param {string} id - ID of entry.
-   * @param {string} key - The key to get.
-   * @param {any} [defaultValue] - Default value if not found or null.
-   * @returns {any}
-   */
   get(id: string, key: string, defaultValue: any = null): any {
     if (this.items.has(id)) {
       const value = this.items.get(id)[key];
@@ -88,13 +60,6 @@ export class PostgresProvider extends Provider {
     return defaultValue;
   }
 
-  /**
-   * Sets a value.
-   * @param {string} id - ID of entry.
-   * @param {string} key - The key to set.
-   * @param {any} value - The value.
-   * @returns {ResultIterator}
-   */
   set(id: string, key: string, value: any): ResultIterator {
     const data = this.items.get(id) || {};
     const exists = this.items.has(id);
@@ -119,12 +84,6 @@ export class PostgresProvider extends Provider {
     );
   }
 
-  /**
-   * Deletes a value.
-   * @param {string} id - ID of entry.
-   * @param {string} key - The key to delete.
-   * @returns {ResultIterator}
-   */
   delete(id: string, key: string): ResultIterator {
     const data = this.items.get(id) || {};
     delete data[key];
@@ -144,11 +103,6 @@ export class PostgresProvider extends Provider {
 
   clear(id: string) {}
 
-  // /**
-  //  * Clears an entry.
-  //  * @param {string} id - ID of entry.
-  //  * @returns {ResultIterator}
-  //  */
   // clear(id: string): ResultIterator {
   //   this.items.delete(id);
   //   return this.db.query(
