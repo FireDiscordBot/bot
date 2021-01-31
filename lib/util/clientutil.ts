@@ -38,19 +38,21 @@ interface MojangProfile {
 }
 
 export class Util extends ClientUtil {
-  client: Fire;
-  admins: string[];
   loadedData: { plonked: boolean; premium: boolean };
-  plonked: string[];
-  premium: Collection<string, string>;
   uuidCache: Collection<string, string>;
+  premium: Collection<string, string>;
+  hasRoleUpdates: string[];
+  plonked: string[];
+  admins: string[];
+  client: Fire;
 
   constructor(client: Fire) {
     super(client);
     this.loadedData = { plonked: false, premium: false };
-    this.plonked = [];
-    this.premium = new Collection();
     this.uuidCache = new Collection();
+    this.premium = new Collection();
+    this.hasRoleUpdates = [];
+    this.plonked = [];
   }
 
   sleep(ms: number) {
@@ -249,7 +251,9 @@ export class Util extends ClientUtil {
           roleUpdateLogs: Object.assign(
             {},
             ...this.client.guilds.cache
-              .filter((guild: FireGuild) => !!guild.roleUpdateLogs)
+              .filter((guild: FireGuild) =>
+                this.hasRoleUpdates.includes(guild.id)
+              )
               .map((guild: FireGuild) => {
                 return { [guild.id]: guild.roleUpdateLogs };
               })

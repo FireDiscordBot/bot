@@ -58,6 +58,8 @@ export default class Ready extends Listener {
 
     const guilds = this.client.guilds.cache.values() as IterableIterator<FireGuild>;
     for (const guild of guilds) {
+      if (guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP"))
+        this.client.util.hasRoleUpdates.push(guild.id);
       await guild.loadInvites();
       await guild.loadVcRoles();
       await guild.loadInviteRoles();
