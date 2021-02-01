@@ -1167,10 +1167,11 @@ You must have Developer Mode enabled, which is found in User Settings > Appearan
           "Here are all the ticket configuration commands",
         TICKET_CATEGORY_DESCRIPTION: `Set the category were tickets are made. **Setting this enables tickets**
 Running this command without providing a category resets it, therefore disabling tickets`,
-        TICKET_LIMIT_DESCRIPTION:
-          "Limit the number of tickets a user can make, 0 = No Limit",
+        TICKET_LIMIT_DESCRIPTION: "Limit the number of tickets a user can make",
         TICKET_NAME_DESCRIPTION:
           "Set the name for tickets. There are many variables available for use in the name",
+        TICKET_DESCRIPTION_DESCRIPTION:
+          "Set the description of the ticket opener embed",
         TICKETS_DISABLED:
           "I have reset the ticket category therefore disabling tickets in this guild",
         TICKETS_ENABLED: (category: string) =>
@@ -1180,6 +1181,10 @@ Running this command without providing a category resets it, therefore disabling
           "Name is too long, it must be 50 characters or less",
         TICKET_NAME_SET: (name: string, example: string) =>
           `Successfully set the tickets name to ${name}\nExample: ${example}`,
+        TICKET_DESCRIPTION_RESET: "Successfully reset the tickets description",
+        TICKET_DESCRIPTION_SET:
+          "Successfully set the ticket description, sending example...",
+        TICKET_DESCRIPTION_EXAMPLE_SUBJECT: "This is an example, wow!",
         TICKET_CHANNEL_TOPIC: (author: string, id: string, subject: string) =>
           subject
             ? `Ticket created by ${author} (${id}) with subject "${subject}"`

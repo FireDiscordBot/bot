@@ -25,19 +25,15 @@ export default class TicketCreate extends Listener {
         VIEW_CHANNEL: false,
       })
       .catch(() => {});
-    if (message.embeds.length) {
-      const embed = message.embeds[0];
-      embed.setDescription(`Please describe your issue in as much detail as possible, videos and screenshots are accepted aswell.
-      
-A member of staff will review your ticket as soon as possible.
-Some tickets, especially those relating to purchases, can only be handled by Sk1er, which may take longer than a typical ticket`);
-      await message.edit(embed).catch(() => {});
-      if (!author.isModerator())
-        await ticket
-          .send("<@&755809868056756235>", {
-            allowedMentions: { roles: ["755809868056756235"] },
-          })
-          .catch(() => {});
+    if (!author.isModerator()) {
+      const supportRole = sk1erModule.supportGuild.roles.cache.get(
+        "755809868056756235"
+      );
+      await ticket
+        .send(supportRole.toString(), {
+          allowedMentions: { roles: [supportRole.id] },
+        })
+        .catch(() => {});
     }
   }
 }

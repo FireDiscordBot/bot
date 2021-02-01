@@ -569,6 +569,8 @@ export class FireGuild extends Guild {
       .setTimestamp()
       .setColor(author.displayHexColor || "#ffffff")
       .addField(this.language.get("SUBJECT"), subject);
+    const description = this.settings.get("tickets.description");
+    if (description) embed.setDescription(description);
     const opener = await ticket.send(embed).catch(() => {});
     channels.push(ticket);
     this.settings.set(

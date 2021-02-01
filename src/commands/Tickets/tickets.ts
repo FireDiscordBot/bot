@@ -6,6 +6,8 @@ import { MessageEmbed } from "discord.js";
 import { v4 as uuidv4 } from "uuid";
 import { readFileSync } from "fs";
 
+const validActions = ["category", "limit", "name", "description"];
+
 export default class Tickets extends Command {
   words: string[];
 
@@ -19,8 +21,8 @@ export default class Tickets extends Command {
       args: [
         {
           id: "action",
-          type: ["category", "limit", "name"],
-          readableType: "category|limit|name",
+          type: validActions,
+          readableType: "category|limit|name|description",
           default: null,
           required: false,
         },
@@ -28,8 +30,9 @@ export default class Tickets extends Command {
           id: "value",
           type: "string",
           readableType: "category|number|string",
-          default: null,
           required: false,
+          match: "rest",
+          default: null,
         },
       ],
       aliases: ["tickets"],
@@ -39,7 +42,10 @@ export default class Tickets extends Command {
 
   async exec(
     message: FireMessage,
-    args: { action?: "category" | "limit" | "name"; value?: string }
+    args: {
+      action?: "category" | "limit" | "name" | "description";
+      value?: string;
+    }
   ) {
     if (!args.action) return await this.sendDefaultMessage(message);
     switch (args.action) {
@@ -83,11 +89,38 @@ export default class Tickets extends Command {
         } else {
           if (args.value.length > 50)
             return await message.error("TICKET_NAME_LENGTH");
-          message.guild.settings.set("tickets.name", args.value);
+          message.guild.settings.set(
+            "tickets.name",
+            args.value.replace(/\s/gim, "-")
+          );
           let name = args.value;
           for (const [key, value] of Object.entries(variables))
             name = name.replace(key, value);
           return await message.success("TICKET_NAME_SET", args.value, name);
+        }
+      }
+      case "description": {
+        if (!args.value) {
+          message.guild.settings.delete("tickets.description");
+          return await message.success("TICKET_DESCRIPTION_RESET");
+        } else {
+          message.guild.settings.set("tickets.description", args.value);
+          await message.success("TICKET_DESCRIPTION_SET");
+          const embed = new MessageEmbed()
+            .setTitle(
+              message.guild.language.get(
+                "TICKET_OPENER_TILE",
+                message.member?.toString()
+              )
+            )
+            .setDescription(args.value)
+            .setTimestamp()
+            .setColor(message.member?.displayHexColor || "#ffffff")
+            .addField(
+              message.guild.language.get("SUBJECT"),
+              message.guild.language.get("TICKET_DESCRIPTION_EXAMPLE_SUBJECT")
+            );
+          return await message.channel.send(embed);
         }
       }
     }
