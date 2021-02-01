@@ -104,6 +104,7 @@ export class Util extends ClientUtil {
       if (!h.key) throw new Error(JSON.stringify(h));
       return url + h.key + (language ? "." + language : "");
     } catch (e) {
+      e.message += ` (Haste Service: ${url})`;
       if (!fallback) return await this.haste(text, true, language);
       else throw e;
     }
