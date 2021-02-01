@@ -233,6 +233,54 @@ export const constants = {
       under_maintenance: "<:maintenance:685538400337395743>",
     },
   },
+  mcLogFilters: [
+    "Calling tweak class net.minecraftforge.fml.relauncher.CoreModManager$FMLPluginWrapper",
+    "[Client thread/WARN]: =============================================================",
+    "MOD HAS DIRECT REFERENCE System.exit() THIS IS NOT ALLOWED REROUTING TO FML!",
+    "[net.canelex.perspectivemod.asm.OrientCameraVisitor:visitFieldInsn:37]:",
+    "[club.sk1er.patcher.tweaker.PatcherTweaker:detectIncompatibleMods",
+    "[OptiFine] CustomSky: Texture not found: minecraft:mcpatcher/",
+    "[SkyblockAddons - #0/INFO]: [SkyblockAddons/SkyblockAddons/",
+    "Using missing texture, unable to load minecraft:mcpatcher/",
+    "Offendor: com/sun/jna/Native.main([Ljava/lang/String;)V",
+    "[net.modcore.loader.ModCoreLoader:isInClassPath:",
+    "[Client thread/INFO]: Found 1 transformers for ",
+    "[OptiFine] (Reflector) Class not present:",
+    "Use FMLCommonHandler.exitJava instead",
+    "has a security seal for path org.lwjgl",
+    "Needed to grow BufferBuilder buffer: ",
+    "[optifine.OptiFineForgeTweaker:dbg",
+    "ModCoreInstaller:isInitalized:61]:",
+    "[OptiFine] Scaled non power of 2:",
+    "Applying AsmWriter InjectWriter",
+    "[main/INFO]: Mixing Mixin",
+    "[OptiFine] BetterGrass:",
+    "Colormap mcpatcher/",
+    "[OptiFine] *** Re",
+    "[OptiFine] Mipmap",
+    "[OptiFine] Multi",
+    "[main/DEBUG]:",
+    "[main/TRACE]:",
+    ": mcpatcher/",
+    `ERROR]: The mcmod.info file in [1.8.9] Powns ToggleSneak - 3.0.jar cannot be parsed as valid JSON. It will be ignored
+com.google.gson.JsonSyntaxException: com.google.gson.stream.MalformedJsonException: Unterminated array at line 11 column 5`,
+    `FATAL]: Error executing task
+java.util.concurrent.ExecutionException: java.lang.ArrayIndexOutOfBoundsException
+	at java.util.concurrent.FutureTask.report(FutureTask.java:122) ~[?:1.8.0_51]
+	at java.util.concurrent.FutureTask.get(FutureTask.java:192) ~[?:1.8.0_51]
+	at net.minecraft.util.Util.func_181617_a(Util.java:20) [g.class:?]
+	at net.minecraft.client.Minecraft.func_71411_J(Minecraft.java:1014) [ave.class:?]
+	at net.minecraft.client.Minecraft.func_99999_d(Minecraft.java:349) [ave.class:?]
+	at net.minecraft.client.main.Main.main(SourceFile:124) [Main.class:?]`,
+    `FATAL]: Error executing task
+java.util.concurrent.ExecutionException: java.lang.NullPointerException
+	at java.util.concurrent.FutureTask.report(FutureTask.java:122) ~[?:1.8.0_51]
+	at java.util.concurrent.FutureTask.get(FutureTask.java:192) ~[?:1.8.0_51]
+	at net.minecraft.util.Util.func_181617_a(Util.java:20) [g.class:?]
+	at net.minecraft.client.Minecraft.func_71411_J(Minecraft.java:1014) [ave.class:?]
+	at net.minecraft.client.Minecraft.func_99999_d(Minecraft.java:349) [ave.class:?]
+	at net.minecraft.client.main.Main.main(SourceFile:124) [Main.class:?]`,
+  ],
 };
 
 export const titleCase = (string: string) =>

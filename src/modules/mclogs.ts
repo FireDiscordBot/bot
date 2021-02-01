@@ -1,12 +1,12 @@
 import { FireMessage } from "../../lib/extensions/message";
 // import * as solutions from "../../mc_solutions.json";
-import { humanize } from "../../lib/util/constants";
+import { constants } from "../../lib/util/constants";
 import { Module } from "../../lib/util/module";
-import { en as chrono } from "chrono-node";
 import * as centra from "centra";
-import * as moment from "moment";
 import Filters from "./filters";
 import Sk1er from "./sk1er";
+
+const { mcLogFilters } = constants;
 
 export default class MCLogs extends Module {
   statsTask: NodeJS.Timeout;
@@ -238,26 +238,18 @@ export default class MCLogs extends Module {
       .split("\n")
       .filter(
         (line) =>
-          !line.includes("has a security seal for path org.lwjgl") &&
-          !line.includes(
-            "[club.sk1er.patcher.tweaker.PatcherTweaker:detectIncompatibleMods"
-          ) &&
-          !line.includes("[net.modcore.loader.ModCoreLoader:isInClassPath:") &&
-          !line.includes(": mcpatcher/") &&
-          !line.includes("Colormap mcpatcher/") &&
-          !line.includes("[OptiFine] (Reflector) Class not present:") &&
-          !line.includes("[OptiFine] Scaled non power of 2:") &&
-          !line.includes("[OptiFine] *** Re") &&
-          !line.includes("[OptiFine] BetterGrass:") &&
-          !line.includes("[OptiFine] Multi") &&
-          !line.includes("[OptiFine] Mipmap") &&
-          !line.includes(
-            "[OptiFine] CustomSky: Texture not found: minecraft:mcpatcher/"
-          ) &&
-          !line.includes(
-            "Using missing texture, unable to load minecraft:mcpatcher/"
-          )
+          !mcLogFilters.some((filter) => line.trim().includes(filter.trim()))
       )
+      .join("\n")
+      .split("[Client thread/")
+      .filter(
+        (line) =>
+          !mcLogFilters.some((filter) => line.trim().includes(filter.trim()))
+      )
+      .join("[Client thread/")
+      .split("\n")
+      // remove empty lines
+      .filter((line) => !!line.trim())
       .join("\n");
 
     if (this.hasLogText(text)) {
@@ -295,7 +287,7 @@ export default class MCLogs extends Module {
         );
       } catch (e) {
         this.client.console.error(
-          `[Sk1er] Failed to create log haste\n${e.stack}`
+          `[MCLogs] Failed to create log haste\n${e.stack}`
         );
       }
     }
