@@ -22,6 +22,10 @@ export default class enUS extends Language {
           "That is not a valid member, role or channel. Make sure the name or ID you're providing is valid.",
         INVALID_MESSAGE:
           "Message not found! Make sure you're giving a valid id/link.",
+        HASTE_INVALID_DOMAIN: (supported: string) =>
+          `That is not a valid haste domain. Currently supported domains are ${supported}.`,
+        HASTE_INVALID_URL: "That doesn't seem to be a valid haste URL.",
+        HASTE_FETCH_FAILED: "I failed to fetch the content of that haste",
         UNKNOWN_COMMAND: "Command not found",
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
         COMMAND_SUPERUSER_ONLY:

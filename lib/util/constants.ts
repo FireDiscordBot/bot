@@ -115,6 +115,7 @@ export const constants = {
     privacy: "https://inv.wtf/privacy",
     // selfhosted instance of https://git.farfrom.earth/aero/imagegen (but with profile removed since I don't need it)
     imageGen: "https://gen.inv.wtf/",
+    supportedHaste: ["hastebin.com", "hasteb.in", "hst.sh"],
   },
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
   regexes: {
@@ -164,6 +165,7 @@ export const constants = {
       minutes: /(?<minutes>\d+)(?: ?m(?:in)?(?:utes?)?)/im,
       seconds: /(?<seconds>\d+)(?: ?s(?:ec)?(?:onds?)?)/im,
     },
+    haste: /(?<uploader>hastebin\.com|hasteb\.in|hst\.sh|h\.inv\.wtf)\/(?<key>\w{1,20})/gim,
   },
   blockedGifts: [
     "690195254191849478",

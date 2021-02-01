@@ -45,9 +45,7 @@ import { FireMember } from "./extensions/guildmember";
 import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
 import { RESTManager } from "./rest/RESTManager";
-import { FireGuild } from "./extensions/guild";
 import { Inhibitor } from "./util/inhibitor";
-import { APIGuild } from "discord-api-types";
 import { FireConsole } from "./util/console";
 import { Listener } from "./util/listener";
 import { KSoftClient } from "@aero/ksoft";
@@ -59,6 +57,7 @@ import { config } from "../config";
 import * as moment from "moment";
 
 import "./extensions";
+import { hasteTypeCaster } from "../src/arguments/haste";
 
 // Rewrite completed - 15:10 17/1/2021
 export class Fire extends AkairoClient {
@@ -224,30 +223,31 @@ export class Fire extends AkairoClient {
     });
 
     this.commandHandler.resolver.addTypes({
-      "user|member": userMemberTypeCaster,
-      "user|member|snowflake": userMemberSnowflakeTypeCaster,
-      "member|role": memberRoleTypeCaster,
-      "member|role|channel": memberRoleChannelTypeCaster,
       "member|role|channel|category": memberRoleChannelCategoryTypeCaster,
-      member: memberTypeCaster,
-      memberSilent: memberSilentTypeCaster,
-      user: userTypeCaster,
-      userSilent: userSilentTypeCaster,
-      role: roleTypeCaster,
-      roleSilent: roleSilentTypeCaster,
-      textChannel: textChannelTypeCaster,
-      textChannelSilent: textChannelSilentTypeCaster,
-      category: categoryChannelTypeCaster,
+      "user|member|snowflake": userMemberSnowflakeTypeCaster,
+      "member|role|channel": memberRoleChannelTypeCaster,
       categorySilent: categoryChannelSilentTypeCaster,
-      guildChannel: guildChannelTypeCaster,
+      textChannelSilent: textChannelSilentTypeCaster,
       guildChannelSilent: guildChannelSilentTypeCaster,
-      message: messageTypeCaster,
-      boolean: booleanTypeCaster,
-      command: commandTypeCaster,
+      memberSilent: memberSilentTypeCaster,
+      guildChannel: guildChannelTypeCaster,
+      "user|member": userMemberTypeCaster,
+      "member|role": memberRoleTypeCaster,
+      category: categoryChannelTypeCaster,
+      textChannel: textChannelTypeCaster,
+      roleSilent: roleSilentTypeCaster,
+      userSilent: userSilentTypeCaster,
+      codeblock: codeblockTypeCaster,
       language: languageTypeCaster,
       listener: listenerTypeCaster,
+      boolean: booleanTypeCaster,
+      command: commandTypeCaster,
+      message: messageTypeCaster,
+      member: memberTypeCaster,
       module: moduleTypeCaster,
-      codeblock: codeblockTypeCaster,
+      haste: hasteTypeCaster,
+      role: roleTypeCaster,
+      user: userTypeCaster,
     });
 
     this.commandHandler.loadAll();
