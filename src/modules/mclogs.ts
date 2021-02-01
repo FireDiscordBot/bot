@@ -49,7 +49,6 @@ export default class MCLogs extends Module {
       "MojangTricksIntelDriversForPerformance",
       "[DefaultDispatcher-worker-1] INFO Installer",
       "[DefaultDispatcher-worker-1] ERROR Installer",
-      "[Client thread/INFO]:",
     ];
   }
 
