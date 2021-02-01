@@ -6,13 +6,12 @@ import { messageConverter } from "../../lib/util/converters";
 import { MessageUtil } from "../../lib/ws/util/MessageUtil";
 import { FireMessage } from "../../lib/extensions/message";
 import { EventType } from "../../lib/ws/util/constants";
-import { FireGuild } from "../../lib/extensions/guild";
 import { constants } from "../../lib/util/constants";
 import { Listener } from "../../lib/util/listener";
-import { TextChannel, Webhook } from "discord.js";
 import Remind from "../commands/Utilities/remind";
 import Quote from "../commands/Utilities/quote";
 import { Message } from "../../lib/ws/Message";
+import { TextChannel } from "discord.js";
 
 const { regexes } = constants;
 
@@ -38,6 +37,7 @@ export default class MessageInvalid extends Listener {
     ) {
       this.botQuoteRegex.lastIndex = 0;
       this.slashCommandRegex.lastIndex = 0;
+      this.cleanCommandUtil(message);
       return;
     }
 
@@ -67,7 +67,10 @@ export default class MessageInvalid extends Listener {
       }
     }
 
-    if (!message.guild.settings.get("utils.autoquote", false)) return;
+    if (!message.guild.settings.get("utils.autoquote", false)) {
+      this.cleanCommandUtil(message);
+      return;
+    }
 
     let matches: MessageLinkMatch[] = [];
     let messageLink: RegExpExecArray;
@@ -82,7 +85,10 @@ export default class MessageInvalid extends Listener {
         matches.push((messageLink.groups as unknown) as MessageLinkMatch);
     }
 
-    if (!matches.length) return;
+    if (!matches.length) {
+      this.cleanCommandUtil(message);
+      return;
+    }
 
     const messageIds = matches.map((match) => match.message_id);
     matches = matches.filter(
@@ -101,7 +107,10 @@ export default class MessageInvalid extends Listener {
       if (exec) inhibited = true;
     }
 
-    if (inhibited) return;
+    if (inhibited) {
+      this.cleanCommandUtil(message);
+      return;
+    }
 
     const shards = this.client.options.shards as number[];
 
@@ -147,5 +156,11 @@ export default class MessageInvalid extends Listener {
         }
       }
     }
+  }
+
+  cleanCommandUtil(message: FireMessage) {
+    const util = message.util;
+    if (!util.parsed?.command)
+      this.client.commandHandler.commandUtils.delete(message.id);
   }
 }

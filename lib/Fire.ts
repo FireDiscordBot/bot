@@ -343,14 +343,24 @@ export class Fire extends AkairoClient {
     this.cacheSweep = () => {
       this.guilds.cache.forEach((guild) => {
         guild.members.cache.sweep(
-          (member: FireMember) => member.id != this.user?.id
+          (member: FireMember) =>
+            member.id != this.user?.id && !this.isRunningCommand(member)
         );
-        guild.presences.cache.sweep((p) => true);
+        guild.presences.cache.sweep(() => true);
       });
       this.users.cache.sweep((user) => user.id != this.user?.id);
     };
     this.cacheSweepTask = setInterval(this.cacheSweep, 30000);
     return super.login();
+  }
+
+  private isRunningCommand(member: FireMember) {
+    const hasCommandUtil = this.commandHandler.commandUtils.find(
+      (util) =>
+        util.message.guild?.id == member.guild.id &&
+        util.message.author?.id == member.id
+    );
+    return !!hasCommandUtil;
   }
 
   async loadExperiments() {
