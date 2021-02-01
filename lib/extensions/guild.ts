@@ -6,6 +6,7 @@ import {
   Structures,
   TextChannel,
   MessageEmbed,
+  VoiceChannel,
   CategoryChannel,
   MessageAttachment,
   MessageEmbedOptions,
@@ -24,8 +25,6 @@ import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
 import { Fire } from "../Fire";
-import { VoiceChannel } from "discord.js";
-import guild from "../../src/commands/Utilities/guild";
 
 const parseUntil = (time?: string) => {
   if (!time) return 0;
