@@ -231,14 +231,14 @@ export class RequestHandler {
         request: {
           url,
           method: request.method,
-          data: JSON.stringify(request.options?.data) || "",
-          headers: request.options?.headers || {},
+          data: request.options?.data,
+          headers: request.options?.headers,
         },
         tags: {
-          reason: request.options?.reason || "Unknown",
-          "cf-ray": (response?.headers["cf-ray"] as string) || "Unknown",
-          status: response?.statusCode || 0,
+          reason: request.options?.reason,
+          status: response?.statusCode,
         },
+        extra: response?.headers,
       });
   }
 }
