@@ -124,7 +124,7 @@ export default class Message extends Listener {
         .channels("731330454422290463")
         .messages.post({
           data: {
-            embeds: message.embeds.map((embed) => embed.toJSON()),
+            embed: message.embeds[0].toJSON(),
           },
         })
         .catch((e: Error) => {
