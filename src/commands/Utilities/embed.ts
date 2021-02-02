@@ -8,6 +8,8 @@ export default class Embed extends Command {
     super("embed", {
       description: (language: Language) =>
         language.get("EMBED_COMMAND_DESCRIPTION"),
+      clientPermissions: ["EMBED_LINKS"],
+      userPermissions: ["EMBED_LINKS"],
       enableSlashCommand: true,
       args: [
         {
