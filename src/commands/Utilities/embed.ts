@@ -34,6 +34,11 @@ export default class Embed extends Command {
     args: { haste?: string; channel?: TextChannel | NewsChannel }
   ) {
     if (!args.haste) return;
+    if (
+      args.channel &&
+      !message.member?.permissionsIn(args.channel).has("MANAGE_MESSAGES")
+    )
+      return await message.error("EMBED_MISSING_PERMISSIONS");
     if (typeof args.channel == "undefined")
       args.channel = message.channel as TextChannel;
     else if (!args.channel) return;

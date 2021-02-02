@@ -465,6 +465,8 @@ Hint: Use the \`public\` command to get your server on the list`,
         },
         EMBED_COMMAND_DESCRIPTION:
           "Send a custom embed to a channel with a haste link containing an embed",
+        EMBED_MISSING_PERMISSIONS:
+          "You must have the `Manage Messages` permission in the channel you wish to send an embed in if a channel is provided",
         EMBED_OBJECT_INVALID:
           "That doesn't seem to be a valid embed, try using https://gaminggeek.dev/embed-visualizer to generate an embed",
         EVAL_COMMAND_DESCRIPTION: "run epic gamer code",
