@@ -80,21 +80,23 @@ export default class GuildMemberAdd extends Listener {
           .catch(() => {});
     }
 
-    if (
+    if (member.user.bot) {
+      const role = member.guild.roles.cache.get(
+        member.guild.settings.get("mod.autobotrole", null)
+      );
+      if (role && member.guild.me.hasPermission("MANAGE_ROLES"))
+        await member.roles
+          .add(role, member.guild.language.get("AUTOROLE_REASON") as string)
+          .catch(() => {});
+    } else if (
       // @ts-ignore
       !member.guild.features.includes("PREVIEW_ENABLED")
     ) {
       let autoroleId: string;
       const delay = member.guild.settings.get("mod.autorole.waitformsg", false);
-      if (member.user.bot)
-        autoroleId = member.guild.settings.get("mod.autobotrole", null);
-      else autoroleId = member.guild.settings.get("mod.autorole", null);
+      autoroleId = member.guild.settings.get("mod.autorole", null);
 
-      if (
-        autoroleId &&
-        (member.user.bot || !delay) &&
-        !member.roles.cache.has(autoroleId)
-      ) {
+      if (autoroleId && !delay && !member.roles.cache.has(autoroleId)) {
         const role = member.guild.roles.cache.get(autoroleId);
         if (role && member.guild.me.hasPermission("MANAGE_ROLES"))
           await member.roles
