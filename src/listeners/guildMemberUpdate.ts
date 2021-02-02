@@ -301,7 +301,7 @@ export default class GuildMemberUpdate extends Listener {
       .setFooter(targetId);
     if (action.reason)
       embed.addField(guild.language.get("REASON"), action.reason);
-    await guild.actionLog(embed, "roles_add").catch(() => {});
+    await guild.memberLog(embed, "roles_add").catch(() => {});
   }
 
   async logRoleRemove(
@@ -346,7 +346,7 @@ export default class GuildMemberUpdate extends Listener {
       .setFooter(targetId);
     if (action.reason)
       embed.addField(guild.language.get("REASON"), action.reason);
-    await guild.actionLog(embed, "roles_remove").catch(() => {});
+    await guild.memberLog(embed, "roles_remove").catch(() => {});
   }
 
   async logNickChange(
@@ -388,6 +388,6 @@ export default class GuildMemberUpdate extends Listener {
     if (embed.fields.length <= 1) return;
     if (action.reason)
       embed.addField(guild.language.get("REASON"), action.reason);
-    await guild.actionLog(embed, "nickname_update").catch(() => {});
+    await guild.memberLog(embed, "nickname_update").catch(() => {});
   }
 }

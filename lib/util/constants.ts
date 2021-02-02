@@ -15,10 +15,7 @@ export type ActionLogType =
   | "invite_delete"
   | "guild_update"
   | "user_unban"
-  | "pins_add"
-  | "roles_add"
-  | "roles_remove"
-  | "nickname_update";
+  | "pins_add";
 export type ModLogType =
   | "warn"
   | "ban"
@@ -30,7 +27,12 @@ export type ModLogType =
   | "mute"
   | "unmute"
   | "role_persist";
-export type MemberLogType = "join" | "leave";
+export type MemberLogType =
+  | "join"
+  | "leave"
+  | "roles_add"
+  | "roles_remove"
+  | "nickname_update";
 
 export const constants = {
   emojis: {
