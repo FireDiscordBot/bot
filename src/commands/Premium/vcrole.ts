@@ -58,12 +58,16 @@ export default class VCRole extends Command {
           .catch(() => {});
         if (members) {
           for (const [, member] of members)
-            await member.roles
-              .remove(
-                existing,
-                message.guild.language.get("VCROLE_REMOVE_REASON") as string
-              )
-              .catch(() => {});
+            if (!member.user.bot)
+              await member.roles
+                .remove(
+                  existing,
+                  message.guild.language.get(
+                    "VCROLE_REMOVE_REASON",
+                    args.channel.name
+                  ) as string
+                )
+                .catch(() => {});
         }
         return await message.success("VCROLE_RESET");
       } else return await message.error("VCROLE_RESET_FAILED");
@@ -91,7 +95,16 @@ export default class VCRole extends Command {
         .catch(() => {});
       if (members) {
         for (const [, member] of members)
-          await member.roles.add(args.role).catch(() => {});
+          if (!member.user.bot)
+            await member.roles
+              .add(
+                args.role,
+                message.guild.language.get(
+                  "VCROLE_ADD_REASON",
+                  args.channel.name
+                ) as string
+              )
+              .catch(() => {});
       }
       return await message.success(
         "VCROLE_SET",

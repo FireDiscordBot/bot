@@ -40,10 +40,10 @@ export class FireGuild extends Guild {
   vcRoles: Collection<string, string>;
   invites: Collection<string, number>;
   mutes: Collection<string, number>;
+  fetchingMemberUpdates: boolean;
   muteCheckTask: NodeJS.Timeout;
   fetchingRoleUpdates: boolean;
   settings: GuildSettings;
-  roleUpdateLogs: number;
   tags: GuildTagManager;
   owner: FireMember;
   client: Fire;
@@ -55,13 +55,10 @@ export class FireGuild extends Guild {
     this.tags = new GuildTagManager(client, this);
     this.persistedRoles = new Collection();
     this.inviteRoles = new Collection();
+    this.fetchingMemberUpdates = false;
+    this.fetchingRoleUpdates = false;
     this.vcRoles = new Collection();
     this.invites = new Collection();
-    // temporary
-    this.roleUpdateLogs = 0;
-    // not temporary,
-    // will be used to prevent fetching while fetching
-    this.fetchingRoleUpdates = false;
     this.loadMutes();
   }
 
@@ -291,7 +288,8 @@ export class FireGuild extends Guild {
       for (const [, state] of this.voiceStates.cache.filter(
         (state) =>
           state.channelID == channel.id &&
-          !members.get(state.id)?.roles.cache.has(role.id)
+          !members.get(state.id)?.roles.cache.has(role.id) &&
+          !members.get(state.id)?.user.bot
       ))
         await members
           .get(state.id)
@@ -395,7 +393,6 @@ export class FireGuild extends Guild {
   ) {
     const channel = this.channels.cache.get(this.settings.get("log.action"));
     if (!channel || channel.type != "text") return;
-    if (type == "roles_add" || type == "roles_remove") this.roleUpdateLogs++;
     return await (channel as TextChannel).send(log).catch(() => {});
   }
 

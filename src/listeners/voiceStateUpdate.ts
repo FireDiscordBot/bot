@@ -13,7 +13,7 @@ export default class VoiceStateUpdate extends Listener {
   async exec(before: VoiceState, after: VoiceState) {
     const guild = after.guild as FireGuild;
     const member = await guild.members.fetch(after.id).catch(() => {});
-    if (!member) return;
+    if (!member || member.user.bot) return;
 
     if (before.channelID && !after.channelID) {
       if (guild.vcRoles.has(before.channelID)) {
