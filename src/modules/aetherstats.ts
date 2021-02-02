@@ -29,9 +29,5 @@ export default class AetherStats extends Module {
     this.client.manager.ws.send(
       MessageUtil.encode(new Message(EventType.SEND_STATS, stats))
     );
-    for (const [, guild] of this.client.guilds.cache.filter(
-      (guild: FireGuild) => !!guild.roleUpdateLogs
-    ))
-      (guild as FireGuild).roleUpdateLogs = 0;
   }
 }
