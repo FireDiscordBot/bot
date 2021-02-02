@@ -3,6 +3,13 @@ import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { TextChannel } from "discord.js";
 
+type validTypes =
+  | "mod"
+  | "moderation"
+  | "action"
+  | "actions"
+  | "member"
+  | "members";
 const valid = ["mod", "moderation", "action", "actions", "member", "members"];
 const typeMapping = {
   moderation: ["mod", "moderation"],
@@ -42,10 +49,11 @@ export default class Logging extends Command {
   async exec(
     message: FireMessage,
     args: {
-      type: "mod" | "moderation" | "action" | "actions" | "member" | "members";
+      type: validTypes;
       channel: TextChannel;
     }
   ) {
+    args.type = args.type?.toLowerCase() as validTypes;
     if (!args.type || !valid.includes(args.type))
       return await message.error(
         "LOGGING_INVALID_TYPE",
