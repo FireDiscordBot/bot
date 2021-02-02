@@ -863,6 +863,8 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
         MUTE_FAILED_PARSE_TIME:
           "I was unable to parse the time in your message",
         MUTE_TIME_TOO_SHORT: "That time is too short!",
+        NICKCHANGELOG_OLD_NICK: "Old Nickname",
+        NICKCHANGELOG_NEW_NICK: "New Nickname",
         NITROPERKS_COMMAND_DESCRIPTION:
           "Claim nitro perks for a Minecraft account (locked to discord.gg/sk1er)",
         NITROPERKS_INVALID_IGN:

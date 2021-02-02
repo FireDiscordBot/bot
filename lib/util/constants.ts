@@ -17,7 +17,8 @@ export type ActionLogType =
   | "user_unban"
   | "pins_add"
   | "roles_add"
-  | "roles_remove";
+  | "roles_remove"
+  | "nickname_update";
 export type ModLogType =
   | "warn"
   | "ban"

@@ -118,14 +118,34 @@ export default class GuildMemberUpdate extends Listener {
     }
 
     if (
-      (!newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP") ||
+      ((!newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP") &&
+        !newMember.guild.hasExperiment("07TXLA3vAoAkyZ6M5D2ww")) ||
         !newMember.guild.settings.has("log.action")) &&
       !this.client.config.dev
     )
       return;
 
-    if (newMember.guild.fetchingRoleUpdates) return;
+    const isPartial = oldMember.partial && newMember.partial;
+    const hasRoleUpdates =
+      oldMember?.roles?.cache.size != newMember.roles.cache.size;
+    const hasNickUpdate = oldMember?.nickname != newMember.nickname;
 
+    if (
+      !newMember.guild.fetchingRoleUpdates &&
+      newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP") &&
+      !(!isPartial && !hasRoleUpdates)
+    )
+      await this.checkRoleUpdates(newMember);
+
+    if (
+      !newMember.guild.fetchingMemberUpdates &&
+      newMember.guild.hasExperiment("07TXLA3vAoAkyZ6M5D2ww") &&
+      !(!isPartial && !hasNickUpdate)
+    )
+      await this.checkNicknameUpdates(newMember);
+  }
+
+  async checkRoleUpdates(newMember: FireMember) {
     const latestId: string = newMember.guild.settings.get(
       "auditlog.member_role_update.latestid",
       "0"
@@ -176,6 +196,65 @@ export default class GuildMemberUpdate extends Listener {
             change,
             newMember.guild
           ).catch(() => {});
+      }
+    }
+  }
+
+  async checkNicknameUpdates(newMember: FireMember) {
+    const latestId: string = newMember.guild.settings.get(
+      "auditlog.member_update.latestid",
+      "0"
+    );
+
+    newMember.guild.fetchingMemberUpdates = true;
+    const auditLogActions = await newMember.guild
+      .fetchAuditLogs({
+        limit: latestId == "0" ? 3 : 10,
+        type: "MEMBER_UPDATE",
+      })
+      .catch(() => {});
+    newMember.guild.fetchingMemberUpdates = false;
+    if (!auditLogActions || !auditLogActions.entries?.size) return;
+
+    const badName = newMember.guild.settings.get(
+      "utils.badname",
+      `John Doe ${newMember.user.discriminator}`
+    );
+    const decancerReason = newMember.guild.language.get("AUTODECANCER_REASON");
+
+    let filteredActions = auditLogActions.entries.filter(
+      (entry) =>
+        entry.id > latestId &&
+        !(
+          entry.reason == decancerReason &&
+          entry.executor?.id == this.client.user.id
+        ) &&
+        !!entry.changes.filter(
+          (change) =>
+            change.key == "nick" &&
+            change.old != badName &&
+            change.new != badName
+        ).length
+    );
+    if (!filteredActions.size) return;
+
+    // @ts-ignore
+    filteredActions = filteredActions.sort((a, b) => a.id - b.id);
+
+    newMember.guild.settings.set(
+      "auditlog.member_update.latestid",
+      filteredActions.last()?.id
+    );
+
+    for (const [, action] of filteredActions) {
+      for (const change of action.changes) {
+        if (
+          change.key != "nick" ||
+          change.old == badName ||
+          change.new == badName
+        )
+          continue;
+        await this.logNickChange(action, change, newMember.guild);
       }
     }
   }
@@ -268,5 +347,47 @@ export default class GuildMemberUpdate extends Listener {
     if (action.reason)
       embed.addField(guild.language.get("REASON"), action.reason);
     await guild.actionLog(embed, "roles_remove").catch(() => {});
+  }
+
+  async logNickChange(
+    action: GuildAuditLogsEntry,
+    change: AuditLogChange,
+    guild: FireGuild
+  ) {
+    // @ts-ignore
+    const targetId = action.target.id;
+    const target =
+      action.target instanceof FireMember
+        ? action.target
+        : await guild.members.fetch(targetId).catch(() => {});
+    const executor = await guild.members
+      .fetch(action.executor.id)
+      .catch(() => {});
+    const embed = new MessageEmbed()
+      .setAuthor(
+        target ? target.toString() : targetId,
+        target
+          ? target.user.displayAvatarURL({
+              size: 2048,
+              format: "png",
+              dynamic: true,
+            })
+          : guild.iconURL({ size: 2048, format: "png", dynamic: true })
+      )
+      .setTimestamp(action.createdTimestamp)
+      .setColor(target ? target?.displayHexColor || "#ffffff" : "#ffffff")
+      .addField(
+        guild.language.get("MODERATOR"),
+        executor ? executor.toString() : "???"
+      )
+      .setFooter(targetId);
+    if (change.old)
+      embed.addField(guild.language.get("NICKCHANGELOG_OLD_NICK"), change.old);
+    if (change.new)
+      embed.addField(guild.language.get("NICKCHANGELOG_NEW_NICK"), change.new);
+    if (embed.fields.length <= 1) return;
+    if (action.reason)
+      embed.addField(guild.language.get("REASON"), action.reason);
+    await guild.actionLog(embed, "nickname_update").catch(() => {});
   }
 }
