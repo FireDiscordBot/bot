@@ -463,6 +463,10 @@ Hint: Use the \`public\` command to get your server on the list`,
           ];
           return responses[Math.floor(Math.random() * responses.length)];
         },
+        EMBED_COMMAND_DESCRIPTION:
+          "Send a custom embed to a channel with a haste link containing an embed",
+        EMBED_OBJECT_INVALID:
+          "That doesn't seem to be a valid embed, try using https://gaminggeek.dev/embed-visualizer to generate an embed",
         EVAL_COMMAND_DESCRIPTION: "run epic gamer code",
         EVAL_TOO_LONG: (haste?: string) =>
           haste
