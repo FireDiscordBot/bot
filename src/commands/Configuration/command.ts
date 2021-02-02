@@ -19,6 +19,7 @@ export default class CommandCommand extends Command {
         },
       ],
       enableSlashCommand: true,
+      moderatorOnly: true,
       restrictTo: "guild",
     });
   }
