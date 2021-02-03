@@ -287,6 +287,8 @@ java.util.concurrent.ExecutionException: java.lang.NullPointerException
 	at net.minecraft.client.main.Main.main(SourceFile:124) [Main.class:?]`,
     `Caused by: java.lang.NullPointerException
 	at net.minecraft.scoreboard.Scoreboard.func_96511_d(SourceFile:229) ~[auo.class:?]`,
+    `Caused by: java.lang.NullPointerException
+	at net.minecraft.scoreboard.Scoreboard.func_96519_k(SourceFile:179) ~[auo.class:?]`,
   ],
 };
 
