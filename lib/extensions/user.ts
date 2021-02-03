@@ -8,8 +8,8 @@ import { FireGuild } from "./guild";
 import { Fire } from "../Fire";
 
 export class FireUser extends User {
-  client: Fire;
   settings: UserSettings;
+  client: Fire;
 
   constructor(client: Fire, data: object) {
     super(client, data);
