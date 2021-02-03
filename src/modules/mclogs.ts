@@ -1,6 +1,7 @@
 import { FireMessage } from "../../lib/extensions/message";
 // import * as solutions from "../../mc_solutions.json";
 import { constants } from "../../lib/util/constants";
+import { MessageAttachment } from "discord.js";
 import { Module } from "../../lib/util/module";
 import * as centra from "centra";
 import Filters from "./filters";
@@ -27,7 +28,7 @@ export default class MCLogs extends Module {
     super("mclogs");
     this.solutions = {};
     this.regexes = {
-      reupload: /(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh|cdn\.discordapp\.com\/attachments\/\d{15,21}\/\d{15,21})\/(?:raw\/|p\/)?([\w-\.]+(?:\.log|\.txt)?)/gim,
+      reupload: /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh|cdn\.discordapp\.com\/attachments\/\d{15,21}\/\d{15,21})\/(?:raw\/|p\/)?([\w-\.]+(?:\.log|\.txt)?)/gim,
       noRaw: /(justpaste\.it)\/(\w+)/gim,
       secrets: /(club.sk1er.mods.levelhead.auth.MojangAuth|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*)/gim,
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}/gim,
@@ -98,9 +99,7 @@ export default class MCLogs extends Module {
     if (message.author.bot) return; // you should see what it's like without this lol
     if (!this.client.config.hasteLogEnabled.includes(message.guild.id)) return;
 
-    let content = message.content;
-
-    if (this.regexes.noRaw.test(content)) {
+    if (this.regexes.noRaw.test(message.content)) {
       this.regexes.noRaw.lastIndex = 0;
       try {
         await message.delete({
@@ -115,34 +114,48 @@ export default class MCLogs extends Module {
       );
     } else this.regexes.noRaw.lastIndex = 0;
 
-    const reupload = this.regexes.reupload.exec(content);
+    const reupload = this.regexes.reupload.exec(message.content);
     this.regexes.reupload.lastIndex = 0;
     if (reupload != null && reupload.length >= 3) {
       const domain = reupload[1];
       const key = reupload[2];
-      const rawReq = await centra(
-        `https://${domain}/${
-          domain.includes("paste.ee")
-            ? "r/"
-            : domain.includes("cdn.discordapp.com")
-            ? ""
-            : "raw/"
-        }${key}`
-      ).send();
-      if (rawReq.statusCode.toString()[0] != "2") {
-        return await message.channel.send(
-          message.language.get("SK1ER_REUPLOAD_FETCH_FAIL", domain)
-        );
-      } else {
-        const text = await rawReq.text();
-        content = content.replace(this.regexes.reupload, text);
-      }
+      message.content = message.content
+        .replace(this.regexes.reupload, "")
+        .trim();
+      const url = `https://${domain}/${
+        domain.includes("paste.ee")
+          ? "r/"
+          : domain.includes("cdn.discordapp.com")
+          ? ""
+          : "raw/"
+      }${key}`;
+      message.attachments.set(message.id, {
+        setFile: function () {
+          return this;
+        },
+        setName: function () {
+          return this;
+        },
+        toJSON: () => {
+          return {};
+        },
+        name: "message.txt",
+        id: message.id,
+        attachment: "",
+        spoiler: false,
+        proxyURL: url,
+        height: 0,
+        size: 0,
+        width: 0,
+        url,
+      });
     }
 
-    if (!message.attachments.size && content.length > 350)
+    // this should always be "sent" not "sent a paste containing"
+    if (!message.attachments.size && message.content.length > 350)
       return await this.handleLogText(
         message,
-        content,
+        message.content,
         reupload != null ? "sent a paste containing" : "sent"
       );
 
