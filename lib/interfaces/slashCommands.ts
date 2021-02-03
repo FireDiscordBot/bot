@@ -1,13 +1,14 @@
-import { APIGuildMember as Member } from "discord-api-types";
+import { APIGuildMember as Member, APIUser as User } from "discord-api-types";
 
 export interface SlashCommand {
-  type: number;
-  token: string;
-  member: Member;
-  id: string;
-  guild_id: string;
-  data: CommandData;
   channel_id: string;
+  data: CommandData;
+  guild_id?: string;
+  member?: Member;
+  token: string;
+  type: number;
+  user: User;
+  id: string;
 }
 
 export interface CommandData {

@@ -19,6 +19,7 @@ import {
   NewsChannel,
   APIMessage,
   Collection,
+  DMChannel,
   Snowflake,
 } from "discord.js";
 import { SlashCommand } from "../interfaces/slashCommands";
@@ -31,28 +32,29 @@ import { FireMessage } from "./message";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
+import {} from "discord.js";
 
 const { emojis, reactions } = constants;
 
 export class SlashCommandMessage {
-  id: string;
-  client: Fire;
-  flags: number;
+  realChannel?: TextChannel | NewsChannel | DMChannel;
+  attachments: Collection<string, MessageAttachment>;
   sent: false | "ack" | "message";
-  content: string;
-  command: Command;
-  author: FireUser;
-  guild?: FireGuild;
-  util: CommandUtil;
-  language: Language;
-  member?: FireMember;
-  channel: FakeChannel;
-  latestResponse: string;
-  mentions: MessageMentions;
   sourceMessage: FireMessage;
   slashCommand: SlashCommand;
-  realChannel?: TextChannel | NewsChannel;
-  attachments: Collection<string, MessageAttachment>;
+  mentions: MessageMentions;
+  latestResponse: string;
+  channel: FakeChannel;
+  member?: FireMember;
+  language: Language;
+  guild?: FireGuild;
+  util: CommandUtil;
+  command: Command;
+  author: FireUser;
+  content: string;
+  flags: number;
+  client: Fire;
+  id: string;
 
   constructor(client: Fire, command: SlashCommand) {
     this.client = client;
@@ -69,9 +71,12 @@ export class SlashCommandMessage {
     // @ts-ignore
     this.mentions = new MessageMentions(this, [], [], false);
     this.attachments = new Collection();
-    this.author =
-      (client.users.cache.get(command.member.user.id) as FireUser) ||
-      new FireUser(client, command.member.user);
+    // @mason pls just always include user ty
+    this.author = command.user
+      ? (client.users.cache.get(command.user.id) as FireUser) ||
+        new FireUser(client, command.user)
+      : (client.users.cache.get(command.member.user.id) as FireUser) ||
+        new FireUser(client, command.member.user);
     if (!client.users.cache.has(this.author.id))
       client.users.add(command.member.user);
     if (this.guild) {
@@ -87,15 +92,15 @@ export class SlashCommandMessage {
         : this.author.language
       : this.guild?.language || client.getLanguage("en-US");
     if (!this.guild) {
-      // this should only happen if a guild authorizes slash commands
-      // but doesn't have the bot. INTERACTION_CREATE will give an error
-      // if the guild is necessary
+      this.author.dmChannel.fetch();
+      // This will happen if a guild authorizes w/applications.commands
+      // or if a slash command is invoked in DMs (discord/discord-api-docs #2568)
       this.channel = new FakeChannel(
         this,
         client,
         command.id,
         command.token,
-        null,
+        command.guild_id ? null : this.author.dmChannel,
         this.flags
       );
       return this;
@@ -241,20 +246,20 @@ export class SlashCommandMessage {
 }
 
 export class FakeChannel {
-  id: string;
-  client: Fire;
-  token: string;
-  msgFlags: number;
-  messages: MessageManager;
+  real: TextChannel | NewsChannel | DMChannel;
   message: SlashCommandMessage;
-  real: TextChannel | NewsChannel;
+  messages: MessageManager;
+  msgFlags: number;
+  token: string;
+  client: Fire;
+  id: string;
 
   constructor(
     message: SlashCommandMessage,
     client: Fire,
     id: string,
     token: string,
-    real?: TextChannel | NewsChannel,
+    real?: TextChannel | NewsChannel | DMChannel,
     msgFlags?: number
   ) {
     this.id = id;
@@ -271,7 +276,9 @@ export class FakeChannel {
   }
 
   permissionsFor(memberOrRole: GuildMemberResolvable | RoleResolvable) {
-    return this.real?.permissionsFor(memberOrRole) || new Permissions(0);
+    return this.real instanceof DMChannel
+      ? new Permissions(0) // may change to basic perms in the future
+      : this.real?.permissionsFor(memberOrRole) || new Permissions(0);
   }
 
   startTyping(count?: number) {
@@ -289,7 +296,9 @@ export class FakeChannel {
       | number,
     filterOld?: boolean
   ) {
-    return this.real?.bulkDelete(messages, filterOld);
+    return this.real instanceof DMChannel
+      ? new Collection<string, FireMessage>()
+      : this.real?.bulkDelete(messages, filterOld);
   }
 
   awaitMessages(filter: CollectorFilter, options?: AwaitMessagesOptions) {
