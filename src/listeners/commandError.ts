@@ -8,6 +8,7 @@ import { Command } from "../../lib/util/command";
 import { GuildChannel } from "discord.js";
 import { TextChannel } from "discord.js";
 import { Scope } from "@sentry/node";
+import { DMChannel } from "discord.js";
 
 export default class CommandError extends Listener {
   constructor() {
@@ -50,7 +51,9 @@ export default class CommandError extends Listener {
           channel instanceof GuildChannel
             ? (channel as TextChannel).name
             : channel instanceof FakeChannel
-            ? channel.real.name
+            ? channel.real instanceof DMChannel
+              ? "dm"
+              : channel.real.name
             : channel?.recipient?.toString() || "Unknown",
         "command.name": command.id,
         env: process.env.NODE_ENV,
