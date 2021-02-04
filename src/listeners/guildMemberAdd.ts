@@ -96,7 +96,12 @@ export default class GuildMemberAdd extends Listener {
       const delay = member.guild.settings.get("mod.autorole.waitformsg", false);
       autoroleId = member.guild.settings.get("mod.autorole", null);
 
-      if (autoroleId && !delay && !member.roles.cache.has(autoroleId)) {
+      if (
+        autoroleId &&
+        !delay &&
+        !member.roles.cache.has(autoroleId) &&
+        !member.pending
+      ) {
         const role = member.guild.roles.cache.get(autoroleId);
         if (role && member.guild.me.hasPermission("MANAGE_ROLES"))
           await member.roles
