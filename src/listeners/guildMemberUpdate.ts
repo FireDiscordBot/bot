@@ -68,20 +68,27 @@ export default class GuildMemberUpdate extends Listener {
       }
     }
 
-    if (!newMember.pending) {
+    if (newMember.user.bot) {
+      const role = newMember.guild.roles.cache.get(
+        newMember.guild.settings.get("mod.autobotrole", null)
+      );
+      if (role && newMember.guild.me.hasPermission("MANAGE_ROLES"))
+        await newMember.roles
+          .add(role, newMember.guild.language.get("AUTOROLE_REASON") as string)
+          .catch(() => {});
+    } else if (!newMember.pending) {
       let autoroleId: string;
       const delay = newMember.guild.settings.get(
         "mod.autorole.waitformsg",
         false
       );
-      if (newMember.user.bot)
-        autoroleId = newMember.guild.settings.get("mod.autobotrole", null);
-      else autoroleId = newMember.guild.settings.get("mod.autorole", null);
+      autoroleId = newMember.guild.settings.get("mod.autorole", null);
 
       if (
         autoroleId &&
-        (newMember.user.bot || !delay) &&
-        !newMember.roles.cache.has(autoroleId)
+        !delay &&
+        !newMember.roles.cache.has(autoroleId) &&
+        !newMember.pending
       ) {
         const role = newMember.guild.roles.cache.get(autoroleId);
         if (role && newMember.guild.me.hasPermission("MANAGE_ROLES"))
