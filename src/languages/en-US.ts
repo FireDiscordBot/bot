@@ -319,6 +319,13 @@ This will **not** rename existing users`,
           "Block a user or role from chatting in the current channel",
         BLOCK_ARG_REQUIRED:
           "You must provide a user or role to block from chatting in the current channel!",
+        CARBON_COMMAND_DESCRIPTION:
+          "Create and share beautiful images of your code.",
+        CARBON_NOT_READY:
+          "Seems some environment variables are missing or I am not connected to Aether. This should *rarely* happen in production but if it does, wait a few minutes and try again",
+        CARBON_CODE_REQUIRED:
+          'You must provide code in a codeblock to generate an image from, "listthemes" to list valid themes or "listfonts" to list valid fonts',
+        CARBON_IMAGE_FAILED: "Failed to generate image!",
         CHANNELCREATELOG_AUTHOR: (type: string, guild: string) =>
           `${
             type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
