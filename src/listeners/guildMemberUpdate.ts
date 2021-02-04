@@ -127,7 +127,7 @@ export default class GuildMemberUpdate extends Listener {
     if (
       ((!newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP") &&
         !newMember.guild.hasExperiment("07TXLA3vAoAkyZ6M5D2ww")) ||
-        !newMember.guild.settings.has("log.action")) &&
+        !newMember.guild.settings.has("log.members")) &&
       !this.client.config.dev
     )
       return;
@@ -141,15 +141,21 @@ export default class GuildMemberUpdate extends Listener {
       !newMember.guild.fetchingRoleUpdates &&
       newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP") &&
       !(!isPartial && !hasRoleUpdates)
-    )
-      await this.checkRoleUpdates(newMember);
+    ) {
+      newMember.guild.fetchingRoleUpdates = true;
+      await this.checkRoleUpdates(newMember).catch(() => {});
+      newMember.guild.fetchingRoleUpdates = false;
+    }
 
     if (
       !newMember.guild.fetchingMemberUpdates &&
       newMember.guild.hasExperiment("07TXLA3vAoAkyZ6M5D2ww") &&
       !(!isPartial && !hasNickUpdate)
-    )
+    ) {
+      newMember.guild.fetchingMemberUpdates = true;
       await this.checkNicknameUpdates(newMember);
+      newMember.guild.fetchingMemberUpdates = false;
+    }
   }
 
   async checkRoleUpdates(newMember: FireMember) {
@@ -158,14 +164,12 @@ export default class GuildMemberUpdate extends Listener {
       "0"
     );
 
-    newMember.guild.fetchingRoleUpdates = true;
     const auditLogActions = await newMember.guild
       .fetchAuditLogs({
         limit: latestId == "0" ? 3 : 10,
         type: "MEMBER_ROLE_UPDATE",
       })
       .catch(() => {});
-    newMember.guild.fetchingRoleUpdates = false;
     if (!auditLogActions || !auditLogActions.entries?.size) return;
 
     let filteredActions = auditLogActions.entries.filter(
@@ -213,14 +217,13 @@ export default class GuildMemberUpdate extends Listener {
       "0"
     );
 
-    newMember.guild.fetchingMemberUpdates = true;
+    setTimeout(() => (newMember.guild.fetchingMemberUpdates = false), 30000);
     const auditLogActions = await newMember.guild
       .fetchAuditLogs({
         limit: latestId == "0" ? 3 : 10,
         type: "MEMBER_UPDATE",
       })
       .catch(() => {});
-    newMember.guild.fetchingMemberUpdates = false;
     if (!auditLogActions || !auditLogActions.entries?.size) return;
 
     const badName = newMember.guild.settings.get(
