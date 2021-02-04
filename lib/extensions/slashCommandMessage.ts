@@ -136,7 +136,7 @@ export class SlashCommandMessage {
     content += this.slashCommand.data.name + " ";
     if (this.command.args?.length && this.slashCommand.data.options?.length) {
       const commandArgs = this.command.args as ArgumentOptions[];
-      const argNames = commandArgs.map((opt) => opt.id);
+      const argNames = this.slashCommand.data.options.map((opt) => opt.name);
       const sortedArgs = this.slashCommand.data.options.sort(
         (a, b) =>
           argNames.indexOf(a.name.toLowerCase()) -
