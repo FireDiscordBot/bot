@@ -26,6 +26,17 @@ export default class PremiumInhibitor extends Inhibitor {
         row.get("uid") as string
       );
     }
+    const premiumStripe = await this.client.db.query(
+      "SELECT * FROM premium_stripe"
+    );
+    const now = new Date();
+    for await (const row of premiumStripe) {
+      const guilds = row.get("guilds") as string[];
+      const expiry = new Date(row.get("periodend") as number);
+      if (now > expiry) continue;
+      for (const guild of guilds)
+        this.client.util.premium.set(guild, row.get("uid") as string);
+    }
     this.client.util.loadedData.premium = true;
     this.client.console.log(
       `[Premium] Successfully loaded ${this.client.util.premium.size} premium guilds`

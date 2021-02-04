@@ -7,14 +7,13 @@ export default class PremiumSyncEvent extends Event {
     super(manager, EventType.PREMIUM_SYNC);
   }
 
-  run(data: { guild_id: string; user_id: string; action: "add" | "remove" }) {
+  run(data: { guilds: string[]; user_id: string; action: "add" | "remove" }) {
     this.manager.client.console.log(
-      `[Event] Received premium sync request for ${
-        this.manager.client.guilds.cache.get(data.guild_id) || data.guild_id
-      }.`
+      `[Event] Received premium sync request for ${data.guilds.join(", ")}.`
     );
-    if (data.action == "remove")
-      this.manager.client.util.premium.delete(data.guild_id);
-    else this.manager.client.util.premium.set(data.guild_id, data.user_id);
+    for (const guild of data.guilds)
+      if (data.action == "remove")
+        this.manager.client.util.premium.delete(guild);
+      else this.manager.client.util.premium.set(guild, data.user_id);
   }
 }
