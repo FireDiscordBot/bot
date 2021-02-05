@@ -1,7 +1,6 @@
 import { FireMessage } from "../../lib/extensions/message";
 // import * as solutions from "../../mc_solutions.json";
 import { constants } from "../../lib/util/constants";
-import { MessageAttachment } from "discord.js";
 import { Module } from "../../lib/util/module";
 import * as centra from "centra";
 import Filters from "./filters";
@@ -22,11 +21,14 @@ export default class MCLogs extends Module {
     date: RegExp;
   };
   logText: string[];
-  solutions: { [key: string]: string };
+  solutions: {
+    solutions: { [key: string]: string };
+    recommendations: { [key: string]: string };
+  };
 
   constructor() {
     super("mclogs");
-    this.solutions = {};
+    this.solutions = { solutions: {}, recommendations: {} };
     this.regexes = {
       reupload: /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh|cdn\.discordapp\.com\/attachments\/\d{15,21}\/\d{15,21})\/(?:raw\/|p\/)?([\w-\.]+(?:\.log|\.txt)?)/gim,
       noRaw: /(justpaste\.it)\/(\w+)/gim,
@@ -62,7 +64,7 @@ export default class MCLogs extends Module {
       )
     )
       return this.remove();
-    this.solutions = {};
+    this.solutions = { solutions: {}, recommendations: {} };
     const solutionsReq = await centra(
       `https://api.github.com/repos/GamingGeek/BlockGameSolutions/contents/mc_solutions.json`
     )
@@ -78,21 +80,33 @@ export default class MCLogs extends Module {
   }
 
   public getSolutions(log: string) {
-    const currentSolutions: string[] = [];
+    let currentSolutions: string[] = [];
+    let currentRecommendations: string[] = [];
 
-    for (const [err, sol] of Object.entries(this.solutions)) {
+    for (const [err, sol] of Object.entries(this.solutions.solutions)) {
       if (log.includes(err) && !currentSolutions.includes(`- ${sol}`))
         currentSolutions.push(`- ${sol}`);
     }
-
     if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_M5$/im))
       currentSolutions.push("- Update Optifine to the latest version, M5");
 
-    if (currentSolutions.length > 6) return "";
+    for (const [rec, sol] of Object.entries(this.solutions.recommendations)) {
+      if (log.includes(rec) && !currentRecommendations.includes(`- ${sol}`))
+        currentRecommendations.push(`- ${sol}`);
+    }
 
-    return currentSolutions.length
-      ? `Possible solutions:\n${currentSolutions.join("\n")}`
+    if (currentSolutions.length > 6) currentSolutions = [];
+
+    const solutions = currentSolutions.length
+      ? `Possible Solutions:\n${currentSolutions.join("\n")}`
       : "";
+    const recommendations = currentRecommendations.length
+      ? `${
+          currentSolutions.length ? "\n\n" : ""
+        }Other Recommendations:\n${currentRecommendations.join("\n")}`
+      : "";
+
+    return solutions + recommendations;
   }
 
   async checkLogs(message: FireMessage) {

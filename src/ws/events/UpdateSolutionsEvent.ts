@@ -8,7 +8,10 @@ export default class UpdateSolutionsEvent extends Event {
     super(manager, EventType.UPDATE_SOLUTIONS);
   }
 
-  async run(data: { [key: string]: string }) {
+  async run(data: {
+    solutions: { [key: string]: string };
+    recommendations: { [key: string]: string };
+  }) {
     this.manager.client.console.warn(
       `[Aether] Got request to update solutions`
     );
