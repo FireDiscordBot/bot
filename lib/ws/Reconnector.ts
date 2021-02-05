@@ -3,9 +3,9 @@ import { Websocket } from "./Websocket";
 import { Manager } from "../Manager";
 
 export class Reconnector {
+  timeout?: NodeJS.Timeout;
   manager: Manager;
   state: number;
-  timeout: NodeJS.Timeout | null;
 
   constructor(manager: Manager) {
     this.manager = manager;
@@ -14,8 +14,8 @@ export class Reconnector {
   }
 
   handleOpen() {
+    if (this.timeout) clearTimeout(this.timeout);
     if (this.state == WebsocketStates.RECONNECTING) {
-      if (this.timeout) clearTimeout(this.timeout);
       this.manager.client.console.log("[Aether] Reconnected to Websocket.");
       this.state = WebsocketStates.CONNECTED;
     } else {
@@ -42,7 +42,7 @@ export class Reconnector {
   }
 
   handleError(error: any) {
-    if (error.code == "ECONNREFUSED") this.activate(15000);
+    if (error.code == "ECONNREFUSED") this.activate(8000);
     else {
       this.manager.client.console.error(
         `[Aether] Received error event: ${error}`
@@ -57,11 +57,14 @@ export class Reconnector {
   }
 
   reconnect() {
+    this.manager.client.console.info(`[Aether] Attempting to reconnect...`);
     // it likes to try reconnect while already connected sometimes
     // why? not a single fucking clue
-    if (this.manager.ws?.readyState == this.manager.ws?.OPEN)
-      this.manager.ws.close(4000, "brb");
+    if (this.manager.ws?.open) this.manager.ws.close(4000, "brb");
     this.state = WebsocketStates.RECONNECTING;
+    this.manager.ws?.removeAllListeners();
+    this.manager.ws?.terminate();
+    delete this.manager.ws;
     this.manager.ws = new Websocket(this.manager);
     this.manager.init(true);
   }
