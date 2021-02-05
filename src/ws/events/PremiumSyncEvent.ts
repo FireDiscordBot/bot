@@ -8,6 +8,7 @@ export default class PremiumSyncEvent extends Event {
   }
 
   run(data: { guilds: string[]; user_id: string; action: "add" | "remove" }) {
+    if (!data.guilds?.length) return;
     this.manager.client.console.log(
       `[Event] Received premium sync request for ${data.guilds.join(", ")}.`
     );
