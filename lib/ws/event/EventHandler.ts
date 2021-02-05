@@ -1,5 +1,5 @@
-import { EventStore } from "./EventStore";
 import { MessageUtil } from "../util/MessageUtil";
+import { EventStore } from "./EventStore";
 import { Manager } from "../../Manager";
 
 export class EventHandler {
@@ -9,10 +9,6 @@ export class EventHandler {
   constructor(manager: Manager) {
     this.manager = manager;
     this.store = new EventStore(manager);
-  }
-
-  init() {
-    this.store.init();
   }
 
   handle(message: any) {
