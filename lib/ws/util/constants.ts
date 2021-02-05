@@ -21,6 +21,7 @@ export enum EventType {
   UPDATE_SOLUTIONS,
   PLAYWRIGHT_REQUEST,
   UPDATE_FIRE_DESCRIPTION,
+  FORWARD_MESSAGE,
 }
 
 export enum WebsocketStates {
