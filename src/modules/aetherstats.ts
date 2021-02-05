@@ -12,6 +12,7 @@ export default class AetherStats extends Module {
 
   async init() {
     if (!this.client.manager.ws) return;
+    if (this.statsTask) clearInterval(this.statsTask);
     await this.sendStats();
     this.statsTask = setInterval(() => {
       this.sendStats();
@@ -23,8 +24,7 @@ export default class AetherStats extends Module {
   }
 
   async sendStats() {
-    if (this.client.manager.ws?.readyState != this.client.manager.ws?.OPEN)
-      return;
+    if (!this.client.manager.ws?.open) return;
     const stats = await this.client.util.getClusterStats();
     this.client.manager.ws.send(
       MessageUtil.encode(new Message(EventType.SEND_STATS, stats))

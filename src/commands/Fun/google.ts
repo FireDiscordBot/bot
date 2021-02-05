@@ -45,10 +45,7 @@ export default class Google extends Command {
   }
 
   async exec(message: FireMessage, args: { query: string }) {
-    if (
-      !this.client.manager.ws ||
-      this.client.manager.ws.readyState != this.client.manager.ws.OPEN
-    )
+    if (!this.client.manager.ws?.open)
       return await message.error("PLAYWRIGHT_ERROR_NOT_READY");
     const response = await this.assistant
       .query(args.query, {

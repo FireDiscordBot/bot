@@ -119,7 +119,7 @@ export default class Carbon extends Command {
     if (
       !(process.env.REST_HOST || process.env.REST_PORT) ||
       !process.env.WS_AUTH ||
-      !this.client.manager.ws
+      !this.client.manager.ws?.open
     )
       return await message.error("CARBON_NOT_READY");
 

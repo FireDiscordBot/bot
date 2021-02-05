@@ -29,7 +29,7 @@ export default class Stats extends Command {
   }
 
   async exec(message: FireMessage, args: { cluster?: string }) {
-    if (!this.client.manager.ws) return await this.singularStats(message);
+    if (!this.client.manager.ws?.open) return await this.singularStats(message);
     let clusterStats: Cluster;
     const stats: AetherStats = await (
       await centra(

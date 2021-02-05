@@ -117,7 +117,7 @@ export default class MessageInvalid extends Listener {
     for (const quote of matches) {
       const shard = this.client.util.getShard(quote.guild_id);
       if (!shards.includes(shard)) {
-        if (!this.client.manager.ws) continue;
+        if (!this.client.manager.ws?.open) continue;
         const webhookURL = await this.client.util.getQuoteWebhookURL(
           message.channel as TextChannel
         );
