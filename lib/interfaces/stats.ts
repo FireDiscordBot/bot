@@ -28,6 +28,8 @@ export interface Cluster {
   cpu: number;
   ram: string;
   ramBytes: number;
+  totalRam: string;
+  totalRamBytes: number;
   pid: number;
   version: string;
   versions: string;

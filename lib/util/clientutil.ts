@@ -22,6 +22,7 @@ import * as pidusage from "pidusage";
 import * as Centra from "centra";
 import * as moment from "moment";
 import { Fire } from "../Fire";
+import { totalmem } from "os";
 
 export const humanFileSize = (size: number) => {
   let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -211,6 +212,8 @@ export class Util extends ClientUtil {
       cpu: parseFloat(processStats.cpu.toFixed(2)),
       ram: humanFileSize(processStats.memory),
       ramBytes: processStats.memory,
+      totalRam: humanFileSize(totalmem()),
+      totalRamBytes: totalmem(),
       pid: process.pid,
       version: this.client.config.dev ? "dev" : getCommitHash().slice(0, 7),
       versions: `Discord.JS v${djsver} | Node.JS ${process.version}`,
