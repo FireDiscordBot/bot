@@ -9,11 +9,11 @@ import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
 import { Message } from "../../../lib/ws/Message";
 
-export default class Premium extends Command {
+export default class GivePremium extends Command {
   constructor() {
-    super("premium", {
+    super("givepremium", {
       description: (language: Language) =>
-        language.get("PREMIUM_COMMAND_DESCRIPTION"),
+        language.get("GIVEPREMIUM_COMMAND_DESCRIPTION"),
       restrictTo: "all",
       ownerOnly: true,
       args: [
@@ -98,11 +98,11 @@ export default class Premium extends Command {
           const inhibitor = this.client.inhibitorHandler.reload("premium");
           return inhibitor instanceof Inhibitor
             ? await message.success()
-            : await message.error("PREMIUM_RELOAD_FAIL");
+            : await message.error("GIVEPREMIUM_RELOAD_FAIL");
         } catch {
-          return await message.error("PREMIUM_RELOAD_FAIL");
+          return await message.error("GIVEPREMIUM_RELOAD_FAIL");
         }
-      } else return await message.error("PREMIUM_DELETE_FAIL");
+      } else return await message.error("GIVEPREMIUM_DELETE_FAIL");
     }
     if (
       !args.guild?.match.length ||
@@ -110,7 +110,7 @@ export default class Premium extends Command {
       !args.user?.match.length ||
       !args.reason
     )
-      return await message.error("PREMIUM_MISSING_ARGUMENTS");
+      return await message.error("GIVEPREMIUM_MISSING_ARGUMENTS");
     const guild = args.guild.match[0];
     const user = args.user.match[0];
     const reason = args.reason;
@@ -140,11 +140,11 @@ export default class Premium extends Command {
         const inhibitor = this.client.inhibitorHandler.reload("premium");
         return inhibitor instanceof Inhibitor
           ? await message.success()
-          : await message.error("PREMIUM_RELOAD_FAIL");
+          : await message.error("GIVEPREMIUM_RELOAD_FAIL");
       } catch {
-        return await message.error("PREMIUM_RELOAD_FAIL");
+        return await message.error("GIVEPREMIUM_RELOAD_FAIL");
       }
-    } else return await message.error("PREMIUM_INSERT_FAIL");
+    } else return await message.error("GIVEPREMIUM_INSERT_FAIL");
   }
 
   sync(
