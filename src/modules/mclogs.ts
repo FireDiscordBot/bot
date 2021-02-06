@@ -30,7 +30,7 @@ export default class MCLogs extends Module {
     super("mclogs");
     this.solutions = { solutions: {}, recommendations: {} };
     this.regexes = {
-      reupload: /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh|cdn\.discordapp\.com\/attachments\/\d{15,21}\/\d{15,21})\/(?:raw\/|p\/)?([\w-\.]+(?:\.log|\.txt)?)/gim,
+      reupload: /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?([\w-\.]+)/gim,
       noRaw: /(justpaste\.it)\/(\w+)/gim,
       secrets: /(club.sk1er.mods.levelhead.auth.MojangAuth|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*)/gim,
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}/gim,
@@ -137,11 +137,7 @@ export default class MCLogs extends Module {
         .replace(this.regexes.reupload, "")
         .trim();
       const url = `https://${domain}/${
-        domain.includes("paste.ee")
-          ? "r/"
-          : domain.includes("cdn.discordapp.com")
-          ? ""
-          : "raw/"
+        domain.includes("paste.ee") ? "r/" : "raw/"
       }${key}`;
       message.attachments.set(message.id, {
         setFile: function () {
