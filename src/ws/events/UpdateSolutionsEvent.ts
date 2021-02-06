@@ -17,7 +17,7 @@ export default class UpdateSolutionsEvent extends Event {
     );
     const mcLogs = this.manager.client.getModule("mclogs") as MCLogs;
     if (!mcLogs) return;
-    if (Object.keys(data).length < 5) {
+    if (Object.keys(data.solutions).length < 5) {
       this.manager.client.console.error(
         `[Aether] Solutions keys were less than 5, something likely went wrong`
       );
