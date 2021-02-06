@@ -1140,12 +1140,32 @@ You must have Developer Mode enabled, which is found in User Settings > Appearan
           `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${user}) for ${reason} - [Proof](${proof})`,
         VOTE_COMMAND_DESCRIPTION:
           'Sends a link to Fire on a random bot list (sends direct vote link if you use the "vote" alias)',
-        PREMIUM_COMMAND_DESCRIPTION: "i like money",
-        PREMIUM_MISSING_ARGUMENTS:
+        PREMIUM_COMMAND_DESCRIPTION:
+          "Toggle Fire Premium in the current guild (temporary command for beta testers)",
+        PREMIUM_NO_SUBSCRIPTION: `Seems you don't have a premium subscription...
+          
+Note: This command is temporary and will not work for those who have not been given access to the new premium purchase flow!
+If you do have access, make sure you have actually purchased premium (if this is not the dev bot, it will require you to *actually* purchase premium with real money)`,
+        PREMIUM_LIMIT_ZERO:
+          "Seems you haven't purchased premium or you have cancelled your subscription. You will not be able to modify your premium guilds after cancelling your subscription, even if you still have your trial!",
+        PREMIUM_LIMIT_REACHED: (
+          current: string[]
+        ) => `You've reached the server limit for your subscription! You will need to remove premium from a server before adding it to a new one.
+        
+Your existing premium servers are (sorry it's ids, can't access names of guilds across clusters): ${current.join(
+          ", "
+        )}`,
+        PREMIUM_GUILDS_UPDATED: (current: string[]) =>
+          `Successfully updated your premium guilds! You now have premium in ${
+            current.length
+          } servers (${current.join(", ")})`,
+        PREMIUM_UPDATE_FAILED: "Failed to update premium servers!",
+        GIVEPREMIUM_COMMAND_DESCRIPTION: "i like money",
+        GIVEPREMIUM_MISSING_ARGUMENTS:
           "You need to provide a guild id, user id and reason to add a premium guild",
-        PREMIUM_DELETE_FAIL: "Failed to remove premium.",
-        PREMIUM_INSERT_FAIL: "Failed to give premium.",
-        PREMIUM_RELOAD_FAIL: "Failed to reload premium guilds",
+        GIVEPREMIUM_DELETE_FAIL: "Failed to remove premium.",
+        GIVEPREMIUM_INSERT_FAIL: "Failed to give premium.",
+        GIVEPREMIUM_RELOAD_FAIL: "Failed to reload premium guilds",
         RELOAD_COMMAND_DESCRIPTION: "reload a command/language/listener/module",
         TAG_COMMAND_DESCRIPTION: "See a list of all tags or view a tag",
         TAG_NONE_FOUND:
