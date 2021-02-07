@@ -14,9 +14,9 @@ export default class PremiumSyncEvent extends Event {
   }) {
     const { client } = this.manager;
     client.console.log(
-      `[Event] Received premium sync request${
-        data.guilds?.length ? " for " + data.guilds?.join(", ") : ""
-      }.`
+      `[Event] Received premium sync request for user ${data.user_id}${
+        data.guilds?.length ? " and guilds " + data.guilds?.join(", ") : ""
+      } with action ${data.action}.`
     );
     for (const guild of data.guilds)
       if (data.action == "remove") client.util.premium.delete(guild);
@@ -27,12 +27,19 @@ export default class PremiumSyncEvent extends Event {
       !(client.options.shards as number[]).includes(
         client.util.getShard(client.config.fireGuildId)
       )
-    )
+    ) {
+      client.console.info(
+        `[Event] Successfully synced premium guilds for user ${data.user_id}`
+      );
       return;
+    }
 
     const userIds = [...client.util.premium.values()];
     const guild = client.guilds.cache.get(client.config.fireGuildId);
     const role = guild.roles.cache.get("564060922688176139");
+    client.console.info(
+      `[Event] Found ${userIds.length} premium users, fetching members and giving roles now...`
+    );
     const members = await guild.members.fetch().catch(() => {});
     if (!members) return;
     for (const [, member] of members)
