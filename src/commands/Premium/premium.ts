@@ -1,6 +1,7 @@
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
+import GivePremium from "../Admin/givepremium";
 
 export default class Premium extends Command {
   constructor() {
@@ -49,6 +50,14 @@ export default class Premium extends Command {
       if (current.includes(message.guild.id))
         this.client.util.premium.set(message.guild.id, message.author.id);
       else this.client.util.premium.delete(message.guild.id);
+      const givePremiumCommand = this.client.getCommand(
+        "givepremium"
+      ) as GivePremium;
+      givePremiumCommand.sync(
+        message.guild.id,
+        message.author.id,
+        current.includes(message.guild.id) ? "add" : "remove"
+      );
       return await message.success("PREMIUM_GUILDS_UPDATED", current);
     } else return await message.error("PREMIUM_UPDATE_FAILED");
   }
