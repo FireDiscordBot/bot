@@ -13,10 +13,10 @@ export default class PremiumSyncEvent extends Event {
     action: "add" | "remove";
   }) {
     const { client } = this.manager;
-
-    if (!data.guilds?.length) return;
     client.console.log(
-      `[Event] Received premium sync request for ${data.guilds.join(", ")}.`
+      `[Event] Received premium sync request${
+        data.guilds?.length ? " for " + data.guilds?.join(", ") : ""
+      }.`
     );
     for (const guild of data.guilds)
       if (data.action == "remove") client.util.premium.delete(guild);
