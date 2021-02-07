@@ -32,7 +32,7 @@ export default class PremiumInhibitor extends Inhibitor {
     const now = new Date();
     for await (const row of premiumStripe) {
       const guilds = row.get("guilds") as string[];
-      const expiry = new Date(row.get("periodend") as number);
+      const expiry = new Date((row.get("periodend") as number) * 1000);
       if (now > expiry) continue;
       for (const guild of guilds)
         this.client.util.premium.set(guild, row.get("uid") as string);
