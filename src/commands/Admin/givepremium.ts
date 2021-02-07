@@ -154,14 +154,11 @@ export default class GivePremium extends Command {
   ) {
     const userId =
       user instanceof FireMember || user instanceof FireUser ? user.id : user;
-    const currentGuilds = this.client.util.premium
-      .filter((user) => user == userId)
-      .keys();
     const guildId = guild instanceof FireGuild ? guild.id : guild;
     this.client.manager.ws?.send(
       MessageUtil.encode(
         new Message(EventType.PREMIUM_SYNC, {
-          guilds: [guildId, ...currentGuilds],
+          guilds: [guildId],
           user_id: userId,
           action,
         })
