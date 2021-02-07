@@ -34,7 +34,16 @@ export default class PremiumSyncEvent extends Event {
       return;
     }
 
-    const userIds = [...client.util.premium.values()];
+    let userIds: string[] = [];
+    const premiumStripeResult = await client.db
+      .query("SELECT uid FROM premium_stripe;")
+      .catch(() => {});
+    if (!premiumStripeResult) return;
+    for await (const entry of premiumStripeResult) {
+      const uid = entry.get("uid") as string;
+      if (uid) userIds.push(uid);
+    }
+
     const guild = client.guilds.cache.get(client.config.fireGuildId);
     const role = guild.roles.cache.get("564060922688176139");
     client.console.info(
