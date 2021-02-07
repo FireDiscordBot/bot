@@ -103,7 +103,7 @@ export default class MCLogs extends Module {
     const recommendations = currentRecommendations.length
       ? `${
           currentSolutions.length ? "\n\n" : ""
-        }Other Recommendations:\n${currentRecommendations.join("\n")}`
+        }Recommendations:\n${currentRecommendations.join("\n")}`
       : "";
 
     return solutions + recommendations;
