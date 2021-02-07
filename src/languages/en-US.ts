@@ -1155,6 +1155,8 @@ If you do have access, make sure you have actually purchased premium (if this is
 Your existing premium servers are (sorry it's ids, can't access names of guilds across clusters): ${current.join(
           ", "
         )}`,
+        PREMIUM_MANAGED_OTHER:
+          "This guild's premium is managed by another user.",
         PREMIUM_GUILDS_UPDATED: (current: string[]) =>
           `Successfully updated your premium guilds! You now have premium in ${
             current.length

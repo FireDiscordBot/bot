@@ -30,6 +30,12 @@ export default class Premium extends Command {
     if (current.length >= limit && !current.includes(message.guild.id))
       return await message.error("PREMIUM_LIMIT_REACHED", current);
 
+    if (this.client.util.premium.has(message.guild.id)) {
+      const currentUser = this.client.util.premium.get(message.guild.id);
+      if (currentUser != message.author.id)
+        return await message.error("PREMIUM_MANAGED_OTHER");
+    }
+
     if (current.includes(message.guild.id))
       current = current.filter((id) => id != message.guild.id);
     else current.push(message.guild.id);
@@ -40,6 +46,9 @@ export default class Premium extends Command {
       ])
       .catch(() => {});
     if (updated && updated.status.startsWith("UPDATE ")) {
+      if (current.includes(message.guild.id))
+        this.client.util.premium.set(message.guild.id, message.author.id);
+      else this.client.util.premium.delete(message.guild.id);
       return await message.success("PREMIUM_GUILDS_UPDATED", current);
     } else return await message.error("PREMIUM_UPDATE_FAILED");
   }
