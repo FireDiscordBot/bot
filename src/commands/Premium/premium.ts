@@ -1,7 +1,14 @@
+import {
+  PremiumData,
+  SubscriptionStatus,
+} from "../../../lib/interfaces/premium";
+import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
 import { FireMessage } from "../../../lib/extensions/message";
+import { EventType } from "../../../lib/ws/util/constants";
+import { FireGuild } from "../../../lib/extensions/guild";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import GivePremium from "../Admin/givepremium";
+import { Message } from "../../../lib/ws/Message";
 
 export default class Premium extends Command {
   constructor() {
@@ -32,8 +39,8 @@ export default class Premium extends Command {
       return await message.error("PREMIUM_LIMIT_REACHED", current);
 
     if (this.client.util.premium.has(message.guild.id)) {
-      const currentUser = this.client.util.premium.get(message.guild.id);
-      if (currentUser != message.author.id)
+      const currentPremium = this.client.util.premium.get(message.guild.id);
+      if (currentPremium.user != message.author.id)
         return await message.error("PREMIUM_MANAGED_OTHER");
     }
 
@@ -41,24 +48,43 @@ export default class Premium extends Command {
       current = current.filter((id) => id != message.guild.id);
     else current.push(message.guild.id);
     const updated = await this.client.db
-      .query("UPDATE premium_stripe SET guilds=$1 WHERE uid=$2;", [
+      .query("UPDATE premium_stripe SET guilds=$1 WHERE uid=$2 RETURNING *;", [
         current.length ? current : null,
         message.author.id,
       ])
+      .first()
       .catch(() => {});
-    if (updated && updated.status.startsWith("UPDATE ")) {
+    if (updated) {
+      const syncData: PremiumData = {
+        periodEnd: (updated.get("periodend") as number) * 1000,
+        status: updated.get("status") as SubscriptionStatus,
+        limit: updated.get("serverlimit") as 1 | 3 | 5,
+        user: updated.get("uid") as string,
+      };
       if (current.includes(message.guild.id))
-        this.client.util.premium.set(message.guild.id, message.author.id);
+        this.client.util.premium.set(message.guild.id, syncData);
       else this.client.util.premium.delete(message.guild.id);
-      const givePremiumCommand = this.client.getCommand(
-        "givepremium"
-      ) as GivePremium;
-      givePremiumCommand.sync(
+      this.sync(
         message.guild.id,
-        message.author.id,
+        syncData,
         current.includes(message.guild.id) ? "add" : "remove"
       );
       return await message.success("PREMIUM_GUILDS_UPDATED", current);
     } else return await message.error("PREMIUM_UPDATE_FAILED");
+  }
+
+  sync(
+    guild: FireGuild | string,
+    syncData: PremiumData,
+    action: "add" | "remove"
+  ) {
+    const guildId = guild instanceof FireGuild ? guild.id : guild;
+    this.client.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(EventType.PREMIUM_SYNC, {
+          [guildId]: { ...syncData, action },
+        })
+      )
+    );
   }
 }
