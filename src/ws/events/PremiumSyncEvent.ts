@@ -38,7 +38,7 @@ export default class PremiumSyncEvent extends Event {
       return;
 
     const premiumStripeResult = await client.db
-      .query("SELECT uid FROM premium_stripe;")
+      .query("SELECT uid, status FROM premium_stripe;")
       .catch(() => {});
     if (!premiumStripeResult) return;
 
