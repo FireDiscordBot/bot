@@ -1147,7 +1147,7 @@ You must have Developer Mode enabled, which is found in User Settings > Appearan
 Note: This command is temporary and will not work for those who have not been given access to the new premium purchase flow!
 If you do have access, make sure you have actually purchased premium (if this is not the dev bot, it will require you to *actually* purchase premium with real money)`,
         PREMIUM_LIMIT_ZERO:
-          "Seems you haven't purchased premium or you have cancelled your subscription. You will not be able to modify your premium guilds after cancelling your subscription, even if you still have your trial!",
+          "Seems you haven't purchased premium or you have cancelled your subscription. You may not be able to modify your premium guilds after cancelling your subscription, even if you still have your trial!",
         PREMIUM_LIMIT_REACHED: (
           current: string[]
         ) => `You've reached the server limit for your subscription! You will need to remove premium from a server before adding it to a new one.
