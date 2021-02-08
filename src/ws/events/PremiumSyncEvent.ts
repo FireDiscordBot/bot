@@ -52,6 +52,7 @@ export default class PremiumSyncEvent extends Event {
     }
 
     const guild = client.guilds.cache.get(client.config.fireGuildId);
+    if (!guild) return;
     const role = guild.roles.cache.get("564060922688176139");
     const members = await guild.members.fetch().catch(() => {});
     if (!members) return;
