@@ -8,6 +8,7 @@ import {
 import { Channel, Video } from "../interfaces/youtube";
 import { FireMember } from "../extensions/guildmember";
 import { MessageUtil } from "../ws/util/MessageUtil";
+import { PremiumData } from "../interfaces/premium";
 import { FireMessage } from "../extensions/message";
 import { humanize, titleCase } from "./constants";
 import { EventType } from "../ws/util/constants";
@@ -41,7 +42,7 @@ interface MojangProfile {
 export class Util extends ClientUtil {
   loadedData: { plonked: boolean; premium: boolean };
   uuidCache: Collection<string, string>;
-  premium: Collection<string, string>;
+  premium: Collection<string, PremiumData>;
   hasRoleUpdates: string[];
   plonked: string[];
   admins: string[];
