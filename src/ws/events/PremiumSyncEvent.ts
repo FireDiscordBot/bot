@@ -7,6 +7,7 @@ import { Event } from "../../../lib/ws/event/Event";
 import { Manager } from "../../../lib/Manager";
 
 const paidStatuses = ["trialing", "active", "past_due"];
+const dataKeys = ["user", "limit", "status", "periodEnd", "action"];
 const hasPaid = (status: SubscriptionStatus) => paidStatuses.includes(status);
 
 export default class PremiumSyncEvent extends Event {
@@ -20,7 +21,7 @@ export default class PremiumSyncEvent extends Event {
     const { client } = this.manager;
     for (const [guild, premium] of Object.entries(data))
       if (premium.action == "remove") client.util.premium.delete(guild);
-      else
+      else if (dataKeys.every((key) => premium.hasOwnProperty(key)))
         client.util.premium.set(guild, {
           periodEnd: premium.periodEnd,
           status: premium.status,
