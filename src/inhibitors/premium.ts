@@ -40,13 +40,14 @@ export default class PremiumInhibitor extends Inhibitor {
       const guilds = row.get("guilds") as string[];
       const expiry = new Date((row.get("periodend") as number) * 1000);
       if (now > expiry) continue;
-      for (const guild of guilds)
-        this.client.util.premium.set(guild, {
-          status: row.get("status") as SubscriptionStatus,
-          limit: row.get("serverlimit") as 1 | 3 | 5,
-          user: row.get("uid") as string,
-          periodEnd: +expiry,
-        });
+      if (guilds && guilds.length)
+        for (const guild of guilds)
+          this.client.util.premium.set(guild, {
+            status: row.get("status") as SubscriptionStatus,
+            limit: row.get("serverlimit") as 1 | 3 | 5,
+            user: row.get("uid") as string,
+            periodEnd: +expiry,
+          });
     }
     this.client.util.loadedData.premium = true;
     this.client.console.log(
@@ -69,14 +70,18 @@ export default class PremiumInhibitor extends Inhibitor {
       else if (uid) removeIds.push(uid);
     }
 
-    const guild = this.client.guilds.cache.get(this.client.config.fireGuildId);
-    const role = guild.roles.cache.get("564060922688176139");
-    const members = await guild.members.fetch().catch(() => {});
-    if (!members) return;
-    for (const [, member] of members)
-      if (member.roles.cache.has(role.id) && removeIds.includes(member.id))
-        await member.roles.remove(role, "premium is gone :crabrave:");
-      else if (paidIds.includes(member.id))
-        await member.roles.add(role, "wow member now has premium");
+    this.client.once("ready", async () => {
+      const guild = this.client.guilds.cache.get(
+        this.client.config.fireGuildId
+      );
+      const role = guild.roles.cache.get("564060922688176139");
+      const members = await guild.members.fetch().catch(() => {});
+      if (!members) return;
+      for (const [, member] of members)
+        if (member.roles.cache.has(role.id) && removeIds.includes(member.id))
+          await member.roles.remove(role, "premium is gone :crabrave:");
+        else if (paidIds.includes(member.id))
+          await member.roles.add(role, "wow member now has premium");
+    });
   }
 }
