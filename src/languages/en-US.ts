@@ -1152,7 +1152,7 @@ If you do have access, make sure you have actually purchased premium (if this is
           current: string[]
         ) => `You've reached the server limit for your subscription! You will need to remove premium from a server before adding it to a new one.
         
-Your existing premium servers are (sorry it's ids, can't access names of guilds across clusters): ${current.join(
+Your existing premium servers are: ${current.join(
           ", "
         )}`,
         PREMIUM_MANAGED_OTHER:
