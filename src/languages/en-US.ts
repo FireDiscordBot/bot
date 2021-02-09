@@ -233,6 +233,10 @@ export default class enUS extends Language {
         AUDIT_ACTION_MEMBER_BAN_ADD: "Banned",
         AUDIT_ACTION_MEMBER_KICK: "Kicked",
         AUDIT_ACTION_BY: (action: string) => `${action} By`, // e.g. Kicked By or Banned By
+        ALIAS_COMMAND_DESCRIPTION:
+          "it do thing and make user be different name ok yes cool",
+        ALIAS_REQUIRED_ARG:
+          "hey idiot you forgot to give an alias to add/remove from that user",
         ADDMOD_COMMAND_DESCRIPTION:
           "Add a member/role as a moderator. If not set, anyone with the Manage Messages permission is considered a moderator",
         AUTOROLE_COMMAND_DESCRIPTION:
