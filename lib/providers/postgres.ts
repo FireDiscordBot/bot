@@ -60,9 +60,11 @@ export class PostgresProvider extends Provider {
     return defaultValue;
   }
 
-  set(id: string, key: string, value: any): ResultIterator {
+  set(id: string, key: string, value: any): ResultIterator | boolean {
     const data = this.items.get(id) || {};
     const exists = this.items.has(id);
+
+    if (data[key] === value) return true;
 
     data[key] = value;
     this.items.set(id, data);
