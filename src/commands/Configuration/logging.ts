@@ -71,9 +71,10 @@ export default class Logging extends Command {
         ? await message.success(`LOGGING_DISABLED_${type.toUpperCase()}`)
         : await message.error();
     } else {
-      const set = await message.guild.settings
-        .set(`log.${type}`, args.channel.id)
-        .catch(() => {});
+      let set: any;
+      try {
+        set = await message.guild.settings.set(`log.${type}`, args.channel.id);
+      } catch {}
       return set
         ? await message.success(`LOGGING_ENABLED_${type.toUpperCase()}`)
         : await message.error();
