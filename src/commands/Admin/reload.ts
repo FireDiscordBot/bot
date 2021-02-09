@@ -1,7 +1,6 @@
 import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
 import { FireMessage } from "../../../lib/extensions/message";
 import { EventType } from "../../../lib/ws/util/constants";
-import { FireGuild } from "../../../lib/extensions/guild";
 import { Language } from "../../../lib/util/language";
 import { Listener } from "../../../lib/util/listener";
 import { Command } from "../../../lib/util/command";
