@@ -36,8 +36,8 @@ export class FireUser extends User {
     return super.toString();
   }
 
-  async blacklist(reason: string, permanent: boolean) {
-    return await this.client.util.blacklist(this, reason, permanent);
+  async blacklist(reason: string) {
+    return await this.client.util.blacklist(this, reason);
   }
 
   async unblacklist() {

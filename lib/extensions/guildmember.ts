@@ -89,8 +89,8 @@ export class FireMember extends GuildMember {
       : this.permissions.has("MANAGE_GUILD");
   }
 
-  async blacklist(reason: string, permanent: boolean) {
-    return await this.client.util.blacklist(this, reason, permanent);
+  async blacklist(reason: string) {
+    return await this.client.util.blacklist(this, reason);
   }
 
   async unblacklist() {

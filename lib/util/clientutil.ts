@@ -280,15 +280,11 @@ export class Util extends ClientUtil {
     );
   }
 
-  async blacklist(
-    user: FireMember | FireUser,
-    reason: string,
-    permanent: boolean
-  ) {
+  async blacklist(user: FireMember | FireUser, reason: string) {
     try {
       if (this.client.util.plonked.includes(user.id))
-        await this.updateBlacklist(user, reason, permanent);
-      else await this.insertBlacklist(user, reason, permanent);
+        await this.updateBlacklist(user, reason);
+      else await this.insertBlacklist(user, reason);
       this.client.manager.ws?.send(
         MessageUtil.encode(
           new Message(EventType.BLACKLIST_SYNC, {
@@ -322,31 +318,23 @@ export class Util extends ClientUtil {
     }
   }
 
-  private async insertBlacklist(
-    user: FireMember | FireUser,
-    reason: string,
-    permanent: boolean
-  ) {
+  private async insertBlacklist(user: FireMember | FireUser, reason: string) {
     const username =
       user instanceof FireMember ? user.user.username : user.username;
     await this.client.db.query(
-      'INSERT INTO blacklist ("user", uid, reason, perm) VALUES ($1, $2, $3, $4);',
-      [username, user.id, reason, permanent]
+      'INSERT INTO blacklist ("user", uid, reason) VALUES ($1, $2, $3);',
+      [username, user.id, reason]
     );
     this.client.util.plonked.push(user.id);
     this.client.console.warn(`[Blacklist] Successfully blacklisted ${user}`);
   }
 
-  private async updateBlacklist(
-    user: FireMember | FireUser,
-    reason: string,
-    permanent: boolean
-  ) {
+  private async updateBlacklist(user: FireMember | FireUser, reason: string) {
     const username =
       user instanceof FireMember ? user.user.username : user.username;
     await this.client.db.query(
-      "UPDATE blacklist user=$1, reason=$2, perm=$3 WHERE uid=$4;",
-      [username, reason, permanent, user.id]
+      "UPDATE blacklist user=$1, reason=$2 WHERE uid=$4;",
+      [username, reason, user.id]
     );
     this.client.console.warn(
       `[Blacklist] Successfully updated blacklist for ${user}`
