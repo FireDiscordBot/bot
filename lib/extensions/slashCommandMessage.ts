@@ -91,8 +91,10 @@ export class SlashCommandMessage {
         ? this.guild?.language
         : this.author.language
       : this.guild?.language || client.getLanguage("en-US");
+    this.realChannel = this.client.channels.cache.get(
+      this.slashCommand.channel_id
+    ) as TextChannel | NewsChannel | DMChannel;
     if (!this.guild) {
-      this.author.createDM();
       // This will happen if a guild authorizes w/applications.commands
       // or if a slash command is invoked in DMs (discord/discord-api-docs #2568)
       this.channel = new FakeChannel(
@@ -105,9 +107,6 @@ export class SlashCommandMessage {
       );
       return this;
     }
-    this.realChannel = this.guild.channels.cache.get(
-      this.slashCommand.channel_id
-    ) as TextChannel | NewsChannel;
     this.channel = new FakeChannel(
       this,
       client,
@@ -366,8 +365,14 @@ export class FakeChannel {
     if (typeof flags == "number") data.flags = flags;
 
     // embeds in ephemeral wen eta
-    // @ts-ignore
-    if (data.embeds?.length && (data.flags & 64) == 64) data.flags -= 1 << 6;
+    if (
+      // @ts-ignore
+      (data.embeds?.length || this.real instanceof DMChannel) &&
+      // @ts-ignore
+      (data.flags & 64) == 64
+    )
+      // @ts-ignore
+      data.flags -= 64;
 
     if (!this.message.sent)
       // @ts-ignore
@@ -376,8 +381,13 @@ export class FakeChannel {
         .interactions(this.id)(this.token)
         .callback.post({
           data: {
-            // @ts-ignore
-            type: (data.flags & 64) == 64 && !data.embeds?.length ? 3 : 4,
+            type:
+              // @ts-ignore
+              (data.flags & 64) == 64 &&
+              // @ts-ignore
+              (!data.embeds?.length || this.real instanceof DMChannel)
+                ? 3
+                : 4,
             data,
           },
           files,
