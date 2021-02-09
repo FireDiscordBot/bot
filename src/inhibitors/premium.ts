@@ -43,11 +43,18 @@ export default class PremiumInhibitor extends Inhibitor {
       if (now > expiry) continue;
       if (guilds && guilds.length)
         for (const guild of guilds) {
-          if (row.get("status") == "trialing")
-            (this.client.guilds.cache.get(guild) as FireGuild)?.settings.set(
-              "premium.trialeligible",
-              false
+          const instance = this.client.guilds.cache.get(guild) as FireGuild;
+          if (
+            row.get("status") == "trialing" &&
+            instance?.settings.get("premium.trialeligible", true)
+          ) {
+            this.client.console.warn(
+              `[Premium] Setting trial eligibility for ${instance} due to subscription from ${row.get(
+                "uid"
+              )} in trial period`
             );
+            instance.settings.set("premium.trialeligible", false);
+          }
           this.client.util.premium.set(guild, {
             status: row.get("status") as SubscriptionStatus,
             limit: row.get("serverlimit") as 1 | 3 | 5,

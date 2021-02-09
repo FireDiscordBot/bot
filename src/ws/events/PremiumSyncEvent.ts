@@ -21,11 +21,16 @@ export default class PremiumSyncEvent extends Event {
   }) {
     const { client } = this.manager;
     for (const [guild, premium] of Object.entries(data)) {
-      if (premium.status == "trialing")
-        (client.guilds.cache.get(guild) as FireGuild)?.settings.set(
-          "premium.trialeligible",
-          false
+      const instance = client.guilds.cache.get(guild) as FireGuild;
+      if (
+        premium.status == "trialing" &&
+        instance?.settings.get("premium.trialeligible", true)
+      ) {
+        client.console.warn(
+          `[Premium] Setting trial eligibility for ${instance} due to subscription from ${premium.user} in trial period`
         );
+        instance.settings.set("premium.trialeligible", false);
+      }
       if (premium.action == "remove") client.util.premium.delete(guild);
       else if (dataKeys.every((key) => premium.hasOwnProperty(key)))
         client.util.premium.set(guild, {
