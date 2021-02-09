@@ -5,6 +5,7 @@ import { SlashCommandMessage } from "../../lib/extensions/slashCommandMessage";
 import { SlashCommand } from "../../lib/interfaces/slashCommands";
 import { constants } from "../../lib/util/constants";
 import { Listener } from "../../lib/util/listener";
+import { DMChannel } from "discord.js";
 import { Scope } from "@sentry/node";
 
 const { emojis } = constants;
@@ -19,6 +20,8 @@ export default class InteractionCreate extends Listener {
 
   async exec(command: SlashCommand) {
     try {
+      // should be cached if in guild or fetch if dm channel
+      await this.client.channels.fetch(command.channel_id).catch(() => {});
       const message = new SlashCommandMessage(this.client, command);
       if (!message.command) {
         this.client.console.warn(
@@ -30,7 +33,9 @@ export default class InteractionCreate extends Listener {
           "SLASH_COMMAND_BOT_REQUIRED",
           this.client.config.inviteLink
         );
-      await message.channel.ack(!message.command.ephemeral);
+      await message.channel.ack(
+        !message.command.ephemeral || message.realChannel instanceof DMChannel
+      );
       await message.generateContent();
       // @ts-ignore
       await this.client.commandHandler.handle(message);
