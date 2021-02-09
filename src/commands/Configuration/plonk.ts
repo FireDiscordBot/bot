@@ -161,7 +161,7 @@ export default class Plonk extends Command {
             "MODERATOR_ACTION_DEFAULT_REASON"
           ) as string)
       )
-      .setFooter(`${this.id} | ${message.author.id}`);
+      .setFooter(`${args.user.id} | ${message.author.id}`);
     await message.guild.modLog(embed, isPlonked ? "unblacklist" : "blacklist");
     return await message.send(
       "PLONK_SUCCESS",
