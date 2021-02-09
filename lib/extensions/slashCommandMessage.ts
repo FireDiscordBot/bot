@@ -78,7 +78,7 @@ export class SlashCommandMessage {
       : (client.users.cache.get(command.member.user.id) as FireUser) ||
         new FireUser(client, command.member.user);
     if (!client.users.cache.has(this.author.id))
-      client.users.add(command.member.user);
+      client.users.add(command.member ? command.member.user : command.user);
     if (this.guild) {
       this.member =
         (this.guild.members.cache.get(this.author.id) as FireMember) ||
@@ -92,7 +92,7 @@ export class SlashCommandMessage {
         : this.author.language
       : this.guild?.language || client.getLanguage("en-US");
     if (!this.guild) {
-      this.author.dmChannel.fetch();
+      this.author.createDM();
       // This will happen if a guild authorizes w/applications.commands
       // or if a slash command is invoked in DMs (discord/discord-api-docs #2568)
       this.channel = new FakeChannel(

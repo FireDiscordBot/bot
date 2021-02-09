@@ -46,7 +46,9 @@ export default class InteractionCreate extends Listener {
         const sentry = this.client.sentry;
         sentry.setExtras({
           slashCommand: JSON.stringify(command.data),
-          member: `${command.member.user.username}#${command.member.user.discriminator}`,
+          member: command.member
+            ? `${command.member.user.username}#${command.member.user.discriminator}`
+            : `${command.user.username}#${command.user.discriminator}`,
           channel_id: command.channel_id,
           guild_id: command.guild_id,
           env: process.env.NODE_ENV,
@@ -70,7 +72,7 @@ export default class InteractionCreate extends Listener {
           // @ts-ignore
           type: 3,
           data: {
-            content: `${emojis.error} An error occured while trying to handle this command that may be caused by the bot not being present...
+            content: `${emojis.error} An error occured while trying to handle this command that may be caused by being in DMs or the bot not being present...
 
 Try inviting the bot (<${this.client.config.inviteLink}>) and try again.
 
@@ -89,7 +91,7 @@ Error Message: ${error.message}`,
       .webhooks(this.client.user.id)(command.token)
       .post({
         data: {
-          content: `${emojis.error} An error occured while trying to handle this command that may be caused by the bot not being present...
+          content: `${emojis.error} An error occured while trying to handle this command that may be caused by being in DMs or the bot not being present...
 
 Try inviting the bot (<${this.client.config.inviteLink}>) and try again.
 
