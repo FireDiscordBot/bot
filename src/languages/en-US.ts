@@ -55,7 +55,7 @@ export default class enUS extends Language {
         // with no source or the source message isn't found
         SLASH_COMMAND_HANDLE_SUCCESS: "Command ran successfully!",
         SLASH_COMMAND_BOT_REQUIRED: (invite: string) =>
-          `This command requires you to have the bot present. You can invite it @ <${invite}>`,
+          `This command requires you to be in a server & have the bot present. You can invite it @ <${invite}>`,
         USER_SNOWFLAKE_ARGUMENT_DESCRIPTION:
           "A mention, username, user id or any valid snowflake",
         HELLO_PREFIX: (prefix: string) =>
@@ -1152,9 +1152,7 @@ If you do have access, make sure you have actually purchased premium (if this is
           current: string[]
         ) => `You've reached the server limit for your subscription! You will need to remove premium from a server before adding it to a new one.
         
-Your existing premium servers are: ${current.join(
-          ", "
-        )}`,
+Your existing premium servers are: ${current.join(", ")}`,
         PREMIUM_MANAGED_OTHER:
           "This guild's premium is managed by another user.",
         PREMIUM_GUILDS_UPDATED: (current: string[]) =>

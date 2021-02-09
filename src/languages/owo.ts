@@ -48,7 +48,7 @@ export default class owo extends Language {
         // with no source or the source message isn't found
         SLASH_COMMAND_HANDLE_SUCCESS: "Command wan successfuwwy!",
         SLASH_COMMAND_BOT_REQUIRED: (invite: string) =>
-          `This command wequiwes you to have the bot pwesent. You can invite it @ <${invite}>`,
+          `This command wequiwes you to be in a sewvew & have the bot pwesent. You can invite it @ <${invite}>`,
         USER_SNOWFLAKE_ARGUMENT_DESCRIPTION:
           "A mention, usewname, usew id ow any vawid snowfwake",
         HELLO_PREFIX: (prefix: string) =>
