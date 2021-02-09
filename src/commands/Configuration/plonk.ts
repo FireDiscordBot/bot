@@ -47,6 +47,12 @@ export default class Plonk extends Command {
 
     if (!args.user && typeof args.user == "undefined")
       return await message.error("PLONK_USER_REQUIRED");
+    else if (
+      args.user instanceof FireMember &&
+      args.user.isModerator() &&
+      message.author.id != message.guild.ownerID
+    )
+      return await message.error("MODERATOR_ACTION_DISALLOWED");
 
     if (message.member?.permissions.has("MANAGE_GUILD"))
       await this.localBlacklist(message, args);
