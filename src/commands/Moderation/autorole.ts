@@ -52,8 +52,11 @@ export default class Autorole extends Command {
     }
 
     if (
-      role.position > (message.guild.me?.roles.highest.position || 0) ||
-      role.managed
+      args.role &&
+      (args.role.managed ||
+        args.role.rawPosition > message.guild.me.roles.highest.rawPosition ||
+        args.role.id == message.guild.roles.everyone.id ||
+        args.role.rawPosition > message.member.roles.highest.rawPosition)
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
     if (bot && delay) return await message.error("AUTOROLE_INVALID_FLAGS");

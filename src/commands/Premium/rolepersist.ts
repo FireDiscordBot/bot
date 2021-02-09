@@ -35,12 +35,13 @@ export default class RolePersist extends Command {
   async exec(message: FireMessage, args: { user: FireMember; role: Role }) {
     if (!args.user || !args.role) return;
     if (
-      args.role.managed ||
-      args.role.rawPosition > message.guild.me.roles.highest.rawPosition ||
-      args.role.id == message.guild.roles.everyone.id ||
-      args.role.rawPosition > message.member.roles.highest.rawPosition
+      args.role &&
+      (args.role.managed ||
+        args.role.rawPosition > message.guild.me.roles.highest.rawPosition ||
+        args.role.id == message.guild.roles.everyone.id ||
+        args.role.rawPosition > message.member.roles.highest.rawPosition)
     )
-      return await message.error("ROLEPERSIST_ROLE_INVALID");
+      return await message.error("ERROR_ROLE_UNUSABLE");
 
     if (args.user.id == message.author.id)
       return await message.error("ROLEPERSIST_SELF");

@@ -28,8 +28,11 @@ export default class AddRank extends Command {
   async exec(message: FireMessage, args: { role?: Role }) {
     if (!args.role) return;
     if (
-      args.role.position > (message.guild.me?.roles.highest.position || 0) ||
-      args.role.managed
+      args.role &&
+      (args.role.managed ||
+        args.role.rawPosition > message.guild.me.roles.highest.rawPosition ||
+        args.role.id == message.guild.roles.everyone.id ||
+        args.role.rawPosition > message.member.roles.highest.rawPosition)
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
 

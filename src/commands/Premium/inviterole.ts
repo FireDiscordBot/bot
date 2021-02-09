@@ -41,7 +41,7 @@ export default class InviteRole extends Command {
         args.role.id == message.guild.roles.everyone.id ||
         args.role.rawPosition > message.member.roles.highest.rawPosition)
     )
-      return await message.error("INVITEROLE_ROLE_INVALID");
+      return await message.error("ERROR_ROLE_UNUSABLE");
 
     const invite = args.invite.code;
     if (message.guild.inviteRoles.has(invite) && !args.role) {
