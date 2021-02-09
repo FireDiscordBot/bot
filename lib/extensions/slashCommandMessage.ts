@@ -1,5 +1,6 @@
 import {
   APIMessageContentResolvable,
+  PermissionOverwriteOption,
   GuildMemberResolvable,
   AwaitMessagesOptions,
   MessageEditOptions,
@@ -10,6 +11,7 @@ import {
   CollectorFilter,
   MessageMentions,
   MessageReaction,
+  UserResolvable,
   RoleResolvable,
   MessageOptions,
   MessageManager,
@@ -32,7 +34,6 @@ import { FireMessage } from "./message";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
-import {} from "discord.js";
 
 const { emojis, reactions } = constants;
 
@@ -302,6 +303,16 @@ export class FakeChannel {
 
   awaitMessages(filter: CollectorFilter, options?: AwaitMessagesOptions) {
     return this.real?.awaitMessages(filter, options);
+  }
+
+  updateOverwrite(
+    userOrRole: RoleResolvable | UserResolvable,
+    options: PermissionOverwriteOption,
+    reason?: string
+  ) {
+    return !(this.real instanceof DMChannel)
+      ? this.real?.updateOverwrite(userOrRole, options, reason)
+      : false;
   }
 
   // Acknowledges without sending a message
