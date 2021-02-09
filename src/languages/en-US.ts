@@ -1155,6 +1155,8 @@ If you do have access, make sure you have actually purchased premium (if this is
 Your existing premium servers are: ${current.join(", ")}`,
         PREMIUM_MANAGED_OTHER:
           "This guild's premium is managed by another user.",
+        PREMIUM_TRIAL_INELIGIBLE:
+          "You currently have a premium trial which this guild is ineligible for!",
         PREMIUM_GUILDS_UPDATED: (current: string[]) =>
           `Successfully updated your premium guilds! You now have premium in ${
             current.length

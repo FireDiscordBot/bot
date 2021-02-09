@@ -1,5 +1,6 @@
 import { SubscriptionStatus } from "../../lib/interfaces/premium";
 import { FireMessage } from "../../lib/extensions/message";
+import { FireGuild } from "../../lib/extensions/guild";
 import { Inhibitor } from "../../lib/util/inhibitor";
 import { Command } from "../../lib/util/command";
 import { Collection } from "discord.js";
@@ -41,13 +42,19 @@ export default class PremiumInhibitor extends Inhibitor {
       const expiry = new Date((row.get("periodend") as number) * 1000);
       if (now > expiry) continue;
       if (guilds && guilds.length)
-        for (const guild of guilds)
+        for (const guild of guilds) {
+          if (row.get("status") == "trialing")
+            (this.client.guilds.cache.get(guild) as FireGuild)?.settings.set(
+              "premium.trialeligible",
+              false
+            );
           this.client.util.premium.set(guild, {
             status: row.get("status") as SubscriptionStatus,
             limit: row.get("serverlimit") as 1 | 3 | 5,
             user: row.get("uid") as string,
             periodEnd: +expiry,
           });
+        }
     }
     this.client.util.loadedData.premium = true;
     this.client.console.log(

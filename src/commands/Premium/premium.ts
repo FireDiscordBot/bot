@@ -33,7 +33,11 @@ export default class Premium extends Command {
     const limit = premiumInfo.get("serverlimit") as number;
     let current = (premiumInfo.get("guilds") || []) as string[];
 
-    if (!limit) return await message.error("PREMIUM_LIMIT_ZERO");
+    // checking for current allows the user to remove
+    // their own premium after their subscription ends
+    // if it wasn't done automatically
+    if (!limit && !current.includes(message.guild.id))
+      return await message.error("PREMIUM_LIMIT_ZERO");
 
     if (current.length >= limit && !current.includes(message.guild.id))
       return await message.error("PREMIUM_LIMIT_REACHED", current);
@@ -43,6 +47,13 @@ export default class Premium extends Command {
       if (currentPremium.user != message.author.id)
         return await message.error("PREMIUM_MANAGED_OTHER");
     }
+
+    if (
+      !message.guild.settings.get("premium.trialeligible", true) &&
+      premiumInfo.get("status") == "trialing" &&
+      !current.includes(message.guild.id) // allow for removing premium if set during trial
+    )
+      return await message.error("PREMIUM_TRIAL_INELIGIBLE");
 
     if (current.includes(message.guild.id))
       current = current.filter((id) => id != message.guild.id);
@@ -61,6 +72,8 @@ export default class Premium extends Command {
         limit: updated.get("serverlimit") as 1 | 3 | 5,
         user: updated.get("uid") as string,
       };
+      if (status == "trialing")
+        message.guild.settings.set("premium.trialeligible", false);
       if (current.includes(message.guild.id))
         this.client.util.premium.set(message.guild.id, syncData);
       else this.client.util.premium.delete(message.guild.id);

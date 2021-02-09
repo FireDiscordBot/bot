@@ -3,6 +3,7 @@ import {
   SubscriptionStatus,
 } from "../../../lib/interfaces/premium";
 import { EventType } from "../../../lib/ws/util/constants";
+import { FireGuild } from "../../../lib/extensions/guild";
 import { Event } from "../../../lib/ws/event/Event";
 import { Manager } from "../../../lib/Manager";
 
@@ -19,7 +20,12 @@ export default class PremiumSyncEvent extends Event {
     [guild: string]: PremiumData & { action: "add" | "remove" };
   }) {
     const { client } = this.manager;
-    for (const [guild, premium] of Object.entries(data))
+    for (const [guild, premium] of Object.entries(data)) {
+      if (premium.status == "trialing")
+        (client.guilds.cache.get(guild) as FireGuild)?.settings.set(
+          "premium.trialeligible",
+          false
+        );
       if (premium.action == "remove") client.util.premium.delete(guild);
       else if (dataKeys.every((key) => premium.hasOwnProperty(key)))
         client.util.premium.set(guild, {
@@ -28,6 +34,7 @@ export default class PremiumSyncEvent extends Event {
           limit: premium.limit,
           user: premium.user,
         });
+    }
 
     // Premium role stuffs
     if (
