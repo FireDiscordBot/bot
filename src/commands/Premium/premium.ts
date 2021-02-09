@@ -72,7 +72,7 @@ export default class Premium extends Command {
         limit: updated.get("serverlimit") as 1 | 3 | 5,
         user: updated.get("uid") as string,
       };
-      if (status == "trialing")
+      if (updated.get("status") == "trialing")
         message.guild.settings.set("premium.trialeligible", false);
       if (current.includes(message.guild.id))
         this.client.util.premium.set(message.guild.id, syncData);
