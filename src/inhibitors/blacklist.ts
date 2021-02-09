@@ -13,7 +13,10 @@ export default class BlacklistInhibitor extends Inhibitor {
 
   exec(message: FireMessage, command?: Command) {
     return (
-      this.client.util.plonked.includes(message.author.id) &&
+      (this.client.util.plonked.includes(message.author.id) ||
+        (message.guild?.settings.get("utils.plonked", []) as string[]).includes(
+          message.author.id
+        )) &&
       !message.author.isSuperuser() &&
       command?.id != "debug"
     );

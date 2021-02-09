@@ -26,7 +26,9 @@ export type ModLogType =
   | "derank"
   | "mute"
   | "unmute"
-  | "role_persist";
+  | "role_persist"
+  | "blacklist"
+  | "unblacklist";
 export type MemberLogType =
   | "join"
   | "leave"

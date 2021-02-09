@@ -909,8 +909,17 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         PUBLIC_DISABLED_LOG: (user: string) =>
           `${constants.statuspage.emojis.major_outage} Ths server was manually removed from Fire\'s public server list by ${user}`,
         PLONK_COMMAND_DESCRIPTION:
-          "make a user unable to use the best discord bot",
+          "Make a user unable to use the best discord bot in your server",
+        PLONK_FORBIDDEN: () =>
+          `You must be in a server and have the **${
+            this.get("PERMISSIONS")["MANAGE_GUILD"]
+          }** permission to use this.`,
         PLONK_USER_REQUIRED: "You must provide a user to plonk",
+        PLONK_LOG_AUTHOR: (user: string) => `Blacklist | ${user}`,
+        PLONK_SUCCESS: (user: string, guild: string, plonked: boolean) =>
+          plonked
+            ? `${constants.emojis.success} **${user}** is no longer able to run commands in ${guild}.`
+            : `${constants.emojis.success} **${user}** is now able to run commands in ${guild}.`,
         PLAYWRIGHT_ERROR_NOT_READY:
           "Aether has not loaded fully yet, please try again in a moment.",
         PLAYWRIGHT_ERROR_BAD_REQUEST: "The request to Aether was malformed.",
@@ -1322,6 +1331,7 @@ Please remove the role manually.`,
 If the user gets automatically muted again, just try unmute them again and it'll likely work`,
         UNMUTE_COMMAND_DESCRIPTION: "Unmute a user",
         UNMUTE_USER_REQUIRED: "You must provide a user to unmute!",
+        UNPLONK_LOG_AUTHOR: (user: string) => `Unblacklist | ${user}`,
         VANITYURL_COMMAND_DESCRIPTION:
           "Creates a vanity invite for your Discord using inv.wtf",
         VANITYURL_CODE_REQUIRED:
