@@ -15,7 +15,8 @@ export type ActionLogType =
   | "invite_delete"
   | "guild_update"
   | "user_unban"
-  | "pins_add";
+  | "pins_add"
+  | "reactrole";
 export type ModLogType =
   | "warn"
   | "ban"

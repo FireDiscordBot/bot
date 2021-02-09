@@ -63,6 +63,7 @@ export default class Ready extends Listener {
       await guild.loadInvites();
       await guild.loadVcRoles();
       await guild.loadInviteRoles();
+      await guild.loadReactionRoles();
       await guild.loadPersistedRoles();
     }
 

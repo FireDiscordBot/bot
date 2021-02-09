@@ -42,6 +42,7 @@
     "nanoid": "^3.1.20",
     "node-color-log": "^5.2.0",
     "nodejs-assistant": "^0.8.0",
+    "p-event": "^4.2.0",
     "pidusage": "^2.0.21",
     "semaphore-async-await": "^1.5.1",
     "source-map-support": "^0.5.19",

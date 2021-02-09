@@ -18,6 +18,7 @@ export default class GuildCreate extends Listener {
     await guild.loadInvites();
     await guild.loadVcRoles();
     await guild.loadInviteRoles();
+    await guild.loadReactionRoles();
     await guild.loadPersistedRoles();
 
     this.client.console.log(

@@ -15,6 +15,7 @@ import {
 import { ActionLogType, MemberLogType, ModLogType } from "../util/constants";
 import { GuildTagManager } from "../util/guildtagmanager";
 import Tickets from "../../src/commands/Tickets/tickets";
+import { ReactionRoleData } from "../interfaces/rero";
 import { FakeChannel } from "./slashCommandMessage";
 import { GuildSettings } from "../util/settings";
 import { getIDMatch } from "../util/converters";
@@ -35,6 +36,7 @@ const parseUntil = (time?: string) => {
 };
 
 export class FireGuild extends Guild {
+  reactionRoles: Collection<string, ReactionRoleData[]>;
   persistedRoles: Collection<string, string[]>;
   inviteRoles: Collection<string, string>;
   vcRoles: Collection<string, string>;
@@ -54,6 +56,7 @@ export class FireGuild extends Guild {
     this.settings = new GuildSettings(client, this);
     this.tags = new GuildTagManager(client, this);
     this.persistedRoles = new Collection();
+    this.reactionRoles = new Collection();
     this.inviteRoles = new Collection();
     this.fetchingMemberUpdates = false;
     this.fetchingRoleUpdates = false;
@@ -234,7 +237,7 @@ export class FireGuild extends Guild {
       return this.client.console.error(
         `[Guild] Failed to load invite roles for ${this.name} (${this.id})`
       );
-    for (const invrole of invroles)
+    for await (const invrole of invroles)
       this.inviteRoles.set(
         invrole.get("inv") as string,
         invrole.get("rid") as string
@@ -251,7 +254,7 @@ export class FireGuild extends Guild {
       return this.client.console.error(
         `[Guild] Failed to load persisted roles for ${this.name} (${this.id})`
       );
-    for (const role of persisted)
+    for await (const role of persisted)
       this.persistedRoles.set(
         role.get("uid") as string,
         role.get("roles") as string[]
@@ -268,7 +271,7 @@ export class FireGuild extends Guild {
       return this.client.console.error(
         `[Guild] Failed to load voice roles for ${this.name} (${this.id})`
       );
-    for (const vcrole of voiceroles) {
+    for await (const vcrole of voiceroles) {
       this.vcRoles.set(
         vcrole.get("cid") as string,
         vcrole.get("rid") as string
@@ -301,6 +304,26 @@ export class FireGuild extends Guild {
             ) as string
           )
           .catch(() => {});
+    }
+  }
+
+  async loadReactionRoles() {
+    this.reactionRoles = new Collection();
+    if (!this.premium || !this.available) return;
+    const reactRoles = await this.client.db
+      .query("SELECT * FROM reactrole WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!reactRoles)
+      return this.client.console.error(
+        `[Guild] Failed to load reaction roles for ${this.name} (${this.id})`
+      );
+    for await (const rero of reactRoles) {
+      const mid = rero.get("mid") as string;
+      if (!this.reactionRoles.has(mid)) this.reactionRoles.set(mid, []);
+      this.reactionRoles.get(mid).push({
+        role: rero.get("rid") as string,
+        emoji: rero.get("eid") as string,
+      });
     }
   }
 

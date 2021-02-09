@@ -11,6 +11,13 @@ export default class MessageDelete extends Listener {
   }
 
   async exec(message: FireMessage) {
+    if (message.guild && message.guild.reactionRoles.has(message.id)) {
+      message.guild.reactionRoles.delete(message.id);
+      await this.client.db
+        .query("DELETE FROM reactroles WHERE mid=$1;", [message.id])
+        .catch(() => {});
+    }
+
     if (message.partial || message.author.bot) return;
 
     if (message.guild?.settings.has("log.action")) {

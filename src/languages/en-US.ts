@@ -21,7 +21,7 @@ export default class enUS extends Language {
         INVALID_MEMBER_ROLE_CHANNEL:
           "That is not a valid member, role or channel. Make sure the name or ID you're providing is valid.",
         INVALID_MESSAGE:
-          "Message not found! Make sure you're giving a valid id/link.",
+          "Message not found! Make sure you're giving a valid ID/link. If giving an ID, it must be from this channel.",
         HASTE_INVALID_DOMAIN: (supported: string) =>
           `That is not a valid haste domain. Currently supported domains are ${supported}.`,
         HASTE_INVALID_URL: "That doesn't seem to be a valid haste URL.",
@@ -61,7 +61,7 @@ export default class enUS extends Language {
         HELLO_PREFIX: (prefix: string) =>
           `Hey! My prefix here is \`${prefix}\` or you can mention me :)`,
         ERROR_ROLE_UNUSABLE:
-          "This role cannot be used as it is either managed by an integration or higher than my top role",
+          "This role cannot be used as it is either managed by an integration, higher than my top role or the default role.",
         ERROR_NO_KSOFT:
           "Unable to use KSoft.Si API due to lack of authentication",
         NO_MODERATORS_SET: "There are no moderators set in this guild.",
@@ -988,6 +988,61 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
         DELRANK_COMMAND_DESCRIPTION:
           "Remove a rank from the list of joinable roles.",
+        REACTIONROLE_ROLE_REASON: (
+          emoji: string,
+          message: string,
+          channel: string
+        ) =>
+          `Adding reaction role for emoji ${emoji} on message with id ${message} in channel ${channel}`,
+        REACTIONROLE_ROLE_REMOVE_REASON: (
+          emoji: string,
+          message: string,
+          channel: string
+        ) =>
+          `Removing reaction role for emoji ${emoji} on message with id ${message} in channel ${channel}`,
+        REACTIONROLE_COMMAND_DESCRIPTION:
+          "Setup roles users will receive when reacting to a message with a specific emoji",
+        REACTIONROLE_INITIAL: (role: string) =>
+          `You have 60 seconds to react to your desired message with the emoji you'd like users to react with to receive ${role}...
+
+If you've already setup a reaction role for this role and want to remove it, just react to the existing one to delete it!`,
+        REACTIONROLE_REJECTED:
+          "Seems you either didn't react in time or something went wrong internally...",
+        REACTIONROLE_MESSAGE_PARTIAL:
+          "I was unable to fetch data about that message and was unable to add a reaction role to it",
+        REACTIONROLE_DELETED: (
+          author: string,
+          channel: string,
+          jump: string,
+          emoji: string,
+          role: string
+        ) => `Alright, I've deleted an existing reaction role with the following configuration,
+          
+Message: Sent by ${author} in ${channel} (<${jump}>)
+Emoji: ${emoji}
+Role: ${role}
+
+If you didn't want to delete it, just set it up again, it won't take long!`,
+        REACTIONROLE_CONFIRMATION: (
+          author: string,
+          channel: string,
+          jump: string,
+          emoji: string,
+          role: string
+        ) => `Alright, here's what I've got,
+          
+Message: Sent by ${author} in ${channel} (<${jump}>)
+Emoji: ${emoji}
+Role: ${role}
+
+If this is correct, react with ${constants.emojis.success} to confirm it.
+Otherwise, react with ${constants.emojis.error} to cancel.
+(wait for both emojis to appear before reacting)`,
+        REACTIONROLE_CANCELLED: "Okay, cancelled.",
+        REACTIONROLE_COMPLETE: "Great, everything should be good to go!",
+        REACTIONROLE_OOPSIE:
+          "Seems like the database did an oopsie while trying to save your reaction role. Try doing the exact same thing again and hope for different results.",
+        REACTIONROLE_LOG_AUTHOR: (guild: string) => `Reaction Role | ${guild}`,
         REDIRECT_SHORT_URL: "Short URL",
         REDIRECT_COMMAND_DESCRIPTION:
           "Create a redirect to any website using inv.wtf, e.g. inv.wtf/bot.",
