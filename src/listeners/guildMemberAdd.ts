@@ -80,6 +80,11 @@ export default class GuildMemberAdd extends Listener {
           .catch(() => {});
     }
 
+    const hasScreening = // @ts-ignore
+      newMember.guild.features.includes("PREVIEW_ENABLED") &&
+      // @ts-ignore
+      newMember.guild.features.includes("MEMBER_VERIFICATION_GATE_ENABLED");
+
     if (member.user.bot) {
       const role = member.guild.roles.cache.get(
         member.guild.settings.get("mod.autobotrole", null)
@@ -88,10 +93,7 @@ export default class GuildMemberAdd extends Listener {
         await member.roles
           .add(role, member.guild.language.get("AUTOROLE_REASON") as string)
           .catch(() => {});
-    } else if (
-      // @ts-ignore
-      !member.guild.features.includes("PREVIEW_ENABLED")
-    ) {
+    } else if (!hasScreening) {
       let autoroleId: string;
       const delay = member.guild.settings.get("mod.autorole.waitformsg", false);
       autoroleId = member.guild.settings.get("mod.autorole", null);
