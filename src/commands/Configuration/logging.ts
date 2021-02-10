@@ -59,9 +59,19 @@ export default class Logging extends Command {
         "LOGGING_INVALID_TYPE",
         "moderation, action, members"
       );
-    const [type] = Object.entries(typeMapping).find(([id, names]) =>
+    const [type] = Object.entries(typeMapping).find(([, names]) =>
       names.includes(args.type)
     );
+    const otherTypes = Object.keys(typeMapping).filter((t) => t != type);
+    const otherChannels = otherTypes.map(
+      (t) => message.guild.settings.get(`log.${t}`) as string
+    );
+    if (
+      args.channel &&
+      otherChannels.includes(args.channel.id) &&
+      message.guild.memberCount >= 1000
+    )
+      return await message.error("LOGGING_SIZE_SAME_CHANNEL");
     if (!args.channel) {
       let deleted: any;
       try {
