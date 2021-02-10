@@ -124,13 +124,7 @@ export default class GuildMemberUpdate extends Listener {
       }
     }
 
-    if (
-      ((!newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP") &&
-        !newMember.guild.hasExperiment("07TXLA3vAoAkyZ6M5D2ww")) ||
-        !newMember.guild.settings.has("log.members")) &&
-      !this.client.config.dev
-    )
-      return;
+    if (!newMember.guild.settings.has("log.members")) return;
 
     const isPartial = oldMember.partial && newMember.partial;
     const hasRoleUpdates =
@@ -139,7 +133,6 @@ export default class GuildMemberUpdate extends Listener {
 
     if (
       !newMember.guild.fetchingRoleUpdates &&
-      newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP") &&
       !(!isPartial && !hasRoleUpdates)
     ) {
       newMember.guild.fetchingRoleUpdates = true;
@@ -149,7 +142,6 @@ export default class GuildMemberUpdate extends Listener {
 
     if (
       !newMember.guild.fetchingMemberUpdates &&
-      newMember.guild.hasExperiment("07TXLA3vAoAkyZ6M5D2ww") &&
       !(!isPartial && !hasNickUpdate)
     ) {
       newMember.guild.fetchingMemberUpdates = true;
@@ -197,21 +189,13 @@ export default class GuildMemberUpdate extends Listener {
 
     for (const [, action] of filteredActions) {
       for (const change of action.changes) {
-        if (
-          change.key == "$add" &&
-          (newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP", 1) ||
-            newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP", 3))
-        )
+        if (change.key == "$add")
           await this.logRoleAdd(
             action,
             change,
             newMember.guild
           ).catch(() => {});
-        else if (
-          change.key == "$remove" &&
-          (newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP", 2) ||
-            newMember.guild.hasExperiment("2tWDukMy-gpH_Pf4_BVfP", 3))
-        )
+        else if (change.key == "$remove")
           await this.logRoleRemove(
             action,
             change,
