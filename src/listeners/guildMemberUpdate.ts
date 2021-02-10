@@ -172,8 +172,18 @@ export default class GuildMemberUpdate extends Listener {
       .catch(() => {});
     if (!auditLogActions || !auditLogActions.entries?.size) return;
 
+    const ignoredReasons = [
+      newMember.guild.language.get("REACTIONROLE_ROLE_REASON"),
+      newMember.guild.language.get("REACTIONROLE_ROLE_REMOVE_REASON"),
+    ];
+
     let filteredActions = auditLogActions.entries.filter(
-      (entry) => entry.id > latestId
+      (entry) =>
+        entry.id > latestId &&
+        !(
+          ignoredReasons.includes(entry.reason) &&
+          entry.executor?.id == this.client.user.id
+        )
     );
     if (!filteredActions.size) return;
 
@@ -230,13 +240,19 @@ export default class GuildMemberUpdate extends Listener {
       "utils.badname",
       `John Doe ${newMember.user.discriminator}`
     );
-    const decancerReason = newMember.guild.language.get("AUTODECANCER_REASON");
+    const ignoredReasons = [
+      newMember.guild.language.get("AUTODECANCER_REASON"),
+      newMember.guild.language.get("AUTODEHOIST_REASON"),
+      newMember.guild.language.get("AUTODECANCER_RESET_REASON"),
+      newMember.guild.language.get("AUTODEHOIST_RESET_REASON"),
+      newMember.guild.language.get("AUTODECANCER_USERNAME_REASON"),
+    ];
 
     let filteredActions = auditLogActions.entries.filter(
       (entry) =>
         entry.id > latestId &&
         !(
-          entry.reason == decancerReason &&
+          ignoredReasons.includes(entry.reason) &&
           entry.executor?.id == this.client.user.id
         ) &&
         !!entry.changes.filter(
