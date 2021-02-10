@@ -25,15 +25,5 @@ export default class TicketCreate extends Listener {
         VIEW_CHANNEL: false,
       })
       .catch(() => {});
-    if (!author.isModerator()) {
-      const supportRole = sk1erModule.supportGuild.roles.cache.get(
-        "755809868056756235"
-      );
-      await ticket
-        .send(supportRole.toString(), {
-          allowedMentions: { roles: [supportRole.id] },
-        })
-        .catch(() => {});
-    }
   }
 }

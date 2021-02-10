@@ -1281,6 +1281,8 @@ Running this command without providing a category resets it, therefore disabling
           "Set the name for tickets. There are many variables available for use in the name",
         TICKET_DESCRIPTION_DESCRIPTION:
           "Set the description of the ticket opener embed",
+        TICKET_ALERT_DESCRIPTION:
+          'Set a role that will be "alerted" when a new ticket is opened',
         TICKETS_DISABLED:
           "I have reset the ticket category therefore disabling tickets in this guild",
         TICKETS_ENABLED: (category: string) =>
@@ -1293,6 +1295,9 @@ Running this command without providing a category resets it, therefore disabling
         TICKET_DESCRIPTION_RESET: "Successfully reset the tickets description",
         TICKET_DESCRIPTION_SET:
           "Successfully set the ticket description, sending example...",
+        TICKET_ALERT_RESET: "Successfully reset the ticket alert role",
+        TICKET_ALERT_SET: (role: string) =>
+          `Successfully set the ticket alert role. I will ping ${role} when a ticket is opened.`,
         TICKET_DESCRIPTION_EXAMPLE_SUBJECT: "This is an example, wow!",
         TICKET_CHANNEL_TOPIC: (author: string, id: string, subject: string) =>
           subject

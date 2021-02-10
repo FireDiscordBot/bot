@@ -1,4 +1,7 @@
-import { categoryChannelConverter } from "../../../lib/util/converters";
+import {
+  categoryChannelConverter,
+  roleConverter,
+} from "../../../lib/util/converters";
 import { FireMessage } from "../../../lib/extensions/message";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
@@ -6,7 +9,7 @@ import { MessageEmbed } from "discord.js";
 import { v4 as uuidv4 } from "uuid";
 import { readFileSync } from "fs";
 
-const validActions = ["category", "limit", "name", "description"];
+const validActions = ["category", "limit", "name", "description", "alert"];
 
 export default class Tickets extends Command {
   words: string[];
@@ -22,14 +25,14 @@ export default class Tickets extends Command {
         {
           id: "action",
           type: validActions,
-          readableType: "category|limit|name|description",
+          readableType: "category|limit|name|description|alert",
           default: null,
           required: false,
         },
         {
           id: "value",
           type: "string",
-          readableType: "category|number|string",
+          readableType: "category|number|role|string",
           required: false,
           match: "rest",
           default: null,
@@ -43,7 +46,7 @@ export default class Tickets extends Command {
   async exec(
     message: FireMessage,
     args: {
-      action?: "category" | "limit" | "name" | "description";
+      action?: "category" | "limit" | "name" | "description" | "alert";
       value?: string;
     }
   ) {
@@ -123,6 +126,17 @@ export default class Tickets extends Command {
           return await message.channel.send(embed);
         }
       }
+      case "alert": {
+        if (!args.value) {
+          message.guild.settings.delete("tickets.alert");
+          return await message.success("TICKET_ALERT_RESET");
+        } else {
+          const role = await roleConverter(message, args.value);
+          if (!role) return;
+          message.guild.settings.set("tickets.alert", role.id);
+          await message.success("TICKET_ALERT_SET", role.toString());
+        }
+      }
     }
   }
 
@@ -150,6 +164,14 @@ export default class Tickets extends Command {
       .addField(
         `${message.util.parsed?.prefix}ticket name [<name>]`,
         message.language.get("TICKET_NAME_DESCRIPTION")
+      )
+      .addField(
+        `${message.util.parsed?.prefix}ticket description [<description>]`,
+        message.language.get("TICKET_DESCRIPTION_DESCRIPTION")
+      )
+      .addField(
+        `${message.util.parsed?.prefix}ticket alert [<role>]`,
+        message.language.get("TICKET_ALERT_DESCRIPTION")
       );
     return await message.channel.send(embed);
   }

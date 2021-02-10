@@ -591,7 +591,17 @@ export class FireGuild extends Guild {
       .addField(this.language.get("SUBJECT"), subject);
     const description = this.settings.get("tickets.description");
     if (description) embed.setDescription(description);
-    const opener = await ticket.send(embed).catch(() => {});
+    const alertId = this.settings.get("tickets.alert");
+    const alert = this.roles.cache.get(alertId);
+    let opener: FireMessage;
+    if (alert && !author.isModerator())
+      opener = (await ticket
+        .send(alert.toString(), {
+          allowedMentions: { roles: [alertId] },
+          embed,
+        })
+        .catch(() => {})) as FireMessage;
+    else opener = (await ticket.send(embed).catch(() => {})) as FireMessage;
     channels.push(ticket);
     this.settings.set(
       "tickets.channels",
