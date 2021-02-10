@@ -1,6 +1,7 @@
 import humanizeDuration = require("humanize-duration");
 
 export type ActionLogType =
+  | "system"
   | "public_toggle"
   | "purge"
   | "linkfilter"
@@ -18,6 +19,7 @@ export type ActionLogType =
   | "pins_add"
   | "reactrole";
 export type ModLogType =
+  | "system"
   | "warn"
   | "ban"
   | "unban"
@@ -31,6 +33,7 @@ export type ModLogType =
   | "blacklist"
   | "unblacklist";
 export type MemberLogType =
+  | "system"
   | "join"
   | "leave"
   | "roles_add"
