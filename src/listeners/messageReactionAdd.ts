@@ -44,15 +44,7 @@ export default class MessageReactionAdd extends Listener {
         const member = await guild.members.fetch(user).catch(() => {});
         if (member)
           await member.roles
-            .add(
-              role,
-              guild.language.get(
-                "REACTIONROLE_ROLE_REASON",
-                emoji,
-                message.id,
-                (message.channel as TextChannel)?.name || "???"
-              ) as string
-            )
+            .add(role, guild.language.get("REACTIONROLE_ROLE_REASON") as string)
             .catch(() => {});
       }
     }

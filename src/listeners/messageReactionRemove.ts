@@ -30,12 +30,7 @@ export default class MessageReactionRemove extends Listener {
         await member.roles
           .remove(
             roles,
-            guild.language.get(
-              "REACTIONROLE_ROLE_REMOVE_REASON",
-              emoji,
-              messageReaction.message?.id,
-              (messageReaction.message?.channel as TextChannel)?.name || "???"
-            ) as string
+            guild.language.get("REACTIONROLE_ROLE_REMOVE_REASON") as string
           )
           .catch(() => {});
     }
