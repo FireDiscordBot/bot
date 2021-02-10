@@ -995,18 +995,8 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
         DELRANK_COMMAND_DESCRIPTION:
           "Remove a rank from the list of joinable roles.",
-        REACTIONROLE_ROLE_REASON: (
-          emoji: string,
-          message: string,
-          channel: string
-        ) =>
-          `Adding reaction role for emoji ${emoji} on message with id ${message} in channel ${channel}`,
-        REACTIONROLE_ROLE_REMOVE_REASON: (
-          emoji: string,
-          message: string,
-          channel: string
-        ) =>
-          `Removing reaction role for emoji ${emoji} on message with id ${message} in channel ${channel}`,
+        REACTIONROLE_ROLE_REASON: "Adding reaction role",
+        REACTIONROLE_ROLE_REMOVE_REASON: "Removing reaction role",
         REACTIONROLE_COMMAND_DESCRIPTION:
           "Setup roles users will receive when reacting to a message with a specific emoji",
         REACTIONROLE_INITIAL: (role: string) =>
