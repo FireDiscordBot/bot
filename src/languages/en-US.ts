@@ -750,9 +750,17 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
         LOGGING_COMMAND_DESCRIPTION: "Set the channel(s) for logging",
         LOGGING_INVALID_TYPE: (types: string) =>
           `That is not a valid log type! Current types are ${types}`,
+        LOGGING_SIZE_SAME_CHANNEL:
+          "Due to this servers size, you cannot set multiple log types in the same channel",
         LOGGING_DISABLED_MODERATION: "Moderation logs have been disabled.",
         LOGGING_DISABLED_ACTION: "Action logs have been disabled.",
         LOGGING_DISABLED_MEMBERS: "Member logs have been disabled.",
+        LOGGING_MODERATION_DISABLED_MEMBERCOUNT:
+          "Moderation logs have been disabled due to this servers size. You can re-enable them with the `log` command but you must choose separate channels for each log type",
+        LOGGING_ACTION_DISABLED_MEMBERCOUNT:
+          "Action logs have been disabled due to this servers size. You can re-enable them with the `log` command but you must choose separate channels for each log type",
+        LOGGING_MEMBERS_DISABLED_MEMBERCOUNT:
+          "Member logs have been disabled due to this servers size. You can re-enable them with the `log` command but you must choose separate channels for each log type",
         LOGGING_ENABLED_MODERATION:
           "Moderation logs have been enabled! Moderation actions such as warnings, mutes, kicks, bans etc. will be logged in your chosen channel.",
         LOGGING_ENABLED_ACTION:

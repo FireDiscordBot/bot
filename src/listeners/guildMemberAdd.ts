@@ -8,6 +8,8 @@ const {
   regexes: { joinleavemsgs },
 } = constants;
 
+const logTypes = ["moderation", "action", "members"];
+
 export default class GuildMemberAdd extends Listener {
   constructor() {
     super("guildMemberAdd", {
@@ -81,9 +83,9 @@ export default class GuildMemberAdd extends Listener {
     }
 
     const hasScreening = // @ts-ignore
-      newMember.guild.features.includes("PREVIEW_ENABLED") &&
+      member.guild.features.includes("PREVIEW_ENABLED") &&
       // @ts-ignore
-      newMember.guild.features.includes("MEMBER_VERIFICATION_GATE_ENABLED");
+      member.guild.features.includes("MEMBER_VERIFICATION_GATE_ENABLED");
 
     if (member.user.bot) {
       const role = member.guild.roles.cache.get(
@@ -114,6 +116,29 @@ export default class GuildMemberAdd extends Listener {
 
     if (member.premium && member.guild.id == this.client.config.fireGuildId)
       await member.roles.add("564060922688176139").catch(() => {});
+
+    if (member.guild.memberCount >= 1000) {
+      const logChannelIds = logTypes.map((type) =>
+        member.guild.settings.get(`log.${type}`)
+      );
+      logTypes.forEach((type, index) => {
+        const id = logChannelIds[index];
+        if (!id) return;
+        const isMulti = logChannelIds.filter((lid) => lid == id).length > 1;
+        if (isMulti) {
+          const message = member.guild.language.get(
+            `LOGGING_${type.toUpperCase()}_DISABLED_MEMBERCOUNT`
+          ) as string;
+          if (type == "moderation")
+            member.guild.modLog(message, "system").catch(() => {});
+          else if (type == "action")
+            member.guild.actionLog(message, "system").catch(() => {});
+          else if (type == "members")
+            member.guild.memberLog(message, "system").catch(() => {});
+          member.guild.settings.delete(`log.${type}`);
+        }
+      });
+    }
 
     const language = member.guild.language;
 
