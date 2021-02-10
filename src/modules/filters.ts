@@ -186,6 +186,7 @@ export default class Filters extends Module {
           continue;
         await deleteFail(e);
       }
+      if (message.guild.logIgnored.includes(message.channel.id)) continue;
       const embed = new MessageEmbed()
         .setColor(message.member?.displayHexColor || "#ffffff")
         .setTimestamp()
@@ -358,6 +359,7 @@ export default class Filters extends Module {
         reason: `Nobody wants to send you money on PayPal, shut up.`,
       })
       .catch(() => {});
+    if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp()
@@ -393,6 +395,7 @@ export default class Filters extends Module {
         reason: `YouTube video link found in message`,
       })
       .catch(() => {});
+    if (message.guild.logIgnored.includes(message.channel.id)) return;
     const video = await this.client.util
       .getYouTubeVideo(match.groups.video)
       .catch(() => {});
@@ -480,6 +483,7 @@ export default class Filters extends Module {
         reason: `YouTube channel link found in message`,
       })
       .catch(() => {});
+    if (message.guild.logIgnored.includes(message.channel.id)) return;
     const channel = await this.client.util
       .getYouTubeChannel(match.groups.channel)
       .catch(() => {});
@@ -560,6 +564,7 @@ export default class Filters extends Module {
           : `Twitch channel link found in message`,
       })
       .catch(() => {});
+    if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp()
@@ -597,6 +602,7 @@ export default class Filters extends Module {
         reason: `Twitter link found in message`,
       })
       .catch(() => {});
+    if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp()
@@ -632,6 +638,7 @@ export default class Filters extends Module {
         reason: `Shortened link found in message`,
       })
       .catch(() => {});
+    if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp()

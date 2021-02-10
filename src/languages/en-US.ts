@@ -759,6 +759,13 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           "Action logs have been enabled! Actions such as message edits/deletes, filtered messages, channel creates/deletes etc. will be logged in your chosen channel.",
         LOGGING_ENABLED_MEMBERS:
           "Member logs have been enabled! Actions such as member joins & leaves will be logged in your chosen channel.",
+        LOGIGNORE_COMMAND_DESCRIPTION: "Ignore specific channels from logs",
+        LOGIGNORE_LIST_CURRENT: (channels: string[]) =>
+          channels.length
+            ? `Currently ignored channels are
+
+${channels.join(", ")}`
+            : "No channels are currently ignored from logging",
         LYRICS_COMMAND_DESCRIPTION:
           'Get the lyrics for a song. (For best results, use the format "artist_name song_title")',
         LYRICS_NO_QUERY:

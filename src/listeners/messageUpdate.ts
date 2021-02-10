@@ -77,7 +77,8 @@ export default class MessageUpdate extends Listener {
       // (since it is sliced to prevent huge embeds),
       // don't bother logging the edit
       before.content.slice(0, 501) + "..." !=
-        after.content.slice(0, 501) + "..."
+        after.content.slice(0, 501) + "..." &&
+      !after.guild.logIgnored.includes(after.channel.id)
     ) {
       const embed = new MessageEmbed()
         .setColor(after.member.displayHexColor || "#ffffff")

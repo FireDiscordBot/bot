@@ -20,7 +20,10 @@ export default class MessageDelete extends Listener {
 
     if (message.partial || message.author.bot) return;
 
-    if (message.guild?.settings.has("log.action")) {
+    if (
+      message.guild?.settings.has("log.action") &&
+      !message.guild.logIgnored.includes(message.channel.id)
+    ) {
       const description = message.guild.language.get(
         "MSGDELETELOG_DESCRIPTION",
         message.author.toMention(),

@@ -84,6 +84,10 @@ export class FireGuild extends Guild {
     return this.roles.cache.get(id);
   }
 
+  get logIgnored(): string[] {
+    return this.settings.get("utils.logignore", []);
+  }
+
   _patch(data: APIGuild) {
     delete data.members;
     delete data.presences;
