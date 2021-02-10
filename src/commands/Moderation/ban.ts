@@ -33,7 +33,16 @@ export default class Ban extends Command {
           match: "rest",
         },
       ],
-      aliases: ["banish", "begone", "gtfo", "410", "perish", "bonk", "bean"],
+      aliases: [
+        "banish",
+        "begone",
+        "gtfo",
+        "410",
+        "perish",
+        "bonk",
+        "bean",
+        "bam",
+      ],
       restrictTo: "guild",
       moderatorOnly: true,
     });
