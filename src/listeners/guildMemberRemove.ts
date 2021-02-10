@@ -46,10 +46,27 @@ export default class GuildMemberRemove extends Listener {
             null
           ) as string
         )
-      )
-        await channel.send(
-          member.guild.language.get("TICKET_AUTHOR_LEFT", member.toString())
-        );
+      ) {
+        const history = await channel.messages
+          .fetch({ limit: 20 })
+          .catch(() => {});
+        if (
+          history &&
+          !history.filter((message) => message.author.id == member.id).size
+        )
+          await member.guild.closeTicket(
+            channel,
+            member.guild.me as FireMember,
+            member.guild.language.get(
+              "TICKET_AUTHOR_LEFT",
+              member.toString()
+            ) as string
+          );
+        else
+          await channel.send(
+            member.guild.language.get("TICKET_AUTHOR_LEFT", member.toString())
+          );
+      }
     }
 
     const language = member.guild.language;
