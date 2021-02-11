@@ -1,10 +1,14 @@
-import { GuildAuditLogsEntry, MessageEmbed, TextChannel } from "discord.js";
+import {
+  GuildAuditLogsEntry,
+  AuditLogChange,
+  MessageEmbed,
+  TextChannel,
+} from "discord.js";
 import { FireMember } from "../../lib/extensions/guildmember";
 import RolePersist from "../commands/Premium/rolepersist";
+import { FireGuild } from "../../lib/extensions/guild";
 import { Listener } from "../../lib/util/listener";
 import Sk1er from "../modules/sk1er";
-import { FireGuild } from "../../lib/extensions/guild";
-import { AuditLogChange } from "discord.js";
 
 export default class GuildMemberUpdate extends Listener {
   constructor() {
@@ -23,7 +27,9 @@ export default class GuildMemberUpdate extends Listener {
       newMember.guild.mutes.has(newMember.id) &&
       !newMember.roles.cache.has(newMember.guild.muteRole.id)
     ) {
-      if (+new Date() < newMember.guild.mutes.get(newMember.id))
+      await this.client.util.sleep(5000); // wait a bit to ensure it isn't from being unmuted
+      const until = newMember.guild.mutes.get(newMember.id);
+      if (!until || +new Date() < until)
         await newMember.roles.add(newMember.guild.muteRole).catch(() => {});
     }
 
