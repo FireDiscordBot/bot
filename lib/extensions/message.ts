@@ -157,7 +157,10 @@ export class FireMessage extends Message {
         destination instanceof TextChannel
           ? await destination.fetchWebhooks().catch(() => {})
           : null;
-      if (hooks && !hook) hook = hooks?.filter((hook) => !!hook.token)?.first();
+      if (hooks && !hook)
+        hook = hooks
+          ?.filter((hook) => !!hook.token && hook.channelID == destination.id)
+          ?.first();
       if (!hook && destination instanceof TextChannel) {
         hook = await destination
           .createWebhook(`Fire Quotes #${destination.name}`, {
@@ -176,7 +179,11 @@ export class FireMessage extends Message {
     // if hook doesn't exist by now, something went wrong
     // and it's best to just ignore it
     if (!hook) return;
-    this.guild?.quoteHooks.set(this.channel.id, hook);
+    if (hook instanceof Webhook && hook.channelID != destination.id) {
+      this.guild.quoteHooks.delete(destination.id);
+      return;
+    }
+    this.guild?.quoteHooks.set(destination.id, hook);
     let content = this.content;
     if (content) {
       let maskedMatch: RegExpExecArray;
