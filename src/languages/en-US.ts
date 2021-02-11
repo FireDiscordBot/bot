@@ -594,7 +594,7 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
 [Aether](https://git.farfrom.earth/aero/aether)
 `,
         HELP_LINKS_NAME: "Useful Links",
-        HELP_LINKS_VALUE: `[Website](${constants.url.website}) - [Terms of Service](${constants.url.terms}) - [Privacy Policy](${constants.url.privacy}) - [Status](${constants.url.fireStatus})`,
+        HELP_LINKS_VALUE: `[Website](${constants.url.website}) - [Support](${constants.url.support}) - [Terms of Service](${constants.url.terms}) - [Privacy Policy](${constants.url.privacy}) - [Status](${constants.url.fireStatus}) - [Premium](${constants.url.premium})`,
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" for more info about the command | Cluster ID: ${cluster}`,
         INVCREATE_LOG_AUTHOR: (guild: string) => `Invite Create | ${guild}`,

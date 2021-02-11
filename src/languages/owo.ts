@@ -507,7 +507,7 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
 [Aether](https://git.farfrom.earth/aero/aether)
 `,
         HELP_LINKS_NAME: "Usefuw Winks",
-        HELP_LINKS_VALUE: `[Website](${constants.url.website}) - [Tewms of Sewvice](${constants.url.terms}) - [Pwivacy Powicy](${constants.url.privacy}) - [Status](${constants.url.fireStatus})`,
+        HELP_LINKS_VALUE: `[Website](${constants.url.website}) - [Suppowt](${constants.url.support}) - [Tewms of Sewvice](${constants.url.terms}) - [Pwivacy Powicy](${constants.url.privacy}) - [Status](${constants.url.fireStatus}) - [Pwemium](${constants.url.premium})`,
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" fow mowe info about the command | Cwustew ID: ${cluster}`,
         INVCREATE_LOG_AUTHOR: (guild: string) => `Invite Cweate | ${guild}`,

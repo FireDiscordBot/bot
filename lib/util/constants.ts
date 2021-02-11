@@ -122,6 +122,8 @@ export const constants = {
     website: "https://fire.gaminggeek.dev/",
     terms: "https://inv.wtf/terms",
     privacy: "https://inv.wtf/privacy",
+    premium: "https://inv.wtf/premium",
+    support: "https://inv.wtf/fire",
     // selfhosted instance of https://git.farfrom.earth/aero/imagegen (but with profile removed since I don't need it)
     imageGen: "https://gen.inv.wtf/",
     supportedHaste: ["hastebin.com", "hasteb.in", "hst.sh"],
