@@ -583,16 +583,20 @@ export class FireMember extends GuildMember {
       .createModLogEntry(this, moderator, "unmute", reason)
       .catch(() => {});
     if (!logEntry) return "entry";
+    const until = this.guild.mutes.get(this.id);
+    this.guild.mutes.delete(this.id);
     const unmuted = await this.roles
       .remove(this.guild.muteRole, reason)
       .catch(() => {});
     if (!unmuted) {
+      // ensures user can be properly unmuted
+      // if moderator retries unmute
+      this.guild.mutes.set(this.id, until);
       const deleted = await this.guild
         .deleteModLogEntry(logEntry)
         .catch(() => false);
       return deleted ? "unmute" : "unmute_and_entry";
     }
-    this.guild.mutes.delete(this.id);
     const dbremove = await this.client.db
       .query("DELETE FROM mutes WHERE gid=$1 AND uid=$2;", [
         this.guild.id,
