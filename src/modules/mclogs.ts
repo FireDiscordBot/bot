@@ -280,10 +280,8 @@ export default class MCLogs extends Module {
           try {
             const uuid = await this.client.util.nameToUUID(user[1]);
             if (!uuid) {
-              const solution =
-                "\n- It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
-              if (possibleSolutions) possibleSolutions += solution;
-              else possibleSolutions = `Possible solutions:${solution}`;
+              possibleSolutions =
+                "It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
             }
           } catch {}
         }
