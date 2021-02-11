@@ -262,16 +262,6 @@ export default class MCLogs extends Module {
         (line) =>
           !mcLogFilters.some((filter) => line.trim().includes(filter.trim()))
       )
-      .join("\n")
-      .split("[Client thread/")
-      .filter(
-        (line) =>
-          !mcLogFilters.some((filter) => line.trim().includes(filter.trim()))
-      )
-      .join("[Client thread/")
-      .split("\n\n")
-      // hopefully remove double (or more) empty lines
-      .filter((line) => !!line.trim())
       .join("\n");
 
     if (this.hasLogText(text)) {
