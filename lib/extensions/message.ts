@@ -151,32 +151,43 @@ export class FireMessage extends Message {
     quoter: FireMember,
     webhook?: WebhookClient
   ) {
-    const hooks =
-      destination instanceof TextChannel
-        ? await destination.fetchWebhooks().catch(() => {})
-        : null;
     let hook: Webhook | WebhookClient = webhook;
-    if (hooks && !hook) hook = hooks?.filter((hook) => !!hook.token)?.first();
-    if (!hook && destination instanceof TextChannel) {
-      hook = await destination
-        .createWebhook(`Fire Quotes #${destination.name}`, {
-          avatar: this.client.user.displayAvatarURL({
-            size: 2048,
-            format: "png",
-          }),
-          reason: (destination.guild as FireGuild).language.get(
-            "QUOTE_WEBHOOK_CREATE_REASON"
-          ) as string,
-        })
-        .catch(() => null);
-      if (!hook) return await this.embedQuote(destination, quoter);
-    }
+    if (!this.guild?.quoteHooks.has(destination.id)) {
+      const hooks =
+        destination instanceof TextChannel
+          ? await destination.fetchWebhooks().catch(() => {})
+          : null;
+      if (hooks && !hook) hook = hooks?.filter((hook) => !!hook.token)?.first();
+      if (!hook && destination instanceof TextChannel) {
+        hook = await destination
+          .createWebhook(`Fire Quotes #${destination.name}`, {
+            avatar: this.client.user.displayAvatarURL({
+              size: 2048,
+              format: "png",
+            }),
+            reason: (destination.guild as FireGuild).language.get(
+              "QUOTE_WEBHOOK_CREATE_REASON"
+            ) as string,
+          })
+          .catch(() => null);
+        if (!hook) return await this.embedQuote(destination, quoter);
+      }
+    } else hook = this.guild?.quoteHooks.get(destination.id);
     // if hook doesn't exist by now, something went wrong
     // and it's best to just ignore it
     if (!hook) return;
+    this.guild?.quoteHooks.set(this.channel.id, hook);
     let content: string = null;
     if (this.content) {
-      content = this.content.replace(/\[/gim, "\\[").replace(/\]/gim, "\\]");
+      let maskedMatch: RegExpExecArray;
+      while ((maskedMatch = regexes.maskedLink.exec(this.content))) {
+        const { name, link } = maskedMatch.groups;
+        if (name && link && !this.webhookID && !this.author?.isSuperuser())
+          content = this.content.replace(
+            maskedMatch[0],
+            `\\[${name}\\]\\(${link}\\)`
+          );
+      }
       const filters = this.client.getModule("filters") as Filters;
       content = filters.runReplace(content, quoter);
     }
@@ -213,6 +224,10 @@ export class FireMessage extends Message {
         allowedMentions: this.client.options.allowedMentions,
       })
       .catch(async () => {
+        // this will ensure deleted webhooks are deleted
+        // but also allow webhooks to be refreshed
+        // even if the cached one still exists
+        this.guild?.quoteHooks.delete(destination.id);
         return await this.embedQuote(destination, quoter);
       });
   }

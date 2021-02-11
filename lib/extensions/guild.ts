@@ -2,11 +2,13 @@ import {
   Util,
   Role,
   Guild,
+  Webhook,
   Collection,
   Structures,
   TextChannel,
   MessageEmbed,
   VoiceChannel,
+  WebhookClient,
   CategoryChannel,
   MessageAttachment,
   MessageEmbedOptions,
@@ -36,6 +38,7 @@ const parseUntil = (time?: string) => {
 };
 
 export class FireGuild extends Guild {
+  quoteHooks: Collection<string, Webhook | WebhookClient>;
   reactionRoles: Collection<string, ReactionRoleData[]>;
   persistedRoles: Collection<string, string[]>;
   inviteRoles: Collection<string, string>;
@@ -59,6 +62,7 @@ export class FireGuild extends Guild {
     this.reactionRoles = new Collection();
     this.inviteRoles = new Collection();
     this.fetchingMemberUpdates = false;
+    this.quoteHooks = new Collection();
     this.fetchingRoleUpdates = false;
     this.vcRoles = new Collection();
     this.invites = new Collection();

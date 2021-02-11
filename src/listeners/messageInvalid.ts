@@ -137,6 +137,7 @@ export default class MessageInvalid extends Listener {
                 permissions: message.guild
                   ? message.member?.permissions.bitfield || 0
                   : 0,
+                id: message.channel.id,
               } as PartialQuoteDestination,
             })
           )

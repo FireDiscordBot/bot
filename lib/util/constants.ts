@@ -128,6 +128,7 @@ export const constants = {
   },
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
   regexes: {
+    maskedLink: /\[(?<name>.+)\]\((?<link>https?:\/\/.+)\)/gim,
     joinleavemsgs: {
       user: /{user}/gim,
       mention: /{user\.mention}/gim,
