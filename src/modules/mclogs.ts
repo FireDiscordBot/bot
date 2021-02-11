@@ -87,7 +87,7 @@ export default class MCLogs extends Module {
       if (log.includes(err) && !currentSolutions.includes(`- ${sol}`))
         currentSolutions.push(`- ${sol}`);
     }
-    if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_M5$/im))
+    if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_M5(?:\.jar)?$/im))
       currentSolutions.push("- Update Optifine to the latest version, M5");
 
     for (const [rec, sol] of Object.entries(this.solutions.recommendations)) {
@@ -269,8 +269,8 @@ export default class MCLogs extends Module {
           !mcLogFilters.some((filter) => line.trim().includes(filter.trim()))
       )
       .join("[Client thread/")
-      .split("\n")
-      // remove empty lines
+      .split("\n\n")
+      // hopefully remove double (or more) empty lines
       .filter((line) => !!line.trim())
       .join("\n");
 
