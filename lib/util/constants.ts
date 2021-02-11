@@ -246,8 +246,12 @@ export const constants = {
     },
   },
   mcLogFilters: [
+    "ERROR]: The mcmod.info file in [1.8.9] Powns ToggleSneak - 3.0.jar cannot be parsed as valid JSON. It will be ignored",
     "Calling tweak class net.minecraftforge.fml.relauncher.CoreModManager$FMLPluginWrapper",
     "[Client thread/WARN]: =============================================================",
+    "at net.minecraft.scoreboard.Scoreboard.func_96511_d(SourceFile:229) ~[auo.class:?]",
+    "at net.minecraft.scoreboard.Scoreboard.func_96519_k(SourceFile:179) ~[auo.class:?]",
+    "at net.minecraft.client.Minecraft.func_99999_d(Minecraft.java:349) [ave.class:?]",
     "MOD HAS DIRECT REFERENCE System.exit() THIS IS NOT ALLOWED REROUTING TO FML!",
     "[net.canelex.perspectivemod.asm.OrientCameraVisitor:visitFieldInsn:37]:",
     "[me.powns.lavafix.asm.TryPlaceContainedLiquidVisitor:visitMethodInsn:15",
@@ -281,28 +285,6 @@ export const constants = {
     "[main/DEBUG]:",
     "[main/TRACE]:",
     ": mcpatcher/",
-    `ERROR]: The mcmod.info file in [1.8.9] Powns ToggleSneak - 3.0.jar cannot be parsed as valid JSON. It will be ignored
-com.google.gson.JsonSyntaxException: com.google.gson.stream.MalformedJsonException: Unterminated array at line 11 column 5`,
-    `FATAL]: Error executing task
-java.util.concurrent.ExecutionException: java.lang.ArrayIndexOutOfBoundsException
-	at java.util.concurrent.FutureTask.report(FutureTask.java:122) ~[?:1.8.0_51]
-	at java.util.concurrent.FutureTask.get(FutureTask.java:192) ~[?:1.8.0_51]
-	at net.minecraft.util.Util.func_181617_a(Util.java:20) [g.class:?]
-	at net.minecraft.client.Minecraft.func_71411_J(Minecraft.java:1014) [ave.class:?]
-	at net.minecraft.client.Minecraft.func_99999_d(Minecraft.java:349) [ave.class:?]
-	at net.minecraft.client.main.Main.main(SourceFile:124) [Main.class:?]`,
-    `FATAL]: Error executing task
-java.util.concurrent.ExecutionException: java.lang.NullPointerException
-	at java.util.concurrent.FutureTask.report(FutureTask.java:122) ~[?:1.8.0_51]
-	at java.util.concurrent.FutureTask.get(FutureTask.java:192) ~[?:1.8.0_51]
-	at net.minecraft.util.Util.func_181617_a(Util.java:20) [g.class:?]
-	at net.minecraft.client.Minecraft.func_71411_J(Minecraft.java:1014) [ave.class:?]
-	at net.minecraft.client.Minecraft.func_99999_d(Minecraft.java:349) [ave.class:?]
-	at net.minecraft.client.main.Main.main(SourceFile:124) [Main.class:?]`,
-    `Caused by: java.lang.NullPointerException
-	at net.minecraft.scoreboard.Scoreboard.func_96511_d(SourceFile:229) ~[auo.class:?]`,
-    `Caused by: java.lang.NullPointerException
-	at net.minecraft.scoreboard.Scoreboard.func_96519_k(SourceFile:179) ~[auo.class:?]`,
   ],
 };
 
