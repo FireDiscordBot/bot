@@ -180,6 +180,7 @@ export class Fire extends AkairoClient {
         : "./src/commands/",
       commandUtil: true,
       handleEdits: true,
+      defaultCooldown: 5000,
       aliasReplacement: /-/im,
       automateCategories: true,
       commandUtilLifetime: 30000,
@@ -194,6 +195,7 @@ export class Fire extends AkairoClient {
             ]
           : ["$", "fire "];
       },
+      ignoreCooldown: (message: FireMessage) => message.author?.isSuperuser(),
     });
 
     this.commandHandler.on(
