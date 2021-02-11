@@ -105,6 +105,8 @@ export default class Carbon extends Command {
         },
       ],
       restrictTo: "all",
+      typing: true,
+      lock: "user",
     });
   }
 
