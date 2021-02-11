@@ -177,13 +177,13 @@ export class FireMessage extends Message {
     // and it's best to just ignore it
     if (!hook) return;
     this.guild?.quoteHooks.set(this.channel.id, hook);
-    let content: string = null;
+    let content = this.content;
     if (this.content) {
       let maskedMatch: RegExpExecArray;
       while ((maskedMatch = regexes.maskedLink.exec(this.content))) {
         const { name, link } = maskedMatch.groups;
         if (name && link && !this.webhookID && !this.author?.isSuperuser())
-          content = this.content.replace(
+          content = content.replace(
             maskedMatch[0],
             `\\[${name}\\]\\(${link}\\)`
           );
