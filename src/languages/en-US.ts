@@ -22,6 +22,10 @@ export default class enUS extends Language {
           "That is not a valid member, role or channel. Make sure the name or ID you're providing is valid.",
         INVALID_MESSAGE:
           "Message not found! Make sure you're giving a valid ID/link. If giving an ID, it must be from this channel.",
+        PREVIEW_NOT_FOUND:
+          "Preview not found for that ID, make sure the guild is discoverable and the ID is valid",
+        PREVIEW_NOT_DISCOVERABLE:
+          "Preview found for that ID but it is not considered public (discoverable/public command) therefore I cannot show it",
         HASTE_INVALID_DOMAIN: (supported: string) =>
           `That is not a valid haste domain. Currently supported domains are ${supported}.`,
         HASTE_INVALID_URL: "That doesn't seem to be a valid haste URL.",
@@ -100,6 +104,7 @@ export default class enUS extends Language {
         REGION: "Region",
         REASON: "Reason",
         JOINED: "Joined",
+        ONLINE: "Online",
         CHANNEL: "Channel",
         MESSAGE: "Message",
         SUBJECT: "Subject",

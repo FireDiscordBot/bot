@@ -21,6 +21,10 @@ import {
   memberTypeCaster,
 } from "../src/arguments/member";
 import { memberRoleChannelCategoryTypeCaster } from "../src/arguments/memberRoleChannelCategory";
+import {
+  previewSilentTypeCaster,
+  previewTypeCaster,
+} from "../src/arguments/preview";
 import { userMemberSnowflakeTypeCaster } from "../src/arguments/userMemberSnowflake";
 import { memberRoleChannelTypeCaster } from "../src/arguments/memberRoleChannel";
 import { roleSilentTypeCaster, roleTypeCaster } from "../src/arguments/role";
@@ -231,6 +235,7 @@ export class Fire extends AkairoClient {
       categorySilent: categoryChannelSilentTypeCaster,
       textChannelSilent: textChannelSilentTypeCaster,
       guildChannelSilent: guildChannelSilentTypeCaster,
+      previewSilent: previewSilentTypeCaster,
       memberSilent: memberSilentTypeCaster,
       guildChannel: guildChannelTypeCaster,
       "user|member": userMemberTypeCaster,
@@ -242,6 +247,7 @@ export class Fire extends AkairoClient {
       codeblock: codeblockTypeCaster,
       language: languageTypeCaster,
       listener: listenerTypeCaster,
+      preview: previewTypeCaster,
       boolean: booleanTypeCaster,
       command: commandTypeCaster,
       message: messageTypeCaster,

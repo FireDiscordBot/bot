@@ -1,11 +1,12 @@
 import { humanize, zws, constants } from "../../../lib/util/constants";
+import { snowflakeConverter } from "../../../lib/util/converters";
 import { FireMember } from "../../../lib/extensions/guildmember";
 import { FireMessage } from "../../../lib/extensions/message";
 import { FireGuild } from "../../../lib/extensions/guild";
 import { FireUser } from "../../../lib/extensions/user";
+import { GuildPreview, MessageEmbed } from "discord.js";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
-import { MessageEmbed } from "discord.js";
 import * as moment from "moment";
 
 const {
@@ -18,18 +19,27 @@ export default class GuildCommand extends Command {
       description: (language: Language) =>
         language.get("GUILD_COMMAND_DESCRIPTION"),
       clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
+      args: [
+        {
+          id: "guild",
+          type: "preview",
+          default: undefined,
+          required: false,
+        },
+      ],
       aliases: ["guildinfo", "infoguild", "serverinfo", "infoserver", "server"],
       enableSlashCommand: true,
       restrictTo: "guild",
     });
   }
 
-  getBadges(guild: FireGuild, author?: FireMember | FireUser) {
+  getBadges(guild: FireGuild | GuildPreview, author?: FireMember | FireUser) {
     const bad = author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
     const emojis: string[] = [];
 
     if (guild.id == "564052798044504084") emojis.push(badges.FIRE_ADMIN);
-    if (guild.premium) emojis.push(badges.FIRE_PREMIUM);
+    if (this.client.util?.premium.has(guild.id))
+      emojis.push(badges.FIRE_PREMIUM);
     if (guild.features.includes("PARTNERED"))
       emojis.push(bad ? badlyDrawnBadges.PARTNERED : badges.PARTNERED);
     if (guild.features.includes("VERIFIED"))
@@ -42,45 +52,71 @@ export default class GuildCommand extends Command {
     return emojis;
   }
 
-  async getInfo(message: FireMessage, guild: FireGuild) {
+  async getInfo(message: FireMessage, guild: FireGuild | GuildPreview) {
+    if (guild instanceof FireGuild) await guild.fetch(); // gets approximatePresenceCount
+
     const bad = message.author.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
+    const language =
+      guild instanceof FireGuild ? guild.language : message.language;
+    const guildSnowflake = await snowflakeConverter(message, guild.id);
     const created =
       humanize(
-        moment(guild.createdAt).diff(moment()),
-        guild.language.id.split("-")[0]
-      ) + guild.language.get("AGO");
-    if (!guild.members.cache.has(guild.ownerID))
+        moment(
+          guild instanceof FireGuild ? guild.createdAt : guildSnowflake.date
+        ).diff(moment()),
+        language.id.split("-")[0]
+      ) + language.get("AGO");
+    if (guild instanceof FireGuild && !guild.members.cache.has(guild.ownerID))
       await guild.members.fetch(guild.ownerID).catch(() => {});
     let messages = [
       message.language.get(
         "GUILD_CREATED_AT",
-        guild.owner.joinedTimestamp - message.guild.createdTimestamp < 5000
+        guild instanceof FireGuild &&
+          guild.owner.joinedTimestamp - guild.createdTimestamp < 5000
           ? guild.owner?.user?.discriminator != null
             ? guild.owner
             : "Unknown#0000"
           : null,
         created
       ),
-      `**${message.language.get(
-        "MEMBERS"
-      )}:** ${guild.memberCount.toLocaleString(message.language.id)}`,
-      `**${message.language.get(
-        "CHANNELS"
-      )}:** ${guild.channels.cache.size.toLocaleString(message.language.id)} (${
-        bad ? badlyDrawnChannels.text : channels.text
-      } ${
-        guild.channels.cache.filter((channel) => channel.type == "text").size
-      }, ${bad ? badlyDrawnChannels.voice : channels.voice} ${
-        guild.channels.cache.filter((channel) => channel.type == "voice").size
-      }, ${bad ? badlyDrawnChannels.news : channels.news} ${
-        guild.channels.cache.filter((channel) => channel.type == "news").size
-      })`,
-      `**${message.language.get("REGION")}:** ${
-        message.language.get("REGIONS")[guild.region] ||
-        message.language.get("REGION_DEPRECATED")
-      }`,
+      `**${message.language.get("MEMBERS")}:** ${(guild instanceof FireGuild
+        ? guild.memberCount
+        : guild.approximateMemberCount
+      ).toLocaleString(message.language.id)}`,
+      guild.approximatePresenceCount
+        ? `**${message.language.get(
+            "ONLINE"
+          )}:** ${guild.approximatePresenceCount.toLocaleString(
+            message.language.id
+          )}`
+        : null,
+      guild instanceof FireGuild
+        ? `**${message.language.get(
+            "CHANNELS"
+          )}:** ${guild.channels.cache.size.toLocaleString(
+            message.language.id
+          )} (${bad ? badlyDrawnChannels.text : channels.text} ${
+            guild.channels.cache.filter((channel) => channel.type == "text")
+              .size
+          }, ${bad ? badlyDrawnChannels.voice : channels.voice} ${
+            guild.channels.cache.filter((channel) => channel.type == "voice")
+              .size
+          }, ${bad ? badlyDrawnChannels.news : channels.news} ${
+            guild.channels.cache.filter((channel) => channel.type == "news")
+              .size
+          })`
+        : null,
+      guild instanceof FireGuild
+        ? `**${message.language.get("REGION")}:** ${
+            message.language.get("REGIONS")[guild.region] ||
+            message.language.get("REGION_DEPRECATED")
+          }`
+        : null,
     ];
-    if (guild.members.cache.size / guild.memberCount > 0.98)
+    if (
+      guild instanceof FireGuild &&
+      guild.members.cache.size / guild.memberCount > 0.98
+    )
       messages.push(
         message.language.get(
           "GUILD_JOIN_POS",
@@ -92,11 +128,12 @@ export default class GuildCommand extends Command {
           ).toLocaleString(message.language.id)
         )
       );
-    return messages;
+    return messages.filter((message) => !!message);
   }
 
-  getSecurity(guild: FireGuild) {
+  getSecurity(guild: FireGuild | GuildPreview) {
     const info: string[] = [];
+    if (!(guild instanceof FireGuild)) return info;
 
     const VERIFICATION_LEVEL_EMOJI = {
       VERY_HIGH: constants.emojis.green,
@@ -168,34 +205,45 @@ export default class GuildCommand extends Command {
       : text;
   }
 
-  async exec(message: FireMessage) {
-    const badges = this.getBadges(message.guild, message.author);
-    const info = await this.getInfo(message, message.guild);
-    const security = this.getSecurity(message.guild);
+  async exec(message: FireMessage, args: { guild?: GuildPreview | FireGuild }) {
+    if (!args.guild && typeof args.guild != "undefined") return;
+    const guild = args.guild ? args.guild : message.guild;
+
+    const badges = this.getBadges(guild, message.author);
+    const info = await this.getInfo(message, guild);
+    const security = this.getSecurity(guild);
 
     const featuresLocalization = message.language.get("FEATURES");
-    const features: string[] = message.guild.features
+    const features: string[] = guild.features
       .filter((feature) => featuresLocalization.hasOwnProperty(feature))
       .map((feature) => featuresLocalization[feature]);
 
-    const roles = message.guild.roles.cache
-      .sort((one, two) => (one.position > two.position ? 1 : -1))
-      .filter((role) => message.guild.id != role.id)
-      .map((role) => role.toString());
+    const roles =
+      guild instanceof FireGuild
+        ? guild.roles.cache
+            .sort((one, two) => (one.position > two.position ? 1 : -1))
+            .filter((role) => guild.id != role.id)
+            .map((role) =>
+              guild == message.guild ? role.toString() : role.name
+            )
+        : null;
 
     const embed = new MessageEmbed()
       .setDescription(badges.join(" "))
       .setColor(message.member?.displayHexColor || "#ffffff")
       .setAuthor(
-        message.guild.name,
-        message.guild.iconURL({
+        guild.name,
+        guild.iconURL({
           size: 2048,
           format: "png",
           dynamic: true,
         })
       )
-      .addField(message.language.get("GUILD_ABOUT"), info)
-      .addField(message.language.get("GUILD_SECURITY"), security);
+      .setFooter(guild.id)
+      .setTimestamp();
+    if (info.length) embed.addField(message.language.get("GUILD_ABOUT"), info);
+    if (security.length)
+      embed.addField(message.language.get("GUILD_SECURITY"), security);
 
     if (features.length > 0) {
       embed.addField(
@@ -204,14 +252,12 @@ export default class GuildCommand extends Command {
       );
     }
 
-    embed
-      .addField(
+    if (guild instanceof FireGuild && roles?.length)
+      embed.addField(
         message.language.get("GUILD_ROLES") +
-          ` [${message.guild.roles.cache.array().length}]`,
+          ` [${guild.roles.cache.array().length}]`,
         this.shorten(roles, 1000, " - ")
-      )
-      .setFooter(message.guild.id)
-      .setTimestamp();
+      );
 
     await message.channel.send(embed);
   }

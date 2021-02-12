@@ -4,6 +4,7 @@ import {
   TextChannel,
   VoiceChannel,
   GuildChannel,
+  GuildPreview,
   SnowflakeUtil,
   CategoryChannel,
   FetchMembersOptions,
@@ -11,10 +12,11 @@ import {
 } from "discord.js";
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
+import { FireGuild } from "../extensions/guild";
 import { FireUser } from "../extensions/user";
 import { constants } from "./constants";
 import * as fuzz from "fuzzball";
-import message from "../../src/listeners/message";
+import * as centra from "centra";
 
 const { regexes } = constants;
 const idOnlyRegex = /^(\d{15,21})$/im;
@@ -72,6 +74,56 @@ export const snowflakeConverter = async (
     snowflake,
     ...deconstructed,
   };
+};
+
+export const guildPreviewConverter = async (
+  message: FireMessage,
+  argument: string,
+  silent = false
+): Promise<GuildPreview | FireGuild> => {
+  if (!argument) return;
+
+  const id = await snowflakeConverter(message, argument);
+  if (!id) return null;
+
+  if (message.client.guilds.cache.has(id.snowflake)) {
+    const guild = message.client.guilds.cache.get(id.snowflake) as FireGuild;
+    if (guild.isPublic()) return guild;
+  }
+
+  const preview = await message.client
+    .fetchGuildPreview(id.snowflake)
+    .catch(() => {});
+  if (!preview) {
+    if (!silent) await message.error("PREVIEW_NOT_FOUND");
+    return null;
+  }
+
+  if (!preview.features.includes("DISCOVERABLE")) {
+    if (!message.client.manager.ws?.open) {
+      if (!silent) await message.error("PREVIEW_NOT_DISCOVERABLE");
+      return null;
+    }
+    let isPublic = false;
+    const publicGuildsReq = await centra(
+      process.env.NODE_ENV == "development"
+        ? `http://localhost:${process.env.REST_PORT}/public`
+        : `https://${process.env.REST_HOST}/public`
+    )
+      .header("User-Agent", "Fire Discord Bot")
+      .header("Authorization", process.env.WS_AUTH)
+      .send();
+    if (publicGuildsReq.statusCode == 200) {
+      const publicGuilds: string[] = await publicGuildsReq.json();
+      if (publicGuilds.includes(preview.id)) isPublic = true;
+    }
+    if (!isPublic) {
+      if (!silent) await message.error("PREVIEW_NOT_DISCOVERABLE");
+      return null;
+    }
+  }
+
+  return preview;
 };
 
 export const memberConverter = async (
