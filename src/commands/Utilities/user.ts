@@ -267,7 +267,7 @@ export default class User extends Command {
     if (!this.client.ksoft)
       return `${emojis.error} ${message.language.get("USER_NO_KSOFT")}`;
     const banned = await this.client.ksoft.bans.info(user.id);
-    if (banned instanceof Ban)
+    if (banned instanceof Ban && banned.active)
       return `${emojis.error} ${message.language.get(
         "USER_KSOFT_BANNED",
         banned.user.id,
