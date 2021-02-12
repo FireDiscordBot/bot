@@ -1,7 +1,6 @@
 import { FireMember } from "../../lib/extensions/guildmember";
 import { FireMessage } from "../../lib/extensions/message";
 import { Listener } from "../../lib/util/listener";
-import { PrefixSupplier } from "discord-akairo";
 import Filters from "../modules/filters";
 import MCLogs from "../modules/mclogs";
 import Sk1er from "../modules/sk1er";
@@ -107,19 +106,9 @@ export default class Message extends Listener {
       await this.tokenGist(message, toSearch);
     }
 
-    if (
-      message.channel.id == "600070909365059584" &&
-      message.embeds[0]?.title.includes("new commit") &&
-      !message.flags.has("CROSSPOSTED")
-    ) {
-      try {
-        await message.crosspost();
-      } catch {}
-    }
-
     if (message.channel.id == "388850472632451073" && message.embeds.length) {
       // @ts-ignore
-      await this.client.api
+      const dataminingMessage = await this.client.api
         // @ts-ignore
         .channels("731330454422290463")
         .messages.post({
@@ -132,6 +121,13 @@ export default class Message extends Listener {
             `[Listener] Failed to post datamining message\n${e.stack}`
           );
         });
+      if (dataminingMessage?.id && message.embeds[0].title.includes("comment"))
+        // @ts-ignore
+        await this.client.api
+          // @ts-ignore
+          .channels("731330454422290463")
+          .messages(dataminingMessage.id)
+          .crosspost.post();
     }
 
     if (!message.member || message.author.bot) return;
