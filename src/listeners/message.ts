@@ -98,6 +98,15 @@ export default class Message extends Listener {
     )
       await message.delete().catch(() => {});
 
+    if (
+      message.member &&
+      message.guild.settings.get("mod.antizws", false) &&
+      zwsRegex.test(message.content)
+    ) {
+      zwsRegex.lastIndex = 0;
+      await message.delete().catch(() => {});
+    }
+
     let toSearch =
       message.content +
       message.embeds.map((embed) => JSON.stringify(embed)).join(" ");
