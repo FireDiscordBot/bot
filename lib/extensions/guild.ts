@@ -45,8 +45,10 @@ export class FireGuild extends Guild {
   vcRoles: Collection<string, string>;
   invites: Collection<string, number>;
   mutes: Collection<string, number>;
+  bans: Collection<string, number>;
   fetchingMemberUpdates: boolean;
   muteCheckTask: NodeJS.Timeout;
+  banCheckTask: NodeJS.Timeout;
   fetchingRoleUpdates: boolean;
   settings: GuildSettings;
   tags: GuildTagManager;
@@ -67,6 +69,7 @@ export class FireGuild extends Guild {
     this.vcRoles = new Collection();
     this.invites = new Collection();
     this.loadMutes();
+    this.loadBans();
   }
 
   get language() {
@@ -175,6 +178,25 @@ export class FireGuild extends Guild {
     this.muteCheckTask = setInterval(this.checkMutes.bind(this), 60000);
   }
 
+  private async loadBans() {
+    this.bans = new Collection();
+    const bans = await this.client.db
+      .query("SELECT * FROM bans WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!bans)
+      return this.client.console.error(
+        `[Guild] Failed to load bans for ${this.name} (${this.id})`
+      );
+    for await (const ban of bans) {
+      this.bans.set(
+        ban.get("uid") as string,
+        parseUntil(ban.get("until") as string)
+      );
+    }
+    if (this.banCheckTask) clearInterval(this.banCheckTask);
+    this.banCheckTask = setInterval(this.checkBans.bind(this), 90000);
+  }
+
   private async checkMutes() {
     if (!this.client.user || !this.available) return; // likely not ready yet or guild is unavailable
     const me =
@@ -232,6 +254,32 @@ export class FireGuild extends Guild {
           );
         await this.modLog(embed, "unmute").catch(() => {});
       }
+    }
+  }
+
+  private async checkBans() {
+    if (!this.client.user || !this.available) return; // likely not ready yet or guild is unavailable
+    const me =
+      this.me instanceof FireMember
+        ? this.me
+        : ((await this.members
+            .fetch(this.client.user.id)
+            .catch(() => {})) as FireMember);
+    if (!me) return; // could mean discord issues so return
+    const now = +new Date();
+    for (const [id] of this.bans.filter(
+      // likely never gonna be equal but if somehow it is then you're welcome
+      (time) => !!time && now >= time
+    )) {
+      const user = (await this.client.users
+        .fetch(id)
+        .catch(() => {})) as FireUser; // todo check error code
+      if (!user) continue;
+      await this.unban(
+        user,
+        this.language.get("UNMUTE_AUTOMATIC") as string,
+        this.me as FireMember
+      );
     }
   }
 
@@ -766,6 +814,12 @@ export class FireGuild extends Guild {
     if (!unbanned) {
       const deleted = await this.deleteModLogEntry(logEntry).catch(() => false);
       return deleted ? "unban" : "unban_and_entry";
+    }
+    if (this.bans.has(user.id)) {
+      await this.client.db
+        .query("DELETE FROM bans WHERE gid=$1 AND uid=$2;", [this.id, user.id])
+        .catch(() => {});
+      this.bans.delete(user.id);
     }
     const embed = new MessageEmbed()
       .setColor("#E74C3C")

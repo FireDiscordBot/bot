@@ -302,6 +302,8 @@ This will **not** rename existing users`,
         BAN_DM_FAIL: "Unable to DM user, they may have DMs off or blocked me",
         BAN_SUCCESS: (user: string, guild: string) =>
           `${constants.emojis.success} **${user}** has been banished from ${guild}.`,
+        BAN_SEMI_SUCCESS: (user: string, guild: string) =>
+          `${constants.emojis.warning} **${user}** has been banished from ${guild} but I was unable to save it in my database meaning they may not be unbanned when it expires, depending on the length of the ban.`,
         BAN_FAILED_ENTRY:
           "Failed to create mod log entry, user was not banned.",
         BAN_FAILED_BAN: "Failed to ban user, please try again.",
@@ -311,6 +313,10 @@ This will **not** rename existing users`,
           "Ban a user from the server. Use the --days flag to delete message history",
         BAN_USER_REQUIRED: "You must provide a user to ban!",
         BAN_INVALID_DAYS: "Days must be a number from 1 to 7",
+        BAN_FAILED_PARSE_TIME: "I was unable to parse the time in your message",
+        BAN_TIME_TOO_SHORT:
+          "That time is too short! It must be at least 30 minutes",
+        BAN_MEMBER_REQUIRED: "You can only tempban an existing member",
         BAN_MUTED_REASON:
           "User is about to be banned, mute will no longer be needed",
         BLOCK_LOG_AUTHOR: (blockee: string) => `Block | ${blockee}`,
@@ -1361,6 +1367,7 @@ Running this command without providing a category resets it, therefore disabling
           "Failed to unban user and was unable to delete the created mod log entry.",
         UNBAN_COMMAND_DESCRIPTION: "Unban a user from the server",
         UNBAN_USER_REQUIRED: "You must provide a user to unban",
+        UNBAN_AUTOMATIC: "Time's up!",
         UNBLOCK_LOG_AUTHOR: (blockee: string) => `Unblock | ${blockee}`,
         UNBLOCK_SUCCESS: (blockee: string) =>
           `${constants.emojis.success} **${blockee}** has been unblocked.`,

@@ -1,5 +1,6 @@
 import { FireMember } from "../../../lib/extensions/guildmember";
 import { FireMessage } from "../../../lib/extensions/message";
+import { parseTime } from "../../../lib/util/constants";
 import { FireUser } from "../../../lib/extensions/user";
 import { Language } from "../../../lib/util/language";
 import { Command } from "../../../lib/util/command";
@@ -62,21 +63,36 @@ export default class Ban extends Command {
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     if (args.days && (args.days < 1 || args.days > 7))
       return await message.error("BAN_INVALID_DAYS");
+    let minutes: number;
+    try {
+      minutes = parseTime(args.reason) as number;
+    } catch {
+      return await message.error("BAN_FAILED_PARSE_TIME");
+    }
+    if (minutes != 0 && minutes < 30)
+      return await message.error("BAN_TIME_TOO_SHORT");
+    else if (minutes && args.user instanceof FireUser)
+      return await message.error("BAN_MEMBER_REQUIRED");
+    const now = new Date();
+    let date: number;
+    if (minutes) date = now.setMinutes(now.getMinutes() + minutes);
+    const reason = parseTime(args.reason, true) as string;
     await message.delete().catch(() => {});
     const beaned =
       args.user instanceof FireMember
         ? await args.user.bean(
-            args.reason?.trim() ||
+            reason?.trim() ||
               (message.guild.language.get(
                 "MODERATOR_ACTION_DEFAULT_REASON"
               ) as string),
             message.member,
+            date,
             args.days || 0,
             message.channel as TextChannel
           )
         : await args.user.bean(
             message.guild,
-            args.reason?.trim() ||
+            reason?.trim() ||
               (message.guild.language.get(
                 "MODERATOR_ACTION_DEFAULT_REASON"
               ) as string),

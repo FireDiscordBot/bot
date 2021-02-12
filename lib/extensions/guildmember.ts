@@ -313,6 +313,7 @@ export class FireMember extends GuildMember {
   async bean(
     reason: string,
     moderator: FireMember,
+    until?: number,
     days: number = 0,
     channel?: TextChannel
   ) {
@@ -334,6 +335,17 @@ export class FireMember extends GuildMember {
         .catch(() => false);
       return deleted ? "ban" : "ban_and_entry";
     }
+    let dbadd: any;
+    if (until) {
+      this.guild.bans.set(this.id, until || 0);
+      dbadd = await this.client.db
+        .query("INSERT INTO bans (gid, uid, until) VALUES ($1, $2, $3);", [
+          this.guild.id,
+          this.id,
+          until?.toString() || "0",
+        ])
+        .catch(() => {});
+    }
     const embed = new MessageEmbed()
       .setColor(this.displayHexColor || "#E74C3C")
       .setTimestamp()
@@ -344,6 +356,16 @@ export class FireMember extends GuildMember {
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
+    if (until) {
+      const duration = moment(until).diff(moment());
+      embed.addField(
+        this.guild.language.get("UNTIL"),
+        `${new Date(until).toLocaleString(this.guild.language.id)} (${humanize(
+          duration,
+          this.guild.language.id.split("-")[0]
+        )})`
+      );
+    }
     let noDM: boolean = false;
     await this.send(
       this.language.get("BAN_DM", Util.escapeMarkdown(this.guild.name), reason)
@@ -359,11 +381,17 @@ export class FireMember extends GuildMember {
     if (channel)
       return await channel
         .send(
-          this.guild.language.get(
-            "BAN_SUCCESS",
-            Util.escapeMarkdown(this.toString()),
-            Util.escapeMarkdown(this.guild.name)
-          )
+          dbadd
+            ? this.guild.language.get(
+                "BAN_SUCCESS",
+                Util.escapeMarkdown(this.toString()),
+                Util.escapeMarkdown(this.guild.name)
+              )
+            : this.guild.language.get(
+                "BAN_SEMI_SUCCESS",
+                Util.escapeMarkdown(this.toString()),
+                Util.escapeMarkdown(this.guild.name)
+              )
         )
         .catch(() => {});
   }
@@ -537,13 +565,13 @@ export class FireMember extends GuildMember {
     if (channel)
       return await channel
         .send(
-          !dbadd
+          dbadd
             ? this.guild.language.get(
-                "MUTE_SEMI_SUCCESS",
+                "MUTE_SUCCESS",
                 Util.escapeMarkdown(this.toString())
               )
             : this.guild.language.get(
-                "MUTE_SUCCESS",
+                "MUTE_SEMI_SUCCESS",
                 Util.escapeMarkdown(this.toString())
               )
         )
