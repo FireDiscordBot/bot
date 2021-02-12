@@ -8,12 +8,12 @@ import {
   GuildEmoji,
   DMChannel,
 } from "discord.js";
-import { FakeChannel } from "../extensions/slashCommandMessage";
-import { FireMember } from "../extensions/guildmember";
-import { FireMessage } from "../extensions/message";
-import { FireUser } from "../extensions/user";
+import { FakeChannel } from "@fire/lib/extensions/slashCommandMessage";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
 import Semaphore from "semaphore-async-await";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 export interface PaginatorEmojiSettings {
   start: EmojiResolvable;

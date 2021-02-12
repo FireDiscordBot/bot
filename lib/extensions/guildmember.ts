@@ -8,11 +8,11 @@ import {
 } from "discord.js";
 import { FakeChannel } from "./slashCommandMessage";
 import * as sanitizer from "@aero/sanitizer";
-import { humanize } from "../util/constants";
+import { humanize } from "@fire/lib/util/constants";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import * as moment from "moment";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 export class FireMember extends GuildMember {
   changingNick?: boolean;

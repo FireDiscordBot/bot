@@ -14,20 +14,20 @@ import {
   MessageEmbedOptions,
   PermissionOverwriteOption,
 } from "discord.js";
-import { ActionLogType, MemberLogType, ModLogType } from "../util/constants";
-import { GuildTagManager } from "../util/guildtagmanager";
-import Tickets from "../../src/commands/Tickets/tickets";
-import { ReactionRoleData } from "../interfaces/rero";
+import { ActionLogType, MemberLogType, ModLogType } from "@fire/lib/util/constants";
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
+import { ReactionRoleData } from "@fire/lib/interfaces/rero";
+import Tickets from "@fire/src/commands/Tickets/tickets";
+import { GuildSettings } from "@fire/lib/util/settings";
+import { getIDMatch } from "@fire/lib/util/converters";
 import { FakeChannel } from "./slashCommandMessage";
-import { GuildSettings } from "../util/settings";
-import { getIDMatch } from "../util/converters";
 import { APIGuild } from "discord-api-types";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
 import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 const parseUntil = (time?: string) => {
   if (!time) return 0;

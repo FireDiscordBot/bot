@@ -1,7 +1,7 @@
-import { humanize, parseTime } from "../../../lib/util/constants";
-import { FireMessage } from "../../../lib/extensions/message";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+import { humanize, parseTime } from "@fire/lib/util/constants";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 import * as moment from "moment";
 
 const repeatRegex = /--repeat (\d*)/gim;

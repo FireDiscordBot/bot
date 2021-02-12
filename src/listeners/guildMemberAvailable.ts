@@ -1,6 +1,6 @@
-import { FireMember } from "../../lib/extensions/guildmember";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import GuildMemberUpdate from "./guildMemberUpdate";
-import { Listener } from "../../lib/util/listener";
+import { Listener } from "@fire/lib/util/listener";
 
 export default class GuildMemberAvailable extends Listener {
   constructor() {

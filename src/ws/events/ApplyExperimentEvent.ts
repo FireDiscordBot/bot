@@ -1,7 +1,7 @@
-import { EventType } from "../../../lib/ws/util/constants";
-import { FireUser } from "../../../lib/extensions/user";
-import { Event } from "../../../lib/ws/event/Event";
-import { Manager } from "../../../lib/Manager";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Event } from "@fire/lib/ws/event/Event";
+import { Manager } from "@fire/lib/Manager";
 
 export default class ApplyExperimentEvent extends Event {
   constructor(manager: Manager) {

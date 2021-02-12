@@ -1,9 +1,9 @@
-import { getAllCommands, getCommands } from "../../../lib/util/commandutil";
-import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
-import { EventType } from "../../../lib/ws/util/constants";
-import { Event } from "../../../lib/ws/event/Event";
-import { Message } from "../../../lib/ws/Message";
-import { Manager } from "../../../lib/Manager";
+import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { Event } from "@fire/lib/ws/event/Event";
+import { Message } from "@fire/lib/ws/Message";
+import { Manager } from "@fire/lib/Manager";
 
 export default class RestartEvent extends Event {
   constructor(manager: Manager) {

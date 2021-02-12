@@ -1,4 +1,4 @@
-import { Language } from "../../lib/util/language";
+import { Language } from "@fire/lib/util/language";
 
 // This is a special language.
 // It copies en-US (except for a select few strings) but

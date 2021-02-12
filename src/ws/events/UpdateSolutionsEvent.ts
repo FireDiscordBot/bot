@@ -1,7 +1,7 @@
-import { EventType } from "../../../lib/ws/util/constants";
-import { Event } from "../../../lib/ws/event/Event";
-import { Manager } from "../../../lib/Manager";
-import MCLogs from "../../modules/mclogs";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { Event } from "@fire/lib/ws/event/Event";
+import { Manager } from "@fire/lib/Manager";
+import MCLogs from "@fire/src/modules/mclogs";
 
 export default class UpdateSolutionsEvent extends Event {
   constructor(manager: Manager) {

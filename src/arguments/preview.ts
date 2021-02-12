@@ -1,6 +1,6 @@
-import { guildPreviewConverter } from "../../lib/util/converters";
-import { FireMessage } from "../../lib/extensions/message";
-import { FireGuild } from "../../lib/extensions/guild";
+import { guildPreviewConverter } from "@fire/lib/util/converters";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { ArgumentTypeCaster } from "discord-akairo";
 import { GuildPreview } from "discord.js";
 

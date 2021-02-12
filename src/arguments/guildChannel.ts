@@ -1,5 +1,5 @@
-import { guildChannelConverter } from "../../lib/util/converters";
-import { FireMessage } from "../../lib/extensions/message";
+import { guildChannelConverter } from "@fire/lib/util/converters";
+import { FireMessage } from "@fire/lib/extensions/message";
 import { ArgumentTypeCaster } from "discord-akairo";
 import { GuildChannel } from "discord.js";
 

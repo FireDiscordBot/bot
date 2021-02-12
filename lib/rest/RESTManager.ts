@@ -2,7 +2,7 @@ import { Collection, Constants } from "discord.js";
 import { RequestHandler } from "./RequestHandler";
 import { APIRequest } from "./APIRequest";
 import routeBuilder from "./APIRouter";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 const { Endpoints } = Constants;
 

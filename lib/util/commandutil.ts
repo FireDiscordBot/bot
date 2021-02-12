@@ -4,7 +4,7 @@ import {
 } from "discord-akairo";
 import { Language } from "./language";
 import { Command } from "./command";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 export class CommandUtil extends AkairoUtil {
   parsed?: ParsedComponentData;

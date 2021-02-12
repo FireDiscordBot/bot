@@ -171,6 +171,13 @@ export class RequestHandler {
       }
 
       if (
+        request.route.includes("commands") &&
+        res.statusCode == 404 &&
+        request.client.options.http.api.includes("inv.wtf")
+      )
+        return;
+
+      if (
         !(
           request.route.endsWith("/messages/:id") &&
           request.method == "delete" &&

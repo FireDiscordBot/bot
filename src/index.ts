@@ -1,13 +1,22 @@
 import * as dotEnvExtended from "dotenv-extended";
 import "source-map-support/register";
+import "module-alias/register";
+
+const env = {
+  development: "dev.env",
+  production: ".env",
+  litecord: "lc.env",
+};
 
 dotEnvExtended.load({
-  path: process.env.NODE_ENV == "development" ? "dev.env" : ".env",
+  path: env[process.env.NODE_ENV],
   errorOnRegex: true,
 });
 
-import { getCommitHash } from "../lib/util/gitUtils";
-import { Manager } from "../lib/Manager";
+if (process.env.NODE_ENV == "litecord") process.env.NODE_ENV = "development";
+
+import { getCommitHash } from "@fire/lib/util/gitUtils";
+import { Manager } from "@fire/lib/Manager";
 import * as sentry from "@sentry/node";
 
 const version =

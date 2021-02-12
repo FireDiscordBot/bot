@@ -1,8 +1,8 @@
-import { FireMember } from "../../../lib/extensions/guildmember";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { CategoryChannel, TextChannel, Role } from "discord.js";
-import { FireMessage } from "../../../lib/extensions/message";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 
 export default class FilterExclude extends Command {
   constructor() {

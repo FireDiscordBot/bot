@@ -1,9 +1,9 @@
 import { MessageEmbed, MessageEmbedOptions, TextChannel } from "discord.js";
-import { FireMessage } from "../../../lib/extensions/message";
-import { FireUser } from "../../../lib/extensions/user";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
-import { userConverter } from "../../../lib/util/converters";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
+import { userConverter } from "@fire/lib/util/converters";
 import { argv } from "process";
 
 export default class Purge extends Command {

@@ -1,8 +1,8 @@
-import { FireMessage } from "../../../lib/extensions/message";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
-import Redirects from "../../modules/redirects";
-import Filters from "../../modules/filters";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
+import Redirects from "@fire/src/modules/redirects";
+import Filters from "@fire/src/modules/filters";
 import { MessageEmbed } from "discord.js";
 
 const deleteKeywords = ["remove", "delete", "true", "yeet", "disable"];

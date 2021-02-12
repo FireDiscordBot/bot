@@ -1,4 +1,4 @@
-import { Manager } from "../../Manager";
+import { Manager } from "@fire/lib/Manager";
 import { readdirSync } from "fs";
 import { join } from "path";
 import { Collection } from "discord.js";

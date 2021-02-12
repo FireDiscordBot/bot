@@ -1,7 +1,7 @@
-import { FireMessage } from "../../../lib/extensions/message";
-import { Reminder } from "../../../lib/interfaces/reminders";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Reminder } from "@fire/lib/interfaces/reminders";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 
 export default class DeleteReminder extends Command {
   constructor() {

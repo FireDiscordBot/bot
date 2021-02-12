@@ -1,6 +1,6 @@
 import { TextChannel, Structures } from "discord.js";
 import { FireGuild } from "./guild";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 export class FireTextChannel extends TextChannel {
   guild: FireGuild;

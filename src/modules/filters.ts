@@ -1,10 +1,10 @@
-import { SlashCommandMessage } from "../../lib/extensions/slashCommandMessage";
-import { constants, shortURLs } from "../../lib/util/constants";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { constants, shortURLs } from "@fire/lib/util/constants";
 import { MessageEmbed, TextChannel, Invite } from "discord.js";
-import { FireMember } from "../../lib/extensions/guildmember";
-import { FireMessage } from "../../lib/extensions/message";
-import { FireUser } from "../../lib/extensions/user";
-import { Module } from "../../lib/util/module";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 
 const { regexes } = constants;

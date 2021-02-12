@@ -1,5 +1,5 @@
-import { FireMessage } from "../../lib/extensions/message";
-import { Listener } from "../../lib/util/listener";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Listener } from "@fire/lib/util/listener";
 
 export default class CommandFinished extends Listener {
   constructor() {

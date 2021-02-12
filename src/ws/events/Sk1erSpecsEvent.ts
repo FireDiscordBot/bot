@@ -1,8 +1,8 @@
-import { FireMember } from "../../../lib/extensions/guildmember";
-import { EventType } from "../../../lib/ws/util/constants";
-import { FireGuild } from "../../../lib/extensions/guild";
-import { Event } from "../../../lib/ws/event/Event";
-import { Manager } from "../../../lib/Manager";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { Event } from "@fire/lib/ws/event/Event";
+import { Manager } from "@fire/lib/Manager";
 import { TextChannel } from "discord.js";
 
 export default class Sk1erSpecsEvent extends Event {

@@ -4,11 +4,11 @@ import {
   TextChannel,
   Role,
 } from "discord.js";
-import { FireMember } from "../../lib/extensions/guildmember";
-import { FireMessage } from "../../lib/extensions/message";
-import { FireGuild } from "../../lib/extensions/guild";
-import { FireUser } from "../../lib/extensions/user";
-import { Module } from "../../lib/util/module";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Module } from "@fire/lib/util/module";
 import { createWriteStream } from "fs";
 import * as archiver from "archiver";
 import * as centra from "centra";

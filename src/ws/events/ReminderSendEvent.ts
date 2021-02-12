@@ -1,10 +1,10 @@
 import { DeconstructedSnowflake, SnowflakeUtil } from "discord.js";
-import { constants, humanize } from "../../../lib/util/constants";
-import { Reminder } from "../../../lib/interfaces/reminders";
-import { EventType } from "../../../lib/ws/util/constants";
-import { FireUser } from "../../../lib/extensions/user";
-import { Event } from "../../../lib/ws/event/Event";
-import { Manager } from "../../../lib/Manager";
+import { constants, humanize } from "@fire/lib/util/constants";
+import { Reminder } from "@fire/lib/interfaces/reminders";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Event } from "@fire/lib/ws/event/Event";
+import { Manager } from "@fire/lib/Manager";
 import * as moment from "moment";
 
 const { regexes } = constants;

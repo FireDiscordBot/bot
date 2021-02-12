@@ -1,8 +1,8 @@
 import { TextChannel, MessageEmbed, Collection, Role } from "discord.js";
-import { categoryChannelConverter } from "../../../lib/util/converters";
-import { FireMessage } from "../../../lib/extensions/message";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+import { categoryChannelConverter } from "@fire/lib/util/converters";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 
 export default class Lockdown extends Command {
   constructor() {

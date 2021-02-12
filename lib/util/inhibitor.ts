@@ -1,5 +1,5 @@
 import { Inhibitor as AkairoInhibitor, InhibitorOptions } from "discord-akairo";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 export class Inhibitor extends AkairoInhibitor {
   client: Fire;

@@ -1,11 +1,11 @@
-import { FireMember } from "../../../lib/extensions/guildmember";
-import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
-import { FireMessage } from "../../../lib/extensions/message";
-import { EventType } from "../../../lib/ws/util/constants";
-import { FireUser } from "../../../lib/extensions/user";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
-import { Message } from "../../../lib/ws/Message";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
+import { Message } from "@fire/lib/ws/Message";
 import { MessageEmbed } from "discord.js";
 
 export default class Plonk extends Command {

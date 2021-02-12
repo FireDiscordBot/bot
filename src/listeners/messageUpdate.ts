@@ -1,11 +1,14 @@
-import { FireMember } from "../../lib/extensions/guildmember";
-import { FireMessage } from "../../lib/extensions/message";
-import { Listener } from "../../lib/util/listener";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { constants } from "@fire/lib/util/constants";
+import { Listener } from "@fire/lib/util/listener";
 import { PrefixSupplier } from "discord-akairo";
 import { MessageEmbed } from "discord.js";
-import Filters from "../modules/filters";
-import Sk1er from "../modules/sk1er";
+import Filters from "@fire/src/modules/filters";
+import Sk1er from "@fire/src/modules/sk1er";
 import Message from "./message";
+
+const { regexes } = constants;
 
 export default class MessageUpdate extends Listener {
   constructor() {
@@ -28,14 +31,7 @@ export default class MessageUpdate extends Listener {
       after.member.dehoistAndDecancer();
     }
 
-    if (
-      after.member &&
-      (after.content.includes("@everyone") ||
-        after.content.includes("@here")) &&
-      after.guild.settings.get("mod.antieveryone", false) &&
-      !after.member.hasPermission("MENTION_EVERYONE")
-    )
-      await after.delete().catch(() => {});
+    await after.runFilters().catch(() => {});
 
     const messageListener = this.client.getListener("message") as Message;
 

@@ -1,5 +1,5 @@
 import { deflateSync, inflateSync } from "zlib";
-import { Message } from "../Message";
+import { Message } from "@fire/lib/ws/Message";
 
 export class MessageUtil {
   static encode(message: Message) {

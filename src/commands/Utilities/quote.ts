@@ -1,17 +1,17 @@
 import {
   MessageLinkMatch,
   PartialQuoteDestination,
-} from "../../../lib/interfaces/messages";
-import { SlashCommandMessage } from "../../../lib/extensions/slashCommandMessage";
-import { FireMember } from "../../../lib/extensions/guildmember";
-import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
-import { FireMessage } from "../../../lib/extensions/message";
-import { EventType } from "../../../lib/ws/util/constants";
+} from "@fire/lib/interfaces/messages";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { TextChannel, WebhookClient } from "discord.js";
-import { constants } from "../../../lib/util/constants";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
-import { Message } from "../../../lib/ws/Message";
+import { constants } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
+import { Message } from "@fire/lib/ws/Message";
 
 const { regexes } = constants;
 

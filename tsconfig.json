@@ -8,7 +8,13 @@
     "esModuleInterop": false,
     "skipLibCheck": true,
     "sourceMap": true,
-    "outDir": "dist/"
+    "outDir": "dist/",
+    "baseUrl": ".",
+    "paths": {
+      "@fire/lib/*": ["lib/*"],
+      "@fire/src/*": ["src/*"],
+      "@fire/config/*": ["config/*"]
+    }
   },
   "exclude": [
     "node_modules",

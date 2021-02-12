@@ -1,8 +1,8 @@
-import { SubscriptionStatus } from "../../lib/interfaces/premium";
-import { FireMessage } from "../../lib/extensions/message";
-import { FireGuild } from "../../lib/extensions/guild";
-import { Inhibitor } from "../../lib/util/inhibitor";
-import { Command } from "../../lib/util/command";
+import { SubscriptionStatus } from "@fire/lib/interfaces/premium";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { Inhibitor } from "@fire/lib/util/inhibitor";
+import { Command } from "@fire/lib/util/command";
 import { Collection } from "discord.js";
 
 const paidStatuses = ["trialing", "active", "past_due"];

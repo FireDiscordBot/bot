@@ -1,7 +1,7 @@
-import { FireMessage } from "../../../lib/extensions/message";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
-import VanityURLs from "../../modules/vanityurls";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
+import VanityURLs from "@fire/src/modules/vanityurls";
 import { TextChannel, Invite } from "discord.js";
 
 const deleteKeywords = ["remove", "delete", "true", "yeet", "disable"];

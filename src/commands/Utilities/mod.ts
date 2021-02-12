@@ -1,7 +1,7 @@
-import { ModAnalytics, Sk1erMod } from "../../../lib/interfaces/sk1ermod";
-import { FireMessage } from "../../../lib/extensions/message";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+import { ModAnalytics, Sk1erMod } from "@fire/lib/interfaces/sk1ermod";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 import { MessageEmbed } from "discord.js";
 import * as centra from "centra";
 

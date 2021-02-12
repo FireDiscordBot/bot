@@ -1,7 +1,7 @@
-import { FireMessage } from "../../../lib/extensions/message";
-import { Codeblock } from "../../arguments/codeblock";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Codeblock } from "@fire/src/arguments/codeblock";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 import { MessageAttachment } from "discord.js";
 import * as fuzz from "fuzzball";
 import * as centra from "centra";

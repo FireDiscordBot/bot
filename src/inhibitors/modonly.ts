@@ -1,6 +1,6 @@
-import { SlashCommandMessage } from "../../lib/extensions/slashCommandMessage";
-import { FireMessage } from "../../lib/extensions/message";
-import { Inhibitor } from "../../lib/util/inhibitor";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Inhibitor } from "@fire/lib/util/inhibitor";
 
 export default class ModOnlyInhibitor extends Inhibitor {
   constructor() {

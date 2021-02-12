@@ -1,7 +1,7 @@
-import { FireMember } from "../../lib/extensions/guildmember";
-import { Listener } from "../../lib/util/listener";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { Listener } from "@fire/lib/util/listener";
 import { TextChannel } from "discord.js";
-import Sk1er from "../modules/sk1er";
+import Sk1er from "@fire/src/modules/sk1er";
 
 export default class TicketClose extends Listener {
   constructor() {

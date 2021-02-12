@@ -1,8 +1,8 @@
-import { FireMember } from "../../../lib/extensions/guildmember";
-import { FireMessage } from "../../../lib/extensions/message";
-import { parseTime } from "../../../lib/util/constants";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { parseTime } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 import { TextChannel } from "discord.js";
 
 export default class Mute extends Command {

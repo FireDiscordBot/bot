@@ -1,5 +1,5 @@
-import { FireMessage } from "../../lib/extensions/message";
-import { Inhibitor } from "../../lib/util/inhibitor";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Inhibitor } from "@fire/lib/util/inhibitor";
 
 export default class CacheInhibitor extends Inhibitor {
   constructor() {

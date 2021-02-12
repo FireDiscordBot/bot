@@ -4,10 +4,10 @@ import {
   CommandHandlerOptions,
   Constants,
 } from "discord-akairo";
-import { FireMessage } from "../extensions/message";
+import { FireMessage } from "@fire/lib/extensions/message";
 import { Collection } from "discord.js";
 import { Command } from "./command";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 const { CommandHandlerEvents } = Constants;
 

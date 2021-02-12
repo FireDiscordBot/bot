@@ -1,11 +1,11 @@
 import { MessageEmbed, TextChannel, Structures, User, Util } from "discord.js";
-import { MessageUtil } from "../ws/util/MessageUtil";
-import { EventType } from "../ws/util/constants";
-import { UserSettings } from "../util/settings";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { UserSettings } from "@fire/lib/util/settings";
 import { FireMember } from "./guildmember";
-import { Message } from "../ws/Message";
+import { Message } from "@fire/lib/ws/Message";
 import { FireGuild } from "./guild";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 export class FireUser extends User {
   settings: UserSettings;

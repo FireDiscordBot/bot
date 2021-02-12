@@ -1,6 +1,6 @@
 import { WebsocketStates } from "./util/constants";
 import { Websocket } from "./Websocket";
-import { Manager } from "../Manager";
+import { Manager } from "@fire/lib/Manager";
 
 export class Reconnector {
   timeout?: NodeJS.Timeout;

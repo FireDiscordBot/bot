@@ -1,4 +1,4 @@
-import { Manager } from "../../Manager";
+import { Manager } from "@fire/lib/Manager";
 
 export class Event {
   manager: Manager;

@@ -2,9 +2,9 @@ import {
   roleConverter,
   memberConverter,
   textChannelConverter,
-} from "../../lib/util/converters";
-import { FireMember } from "../../lib/extensions/guildmember";
-import { FireMessage } from "../../lib/extensions/message";
+} from "@fire/lib/util/converters";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
 import { ArgumentTypeCaster } from "discord-akairo";
 import { TextChannel, Role } from "discord.js";
 

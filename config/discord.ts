@@ -1,6 +1,16 @@
-import { constants } from "../lib/util/constants";
-import { ClientOptions } from "discord.js";
+import { ClientOptions, HTTPOptions } from "discord.js";
+import { constants } from "@fire/lib/util/constants";
 const intents = constants.intents;
+
+let litecord: { http?: HTTPOptions } = {};
+if (process.env.USE_LITECORD == "true")
+  litecord = {
+    http: {
+      api: process.env.LITECORD_HOST,
+      cdn: process.env.LITECORD_CDN,
+      version: 8,
+    },
+  };
 
 export const discord: ClientOptions = {
   allowedMentions: {
@@ -35,4 +45,5 @@ export const discord: ClientOptions = {
     },
     status: "idle",
   },
+  ...litecord,
 };

@@ -1,4 +1,4 @@
-import { Listener } from "../../lib/util/listener";
+import { Listener } from "@fire/lib/util/listener";
 
 export default class RateLimit extends Listener {
   constructor() {

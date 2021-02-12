@@ -1,5 +1,5 @@
-import { FireGuild } from "../../lib/extensions/guild";
-import { Listener } from "../../lib/util/listener";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { Listener } from "@fire/lib/util/listener";
 
 export default class GuildCreate extends Listener {
   constructor() {

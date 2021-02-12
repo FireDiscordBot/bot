@@ -1,19 +1,19 @@
-import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
-import { FireMessage } from "../../../lib/extensions/message";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageAttachment, MessageEmbed } from "discord.js";
-import { zws, constants } from "../../../lib/util/constants";
-import { EventType } from "../../../lib/ws/util/constants";
-import { Codeblock } from "../../arguments/codeblock";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
-import { Message } from "../../../lib/ws/Message";
+import { zws, constants } from "@fire/lib/util/constants";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { Codeblock } from "@fire/src/arguments/codeblock";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
+import { Message } from "@fire/lib/ws/Message";
 import { transpile } from "typescript";
 import { Type } from "@klasa/type";
 import { inspect } from "util";
 import {
   PaginatorEmbedInterface,
   WrappedPaginator,
-} from "../../../lib/util/paginators";
+} from "@fire/lib/util/paginators";
 
 const { emojis } = constants;
 

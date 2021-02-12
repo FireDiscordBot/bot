@@ -1,7 +1,7 @@
-import { FireMessage } from "../../../lib/extensions/message";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
-import Sk1er from "../../modules/sk1er";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
+import Sk1er from "@fire/src/modules/sk1er";
 
 export default class NitroPerks extends Command {
   constructor() {

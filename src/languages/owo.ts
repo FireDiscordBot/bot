@@ -1,5 +1,5 @@
-import { constants } from "../../lib/util/constants";
-import { Language } from "../../lib/util/language";
+import { constants } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
 
 export default class owo extends Language {
   constructor() {

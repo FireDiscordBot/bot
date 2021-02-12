@@ -3,10 +3,10 @@ import {
   memberConverter,
   textChannelConverter,
   categoryChannelConverter,
-} from "../../lib/util/converters";
+} from "@fire/lib/util/converters";
 import { CategoryChannel, TextChannel, Role } from "discord.js";
-import { FireMember } from "../../lib/extensions/guildmember";
-import { FireMessage } from "../../lib/extensions/message";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
 import { ArgumentTypeCaster } from "discord-akairo";
 
 export const memberRoleChannelCategoryTypeCaster: ArgumentTypeCaster = async (

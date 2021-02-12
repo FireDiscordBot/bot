@@ -10,10 +10,10 @@ import {
   FetchMembersOptions,
   DeconstructedSnowflake,
 } from "discord.js";
-import { FireMember } from "../extensions/guildmember";
-import { FireMessage } from "../extensions/message";
-import { FireGuild } from "../extensions/guild";
-import { FireUser } from "../extensions/user";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireUser } from "@fire/lib/extensions/user";
 import { constants } from "./constants";
 import * as fuzz from "fuzzball";
 import * as centra from "centra";

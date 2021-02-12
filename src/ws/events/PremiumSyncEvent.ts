@@ -1,11 +1,11 @@
 import {
   PremiumData,
   SubscriptionStatus,
-} from "../../../lib/interfaces/premium";
-import { EventType } from "../../../lib/ws/util/constants";
-import { FireGuild } from "../../../lib/extensions/guild";
-import { Event } from "../../../lib/ws/event/Event";
-import { Manager } from "../../../lib/Manager";
+} from "@fire/lib/interfaces/premium";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { Event } from "@fire/lib/ws/event/Event";
+import { Manager } from "@fire/lib/Manager";
 
 const paidStatuses = ["trialing", "active", "past_due"];
 const dataKeys = ["user", "limit", "status", "periodEnd", "action"];

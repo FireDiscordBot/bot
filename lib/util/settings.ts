@@ -1,9 +1,9 @@
-import { MessageUtil } from "../ws/util/MessageUtil";
-import { EventType } from "../ws/util/constants";
-import { FireGuild } from "../extensions/guild";
-import { FireUser } from "../extensions/user";
-import { Message } from "../ws/Message";
-import { Fire } from "../Fire";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Message } from "@fire/lib/ws/Message";
+import { Fire } from "@fire/lib/Fire";
 
 export class GuildSettings {
   client: Fire;

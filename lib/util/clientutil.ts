@@ -5,24 +5,24 @@ import {
   TextChannel,
   Webhook,
 } from "discord.js";
-import { Channel, Video } from "../interfaces/youtube";
-import { FireMember } from "../extensions/guildmember";
-import { MessageUtil } from "../ws/util/MessageUtil";
-import { PremiumData } from "../interfaces/premium";
-import { FireMessage } from "../extensions/message";
+import { Channel, Video } from "@fire/lib/interfaces/youtube";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { PremiumData } from "@fire/lib/interfaces/premium";
+import { FireMessage } from "@fire/lib/extensions/message";
 import { humanize, titleCase } from "./constants";
-import { EventType } from "../ws/util/constants";
-import { FireGuild } from "../extensions/guild";
-import { Cluster } from "../interfaces/stats";
-import { FireUser } from "../extensions/user";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { Cluster } from "@fire/lib/interfaces/stats";
+import { FireUser } from "@fire/lib/extensions/user";
 import { ClientUtil } from "discord-akairo";
 import { getCommitHash } from "./gitUtils";
-import { Message } from "../ws/Message";
+import { Message } from "@fire/lib/ws/Message";
 import { Language } from "./language";
 import * as pidusage from "pidusage";
 import * as Centra from "centra";
 import * as moment from "moment";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 import { totalmem } from "os";
 
 export const humanFileSize = (size: number) => {

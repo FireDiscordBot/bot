@@ -1,14 +1,13 @@
-import { FireMember } from "../../lib/extensions/guildmember";
-import { FireMessage } from "../../lib/extensions/message";
-import { Listener } from "../../lib/util/listener";
-import Filters from "../modules/filters";
-import MCLogs from "../modules/mclogs";
-import Sk1er from "../modules/sk1er";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { constants } from "@fire/lib/util/constants";
+import { Listener } from "@fire/lib/util/listener";
+import Filters from "@fire/src/modules/filters";
+import MCLogs from "@fire/src/modules/mclogs";
+import Sk1er from "@fire/src/modules/sk1er";
 import * as centra from "centra";
 
-const zwsRegex = /[\u200B-\u200D\uFEFF]/gim;
-const symbolRegex = /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim;
-const protocolRegex = /\w{1,10}:\/\//gim;
+const { regexes } = constants;
 export default class Message extends Listener {
   tokenRegex: RegExp;
 
@@ -89,23 +88,7 @@ export default class Message extends Listener {
       message.member.dehoistAndDecancer();
     }
 
-    if (
-      message.member &&
-      (message.content.includes("@everyone") ||
-        message.content.includes("@here")) &&
-      message.guild.settings.get("mod.antieveryone", false) &&
-      !message.member.hasPermission("MENTION_EVERYONE")
-    )
-      await message.delete().catch(() => {});
-
-    if (
-      message.member &&
-      message.guild.settings.get("mod.antizws", false) &&
-      zwsRegex.test(message.content)
-    ) {
-      zwsRegex.lastIndex = 0;
-      await message.delete().catch(() => {});
-    }
+    await message.runFilters().catch(() => {});
 
     let toSearch =
       message.content +
@@ -173,13 +156,13 @@ export default class Message extends Listener {
     return message.content
       .replace(/\\:/gim, ":")
       .replace(/\\\./gim, ".")
-      .replace(zwsRegex, "")
+      .replace(regexes.zws, "")
       .replace(/\(\.\)/gim, ".")
       .replace(/\.\//gim, "/")
       .replace(/dot/gim, ".")
       .replace(/\/\./gim, ".")
-      .replace(protocolRegex, "")
-      .replace(symbolRegex, "")
+      .replace(regexes.protocol, "")
+      .replace(regexes.symbol, "")
       .replace(/\\\/\//gim, "/")
       .replace(/\s/gim, "");
   }

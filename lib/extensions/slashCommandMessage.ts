@@ -24,16 +24,16 @@ import {
   DMChannel,
   Snowflake,
 } from "discord.js";
-import { SlashCommand } from "../interfaces/slashCommands";
-import { ArgumentOptions, Command } from "../util/command";
-import { CommandUtil } from "../util/commandutil";
-import { constants } from "../util/constants";
-import { Language } from "../util/language";
+import { SlashCommand } from "@fire/lib/interfaces/slashCommands";
+import { ArgumentOptions, Command } from "@fire/lib/util/command";
+import { CommandUtil } from "@fire/lib/util/commandutil";
+import { constants } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 const { emojis, reactions } = constants;
 

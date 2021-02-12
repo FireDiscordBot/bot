@@ -7,40 +7,40 @@ import {
 import {
   categoryChannelSilentTypeCaster,
   categoryChannelTypeCaster,
-} from "../src/arguments/category";
+} from "@fire/src/arguments/category";
 import {
   textChannelSilentTypeCaster,
   textChannelTypeCaster,
-} from "../src/arguments/textChannel";
+} from "@fire/src/arguments/textChannel";
 import {
   guildChannelSilentTypeCaster,
   guildChannelTypeCaster,
-} from "../src/arguments/guildChannel";
+} from "@fire/src/arguments/guildChannel";
 import {
   memberSilentTypeCaster,
   memberTypeCaster,
-} from "../src/arguments/member";
-import { memberRoleChannelCategoryTypeCaster } from "../src/arguments/memberRoleChannelCategory";
+} from "@fire/src/arguments/member";
+import { memberRoleChannelCategoryTypeCaster } from "@fire/src/arguments/memberRoleChannelCategory";
 import {
   previewSilentTypeCaster,
   previewTypeCaster,
-} from "../src/arguments/preview";
-import { userMemberSnowflakeTypeCaster } from "../src/arguments/userMemberSnowflake";
-import { memberRoleChannelTypeCaster } from "../src/arguments/memberRoleChannel";
-import { roleSilentTypeCaster, roleTypeCaster } from "../src/arguments/role";
-import { userSilentTypeCaster, userTypeCaster } from "../src/arguments/user";
-import { memberRoleTypeCaster } from "../src/arguments/memberRole";
-import { userMemberTypeCaster } from "../src/arguments/userMember";
+} from "@fire/src/arguments/preview";
+import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
+import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChannel";
+import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
+import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
+import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
+import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
 import { Experiment, Treatment } from "./interfaces/experiments";
-import { codeblockTypeCaster } from "../src/arguments/codeblock";
-import { languageTypeCaster } from "../src/arguments/language";
-import { listenerTypeCaster } from "../src/arguments/listener";
-import { booleanTypeCaster } from "../src/arguments/boolean";
-import { commandTypeCaster } from "../src/arguments/command";
-import { messageTypeCaster } from "../src/arguments/message";
+import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
+import { languageTypeCaster } from "@fire/src/arguments/language";
+import { listenerTypeCaster } from "@fire/src/arguments/listener";
+import { booleanTypeCaster } from "@fire/src/arguments/boolean";
+import { commandTypeCaster } from "@fire/src/arguments/command";
+import { messageTypeCaster } from "@fire/src/arguments/message";
 import { PresenceUpdateAction } from "./util/PresenceUpdate";
 import { Language, LanguageHandler } from "./util/language";
-import { moduleTypeCaster } from "../src/arguments/module";
+import { moduleTypeCaster } from "@fire/src/arguments/module";
 import { Collection, version as djsver } from "discord.js";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandhandler";
@@ -51,17 +51,17 @@ import { Client as PGClient } from "ts-postgres";
 import { RESTManager } from "./rest/RESTManager";
 import { Inhibitor } from "./util/inhibitor";
 import { FireConsole } from "./util/console";
+import { config } from "@fire/config/index";
 import { Listener } from "./util/listener";
 import { KSoftClient } from "@aero/ksoft";
 import { Command } from "./util/command";
 import { Util } from "./util/clientutil";
 import * as Sentry from "@sentry/node";
 import { Manager } from "./Manager";
-import { config } from "../config";
 import * as moment from "moment";
 
 import "./extensions";
-import { hasteTypeCaster } from "../src/arguments/haste";
+import { hasteTypeCaster } from "@fire/src/arguments/haste";
 
 // Rewrite completed - 15:10 17/1/2021
 export class Fire extends AkairoClient {

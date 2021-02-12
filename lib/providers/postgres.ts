@@ -1,6 +1,6 @@
 import { Client, ResultIterator } from "ts-postgres";
 import { Provider } from "discord-akairo";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 export class PostgresProvider extends Provider {
   dataColumn: string;

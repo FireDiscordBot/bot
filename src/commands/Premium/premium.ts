@@ -1,14 +1,14 @@
 import {
   PremiumData,
   SubscriptionStatus,
-} from "../../../lib/interfaces/premium";
-import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
-import { FireMessage } from "../../../lib/extensions/message";
-import { EventType } from "../../../lib/ws/util/constants";
-import { FireGuild } from "../../../lib/extensions/guild";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
-import { Message } from "../../../lib/ws/Message";
+} from "@fire/lib/interfaces/premium";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
+import { Message } from "@fire/lib/ws/Message";
 
 export default class Premium extends Command {
   constructor() {

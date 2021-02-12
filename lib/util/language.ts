@@ -1,5 +1,5 @@
 import { AkairoHandler, AkairoModule } from "discord-akairo";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 export class Language extends AkairoModule {
   language: any;

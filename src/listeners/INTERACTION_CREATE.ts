@@ -1,10 +1,10 @@
 // The case of the file name is just to signify that
 // this is listening to an event directly from the gateway
 
-import { SlashCommandMessage } from "../../lib/extensions/slashCommandMessage";
-import { SlashCommand } from "../../lib/interfaces/slashCommands";
-import { constants } from "../../lib/util/constants";
-import { Listener } from "../../lib/util/listener";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { SlashCommand } from "@fire/lib/interfaces/slashCommands";
+import { constants } from "@fire/lib/util/constants";
+import { Listener } from "@fire/lib/util/listener";
 import { DMChannel } from "discord.js";
 import { Scope } from "@sentry/node";
 

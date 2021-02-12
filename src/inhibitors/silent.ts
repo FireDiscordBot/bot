@@ -1,6 +1,6 @@
-import { FireMessage } from "../../lib/extensions/message";
-import { Inhibitor } from "../../lib/util/inhibitor";
-import { Command } from "../../lib/util/command";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Inhibitor } from "@fire/lib/util/inhibitor";
+import { Command } from "@fire/lib/util/command";
 
 export default class SilentInhibitor extends Inhibitor {
   constructor() {

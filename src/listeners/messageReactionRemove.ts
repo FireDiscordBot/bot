@@ -1,7 +1,7 @@
 import { MessageReaction, TextChannel, GuildEmoji } from "discord.js";
-import { FireGuild } from "../../lib/extensions/guild";
-import { FireUser } from "../../lib/extensions/user";
-import { Listener } from "../../lib/util/listener";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Listener } from "@fire/lib/util/listener";
 
 export default class MessageReactionRemove extends Listener {
   constructor() {

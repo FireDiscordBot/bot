@@ -1,10 +1,10 @@
-import { FireMessage } from "../../../lib/extensions/message";
-import { roleConverter } from "../../../lib/util/converters";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { roleConverter } from "@fire/lib/util/converters";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 import * as tinycolor from "tinycolor2";
 import * as centra from "centra";
-import { constants } from "../../../lib/util/constants";
+import { constants } from "@fire/lib/util/constants";
 import { MessageAttachment } from "discord.js";
 
 export default class Color extends Command {

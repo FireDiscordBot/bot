@@ -1,7 +1,7 @@
-import { FireMessage } from "../../lib/extensions/message";
+import { FireMessage } from "@fire/lib/extensions/message";
 // import * as solutions from "../../mc_solutions.json";
-import { constants } from "../../lib/util/constants";
-import { Module } from "../../lib/util/module";
+import { constants } from "@fire/lib/util/constants";
+import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 import Filters from "./filters";
 import Sk1er from "./sk1er";

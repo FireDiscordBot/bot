@@ -1,6 +1,6 @@
 import { EventType, WebsocketStates } from "./util/constants";
 import { MessageUtil } from "./util/MessageUtil";
-import { Manager } from "../Manager";
+import { Manager } from "@fire/lib/Manager";
 import { Message } from "./Message";
 import * as Client from "ws";
 

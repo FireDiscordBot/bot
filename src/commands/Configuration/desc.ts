@@ -1,8 +1,8 @@
-import { FireMessage } from "../../../lib/extensions/message";
-import { FireGuild } from "../../../lib/extensions/guild";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
-import VanityURLs from "../../modules/vanityurls";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
+import VanityURLs from "@fire/src/modules/vanityurls";
 
 export default class Description extends Command {
   module: VanityURLs;

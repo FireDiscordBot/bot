@@ -1,7 +1,7 @@
-import { FireMember } from "../../lib/extensions/guildmember";
-import { FireGuild } from "../../lib/extensions/guild";
-import { titleCase } from "../../lib/util/constants";
-import { Listener } from "../../lib/util/listener";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { titleCase } from "@fire/lib/util/constants";
+import { Listener } from "@fire/lib/util/listener";
 import { MessageEmbed } from "discord.js";
 
 export default class GuildUpdate extends Listener {

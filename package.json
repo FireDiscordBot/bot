@@ -13,12 +13,18 @@
   },
   "scripts": {
     "dev": "yarn compile && yarn rundev",
+    "litecord": "yarn compile && yarn runlc",
     "rundev": "NODE_ENV=development node dist/src/index.js",
+    "runlc": "NODE_ENV=litecord node dist/src/index.js",
     "compile": "rm -rf dist/ && tsc",
     "start": "NODE_ENV=production node dist/src/index.js",
     "format": "prettier . --write"
   },
-  "private": true,
+  "_moduleAliases": {
+    "@fire/lib": "dist/lib",
+    "@fire/src": "dist/src",
+    "@fire/config": "dist/config"
+  },
   "license": "AGPL",
   "dependencies": {
     "@aero/ksoft": "^3.1.8",
@@ -38,6 +44,7 @@
     "erlpack": "discord/erlpack",
     "fuzzball": "^1.3.0",
     "humanize-duration": "^3.23.1",
+    "module-alias": "^2.2.2",
     "moment": "^2.27.0",
     "nanoid": "^3.1.20",
     "node-color-log": "^5.2.0",

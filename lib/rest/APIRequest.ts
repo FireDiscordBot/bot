@@ -3,7 +3,7 @@ import * as FormData from "@discordjs/form-data";
 import { RESTManager } from "./RESTManager";
 import { Constants } from "discord.js";
 import * as centra from "centra";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 const { UserAgent } = Constants;
 

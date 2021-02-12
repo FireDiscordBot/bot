@@ -1,10 +1,10 @@
-import { getAllCommands, getCommands } from "../../lib/util/commandutil";
-import { MessageUtil } from "../../lib/ws/util/MessageUtil";
-import { Option } from "../../lib/interfaces/slashCommands";
-import { EventType } from "../../lib/ws/util/constants";
-import { FireGuild } from "../../lib/extensions/guild";
-import { Listener } from "../../lib/util/listener";
-import { Message } from "../../lib/ws/Message";
+import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { Option } from "@fire/lib/interfaces/slashCommands";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { Listener } from "@fire/lib/util/listener";
+import { Message } from "@fire/lib/ws/Message";
 
 export default class Ready extends Listener {
   constructor() {
@@ -77,53 +77,58 @@ export default class Ready extends Listener {
       .applications(this.client.user.id)
       .commands.get();
 
-    let commands: {
-      name: string;
-      description: string;
-      options?: Option[];
-    }[] = [];
+    if (slashCommands?.length) {
+      let commands: {
+        name: string;
+        description: string;
+        options?: Option[];
+      }[] = [];
 
-    for (const cmd of this.client.commandHandler.modules.values()) {
-      if (cmd.enableSlashCommand && slashCommands.find((s) => s.name == cmd.id))
-        commands.push(cmd.getSlashCommandJSON());
-    }
+      for (const cmd of this.client.commandHandler.modules.values()) {
+        if (
+          cmd.enableSlashCommand &&
+          slashCommands.find((s) => s.name == cmd.id)
+        )
+          commands.push(cmd.getSlashCommandJSON());
+      }
 
-    // @ts-ignore
-    await this.client.api
       // @ts-ignore
-      .applications(this.client.user.id)
-      .commands.put({ data: commands })
-      // TODO make api slash command interface
-      .then((updated: any[]) =>
-        this.client.console.info(
-          `[Commands] Successfully bulk updated ${updated.length} slash commands`
-        )
-      )
-      .catch((e: Error) =>
-        this.client.console.error(
-          `[Commands] Failed to update slash commands\n${e.stack}`
-        )
-      );
-
-    for (const slashCommand of slashCommands) {
-      if (
-        !this.client.getCommand(slashCommand.name) ||
-        !this.client.getCommand(slashCommand.name).enableSlashCommand
-      ) {
-        this.client.console.warn(
-          `[Commands] Deleting slash command /${slashCommand.name} due to command not being found or slash command disabled`
-        );
+      await this.client.api
         // @ts-ignore
-        await this.client.api
-          // @ts-ignore
-          .applications(this.client.user.id)
-          .commands(slashCommand.id)
-          .delete()
-          .catch(() =>
-            this.client.console.error(
-              `[Commands] Failed to delete slash command /${slashCommand.name}`
-            )
+        .applications(this.client.user.id)
+        .commands.put({ data: commands })
+        // TODO make api slash command interface
+        .then((updated: any[]) =>
+          this.client.console.info(
+            `[Commands] Successfully bulk updated ${updated.length} slash commands`
+          )
+        )
+        .catch((e: Error) =>
+          this.client.console.error(
+            `[Commands] Failed to update slash commands\n${e.stack}`
+          )
+        );
+
+      for (const slashCommand of slashCommands) {
+        if (
+          !this.client.getCommand(slashCommand.name) ||
+          !this.client.getCommand(slashCommand.name).enableSlashCommand
+        ) {
+          this.client.console.warn(
+            `[Commands] Deleting slash command /${slashCommand.name} due to command not being found or slash command disabled`
           );
+          // @ts-ignore
+          await this.client.api
+            // @ts-ignore
+            .applications(this.client.user.id)
+            .commands(slashCommand.id)
+            .delete()
+            .catch(() =>
+              this.client.console.error(
+                `[Commands] Failed to delete slash command /${slashCommand.name}`
+              )
+            );
+        }
       }
     }
 

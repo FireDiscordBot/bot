@@ -1,8 +1,8 @@
-import { FireMessage } from "../../../lib/extensions/message";
-import { constants } from "../../../lib/util/constants";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { constants } from "@fire/lib/util/constants";
 import { MessageEmbed, TextChannel } from "discord.js";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 import { RedditImage } from "@aero/ksoft";
 
 const { imageExts } = constants;

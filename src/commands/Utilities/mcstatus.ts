@@ -1,8 +1,8 @@
-import { MojangStatus } from "../../../lib/interfaces/mojangstatus";
-import { FireMessage } from "../../../lib/extensions/message";
-import { constants } from "../../../lib/util/constants";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+import { MojangStatus } from "@fire/lib/interfaces/mojangstatus";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { constants } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 import { MessageEmbed } from "discord.js";
 import * as centra from "centra";
 

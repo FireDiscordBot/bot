@@ -1,11 +1,11 @@
 import {
   PaginatorEmbedInterface,
   WrappedPaginator,
-} from "../../../lib/util/paginators";
-import { FireMessage } from "../../../lib/extensions/message";
-import { humanize } from "../../../lib/util/constants";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+} from "@fire/lib/util/paginators";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { humanize } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 import { MessageEmbed } from "discord.js";
 import * as moment from "moment";
 

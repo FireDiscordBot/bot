@@ -1,10 +1,10 @@
 import {
   FakeChannel,
   SlashCommandMessage,
-} from "../../lib/extensions/slashCommandMessage";
-import { FireMessage } from "../../lib/extensions/message";
-import { Listener } from "../../lib/util/listener";
-import { Command } from "../../lib/util/command";
+} from "@fire/lib/extensions/slashCommandMessage";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Listener } from "@fire/lib/util/listener";
+import { Command } from "@fire/lib/util/command";
 import { GuildChannel } from "discord.js";
 import { TextChannel } from "discord.js";
 import { Scope } from "@sentry/node";

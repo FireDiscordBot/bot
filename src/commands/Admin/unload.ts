@@ -1,11 +1,11 @@
-import { MessageUtil } from "../../../lib/ws/util/MessageUtil";
-import { FireMessage } from "../../../lib/extensions/message";
-import { EventType } from "../../../lib/ws/util/constants";
-import { Language } from "../../../lib/util/language";
-import { Listener } from "../../../lib/util/listener";
-import { Command } from "../../../lib/util/command";
-import { Message } from "../../../lib/ws/Message";
-import { Module } from "../../../lib/util/module";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { Listener } from "@fire/lib/util/listener";
+import { Command } from "@fire/lib/util/command";
+import { Message } from "@fire/lib/ws/Message";
+import { Module } from "@fire/lib/util/module";
 import { Argument } from "discord-akairo";
 
 export default class Unload extends Command {

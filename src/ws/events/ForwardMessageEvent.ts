@@ -1,6 +1,6 @@
-import { EventType } from "../../../lib/ws/util/constants";
-import { Event } from "../../../lib/ws/event/Event";
-import { Manager } from "../../../lib/Manager";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { Event } from "@fire/lib/ws/event/Event";
+import { Manager } from "@fire/lib/Manager";
 import { TextChannel } from "discord.js";
 
 export default class ForwardMessageEvent extends Event {

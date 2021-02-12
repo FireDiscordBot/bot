@@ -131,6 +131,10 @@ export const constants = {
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
   regexes: {
     maskedLink: /\[(?<name>.+)\]\((?<link>https?:\/\/.+)\)/gim,
+    symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,
+    spoilerAbuse: /(?:\|\|?[\u200B-\u200D\uFEFF]?){20,}/gim,
+    zws: /[\u200B-\u200D\uFEFF]/gim,
+    protocol: /\w{1,10}:\/\//gim,
     joinleavemsgs: {
       user: /{user}/gim,
       mention: /{user\.mention}/gim,

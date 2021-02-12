@@ -1,8 +1,8 @@
-import { VanityURL } from "../../lib/interfaces/invwtf";
-import { FireGuild } from "../../lib/extensions/guild";
-import { Language } from "../../lib/util/language";
+import { VanityURL } from "@fire/lib/interfaces/invwtf";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { Language } from "@fire/lib/util/language";
 import { MessageEmbed, Invite } from "discord.js";
-import { Module } from "../../lib/util/module";
+import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 
 export default class VanityURLs extends Module {

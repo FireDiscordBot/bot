@@ -1,8 +1,8 @@
-import { constants, humanize } from "../../lib/util/constants";
-import { FireMember } from "../../lib/extensions/guildmember";
+import { constants, humanize } from "@fire/lib/util/constants";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageEmbed, TextChannel } from "discord.js";
-import { Listener } from "../../lib/util/listener";
-import Sk1er from "../modules/sk1er";
+import { Listener } from "@fire/lib/util/listener";
+import Sk1er from "@fire/src/modules/sk1er";
 import * as moment from "moment";
 
 const {

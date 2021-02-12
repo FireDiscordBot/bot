@@ -1,13 +1,13 @@
 import {
   PaginatorEmbedInterface,
   WrappedPaginator,
-} from "../../../lib/util/paginators";
-import { FireMember } from "../../../lib/extensions/guildmember";
-import { FireMessage } from "../../../lib/extensions/message";
-import { FireUser } from "../../../lib/extensions/user";
-import { titleCase } from "../../../lib/util/constants";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+} from "@fire/lib/util/paginators";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
+import { titleCase } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 import { MessageEmbed, Util } from "discord.js";
 
 export default class Modlogs extends Command {

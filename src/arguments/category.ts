@@ -1,5 +1,5 @@
-import { categoryChannelConverter } from "../../lib/util/converters";
-import { FireMessage } from "../../lib/extensions/message";
+import { categoryChannelConverter } from "@fire/lib/util/converters";
+import { FireMessage } from "@fire/lib/extensions/message";
 import { ArgumentTypeCaster } from "discord-akairo";
 import { CategoryChannel } from "discord.js";
 

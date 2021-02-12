@@ -8,10 +8,10 @@ import {
 import {
   ApplicationCommandOptionType,
   Option,
-} from "../interfaces/slashCommands";
+} from "@fire/lib/interfaces/slashCommands";
 import { titleCase } from "./constants";
 import { Language } from "./language";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 type ArgumentGenerator = (
   ...a: Parameters<AkairoArgumentGenerator>
@@ -183,8 +183,9 @@ export class Command extends AkairoCommand {
       required: argument.required,
     };
     if (
-      argument.type instanceof Array &&
-      argument.type.every((value) => typeof value == "string")
+      argument.slashCommandOptions ||
+      (argument.type instanceof Array &&
+        argument.type.every((value) => typeof value == "string"))
     ) {
       let choices: { name: string; value: string }[] = [];
       for (const type of (argument.slashCommandOptions ||

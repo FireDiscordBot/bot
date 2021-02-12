@@ -1,16 +1,16 @@
 import {
   MessageLinkMatch,
   PartialQuoteDestination,
-} from "../../lib/interfaces/messages";
-import { messageConverter } from "../../lib/util/converters";
-import { MessageUtil } from "../../lib/ws/util/MessageUtil";
-import { FireMessage } from "../../lib/extensions/message";
-import { EventType } from "../../lib/ws/util/constants";
-import { constants } from "../../lib/util/constants";
-import { Listener } from "../../lib/util/listener";
-import Remind from "../commands/Utilities/remind";
-import Quote from "../commands/Utilities/quote";
-import { Message } from "../../lib/ws/Message";
+} from "@fire/lib/interfaces/messages";
+import { messageConverter } from "@fire/lib/util/converters";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { constants } from "@fire/lib/util/constants";
+import { Listener } from "@fire/lib/util/listener";
+import Remind from "@fire/src/commands/Utilities/remind";
+import Quote from "@fire/src/commands/Utilities/quote";
+import { Message } from "@fire/lib/ws/Message";
 import { TextChannel } from "discord.js";
 
 const { regexes } = constants;

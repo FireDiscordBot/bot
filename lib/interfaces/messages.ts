@@ -1,4 +1,4 @@
-import { FireGuild } from "../extensions/guild";
+import { FireGuild } from "@fire/lib/extensions/guild";
 
 export interface MessageLinkMatch {
   message_id: string;

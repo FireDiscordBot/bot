@@ -1,9 +1,9 @@
-import { FireMember } from "../extensions/guildmember";
-import { FireGuild } from "../extensions/guild";
-import { FireUser } from "../extensions/user";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireUser } from "@fire/lib/extensions/user";
 import { Collection } from "discord.js";
 import * as fuzz from "fuzzball";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 export interface Tag {
   name: string;

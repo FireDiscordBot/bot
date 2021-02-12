@@ -1,10 +1,10 @@
 import {
   categoryChannelConverter,
   roleConverter,
-} from "../../../lib/util/converters";
-import { FireMessage } from "../../../lib/extensions/message";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+} from "@fire/lib/util/converters";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 import { MessageEmbed } from "discord.js";
 import { v4 as uuidv4 } from "uuid";
 import { readFileSync } from "fs";

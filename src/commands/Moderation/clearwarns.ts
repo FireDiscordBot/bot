@@ -1,7 +1,7 @@
-import { FireMember } from "../../../lib/extensions/guildmember";
-import { FireMessage } from "../../../lib/extensions/message";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 import { Argument } from "discord-akairo";
 
 export default class ClearWarnings extends Command {

@@ -1,6 +1,6 @@
-import { MessageUtil } from "../util/MessageUtil";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventStore } from "./EventStore";
-import { Manager } from "../../Manager";
+import { Manager } from "@fire/lib/Manager";
 
 export class EventHandler {
   manager: Manager;

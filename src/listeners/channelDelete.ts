@@ -5,9 +5,9 @@ import {
   TextChannel,
   DMChannel,
 } from "discord.js";
-import { FireGuild } from "../../lib/extensions/guild";
-import { humanize } from "../../lib/util/constants";
-import { Listener } from "../../lib/util/listener";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { humanize } from "@fire/lib/util/constants";
+import { Listener } from "@fire/lib/util/listener";
 
 export default class ChannelDelete extends Listener {
   constructor() {

@@ -1,12 +1,12 @@
-import { humanize, zws, constants } from "../../../lib/util/constants";
-import { snowflakeConverter } from "../../../lib/util/converters";
-import { FireMember } from "../../../lib/extensions/guildmember";
-import { FireMessage } from "../../../lib/extensions/message";
-import { FireGuild } from "../../../lib/extensions/guild";
-import { FireUser } from "../../../lib/extensions/user";
+import { humanize, zws, constants } from "@fire/lib/util/constants";
+import { snowflakeConverter } from "@fire/lib/util/converters";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireUser } from "@fire/lib/extensions/user";
 import { GuildPreview, MessageEmbed } from "discord.js";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 import * as moment from "moment";
 
 const {

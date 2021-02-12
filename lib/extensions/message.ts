@@ -9,16 +9,16 @@ import {
   Webhook,
   Message,
 } from "discord.js";
-import { PartialQuoteDestination } from "../interfaces/messages";
-import { PaginatorInterface } from "../util/paginators";
-import { CommandUtil } from "../util/commandutil";
-import Filters from "../../src/modules/filters";
-import { constants } from "../util/constants";
+import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
+import { PaginatorInterface } from "@fire/lib/util/paginators";
+import { CommandUtil } from "@fire/lib/util/commandutil";
+import { constants } from "@fire/lib/util/constants";
+import Filters from "@fire/src/modules/filters";
 import { FireMember } from "./guildmember";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import * as centra from "centra";
-import { Fire } from "../Fire";
+import { Fire } from "@fire/lib/Fire";
 
 const { emojis, reactions, regexes, imageExts } = constants;
 
@@ -335,6 +335,51 @@ export class FireMessage extends Message {
         );
     } else embed.setFooter(language.get("QUOTE_EMBED_FOOTER", quoter));
     return await destination.send(embed).catch(() => {});
+  }
+
+  async runFilters() {
+    if (!this.guild || this.author.bot) return;
+    if (!this.member)
+      await this.guild.members.fetch(this.author.id).catch(() => {});
+    if (!this.member) return; // if we still don't have access to member, just ignore
+
+    if (
+      this.guild.settings.get("mod.antieveryone", false) &&
+      (this.content.includes("@everyone") || this.content.includes("@here")) &&
+      !this.member.hasPermission("MENTION_EVERYONE")
+    )
+      return await this.delete().catch(() => {});
+
+    if (
+      this.guild.settings.get("mod.antizws", false) &&
+      regexes.zws.test(this.content) &&
+      !this.member.isModerator()
+    ) {
+      regexes.zws.lastIndex = 0;
+      return await this.delete().catch(() => {});
+    }
+    regexes.zws.lastIndex = 0;
+
+    if (
+      this.guild.settings.get("mod.antispoilers", false) &&
+      regexes.spoilerAbuse.test(this.content) &&
+      !this.member.isModerator()
+    ) {
+      regexes.spoilerAbuse.lastIndex = 0;
+      return await this.delete().catch(() => {});
+    }
+    regexes.spoilerAbuse.lastIndex = 0;
+
+    if (
+      this.guild.settings.get("mod.antiselfbot", false) &&
+      this.embeds.length &&
+      this.embeds.filter(
+        (embed) =>
+          embed.type == "rich" &&
+          (!embed.url || !this.content.includes(embed.url))
+      ).length
+    )
+      return await this.delete().catch(() => {});
   }
 }
 

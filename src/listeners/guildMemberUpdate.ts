@@ -4,11 +4,11 @@ import {
   MessageEmbed,
   TextChannel,
 } from "discord.js";
-import { FireMember } from "../../lib/extensions/guildmember";
-import RolePersist from "../commands/Premium/rolepersist";
-import { FireGuild } from "../../lib/extensions/guild";
-import { Listener } from "../../lib/util/listener";
-import Sk1er from "../modules/sk1er";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import RolePersist from "@fire/src/commands/Premium/rolepersist";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { Listener } from "@fire/lib/util/listener";
+import Sk1er from "@fire/src/modules/sk1er";
 
 export default class GuildMemberUpdate extends Listener {
   constructor() {

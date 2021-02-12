@@ -1,6 +1,6 @@
-import { FireMessage } from "../../lib/extensions/message";
-import { userConverter } from "../../lib/util/converters";
-import { FireUser } from "../../lib/extensions/user";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { userConverter } from "@fire/lib/util/converters";
+import { FireUser } from "@fire/lib/extensions/user";
 import { ArgumentTypeCaster } from "discord-akairo";
 
 export const userTypeCaster: ArgumentTypeCaster = (

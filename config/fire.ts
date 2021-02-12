@@ -1,5 +1,5 @@
-import { humanize } from "../lib/util/constants";
-import { Fire } from "../lib/Fire";
+import { humanize } from "@fire/lib/util/constants";
+import { Fire } from "@fire/lib/Fire";
 import * as moment from "moment";
 
 export const fire = {

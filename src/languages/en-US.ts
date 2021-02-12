@@ -1,5 +1,5 @@
-import { constants } from "../../lib/util/constants";
-import { Language } from "../../lib/util/language";
+import { constants } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
 
 export default class enUS extends Language {
   constructor() {
@@ -237,6 +237,43 @@ export default class enUS extends Language {
             "<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)",
         },
         POWERED_BY_KSOFT: "Powered by KSoft.Si API",
+        ANTI_COMMAND_DESCRIPTION:
+          "Remove messages containing certain content e.g. @everyone or zero width spaces",
+        ANTI_EVERYONE:
+          "Delete messages with @everyone & @here from those without permission to use them",
+        ANTI_ZWS:
+          "Delete messages including zero width spaces sent by non-moderators",
+        ANTI_SPOILER:
+          'Delete messages containing "spoiler abuse" (using many spoilers to mask content, typically used to hide links)',
+        ANTI_CURRENT_OPTIONS: (
+          options: [string, boolean][]
+        ) => `**__Current Message Filters__**
+ 
+${options
+  .map(([name, enabled]) =>
+    enabled
+      ? `${constants.emojis.success} ${name}`
+      : `${constants.emojis.error} ${name}`
+  )
+  .join("\n")}`,
+        ANTI_EVERYONE_DISABLED:
+          "I will no longer delete messages containing @everyone or @here",
+        ANTI_EVERYONE_ENABLED:
+          "I will now delete messages containing @everyone or @here if they lack the permission to use it",
+        ANTI_ZWS_DISABLED:
+          "I will no longer delete messages containing zero width spaces sent by non-moderators",
+        ANTI_ZWS_ENABLED:
+          "I will now delete messages containing zero width spaces sent by non-moderators",
+        ANTI_SPOILER_DISABLED:
+          'I will no longer delete messages containing "spoiler abuse" (using many spoilers to mask content, typically used to hide links)',
+        ANTI_SPOILER_ENABLED:
+          'I will now delete messages containing "spoiler abuse" (using many spoilers to mask content, typically used to hide links)',
+        ANTI_SELFBOT_DISABLED:
+          "I will no longer delete messages from selfbots (embeds from users)",
+        ANTI_SELFBOT_ENABLED:
+          "I will now delete messages from selfbots (embeds from users)",
+        ANTI_UNKNOWN: (valid: string[]) =>
+          `That is not a valid filter. Current filters are ${valid.join(", ")}`,
         AUDIT_ACTION_MEMBER_BAN_ADD: "Banned",
         AUDIT_ACTION_MEMBER_KICK: "Kicked",
         AUDIT_ACTION_BY: (action: string) => `${action} By`, // e.g. Kicked By or Banned By

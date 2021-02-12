@@ -1,8 +1,8 @@
-import { FireMember } from "../../../lib/extensions/guildmember";
-import { FireMessage } from "../../../lib/extensions/message";
-import { FireUser } from "../../../lib/extensions/user";
-import { Language } from "../../../lib/util/language";
-import { Command } from "../../../lib/util/command";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 import { MessageAttachment } from "discord.js";
 import * as centra from "centra";
 

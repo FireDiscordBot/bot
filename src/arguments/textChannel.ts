@@ -1,5 +1,5 @@
-import { textChannelConverter } from "../../lib/util/converters";
-import { FireMessage } from "../../lib/extensions/message";
+import { textChannelConverter } from "@fire/lib/util/converters";
+import { FireMessage } from "@fire/lib/extensions/message";
 import { ArgumentTypeCaster } from "discord-akairo";
 import { TextChannel } from "discord.js";
 

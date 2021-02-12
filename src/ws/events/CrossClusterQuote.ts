@@ -1,14 +1,14 @@
 import {
   MessageLinkMatch,
   PartialQuoteDestination,
-} from "../../../lib/interfaces/messages";
-import { FireMember } from "../../../lib/extensions/guildmember";
-import { FireMessage } from "../../../lib/extensions/message";
-import { EventType } from "../../../lib/ws/util/constants";
-import { FireGuild } from "../../../lib/extensions/guild";
-import { Event } from "../../../lib/ws/event/Event";
-import Quote from "../../commands/Utilities/quote";
-import { Manager } from "../../../lib/Manager";
+} from "@fire/lib/interfaces/messages";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { Event } from "@fire/lib/ws/event/Event";
+import Quote from "@fire/src/commands/Utilities/quote";
+import { Manager } from "@fire/lib/Manager";
 import { TextChannel } from "discord.js";
 
 export default class CrossClusterQuote extends Event {
