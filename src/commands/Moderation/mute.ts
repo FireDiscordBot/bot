@@ -49,7 +49,7 @@ export default class Mute extends Command {
     } catch {
       return await message.error("MUTE_FAILED_PARSE_TIME");
     }
-    if (minutes != 0 && minutes < 1)
+    if (minutes != 0 && minutes < 5)
       return await message.error("MUTE_TIME_TOO_SHORT");
     const now = new Date();
     let date: number;
