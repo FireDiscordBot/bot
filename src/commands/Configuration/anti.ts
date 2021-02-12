@@ -49,6 +49,12 @@ export default class Anti extends Command {
           "mod.antispoilers",
           false
         ) as boolean,
+        [message.language.get(
+          "ANTI_SELFBOT"
+        ) as string]: message.guild.settings.get(
+          "mod.antiselfbot",
+          false
+        ) as boolean,
       };
       return await message.send(
         "ANTI_CURRENT_OPTIONS",

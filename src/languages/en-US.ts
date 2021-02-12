@@ -245,6 +245,7 @@ export default class enUS extends Language {
           "Delete messages including zero width spaces sent by non-moderators",
         ANTI_SPOILER:
           'Delete messages containing "spoiler abuse" (using many spoilers to mask content, typically used to hide links)',
+        ANTI_SELFBOT: "Delete messages from selfbots (embeds from users)",
         ANTI_CURRENT_OPTIONS: (
           options: [string, boolean][]
         ) => `**__Current Message Filters__**
