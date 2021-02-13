@@ -89,7 +89,7 @@ export default class User extends Command {
     // revert back to message member if fetching w/presence fails
     if (!member && user.id == message.author.id) member = message.member;
     if (user instanceof ClientUser) {
-      member = message.guild.members.cache.get(user.id) as FireMember;
+      member = message.guild?.members.cache.get(user.id) as FireMember;
       user = member.user;
     }
     const color = member
