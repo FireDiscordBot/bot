@@ -160,7 +160,7 @@ export class Fire extends AkairoClient {
 
     if (sentry) {
       this.sentry = sentry;
-      this.sentry.setTag("cluster", this.manager.id.toString());
+      this.sentry.setTag("cluster", process.pid.toString());
       this.sentry.setTag("discord.js", djsver);
       this.sentry.setTag("discord-akairo", akairover);
       this.console.log("[Sentry] Connected.");
@@ -319,7 +319,7 @@ export class Fire extends AkairoClient {
   }
 
   async login() {
-    if (!this.options.shards) this.options.shards = [this.manager.id];
+    if (!this.options.shards) this.options.shards = [this.manager.id || 0];
     this.console.warn(
       `[Discord] Attempting to login on cluster ${
         this.manager.id

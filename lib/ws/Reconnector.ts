@@ -27,8 +27,13 @@ export class Reconnector {
   handleClose(code: number, reason: string) {
     clearInterval(this.manager.ws?.keepAlive);
     if (code == 4007)
-      // Cluster has been overwriten
-      this.manager.kill("overwrite");
+      // Cluster has attempted to connect multiple times
+      // so kill the process and let pm2 restart it
+      this.manager.kill("replaced");
+    if (code == 4029)
+      // This means that the current process is
+      // an extra, so it's unnecessary to keep alive
+      this.manager.kill("extra");
     if (
       this.state == WebsocketStates.CONNECTED ||
       this.state == WebsocketStates.CLOSING
