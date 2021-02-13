@@ -2,7 +2,6 @@ export enum EventType {
   IDENTIFY_CLIENT,
   LAUNCH_CLIENT,
   READY_CLIENT,
-  RECONNECT_CLIENT,
   RESTART_CLIENT,
   SEND_STATS,
   LOAD_MODULE,
@@ -22,6 +21,7 @@ export enum EventType {
   PLAYWRIGHT_REQUEST,
   UPDATE_FIRE_DESCRIPTION,
   FORWARD_MESSAGE,
+  SLASH_COMMAND,
 }
 
 export enum WebsocketStates {
