@@ -23,7 +23,7 @@ export class Manager {
       this.reconnector = new Reconnector(this);
       this.eventHandler.store.init();
       this.ws = new Websocket(this);
-    }
+    } else this.id = 0; // default to shard 0
 
     this.listen();
   }
