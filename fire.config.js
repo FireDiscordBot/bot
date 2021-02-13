@@ -36,7 +36,6 @@ module.exports = {
         NODE_ENV: "development",
       },
       exp_backoff_restart_delay: 2500,
-      i,
       // node_args: "--expose-gc",
     },
   ],
