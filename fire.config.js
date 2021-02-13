@@ -11,6 +11,8 @@ module.exports = {
       env: {
         NODE_ENV: "production",
       },
+      max_memory_restart: "1G",
+      exp_backoff_restart_delay: 2500,
       // node_args: "--expose-gc",
     },
     {
@@ -18,6 +20,10 @@ module.exports = {
       script: "yarn",
       args: "run rundev",
       automation: false,
+      env: {
+        NODE_ENV: "development",
+      },
+      exp_backoff_restart_delay: 2500,
       // node_args: "--expose-gc",
     },
     {
@@ -26,6 +32,11 @@ module.exports = {
       args: "run rundev",
       instances: 1,
       automation: false,
+      env: {
+        NODE_ENV: "development",
+      },
+      exp_backoff_restart_delay: 2500,
+      i,
       // node_args: "--expose-gc",
     },
   ],

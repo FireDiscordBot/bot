@@ -15,7 +15,6 @@ export class Manager {
   id: number;
 
   constructor(sentry?: typeof Sentry) {
-    this.id = parseInt(process.env.NODE_APP_INSTANCE || "0");
     this.sentry = sentry;
     this.client = new Fire(this, sentry);
 
@@ -24,7 +23,7 @@ export class Manager {
       this.reconnector = new Reconnector(this);
       this.eventHandler.store.init();
       this.ws = new Websocket(this);
-    }
+    } else this.id = 0; // default to shard 0
 
     this.listen();
   }
@@ -69,8 +68,9 @@ export class Manager {
     }
   }
 
-  launch(data: { shardCount: number; shards: number[] }) {
-    this.client.console.log("[Sharder] Attempting to login.");
+  launch(data: { id: number; shardCount: number; shards: number[] }) {
+    this.client.console.log(`[Sharder] Received sharding config.`);
+    this.id = data.id;
     this.client.options.presence.shardID = this.client.options.shards =
       data.shards;
     this.client.options.shardCount = data.shardCount;
@@ -90,7 +90,7 @@ export class Manager {
     );
     this.client?.destroy();
     this.client = new Fire(this, this.sentry);
-    this.launch(data);
+    this.launch({ id: this.id, ...data });
   }
 
   async kill(event: string) {

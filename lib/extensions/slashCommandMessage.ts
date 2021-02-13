@@ -340,7 +340,7 @@ export class FakeChannel {
         if (sourceMessage)
           this.message.sourceMessage = sourceMessage as FireMessage;
       })
-      .catch(() => {});
+      .catch(() => (this.message.sent = "ack"));
   }
 
   async send(
