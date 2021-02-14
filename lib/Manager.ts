@@ -77,22 +77,6 @@ export class Manager {
     return this.client.login();
   }
 
-  async relaunch(data: { shardCount: number; shards: number[] }) {
-    this.client?.console.warn("[Manager] Destroying client...");
-    await this.client?.user?.setStatus(
-      "invisible",
-      this.client.options.shards as number[]
-    );
-    await Promise.all(
-      this.client.commandHandler.modules.map((command: Command) =>
-        command.unload()
-      )
-    );
-    this.client?.destroy();
-    this.client = new Fire(this, this.sentry);
-    this.launch({ id: this.id, ...data });
-  }
-
   async kill(event: string) {
     if (this.killing) return;
     this.killing = true;
