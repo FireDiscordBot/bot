@@ -335,7 +335,7 @@ export class FireMember extends GuildMember {
         .catch(() => false);
       return deleted ? "ban" : "ban_and_entry";
     }
-    let dbadd: any;
+    let dbadd: any = !until;
     if (until) {
       this.guild.bans.set(this.id, until || 0);
       dbadd = await this.client.db
