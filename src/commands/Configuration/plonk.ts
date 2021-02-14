@@ -47,6 +47,7 @@ export default class Plonk extends Command {
 
     if (!args.user && typeof args.user == "undefined")
       return await message.error("PLONK_USER_REQUIRED");
+    else if (!args.user) return;
     else if (
       args.user instanceof FireMember &&
       args.user.isModerator() &&
