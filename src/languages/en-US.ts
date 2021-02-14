@@ -1250,6 +1250,7 @@ ${success.map((s) => "- " + s).join("\n")}${
         SUGGESTION_SUCCESS: (card: any) =>
           `Thanks! Your suggestion was added to the Trello @ <${card.url}>. Make sure to check it every now and then for a response.
 Abuse of this command __**will**__ result in being temporarily blacklisted from Fire`,
+        SUPPORT_COMMAND_DESCRIPTION: "Get a link to Fire's support server",
         USER_COMMAND_DESCRIPTION: "Get a general overview of a user.",
         // don't change emote
         USER_SNOWFLAKE_DESCRIPTION: `It looks like that isn't a valid user, but it is a valid snowflake! <:snowflak:784510818556706867>
