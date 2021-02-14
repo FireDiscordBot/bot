@@ -33,6 +33,6 @@ export default class RestartEvent extends Event {
       );
       return;
     }
-    await this.manager.relaunch(data || { shardCount: 1, shards: [0] });
+    this.manager.kill("resharding");
   }
 }
