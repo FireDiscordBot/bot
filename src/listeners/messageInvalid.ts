@@ -30,6 +30,7 @@ export default class MessageInvalid extends Listener {
 
   async exec(message: FireMessage) {
     if (
+      this.client.config.dev ||
       this.botQuoteRegex.test(message.content) ||
       this.slashCommandRegex.test(message.content) ||
       !message.guild ||
