@@ -106,9 +106,9 @@ export const guildPreviewConverter = async (
     }
     let isPublic = false;
     const publicGuildsReq = await centra(
-      process.env.NODE_ENV == "development"
-        ? `http://localhost:${process.env.REST_PORT}/public`
-        : `https://${process.env.REST_HOST}/public`
+      process.env.REST_HOST
+        ? `https://${process.env.REST_HOST}/public`
+        : `http://localhost:${process.env.REST_PORT}/public`
     )
       .header("User-Agent", "Fire Discord Bot")
       .header("Authorization", process.env.WS_AUTH)

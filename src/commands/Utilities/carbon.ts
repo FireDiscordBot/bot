@@ -159,9 +159,9 @@ export default class Carbon extends Command {
     };
 
     const image = await centra(
-      process.env.NODE_ENV == "development"
-        ? `http://localhost:${process.env.REST_PORT}/img/carbon`
-        : `https://${process.env.REST_HOST}/img/carbon`,
+      process.env.REST_HOST
+        ? `https://${process.env.REST_HOST}/img/carbon`
+        : `http://localhost:${process.env.REST_PORT}/img/carbon`,
       "POST"
     )
       .header("User-Agent", "Fire Discord Bot")
