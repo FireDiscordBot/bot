@@ -315,12 +315,12 @@ export const parseTime = (content: string, replace: boolean = false) => {
   const {
     regexes: { time: regexes },
   } = constants;
+  // to try reduce false positives for the time
+  // it requires a space before the time
+  // so here we add a space before the content
+  // in case the time is at the start
+  content = " " + content;
   if (replace) {
-    // to try reduce false positives for the time
-    // it requires a space before the time
-    // so here we add a space before the content
-    // in case the time is at the start
-    content = " " + content;
     for (const phrase of regexes.phrasing) {
       const match = phrase.exec(content);
       phrase.lastIndex = 0;
@@ -329,7 +329,6 @@ export const parseTime = (content: string, replace: boolean = false) => {
     // trimStart here will remove the space we added earlier
     return content.replace(/\s{2,}/gim, " ").trimStart();
   }
-  content = content.trim();
   const matches = {
     months: regexes.month.exec(content)?.groups?.months,
     weeks: regexes.week.exec(content)?.groups?.weeks,
