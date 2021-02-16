@@ -14,7 +14,11 @@ import {
   MessageEmbedOptions,
   PermissionOverwriteOption,
 } from "discord.js";
-import { ActionLogType, MemberLogType, ModLogType } from "@fire/lib/util/constants";
+import {
+  ActionLogType,
+  MemberLogType,
+  ModLogType,
+} from "@fire/lib/util/constants";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import Tickets from "@fire/src/commands/Tickets/tickets";
@@ -127,6 +131,7 @@ export class FireGuild extends Guild {
           {
             SEND_MESSAGES: false,
             ADD_REACTIONS: false,
+            SPEAK: false,
           },
           this.language.get("MUTE_ROLE_CREATE_REASON") as string
         )
@@ -151,12 +156,38 @@ export class FireGuild extends Guild {
           {
             SEND_MESSAGES: false,
             ADD_REACTIONS: false,
+            SPEAK: false,
           },
           this.language.get("MUTE_ROLE_CREATE_REASON") as string
         )
         .catch(() => {});
     }
     return changed;
+  }
+
+  async syncMuteRolePermissions() {
+    const role = this.muteRole;
+    if (!role) return;
+    for (const [, channel] of this.channels.cache) {
+      const denied = channel.permissionOverwrites.get(role.id)?.deny;
+      if (
+        !denied ||
+        !denied.has("SEND_MESSAGES") ||
+        !denied.has("ADD_REACTIONS") ||
+        !denied.has("SPEAK")
+      )
+        await channel
+          .updateOverwrite(
+            role,
+            {
+              SEND_MESSAGES: false,
+              ADD_REACTIONS: false,
+              SPEAK: false,
+            },
+            this.language.get("MUTE_ROLE_CREATE_REASON") as string
+          )
+          .catch(() => {});
+    }
   }
 
   private async loadMutes() {

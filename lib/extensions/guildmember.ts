@@ -511,7 +511,7 @@ export class FireMember extends GuildMember {
     if (!this.guild.muteRole) {
       const role = await this.guild.initMuteRole();
       if (!role) return "role";
-    }
+    } else await this.guild.syncMuteRolePermissions();
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, "mute", reason)
       .catch(() => {});
