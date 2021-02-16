@@ -26,6 +26,7 @@ export class Reconnector {
 
   handleClose(code: number, reason: string) {
     clearInterval(this.manager.ws?.keepAlive);
+    if (code == 1006) this.manager.ws?.terminate();
     if (code == 4007)
       // Cluster has attempted to connect multiple times
       // so kill the process and let pm2 restart it
