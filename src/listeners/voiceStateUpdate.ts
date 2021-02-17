@@ -25,6 +25,17 @@ export default class VoiceStateUpdate extends Listener {
       }
     }
 
+    if (
+      guild.vcRoles.has(before.channelID) &&
+      !guild.vcRoles.has(after.channelID)
+    ) {
+      const role = guild.roles.cache.get(guild.vcRoles.get(before.channelID));
+      if (role)
+        await member.roles
+          .remove(role, guild.language.get("VCROLE_REMOVE_REASON") as string)
+          .catch(() => {});
+    }
+
     if (guild.vcRoles.has(after.channelID)) {
       const role = guild.roles.cache.get(guild.vcRoles.get(after.channelID));
       if (role)
