@@ -1465,10 +1465,8 @@ If the user gets automatically muted again, just try unmute them again and it'll
           "This guild has been blacklisted from vanity features",
         VANITYURL_CREATED: (code: string, dev: boolean) =>
           `Your Vanity URL is <https://${dev ? "test." : ""}inv.wtf/${code}>`,
-        VCROLE_ADD_REASON: (channel: string) =>
-          `Giving VC role for voice channel ${channel}`,
-        VCROLE_REMOVE_REASON: (channel: string) =>
-          `Removing VC role for voice channel ${channel}`,
+        VCROLE_ADD_REASON: "Giving VC role",
+        VCROLE_REMOVE_REASON: "Removing VC role",
         VCROLE_COMMAND_DESCRIPTION:
           "Automatically assign a role to a user when they join a voice channel",
         VCROLE_CHANNEL_REQUIRED:

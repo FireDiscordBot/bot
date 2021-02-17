@@ -383,13 +383,7 @@ export class FireGuild extends Guild {
       ))
         await members
           .get(state.id)
-          ?.roles.add(
-            role,
-            this.language.get(
-              "VCROLE_ADD_REASON",
-              channel?.name || "???"
-            ) as string
-          )
+          ?.roles.add(role, this.language.get("VCROLE_ADD_REASON") as string)
           .catch(() => {});
     }
   }

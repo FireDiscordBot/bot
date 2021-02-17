@@ -173,6 +173,8 @@ export default class GuildMemberUpdate extends Listener {
     const ignoredReasons = [
       newMember.guild.language.get("REACTIONROLE_ROLE_REASON"),
       newMember.guild.language.get("REACTIONROLE_ROLE_REMOVE_REASON"),
+      newMember.guild.language.get("VCROLE_ADD_REASON"),
+      newMember.guild.language.get("VCROLE_REMOVE_REASON"),
     ];
 
     let filteredActions = auditLogActions.entries.filter(

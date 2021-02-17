@@ -62,10 +62,7 @@ export default class VCRole extends Command {
               await member.roles
                 .remove(
                   existing,
-                  message.guild.language.get(
-                    "VCROLE_REMOVE_REASON",
-                    args.channel.name
-                  ) as string
+                  message.guild.language.get("VCROLE_REMOVE_REASON") as string
                 )
                 .catch(() => {});
         }
@@ -99,10 +96,7 @@ export default class VCRole extends Command {
             await member.roles
               .add(
                 args.role,
-                message.guild.language.get(
-                  "VCROLE_ADD_REASON",
-                  args.channel.name
-                ) as string
+                message.guild.language.get("VCROLE_ADD_REASON") as string
               )
               .catch(() => {});
       }

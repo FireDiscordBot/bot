@@ -20,13 +20,7 @@ export default class VoiceStateUpdate extends Listener {
         const role = guild.roles.cache.get(guild.vcRoles.get(before.channelID));
         if (role)
           await member.roles
-            .remove(
-              role,
-              guild.language.get(
-                "VCROLE_REMOVE_REASON",
-                before.channel?.name || "???"
-              ) as string
-            )
+            .remove(role, guild.language.get("VCROLE_REMOVE_REASON") as string)
             .catch(() => {});
       }
     }
@@ -35,13 +29,7 @@ export default class VoiceStateUpdate extends Listener {
       const role = guild.roles.cache.get(guild.vcRoles.get(after.channelID));
       if (role)
         await member.roles
-          .add(
-            role,
-            guild.language.get(
-              "VCROLE_ADD_REASON",
-              after.channel?.name || "???"
-            ) as string
-          )
+          .add(role, guild.language.get("VCROLE_ADD_REASON") as string)
           .catch(() => {});
     }
   }
