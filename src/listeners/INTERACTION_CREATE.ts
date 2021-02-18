@@ -24,9 +24,7 @@ export default class InteractionCreate extends Listener {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(command.channel_id).catch(() => {});
       const message = new SlashCommandMessage(this.client, command);
-      await message.channel.ack(
-        !message.command.ephemeral || message.realChannel instanceof DMChannel
-      );
+      await message.channel.ack(message.command.ephemeral);
       if (!message.command) {
         this.client.console.warn(
           `[Commands] Got slash command request for unknown command, /${command.data.name}`
