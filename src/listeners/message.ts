@@ -8,7 +8,9 @@ import Sk1er from "@fire/src/modules/sk1er";
 import * as centra from "centra";
 
 const { regexes } = constants;
+const tokenExtras = /(?:(?:  )?',(?: ')?\n?|  '|\s|\n)/gim;
 export default class Message extends Listener {
+  recentTokens: string[];
   tokenRegex: RegExp;
 
   constructor() {
@@ -16,16 +18,30 @@ export default class Message extends Listener {
       emitter: "client",
       event: "message",
     });
-    this.tokenRegex = /[MN][A-Za-z\d]{23}\.[\w-]{6}\.[\w-]{27}/gim;
+    this.tokenRegex = /[MN][A-Za-z\d]{23}\.?[\w-]{6}\.?[\w-]{27}/gm;
+    this.recentTokens = [];
   }
 
   async tokenGist(message: FireMessage, foundIn: string) {
     let tokens: string[] = [];
     let exec: RegExpExecArray;
-    while ((exec = this.tokenRegex.exec(foundIn)))
-      if (exec) tokens.push(exec[0]);
+    while ((exec = this.tokenRegex.exec(foundIn))) {
+      if (exec?.length && !this.recentTokens.includes(exec[0]))
+        tokens.push(exec[0]);
+    }
     this.tokenRegex.lastIndex = 0;
-    if (!tokens.length) return;
+    for (let [index, token] of tokens.entries()) {
+      const original = (" " + token).trimStart(); // creates a deep copy
+      if (token.charAt(24) != ".")
+        token = original.slice(0, 24) + "." + original.slice(24);
+      if (token.charAt(31) != ".")
+        token =
+          (original.length >= 58 ? original : token).slice(0, 31) +
+          "." +
+          (original.length >= 58 ? original : token).slice(31);
+      if (token != original) tokens[index] = token;
+    }
+    this.recentTokens.push(...tokens);
     let files: { [key: string]: { content: string } } = {};
     for (const token of tokens)
       files[`token_leak_${+new Date()}`] = {
@@ -91,9 +107,10 @@ export default class Message extends Listener {
 
     await message.runFilters().catch(() => {});
 
-    let toSearch =
+    let toSearch = (
       message.content +
-      message.embeds.map((embed) => JSON.stringify(embed)).join(" ");
+      message.embeds.map((embed) => JSON.stringify(embed)).join(" ")
+    ).replace(tokenExtras, "");
     if (this.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN) {
       this.tokenRegex.lastIndex = 0;
       await this.tokenGist(message, toSearch);
