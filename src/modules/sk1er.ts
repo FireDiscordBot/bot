@@ -67,6 +67,7 @@ export default class Sk1er extends Module {
   }
 
   async init() {
+    if (this.client.config.dev) return this.remove();
     if (this.client.readyAt) await this.ready();
     else this.client.once("ready", async () => this.ready());
   }
