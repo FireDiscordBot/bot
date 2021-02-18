@@ -25,6 +25,7 @@ export default class Message extends Listener {
     while ((exec = this.tokenRegex.exec(foundIn)))
       if (exec) tokens.push(exec[0]);
     this.tokenRegex.lastIndex = 0;
+    if (!tokens.length) return;
     let files: { [key: string]: { content: string } } = {};
     for (const token of tokens)
       files[`token_leak_${+new Date()}`] = {
