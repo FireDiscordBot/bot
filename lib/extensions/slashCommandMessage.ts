@@ -316,12 +316,14 @@ export class FakeChannel {
   }
 
   // Acknowledges without sending a message
-  async ack(source: boolean = false) {
+  async ack(ephemeral = false) {
     // @ts-ignore
     await this.client.api
       // @ts-ignore
       .interactions(this.id)(this.token)
-      .callback.post({ data: { type: source ? 5 : 2 }, query: { wait: true } })
+      .callback.post({
+        data: { type: 5, data: { flags: ephemeral ? 1 << 6 : this.msgFlags } },
+      })
       .then(() => {
         this.message.sent = "ack";
         const sourceMessage = this.real.messages.cache.find(
@@ -358,7 +360,7 @@ export class FakeChannel {
       content = null;
     }
 
-    if (content instanceof APIMessage) content.resolveData();
+    if (content instanceof APIMessage) apiMessage = content.resolveData();
     else {
       apiMessage = APIMessage.create(
         // @ts-ignore
@@ -368,21 +370,20 @@ export class FakeChannel {
       ).resolveData();
     }
 
-    const { data, files } = await apiMessage.resolveFiles();
+    // if slash commands ever support files, change below to { data, files }
+    const { data } = (await apiMessage.resolveFiles()) as {
+      data: any;
+      files: any[];
+    };
 
-    // @ts-ignore
     data.flags = this.msgFlags;
-    // @ts-ignore
     if (typeof flags == "number") data.flags = flags;
 
     // embeds in ephemeral wen eta
     if (
-      // @ts-ignore
       (data.embeds?.length || this.real instanceof DMChannel) &&
-      // @ts-ignore
       (data.flags & 64) == 64
     )
-      // @ts-ignore
       data.flags -= 64;
 
     if (!this.message.sent)
@@ -392,33 +393,40 @@ export class FakeChannel {
         .interactions(this.id)(this.token)
         .callback.post({
           data: {
-            type:
-              // @ts-ignore
-              (data.flags & 64) == 64 &&
-              // @ts-ignore
-              (!data.embeds?.length || this.real instanceof DMChannel)
-                ? 3
-                : 4,
+            type: 4,
             data,
           },
-          files,
+          // files,
         })
         .then(() => {
-          // @ts-ignore
           if ((data.flags & 64) != 64) this.message.sent = "message";
         })
         .catch(() => {});
-    else {
+    else if ((this.message.sent = "ack")) {
+      // @ts-ignore
+      await this.client.api
+        // @ts-ignore
+        .webhooks(this.client.user.id)(this.token)
+        .messages("@original")
+        .patch({
+          data,
+          // files,
+        })
+        .then(() => {
+          if ((data.flags & 64) != 64) this.message.sent = "message";
+        })
+        .catch(() => {});
+    } else {
       // @ts-ignore
       const webhook = await this.client.api
         // @ts-ignore
         .webhooks(this.client.user.id)(this.token)
         .post({
           data,
-          files,
+          // files,
+          query: { wait: true },
         })
         .then(() => {
-          // @ts-ignore
           if ((data.flags & 64) != 64) this.message.sent = "message";
         })
         .catch(() => {});
