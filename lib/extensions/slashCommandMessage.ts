@@ -170,19 +170,14 @@ export class SlashCommandMessage {
     ...args: any[]
   ): Promise<SlashCommandMessage | MessageReaction | void> {
     if (!key) {
-      const message = this.realChannel?.messages.cache.find(
-        (message) =>
-          typeof message.type == "undefined" &&
-          message.system &&
-          message.author.id == this.member.id &&
-          message.content.startsWith(
-            `</${this.command.parent ? this.command.parent : this.command.id}:${
-              this.slashCommand.data.id
-            }>`
-          )
-      );
-      if (message) return message.react(reactions.success).catch(() => {});
-      return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
+      if (this.sourceMessage instanceof FireMessage)
+        return this.sourceMessage.react(reactions.success).catch(() => {});
+      else
+        return this.getRealMessage().then((message) =>
+          message.react(reactions.success).catch(() => {
+            return this.error("SLASH_COMMAND_HANDLE_SUCCESS");
+          })
+        );
     }
     return this.channel.send(
       `${emojis.success} ${this.language.get(key, ...args)}`,
@@ -196,23 +191,44 @@ export class SlashCommandMessage {
     ...args: any[]
   ): Promise<SlashCommandMessage | MessageReaction | void> {
     if (!key) {
-      const message = this.realChannel?.messages.cache.find(
-        (message) =>
-          typeof message.type == "undefined" &&
-          message.system &&
-          message.author.id == this.member.id &&
-          message.content.startsWith(
-            `</${this.command.id}:${this.slashCommand.data.id}>`
-          )
-      );
-      if (message) return message.react(reactions.error).catch(() => {});
-      return this.error("SLASH_COMMAND_HANDLE_FAIL");
+      if (this.sourceMessage instanceof FireMessage)
+        return this.sourceMessage.react(reactions.error).catch(() => {});
+      else
+        return this.getRealMessage().then((message) =>
+          message.react(reactions.error).catch(() => {
+            return this.error("SLASH_COMMAND_HANDLE_FAIL");
+          })
+        );
     }
     return this.channel.send(
       `${emojis.error} ${this.language.get(key, ...args)}`,
       {},
       this.flags ? this.flags : 64
     );
+  }
+
+  async getRealMessage() {
+    if (!this.realChannel) return;
+
+    let messageId = this.latestResponse;
+    if (messageId == "@original") {
+      // @ts-ignore
+      const message = await this.client.api
+        // @ts-ignore
+        .webhooks(this.client.user.id, this.slashCommand.token)
+        .messages(messageId)
+        .patch({
+          data: {},
+        })
+        .catch(() => {});
+      messageId = message?.id;
+    }
+
+    const message = (await this.realChannel.messages
+      .fetch(messageId)
+      .catch(() => {})) as FireMessage;
+    if (message) this.sourceMessage = message;
+    return message;
   }
 
   async edit(
@@ -241,7 +257,13 @@ export class SlashCommandMessage {
   }
 
   async delete() {
-    return this;
+    // @ts-ignore
+    await this.client.api
+      // @ts-ignore
+      .webhooks(this.client.user.id, this.slashCommand.token)
+      .messages(this.latestResponse)
+      .delete()
+      .catch(() => {});
   }
 }
 
@@ -418,7 +440,7 @@ export class FakeChannel {
         .catch(() => {});
     } else {
       // @ts-ignore
-      const webhook = await this.client.api
+      const message = await this.client.api
         // @ts-ignore
         .webhooks(this.client.user.id)(this.token)
         .post({
@@ -430,8 +452,9 @@ export class FakeChannel {
           if ((data.flags & 64) != 64) this.message.sent = "message";
         })
         .catch(() => {});
-      if (webhook?.id) this.message.latestResponse = webhook.id;
+      if (message?.id) this.message.latestResponse = message.id;
     }
+    this.message.getRealMessage().catch(() => {});
     return this.message;
   }
 }
