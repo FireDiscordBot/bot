@@ -46,6 +46,7 @@ export default class Message extends Listener {
       snowflakeRegex.lastIndex = 0;
     }
     tokens = tokens.filter((token) => !!token); // remove empty items
+    if (!tokens.length) return;
     this.recentTokens.push(...tokens);
     let files: { [key: string]: { content: string } } = {};
     for (const token of tokens)
