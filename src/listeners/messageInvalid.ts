@@ -5,15 +5,16 @@ import {
 import { messageConverter } from "@fire/lib/util/converters";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
+import Remind from "@fire/src/commands/Utilities/remind";
 import { EventType } from "@fire/lib/ws/util/constants";
+import Quote from "@fire/src/commands/Utilities/quote";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
-import Remind from "@fire/src/commands/Utilities/remind";
-import Quote from "@fire/src/commands/Utilities/quote";
 import { Message } from "@fire/lib/ws/Message";
 import { TextChannel } from "discord.js";
 
 const { regexes } = constants;
+let mentionRegex: RegExp;
 
 export default class MessageInvalid extends Listener {
   botQuoteRegex: RegExp;
@@ -164,5 +165,19 @@ export default class MessageInvalid extends Listener {
     const util = message.util;
     if (!util.parsed?.command)
       this.client.commandHandler.commandUtils.delete(message.id);
+
+    if (this.shouldSendHello(message))
+      message
+        .send(
+          "HELLO_PREFIX",
+          message.guild ? message.guild.settings.get("main.prefix", "$") : "$"
+        )
+        .catch(() => {});
+  }
+
+  private shouldSendHello(message: FireMessage) {
+    if (!mentionRegex)
+      mentionRegex = new RegExp(`^<@!?${this.client.user.id}>$`);
+    return mentionRegex.test(message.content.trim());
   }
 }

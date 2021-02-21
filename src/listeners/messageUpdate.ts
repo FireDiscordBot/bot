@@ -1,14 +1,9 @@
-import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
-import { PrefixSupplier } from "discord-akairo";
-import { MessageEmbed } from "discord.js";
 import Filters from "@fire/src/modules/filters";
 import Sk1er from "@fire/src/modules/sk1er";
+import { MessageEmbed } from "discord.js";
 import Message from "./message";
-
-const { regexes } = constants;
 
 export default class MessageUpdate extends Listener {
   constructor() {
@@ -110,14 +105,5 @@ export default class MessageUpdate extends Listener {
         .setFooter(`${after.author.id} | ${after.id} | ${after.channel.id}`);
       await after.guild.actionLog(embed, "message_edit");
     }
-
-    if (
-      after.content.replace(/!/gim, "").trim() ==
-      (after.guild.me as FireMember).toMention().replace(/!/gim, "").trim()
-    )
-      await after.send(
-        "HELLO_PREFIX",
-        (this.client.commandHandler.prefix as PrefixSupplier)(after)
-      );
   }
 }
