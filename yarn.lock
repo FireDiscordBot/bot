@@ -594,17 +594,15 @@ discord-api-types@^0.10.0:
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.10.0.tgz#cbbb81571b33f679013c601232afb27955e59fbc"
   integrity sha512-Toqpj9wbUAVCTitY4YBAtaV+vjau30M2qHLwyjhqulBadcxqm8OSD8qw6/wBxLLtgvKxXgmoKQbvImLMVDfQ7g==
 
-discord.js@^12.5.1:
-  version "12.5.1"
-  resolved "https://registry.yarnpkg.com/discord.js/-/discord.js-12.5.1.tgz#992b45753e3815526a279914ccc281d3496f5990"
-  integrity sha512-VwZkVaUAIOB9mKdca0I5MefPMTQJTNg0qdgi1huF3iwsFwJ0L5s/Y69AQe+iPmjuV6j9rtKoG0Ta0n9vgEIL6w==
+discord.js@discordjs/discord.js#ee5bc1a5c4e218ea1f16992694a2bff86c86d2d2:
+  version "12.5.0"
+  resolved "https://codeload.github.com/discordjs/discord.js/tar.gz/ee5bc1a5c4e218ea1f16992694a2bff86c86d2d2"
   dependencies:
     "@discordjs/collection" "^0.1.6"
     "@discordjs/form-data" "^3.0.1"
     abort-controller "^3.0.0"
     node-fetch "^2.6.1"
     prism-media "^1.2.2"
-    setimmediate "^1.0.5"
     tweetnacl "^1.0.3"
     ws "^7.3.1"
 
