@@ -97,7 +97,7 @@ export default class Google extends Command {
       message.member || message.author
     );
     if (!html)
-      return await message.replyRaw(
+      return await message.reply(
         message.language.get("PLAYWRIGHT_ERROR_UNKNOWN") as string
       );
     this.client.manager.ws.send(

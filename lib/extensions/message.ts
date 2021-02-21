@@ -54,32 +54,6 @@ export class FireMessage extends Message {
     return this.channel.send(this.language.get(key, ...args));
   }
 
-  replyRaw(content: string, mention: boolean = false): Promise<Message> {
-    return (
-      // @ts-ignore
-      this.client.api
-        // @ts-ignore
-        .channels(this.channel.id)
-        .messages.post({
-          data: {
-            content,
-            message_reference: { message_id: this.id },
-            allowed_mentions: {
-              ...this.client.options.allowedMentions,
-              replied_user: mention,
-            },
-          },
-        })
-        .then(
-          // @ts-ignore
-          (m: object) => this.client.actions.MessageCreate.handle(m).message
-        )
-        .catch(() => {
-          return this.channel.send(content);
-        })
-    );
-  }
-
   success(
     key: string = "",
     ...args: any[]
@@ -99,7 +73,7 @@ export class FireMessage extends Message {
     if (!key && this.deleted) return;
     return !key
       ? this.react(reactions.error).catch(() => {})
-      : this.replyRaw(`${emojis.error} ${this.language.get(key, ...args)}`);
+      : this.reply(`${emojis.error} ${this.language.get(key, ...args)}`);
   }
 
   async quote(
