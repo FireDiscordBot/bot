@@ -17,6 +17,7 @@ export const discord: ClientOptions = {
     parse: [],
     users: [],
     roles: [],
+    repliedUser: false,
   },
   messageCacheLifetime: 150,
   messageSweepInterval: 60,
