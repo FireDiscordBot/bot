@@ -77,7 +77,7 @@ export class FireMessage extends Message {
   }
 
   async delete(options?: { timeout: number }) {
-    if (options.timeout) await this.client.util.sleep(options.timeout);
+    if (options?.timeout) await this.client.util.sleep(options.timeout);
     // e.g. if deleted before timeout finishes
     // (which is the reason why timeout was removed)
     // https://github.com/discordjs/discord.js/pull/4999
