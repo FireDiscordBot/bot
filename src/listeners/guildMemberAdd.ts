@@ -91,7 +91,7 @@ export default class GuildMemberAdd extends Listener {
       const role = member.guild.roles.cache.get(
         member.guild.settings.get("mod.autobotrole", null)
       );
-      if (role && member.guild.me.hasPermission("MANAGE_ROLES"))
+      if (role && member.guild.me.permissions.has("MANAGE_ROLES"))
         await member.roles
           .add(role, member.guild.language.get("AUTOROLE_REASON") as string)
           .catch(() => {});
@@ -107,7 +107,7 @@ export default class GuildMemberAdd extends Listener {
         !member.pending
       ) {
         const role = member.guild.roles.cache.get(autoroleId);
-        if (role && member.guild.me.hasPermission("MANAGE_ROLES"))
+        if (role && member.guild.me.permissions.has("MANAGE_ROLES"))
           await member.roles
             .add(role, member.guild.language.get("AUTOROLE_REASON") as string)
             .catch(() => {});

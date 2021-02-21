@@ -346,7 +346,7 @@ export class FireMessage extends Message {
     if (
       this.guild.settings.get("mod.antieveryone", false) &&
       (this.content.includes("@everyone") || this.content.includes("@here")) &&
-      !this.member.hasPermission("MENTION_EVERYONE")
+      !this.member.permissions.has("MENTION_EVERYONE")
     )
       return await this.delete().catch(() => {});
 

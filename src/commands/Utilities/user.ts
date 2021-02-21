@@ -130,7 +130,7 @@ export default class User extends Command {
       const permissionsTranslated = message.language.get(
         "PERMISSIONS"
       ) as object;
-      if (!member.hasPermission("ADMINISTRATOR")) {
+      if (!member.permissions.has("ADMINISTRATOR")) {
         let perms = [];
         const keyPerms: PermissionString[] = [
           "BAN_MEMBERS",
@@ -152,7 +152,7 @@ export default class User extends Command {
             keyPerms.includes(permission)
           )
           .forEach((permission: PermissionString) => {
-            if (member.hasPermission(permission))
+            if (member.permissions.has(permission))
               perms.push(permissionsTranslated[permission]);
           });
         if (perms.length)

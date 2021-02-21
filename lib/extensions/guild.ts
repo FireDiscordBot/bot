@@ -111,14 +111,12 @@ export class FireGuild extends Guild {
     if (this.muteRole) return this.muteRole;
     const role = await this.roles
       .create({
-        data: {
-          position: this.me.roles.highest.rawPosition - 2, // -1 seems to fail a lot more than -2 so just do -2 to be safe
-          mentionable: false,
-          color: "#24242c",
-          permissions: 0,
-          name: "Muted",
-          hoist: false,
-        },
+        position: this.me.roles.highest.rawPosition - 2, // -1 seems to fail a lot more than -2 so just do -2 to be safe
+        mentionable: false,
+        color: "#24242c",
+        permissions: 0n,
+        name: "Muted",
+        hoist: false,
         reason: this.language.get("MUTE_ROLE_CREATE_REASON") as string,
       })
       .catch(() => {});
@@ -144,7 +142,7 @@ export class FireGuild extends Guild {
     const changed = await role
       .edit({
         position: this.me.roles.highest.rawPosition - 2,
-        permissions: 0,
+        permissions: 0n,
       })
       .catch(() => {});
     if (!changed) return false;
@@ -963,8 +961,8 @@ export class FireGuild extends Guild {
       .updateOverwrite(unblockee, overwrite, reason)
       .catch(() => {});
     if (
-      channel.permissionOverwrites.get(unblockee.id)?.allow.bitfield == 0 &&
-      channel.permissionOverwrites.get(unblockee.id)?.deny.bitfield == 0 &&
+      channel.permissionOverwrites.get(unblockee.id)?.allow.bitfield == 0n &&
+      channel.permissionOverwrites.get(unblockee.id)?.deny.bitfield == 0n &&
       unblockee.id != this.roles.everyone.id
     )
       await channel.permissionOverwrites
