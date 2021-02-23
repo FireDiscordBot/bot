@@ -332,6 +332,7 @@ ${options
         AUTODEHOIST_USERNAME_REASON:
           "Nickname is hoisted whereas username is not, removing nickname.",
         AVATAR_COMMAND_DESCRIPTION: "Get a user's avatar",
+        AVATAR_TITLE: (user: string) => `${user}'s avatar`,
         BADNAME_COMMAND_DESCRIPTION:
           "Change the name used for auto dehoist/decancer",
         BADNAME_NO_CHANGES: `I did absolutely nothing because that's already set as the "bad name"`,
@@ -646,6 +647,8 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
         HELP_LINKS_VALUE: `[Website](${constants.url.website}) - [Support](${constants.url.support}) - [Terms of Service](${constants.url.terms}) - [Privacy Policy](${constants.url.privacy}) - [Status](${constants.url.fireStatus}) - [Premium](${constants.url.premium})`,
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" for more info about the command | Cluster ID: ${cluster}`,
+        ICON_COMMAND_DESCRIPTION: "Get the server's icon",
+        ICON_TITLE: (guild: string) => `${guild}'s icon`,
         INVCREATE_LOG_AUTHOR: (guild: string) => `Invite Create | ${guild}`,
         INVDELETE_LOG_AUTHOR: (guild: string) => `Invite Delete | ${guild}`,
         INVITE_ROLE_REASON: (invite: string) =>
