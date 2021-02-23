@@ -86,11 +86,11 @@ export default class Google extends Command {
           "Assistant.micTimeoutMs = 0;",
           `window.onload = () => {window.document.body.innerHTML = window.document.body.innerHTML
   .replace(
-    /<div class=\"show_text_content\">Your name is \\w+\\.<\\/div>/gim,
+    /<div class=\"show_text_content\">Your name is [\\w\\n]+\\.<\\/div>/gim,
     "<div class='show_text_content'>Your name is ${message.author.username}.</div>"
   )
   .replace(
-    /<div class=\"show_text_content\">I remember you telling me your name was \\w+\\.<\\/div>/gim,
+    /<div class=\"show_text_content\">I remember you telling me your name was [\\w\\n]+\\.<\\/div>/gim,
     "<div class='show_text_content'>I remember you telling me your name was ${message.author.username}.</div>"
   );};`
         ),
