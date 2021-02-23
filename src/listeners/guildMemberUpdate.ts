@@ -25,7 +25,7 @@ export default class GuildMemberUpdate extends Listener {
 
     if (
       newMember.guild.mutes.has(newMember.id) &&
-      !newMember.roles.cache.has(newMember.guild.muteRole.id)
+      !newMember.roles.cache.has(newMember.guild.muteRole?.id)
     ) {
       await this.client.util.sleep(5000); // wait a bit to ensure it isn't from being unmuted
       const until = newMember.guild.mutes.get(newMember.id);
