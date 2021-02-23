@@ -132,8 +132,8 @@ export const constants = {
   regexes: {
     maskedLink: /\[(?<name>.+)\]\((?<link>https?:\/\/.+)\)/gim,
     symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,
-    spoilerAbuse: /(?:\|\|?[\u2000-\u2009\u200A-\u200F\u202F\u2028\uFEFF]?){20,}/gim,
-    zws: /[\u2000-\u2009\u200A-\u200C\u200E-\u200F\u202F\u2028\uFEFF]/gim,
+    spoilerAbuse: /(?:\|\|?[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]?){20,}/gim,
+    zws: /[\u180E\u2000-\u2009\u200A-\u200C\u200E-\u200F\u202F\u2028\u2060\uFEFF]/gim,
     protocol: /\w{1,10}:\/\//gim,
     joinleavemsgs: {
       user: /{user}/gim,
