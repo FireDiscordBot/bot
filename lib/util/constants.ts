@@ -89,6 +89,20 @@ export const constants = {
       voice: "<:voice:801665653651275846>",
       news: "<:announcement:801666040324947969>",
     },
+    breadBadges: {
+      DISCORD_EMPLOYEE: "<:breadStaff:797174986850697217>",
+      PARTNERED_SERVER_OWNER: "<:breadPartner:797174950070190080>",
+      HYPESQUAD_EVENTS: "<:hypebreadEvents:797174898233180210>",
+      BUGHUNTER_LEVEL_1: "<:breadHunter:796182250563567616>",
+      BUGHUNTER_LEVEL_2: "<:breadHunter:796182250563567616>",
+      EARLY_SUPPORTER: "<:breadSupporter:797175204480286740>",
+      VERIFIED_BOT:
+        "<:verifiedbot1:700325427998097449><:verifiedbot2:700325521665425429>",
+      EARLY_VERIFIED_BOT_DEVELOPER: "<:earlyVerifiedBread:797175252747812914>",
+      EARLY_VERIFIED_DEVELOPER: "<:earlyVerifiedBread:797175252747812914>",
+      PARTNERED: "<:PartnerWithBanner:748876805011931188>",
+      VERIFIED: "<:VerifiedWithBanner:751196492517081189>",
+    },
   },
   statusEmojis: {
     online: "https://cdn.discordapp.com/emojis/775514569430663178.png?v=1",

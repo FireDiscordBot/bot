@@ -20,7 +20,7 @@ import * as moment from "moment";
 const {
   emojis,
   statusEmojis,
-  emojis: { badges, badlyDrawnBadges },
+  emojis: { badges, badlyDrawnBadges, breadBadges },
 } = constants;
 export default class User extends Command {
   constructor() {
@@ -193,10 +193,17 @@ export default class User extends Command {
 
   getBadges(user: FireUser, author?: FireMember | FireUser) {
     const bad = author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
+    const bread = author?.hasExperiment("w4y3qODd79XgvqjA_It3Z", 1);
     const flags = user.flags?.toArray() || [];
     let emojis: string[] = Object.keys(badges)
       .filter((badge: UserFlagsString) => flags.includes(badge))
-      .map((badge) => (bad ? badlyDrawnBadges[badge] : badges[badge]));
+      .map((badge) =>
+        bad
+          ? badlyDrawnBadges[badge]
+          : bread
+          ? breadBadges[badge]
+          : badges[badge]
+      );
     if (user.isSuperuser()) emojis.push(badges.FIRE_ADMIN);
     if (user.premium) emojis.push(badges.FIRE_PREMIUM);
     if (emojis.length) emojis.push(zws);
