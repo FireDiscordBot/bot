@@ -1,5 +1,5 @@
 ## Dependencies (production)
-FROM node:15-alpine AS dependencies
+FROM node:14-alpine AS dependencies
 
 WORKDIR /app
 
@@ -22,7 +22,7 @@ RUN yarn install --frozen-lockfile --slient \
   && yarn compile
 
 ## Runner
-FROM node:15-alpine
+FROM node:14-alpine
 
 WORKDIR /app
 RUN chown node:node .
