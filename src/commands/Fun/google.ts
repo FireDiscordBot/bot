@@ -46,14 +46,15 @@ export default class Google extends Command {
           deviceModelId: "fire0682-444871677176709141",
         }
       );
-    else this.remove();
   }
 
   async exec(message: FireMessage, args: { query: string }) {
     if (!this.client.manager.ws?.open)
       return await message.error("PLAYWRIGHT_ERROR_NOT_READY");
-    if (!this.assistant)
-      return await message.error("GOOGLE_MISSING_CREDENTIALS");
+    if (!this.assistant) {
+      await message.error("GOOGLE_MISSING_CREDENTIALS");
+      return this.remove();
+    }
     const response = await this.assistant
       .query(args.query, {
         audioInConfig: {
