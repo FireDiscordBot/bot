@@ -612,6 +612,8 @@ Hint: Use the \`public\` command to get your server on the list`,
         GOOGLE_COMMAND_DESCRIPTION: "Speak to the Google Assistant",
         GOOGLE_TOO_LONG:
           "<a:okaygoogle:769207087674032129> Your query is too long!",
+        GOOGLE_MISSING_CREDENTIALS:
+          "<a:okaygoogle:769207087674032129> This command is unavailable due to missing credentials",
         GUILDUPDATELOG_AUTHOR: (name: string) => `Guild Update | ${name}`,
         GUILDUPDATELOG_ICON_CHANGED: "Icon Changed",
         GUILDUPDATELOG_SPLASH_CHANGED: "Invite Splash Changed",

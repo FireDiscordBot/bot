@@ -1,4 +1,3 @@
-import * as credentials from "../../../assistant-credentials.json";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -29,24 +28,32 @@ export default class Google extends Command {
       lock: "user",
       typing: true, // This command takes a hot sec to run, especially when running locally so type while waiting
     });
-    this.assistant = new Assistant(
-      {
-        type: "authorized_user",
-        client_id: credentials.client_id,
-        client_secret: credentials.client_secret,
-        refresh_token: credentials.refresh_token,
-      },
-      {
-        locale: AssistantLanguage.ENGLISH, // I may add support for automatic language switching based on user/guild language later
-        deviceId: "287698408855044097",
-        deviceModelId: "fire0682-444871677176709141",
-      }
-    );
+    if (
+      process.env.ASSISTANT_CLIENT_ID &&
+      process.env.ASSISTANT_CLIENT_SECRET &&
+      process.env.ASSISTANT_REFRESH_TOKEN
+    )
+      this.assistant = new Assistant(
+        {
+          type: "authorized_user",
+          client_id: process.env.ASSISTANT_CLIENT_ID,
+          client_secret: process.env.ASSISTANT_CLIENT_SECRET,
+          refresh_token: process.env.ASSISTANT_REFRESH_TOKEN,
+        },
+        {
+          locale: AssistantLanguage.ENGLISH, // I may add support for automatic language switching based on user/guild language later
+          deviceId: "287698408855044097",
+          deviceModelId: "fire0682-444871677176709141",
+        }
+      );
+    else this.remove();
   }
 
   async exec(message: FireMessage, args: { query: string }) {
     if (!this.client.manager.ws?.open)
       return await message.error("PLAYWRIGHT_ERROR_NOT_READY");
+    if (!this.assistant)
+      return await message.error("GOOGLE_MISSING_CREDENTIALS");
     const response = await this.assistant
       .query(args.query, {
         audioInConfig: {

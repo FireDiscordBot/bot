@@ -103,7 +103,3 @@ dist
 
 # VSCode Settings
 .vscode/
-
-# Misc JSON Files
-mc_solutions.json
-assistant-credentials.json
