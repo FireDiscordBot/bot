@@ -120,7 +120,7 @@ export class Fire extends AkairoClient {
       database: process.env.POSTGRES_DB,
     });
     this.db.on("error", (err) =>
-      this.console.error(`[DB] An error occured,\n${err.stack}`)
+      this.console.error(`[DB] An error occured, ${err}`)
     );
     this.db.on("connect", () => this.console.log("[DB] Connected"));
     this.db.on("end", (end) =>
