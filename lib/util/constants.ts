@@ -103,6 +103,20 @@ export const constants = {
       PARTNERED: "<:PartnerWithBanner:748876805011931188>",
       VERIFIED: "<:VerifiedWithBanner:751196492517081189>",
     },
+    badlyDrawnBreadBadges: {
+      DISCORD_EMPLOYEE: "<:staff:814620005206589471>",
+      PARTNERED_SERVER_OWNER: "<:partner:814620342625763398>",
+      HYPESQUAD_EVENTS: "<:hs:814636424380809266>",
+      BUGHUNTER_LEVEL_1: "<:bh:814620407634067457>",
+      BUGHUNTER_LEVEL_2: "<:bh:814620407634067457>",
+      EARLY_SUPPORTER: "<:es:814620935465205790>",
+      VERIFIED_BOT:
+        "<:verifiedbot1:700325427998097449><:verifiedbot2:700325521665425429>",
+      EARLY_VERIFIED_BOT_DEVELOPER: "<:botdev:814620566404726854>",
+      EARLY_VERIFIED_DEVELOPER: "<:botdev:814620566404726854>",
+      PARTNERED: "<:PartnerWithBanner:748876805011931188>",
+      VERIFIED: "<:VerifiedWithBanner:751196492517081189>",
+    },
   },
   statusEmojis: {
     online: "https://cdn.discordapp.com/emojis/775514569430663178.png?v=1",
