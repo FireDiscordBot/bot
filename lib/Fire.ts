@@ -119,16 +119,19 @@ export class Fire extends AkairoClient {
       password: process.env.POSTGRES_PASS,
       database: process.env.POSTGRES_DB,
     });
+    this.db.on("error", (err) =>
+      this.console.error(`[DB] An error occured,\n${err.stack}`)
+    );
+    this.db.on("connect", () => this.console.log("[DB] Connected"));
+    this.db.on("end", (end) =>
+      this.console.error(`[DB] Connection ended, ${JSON.stringify(end)}`)
+    );
 
     this.console.warn("[DB] Attempting to connect...");
-
-    this.db
-      .connect()
-      .then(() => this.console.log("[DB] Connected"))
-      .catch((err) => {
-        this.console.error(`[DB] Failed to connect\n${err.stack}`);
-        this.manager.kill("db_error");
-      });
+    this.db.connect().catch((err) => {
+      this.console.error(`[DB] Failed to connect\n${err.stack}`);
+      this.manager.kill("db_error");
+    });
 
     this.db
       .query("SELECT count FROM socketstats WHERE cluster=$1;", [
