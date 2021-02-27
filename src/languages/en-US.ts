@@ -808,6 +808,8 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           `That is not a valid log type! Current types are ${types}`,
         LOGGING_SIZE_SAME_CHANNEL:
           "Due to this servers size, you cannot set multiple log types in the same channel",
+        LOGGING_WEBHOOK_CREATE: (type: string) =>
+          `Creating webhook for ${type} logs`,
         LOGGING_DISABLED_MODERATION: "Moderation logs have been disabled.",
         LOGGING_DISABLED_ACTION: "Action logs have been disabled.",
         LOGGING_DISABLED_MEMBERS: "Member logs have been disabled.",

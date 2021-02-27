@@ -24,14 +24,15 @@ import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import Tickets from "@fire/src/commands/Tickets/tickets";
 import { GuildSettings } from "@fire/lib/util/settings";
 import { getIDMatch } from "@fire/lib/util/converters";
+import { GuildLogManager } from "../util/logmanager";
 import { FakeChannel } from "./slashCommandMessage";
 import { APIGuild } from "discord-api-types";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
+import { Fire } from "@fire/lib/Fire";
 import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
-import { Fire } from "@fire/lib/Fire";
 
 const parseUntil = (time?: string) => {
   if (!time) return 0;
@@ -55,6 +56,7 @@ export class FireGuild extends Guild {
   banCheckTask: NodeJS.Timeout;
   fetchingRoleUpdates: boolean;
   settings: GuildSettings;
+  logger: GuildLogManager;
   tags: GuildTagManager;
   owner: FireMember;
   client: Fire;
@@ -64,6 +66,7 @@ export class FireGuild extends Guild {
 
     this.settings = new GuildSettings(client, this);
     this.tags = new GuildTagManager(client, this);
+    this.logger = new GuildLogManager(client, this);
     this.persistedRoles = new Collection();
     this.reactionRoles = new Collection();
     this.inviteRoles = new Collection();
@@ -497,7 +500,10 @@ export class FireGuild extends Guild {
   ) {
     const channel = this.channels.cache.get(this.settings.get("log.action"));
     if (!channel || channel.type != "text") return;
-    return await (channel as TextChannel).send(log).catch(() => {});
+
+    if (!this.me.permissionsIn(channel).has("MANAGE_WEBHOOKS"))
+      return await (channel as TextChannel).send(log).catch(() => {});
+    else return await this.logger.handleAction(log, type);
   }
 
   async modLog(
@@ -508,7 +514,10 @@ export class FireGuild extends Guild {
       this.settings.get("log.moderation")
     );
     if (!channel || channel.type != "text") return;
-    return await (channel as TextChannel).send(log).catch(() => {});
+
+    if (!this.me.permissionsIn(channel).has("MANAGE_WEBHOOKS"))
+      return await (channel as TextChannel).send(log).catch(() => {});
+    else return await this.logger.handleModeration(log, type);
   }
 
   async memberLog(
@@ -517,7 +526,10 @@ export class FireGuild extends Guild {
   ) {
     const channel = this.channels.cache.get(this.settings.get("log.members"));
     if (!channel || channel.type != "text") return;
-    return await (channel as TextChannel).send(log).catch(() => {});
+
+    if (!this.me.permissionsIn(channel).has("MANAGE_WEBHOOKS"))
+      return await (channel as TextChannel).send(log).catch(() => {});
+    else return await this.logger.handleMembers(log, type);
   }
 
   hasExperiment(id: string, treatmentId?: number) {

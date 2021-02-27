@@ -76,6 +76,7 @@ export default class Logging extends Command {
       let deleted: any;
       try {
         deleted = await message.guild.settings.delete(`log.${type}`);
+        await message.guild.logger.refreshWebhooks().catch(() => {});
       } catch {}
       return deleted
         ? await message.success(`LOGGING_DISABLED_${type.toUpperCase()}`)
@@ -84,6 +85,7 @@ export default class Logging extends Command {
       let set: any;
       try {
         set = await message.guild.settings.set(`log.${type}`, args.channel.id);
+        if (set) await message.guild.logger.refreshWebhooks().catch(() => {});
       } catch {}
       return set
         ? await message.success(`LOGGING_ENABLED_${type.toUpperCase()}`)
