@@ -291,6 +291,8 @@ export default class GuildMemberUpdate extends Listener {
     const executor = await guild.members
       .fetch(action.executor.id)
       .catch(() => {});
+    if (executor && executor.user.bot && executor.id != this.client.user.id)
+      return;
     const roleIds = (change.new as { name: string; id: string }[]).map(
       (newChange) => newChange.id
     );
@@ -336,6 +338,8 @@ export default class GuildMemberUpdate extends Listener {
     const executor = await guild.members
       .fetch(action.executor.id)
       .catch(() => {});
+    if (executor && executor.user.bot && executor.id != this.client.user.id)
+      return;
     const roleIds = (change.new as { name: string; id: string }[]).map(
       (newChange) => newChange.id
     );
@@ -381,6 +385,8 @@ export default class GuildMemberUpdate extends Listener {
     const executor = await guild.members
       .fetch(action.executor.id)
       .catch(() => {});
+    if (executor && executor.user.bot && executor.id != this.client.user.id)
+      return;
     const embed = new MessageEmbed()
       .setAuthor(
         target ? target.toString() : targetId,
