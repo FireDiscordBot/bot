@@ -10,7 +10,13 @@ import { Command } from "@fire/lib/util/command";
 import * as moment from "moment";
 
 const {
-  emojis: { badges, badlyDrawnBadges, channels, badlyDrawnChannels },
+  emojis: {
+    badges,
+    badlyDrawnBadges,
+    channels,
+    badlyDrawnChannels,
+    badlyDrawnBreadBadges,
+  },
 } = constants;
 
 export default class GuildCommand extends Command {
@@ -35,15 +41,30 @@ export default class GuildCommand extends Command {
 
   getBadges(guild: FireGuild | GuildPreview, author?: FireMember | FireUser) {
     const bad = author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
+    const badBread =
+      author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 3) ||
+      author?.hasExperiment("w4y3qODd79XgvqjA_It3Z", 3);
     const emojis: string[] = [];
 
     if (guild.id == "564052798044504084") emojis.push(badges.FIRE_ADMIN);
     if (this.client.util?.premium.has(guild.id))
       emojis.push(badges.FIRE_PREMIUM);
     if (guild.features.includes("PARTNERED"))
-      emojis.push(bad ? badlyDrawnBadges.PARTNERED : badges.PARTNERED);
+      emojis.push(
+        badBread
+          ? badlyDrawnBreadBadges.PARTNERED
+          : bad
+          ? badlyDrawnBadges.PARTNERED
+          : badges.PARTNERED
+      );
     if (guild.features.includes("VERIFIED"))
-      emojis.push(bad ? badlyDrawnBadges.VERIFIED : badges.VERIFIED);
+      emojis.push(
+        badBread
+          ? badlyDrawnBreadBadges.VERIFIED
+          : bad
+          ? badlyDrawnBadges.VERIFIED
+          : badges.VERIFIED
+      );
 
     if (emojis.length) {
       emojis.push(zws);
