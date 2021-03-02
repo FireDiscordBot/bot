@@ -171,6 +171,7 @@ export default class GuildMemberUpdate extends Listener {
     if (!auditLogActions || !auditLogActions.entries?.size) return;
 
     const ignoredReasons = [
+      newMember.guild.language.get("AUTOROLE_REASON"),
       newMember.guild.language.get("REACTIONROLE_ROLE_REASON"),
       newMember.guild.language.get("REACTIONROLE_ROLE_REMOVE_REASON"),
       newMember.guild.language.get("VCROLE_ADD_REASON"),
