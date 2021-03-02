@@ -1,25 +1,27 @@
+import {
+  PaginatorEmbedInterface,
+  WrappedPaginator,
+} from "@fire/lib/util/paginators";
+import { MessageAttachment, MessageEmbed } from "discord.js";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { MessageAttachment, MessageEmbed } from "discord.js";
 import { zws, constants } from "@fire/lib/util/constants";
-import { EventType } from "@fire/lib/ws/util/constants";
 import { Codeblock } from "@fire/src/arguments/codeblock";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
 import { transpile } from "typescript";
 import { Type } from "@klasa/type";
 import { inspect } from "util";
-import {
-  PaginatorEmbedInterface,
-  WrappedPaginator,
-} from "@fire/lib/util/paginators";
 
 const { emojis } = constants;
 
 const codeBlock = (lang: string, expression: any) => {
   return `\`\`\`${lang}\n${expression || zws}\`\`\``;
 };
+
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 export default class Eval extends Command {
   response: { id: string; message: FireMessage };
@@ -77,6 +79,7 @@ export default class Eval extends Command {
     message: FireMessage,
     args: { code: Codeblock; async?: string; depth: number; broadcast?: string }
   ) {
+    if (!args.code?.content) return await message.error("EVAL_NO_CONTENT");
     if (args.broadcast) {
       return this.client.manager.ws.send(
         MessageUtil.encode(
@@ -129,7 +132,9 @@ export default class Eval extends Command {
           ? `${emojis.success} Evaluation Complete`
           : `${emojis.error} Evaluation Failed`
       )
-      .setColor(success ? message.member?.displayHexColor || "#ffffff" : "#ef5350")
+      .setColor(
+        success ? message.member?.displayHexColor || "#ffffff" : "#ef5350"
+      )
       .setDescription(type.toString() != "any" ? `Output Type: ${type}` : null);
     if (input.length <= 1024) embed.addField(":inbox_tray: Input", input);
     embed.setFooter(`Cluster ID: ${this.client.manager.id}`);
@@ -171,13 +176,20 @@ export default class Eval extends Command {
       setTimeout(async () => {
         if (typeof success == "undefined") await message.react("▶️");
       }, 1000);
-      if (args.async || content.includes("await "))
-        content = `(async () => {\n${content}\n})();`;
-      const me = message.member,
-        fire = message.client,
-        guild = message.guild,
-        channel = message.channel; // variables for eval since I can't really inject a scope
-      result = eval(content);
+      result =
+        args.async || content.includes("await ")
+          ? new AsyncFunction("me", "fire", "guild", "channel", content)(
+              message.member,
+              message.client,
+              message.guild,
+              message.channel
+            )
+          : new Function("me", "fire", "guild", "channel", content)(
+              message.member,
+              message.client,
+              message.guild,
+              message.channel
+            );
       if (this.client.util.isPromise(result)) {
         result = await result;
       }

@@ -533,6 +533,8 @@ Hint: Use the \`public\` command to get your server on the list`,
         EMBED_OBJECT_INVALID:
           "That doesn't seem to be a valid embed, try using https://gaminggeek.dev/embed-visualizer to generate an embed",
         EVAL_COMMAND_DESCRIPTION: "run epic gamer code",
+        EVAL_NO_CONTENT:
+          "hey idiot you forgot to add the code you want to eval",
         EVAL_TOO_LONG: (haste?: string) =>
           haste
             ? `Output was too long, uploaded to hastebin; ${haste}`
