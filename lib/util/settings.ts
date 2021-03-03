@@ -26,7 +26,11 @@ export class GuildSettings {
     if (!this.has("config.prefix") && !this.has("main.prefix")) return false;
     const currentPrefixes =
       this.get("config.prefix") ?? this.get("main.prefix");
-    if (currentPrefixes && !(currentPrefixes instanceof Array)) return true;
+    if (
+      (currentPrefixes && !(currentPrefixes instanceof Array)) ||
+      (currentPrefixes?.length == 1 && currentPrefixes[0] == "$")
+    )
+      return true;
     return false;
   }
 
@@ -47,16 +51,19 @@ export class GuildSettings {
     }
     const current = this.get("config.prefix", "$");
     const migrated = current instanceof Array ? current : [current];
-    this.client.console.debug(
+    this.client.console.warn(
       `[Migration] Setting "config.prefix" from "${current}" to ${JSON.stringify(
         migrated
       )} for guild ${this.guild}`
     );
-    await this.set("config.prefix", migrated);
-    this.client.guildSettings.migrationLock?.release();
+    if (current?.length == 1 && current[0] == "$")
+      await this.delete("config.prefix");
+    else await this.set("config.prefix", migrated);
     this.client.console.info(
       `[Migration] Successfully migrated config for guild ${this.guild}`
     );
+    await this.client.util.sleep(1500); // artificial delay to prevent query spam
+    this.client.guildSettings.migrationLock?.release();
 
     // remove from list so .contains(guild.id) will be false
     this.client.guildSettings.toMigrate = this.client.guildSettings.toMigrate.filter(
