@@ -32,7 +32,11 @@ export class GuildSettings {
 
   // will be empty unless there's a migration to run
   async runMigration() {
-    if (!this.client.readyAt) await pEvent(this.client, "ready");
+    if (!this.client.readyAt) {
+      this.client.setMaxListeners(this.client.getMaxListeners() + 1);
+      await pEvent(this.client, "ready");
+      this.client.setMaxListeners(this.client.getMaxListeners() - 1);
+    }
     await this.client.guildSettings.migrationLock?.acquire();
     if (this.has("main.prefix")) {
       this.client.console.warn(
@@ -48,7 +52,8 @@ export class GuildSettings {
         migrated
       )} for guild ${this.guild}`
     );
-    this.set("config.prefix", migrated);
+    await this.set("config.prefix", migrated);
+    this.client.guildSettings.migrationLock?.release();
     this.client.console.info(
       `[Migration] Successfully migrated config for guild ${this.guild}`
     );
