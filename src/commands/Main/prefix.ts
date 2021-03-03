@@ -32,6 +32,7 @@ export default class Prefix extends Command {
         },
       ],
       enableSlashCommand: true,
+      aliases: ["prefixes"],
       restrictTo: "guild",
       lock: "guild",
     });
@@ -39,10 +40,13 @@ export default class Prefix extends Command {
 
   async exec(message: FireMessage, args: { action?: string; prefix?: string }) {
     args.prefix = args.prefix?.trim();
-    if (!args.action) return await message.error("PREFIX_MISSING_ARG");
     let current = message.guild.settings.get("config.prefix", [
       "$",
     ]) as string[];
+    if (!args.action)
+      return message.util?.parsed?.alias == "prefixes"
+        ? await message.send("PREFIXES_CURRENT", current)
+        : await message.error("PREFIX_MISSING_ARG");
     if (validActions.list.includes(args.action) && !args.prefix)
       return await message.send("PREFIXES_CURRENT", current);
     if (!args.prefix && !actionNames.includes(args.action)) {
