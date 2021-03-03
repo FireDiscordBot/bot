@@ -199,14 +199,12 @@ export class Fire extends AkairoClient {
         return config.fire.dev
           ? "dev "
           : message.guild
-          ? prefixes instanceof Array
-            ? [
-                ...prefixes,
-                ...prefixes.map((prefix) => prefix + " "),
-                "fire",
-                "fire ",
-              ]
-            : [prefixes, "fire", "fire "]
+          ? [
+              ...prefixes,
+              ...prefixes.map((prefix) => prefix + " "),
+              "fire",
+              "fire ",
+            ]
           : ["$", "fire "];
       },
       ignoreCooldown: (message: FireMessage) => message.author?.isSuperuser(),
