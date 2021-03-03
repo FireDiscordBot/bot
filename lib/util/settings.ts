@@ -33,13 +33,12 @@ export class GuildSettings {
   async runMigration() {
     if (!this.client.readyAt) await pEvent(this.client, "ready");
     await this.client.guildSettings.migrationLock?.acquire();
-    this.client.console.debug(
-      `[Migration] Attempting to migrate config for guild ${this.guild}`
-    );
     const current = this.get("config.prefix", "$");
     const migrated = current instanceof Array ? current : [current];
     this.client.console.debug(
-      `[Migration] Setting "config.prefix" from "${current}" to "${migrated}" for guild ${this.guild}`
+      `[Migration] Setting "config.prefix" from "${current}" to ${JSON.stringify(
+        migrated
+      )} for guild ${this.guild}`
     );
     this.set("config.prefix", migrated);
     this.client.console.info(
