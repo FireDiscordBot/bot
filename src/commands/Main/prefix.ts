@@ -4,10 +4,10 @@ import { Command } from "@fire/lib/util/command";
 
 const validActions = {
   add: ["add", "new"],
-  remove: ["remove", "delete"],
+  remove: ["remove", "delete", "yeet"],
   list: ["list"],
 };
-const actionNames = ["add", "new", "remove", "delete", "list"];
+const actionNames = ["add", "new", "remove", "delete", "yeet", "list"];
 
 export default class Prefix extends Command {
   constructor() {
