@@ -33,6 +33,13 @@ export class GuildSettings {
   async runMigration() {
     if (!this.client.readyAt) await pEvent(this.client, "ready");
     await this.client.guildSettings.migrationLock?.acquire();
+    if (this.has("main.prefix")) {
+      this.client.console.warn(
+        `[Migration] Found old config with "main.prefix" for guild ${this.guild}, migrating to current format before migrating to new format`
+      );
+      await this.set("config.prefix", this.get("main.prefix"));
+      await this.delete("main.prefix");
+    }
     const current = this.get("config.prefix", "$");
     const migrated = current instanceof Array ? current : [current];
     this.client.console.debug(
