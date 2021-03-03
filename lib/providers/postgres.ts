@@ -1,9 +1,11 @@
 import { Client, ResultIterator } from "ts-postgres";
+import Semaphore from "semaphore-async-await";
 import { Provider } from "discord-akairo";
 import { Fire } from "@fire/lib/Fire";
 
 export class PostgresProvider extends Provider {
   currentMigration: boolean;
+  migrationLock: Semaphore;
   toMigrate: string[]; // array of keys that require migration
   dataColumn: string;
   tableName: string;
@@ -28,6 +30,7 @@ export class PostgresProvider extends Provider {
     // if migration is needed on a table,
     // this will be tableName == "table"
     this.currentMigration = tableName == "guildconfig";
+    this.migrationLock = new Semaphore(2);
   }
 
   async init(id?: string, shouldCheckShards: boolean = true) {
