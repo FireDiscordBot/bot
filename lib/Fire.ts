@@ -193,14 +193,20 @@ export class Fire extends AkairoClient {
       automateCategories: true,
       commandUtilLifetime: 30000,
       prefix: (message: FireMessage) => {
+        const prefixes = message.guild.settings.get("config.prefix", [
+          "$",
+        ]) as string[];
         return config.fire.dev
           ? "dev "
           : message.guild
-          ? [
-              message.guild.settings.get("config.prefix", "$"),
-              message.guild.settings.get("config.prefix", "$") + " ",
-              "fire ",
-            ]
+          ? prefixes instanceof Array
+            ? [
+                ...prefixes,
+                ...prefixes.map((prefix) => prefix + " "),
+                "fire",
+                "fire ",
+              ]
+            : [prefixes, "fire", "fire "]
           : ["$", "fire "];
       },
       ignoreCooldown: (message: FireMessage) => message.author?.isSuperuser(),
