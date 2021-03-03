@@ -4,6 +4,7 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Message } from "@fire/lib/ws/Message";
 import { Fire } from "@fire/lib/Fire";
+import * as pEvent from "p-event";
 
 export class GuildSettings {
   guild: string | FireGuild;
@@ -30,11 +31,16 @@ export class GuildSettings {
 
   // will be empty unless there's a migration to run
   async runMigration() {
+    if (!this.client.readyAt) await pEvent(this.client, "ready");
+    await this.client.guildSettings.migrationLock?.acquire();
     this.client.console.debug(
       `[Migration] Attempting to migrate config for guild ${this.guild}`
     );
     const current = this.get("config.prefix", "$");
     const migrated = current instanceof Array ? current : [current];
+    this.client.console.debug(
+      `[Migration] Setting "config.prefix" from "${current}" to "${migrated}" for guild ${this.guild}`
+    );
     this.set("config.prefix", migrated);
     this.client.console.info(
       `[Migration] Successfully migrated config for guild ${this.guild}`
