@@ -23,8 +23,9 @@ export class GuildSettings {
 
   // will check if migration is needed for the current migration script
   get shouldMigrate() {
-    if (!this.has("config.prefix")) return false;
-    const currentPrefixes = this.get("config.prefix");
+    if (!this.has("config.prefix") && !this.has("main.prefix")) return false;
+    const currentPrefixes =
+      this.get("config.prefix") ?? this.get("main.prefix");
     if (currentPrefixes && !(currentPrefixes instanceof Array)) return true;
     return false;
   }
