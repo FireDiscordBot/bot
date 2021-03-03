@@ -29,10 +29,11 @@ export class PostgresProvider extends Provider {
 
     // if migration is needed on a table,
     // this will be tableName == "table"
-    this.currentMigration = tableName == "guildconfig";
+    this.currentMigration = false;
     this.migrationLock = new Semaphore(2);
   }
 
+  // shouldCheckShards is used to load all configs (e.g. for migrating guilds fire has left)
   async init(id?: string, shouldCheckShards: boolean = true) {
     const rows = id
       ? await this.db.query(

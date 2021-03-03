@@ -23,54 +23,11 @@ export class GuildSettings {
 
   // will check if migration is needed for the current migration script
   get shouldMigrate() {
-    if (!this.has("config.prefix") && !this.has("main.prefix")) return false;
-    const currentPrefixes =
-      this.get("config.prefix") ?? this.get("main.prefix");
-    if (
-      (currentPrefixes && !(currentPrefixes instanceof Array)) ||
-      (currentPrefixes?.length == 1 && currentPrefixes[0] == "$")
-    )
-      return true;
     return false;
   }
 
   // will be empty unless there's a migration to run
-  async runMigration() {
-    if (!this.client.readyAt) {
-      this.client.setMaxListeners(this.client.getMaxListeners() + 1);
-      await pEvent(this.client, "ready");
-      this.client.setMaxListeners(this.client.getMaxListeners() - 1);
-    }
-    await this.client.guildSettings.migrationLock?.acquire();
-    if (this.has("main.prefix")) {
-      this.client.console.warn(
-        `[Migration] Found old config with "main.prefix" for guild ${this.guild}, migrating to current format before migrating to new format`
-      );
-      await this.set("config.prefix", this.get("main.prefix"));
-      await this.delete("main.prefix");
-    }
-    const current = this.get("config.prefix", "$");
-    const migrated = current instanceof Array ? current : [current];
-    this.client.console.warn(
-      `[Migration] Setting "config.prefix" from "${current}" to ${JSON.stringify(
-        migrated
-      )} for guild ${this.guild}`
-    );
-    if (current?.length == 1 && current[0] == "$")
-      await this.delete("config.prefix");
-    else await this.set("config.prefix", migrated);
-    this.client.console.info(
-      `[Migration] Successfully migrated config for guild ${this.guild}`
-    );
-    await this.client.util.sleep(1500); // artificial delay to prevent query spam
-    this.client.guildSettings.migrationLock?.release();
-
-    // remove from list so .contains(guild.id) will be false
-    this.client.guildSettings.toMigrate = this.client.guildSettings.toMigrate.filter(
-      (id) =>
-        id != (this.guild instanceof FireGuild ? this.guild.id : this.guild)
-    );
-  }
+  async runMigration() {}
 
   has(option: string) {
     const guild = this.guild instanceof FireGuild ? this.guild.id : this.guild;
