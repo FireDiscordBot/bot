@@ -30,6 +30,10 @@ export default class enUS extends Language {
           `That is not a valid haste domain. Currently supported domains are ${supported}.`,
         HASTE_INVALID_URL: "That doesn't seem to be a valid haste URL.",
         HASTE_FETCH_FAILED: "I failed to fetch the content of that haste",
+        CONFIG_GUILD_MIGRATION:
+          "This guilds config requires migration! Some features may be unavailable until this is complete!",
+        CONFIG_USER_MIGRATION:
+          "Your config requires migration! Some features may be unavailable until this is complete!",
         UNKNOWN_COMMAND: "Command not found",
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
         COMMAND_SUPERUSER_ONLY:
@@ -1001,11 +1005,32 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         PLAYWRIGHT_ERROR_UNKNOWN: "Something went wrong. Try again later",
         PREFIX_COMMAND_DESCRIPTION:
           "Set the prefix used to trigger Fire's command",
-        PREFIX_MISSING_ARG: "You must provide a new prefix",
+        PREFIX_MISSING_ARG:
+          "You must provide a new prefix or an action (add/remove/list)",
+        PREFIX_ACTION_WITHOUT_VALUE:
+          "You must provide a prefix to perform this action on",
+        PREFIXES_CURRENT: (prefixes: string[]) => `This server's prefixes are:
+
+${prefixes.join(", ")}`,
+        PREFIX_VALUE_DISALLOWED: "You cannot use that as your prefix!",
         PREFIX_GLOBAL: `"fire " is a global prefix and can be used anywhere. There's no need to set it as a server prefix`,
-        PREFIX_ALREADY_SET: "That's already set as this server's prefix",
-        PREFIX_SET: (old: string, newp: string) =>
-          `This server's prefix has been set from "${old}" to "${newp}"`,
+        PREFIX_REMOVE_SINGLE:
+          "That is the only prefix set in this server! You must set another to remove it.",
+        PREFIX_REMOVE_NEVER_WAS:
+          "You can't remove what was never there in the first place!",
+        PREFIX_REMOVED: (prefixes: string[]) =>
+          prefixes.length == 1 && prefixes[0] == "$"
+            ? "Since that was the only prefix in this server, I've gone ahead and removed it and reset to the default prefix, $"
+            : `Since that was already one of this server's prefixes, I've gone ahead and removed it. This server's prefixes are now:
+
+${prefixes.join(", ")}`,
+        PREFIX_ALREADY_HOW: (usedPrefix: string, toRemove: string) =>
+          `That prefix seems to already be one if this server's prefixes. Try running "${usedPrefix}prefix remove ${toRemove}"`,
+        PREFIX_ADDED: (prefixes: string[]) => `I've added "${
+          prefixes[prefixes.length - 1] // last in list == most recent
+        }" as a prefix for this server. This server's prefixes are now:
+
+${prefixes.join(", ")}`,
         PURGE_COMMAND_DESCRIPTION:
           "Bulk delete messages with optional flags to selectively delete messages based on certain factors",
         PURGE_AMOUNT_INVALID: "Invalid amount. Minumum is 2, Maximum is 100",
