@@ -31,9 +31,9 @@ export default class enUS extends Language {
         HASTE_INVALID_URL: "That doesn't seem to be a valid haste URL.",
         HASTE_FETCH_FAILED: "I failed to fetch the content of that haste",
         CONFIG_GUILD_MIGRATION:
-          "This guilds config requires migration! Some features may be unavailable until this is complete!",
+          "This guilds config requires migration! Some features may be unavailable until this is complete.",
         CONFIG_USER_MIGRATION:
-          "Your config requires migration! Some features may be unavailable until this is complete!",
+          "Your config requires migration! Some features may be unavailable until this is complete.",
         UNKNOWN_COMMAND: "Command not found",
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
         COMMAND_SUPERUSER_ONLY:
@@ -1009,7 +1009,10 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           "You must provide a new prefix or an action (add/remove/list)",
         PREFIX_ACTION_WITHOUT_VALUE:
           "You must provide a prefix to perform this action on",
-        PREFIXES_CURRENT: (prefixes: string[]) => `This server's prefixes are:
+        PREFIXES_CURRENT: (prefixes: string[]) =>
+          prefixes.length == 1
+            ? `This server's prefix is "${prefixes[0]}"`
+            : `This server's prefixes are:
 
 ${prefixes.join(", ")}`,
         PREFIX_VALUE_DISALLOWED: "You cannot use that as your prefix!",
@@ -1021,14 +1024,27 @@ ${prefixes.join(", ")}`,
         PREFIX_REMOVED: (prefixes: string[]) =>
           prefixes.length == 1 && prefixes[0] == "$"
             ? "Since that was the only prefix in this server, I've gone ahead and removed it and reset to the default prefix, $"
+            : prefixes.length == 1
+            ? `Since that was already one of this server's prefixes, I've gone ahead and removed it. This server's prefix is now "${prefixes[0]}"`
             : `Since that was already one of this server's prefixes, I've gone ahead and removed it. This server's prefixes are now:
+
+${prefixes.join(", ")}`,
+        PREFIX_REMOVE: (prefixes: string[]) =>
+          prefixes.length == 1 && prefixes[0] == "$"
+            ? "Since that was the only prefix in this server, I've gone ahead and reset this server to the default prefix, $"
+            : prefixes.length == 1
+            ? `I've gone ahead and removed that prefix. This server's prefix is now "${prefixes[0]}"`
+            : `I've gone ahead and removed that prefix. This server's prefixes are now:
 
 ${prefixes.join(", ")}`,
         PREFIX_ALREADY_HOW: (usedPrefix: string, toRemove: string) =>
           `That prefix seems to already be one if this server's prefixes. Try running "${usedPrefix}prefix remove ${toRemove}"`,
-        PREFIX_ADDED: (prefixes: string[]) => `I've added "${
-          prefixes[prefixes.length - 1] // last in list == most recent
-        }" as a prefix for this server. This server's prefixes are now:
+        PREFIX_ADDED: (prefixes: string[]) =>
+          prefixes.length == 1
+            ? `I've set this server's prefix to "${prefixes[0]}"`
+            : `I've added "${
+                prefixes[prefixes.length - 1] // last in list == most recent
+              }" as a prefix for this server. This server's prefixes are now:
 
 ${prefixes.join(", ")}`,
         PURGE_COMMAND_DESCRIPTION:

@@ -3,11 +3,11 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
 const validActions = {
-  add: ["add", "+", "new"],
-  remove: ["remove", "-", "delete"],
-  list: ["list", "~"],
-  useAsPrefix: ["+", "-", "~"],
+  add: ["add", "new"],
+  remove: ["remove", "delete"],
+  list: ["list"],
 };
+const actionNames = ["add", "new", "remove", "delete", "list"];
 
 export default class Prefix extends Command {
   constructor() {
@@ -43,38 +43,32 @@ export default class Prefix extends Command {
     let current = message.guild.settings.get("config.prefix", [
       "$",
     ]) as string[];
-    if (!args.prefix) {
+    if (validActions.list.includes(args.action) && !args.prefix)
+      return await message.send("PREFIXES_CURRENT", current);
+    if (!args.prefix && !actionNames.includes(args.action)) {
       if (
-        (validActions.add.includes(args.prefix) ||
-          validActions.remove.includes(args.prefix) ||
-          validActions.list.includes(args.prefix)) &&
-        !validActions.useAsPrefix.includes(args.prefix)
-      )
-        return await message.error("PREFIX_VALUE_DISALLOWED");
-      if (current.map((prefix) => prefix.trim()).includes(args.prefix.trim())) {
+        current.map((prefix) => prefix.trim()).includes(args.action?.trim())
+      ) {
         delete current[
-          current.map((prefix) => prefix.trim()).indexOf(args.prefix.trim())
+          current.map((prefix) => prefix.trim()).indexOf(args.action.trim())
         ];
+        current = current.filter((prefix) => !!prefix);
         if (!current.length) current.push("$");
         if (current.length == 1 && current[0] == "$")
           message.guild.settings.delete("config.prefix");
-        else
-          message.guild.settings.set(
-            "config.prefix",
-            current.filter((prefix) => !!prefix)
-          );
+        else message.guild.settings.set("config.prefix", current);
         return await message.success("PREFIX_REMOVED", current);
       } else {
-        if (args.prefix.trim() == "fire")
+        if (args.action.trim() == "fire")
           return await message.error("PREFIX_GLOBAL");
         if (current.length == 1 && current[0] == "$") current = []; // remove default
-        if (current.map((prefix) => prefix.trim()).includes(args.prefix.trim()))
+        if (current.map((prefix) => prefix.trim()).includes(args.action.trim()))
           return await message.error(
             "PREFIX_ALREADY_HOW",
             message.util?.parsed?.prefix,
-            args.prefix
+            args.action
           );
-        current.push(args.prefix);
+        current.push(args.action);
         if (current.length == 1 && current[0] == "$")
           message.guild.settings.delete("config.prefix");
         else
@@ -85,13 +79,8 @@ export default class Prefix extends Command {
         return await message.success("PREFIX_ADDED", current);
       }
     }
-    if (validActions.list.includes(args.action))
-      return await message.send("PREFIXES_CURRENT", current);
-    else if (validActions.add.includes(args.action)) {
-      if (
-        !args.prefix &&
-        !validActions.useAsPrefix.includes(args.action.trim())
-      )
+    if (validActions.add.includes(args.action)) {
+      if (!args.prefix)
         return await message.error("PREFIX_ACTION_WITHOUT_VALUE");
       if (args.prefix.trim() == "fire")
         return await message.error("PREFIX_GLOBAL");
@@ -112,26 +101,20 @@ export default class Prefix extends Command {
         );
       return await message.success("PREFIX_ADDED", current);
     } else if (validActions.remove.includes(args.action.trim())) {
-      if (
-        !args.prefix &&
-        !validActions.useAsPrefix.includes(args.action.trim())
-      )
+      if (!args.prefix)
         return await message.error("PREFIX_ACTION_WITHOUT_VALUE");
-      if (current.length == 1 && current[0].trim() == args.prefix?.trim())
-        return await message.error("PREFIX_REMOVE_SINGLE");
+      // if (current.length == 1 && current[0].trim() == args.prefix?.trim())
+      //   return await message.error("PREFIX_REMOVE_SINGLE");
       if (current.map((prefix) => prefix.trim()).includes(args.prefix.trim())) {
         delete current[
           current.map((prefix) => prefix.trim()).indexOf(args.prefix.trim())
         ];
+        current = current.filter((prefix) => !!prefix);
         if (!current.length) current.push("$");
         if (current.length == 1 && current[0] == "$")
           message.guild.settings.delete("config.prefix");
-        else
-          message.guild.settings.set(
-            "config.prefix",
-            current.filter((prefix) => !!prefix)
-          );
-        return await message.success("PREFIX_REMOVED", current);
+        else message.guild.settings.set("config.prefix", current);
+        return await message.success("PREFIX_REMOVE", current);
       } else return await message.error("PREFIX_REMOVE_NEVER_WAS");
     }
   }
