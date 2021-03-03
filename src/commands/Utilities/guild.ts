@@ -15,7 +15,7 @@ const {
     badlyDrawnBadges,
     channels,
     badlyDrawnChannels,
-    badlyDrawnBreadBadges,
+    breadlyDrawnBadges: badlyDrawnBreadBadges,
   },
 } = constants;
 

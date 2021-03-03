@@ -20,7 +20,7 @@ import * as moment from "moment";
 const {
   emojis,
   statusEmojis,
-  emojis: { badges, badlyDrawnBadges, breadBadges, badlyDrawnBreadBadges },
+  emojis: { badges, badlyDrawnBadges, breadBadges, breadlyDrawnBadges: badlyDrawnBreadBadges },
 } = constants;
 export default class User extends Command {
   constructor() {
