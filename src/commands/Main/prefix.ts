@@ -20,6 +20,7 @@ export default class Prefix extends Command {
           id: "action", // if not a valid action, will be used as prefix
           type: "string",
           readableType: "add/remove/list OR prefix",
+          slashCommandType: "action",
           required: true,
           default: null,
         },
