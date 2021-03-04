@@ -77,8 +77,7 @@ export default class GuildCommand extends Command {
     if (guild instanceof FireGuild) await guild.fetch(); // gets approximatePresenceCount
 
     const bad = message.author.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
-    const language =
-      guild instanceof FireGuild ? guild.language : message.language;
+    const language = message.language;
     const guildSnowflake = await snowflakeConverter(message, guild.id);
     const created =
       humanize(
@@ -166,47 +165,51 @@ export default class GuildCommand extends Command {
 
     const emoji = VERIFICATION_LEVEL_EMOJI[guild.verificationLevel];
     info.push(
-      `${emoji} ${guild.language.get(`GUILD_VERIF_${guild.verificationLevel}`)}`
+      `${emoji} ${message.language.get(
+        `GUILD_VERIF_${guild.verificationLevel}`
+      )}`
     );
 
     switch (guild.explicitContentFilter) {
       case "ALL_MEMBERS":
         info.push(
-          `${constants.emojis.green} ${guild.language.get("GUILD_FILTER_ALL")}`
+          `${constants.emojis.green} ${message.language.get(
+            "GUILD_FILTER_ALL"
+          )}`
         );
         break;
       case "MEMBERS_WITHOUT_ROLES":
         info.push(
-          `${constants.emojis.yellow} ${guild.language.get(
+          `${constants.emojis.yellow} ${message.language.get(
             "GUILD_FILTER_NO_ROLE"
           )}`
         );
         break;
       case "DISABLED":
         info.push(
-          `${constants.emojis.red} ${guild.language.get("GUILD_FILTER_NONE")}`
+          `${constants.emojis.red} ${message.language.get("GUILD_FILTER_NONE")}`
         );
         break;
     }
 
     if (guild.defaultMessageNotifications == "MENTIONS")
       info.push(
-        `${constants.emojis.green} ${guild.language.get(
+        `${constants.emojis.green} ${message.language.get(
           "GUILD_NOTIFS_MENTIONS"
         )}`
       );
     else
       info.push(
-        `${constants.emojis.yellow} ${guild.language.get("GUILD_NOTIFS_ALL")}`
+        `${constants.emojis.yellow} ${message.language.get("GUILD_NOTIFS_ALL")}`
       );
 
     if (guild.mfaLevel)
       info.push(
-        `${constants.emojis.green} ${guild.language.get("GUILD_MFA_ENABLED")}`
+        `${constants.emojis.green} ${message.language.get("GUILD_MFA_ENABLED")}`
       );
     else
       info.push(
-        `${constants.emojis.red} ${guild.language.get("GUILD_MFA_NONE")}`
+        `${constants.emojis.red} ${message.language.get("GUILD_MFA_NONE")}`
       );
 
     return info;
