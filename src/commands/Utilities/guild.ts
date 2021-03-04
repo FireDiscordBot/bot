@@ -151,7 +151,7 @@ export default class GuildCommand extends Command {
     return messages.filter((message) => !!message);
   }
 
-  getSecurity(guild: FireGuild | GuildPreview) {
+  getSecurity(message: FireMessage, guild: FireGuild | GuildPreview) {
     const info: string[] = [];
     if (!(guild instanceof FireGuild)) return info;
 
@@ -235,7 +235,7 @@ export default class GuildCommand extends Command {
 
     const badges = this.getBadges(guild, message.author);
     const info = await this.getInfo(message, guild);
-    const security = this.getSecurity(guild);
+    const security = this.getSecurity(message, guild);
 
     const featuresLocalization = message.language.get("FEATURES");
     const features: string[] = guild.features
