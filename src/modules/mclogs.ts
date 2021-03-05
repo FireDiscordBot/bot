@@ -14,6 +14,8 @@ export default class MCLogs extends Module {
     reupload: RegExp;
     noRaw: RegExp;
     secrets: RegExp;
+    jvm: RegExp;
+    ram: RegExp;
     email: RegExp;
     url: RegExp;
     home: RegExp;
@@ -33,6 +35,8 @@ export default class MCLogs extends Module {
       reupload: /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?([\w-\.]+)/gim,
       noRaw: /(justpaste\.it)\/(\w+)/gim,
       secrets: /(club.sk1er.mods.levelhead.auth.MojangAuth|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*|https:\/\/api\.hypixel\.net\/.+\?key=)/gim,
+      jvm: /-Xmx\d{1,2}(?:G|M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
+      ram: /-Xmx(?<ram>\d{1,2})(?<type>G|M)/gim,
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}/gim,
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
       home: /(\/Users\/[\w\s]+|\/home\/\w+|C:\\Users\\[\w\s]+)/gim,
@@ -56,7 +60,7 @@ export default class MCLogs extends Module {
   }
 
   async init() {
-    if (this.client.config.dev) return this.remove();
+    // if (this.client.config.dev) return this.remove();
     if (
       !this.client.config.hasteLogEnabled.some((guild) =>
         (this.client.options.shards as number[]).includes(
@@ -90,6 +94,24 @@ export default class MCLogs extends Module {
     }
     if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_M5(?:\.jar)?$/im))
       currentSolutions.push("- Update Optifine to the latest version, M5");
+
+    const isDefault = this.regexes.jvm.test(log);
+    this.regexes.jvm.lastIndex = 0;
+    if (log.includes("JVM Flags: ") && !isDefault)
+      currentRecommendations.push(
+        "- Unless you know what you're doing, modifying your JVM args could have unintended side effects. It's best to use the defaults."
+      );
+
+    const allocatedRam = this.regexes.ram.exec(log);
+    this.regexes.ram.lastIndex = 0;
+    if (parseInt(allocatedRam?.groups?.ram) > 4)
+      currentRecommendations.push(
+        `- Most of the time you don't need more than 2GB RAM allocated (maybe 3-4GB if you use skyblock mods). You may be able to reduce the amount of RAM allocated from ${
+          allocatedRam.groups.ram + allocatedRam.groups.type
+        } to ${allocatedRam[0].endsWith("G") ? "2G" : "2048M"} or ${
+          allocatedRam[0].endsWith("G") ? "3G" : "3072M"
+        }`
+      );
 
     for (const [rec, sol] of Object.entries(this.solutions.recommendations)) {
       if (log.includes(rec) && !currentRecommendations.includes(`- ${sol}`))
