@@ -176,19 +176,21 @@ export default class Eval extends Command {
       setTimeout(async () => {
         if (typeof success == "undefined") await message.react("▶️");
       }, 1000);
+      const scope = {
+        require,
+        message,
+        me: message.member ?? message.author,
+        fire: message.client,
+        guild: message.guild,
+        channel: message.channel,
+      };
       result =
         args.async || content.includes("await ")
-          ? new AsyncFunction("me", "fire", "guild", "channel", content)(
-              message.member,
-              message.client,
-              message.guild,
-              message.channel
+          ? new AsyncFunction(...Object.keys(scope), content)(
+              ...Object.values(scope)
             )
-          : new Function("me", "fire", "guild", "channel", content)(
-              message.member,
-              message.client,
-              message.guild,
-              message.channel
+          : new Function(...Object.keys(scope), content)(
+              ...Object.values(scope)
             );
       if (this.client.util.isPromise(result)) {
         result = await result;
