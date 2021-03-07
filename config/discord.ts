@@ -33,6 +33,7 @@ export const discord: ClientOptions = {
     intents.GUILD_INVITES |
     intents.GUILD_MESSAGES |
     intents.GUILD_MESSAGE_REACTIONS |
+    intents.GUILD_WEBHOOKS |
     intents.DIRECT_MESSAGES |
     intents.GUILD_VOICE_STATES,
   ...litecord,
