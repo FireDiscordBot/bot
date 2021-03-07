@@ -1,4 +1,4 @@
-import { MessageReaction, TextChannel, GuildEmoji } from "discord.js";
+import { MessageReaction, GuildEmoji } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";

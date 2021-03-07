@@ -1,9 +1,8 @@
-import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { TextChannel } from "discord.js";
 
 export default class Unban extends Command {
   constructor() {
@@ -42,7 +41,7 @@ export default class Unban extends Command {
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),
       message.member,
-      message.channel as TextChannel
+      message.channel as FireTextChannel
     );
     if (unbanned == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");

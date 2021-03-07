@@ -89,6 +89,34 @@ export const constants = {
       voice: "<:voice:801665653651275846>",
       news: "<:announcement:801666040324947969>",
     },
+    breadBadges: {
+      DISCORD_EMPLOYEE: "<:breadStaff:797174986850697217>",
+      PARTNERED_SERVER_OWNER: "<:breadPartner:797174950070190080>",
+      HYPESQUAD_EVENTS: "<:hypebreadEvents:797174898233180210>",
+      BUGHUNTER_LEVEL_1: "<:breadHunter:796182250563567616>",
+      BUGHUNTER_LEVEL_2: "<:breadHunter:796182250563567616>",
+      EARLY_SUPPORTER: "<:breadSupporter:797175204480286740>",
+      VERIFIED_BOT:
+        "<:verifiedbot1:700325427998097449><:verifiedbot2:700325521665425429>",
+      EARLY_VERIFIED_BOT_DEVELOPER: "<:earlyVerifiedBread:797175252747812914>",
+      EARLY_VERIFIED_DEVELOPER: "<:earlyVerifiedBread:797175252747812914>",
+      PARTNERED: "<:PartnerWithBanner:748876805011931188>",
+      VERIFIED: "<:VerifiedWithBanner:751196492517081189>",
+    },
+    breadlyDrawnBadges: {
+      DISCORD_EMPLOYEE: "<:staff:814620005206589471>",
+      PARTNERED_SERVER_OWNER: "<:partner:814620342625763398>",
+      HYPESQUAD_EVENTS: "<:hs:814636424380809266>",
+      BUGHUNTER_LEVEL_1: "<:bh:814620407634067457>",
+      BUGHUNTER_LEVEL_2: "<:buggold:814718423002120263>",
+      EARLY_SUPPORTER: "<:es:814620935465205790>",
+      VERIFIED_BOT:
+        "<:bot1:814718423060840499><:bot2:814718422956113921>",
+      EARLY_VERIFIED_BOT_DEVELOPER: "<:botdev:814620566404726854>",
+      EARLY_VERIFIED_DEVELOPER: "<:botdev:814620566404726854>",
+      PARTNERED: "<:partner2:814718423442784266>",
+      VERIFIED: "<:verified:814718423123755050>",
+    },
   },
   statusEmojis: {
     online: "https://cdn.discordapp.com/emojis/775514569430663178.png?v=1",
@@ -132,8 +160,8 @@ export const constants = {
   regexes: {
     maskedLink: /\[(?<name>.+)\]\((?<link>https?:\/\/.+)\)/gim,
     symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,
-    spoilerAbuse: /(?:\|\|?[\u2000-\u2009\u200A-\u200F\u202F]?){20,}/gim,
-    zws: /[\u2000-\u2009\u200A-\u200C\u200E-\u200F\u202F]/gim,
+    spoilerAbuse: /(?:\|\|?[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]?){20,}/gim,
+    zws: /[\u180E\u2000-\u2009\u200A-\u200C\u200E-\u200F\u202F\u2028\u2060\uFEFF]/gim,
     protocol: /\w{1,10}:\/\//gim,
     joinleavemsgs: {
       user: /{user}/gim,

@@ -1,8 +1,12 @@
 import { Client, ResultIterator } from "ts-postgres";
+import Semaphore from "semaphore-async-await";
 import { Provider } from "discord-akairo";
 import { Fire } from "@fire/lib/Fire";
 
 export class PostgresProvider extends Provider {
+  currentMigration: boolean;
+  migrationLock: Semaphore;
+  toMigrate: string[]; // array of keys that require migration
   dataColumn: string;
   tableName: string;
   idColumn: string;
@@ -19,11 +23,18 @@ export class PostgresProvider extends Provider {
     this.dataColumn = dataColumn;
     this.tableName = tableName;
     this.idColumn = idColumn;
+    this.toMigrate = [];
     this.bot = bot;
     this.db = db;
+
+    // if migration is needed on a table,
+    // this will be tableName == "table"
+    this.currentMigration = false;
+    this.migrationLock = new Semaphore(2);
   }
 
-  async init(id?: string) {
+  // shouldCheckShards is used to load all configs (e.g. for migrating guilds fire has left)
+  async init(id?: string, shouldCheckShards: boolean = true) {
     const rows = id
       ? await this.db.query(
           `SELECT * FROM ${this.tableName} WHERE ${this.idColumn}=$1`,
@@ -34,7 +45,7 @@ export class PostgresProvider extends Provider {
     const shards = this.bot.options.shards as number[];
     for await (const row of rows) {
       const id = row.get(this.idColumn) as string;
-      if (this.tableName == "guildconfig") {
+      if (this.tableName == "guildconfig" && shouldCheckShards) {
         const shard = this.bot.util.getShard(id);
         if (!shards.includes(shard)) continue;
       }
@@ -47,6 +58,9 @@ export class PostgresProvider extends Provider {
             : data
           : row
       );
+
+      // add to list so migration can be tracked (will remove upon completion)
+      if (this.currentMigration) this.toMigrate.push(id);
     }
     return this.items;
   }

@@ -22,6 +22,7 @@ export enum EventType {
   UPDATE_FIRE_DESCRIPTION,
   FORWARD_MESSAGE,
   SLASH_COMMAND,
+  REQUEST_COMMANDS,
 }
 
 export enum WebsocketStates {

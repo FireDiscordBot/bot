@@ -1,9 +1,9 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { textChannelConverter } from "@fire/lib/util/converters";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Util } from "@fire/lib/util/clientutil";
-import { TextChannel } from "discord.js";
 
 export default class ModeratorOnly extends Command {
   constructor() {
@@ -23,7 +23,7 @@ export default class ModeratorOnly extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { channels: TextChannel[] }) {
+  async exec(message: FireMessage, args: { channels: FireTextChannel[] }) {
     let channels = args.channels;
     if (!channels.length) return message.error("MODONLY_NO_CHANNELS");
     let current = message.guild.settings.get(

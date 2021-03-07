@@ -1,9 +1,9 @@
 import {
   MessageReaction,
-  TextChannel,
   CategoryChannel,
   GuildChannel,
 } from "discord.js";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -49,7 +49,7 @@ export default class Slowmode extends Command {
     message: FireMessage,
     args: {
       delay: number;
-      channel?: TextChannel | CategoryChannel;
+      channel?: FireTextChannel | CategoryChannel;
       global?: boolean;
     }
   ) {
@@ -59,7 +59,7 @@ export default class Slowmode extends Command {
       message.util?.parsed?.alias != "slowmodeall" &&
       !args.global
     )
-      args.channel = message.channel as TextChannel;
+      args.channel = message.channel as FireTextChannel;
     else if (
       !args.channel &&
       (message.util?.parsed?.alias == "slowmodeall" || args.global)
@@ -71,7 +71,7 @@ export default class Slowmode extends Command {
     if (args.channel?.type == "category") {
       args.channel.children.forEach(async (channel) => {
         if (channel.type == "text")
-          await (channel as TextChannel)
+          await (channel as FireTextChannel)
             .setRateLimitPerUser(
               args.delay,
               `Slowmode set by ${message.author}`
@@ -98,7 +98,7 @@ export default class Slowmode extends Command {
     let failed: string[] = [];
     const channels = message.guild.channels.cache
       .filter((channel: GuildChannel) => channel.type == "text")
-      .array() as TextChannel[];
+      .array() as FireTextChannel[];
     let warning: FireMessage;
     if (channels.length > 50)
       warning = (await message.send(

@@ -37,16 +37,16 @@ export default class RolePersist extends Command {
     if (
       args.role &&
       (args.role.managed ||
-        args.role.rawPosition > message.guild.me.roles.highest.rawPosition ||
+        args.role.rawPosition >= message.guild.me.roles.highest.rawPosition ||
         args.role.id == message.guild.roles.everyone.id ||
-        args.role.rawPosition > message.member.roles.highest.rawPosition)
+        args.role.rawPosition >= message.member.roles.highest.rawPosition)
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
 
     if (args.user.id == message.author.id)
       return await message.error("ROLEPERSIST_SELF");
     else if (
-      args.user.roles.highest.rawPosition >
+      args.user.roles.highest.rawPosition >=
         message.member.roles.highest.rawPosition &&
       args.user.id != args.user.guild.ownerID
     )

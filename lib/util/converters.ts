@@ -1,7 +1,6 @@
 import {
   Role,
   Collection,
-  TextChannel,
   VoiceChannel,
   GuildChannel,
   GuildPreview,
@@ -11,6 +10,7 @@ import {
   DeconstructedSnowflake,
 } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireTextChannel } from "../extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
@@ -326,7 +326,7 @@ export const messageConverter = async (
     channelID = message.channel.id;
   }
   const channel = (message.client.channels.cache.get(channelID) ||
-    message.channel) as TextChannel;
+    message.channel) as FireTextChannel;
 
   try {
     return (await channel.messages.fetch(messageID)) as FireMessage;
@@ -379,7 +379,7 @@ export const textChannelConverter = async (
   message: FireMessage,
   argument: string,
   silent = false
-): Promise<TextChannel | null> => {
+): Promise<FireTextChannel | null> => {
   if (!argument) return;
 
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
@@ -398,7 +398,7 @@ export const textChannelConverter = async (
       )
       .first();
     if (channel) {
-      return channel as TextChannel;
+      return channel as FireTextChannel;
     }
 
     if (!silent) await message.error("CHANNEL_NOT_FOUND");
@@ -406,7 +406,7 @@ export const textChannelConverter = async (
   } else {
     const channel = guild.channels.cache.get(match);
     if (channel && channel.type == "text") {
-      return channel as TextChannel;
+      return channel as FireTextChannel;
     }
 
     if (!silent) await message.error("INVALID_CHANNEL_ID");

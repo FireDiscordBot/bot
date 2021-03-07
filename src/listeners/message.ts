@@ -163,17 +163,6 @@ export default class Message extends Listener {
 
     const filters = this.client.getModule("filters") as Filters;
     await filters?.runAll(message, this.cleanContent(message)).catch(() => {});
-
-    if (
-      message.content.trim() ==
-      (message.guild.me as FireMember).toMention().trim()
-    )
-      await message
-        .send(
-          "HELLO_PREFIX",
-          message.guild ? message.guild.settings.get("main.prefix", "$") : "$"
-        )
-        .catch(() => {});
   }
 
   cleanContent(message: FireMessage) {

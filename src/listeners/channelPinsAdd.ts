@@ -1,5 +1,6 @@
-import { MessageReference, MessageEmbed, TextChannel } from "discord.js";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageReference, MessageEmbed } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
 
@@ -14,7 +15,7 @@ export default class ChannelPinsAdd extends Listener {
   async exec(reference: MessageReference, member?: FireMember) {
     const channel = this.client.channels.cache.get(
       reference.channelID
-    ) as TextChannel;
+    ) as FireTextChannel;
     if (!channel || channel.type != "text") return;
     const guild = channel.guild as FireGuild;
     if (!guild) return;

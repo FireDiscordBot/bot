@@ -26,7 +26,10 @@ export default class Avatar extends Command {
     });
   }
 
-  exec(message: FireMessage, args: { user: FireMember | FireUser | null }) {
+  async exec(
+    message: FireMessage,
+    args: { user: FireMember | FireUser | null }
+  ) {
     let user = args.user;
     if (typeof user == "undefined") user = message.member || message.author;
     else if (!user) return;
@@ -41,7 +44,7 @@ export default class Avatar extends Command {
     const embed = new MessageEmbed()
       .setColor(color)
       .setTimestamp()
-      .setTitle(`${user.toString()}'s avatar`)
+      .setTitle(message.language.get("AVATAR_TITLE", user.toString()))
       .setImage(
         user?.displayAvatarURL({
           size: 2048,
@@ -50,6 +53,6 @@ export default class Avatar extends Command {
         })
       );
 
-    return message.channel.send(embed);
+    return await message.channel.send(embed);
   }
 }

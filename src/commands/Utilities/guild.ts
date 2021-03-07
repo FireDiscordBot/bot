@@ -10,7 +10,13 @@ import { Command } from "@fire/lib/util/command";
 import * as moment from "moment";
 
 const {
-  emojis: { badges, badlyDrawnBadges, channels, badlyDrawnChannels },
+  emojis: {
+    badges,
+    badlyDrawnBadges,
+    channels,
+    badlyDrawnChannels,
+    breadlyDrawnBadges: badlyDrawnBreadBadges,
+  },
 } = constants;
 
 export default class GuildCommand extends Command {
@@ -35,15 +41,30 @@ export default class GuildCommand extends Command {
 
   getBadges(guild: FireGuild | GuildPreview, author?: FireMember | FireUser) {
     const bad = author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
+    const badBread =
+      author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 3) ||
+      author?.hasExperiment("w4y3qODd79XgvqjA_It3Z", 3);
     const emojis: string[] = [];
 
     if (guild.id == "564052798044504084") emojis.push(badges.FIRE_ADMIN);
     if (this.client.util?.premium.has(guild.id))
       emojis.push(badges.FIRE_PREMIUM);
     if (guild.features.includes("PARTNERED"))
-      emojis.push(bad ? badlyDrawnBadges.PARTNERED : badges.PARTNERED);
+      emojis.push(
+        badBread
+          ? badlyDrawnBreadBadges.PARTNERED
+          : bad
+          ? badlyDrawnBadges.PARTNERED
+          : badges.PARTNERED
+      );
     if (guild.features.includes("VERIFIED"))
-      emojis.push(bad ? badlyDrawnBadges.VERIFIED : badges.VERIFIED);
+      emojis.push(
+        badBread
+          ? badlyDrawnBreadBadges.VERIFIED
+          : bad
+          ? badlyDrawnBadges.VERIFIED
+          : badges.VERIFIED
+      );
 
     if (emojis.length) {
       emojis.push(zws);
@@ -56,8 +77,7 @@ export default class GuildCommand extends Command {
     if (guild instanceof FireGuild) await guild.fetch(); // gets approximatePresenceCount
 
     const bad = message.author.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
-    const language =
-      guild instanceof FireGuild ? guild.language : message.language;
+    const language = message.language;
     const guildSnowflake = await snowflakeConverter(message, guild.id);
     const created =
       humanize(
@@ -131,7 +151,7 @@ export default class GuildCommand extends Command {
     return messages.filter((message) => !!message);
   }
 
-  getSecurity(guild: FireGuild | GuildPreview) {
+  getSecurity(message: FireMessage, guild: FireGuild | GuildPreview) {
     const info: string[] = [];
     if (!(guild instanceof FireGuild)) return info;
 
@@ -145,47 +165,51 @@ export default class GuildCommand extends Command {
 
     const emoji = VERIFICATION_LEVEL_EMOJI[guild.verificationLevel];
     info.push(
-      `${emoji} ${guild.language.get(`GUILD_VERIF_${guild.verificationLevel}`)}`
+      `${emoji} ${message.language.get(
+        `GUILD_VERIF_${guild.verificationLevel}`
+      )}`
     );
 
     switch (guild.explicitContentFilter) {
       case "ALL_MEMBERS":
         info.push(
-          `${constants.emojis.green} ${guild.language.get("GUILD_FILTER_ALL")}`
+          `${constants.emojis.green} ${message.language.get(
+            "GUILD_FILTER_ALL"
+          )}`
         );
         break;
       case "MEMBERS_WITHOUT_ROLES":
         info.push(
-          `${constants.emojis.yellow} ${guild.language.get(
+          `${constants.emojis.yellow} ${message.language.get(
             "GUILD_FILTER_NO_ROLE"
           )}`
         );
         break;
       case "DISABLED":
         info.push(
-          `${constants.emojis.red} ${guild.language.get("GUILD_FILTER_NONE")}`
+          `${constants.emojis.red} ${message.language.get("GUILD_FILTER_NONE")}`
         );
         break;
     }
 
     if (guild.defaultMessageNotifications == "MENTIONS")
       info.push(
-        `${constants.emojis.green} ${guild.language.get(
+        `${constants.emojis.green} ${message.language.get(
           "GUILD_NOTIFS_MENTIONS"
         )}`
       );
     else
       info.push(
-        `${constants.emojis.yellow} ${guild.language.get("GUILD_NOTIFS_ALL")}`
+        `${constants.emojis.yellow} ${message.language.get("GUILD_NOTIFS_ALL")}`
       );
 
     if (guild.mfaLevel)
       info.push(
-        `${constants.emojis.green} ${guild.language.get("GUILD_MFA_ENABLED")}`
+        `${constants.emojis.green} ${message.language.get("GUILD_MFA_ENABLED")}`
       );
     else
       info.push(
-        `${constants.emojis.red} ${guild.language.get("GUILD_MFA_NONE")}`
+        `${constants.emojis.red} ${message.language.get("GUILD_MFA_NONE")}`
       );
 
     return info;
@@ -211,7 +235,7 @@ export default class GuildCommand extends Command {
 
     const badges = this.getBadges(guild, message.author);
     const info = await this.getInfo(message, guild);
-    const security = this.getSecurity(guild);
+    const security = this.getSecurity(message, guild);
 
     const featuresLocalization = message.language.get("FEATURES");
     const features: string[] = guild.features

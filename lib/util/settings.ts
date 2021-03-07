@@ -4,15 +4,30 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Message } from "@fire/lib/ws/Message";
 import { Fire } from "@fire/lib/Fire";
+import * as pEvent from "p-event";
 
 export class GuildSettings {
-  client: Fire;
   guild: string | FireGuild;
+  client: Fire;
 
   constructor(client: Fire, guild: string | FireGuild) {
     this.client = client;
     this.guild = guild;
+    if (this.shouldMigrate) this.runMigration();
+    else
+      this.client.guildSettings.toMigrate = this.client.guildSettings.toMigrate.filter(
+        (id) =>
+          id != (this.guild instanceof FireGuild ? this.guild.id : this.guild)
+      );
   }
+
+  // will check if migration is needed for the current migration script
+  get shouldMigrate() {
+    return false;
+  }
+
+  // will be empty unless there's a migration to run
+  async runMigration() {}
 
   has(option: string) {
     const guild = this.guild instanceof FireGuild ? this.guild.id : this.guild;
@@ -48,13 +63,26 @@ export class GuildSettings {
 }
 
 export class UserSettings {
+  user: string | FireUser;
   client: Fire;
-  user: FireUser;
 
-  constructor(client: Fire, user: FireUser) {
+  constructor(client: Fire, user: string | FireUser) {
     this.client = client;
     this.user = user;
+    if (this.shouldMigrate) this.runMigration();
+    else
+      this.client.userSettings.toMigrate = this.client.userSettings.toMigrate.filter(
+        (id) => id != (this.user instanceof FireUser ? this.user.id : this.user)
+      );
   }
+
+  // will check if migration is needed for the current migration script
+  get shouldMigrate() {
+    return false;
+  }
+
+  // will be empty unless there's a migration to run
+  async runMigration() {}
 
   has(option: string) {
     const user = this.user instanceof FireUser ? this.user.id : this.user;

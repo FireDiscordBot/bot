@@ -2,14 +2,14 @@ import {
   MessageLinkMatch,
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { Event } from "@fire/lib/ws/event/Event";
 import Quote from "@fire/src/commands/Utilities/quote";
+import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
-import { TextChannel } from "discord.js";
 
 export default class CrossClusterQuote extends Event {
   constructor(manager: Manager) {
@@ -36,7 +36,7 @@ export default class CrossClusterQuote extends Event {
     if (!member) return;
     const channel = guild.channels.cache
       .filter((channel) => channel.type == "text")
-      .get(data.channel_id) as TextChannel;
+      .get(data.channel_id) as FireTextChannel;
     if (!channel) return;
     const message = await channel.messages
       .fetch({

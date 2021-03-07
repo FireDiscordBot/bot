@@ -1,8 +1,9 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
+import VanityURLs from "@fire/src/modules/vanityurls";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import VanityURLs from "@fire/src/modules/vanityurls";
-import { TextChannel, Invite } from "discord.js";
+import { Invite } from "discord.js";
 
 const deleteKeywords = ["remove", "delete", "true", "yeet", "disable"];
 const validityRegex = /[a-zA-Z0-9]{3,10}/gim;
@@ -84,7 +85,7 @@ export default class VanityURL extends Command {
       // this will be false if above failed
       if (!invite)
         invite = await (
-          message.guild.systemChannel || (message.channel as TextChannel)
+          message.guild.systemChannel || (message.channel as FireTextChannel)
         )
           .createInvite({
             unique: true,

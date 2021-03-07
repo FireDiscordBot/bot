@@ -2,10 +2,10 @@ import {
   GuildAuditLogsEntry,
   AuditLogChange,
   MessageEmbed,
-  TextChannel,
 } from "discord.js";
-import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
 import Sk1er from "@fire/src/modules/sk1er";
@@ -25,7 +25,7 @@ export default class GuildMemberUpdate extends Listener {
 
     if (
       newMember.guild.mutes.has(newMember.id) &&
-      !newMember.roles.cache.has(newMember.guild.muteRole.id)
+      !newMember.roles.cache.has(newMember.guild.muteRole?.id)
     ) {
       await this.client.util.sleep(5000); // wait a bit to ensure it isn't from being unmuted
       const until = newMember.guild.mutes.get(newMember.id);
@@ -120,7 +120,7 @@ export default class GuildMemberUpdate extends Listener {
         if (typeof removed == "boolean" && removed)
           (sk1erModule.guild.channels.cache.get(
             "411620457754787841"
-          ) as TextChannel).send(
+          ) as FireTextChannel).send(
             sk1erModule.guild.language.get(
               "SK1ER_NITRO_PERKS_REMOVED",
               newMember.toMention()
@@ -171,6 +171,7 @@ export default class GuildMemberUpdate extends Listener {
     if (!auditLogActions || !auditLogActions.entries?.size) return;
 
     const ignoredReasons = [
+      newMember.guild.language.get("AUTOROLE_REASON"),
       newMember.guild.language.get("REACTIONROLE_ROLE_REASON"),
       newMember.guild.language.get("REACTIONROLE_ROLE_REMOVE_REASON"),
       newMember.guild.language.get("VCROLE_ADD_REASON"),
@@ -291,6 +292,8 @@ export default class GuildMemberUpdate extends Listener {
     const executor = await guild.members
       .fetch(action.executor.id)
       .catch(() => {});
+    if (executor && executor.user.bot && executor.id != this.client.user.id)
+      return;
     const roleIds = (change.new as { name: string; id: string }[]).map(
       (newChange) => newChange.id
     );
@@ -336,6 +339,8 @@ export default class GuildMemberUpdate extends Listener {
     const executor = await guild.members
       .fetch(action.executor.id)
       .catch(() => {});
+    if (executor && executor.user.bot && executor.id != this.client.user.id)
+      return;
     const roleIds = (change.new as { name: string; id: string }[]).map(
       (newChange) => newChange.id
     );
@@ -381,6 +386,8 @@ export default class GuildMemberUpdate extends Listener {
     const executor = await guild.members
       .fetch(action.executor.id)
       .catch(() => {});
+    if (executor && executor.user.bot && executor.id != this.client.user.id)
+      return;
     const embed = new MessageEmbed()
       .setAuthor(
         target ? target.toString() : targetId,

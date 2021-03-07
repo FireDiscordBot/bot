@@ -1,12 +1,12 @@
 import {
   PartialTypes,
-  TextChannel,
   NewsChannel,
   BaseManager,
   Snowflake,
   Constants,
 } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireTextChannel } from "../extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
@@ -68,7 +68,7 @@ export class GenericAction {
     );
   }
 
-  getMessage(data: any, channel: TextChannel | NewsChannel, cache: boolean) {
+  getMessage(data: any, channel: FireTextChannel | NewsChannel, cache: boolean) {
     const id = data.message_id || data.id;
     return (
       data.message ||

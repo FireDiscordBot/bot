@@ -91,7 +91,10 @@ export default class VanityURLs extends Module {
 
   async delete(code: FireGuild | string) {
     const original = code;
-    if (code instanceof FireGuild) code = code.id;
+    if (code instanceof FireGuild) {
+      code.settings.set("utils.public", false);
+      code = code.id;
+    }
     const deleteResult = await this.client.db
       .query(
         "DELETE FROM vanity WHERE code=$1 OR code=$2 OR invite=$1 OR invite=$2 OR gid=$1 RETURNING *;",

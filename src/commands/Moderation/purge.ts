@@ -1,10 +1,9 @@
-import { MessageEmbed, MessageEmbedOptions, TextChannel } from "discord.js";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { MessageEmbed, MessageEmbedOptions } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { userConverter } from "@fire/lib/util/converters";
-import { argv } from "process";
 
 export default class Purge extends Command {
   constructor() {
@@ -159,7 +158,7 @@ export default class Purge extends Command {
       recentPurge.push({ error: message.language.get("PURGE_HISTORY_FAIL") });
     }
     try {
-      (message.channel as TextChannel)
+      (message.channel as FireTextChannel)
         .bulkDelete(amount, true)
         .then(async (messages) => {
           this.client.emit("purge", message, null, recentPurge);
@@ -260,7 +259,7 @@ export default class Purge extends Command {
     }
     if (!recentPurge.length || !messages.length) return;
     try {
-      (message.channel as TextChannel)
+      (message.channel as FireTextChannel)
         .bulkDelete(messages, true)
         .then(async (messages) => {
           this.client.emit("purge", message, args.reason, recentPurge);

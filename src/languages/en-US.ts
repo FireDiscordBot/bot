@@ -30,6 +30,10 @@ export default class enUS extends Language {
           `That is not a valid haste domain. Currently supported domains are ${supported}.`,
         HASTE_INVALID_URL: "That doesn't seem to be a valid haste URL.",
         HASTE_FETCH_FAILED: "I failed to fetch the content of that haste",
+        CONFIG_GUILD_MIGRATION:
+          "This guilds config requires migration! Some features may be unavailable until this is complete.",
+        CONFIG_USER_MIGRATION:
+          "Your config requires migration! Some features may be unavailable until this is complete.",
         UNKNOWN_COMMAND: "Command not found",
         COMMAND_OWNER_ONLY: "Only my owner can use this command",
         COMMAND_SUPERUSER_ONLY:
@@ -332,6 +336,7 @@ ${options
         AUTODEHOIST_USERNAME_REASON:
           "Nickname is hoisted whereas username is not, removing nickname.",
         AVATAR_COMMAND_DESCRIPTION: "Get a user's avatar",
+        AVATAR_TITLE: (user: string) => `${user}'s avatar`,
         BADNAME_COMMAND_DESCRIPTION:
           "Change the name used for auto dehoist/decancer",
         BADNAME_NO_CHANGES: `I did absolutely nothing because that's already set as the "bad name"`,
@@ -532,6 +537,8 @@ Hint: Use the \`public\` command to get your server on the list`,
         EMBED_OBJECT_INVALID:
           "That doesn't seem to be a valid embed, try using https://gaminggeek.dev/embed-visualizer to generate an embed",
         EVAL_COMMAND_DESCRIPTION: "run epic gamer code",
+        EVAL_NO_CONTENT:
+          "hey idiot you forgot to add the code you want to eval",
         EVAL_TOO_LONG: (haste?: string) =>
           haste
             ? `Output was too long, uploaded to hastebin; ${haste}`
@@ -611,6 +618,8 @@ Hint: Use the \`public\` command to get your server on the list`,
         GOOGLE_COMMAND_DESCRIPTION: "Speak to the Google Assistant",
         GOOGLE_TOO_LONG:
           "<a:okaygoogle:769207087674032129> Your query is too long!",
+        GOOGLE_MISSING_CREDENTIALS:
+          "<a:okaygoogle:769207087674032129> This command is unavailable due to missing credentials",
         GUILDUPDATELOG_AUTHOR: (name: string) => `Guild Update | ${name}`,
         GUILDUPDATELOG_ICON_CHANGED: "Icon Changed",
         GUILDUPDATELOG_SPLASH_CHANGED: "Invite Splash Changed",
@@ -646,6 +655,8 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
         HELP_LINKS_VALUE: `[Website](${constants.url.website}) - [Support](${constants.url.support}) - [Terms of Service](${constants.url.terms}) - [Privacy Policy](${constants.url.privacy}) - [Status](${constants.url.fireStatus}) - [Premium](${constants.url.premium})`,
         HELP_FOOTER: (prefix: string, cluster: number) =>
           `Use "${prefix}help <command>" for more info about the command | Cluster ID: ${cluster}`,
+        ICON_COMMAND_DESCRIPTION: "Get the server's icon",
+        ICON_TITLE: (guild: string) => `${guild}'s icon`,
         INVCREATE_LOG_AUTHOR: (guild: string) => `Invite Create | ${guild}`,
         INVDELETE_LOG_AUTHOR: (guild: string) => `Invite Delete | ${guild}`,
         INVITE_ROLE_REASON: (invite: string) =>
@@ -803,6 +814,8 @@ Download beta versions in <#595634170336641045> (check the pins for the latest v
           `That is not a valid log type! Current types are ${types}`,
         LOGGING_SIZE_SAME_CHANNEL:
           "Due to this servers size, you cannot set multiple log types in the same channel",
+        LOGGING_WEBHOOK_CREATE: (type: string) =>
+          `Creating webhook for ${type} logs`,
         LOGGING_DISABLED_MODERATION: "Moderation logs have been disabled.",
         LOGGING_DISABLED_ACTION: "Action logs have been disabled.",
         LOGGING_DISABLED_MEMBERS: "Member logs have been disabled.",
@@ -992,11 +1005,48 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
         PLAYWRIGHT_ERROR_UNKNOWN: "Something went wrong. Try again later",
         PREFIX_COMMAND_DESCRIPTION:
           "Set the prefix used to trigger Fire's command",
-        PREFIX_MISSING_ARG: "You must provide a new prefix",
+        PREFIX_MISSING_ARG:
+          "You must provide a new prefix or an action (add/remove/list)",
+        PREFIX_ACTION_WITHOUT_VALUE:
+          "You must provide a prefix to perform this action on",
+        PREFIXES_CURRENT: (prefixes: string[]) =>
+          prefixes.length == 1
+            ? `This server's prefix is "${prefixes[0]}"`
+            : `This server's prefixes are:
+
+${prefixes.join(", ")}`,
+        PREFIX_VALUE_DISALLOWED: "You cannot use that as your prefix!",
         PREFIX_GLOBAL: `"fire " is a global prefix and can be used anywhere. There's no need to set it as a server prefix`,
-        PREFIX_ALREADY_SET: "That's already set as this server's prefix",
-        PREFIX_SET: (old: string, newp: string) =>
-          `This server's prefix has been set from "${old}" to "${newp}"`,
+        PREFIX_REMOVE_SINGLE:
+          "That is the only prefix set in this server! You must set another to remove it.",
+        PREFIX_REMOVE_NEVER_WAS:
+          "You can't remove what was never there in the first place!",
+        PREFIX_REMOVED: (prefixes: string[]) =>
+          prefixes.length == 1 && prefixes[0] == "$"
+            ? "Since that was the only prefix in this server, I've gone ahead and removed it and reset to the default prefix, $"
+            : prefixes.length == 1
+            ? `Since that was already one of this server's prefixes, I've gone ahead and removed it. This server's prefix is now "${prefixes[0]}"`
+            : `Since that was already one of this server's prefixes, I've gone ahead and removed it. This server's prefixes are now:
+
+${prefixes.join(", ")}`,
+        PREFIX_REMOVE: (prefixes: string[]) =>
+          prefixes.length == 1 && prefixes[0] == "$"
+            ? "Since that was the only prefix in this server, I've gone ahead and reset this server to the default prefix, $"
+            : prefixes.length == 1
+            ? `I've gone ahead and removed that prefix. This server's prefix is now "${prefixes[0]}"`
+            : `I've gone ahead and removed that prefix. This server's prefixes are now:
+
+${prefixes.join(", ")}`,
+        PREFIX_ALREADY_HOW: (usedPrefix: string, toRemove: string) =>
+          `That prefix seems to already be one if this server's prefixes. Try running "${usedPrefix}prefix remove ${toRemove}"`,
+        PREFIX_ADDED: (prefixes: string[]) =>
+          prefixes.length == 1
+            ? `I've set this server's prefix to "${prefixes[0]}"`
+            : `I've added "${
+                prefixes[prefixes.length - 1] // last in list == most recent
+              }" as a prefix for this server. This server's prefixes are now:
+
+${prefixes.join(", ")}`,
         PURGE_COMMAND_DESCRIPTION:
           "Bulk delete messages with optional flags to selectively delete messages based on certain factors",
         PURGE_AMOUNT_INVALID: "Invalid amount. Minumum is 2, Maximum is 100",
@@ -1369,6 +1419,10 @@ Running this command without providing a category resets it, therefore disabling
           `Successfully made your ticket, ${channel}`,
         NEW_TICKET_DISABLED: "Tickets are not enabled here",
         NEW_TICKET_LIMIT: "You have too many tickets open!",
+        NEW_TICKET_LOCK: (limit: number) =>
+          `To prevent issues, only ${limit} user${
+            limit > 1 ? "s" : ""
+          } can create a ticket at once. Please try again in a moment`,
         CLOSE_COMMAND_DESCRIPTION:
           "Closes a ticket, uploads the transcript to action logs channel and sends to the ticket author",
         TICKET_WILL_CLOSE:

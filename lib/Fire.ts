@@ -114,20 +114,24 @@ export class Fire extends AkairoClient {
     this.util = new Util(this);
 
     this.db = new PGClient({
+      host: process.env.POSTGRES_HOST,
       user: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASS,
       database: process.env.POSTGRES_DB,
     });
+    this.db.on("error", (err) =>
+      this.console.error(`[DB] An error occured, ${err}`)
+    );
+    this.db.on("connect", () => this.console.log("[DB] Connected"));
+    this.db.on("end", (end) =>
+      this.console.error(`[DB] Connection ended, ${JSON.stringify(end)}`)
+    );
 
     this.console.warn("[DB] Attempting to connect...");
-
-    this.db
-      .connect()
-      .then(() => this.console.log("[DB] Connected"))
-      .catch((err) => {
-        this.console.error(`[DB] Failed to connect\n${err.stack}`);
-        this.manager.kill("db_error");
-      });
+    this.db.connect().catch((err) => {
+      this.console.error(`[DB] Failed to connect\n${err.stack}`);
+      this.manager.kill("db_error");
+    });
 
     this.db
       .query("SELECT count FROM socketstats WHERE cluster=$1;", [
@@ -189,12 +193,16 @@ export class Fire extends AkairoClient {
       automateCategories: true,
       commandUtilLifetime: 30000,
       prefix: (message: FireMessage) => {
+        const prefixes = message.guild?.settings.get("config.prefix", [
+          "$",
+        ]) as string[];
         return config.fire.dev
           ? "dev "
           : message.guild
           ? [
-              message.guild.settings.get("config.prefix", "$"),
-              message.guild.settings.get("config.prefix", "$") + " ",
+              ...prefixes,
+              ...prefixes.map((prefix) => prefix + " "),
+              "fire",
               "fire ",
             ]
           : ["$", "fire "];

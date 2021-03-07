@@ -4,11 +4,11 @@ import {
   PermissionString,
   GuildChannel,
   MessageEmbed,
-  TextChannel,
   ClientUser,
   DMChannel,
 } from "discord.js";
 import { constants, humanize, zws } from "@fire/lib/util/constants";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
@@ -20,7 +20,7 @@ import * as moment from "moment";
 const {
   emojis,
   statusEmojis,
-  emojis: { badges, badlyDrawnBadges },
+  emojis: { badges, badlyDrawnBadges, breadBadges, breadlyDrawnBadges: badlyDrawnBreadBadges },
 } = constants;
 export default class User extends Command {
   constructor() {
@@ -193,10 +193,22 @@ export default class User extends Command {
 
   getBadges(user: FireUser, author?: FireMember | FireUser) {
     const bad = author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
+    const bread = author?.hasExperiment("w4y3qODd79XgvqjA_It3Z", 1);
+    const hannahMontana = // you get the best of both worlds, bread + badly drawn
+      author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 3) ||
+      author?.hasExperiment("w4y3qODd79XgvqjA_It3Z", 3);
     const flags = user.flags?.toArray() || [];
     let emojis: string[] = Object.keys(badges)
       .filter((badge: UserFlagsString) => flags.includes(badge))
-      .map((badge) => (bad ? badlyDrawnBadges[badge] : badges[badge]));
+      .map((badge) =>
+        hannahMontana
+          ? badlyDrawnBreadBadges[badge]
+          : bad
+          ? badlyDrawnBadges[badge]
+          : bread
+          ? breadBadges[badge]
+          : badges[badge]
+      );
     if (user.isSuperuser()) emojis.push(badges.FIRE_ADMIN);
     if (user.premium) emojis.push(badges.FIRE_PREMIUM);
     if (emojis.length) emojis.push(zws);
@@ -378,13 +390,13 @@ export default class User extends Command {
     if (
       this.client.channels.cache
         .filter((c) => c.type == "text")
-        .map((c: TextChannel) => c.messages.cache)
+        .map((c: FireTextChannel) => c.messages.cache)
         .find((m) => m.has(snowflake.snowflake))
     ) {
       let viewable = false;
       const snowflakeMessage = this.client.channels.cache
         .filter((c) => c.type == "text")
-        .map((c: TextChannel) => c.messages.cache)
+        .map((c: FireTextChannel) => c.messages.cache)
         .find((m) => m.has(snowflake.snowflake))
         .get(snowflake.snowflake) as FireMessage;
       const channel = snowflakeMessage.channel;
@@ -418,13 +430,13 @@ export default class User extends Command {
     if (
       this.client.channels.cache
         .filter((c) => c.type == "text")
-        .map((c: TextChannel) => c.messages.cache)
+        .map((c: FireTextChannel) => c.messages.cache)
         .find((c) => c.find((m) => m.attachments.has(snowflake.snowflake)))
     ) {
       let viewable = false;
       const snowflakeMessage = this.client.channels.cache
         .filter((c) => c.type == "text")
-        .map((c: TextChannel) => c.messages.cache)
+        .map((c: FireTextChannel) => c.messages.cache)
         .find((c) => c.find((m) => m.attachments.has(snowflake.snowflake)))
         .first() as FireMessage;
       const channel = snowflakeMessage.channel;
