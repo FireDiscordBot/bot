@@ -26,6 +26,7 @@ import { GuildSettings } from "@fire/lib/util/settings";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { FakeChannel } from "./slashCommandMessage";
+import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
@@ -46,6 +47,7 @@ export class FireGuild extends Guild {
   quoteHooks: Collection<string, Webhook | WebhookClient>;
   reactionRoles: Collection<string, ReactionRoleData[]>;
   persistedRoles: Collection<string, string[]>;
+  ticketLock?: { lock: Semaphore; limit: any };
   inviteRoles: Collection<string, string>;
   vcRoles: Collection<string, string>;
   invites: Collection<string, number>;
@@ -606,6 +608,16 @@ export class FireGuild extends Guild {
         .get(this.settings.get("tickets.parent")) as CategoryChannel);
     if (!category) return "disabled";
     const limit = this.settings.get("tickets.limit", 1);
+    if (!this.ticketLock?.lock || this.ticketLock?.limit != limit)
+      this.ticketLock = { lock: new Semaphore(limit), limit };
+    const permits = this.ticketLock.lock.getPermits();
+    if (!permits) return "lock";
+    let locked = false;
+    setTimeout(() => {
+      if (locked) this.ticketLock.lock.release();
+    }, 15000);
+    await this.ticketLock.lock.acquire();
+    locked = true;
     let channels = (this.settings.get(
       "tickets.channels",
       []
@@ -618,8 +630,11 @@ export class FireGuild extends Guild {
       channels.filter((channel: TextChannel) =>
         channel?.topic.includes(author.id)
       ).length >= limit
-    )
+    ) {
+      locked = false;
+      this.ticketLock.lock.release();
       return "limit";
+    }
     const words = (this.client.getCommand("ticket") as Tickets).words;
     let increment = this.settings.get("tickets.increment", 0) as number;
     const variables = {
@@ -676,7 +691,11 @@ export class FireGuild extends Guild {
         ) as string,
       })
       .catch((e: Error) => e);
-    if (ticket instanceof Error) return ticket;
+    if (ticket instanceof Error) {
+      locked = false;
+      this.ticketLock.lock.release();
+      return ticket;
+    }
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_OPENER_TILE", author.toString()))
       .setTimestamp()
@@ -701,6 +720,8 @@ export class FireGuild extends Guild {
       channels.map((channel) => channel && channel.id)
     );
     this.client.emit("ticketCreate", author, ticket, opener);
+    locked = false;
+    this.ticketLock.lock.release();
     return ticket;
   }
 

@@ -1419,6 +1419,10 @@ Running this command without providing a category resets it, therefore disabling
           `Successfully made your ticket, ${channel}`,
         NEW_TICKET_DISABLED: "Tickets are not enabled here",
         NEW_TICKET_LIMIT: "You have too many tickets open!",
+        NEW_TICKET_LOCK: (limit: number) =>
+          `To prevent issues, only ${limit} user${
+            limit > 1 ? "s" : ""
+          } can create a ticket at once. Please try again in a moment`,
         CLOSE_COMMAND_DESCRIPTION:
           "Closes a ticket, uploads the transcript to action logs channel and sends to the ticket author",
         TICKET_WILL_CLOSE:
