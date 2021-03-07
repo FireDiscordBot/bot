@@ -2,7 +2,6 @@ import {
   MessageReaction,
   WebhookClient,
   MessageEmbed,
-  TextChannel,
   NewsChannel,
   Structures,
   DMChannel,
@@ -14,15 +13,17 @@ import { PaginatorInterface } from "@fire/lib/util/paginators";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
 import Filters from "@fire/src/modules/filters";
+import { FireTextChannel } from "./textchannel";
 import { FireMember } from "./guildmember";
+import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import * as centra from "centra";
-import { Fire } from "@fire/lib/Fire";
 
 const { emojis, reactions, regexes, imageExts } = constants;
 
 export class FireMessage extends Message {
+  channel: DMChannel | FireTextChannel | NewsChannel;
   paginator?: PaginatorInterface;
   member: FireMember;
   util?: CommandUtil;
@@ -34,7 +35,7 @@ export class FireMessage extends Message {
   constructor(
     client: Fire,
     data: object,
-    channel: DMChannel | TextChannel | NewsChannel
+    channel: DMChannel | FireTextChannel | NewsChannel
   ) {
     super(client, data, channel);
     this.silent = false;
@@ -103,12 +104,12 @@ export class FireMessage extends Message {
   }
 
   async quote(
-    destination: TextChannel | PartialQuoteDestination,
+    destination: FireTextChannel | PartialQuoteDestination,
     quoter: FireMember,
     webhook?: WebhookClient
   ) {
     if (this.channel.type == "dm") return "dm";
-    const channel = this.channel as TextChannel;
+    const channel = this.channel as FireTextChannel;
     if (this.author.system && !quoter.isSuperuser()) return "system";
     if (channel.nsfw && !destination?.nsfw) return "nsfw";
     const isLurkable =
@@ -147,21 +148,21 @@ export class FireMessage extends Message {
   }
 
   private async webhookQuote(
-    destination: TextChannel | PartialQuoteDestination,
+    destination: FireTextChannel | PartialQuoteDestination,
     quoter: FireMember,
     webhook?: WebhookClient
   ) {
     let hook: Webhook | WebhookClient = webhook;
     if (!this.guild?.quoteHooks.has(destination.id)) {
       const hooks =
-        destination instanceof TextChannel
+        destination instanceof FireTextChannel
           ? await destination.fetchWebhooks().catch(() => {})
           : null;
       if (hooks && !hook)
         hook = hooks
           ?.filter((hook) => !!hook.token && hook.channelID == destination.id)
           ?.first();
-      if (!hook && destination instanceof TextChannel) {
+      if (!hook && destination instanceof FireTextChannel) {
         hook = await destination
           .createWebhook(`Fire Quotes #${destination.name}`, {
             avatar: this.client.user.displayAvatarURL({
@@ -200,9 +201,9 @@ export class FireMessage extends Message {
     }
     let attachments: { attachment: Buffer; name: string }[] = [];
     if (
-      (destination instanceof TextChannel &&
+      (destination instanceof FireTextChannel &&
         quoter.permissionsIn(destination).has("ATTACH_FILES")) ||
-      (!(destination instanceof TextChannel) &&
+      (!(destination instanceof FireTextChannel) &&
         (destination.permissions & 0x8000) == 0x8000)
     ) {
       const names = this.attachments.map((attach) => attach.name);
@@ -254,20 +255,20 @@ export class FireMessage extends Message {
   }
 
   private async embedQuote(
-    destination: TextChannel | PartialQuoteDestination,
+    destination: FireTextChannel | PartialQuoteDestination,
     quoter: FireMember
   ) {
     // PartialQuoteDestination needs to be set for type here
     // since this#quote can take either but it should never
     // actually end up at this point
-    if (!(destination instanceof TextChannel)) return;
+    if (!(destination instanceof FireTextChannel)) return;
     const { language } = destination.guild as FireGuild;
     if (!this.content && this.author.bot && this.embeds?.length == 1) {
       return await destination.send(
         language.get(
           "QUOTE_EMBED_FROM",
           this.author.toString(),
-          (this.channel as TextChannel).name
+          (this.channel as FireTextChannel).name
         ),
         this.embeds[0]
       );
@@ -321,7 +322,7 @@ export class FireMessage extends Message {
           language.get(
             "QUOTE_EMBED_FOOTER_ALL",
             quoter,
-            (this.channel as TextChannel).name,
+            (this.channel as FireTextChannel).name,
             this.guild.name
           )
         );
@@ -330,7 +331,7 @@ export class FireMessage extends Message {
           language.get(
             "QUOTE_EMBED_FOOTER_SOME",
             quoter,
-            (this.channel as TextChannel).name
+            (this.channel as FireTextChannel).name
           )
         );
     } else embed.setFooter(language.get("QUOTE_EMBED_FOOTER", quoter));

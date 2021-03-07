@@ -16,7 +16,6 @@ import {
   MessageOptions,
   MessageManager,
   MessageEmbed,
-  TextChannel,
   Permissions,
   NewsChannel,
   APIMessage,
@@ -29,16 +28,17 @@ import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
+import { FireTextChannel} from "./textchannel";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
+import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
-import { Fire } from "@fire/lib/Fire";
 
 const { emojis, reactions } = constants;
 
 export class SlashCommandMessage {
-  realChannel?: TextChannel | NewsChannel | DMChannel;
+  realChannel?: FireTextChannel | NewsChannel | DMChannel;
   attachments: Collection<string, MessageAttachment>;
   sent: false | "ack" | "message";
   sourceMessage: FireMessage;
@@ -94,7 +94,7 @@ export class SlashCommandMessage {
       : this.guild?.language || client.getLanguage("en-US");
     this.realChannel = this.client.channels.cache.get(
       this.slashCommand.channel_id
-    ) as TextChannel | NewsChannel | DMChannel;
+    ) as FireTextChannel | NewsChannel | DMChannel;
     if (!this.guild) {
       // This will happen if a guild authorizes w/applications.commands
       // or if a slash command is invoked in DMs (discord/discord-api-docs #2568)
@@ -246,7 +246,7 @@ export class SlashCommandMessage {
 }
 
 export class FakeChannel {
-  real: TextChannel | NewsChannel | DMChannel;
+  real: FireTextChannel | NewsChannel | DMChannel;
   message: SlashCommandMessage;
   messages: MessageManager;
   msgFlags: number;
@@ -259,7 +259,7 @@ export class FakeChannel {
     client: Fire,
     id: string,
     token: string,
-    real?: TextChannel | NewsChannel | DMChannel,
+    real?: FireTextChannel | NewsChannel | DMChannel,
     msgFlags?: number
   ) {
     this.id = id;

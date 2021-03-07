@@ -4,11 +4,11 @@ import {
   PermissionString,
   GuildChannel,
   MessageEmbed,
-  TextChannel,
   ClientUser,
   DMChannel,
 } from "discord.js";
 import { constants, humanize, zws } from "@fire/lib/util/constants";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
@@ -390,13 +390,13 @@ export default class User extends Command {
     if (
       this.client.channels.cache
         .filter((c) => c.type == "text")
-        .map((c: TextChannel) => c.messages.cache)
+        .map((c: FireTextChannel) => c.messages.cache)
         .find((m) => m.has(snowflake.snowflake))
     ) {
       let viewable = false;
       const snowflakeMessage = this.client.channels.cache
         .filter((c) => c.type == "text")
-        .map((c: TextChannel) => c.messages.cache)
+        .map((c: FireTextChannel) => c.messages.cache)
         .find((m) => m.has(snowflake.snowflake))
         .get(snowflake.snowflake) as FireMessage;
       const channel = snowflakeMessage.channel;
@@ -430,13 +430,13 @@ export default class User extends Command {
     if (
       this.client.channels.cache
         .filter((c) => c.type == "text")
-        .map((c: TextChannel) => c.messages.cache)
+        .map((c: FireTextChannel) => c.messages.cache)
         .find((c) => c.find((m) => m.attachments.has(snowflake.snowflake)))
     ) {
       let viewable = false;
       const snowflakeMessage = this.client.channels.cache
         .filter((c) => c.type == "text")
-        .map((c: TextChannel) => c.messages.cache)
+        .map((c: FireTextChannel) => c.messages.cache)
         .find((c) => c.find((m) => m.attachments.has(snowflake.snowflake)))
         .first() as FireMessage;
       const channel = snowflakeMessage.channel;

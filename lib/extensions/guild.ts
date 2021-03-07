@@ -5,7 +5,6 @@ import {
   Webhook,
   Collection,
   Structures,
-  TextChannel,
   MessageEmbed,
   VoiceChannel,
   WebhookClient,
@@ -26,6 +25,7 @@ import { GuildSettings } from "@fire/lib/util/settings";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { FakeChannel } from "./slashCommandMessage";
+import { FireTextChannel} from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
 import { FireMember } from "./guildmember";
@@ -504,7 +504,7 @@ export class FireGuild extends Guild {
     if (!channel || channel.type != "text") return;
 
     if (!this.me.permissionsIn(channel).has("MANAGE_WEBHOOKS"))
-      return await (channel as TextChannel).send(log).catch(() => {});
+      return await (channel as FireTextChannel).send(log).catch(() => {});
     else return await this.logger.handleAction(log, type);
   }
 
@@ -518,7 +518,7 @@ export class FireGuild extends Guild {
     if (!channel || channel.type != "text") return;
 
     if (!this.me.permissionsIn(channel).has("MANAGE_WEBHOOKS"))
-      return await (channel as TextChannel).send(log).catch(() => {});
+      return await (channel as FireTextChannel).send(log).catch(() => {});
     else return await this.logger.handleModeration(log, type);
   }
 
@@ -530,7 +530,7 @@ export class FireGuild extends Guild {
     if (!channel || channel.type != "text") return;
 
     if (!this.me.permissionsIn(channel).has("MANAGE_WEBHOOKS"))
-      return await (channel as TextChannel).send(log).catch(() => {});
+      return await (channel as FireTextChannel).send(log).catch(() => {});
     else return await this.logger.handleMembers(log, type);
   }
 
@@ -592,7 +592,7 @@ export class FireGuild extends Guild {
     );
     return (this.settings.get("tickets.channels", []) as string[])
       .map((id) => textChannels.get(id))
-      .filter((channel) => !!channel) as TextChannel[];
+      .filter((channel) => !!channel) as FireTextChannel[];
   }
 
   async createTicket(
@@ -627,7 +627,7 @@ export class FireGuild extends Guild {
         .get(id)
     );
     if (
-      channels.filter((channel: TextChannel) =>
+      channels.filter((channel: FireTextChannel) =>
         channel?.topic.includes(author.id)
       ).length >= limit
     ) {
@@ -725,8 +725,8 @@ export class FireGuild extends Guild {
     return ticket;
   }
 
-  async closeTicket(channel: TextChannel, author: FireMember, reason: string) {
-    if (channel instanceof FakeChannel) channel = channel.real as TextChannel;
+  async closeTicket(channel: FireTextChannel, author: FireMember, reason: string) {
+    if (channel instanceof FakeChannel) channel = channel.real as FireTextChannel;
     if (author instanceof FireUser)
       author = (await this.members.fetch(author).catch(() => {})) as FireMember;
     if (!author) return "forbidden";
@@ -793,8 +793,8 @@ export class FireGuild extends Guild {
     const log =
       (this.channels.cache.get(
         this.settings.get("tickets.transcript_logs")
-      ) as TextChannel) ||
-      (this.channels.cache.get(this.settings.get("log.action")) as TextChannel);
+      ) as FireTextChannel) ||
+      (this.channels.cache.get(this.settings.get("log.action")) as FireTextChannel);
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))
       .setTimestamp()
@@ -816,7 +816,7 @@ export class FireGuild extends Guild {
     this.client.emit("ticketClose", creator);
     return (await channel
       .delete(this.language.get("TICKET_CLOSE_REASON") as string)
-      .catch((e: Error) => e)) as TextChannel | Error;
+      .catch((e: Error) => e)) as FireTextChannel | Error;
   }
 
   async createModLogEntry(
@@ -855,7 +855,7 @@ export class FireGuild extends Guild {
     user: FireUser,
     reason: string,
     moderator: FireMember,
-    channel?: TextChannel
+    channel?: FireTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -906,7 +906,7 @@ export class FireGuild extends Guild {
     blockee: FireMember | Role,
     reason: string,
     moderator: FireMember,
-    channel: TextChannel
+    channel: FireTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -974,7 +974,7 @@ export class FireGuild extends Guild {
     unblockee: FireMember | Role,
     reason: string,
     moderator: FireMember,
-    channel: TextChannel
+    channel: FireTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";

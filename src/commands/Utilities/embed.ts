@@ -1,5 +1,6 @@
-import { MessageEmbed, TextChannel, NewsChannel } from "discord.js";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { MessageEmbed, NewsChannel } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -31,7 +32,7 @@ export default class Embed extends Command {
 
   async exec(
     message: FireMessage,
-    args: { haste?: string; channel?: TextChannel | NewsChannel }
+    args: { haste?: string; channel?: FireTextChannel | NewsChannel }
   ) {
     if (!args.haste) return;
     if (
@@ -40,7 +41,7 @@ export default class Embed extends Command {
     )
       return await message.error("EMBED_MISSING_PERMISSIONS");
     if (typeof args.channel == "undefined")
-      args.channel = message.channel as TextChannel;
+      args.channel = message.channel as FireTextChannel;
     else if (!args.channel) return;
 
     let embeds: object | object[], content: string;

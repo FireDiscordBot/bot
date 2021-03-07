@@ -1,7 +1,7 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { TextChannel } from "discord.js";
 
 type validTypes =
   | "mod"
@@ -50,7 +50,7 @@ export default class Logging extends Command {
     message: FireMessage,
     args: {
       type: validTypes;
-      channel: TextChannel;
+      channel: FireTextChannel;
     }
   ) {
     args.type = args.type?.toLowerCase() as validTypes;

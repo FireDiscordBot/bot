@@ -2,27 +2,27 @@ import {
   version as djsver,
   Collection,
   PermissionString,
-  TextChannel,
   Webhook,
 } from "discord.js";
 import { Channel, Video } from "@fire/lib/interfaces/youtube";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireTextChannel } from "../extensions/textchannel";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { PremiumData } from "@fire/lib/interfaces/premium";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { humanize, titleCase } from "./constants";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Cluster } from "@fire/lib/interfaces/stats";
 import { FireUser } from "@fire/lib/extensions/user";
+import { humanize, titleCase } from "./constants";
+import { Message } from "@fire/lib/ws/Message";
 import { ClientUtil } from "discord-akairo";
 import { getCommitHash } from "./gitUtils";
-import { Message } from "@fire/lib/ws/Message";
+import { Fire } from "@fire/lib/Fire";
 import { Language } from "./language";
 import * as pidusage from "pidusage";
 import * as Centra from "centra";
 import * as moment from "moment";
-import { Fire } from "@fire/lib/Fire";
 import { totalmem } from "os";
 
 export const humanFileSize = (size: number) => {
@@ -399,7 +399,7 @@ export class Util extends ClientUtil {
     return channel;
   }
 
-  async getQuoteWebhookURL(destination: TextChannel) {
+  async getQuoteWebhookURL(destination: FireTextChannel) {
     const hooks = await destination.fetchWebhooks().catch(() => {});
     let hook: Webhook;
     if (hooks) hook = hooks.filter((hook) => !!hook.token).first();

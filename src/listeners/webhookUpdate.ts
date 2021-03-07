@@ -1,6 +1,7 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { TextChannel, NewsChannel } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
+import { NewsChannel } from "discord.js";
 
 export default class WebhookUpdate extends Listener {
   constructor() {
@@ -10,7 +11,7 @@ export default class WebhookUpdate extends Listener {
     });
   }
 
-  async exec(channel: TextChannel | NewsChannel) {
+  async exec(channel: FireTextChannel | NewsChannel) {
     const guild = channel.guild as FireGuild;
 
     if (guild.logger?.hasWebhooks(channel.id))

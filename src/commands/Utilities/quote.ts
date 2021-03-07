@@ -3,15 +3,16 @@ import {
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { TextChannel, WebhookClient } from "discord.js";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
+import { WebhookClient } from "discord.js";
 
 const { regexes } = constants;
 
@@ -81,8 +82,8 @@ export default class Quote extends Command {
           const webhookURL = await this.client.util
             .getQuoteWebhookURL(
               message instanceof SlashCommandMessage
-                ? (message.realChannel as TextChannel)
-                : (message.channel as TextChannel)
+                ? (message.realChannel as FireTextChannel)
+                : (message.channel as FireTextChannel)
             )
             .catch(() => {});
           if (!webhookURL || typeof webhookURL != "string") continue;
@@ -105,7 +106,7 @@ export default class Quote extends Command {
                 webhook: webhookURL,
                 message: quote,
                 destination: {
-                  nsfw: (message.channel as TextChannel)?.nsfw || false,
+                  nsfw: (message.channel as FireTextChannel)?.nsfw || false,
                   permissions: message.guild
                     ? message.member.permissions.bitfield
                     : 0,
@@ -130,8 +131,8 @@ export default class Quote extends Command {
     const quoted = await args.quote
       .quote(
         message instanceof SlashCommandMessage
-          ? (message.realChannel as TextChannel)
-          : (message.channel as TextChannel),
+          ? (message.realChannel as FireTextChannel)
+          : (message.channel as FireTextChannel),
         message.member,
         webhook
       )

@@ -1,8 +1,8 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { TextChannel } from "discord.js";
 
 const { emojis } = constants;
 
@@ -63,7 +63,7 @@ export default class NewTicket extends Command {
         args,
         ticket
       );
-    else if (ticket instanceof TextChannel)
+    else if (ticket instanceof FireTextChannel)
       return await creating.edit(
         `${emojis.success} ${message.language.get(
           "NEW_TICKET_CREATED",

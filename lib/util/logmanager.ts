@@ -2,10 +2,10 @@ import {
   MessageEmbedOptions,
   DiscordAPIError,
   MessageEmbed,
-  TextChannel,
   Webhook,
 } from "discord.js";
 import { ActionLogType, MemberLogType, ModLogType } from "./constants";
+import { FireTextChannel } from "../extensions/textchannel";
 import { FireGuild } from "../extensions/guild";
 import Semaphore from "semaphore-async-await";
 import { Fire } from "../Fire";
@@ -85,7 +85,7 @@ export class GuildLogManager {
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
         this.guild.settings.get("log.moderation")
-      ) as TextChannel;
+      ) as FireTextChannel;
       if (!channel) return;
 
       const webhooks = await channel.fetchWebhooks().catch(() => {});
@@ -95,7 +95,7 @@ export class GuildLogManager {
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
         this.guild.settings.get("log.moderation")
-      ) as TextChannel;
+      ) as FireTextChannel;
       data.webhook = await channel
         .createWebhook("Moderation Logs", {
           avatar: this.client.user.displayAvatarURL({
@@ -162,7 +162,7 @@ export class GuildLogManager {
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
         this.guild.settings.get("log.members")
-      ) as TextChannel;
+      ) as FireTextChannel;
       if (!channel) return;
 
       const webhooks = await channel.fetchWebhooks().catch(() => {});
@@ -172,7 +172,7 @@ export class GuildLogManager {
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
         this.guild.settings.get("log.members")
-      ) as TextChannel;
+      ) as FireTextChannel;
       data.webhook = await channel
         .createWebhook("Member Logs", {
           avatar: this.client.user.displayAvatarURL({
@@ -239,7 +239,7 @@ export class GuildLogManager {
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
         this.guild.settings.get("log.action")
-      ) as TextChannel;
+      ) as FireTextChannel;
       if (!channel) return;
 
       const webhooks = await channel.fetchWebhooks().catch(() => {});
@@ -249,7 +249,7 @@ export class GuildLogManager {
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
         this.guild.settings.get("log.action")
-      ) as TextChannel;
+      ) as FireTextChannel;
       data.webhook = await channel
         .createWebhook("Action Logs", {
           avatar: this.client.user.displayAvatarURL({

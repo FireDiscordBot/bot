@@ -2,6 +2,7 @@ import {
   MessageLinkMatch,
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { messageConverter } from "@fire/lib/util/converters";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -11,7 +12,6 @@ import Quote from "@fire/src/commands/Utilities/quote";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
-import { TextChannel } from "discord.js";
 
 const { regexes } = constants;
 let mentionRegex: RegExp;
@@ -121,7 +121,7 @@ export default class MessageInvalid extends Listener {
       if (!shards.includes(shard)) {
         if (!this.client.manager.ws?.open) continue;
         const webhookURL = await this.client.util.getQuoteWebhookURL(
-          message.channel as TextChannel
+          message.channel as FireTextChannel
         );
         if (!webhookURL || typeof webhookURL != "string") continue;
         this.client.console.info(
@@ -135,7 +135,7 @@ export default class MessageInvalid extends Listener {
               webhook: webhookURL,
               message: quote,
               destination: {
-                nsfw: (message.channel as TextChannel)?.nsfw || false,
+                nsfw: (message.channel as FireTextChannel)?.nsfw || false,
                 permissions: message.guild
                   ? message.member?.permissions.bitfield || 0
                   : 0,

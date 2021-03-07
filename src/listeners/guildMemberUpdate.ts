@@ -2,10 +2,10 @@ import {
   GuildAuditLogsEntry,
   AuditLogChange,
   MessageEmbed,
-  TextChannel,
 } from "discord.js";
-import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
 import Sk1er from "@fire/src/modules/sk1er";
@@ -120,7 +120,7 @@ export default class GuildMemberUpdate extends Listener {
         if (typeof removed == "boolean" && removed)
           (sk1erModule.guild.channels.cache.get(
             "411620457754787841"
-          ) as TextChannel).send(
+          ) as FireTextChannel).send(
             sk1erModule.guild.language.get(
               "SK1ER_NITRO_PERKS_REMOVED",
               newMember.toMention()

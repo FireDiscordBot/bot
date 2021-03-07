@@ -1,9 +1,10 @@
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { constants, shortURLs } from "@fire/lib/util/constants";
-import { MessageEmbed, TextChannel, Invite } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
+import { MessageEmbed, Invite } from "discord.js";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 
@@ -72,7 +73,7 @@ export default class Filters extends Module {
     if (
       excluded.includes(message?.author?.id || user?.id) ||
       excluded.includes(message?.channel?.id) ||
-      excluded.includes((message?.channel as TextChannel)?.parentID) ||
+      excluded.includes((message?.channel as FireTextChannel)?.parentID) ||
       excluded.some((id) => roleIds.includes(id))
     )
       return false;

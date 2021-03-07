@@ -1,7 +1,8 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { constants, humanize } from "@fire/lib/util/constants";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageEmbed, TextChannel } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
+import { MessageEmbed } from "discord.js";
 import * as moment from "moment";
 
 const {
@@ -147,7 +148,7 @@ export default class GuildMemberAdd extends Listener {
       const channel = member.guild.channels.cache.get(
         member.guild.settings.get("greet.joinchannel")
       );
-      if (joinMessage && channel instanceof TextChannel) {
+      if (joinMessage && channel instanceof FireTextChannel) {
         const regexes = [
           [joinleavemsgs.user, member.toString()],
           [joinleavemsgs.mention, member.toMention()],

@@ -1,7 +1,7 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
-import { TextChannel } from "discord.js";
 
 export default class ForwardMessageEvent extends Event {
   constructor(manager: Manager) {
@@ -26,7 +26,7 @@ export default class ForwardMessageEvent extends Event {
     }
     const channel = this.manager.client.channels.cache.get(
       data.channel
-    ) as TextChannel;
+    ) as FireTextChannel;
     if (channel.type == "text") await channel.send(content).catch(() => {});
   }
 }

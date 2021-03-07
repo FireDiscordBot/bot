@@ -1,11 +1,12 @@
-import { MessageEmbed, TextChannel, Structures, User, Util } from "discord.js";
+import { MessageEmbed, Structures, User, Util } from "discord.js";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { UserSettings } from "@fire/lib/util/settings";
-import { FireMember } from "./guildmember";
+import { FireTextChannel} from "./textchannel";
 import { Message } from "@fire/lib/ws/Message";
-import { FireGuild } from "./guild";
+import { FireMember } from "./guildmember";
 import { Fire } from "@fire/lib/Fire";
+import { FireGuild } from "./guild";
 
 export class FireUser extends User {
   settings: UserSettings;
@@ -157,7 +158,7 @@ export class FireUser extends User {
     reason: string,
     moderator: FireMember,
     days: number = 0,
-    channel?: TextChannel
+    channel?: FireTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";

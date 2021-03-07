@@ -1,9 +1,9 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
-import { TextChannel } from "discord.js";
 
 export default class Sk1erSpecsEvent extends Event {
   constructor(manager: Manager) {
@@ -34,7 +34,7 @@ export default class Sk1erSpecsEvent extends Event {
       } catch {
         return (this.manager.client.channels.cache.get(
           "411620555960352787"
-        ) as TextChannel).send(data.message, {
+        ) as FireTextChannel).send(data.message, {
           allowedMentions: { users: [data.user] },
         });
       }
@@ -54,7 +54,7 @@ export default class Sk1erSpecsEvent extends Event {
       } catch {
         return await (guild.channels.cache.get(
           "411620555960352787"
-        ) as TextChannel).send(
+        ) as FireTextChannel).send(
           member.language.get("SK1ER_BETA_SUCCESS", member.toMention()),
           {
             allowedMentions: { users: [member.id] },

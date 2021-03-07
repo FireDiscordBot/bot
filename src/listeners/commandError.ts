@@ -2,13 +2,12 @@ import {
   FakeChannel,
   SlashCommandMessage,
 } from "@fire/lib/extensions/slashCommandMessage";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { GuildChannel, DMChannel } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
 import { Command } from "@fire/lib/util/command";
-import { GuildChannel } from "discord.js";
-import { TextChannel } from "discord.js";
 import { Scope } from "@sentry/node";
-import { DMChannel } from "discord.js";
 
 export default class CommandError extends Listener {
   constructor() {
@@ -49,7 +48,7 @@ export default class CommandError extends Listener {
             : channel?.id || "0",
         "channel.name":
           channel instanceof GuildChannel
-            ? (channel as TextChannel).name
+            ? (channel as FireTextChannel).name
             : channel instanceof FakeChannel
             ? channel.real instanceof DMChannel
               ? "dm"
