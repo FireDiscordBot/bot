@@ -1345,6 +1345,7 @@ Your existing premium servers are: ${current.join(", ")}`,
         GIVEPREMIUM_RELOAD_FAIL: "Failed to reload premium guilds",
         RELOAD_COMMAND_DESCRIPTION: "reload a command/language/listener/module",
         TAG_COMMAND_DESCRIPTION: "See a list of all tags or view a tag",
+        TAG_SLASH_DESCRIPTION: (tag: string) => `View the tag "${tag}"`,
         TAG_NONE_FOUND:
           "I searched near and far and could not find any tags...",
         TAG_INVALID_TAG: (tag: string) =>

@@ -28,7 +28,7 @@ import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { FireTextChannel} from "./textchannel";
+import { FireTextChannel } from "./textchannel";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
 import { Fire } from "@fire/lib/Fire";
@@ -65,10 +65,18 @@ export class SlashCommandMessage {
       command.data.name = `${command.data.name}-${command.data.options[0].name}`;
       command.data.options = command.data.options[0].options;
     }
+    this.guild = client.guilds.cache.get(command.guild_id) as FireGuild;
     this.command = this.client.getCommand(command.data.name);
     this.flags = 0;
+    if (
+      !this.command &&
+      this.guild?.tags?.slashCommands.includes(command.data.id)
+    ) {
+      this.command = this.client.getCommand("tag-show");
+      command.data.options = [{ name: "tag", value: command.data.name }];
+      if (this.guild.tags.ephemeral) this.setFlags(64);
+    }
     if (this.command?.ephemeral) this.setFlags(64);
-    this.guild = client.guilds.cache.get(command.guild_id) as FireGuild;
     // @ts-ignore
     this.mentions = new MessageMentions(this, [], [], false);
     this.attachments = new Collection();
@@ -133,7 +141,7 @@ export class SlashCommandMessage {
     if (this.client.util.isPromise(prefix)) prefix = await prefix;
     if (prefix instanceof Array) prefix = prefix[0];
     let content = prefix as string;
-    content += this.slashCommand.data.name + " ";
+    content += this.command.id + " ";
     if (this.command.args?.length && this.slashCommand.data.options?.length) {
       const commandArgs = this.command.args as ArgumentOptions[];
       const argNames = this.slashCommand.data.options.map((opt) => opt.name);
