@@ -152,8 +152,7 @@ export default class enUS extends Language {
         VERIFICATION_LEVEL: "Verification Level",
         REMOVED_OVERWRITES: "Removed Permissions",
         EXPLICIT_CONTENT_FILTER: "Explicit Content Filter",
-        REGION_DEPRECATED:
-          "<:wumpus_land:759529118671831040> Deprecated Region",
+        REGION_AUTOMATIC: "<:wumpus_land:759529118671831040> Automatic",
         REGIONS: {
           brazil: "🇧🇷 Brazil",
           europe: "🇪🇺 Europe",

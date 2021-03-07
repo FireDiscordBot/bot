@@ -133,8 +133,7 @@ export default class owo extends Language {
         VERIFICATION_LEVEL: "Vewification Wevew",
         REMOVED_OVERWRITES: "Wemoved Pewmissions",
         EXPLICIT_CONTENT_FILTER: "Expwicit Content Fiwtew",
-        REGION_DEPRECATED:
-          "<:wumpus_land:759529118671831040> Depwecated Wegion",
+        REGION_AUTOMATIC: "<:wumpus_land:759529118671831040> Auwtomatic",
         REGIONS: {
           brazil: "🇧🇷 Bwaziw",
           europe: "🇪🇺 Euwope",
