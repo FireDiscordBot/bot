@@ -107,12 +107,13 @@ export class FireGuild extends Guild {
   get regions() {
     let regions = this.channels.cache
       .filter((channel) => channel.type == "voice")
-      .map((channel: FireVoiceChannel) => channel.region)
-      .filter((region) => !!region);
+      .map((channel: FireVoiceChannel) => channel.region);
     regions = regions.filter(
       // remove duplicates
       (region, index) => regions.indexOf(region) === index
     );
+    if (regions.includes(null))
+      regions.splice(0, 0, regions.splice(regions.indexOf(null), 1)[0]);
     return regions;
   }
 
