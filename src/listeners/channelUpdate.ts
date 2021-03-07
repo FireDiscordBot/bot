@@ -74,7 +74,9 @@ export default class ChannelUpdate extends Listener {
       newOverwrites.length ||
       removedOverwrites.length ||
       // @ts-ignore
-      before.topic != after.topic;
+      before.topic != after.topic ||
+      // @ts-ignore
+      before.region != after.region;
 
     if (guild.settings.has("log.action") && notableChanges) {
       const language = guild.language;
