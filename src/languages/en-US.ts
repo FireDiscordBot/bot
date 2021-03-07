@@ -1349,7 +1349,7 @@ Your existing premium servers are: ${current.join(", ")}`,
         TAG_NONE_FOUND:
           "I searched near and far and could not find any tags...",
         TAG_INVALID_TAG: (tag: string) =>
-          `There doesn't seem to be a tag called ${tag}. Run the command again with no arguments to see all tags`,
+          `There doesn't seem to be a tag called ${tag}`,
         TAG_RAW_COMMAND_DESCRIPTION: "View the raw content of a tag",
         TAGS_RAW_MISSING_ARG:
           "You need to provide a tag name to get the raw content of",
@@ -1378,6 +1378,8 @@ Your existing premium servers are: ${current.join(", ")}`,
           "I can't make an alias for nothing. You need to provide an existing tag name",
         TAGS_ALIAS_MISSING_ALIAS:
           "You need to provide a new alias for the tag or an existing alias to delete it",
+        TAG_SLASH_COMMAND_DESCRIPTION:
+          "Toggle the ability to use slash commands for tags",
         TAG_LIST: (guild: string) => `${guild}'s tags`,
         TICKET_COMMAND_DESCRIPTION: "Manage ticket configuration in the server",
         TICKET_MAIN_DESCRIPTION:

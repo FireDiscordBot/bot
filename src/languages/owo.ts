@@ -1116,7 +1116,7 @@ ${success.map((s) => "- " + s).join("\n")}${
         TAG_NONE_FOUND:
           "I seawched neaw and faw and couwd not find any tags... :c",
         TAG_INVALID_TAG: (tag: string) =>
-          `Thewe doesn't seem to be a tag cawwed ${tag}. Wun the command again with no awguments to see aww tags`,
+          `Thewe doesn't seem to be a tag cawwed ${tag}`,
         TAG_RAW_COMMAND_DESCRIPTION: "View the waw content of a tag",
         TAGS_RAW_MISSING_ARG:
           "You need to pwovide a tag name to get the waw content of",
