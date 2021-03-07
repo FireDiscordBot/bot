@@ -128,8 +128,15 @@ export default class GuildCommand extends Command {
         : null,
       guild instanceof FireGuild
         ? `**${message.language.get("REGION")}:** ${
-            message.language.get("REGIONS")[guild.region] ||
-            message.language.get("REGION_DEPRECATED")
+            guild.regions.length
+              ? guild.regions
+                  .map(
+                    (region) =>
+                      message.language.get("REGIONS")[region] ||
+                      message.language.get("REGION_AUTOMATIC")
+                  )
+                  .join(", ")
+              : message.language.get("REGION_AUTOMATIC")
           }`
         : null,
     ];
