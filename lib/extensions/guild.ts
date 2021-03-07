@@ -25,7 +25,7 @@ import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { FakeChannel } from "./slashCommandMessage";
 import { FireVoiceChannel } from "./voicechannel";
-import { FireTextChannel} from "./textchannel";
+import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
 import { FireMember } from "./guildmember";
@@ -102,6 +102,18 @@ export class FireGuild extends Guild {
 
   get logIgnored(): string[] {
     return this.settings.get("utils.logignore", []);
+  }
+
+  get regions() {
+    let regions = this.channels.cache
+      .filter((channel) => channel.type == "voice")
+      .map((channel: FireVoiceChannel) => channel.region)
+      .filter((region) => !!region);
+    regions = regions.filter(
+      // remove duplicates
+      (region, index) => regions.indexOf(region) === index
+    );
+    return regions;
   }
 
   _patch(data: APIGuild) {
@@ -725,8 +737,13 @@ export class FireGuild extends Guild {
     return ticket;
   }
 
-  async closeTicket(channel: FireTextChannel, author: FireMember, reason: string) {
-    if (channel instanceof FakeChannel) channel = channel.real as FireTextChannel;
+  async closeTicket(
+    channel: FireTextChannel,
+    author: FireMember,
+    reason: string
+  ) {
+    if (channel instanceof FakeChannel)
+      channel = channel.real as FireTextChannel;
     if (author instanceof FireUser)
       author = (await this.members.fetch(author).catch(() => {})) as FireMember;
     if (!author) return "forbidden";
@@ -794,7 +811,9 @@ export class FireGuild extends Guild {
       (this.channels.cache.get(
         this.settings.get("tickets.transcript_logs")
       ) as FireTextChannel) ||
-      (this.channels.cache.get(this.settings.get("log.action")) as FireTextChannel);
+      (this.channels.cache.get(
+        this.settings.get("log.action")
+      ) as FireTextChannel);
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))
       .setTimestamp()
