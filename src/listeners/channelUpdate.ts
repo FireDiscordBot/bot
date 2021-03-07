@@ -1,6 +1,7 @@
 import { MessageEmbed, GuildChannel, DMChannel } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
+import { FireVoiceChannel } from "@fire/lib/extensions/voicechannel";
 
 export default class ChannelUpdate extends Listener {
   constructor() {
@@ -102,6 +103,19 @@ export default class ChannelUpdate extends Listener {
             after.topic || language.get("NO_TOPIC")
           }`
         );
+      if (
+        before instanceof FireVoiceChannel &&
+        after instanceof FireVoiceChannel
+      )
+        if (before.region != after.region) {
+          const unknown = language.get("REGION_AUTOMATIC");
+          embed.addField(
+            language.get("REGION"),
+            `${language.get("REGIONS")[before.region] || unknown} ➜ ${
+              language.get("REGIONS")[after.region] || unknown
+            }`
+          );
+        }
       if (newOverwrites.length)
         embed.addField(
           language.get("ADDED_OVERWRITES"),
