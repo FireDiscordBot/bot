@@ -128,7 +128,7 @@ export default class GuildCommand extends Command {
         : null,
       guild instanceof FireGuild
         ? `**${message.language.get("REGION")}:** ${
-            guild.regions.length
+            guild.regions.length > 1
               ? guild.regions
                   .map(
                     (region) =>
