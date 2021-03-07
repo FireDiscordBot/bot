@@ -139,6 +139,21 @@ export class GuildTagManager {
     );
     commandData = commandData.filter((tag) => !!tag);
     if (!commandData.length) return (this.preparedSlashCommands = true);
+
+    commandData = commandData
+      .filter(
+        (tag) =>
+          !current.find((cmd) => cmd.name == tag.name) ||
+          current.find(
+            (cmd) => cmd.name == tag.name && cmd.description.endsWith("\u200b")
+          )
+      )
+      .filter(
+        (tag) =>
+          // remove those with options as they're not going to be tags
+          !current.find((cmd) => cmd.name == tag.name && cmd.options?.length)
+      );
+
     if (
       current.filter((cmd) =>
         commandData.find(
@@ -148,13 +163,6 @@ export class GuildTagManager {
     )
       this.preparedSlashCommands = true;
 
-    commandData = commandData.filter(
-      (tag) =>
-        !current.find((cmd) => cmd.name == tag.name) ||
-        current.find(
-          (cmd) => cmd.name == tag.name && cmd.description.endsWith("\u200b")
-        )
-    );
     current = current.filter(
       (cmd) => !commandData.find((tag) => tag.name == cmd.name)
     );
@@ -177,7 +185,7 @@ export class GuildTagManager {
         ) => {
           if (!this.preparedSlashCommands)
             this.client.console.info(
-              `[Commands] Successfully bulk updated ${updated.length} slash command tags for guild ${this.guild.name}`
+              `[Commands] Successfully bulk updated ${updated.length} slash command tag(s) for guild ${this.guild.name}`
             );
           this.slashCommands = updated
             .filter((command) =>
