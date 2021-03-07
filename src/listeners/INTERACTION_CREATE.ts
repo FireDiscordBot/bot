@@ -19,7 +19,7 @@ export default class InteractionCreate extends Listener {
   }
 
   async exec(command: SlashCommand) {
-    if (command == null) return; // discord/discord-api-docs#2594
+    if (!command) return;
     try {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(command.channel_id).catch(() => {});
