@@ -1568,6 +1568,9 @@ If the user gets automatically muted again, just try unmute them again and it'll
           "You must provide a member or case id to clear warn(s)",
         CLEARWARN_CASEID_REQUIRED:
           'You must provide a case id when using "clearwarn" or "clearwarning"',
+        YTSYNC_COMMAND_DESCRIPTION:
+          "Allows creation of YT Sync invites for a specific voice channel, allowing access without the need for experiments",
+        YTSYNC_CHANNEL_REQUIRED: "You must provide a valid voice channel!",
       },
       enabled: true,
     });
