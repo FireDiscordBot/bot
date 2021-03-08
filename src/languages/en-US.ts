@@ -1379,7 +1379,17 @@ Your existing premium servers are: ${current.join(", ")}`,
         TAGS_ALIAS_MISSING_ALIAS:
           "You need to provide a new alias for the tag or an existing alias to delete it",
         TAG_SLASH_COMMAND_DESCRIPTION:
-          "Toggle the ability to use slash commands for tags",
+          "Toggle the ability to use slash commands for tags or the visibilty of slash command tags",
+        TAG_SLASH_EPHEMERAL_ENABLED:
+          "Alright, slash command tags will now be visible only to the user who used it",
+        TAG_SLASH_EPHEMERAL_DISABLED:
+          "Slash command tag usage will now be visible to everyone",
+        TAG_SLASH_MISSING_ACCESS:
+          "Slash commands don't seem to be enabled here. You may need to reinvite me (no need to kick) using the link in the invite command before attempting to enable slash tags.",
+        TAG_SLASH_ENABLED:
+          "Slash command tags have been enabled! You should be able to see them now when you hit `/` (you may need to start typing a tag name for it to show)",
+        TAG_SLASH_DISABLED:
+          "Slash command tags have been disabled! It may take a little while for the commands to disappear and may require a client reload",
         TAG_LIST: (guild: string) => `${guild}'s tags`,
         TICKET_COMMAND_DESCRIPTION: "Manage ticket configuration in the server",
         TICKET_MAIN_DESCRIPTION:

@@ -88,7 +88,11 @@ export class GuildTagManager {
   }
 
   private async getTagSlashCommandJSON(cached: Tag) {
-    if (!slashCommandNameRegex.test(cached.name)) return null;
+    if (!slashCommandNameRegex.test(cached.name)) {
+      slashCommandNameRegex.lastIndex = 0;
+      return null;
+    }
+    slashCommandNameRegex.lastIndex = 0;
 
     const description =
       (this.guild.language.get(
@@ -260,23 +264,24 @@ export class GuildTagManager {
     );
 
     // @ts-ignore
-    await this.client.api
+    const removed = await this.client.api
       // @ts-ignore
       .applications(this.client.user.id)
       .guilds(this.guild.id)
       .commands.put({ data: current })
       .then(() => {
-        if (!this.preparedSlashCommands)
-          this.client.console.info(
-            `[Commands] Successfully removed slash command tags from guild ${this.guild.name}`
-          );
+        this.client.console.info(
+          `[Commands] Successfully removed slash command tags from guild ${this.guild.name}`
+        );
         this.slashCommands = {};
+        return true;
       })
       .catch((e: Error) =>
         this.client.console.error(
           `[Commands] Failed to remove slash command tags for guild ${this.guild.name}\n${e.stack}`
         )
       );
+    return removed;
   }
 
   async loadTags() {
