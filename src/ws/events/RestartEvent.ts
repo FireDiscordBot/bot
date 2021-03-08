@@ -10,14 +10,22 @@ export default class RestartEvent extends Event {
     super(manager, EventType.RESTART_CLIENT);
   }
 
-  async run(data: { shardCount: number; shards: number[] }) {
+  async run(data: {
+    id: number;
+    session: string;
+    shardCount: number;
+    shards: number[];
+  }) {
     this.manager.client.console.log(
       "[Aether] Received restart event, checking whether sharding options have changed..."
     );
+    if (data.id != this.manager.id) return this.manager.kill("resharding");
     const currentOptions = this.manager.client.options;
     if (
       currentOptions.shardCount == data.shardCount &&
-      JSON.stringify(currentOptions.shards) == JSON.stringify(data.shards)
+      (currentOptions.shards as number[]).every((shard) =>
+        data.shards.includes(shard)
+      )
     ) {
       this.manager.client.manager.ws?.send(
         MessageUtil.encode(
