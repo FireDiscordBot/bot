@@ -25,7 +25,6 @@ export default class YTSync extends Command {
   async exec(message: FireMessage, args: { channel: VoiceChannel }) {
     if (!args.channel?.id || args.channel?.type != "voice")
       return await message.error("YTSYNC_CHANNEL_REQUIRED");
-    if (!message.guild.region.startsWith("us-")) return await message.error();
 
     // @ts-ignore
     const invite = await this.client.api
