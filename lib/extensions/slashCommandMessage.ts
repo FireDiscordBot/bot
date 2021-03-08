@@ -61,7 +61,7 @@ export class SlashCommandMessage {
     this.client = client;
     this.id = command.id;
     this.slashCommand = command;
-    if (command.data.options?.length && command.data.options[0]?.options) {
+    if (command.data.options?.length && command.data.options[0]?.type == 1) {
       command.data.name = `${command.data.name}-${command.data.options[0].name}`;
       command.data.options = command.data.options[0].options;
     }
@@ -138,7 +138,7 @@ export class SlashCommandMessage {
     if (this.client.util.isPromise(prefix)) prefix = await prefix;
     if (prefix instanceof Array) prefix = prefix[0];
     let content = prefix as string;
-    content += this.command.id + " ";
+    content += this.slashCommand.data.name + " ";
     if (this.command.args?.length && this.slashCommand.data.options?.length) {
       const commandArgs = this.command.args as ArgumentOptions[];
       const argNames = this.slashCommand.data.options.map((opt) => opt.name);
