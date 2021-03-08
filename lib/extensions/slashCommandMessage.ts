@@ -68,7 +68,7 @@ export class SlashCommandMessage {
     this.guild = client.guilds.cache.get(command.guild_id) as FireGuild;
     this.command = this.client.getCommand(command.data.name);
     this.flags = 0;
-    if (!this.command && command.data.id in this.guild?.tags?.slashCommands) {
+    if (command.data.id in this.guild?.tags?.slashCommands) {
       this.command = this.client.getCommand("tag-show");
       command.data.options = [{ name: "tag", value: command.data.name }];
       if (this.guild.tags.ephemeral) this.setFlags(64);
