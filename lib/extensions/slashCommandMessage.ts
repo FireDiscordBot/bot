@@ -136,9 +136,9 @@ export class SlashCommandMessage {
       message: any
     ) => string | string[] | Promise<string | string[]>)(this);
     if (this.client.util.isPromise(prefix)) prefix = await prefix;
-    if (prefix instanceof Array) prefix = prefix[0];
-    let content = prefix as string;
-    content += this.slashCommand.data.name + " ";
+    if (prefix instanceof Array) prefix = prefix[0].trim();
+    let content = (prefix as string) + " ";
+    content += this.command.id + " ";
     if (this.command.args?.length && this.slashCommand.data.options?.length) {
       const commandArgs = this.command.args as ArgumentOptions[];
       const argNames = this.slashCommand.data.options.map((opt) => opt.name);
