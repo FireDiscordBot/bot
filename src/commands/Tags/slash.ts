@@ -28,6 +28,7 @@ export default class TagSlash extends Command {
     if (typeof args.ephemeral == "boolean") {
       const current = message.guild.settings.get("tags.ephemeral", true);
       message.guild.settings.set("tags.ephemeral", !current);
+      message.guild.tags.ephemeral = !current;
       return !current
         ? await message.success("TAG_SLASH_EPHEMERAL_ENABLED")
         : await message.success("TAG_SLASH_EPHEMERAL_DISABLED");
