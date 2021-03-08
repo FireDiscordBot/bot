@@ -35,6 +35,10 @@ export class Reconnector {
       // This means that the current process is
       // an extra, so it's unnecessary to keep alive
       this.manager.kill("extra");
+    if (code == 4005) {
+      delete this.manager.session;
+      delete this.manager.seq;
+    }
     if (
       this.state == WebsocketStates.CONNECTED ||
       this.state == WebsocketStates.CLOSING
