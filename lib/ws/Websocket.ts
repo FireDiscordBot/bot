@@ -61,6 +61,7 @@ export class Websocket extends Client {
               })
             )
       );
+      if (!this.manager.seq) this.manager.seq = 0;
     });
   }
 
