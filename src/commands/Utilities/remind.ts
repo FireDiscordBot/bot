@@ -65,7 +65,7 @@ export default class Remind extends Command {
         (stepMinutes ? stepMinutes * repeat : parsedMinutes)
     );
     if (
-      moment(largestTime).diff(moment(), "days") >= 91 &&
+      moment(largestTime).diff(moment(), "months") >= 7 &&
       !message.author.isSuperuser()
     )
       return await message.error("REMINDER_TIME_LIMIT");

@@ -1200,7 +1200,7 @@ Use \`${prefix}redirect <code>\` to view information about a redirect`,
           'You need to include a duration for your reminder, e.g. "69 mins" for 69 minutes',
         REMINDER_MISSING_CONTENT: "I need something to remind you about...",
         REMINDER_TIME_LIMIT:
-          "Reminders are currently limited to 3 months (90 days). This may increase in the future",
+          "Reminders are currently limited to 6 months. This may increase in the future",
         REMINDER_TOO_SHORT:
           "If you need a bot to remind you about something in less than two minutes, there's an issue that you should probably look into...",
         REMINDER_STEP_TOO_SHORT:

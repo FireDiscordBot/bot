@@ -994,7 +994,7 @@ Use \`${prefix}redirect <code>\` to view infowmation about a wediwect`,
           'You need to incwude a duwation fow youw wemindew, e.g. "69 mins" fow 69 minutes',
         REMINDER_MISSING_CONTENT: "I need something to wemind you about...",
         REMINDER_TIME_LIMIT:
-          "Wemindews awe cuwwentwy wimited to 3 months (90 days). This may incwease in the futuwe",
+          "Wemindews awe cuwwentwy wimited to 6 months. This may incwease in the futuwe",
         REMINDER_TOO_SHORT:
           "If you need a bot to wemind you about something in wess than two minutes, thewe's an issue that you shouwd pwobabwy wook into...",
         REMINDER_STEP_TOO_SHORT:
