@@ -183,6 +183,7 @@ export class GuildTagManager {
             id: string;
             name: string;
             description: string;
+            options: any[];
           }[]
         ) => {
           if (!this.preparedSlashCommands)
@@ -191,16 +192,19 @@ export class GuildTagManager {
             );
           const slashTags = updated.filter(
             (command) =>
-              commandData.find(
+              !command.options?.length &&
+              (commandData.find(
                 (tag) =>
                   tag.name == command.name &&
-                  tag.description == command.description
+                  tag.description == command.description &&
+                  command.description.endsWith("\u200b")
               ) ||
-              current.find(
-                (tag) =>
-                  tag.name == command.name &&
-                  tag.description == command.description
-              )
+                current.find(
+                  (tag) =>
+                    tag.name == command.name &&
+                    tag.description == command.description &&
+                    command.description.endsWith("\u200b")
+                ))
           );
           for (const tag of slashTags) this.slashCommands[tag.id] = tag.name;
         }

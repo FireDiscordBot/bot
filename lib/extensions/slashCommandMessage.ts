@@ -69,8 +69,7 @@ export class SlashCommandMessage {
     this.command = this.client.getCommand(command.data.name);
     this.flags = 0;
     if (
-      command.data.id in this.guild?.tags?.slashCommands &&
-      this.guild.tags.slashCommands[command.data.id] == command.data.name
+      this.guild?.tags?.slashCommands[command.data.id] == command.data.name
     ) {
       this.command = this.client.getCommand("tag-show");
       command.data.options = [{ name: "tag", value: command.data.name }];
