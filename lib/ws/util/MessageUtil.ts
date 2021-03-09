@@ -9,10 +9,14 @@ export class MessageUtil {
   }
 
   static decode(message: string) {
-    const inflated = inflateSync(Buffer.from(message, "base64"), {
-      level: 5,
-    })?.toString();
-    if (!inflated) return null;
-    else return JSON.parse(inflated) as Payload;
+    try {
+      const inflated = inflateSync(Buffer.from(message, "base64"), {
+        level: 5,
+      })?.toString();
+      if (!inflated) return null;
+      else return JSON.parse(inflated) as Payload;
+    } catch {
+      return null;
+    }
   }
 }
