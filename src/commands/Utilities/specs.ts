@@ -69,7 +69,9 @@ export default class Specs extends Command {
       .setTimestamp()
       .setAuthor(
         user.toString(),
-        member.user.displayAvatarURL({ size: 2048, dynamic: true }),
+        user instanceof FireUser
+          ? user.displayAvatarURL({ size: 2048, dynamic: true })
+          : user.user.displayAvatarURL({ size: 2048, dynamic: true }),
         "https://inv.wtf/sk1spec"
       )
       .addField("» CPU", escape(specs.get("cpu") as string))
