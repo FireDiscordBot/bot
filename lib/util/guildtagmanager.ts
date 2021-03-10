@@ -382,7 +382,8 @@ export class GuildTagManager {
   }
 
   private async deleteSlashTag(tag: string) {
-    const [id] = Object.entries(this.slashCommands).find(
+    if (typeof this.slashCommands == "undefined") return;
+    const [id] = Object.entries(this.slashCommands ?? {}).find(
       ([, name]) => name == tag
     );
     if (!id) return;
