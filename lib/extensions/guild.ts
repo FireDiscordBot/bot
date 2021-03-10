@@ -25,7 +25,7 @@ import { GuildSettings } from "@fire/lib/util/settings";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { FakeChannel } from "./slashCommandMessage";
-import { FireTextChannel} from "./textchannel";
+import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
 import { FireMember } from "./guildmember";
@@ -725,8 +725,13 @@ export class FireGuild extends Guild {
     return ticket;
   }
 
-  async closeTicket(channel: FireTextChannel, author: FireMember, reason: string) {
-    if (channel instanceof FakeChannel) channel = channel.real as FireTextChannel;
+  async closeTicket(
+    channel: FireTextChannel,
+    author: FireMember,
+    reason: string
+  ) {
+    if (channel instanceof FakeChannel)
+      channel = channel.real as FireTextChannel;
     if (author instanceof FireUser)
       author = (await this.members.fetch(author).catch(() => {})) as FireMember;
     if (!author) return "forbidden";
@@ -794,7 +799,9 @@ export class FireGuild extends Guild {
       (this.channels.cache.get(
         this.settings.get("tickets.transcript_logs")
       ) as FireTextChannel) ||
-      (this.channels.cache.get(this.settings.get("log.action")) as FireTextChannel);
+      (this.channels.cache.get(
+        this.settings.get("log.action")
+      ) as FireTextChannel);
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))
       .setTimestamp()
@@ -996,8 +1003,8 @@ export class FireGuild extends Guild {
       .updateOverwrite(unblockee, overwrite, reason)
       .catch(() => {});
     if (
-      channel.permissionOverwrites.get(unblockee.id)?.allow.bitfield == 0 &&
-      channel.permissionOverwrites.get(unblockee.id)?.deny.bitfield == 0 &&
+      channel.permissionOverwrites?.get(unblockee.id)?.allow.bitfield == 0 &&
+      channel.permissionOverwrites?.get(unblockee.id)?.deny.bitfield == 0 &&
       unblockee.id != this.roles.everyone.id
     )
       await channel.permissionOverwrites
