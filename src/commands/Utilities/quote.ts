@@ -110,6 +110,8 @@ export default class Quote extends Command {
                   permissions: message.guild
                     ? message.member.permissions.bitfield
                     : 0,
+                  guild_id: message.guild?.id,
+                  id: message.channel.id,
                 } as PartialQuoteDestination,
                 debug: args.debug,
               })
