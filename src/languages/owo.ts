@@ -237,10 +237,10 @@ This wiww **not** wename existing usews`,
         BAN_SUCCESS: (user: string, guild: string) =>
           `${constants.emojis.success} **${user}** has been banished fwom ${guild}.`,
         BAN_FAILED_ENTRY:
-          "Faiwed to cweate mod wog entwy, usew was not banned.",
+          "Faiwed to cweate mod log entwy, usew was not banned.",
         BAN_FAILED_BAN: "Faiwed to ban usew, pwease twy again.",
         BAN_FAILED_BAN_AND_ENTRY:
-          "Faiwed to ban usew and was unabwe to dewete the cweated mod wog entwy.",
+          "Faiwed to ban usew and was unabwe to dewete the cweated mod log entwy.",
         BAN_COMMAND_DESCRIPTION:
           "Ban a usew fwom the sewvew. Use the --days fwag to dewete message histowy",
         BAN_USER_REQUIRED: "You must pwovide a usew to ban!",
@@ -249,10 +249,10 @@ This wiww **not** wename existing usews`,
         BLOCK_SUCCESS: (blockee: string) =>
           `${constants.emojis.success} **${blockee}** has been bwocked.`,
         BLOCK_FAILED_ENTRY:
-          "Faiwed to cweate mod wog entwy, usew/wowe was not bwocked.",
+          "Faiwed to cweate mod log entwy, usew/wowe was not bwocked.",
         BLOCK_FAILED_BLOCK: "Faiwed to bwock usew/wowe, pwease twy again.",
         BLOCK_FAILED_BLOCK_AND_ENTRY:
-          "Faiwed to bwock usew and was unabwe to dewete the cweated mod wog entwy.",
+          "Faiwed to bwock usew and was unabwe to dewete the cweated mod log entwy.",
         BLOCK_COMMAND_DESCRIPTION:
           "Bwock a usew ow wowe fwom chatting in the cuwwent channew",
         BLOCK_ARG_REQUIRED:
@@ -331,10 +331,10 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           `${constants.emojis.warning} **${user}** has been pawtiawwy dewanked as I faiwed to wemove ${roles}`,
         DERANK_FAILED_TO_REMOVE: "Faiwed to wemove",
         DERANK_FAILED_ENTRY:
-          "Faiwed to cweate mod wog entwy, usew was not dewanked.",
+          "Faiwed to cweate mod log entwy, usew was not dewanked.",
         DERANK_FAILED_DERANK: "Faiwed to dewank usew, pwease twy again.",
         DERANK_FAILED_DERANK_AND_ENTRY:
-          "Faiwed to dewank usew (awthough some wowes may have been wemoved) and was unabwe to dewete the cweated mod wog entwy.",
+          "Faiwed to dewank usew (awthough some wowes may have been wemoved) and was unabwe to dewete the cweated mod log entwy.",
         DERANK_COMMAND_DESCRIPTION: "Wemove aww wowes fwom a usew",
         DERANK_USER_REQUIRED: "You must pwovide a usew to dewank!",
         STATUS_LATEST_INCIDENT: "Watest Incident",
@@ -564,16 +564,16 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         KICK_SUCCESS: (user: string) =>
           `${constants.emojis.success} **${user}** has been kicked.`,
         KICK_FAILED_ENTRY:
-          "Faiwed to cweate mod wog entwy, usew was not kicked.",
+          "Faiwed to cweate mod log entwy, usew was not kicked.",
         KICK_FAILED_KICK: "Faiwed to kick usew, pwease twy again.",
         KICK_FAILED_KICK_AND_ENTRY:
-          "Faiwed to kick usew and was unabwe to dewete the cweated mod wog entwy.",
+          "Faiwed to kick usew and was unabwe to dewete the cweated mod log entwy.",
         KICK_COMMAND_DESCRIPTION: "Kick a usew fwom the sewvew",
         KICK_USER_REQUIRED: "You must pwovide a usew to kick!",
         SK1ER_NO_REUPLOAD: (user: string) =>
-          `${user} I am unabwe to wead youw wog to wemove sensitive infowmation & pwovide sowutions to youw issue. Pwease upwoad the wog diwectwy :)`,
+          `${user} I am unabwe to wead youw log to wemove sensitive infowmation & pwovide sowutions to youw issue. Pwease upwoad the log diwectwy :)`,
         SK1ER_REUPLOAD_FETCH_FAIL: (domain: string) =>
-          `I was unabwe to wead youw wog. Pwease upwoad it diwectwy wathew than using ${domain}`,
+          `I was unabwe to wead youw log. Pwease upwoad it diwectwy wathew than using ${domain}`,
         MC_LOG_READ_FAIL:
           "I was unabwe to wead the attachment, twy weupwoad it. If it stiww doesn't wowk, yeww at Geek :)",
         SK1ER_MODCORE_ZIP: (user: string, zip: string) =>
@@ -586,7 +586,7 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           haste: string,
           solutions: string
         ) =>
-          `${user} ${msgType} a wog${
+          `${user} ${msgType} a log${
             diff ? " fwom " + diff : ""
           }, ${extra}\n${haste}\n\n${solutions}`,
         SK1ER_NITRO_PERKS_REMOVED: (member: string) =>
@@ -661,18 +661,18 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           "It seems thewe's no wocked channews so you can't end wockdown as it was nevew stawted",
         LOCKDOWN_END_REASON: (user: string, reason: string) =>
           `Sewvew wockdown ended by ${user} with weason "${reason}".`,
-        LOGGING_COMMAND_DESCRIPTION: "Set the channew(s) fow wogging",
+        LOGGING_COMMAND_DESCRIPTION: "Set the channew(s) fow logging",
         LOGGING_INVALID_TYPE: (types: string) =>
-          `That is not a vawid wog type! Cuwwent types awe ${types}`,
-        LOGGING_DISABLED_MODERATION: "Modewation wogs have been disabwed.",
-        LOGGING_DISABLED_ACTION: "Action wogs have been disabwed.",
-        LOGGING_DISABLED_MEMBERS: "Membew wogs have been disabwed.",
+          `That is not a vawid log type! Cuwwent types awe ${types}`,
+        LOGGING_DISABLED_MODERATION: "Modewation logs have been disabwed.",
+        LOGGING_DISABLED_ACTION: "Action logs have been disabwed.",
+        LOGGING_DISABLED_MEMBERS: "Membew logs have been disabwed.",
         LOGGING_ENABLED_MODERATION:
-          "Modewation wogs have been enabwed! Modewation actions such as wawnings, mutes, kicks, bans etc. wiww be wogged in youw chosen channew.",
+          "Modewation logs have been enabwed! Modewation actions such as wawnings, mutes, kicks, bans etc. wiww be logged in youw chosen channew.",
         LOGGING_ENABLED_ACTION:
-          "Action wogs have been enabwed! Actions such as message edits/dewetes, fiwtewed messages, channew cweates/dewetes etc. wiww be wogged in youw chosen channew.",
+          "Action logs have been enabwed! Actions such as message edits/dewetes, fiwtewed messages, channew cweates/dewetes etc. wiww be logged in youw chosen channew.",
         LOGGING_ENABLED_MEMBERS:
-          "Membew wogs have been enabwed! Actions such as membew joins & weaves wiww be wogged in youw chosen channew.",
+          "Membew logs have been enabwed! Actions such as membew joins & weaves wiww be logged in youw chosen channew.",
         LYRICS_COMMAND_DESCRIPTION:
           'Get the wywics fow a song. (Fow best wesuwts, use the fowmat "awtist_name song_titwe")',
         LYRICS_NO_QUERY:
@@ -722,9 +722,9 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         MODERATOR_ACTION_DISALLOWED:
           "You awe not awwowed to pewfowm this action on this usew!",
         MODERATOR_ACTION_DEFAULT_REASON: "No weason pwovided.",
-        MODLOGS_COMMAND_DESCRIPTION: "	View modewation wogs fow a usew",
+        MODLOGS_COMMAND_DESCRIPTION: "	View modewation logs fow a usew",
         MODLOGS_NONE_FOUND:
-          "No modewation wogs found fow that usew, theiw wecowd is squeaky cwean!",
+          "No modewation logs found fow that usew, theiw wecowd is squeaky cwean!",
         MODLOGS_CASE_ID: "Case ID",
         MODLOGS_MODERATOR_ID: "Modewatow ID",
         MCSTATUS_COMMAND_DESCRIPTION: "Check the status of Minecwaft sewvices",
@@ -778,10 +778,10 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         MUTE_FAILED_ROLE:
           "Faiwed to cweate muted wowe, pwease ensuwe I have the cowwect pewmissions",
         MUTE_FAILED_ENTRY:
-          "Faiwed to cweate mod wog entwy, usew was not muted.",
+          "Faiwed to cweate mod log entwy, usew was not muted.",
         MUTE_FAILED_MUTE: "Faiwed to mute usew, pwease twy again.",
         MUTE_FAILED_MUTE_AND_ENTRY:
-          "Faiwed to mute usew and was unabwe to dewete the cweated mod wog entwy.",
+          "Faiwed to mute usew and was unabwe to dewete the cweated mod log entwy.",
         MUTE_COMMAND_DESCRIPTION:
           "Mute a usew eithew untiw manuawwy unmuted ow fow a time (e.g. 1 houw)",
         MUTE_USER_REQUIRED: "You must pwovide a usew to mute!",
@@ -810,7 +810,7 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           MANAGE_CHANNELS: "Manage Channews",
           MANAGE_GUILD: "Manage Sewvew",
           ADD_REACTIONS: "Add Weactions",
-          VIEW_AUDIT_LOG: "View Audit Wog",
+          VIEW_AUDIT_LOG: "View Audit log",
           PRIORITY_SPEAKER: "Pwiowity Speakew",
           STREAM: "Video",
           VIEW_CHANNEL: "Wead Messages",
@@ -1170,7 +1170,7 @@ Wunning this command without pwoviding a categowy wesets it, thewefowe disabwing
         NEW_TICKET_DISABLED: "Tickets awe not enabwed hewe",
         NEW_TICKET_LIMIT: "You have too many tickets open!",
         CLOSE_COMMAND_DESCRIPTION:
-          "Cwoses a ticket, upwoads the twanscwipt to action wogs channew and sends to the ticket authow",
+          "Cwoses a ticket, upwoads the twanscwipt to action logs channew and sends to the ticket authow",
         TICKET_WILL_CLOSE:
           "Awe you suwe you want to cwose this ticket? Type `close` to confiwm",
         TICKET_CLOSE_TRANSCRIPT: (guild: string, reason: string) =>
@@ -1203,22 +1203,22 @@ Wunning this command without pwoviding a categowy wesets it, thewefowe disabwing
         UNBAN_SUCCESS: (user: string, guild: string) =>
           `${constants.emojis.success} **${user}** has been unbanished fwom ${guild}.`,
         UNBAN_FAILED_ENTRY:
-          "Faiwed to cweate mod wog entwy, usew was not unbanned.",
+          "Faiwed to cweate mod log entwy, usew was not unbanned.",
         UNBAN_FAILED_NO_BAN:
           "Don't quote me on this but uh, I think a usew needs to be banned befowe you can unban them and they do not appeaw to be banned",
         UNBAN_FAILED_UNBAN: "Faiwed to unban usew, pwease twy again.",
         UNBAN_FAILED_UNBAN_AND_ENTRY:
-          "Faiwed to unban usew and was unabwe to dewete the cweated mod wog entwy.",
+          "Faiwed to unban usew and was unabwe to dewete the cweated mod log entwy.",
         UNBAN_COMMAND_DESCRIPTION: "Unban a usew fwom the sewvew",
         UNBAN_USER_REQUIRED: "You must pwovide a usew to unban",
         UNBLOCK_LOG_AUTHOR: (blockee: string) => `Unbwock | ${blockee}`,
         UNBLOCK_SUCCESS: (blockee: string) =>
           `${constants.emojis.success} **${blockee}** has been unbwocked.`,
         UNBLOCK_FAILED_ENTRY:
-          "Faiwed to cweate mod wog entwy, usew/wowe was not unbwocked.",
+          "Faiwed to cweate mod log entwy, usew/wowe was not unbwocked.",
         UNBLOCK_FAILED_BLOCK: "Faiwed to unbwock usew/wowe, pwease twy again.",
         UNBLOCK_FAILED_BLOCK_AND_ENTRY:
-          "Faiwed to unbwock usew and was unabwe to dewete the cweated mod wog entwy.",
+          "Faiwed to unbwock usew and was unabwe to dewete the cweated mod log entwy.",
         UNBLOCK_COMMAND_DESCRIPTION:
           "Unbwock a usew ow wowe and awwow them to chat in this channew",
         UNBLOCK_ARG_REQUIRED:
@@ -1240,10 +1240,10 @@ Pwease wemove the wowe manuawwy.`,
         UNMUTE_FAILED_FORBIDDEN:
           "I seem to be wacking pewmission to unmute this usew.",
         UNMUTE_FAILED_ENTRY:
-          "Faiwed to cweate mod wog entwy, usew was not unmuted.",
+          "Faiwed to cweate mod log entwy, usew was not unmuted.",
         UNMUTE_FAILED_UNMUTE: "Faiwed to unmute usew, pwease twy again.",
         UNMUTE_FAILED_UNMUTE_AND_ENTRY:
-          "Faiwed to unmute usew and was unabwe to dewete the cweated mod wog entwy.",
+          "Faiwed to unmute usew and was unabwe to dewete the cweated mod log entwy.",
         UNMUTE_FAILED_DB_REMOVE: `Thewe may have been an ewwow whiwe wemoving the mute fwom my database.
 If the usew gets automaticawwy muted again, just twy unmute them again and it'ww wikewy wowk`,
         UNMUTE_COMMAND_DESCRIPTION: "Unmute a usew",
@@ -1264,7 +1264,7 @@ If the usew gets automaticawwy muted again, just twy unmute them again and it'ww
         VANITYURL_CREATED: (code: string, dev: boolean) =>
           `Youw Vanity UWW is <https://${dev ? "test." : ""}inv.wtf/${code}>`,
         WARN_FAILED_ENTRY:
-          "Usew was not wawned due to an ewwow wogging the wawn",
+          "Usew was not wawned due to an ewwow logging the wawn",
         WARN_LOG_AUTHOR: (user: string) => `Wawn | ${user}`,
         WARN_LOG_DM_FAIL: "Unabwe to send DM, usew was not wawned.",
         WARN_DM: (guild: string, reason: string) =>
@@ -1272,7 +1272,7 @@ If the usew gets automaticawwy muted again, just twy unmute them again and it'ww
         WARN_SUCCESS: (user: string, times: string) =>
           `${constants.emojis.success} **${user}** has been wawned fow the ${times} time..`,
         WARN_FAIL: (user: string, times: string) =>
-          `${constants.emojis.warning} **${user}** was not wawned due to having DMs off. The wawning has been wogged and is theiw ${times} wawning.`,
+          `${constants.emojis.warning} **${user}** was not wawned due to having DMs off. The wawning has been logged and is theiw ${times} wawning.`,
         WARN_COMMAND_DESCRIPTION: "Wawn a usew",
         WARN_REASON_MISSING: "You must pwovide a weason to wawn a usew",
         WARNINGS_COMMAND_DESCRIPTION: "View wawnings fow a usew",
