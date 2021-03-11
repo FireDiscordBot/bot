@@ -78,7 +78,7 @@ export default class Rank extends Command {
 
     if (roles.includes(args.role)) {
       if (args.role.id == "595626786549792793")
-        return await message.error("SK1ER_SPECS_MOVED");
+        return await message.error("SK1ER_BETA_MOVED");
       message.member?.roles?.cache?.has(args.role.id)
         ? await message.member?.roles
             ?.remove(
