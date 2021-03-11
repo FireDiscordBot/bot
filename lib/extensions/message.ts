@@ -156,10 +156,6 @@ export class FireMessage extends Message {
     quoter: FireMember,
     webhook?: WebhookClient
   ) {
-    this.client.console.info(
-      // todo: don't forget to remove this
-      `[Message] Attempting webhook quote for destination ${destination.id}`
-    );
     let hook: Webhook | WebhookClient = webhook;
     if (!this.guild?.quoteHooks.has(destination.id)) {
       const hooks =
