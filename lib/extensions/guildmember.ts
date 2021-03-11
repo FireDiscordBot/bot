@@ -7,7 +7,7 @@ import {
 } from "discord.js";
 import { FakeChannel } from "./slashCommandMessage";
 import { humanize } from "@fire/lib/util/constants";
-import { FireTextChannel} from "./textchannel";
+import { FireTextChannel } from "./textchannel";
 import * as sanitizer from "@aero/sanitizer";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
@@ -63,21 +63,12 @@ export class FireMember extends GuildMember {
       "utils.moderators",
       []
     ) as string[];
-    let isMod = false;
     if (moderators.length) {
-      if (moderators.includes(this.id)) isMod = true;
-      else if (
-        this.roles.cache.filter((role) => moderators.includes(role.id)).size
-      )
-        isMod = true;
-    } else if (
-      channel
-        ? this.permissionsIn(channel).has("MANAGE_MESSAGES")
-        : this.permissions.has("MANAGE_MESSAGES")
-    ) {
-      isMod = true;
-    }
-    return isMod;
+      if (moderators.includes(this.id)) return true;
+      else if (this.roles.cache.some((role) => moderators.includes(role.id)))
+        return true;
+      else return false;
+    } else return null;
   }
 
   isAdmin(channel?: Channel) {
@@ -432,7 +423,11 @@ export class FireMember extends GuildMember {
         .catch(() => {});
   }
 
-  async derank(reason: string, moderator: FireMember, channel?: FireTextChannel) {
+  async derank(
+    reason: string,
+    moderator: FireMember,
+    channel?: FireTextChannel
+  ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     const logEntry = await this.guild
@@ -578,7 +573,11 @@ export class FireMember extends GuildMember {
         .catch(() => {});
   }
 
-  async unmute(reason: string, moderator: FireMember, channel?: FireTextChannel) {
+  async unmute(
+    reason: string,
+    moderator: FireMember,
+    channel?: FireTextChannel
+  ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     if (!this.guild.mutes.has(this.id)) {

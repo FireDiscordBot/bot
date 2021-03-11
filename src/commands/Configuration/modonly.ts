@@ -15,6 +15,7 @@ export default class ModeratorOnly extends Command {
         {
           id: "channels",
           type: Util.greedyArg(textChannelConverter),
+          slashCommandType: "textchannel",
           readableType: "...channels",
           default: [],
           required: true,

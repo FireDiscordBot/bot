@@ -39,7 +39,7 @@ export default class enUS extends Language {
         COMMAND_SUPERUSER_ONLY:
           "Only a select few are powerful enough to use this command",
         COMMAND_MODERATOR_ONLY:
-          "Only those strong enough to wield the ban hammer (moderators) can use this command",
+          "Only those strong enough to wield the ban hammer (moderators) can use this command. If you have not set any moderators, only those with **Manage Server** can use this command.",
         COMMAND_GUILD_ONLY: (invite: string) =>
           `You can only use this command in a server. You can invite me to a server at <${invite}>`,
         COMMAND_PREMIUM_GUILD_ONLY:
@@ -287,7 +287,7 @@ ${options
         ALIAS_REQUIRED_ARG:
           "hey idiot you forgot to give an alias to add/remove from that user",
         ADDMOD_COMMAND_DESCRIPTION:
-          "Add a member/role as a moderator. If not set, anyone with the Manage Messages permission is considered a moderator",
+          "Add a member/role as a moderator. Run the command again to remove.",
         AUTOROLE_COMMAND_DESCRIPTION:
           "Automatically add a role to a user/bot when they join/send their first message",
         AUTOROLE_ROLE_REQUIRED:

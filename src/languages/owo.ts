@@ -24,7 +24,7 @@ export default class owo extends Language {
         COMMAND_SUPERUSER_ONLY:
           "Onwy a sewect few awe powewfuw enyough to use this command",
         COMMAND_MODERATOR_ONLY:
-          "Onwy those stwong enough to wiewd the ban hammew (modewatows) can use this command",
+          "Onwy those stwong enough to wiewd the ban hammew (modewatows) can use this command. If you have nyot set any modewatows, onwy those with **Manyage Sewvew** can use this command.",
         COMMAND_GUILD_ONLY: (invite: string) =>
           `You can onwy use this command in a sewvew. You can invite me to a sewvew at <${invite}>`,
         COMMAND_PREMIUM_GUILD_ONLY:
@@ -170,7 +170,7 @@ export default class owo extends Language {
           PREMIUM:
             "<:firelogo:665339492072292363> [Pwemiuwum](https://gaminggeek.dev/premium)",
           ADDMOD_COMMAND_DESCRIPTION:
-            "Add a membew/wowe as a mowodewatow. If not set, anone with the Manage Messages pewmission is considewed a Mowodewatow",
+            "Add a membew/wowe as a mowodewatow. Wun the command again to wemuv.",
           AUTOROLE_COMMAND_DESCRIPTION:
             "Automaticawwy add a wowe to a usew/bot when they join/send theiw fiwst message",
           AUTOROLE_ROLE_REQUIRED:
