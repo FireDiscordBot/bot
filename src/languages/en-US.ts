@@ -738,9 +738,6 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           `${member}, Your nitro perks have been removed. Boost the server to get them back :)`,
         SK1ER_NITRO_PERKS_REMOVED_LEFT: (member: string) =>
           `${member} left and their nitro perks have been removed.`,
-        SK1ER_BETA_SUCCESS: (member: string) =>
-          `${member}, you now have access to betas!
-Download beta versions in <#595634170336641045> (check the pins for the latest versions) and ask questions/report bugs with **betas only** in <#595625113282412564>`,
         INVITE_COMMAND_DESCRIPTION:
           "Sends a link to invite me to a different Discord server.",
         LANGUAGE_COMMAND_DESCRIPTION:
@@ -1095,10 +1092,6 @@ ${prefixes.join(", ")}`,
           "That isn't a valid rank. Use the command without arguments to see a list of valid ranks",
         RANKS_INVALID_ROLE_DEL:
           "That isn't a valid rank. Use the rank command to see a list of valid ranks",
-        RANKS_SK1ER_NO_SPECS: (
-          mention: string
-        ) => `${mention} To become a beta tester, please provide your specs through this form: 
-<https://inv.wtf/sk1spec>`,
         ADDRANK_COMMAND_DESCRIPTION:
           "Add a role that users can join through the rank command.",
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
@@ -1272,10 +1265,8 @@ ${success.map((s) => "- " + s).join("\n")}${
           `I set slowmode in some channels but failed to set slowmode in ${failed.join(
             ", "
           )}`,
-        SPECS_COMMAND_DESCRIPTION:
-          "View/remove a users specs (locked to discord.gg/sk1er)",
-        SPECS_NOT_FOUND:
-          "Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec>",
+        SK1ER_BETA_MOVED:
+          "Beta testing for Sk1er LLC mods has been moved to our support server! You can join with <https://inv.wtf/sk1support>",
         STATS_COMMAND_DESCRIPTION: "View cluster & overall stats.",
         STATS_TITLE: (name: string, version: string) =>
           `Stats for ${name} [${version}]`,

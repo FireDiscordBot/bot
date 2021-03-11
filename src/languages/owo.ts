@@ -593,9 +593,6 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           `${member}, Youw nitwo pewks have been wemoved. Boost the sewvew to get them back UwU`,
         SK1ER_NITRO_PERKS_REMOVED_LEFT: (member: string) =>
           `${member} weft and theiw nitwo pewks have been wemoved.`,
-        SK1ER_BETA_SUCCESS: (member: string) =>
-          `${member}, you now have access to betas!
-Downwoad beta vewsions in <#595634170336641045> (check the pins fow the watest vewsions) and ask questions/wepowt bugs with **betas onwy** in <#595625113282412564>`,
         INVITE_COMMAND_DESCRIPTION:
           "Sends a wink to invite me to a diffewent Discowod sewvew.",
         LANGUAGE_COMMAND_DESCRIPTION:
@@ -936,9 +933,6 @@ Downwoad beta vewsions in <#595634170336641045> (check the pins fow the watest v
           "That isn't a vawid rank. Use the command without awguments to see a wist of vawid ranks",
         RANKS_INVALID_ROLE_DEL:
           "That isn't a vawid rank. Use the rank command to see a wist of vawid ranks",
-        RANKS_SK1ER_NO_SPECS: (mention: string) =>
-          `${mention} To become a beta testew, pwease pwovide youw specs thwough this fowm: 
-<https://inv.wtf/sk1spec>`,
         ADDRANK_COMMAND_DESCRIPTION:
           "Add a wowe that usews can join thwough the wank command.",
         RANKS_ALREADY_ADDED: "You can't add a wank twice siwwy",
@@ -1062,10 +1056,8 @@ ${success.map((s) => "- " + s).join("\n")}${
         SLOWMODE_INVALID_TYPE: "You must pwovide a text channew ow categowy",
         SLOWMODE_FAILED: (channels: string[]) =>
           `Faiwed to set swowmode in ${channels.join(", ")}`,
-        SPECS_COMMAND_DESCRIPTION:
-          "View/wemove a usews specs (wocked to discord.gg/sk1er)",
-        SPECS_NOT_FOUND:
-          "Specs not found fow that usew. Teww them to fiww in this fowm\n<https://inv.wtf/sk1spec>",
+        SK1ER_BETA_MOVED:
+          "Beta testing fow Sk1ew LLC mods has been muvd to ouw suppowt sewvew owo! You can join with <https://inv.wtf/sk1support>",
         STATS_COMMAND_DESCRIPTION: "View cwustew & ovewaww stats.",
         STATS_TITLE: (name: string, version: string) =>
           `Stats fow ${name} [${version}]`,
