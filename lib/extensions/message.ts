@@ -140,7 +140,11 @@ export class FireMessage extends Message {
       this.attachments.filter((attachment) => attachment.size > 5242880).size ==
         0;
     const useWebhooks =
-      (destination.guild as FireGuild).settings.get("utils.quotehooks", true) &&
+      (!!webhook ||
+        (destination.guild as FireGuild).settings.get(
+          "utils.quotehooks",
+          true
+        )) &&
       canUpload;
     return useWebhooks
       ? await this.webhookQuote(destination, quoter, webhook)
