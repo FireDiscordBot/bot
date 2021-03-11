@@ -1057,7 +1057,7 @@ ${success.map((s) => "- " + s).join("\n")}${
         SLOWMODE_FAILED: (channels: string[]) =>
           `Faiwed to set swowmode in ${channels.join(", ")}`,
         SK1ER_BETA_MOVED:
-          "Beta testing fow Sk1ew LLC mods has been muvd to ouw suppowt sewvew owo! You can join with <https://inv.wtf/sk1support>",
+          "Beta testing fow Sk1ew LLC mods has been muvd to ouw suppowt sewvew owo! You can join with discord.gg/d4KFR9H",
         STATS_COMMAND_DESCRIPTION: "View cwustew & ovewaww stats.",
         STATS_TITLE: (name: string, version: string) =>
           `Stats fow ${name} [${version}]`,

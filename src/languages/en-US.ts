@@ -1266,7 +1266,7 @@ ${success.map((s) => "- " + s).join("\n")}${
             ", "
           )}`,
         SK1ER_BETA_MOVED:
-          "Beta testing for Sk1er LLC mods has been moved to our support server! You can join with <https://inv.wtf/sk1support>",
+          "Beta testing for Sk1er LLC mods has been moved to our support server! You can join with discord.gg/d4KFR9H",
         STATS_COMMAND_DESCRIPTION: "View cluster & overall stats.",
         STATS_TITLE: (name: string, version: string) =>
           `Stats for ${name} [${version}]`,
