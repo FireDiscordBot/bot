@@ -1015,7 +1015,7 @@ ${prefixes.join(", ")}`,
         PREFIX_VALUE_DISALLOWED: "You cannot use that as your prefix!",
         PREFIX_GLOBAL: `"fire " is a global prefix and can be used anywhere. There's no need to set it as a server prefix`,
         PREFIX_SLASH_COMMANDS:
-          "`/` cannot be used as a prefix as it'd conflict with Discord's slash commands",
+          "`/` or anything starting with a slash cannot be used as a prefix as it'd conflict with Discord's slash commands",
         PREFIX_ESCAPED: "Prefixes cannot include backslashes",
         PREFIX_REMOVE_SINGLE:
           "That is the only prefix set in this server! You must set another to remove it.",
