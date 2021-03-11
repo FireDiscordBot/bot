@@ -1357,6 +1357,8 @@ Your existing premium servers are: ${current.join(", ")}`,
           "A tag can't be empty, otherwise it has no purpose in life, like me...",
         TAGS_CREATE_COMMAND_NAME:
           "That name is already being used by a subcommand, try a different one",
+        TAGS_CREATE_INVALID_CHARACTERS:
+          "That name contains invalid characters!",
         TAGS_CREATE_ALREADY_EXISTS:
           "A tag already exists with that name. Be original next time!",
         TAGS_CREATE_LIMIT:
