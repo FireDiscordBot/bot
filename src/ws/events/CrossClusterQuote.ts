@@ -2,7 +2,7 @@ import {
   MessageLinkMatch,
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
@@ -21,6 +21,7 @@ export default class CrossClusterQuote extends Event {
       destination: PartialQuoteDestination;
       webhook: string;
       quoter: string;
+      debug: boolean;
     }
   ) {
     this.manager.client.console.info(
@@ -50,6 +51,7 @@ export default class CrossClusterQuote extends Event {
       quote: message as FireMessage,
       quoter: member as FireMember,
       webhook: data.webhook,
+      debug: data.debug,
       destination,
     });
   }
