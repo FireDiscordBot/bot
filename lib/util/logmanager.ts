@@ -88,7 +88,7 @@ export class GuildLogManager {
 
     const data = this._data.moderation;
     const acquired = data.lock.tryAcquire();
-    if (data.locked || !acquired) return data.queue.push({ content, type });
+    if (!acquired || data.locked) return data.queue.push({ content, type });
 
     if (
       this.rateLimitListener?.limited.includes(
@@ -104,7 +104,7 @@ export class GuildLogManager {
       if (!channel) return;
 
       const webhooks = await channel.fetchWebhooks().catch(() => {});
-      if (!webhooks) return;
+      if (!webhooks) return data.queue.push({ content, type });
       data.webhook = webhooks.filter((webhook) => !!webhook.token).first();
     }
     if (!data.webhook) {
@@ -123,7 +123,7 @@ export class GuildLogManager {
           ) as string,
         })
         .catch(() => null);
-      if (!data.webhook) return;
+      if (!data.webhook) return data.queue.push({ content, type });
     }
 
     const sending: { content: logContent; type: ModLogType }[] = [
@@ -144,6 +144,9 @@ export class GuildLogManager {
       message =
         (sending.find((log) => typeof log.content == "string")
           .content as string) || null;
+    const releaseEventually = setTimeout(() => {
+      data.lock.release();
+    }, 15000);
     await data.webhook
       .send(message, {
         username: this.client.user.username,
@@ -159,12 +162,15 @@ export class GuildLogManager {
         if (e instanceof DiscordAPIError)
           if (e.code == 10015) data.webhook = null;
         data.queue.push(...sending.filter((log) => !data.queue.includes(log)));
+      })
+      .then(() => {
+        data.lock.release();
+        clearTimeout(releaseEventually);
+        if (data.queue.length) {
+          const next = data.queue.pop();
+          this.handleModeration(next.content, next.type);
+        }
       });
-    data.lock.release();
-    if (data.queue.length) {
-      const next = data.queue.pop();
-      this.handleModeration(next.content, next.type);
-    }
   }
 
   async handleMembers(content: logContent, type: MemberLogType) {
@@ -232,6 +238,9 @@ export class GuildLogManager {
       message =
         (sending.find((log) => typeof log.content == "string")
           .content as string) || null;
+    const releaseEventually = setTimeout(() => {
+      data.lock.release();
+    }, 15000);
     await data.webhook
       .send(message, {
         username: this.client.user.username,
@@ -247,12 +256,15 @@ export class GuildLogManager {
         if (e instanceof DiscordAPIError)
           if (e.code == 10015) data.webhook = null;
         data.queue.push(...sending.filter((log) => !data.queue.includes(log)));
+      })
+      .then(() => {
+        data.lock.release();
+        clearTimeout(releaseEventually);
+        if (data.queue.length) {
+          const next = data.queue.pop();
+          this.handleMembers(next.content, next.type);
+        }
       });
-    data.lock.release();
-    if (data.queue.length) {
-      const next = data.queue.pop();
-      this.handleMembers(next.content, next.type);
-    }
   }
 
   async handleAction(content: logContent, type: ActionLogType) {
@@ -320,6 +332,9 @@ export class GuildLogManager {
       message =
         (sending.find((log) => typeof log.content == "string")
           .content as string) || null;
+    const releaseEventually = setTimeout(() => {
+      data.lock.release();
+    }, 15000);
     await data.webhook
       .send(message, {
         username: this.client.user.username,
@@ -335,12 +350,15 @@ export class GuildLogManager {
         if (e instanceof DiscordAPIError)
           if (e.code == 10015) data.webhook = null;
         data.queue.push(...sending.filter((log) => !data.queue.includes(log)));
+      })
+      .then(() => {
+        data.lock.release();
+        clearTimeout(releaseEventually);
+        if (data.queue.length) {
+          const next = data.queue.pop();
+          this.handleAction(next.content, next.type);
+        }
       });
-    data.lock.release();
-    if (data.queue.length) {
-      const next = data.queue.pop();
-      this.handleAction(next.content, next.type);
-    }
   }
 
   async refreshWebhooks() {
