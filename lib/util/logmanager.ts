@@ -142,6 +142,10 @@ export class GuildLogManager {
 
     const releaseEventually = setTimeout(() => {
       data.lock.release();
+      if (data.queue.length) {
+        const next = data.queue.pop();
+        this.handleModeration(next.content, next.type);
+      }
     }, 15000);
 
     let message: string = null;
@@ -233,14 +237,19 @@ export class GuildLogManager {
       for (const log of queue) data.queue.push(log); // will push back any that didn't make it
     }
 
+    const releaseEventually = setTimeout(() => {
+      data.lock.release();
+      if (data.queue.length) {
+        const next = data.queue.pop();
+        this.handleMembers(next.content, next.type);
+      }
+    }, 15000);
+
     let message: string = null;
     if (sending.find((log) => typeof log.content == "string"))
       message =
         (sending.find((log) => typeof log.content == "string")
           .content as string) || null;
-    const releaseEventually = setTimeout(() => {
-      data.lock.release();
-    }, 15000);
     await data.webhook
       .send(message, {
         username: this.client.user.username,
@@ -273,7 +282,7 @@ export class GuildLogManager {
 
     const data = this._data.action;
     const acquired = data.lock.tryAcquire();
-    if (data.locked || !acquired) return data.queue.push({ content, type });
+    if (!acquired) return data.queue.push({ content, type });
 
     if (
       this.rateLimitListener?.limited.includes(
@@ -327,6 +336,10 @@ export class GuildLogManager {
 
     const releaseEventually = setTimeout(() => {
       data.lock.release();
+      if (data.queue.length) {
+        const next = data.queue.pop();
+        this.handleAction(next.content, next.type);
+      }
     }, 15000);
 
     let message: string = null;
