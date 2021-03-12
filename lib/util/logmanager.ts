@@ -6,6 +6,7 @@ import {
 } from "discord.js";
 import { ActionLogType, MemberLogType, ModLogType } from "./constants";
 import { FireTextChannel } from "../extensions/textchannel";
+import RateLimit from "@fire/src/listeners/rateLimit";
 import { FireGuild } from "../extensions/guild";
 import Semaphore from "semaphore-async-await";
 import { Fire } from "../Fire";
@@ -35,6 +36,7 @@ export class GuildLogManager {
       locked: any;
     };
   };
+  rateLimitListener: RateLimit;
 
   constructor(client: Fire, guild: FireGuild) {
     this.client = client;
@@ -65,6 +67,7 @@ export class GuildLogManager {
         queue: [],
       },
     };
+    this.rateLimitListener = this.client.getListener("rateLimit") as RateLimit;
   }
 
   hasWebhooks(channelId: string) {
@@ -78,10 +81,22 @@ export class GuildLogManager {
   }
 
   async handleModeration(content: logContent, type: ModLogType) {
-    const data = this._data.moderation;
-    if (data.locked) return data.queue.push({ content, type });
+    if (!this.rateLimitListener)
+      this.rateLimitListener = this.client.getListener(
+        "rateLimit"
+      ) as RateLimit;
 
-    await data.lock.acquire();
+    const data = this._data.moderation;
+    const acquired = data.lock.tryAcquire();
+    if (data.locked || !acquired) return data.queue.push({ content, type });
+
+    if (
+      this.rateLimitListener?.limited.includes(
+        `/webhooks/:id/${data.webhook?.token}`
+      )
+    )
+      return data.queue.push({ content, type });
+
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
         this.guild.settings.get("log.moderation")
@@ -144,19 +159,30 @@ export class GuildLogManager {
         if (e instanceof DiscordAPIError)
           if (e.code == 10015) data.webhook = null;
         data.queue.push(...sending.filter((log) => !data.queue.includes(log)));
-      })
-      .then(() => {
-        data.lock.release();
-        if (data.queue.length) {
-          const next = data.queue.pop();
-          this.handleModeration(next.content, next.type);
-        }
       });
+    data.lock.release();
+    if (data.queue.length) {
+      const next = data.queue.pop();
+      this.handleModeration(next.content, next.type);
+    }
   }
 
   async handleMembers(content: logContent, type: MemberLogType) {
+    if (!this.rateLimitListener)
+      this.rateLimitListener = this.client.getListener(
+        "rateLimit"
+      ) as RateLimit;
+
     const data = this._data.members;
-    if (data.locked) return data.queue.push({ content, type });
+    const acquired = data.lock.tryAcquire();
+    if (data.locked || !acquired) return data.queue.push({ content, type });
+
+    if (
+      this.rateLimitListener?.limited.includes(
+        `/webhooks/:id/${data.webhook?.token}`
+      )
+    )
+      return data.queue.push({ content, type });
 
     await data.lock.acquire();
     if (!data.webhook) {
@@ -221,19 +247,30 @@ export class GuildLogManager {
         if (e instanceof DiscordAPIError)
           if (e.code == 10015) data.webhook = null;
         data.queue.push(...sending.filter((log) => !data.queue.includes(log)));
-      })
-      .then(() => {
-        data.lock.release();
-        if (data.queue.length) {
-          const next = data.queue.pop();
-          this.handleMembers(next.content, next.type);
-        }
       });
+    data.lock.release();
+    if (data.queue.length) {
+      const next = data.queue.pop();
+      this.handleMembers(next.content, next.type);
+    }
   }
 
   async handleAction(content: logContent, type: ActionLogType) {
+    if (!this.rateLimitListener)
+      this.rateLimitListener = this.client.getListener(
+        "rateLimit"
+      ) as RateLimit;
+
     const data = this._data.action;
-    if (data.locked) return data.queue.push({ content, type });
+    const acquired = data.lock.tryAcquire();
+    if (data.locked || !acquired) return data.queue.push({ content, type });
+
+    if (
+      this.rateLimitListener?.limited.includes(
+        `/webhooks/:id/${data.webhook?.token}`
+      )
+    )
+      return data.queue.push({ content, type });
 
     await data.lock.acquire();
     if (!data.webhook) {
@@ -298,14 +335,12 @@ export class GuildLogManager {
         if (e instanceof DiscordAPIError)
           if (e.code == 10015) data.webhook = null;
         data.queue.push(...sending.filter((log) => !data.queue.includes(log)));
-      })
-      .then(() => {
-        data.lock.release();
-        if (data.queue.length) {
-          const next = data.queue.pop();
-          this.handleAction(next.content, next.type);
-        }
       });
+    data.lock.release();
+    if (data.queue.length) {
+      const next = data.queue.pop();
+      this.handleAction(next.content, next.type);
+    }
   }
 
   async refreshWebhooks() {
