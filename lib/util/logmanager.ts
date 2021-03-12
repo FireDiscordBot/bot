@@ -19,18 +19,21 @@ export class GuildLogManager {
   private _data: {
     moderation: {
       queue: { content: logContent; type: ModLogType }[];
+      forceFullQueue: boolean;
       webhook: Webhook;
       lock: Semaphore;
       locked: any;
     };
     members: {
       queue: { content: logContent; type: MemberLogType }[];
+      forceFullQueue: boolean;
       webhook: Webhook;
       lock: Semaphore;
       locked: any;
     };
     action: {
       queue: { content: logContent; type: ActionLogType }[];
+      forceFullQueue: boolean;
       webhook: Webhook;
       lock: Semaphore;
       locked: any;
@@ -47,6 +50,7 @@ export class GuildLogManager {
         get locked() {
           return this.lock.getPermits() == 0;
         },
+        forceFullQueue: false,
         webhook: null,
         queue: [],
       },
@@ -55,6 +59,7 @@ export class GuildLogManager {
         get locked() {
           return this.lock.getPermits() == 0;
         },
+        forceFullQueue: false,
         webhook: null,
         queue: [],
       },
@@ -63,6 +68,7 @@ export class GuildLogManager {
         get locked() {
           return this.lock.getPermits() == 0;
         },
+        forceFullQueue: false,
         webhook: null,
         queue: [],
       },
@@ -87,6 +93,9 @@ export class GuildLogManager {
       ) as RateLimit;
 
     const data = this._data.moderation;
+    if (data.forceFullQueue && data.queue.length < 10)
+      return data.queue.push({ content, type });
+
     const acquired = data.lock.tryAcquire();
     if (!acquired) return data.queue.push({ content, type });
 
@@ -94,8 +103,10 @@ export class GuildLogManager {
       this.rateLimitListener?.limited.includes(
         `/webhooks/:id/${data.webhook?.token}`
       )
-    )
+    ) {
+      data.lock.release();
       return data.queue.push({ content, type });
+    }
 
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
@@ -184,6 +195,9 @@ export class GuildLogManager {
       ) as RateLimit;
 
     const data = this._data.members;
+    if (data.forceFullQueue && data.queue.length < 10)
+      return data.queue.push({ content, type });
+
     const acquired = data.lock.tryAcquire();
     if (!acquired) return data.queue.push({ content, type });
 
@@ -191,8 +205,10 @@ export class GuildLogManager {
       this.rateLimitListener?.limited.includes(
         `/webhooks/:id/${data.webhook?.token}`
       )
-    )
+    ) {
+      data.lock.release();
       return data.queue.push({ content, type });
+    }
 
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
@@ -281,6 +297,9 @@ export class GuildLogManager {
       ) as RateLimit;
 
     const data = this._data.action;
+    if (data.forceFullQueue && data.queue.length < 10)
+      return data.queue.push({ content, type });
+
     const acquired = data.lock.tryAcquire();
     if (!acquired) return data.queue.push({ content, type });
 
@@ -288,8 +307,10 @@ export class GuildLogManager {
       this.rateLimitListener?.limited.includes(
         `/webhooks/:id/${data.webhook?.token}`
       )
-    )
+    ) {
+      data.lock.release();
       return data.queue.push({ content, type });
+    }
 
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
