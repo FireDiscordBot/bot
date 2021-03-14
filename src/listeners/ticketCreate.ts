@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Listener } from "@fire/lib/util/listener";
@@ -12,9 +12,13 @@ export default class TicketCreate extends Listener {
     });
   }
 
-  async exec(author: FireMember, ticket: FireTextChannel, message: FireMessage) {
+  async exec(
+    author: FireMember,
+    ticket: FireTextChannel,
+    message: FireMessage
+  ) {
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-    if (author.guild.id != sk1erModule.supportGuildId) return;
+    if (author.guild.id != sk1erModule?.supportGuildId) return;
     const channel =
       sk1erModule.supportChannel ||
       (sk1erModule.supportGuild.channels.cache.get(
