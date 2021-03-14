@@ -34,6 +34,7 @@ import { Fire } from "@fire/lib/Fire";
 import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
+import { MessageIterator } from "../util/iterators";
 
 const parseUntil = (time?: string) => {
   if (!time) return 0;
@@ -755,9 +756,8 @@ export class FireGuild extends Guild {
       channels.map((c) => c.id)
     );
     let transcript: string[] = [];
-    (
-      await channel.messages.fetch({ limit: 100 }).catch(() => [])
-    ).forEach((message: FireMessage) =>
+    const iterator = new MessageIterator(channel, { oldestFirst: true });
+    for await (const message of iterator.iterate())
       transcript.push(
         `${message.author} (${
           message.author.id
@@ -767,16 +767,8 @@ export class FireGuild extends Guild {
           message.attachments.first()?.proxyURL ||
           `${message.embeds[0]?.fields[0]?.name} | ${message.embeds[0]?.fields[0]?.value}`
         }`
-      )
-    );
-    transcript = transcript.reverse();
-    transcript.push(
-      `${transcript.length} messages${
-        transcript.length == 100
-          ? " (only the last 100 can be fetched due to Discord limitations)"
-          : ""
-      }, closed by ${author}`
-    );
+      );
+    transcript.push(`${transcript.length} messages, closed by ${author}`);
     const buffer = Buffer.from(transcript.join("\n\n"));
     const id = getIDMatch(channel.topic, true);
     let creator = author;
