@@ -1309,6 +1309,34 @@ You must have Developer Mode enabled, which is found in User Settings > Appearan
           `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${user}) for ${reason} - [Proof](${proof})`,
         VOTE_COMMAND_DESCRIPTION:
           'Sends a link to Fire on a random bot list (sends direct vote link if you use the "vote" alias)',
+        PERMROLES_COMMAND_DESCRIPTION:
+          "Copy the permissions of a role from the current channel and automatically apply it to all channels",
+        PERMROLES_NONE_FOUND:
+          "There doesn't seem to be any permission roles set in this server...",
+        PERMROLES_CURRENT_ITEM: (
+          role: string,
+          allow: string[],
+          deny: string[]
+        ) => `**Role**: ${role}${
+          allow.length ? "\n**Allowed**: " + allow.join(", ") : ""
+        }${deny.length ? "\n**Denied**: " + deny.join(", ") : ""}
+**-----------------**`,
+        PERMROLES_LIMIT_PREMIUM:
+          "You've reached the permission role limit! Upgrade to premium for unlimited permission roles, <https://inv.wtf/premium>",
+        PERMROLES_NOTHING_TO_COPY:
+          "That role does not have any permissions set in this channel, so there's nothing to copy.",
+        PERMROLES_MANAGE_ROLES:
+          "Due to a change made on the 23rd of January 2021, I am unable to set the `Manage Permissions` permission in channel overwrites, which that role has in this channel.",
+        PERMROLES_MISSING_PERMISSIONS:
+          "The permissions for that role in this channel includes ones I do not have, meaning I am unable to copy it to other channels.",
+        PERMROLES_DB_ERROR: "Failed to save changes to my database",
+        PERMROLES_UPDATING_CHANNELS:
+          "Alright, I'll begin updating all channels to copy that role's permissions, this may take a while depending on how many channels you have. I'll edit this message when I'm done",
+        PERMROLES_FINISHED: (_: number) =>
+          "Alright, all channels should now copy the permissions for that role from here!",
+        PERMROLES_FINISHED_FAIL_SOME: (failed: number) =>
+          `I've finished updating channels but failed to set permissions in ${failed} channels.`,
+        PERMROLES_REASON: "Setting up permission role...",
         PREMIUM_COMMAND_DESCRIPTION:
           "Toggle Fire Premium in the current guild (temporary command for beta testers)",
         PREMIUM_NO_SUBSCRIPTION: `Seems you don't have a premium subscription...
@@ -1362,7 +1390,7 @@ Your existing premium servers are: ${current.join(", ")}`,
         TAGS_CREATE_ALREADY_EXISTS:
           "A tag already exists with that name. Be original next time!",
         TAGS_CREATE_LIMIT:
-          "You've reached the tag limit! Upgrade to premium for unlimited tags;\n<https://inv.wtf/premium>",
+          "You've reached the tag limit! Upgrade to premium for unlimited tags, <https://inv.wtf/premium>",
         TAG_EDIT_COMMAND_DESCRIPTION: "Edit the content of a tag",
         TAGS_EDIT_MISSING_NAME:
           "I need to know what tag to edit. Give me the name of an existing tag",

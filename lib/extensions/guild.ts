@@ -21,9 +21,11 @@ import {
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import Tickets from "@fire/src/commands/Tickets/tickets";
+import { PermRolesData } from "../interfaces/permroles";
 import { GuildSettings } from "@fire/lib/util/settings";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
+import { MessageIterator } from "../util/iterators";
 import { FakeChannel } from "./slashCommandMessage";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
@@ -34,7 +36,6 @@ import { Fire } from "@fire/lib/Fire";
 import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
-import { MessageIterator } from "../util/iterators";
 
 const parseUntil = (time?: string) => {
   if (!time) return 0;
@@ -49,6 +50,7 @@ export class FireGuild extends Guild {
   reactionRoles: Collection<string, ReactionRoleData[]>;
   persistedRoles: Collection<string, string[]>;
   ticketLock?: { lock: Semaphore; limit: any };
+  permRoles: Collection<string, PermRolesData>;
   inviteRoles: Collection<string, string>;
   vcRoles: Collection<string, string>;
   invites: Collection<string, number>;
@@ -75,6 +77,7 @@ export class FireGuild extends Guild {
     this.inviteRoles = new Collection();
     this.fetchingMemberUpdates = false;
     this.quoteHooks = new Collection();
+    this.permRoles = new Collection();
     this.fetchingRoleUpdates = false;
     this.vcRoles = new Collection();
     this.invites = new Collection();
@@ -411,6 +414,51 @@ export class FireGuild extends Guild {
         role: rero.get("rid") as string,
         emoji: rero.get("eid") as string,
       });
+    }
+  }
+
+  async loadPermRoles() {
+    this.permRoles = new Collection();
+    if (!this.available) return;
+    const permRoles = await this.client.db
+      .query("SELECT * FROM permroles WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!permRoles)
+      return this.client.console.error(
+        `[Guild] Failed to load permission roles for ${this.name} (${this.id})`
+      );
+    for await (const role of permRoles) {
+      // TODO: change to BigInt
+      this.permRoles.set(role.get("rid") as string, {
+        allow: parseInt(role.get("allow") as string),
+        deny: parseInt(role.get("deny") as string),
+      });
+    }
+    for (const [id, perms] of this.permRoles) {
+      for (const [, channel] of this.channels.cache.filter(
+        (channel) =>
+          channel.permissionsFor(this.me).has("MANAGE_ROLES") &&
+          (channel.permissionOverwrites.get(id)?.allow.bitfield !=
+            perms.allow ||
+            channel.permissionOverwrites.get(id)?.deny.bitfield != perms.deny)
+      ))
+        channel
+          .overwritePermissions(
+            [
+              ...channel.permissionOverwrites.array().filter(
+                // ensure the overwrites below are used instead
+                (overwrite) => overwrite.id != id
+              ),
+              {
+                allow: perms.allow,
+                deny: perms.deny,
+                id: id,
+                type: "role",
+              },
+            ],
+            this.language.get("PERMROLES_REASON") as string
+          )
+          .catch(() => {});
     }
   }
 
