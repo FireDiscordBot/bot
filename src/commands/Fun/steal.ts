@@ -48,7 +48,7 @@ export default class Steal extends Command {
       emoji = `https://cdn.discordapp.com/emojis/${match.groups.id}.${
         match[0].startsWith("<a") ? "gif" : "png"
       }`;
-      name = match.groups.name;
+      if (!args.name) name = match.groups.name;
     } else if (
       !/^https?:\/\/cdn\.discordapp\.com(\/emojis\/\d{15,21})\.\w{3,4}/im.test(
         emoji
