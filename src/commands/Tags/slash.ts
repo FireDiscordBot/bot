@@ -17,7 +17,6 @@ export default class TagSlash extends Command {
           required: false,
         },
       ],
-      requiresExperiment: { id: "uBRGk1ZS1PWvecwLud0lD", treatmentId: 1 },
       aliases: ["tags-slash", "dtag-slash", "dtags-slash"],
       restrictTo: "guild",
       parent: "tag",
