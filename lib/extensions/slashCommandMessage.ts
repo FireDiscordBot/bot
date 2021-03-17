@@ -68,9 +68,7 @@ export class SlashCommandMessage {
     this.guild = client.guilds.cache.get(command.guild_id) as FireGuild;
     this.command = this.client.getCommand(command.data.name);
     this.flags = 0;
-    if (
-      this.guild?.tags?.slashCommands[command.data.id] == command.data.name
-    ) {
+    if (this.guild?.tags?.slashCommands[command.data.id] == command.data.name) {
       this.command = this.client.getCommand("tag-show");
       command.data.options = [{ name: "tag", value: command.data.name }];
       if (this.guild.tags.ephemeral) this.setFlags(64);
@@ -80,11 +78,10 @@ export class SlashCommandMessage {
     this.mentions = new MessageMentions(this, [], [], false);
     this.attachments = new Collection();
     // @mason pls just always include user ty
-    this.author = command.user
-      ? (client.users.cache.get(command.user.id) as FireUser) ||
-        new FireUser(client, command.user)
-      : (client.users.cache.get(command.member.user.id) as FireUser) ||
-        new FireUser(client, command.member.user);
+    const user = command.user ?? command.member?.user;
+    this.author =
+      (client.users.cache.get(user.id) as FireUser) ||
+      new FireUser(client, user);
     if (!client.users.cache.has(this.author.id))
       client.users.add(command.member ? command.member.user : command.user);
     if (this.guild) {
