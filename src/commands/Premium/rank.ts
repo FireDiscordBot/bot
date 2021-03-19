@@ -77,17 +77,8 @@ export default class Rank extends Command {
     if (message instanceof SlashCommandMessage) message.setFlags(64);
 
     if (roles.includes(args.role)) {
-      if (args.role.id == "595626786549792793") {
-        const specs = await this.client.db.query(
-          "SELECT * FROM specs WHERE uid=$1;",
-          [message.member.id]
-        );
-        if (!specs.rows?.length)
-          return await message.send(
-            "RANKS_SK1ER_NO_SPECS",
-            message.member.toMention()
-          );
-      }
+      if (args.role.id == "595626786549792793")
+        return await message.error("SK1ER_BETA_MOVED");
       message.member?.roles?.cache?.has(args.role.id)
         ? await message.member?.roles
             ?.remove(

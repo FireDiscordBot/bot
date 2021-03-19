@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { parseTime } from "@fire/lib/util/constants";
@@ -39,7 +39,7 @@ export default class Mute extends Command {
     if (!args.user) return await message.error("MUTE_USER_REQUIRED");
     else if (
       args.user instanceof FireMember &&
-      args.user.isModerator(message.channel) &&
+      (args.user.isModerator(message.channel) || args.user.user.bot) &&
       message.author.id != message.guild.ownerID
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");

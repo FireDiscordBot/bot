@@ -205,19 +205,6 @@ export default class MCLogs extends Module {
           await message.channel.send(message.language.get("MC_LOG_READ_FAIL"));
         }
       });
-
-    if (
-      message.attachments.filter((attachment) =>
-        attachment.name.endsWith(".log.gz")
-      ).size &&
-      !message.attachments.filter(
-        (attachment) =>
-          attachment.name.endsWith(".log") || attachment.name.endsWith(".txt")
-      ).size
-    )
-      await message.channel.send(
-        "https://cdn.discordapp.com/attachments/411620457754787841/785635918962098216/unknown-19.png"
-      );
   }
 
   async handleLogText(message: FireMessage, text: string, msgType: string) {

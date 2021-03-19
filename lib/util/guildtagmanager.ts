@@ -1,28 +1,36 @@
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { Option } from "@fire/lib/interfaces/slashCommands";
+import { DiscordAPIError, Collection } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Collection } from "discord.js";
-import * as fuzz from "fuzzball";
 import { Fire } from "@fire/lib/Fire";
+import * as fuzz from "fuzzball";
+
+const slashCommandNameRegex = /^[\w-]{1,32}$/gim;
 
 export interface Tag {
-  name: string;
-  content: string;
-  uses: number;
-  aliases: string[];
   createdBy: string | FireUser | FireMember;
+  aliases: string[];
+  content: string;
+  name: string;
+  uses: number;
 }
 
 export class GuildTagManager {
-  client: Fire;
-  names: string[];
-  guild: FireGuild;
+  slashCommands: { [id: string]: string };
   cache: Collection<string, Tag>;
+  preparedSlashCommands: boolean;
+  ephemeral?: boolean;
+  guild: FireGuild;
+  names: string[];
+  client: Fire;
 
   constructor(client: Fire, guild: FireGuild) {
     this.client = client;
     this.guild = guild;
     this.names = [];
+    this.slashCommands = {};
+    this.preparedSlashCommands = false;
     this.cache = new Collection<string, Tag>();
 
     this.client.db
@@ -44,6 +52,7 @@ export class GuildTagManager {
 
   async getTag(tag: string, useFuzzy = true) {
     if (this.names.length && !this.cache.size) await this.loadTags();
+    if (!this.preparedSlashCommands) this.prepareSlashCommands();
     if (this.names.includes(tag.toLowerCase()))
       return await this.getCachedTag(tag);
     const fuzzy = this.names.find(
@@ -78,7 +87,209 @@ export class GuildTagManager {
     return cachedTag;
   }
 
+  private async getTagSlashCommandJSON(cached: Tag) {
+    if (!slashCommandNameRegex.test(cached.name)) {
+      slashCommandNameRegex.lastIndex = 0;
+      return null;
+    }
+    slashCommandNameRegex.lastIndex = 0;
+
+    const description =
+      (this.guild.language.get(
+        "TAG_SLASH_DESCRIPTION",
+        cached.name
+      ) as string) + "\u200b"; // the zws will be used to idenfity tag commands
+
+    return {
+      name: cached.name,
+      description,
+    };
+  }
+
+  async prepareSlashCommands() {
+    const useSlash = this.guild.settings.get("tags.slashcommands", false);
+    if (!useSlash) return false;
+    if (this.names.length && !this.cache.size) await this.loadTags();
+
+    this.ephemeral = this.guild.settings.get("tags.ephemeral", true);
+
+    let current: {
+      id: string;
+      application_id: string;
+      name: string;
+      description: string;
+      options?: Option[];
+      // @ts-ignore
+    }[] = await this.client.api
+      // @ts-ignore
+      .applications(this.client.user.id)
+      .guilds(this.guild.id)
+      .commands.get()
+      .catch((e: DiscordAPIError) => e);
+
+    if (current instanceof DiscordAPIError && current.code == 50001) {
+      // hasn't authorized applications.commands
+      return null;
+    } else if (current instanceof DiscordAPIError) {
+      return false;
+    }
+
+    let commandData = await Promise.all(
+      this.cache.map((tag) => this.getTagSlashCommandJSON(tag))
+    );
+    commandData = commandData.filter((tag) => !!tag);
+    if (!commandData.length) this.preparedSlashCommands = true;
+
+    commandData = commandData
+      .filter(
+        (tag) =>
+          !current.find((cmd) => cmd.name == tag.name) ||
+          current.find(
+            (cmd) => cmd.name == tag.name && cmd.description.endsWith("\u200b")
+          )
+      )
+      .filter(
+        (tag) =>
+          // remove those with options as they're not going to be tags
+          !current.find((cmd) => cmd.name == tag.name && cmd.options?.length)
+      );
+
+    if (
+      current.filter((cmd) =>
+        commandData.find(
+          (tag) => tag.name == cmd.name && tag.description == cmd.description
+        )
+      ).length == commandData.length
+    )
+      this.preparedSlashCommands = true;
+
+    current = current.filter(
+      (cmd) =>
+        !commandData.find((tag) => tag.name == cmd.name) &&
+        !(cmd.id in this.slashCommands && !this.cache.has(cmd.name))
+    );
+
+    // @ts-ignore
+    await this.client.api
+      // @ts-ignore
+      .applications(this.client.user.id)
+      .guilds(this.guild.id)
+      .commands.put({ data: [...current, ...commandData].slice(0, 100) })
+      .then(
+        (
+          updated: {
+            // typing the other fields is unnecessary
+            // since we only need these
+            id: string;
+            name: string;
+            description: string;
+            options: any[];
+          }[]
+        ) => {
+          if (!this.preparedSlashCommands)
+            this.client.console.info(
+              `[Commands] Successfully bulk updated ${updated.length} slash command tag(s) for guild ${this.guild.name}`
+            );
+          const slashTags = updated.filter(
+            (command) =>
+              !command.options?.length &&
+              (commandData.find(
+                (tag) =>
+                  tag.name == command.name &&
+                  tag.description == command.description &&
+                  command.description.endsWith("\u200b")
+              ) ||
+                current.find(
+                  (tag) =>
+                    tag.name == command.name &&
+                    tag.description == command.description &&
+                    command.description.endsWith("\u200b")
+                ))
+          );
+          for (const tag of slashTags) this.slashCommands[tag.id] = tag.name;
+        }
+      )
+      .catch((e: Error) =>
+        this.client.console.error(
+          `[Commands] Failed to update slash command tags for guild ${this.guild.name}\n${e.stack}`
+        )
+      );
+    return (this.preparedSlashCommands = true);
+  }
+
+  async removeSlashCommands() {
+    let current: {
+      id: string;
+      application_id: string;
+      name: string;
+      description: string;
+      options?: Option[];
+      // @ts-ignore
+    }[] = await this.client.api
+      // @ts-ignore
+      .applications(this.client.user.id)
+      .guilds(this.guild.id)
+      .commands.get()
+      .catch((e: DiscordAPIError) => e);
+
+    if (current instanceof DiscordAPIError && current.code == 50001) {
+      // hasn't authorized applications.commands
+      return null;
+    } else if (current instanceof DiscordAPIError) {
+      return false;
+    }
+
+    // used to compare existing guild commands with possible slash commands
+    let commandData = await Promise.all(
+      this.cache.map((tag) => this.getTagSlashCommandJSON(tag))
+    );
+    commandData = commandData.filter((tag) => !!tag);
+    if (!commandData.length) return (this.preparedSlashCommands = true);
+
+    commandData = commandData
+      .filter(
+        (tag) =>
+          !current.find((cmd) => cmd.name == tag.name) ||
+          current.find(
+            (cmd) => cmd.name == tag.name && cmd.description.endsWith("\u200b")
+          )
+      )
+      .filter(
+        (tag) =>
+          // remove those with options as they're not going to be tags
+          !current.find((cmd) => cmd.name == tag.name && cmd.options?.length)
+      );
+
+    current = current.filter(
+      (cmd) =>
+        !commandData.find(
+          (tag) => tag.name == cmd.name && tag.description == cmd.description
+        )
+    );
+
+    // @ts-ignore
+    const removed = await this.client.api
+      // @ts-ignore
+      .applications(this.client.user.id)
+      .guilds(this.guild.id)
+      .commands.put({ data: current })
+      .then(() => {
+        this.client.console.info(
+          `[Commands] Successfully removed slash command tags from guild ${this.guild.name}`
+        );
+        this.slashCommands = {};
+        return true;
+      })
+      .catch((e: Error) =>
+        this.client.console.error(
+          `[Commands] Failed to remove slash command tags for guild ${this.guild.name}\n${e.stack}`
+        )
+      );
+    return removed;
+  }
+
   async loadTags() {
+    this.cache = new Collection();
     const result = await this.client.db.query(
       "SELECT * FROM tags WHERE gid=$1;",
       [this.guild.id]
@@ -95,6 +306,12 @@ export class GuildTagManager {
         uses: tag.get("uses") as number,
       });
     }
+    this.names = [
+      ...this.cache.keyArray().map((name) => name.toLowerCase()),
+      ...this.cache
+        .map((tag) => tag.aliases.map((alias) => alias.toLowerCase()))
+        .flat(),
+    ];
     return this.cache;
   }
 
@@ -118,7 +335,31 @@ export class GuildTagManager {
       aliases: [],
       createdBy: user,
     });
+    this.preparedSlashCommands && Object.keys(this.slashCommands).length
+      ? this.createSlashTag(name)
+      : this.prepareSlashCommands();
     return this.cache.get(name);
+  }
+
+  private async createSlashTag(tag: string) {
+    const cached = await this.getCachedTag(tag);
+    const command = await this.getTagSlashCommandJSON(cached);
+
+    // @ts-ignore
+    const commandRaw = await this.client.api
+      // @ts-ignore
+      .applications(this.client.user.id)
+      .guilds(this.guild.id)
+      .commands.post({ data: command })
+      .catch((e) => e);
+    if (commandRaw?.id) this.slashCommands[commandRaw.id] = tag;
+    else {
+      if (commandRaw.httpStatus != 403 && commandRaw.code != 50001)
+        this.client.console.warn(
+          `[Commands] Failed to register slash command for tag "${tag}" in guild ${this.guild.name}`,
+          commandRaw
+        );
+    }
   }
 
   async deleteTag(name: string) {
@@ -136,7 +377,28 @@ export class GuildTagManager {
     this.names = this.names.filter(
       (n) => n != name && !cachedTag.aliases.includes(n)
     );
+    this.deleteSlashTag(name);
     return this.cache.delete(name);
+  }
+
+  private async deleteSlashTag(tag: string) {
+    const entries = Object.entries(this.slashCommands);
+    if (!entries.length) return;
+    const [id] = entries.find(([, name]) => name == tag) || [null];
+    if (!id) return;
+
+    // @ts-ignore
+    await this.client.api
+      // @ts-ignore
+      .applications(this.client.user.id)
+      .guilds(this.guild.id)
+      .commands(id)
+      .delete()
+      .catch(() =>
+        this.client.console.error(
+          `[Commands] Failed to delete slash command for tag "${tag}" in guild ${this.guild.name}`
+        )
+      );
   }
 
   async useTag(tag: string) {

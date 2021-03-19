@@ -3,7 +3,7 @@ import {
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -110,7 +110,10 @@ export default class Quote extends Command {
                   permissions: message.guild
                     ? message.member.permissions.bitfield
                     : 0,
+                  guild_id: message.guild?.id,
+                  id: message.channel.id,
                 } as PartialQuoteDestination,
+                debug: args.debug,
               })
             )
           );
@@ -124,9 +127,14 @@ export default class Quote extends Command {
       regexes.discord.webhook.lastIndex = 0;
       if (!match?.groups.id || !match?.groups.token) return;
       webhook = new WebhookClient(match.groups.id, match.groups.token);
-      return await args.quote
+      const quoted = await args.quote
         .quote(args.destination, args.quoter, webhook)
-        .catch(() => {});
+        .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
+      if (args.debug && typeof quoted == "string")
+        return !message
+          ? await webhook.send(quoted)
+          : await message.channel.send(quoted);
+      else return;
     } else if (!message) return;
     const quoted = await args.quote
       .quote(
@@ -136,8 +144,10 @@ export default class Quote extends Command {
         message.member,
         webhook
       )
-      .catch(() => {});
+      .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
     if (args.debug && typeof quoted == "string")
-      return await message.channel.send(quoted);
+      return !message
+        ? await webhook.send(quoted)
+        : await message.channel.send(quoted);
   }
 }

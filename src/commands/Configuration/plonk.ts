@@ -49,9 +49,10 @@ export default class Plonk extends Command {
       return await message.error("PLONK_USER_REQUIRED");
     else if (!args.user) return;
     else if (
-      args.user instanceof FireMember &&
-      args.user.isModerator() &&
-      message.author.id != message.guild.ownerID
+      args.user.id == message.author.id ||
+      (args.user instanceof FireMember &&
+        (args.user.isModerator() || args.user.user.bot) &&
+        message.author.id != message.guild.ownerID)
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
 

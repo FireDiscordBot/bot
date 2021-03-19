@@ -2,7 +2,7 @@ import {
   MessageLinkMatch,
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { messageConverter } from "@fire/lib/util/converters";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -125,7 +125,7 @@ export default class MessageInvalid extends Listener {
         );
         if (!webhookURL || typeof webhookURL != "string") continue;
         this.client.console.info(
-          `[Listener] Sending cross cluster quote request to shard ${shard} for guild ${quote.guild_id}`
+          `[Listener] Sending cross cluster quote request to shard ${shard} to guild ${quote.guild_id}`
         );
         this.client.manager.ws.send(
           MessageUtil.encode(
@@ -139,6 +139,7 @@ export default class MessageInvalid extends Listener {
                 permissions: message.guild
                   ? message.member?.permissions.bitfield || 0
                   : 0,
+                guild_id: message.guild?.id,
                 id: message.channel.id,
               } as PartialQuoteDestination,
             })

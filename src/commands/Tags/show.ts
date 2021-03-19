@@ -2,8 +2,6 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
-const markdownRegex = /[_\\~|\*`]/gim;
-
 // this exists purely for slash commands since
 // you can't use the base command w/subcommands
 export default class TagShow extends Command {

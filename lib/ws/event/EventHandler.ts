@@ -1,6 +1,6 @@
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventStore } from "./EventStore";
 import { Manager } from "@fire/lib/Manager";
+import { EventStore } from "./EventStore";
 
 export class EventHandler {
   manager: Manager;
@@ -11,14 +11,17 @@ export class EventHandler {
     this.store = new EventStore(manager);
   }
 
-  handle(message: any) {
+  async handle(message: any) {
     const decoded = MessageUtil.decode(message);
-    const event = this.store.get(decoded.type);
+    if (!decoded) return;
+
+    if (typeof decoded.s == "number") this.manager.seq = decoded.s;
+    const event = this.store.get(decoded.op);
 
     if (event === null) {
-      throw new TypeError(`Event type "${decoded.type}" not found!`);
+      throw new TypeError(`Event type "${decoded.op}" not found!`);
     }
 
-    event.run(decoded.data);
+    event.run(decoded.d);
   }
 }

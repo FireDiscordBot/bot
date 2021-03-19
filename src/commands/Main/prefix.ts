@@ -88,6 +88,10 @@ export default class Prefix extends Command {
         return await message.error("PREFIX_ACTION_WITHOUT_VALUE");
       if (args.prefix.trim() == "fire")
         return await message.error("PREFIX_GLOBAL");
+      if (args.prefix.startsWith("/"))
+        return await message.error("PREFIX_SLASH_COMMANDS");
+      if (args.prefix.includes("\\"))
+        return await message.error("PREFIX_ESCAPED");
       if (current.length == 1 && current[0] == "$") current = []; // remove default
       if (current.map((prefix) => prefix.trim()).includes(args.prefix.trim()))
         return await message.error(

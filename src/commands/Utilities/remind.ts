@@ -53,9 +53,17 @@ export default class Remind extends Command {
     if (!parsedMinutes) return await message.error("REMINDER_MISSING_TIME");
     else if (parsedMinutes < 2)
       return await message.error("REMINDER_TOO_SHORT");
-    const reminder = parseTime(args.reminder, true) as string;
-    if (!reminder.replace(/\s/gim, "").length)
+    let reminder = parseTime(args.reminder, true) as string;
+    if (!reminder.replace(/\s/gim, "").length && !message.reference?.messageID)
       return await message.error("REMINDER_MISSING_CONTENT");
+    else if (!reminder.replace(/\s/gim, "").length) {
+      const referenced = await message.channel.messages
+        .fetch(message.reference.messageID)
+        .catch(() => {});
+      if (!referenced || !referenced.content)
+        return await message.error("REMINDER_MISSING_CONTENT");
+      else reminder = referenced.content;
+    }
     const time = new Date();
     const refMoment = moment(time);
     time.setMinutes(time.getMinutes() + parsedMinutes);
@@ -65,7 +73,7 @@ export default class Remind extends Command {
         (stepMinutes ? stepMinutes * repeat : parsedMinutes)
     );
     if (
-      moment(largestTime).diff(moment(), "days") >= 91 &&
+      moment(largestTime).diff(moment(), "months") >= 7 &&
       !message.author.isSuperuser()
     )
       return await message.error("REMINDER_TIME_LIMIT");

@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import VanityURLs from "@fire/src/modules/vanityurls";
 import { Language } from "@fire/lib/util/language";
@@ -21,6 +21,8 @@ export default class VanityURL extends Command {
         {
           id: "code",
           type: "string",
+          slashCommandType: "code",
+          readableType: "code|delete",
           required: false,
           default: null,
         },
