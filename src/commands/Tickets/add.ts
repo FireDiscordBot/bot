@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
@@ -19,6 +19,7 @@ export default class TicketAdd extends Command {
           required: true,
         },
       ],
+      enableSlashCommand: true,
       aliases: ["ticketadd"],
       restrictTo: "guild",
     });

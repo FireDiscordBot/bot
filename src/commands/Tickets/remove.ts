@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
@@ -20,6 +20,7 @@ export default class TicketRemove extends Command {
         },
       ],
       aliases: ["ticketremove"],
+      enableSlashCommand: true,
       restrictTo: "guild",
     });
   }

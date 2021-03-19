@@ -5,7 +5,6 @@ import { Command } from "@fire/lib/util/command";
 import { MessageAttachment } from "discord.js";
 import * as fuzz from "fuzzball";
 import * as centra from "centra";
-import { Argument } from "discord-akairo";
 
 const validThemes = [
   "3024-night",
@@ -84,12 +83,14 @@ export default class Carbon extends Command {
           match: "rest",
           type: "codeblock",
           readableType: "code|listthemes|listfonts",
+          slashCommandType: "code",
           default: null,
           required: true,
         },
         {
           id: "theme",
           type: "string",
+          slashCommandOptions: validThemes,
           required: false,
           match: "option",
           flag: "--theme",
@@ -98,12 +99,14 @@ export default class Carbon extends Command {
         {
           id: "font",
           type: "string",
+          slashCommandOptions: validFonts,
           required: false,
           match: "option",
           flag: "--font",
           default: null,
         },
       ],
+      enableSlashCommand: true,
       restrictTo: "all",
       typing: true,
       lock: "user",
