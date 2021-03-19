@@ -1307,8 +1307,6 @@ You must have Developer Mode enabled, which is found in User Settings > Appearan
           `**Belongs To**: ${type} ${extra ? "(" + extra + ")" : ""}`,
         USER_KSOFT_BANNED: (user: string, reason: string, proof: string) =>
           `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${user}) for ${reason} - [Proof](${proof})`,
-        VOTE_COMMAND_DESCRIPTION:
-          'Sends a link to Fire on a random bot list (sends direct vote link if you use the "vote" alias)',
         PERMROLES_COMMAND_DESCRIPTION:
           "Copy the permissions of a role from the current channel and automatically apply it to all channels",
         PERMROLES_NONE_FOUND:

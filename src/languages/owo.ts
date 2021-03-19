@@ -1095,8 +1095,6 @@ ${success.map((s) => "- " + s).join("\n")}${
           `**Bewongs To**: ${type} ${extra ? "(" + extra + ")" : ""}`,
         USER_KSOFT_BANNED: (user: string, reason: string, proof: string) =>
           `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${user}) fow ${reason} - [Pwoof](${proof})`,
-        VOTE_COMMAND_DESCRIPTION:
-          'Sends a wink to Fire on a wandom bot wist (sends diwect vote wink if you use the "vote" awias)',
         PREMIUM_COMMAND_DESCRIPTION: "i wike money",
         PREMIUM_MISSING_ARGUMENTS:
           "You need to pwovide a guiwd id, usew id and weason to add a pwemium guiwd",
