@@ -1,5 +1,5 @@
 import { GuildChannel, MessageEmbed, DMChannel } from "discord.js";
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { humanize } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
@@ -29,6 +29,29 @@ export default class ChannelCreate extends Listener {
           guild.language.get("MUTE_ROLE_CREATE_REASON") as string
         )
         .catch(() => (muteFail = true));
+
+    if (guild.permRoles.size) {
+      for (const [role, perms] of guild.permRoles) {
+        if (!channel.permissionsFor(guild.me).has("MANAGE_ROLES")) continue;
+        await channel
+          .overwritePermissions(
+            [
+              ...channel.permissionOverwrites.array().filter(
+                // ensure the overwrites below are used instead
+                (overwrite) => overwrite.id != role
+              ),
+              {
+                allow: perms.allow,
+                deny: perms.deny,
+                id: role,
+                type: "role",
+              },
+            ],
+            guild.language.get("PERMROLES_REASON") as string
+          )
+          .catch(() => {});
+      }
+    }
 
     if (guild.settings.has("log.action")) {
       const embed = new MessageEmbed()

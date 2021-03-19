@@ -27,6 +27,7 @@ export default class Trans extends Command {
           match: "flag",
         },
       ],
+      enableSlashCommand: true,
     });
   }
 

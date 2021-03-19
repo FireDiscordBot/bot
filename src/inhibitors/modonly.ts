@@ -15,6 +15,8 @@ export default class ModOnlyInhibitor extends Inhibitor {
       message instanceof SlashCommandMessage
         ? message.realChannel
         : message.channel;
+    if (message instanceof SlashCommandMessage && (message.flags & 64) == 64)
+      return false;
     if (
       message.guild &&
       (message.guild.settings.get("commands.modonly", []) as string[]).includes(

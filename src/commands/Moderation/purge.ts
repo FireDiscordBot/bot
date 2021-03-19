@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { MessageEmbed, MessageEmbedOptions } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
@@ -88,6 +88,7 @@ export default class Purge extends Command {
           required: false,
         },
       ],
+      enableSlashCommand: true,
       moderatorOnly: true,
     });
   }

@@ -299,21 +299,6 @@ CREATE TABLE public.socketstats (
 ALTER TABLE public.socketstats OWNER TO postgres;
 
 --
--- Name: specs; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.specs (
-    uid text NOT NULL,
-    cpu text,
-    gpu text,
-    ram text,
-    os text
-);
-
-
-ALTER TABLE public.specs OWNER TO postgres;
-
---
 -- Name: statushooks; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -436,14 +421,6 @@ ALTER TABLE ONLY public.socketstats
 
 
 --
--- Name: specs onespecsonly; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.specs
-    ADD CONSTRAINT onespecsonly UNIQUE (uid);
-
-
---
 -- Name: statushooks statushooks_url_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -542,13 +519,6 @@ GRANT SELECT ON TABLE public.remind TO grafana;
 --
 
 GRANT SELECT ON TABLE public.rolepersists TO grafana;
-
-
---
--- Name: TABLE specs; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.specs TO grafana;
 
 
 --

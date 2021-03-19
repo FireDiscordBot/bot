@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Listener } from "@fire/lib/util/listener";
 import Sk1er from "@fire/src/modules/sk1er";
@@ -13,7 +13,7 @@ export default class TicketClose extends Listener {
 
   async exec(creator: FireMember) {
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-    if (creator.guild.id != sk1erModule.supportGuildId) return;
+    if (creator.guild.id != sk1erModule?.supportGuildId) return;
     const channel =
       sk1erModule.supportChannel ||
       (sk1erModule.supportGuild.channels.cache.get(

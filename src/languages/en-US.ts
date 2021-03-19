@@ -39,7 +39,7 @@ export default class enUS extends Language {
         COMMAND_SUPERUSER_ONLY:
           "Only a select few are powerful enough to use this command",
         COMMAND_MODERATOR_ONLY:
-          "Only those strong enough to wield the ban hammer (moderators) can use this command",
+          "Only those strong enough to wield the ban hammer (moderators) can use this command. If you have not set any moderators, only those with **Manage Server** can use this command.",
         COMMAND_GUILD_ONLY: (invite: string) =>
           `You can only use this command in a server. You can invite me to a server at <${invite}>`,
         COMMAND_PREMIUM_GUILD_ONLY:
@@ -287,7 +287,7 @@ ${options
         ALIAS_REQUIRED_ARG:
           "hey idiot you forgot to give an alias to add/remove from that user",
         ADDMOD_COMMAND_DESCRIPTION:
-          "Add a member/role as a moderator. If not set, anyone with the Manage Messages permission is considered a moderator",
+          "Add a member/role as a moderator. Run the command again to remove.",
         AUTOROLE_COMMAND_DESCRIPTION:
           "Automatically add a role to a user/bot when they join/send their first message",
         AUTOROLE_ROLE_REQUIRED:
@@ -738,9 +738,6 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           `${member}, Your nitro perks have been removed. Boost the server to get them back :)`,
         SK1ER_NITRO_PERKS_REMOVED_LEFT: (member: string) =>
           `${member} left and their nitro perks have been removed.`,
-        SK1ER_BETA_SUCCESS: (member: string) =>
-          `${member}, you now have access to betas!
-Download beta versions in <#595634170336641045> (check the pins for the latest versions) and ask questions/report bugs with **betas only** in <#595625113282412564>`,
         INVITE_COMMAND_DESCRIPTION:
           "Sends a link to invite me to a different Discord server.",
         LANGUAGE_COMMAND_DESCRIPTION:
@@ -1017,6 +1014,9 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
 ${prefixes.join(", ")}`,
         PREFIX_VALUE_DISALLOWED: "You cannot use that as your prefix!",
         PREFIX_GLOBAL: `"fire " is a global prefix and can be used anywhere. There's no need to set it as a server prefix`,
+        PREFIX_SLASH_COMMANDS:
+          "`/` or anything starting with a slash cannot be used as a prefix as it'd conflict with Discord's slash commands",
+        PREFIX_ESCAPED: "Prefixes cannot include backslashes",
         PREFIX_REMOVE_SINGLE:
           "That is the only prefix set in this server! You must set another to remove it.",
         PREFIX_REMOVE_NEVER_WAS:
@@ -1095,10 +1095,6 @@ ${prefixes.join(", ")}`,
           "That isn't a valid rank. Use the command without arguments to see a list of valid ranks",
         RANKS_INVALID_ROLE_DEL:
           "That isn't a valid rank. Use the rank command to see a list of valid ranks",
-        RANKS_SK1ER_NO_SPECS: (
-          mention: string
-        ) => `${mention} To become a beta tester, please provide your specs through this form: 
-<https://inv.wtf/sk1spec>`,
         ADDRANK_COMMAND_DESCRIPTION:
           "Add a role that users can join through the rank command.",
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
@@ -1200,7 +1196,7 @@ Use \`${prefix}redirect <code>\` to view information about a redirect`,
           'You need to include a duration for your reminder, e.g. "69 mins" for 69 minutes',
         REMINDER_MISSING_CONTENT: "I need something to remind you about...",
         REMINDER_TIME_LIMIT:
-          "Reminders are currently limited to 3 months (90 days). This may increase in the future",
+          "Reminders are currently limited to 6 months. This may increase in the future",
         REMINDER_TOO_SHORT:
           "If you need a bot to remind you about something in less than two minutes, there's an issue that you should probably look into...",
         REMINDER_STEP_TOO_SHORT:
@@ -1272,10 +1268,8 @@ ${success.map((s) => "- " + s).join("\n")}${
           `I set slowmode in some channels but failed to set slowmode in ${failed.join(
             ", "
           )}`,
-        SPECS_COMMAND_DESCRIPTION:
-          "View/remove a users specs (locked to discord.gg/sk1er)",
-        SPECS_NOT_FOUND:
-          "Specs not found for that user. Tell them to fill in this form\n<https://inv.wtf/sk1spec>",
+        SK1ER_BETA_MOVED:
+          "Beta testing for Sk1er LLC mods has been moved to our support server! You can join with discord.gg/d4KFR9H",
         STATS_COMMAND_DESCRIPTION: "View cluster & overall stats.",
         STATS_TITLE: (name: string, version: string) =>
           `Stats for ${name} [${version}]`,
@@ -1313,8 +1307,34 @@ You must have Developer Mode enabled, which is found in User Settings > Appearan
           `**Belongs To**: ${type} ${extra ? "(" + extra + ")" : ""}`,
         USER_KSOFT_BANNED: (user: string, reason: string, proof: string) =>
           `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${user}) for ${reason} - [Proof](${proof})`,
-        VOTE_COMMAND_DESCRIPTION:
-          'Sends a link to Fire on a random bot list (sends direct vote link if you use the "vote" alias)',
+        PERMROLES_COMMAND_DESCRIPTION:
+          "Copy the permissions of a role from the current channel and automatically apply it to all channels",
+        PERMROLES_NONE_FOUND:
+          "There doesn't seem to be any permission roles set in this server...",
+        PERMROLES_CURRENT_ITEM: (
+          role: string,
+          allow: string[],
+          deny: string[]
+        ) => `**Role**: ${role}${
+          allow.length ? "\n**Allowed**: " + allow.join(", ") : ""
+        }${deny.length ? "\n**Denied**: " + deny.join(", ") : ""}
+**-----------------**`,
+        PERMROLES_LIMIT_PREMIUM:
+          "You've reached the permission role limit! Upgrade to premium for unlimited permission roles, <https://inv.wtf/premium>",
+        PERMROLES_NOTHING_TO_COPY:
+          "That role does not have any permissions set in this channel, so there's nothing to copy.",
+        PERMROLES_MANAGE_ROLES:
+          "Due to a change made on the 23rd of January 2021, I am unable to set the `Manage Permissions` permission in channel overwrites, which that role has in this channel.",
+        PERMROLES_MISSING_PERMISSIONS:
+          "The permissions for that role in this channel includes ones I do not have, meaning I am unable to copy it to other channels.",
+        PERMROLES_DB_ERROR: "Failed to save changes to my database",
+        PERMROLES_UPDATING_CHANNELS:
+          "Alright, I'll begin updating all channels to copy that role's permissions, this may take a while depending on how many channels you have. I'll edit this message when I'm done",
+        PERMROLES_FINISHED: (_: number) =>
+          "Alright, all channels should now copy the permissions for that role from here!",
+        PERMROLES_FINISHED_FAIL_SOME: (failed: number) =>
+          `I've finished updating channels but failed to set permissions in ${failed} channels.`,
+        PERMROLES_REASON: "Setting up permission role...",
         PREMIUM_COMMAND_DESCRIPTION:
           "Toggle Fire Premium in the current guild (temporary command for beta testers)",
         PREMIUM_NO_SUBSCRIPTION: `Seems you don't have a premium subscription...
@@ -1345,10 +1365,11 @@ Your existing premium servers are: ${current.join(", ")}`,
         GIVEPREMIUM_RELOAD_FAIL: "Failed to reload premium guilds",
         RELOAD_COMMAND_DESCRIPTION: "reload a command/language/listener/module",
         TAG_COMMAND_DESCRIPTION: "See a list of all tags or view a tag",
+        TAG_SLASH_DESCRIPTION: (tag: string) => `View the tag "${tag}"`,
         TAG_NONE_FOUND:
           "I searched near and far and could not find any tags...",
         TAG_INVALID_TAG: (tag: string) =>
-          `There doesn't seem to be a tag called ${tag}. Run the command again with no arguments to see all tags`,
+          `There doesn't seem to be a tag called ${tag}`,
         TAG_RAW_COMMAND_DESCRIPTION: "View the raw content of a tag",
         TAGS_RAW_MISSING_ARG:
           "You need to provide a tag name to get the raw content of",
@@ -1362,10 +1383,12 @@ Your existing premium servers are: ${current.join(", ")}`,
           "A tag can't be empty, otherwise it has no purpose in life, like me...",
         TAGS_CREATE_COMMAND_NAME:
           "That name is already being used by a subcommand, try a different one",
+        TAGS_CREATE_INVALID_CHARACTERS:
+          "That name contains invalid characters!",
         TAGS_CREATE_ALREADY_EXISTS:
           "A tag already exists with that name. Be original next time!",
         TAGS_CREATE_LIMIT:
-          "You've reached the tag limit! Upgrade to premium for unlimited tags;\n<https://inv.wtf/premium>",
+          "You've reached the tag limit! Upgrade to premium for unlimited tags, <https://inv.wtf/premium>",
         TAG_EDIT_COMMAND_DESCRIPTION: "Edit the content of a tag",
         TAGS_EDIT_MISSING_NAME:
           "I need to know what tag to edit. Give me the name of an existing tag",
@@ -1377,6 +1400,18 @@ Your existing premium servers are: ${current.join(", ")}`,
           "I can't make an alias for nothing. You need to provide an existing tag name",
         TAGS_ALIAS_MISSING_ALIAS:
           "You need to provide a new alias for the tag or an existing alias to delete it",
+        TAG_SLASH_COMMAND_DESCRIPTION:
+          "Toggle the ability to use slash commands for tags or the visibilty of slash command tags",
+        TAG_SLASH_EPHEMERAL_ENABLED:
+          "Alright, slash command tags will now be visible only to the user who used it",
+        TAG_SLASH_EPHEMERAL_DISABLED:
+          "Slash command tag usage will now be visible to everyone",
+        TAG_SLASH_MISSING_ACCESS:
+          "Slash commands don't seem to be enabled here. You may need to reinvite me (no need to kick) using the link in the invite command before attempting to enable slash tags.",
+        TAG_SLASH_ENABLED:
+          "Slash command tags have been enabled! You should be able to see them now when you hit `/` (you may need to start typing a tag name for it to show)",
+        TAG_SLASH_DISABLED:
+          "Slash command tags have been disabled! It may take a little while for the commands to disappear and may require a client reload",
         TAG_LIST: (guild: string) => `${guild}'s tags`,
         TICKET_COMMAND_DESCRIPTION: "Manage ticket configuration in the server",
         TICKET_MAIN_DESCRIPTION:
@@ -1555,6 +1590,9 @@ If the user gets automatically muted again, just try unmute them again and it'll
           "You must provide a member or case id to clear warn(s)",
         CLEARWARN_CASEID_REQUIRED:
           'You must provide a case id when using "clearwarn" or "clearwarning"',
+        YTSYNC_COMMAND_DESCRIPTION:
+          "Allows creation of YT Sync invites for a specific voice channel, allowing access without the need for experiments",
+        YTSYNC_CHANNEL_REQUIRED: "You must provide a valid voice channel!",
       },
       enabled: true,
     });

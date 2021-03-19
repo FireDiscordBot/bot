@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { textChannelConverter } from "@fire/lib/util/converters";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
@@ -15,16 +15,19 @@ export default class ModeratorOnly extends Command {
         {
           id: "channels",
           type: Util.greedyArg(textChannelConverter),
+          slashCommandType: "textchannel",
           readableType: "...channels",
           default: [],
           required: true,
         },
       ],
+      enableSlashCommand: true,
     });
   }
 
   async exec(message: FireMessage, args: { channels: FireTextChannel[] }) {
     let channels = args.channels;
+    if (channels instanceof FireTextChannel) channels = [channels];
     if (!channels.length) return message.error("MODONLY_NO_CHANNELS");
     let current = message.guild.settings.get(
       "commands.modonly",

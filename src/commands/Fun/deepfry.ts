@@ -18,6 +18,7 @@ export default class Deepfry extends Command {
           required: false,
         },
       ],
+      enableSlashCommand: true,
       aliases: ["df"],
     });
   }

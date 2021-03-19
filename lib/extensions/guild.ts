@@ -21,11 +21,13 @@ import {
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import Tickets from "@fire/src/commands/Tickets/tickets";
+import { PermRolesData } from "../interfaces/permroles";
 import { GuildSettings } from "@fire/lib/util/settings";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
+import { MessageIterator } from "../util/iterators";
 import { FakeChannel } from "./slashCommandMessage";
-import { FireTextChannel} from "./textchannel";
+import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
 import { FireMember } from "./guildmember";
@@ -48,6 +50,7 @@ export class FireGuild extends Guild {
   reactionRoles: Collection<string, ReactionRoleData[]>;
   persistedRoles: Collection<string, string[]>;
   ticketLock?: { lock: Semaphore; limit: any };
+  permRoles: Collection<string, PermRolesData>;
   inviteRoles: Collection<string, string>;
   vcRoles: Collection<string, string>;
   invites: Collection<string, number>;
@@ -74,6 +77,7 @@ export class FireGuild extends Guild {
     this.inviteRoles = new Collection();
     this.fetchingMemberUpdates = false;
     this.quoteHooks = new Collection();
+    this.permRoles = new Collection();
     this.fetchingRoleUpdates = false;
     this.vcRoles = new Collection();
     this.invites = new Collection();
@@ -411,6 +415,51 @@ export class FireGuild extends Guild {
     }
   }
 
+  async loadPermRoles() {
+    this.permRoles = new Collection();
+    if (!this.available) return;
+    const permRoles = await this.client.db
+      .query("SELECT * FROM permroles WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!permRoles)
+      return this.client.console.error(
+        `[Guild] Failed to load permission roles for ${this.name} (${this.id})`
+      );
+    for await (const role of permRoles) {
+      // TODO: change to BigInt
+      this.permRoles.set(role.get("rid") as string, {
+        allow: parseInt(role.get("allow") as string),
+        deny: parseInt(role.get("deny") as string),
+      });
+    }
+    for (const [id, perms] of this.permRoles) {
+      for (const [, channel] of this.channels.cache.filter(
+        (channel) =>
+          channel.permissionsFor(this.me).has("MANAGE_ROLES") &&
+          (channel.permissionOverwrites.get(id)?.allow.bitfield !=
+            perms.allow ||
+            channel.permissionOverwrites.get(id)?.deny.bitfield != perms.deny)
+      ))
+        channel
+          .overwritePermissions(
+            [
+              ...channel.permissionOverwrites.array().filter(
+                // ensure the overwrites below are used instead
+                (overwrite) => overwrite.id != id
+              ),
+              {
+                allow: perms.allow,
+                deny: perms.deny,
+                id: id,
+                type: "role",
+              },
+            ],
+            this.language.get("PERMROLES_REASON") as string
+          )
+          .catch(() => {});
+    }
+  }
+
   async loadInvites() {
     this.invites = new Collection();
     if (!this.premium || !this.available) return;
@@ -723,8 +772,13 @@ export class FireGuild extends Guild {
     return ticket;
   }
 
-  async closeTicket(channel: FireTextChannel, author: FireMember, reason: string) {
-    if (channel instanceof FakeChannel) channel = channel.real as FireTextChannel;
+  async closeTicket(
+    channel: FireTextChannel,
+    author: FireMember,
+    reason: string
+  ) {
+    if (channel instanceof FakeChannel)
+      channel = channel.real as FireTextChannel;
     if (author instanceof FireUser)
       author = (await this.members.fetch(author).catch(() => {})) as FireMember;
     if (!author) return "forbidden";
@@ -748,9 +802,8 @@ export class FireGuild extends Guild {
       channels.map((c) => c.id)
     );
     let transcript: string[] = [];
-    (
-      await channel.messages.fetch({ limit: 100 }).catch(() => [])
-    ).forEach((message: FireMessage) =>
+    const iterator = new MessageIterator(channel, { oldestFirst: true });
+    for await (const message of iterator.iterate())
       transcript.push(
         `${message.author} (${
           message.author.id
@@ -760,16 +813,8 @@ export class FireGuild extends Guild {
           message.attachments.first()?.proxyURL ||
           `${message.embeds[0]?.fields[0]?.name} | ${message.embeds[0]?.fields[0]?.value}`
         }`
-      )
-    );
-    transcript = transcript.reverse();
-    transcript.push(
-      `${transcript.length} messages${
-        transcript.length == 100
-          ? " (only the last 100 can be fetched due to Discord limitations)"
-          : ""
-      }, closed by ${author}`
-    );
+      );
+    transcript.push(`${transcript.length} messages, closed by ${author}`);
     const buffer = Buffer.from(transcript.join("\n\n"));
     const id = getIDMatch(channel.topic, true);
     let creator = author;
@@ -792,7 +837,9 @@ export class FireGuild extends Guild {
       (this.channels.cache.get(
         this.settings.get("tickets.transcript_logs")
       ) as FireTextChannel) ||
-      (this.channels.cache.get(this.settings.get("log.action")) as FireTextChannel);
+      (this.channels.cache.get(
+        this.settings.get("log.action")
+      ) as FireTextChannel);
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))
       .setTimestamp()
@@ -994,8 +1041,8 @@ export class FireGuild extends Guild {
       .updateOverwrite(unblockee, overwrite, reason)
       .catch(() => {});
     if (
-      channel.permissionOverwrites.get(unblockee.id)?.allow.bitfield == 0n &&
-      channel.permissionOverwrites.get(unblockee.id)?.deny.bitfield == 0n &&
+      channel.permissionOverwrites?.get(unblockee.id)?.allow.bitfield == 0n &&
+      channel.permissionOverwrites?.get(unblockee.id)?.deny.bitfield == 0n &&
       unblockee.id != this.roles.everyone.id
     )
       await channel.permissionOverwrites

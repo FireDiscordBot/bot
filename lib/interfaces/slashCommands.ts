@@ -18,9 +18,10 @@ export interface CommandData {
 }
 
 export interface Option {
-  name: string;
+  type?: ApplicationCommandOptionType;
   value?: string | number | boolean;
   options?: Option[];
+  name: string;
 }
 
 export enum ApplicationCommandOptionType {

@@ -178,6 +178,7 @@ export default class Eval extends Command {
       }, 1000);
       const scope = {
         require,
+        exports,
         message,
         me: message.member ?? message.author,
         fire: message.client,

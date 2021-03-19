@@ -31,7 +31,7 @@ export default class CommandError extends Listener {
       const sentry = this.client.sentry;
       sentry.setUser({
         id: message.author.id,
-        username: `${message.author.username}#${message.author.discriminator}`,
+        username: message.author.toString(),
       });
       const channel =
         message instanceof SlashCommandMessage

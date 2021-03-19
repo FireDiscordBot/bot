@@ -6,6 +6,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { MessageEmbed, Invite } from "discord.js";
 import { Module } from "@fire/lib/util/module";
+import * as sanitizer from "@aero/sanitizer";
 import * as centra from "centra";
 
 const { regexes } = constants;
@@ -155,7 +156,7 @@ export default class Filters extends Module {
     let invites: string[] = [];
     let regexec: RegExpExecArray;
     regexes.invites.forEach((regex) => {
-      while ((regexec = regex.exec(searchString))) {
+      while ((regexec = regex.exec(sanitizer(searchString)))) {
         found.push(regexec);
         if (regexec?.length >= 3 && !invites.includes(regexec[2]))
           invites.push(regexec[2]);
@@ -344,7 +345,7 @@ export default class Filters extends Module {
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
       extra;
-    const match = regexes.paypal.exec(searchString);
+    const match = regexes.paypal.exec(sanitizer(searchString));
     if (!match) return;
     await message
       .delete()
@@ -378,7 +379,7 @@ export default class Filters extends Module {
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
       extra;
-    const match = regexes.youtube.video.exec(searchString);
+    const match = regexes.youtube.video.exec(sanitizer(searchString));
     if (!match) return;
     await message
       .delete()
@@ -464,7 +465,7 @@ export default class Filters extends Module {
       " " +
       extra
     ).replace(regexes.youtube.video, "[ youtube video ]"); // prevents videos being matched
-    const match = regexes.youtube.channel.exec(searchString);
+    const match = regexes.youtube.channel.exec(sanitizer(searchString));
     if (!match) return;
     await message
       .delete()
@@ -540,8 +541,8 @@ export default class Filters extends Module {
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
       extra;
-    const clipMatch = regexes.twitch.clip.exec(searchString);
-    const channelMatch = regexes.twitch.channel.exec(searchString);
+    const clipMatch = regexes.twitch.clip.exec(sanitizer(searchString));
+    const channelMatch = regexes.twitch.channel.exec(sanitizer(searchString));
     if (!clipMatch && !channelMatch) return;
     await message
       .delete()
@@ -577,7 +578,7 @@ export default class Filters extends Module {
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
       extra;
-    const match = regexes.twitter.exec(searchString);
+    const match = regexes.twitter.exec(sanitizer(searchString));
     if (!match) return;
     await message
       .delete()
@@ -611,7 +612,7 @@ export default class Filters extends Module {
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
       extra;
-    const match = this.shortURLRegex.exec(searchString);
+    const match = this.shortURLRegex.exec(sanitizer(searchString));
     if (!match) return;
     await message
       .delete()
