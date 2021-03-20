@@ -202,6 +202,20 @@ CREATE TABLE public.mutes (
 ALTER TABLE public.mutes OWNER TO postgres;
 
 --
+-- Name: permroles; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.permroles (
+    gid text NOT NULL,
+    rid text NOT NULL,
+    allow text NOT NULL,
+    deny text NOT NULL
+);
+
+
+ALTER TABLE public.permroles OWNER TO postgres;
+
+--
 -- Name: premium; Type: TABLE; Schema: public; Owner: postgres
 --
 
