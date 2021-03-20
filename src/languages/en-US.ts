@@ -1416,6 +1416,7 @@ Your existing premium servers are: ${current.join(", ")}`,
         TICKET_COMMAND_DESCRIPTION: "Manage ticket configuration in the server",
         TICKET_MAIN_DESCRIPTION:
           "Here are all the ticket configuration commands",
+        TICKET_CATEGORY_COMMAND_DESCRIPTION: `Set the category where tickets are made and enable tickets`,
         TICKET_CATEGORY_DESCRIPTION: `Set the category were tickets are made. **Setting this enables tickets**
 Running this command without providing a category resets it, therefore disabling tickets`,
         TICKET_LIMIT_DESCRIPTION: "Limit the number of tickets a user can make",
