@@ -196,8 +196,8 @@ export class Fire extends AkairoClient {
         const prefixes = message.guild?.settings.get("config.prefix", [
           "$",
         ]) as string[];
-        return config.fire.dev
-          ? "dev "
+        return process.env.SPECIAL_PREFIX
+          ? [process.env.SPECIAL_PREFIX, process.env.SPECIAL_PREFIX + " "]
           : message.guild
           ? [
               ...prefixes,

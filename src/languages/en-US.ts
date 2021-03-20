@@ -1012,6 +1012,7 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
             : `This server's prefixes are:
 
 ${prefixes.join(", ")}`,
+        PREFIX_CHANGE_DISALLOWED: `This instance of Fire has a special predetermined prefix (\`${process.env.SPECIAL_PREFIX}\`) that you must use and cannot change.`,
         PREFIX_VALUE_DISALLOWED: "You cannot use that as your prefix!",
         PREFIX_GLOBAL: `"fire " is a global prefix and can be used anywhere. There's no need to set it as a server prefix`,
         PREFIX_SLASH_COMMANDS:
