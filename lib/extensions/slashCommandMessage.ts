@@ -69,7 +69,7 @@ export class SlashCommandMessage {
     this.command = this.client.getCommand(command.data.name);
     this.flags = 0;
     if (this.guild?.tags?.slashCommands[command.data.id] == command.data.name) {
-      this.command = this.client.getCommand("tag-show");
+      this.command = this.client.getCommand("tag");
       command.data.options = [{ name: "tag", value: command.data.name }];
       if (this.guild.tags.ephemeral) this.setFlags(64);
     }
