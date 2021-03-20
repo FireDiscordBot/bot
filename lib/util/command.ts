@@ -69,7 +69,11 @@ export class Command extends AkairoCommand {
         "USE_EXTERNAL_EMOJIS",
         "ADD_REACTIONS",
       ];
-    if (options.args instanceof Array && options.args.length == 1)
+    if (
+      options.args instanceof Array &&
+      options.args.length == 1 &&
+      !options.args[0].match
+    )
       options.args[0].match = "rest";
     if (options.args instanceof Array)
       options.args.forEach((arg) => {
