@@ -171,7 +171,11 @@ export default class MessageInvalid extends Listener {
       message
         .send(
           "HELLO_PREFIX",
-          message.guild ? message.guild.settings.get("main.prefix", "$") : "$"
+          process.env.SPECIAL_PREFIX
+            ? process.env.SPECIAL_PREFIX
+            : message.guild
+            ? message.guild.settings.get("main.prefix", "$")
+            : "$"
         )
         .catch(() => {});
   }
