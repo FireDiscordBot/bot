@@ -20,7 +20,7 @@ import {
 } from "@fire/lib/util/constants";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
-import Tickets from "@fire/src/commands/Tickets/tickets";
+import TicketName from "@fire/src/commands/Tickets/name";
 import { PermRolesData } from "../interfaces/permroles";
 import { GuildSettings } from "@fire/lib/util/settings";
 import { getIDMatch } from "@fire/lib/util/converters";
@@ -684,7 +684,7 @@ export class FireGuild extends Guild {
       this.ticketLock.lock.release();
       return "limit";
     }
-    const words = (this.client.getCommand("ticket") as Tickets).words;
+    const words = (this.client.getCommand("ticket-name") as TicketName).words;
     let increment = this.settings.get("tickets.increment", 0) as number;
     const variables = {
       "{increment}": increment.toString() as string,
