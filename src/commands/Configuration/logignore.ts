@@ -1,7 +1,8 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { NewsChannel, TextChannel } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { NewsChannel } from "discord.js";
 
 export default class LogIgnore extends Command {
   constructor() {
@@ -24,7 +25,7 @@ export default class LogIgnore extends Command {
 
   async exec(
     message: FireMessage,
-    args: { channel?: TextChannel | NewsChannel }
+    args: { channel?: FireTextChannel | NewsChannel }
   ) {
     let current: string[] = message.guild.settings.get("utils.logignore", []);
     const beforeSize = current.length;

@@ -2,6 +2,8 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
+const nameRegex = /^[\w-]{1,32}$/gim;
+
 export default class TagCreate extends Command {
   constructor() {
     super("tag-create", {
@@ -47,8 +49,13 @@ export default class TagCreate extends Command {
     else if (!args.content)
       return await message.error("TAGS_CREATE_MISSING_CONTENT");
     const { tag, content } = args;
-    if (this.client.getCommand(`tag-${tag}`)?.parent == "tag")
+    if (this.client.getCommand(`tag-${tag}`))
       return await message.error("TAGS_CREATE_COMMAND_NAME");
+    if (!nameRegex.test(tag)) {
+      nameRegex.lastIndex = 0;
+      return await message.error("TAGS_CREATE_INVALID_CHARACTERS");
+    }
+    nameRegex.lastIndex = 0;
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(tag, false);
     if (cachedTag) return await message.error("TAGS_CREATE_ALREADY_EXISTS");

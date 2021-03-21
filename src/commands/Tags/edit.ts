@@ -24,7 +24,14 @@ export default class TagEdit extends Command {
           default: null,
         },
       ],
-      aliases: ["tags-edit", "dtag-edit", "dtags-edit"],
+      aliases: [
+        "tags-edit",
+        "tags-~",
+        "dtag-edit",
+        "dtag-~",
+        "dtags-edit",
+        "dtags-~",
+      ],
       restrictTo: "guild",
       parent: "tag",
     });

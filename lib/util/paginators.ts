@@ -4,11 +4,11 @@ import {
   ReactionEmoji,
   MessageEmbed,
   NewsChannel,
-  TextChannel,
   GuildEmoji,
   DMChannel,
 } from "discord.js";
 import { FakeChannel } from "@fire/lib/extensions/slashCommandMessage";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
@@ -289,7 +289,7 @@ export class PaginatorInterface {
     }
   }
 
-  async send(destination: TextChannel | NewsChannel | DMChannel | FakeChannel) {
+  async send(destination: FireTextChannel | NewsChannel | DMChannel | FakeChannel) {
     if (destination instanceof FakeChannel) {
       if (!destination.message.sent) await destination.ack(true);
       destination = destination.real;

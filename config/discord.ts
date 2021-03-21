@@ -8,7 +8,7 @@ if (process.env.USE_LITECORD == "true")
     http: {
       api: process.env.LITECORD_HOST,
       cdn: process.env.LITECORD_CDN,
-      version: 8,
+      version: parseInt(process.env.LITECORD_VERSION),
     },
   };
 
@@ -35,6 +35,7 @@ export const discord: ClientOptions = {
       intents.GUILD_INVITES |
       intents.GUILD_MESSAGES |
       intents.GUILD_MESSAGE_REACTIONS |
+      intents.GUILD_WEBHOOKS |
       intents.DIRECT_MESSAGES |
       intents.GUILD_VOICE_STATES,
   },

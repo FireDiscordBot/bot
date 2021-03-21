@@ -10,8 +10,10 @@ export class Manager {
   reconnector: Reconnector;
   killing: boolean = false;
   sentry: typeof Sentry;
+  session?: string;
   ws?: Websocket;
   client: Fire;
+  seq?: number;
   id: number;
 
   constructor(sentry?: typeof Sentry) {
@@ -68,9 +70,15 @@ export class Manager {
     }
   }
 
-  launch(data: { id: number; shardCount: number; shards: number[] }) {
+  launch(data: {
+    id: number;
+    session: string;
+    shardCount: number;
+    shards: number[];
+  }) {
     this.client.console.log(`[Sharder] Received sharding config.`);
     this.id = data.id;
+    this.session = data.session;
     this.client.options.presence.shardID = this.client.options.shards =
       data.shards;
     this.client.options.shardCount = data.shardCount;

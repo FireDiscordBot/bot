@@ -5,7 +5,6 @@ import {
   Webhook,
   Collection,
   Structures,
-  TextChannel,
   MessageEmbed,
   VoiceChannel,
   WebhookClient,
@@ -21,17 +20,22 @@ import {
 } from "@fire/lib/util/constants";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
-import Tickets from "@fire/src/commands/Tickets/tickets";
+import TicketName from "@fire/src/commands/Tickets/name";
+import { PermRolesData } from "../interfaces/permroles";
 import { GuildSettings } from "@fire/lib/util/settings";
 import { getIDMatch } from "@fire/lib/util/converters";
+import { GuildLogManager } from "../util/logmanager";
+import { MessageIterator } from "../util/iterators";
 import { FakeChannel } from "./slashCommandMessage";
+import { FireTextChannel } from "./textchannel";
+import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
+import { Fire } from "@fire/lib/Fire";
 import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
-import { Fire } from "@fire/lib/Fire";
 
 const parseUntil = (time?: string) => {
   if (!time) return 0;
@@ -45,6 +49,8 @@ export class FireGuild extends Guild {
   quoteHooks: Collection<string, Webhook | WebhookClient>;
   reactionRoles: Collection<string, ReactionRoleData[]>;
   persistedRoles: Collection<string, string[]>;
+  ticketLock?: { lock: Semaphore; limit: any };
+  permRoles: Collection<string, PermRolesData>;
   inviteRoles: Collection<string, string>;
   vcRoles: Collection<string, string>;
   invites: Collection<string, number>;
@@ -55,6 +61,7 @@ export class FireGuild extends Guild {
   banCheckTask: NodeJS.Timeout;
   fetchingRoleUpdates: boolean;
   settings: GuildSettings;
+  logger: GuildLogManager;
   tags: GuildTagManager;
   owner: FireMember;
   client: Fire;
@@ -64,11 +71,13 @@ export class FireGuild extends Guild {
 
     this.settings = new GuildSettings(client, this);
     this.tags = new GuildTagManager(client, this);
+    this.logger = new GuildLogManager(client, this);
     this.persistedRoles = new Collection();
     this.reactionRoles = new Collection();
     this.inviteRoles = new Collection();
     this.fetchingMemberUpdates = false;
     this.quoteHooks = new Collection();
+    this.permRoles = new Collection();
     this.fetchingRoleUpdates = false;
     this.vcRoles = new Collection();
     this.invites = new Collection();
@@ -408,6 +417,51 @@ export class FireGuild extends Guild {
     }
   }
 
+  async loadPermRoles() {
+    this.permRoles = new Collection();
+    if (!this.available) return;
+    const permRoles = await this.client.db
+      .query("SELECT * FROM permroles WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!permRoles)
+      return this.client.console.error(
+        `[Guild] Failed to load permission roles for ${this.name} (${this.id})`
+      );
+    for await (const role of permRoles) {
+      // TODO: change to BigInt
+      this.permRoles.set(role.get("rid") as string, {
+        allow: parseInt(role.get("allow") as string),
+        deny: parseInt(role.get("deny") as string),
+      });
+    }
+    for (const [id, perms] of this.permRoles) {
+      for (const [, channel] of this.channels.cache.filter(
+        (channel) =>
+          channel.permissionsFor(this.me).has("MANAGE_ROLES") &&
+          (channel.permissionOverwrites.get(id)?.allow.bitfield !=
+            perms.allow ||
+            channel.permissionOverwrites.get(id)?.deny.bitfield != perms.deny)
+      ))
+        channel
+          .overwritePermissions(
+            [
+              ...channel.permissionOverwrites.array().filter(
+                // ensure the overwrites below are used instead
+                (overwrite) => overwrite.id != id
+              ),
+              {
+                allow: perms.allow,
+                deny: perms.deny,
+                id: id,
+                type: "role",
+              },
+            ],
+            this.language.get("PERMROLES_REASON") as string
+          )
+          .catch(() => {});
+    }
+  }
+
   async loadInvites() {
     this.invites = new Collection();
     if (!this.premium || !this.available) return;
@@ -497,7 +551,10 @@ export class FireGuild extends Guild {
   ) {
     const channel = this.channels.cache.get(this.settings.get("log.action"));
     if (!channel || channel.type != "text") return;
-    return await (channel as TextChannel).send(log).catch(() => {});
+
+    if (!this.me.permissionsIn(channel).has("MANAGE_WEBHOOKS"))
+      return await (channel as FireTextChannel).send(log).catch(() => {});
+    else return await this.logger.handleAction(log, type);
   }
 
   async modLog(
@@ -508,7 +565,10 @@ export class FireGuild extends Guild {
       this.settings.get("log.moderation")
     );
     if (!channel || channel.type != "text") return;
-    return await (channel as TextChannel).send(log).catch(() => {});
+
+    if (!this.me.permissionsIn(channel).has("MANAGE_WEBHOOKS"))
+      return await (channel as FireTextChannel).send(log).catch(() => {});
+    else return await this.logger.handleModeration(log, type);
   }
 
   async memberLog(
@@ -517,7 +577,10 @@ export class FireGuild extends Guild {
   ) {
     const channel = this.channels.cache.get(this.settings.get("log.members"));
     if (!channel || channel.type != "text") return;
-    return await (channel as TextChannel).send(log).catch(() => {});
+
+    if (!this.me.permissionsIn(channel).has("MANAGE_WEBHOOKS"))
+      return await (channel as FireTextChannel).send(log).catch(() => {});
+    else return await this.logger.handleMembers(log, type);
   }
 
   hasExperiment(id: string, treatmentId?: number) {
@@ -578,7 +641,7 @@ export class FireGuild extends Guild {
     );
     return (this.settings.get("tickets.channels", []) as string[])
       .map((id) => textChannels.get(id))
-      .filter((channel) => !!channel) as TextChannel[];
+      .filter((channel) => !!channel) as FireTextChannel[];
   }
 
   async createTicket(
@@ -594,6 +657,16 @@ export class FireGuild extends Guild {
         .get(this.settings.get("tickets.parent")) as CategoryChannel);
     if (!category) return "disabled";
     const limit = this.settings.get("tickets.limit", 1);
+    if (!this.ticketLock?.lock || this.ticketLock?.limit != limit)
+      this.ticketLock = { lock: new Semaphore(limit), limit };
+    const permits = this.ticketLock.lock.getPermits();
+    if (!permits) return "lock";
+    let locked = false;
+    setTimeout(() => {
+      if (locked) this.ticketLock.lock.release();
+    }, 15000);
+    await this.ticketLock.lock.acquire();
+    locked = true;
     let channels = (this.settings.get(
       "tickets.channels",
       []
@@ -603,12 +676,15 @@ export class FireGuild extends Guild {
         .get(id)
     );
     if (
-      channels.filter((channel: TextChannel) =>
+      channels.filter((channel: FireTextChannel) =>
         channel?.topic.includes(author.id)
       ).length >= limit
-    )
+    ) {
+      locked = false;
+      this.ticketLock.lock.release();
       return "limit";
-    const words = (this.client.getCommand("ticket") as Tickets).words;
+    }
+    const words = (this.client.getCommand("ticket-name") as TicketName).words;
     let increment = this.settings.get("tickets.increment", 0) as number;
     const variables = {
       "{increment}": increment.toString() as string,
@@ -664,7 +740,11 @@ export class FireGuild extends Guild {
         ) as string,
       })
       .catch((e: Error) => e);
-    if (ticket instanceof Error) return ticket;
+    if (ticket instanceof Error) {
+      locked = false;
+      this.ticketLock.lock.release();
+      return ticket;
+    }
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_OPENER_TILE", author.toString()))
       .setTimestamp()
@@ -689,11 +769,18 @@ export class FireGuild extends Guild {
       channels.map((channel) => channel && channel.id)
     );
     this.client.emit("ticketCreate", author, ticket, opener);
+    locked = false;
+    this.ticketLock.lock.release();
     return ticket;
   }
 
-  async closeTicket(channel: TextChannel, author: FireMember, reason: string) {
-    if (channel instanceof FakeChannel) channel = channel.real as TextChannel;
+  async closeTicket(
+    channel: FireTextChannel,
+    author: FireMember,
+    reason: string
+  ) {
+    if (channel instanceof FakeChannel)
+      channel = channel.real as FireTextChannel;
     if (author instanceof FireUser)
       author = (await this.members.fetch(author).catch(() => {})) as FireMember;
     if (!author) return "forbidden";
@@ -717,9 +804,8 @@ export class FireGuild extends Guild {
       channels.map((c) => c.id)
     );
     let transcript: string[] = [];
-    (
-      await channel.messages.fetch({ limit: 100 }).catch(() => [])
-    ).forEach((message: FireMessage) =>
+    const iterator = new MessageIterator(channel, { oldestFirst: true });
+    for await (const message of iterator.iterate())
       transcript.push(
         `${message.author} (${
           message.author.id
@@ -729,16 +815,8 @@ export class FireGuild extends Guild {
           message.attachments.first()?.proxyURL ||
           `${message.embeds[0]?.fields[0]?.name} | ${message.embeds[0]?.fields[0]?.value}`
         }`
-      )
-    );
-    transcript = transcript.reverse();
-    transcript.push(
-      `${transcript.length} messages${
-        transcript.length == 100
-          ? " (only the last 100 can be fetched due to Discord limitations)"
-          : ""
-      }, closed by ${author}`
-    );
+      );
+    transcript.push(`${transcript.length} messages, closed by ${author}`);
     const buffer = Buffer.from(transcript.join("\n\n"));
     const id = getIDMatch(channel.topic, true);
     let creator = author;
@@ -760,8 +838,10 @@ export class FireGuild extends Guild {
     const log =
       (this.channels.cache.get(
         this.settings.get("tickets.transcript_logs")
-      ) as TextChannel) ||
-      (this.channels.cache.get(this.settings.get("log.action")) as TextChannel);
+      ) as FireTextChannel) ||
+      (this.channels.cache.get(
+        this.settings.get("log.action")
+      ) as FireTextChannel);
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))
       .setTimestamp()
@@ -783,7 +863,7 @@ export class FireGuild extends Guild {
     this.client.emit("ticketClose", creator);
     return (await channel
       .delete(this.language.get("TICKET_CLOSE_REASON") as string)
-      .catch((e: Error) => e)) as TextChannel | Error;
+      .catch((e: Error) => e)) as FireTextChannel | Error;
   }
 
   async createModLogEntry(
@@ -822,7 +902,7 @@ export class FireGuild extends Guild {
     user: FireUser,
     reason: string,
     moderator: FireMember,
-    channel?: TextChannel
+    channel?: FireTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -873,7 +953,7 @@ export class FireGuild extends Guild {
     blockee: FireMember | Role,
     reason: string,
     moderator: FireMember,
-    channel: TextChannel
+    channel: FireTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -941,7 +1021,7 @@ export class FireGuild extends Guild {
     unblockee: FireMember | Role,
     reason: string,
     moderator: FireMember,
-    channel: TextChannel
+    channel: FireTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -963,8 +1043,8 @@ export class FireGuild extends Guild {
       .updateOverwrite(unblockee, overwrite, reason)
       .catch(() => {});
     if (
-      channel.permissionOverwrites.get(unblockee.id)?.allow.bitfield == 0 &&
-      channel.permissionOverwrites.get(unblockee.id)?.deny.bitfield == 0 &&
+      channel.permissionOverwrites?.get(unblockee.id)?.allow.bitfield == 0 &&
+      channel.permissionOverwrites?.get(unblockee.id)?.deny.bitfield == 0 &&
       unblockee.id != this.roles.everyone.id
     )
       await channel.permissionOverwrites

@@ -3,15 +3,16 @@ import {
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { TextChannel, WebhookClient } from "discord.js";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
+import { WebhookClient } from "discord.js";
 
 const { regexes } = constants;
 
@@ -81,8 +82,8 @@ export default class Quote extends Command {
           const webhookURL = await this.client.util
             .getQuoteWebhookURL(
               message instanceof SlashCommandMessage
-                ? (message.realChannel as TextChannel)
-                : (message.channel as TextChannel)
+                ? (message.realChannel as FireTextChannel)
+                : (message.channel as FireTextChannel)
             )
             .catch(() => {});
           if (!webhookURL || typeof webhookURL != "string") continue;
@@ -105,11 +106,14 @@ export default class Quote extends Command {
                 webhook: webhookURL,
                 message: quote,
                 destination: {
-                  nsfw: (message.channel as TextChannel)?.nsfw || false,
+                  nsfw: (message.channel as FireTextChannel)?.nsfw || false,
                   permissions: message.guild
                     ? message.member.permissions.bitfield
                     : 0,
+                  guild_id: message.guild?.id,
+                  id: message.channel.id,
                 } as PartialQuoteDestination,
+                debug: args.debug,
               })
             )
           );
@@ -123,20 +127,27 @@ export default class Quote extends Command {
       regexes.discord.webhook.lastIndex = 0;
       if (!match?.groups.id || !match?.groups.token) return;
       webhook = new WebhookClient(match.groups.id, match.groups.token);
-      return await args.quote
+      const quoted = await args.quote
         .quote(args.destination, args.quoter, webhook)
-        .catch(() => {});
+        .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
+      if (args.debug && typeof quoted == "string")
+        return !message
+          ? await webhook.send(quoted)
+          : await message.channel.send(quoted);
+      else return;
     } else if (!message) return;
     const quoted = await args.quote
       .quote(
         message instanceof SlashCommandMessage
-          ? (message.realChannel as TextChannel)
-          : (message.channel as TextChannel),
+          ? (message.realChannel as FireTextChannel)
+          : (message.channel as FireTextChannel),
         message.member,
         webhook
       )
-      .catch(() => {});
+      .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
     if (args.debug && typeof quoted == "string")
-      return await message.channel.send(quoted);
+      return !message
+        ? await webhook.send(quoted)
+        : await message.channel.send(quoted);
   }
 }

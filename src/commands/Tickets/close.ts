@@ -1,7 +1,7 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { TextChannel } from "discord.js";
 
 export default class CloseTicket extends Command {
   constructor() {
@@ -37,7 +37,7 @@ export default class CloseTicket extends Command {
       .catch(() => {});
     if (!willClose) return await message.error();
     const closure = await message.guild.closeTicket(
-      message.channel as TextChannel,
+      message.channel as FireTextChannel,
       message.member,
       args.reason
     );

@@ -1,8 +1,8 @@
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { TextChannel } from "discord.js";
 
 export default class Warn extends Command {
   constructor() {
@@ -33,7 +33,7 @@ export default class Warn extends Command {
   async exec(message: FireMessage, args: { user: FireMember; reason: string }) {
     if (!args.user) return;
     else if (
-      args.user.isModerator(message.channel) &&
+      (args.user.isModerator(message.channel) || args.user.user.bot) &&
       message.author.id != message.guild.ownerID
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
@@ -42,7 +42,7 @@ export default class Warn extends Command {
     const warned = await args.user.warn(
       args.reason,
       message.member,
-      message.channel as TextChannel
+      message.channel as FireTextChannel
     );
     if (warned == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");

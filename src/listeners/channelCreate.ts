@@ -1,4 +1,5 @@
-import { GuildChannel, MessageEmbed, TextChannel, DMChannel } from "discord.js";
+import { GuildChannel, MessageEmbed, DMChannel } from "discord.js";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { humanize } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
@@ -17,7 +18,7 @@ export default class ChannelCreate extends Listener {
       language = guild.language;
     const muteRole = guild.muteRole;
     let muteFail = false;
-    if (muteRole && channel instanceof TextChannel)
+    if (muteRole && channel instanceof FireTextChannel)
       await channel
         .updateOverwrite(
           muteRole,
@@ -29,6 +30,29 @@ export default class ChannelCreate extends Listener {
         )
         .catch(() => (muteFail = true));
 
+    if (guild.permRoles.size) {
+      for (const [role, perms] of guild.permRoles) {
+        if (!channel.permissionsFor(guild.me).has("MANAGE_ROLES")) continue;
+        await channel
+          .overwritePermissions(
+            [
+              ...channel.permissionOverwrites.array().filter(
+                // ensure the overwrites below are used instead
+                (overwrite) => overwrite.id != role
+              ),
+              {
+                allow: perms.allow,
+                deny: perms.deny,
+                id: role,
+                type: "role",
+              },
+            ],
+            guild.language.get("PERMROLES_REASON") as string
+          )
+          .catch(() => {});
+      }
+    }
+
     if (guild.settings.has("log.action")) {
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
@@ -38,9 +62,9 @@ export default class ChannelCreate extends Listener {
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .addField(language.get("NAME"), channel.name);
-      if (channel instanceof TextChannel && channel.topic)
+      if (channel instanceof FireTextChannel && channel.topic)
         embed.addField(language.get("TOPIC"), channel.topic);
-      if (channel instanceof TextChannel && channel.rateLimitPerUser)
+      if (channel instanceof FireTextChannel && channel.rateLimitPerUser)
         embed.addField(
           language.get("SLOWMODE"),
           humanize(channel.rateLimitPerUser, language.id.split("-")[0])

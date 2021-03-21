@@ -19,12 +19,14 @@ export default class InteractionCreate extends Listener {
   }
 
   async exec(command: SlashCommand) {
-    if (command == null) return; // discord/discord-api-docs#2594
+    if (!command) return;
     try {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(command.channel_id).catch(() => {});
       const message = new SlashCommandMessage(this.client, command);
-      await message.channel.ack(message.command.ephemeral);
+      await message.channel.ack(
+        (message.flags & 64) != 64 || message.realChannel instanceof DMChannel
+      );
       if (!message.command) {
         this.client.console.warn(
           `[Commands] Got slash command request for unknown command, /${command.data.name}`

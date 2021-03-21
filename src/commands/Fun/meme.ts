@@ -1,9 +1,10 @@
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
-import { MessageEmbed, TextChannel } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { RedditImage } from "@aero/ksoft";
+import { MessageEmbed } from "discord.js";
 
 const { imageExts } = constants;
 
@@ -48,7 +49,7 @@ export default class Meme extends Command {
         meme = await this.client.ksoft.images.reddit(
           args.subreddit.replace("r/", ""),
           {
-            removeNSFW: !(message.channel as TextChannel).nsfw,
+            removeNSFW: !(message.channel as FireTextChannel).nsfw,
             span: args.span,
           }
         );
@@ -57,7 +58,7 @@ export default class Meme extends Command {
       return await message.error("MEME_NOT_FOUND", e);
     }
     if (!meme.url || !meme.post) return await message.error("MEME_NOT_FOUND");
-    if (meme.tag.nsfw && !(message.channel as TextChannel).nsfw)
+    if (meme.tag.nsfw && !(message.channel as FireTextChannel).nsfw)
       return await message.error("MEME_NSFW_FORBIDDEN");
     const language = message.language;
     const embed = new MessageEmbed()

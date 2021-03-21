@@ -1,8 +1,8 @@
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { TextChannel } from "discord.js";
 import * as centra from "centra";
 
 export default class Discover extends Command {
@@ -42,7 +42,7 @@ export default class Discover extends Command {
         "desc",
         `Suggested by ${message.author.username} (${
           message.author.id
-        }) in channel ${(channel as TextChannel).name} (${
+        }) in channel ${(channel as FireTextChannel).name} (${
           channel.id
         }) in guild ${message.guild.name} (${
           message.guild.id

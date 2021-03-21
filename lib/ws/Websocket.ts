@@ -43,20 +43,35 @@ export class Websocket extends Client {
       });
       this.manager.client.getModule("aetherstats").init();
       this.send(
-        MessageUtil.encode(
-          new Message(EventType.IDENTIFY_CLIENT, {
-            pid: process.pid,
-            ready: !!manager.client.readyAt,
-            config: {},
-          })
-        )
+        this.manager.session && typeof this.manager.seq == "number"
+          ? MessageUtil.encode(
+              new Message(EventType.IDENTIFY_CLIENT, {
+                ready: !!this.manager.client.readyAt,
+                sessionId: this.manager.session,
+                seq: this.manager.seq,
+                pid: process.pid,
+                config: {},
+              })
+            )
+          : MessageUtil.encode(
+              new Message(EventType.IDENTIFY_CLIENT, {
+                ready: !!this.manager.client.readyAt,
+                pid: process.pid,
+                config: {},
+              })
+            )
       );
+      if (!this.manager.seq) this.manager.seq = 0;
     });
   }
 
   init() {
     this.on("message", (message) => {
-      this.manager.eventHandler.handle(message);
+      this.manager.eventHandler.handle(message).catch((e) => {
+        this.manager.client?.console.error(
+          `[EventHandler] Failed to handle event from aether due to\n${e.stack}`
+        );
+      });
     });
   }
 

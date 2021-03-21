@@ -1,10 +1,9 @@
 import {
-  TextBasedChannel,
   GuildChannel,
   MessageEmbed,
-  TextChannel,
   DMChannel,
 } from "discord.js";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { humanize } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
@@ -47,9 +46,9 @@ export default class ChannelDelete extends Listener {
         )
         .addField(language.get("NAME"), channel.name)
         .setFooter(channel.id);
-      if (channel instanceof TextChannel && channel.topic)
+      if (channel instanceof FireTextChannel && channel.topic)
         embed.addField(language.get("TOPIC"), channel.topic);
-      if (channel instanceof TextChannel && channel.rateLimitPerUser)
+      if (channel instanceof FireTextChannel && channel.rateLimitPerUser)
         embed.addField(
           language.get("SLOWMODE"),
           humanize(channel.rateLimitPerUser, language.id.split("-")[0])

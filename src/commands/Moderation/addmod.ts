@@ -20,6 +20,7 @@ export default class AddModerator extends Command {
           required: false,
         },
       ],
+      enableSlashCommand: true,
       // Providing no argument will list mods so might as well just have the one command
       aliases: ["addmoderator", "listmods", "listmoderators"],
       typing: true,

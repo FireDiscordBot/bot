@@ -1,8 +1,9 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { TextChannel, Role } from "discord.js";
+import { Role } from "discord.js";
 
 export default class Block extends Command {
   constructor() {
@@ -49,7 +50,7 @@ export default class Block extends Command {
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),
       message.member,
-      message.channel as TextChannel
+      message.channel as FireTextChannel
     );
     if (blocked == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");

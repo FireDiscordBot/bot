@@ -1,10 +1,10 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { parseTime } from "@fire/lib/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { TextChannel } from "discord.js";
 
 export default class Ban extends Command {
   constructor() {
@@ -88,7 +88,7 @@ export default class Ban extends Command {
             message.member,
             date,
             args.days || 0,
-            message.channel as TextChannel
+            message.channel as FireTextChannel
           )
         : await args.user.bean(
             message.guild,
@@ -98,7 +98,7 @@ export default class Ban extends Command {
               ) as string),
             message.member,
             args.days || 0,
-            message.channel as TextChannel
+            message.channel as FireTextChannel
           );
     if (beaned == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");

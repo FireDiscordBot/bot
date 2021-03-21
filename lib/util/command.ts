@@ -31,7 +31,14 @@ const slashCommandTypeMappings = {
   ],
   INTEGER: ["number"],
   BOOLEAN: ["boolean"],
-  USER: ["user", "member", "user|member", "userSilent", "memberSilent"],
+  USER: [
+    "user",
+    "member",
+    "user|member",
+    "user|member|snowflake",
+    "userSilent",
+    "memberSilent",
+  ],
   CHANNEL: [
     "textChannel",
     "voiceChannel",
@@ -69,7 +76,11 @@ export class Command extends AkairoCommand {
         "USE_EXTERNAL_EMOJIS",
         "ADD_REACTIONS",
       ];
-    if (options.args instanceof Array && options.args.length == 1)
+    if (
+      options.args instanceof Array &&
+      options.args.length == 1 &&
+      !options.args[0].match
+    )
       options.args[0].match = "rest";
     if (options.args instanceof Array)
       options.args.forEach((arg) => {

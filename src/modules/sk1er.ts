@@ -1,9 +1,9 @@
 import {
   CategoryChannel,
   MessageReaction,
-  TextChannel,
   Role,
 } from "discord.js";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -32,7 +32,7 @@ export default class Sk1er extends Module {
   supportMessageId: string;
   supportMessage: FireMessage;
   supportChannelId: string;
-  supportChannel: TextChannel;
+  supportChannel: FireTextChannel;
   nitro: Role;
   nitroId: string;
   modcoreHeaders: { secret: string };
@@ -67,6 +67,7 @@ export default class Sk1er extends Module {
   }
 
   async init() {
+    if (this.client.config.dev) return this.remove();
     if (this.client.readyAt) await this.ready();
     else this.client.once("ready", async () => this.ready());
   }
@@ -81,7 +82,7 @@ export default class Sk1er extends Module {
     this.nitro = this.guild?.roles.cache.get(this.nitroId);
     this.supportChannel = this.client.channels.cache.get(
       this.supportChannelId
-    ) as TextChannel;
+    ) as FireTextChannel;
     this.modcoreHeaders = { secret: process.env.MODCORE_SECRET };
     if (this.guild) {
       await this.statusChecker();
@@ -102,7 +103,7 @@ export default class Sk1er extends Module {
 
       const commandsChannel = this.guild.channels.cache.get(
         "411620555960352787"
-      ) as TextChannel;
+      ) as FireTextChannel;
 
       const pinnedMessages = await commandsChannel.messages.fetchPinned();
       pinnedMessages
@@ -182,7 +183,7 @@ export default class Sk1er extends Module {
           else if (typeof removed == "boolean" && removed)
             (this.guild.channels.cache.get(
               "411620457754787841"
-            ) as TextChannel).send(
+            ) as FireTextChannel).send(
               this.guild.language.get(
                 "SK1ER_NITRO_PERKS_REMOVED",
                 member.toMention()
@@ -214,7 +215,7 @@ export default class Sk1er extends Module {
           else if (typeof removed == "boolean" && removed)
             (this.guild.channels.cache.get(
               "411620457754787841"
-            ) as TextChannel).send(
+            ) as FireTextChannel).send(
               this.guild.language.get(
                 "SK1ER_NITRO_PERKS_REMOVED_LEFT",
                 user.toString()

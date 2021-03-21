@@ -1,7 +1,7 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
-import { TextChannel } from "discord.js";
 
 export default class BroadcastEvalEvent extends Event {
   constructor(manager: Manager) {
@@ -16,7 +16,7 @@ export default class BroadcastEvalEvent extends Event {
       const channel = await this.manager.client.channels.fetch(data.channelId);
       if (channel.type != "text") return;
       const message = (
-        await (channel as TextChannel).messages.fetch({
+        await (channel as FireTextChannel).messages.fetch({
           around: data.messageId,
           limit: 1,
         })

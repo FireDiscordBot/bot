@@ -16,7 +16,6 @@ import {
   MessageOptions,
   MessageManager,
   MessageEmbed,
-  TextChannel,
   Permissions,
   NewsChannel,
   APIMessage,
@@ -29,16 +28,17 @@ import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
+import { FireTextChannel } from "./textchannel";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
+import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
-import { Fire } from "@fire/lib/Fire";
 
 const { emojis, reactions } = constants;
 
 export class SlashCommandMessage {
-  realChannel?: TextChannel | NewsChannel | DMChannel;
+  realChannel?: FireTextChannel | NewsChannel | DMChannel;
   attachments: Collection<string, MessageAttachment>;
   sent: false | "ack" | "message";
   sourceMessage: FireMessage;
@@ -61,23 +61,27 @@ export class SlashCommandMessage {
     this.client = client;
     this.id = command.id;
     this.slashCommand = command;
-    if (command.data.options?.length && command.data.options[0]?.options) {
+    if (command.data.options?.length && command.data.options[0]?.type == 1) {
       command.data.name = `${command.data.name}-${command.data.options[0].name}`;
       command.data.options = command.data.options[0].options;
     }
+    this.guild = client.guilds.cache.get(command.guild_id) as FireGuild;
     this.command = this.client.getCommand(command.data.name);
     this.flags = 0;
+    if (this.guild?.tags?.slashCommands[command.data.id] == command.data.name) {
+      this.command = this.client.getCommand("tag");
+      command.data.options = [{ name: "tag", value: command.data.name }];
+      if (this.guild.tags.ephemeral) this.setFlags(64);
+    }
     if (this.command?.ephemeral) this.setFlags(64);
-    this.guild = client.guilds.cache.get(command.guild_id) as FireGuild;
     // @ts-ignore
     this.mentions = new MessageMentions(this, [], [], false);
     this.attachments = new Collection();
     // @mason pls just always include user ty
-    this.author = command.user
-      ? (client.users.cache.get(command.user.id) as FireUser) ||
-        new FireUser(client, command.user)
-      : (client.users.cache.get(command.member.user.id) as FireUser) ||
-        new FireUser(client, command.member.user);
+    const user = command.user ?? command.member?.user;
+    this.author =
+      (client.users.cache.get(user.id) as FireUser) ||
+      new FireUser(client, user);
     if (!client.users.cache.has(this.author.id))
       client.users.add(command.member ? command.member.user : command.user);
     if (this.guild) {
@@ -94,7 +98,7 @@ export class SlashCommandMessage {
       : this.guild?.language || client.getLanguage("en-US");
     this.realChannel = this.client.channels.cache.get(
       this.slashCommand.channel_id
-    ) as TextChannel | NewsChannel | DMChannel;
+    ) as FireTextChannel | NewsChannel | DMChannel;
     if (!this.guild) {
       // This will happen if a guild authorizes w/applications.commands
       // or if a slash command is invoked in DMs (discord/discord-api-docs #2568)
@@ -131,9 +135,9 @@ export class SlashCommandMessage {
       message: any
     ) => string | string[] | Promise<string | string[]>)(this);
     if (this.client.util.isPromise(prefix)) prefix = await prefix;
-    if (prefix instanceof Array) prefix = prefix[0];
-    let content = prefix as string;
-    content += this.slashCommand.data.name + " ";
+    if (prefix instanceof Array) prefix = prefix[0].trim();
+    let content = (prefix as string) + " ";
+    content += this.command.id + " ";
     if (this.command.args?.length && this.slashCommand.data.options?.length) {
       const commandArgs = this.command.args as ArgumentOptions[];
       const argNames = this.slashCommand.data.options.map((opt) => opt.name);
@@ -268,7 +272,7 @@ export class SlashCommandMessage {
 }
 
 export class FakeChannel {
-  real: TextChannel | NewsChannel | DMChannel;
+  real: FireTextChannel | NewsChannel | DMChannel;
   message: SlashCommandMessage;
   messages: MessageManager;
   msgFlags: number;
@@ -281,7 +285,7 @@ export class FakeChannel {
     client: Fire,
     id: string,
     token: string,
-    real?: TextChannel | NewsChannel | DMChannel,
+    real?: FireTextChannel | NewsChannel | DMChannel,
     msgFlags?: number
   ) {
     this.id = id;

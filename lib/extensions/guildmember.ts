@@ -1,18 +1,18 @@
 import {
   MessageEmbed,
   GuildMember,
-  TextChannel,
   Structures,
   Channel,
   Util,
 } from "discord.js";
 import { FakeChannel } from "./slashCommandMessage";
-import * as sanitizer from "@aero/sanitizer";
 import { humanize } from "@fire/lib/util/constants";
+import { FireTextChannel } from "./textchannel";
+import * as sanitizer from "@aero/sanitizer";
+import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import * as moment from "moment";
-import { Fire } from "@fire/lib/Fire";
 
 export class FireMember extends GuildMember {
   changingNick?: boolean;
@@ -63,21 +63,12 @@ export class FireMember extends GuildMember {
       "utils.moderators",
       []
     ) as string[];
-    let isMod = false;
     if (moderators.length) {
-      if (moderators.includes(this.id)) isMod = true;
-      else if (
-        this.roles.cache.filter((role) => moderators.includes(role.id)).size
-      )
-        isMod = true;
-    } else if (
-      channel
-        ? this.permissionsIn(channel).has("MANAGE_MESSAGES")
-        : this.permissions.has("MANAGE_MESSAGES")
-    ) {
-      isMod = true;
-    }
-    return isMod;
+      if (moderators.includes(this.id)) return true;
+      else if (this.roles.cache.some((role) => moderators.includes(role.id)))
+        return true;
+      else return false;
+    } else return null;
   }
 
   isAdmin(channel?: Channel) {
@@ -240,7 +231,7 @@ export class FireMember extends GuildMember {
     await this.decancer();
   }
 
-  async warn(reason: string, moderator: FireMember, channel?: TextChannel) {
+  async warn(reason: string, moderator: FireMember, channel?: FireTextChannel) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     const embed = new MessageEmbed()
@@ -315,7 +306,7 @@ export class FireMember extends GuildMember {
     moderator: FireMember,
     until?: number,
     days: number = 0,
-    channel?: TextChannel
+    channel?: FireTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -396,7 +387,7 @@ export class FireMember extends GuildMember {
         .catch(() => {});
   }
 
-  async yeet(reason: string, moderator: FireMember, channel?: TextChannel) {
+  async yeet(reason: string, moderator: FireMember, channel?: FireTextChannel) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     const logEntry = await this.guild
@@ -432,7 +423,11 @@ export class FireMember extends GuildMember {
         .catch(() => {});
   }
 
-  async derank(reason: string, moderator: FireMember, channel?: TextChannel) {
+  async derank(
+    reason: string,
+    moderator: FireMember,
+    channel?: FireTextChannel
+  ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     const logEntry = await this.guild
@@ -504,7 +499,7 @@ export class FireMember extends GuildMember {
     reason: string,
     moderator: FireMember,
     until?: number,
-    channel?: TextChannel
+    channel?: FireTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -578,7 +573,11 @@ export class FireMember extends GuildMember {
         .catch(() => {});
   }
 
-  async unmute(reason: string, moderator: FireMember, channel?: TextChannel) {
+  async unmute(
+    reason: string,
+    moderator: FireMember,
+    channel?: FireTextChannel
+  ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     if (!this.guild.mutes.has(this.id)) {

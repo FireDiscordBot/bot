@@ -1,8 +1,8 @@
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { TextChannel } from "discord.js";
 
 export default class TicketRemove extends Command {
   constructor() {
@@ -20,13 +20,14 @@ export default class TicketRemove extends Command {
         },
       ],
       aliases: ["ticketremove"],
+      enableSlashCommand: true,
       restrictTo: "guild",
     });
   }
 
   async exec(message: FireMessage, args: { user: FireMember }) {
     if (!args.user) return await message.error("TICKET_REMOVE_NOBODY");
-    const channel = message.channel as TextChannel;
+    const channel = message.channel as FireTextChannel;
     const channels = message.guild.settings.get(
       "tickets.channels",
       []

@@ -1,16 +1,18 @@
-export class Message {
-  type: any;
-  data: any;
+import { EventType } from "./util/constants";
 
-  constructor(type: any, data: any) {
+export class Message {
+  type: EventType;
+  data: unknown;
+
+  constructor(type: EventType, data: unknown) {
     this.type = type;
     this.data = data;
   }
 
   toJSON() {
     return {
-      t: this.type /* eslint-disable-line id-length */,
-      d: this.data /* eslint-disable-line id-length */,
+      op: this.type,
+      d: this.data,
     };
   }
 }

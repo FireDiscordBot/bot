@@ -1,5 +1,6 @@
-import { TextChannel, MessageEmbed, Collection, Role } from "discord.js";
 import { categoryChannelConverter } from "@fire/lib/util/converters";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { MessageEmbed, Collection, Role } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -58,7 +59,7 @@ export default class Lockdown extends Command {
 
   async start(message: FireMessage, reason: string) {
     await message.react("▶️");
-    let failed = new Collection<TextChannel, Role[]>();
+    let failed = new Collection<FireTextChannel, Role[]>();
     let locked: string[] = [];
     const channels = message.guild.channels.cache.filter(
       (channel) =>
@@ -69,7 +70,7 @@ export default class Lockdown extends Command {
         channel
           .permissionsFor(message.guild.roles.everyone)
           .has("SEND_MESSAGES")
-    ) as Collection<string, TextChannel>;
+    ) as Collection<string, FireTextChannel>;
     channels.forEach(
       async (channel) =>
         await channel
@@ -119,7 +120,7 @@ export default class Lockdown extends Command {
 
   async end(message: FireMessage, reason: string) {
     await message.react("▶️");
-    let failed = new Collection<TextChannel, Role[]>();
+    let failed = new Collection<FireTextChannel, Role[]>();
     const locked: string[] = message.guild.settings.get("mod.locked", []);
     if (!locked.length) return await message.error("LOCKDOWN_END_NONE_LOCKED");
     const channels = message.guild.channels.cache.filter(
@@ -132,7 +133,7 @@ export default class Lockdown extends Command {
           .permissionsFor(message.guild.roles.everyone)
           .has("SEND_MESSAGES") &&
         locked.includes(channel.id)
-    ) as Collection<string, TextChannel>;
+    ) as Collection<string, FireTextChannel>;
     channels.forEach(
       async (channel) =>
         await channel.updateOverwrite(message.guild.me, { SEND_MESSAGES: null })

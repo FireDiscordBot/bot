@@ -23,7 +23,7 @@ export default (manager: RESTManager) => {
           if (route[i - 1] === "reactions") break;
           // Literal IDs should only be taken account if they are the Major ID (the Channel/Guild ID)
           if (
-            /\d{16,19}/g.test(route[i]) &&
+            /\d{15,21}/g.test(route[i]) &&
             !/channels|guilds/.test(route[i - 1])
           )
             routeBucket.push(":id");

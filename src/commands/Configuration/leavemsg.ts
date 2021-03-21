@@ -1,4 +1,5 @@
-import { MessageMentionOptions, MessageEmbed, TextChannel } from "discord.js";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { MessageMentionOptions, MessageEmbed } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
@@ -43,18 +44,18 @@ export default class LeaveMSG extends Command {
   async exec(
     message: FireMessage,
     args: {
-      channel?: TextChannel | "off" | "disable" | "false";
+      channel?: FireTextChannel | "off" | "disable" | "false";
       message?: string;
     }
   ) {
     if (
       args.channel &&
-      !(args.channel instanceof TextChannel) &&
+      !(args.channel instanceof FireTextChannel) &&
       !disableArgs.includes(args.channel)
     )
       return await message.error("LEAVEMSG_ARGUMENT_INVALID");
     let msg = message.guild.settings.get("greet.leavemsg") as string;
-    if (args.channel instanceof TextChannel && !args.message && !msg)
+    if (args.channel instanceof FireTextChannel && !args.message && !msg)
       return await message.error("LEAVEMSG_MESSAGE_REQUIRED");
     const variableMap = {
       "{user}": message.author.toString(),
@@ -109,7 +110,7 @@ export default class LeaveMSG extends Command {
         ? await message.success()
         : await message.error();
     }
-    const channel = args.channel as TextChannel;
+    const channel = args.channel as FireTextChannel;
     const allowedMentions: MessageMentionOptions = {
       users: [message.author.id],
     };

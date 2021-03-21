@@ -38,6 +38,8 @@ export default class ReminderSendEvent extends Event {
     const now = moment();
     const duration = moment(deconstructed?.date || now).diff(now);
 
+    if (data.link?.includes("000000000000000000")) delete data.link;
+
     const message = await user
       .send(
         data.link

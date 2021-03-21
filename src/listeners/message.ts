@@ -9,6 +9,7 @@ import * as centra from "centra";
 
 const { regexes } = constants;
 const tokenExtras = /(?:(?:  )?',(?: ')?\n?|  '|\s|\n)/gim;
+const snowflakeRegex = /\d{15,21}/gim;
 export default class Message extends Listener {
   recentTokens: string[];
   tokenRegex: RegExp;
@@ -40,7 +41,12 @@ export default class Message extends Listener {
           "." +
           (original.length >= 58 ? original : token).slice(31);
       if (token != original) tokens[index] = token;
+      const user = Buffer.from(token.split(".")[0], "base64").toString("ascii");
+      if (!snowflakeRegex.test(user)) delete tokens[index];
+      snowflakeRegex.lastIndex = 0;
     }
+    tokens = tokens.filter((token) => !!token); // remove empty items
+    if (!tokens.length) return;
     this.recentTokens.push(...tokens);
     let files: { [key: string]: { content: string } } = {};
     for (const token of tokens)
@@ -157,17 +163,6 @@ export default class Message extends Listener {
 
     const filters = this.client.getModule("filters") as Filters;
     await filters?.runAll(message, this.cleanContent(message)).catch(() => {});
-
-    if (
-      message.content.trim() ==
-      (message.guild.me as FireMember).toMention().trim()
-    )
-      await message
-        .send(
-          "HELLO_PREFIX",
-          message.guild ? message.guild.settings.get("main.prefix", "$") : "$"
-        )
-        .catch(() => {});
   }
 
   cleanContent(message: FireMessage) {

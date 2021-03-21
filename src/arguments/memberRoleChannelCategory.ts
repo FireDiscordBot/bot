@@ -4,15 +4,16 @@ import {
   textChannelConverter,
   categoryChannelConverter,
 } from "@fire/lib/util/converters";
-import { CategoryChannel, TextChannel, Role } from "discord.js";
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { ArgumentTypeCaster } from "discord-akairo";
+import { CategoryChannel, Role } from "discord.js";
 
 export const memberRoleChannelCategoryTypeCaster: ArgumentTypeCaster = async (
   message: FireMessage,
   phrase
-): Promise<FireMember | Role | TextChannel | CategoryChannel | null> => {
+): Promise<FireMember | Role | FireTextChannel | CategoryChannel | null> => {
   const member = await memberConverter(message, phrase, true);
   if (member) return member;
   const role = await roleConverter(message, phrase, true);

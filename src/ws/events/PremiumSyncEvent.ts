@@ -69,7 +69,7 @@ export default class PremiumSyncEvent extends Event {
     const members = await guild.members.fetch().catch(() => {});
     if (!members) return;
     for (const [, member] of members)
-      if (member.roles.cache.has(role.id) && removeIds.includes(member.id))
+      if (member.roles.cache.has(role.id) && removeIds.includes(member.id) && !client.config.dev)
         await member.roles.remove(role, "premium is gone :crabrave:");
       else if (paidIds.includes(member.id))
         await member.roles.add(role, "wow member now has premium");

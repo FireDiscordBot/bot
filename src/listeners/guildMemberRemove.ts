@@ -1,8 +1,9 @@
+import { FireTextChannel} from "@fire/lib/extensions/textchannel";
 import { constants, humanize } from "@fire/lib/util/constants";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageEmbed, TextChannel } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
 import Sk1er from "@fire/src/modules/sk1er";
+import { MessageEmbed } from "discord.js";
 import * as moment from "moment";
 
 const {
@@ -26,7 +27,7 @@ export default class GuildMemberRemove extends Listener {
       if (typeof removed == "boolean" && removed)
         (sk1erModule.guild.channels.cache.get(
           "411620457754787841"
-        ) as TextChannel).send(
+        ) as FireTextChannel).send(
           sk1erModule.guild.language.get(
             "SK1ER_NITRO_PERKS_REMOVED_LEFT",
             member.toString()
@@ -76,7 +77,7 @@ export default class GuildMemberRemove extends Listener {
       const channel = member.guild.channels.cache.get(
         member.guild.settings.get("greet.leavechannel")
       );
-      if (leaveMessage && channel instanceof TextChannel) {
+      if (leaveMessage && channel instanceof FireTextChannel) {
         const regexes = [
           [joinleavemsgs.user, member.toString()],
           [joinleavemsgs.mention, member.toMention()],
