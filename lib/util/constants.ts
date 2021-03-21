@@ -149,6 +149,11 @@ if (process.env.EMOJI_SET == "1") {
       FIRE_ADMIN: "<:FireVerified:823121736273887240>",
       FIRE_PREMIUM: "<:FirePremium:823121735774765056>",
     },
+    channels: {
+      text: "<:channeltext:823154571105927169>",
+      voice: "<:channelvoice:823154571105927168>",
+      news: "<:channelannouncements:823154571105927170>",
+    },
   };
 
   reactions = {
