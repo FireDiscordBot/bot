@@ -12,6 +12,7 @@ export default class AccountAgeInhibitor extends Inhibitor {
   }
 
   exec(message: FireMessage, command?: Command) {
+    if (process.env.NODE_ENV == "development") return false;
     if (
       moment(new Date()).diff(message.author.createdAt) < 86400000 &&
       command?.id != "debug"

@@ -25,13 +25,13 @@ export default class MessageInvalid extends Listener {
       emitter: "commandHandler",
       event: "messageInvalid",
     });
-    this.botQuoteRegex = /.{1,25}\s?quote (?:https?:\/\/)?(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/(?:\d{15,21}\/?){3}/gim;
+    this.botQuoteRegex = /.{1,25}\s?quote (?:https?:\/\/)?(?:(?:ptb|canary|development|staging)\.)?discord(?:app)?\.com?\/channels\/(?:\d{15,21}\/?){3}/gim;
     this.slashCommandRegex = /<\/\w+:\d{15,21}>/gim;
   }
 
   async exec(message: FireMessage) {
     if (
-      this.client.config.dev ||
+      (this.client.config.dev && process.env.USE_LITECORD != "true") ||
       this.botQuoteRegex.test(message.content) ||
       this.slashCommandRegex.test(message.content) ||
       !message.guild ||
