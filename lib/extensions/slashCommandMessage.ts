@@ -343,12 +343,13 @@ export class FakeChannel {
 
   // Acknowledges without sending a message
   async ack(ephemeral = false) {
+    if (ephemeral || (this.msgFlags & 64) != 0) return;
     // @ts-ignore
     await this.client.api
       // @ts-ignore
       .interactions(this.id)(this.token)
       .callback.post({
-        data: { type: 5, data: { flags: ephemeral ? 1 << 6 : this.msgFlags } },
+        data: { type: 5, data: { flags: this.msgFlags } },
       })
       .then(() => {
         this.message.sent = "ack";
@@ -425,7 +426,7 @@ export class FakeChannel {
           // files,
         })
         .then(() => {
-          if ((data.flags & 64) != 64) this.message.sent = "message";
+          this.message.sent = "message";
         })
         .catch(() => {});
     else if ((this.message.sent = "ack")) {
