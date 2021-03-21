@@ -312,7 +312,7 @@ export class FakeChannel {
   }
 
   stopTyping(force?: boolean) {
-    return this.real?.stopTyping(force);
+    return;
   }
 
   bulkDelete(
