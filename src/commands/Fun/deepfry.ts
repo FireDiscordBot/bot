@@ -37,7 +37,12 @@ export default class Deepfry extends Command {
     if (!image) return await message.error();
     try {
       const url = new URL(image);
-      if (url.hostname == "cdn.discordapp.com" && !url.search)
+      if (
+        (url.hostname == "cdn.discordapp.com" ||
+          url.hostname == "media.discordapp.net" ||
+          url.hostname.endsWith("discord.co")) &&
+        !url.search
+      )
         image = image + "?size=2048";
     } catch {}
     const deepfryReq = await centra(

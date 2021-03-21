@@ -40,7 +40,7 @@ export default class DiscordStatus extends Command {
     const components = summary.components
       .filter((component) => !component.group_id)
       .flatMap((group) => [
-        `├${constants.statuspage.emojis[group.status]} **${group.name}**: ${
+        `├${constants.emojis.statuspage[group.status]} **${group.name}**: ${
           message.language.get("STATUSPAGE_COMPONENT_STATUS")[
             group.status.toLowerCase()
           ] || titleCase(group.status.replace(/_/gim, " "))
@@ -55,7 +55,7 @@ export default class DiscordStatus extends Command {
           })
           .map(
             (groupComponent) =>
-              `├─${constants.statuspage.emojis[groupComponent.status]} **${
+              `├─${constants.emojis.statuspage[groupComponent.status]} **${
                 groupComponent.name
               }**: ${
                 message.language.get("STATUSPAGE_COMPONENT_STATUS")[
