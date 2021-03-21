@@ -7,8 +7,11 @@ import {
   GuildEmoji,
   DMChannel,
 } from "discord.js";
-import { FakeChannel } from "@fire/lib/extensions/slashCommandMessage";
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import {
+  FakeChannel,
+  SlashCommandMessage,
+} from "@fire/lib/extensions/slashCommandMessage";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
@@ -160,10 +163,11 @@ export class PaginatorInterface {
   timeout: number;
   deleteMessage: boolean;
 
-  _displayPage: number;
-  maxPageSize: number;
+  slashMessage?: SlashCommandMessage;
   sentPageReactions: boolean;
   message: FireMessage;
+  _displayPage: number;
+  maxPageSize: number;
 
   ready: boolean;
   updateLock: Semaphore;
@@ -289,12 +293,15 @@ export class PaginatorInterface {
     }
   }
 
-  async send(destination: FireTextChannel | NewsChannel | DMChannel | FakeChannel) {
-    if (destination instanceof FakeChannel) {
-      if (!destination.message.sent) await destination.ack(true);
-      destination = destination.real;
-    }
-    this.message = (await destination.send(this.sendArgs)) as FireMessage;
+  async send(
+    destination: FireTextChannel | NewsChannel | DMChannel | FakeChannel
+  ) {
+    // if (destination instanceof FakeChannel) destination = destination.real;
+    let message = await destination.send(this.sendArgs);
+    if (message instanceof SlashCommandMessage) {
+      this.slashMessage = message;
+      this.message = await message.getRealMessage();
+    } else this.message = message as FireMessage;
     this.message.paginator = this;
 
     this.message.react(this.emojis.close);
@@ -348,7 +355,9 @@ export class PaginatorInterface {
         this.sentPageReactions = true;
       }
 
-      await this.message.edit(this.sendArgs);
+      this.slashMessage
+        ? this.slashMessage.edit(this.sendArgs)
+        : await this.message.edit(this.sendArgs);
     } catch {}
     this.updateLock.release();
   }
