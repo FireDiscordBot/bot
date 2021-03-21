@@ -45,10 +45,13 @@ let emojis = {
   success: "<:yes:534174796888408074>",
   error: "<:no:534174796938870792>",
   warning: "<:maybe:534174796578160640>",
-  // Yes these are the statuspage emotes but idc
-  green: "<:operational:685538400639385649>",
-  yellow: "<:partial_outage:685538400555499675>",
-  red: "<:major_outage:685538400639385706>",
+  statuspage: {
+    operational: "<:operational:685538400639385649>",
+    degraded_performance: "<:degraded_performance:685538400228343808>",
+    partial_outage: "<:partial_outage:685538400555499675>",
+    major_outage: "<:major_outage:685538400639385706>",
+    under_maintenance: "<:maintenance:685538400337395743>",
+  },
   badges: {
     DISCORD_EMPLOYEE: "<:DiscordStaff:698344463281422371>",
     PARTNERED_SERVER_OWNER: "<a:PartnerShine:750451997244915862>",
@@ -130,9 +133,13 @@ if (process.env.EMOJI_SET == "1") {
     success: "<:yes:823119635246350338>",
     error: "<:no:823119661787906050>",
     warning: "<:maybe:823119649234354181>",
-    green: "<:operational:823120412668985344>",
-    yellow: "<:partial_outage:823120413453320192>",
-    red: "<:major_outage:823120412668985345>",
+    statuspage: {
+      operational: "<:operational:823120412668985344>",
+      degraded_performance: "<:degraded_performance:823244090849230848>",
+      partial_outage: "<:partial_outage:823120413453320192>",
+      major_outage: "<:major_outage:823120412668985345>",
+      under_maintenance: "<:maintenance:823244090849230849>",
+    },
     badges: {
       DISCORD_EMPLOYEE: "<:DiscordStaff:823121736273887237>",
       PARTNERED_SERVER_OWNER: "<a:PartnerShine:823121735774765059>",
@@ -315,13 +322,6 @@ export const constants = {
       major: "#e67e22",
       critical: "#e74c3c",
       maintenance: "#3498db",
-    },
-    emojis: {
-      operational: "<:operational:685538400639385649>",
-      degraded_performance: "<:degraded_performance:685538400228343808>",
-      partial_outage: "<:partial_outage:685538400555499675>",
-      major_outage: "<:major_outage:685538400639385706>",
-      under_maintenance: "<:maintenance:685538400337395743>",
     },
   },
   mcLogFilters: [

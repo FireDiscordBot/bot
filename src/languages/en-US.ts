@@ -979,11 +979,11 @@ ${channels.join(", ")}`
           `Your guild is now public & visible on <https://inv.wtf/discover>.
 People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>) to join`,
         PUBLIC_ENABLED_LOG: (user: string) =>
-          `${constants.statuspage.emojis.operational} Ths server was set to public by ${user} and will appear on Fire\'s public server list`,
+          `${constants.emojis.statuspage.operational} Ths server was set to public by ${user} and will appear on Fire\'s public server list`,
         PUBLIC_DISABLED:
           "Your guild is no longer public and will no longer show on the Fire website",
         PUBLIC_DISABLED_LOG: (user: string) =>
-          `${constants.statuspage.emojis.major_outage} Ths server was manually removed from Fire\'s public server list by ${user}`,
+          `${constants.emojis.statuspage.major_outage} Ths server was manually removed from Fire\'s public server list by ${user}`,
         PLONK_COMMAND_DESCRIPTION:
           "Make a user unable to use the best discord bot in your server",
         PLONK_FORBIDDEN: () =>

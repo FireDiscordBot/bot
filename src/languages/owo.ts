@@ -866,11 +866,11 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           `Youw guiwd is now pubwic & visibwe on <https://inv.wtf/discover>.
  Peopwe wiww be abwe to use youw guiwd's vanity url (<https://inv.wtf/${vanity}>) to join`,
         PUBLIC_ENABLED_LOG: (user: string) =>
-          `${constants.statuspage.emojis.operational} This sewvew was set to pubwic by ${user} and wiww appeaw on Fire\'s pubwic sewvew wist`,
+          `${constants.emojis.statuspage.operational} This sewvew was set to pubwic by ${user} and wiww appeaw on Fire\'s pubwic sewvew wist`,
         PUBLIC_DISABLED:
           "Youw guiwd is no wongew pubwic and wiww no wongew show on the Fire website",
         PUBLIC_DISABLED_LOG: (user: string) =>
-          `${constants.statuspage.emojis.major_outage} This sewvew was manuawwy wemoved fwom Fire\'s pubwic sewvew wist by ${user}`,
+          `${constants.emojis.statuspage.major_outage} This sewvew was manuawwy wemoved fwom Fire\'s pubwic sewvew wist by ${user}`,
         PLONK_COMMAND_DESCRIPTION:
           "Make a usew unabwe to use the best Discowod bot",
         PLONK_USER_REQUIRED: "You must pwovide a usew to pwonk",

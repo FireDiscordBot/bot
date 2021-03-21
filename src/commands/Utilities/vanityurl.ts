@@ -6,7 +6,7 @@ import { Command } from "@fire/lib/util/command";
 import { Invite } from "discord.js";
 
 const deleteKeywords = ["remove", "delete", "true", "yeet", "disable"];
-const validityRegex = /[a-zA-Z0-9]{3,10}/gim;
+const validityRegex = /[a-zA-Z0-9]{3,25}/gim;
 
 export default class VanityURL extends Command {
   module: VanityURLs;
