@@ -31,7 +31,14 @@ const slashCommandTypeMappings = {
   ],
   INTEGER: ["number"],
   BOOLEAN: ["boolean"],
-  USER: ["user", "member", "user|member", "userSilent", "memberSilent"],
+  USER: [
+    "user",
+    "member",
+    "user|member",
+    "user|member|snowflake",
+    "userSilent",
+    "memberSilent",
+  ],
   CHANNEL: [
     "textChannel",
     "voiceChannel",
