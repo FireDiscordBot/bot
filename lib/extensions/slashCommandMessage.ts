@@ -308,7 +308,7 @@ export class FakeChannel {
   }
 
   startTyping(count?: number) {
-    return this.real?.startTyping(count);
+    return new Promise(() => {});
   }
 
   stopTyping(force?: boolean) {
@@ -397,8 +397,7 @@ export class FakeChannel {
       ).resolveData();
     }
 
-    // if slash commands ever support files, change below to { data, files }
-    const { data } = (await apiMessage.resolveFiles()) as {
+    const { data, files } = (await apiMessage.resolveFiles()) as {
       data: any;
       files: any[];
     };
@@ -408,7 +407,9 @@ export class FakeChannel {
 
     // embeds in ephemeral wen eta
     if (
-      (data.embeds?.length || this.real instanceof DMChannel) &&
+      (data.embeds?.length ||
+        files?.length ||
+        this.real instanceof DMChannel) &&
       (data.flags & 64) == 64
     )
       data.flags -= 64;
@@ -423,7 +424,7 @@ export class FakeChannel {
             type: 4,
             data,
           },
-          // files,
+          files,
         })
         .then(() => {
           this.message.sent = "message";
@@ -437,7 +438,7 @@ export class FakeChannel {
         .messages("@original")
         .patch({
           data,
-          // files,
+          files,
         })
         .then(() => {
           if ((data.flags & 64) != 64) this.message.sent = "message";
@@ -450,7 +451,7 @@ export class FakeChannel {
         .webhooks(this.client.user.id)(this.token)
         .post({
           data,
-          // files,
+          files,
           query: { wait: true },
         })
         .then(() => {
