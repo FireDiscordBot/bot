@@ -44,7 +44,9 @@ export default class LanguageCommand extends Command {
       args.language.id == "en-US"
         ? message.author.settings.delete("utils.language")
         : message.author.settings.set("utils.language", args.language.id);
-      if (message instanceof SlashCommandMessage) message.setFlags(64);
+      if (message instanceof SlashCommandMessage)
+        // ts server gets angry without the "as" even though I have the instance check
+        (message as SlashCommandMessage).flags = 64;
       return await message.success("LANGUAGE_COMMAND_HELLO", "user");
     }
   }
