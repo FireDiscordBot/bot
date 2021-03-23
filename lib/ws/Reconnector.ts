@@ -26,7 +26,25 @@ export class Reconnector {
 
   handleClose(code: number, reason: string) {
     clearInterval(this.manager.ws?.keepAlive);
+    if (
+      this.state == WebsocketStates.CONNECTED ||
+      this.state == WebsocketStates.CLOSING
+    ) {
+      this.state = WebsocketStates.CLOSED;
+      this.manager.client.console.warn(
+        `[Aether] Disconnected from Websocket with code ${code} and reason ${reason}.`
+      );
+    }
     if (code == 1006) this.manager.ws?.terminate();
+    if (code == 1012) {
+      // Aether has shut down, session will be invalid
+      // I'll eventually make sessions persist though
+      delete this.manager.session;
+      delete this.manager.seq;
+      return this.activate(
+        process.env.NODE_ENV == "development" ? 10000 : 2500
+      ); // takes longer to reboot in dev
+    }
     if (code == 4007)
       // Cluster has attempted to connect multiple times
       // so kill the process and let pm2 restart it
@@ -38,17 +56,9 @@ export class Reconnector {
     if (code == 4005) {
       delete this.manager.session;
       delete this.manager.seq;
+      return this.activate(0); // reconnect instantly for new session
     }
-    if (
-      this.state == WebsocketStates.CONNECTED ||
-      this.state == WebsocketStates.CLOSING
-    ) {
-      this.state = WebsocketStates.CLOSED;
-      this.manager.client.console.warn(
-        `[Aether] Disconnected from Websocket with code ${code} and reason ${reason}.`
-      );
-      this.activate();
-    }
+    this.activate();
   }
 
   handleError(error: any) {
@@ -62,12 +72,14 @@ export class Reconnector {
   }
 
   activate(timeout: number = 5000) {
+    if (!timeout) return this.reconnect(false);
     if (this.timeout) clearTimeout(this.timeout);
     this.timeout = setTimeout(this.reconnect.bind(this), timeout);
   }
 
-  reconnect() {
-    this.manager.client.console.info(`[Aether] Attempting to reconnect...`);
+  reconnect(log = true) {
+    if (log)
+      this.manager.client.console.info(`[Aether] Attempting to reconnect...`);
     // it likes to try reconnect while already connected sometimes
     // why? not a single fucking clue
     if (this.manager.ws?.open) this.manager.ws.close(4000, "brb");
