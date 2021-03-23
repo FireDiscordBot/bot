@@ -1,4 +1,5 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { constants } from "@fire/lib/util/constants";
 import { Event } from "@fire/lib/ws/event/Event";
@@ -10,15 +11,27 @@ export default class PlaywrightRequestEvent extends Event {
   }
 
   async run(data: {
-    error?: string;
     screenshot: { type: "Buffer"; data: number[] };
-    channel_id: string;
+    interaction?: { id: string; token: string };
+    channel_id?: string;
+    error?: string;
     lang: string;
   }) {
-    const channel = this.manager.client.channels.cache.get(
-      data.channel_id
-    ) as FireTextChannel;
-    if (!channel) return;
+    let channel: FireTextChannel;
+    if (data.interaction?.id) {
+      const util = this.manager.client.commandHandler.commandUtils.find(
+        (util) =>
+          util.message instanceof SlashCommandMessage &&
+          util.message.id == data.interaction.id
+      );
+      if (!util) return;
+      channel = util.message.channel as FireTextChannel; // really it's a FakeChannel
+    } else {
+      const channel = this.manager.client.channels.cache.get(
+        data.channel_id
+      ) as FireTextChannel;
+      if (!channel) return;
+    }
     if (data.error)
       return await channel.send(
         constants.emojis.error +

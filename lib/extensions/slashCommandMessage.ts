@@ -99,6 +99,7 @@ export class SlashCommandMessage {
     this.realChannel = this.client.channels.cache.get(
       this.slashCommand.channel_id
     ) as FireTextChannel | NewsChannel | DMChannel;
+    this.util = new CommandUtil(this.client.commandHandler, this);
     if (!this.guild) {
       // This will happen if a guild authorizes w/applications.commands
       // or if a slash command is invoked in DMs (discord/discord-api-docs #2568)
