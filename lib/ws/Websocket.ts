@@ -17,8 +17,10 @@ export class Websocket extends Client {
         : `ws://127.0.0.1:${process.env.WS_PORT}`,
       {
         headers: {
-          "User-Agent": "Fire Discord Bot",
+          "x-aether-session": manager.session || "",
           authorization: process.env.WS_AUTH,
+          "x-aether-seq": manager.seq?.toString() || "0",
+          "User-Agent": "Fire Discord Bot",
         },
       }
     );
@@ -42,34 +44,26 @@ export class Websocket extends Client {
         this.pongs++;
       });
       this.manager.client.getModule("aetherstats").init();
-      this.send(
-        this.manager.session && typeof this.manager.seq == "number"
-          ? MessageUtil.encode(
-              new Message(EventType.IDENTIFY_CLIENT, {
-                ready: !!this.manager.client.readyAt,
-                sessionId: this.manager.session,
-                seq: this.manager.seq,
-                pid: process.pid,
-                config: {},
-              })
-            )
-          : MessageUtil.encode(
-              new Message(EventType.IDENTIFY_CLIENT, {
-                ready: !!this.manager.client.readyAt,
-                pid: process.pid,
-                config: {},
-              })
-            )
-      );
+      if (!this.manager.session)
+        this.send(
+          MessageUtil.encode(
+            new Message(EventType.IDENTIFY_CLIENT, {
+              ready: !!this.manager.client.readyAt,
+              pid: process.pid,
+              config: {},
+            })
+          )
+        );
       if (!this.manager.seq) this.manager.seq = 0;
     });
   }
 
   init() {
     this.on("message", (message) => {
+      if (message.toLocaleString().length == 3) console.log(message);
       this.manager.eventHandler.handle(message).catch((e) => {
         this.manager.client?.console.error(
-          `[EventHandler] Failed to handle event from aether due to\n${e.stack}`
+          `[EventHandler] Failed to handle event from Aether due to\n${e.stack}`
         );
       });
     });
