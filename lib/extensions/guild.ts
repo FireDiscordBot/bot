@@ -915,7 +915,9 @@ export class FireGuild extends Guild {
       reason
     ).catch(() => {});
     if (!logEntry) return "entry";
-    const unbanned = await this.members.unban(user, reason).catch(() => {});
+    const unbanned = await this.members
+      .unban(user, `${moderator} | ${reason}`)
+      .catch(() => {});
     if (!unbanned) {
       const deleted = await this.deleteModLogEntry(logEntry).catch(() => false);
       return deleted ? "unban" : "unban_and_entry";
@@ -972,7 +974,7 @@ export class FireGuild extends Guild {
       ADD_REACTIONS: false,
     };
     const blocked = await channel
-      .updateOverwrite(blockee, overwrite, reason)
+      .updateOverwrite(blockee, overwrite, `${moderator} | ${reason}`)
       .catch(() => {});
     if (!blocked) {
       let deleted = true; // ensures "block" is used if logEntry doesn't exist
@@ -1040,7 +1042,7 @@ export class FireGuild extends Guild {
       ADD_REACTIONS: null,
     };
     const unblocked = await channel
-      .updateOverwrite(unblockee, overwrite, reason)
+      .updateOverwrite(unblockee, overwrite, `${moderator} | ${reason}`)
       .catch(() => {});
     if (
       channel.permissionOverwrites?.get(unblockee.id)?.allow.bitfield == 0 &&
