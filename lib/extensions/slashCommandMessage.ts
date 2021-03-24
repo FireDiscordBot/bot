@@ -208,11 +208,12 @@ export class SlashCommandMessage {
       if (this.sourceMessage instanceof FireMessage)
         return this.sourceMessage.react(reactions.success).catch(() => {});
       else
-        return this.getRealMessage().then((message) =>
+        return this.getRealMessage().then((message) => {
+          if (!message) return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
           message.react(reactions.success).catch(() => {
-            return this.error("SLASH_COMMAND_HANDLE_SUCCESS");
-          })
-        );
+            return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
+          });
+        });
     }
     return this.channel.send(
       `${emojis.success} ${this.language.get(key, ...args)}`,
@@ -229,11 +230,12 @@ export class SlashCommandMessage {
       if (this.sourceMessage instanceof FireMessage)
         return this.sourceMessage.react(reactions.error).catch(() => {});
       else
-        return this.getRealMessage().then((message) =>
+        return this.getRealMessage().then((message) => {
+          if (!message) return this.error("SLASH_COMMAND_HANDLE_FAIL");
           message.react(reactions.error).catch(() => {
             return this.error("SLASH_COMMAND_HANDLE_FAIL");
-          })
-        );
+          });
+        });
     }
     return this.channel.send(
       `${emojis.error} ${this.language.get(key, ...args)}`,
