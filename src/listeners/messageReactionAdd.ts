@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageReaction, GuildEmoji } from "discord.js";
 import { FireUser } from "@fire/lib/extensions/user";
@@ -31,7 +31,6 @@ export default class MessageReactionAdd extends Listener {
       message.guild?.premium &&
       message.guild?.reactionRoles.has(message.id)
     ) {
-      if (message.partial) await message.fetch();
       const guild = message.guild;
       const emoji =
         messageReaction.emoji instanceof GuildEmoji
