@@ -38,6 +38,18 @@ export default class StarboardChannel extends Command {
         : await message.success("STARBOARD_CHANNEL_RESET");
     }
 
+    const missing = message.guild.me
+      .permissionsIn(args.channel)
+      .missing(["VIEW_CHANNEL", "SEND_MESSAGES", "EMBED_LINKS"]);
+    if (missing.length)
+      return await message.error(
+        "MISSING_PERMISSIONS_CLIENT",
+        missing.map((name) =>
+          this.client.util.cleanPermissionName(name, message.language)
+        ),
+        `starboard channel`
+      );
+
     const current = message.guild.settings.get("starboard.channel");
     if (current && args.channel.id != current) {
       await this.client.db
