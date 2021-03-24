@@ -105,6 +105,7 @@ export class SlashCommandMessage {
     ) as FireTextChannel | NewsChannel | DMChannel;
     this.latestResponse = "@original";
     this.sent = false;
+    this.util = new CommandUtil(this.client.commandHandler, this);
     if (!this.guild) {
       // This will happen if a guild authorizes w/applications.commands only
       // or if a slash command is invoked in DMs (discord/discord-api-docs #2568)

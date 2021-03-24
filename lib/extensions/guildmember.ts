@@ -9,6 +9,7 @@ import { FakeChannel } from "./slashCommandMessage";
 import { humanize } from "@fire/lib/util/constants";
 import { FireTextChannel } from "./textchannel";
 import * as sanitizer from "@aero/sanitizer";
+import { FireMessage } from "./message";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
@@ -319,7 +320,10 @@ export class FireMember extends GuildMember {
         this.guild.language.get("BAN_MUTED_REASON") as string,
         this.guild.me as FireMember
       ).catch(() => {});
-    const banned = await this.ban({ reason, days }).catch(() => {});
+    const banned = await this.ban({
+      reason: `${moderator} | ${reason}`,
+      days,
+    }).catch(() => {});
     if (!banned) {
       const deleted = await this.guild
         .deleteModLogEntry(logEntry)
@@ -394,7 +398,7 @@ export class FireMember extends GuildMember {
       .createModLogEntry(this, moderator, "kick", reason)
       .catch(() => {});
     if (!logEntry) return "entry";
-    const kicked = await this.kick(reason).catch(() => {});
+    const kicked = await this.kick(`${moderator} | ${reason}`).catch(() => {});
     if (!kicked) {
       const deleted = await this.guild
         .deleteModLogEntry(logEntry)
@@ -443,7 +447,7 @@ export class FireMember extends GuildMember {
         this.roles.cache.filter(
           (role) => role.id != this.guild.roles.everyone.id
         ),
-        reason
+        `${moderator} | ${reason}`
       )
       .catch(() => {});
     const afterIds = this.roles.cache
@@ -504,17 +508,23 @@ export class FireMember extends GuildMember {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     if (!this.guild.muteRole) {
+      let settingUp: FireMessage;
+      if (channel)
+        settingUp = (await channel.send(
+          this.language.get("MUTE_ROLE_CREATE_REASON")
+        )) as FireMessage;
       const role = await this.guild.initMuteRole();
+      settingUp?.delete();
       if (!role) return "role";
-    } else await this.guild.syncMuteRolePermissions();
+    } else this.guild.syncMuteRolePermissions();
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, "mute", reason)
       .catch(() => {});
     if (!logEntry) return "entry";
-    const unmuted = await this.roles
-      .add(this.guild.muteRole, reason)
+    const muted = await this.roles
+      .add(this.guild.muteRole, `${moderator} | ${reason}`)
       .catch(() => {});
-    if (!unmuted) {
+    if (!muted) {
       const deleted = await this.guild
         .deleteModLogEntry(logEntry)
         .catch(() => false);
@@ -583,7 +593,7 @@ export class FireMember extends GuildMember {
     if (!this.guild.mutes.has(this.id)) {
       if (this.roles.cache.has(this.guild.muteRole?.id)) {
         const unmuted = await this.roles
-          .remove(this.guild.muteRole, reason)
+          .remove(this.guild.muteRole, `${moderator} | ${reason}`)
           .catch(() => {});
         if (
           channel &&
@@ -613,7 +623,7 @@ export class FireMember extends GuildMember {
     const until = this.guild.mutes.get(this.id);
     this.guild.mutes.delete(this.id);
     const unmuted = await this.roles
-      .remove(this.guild.muteRole, reason)
+      .remove(this.guild.muteRole, `${moderator} | ${reason}`)
       .catch(() => {});
     if (!unmuted) {
       // ensures user can be properly unmuted

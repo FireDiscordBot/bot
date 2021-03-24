@@ -1,3 +1,4 @@
+import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -24,6 +25,7 @@ export default class Google extends Command {
           required: true, // Default is set to Hi so that the assistant will likely ask what it can do
         },
       ],
+      enableSlashCommand: true,
       cooldown: 5000,
       lock: "user",
       typing: true, // This command takes a hot sec to run, especially when running locally so type while waiting
@@ -110,11 +112,23 @@ export default class Google extends Command {
       );
     this.client.manager.ws.send(
       MessageUtil.encode(
-        new Message(EventType.PLAYWRIGHT_REQUEST, {
-          lang: message.language.id,
-          channel_id: message.channel.id,
-          html,
-        })
+        new Message(
+          EventType.PLAYWRIGHT_REQUEST,
+          message instanceof SlashCommandMessage
+            ? {
+                interaction: {
+                  token: message.slashCommand.token,
+                  id: message.id,
+                },
+                lang: message.language.id,
+                html,
+              }
+            : {
+                lang: message.language.id,
+                channel_id: message.channel.id,
+                html,
+              }
+        )
       )
     );
   }

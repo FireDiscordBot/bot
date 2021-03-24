@@ -18,6 +18,31 @@ export default class MessageDelete extends Listener {
         .catch(() => {});
     }
 
+    if (
+      message.guild &&
+      (message.guild.starboardReactions.has(message.id) ||
+        message.guild.starboardMessages.has(message.id) ||
+        message.guild.starboardMessages.find((board) => board == message.id))
+    ) {
+      await this.client.db
+        .query(
+          "DELETE FROM starboard WHERE gid=$1 AND original=$2 OR gid=$1 AND board=$2;",
+          [message.guild.id, message.id]
+        )
+        .catch(() => {});
+      await this.client.db
+        .query("DELETE FROM starboard_reactions WHERE gid=$1 AND mid=$2;", [
+          message.guild.id,
+          message.id,
+        ])
+        .catch(() => {});
+      message.guild.starboardMessages.delete(message.id);
+      message.guild.starboardReactions.delete(message.id);
+      message.guild.starboardMessages.delete(
+        message.guild.starboardMessages.findKey((board) => board == message.id)
+      );
+    }
+
     if (message.partial || message.author.bot) return;
 
     if (

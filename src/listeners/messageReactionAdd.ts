@@ -1,9 +1,10 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageReaction, GuildEmoji } from "discord.js";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
 import Sk1er from "@fire/src/modules/sk1er";
+import { constants } from "@fire/lib/util/constants";
 
 export default class MessageReactionAdd extends Listener {
   constructor() {
@@ -31,7 +32,6 @@ export default class MessageReactionAdd extends Listener {
       message.guild?.premium &&
       message.guild?.reactionRoles.has(message.id)
     ) {
-      if (message.partial) await message.fetch();
       const guild = message.guild;
       const emoji =
         messageReaction.emoji instanceof GuildEmoji
@@ -47,6 +47,29 @@ export default class MessageReactionAdd extends Listener {
           await member.roles
             .add(role, guild.language.get("REACTIONROLE_ROLE_REASON") as string)
             .catch(() => {});
+      }
+    }
+
+    if (message.guild?.settings.has("starboard.channel")) {
+      const channel = message.guild.channels.cache.get(
+        message.guild?.settings.get("starboard.channel")
+      ) as FireTextChannel;
+      const starboardEmoji = message.guild?.settings.get(
+        "starboard.emoji",
+        "⭐"
+      );
+      const reactionEmoji =
+        messageReaction.emoji instanceof GuildEmoji
+          ? messageReaction.emoji.id
+          : messageReaction.emoji.name;
+      if (
+        channel &&
+        starboardEmoji.trim() == reactionEmoji.trim()
+        // (starboardEmoji.trim() == reactionEmoji.trim() ||
+        //   reactionEmoji == constants.emojis.antistarId)
+      ) {
+        await message.fetch().catch(() => {}); // needed to get reaction counts
+        if (!message.partial) await message.star(messageReaction, user, "add");
       }
     }
 

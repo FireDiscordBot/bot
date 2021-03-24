@@ -1271,6 +1271,35 @@ ${success.map((s) => "- " + s).join("\n")}${
           )}`,
         SK1ER_BETA_MOVED:
           "Beta testing for Sk1er LLC mods has been moved to our support server! You can join with discord.gg/d4KFR9H",
+        STARBOARD_COMMAND_DESCRIPTION:
+          "Create a starboard to save messages with a ⭐",
+        STARBOARD_MAIN_DESCRIPTION:
+          "Here are all the starboard configuration commands",
+        STARBOARD_CHANNEL_DESCRIPTION:
+          "Set the channel starred messages will be sent to",
+        STARBOARD_MINIMUM_DESCRIPTION:
+          "Set the minimum amount of stars needed to get on the starboard (Defaults to 5)",
+        STARBOARD_ANTISTAR_DESCRIPTION: `Toggle "antistar" allowing users to react with ${constants.emojis.antistar} to remove 1 from a message's star count`,
+        STARBOARD_EMOJI_DESCRIPTION:
+          "Set a custom starboard emoji (Requires Premium)",
+        STARBOARD_CHANNEL_RESET: "Successfully disabled starboard",
+        STARBOARD_CHANNEL_SET: (channel: string) =>
+          `Successfully enabled starboard and set the channel to ${channel}. All starred messages will be sent there`,
+        STARBOARD_MINIMUM_TOO_LOW: "The minimum must be at least 2!",
+        STARBOARD_MINIMUM_RESET:
+          "Successfully reset the starboard minimum! Messages will now need 5 stars to appear on the starboard",
+        STARBOARD_MINIMUM_SET: (min: number) =>
+          `Successfully set the starboard minimum! Messages will now need ${min} stars to appear on the starboard`,
+        STARBOARD_ANTISTAR_COMMAND_DESCRIPTION: `Toggle "antistar" allowing users to subtract 1 from a message's star count with a reaction`,
+        STARBOARD_ANTISTAR_ENABLED: `Successfully enabled antistar. When a message gets at least 1 star, I will react with ${constants.emojis.antistar} which users can use to subtract from a message's star count`,
+        STARBOARD_ANTISTAR_DISABLED:
+          "Successfully disabled antistar. I will no longer add the antistar reaction and users will no longer be able to subtract from a message's star count other than removing their own star",
+        STARBOARD_EMOJI_INVALID:
+          "That emoji isn't valid! It must be a default emoji or an emoji from this guild",
+        STARBOARD_EMOJI_SET: (emoji: string) =>
+          `Successfully set the starboard emoji to ${emoji}`,
+        STARBOARD_CONTAINS_VIDEO: "__Message contains a video__",
+        STARBOARD_CONTAINS_AUDIO: "__Message contains an audio file__",
         STATS_COMMAND_DESCRIPTION: "View cluster & overall stats.",
         STATS_TITLE: (name: string, version: string) =>
           `Stats for ${name} [${version}]`,
