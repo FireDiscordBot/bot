@@ -27,11 +27,11 @@ export default class PlaywrightRequestEvent extends Event {
       if (!util) return;
       channel = util.message.channel as FireTextChannel; // really it's a FakeChannel
     } else {
-      const channel = this.manager.client.channels.cache.get(
+      channel = this.manager.client.channels.cache.get(
         data.channel_id
       ) as FireTextChannel;
-      if (!channel) return;
     }
+    if (!channel) return;
     if (data.error)
       return await channel.send(
         constants.emojis.error +
