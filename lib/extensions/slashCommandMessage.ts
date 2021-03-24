@@ -1,6 +1,7 @@
 import {
   APIMessageContentResolvable,
   PermissionOverwriteOption,
+  DeconstructedSnowflake,
   GuildMemberResolvable,
   AwaitMessagesOptions,
   MessageEditOptions,
@@ -15,6 +16,7 @@ import {
   RoleResolvable,
   MessageOptions,
   MessageManager,
+  SnowflakeUtil,
   MessageEmbed,
   Permissions,
   NewsChannel,
@@ -40,6 +42,7 @@ const { emojis, reactions } = constants;
 export class SlashCommandMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   attachments: Collection<string, MessageAttachment>;
+  private snowflake: DeconstructedSnowflake;
   sent: false | "ack" | "message";
   sourceMessage: FireMessage;
   slashCommand: SlashCommand;
@@ -53,13 +56,14 @@ export class SlashCommandMessage {
   command: Command;
   author: FireUser;
   content: string;
-  flags: number;
+  _flags: number;
   client: Fire;
   id: string;
 
   constructor(client: Fire, command: SlashCommand) {
     this.client = client;
     this.id = command.id;
+    this.snowflake = SnowflakeUtil.deconstruct(this.id);
     this.slashCommand = command;
     if (command.data.options?.length && command.data.options[0]?.type == 1) {
       command.data.name = `${command.data.name}-${command.data.options[0].name}`;
@@ -67,13 +71,13 @@ export class SlashCommandMessage {
     }
     this.guild = client.guilds.cache.get(command.guild_id) as FireGuild;
     this.command = this.client.getCommand(command.data.name);
-    this.flags = 0;
+    this._flags = 0;
     if (this.guild?.tags?.slashCommands[command.data.id] == command.data.name) {
       this.command = this.client.getCommand("tag");
       command.data.options = [{ name: "tag", value: command.data.name }];
-      if (this.guild.tags.ephemeral) this.setFlags(64);
+      if (this.guild.tags.ephemeral) this.flags = 64;
     }
-    if (this.command?.ephemeral) this.setFlags(64);
+    if (this.command?.ephemeral) this.flags = 64;
     // @ts-ignore
     this.mentions = new MessageMentions(this, [], [], false);
     this.attachments = new Collection();
@@ -99,17 +103,18 @@ export class SlashCommandMessage {
     this.realChannel = this.client.channels.cache.get(
       this.slashCommand.channel_id
     ) as FireTextChannel | NewsChannel | DMChannel;
+    this.latestResponse = "@original";
+    this.sent = false;
     this.util = new CommandUtil(this.client.commandHandler, this);
     if (!this.guild) {
-      // This will happen if a guild authorizes w/applications.commands
+      // This will happen if a guild authorizes w/applications.commands only
       // or if a slash command is invoked in DMs (discord/discord-api-docs #2568)
       this.channel = new FakeChannel(
         this,
         client,
         command.id,
         command.token,
-        command.guild_id ? null : this.author.dmChannel,
-        this.flags
+        command.guild_id ? null : this.author.dmChannel
       );
       return this;
     }
@@ -118,17 +123,42 @@ export class SlashCommandMessage {
       client,
       command.id,
       command.token,
-      this.realChannel,
-      this.flags
+      this.realChannel
     );
-    this.latestResponse = "@original";
-    this.sent = false;
   }
 
-  setFlags(flags: number) {
+  set flags(flags: number) {
     // Suppress and ephemeral
     if (![1 << 2, 1 << 6].includes(flags)) return;
-    this.flags = flags;
+    this._flags = flags;
+  }
+
+  get flags() {
+    return this._flags;
+  }
+
+  get editedAt() {
+    if (this.sourceMessage && this.sourceMessage instanceof FireMessage)
+      return this.sourceMessage.editedAt;
+    return null;
+  }
+
+  get editedTimestamp() {
+    if (this.sourceMessage && this.sourceMessage instanceof FireMessage)
+      return this.sourceMessage.editedTimestamp;
+    return 0;
+  }
+
+  get createdAt() {
+    if (this.sourceMessage && this.sourceMessage instanceof FireMessage)
+      return this.sourceMessage.createdAt;
+    return this.snowflake.date;
+  }
+
+  get createdTimestamp() {
+    if (this.sourceMessage && this.sourceMessage instanceof FireMessage)
+      return this.sourceMessage.createdTimestamp;
+    return this.snowflake.timestamp;
   }
 
   async generateContent() {
@@ -175,19 +205,14 @@ export class SlashCommandMessage {
     ...args: any[]
   ): Promise<SlashCommandMessage | MessageReaction | void> {
     if (!key) {
-      const message = this.realChannel?.messages.cache.find(
-        (message) =>
-          typeof message.type == "undefined" &&
-          message.system &&
-          message.author.id == this.member.id &&
-          message.content.startsWith(
-            `</${this.command.parent ? this.command.parent : this.command.id}:${
-              this.slashCommand.data.id
-            }>`
-          )
-      );
-      if (message) return message.react(reactions.success).catch(() => {});
-      return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
+      if (this.sourceMessage instanceof FireMessage)
+        return this.sourceMessage.react(reactions.success).catch(() => {});
+      else
+        return this.getRealMessage().then((message) =>
+          message.react(reactions.success).catch(() => {
+            return this.error("SLASH_COMMAND_HANDLE_SUCCESS");
+          })
+        );
     }
     return this.channel.send(
       `${emojis.success} ${this.language.get(key, ...args)}`,
@@ -201,23 +226,45 @@ export class SlashCommandMessage {
     ...args: any[]
   ): Promise<SlashCommandMessage | MessageReaction | void> {
     if (!key) {
-      const message = this.realChannel?.messages.cache.find(
-        (message) =>
-          typeof message.type == "undefined" &&
-          message.system &&
-          message.author.id == this.member.id &&
-          message.content.startsWith(
-            `</${this.command.id}:${this.slashCommand.data.id}>`
-          )
-      );
-      if (message) return message.react(reactions.error).catch(() => {});
-      return this.error("SLASH_COMMAND_HANDLE_FAIL");
+      if (this.sourceMessage instanceof FireMessage)
+        return this.sourceMessage.react(reactions.error).catch(() => {});
+      else
+        return this.getRealMessage().then((message) =>
+          message.react(reactions.error).catch(() => {
+            return this.error("SLASH_COMMAND_HANDLE_FAIL");
+          })
+        );
     }
     return this.channel.send(
       `${emojis.error} ${this.language.get(key, ...args)}`,
       {},
       this.flags ? this.flags : 64
     );
+  }
+
+  async getRealMessage() {
+    if (!this.realChannel) return;
+    if (this.sourceMessage instanceof FireMessage) return this.sourceMessage;
+
+    let messageId = this.latestResponse;
+    if (messageId == "@original") {
+      // @ts-ignore
+      const message = await this.client.api
+        // @ts-ignore
+        .webhooks(this.client.user.id, this.slashCommand.token)
+        .messages(messageId)
+        .patch({
+          data: {},
+        })
+        .catch(() => {});
+      messageId = message?.id;
+    }
+
+    const message = (await this.realChannel.messages
+      .fetch(messageId)
+      .catch(() => {})) as FireMessage;
+    if (message) this.sourceMessage = message;
+    return message;
   }
 
   async edit(
@@ -246,7 +293,13 @@ export class SlashCommandMessage {
   }
 
   async delete() {
-    return this;
+    // @ts-ignore
+    await this.client.api
+      // @ts-ignore
+      .webhooks(this.client.user.id, this.slashCommand.token)
+      .messages(this.latestResponse)
+      .delete()
+      .catch(() => {});
   }
 }
 
@@ -254,7 +307,6 @@ export class FakeChannel {
   real: FireTextChannel | NewsChannel | DMChannel;
   message: SlashCommandMessage;
   messages: MessageManager;
-  msgFlags: number;
   token: string;
   client: Fire;
   id: string;
@@ -264,16 +316,18 @@ export class FakeChannel {
     client: Fire,
     id: string,
     token: string,
-    real?: FireTextChannel | NewsChannel | DMChannel,
-    msgFlags?: number
+    real?: FireTextChannel | NewsChannel | DMChannel
   ) {
     this.id = id;
     this.real = real;
     this.token = token;
     this.client = client;
     this.message = message;
-    this.msgFlags = msgFlags;
     this.messages = real?.messages;
+  }
+
+  get flags() {
+    return this.message.flags;
   }
 
   toString() {
@@ -287,11 +341,11 @@ export class FakeChannel {
   }
 
   startTyping(count?: number) {
-    return this.real?.startTyping(count);
+    return new Promise(() => {});
   }
 
   stopTyping(force?: boolean) {
-    return this.real?.stopTyping(force);
+    return;
   }
 
   bulkDelete(
@@ -321,29 +375,18 @@ export class FakeChannel {
   }
 
   // Acknowledges without sending a message
-  async ack(source: boolean = false) {
+  async ack(ephemeral = false) {
+    if (ephemeral || (this.flags & 64) != 0) return;
     // @ts-ignore
     await this.client.api
       // @ts-ignore
       .interactions(this.id)(this.token)
-      .callback.post({ data: { type: source ? 5 : 2 }, query: { wait: true } })
+      .callback.post({
+        data: { type: 5, data: { flags: this.flags } },
+      })
       .then(() => {
         this.message.sent = "ack";
-        const sourceMessage = this.real.messages.cache.find(
-          (message) =>
-            typeof message.type == "undefined" &&
-            message.system &&
-            message.author.id == this.message.member.id &&
-            message.content.startsWith(
-              `</${
-                this.message.command.parent
-                  ? this.message.command.parent
-                  : this.message.command.id
-              }:${this.message.slashCommand.data.id}>`
-            )
-        );
-        if (sourceMessage)
-          this.message.sourceMessage = sourceMessage as FireMessage;
+        this.message.getRealMessage().catch(() => {});
       })
       .catch(() => (this.message.sent = "ack"));
   }
@@ -363,7 +406,7 @@ export class FakeChannel {
       content = null;
     }
 
-    if (content instanceof APIMessage) content.resolveData();
+    if (content instanceof APIMessage) apiMessage = content.resolveData();
     else {
       apiMessage = APIMessage.create(
         // @ts-ignore
@@ -373,21 +416,21 @@ export class FakeChannel {
       ).resolveData();
     }
 
-    const { data, files } = await apiMessage.resolveFiles();
+    const { data, files } = (await apiMessage.resolveFiles()) as {
+      data: any;
+      files: any[];
+    };
 
-    // @ts-ignore
-    data.flags = this.msgFlags;
-    // @ts-ignore
+    data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;
 
     // embeds in ephemeral wen eta
     if (
-      // @ts-ignore
-      (data.embeds?.length || this.real instanceof DMChannel) &&
-      // @ts-ignore
+      (data.embeds?.length ||
+        files?.length ||
+        this.real instanceof DMChannel) &&
       (data.flags & 64) == 64
     )
-      // @ts-ignore
       data.flags -= 64;
 
     if (!this.message.sent)
@@ -397,38 +440,46 @@ export class FakeChannel {
         .interactions(this.id)(this.token)
         .callback.post({
           data: {
-            type:
-              // @ts-ignore
-              (data.flags & 64) == 64 &&
-              // @ts-ignore
-              (!data.embeds?.length || this.real instanceof DMChannel)
-                ? 3
-                : 4,
+            type: 4,
             data,
           },
           files,
         })
         .then(() => {
-          // @ts-ignore
-          if ((data.flags & 64) != 64) this.message.sent = "message";
+          this.message.sent = "message";
         })
         .catch(() => {});
-    else {
+    else if ((this.message.sent = "ack")) {
       // @ts-ignore
-      const webhook = await this.client.api
+      await this.client.api
+        // @ts-ignore
+        .webhooks(this.client.user.id)(this.token)
+        .messages("@original")
+        .patch({
+          data,
+          files,
+        })
+        .then(() => {
+          this.message.sent = "message";
+        })
+        .catch(() => {});
+    } else {
+      // @ts-ignore
+      const message = await this.client.api
         // @ts-ignore
         .webhooks(this.client.user.id)(this.token)
         .post({
           data,
           files,
+          query: { wait: true },
         })
         .then(() => {
-          // @ts-ignore
-          if ((data.flags & 64) != 64) this.message.sent = "message";
+          this.message.sent = "message";
         })
         .catch(() => {});
-      if (webhook?.id) this.message.latestResponse = webhook.id;
+      if (message?.id) this.message.latestResponse = message.id;
     }
+    this.message.getRealMessage().catch(() => {});
     return this.message;
   }
 }

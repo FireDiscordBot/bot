@@ -25,7 +25,7 @@ export default class InteractionCreate extends Listener {
       await this.client.channels.fetch(command.channel_id).catch(() => {});
       const message = new SlashCommandMessage(this.client, command);
       await message.channel.ack(
-        (message.flags & 64) != 64 || message.realChannel instanceof DMChannel
+        (message.flags & 64) != 0 || message.realChannel instanceof DMChannel
       );
       if (!message.command) {
         this.client.console.warn(
