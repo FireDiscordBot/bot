@@ -451,7 +451,7 @@ export class FakeChannel {
           this.message.sent = "message";
         })
         .catch(() => {});
-    else if ((this.message.sent = "ack")) {
+    else if (this.message.sent == "ack") {
       // @ts-ignore
       await this.client.api
         // @ts-ignore
