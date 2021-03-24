@@ -1,0 +1,26 @@
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
+
+// this feature didn't work too well, may take another shot at it at a later pointi
+export default class StarboardAntistar extends Command {
+  constructor() {
+    super("starboard-antistar", {
+      description: (language: Language) =>
+        language.get("STARBOARD_ANTISTAR_COMMAND_DESCRIPTION"),
+      userPermissions: ["MANAGE_GUILD"],
+      restrictTo: "guild",
+      parent: "starboard",
+    });
+  }
+
+  async exec(message: FireMessage) {
+    const current = message.guild.settings.get("starboard.antistar", false);
+    if (current) message.guild.settings.delete("starboard.antistar");
+    else message.guild.settings.set("starboard.antistar", true);
+
+    return !current
+      ? await message.success("STARBOARD_ANTISTAR_ENABLED")
+      : await message.success("STARBOARD_ANTISTAR_DISABLED");
+  }
+}

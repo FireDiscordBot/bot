@@ -52,6 +52,8 @@ let emojis = {
     major_outage: "<:major_outage:685538400639385706>",
     under_maintenance: "<:maintenance:685538400337395743>",
   },
+  antistar: "<:antistar:824239146930667560>",
+  antistarId: "824239146930667560",
   badges: {
     DISCORD_EMPLOYEE: "<:DiscordStaff:698344463281422371>",
     PARTNERED_SERVER_OWNER: "<a:PartnerShine:750451997244915862>",
@@ -124,6 +126,7 @@ let reactions = {
   success: "yes:534174796888408074",
   error: "no:534174796938870792",
   warning: "maybe:534174796578160640",
+  antistar: "antistar:824239146930667560",
 };
 
 // e.g. for litecord
@@ -208,6 +211,8 @@ export const constants = {
     supportedHaste: ["hastebin.com", "hasteb.in", "hst.sh"],
   },
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
+  audioExts: ["mp3", "wav", "flac", "alac", "m4a"],
+  videoExts: ["mp4", "mkv", "mov"],
   regexes: {
     maskedLink: /\[(?<name>.+)\]\((?<link>https?:\/\/.+)\)/gim,
     symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,

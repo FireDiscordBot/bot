@@ -48,6 +48,8 @@ const parseUntil = (time?: string) => {
 export class FireGuild extends Guild {
   quoteHooks: Collection<string, Webhook | WebhookClient>;
   reactionRoles: Collection<string, ReactionRoleData[]>;
+  starboardReactions: Collection<string, number>;
+  starboardMessages: Collection<string, string>;
   persistedRoles: Collection<string, string[]>;
   ticketLock?: { lock: Semaphore; limit: any };
   permRoles: Collection<string, PermRolesData>;
@@ -72,6 +74,8 @@ export class FireGuild extends Guild {
     this.settings = new GuildSettings(client, this);
     this.tags = new GuildTagManager(client, this);
     this.logger = new GuildLogManager(client, this);
+    this.starboardReactions = new Collection();
+    this.starboardMessages = new Collection();
     this.persistedRoles = new Collection();
     this.reactionRoles = new Collection();
     this.inviteRoles = new Collection();
@@ -81,6 +85,8 @@ export class FireGuild extends Guild {
     this.fetchingRoleUpdates = false;
     this.vcRoles = new Collection();
     this.invites = new Collection();
+    this.loadStarboardReactions();
+    this.loadStarboardMessages();
     this.loadMutes();
     this.loadBans();
   }
@@ -321,6 +327,38 @@ export class FireGuild extends Guild {
         this.me as FireMember
       );
     }
+  }
+
+  async loadStarboardMessages() {
+    this.starboardMessages = new Collection();
+    const messages = await this.client.db
+      .query("SELECT * FROM starboard WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!messages)
+      return this.client.console.error(
+        `[Guild] Failed to load starboard messages for ${this.name} (${this.id})`
+      );
+    for await (const message of messages)
+      this.starboardMessages.set(
+        message.get("original") as string,
+        message.get("board") as string
+      );
+  }
+
+  async loadStarboardReactions() {
+    this.starboardReactions = new Collection();
+    const reactions = await this.client.db
+      .query("SELECT * FROM starboard_reactions WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!reactions)
+      return this.client.console.error(
+        `[Guild] Failed to load starboard reactions for ${this.name} (${this.id})`
+      );
+    for await (const reaction of reactions)
+      this.starboardReactions.set(
+        reaction.get("mid") as string,
+        reaction.get("reactions") as number
+      );
   }
 
   async loadInviteRoles() {
