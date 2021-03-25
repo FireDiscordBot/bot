@@ -146,6 +146,7 @@ export class Command extends AkairoCommand {
     name: string;
     description: string;
     options?: Option[];
+    default_permission?: boolean;
   } {
     let data = {
       name: this.id,
@@ -153,6 +154,7 @@ export class Command extends AkairoCommand {
         typeof this.description == "function"
           ? this.description(this.client.getLanguage("en-US"))
           : this.description || "No Description Provided",
+      default_permission: !this.requiresExperiment,
     };
     if (!this.group) {
       if (this.args?.length)
@@ -190,9 +192,10 @@ export class Command extends AkairoCommand {
       description:
         typeof argument.description == "function"
           ? argument.description(this.client.getLanguage("en-US"))
-          : argument.description || "No Description Provided",
+          : argument.description || null,
       required: argument.required,
     };
+    if (!options.description) delete options.description;
     if (
       argument.slashCommandOptions ||
       (argument.type instanceof Array &&
