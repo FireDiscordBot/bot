@@ -156,7 +156,7 @@ export default class Ready extends Listener {
             .permissions.put({ data: { permissions: slashCommandPermissions } })
             .catch((e: Error) => {
               this.client.console.error(
-                `[Commands] Failed to update slash command permissions for locked command  ${slashCommand.name} in guild ${guild.name}\n${e.stack}`
+                `[Commands] Failed to update slash command permissions for locked command ${slashCommand.name} in guild ${guild.name}\n${e.stack}`
               );
             });
         }
