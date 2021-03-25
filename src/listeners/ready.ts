@@ -122,7 +122,7 @@ export default class Ready extends Listener {
           command.requiresExperiment.id
         );
         // there isn't really a good way to do user experiment permissions since they're guild bound
-        if (experiment.kind != "guild") continue;
+        if (experiment?.kind != "guild") continue;
         for (const [, guild] of this.client.guilds.cache as Collection<
           string,
           FireGuild
