@@ -10,9 +10,9 @@ const { emojis } = constants;
 
 export default class MinecraftStatus extends Command {
   emotes: {
-    operational: string;
-    partial: string;
-    major: string;
+    green: string;
+    yellow: string;
+    red: string;
   };
 
   constructor() {
@@ -24,9 +24,9 @@ export default class MinecraftStatus extends Command {
       restrictTo: "all",
     });
     this.emotes = {
-      operational: emojis.statuspage.operational,
-      partial: emojis.statuspage.partial_outage,
-      major: emojis.statuspage.major_outage,
+      green: emojis.statuspage.operational,
+      yellow: emojis.statuspage.partial_outage,
+      red: emojis.statuspage.major_outage,
     };
   }
 
