@@ -250,9 +250,7 @@ export class SlashCommandMessage {
 
     let messageId = this.latestResponse;
     if (messageId == "@original") {
-      // @ts-ignore
-      const message = await this.client.api
-        // @ts-ignore
+      const message = await this.client.req
         .webhooks(this.client.user.id, this.slashCommand.token)
         .messages(messageId)
         .patch({
@@ -282,9 +280,7 @@ export class SlashCommandMessage {
         ? content.resolveData()
         : // @ts-ignore
           APIMessage.create(this, content, options).resolveData();
-    // @ts-ignore
-    await this.client.api
-      // @ts-ignore
+    await this.client.req
       .webhooks(this.client.user.id, this.slashCommand.token)
       .messages(this.latestResponse)
       .patch({
@@ -295,9 +291,7 @@ export class SlashCommandMessage {
   }
 
   async delete() {
-    // @ts-ignore
-    await this.client.api
-      // @ts-ignore
+    await this.client.req
       .webhooks(this.client.user.id, this.slashCommand.token)
       .messages(this.latestResponse)
       .delete()
@@ -379,9 +373,7 @@ export class FakeChannel {
   // Acknowledges without sending a message
   async ack(ephemeral = false) {
     if (ephemeral || (this.flags & 64) != 0) return;
-    // @ts-ignore
-    await this.client.api
-      // @ts-ignore
+    await this.client.req
       .interactions(this.id)(this.token)
       .callback.post({
         data: { type: 5, data: { flags: this.flags } },
@@ -436,9 +428,7 @@ export class FakeChannel {
       data.flags -= 64;
 
     if (!this.message.sent)
-      // @ts-ignore
-      await this.client.api
-        // @ts-ignore
+      await this.client.req
         .interactions(this.id)(this.token)
         .callback.post({
           data: {
@@ -452,9 +442,7 @@ export class FakeChannel {
         })
         .catch(() => {});
     else if (this.message.sent == "ack") {
-      // @ts-ignore
-      await this.client.api
-        // @ts-ignore
+      await this.client.req
         .webhooks(this.client.user.id)(this.token)
         .messages("@original")
         .patch({
@@ -466,9 +454,7 @@ export class FakeChannel {
         })
         .catch(() => {});
     } else {
-      // @ts-ignore
-      const message = await this.client.api
-        // @ts-ignore
+      const message = await this.client.req
         .webhooks(this.client.user.id)(this.token)
         .post({
           data,

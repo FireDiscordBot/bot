@@ -1,10 +1,16 @@
+import {
+  APIApplicationCommand,
+  ApplicationCommandPermissions,
+  ApplicationCommandPermissionType,
+  Option,
+} from "@fire/lib/interfaces/slashCommands";
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { Option } from "@fire/lib/interfaces/slashCommands";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
+import { Collection } from "discord.js";
 
 export default class Ready extends Listener {
   constructor() {
@@ -74,9 +80,7 @@ export default class Ready extends Listener {
       name: string;
       description: string;
       options?: Option[];
-      // @ts-ignore
-    }[] = await this.client.api
-      // @ts-ignore
+    }[] = await this.client.req
       .applications(this.client.user.id)
       .commands.get();
 
@@ -85,6 +89,7 @@ export default class Ready extends Listener {
         name: string;
         description: string;
         options?: Option[];
+        default_permission: boolean;
       }[] = [];
 
       for (const cmd of this.client.commandHandler.modules.values()) {
@@ -95,13 +100,11 @@ export default class Ready extends Listener {
           commands.push(cmd.getSlashCommandJSON());
       }
 
-      // @ts-ignore
-      await this.client.api
-        // @ts-ignore
+      const updated: APIApplicationCommand[] = await this.client.req
         .applications(this.client.user.id)
         .commands.put({ data: commands })
         // TODO make api slash command interface
-        .then((updated: any[]) =>
+        .then((updated: APIApplicationCommand[]) =>
           this.client.console.info(
             `[Commands] Successfully bulk updated ${updated.length} slash commands`
           )
@@ -112,6 +115,54 @@ export default class Ready extends Listener {
           )
         );
 
+      for (const slashCommand of updated) {
+        if (slashCommand.default_permission) continue;
+        const command = this.client.getCommand(slashCommand.name);
+        if (!command.requiresExperiment) continue;
+        const experiment = this.client.experiments.get(
+          command.requiresExperiment.id
+        );
+        // there isn't really a good way to do user experiment permissions since they're guild bound
+        if (experiment.kind != "guild") continue;
+        for (const [, guild] of this.client.guilds.cache as Collection<
+          string,
+          FireGuild
+        >) {
+          if (
+            !guild.hasExperiment(
+              experiment.id,
+              command.requiresExperiment.treatmentId
+            )
+          )
+            continue;
+          const everyoneId = guild.roles.everyone.id; // should always be same as guild id
+          let slashCommandPermissions: ApplicationCommandPermissions[] = await this.client.req
+            .applications(this.client.user.id)
+            .guilds(guild.id)
+            .commands(slashCommand.id)
+            .permissions.get()
+            .catch(() => []);
+          slashCommandPermissions = slashCommandPermissions.filter(
+            (permissions) => permissions.id != everyoneId
+          );
+          slashCommandPermissions.push({
+            id: everyoneId,
+            type: ApplicationCommandPermissionType.ROLE,
+            permission: true,
+          });
+          await this.client.req
+            .applications(this.client.user.id)
+            .guilds(guild.id)
+            .commands(slashCommand.id)
+            .permissions.put({ data: slashCommandPermissions })
+            .catch((e: Error) => {
+              this.client.console.error(
+                `[Commands] Failed to update slash command permissions for locked command  ${slashCommand.name} in guild ${guild.name}\n${e.stack}`
+              );
+            });
+        }
+      }
+
       for (const slashCommand of slashCommands) {
         if (
           !this.client.getCommand(slashCommand.name) ||
@@ -120,9 +171,7 @@ export default class Ready extends Listener {
           this.client.console.warn(
             `[Commands] Deleting slash command /${slashCommand.name} due to command not being found or slash command disabled`
           );
-          // @ts-ignore
-          await this.client.api
-            // @ts-ignore
+          await this.client.req
             .applications(this.client.user.id)
             .commands(slashCommand.id)
             .delete()

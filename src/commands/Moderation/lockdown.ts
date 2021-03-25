@@ -1,5 +1,5 @@
 import { categoryChannelConverter } from "@fire/lib/util/converters";
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { MessageEmbed, Collection, Role } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
@@ -187,9 +187,7 @@ export default class Lockdown extends Command {
   }
 
   async deleteMessage(channel: string, message: string, reason: string) {
-    // @ts-ignore
-    await this.client.api
-      // @ts-ignore
+    await this.client.req
       .channels(channel)
       .messages(message)
       .delete({ reason });

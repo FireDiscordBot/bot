@@ -22,9 +22,8 @@ export class FireMember extends GuildMember {
   user: FireUser;
   client: Fire;
 
-  constructor(client: Fire, data: object, guild: FireGuild) {
+  constructor(client: Fire, data: any, guild: FireGuild) {
     super(client, data, guild);
-    // @ts-ignore
     this.pending = data?.pending ?? false;
     this.changingNick = false;
   }

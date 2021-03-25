@@ -123,9 +123,7 @@ export default class Message extends Listener {
     }
 
     if (message.channel.id == "388850472632451073" && message.embeds.length) {
-      // @ts-ignore
-      const dataminingMessage = await this.client.api
-        // @ts-ignore
+      const dataminingMessage = await this.client.req
         .channels("731330454422290463")
         .messages.post({
           data: {
@@ -138,9 +136,7 @@ export default class Message extends Listener {
           );
         });
       if (dataminingMessage?.id && message.embeds[0].title.includes("comment"))
-        // @ts-ignore
-        await this.client.api
-          // @ts-ignore
+        await this.client.req
           .channels("731330454422290463")
           .messages(dataminingMessage.id)
           .crosspost.post();

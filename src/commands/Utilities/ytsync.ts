@@ -26,9 +26,7 @@ export default class YTSync extends Command {
     if (!args.channel?.id || args.channel?.type != "voice")
       return await message.error("YTSYNC_CHANNEL_REQUIRED");
 
-    // @ts-ignore
-    const invite = await this.client.api
-      // @ts-ignore
+    const invite = await this.client.req
       .channels(args.channel.id)
       .invites.post({
         data: {

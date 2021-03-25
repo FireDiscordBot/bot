@@ -54,28 +54,24 @@ export default class Ping extends Command {
     embed: MessageEmbed
   ) {
     pingMsg.delete();
-    return (
-      // @ts-ignore
-      this.client.api
-        // @ts-ignore
-        .channels(message.channel.id)
-        .messages.post({
-          data: {
-            embed: embed.toJSON(),
-            message_reference: { message_id: message.id },
-            allowed_mentions: {
-              ...this.client.options.allowedMentions,
-              replied_user: false,
-            },
+    return this.client.req
+      .channels(message.channel.id)
+      .messages.post({
+        data: {
+          embed: embed.toJSON(),
+          message_reference: { message_id: message.id },
+          allowed_mentions: {
+            ...this.client.options.allowedMentions,
+            replied_user: false,
           },
-        })
-        .then(
-          // @ts-ignore
-          (m: object) => this.client.actions.MessageCreate.handle(m).message
-        )
-        .catch(() => {
-          return message.channel.send(embed);
-        })
-    );
+        },
+      })
+      .then(
+        // @ts-ignore
+        (m: object) => this.client.actions.MessageCreate.handle(m).message
+      )
+      .catch(() => {
+        return message.channel.send(embed);
+      });
   }
 }

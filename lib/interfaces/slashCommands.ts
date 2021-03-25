@@ -24,6 +24,20 @@ export interface Option {
   name: string;
 }
 
+export interface ApplicationCommandOption {
+  type: ApplicationCommandOptionType;
+  name: string;
+  description: string;
+  required?: boolean;
+  choices?: ApplicationCommandOptionChoice[];
+  options?: ApplicationCommandOption[];
+}
+
+export interface ApplicationCommandOptionChoice {
+  name: string;
+  value: string | number;
+}
+
 export enum ApplicationCommandOptionType {
   SUB_COMMAND = 1,
   SUB_COMMAND_GROUP = 2,
@@ -33,4 +47,32 @@ export enum ApplicationCommandOptionType {
   USER = 6,
   CHANNEL = 7,
   ROLE = 8,
+}
+
+export interface APIApplicationCommand {
+  id: string;
+  application_id: string;
+  name: string;
+  description: string;
+  version: string;
+  default_permission: boolean;
+  options?: ApplicationCommandOption[];
+}
+
+export interface ApplicationCommand {
+  name: string;
+  description: string;
+  default_permission: boolean;
+  options?: ApplicationCommandOption[];
+}
+
+export enum ApplicationCommandPermissionType {
+  ROLE = 1,
+  USER = 2,
+}
+
+export interface ApplicationCommandPermissions {
+  id: string;
+  type: ApplicationCommandPermissionType;
+  permission: boolean; // true to allow, false, to disallow
 }

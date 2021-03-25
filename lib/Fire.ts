@@ -326,6 +326,11 @@ export class Fire extends AkairoClient {
       : undefined;
   }
 
+  get req(): any {
+    // @ts-ignore
+    return this.api;
+  }
+
   async login() {
     if (!this.options.shards) this.options.shards = [this.manager.id || 0];
     this.console.warn(

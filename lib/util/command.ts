@@ -6,9 +6,12 @@ import {
   Flag,
 } from "discord-akairo";
 import {
+  APIApplicationCommand,
+  ApplicationCommand,
+  ApplicationCommandOption,
   ApplicationCommandOptionType,
-  Option,
 } from "@fire/lib/interfaces/slashCommands";
+import { DiscordAPIError } from "discord.js";
 import { titleCase } from "./constants";
 import { Language } from "./language";
 import { Fire } from "@fire/lib/Fire";
@@ -142,13 +145,8 @@ export class Command extends AkairoCommand {
       : [];
   }
 
-  getSlashCommandJSON(): {
-    name: string;
-    description: string;
-    options?: Option[];
-    default_permission?: boolean;
-  } {
-    let data = {
+  getSlashCommandJSON() {
+    let data: ApplicationCommand = {
       name: this.id,
       description:
         typeof this.description == "function"
@@ -178,7 +176,7 @@ export class Command extends AkairoCommand {
   }
 
   getSlashCommandOption(argument: ArgumentOptions) {
-    let options = {
+    let options: ApplicationCommandOption = {
       type:
         ApplicationCommandOptionType[
           Object.keys(slashCommandTypeMappings).find((type) =>
@@ -192,7 +190,7 @@ export class Command extends AkairoCommand {
       description:
         typeof argument.description == "function"
           ? argument.description(this.client.getLanguage("en-US"))
-          : argument.description || null,
+          : argument.description || "No Description Provided",
       required: argument.required,
     };
     if (!options.description) delete options.description;
@@ -253,35 +251,36 @@ export class Command extends AkairoCommand {
     const command = this.getSlashCommandJSON();
     let commands = [];
     if (!this.guilds.length) {
-      // @ts-ignore
-      const commandRaw = await this.client.api
-        // @ts-ignore
+      const commandRaw:
+        | APIApplicationCommand
+        | DiscordAPIError = await this.client.req
         .applications(this.client.user.id)
         .commands.post({ data: command })
-        .catch((e) => e);
-      if (commandRaw?.id) commands.push(commandRaw);
-      else if (commandRaw?.code != 30032)
-        this.client.console.warn(
-          `[Commands] Failed to register slash command for ${this.id}`,
-          commandRaw
-        );
+        .catch((e: DiscordAPIError) => e);
+      if (commandRaw instanceof DiscordAPIError)
+        commandRaw.code != 30032 &&
+          this.client.console.warn(
+            `[Commands] Failed to register slash command for ${this.id}`,
+            commandRaw
+          );
+      else if (commandRaw.id) commands.push(commandRaw);
     } else {
       this.guilds.forEach(async (guild) => {
-        // @ts-ignore
-        const commandRaw = await this.client.api
-          // @ts-ignore
+        const commandRaw:
+          | APIApplicationCommand
+          | DiscordAPIError = await this.client.req
           .applications(this.client.user.id)
           .guilds(guild)
           .commands.post({ data: command })
-          .catch((e) => e);
-        if (commandRaw?.id) commands.push(commandRaw);
-        else {
-          if (commandRaw.httpStatus != 403 && commandRaw.code != 50001)
+          .catch((e: DiscordAPIError) => e);
+        if (commandRaw instanceof DiscordAPIError)
+          commandRaw.httpStatus != 403 &&
+            commandRaw.code != 50001 &&
             this.client.console.warn(
               `[Commands] Failed to register slash command for ${this.id} in guild ${guild}`,
               commandRaw
             );
-        }
+        else if (commandRaw.id) commands.push(commandRaw);
       });
     }
     return commands;

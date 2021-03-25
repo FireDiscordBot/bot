@@ -66,29 +66,25 @@ export class FireMessage extends Message {
   }
 
   replyRaw(content: string, mention: boolean = false): Promise<Message> {
-    return (
-      // @ts-ignore
-      this.client.api
-        // @ts-ignore
-        .channels(this.channel.id)
-        .messages.post({
-          data: {
-            content,
-            message_reference: { message_id: this.id },
-            allowed_mentions: {
-              ...this.client.options.allowedMentions,
-              replied_user: mention,
-            },
+    return this.client.req
+      .channels(this.channel.id)
+      .messages.post({
+        data: {
+          content,
+          message_reference: { message_id: this.id },
+          allowed_mentions: {
+            ...this.client.options.allowedMentions,
+            replied_user: mention,
           },
-        })
-        .then(
-          // @ts-ignore
-          (m: object) => this.client.actions.MessageCreate.handle(m).message
-        )
-        .catch(() => {
-          return this.channel.send(content);
-        })
-    );
+        },
+      })
+      .then(
+        // @ts-ignore
+        (m: object) => this.client.actions.MessageCreate.handle(m).message
+      )
+      .catch(() => {
+        return this.channel.send(content);
+      });
   }
 
   success(

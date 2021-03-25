@@ -1,9 +1,5 @@
-import {
-  CategoryChannel,
-  MessageReaction,
-  Role,
-} from "discord.js";
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { CategoryChannel, MessageReaction, Role } from "discord.js";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -134,9 +130,7 @@ export default class Sk1er extends Module {
       )) as [{ combined_total: number }, { total: number }, { all: number }];
       const count = jsons[0].combined_total + jsons[1].total + jsons[2].all;
 
-      // @ts-ignore
-      const newData = await this.client.api
-        // @ts-ignore
+      const newData = await this.client.req
         .guilds(this.guildId)
         .patch({
           data: {
