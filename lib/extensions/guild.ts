@@ -622,7 +622,7 @@ export class FireGuild extends Guild {
   }
 
   hasExperiment(id: string, treatmentId?: number) {
-    if (this.client.config.dev) return true;
+    // if (this.client.config.dev) return true;
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "guild") return false;
     for (const c of Object.keys(experiment.defaultConfig)) {
