@@ -103,16 +103,15 @@ export default class Ready extends Listener {
       const updated: APIApplicationCommand[] = await this.client.req
         .applications(this.client.user.id)
         .commands.put({ data: commands })
-        // TODO make api slash command interface
-        .then((updated: APIApplicationCommand[]) =>
-          this.client.console.info(
-            `[Commands] Successfully bulk updated ${updated.length} slash commands`
-          )
-        )
-        .catch((e: Error) =>
+        .catch((e: Error) => {
           this.client.console.error(
             `[Commands] Failed to update slash commands\n${e.stack}`
-          )
+          );
+          return [];
+        });
+      if (updated.length)
+        this.client.console.info(
+          `[Commands] Successfully bulk updated ${updated.length} slash commands`
         );
 
       for (const slashCommand of updated) {
