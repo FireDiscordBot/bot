@@ -209,7 +209,8 @@ export class SlashCommandMessage {
         return this.sourceMessage.react(reactions.success).catch(() => {});
       else
         return this.getRealMessage().then((message) => {
-          if (!message) return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
+          if (!message || !(message instanceof FireMessage))
+            return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
           message.react(reactions.success).catch(() => {
             return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
           });
@@ -231,7 +232,8 @@ export class SlashCommandMessage {
         return this.sourceMessage.react(reactions.error).catch(() => {});
       else
         return this.getRealMessage().then((message) => {
-          if (!message) return this.error("SLASH_COMMAND_HANDLE_FAIL");
+          if (!message || !(message instanceof FireMessage))
+            return this.error("SLASH_COMMAND_HANDLE_FAIL");
           message.react(reactions.error).catch(() => {
             return this.error("SLASH_COMMAND_HANDLE_FAIL");
           });
