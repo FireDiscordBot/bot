@@ -34,6 +34,7 @@ export const fire = {
     "767833575185580062",
     "662109704549433380",
     "615923604424491035",
+    "807302538558308352",
   ],
   inviteLink: process.env.INVITE_SUFFIX
     ? `https://inv.wtf/${process.env.INVITE_SUFFIX}`
