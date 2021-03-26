@@ -423,6 +423,7 @@ export class GuildTagManager {
       [aliases.length ? aliases : null, cached.name, this.guild.id]
     );
     cached.aliases = aliases;
+    this.names.push(alias);
     this.cache.set(cached.name, cached);
     return true;
   }
