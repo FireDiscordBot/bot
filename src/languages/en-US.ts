@@ -1300,6 +1300,7 @@ ${success.map((s) => "- " + s).join("\n")}${
           `Successfully set the starboard emoji to ${emoji}`,
         STARBOARD_CONTAINS_VIDEO: "__Message contains a video__",
         STARBOARD_CONTAINS_AUDIO: "__Message contains an audio file__",
+        STARBOARD_JUMP_TO: "Jump to message",
         STATS_COMMAND_DESCRIPTION: "View cluster & overall stats.",
         STATS_TITLE: (name: string, version: string) =>
           `Stats for ${name} [${version}]`,
