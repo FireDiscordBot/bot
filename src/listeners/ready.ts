@@ -135,12 +135,18 @@ export default class Ready extends Listener {
           )
             continue;
           const everyoneId = guild.roles.everyone.id; // should always be same as guild id
-          let slashCommandPermissions: ApplicationCommandPermissions[] = await this.client.req
+          let slashCommandPermissions:
+            | ApplicationCommandPermissions[]
+            | {
+                permissions: ApplicationCommandPermissions[];
+              } = await this.client.req
             .applications(this.client.user.id)
             .guilds(guild.id)
             .commands(slashCommand.id)
             .permissions.get()
             .catch(() => []);
+          if (!(slashCommandPermissions instanceof Array))
+            slashCommandPermissions = slashCommandPermissions.permissions || [];
           slashCommandPermissions = slashCommandPermissions.filter(
             (permissions) => permissions.id != everyoneId
           );
