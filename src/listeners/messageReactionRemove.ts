@@ -39,7 +39,11 @@ export default class MessageReactionRemove extends Listener {
           .catch(() => {});
     }
 
-    if (guild.settings.has("starboard.channel")) {
+    if (
+      guild.settings.has("starboard.channel") &&
+      user?.id != message.author?.id &&
+      !user?.bot
+    ) {
       const channel = guild.channels.cache.get(
         guild.settings.get("starboard.channel")
       ) as FireTextChannel;
@@ -49,7 +53,7 @@ export default class MessageReactionRemove extends Listener {
           ? messageReaction.emoji.id
           : messageReaction.emoji.name;
       if (
-        channel &&
+        channel?.id != message.channel.id &&
         starboardEmoji.trim() == reactionEmoji.trim()
         // (starboardEmoji.trim() == reactionEmoji.trim() ||
         // reactionEmoji == constants.emojis.antistarId)
