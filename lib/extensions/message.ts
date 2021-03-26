@@ -362,6 +362,11 @@ export class FireMessage extends Message {
 
     if (!stars) return;
 
+    const starboard = this.guild.channels.cache.get(
+      this.guild?.settings.get("starboard.channel")
+    ) as FireTextChannel;
+    if (!starboard || this.channel.id == starboard.id) return;
+
     if (!this.guild.starboardReactions.has(this.id)) {
       const inserted = await this.client.db
         .query(
@@ -384,11 +389,6 @@ export class FireMessage extends Message {
         .catch(() => {});
     }
 
-    const starboard = this.guild.channels.cache.get(
-      this.guild?.settings.get("starboard.channel")
-    ) as FireTextChannel;
-    if (!starboard) return;
-
     const minimum = this.guild.settings.get("starboard.minimum", 5);
     const emoji = messageReaction.emoji.toString();
     if (stars >= minimum) {
@@ -396,7 +396,7 @@ export class FireMessage extends Message {
       await this.starLock.acquire();
       setTimeout(() => {
         this.starLock.release();
-      }, 1500);
+      }, 3500);
       const [content, embed] = this.getStarboardMessage(emoji, stars);
       if (this.guild.starboardMessages.has(this.id)) {
         const message = (await starboard.messages
@@ -431,6 +431,11 @@ export class FireMessage extends Message {
         return message;
       }
     } else if (this.guild.starboardMessages.has(this.id)) {
+      if (!this.starLock) this.starLock = new Semaphore(1);
+      await this.starLock.acquire();
+      setTimeout(() => {
+        this.starLock.release();
+      }, 3500);
       const message = (await starboard.messages
         .fetch(this.guild.starboardMessages.get(this.id))
         .catch(() => {})) as FireMessage;
@@ -519,12 +524,25 @@ export class FireMessage extends Message {
       }
     }
 
-    if (embed.length < 6000 && embed.fields.length < 25)
-      embed.addField(
-        this.guild.language.get("JUMP_URL"),
-        `[${this.guild.language.get("CLICK_TO_VIEW")}](${this.url})`
+    if (
+      embed.description &&
+      !embed.fields.length &&
+      embed.description.length < 1890
+    )
+      embed.setDescription(
+        embed.description +
+          `\n\n[${this.guild.language.get("STARBOARD_JUMP_TO")}](${this.url})`
       );
-    return [`${emoji} ${stars} | ${this.channel}`, embed];
+    else if (!embed.description && !embed.fields.length)
+      embed.setDescription(
+        `[${this.guild.language.get("STARBOARD_JUMP_TO")}](${this.url})`
+      );
+    else if (embed.length < 6000 && embed.fields.length < 25)
+      embed.addField(
+        "\u200b",
+        `[${this.guild.language.get("STARBOARD_JUMP_TO")}](${this.url})`
+      );
+    return [`${emoji} **${stars}** | ${this.channel}`, embed];
   }
 
   async runFilters() {
