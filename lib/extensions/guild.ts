@@ -118,6 +118,9 @@ export class FireGuild extends Guild {
     delete data.members;
     delete data.presences;
 
+    for (const channel of data.channels)
+      if (channel.type == 13) channel.type = 2;
+
     // @ts-ignore
     super._patch(data);
   }
