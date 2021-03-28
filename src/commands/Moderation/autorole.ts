@@ -45,7 +45,7 @@ export default class Autorole extends Command {
 
     if (!role) {
       message.guild.settings.delete(bot ? "mod.autobotrole" : "mod.autorole");
-      message.guild.settings.delete("mod.autorole.waitformsg");
+      !bot && message.guild.settings.delete("mod.autorole.waitformsg");
       return await message.success(
         bot ? "AUTOROLE_DISABLED_BOT" : "AUTOROLE_DISABLED"
       );
