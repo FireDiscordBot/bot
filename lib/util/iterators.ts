@@ -201,7 +201,10 @@ export class ReactionIterator {
   limit?: number;
 
   constructor(source: FireMessage, options: ReactionOptions) {
+    if (!source) throw new Error("Missing Source");
     this.source = source;
+
+    if (!options.emoji) throw new Error("Missing Emoji");
 
     this.emoji = options.emoji;
     this.limit = options.limit ?? null;
