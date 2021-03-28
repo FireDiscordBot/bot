@@ -1,6 +1,7 @@
-export interface Payload {
-  op: number;
-  d?: unknown;
-  s?: number;
-  t?: string;
+export type Payload = {
+  op: number // opcode
+  d?: unknown // data
+  s?: number // sequence
+  t?: string // type as UPPER_SNAKE_CASE
+  n?: string // nonce
 }
