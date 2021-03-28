@@ -1,10 +1,12 @@
 import { EventType, WebsocketStates } from "./util/constants";
 import { MessageUtil } from "./util/MessageUtil";
 import { Manager } from "@fire/lib/Manager";
+import { Collection } from "discord.js";
 import { Message } from "./Message";
 import * as Client from "ws";
 
 export class Websocket extends Client {
+  handlers: Collection<string, (value: unknown) => void>;
   keepAlive: NodeJS.Timeout;
   waitingForPong: boolean;
   manager: Manager;
@@ -24,8 +26,9 @@ export class Websocket extends Client {
         },
       }
     );
-    this.manager = manager;
+    this.handlers = new Collection();
     this.waitingForPong = false;
+    this.manager = manager;
     this.pongs = 0;
     this.once("open", () => {
       this.keepAlive = setInterval(() => {
@@ -60,8 +63,15 @@ export class Websocket extends Client {
 
   init() {
     this.on("message", (message) => {
-      if (message.toLocaleString().length == 3) console.log(message);
-      this.manager.eventHandler.handle(message).catch((e) => {
+      const decoded = MessageUtil.decode(message.toString());
+      if (!decoded) return;
+
+      if (decoded.n && this.handlers.has(decoded.n)) {
+        this.handlers.get(decoded.n)(decoded.d);
+        this.handlers.delete(decoded.n);
+      }
+
+      this.manager.eventHandler.handle(decoded).catch((e) => {
         this.manager.client?.console.error(
           `[EventHandler] Failed to handle event from Aether due to\n${e.stack}`
         );
