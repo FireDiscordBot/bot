@@ -1,4 +1,4 @@
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { Payload } from "@fire/lib/interfaces/aether";
 import { Manager } from "@fire/lib/Manager";
 import { EventStore } from "./EventStore";
 
@@ -11,17 +11,14 @@ export class EventHandler {
     this.store = new EventStore(manager);
   }
 
-  async handle(message: any) {
-    const decoded = MessageUtil.decode(message);
-    if (!decoded) return;
-
-    if (typeof decoded.s == "number") this.manager.seq = decoded.s;
-    const event = this.store.get(decoded.op);
+  async handle(message: Payload) {
+    if (typeof message.s == "number") this.manager.seq = message.s;
+    const event = this.store.get(message.op);
 
     if (event === null) {
-      throw new TypeError(`Event type "${decoded.op}" not found!`);
+      throw new TypeError(`Event type "${message.op}" not found!`);
     }
 
-    event.run(decoded.d);
+    event.run(message.d, message.n);
   }
 }
