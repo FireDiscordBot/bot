@@ -9,7 +9,7 @@ export class Event {
     this.name = name;
   }
 
-  run(data: any) {
+  run(data: any, nonce?: string) {
     throw new SyntaxError("This should be overwritten in the actual event!");
   }
 }
