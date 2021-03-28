@@ -16,8 +16,8 @@ export default class Autorole extends Command {
           id: "role",
           type: "roleSilent",
           readableType: "role",
+          required: false,
           default: null,
-          required: true,
         },
         {
           id: "delay",
