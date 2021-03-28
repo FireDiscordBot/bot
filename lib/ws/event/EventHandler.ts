@@ -19,6 +19,6 @@ export class EventHandler {
       throw new TypeError(`Event type "${message.op}" not found!`);
     }
 
-    event.run(message.d, message.n);
+    event?.run(message.d, message.n);
   }
 }
