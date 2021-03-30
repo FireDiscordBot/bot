@@ -6,7 +6,6 @@ import {
   Collection,
   Structures,
   MessageEmbed,
-  VoiceChannel,
   WebhookClient,
   CategoryChannel,
   MessageAttachment,
@@ -27,6 +26,7 @@ import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { MessageIterator } from "../util/iterators";
 import { FakeChannel } from "./slashCommandMessage";
+import { FireVoiceChannel } from "./voicechannel";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
@@ -112,6 +112,19 @@ export class FireGuild extends Guild {
 
   get logIgnored(): string[] {
     return this.settings.get("utils.logignore", []);
+  }
+
+  get regions() {
+    let regions = this.channels.cache
+      .filter((channel) => channel.type == "voice")
+      .map((channel: FireVoiceChannel) => channel.region);
+    regions = regions.filter(
+      // remove duplicates
+      (region, index) => regions.indexOf(region) === index
+    );
+    if (regions.includes(null))
+      regions.splice(0, 0, regions.splice(regions.indexOf(null), 1)[0]);
+    return regions;
   }
 
   _patch(data: APIGuild) {
@@ -412,7 +425,7 @@ export class FireGuild extends Guild {
       );
       const channel = this.channels.cache.get(
         vcrole.get("cid") as string
-      ) as VoiceChannel;
+      ) as FireVoiceChannel;
       if (!channel) continue;
       const role = this.roles.cache.get(vcrole.get("rid") as string);
       if (!role) continue;

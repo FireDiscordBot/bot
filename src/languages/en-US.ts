@@ -129,11 +129,12 @@ export default class enUS extends Language {
         WORKER_ID: "Worker ID",
         INCREMENT: "Increment",
         MODERATOR: "Moderator",
+        PINNED_BY: "Pinned By",
         ATTACHMENT: "Attachment",
         PROCESS_ID: "Process ID",
         STATISTICS: "Statistics",
         CUSTOM_URL: "Custom URL",
-        PINNED_BY: "Pinned By",
+        REGION_PLURAL: "Regions",
         INVITED_BY: "Invited By",
         CREATED_BY: "Created By",
         DELETED_BY: "Deleted By",
@@ -152,8 +153,7 @@ export default class enUS extends Language {
         VERIFICATION_LEVEL: "Verification Level",
         REMOVED_OVERWRITES: "Removed Permissions",
         EXPLICIT_CONTENT_FILTER: "Explicit Content Filter",
-        REGION_DEPRECATED:
-          "<:wumpus_land:759529118671831040> Deprecated Region",
+        REGION_AUTOMATIC: "<:wumpus_land:759529118671831040> Automatic",
         REGIONS: {
           brazil: "🇧🇷 Brazil",
           europe: "🇪🇺 Europe",

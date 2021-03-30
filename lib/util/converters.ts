@@ -1,7 +1,6 @@
 import {
   Role,
   Collection,
-  VoiceChannel,
   GuildChannel,
   GuildPreview,
   SnowflakeUtil,
@@ -10,6 +9,7 @@ import {
   DeconstructedSnowflake,
 } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireVoiceChannel } from "../extensions/voicechannel";
 import { FireTextChannel } from "../extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -420,7 +420,7 @@ export const voiceChannelConverter = async (
   message: FireMessage,
   argument: string,
   silent = false
-): Promise<VoiceChannel | null> => {
+): Promise<FireVoiceChannel | null> => {
   if (!argument) return;
 
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
@@ -439,7 +439,7 @@ export const voiceChannelConverter = async (
       )
       .first();
     if (channel) {
-      return channel as VoiceChannel;
+      return channel as FireVoiceChannel;
     }
 
     if (!silent) await message.error("CHANNEL_NOT_FOUND");
@@ -447,7 +447,7 @@ export const voiceChannelConverter = async (
   } else {
     const channel = guild.channels.cache.get(match);
     if (channel && channel.type == "voice") {
-      return channel as VoiceChannel;
+      return channel as FireVoiceChannel;
     }
 
     if (!silent) await message.error("INVALID_CHANNEL_ID");

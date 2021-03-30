@@ -127,9 +127,18 @@ export default class GuildCommand extends Command {
           })`
         : null,
       guild instanceof FireGuild
-        ? `**${message.language.get("REGION")}:** ${
-            message.language.get("REGIONS")[guild.region] ||
-            message.language.get("REGION_DEPRECATED")
+        ? `**${message.language.get(
+            guild.region.length > 1 ? "REGION_PLURAL" : "REGION"
+          )}:** ${
+            guild.regions.length > 1
+              ? guild.regions
+                  .map(
+                    (region) =>
+                      message.language.get("REGIONS")[region] ||
+                      message.language.get("REGION_AUTOMATIC")
+                  )
+                  .join(", ")
+              : message.language.get("REGION_AUTOMATIC")
           }`
         : null,
     ];
