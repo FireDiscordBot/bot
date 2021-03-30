@@ -78,7 +78,8 @@ export default class PermRoles extends Command {
       (args.role.managed ||
         args.role.rawPosition >= message.guild.me.roles.highest.rawPosition ||
         args.role.id == message.guild.roles.everyone.id ||
-        args.role.rawPosition >= message.member.roles.highest.rawPosition)
+        (args.role.rawPosition >= message.member.roles.highest.rawPosition &&
+          message.guild.ownerID != message.author.id))
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
 
@@ -135,18 +136,21 @@ export default class PermRoles extends Command {
             channelPerms.deny.bitfield)
     ))
       await channel
-        .overwritePermissions([
-          ...channel.permissionOverwrites.array().filter(
-            // ensure the overwrites below are used instead
-            (overwrite) => overwrite.id != args.role.id
-          ),
-          {
-            allow: channelPerms.allow,
-            deny: channelPerms.deny,
-            id: args.role.id,
-            type: "role",
-          },
-        ], message.guild.language.get("PERMROLES_REASON") as string)
+        .overwritePermissions(
+          [
+            ...channel.permissionOverwrites.array().filter(
+              // ensure the overwrites below are used instead
+              (overwrite) => overwrite.id != args.role.id
+            ),
+            {
+              allow: channelPerms.allow,
+              deny: channelPerms.deny,
+              id: args.role.id,
+              type: "role",
+            },
+          ],
+          message.guild.language.get("PERMROLES_REASON") as string
+        )
         .catch(() => failed++);
     return await updating.edit(
       message.language.get(
