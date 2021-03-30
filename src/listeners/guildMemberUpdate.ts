@@ -1,9 +1,5 @@
-import {
-  GuildAuditLogsEntry,
-  AuditLogChange,
-  MessageEmbed,
-} from "discord.js";
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { GuildAuditLogsEntry, AuditLogChange, MessageEmbed } from "discord.js";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -33,7 +29,10 @@ export default class GuildMemberUpdate extends Listener {
         await newMember.roles.add(newMember.guild.muteRole).catch(() => {});
     }
 
-    if (newMember.guild.persistedRoles?.has(newMember.id)) {
+    // maybe fix role persist removing on member upddte shortly after joining
+    const joinedRecently = +new Date() - newMember.joinedTimestamp < 15000;
+
+    if (newMember.guild.persistedRoles?.has(newMember.id) && !joinedRecently) {
       const ids = newMember.guild.persistedRoles.get(newMember.id);
       const roles = newMember.guild.persistedRoles
         .get(newMember.id)
