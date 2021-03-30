@@ -146,7 +146,7 @@ export default class Message extends Listener {
 
     const autoroleId = message.guild.settings.get("mod.autorole", null);
     const delay = message.guild.settings.get("mod.autorole.waitformsg", false);
-    if (autoroleId && delay) {
+    if (autoroleId && delay && message.type == "DEFAULT") {
       const role = message.guild.roles.cache.get(autoroleId);
       if (role && !message.member.roles.cache.has(role.id))
         await message.member.roles
