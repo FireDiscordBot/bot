@@ -547,7 +547,7 @@ export class FireMessage extends Message {
 
   async runFilters() {
     if (!this.guild || this.author.bot) return;
-    if (!this.member)
+    if (!this.member || this.member.partial)
       await this.guild.members.fetch(this.author.id).catch(() => {});
     if (!this.member) return; // if we still don't have access to member, just ignore
 
@@ -560,7 +560,8 @@ export class FireMessage extends Message {
 
     if (
       this.guild.settings.get("mod.antizws", false) &&
-      regexes.zws.test(this.content) &&
+      // some emojis use \u200d (e.g. trans flag) so we replace all unicode emoji before checking for zero width characters
+      regexes.zws.test(this.content.replace(regexes.unicodeEmoji, "")) &&
       !this.member.isModerator()
     ) {
       regexes.zws.lastIndex = 0;
