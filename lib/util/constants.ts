@@ -1,5 +1,8 @@
 import humanizeDuration = require("humanize-duration");
 
+const emojiRegex = require("emoji-regex")() as RegExp;
+const emojiRegexStr = emojiRegex.toString();
+
 export type ActionLogType =
   | "system"
   | "public_toggle"
@@ -217,7 +220,15 @@ export const constants = {
     maskedLink: /\[(?<name>.+)\]\((?<link>https?:\/\/.+)\)/gim,
     symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,
     spoilerAbuse: /(?:\|\|?[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]?){20,}/gim,
-    zws: /[\u180E\u2000-\u2009\u200A-\u200C\u200E-\u200F\u202F\u2028\u2060\uFEFF]/gim,
+    zws: /[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]/gim,
+    customEmoji: /<a?:(?<name>[a-zA-Z0-9\\_]+):(?<id>\\d{15,21})>/gim,
+    unicodeEmoji: emojiRegex,
+    allEmoji: new RegExp(
+      "(" +
+        emojiRegexStr.slice(1, emojiRegexStr.length - 2) +
+        "|<a?:(?<name>[a-zA-Z0-9\\_]+):(?<id>\\d{15,21})>)",
+      "gim"
+    ),
     protocol: /\w{1,10}:\/\//gim,
     joinleavemsgs: {
       user: /{user}/gim,
@@ -378,8 +389,8 @@ export const titleCase = (string: string) =>
 
 export const zws = "\u200b";
 
-export const humanize = (seconds: number, language: string) =>
-  humanizeDuration(seconds, {
+export const humanize = (ms: number, language: string) =>
+  humanizeDuration(ms, {
     largest: 3,
     delimiter: ", ",
     language: language,

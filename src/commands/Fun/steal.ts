@@ -1,9 +1,10 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import * as centra from "centra";
 
-const emojiRegex = /<a?:(?<name>[a-zA-Z0-9\_]+):(?<id>\d{15,21})>/gim;
+const emojiRegex = constants.regexes.customEmoji;
 const snowflakeRegex = /^(\d{15,21})$/gim;
 
 export default class Steal extends Command {

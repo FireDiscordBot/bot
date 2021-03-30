@@ -1,11 +1,12 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import { constants } from "@fire/lib/util/constants";
 import { ArgumentTypeCaster } from "discord-akairo";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { GuildEmoji } from "discord.js";
 
-const discordEmojiRegex = /<a?:(?<name>[a-zA-Z0-9\_]+):(?<id>\d{15,21})>/gim;
-const unicodeEmojiRegex = require("emoji-regex")() as RegExp;
+const unicodeEmojiRegex = constants.regexes.unicodeEmoji;
+const discordEmojiRegex = constants.regexes.customEmoji;
 const defaultEmoji = "⭐";
 
 export default class StarboardEmoji extends Command {

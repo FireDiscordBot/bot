@@ -4,6 +4,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
+import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import { createWriteStream } from "fs";
 import * as archiver from "archiver";
@@ -381,7 +382,7 @@ export default class Sk1er extends Module {
       // }
       // Groovy Status
       case "747787115974230156": {
-        const emojiRe = /<a?:([a-zA-Z0-9\_]+):[0-9]+>/im;
+        const emojiRe = constants.regexes.customEmoji;
         const online = emojiRe
           .exec(message.content)
           .filter((value) => value.includes("online"));
