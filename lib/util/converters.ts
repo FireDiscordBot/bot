@@ -10,6 +10,7 @@ import {
 } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireVoiceChannel } from "../extensions/voicechannel";
+import { FireStageChannel } from "../extensions/stagechannel";
 import { FireTextChannel } from "../extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -17,8 +18,6 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { constants } from "./constants";
 import * as fuzz from "fuzzball";
 import * as centra from "centra";
-import { GuildEmoji } from "discord.js";
-import { ReactionEmoji } from "discord.js";
 
 const messageIDRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
 const userMentionRegex = /<@!?(1|\d{15,21})>$/im;
@@ -420,7 +419,7 @@ export const voiceChannelConverter = async (
   message: FireMessage,
   argument: string,
   silent = false
-): Promise<FireVoiceChannel | null> => {
+): Promise<FireVoiceChannel | FireStageChannel | null> => {
   if (!argument) return;
 
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
@@ -435,20 +434,20 @@ export const voiceChannelConverter = async (
       .filter(
         (channel) =>
           channel.name.toLowerCase() == argument.toLowerCase() &&
-          channel.type == "voice"
+          (channel.type == "voice" || channel.type == "stage")
       )
       .first();
-    if (channel) {
-      return channel as FireVoiceChannel;
-    }
+    if (channel && channel.type == "voice") return channel as FireVoiceChannel;
+    else if (channel && channel.type == "stage")
+      return channel as FireStageChannel;
 
     if (!silent) await message.error("CHANNEL_NOT_FOUND");
     return null;
   } else {
     const channel = guild.channels.cache.get(match);
-    if (channel && channel.type == "voice") {
-      return channel as FireVoiceChannel;
-    }
+    if (channel && channel.type == "voice") return channel as FireVoiceChannel;
+    else if (channel && channel.type == "stage")
+      return channel as FireStageChannel;
 
     if (!silent) await message.error("INVALID_CHANNEL_ID");
     return null;
