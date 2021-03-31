@@ -3,6 +3,7 @@ import { FireGuild } from "./guild";
 import { Fire } from "@fire/lib/Fire";
 
 export class FireVoiceChannel extends VoiceChannel {
+  videoQuality: 1 | 2; // 1 == auto, 2 == 720p
   guild: FireGuild;
   region?: string;
   client: Fire;
@@ -17,6 +18,7 @@ export class FireVoiceChannel extends VoiceChannel {
     // @ts-ignore
     super._patch(data);
     this.region = data?.rtc_region;
+    this.videoQuality = data?.video_quality_mode;
   }
 }
 
