@@ -1,3 +1,4 @@
+import { FireStageChannel } from "@fire/lib/extensions/stagechannel";
 import { FireVoiceChannel } from "@fire/lib/extensions/voicechannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
@@ -35,7 +36,7 @@ export default class VCRole extends Command {
 
   async exec(
     message: FireMessage,
-    args: { channel?: FireVoiceChannel; role?: Role }
+    args: { channel?: FireVoiceChannel | FireStageChannel; role?: Role }
   ) {
     if (!args.channel) return await message.error("VCROLE_CHANNEL_REQUIRED");
     if (args.channel && !args.role) {

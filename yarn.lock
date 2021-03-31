@@ -596,7 +596,7 @@ discord-api-types@^0.10.0:
 
 discord.js@FireDiscordBot/discord.js#stable:
   version "12.5.1"
-  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/87e369c134fe002c956f51464dbb57ce343dbeed"
+  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/314bd911d6e1358c2d12c8db01b9fc4960c85f03"
   dependencies:
     "@discordjs/collection" "^0.1.6"
     "@discordjs/form-data" "^3.0.1"
