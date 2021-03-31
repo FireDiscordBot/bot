@@ -723,6 +723,8 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           "I was unable to read the attachment, try reupload it. If it still doesn't work, yell at Geek :)",
         SK1ER_MODCORE_ZIP: (user: string, zip: string) =>
           `${user}, Download the zip from ${zip} and then unzip it in \`.minecraft/modcore\` and your issue should be resolved.`,
+        MC_LOG_FAILED: (error: string) =>
+          `Failed to create log haste, ${error}`,
         MC_LOG_HASTE: (
           user: string,
           diff: string,
