@@ -2,6 +2,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 // import * as solutions from "../../mc_solutions.json";
 import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
+import { Readable } from "stream";
 import * as centra from "centra";
 import Filters from "./filters";
 import Sk1er from "./sk1er";
@@ -60,7 +61,7 @@ export default class MCLogs extends Module {
   }
 
   async init() {
-    if (this.client.config.dev) return this.remove();
+    // if (this.client.config.dev) return this.remove();
     if (
       !this.client.config.hasteLogEnabled.some((guild) =>
         (this.client.options.shards as number[]).includes(
@@ -185,30 +186,55 @@ export default class MCLogs extends Module {
     }
 
     // this should always be "sent" not "sent a paste containing"
-    if (!message.attachments.size && message.content.length > 350)
-      return await this.handleLogText(
+    if (!message.attachments.size && message.content.length > 350) {
+      const [processed, diff] = await this.processLogStream(
         message,
-        message.content,
-        reupload != null ? "sent a paste containing" : "sent"
+        message.content
       );
+      if (processed && this.hasLogText(processed))
+        return await this.handleLogText(
+          message,
+          processed,
+          reupload != null ? "sent a paste containing" : "sent",
+          diff
+        );
+    }
 
     message.attachments
       .filter(
         (attachment) =>
-          attachment.name.endsWith(".log") || attachment.name.endsWith(".txt")
+          (attachment.name.endsWith(".log") ||
+            attachment.name.endsWith(".txt")) &&
+          attachment.size <= 8000000
       )
       .forEach(async (attach) => {
         try {
-          const text = await (await centra(attach.url).send()).text();
-          await this.handleLogText(message, text, "uploaded");
+          // const text = await (await centra(attach.url).send()).text();
+          let text: string[] = [];
+          const stream = await centra(attach.url).stream().send();
+          let logDiff: string;
+          for await (const chunk of (stream as unknown) as Readable) {
+            const [processed, diff] = await this.processLogStream(
+              message,
+              chunk.toString()
+            );
+            if (processed) text.push(processed);
+            if (diff) logDiff = diff;
+            if (text.length >= 5 && !this.hasLogText(text.join())) {
+              text = [];
+              break;
+            }
+          }
+          if (text.length && this.hasLogText(text.join()))
+            await this.handleLogText(message, text.join(), "uploaded", logDiff);
         } catch {
           await message.channel.send(message.language.get("MC_LOG_READ_FAIL"));
         }
       });
   }
 
-  async handleLogText(message: FireMessage, text: string, msgType: string) {
-    let lines = text.split("\n");
+  private async processLogStream(message: FireMessage, data: string) {
+    let lines = data.split("\n");
     if (
       /ModCoreInstaller:download:\d{1,5}]: MAX: \d+/im.test(
         lines[lines.length - 1]
@@ -234,39 +260,40 @@ export default class MCLogs extends Module {
               allowedMentions: { users: [message.author.id] },
             }
           );
+          return;
         }
       } catch {}
     }
 
-    text = text
+    data = data
       .replace(this.regexes.email, "[removed email]")
       .replace(this.regexes.home, "USER.HOME");
 
-    this.regexes.url.exec(text)?.forEach((match) => {
+    this.regexes.url.exec(data)?.forEach((match) => {
       if (!match.includes("sk1er.club"))
-        text = text.replace(match, "[removed url]");
+        data = data.replace(match, "[removed url]");
       this.regexes.url.lastIndex = 0;
     });
 
     for (const line of lines) {
       if (this.regexes.secrets.test(line)) {
         this.regexes.secrets.lastIndex = 0;
-        text = text.replace(line, "[line removed to protect sensitive info]");
+        data = data.replace(line, "[line removed to protect sensitive info]");
       }
       this.regexes.secrets.lastIndex = 0;
     }
 
     let diff: string;
-    if (this.regexes.date.test(text)) {
+    if (this.regexes.date.test(data)) {
       this.regexes.date.lastIndex = 0;
-      diff = this.regexes.date.exec(text)[1];
+      diff = this.regexes.date.exec(data)[1];
       this.regexes.date.lastIndex = 0;
     }
 
     const filters = this.client.getModule("filters") as Filters;
-    text = filters.runReplace(text, message);
+    data = filters.runReplace(data, message);
 
-    text = text
+    data = data
       .split("\n")
       .filter(
         (line) =>
@@ -274,42 +301,51 @@ export default class MCLogs extends Module {
       )
       .join("\n");
 
-    if (this.hasLogText(text)) {
+    return [data, diff];
+  }
+
+  async handleLogText(
+    message: FireMessage,
+    text: string,
+    msgType: string,
+    diff: string
+  ) {
+    try {
+      const haste = await this.client.util.haste(text).catch((e: Error) => e);
+      if (haste instanceof Error)
+        return await message.error("MC_LOG_FAILED", haste.message);
       try {
-        const haste = await this.client.util.haste(text);
+        await message.delete({
+          reason: "Removing log and sending haste",
+        });
+      } catch {}
+
+      let possibleSolutions = this.getSolutions(text);
+      const user = this.regexes.settingUser.exec(text);
+      this.regexes.settingUser.lastIndex = 0;
+      if (user?.length) {
         try {
-          await message.delete({
-            reason: "Removing log and sending haste",
-          });
+          const uuid = await this.client.util.nameToUUID(user[1]);
+          if (!uuid) {
+            possibleSolutions =
+              "It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
+          }
         } catch {}
-
-        let possibleSolutions = this.getSolutions(text);
-        const user = this.regexes.settingUser.exec(text);
-        this.regexes.settingUser.lastIndex = 0;
-        if (user?.length) {
-          try {
-            const uuid = await this.client.util.nameToUUID(user[1]);
-            if (!uuid) {
-              possibleSolutions =
-                "It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
-            }
-          } catch {}
-        }
-
-        return await message.send(
-          "MC_LOG_HASTE",
-          message.author.toString(),
-          diff,
-          msgType,
-          msgType == "uploaded" ? message.content : "",
-          haste,
-          possibleSolutions
-        );
-      } catch (e) {
-        this.client.console.error(
-          `[MCLogs] Failed to create log haste\n${e.stack}`
-        );
       }
+
+      return await message.send(
+        "MC_LOG_HASTE",
+        message.author.toString(),
+        diff,
+        msgType,
+        msgType == "uploaded" ? message.content : "",
+        haste,
+        possibleSolutions
+      );
+    } catch (e) {
+      this.client.console.error(
+        `[MCLogs] Failed to create log haste\n${e.stack}`
+      );
     }
   }
 
