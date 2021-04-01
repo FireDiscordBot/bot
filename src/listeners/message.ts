@@ -19,7 +19,7 @@ export default class Message extends Listener {
       emitter: "client",
       event: "message",
     });
-    this.tokenRegex = /[MN][A-Za-z\d]{23}\.?[\w-]{6}\.?[\w-]{27}/gm;
+    this.tokenRegex = /[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{27}/gm
     this.recentTokens = [];
   }
 
