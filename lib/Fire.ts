@@ -88,7 +88,7 @@ export class Fire extends AkairoClient {
   // Common Attributes
   util: Util;
   db: PGClient;
-  events: number;
+  events: { [event: string]: number };
   ksoft?: KSoftClient;
   cacheSweep: () => void;
   config: typeof config.fire;
@@ -133,15 +133,7 @@ export class Fire extends AkairoClient {
       this.manager.kill("db_error");
     });
 
-    this.db
-      .query("SELECT count FROM socketstats WHERE cluster=$1;", [
-        this.manager.id,
-      ])
-      .then(
-        (result) =>
-          (this.events = result.rows.length ? (result.rows[0][0] as number) : 0)
-      );
-
+    this.events = {};
     this.experiments = new Collection();
     this.aliases = new Collection();
 
@@ -150,17 +142,10 @@ export class Fire extends AkairoClient {
       this.console.error(`[Discord]\n${error.stack}`)
     );
     this.on("ready", () => config.fire.readyMessage(this));
-    this.on("raw", () => this.events++);
-
-    if (!this.manager.ws)
-      setInterval(async () => {
-        await this.db
-          .query(
-            "INSERT INTO socketstats (cluster, count) VALUES ($1, $2) ON CONFLICT (cluster) DO UPDATE SET count = $2;",
-            [this.manager.id, this.events]
-          )
-          .catch(() => {});
-      }, 5000);
+    this.on("raw", (r) => {
+      if (r.t && this.events[r.t]) this.events[r.t]++;
+      else if (r.t) this.events[r.t] = 1;
+    });
 
     if (sentry) {
       this.sentry = sentry;
