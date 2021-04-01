@@ -111,13 +111,6 @@ export default class Stats extends Command {
         message.language.get("STATS_COMMANDS"),
         clusterStats.commands,
         true
-      )
-      .addField(
-        message.language.get("STATS_EVENTS"),
-        `${clusterStats.events.toLocaleString(
-          message.language.id
-        )}/${stats.events.toLocaleString(message.language.id)}`,
-        true
       );
     return await message.channel.send(embed);
   }
@@ -163,12 +156,7 @@ export default class Stats extends Command {
         true
       )
       .addField(message.language.get("STATS_UPTIME"), stats.uptime, true)
-      .addField(message.language.get("STATS_COMMANDS"), stats.commands, true)
-      .addField(
-        message.language.get("STATS_EVENTS"),
-        stats.events.toLocaleString(message.language.id),
-        true
-      );
+      .addField(message.language.get("STATS_COMMANDS"), stats.commands, true);
     return await message.channel.send(embed);
   }
 }
