@@ -19,7 +19,7 @@ export default class Stats extends Command {
           id: "cluster",
           flag: "--cluster",
           match: "option",
-          type: "string",
+          type: "number",
           default: null,
           required: false,
         },
@@ -28,7 +28,7 @@ export default class Stats extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { cluster?: string }) {
+  async exec(message: FireMessage, args: { cluster?: number }) {
     if (!this.client.manager.ws?.open) return await this.singularStats(message);
     let clusterStats: Cluster;
     const stats: AetherStats = await (
@@ -41,19 +41,14 @@ export default class Stats extends Command {
         .send()
     ).json();
     if (!stats.clusters.length) return await this.singularStats(message);
-    const clusterId = parseInt(args.cluster?.split(" ")[1]);
-    if (args.cluster) {
+    const clusterId = args.cluster;
+    if (clusterId) {
       clusterStats = stats.clusters.find(
         (cluster) =>
           cluster.id == clusterId &&
           cluster.env == process.env.NODE_ENV.toLowerCase()
       );
-      if (!clusterStats)
-        clusterStats = stats.clusters.find(
-          (cluster) =>
-            cluster.id == this.client.manager.id &&
-            cluster.env == process.env.NODE_ENV.toLowerCase()
-        );
+      if (!clusterStats) return await message.error("STATS_UNKNOWN_CLUSTER");
     } else
       clusterStats = stats.clusters.find(
         (cluster) =>
@@ -115,7 +110,7 @@ export default class Stats extends Command {
       .addField(
         message.language.get("STATS_EVENTS"),
         // Aether returns this as a number, contrary to the Cluster interface (used elsewhere)
-        `${(clusterStats.events as unknown as number).toLocaleString(
+        `${((clusterStats.events as unknown) as number).toLocaleString(
           message.language.id
         )}/${stats.events.toLocaleString(message.language.id)}`,
         true

@@ -1304,6 +1304,8 @@ ${success.map((s) => "- " + s).join("\n")}${
         STARBOARD_CONTAINS_AUDIO: "__Message contains an audio file__",
         STARBOARD_JUMP_TO: "Jump to message",
         STATS_COMMAND_DESCRIPTION: "View cluster & overall stats.",
+        STATS_UNKNOWN_CLUSTER:
+          "There doesn't seem to be a cluster with that ID. Maybe it's offline?",
         STATS_TITLE: (name: string, version: string) =>
           `Stats for ${name} [${version}]`,
         STATS_MEMORY_USAGE: "Memory Usage",
