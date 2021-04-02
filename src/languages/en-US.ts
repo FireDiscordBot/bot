@@ -539,10 +539,6 @@ Hint: Use the \`public\` command to get your server on the list`,
         EVAL_COMMAND_DESCRIPTION: "run epic gamer code",
         EVAL_NO_CONTENT:
           "hey idiot you forgot to add the code you want to eval",
-        EVAL_TOO_LONG: (haste?: string) =>
-          haste
-            ? `Output was too long, uploaded to hastebin; ${haste}`
-            : "Output was too long, failed to upload to hastebin",
         EXPLICIT_CONTENT_FILTER_DISABLED: "No Filter",
         EXPLICIT_CONTENT_FILTER_MEMBERS_WITHOUT_ROLES: "Members Without Roles",
         EXPLICIT_CONTENT_FILTER_ALL_MEMBERS: "All Members",

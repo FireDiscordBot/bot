@@ -396,10 +396,6 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           return responses[Math.floor(Math.random() * responses.length)];
         },
         EVAL_COMMAND_DESCRIPTION: "wun epic gamew code",
-        EVAL_TOO_LONG: (haste?: string) =>
-          haste
-            ? `Output was too wong, upwoaded to hastebin; ${haste}`
-            : "Output was too wong, faiwed to upwoad to hastebin",
         EXPLICIT_CONTENT_FILTER_DISABLED: "No Fiwtew",
         EXPLICIT_CONTENT_FILTER_MEMBERS_WITHOUT_ROLES: "Membews Without Wowes",
         EXPLICIT_CONTENT_FILTER_ALL_MEMBERS: "Aww Membews",
