@@ -1066,6 +1066,7 @@ ${success.map((s) => "- " + s).join("\n")}${
         STATS_NODE_VER: "Node.JS Vewsion",
         STATS_UPTIME: "Uptime",
         STATS_COMMANDS: "Commands",
+        STATS_EVENTS: "Events",
         STATS_FOOTER: (manager: number, shard: number) =>
           `PID: ${process.pid} | Cwustew: ${manager} | Shawd: ${shard}`,
         STEAL_COMMAND_DESCRIPTION: "Steaw an emote to use in youw own sewvew",
