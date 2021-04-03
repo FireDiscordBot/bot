@@ -411,6 +411,8 @@ Make sure I have permission to manage roles`,
         COMMAND_DISABLE: (command: string) =>
           `Successfully disabled ${command}, only moderators can use it now.`,
         COMMAND_NO_ARG: "You need to provide a command to toggle",
+        DATA_PACKAGE_READY: (url: string) =>
+          `Your Fire data package is ready! You can download it at ${url} but **please do not share this link anywhere** since anyone with the link can download your data!!!!`,
         DEBUG_COMMAND_DESCRIPTION:
           "Command not working? Use this command to try debug the issue",
         DEBUG_NO_COMMAND: "You must provide a valid command to debug",
