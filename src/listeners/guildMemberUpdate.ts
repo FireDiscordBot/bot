@@ -112,7 +112,7 @@ export default class GuildMemberUpdate extends Listener {
       !newMember.partial &&
       newMember.guild.id == sk1erModule.guildId
     ) {
-      if (!newMember.roles.cache.has("585534346551754755")) {
+      if (!newMember.roles.cache.has("585534346551754755") && !newMember.isSuperuser()) {
         const removed = await sk1erModule
           .removeNitroPerks(newMember)
           .catch(() => false);
