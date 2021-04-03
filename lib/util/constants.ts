@@ -221,7 +221,7 @@ export const constants = {
     symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,
     spoilerAbuse: /(?:\|\|?[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]?){20,}/gim,
     zws: /[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]/gim,
-    customEmoji: /<a?:(?<name>[a-zA-Z0-9\\_]+):(?<id>\\d{15,21})>/gim,
+    customEmoji: /<a?:(?<name>[a-zA-Z0-9\_]+):(?<id>\d{15,21})>/gim,
     unicodeEmoji: emojiRegex,
     allEmoji: new RegExp(
       "(" +
