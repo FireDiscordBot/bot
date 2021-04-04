@@ -28,6 +28,10 @@ export default class RestartEvent extends Event {
         data.shards.includes(shard)
       )
     ) {
+      for (const [guild] of this.manager.client.guilds.cache)
+        this.manager.ws.send(
+          MessageUtil.encode(new Message(EventType.GUILD_CREATE, { id: guild }))
+        );
       this.manager.client.manager.ws?.send(
         MessageUtil.encode(
           new Message(EventType.READY_CLIENT, {
