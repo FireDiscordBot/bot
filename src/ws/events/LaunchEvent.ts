@@ -8,7 +8,6 @@ export default class LaunchEvent extends Event {
   }
 
   run(data: {
-    events: { [event: string]: number };
     shardCount: number;
     shards: number[];
     session: string;
@@ -17,7 +16,6 @@ export default class LaunchEvent extends Event {
     this.manager.client.console.log(
       `[Aether] Received launch event with cluster id ${data.id}.`
     );
-    if (data.events) this.manager.client.events = data.events;
     this.manager.launch(
       data || { id: 0, session: "", shardCount: 1, shards: [0] }
     );
