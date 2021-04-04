@@ -38,17 +38,20 @@ import { listenerTypeCaster } from "@fire/src/arguments/listener";
 import { booleanTypeCaster } from "@fire/src/arguments/boolean";
 import { commandTypeCaster } from "@fire/src/arguments/command";
 import { messageTypeCaster } from "@fire/src/arguments/message";
+import { moduleTypeCaster } from "@fire/src/arguments/module";
 import { PresenceUpdateAction } from "./util/PresenceUpdate";
 import { Language, LanguageHandler } from "./util/language";
-import { moduleTypeCaster } from "@fire/src/arguments/module";
+import { hasteTypeCaster } from "@fire/src/arguments/haste";
 import { Collection, version as djsver } from "discord.js";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandhandler";
 import { Module, ModuleHandler } from "./util/module";
 import { FireMember } from "./extensions/guildmember";
+import { MessageUtil } from "./ws/util/MessageUtil";
 import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
 import { RESTManager } from "./rest/RESTManager";
+import { EventType } from "./ws/util/constants";
 import { Inhibitor } from "./util/inhibitor";
 import { FireConsole } from "./util/console";
 import { config } from "@fire/config/index";
@@ -57,11 +60,11 @@ import { KSoftClient } from "@aero/ksoft";
 import { Command } from "./util/command";
 import { Util } from "./util/clientutil";
 import * as Sentry from "@sentry/node";
+import { Message } from "./ws/Message";
 import { Manager } from "./Manager";
 import * as moment from "moment";
 
 import "./extensions";
-import { hasteTypeCaster } from "@fire/src/arguments/haste";
 
 // Rewrite completed - 15:10 17/1/2021
 export class Fire extends AkairoClient {
@@ -88,7 +91,6 @@ export class Fire extends AkairoClient {
   // Common Attributes
   util: Util;
   db: PGClient;
-  events: { [event: string]: number };
   ksoft?: KSoftClient;
   cacheSweep: () => void;
   config: typeof config.fire;
@@ -133,7 +135,6 @@ export class Fire extends AkairoClient {
       this.manager.kill("db_error");
     });
 
-    this.events = {};
     this.experiments = new Collection();
     this.aliases = new Collection();
 
@@ -143,8 +144,18 @@ export class Fire extends AkairoClient {
     );
     this.on("ready", () => config.fire.readyMessage(this));
     this.on("raw", (r) => {
-      if (r.t && this.events[r.t]) this.events[r.t]++;
-      else if (r.t) this.events[r.t] = 1;
+      if (r.t == "GUILD_CREATE")
+        this.manager.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.GUILD_CREATE, { id: r.d.id })
+          )
+        );
+      else if (r.t == "GUILD_DELETE")
+        this.manager.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.GUILD_DELETE, { id: r.d.id })
+          )
+        );
     });
 
     if (sentry) {
