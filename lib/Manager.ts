@@ -99,11 +99,7 @@ export class Manager {
       )
     );
     this.client?.destroy();
-    if (this.ws?.open)
-      this.ws.close(
-        1001,
-        `Cluster ${this.id} is shutting down due to receiving ${event} event`
-      );
+    if (this.ws?.open) this.ws.close(1001, event);
     process.exit();
   }
 }
