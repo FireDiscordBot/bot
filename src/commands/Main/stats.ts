@@ -107,14 +107,6 @@ export default class Stats extends Command {
         clusterStats.commands,
         true
       )
-      .addField(
-        message.language.get("STATS_EVENTS"),
-        // Aether returns this as a number, contrary to the Cluster interface (used elsewhere)
-        `${((clusterStats.events as unknown) as number).toLocaleString(
-          message.language.id
-        )}/${stats.events.toLocaleString(message.language.id)}`,
-        true
-      );
     return await message.channel.send(embed);
   }
 
@@ -160,13 +152,6 @@ export default class Stats extends Command {
       )
       .addField(message.language.get("STATS_UPTIME"), stats.uptime, true)
       .addField(message.language.get("STATS_COMMANDS"), stats.commands, true)
-      .addField(
-        message.language.get("STATS_EVENTS"),
-        Object.values(stats.events)
-          .reduce((a, b) => (a || 0) + (b || 0))
-          .toLocaleString(message.language.id),
-        true
-      );
     return await message.channel.send(embed);
   }
 }
