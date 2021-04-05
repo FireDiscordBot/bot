@@ -93,7 +93,8 @@ export default class GuildMemberUpdate extends Listener {
         autoroleId &&
         !delay &&
         !newMember.roles.cache.has(autoroleId) &&
-        !newMember.pending
+        !newMember.pending &&
+        !newMember.user.bot
       ) {
         const role = newMember.guild.roles.cache.get(autoroleId);
         if (role && newMember.guild.me.hasPermission("MANAGE_ROLES"))
@@ -112,7 +113,10 @@ export default class GuildMemberUpdate extends Listener {
       !newMember.partial &&
       newMember.guild.id == sk1erModule.guildId
     ) {
-      if (!newMember.roles.cache.has("585534346551754755") && !newMember.isSuperuser()) {
+      if (
+        !newMember.roles.cache.has("585534346551754755") &&
+        !newMember.isSuperuser()
+      ) {
         const removed = await sk1erModule
           .removeNitroPerks(newMember)
           .catch(() => false);
