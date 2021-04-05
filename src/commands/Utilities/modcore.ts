@@ -21,8 +21,8 @@ export default class Modcore extends Command {
           required: true,
         },
       ],
+      requiresExperiment: { id: "M373RC8U0mKf0vbmRUdH_", treatmentId: 1},
       enableSlashCommand: true,
-      superuserOnly: true, // temp
       restrictTo: "all",
     });
   }
