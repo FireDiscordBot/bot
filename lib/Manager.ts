@@ -51,6 +51,7 @@ export class Manager {
 
     this.ws.once("close", (code: number, reason: string) => {
       this.client.console.warn("[Sharder] WS closed.");
+      this.ws.subscribed = [];
       this.reconnector.handleClose(code, reason);
     });
 

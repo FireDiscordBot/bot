@@ -9,6 +9,7 @@ export class Websocket extends Client {
   handlers: Collection<string, (value: unknown) => void>;
   keepAlive: NodeJS.Timeout;
   waitingForPong: boolean;
+  subscribed: string[];
   manager: Manager;
   pongs: number;
 
@@ -29,6 +30,7 @@ export class Websocket extends Client {
     this.handlers = new Collection();
     this.waitingForPong = false;
     this.manager = manager;
+    this.subscribed = [];
     this.pongs = 0;
     this.once("open", () => {
       this.keepAlive = setInterval(() => {

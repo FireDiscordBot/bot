@@ -145,15 +145,34 @@ export class Fire extends AkairoClient {
     this.on("ready", () => config.fire.readyMessage(this));
     this.on("raw", (r) => {
       if (r.t == "GUILD_CREATE")
-        this.manager.ws.send(
+        this.manager.ws?.send(
           MessageUtil.encode(
             new Message(EventType.GUILD_CREATE, { id: r.d.id })
           )
         );
       else if (r.t == "GUILD_DELETE")
-        this.manager.ws.send(
+        this.manager.ws?.send(
           MessageUtil.encode(
             new Message(EventType.GUILD_DELETE, { id: r.d.id })
+          )
+        );
+
+      if (
+        r.t == "GUILD_MEMBER_ADD" &&
+        this.manager.ws?.subscribed.includes(r.d?.user?.id)
+      )
+        this.manager.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.DISCORD_GUILD_MEMBER_ADD, r.d)
+          )
+        );
+      else if (
+        r.t == "GUILD_MEMBER_REMOVE" &&
+        this.manager.ws?.subscribed.includes(r.d?.user?.id)
+      )
+        this.manager.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.DISCORD_GUILD_MEMBER_REMOVE, r.d)
           )
         );
     });
