@@ -17,6 +17,7 @@ import {
   MessageOptions,
   MessageManager,
   SnowflakeUtil,
+  InviteOptions,
   MessageEmbed,
   Permissions,
   NewsChannel,
@@ -369,6 +370,12 @@ export class FakeChannel {
   ) {
     return !(this.real instanceof DMChannel)
       ? this.real?.updateOverwrite(userOrRole, options, reason)
+      : false;
+  }
+
+  createInvite(options?: InviteOptions) {
+    return !(this.real instanceof DMChannel)
+      ? this.real?.createInvite(options)
       : false;
   }
 
