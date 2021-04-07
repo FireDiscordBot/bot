@@ -1,5 +1,4 @@
 import "./voicechannel";
-import "./stagechannel";
 import "./guildmember";
 import "./textchannel";
 import "./message";

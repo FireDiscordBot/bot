@@ -10,7 +10,6 @@ import {
 } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireVoiceChannel } from "../extensions/voicechannel";
-import { FireStageChannel } from "../extensions/stagechannel";
 import { FireTextChannel } from "../extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -419,7 +418,7 @@ export const voiceChannelConverter = async (
   message: FireMessage,
   argument: string,
   silent = false
-): Promise<FireVoiceChannel | FireStageChannel | null> => {
+): Promise<FireVoiceChannel | null> => {
   if (!argument) return;
 
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
@@ -434,20 +433,16 @@ export const voiceChannelConverter = async (
       .filter(
         (channel) =>
           channel.name.toLowerCase() == argument.toLowerCase() &&
-          (channel.type == "voice" || channel.type == "stage")
+          channel.type == "voice"
       )
       .first();
     if (channel && channel.type == "voice") return channel as FireVoiceChannel;
-    else if (channel && channel.type == "stage")
-      return channel as FireStageChannel;
 
     if (!silent) await message.error("CHANNEL_NOT_FOUND");
     return null;
   } else {
     const channel = guild.channels.cache.get(match);
     if (channel && channel.type == "voice") return channel as FireVoiceChannel;
-    else if (channel && channel.type == "stage")
-      return channel as FireStageChannel;
 
     if (!silent) await message.error("INVALID_CHANNEL_ID");
     return null;
