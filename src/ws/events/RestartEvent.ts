@@ -1,7 +1,9 @@
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Event } from "@fire/lib/ws/event/Event";
+import GuildCheckEvent from "./GuildCheckEvent";
 import { Message } from "@fire/lib/ws/Message";
 import { Manager } from "@fire/lib/Manager";
 
@@ -29,9 +31,14 @@ export default class RestartEvent extends Event {
         data.shards.includes(shard)
       )
     ) {
-      for (const [guild] of this.manager.client.guilds.cache)
+      for (const [id, guild] of this.manager.client.guilds.cache)
         this.manager.ws.send(
-          MessageUtil.encode(new Message(EventType.GUILD_CREATE, { id: guild }))
+          MessageUtil.encode(
+            new Message(EventType.GUILD_CREATE, {
+              id,
+              member: GuildCheckEvent.getMemberJSON(guild.me as FireMember),
+            })
+          )
         );
       this.manager.client.manager.ws?.send(
         MessageUtil.encode(
