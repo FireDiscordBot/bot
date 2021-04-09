@@ -1,6 +1,5 @@
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { FireGuild } from "@fire/lib/extensions/guild";
 import { Module } from "@fire/lib/util/module";
 import { Message } from "@fire/lib/ws/Message";
 
