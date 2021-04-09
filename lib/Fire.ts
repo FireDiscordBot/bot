@@ -31,10 +31,11 @@ import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
 import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
-import { Experiment, Treatment } from "./interfaces/experiments";
 import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
 import { languageTypeCaster } from "@fire/src/arguments/language";
 import { listenerTypeCaster } from "@fire/src/arguments/listener";
+import GuildCheckEvent from "@fire/src/ws/events/GuildCheckEvent";
+import { Experiment, Treatment } from "./interfaces/experiments";
 import { booleanTypeCaster } from "@fire/src/arguments/boolean";
 import { commandTypeCaster } from "@fire/src/arguments/command";
 import { messageTypeCaster } from "@fire/src/arguments/message";
@@ -48,6 +49,7 @@ import { CommandHandler } from "./util/commandhandler";
 import { Module, ModuleHandler } from "./util/module";
 import { FireMember } from "./extensions/guildmember";
 import { MessageUtil } from "./ws/util/MessageUtil";
+import { APIGuildMember } from "discord-api-types";
 import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
 import { RESTManager } from "./rest/RESTManager";
@@ -144,13 +146,19 @@ export class Fire extends AkairoClient {
     );
     this.on("ready", () => config.fire.readyMessage(this));
     this.on("raw", (r) => {
-      if (r.t == "GUILD_CREATE")
+      if (r.t == "GUILD_CREATE") {
+        const member = r.d.members.find(
+          (member: APIGuildMember) => member.user.id == this.user.id
+        ) as APIGuildMember;
         this.manager.ws?.send(
           MessageUtil.encode(
-            new Message(EventType.GUILD_CREATE, { id: r.d.id })
+            new Message(EventType.GUILD_CREATE, {
+              id: r.d.id,
+              member: GuildCheckEvent.getMemberJSON(member),
+            })
           )
         );
-      else if (r.t == "GUILD_DELETE")
+      } else if (r.t == "GUILD_DELETE")
         this.manager.ws?.send(
           MessageUtil.encode(
             new Message(EventType.GUILD_DELETE, { id: r.d.id })
