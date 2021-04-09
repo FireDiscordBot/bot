@@ -13,6 +13,7 @@ export default class LaunchEvent extends Event {
     session: string;
     id: number;
   }) {
+    this.manager.launched = true;
     this.manager.client.console.log(
       `[Aether] Received launch event with cluster id ${data.id}.`
     );

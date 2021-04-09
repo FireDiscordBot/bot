@@ -16,6 +16,7 @@ export default class RestartEvent extends Event {
     shardCount: number;
     shards: number[];
   }) {
+    this.manager.launched = true;
     this.manager.client.console.log(
       "[Aether] Received restart event, checking whether sharding options have changed..."
     );
