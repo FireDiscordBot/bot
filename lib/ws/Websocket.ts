@@ -20,10 +20,11 @@ export class Websocket extends Client {
         : `ws://127.0.0.1:${process.env.WS_PORT}`,
       {
         headers: {
+          "x-aether-seq": manager.seq?.toString() || "0",
           "x-aether-session": manager.session || "",
           authorization: process.env.WS_AUTH,
-          "x-aether-seq": manager.seq?.toString() || "0",
           "User-Agent": "Fire Discord Bot",
+          "x-aether-encoding": "zlib",
         },
       }
     );
