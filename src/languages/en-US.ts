@@ -1323,6 +1323,8 @@ ${success.map((s) => "- " + s).join("\n")}${
         STEAL_STOLEN: (emoji: string) =>
           `Nice! You stole ${emoji} without getting caught by a nasty error :)`,
         SUGGEST_COMMAND_DESCRIPTION: "Suggest a feature for Fire.",
+        SUGGEST_COMMAND_DEPRECATED:
+          "This command has been deprecated in favor of <https://inv.wtf/firesuggest> and will eventually be removed",
         SUGGESTION_SUCCESS: (card: any) =>
           `Thanks! Your suggestion was added to the Trello @ <${card.url}>. Make sure to check it every now and then for a response.
 Abuse of this command __**will**__ result in being temporarily blacklisted from Fire`,
