@@ -35,6 +35,22 @@ export const fire = {
     "615923604424491035",
     "807302538558308352",
   ],
+  datamineUsers: [
+    "GamingGeek",
+    "ThaTiemsz",
+    "advaith1",
+    "ItsRauf",
+    "ilikepotatoes121",
+    "itzoreomc",
+    "DeJayDev",
+    "areyouokevan",
+    "KarateWumpus",
+    "webhp",
+    "DrewTheGhost",
+    "vDelite",
+    "NurMarvin",
+    "XYZenix",
+  ],
   inviteLink: process.env.INVITE_SUFFIX
     ? `https://inv.wtf/${process.env.INVITE_SUFFIX}`
     : "https://inv.wtf/bot",

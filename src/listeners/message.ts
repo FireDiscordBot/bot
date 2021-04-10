@@ -19,7 +19,7 @@ export default class Message extends Listener {
       emitter: "client",
       event: "message",
     });
-    this.tokenRegex = /[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{27}/gm
+    this.tokenRegex = /[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{27}/gm;
     this.recentTokens = [];
   }
 
@@ -122,7 +122,11 @@ export default class Message extends Listener {
       await this.tokenGist(message, toSearch);
     }
 
-    if (message.channel.id == "388850472632451073" && message.embeds.length) {
+    if (
+      message.channel.id == "388850472632451073" &&
+      message.embeds.length &&
+      this.client.config.datamineUsers.includes(message.embeds[0].author.name)
+    ) {
       const dataminingMessage = await this.client.req
         .channels("731330454422290463")
         .messages.post({
