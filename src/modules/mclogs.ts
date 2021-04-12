@@ -102,6 +102,12 @@ export default class MCLogs extends Module {
       currentRecommendations.push(
         "- Unless you know what you're doing, modifying your JVM args could have unintended side effects. It's best to use the defaults."
       );
+    
+    // Double statement because of the unicode stuff
+    if (log.includes("64-bit Java") && log.includes("to increase performance"))
+      currentRecommendations.push(
+        "- Please upgrade to 64-bit java at https://adoptopenjdk.net/?variant=openjdk8&jvmVariant=hotspot."
+      );
 
     const allocatedRam = this.regexes.ram.exec(log);
     this.regexes.ram.lastIndex = 0;
