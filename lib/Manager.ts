@@ -7,7 +7,6 @@ import { Fire } from "./Fire";
 
 export class Manager {
   eventHandler: EventHandler;
-  launched: boolean = false;
   reconnector: Reconnector;
   killing: boolean = false;
   sentry: typeof Sentry;
@@ -51,7 +50,6 @@ export class Manager {
     });
 
     this.ws.once("close", (code: number, reason: string) => {
-      this.launched = false;
       this.client.console.warn("[Sharder] WS closed.");
       this.ws.subscribed = [];
       this.reconnector.handleClose(code, reason);
