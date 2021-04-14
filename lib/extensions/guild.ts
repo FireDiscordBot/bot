@@ -5,6 +5,8 @@ import {
   Webhook,
   Collection,
   Structures,
+  StageChannel,
+  VoiceChannel,
   MessageEmbed,
   WebhookClient,
   CategoryChannel,
@@ -26,7 +28,6 @@ import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { MessageIterator } from "../util/iterators";
 import { FakeChannel } from "./slashCommandMessage";
-import { FireVoiceChannel } from "./voicechannel";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
@@ -116,8 +117,8 @@ export class FireGuild extends Guild {
 
   get regions() {
     let regions = this.channels.cache
-      .filter((channel) => channel.type == "voice")
-      .map((channel: FireVoiceChannel) => channel.region);
+      .filter((channel) => channel.type == "voice" || channel.type == "stage")
+      .map((channel: VoiceChannel | StageChannel) => channel.rtcRegion);
     regions = regions.filter(
       // remove duplicates
       (region, index) => regions.indexOf(region) === index
@@ -421,9 +422,9 @@ export class FireGuild extends Guild {
         vcrole.get("cid") as string,
         vcrole.get("rid") as string
       );
-      const channel = this.channels.cache.get(
-        vcrole.get("cid") as string
-      ) as FireVoiceChannel;
+      const channel = this.channels.cache.get(vcrole.get("cid") as string) as
+        | VoiceChannel
+        | StageChannel;
       if (!channel) continue;
       const role = this.roles.cache.get(vcrole.get("rid") as string);
       if (!role) continue;

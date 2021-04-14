@@ -1,7 +1,8 @@
 import { MessageEmbed, GuildChannel, DMChannel } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
-import { FireVoiceChannel } from "@fire/lib/extensions/voicechannel";
+import { VoiceChannel } from "discord.js";
+import { StageChannel } from "discord.js";
 
 export default class ChannelUpdate extends Listener {
   constructor() {
@@ -106,15 +107,15 @@ export default class ChannelUpdate extends Listener {
           }`
         );
       if (
-        before instanceof FireVoiceChannel &&
-        after instanceof FireVoiceChannel
+        (before instanceof VoiceChannel || before instanceof StageChannel) &&
+        (after instanceof VoiceChannel || after instanceof StageChannel)
       )
-        if (before.region != after.region) {
+        if (before.rtcRegion != after.rtcRegion) {
           const unknown = language.get("REGION_AUTOMATIC");
           embed.addField(
             language.get("REGION"),
-            `${language.get("REGIONS")[before.region] || unknown} ➜ ${
-              language.get("REGIONS")[after.region] || unknown
+            `${language.get("REGIONS")[before.rtcRegion] || unknown} ➜ ${
+              language.get("REGIONS")[after.rtcRegion] || unknown
             }`
           );
         }
