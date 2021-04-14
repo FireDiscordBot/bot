@@ -1,7 +1,7 @@
+import { FireVoiceChannel } from "@fire/lib/extensions/voicechannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { VoiceChannel } from "discord.js";
 
 export default class YTSync extends Command {
   constructor() {
@@ -21,14 +21,11 @@ export default class YTSync extends Command {
     });
   }
 
-  // TODO: replace with firevoicechannel when #57 is merged
-  async exec(message: FireMessage, args: { channel: VoiceChannel }) {
+  async exec(message: FireMessage, args: { channel: FireVoiceChannel }) {
     if (!args.channel?.id || args.channel?.type != "voice")
       return await message.error("YTSYNC_CHANNEL_REQUIRED");
 
-    // @ts-ignore
-    const invite = await this.client.api
-      // @ts-ignore
+    const invite = await this.client.req
       .channels(args.channel.id)
       .invites.post({
         data: {

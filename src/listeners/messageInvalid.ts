@@ -2,6 +2,7 @@ import {
   MessageLinkMatch,
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { messageConverter } from "@fire/lib/util/converters";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
@@ -25,13 +26,13 @@ export default class MessageInvalid extends Listener {
       emitter: "commandHandler",
       event: "messageInvalid",
     });
-    this.botQuoteRegex = /.{1,25}\s?quote (?:https?:\/\/)?(?:(?:ptb|canary|development)\.)?discord(?:app)?\.com\/channels\/(?:\d{15,21}\/?){3}/gim;
+    this.botQuoteRegex = /.{1,25}\s?quote (?:https?:\/\/)?(?:(?:ptb|canary|development|staging)\.)?discord(?:app)?\.com?\/channels\/(?:\d{15,21}\/?){3}/gim;
     this.slashCommandRegex = /<\/\w+:\d{15,21}>/gim;
   }
 
   async exec(message: FireMessage) {
     if (
-      this.client.config.dev ||
+      (this.client.config.dev && process.env.USE_LITECORD != "true") ||
       this.botQuoteRegex.test(message.content) ||
       this.slashCommandRegex.test(message.content) ||
       !message.guild ||
@@ -162,7 +163,8 @@ export default class MessageInvalid extends Listener {
     }
   }
 
-  cleanCommandUtil(message: FireMessage) {
+  cleanCommandUtil(message: FireMessage | SlashCommandMessage) {
+    if (message instanceof SlashCommandMessage) return;
     const util = message.util;
     if (!util.parsed?.command)
       this.client.commandHandler.commandUtils.delete(message.id);
@@ -171,7 +173,11 @@ export default class MessageInvalid extends Listener {
       message
         .send(
           "HELLO_PREFIX",
-          message.guild ? message.guild.settings.get("main.prefix", "$") : "$"
+          process.env.SPECIAL_PREFIX
+            ? process.env.SPECIAL_PREFIX
+            : message.guild
+            ? message.guild.settings.get("main.prefix", "$")
+            : "$"
         )
         .catch(() => {});
   }

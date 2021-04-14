@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { parseTime } from "@fire/lib/util/constants";
@@ -53,7 +53,9 @@ export default class Ban extends Command {
     message: FireMessage,
     args: { user: FireMember | FireUser; days?: number; reason?: string }
   ) {
-    if (!args.user) return;
+    if (typeof args.user == "undefined")
+      return await message.error("BAN_USER_REQUIRED");
+    else if (!args.user) return;
     // TODO user|member has no silent variety so add one future me kthx
     else if (
       args.user instanceof FireMember &&

@@ -1,8 +1,8 @@
-import { titleCase, constants } from "@fire/lib/util/constants";
+import { BitFieldResolvable, PermissionString, GuildChannel } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { PermissionString } from "discord.js";
 
 export default class Help extends Command {
   constructor() {
@@ -52,9 +52,29 @@ export default class Help extends Command {
           )
             return false;
           if (command.channel == "guild" && !message.guild) return false;
+          if (
+            (command.userPermissions as PermissionString[])?.length &&
+            !message.guild
+          )
+            return false;
+          if (
+            (command.userPermissions as PermissionString[])?.length &&
+            (message.channel as GuildChannel)
+              .permissionsFor(message.author)
+              .missing(
+                command.userPermissions as BitFieldResolvable<PermissionString>
+              ).length
+          )
+            return false;
           return true;
         })
-        .forEach((command) => commands.push(`\`${command.id}\``));
+        .forEach((command) =>
+          commands.push(
+            command.parent
+              ? `\`${command.id.replace("-", " ")}\``
+              : `\`${command.id}\``
+          )
+        );
       if (commands.length)
         fields.push({
           name: category.id,

@@ -14,6 +14,7 @@ export default class MinecraftStatus extends Command {
     yellow: string;
     red: string;
   };
+
   constructor() {
     super("mcstatus", {
       description: (language: Language) =>
@@ -23,9 +24,9 @@ export default class MinecraftStatus extends Command {
       restrictTo: "all",
     });
     this.emotes = {
-      green: emojis.green,
-      yellow: emojis.yellow,
-      red: emojis.red,
+      green: emojis.statuspage.operational,
+      yellow: emojis.statuspage.partial_outage,
+      red: emojis.statuspage.major_outage,
     };
   }
 

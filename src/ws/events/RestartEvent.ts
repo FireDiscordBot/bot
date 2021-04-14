@@ -1,7 +1,9 @@
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Event } from "@fire/lib/ws/event/Event";
+import GuildCheckEvent from "./GuildCheckEvent";
 import { Message } from "@fire/lib/ws/Message";
 import { Manager } from "@fire/lib/Manager";
 
@@ -20,6 +22,7 @@ export default class RestartEvent extends Event {
       "[Aether] Received restart event, checking whether sharding options have changed..."
     );
     if (data.id != this.manager.id) return this.manager.kill("resharding");
+    this.manager.session = data.session;
     const currentOptions = this.manager.client.options;
     if (
       currentOptions.shardCount == data.shardCount &&
@@ -27,6 +30,15 @@ export default class RestartEvent extends Event {
         data.shards.includes(shard)
       )
     ) {
+      for (const [id, guild] of this.manager.client.guilds.cache)
+        this.manager.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.GUILD_CREATE, {
+              id,
+              member: GuildCheckEvent.getMemberJSON(guild.me as FireMember),
+            })
+          )
+        );
       this.manager.client.manager.ws?.send(
         MessageUtil.encode(
           new Message(EventType.READY_CLIENT, {

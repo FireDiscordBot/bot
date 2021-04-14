@@ -6,7 +6,6 @@ import {
   Collection,
   Structures,
   MessageEmbed,
-  VoiceChannel,
   WebhookClient,
   CategoryChannel,
   MessageAttachment,
@@ -20,13 +19,14 @@ import {
 } from "@fire/lib/util/constants";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
-import Tickets from "@fire/src/commands/Tickets/tickets";
+import TicketName from "@fire/src/commands/Tickets/name";
 import { PermRolesData } from "../interfaces/permroles";
 import { GuildSettings } from "@fire/lib/util/settings";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { MessageIterator } from "../util/iterators";
 import { FakeChannel } from "./slashCommandMessage";
+import { FireVoiceChannel } from "./voicechannel";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
@@ -48,6 +48,8 @@ const parseUntil = (time?: string) => {
 export class FireGuild extends Guild {
   quoteHooks: Collection<string, Webhook | WebhookClient>;
   reactionRoles: Collection<string, ReactionRoleData[]>;
+  starboardReactions: Collection<string, number>;
+  starboardMessages: Collection<string, string>;
   persistedRoles: Collection<string, string[]>;
   ticketLock?: { lock: Semaphore; limit: any };
   permRoles: Collection<string, PermRolesData>;
@@ -72,6 +74,8 @@ export class FireGuild extends Guild {
     this.settings = new GuildSettings(client, this);
     this.tags = new GuildTagManager(client, this);
     this.logger = new GuildLogManager(client, this);
+    this.starboardReactions = new Collection();
+    this.starboardMessages = new Collection();
     this.persistedRoles = new Collection();
     this.reactionRoles = new Collection();
     this.inviteRoles = new Collection();
@@ -81,6 +85,8 @@ export class FireGuild extends Guild {
     this.fetchingRoleUpdates = false;
     this.vcRoles = new Collection();
     this.invites = new Collection();
+    this.loadStarboardReactions();
+    this.loadStarboardMessages();
     this.loadMutes();
     this.loadBans();
   }
@@ -106,6 +112,19 @@ export class FireGuild extends Guild {
 
   get logIgnored(): string[] {
     return this.settings.get("utils.logignore", []);
+  }
+
+  get regions() {
+    let regions = this.channels.cache
+      .filter((channel) => channel.type == "voice")
+      .map((channel: FireVoiceChannel) => channel.region);
+    regions = regions.filter(
+      // remove duplicates
+      (region, index) => regions.indexOf(region) === index
+    );
+    if (regions.includes(null))
+      regions.splice(0, 0, regions.splice(regions.indexOf(null), 1)[0]);
+    return regions;
   }
 
   _patch(data: APIGuild) {
@@ -321,6 +340,38 @@ export class FireGuild extends Guild {
     }
   }
 
+  async loadStarboardMessages() {
+    this.starboardMessages = new Collection();
+    const messages = await this.client.db
+      .query("SELECT * FROM starboard WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!messages)
+      return this.client.console.error(
+        `[Guild] Failed to load starboard messages for ${this.name} (${this.id})`
+      );
+    for await (const message of messages)
+      this.starboardMessages.set(
+        message.get("original") as string,
+        message.get("board") as string
+      );
+  }
+
+  async loadStarboardReactions() {
+    this.starboardReactions = new Collection();
+    const reactions = await this.client.db
+      .query("SELECT * FROM starboard_reactions WHERE gid=$1;", [this.id])
+      .catch(() => {});
+    if (!reactions)
+      return this.client.console.error(
+        `[Guild] Failed to load starboard reactions for ${this.name} (${this.id})`
+      );
+    for await (const reaction of reactions)
+      this.starboardReactions.set(
+        reaction.get("mid") as string,
+        reaction.get("reactions") as number
+      );
+  }
+
   async loadInviteRoles() {
     this.inviteRoles = new Collection();
     if (!this.premium || !this.available) return;
@@ -372,7 +423,7 @@ export class FireGuild extends Guild {
       );
       const channel = this.channels.cache.get(
         vcrole.get("cid") as string
-      ) as VoiceChannel;
+      ) as FireVoiceChannel;
       if (!channel) continue;
       const role = this.roles.cache.get(vcrole.get("rid") as string);
       if (!role) continue;
@@ -582,7 +633,7 @@ export class FireGuild extends Guild {
   }
 
   hasExperiment(id: string, treatmentId?: number) {
-    if (this.client.config.dev) return true;
+    // if (this.client.config.dev) return true;
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "guild") return false;
     for (const c of Object.keys(experiment.defaultConfig)) {
@@ -682,7 +733,7 @@ export class FireGuild extends Guild {
       this.ticketLock.lock.release();
       return "limit";
     }
-    const words = (this.client.getCommand("ticket") as Tickets).words;
+    const words = (this.client.getCommand("ticket-name") as TicketName).words;
     let increment = this.settings.get("tickets.increment", 0) as number;
     const variables = {
       "{increment}": increment.toString() as string,
@@ -913,7 +964,9 @@ export class FireGuild extends Guild {
       reason
     ).catch(() => {});
     if (!logEntry) return "entry";
-    const unbanned = await this.members.unban(user, reason).catch(() => {});
+    const unbanned = await this.members
+      .unban(user, `${moderator} | ${reason}`)
+      .catch(() => {});
     if (!unbanned) {
       const deleted = await this.deleteModLogEntry(logEntry).catch(() => false);
       return deleted ? "unban" : "unban_and_entry";
@@ -970,7 +1023,7 @@ export class FireGuild extends Guild {
       ADD_REACTIONS: false,
     };
     const blocked = await channel
-      .updateOverwrite(blockee, overwrite, reason)
+      .updateOverwrite(blockee, overwrite, `${moderator} | ${reason}`)
       .catch(() => {});
     if (!blocked) {
       let deleted = true; // ensures "block" is used if logEntry doesn't exist
@@ -1038,7 +1091,7 @@ export class FireGuild extends Guild {
       ADD_REACTIONS: null,
     };
     const unblocked = await channel
-      .updateOverwrite(unblockee, overwrite, reason)
+      .updateOverwrite(unblockee, overwrite, `${moderator} | ${reason}`)
       .catch(() => {});
     if (
       channel.permissionOverwrites?.get(unblockee.id)?.allow.bitfield == 0n &&

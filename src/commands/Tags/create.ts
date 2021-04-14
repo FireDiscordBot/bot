@@ -51,8 +51,11 @@ export default class TagCreate extends Command {
     const { tag, content } = args;
     if (this.client.getCommand(`tag-${tag}`))
       return await message.error("TAGS_CREATE_COMMAND_NAME");
-    if (!nameRegex.test(tag))
+    if (!nameRegex.test(tag)) {
+      nameRegex.lastIndex = 0;
       return await message.error("TAGS_CREATE_INVALID_CHARACTERS");
+    }
+    nameRegex.lastIndex = 0;
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(tag, false);
     if (cachedTag) return await message.error("TAGS_CREATE_ALREADY_EXISTS");

@@ -16,8 +16,8 @@ export default class Autorole extends Command {
           id: "role",
           type: "roleSilent",
           readableType: "role",
+          required: false,
           default: null,
-          required: true,
         },
         {
           id: "delay",
@@ -45,7 +45,7 @@ export default class Autorole extends Command {
 
     if (!role) {
       message.guild.settings.delete(bot ? "mod.autobotrole" : "mod.autorole");
-      message.guild.settings.delete("mod.autorole.waitformsg");
+      !bot && message.guild.settings.delete("mod.autorole.waitformsg");
       return await message.success(
         bot ? "AUTOROLE_DISABLED_BOT" : "AUTOROLE_DISABLED"
       );
@@ -56,7 +56,8 @@ export default class Autorole extends Command {
       (args.role.managed ||
         args.role.rawPosition >= message.guild.me.roles.highest.rawPosition ||
         args.role.id == message.guild.roles.everyone.id ||
-        args.role.rawPosition >= message.member.roles.highest.rawPosition)
+        (args.role.rawPosition >= message.member.roles.highest.rawPosition &&
+          message.guild.ownerID != message.author.id))
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
     if (bot && delay) return await message.error("AUTOROLE_INVALID_FLAGS");

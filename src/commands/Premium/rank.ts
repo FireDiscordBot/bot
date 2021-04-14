@@ -74,7 +74,9 @@ export default class Rank extends Command {
       return await message.channel.send(embed);
     }
 
-    if (message instanceof SlashCommandMessage) message.setFlags(64);
+    if (message instanceof SlashCommandMessage)
+      // ts server gets angry without the "as" even though I have the instance check
+      (message as SlashCommandMessage).flags = 64;
 
     if (roles.includes(args.role)) {
       if (args.role.id == "595626786549792793")

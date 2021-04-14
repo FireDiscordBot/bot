@@ -24,9 +24,7 @@ export default class InteractionCreate extends Listener {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(command.channel_id).catch(() => {});
       const message = new SlashCommandMessage(this.client, command);
-      await message.channel.ack(
-        (message.flags & 64) != 64 || message.realChannel instanceof DMChannel
-      );
+      await message.channel.ack((message.flags & 64) != 0);
       if (!message.command) {
         this.client.console.warn(
           `[Commands] Got slash command request for unknown command, /${command.data.name}`
@@ -69,13 +67,10 @@ export default class InteractionCreate extends Listener {
   }
 
   async callbackError(command: SlashCommand, error: Error) {
-    // @ts-ignore
-    await this.client.api
-      // @ts-ignore
+    await this.client.req
       .interactions(command.id)(command.token)
       .callback.post({
         data: {
-          // @ts-ignore
           type: 3,
           data: {
             content: `${emojis.error} An error occured while trying to handle this command that may be caused by being in DMs or the bot not being present...
@@ -91,9 +86,7 @@ Error Message: ${error.message}`,
   }
 
   async webhookError(command: SlashCommand, error: Error) {
-    // @ts-ignore
-    await this.client.api
-      // @ts-ignore
+    await this.client.req
       .webhooks(this.client.user.id)(command.token)
       .post({
         data: {

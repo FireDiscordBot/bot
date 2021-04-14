@@ -119,9 +119,7 @@ export class GuildTagManager {
       name: string;
       description: string;
       options?: Option[];
-      // @ts-ignore
-    }[] = await this.client.api
-      // @ts-ignore
+    }[] = await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
       .commands.get()
@@ -169,9 +167,7 @@ export class GuildTagManager {
         !(cmd.id in this.slashCommands && !this.cache.has(cmd.name))
     );
 
-    // @ts-ignore
-    await this.client.api
-      // @ts-ignore
+    await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
       .commands.put({ data: [...current, ...commandData].slice(0, 100) })
@@ -224,9 +220,7 @@ export class GuildTagManager {
       name: string;
       description: string;
       options?: Option[];
-      // @ts-ignore
-    }[] = await this.client.api
-      // @ts-ignore
+    }[] = await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
       .commands.get()
@@ -267,9 +261,7 @@ export class GuildTagManager {
         )
     );
 
-    // @ts-ignore
-    const removed = await this.client.api
-      // @ts-ignore
+    const removed = await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
       .commands.put({ data: current })
@@ -345,9 +337,7 @@ export class GuildTagManager {
     const cached = await this.getCachedTag(tag);
     const command = await this.getTagSlashCommandJSON(cached);
 
-    // @ts-ignore
-    const commandRaw = await this.client.api
-      // @ts-ignore
+    const commandRaw = await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
       .commands.post({ data: command })
@@ -387,9 +377,7 @@ export class GuildTagManager {
     const [id] = entries.find(([, name]) => name == tag) || [null];
     if (!id) return;
 
-    // @ts-ignore
-    await this.client.api
-      // @ts-ignore
+    await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
       .commands(id)
@@ -435,6 +423,7 @@ export class GuildTagManager {
       [aliases.length ? aliases : null, cached.name, this.guild.id]
     );
     cached.aliases = aliases;
+    this.names.push(alias);
     this.cache.set(cached.name, cached);
     return true;
   }

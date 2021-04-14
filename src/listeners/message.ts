@@ -19,7 +19,7 @@ export default class Message extends Listener {
       emitter: "client",
       event: "message",
     });
-    this.tokenRegex = /[MN][A-Za-z\d]{23}\.?[\w-]{6}\.?[\w-]{27}/gm;
+    this.tokenRegex = /[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{27}/gm;
     this.recentTokens = [];
   }
 
@@ -122,10 +122,12 @@ export default class Message extends Listener {
       await this.tokenGist(message, toSearch);
     }
 
-    if (message.channel.id == "388850472632451073" && message.embeds.length) {
-      // @ts-ignore
-      const dataminingMessage = await this.client.api
-        // @ts-ignore
+    if (
+      message.channel.id == "388850472632451073" &&
+      message.embeds.length &&
+      this.client.config.datamineUsers.includes(message.embeds[0].author.name)
+    ) {
+      const dataminingMessage = await this.client.req
         .channels("731330454422290463")
         .messages.post({
           data: {
@@ -138,9 +140,7 @@ export default class Message extends Listener {
           );
         });
       if (dataminingMessage?.id && message.embeds[0].title.includes("comment"))
-        // @ts-ignore
-        await this.client.api
-          // @ts-ignore
+        await this.client.req
           .channels("731330454422290463")
           .messages(dataminingMessage.id)
           .crosspost.post();
@@ -150,7 +150,7 @@ export default class Message extends Listener {
 
     const autoroleId = message.guild.settings.get("mod.autorole", null);
     const delay = message.guild.settings.get("mod.autorole.waitformsg", false);
-    if (autoroleId && delay) {
+    if (autoroleId && delay && message.type == "DEFAULT") {
       const role = message.guild.roles.cache.get(autoroleId);
       if (role && !message.member.roles.cache.has(role.id))
         await message.member.roles

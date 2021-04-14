@@ -228,9 +228,7 @@ export class Util extends ClientUtil {
               .map((guild) => guild.memberCount || 0)
               .reduce((a, b) => a + b)
           : 0,
-      userStatuses: this.getUserStatuses(),
       commands: this.client.commandHandler.modules.size,
-      events: this.client.events,
       restPing: this.client.restPing,
       shards: [...this.client.ws.shards.values()].map((shard) => {
         return {
@@ -251,7 +249,6 @@ export class Util extends ClientUtil {
                   .map((guild) => guild.memberCount || 0)
                   .reduce((a, b) => a + b)
               : 0,
-          userStatuses: this.getUserStatuses(shard.id),
           status: shard.status as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
           publicGuilds: this.client.guilds.cache
             .filter(

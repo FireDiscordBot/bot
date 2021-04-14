@@ -110,14 +110,15 @@ export default class owo extends Language {
         WORKER_ID: "Wowkew ID",
         INCREMENT: "Incwement",
         MODERATOR: "Modewatow",
+        PINNED_BY: "Pinned By",
         ATTACHMENT: "Attachment",
         PROCESS_ID: "Pwocess ID",
-        PINNED_BY: "Pinned By",
         STATISTICS: "Statistics",
         CUSTOM_URL: "Custom URL",
         INVITED_BY: "Invited By",
         CREATED_BY: "Cweated By",
         DELETED_BY: "Deweted By",
+        REGIONS_PLURAL: "Wegions",
         VIEWABLE_BY: "Viewabwe By",
         ATTACHMENTS: "Attachments",
         DESCRIPTION: "Descwiption",
@@ -133,8 +134,7 @@ export default class owo extends Language {
         VERIFICATION_LEVEL: "Vewification Wevew",
         REMOVED_OVERWRITES: "Wemoved Pewmissions",
         EXPLICIT_CONTENT_FILTER: "Expwicit Content Fiwtew",
-        REGION_DEPRECATED:
-          "<:wumpus_land:759529118671831040> Depwecated Wegion",
+        REGION_AUTOMATIC: "<:wumpus_land:759529118671831040> Auwtomatic",
         REGIONS: {
           brazil: "🇧🇷 Bwaziw",
           europe: "🇪🇺 Euwope",
@@ -396,10 +396,6 @@ Hint: Use the \`public\` command to get youw sewvew on the wist`,
           return responses[Math.floor(Math.random() * responses.length)];
         },
         EVAL_COMMAND_DESCRIPTION: "wun epic gamew code",
-        EVAL_TOO_LONG: (haste?: string) =>
-          haste
-            ? `Output was too wong, upwoaded to hastebin; ${haste}`
-            : "Output was too wong, faiwed to upwoad to hastebin",
         EXPLICIT_CONTENT_FILTER_DISABLED: "No Fiwtew",
         EXPLICIT_CONTENT_FILTER_MEMBERS_WITHOUT_ROLES: "Membews Without Wowes",
         EXPLICIT_CONTENT_FILTER_ALL_MEMBERS: "Aww Membews",
@@ -866,11 +862,11 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           `Youw guiwd is now pubwic & visibwe on <https://inv.wtf/discover>.
  Peopwe wiww be abwe to use youw guiwd's vanity url (<https://inv.wtf/${vanity}>) to join`,
         PUBLIC_ENABLED_LOG: (user: string) =>
-          `${constants.statuspage.emojis.operational} This sewvew was set to pubwic by ${user} and wiww appeaw on Fire\'s pubwic sewvew wist`,
+          `${constants.emojis.statuspage.operational} This sewvew was set to pubwic by ${user} and wiww appeaw on Fire\'s pubwic sewvew wist`,
         PUBLIC_DISABLED:
           "Youw guiwd is no wongew pubwic and wiww no wongew show on the Fire website",
         PUBLIC_DISABLED_LOG: (user: string) =>
-          `${constants.statuspage.emojis.major_outage} This sewvew was manuawwy wemoved fwom Fire\'s pubwic sewvew wist by ${user}`,
+          `${constants.emojis.statuspage.major_outage} This sewvew was manuawwy wemoved fwom Fire\'s pubwic sewvew wist by ${user}`,
         PLONK_COMMAND_DESCRIPTION:
           "Make a usew unabwe to use the best Discowod bot",
         PLONK_USER_REQUIRED: "You must pwovide a usew to pwonk",
@@ -1066,7 +1062,6 @@ ${success.map((s) => "- " + s).join("\n")}${
         STATS_NODE_VER: "Node.JS Vewsion",
         STATS_UPTIME: "Uptime",
         STATS_COMMANDS: "Commands",
-        STATS_EVENTS: "Events",
         STATS_FOOTER: (manager: number, shard: number) =>
           `PID: ${process.pid} | Cwustew: ${manager} | Shawd: ${shard}`,
         STEAL_COMMAND_DESCRIPTION: "Steaw an emote to use in youw own sewvew",

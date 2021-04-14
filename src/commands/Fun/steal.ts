@@ -1,9 +1,11 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import * as centra from "centra";
 
-const emojiRegex = /<a?:(?<name>[a-zA-Z0-9\_]+):(?<id>\d{15,21})>/im;
+const emojiRegex = constants.regexes.customEmoji;
+const snowflakeRegex = /^(\d{15,21})$/gim;
 
 export default class Steal extends Command {
   constructor() {
@@ -37,12 +39,14 @@ export default class Steal extends Command {
     let emoji = args.emoji;
     let name = args.name || "stolen_emoji";
     if (!emoji) return await message.error("STEAL_NOTHING");
-    if (/^(\d{15,21})$/im.test(emoji.toString())) {
+    if (snowflakeRegex.test(emoji.toString())) {
+      snowflakeRegex.lastIndex = 0;
       emoji = `https://cdn.discordapp.com/emojis/${emoji}`;
       const format = await this.getFormat(emoji);
       if (!format) return await message.error("STEAL_INVALID_EMOJI");
       else emoji += format;
     } else if (emojiRegex.test(emoji)) {
+      emojiRegex.lastIndex = 0;
       const match = emojiRegex.exec(emoji);
       emojiRegex.lastIndex = 0;
       emoji = `https://cdn.discordapp.com/emojis/${match.groups.id}.${

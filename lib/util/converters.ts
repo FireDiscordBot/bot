@@ -1,7 +1,6 @@
 import {
   Role,
   Collection,
-  VoiceChannel,
   GuildChannel,
   GuildPreview,
   SnowflakeUtil,
@@ -10,6 +9,7 @@ import {
   DeconstructedSnowflake,
 } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireVoiceChannel } from "../extensions/voicechannel";
 import { FireTextChannel } from "../extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -18,13 +18,13 @@ import { constants } from "./constants";
 import * as fuzz from "fuzzball";
 import * as centra from "centra";
 
-const { regexes } = constants;
-const idOnlyRegex = /^(\d{15,21})$/im;
-const idRegex = /(\d{15,21})/im;
-const userMentionRegex = /<@!?(1|\d{15,21})>$/im;
 const messageIDRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
+const userMentionRegex = /<@!?(1|\d{15,21})>$/im;
 const channelMentionRegex = /<#(\d{15,21})>$/im;
 const roleMentionRegex = /<@&(\d{15,21})>$/im;
+const idOnlyRegex = /^(\d{15,21})$/im;
+const idRegex = /(\d{15,21})/im;
+const { regexes } = constants;
 
 export const getIDMatch = (argument: string, extra = false) => {
   const match = extra ? idRegex.exec(argument) : idOnlyRegex.exec(argument);
@@ -418,7 +418,7 @@ export const voiceChannelConverter = async (
   message: FireMessage,
   argument: string,
   silent = false
-): Promise<VoiceChannel | null> => {
+): Promise<FireVoiceChannel | null> => {
   if (!argument) return;
 
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
@@ -436,17 +436,13 @@ export const voiceChannelConverter = async (
           channel.type == "voice"
       )
       .first();
-    if (channel) {
-      return channel as VoiceChannel;
-    }
+    if (channel && channel.type == "voice") return channel as FireVoiceChannel;
 
     if (!silent) await message.error("CHANNEL_NOT_FOUND");
     return null;
   } else {
     const channel = guild.channels.cache.get(match);
-    if (channel && channel.type == "voice") {
-      return channel as VoiceChannel;
-    }
+    if (channel && channel.type == "voice") return channel as FireVoiceChannel;
 
     if (!silent) await message.error("INVALID_CHANNEL_ID");
     return null;

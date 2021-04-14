@@ -1,13 +1,10 @@
-import {
-  CategoryChannel,
-  MessageReaction,
-  Role,
-} from "discord.js";
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { CategoryChannel, MessageReaction, Role } from "discord.js";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
+import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import { createWriteStream } from "fs";
 import * as archiver from "archiver";
@@ -134,9 +131,7 @@ export default class Sk1er extends Module {
       )) as [{ combined_total: number }, { total: number }, { all: number }];
       const count = jsons[0].combined_total + jsons[1].total + jsons[2].all;
 
-      // @ts-ignore
-      const newData = await this.client.api
-        // @ts-ignore
+      const newData = await this.client.req
         .guilds(this.guildId)
         .patch({
           data: {
@@ -387,7 +382,7 @@ export default class Sk1er extends Module {
       // }
       // Groovy Status
       case "747787115974230156": {
-        const emojiRe = /<a?:([a-zA-Z0-9\_]+):[0-9]+>/im;
+        const emojiRe = constants.regexes.customEmoji;
         const online = emojiRe
           .exec(message.content)
           .filter((value) => value.includes("online"));

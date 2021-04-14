@@ -1,11 +1,17 @@
+import {
+  BitFieldResolvable,
+  PermissionString,
+  GuildChannel,
+  MessageEmbed,
+  DMChannel,
+} from "discord.js";
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
-import { PermissionString, GuildChannel, MessageEmbed } from "discord.js";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import * as moment from "moment";
-import { FireMember } from "@fire/lib/extensions/guildmember";
 
 const {
   emojis: { success, error },
@@ -93,34 +99,42 @@ export default class Debug extends Command {
     }
 
     const details: string[] = [];
-    const permissionChecks = await this.client.commandHandler.runPermissionChecks(
-      message,
-      cmd
-    );
 
-    const clientPermissions = cmd.clientPermissions as PermissionString[];
-    const userPermissions = cmd.userPermissions as PermissionString[];
+    const clientMissing =
+      channel instanceof DMChannel
+        ? (cmd.clientPermissions as PermissionString[])
+        : channel
+            .permissionsFor(this.client.user)
+            .missing(
+              cmd.clientPermissions as BitFieldResolvable<PermissionString>
+            );
+    const userMissing =
+      channel instanceof DMChannel
+        ? (cmd.userPermissions as PermissionString[])
+        : channel
+            .permissionsFor(message.member)
+            .missing(
+              cmd.userPermissions as BitFieldResolvable<PermissionString>
+            );
+
+    const permissionChecks = clientMissing?.length || userMissing?.length;
 
     if (permissionChecks && message.guild) {
-      const userMissing = userPermissions
-        .filter((permission) => !message.member?.permissions.has(permission))
-        .map((permission) =>
-          this.client.util.cleanPermissionName(permission, message.language)
-        );
+      const user = userMissing.map((permission) =>
+        this.client.util.cleanPermissionName(permission, message.language)
+      );
 
-      const clientMissing = clientPermissions
-        .filter((permission) => !message.guild.me?.permissions.has(permission))
-        .map((permission) =>
-          this.client.util.cleanPermissionName(permission, message.language)
-        );
+      const client = clientMissing.map((permission) =>
+        this.client.util.cleanPermissionName(permission, message.language)
+      );
 
       const permMsg = message.language.get(
         "DEBUG_PERMS_FAIL",
-        userMissing,
-        clientMissing
+        user,
+        client
       ) as { user: string | null; client: string | null };
 
-      if (userMissing || clientMissing)
+      if (permMsg.user || permMsg.client)
         details.push(
           `${error} ${message.language.get("DEBUG_PERMS_CHECKS_FAIL")}` +
             (permMsg.user ? `\n${permMsg.user}` : "") +

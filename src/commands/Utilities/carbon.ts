@@ -90,7 +90,6 @@ export default class Carbon extends Command {
         {
           id: "theme",
           type: "string",
-          slashCommandOptions: validThemes,
           required: false,
           match: "option",
           flag: "--theme",
@@ -99,7 +98,6 @@ export default class Carbon extends Command {
         {
           id: "font",
           type: "string",
-          slashCommandOptions: validFonts,
           required: false,
           match: "option",
           flag: "--font",

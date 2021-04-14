@@ -1,4 +1,5 @@
 import {
+  DiscordAPIError,
   MessageReaction,
   WebhookClient,
   MessageEmbed,
@@ -14,17 +15,26 @@ import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
 import Filters from "@fire/src/modules/filters";
 import { FireTextChannel } from "./textchannel";
+import Semaphore from "semaphore-async-await";
 import { FireMember } from "./guildmember";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import * as centra from "centra";
 
-const { emojis, reactions, regexes, imageExts } = constants;
+const {
+  emojis,
+  reactions,
+  regexes,
+  imageExts,
+  audioExts,
+  videoExts,
+} = constants;
 
 export class FireMessage extends Message {
   channel: DMChannel | FireTextChannel | NewsChannel;
   paginator?: PaginatorInterface;
+  starLock: Semaphore;
   member: FireMember;
   util?: CommandUtil;
   author: FireUser;
@@ -325,9 +335,206 @@ export class FireMessage extends Message {
     return await destination.send(embed).catch(() => {});
   }
 
+  async star(
+    messageReaction: MessageReaction,
+    user: FireUser,
+    action: "add" | "remove"
+  ) {
+    if (user.id == this.author.id || user.bot) return;
+
+    const starEmoji: string = this.guild.settings
+      .get("starboard.emoji", "⭐")
+      .trim();
+    let stars = this.reactions.cache.get(starEmoji)?.count || 0;
+
+    if (!stars) return;
+
+    const starboard = this.guild.channels.cache.get(
+      this.guild?.settings.get("starboard.channel")
+    ) as FireTextChannel;
+    if (!starboard || this.channel.id == starboard.id) return;
+
+    if (!this.guild.starboardReactions.has(this.id)) {
+      const inserted = await this.client.db
+        .query(
+          "INSERT INTO starboard_reactions (gid, mid, reactions) VALUES ($1, $2, $3);",
+          [this.guild.id, this.id, stars]
+        )
+        .catch(() => {});
+      if (!inserted) return;
+      else this.guild.starboardReactions.set(this.id, stars);
+    } else {
+      stars = this.guild.starboardReactions.get(this.id);
+      if (action == "add") stars++;
+      else if (action == "remove") stars--;
+      this.guild.starboardReactions.set(this.id, stars);
+      await this.client.db
+        .query(
+          "UPDATE starboard_reactions SET reactions=$1 WHERE gid=$2 AND mid=$3",
+          [stars, this.guild.id, this.id]
+        )
+        .catch(() => {});
+    }
+
+    const minimum = this.guild.settings.get("starboard.minimum", 5);
+    const emoji = messageReaction.emoji.toString();
+    if (stars >= minimum) {
+      if (!this.starLock) this.starLock = new Semaphore(1);
+      await this.starLock.acquire();
+      setTimeout(() => {
+        this.starLock.release();
+      }, 3500);
+      const [content, embed] = this.getStarboardMessage(emoji, stars);
+      if (this.guild.starboardMessages.has(this.id)) {
+        const message = (await starboard.messages
+          .fetch(this.guild.starboardMessages.get(this.id))
+          .catch((e) => {
+            if (e instanceof DiscordAPIError && e.code == 10008) {
+              this.guild.starboardMessages.delete(this.id);
+              this.client.db.query(
+                "DELETE FROM starboard WHERE gid=$1 AND original=$2 AND board=$3;",
+                [
+                  this.guild.id,
+                  this.id,
+                  this.guild.starboardMessages.get(this.id),
+                ]
+              );
+            }
+          })) as FireMessage;
+        if (message)
+          return await message.edit(content, { embed }).catch(() => {});
+      } else {
+        const message = await starboard
+          .send(content, { embed })
+          .catch(() => {});
+        if (!message) return;
+        this.guild.starboardMessages.set(this.id, message.id);
+        await this.client.db
+          .query(
+            "INSERT INTO starboard (gid, original, board) VALUES ($1, $2, $3);",
+            [this.guild.id, this.id, message.id]
+          )
+          .catch(() => {});
+        return message;
+      }
+    } else if (this.guild.starboardMessages.has(this.id)) {
+      if (!this.starLock) this.starLock = new Semaphore(1);
+      await this.starLock.acquire();
+      setTimeout(() => {
+        this.starLock.release();
+      }, 3500);
+      const message = (await starboard.messages
+        .fetch(this.guild.starboardMessages.get(this.id))
+        .catch(() => {})) as FireMessage;
+      if (!message) return;
+      const deleted = await message.delete().catch(() => {});
+      if (deleted)
+        return await this.client.db
+          .query("DELETE FROM starboard WHERE gid=$1 AND board=$2;", [
+            this.guild.id,
+            message.id,
+          ])
+          .catch(() => {});
+    }
+  }
+
+  private getStarboardMessage(
+    emoji: string,
+    stars: number
+  ): [string, MessageEmbed] {
+    const embed = new MessageEmbed()
+      .setTimestamp(this.createdTimestamp)
+      .setAuthor(
+        this.author.toString(),
+        this.author.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        })
+      )
+      .setFooter(this.id);
+    if (this.content) embed.setDescription(this.content);
+    if (this.embeds.length) {
+      const first = this.embeds[0];
+      if (!embed.description && first.description)
+        embed.setDescription(first.description);
+      if (
+        this.isImageEmbed(first) &&
+        this.content.trim() == first.thumbnail.url
+      ) {
+        embed.setImage(first.thumbnail.url);
+        delete embed.description;
+      } else if (first.image) embed.setImage(first.image.url);
+
+      if (first.title) embed.setTitle(first.title);
+      if (first.fields) embed.fields.push(...first.fields);
+    } else if (this.attachments.size) {
+      for (const [, attachment] of this.attachments) {
+        if (imageExts.some((ext) => attachment.name.endsWith(ext))) {
+          embed.setImage(attachment.proxyURL);
+          break;
+        }
+
+        if (videoExts.some((ext) => attachment.name.endsWith(ext))) {
+          if (
+            embed.fields.find(
+              (field) =>
+                field.name == "\u200b" &&
+                field.value ==
+                  this.guild.language.get("STARBOARD_CONTAINS_VIDEO")
+            )
+          )
+            continue;
+          else if (embed.length < 6000 && embed.fields.length < 25)
+            embed.addField(
+              "\u200b",
+              this.guild.language.get("STARBOARD_CONTAINS_VIDEO")
+            );
+        }
+
+        if (audioExts.some((ext) => attachment.name.endsWith(ext))) {
+          if (
+            embed.fields.find(
+              (field) =>
+                field.name == "\u200b" &&
+                field.value ==
+                  this.guild.language.get("STARBOARD_CONTAINS_AUDIO")
+            )
+          )
+            continue;
+          else if (embed.length < 6000 && embed.fields.length < 25)
+            embed.addField(
+              "\u200b",
+              this.guild.language.get("STARBOARD_CONTAINS_AUDIO")
+            );
+        }
+      }
+    }
+
+    if (
+      embed.description &&
+      !embed.fields.length &&
+      embed.description.length < 1890
+    )
+      embed.setDescription(
+        embed.description +
+          `\n\n[${this.guild.language.get("STARBOARD_JUMP_TO")}](${this.url})`
+      );
+    else if (!embed.description && !embed.fields.length)
+      embed.setDescription(
+        `[${this.guild.language.get("STARBOARD_JUMP_TO")}](${this.url})`
+      );
+    else if (embed.length < 6000 && embed.fields.length < 25)
+      embed.addField(
+        "\u200b",
+        `[${this.guild.language.get("STARBOARD_JUMP_TO")}](${this.url})`
+      );
+    return [`${emoji} **${stars}** | ${this.channel}`, embed];
+  }
+
   async runFilters() {
     if (!this.guild || this.author.bot) return;
-    if (!this.member)
+    if (!this.member || this.member.partial)
       await this.guild.members.fetch(this.author.id).catch(() => {});
     if (!this.member) return; // if we still don't have access to member, just ignore
 
@@ -340,7 +547,8 @@ export class FireMessage extends Message {
 
     if (
       this.guild.settings.get("mod.antizws", false) &&
-      regexes.zws.test(this.content) &&
+      // some emojis use \u200d (e.g. trans flag) so we replace all unicode emoji before checking for zero width characters
+      regexes.zws.test(this.content.replace(regexes.unicodeEmoji, "")) &&
       !this.member.isModerator()
     ) {
       regexes.zws.lastIndex = 0;

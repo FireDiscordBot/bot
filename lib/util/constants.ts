@@ -1,5 +1,8 @@
 import humanizeDuration = require("humanize-duration");
 
+const emojiRegex = require("emoji-regex")() as RegExp;
+const emojiRegexStr = emojiRegex.toString();
+
 export type ActionLogType =
   | "system"
   | "public_toggle"
@@ -40,84 +43,142 @@ export type MemberLogType =
   | "roles_remove"
   | "nickname_update";
 
-export const constants = {
-  emojis: {
-    // shoutout to blobhub for the ebic emotes, https://inv.wtf/blobhub
-    success: "<:yes:534174796888408074>",
-    error: "<:no:534174796938870792>",
-    warning: "<:maybe:534174796578160640>",
-    // Yes these are the statuspage emotes but idc
-    green: "<:operational:685538400639385649>",
-    yellow: "<:partial_outage:685538400555499675>",
-    red: "<:major_outage:685538400639385706>",
+let emojis = {
+  // shoutout to blobhub for the ebic emotes, https://inv.wtf/blobhub
+  success: "<:yes:534174796888408074>",
+  error: "<:no:534174796938870792>",
+  warning: "<:maybe:534174796578160640>",
+  statuspage: {
+    operational: "<:operational:685538400639385649>",
+    degraded_performance: "<:degraded_performance:685538400228343808>",
+    partial_outage: "<:partial_outage:685538400555499675>",
+    major_outage: "<:major_outage:685538400639385706>",
+    under_maintenance: "<:maintenance:685538400337395743>",
+  },
+  antistar: "<:antistar:824239146930667560>",
+  antistarId: "824239146930667560",
+  badges: {
+    DISCORD_EMPLOYEE: "<:DiscordStaff:698344463281422371>",
+    PARTNERED_SERVER_OWNER: "<a:PartnerShine:750451997244915862>",
+    HYPESQUAD_EVENTS: "<:HypesquadEvents:698349980192079882>",
+    BUGHUNTER_LEVEL_1: "<:BugHunter:698350213596971049>",
+    BUGHUNTER_LEVEL_2: "<:GoldBugHunter:698350544103669771>",
+    EARLY_SUPPORTER: "<:EarlySupporter:698350657073053726>",
+    VERIFIED_BOT:
+      "<:verifiedbot1:700325427998097449><:verifiedbot2:700325521665425429>",
+    EARLY_VERIFIED_BOT_DEVELOPER: "<:VerifiedBotDev:720179031785340938>",
+    EARLY_VERIFIED_DEVELOPER: "<:VerifiedBotDev:720179031785340938>",
+    PARTNERED: "<:PartnerWithBanner:748876805011931188>",
+    VERIFIED: "<:VerifiedWithBanner:751196492517081189>",
+    FIRE_ADMIN: "<:FireVerified:671243744774848512>",
+    FIRE_PREMIUM: "<:FirePremium:680519037704208466>",
+  },
+  channels: {
+    text: "<:channeltext:794243232648921109>",
+    voice: "<:channelvoice:794243248444407838>",
+    news: "<:channelannouncements:794243262822350919>",
+  },
+  badlyDrawnBadges: {
+    DISCORD_EMPLOYEE: "<:staff:801656423532068904>",
+    PARTNERED_SERVER_OWNER: "<:partner:801651976588230656>",
+    HYPESQUAD_EVENTS: "<:hypesquad:801652726374596618>",
+    BUGHUNTER_LEVEL_1: "<:bug_green:801660995630006273>",
+    BUGHUNTER_LEVEL_2: "<:bug_gold:801661691317977138>",
+    EARLY_SUPPORTER: "<:early:801660474830618675>",
+    VERIFIED_BOT: "<:bot1:801696008912371773><:bot2:801696009138077696>",
+    EARLY_VERIFIED_BOT_DEVELOPER: "<:developer:801652881106403329>",
+    EARLY_VERIFIED_DEVELOPER: "<:developer:801652881106403329>",
+    PARTNERED: "<:partner2:801664798882267157>",
+    VERIFIED: "<:verified:801664183800037406>",
+  },
+  badlyDrawnChannels: {
+    text: "<:text:801665348448813086>",
+    voice: "<:voice:801665653651275846>",
+    news: "<:announcement:801666040324947969>",
+  },
+  breadBadges: {
+    DISCORD_EMPLOYEE: "<:BreadStaff:828685227382800425>",
+    PARTNERED_SERVER_OWNER: "<:BreadPartner:828685228251414588>",
+    HYPESQUAD_EVENTS: "<:BreadEvents:828685228214059028>",
+    BUGHUNTER_LEVEL_1: "<:BreadHunter:828685229198934036>",
+    BUGHUNTER_LEVEL_2: "<:BreadHunter:828685229198934036>",
+    EARLY_SUPPORTER: "<:BreadSupporter:828685227709693974>",
+    VERIFIED_BOT:
+      "<:verifiedbot1:700325427998097449><:verifiedbot2:700325521665425429>",
+    EARLY_VERIFIED_BOT_DEVELOPER: "<:BreadDeveloper:828685227567349811>",
+    EARLY_VERIFIED_DEVELOPER: "<:BreadDeveloper:828685227567349811>",
+    PARTNERED: "<:PartnerWithBanner:748876805011931188>",
+    VERIFIED: "<:VerifiedWithBanner:751196492517081189>",
+  },
+  breadlyDrawnBadges: {
+    DISCORD_EMPLOYEE: "<:staff:814620005206589471>",
+    PARTNERED_SERVER_OWNER: "<:partner:814620342625763398>",
+    HYPESQUAD_EVENTS: "<:hs:814636424380809266>",
+    BUGHUNTER_LEVEL_1: "<:bh:814620407634067457>",
+    BUGHUNTER_LEVEL_2: "<:buggold:814718423002120263>",
+    EARLY_SUPPORTER: "<:es:814620935465205790>",
+    VERIFIED_BOT: "<:bot1:814718423060840499><:bot2:814718422956113921>",
+    EARLY_VERIFIED_BOT_DEVELOPER: "<:botdev:814620566404726854>",
+    EARLY_VERIFIED_DEVELOPER: "<:botdev:814620566404726854>",
+    PARTNERED: "<:partner2:814718423442784266>",
+    VERIFIED: "<:verified:814718423123755050>",
+  },
+};
+
+let reactions = {
+  success: "yes:534174796888408074",
+  error: "no:534174796938870792",
+  warning: "maybe:534174796578160640",
+  antistar: "antistar:824239146930667560",
+};
+
+// e.g. for litecord
+if (process.env.EMOJI_SET == "1") {
+  emojis = {
+    ...emojis,
+    success: "<:yes:823119635246350338>",
+    error: "<:no:823119661787906050>",
+    warning: "<:maybe:823119649234354181>",
+    statuspage: {
+      operational: "<:operational:823120412668985344>",
+      degraded_performance: "<:degraded_performance:823244090849230848>",
+      partial_outage: "<:partial_outage:823120413453320192>",
+      major_outage: "<:major_outage:823120412668985345>",
+      under_maintenance: "<:maintenance:823244090849230849>",
+    },
     badges: {
-      DISCORD_EMPLOYEE: "<:DiscordStaff:698344463281422371>",
-      PARTNERED_SERVER_OWNER: "<a:PartnerShine:750451997244915862>",
-      HYPESQUAD_EVENTS: "<:HypesquadEvents:698349980192079882>",
-      BUGHUNTER_LEVEL_1: "<:BugHunter:698350213596971049>",
-      BUGHUNTER_LEVEL_2: "<:GoldBugHunter:698350544103669771>",
-      EARLY_SUPPORTER: "<:EarlySupporter:698350657073053726>",
+      DISCORD_EMPLOYEE: "<:DiscordStaff:823121736273887237>",
+      PARTNERED_SERVER_OWNER: "<a:PartnerShine:823121735774765059>",
+      HYPESQUAD_EVENTS: "<:HypesquadEvents:823121736273887233>",
+      BUGHUNTER_LEVEL_1: "<:BugHunter:823121736273887236>",
+      BUGHUNTER_LEVEL_2: "<:GoldBugHunter:823122047726125056>",
+      EARLY_SUPPORTER: "<:EarlySupporter:823121736273887232>",
       VERIFIED_BOT:
-        "<:verifiedbot1:700325427998097449><:verifiedbot2:700325521665425429>",
-      EARLY_VERIFIED_BOT_DEVELOPER: "<:VerifiedBotDev:720179031785340938>",
-      EARLY_VERIFIED_DEVELOPER: "<:VerifiedBotDev:720179031785340938>",
-      PARTNERED: "<:PartnerWithBanner:748876805011931188>",
-      VERIFIED: "<:VerifiedWithBanner:751196492517081189>",
-      FIRE_ADMIN: "<:FireVerified:671243744774848512>",
-      FIRE_PREMIUM: "<:FirePremium:680519037704208466>",
+        "<:verifiedbot1:823121735774765057><:verifiedbot2:823121736273887239>",
+      EARLY_VERIFIED_BOT_DEVELOPER: "<:VerifiedBotDev:823121736273887234>",
+      EARLY_VERIFIED_DEVELOPER: "<:VerifiedBotDev:823121736273887234>",
+      PARTNERED: "<:PartnerWithBanner:823121736273887238>",
+      VERIFIED: "<:VerifiedWithBanner:823121735774765058>",
+      FIRE_ADMIN: "<:FireVerified:823121736273887240>",
+      FIRE_PREMIUM: "<:FirePremium:823121735774765056>",
     },
     channels: {
-      text: "<:channeltext:794243232648921109>",
-      voice: "<:channelvoice:794243248444407838>",
-      news: "<:channelannouncements:794243262822350919>",
+      text: "<:channeltext:823154571105927169>",
+      voice: "<:channelvoice:823154571105927168>",
+      news: "<:channelannouncements:823154571105927170>",
     },
-    badlyDrawnBadges: {
-      DISCORD_EMPLOYEE: "<:staff:801656423532068904>",
-      PARTNERED_SERVER_OWNER: "<:partner:801651976588230656>",
-      HYPESQUAD_EVENTS: "<:hypesquad:801652726374596618>",
-      BUGHUNTER_LEVEL_1: "<:bug_green:801660995630006273>",
-      BUGHUNTER_LEVEL_2: "<:bug_gold:801661691317977138>",
-      EARLY_SUPPORTER: "<:early:801660474830618675>",
-      VERIFIED_BOT: "<:bot1:801696008912371773><:bot2:801696009138077696>",
-      EARLY_VERIFIED_BOT_DEVELOPER: "<:developer:801652881106403329>",
-      EARLY_VERIFIED_DEVELOPER: "<:developer:801652881106403329>",
-      PARTNERED: "<:partner2:801664798882267157>",
-      VERIFIED: "<:verified:801664183800037406>",
-    },
-    badlyDrawnChannels: {
-      text: "<:text:801665348448813086>",
-      voice: "<:voice:801665653651275846>",
-      news: "<:announcement:801666040324947969>",
-    },
-    breadBadges: {
-      DISCORD_EMPLOYEE: "<:breadStaff:797174986850697217>",
-      PARTNERED_SERVER_OWNER: "<:breadPartner:797174950070190080>",
-      HYPESQUAD_EVENTS: "<:hypebreadEvents:797174898233180210>",
-      BUGHUNTER_LEVEL_1: "<:breadHunter:796182250563567616>",
-      BUGHUNTER_LEVEL_2: "<:breadHunter:796182250563567616>",
-      EARLY_SUPPORTER: "<:breadSupporter:797175204480286740>",
-      VERIFIED_BOT:
-        "<:verifiedbot1:700325427998097449><:verifiedbot2:700325521665425429>",
-      EARLY_VERIFIED_BOT_DEVELOPER: "<:earlyVerifiedBread:797175252747812914>",
-      EARLY_VERIFIED_DEVELOPER: "<:earlyVerifiedBread:797175252747812914>",
-      PARTNERED: "<:PartnerWithBanner:748876805011931188>",
-      VERIFIED: "<:VerifiedWithBanner:751196492517081189>",
-    },
-    breadlyDrawnBadges: {
-      DISCORD_EMPLOYEE: "<:staff:814620005206589471>",
-      PARTNERED_SERVER_OWNER: "<:partner:814620342625763398>",
-      HYPESQUAD_EVENTS: "<:hs:814636424380809266>",
-      BUGHUNTER_LEVEL_1: "<:bh:814620407634067457>",
-      BUGHUNTER_LEVEL_2: "<:buggold:814718423002120263>",
-      EARLY_SUPPORTER: "<:es:814620935465205790>",
-      VERIFIED_BOT:
-        "<:bot1:814718423060840499><:bot2:814718422956113921>",
-      EARLY_VERIFIED_BOT_DEVELOPER: "<:botdev:814620566404726854>",
-      EARLY_VERIFIED_DEVELOPER: "<:botdev:814620566404726854>",
-      PARTNERED: "<:partner2:814718423442784266>",
-      VERIFIED: "<:verified:814718423123755050>",
-    },
-  },
+  };
+
+  reactions = {
+    ...reactions,
+    success: "yes:823119635246350338",
+    error: "no:823119661787906050",
+    warning: "maybe:823119649234354181",
+  };
+}
+
+export const constants = {
+  emojis,
   statusEmojis: {
     online: "https://cdn.discordapp.com/emojis/775514569430663178.png?v=1",
     dnd: "https://cdn.discordapp.com/emojis/775514595951378452.png?v=1",
@@ -125,11 +186,7 @@ export const constants = {
     offline: "https://cdn.discordapp.com/emojis/775514629811208252.png?v=1",
     streaming: "https://cdn.discordapp.com/emojis/775514644273954896.png?v=1",
   },
-  reactions: {
-    success: "yes:534174796888408074",
-    error: "no:534174796938870792",
-    warning: "maybe:534174796578160640",
-  },
+  reactions,
   poll: {
     1: "1️⃣",
     2: "2️⃣",
@@ -157,11 +214,21 @@ export const constants = {
     supportedHaste: ["hastebin.com", "hasteb.in", "hst.sh"],
   },
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
+  audioExts: ["mp3", "wav", "flac", "alac", "m4a"],
+  videoExts: ["mp4", "mkv", "mov"],
   regexes: {
     maskedLink: /\[(?<name>.+)\]\((?<link>https?:\/\/.+)\)/gim,
     symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,
     spoilerAbuse: /(?:\|\|?[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]?){20,}/gim,
-    zws: /[\u180E\u2000-\u2009\u200A-\u200C\u200E-\u200F\u202F\u2028\u2060\uFEFF]/gim,
+    zws: /[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]/gim,
+    customEmoji: /<a?:(?<name>[a-zA-Z0-9\_]+):(?<id>\d{15,21})>/gim,
+    unicodeEmoji: emojiRegex,
+    allEmoji: new RegExp(
+      "(" +
+        emojiRegexStr.slice(1, emojiRegexStr.length - 2) +
+        "|<a?:(?<name>[a-zA-Z0-9\\_]+):(?<id>\\d{15,21})>)",
+      "gim"
+    ),
     protocol: /\w{1,10}:\/\//gim,
     joinleavemsgs: {
       user: /{user}/gim,
@@ -173,8 +240,8 @@ export const constants = {
     },
     discord: {
       invite: /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[a-zA-Z\d-]{1,25})/im,
-      message: /(?:ptb\.|canary\.)?discord(?:app)?\.com\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
-      messageGlobal: /<?(?:ptb\.|canary\.)?discord(?:app)?\.com\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})>?/gim,
+      message: /(?:ptb\.|canary\.|staging\.)?discord(?:app)?\.com?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
+      messageGlobal: /<?(?:ptb\.|canary\.|staging\.)?discord(?:app)?\.com?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})>?/gim,
       webhook: /discord(?:app)?\.com\/api\/webhooks\/(?<id>\d{15,21})\/(?<token>[\w-]{50,80})/im,
     },
     invites: [
@@ -185,7 +252,7 @@ export const constants = {
     paypal: /(?:paypal\.me|paypal\.com\/paypalme)\/(?<name>[\w-]+)/im,
     youtube: {
       channel: /youtube\.com\/(?:c\/|channel\/|user\/)?(?<channel>[^"\s]+)/im,
-      video: /(youtu\.be\/|invidio\.us\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/shorts\/)(?<video>[\w-]+)/im,
+      video: /(youtu\.be\/|invidio\.us\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtube\.com\/clip\/)(?<video>[\w-]+)/im,
     },
     twitch: {
       clip: /clips\.twitch\.tv\/(?<clip>\w+)/im,
@@ -272,13 +339,6 @@ export const constants = {
       critical: "#e74c3c",
       maintenance: "#3498db",
     },
-    emojis: {
-      operational: "<:operational:685538400639385649>",
-      degraded_performance: "<:degraded_performance:685538400228343808>",
-      partial_outage: "<:partial_outage:685538400555499675>",
-      major_outage: "<:major_outage:685538400639385706>",
-      under_maintenance: "<:maintenance:685538400337395743>",
-    },
   },
   mcLogFilters: [
     "ERROR]: The mcmod.info file in [1.8.9] Powns ToggleSneak - 3.0.jar cannot be parsed as valid JSON. It will be ignored",
@@ -329,8 +389,8 @@ export const titleCase = (string: string) =>
 
 export const zws = "\u200b";
 
-export const humanize = (seconds: number, language: string) =>
-  humanizeDuration(seconds, {
+export const humanize = (ms: number, language: string) =>
+  humanizeDuration(ms, {
     largest: 3,
     delimiter: ", ",
     language: language,

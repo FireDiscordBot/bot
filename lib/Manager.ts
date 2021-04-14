@@ -51,6 +51,7 @@ export class Manager {
 
     this.ws.once("close", (code: number, reason: string) => {
       this.client.console.warn("[Sharder] WS closed.");
+      this.ws.subscribed = [];
       this.reconnector.handleClose(code, reason);
     });
 
@@ -99,11 +100,7 @@ export class Manager {
       )
     );
     this.client?.destroy();
-    if (this.ws?.open)
-      this.ws.close(
-        1001,
-        `Cluster ${this.id} is shutting down due to receiving ${event} event`
-      );
+    if (this.ws?.open) this.ws.close(1001, event);
     process.exit();
   }
 }

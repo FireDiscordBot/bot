@@ -31,24 +31,29 @@ import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
 import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
-import { Experiment, Treatment } from "./interfaces/experiments";
 import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
 import { languageTypeCaster } from "@fire/src/arguments/language";
 import { listenerTypeCaster } from "@fire/src/arguments/listener";
+import GuildCheckEvent from "@fire/src/ws/events/GuildCheckEvent";
+import { Experiment, Treatment } from "./interfaces/experiments";
 import { booleanTypeCaster } from "@fire/src/arguments/boolean";
 import { commandTypeCaster } from "@fire/src/arguments/command";
 import { messageTypeCaster } from "@fire/src/arguments/message";
+import { moduleTypeCaster } from "@fire/src/arguments/module";
 import { PresenceUpdateAction } from "./util/PresenceUpdate";
 import { Language, LanguageHandler } from "./util/language";
-import { moduleTypeCaster } from "@fire/src/arguments/module";
+import { hasteTypeCaster } from "@fire/src/arguments/haste";
 import { Collection, version as djsver } from "discord.js";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandhandler";
 import { Module, ModuleHandler } from "./util/module";
 import { FireMember } from "./extensions/guildmember";
+import { MessageUtil } from "./ws/util/MessageUtil";
+import { APIGuildMember } from "discord-api-types";
 import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
 import { RESTManager } from "./rest/RESTManager";
+import { EventType } from "./ws/util/constants";
 import { Inhibitor } from "./util/inhibitor";
 import { FireConsole } from "./util/console";
 import { config } from "@fire/config/index";
@@ -57,11 +62,11 @@ import { KSoftClient } from "@aero/ksoft";
 import { Command } from "./util/command";
 import { Util } from "./util/clientutil";
 import * as Sentry from "@sentry/node";
+import { Message } from "./ws/Message";
 import { Manager } from "./Manager";
 import * as moment from "moment";
 
 import "./extensions";
-import { hasteTypeCaster } from "@fire/src/arguments/haste";
 
 // Rewrite completed - 15:10 17/1/2021
 export class Fire extends AkairoClient {
@@ -88,7 +93,6 @@ export class Fire extends AkairoClient {
   // Common Attributes
   util: Util;
   db: PGClient;
-  events: number;
   ksoft?: KSoftClient;
   cacheSweep: () => void;
   config: typeof config.fire;
@@ -133,15 +137,6 @@ export class Fire extends AkairoClient {
       this.manager.kill("db_error");
     });
 
-    this.db
-      .query("SELECT count FROM socketstats WHERE cluster=$1;", [
-        this.manager.id,
-      ])
-      .then(
-        (result) =>
-          (this.events = result.rows.length ? (result.rows[0][0] as number) : 0)
-      );
-
     this.experiments = new Collection();
     this.aliases = new Collection();
 
@@ -150,17 +145,45 @@ export class Fire extends AkairoClient {
       this.console.error(`[Discord]\n${error.stack}`)
     );
     this.on("ready", () => config.fire.readyMessage(this));
-    this.on("raw", () => this.events++);
-
-    if (!this.manager.ws)
-      setInterval(async () => {
-        await this.db
-          .query(
-            "INSERT INTO socketstats (cluster, count) VALUES ($1, $2) ON CONFLICT (cluster) DO UPDATE SET count = $2;",
-            [this.manager.id, this.events]
+    this.on("raw", (r) => {
+      if (r.t == "GUILD_CREATE") {
+        const member = r.d.members.find(
+          (member: APIGuildMember) => member.user.id == this.user.id
+        ) as APIGuildMember;
+        this.manager.ws?.send(
+          MessageUtil.encode(
+            new Message(EventType.GUILD_CREATE, {
+              id: r.d.id,
+              member: GuildCheckEvent.getMemberJSON(member),
+            })
           )
-          .catch(() => {});
-      }, 5000);
+        );
+      } else if (r.t == "GUILD_DELETE")
+        this.manager.ws?.send(
+          MessageUtil.encode(
+            new Message(EventType.GUILD_DELETE, { id: r.d.id })
+          )
+        );
+
+      if (
+        r.t == "GUILD_MEMBER_ADD" &&
+        this.manager.ws?.subscribed.includes(r.d?.user?.id)
+      )
+        this.manager.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.DISCORD_GUILD_MEMBER_ADD, r.d)
+          )
+        );
+      else if (
+        r.t == "GUILD_MEMBER_REMOVE" &&
+        this.manager.ws?.subscribed.includes(r.d?.user?.id)
+      )
+        this.manager.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.DISCORD_GUILD_MEMBER_REMOVE, r.d)
+          )
+        );
+    });
 
     if (sentry) {
       this.sentry = sentry;
@@ -196,8 +219,8 @@ export class Fire extends AkairoClient {
         const prefixes = message.guild?.settings.get("config.prefix", [
           "$",
         ]) as string[];
-        return config.fire.dev
-          ? "dev "
+        return process.env.SPECIAL_PREFIX
+          ? [process.env.SPECIAL_PREFIX, process.env.SPECIAL_PREFIX + " "]
           : message.guild
           ? [
               ...prefixes,
@@ -324,6 +347,11 @@ export class Fire extends AkairoClient {
     this.ksoft = process.env.KSOFT_TOKEN
       ? new KSoftClient(process.env.KSOFT_TOKEN)
       : undefined;
+  }
+
+  get req(): any {
+    // @ts-ignore
+    return this.api;
   }
 
   async login() {

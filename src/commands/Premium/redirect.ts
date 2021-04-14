@@ -6,7 +6,7 @@ import Filters from "@fire/src/modules/filters";
 import { MessageEmbed } from "discord.js";
 
 const deleteKeywords = ["remove", "delete", "true", "yeet", "disable"];
-const validityRegex = /[a-zA-Z0-9]{2,15}/gim;
+const validityRegex = /[a-zA-Z0-9]{2,25}/gim;
 
 export default class Redirect extends Command {
   module: Redirects;

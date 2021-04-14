@@ -4,8 +4,14 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Message } from "@fire/lib/ws/Message";
 import Filters from "@fire/src/modules/filters";
+import { Message } from "@fire/lib/ws/Message";
+import { SnowflakeUtil } from "discord.js";
+
+type PlaywrightResponse = {
+  screenshot: { type: "Buffer"; data: number[] };
+  error?: string;
+};
 
 export default class Google extends Command {
   assistant: Assistant;
@@ -24,6 +30,7 @@ export default class Google extends Command {
           required: true, // Default is set to Hi so that the assistant will likely ask what it can do
         },
       ],
+      enableSlashCommand: true,
       cooldown: 5000,
       lock: "user",
       typing: true, // This command takes a hot sec to run, especially when running locally so type while waiting
@@ -108,14 +115,46 @@ export default class Google extends Command {
       return await message.reply(
         message.language.get("PLAYWRIGHT_ERROR_UNKNOWN") as string
       );
-    this.client.manager.ws.send(
-      MessageUtil.encode(
-        new Message(EventType.PLAYWRIGHT_REQUEST, {
-          lang: message.language.id,
-          channel_id: message.channel.id,
-          html,
+    const playwrightResponse = await this.getImageFromPlaywright(
+      message,
+      html
+    ).catch(() => {});
+    if (!playwrightResponse)
+      return await message.error("PLAYWRIGHT_ERROR_UNKNOWN");
+    if (playwrightResponse.error)
+      return await message.error(
+        `PLAYWRIGHT_ERROR_${playwrightResponse.error.toUpperCase()}`
+      );
+    else if (playwrightResponse.screenshot) {
+      const screenshot = Buffer.from(playwrightResponse.screenshot.data);
+      await message.channel
+        .send(null, {
+          files: [{ attachment: screenshot, name: "playwright.png" }],
         })
-      )
-    );
+        .catch(() => {});
+    } else return await message.error("PLAYWRIGHT_ERROR_UNKNOWN");
+  }
+
+  async getImageFromPlaywright(
+    message: FireMessage,
+    html: string
+  ): Promise<PlaywrightResponse> {
+    return new Promise((resolve, reject) => {
+      const nonce = SnowflakeUtil.generate();
+      this.client.manager.ws.handlers.set(nonce, resolve);
+      this.client.manager.ws.send(
+        MessageUtil.encode(
+          new Message(EventType.PLAYWRIGHT_REQUEST, { html }, nonce)
+        )
+      );
+
+      setTimeout(() => {
+        // if still there, a response has not been received
+        if (this.client.manager.ws.handlers.has(nonce)) {
+          this.client.manager.ws.handlers.delete(nonce);
+          reject();
+        }
+      }, 30000);
+    });
   }
 }

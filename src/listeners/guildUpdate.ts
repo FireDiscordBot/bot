@@ -94,15 +94,6 @@ export default class GuildUpdate extends Listener {
             }) || "???"
           } ➜ ${after.bannerURL({ size: 2048, format: "png" }) || "???"}`
         );
-      if (before.region != after.region) {
-        const unknown = language.get("REGION_DEPRECATED");
-        embed.addField(
-          language.get("REGION"),
-          `${language.get("REGIONS")[before.region] || unknown} ➜ ${
-            language.get("REGIONS")[after.region] || unknown
-          }`
-        );
-      }
       if (
         before.description != after.description &&
         after.id != "411619823445999637"

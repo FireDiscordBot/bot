@@ -129,11 +129,12 @@ export default class enUS extends Language {
         WORKER_ID: "Worker ID",
         INCREMENT: "Increment",
         MODERATOR: "Moderator",
+        PINNED_BY: "Pinned By",
         ATTACHMENT: "Attachment",
         PROCESS_ID: "Process ID",
         STATISTICS: "Statistics",
         CUSTOM_URL: "Custom URL",
-        PINNED_BY: "Pinned By",
+        REGION_PLURAL: "Regions",
         INVITED_BY: "Invited By",
         CREATED_BY: "Created By",
         DELETED_BY: "Deleted By",
@@ -152,8 +153,7 @@ export default class enUS extends Language {
         VERIFICATION_LEVEL: "Verification Level",
         REMOVED_OVERWRITES: "Removed Permissions",
         EXPLICIT_CONTENT_FILTER: "Explicit Content Filter",
-        REGION_DEPRECATED:
-          "<:wumpus_land:759529118671831040> Deprecated Region",
+        REGION_AUTOMATIC: "<:wumpus_land:759529118671831040> Automatic",
         REGIONS: {
           brazil: "🇧🇷 Brazil",
           europe: "🇪🇺 Europe",
@@ -411,6 +411,8 @@ Make sure I have permission to manage roles`,
         COMMAND_DISABLE: (command: string) =>
           `Successfully disabled ${command}, only moderators can use it now.`,
         COMMAND_NO_ARG: "You need to provide a command to toggle",
+        DATA_PACKAGE_READY: (url: string) =>
+          `Your Fire data package is ready! You can download it at ${url} but **please do not share this link anywhere** since anyone with the link can download your data!!!!`,
         DEBUG_COMMAND_DESCRIPTION:
           "Command not working? Use this command to try debug the issue",
         DEBUG_NO_COMMAND: "You must provide a valid command to debug",
@@ -539,10 +541,6 @@ Hint: Use the \`public\` command to get your server on the list`,
         EVAL_COMMAND_DESCRIPTION: "run epic gamer code",
         EVAL_NO_CONTENT:
           "hey idiot you forgot to add the code you want to eval",
-        EVAL_TOO_LONG: (haste?: string) =>
-          haste
-            ? `Output was too long, uploaded to hastebin; ${haste}`
-            : "Output was too long, failed to upload to hastebin",
         EXPLICIT_CONTENT_FILTER_DISABLED: "No Filter",
         EXPLICIT_CONTENT_FILTER_MEMBERS_WITHOUT_ROLES: "Members Without Roles",
         EXPLICIT_CONTENT_FILTER_ALL_MEMBERS: "All Members",
@@ -723,6 +721,8 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           "I was unable to read the attachment, try reupload it. If it still doesn't work, yell at Geek :)",
         SK1ER_MODCORE_ZIP: (user: string, zip: string) =>
           `${user}, Download the zip from ${zip} and then unzip it in \`.minecraft/modcore\` and your issue should be resolved.`,
+        MC_LOG_FAILED: (error: string) =>
+          `Failed to create log haste, ${error}`,
         MC_LOG_HASTE: (
           user: string,
           diff: string,
@@ -979,11 +979,11 @@ ${channels.join(", ")}`
           `Your guild is now public & visible on <https://inv.wtf/discover>.
 People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>) to join`,
         PUBLIC_ENABLED_LOG: (user: string) =>
-          `${constants.statuspage.emojis.operational} Ths server was set to public by ${user} and will appear on Fire\'s public server list`,
+          `${constants.emojis.statuspage.operational} Ths server was set to public by ${user} and will appear on Fire\'s public server list`,
         PUBLIC_DISABLED:
           "Your guild is no longer public and will no longer show on the Fire website",
         PUBLIC_DISABLED_LOG: (user: string) =>
-          `${constants.statuspage.emojis.major_outage} Ths server was manually removed from Fire\'s public server list by ${user}`,
+          `${constants.emojis.statuspage.major_outage} Ths server was manually removed from Fire\'s public server list by ${user}`,
         PLONK_COMMAND_DESCRIPTION:
           "Make a user unable to use the best discord bot in your server",
         PLONK_FORBIDDEN: () =>
@@ -1012,6 +1012,7 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
             : `This server's prefixes are:
 
 ${prefixes.join(", ")}`,
+        PREFIX_CHANGE_DISALLOWED: `This instance of Fire has a special predetermined prefix (\`${process.env.SPECIAL_PREFIX}\`) that you must use and cannot change.`,
         PREFIX_VALUE_DISALLOWED: "You cannot use that as your prefix!",
         PREFIX_GLOBAL: `"fire " is a global prefix and can be used anywhere. There's no need to set it as a server prefix`,
         PREFIX_SLASH_COMMANDS:
@@ -1270,7 +1271,39 @@ ${success.map((s) => "- " + s).join("\n")}${
           )}`,
         SK1ER_BETA_MOVED:
           "Beta testing for Sk1er LLC mods has been moved to our support server! You can join with discord.gg/d4KFR9H",
+        STARBOARD_COMMAND_DESCRIPTION:
+          "Create a starboard to save messages with a ⭐",
+        STARBOARD_MAIN_DESCRIPTION:
+          "Here are all the starboard configuration commands",
+        STARBOARD_CHANNEL_DESCRIPTION:
+          "Set the channel starred messages will be sent to",
+        STARBOARD_MINIMUM_DESCRIPTION:
+          "Set the minimum amount of stars needed to get on the starboard (Defaults to 5)",
+        STARBOARD_ANTISTAR_DESCRIPTION: `Toggle "antistar" allowing users to react with ${constants.emojis.antistar} to remove 1 from a message's star count`,
+        STARBOARD_EMOJI_DESCRIPTION:
+          "Set a custom starboard emoji (Requires Premium)",
+        STARBOARD_CHANNEL_RESET: "Successfully disabled starboard",
+        STARBOARD_CHANNEL_SET: (channel: string) =>
+          `Successfully enabled starboard and set the channel to ${channel}. All starred messages will be sent there`,
+        STARBOARD_MINIMUM_TOO_LOW: "The minimum must be at least 2!",
+        STARBOARD_MINIMUM_RESET:
+          "Successfully reset the starboard minimum! Messages will now need 5 stars to appear on the starboard",
+        STARBOARD_MINIMUM_SET: (min: number) =>
+          `Successfully set the starboard minimum! Messages will now need ${min} stars to appear on the starboard`,
+        STARBOARD_ANTISTAR_COMMAND_DESCRIPTION: `Toggle "antistar" allowing users to subtract 1 from a message's star count with a reaction`,
+        STARBOARD_ANTISTAR_ENABLED: `Successfully enabled antistar. When a message gets at least 1 star, I will react with ${constants.emojis.antistar} which users can use to subtract from a message's star count`,
+        STARBOARD_ANTISTAR_DISABLED:
+          "Successfully disabled antistar. I will no longer add the antistar reaction and users will no longer be able to subtract from a message's star count other than removing their own star",
+        STARBOARD_EMOJI_INVALID:
+          "That emoji isn't valid! It must be a default emoji or an emoji from this guild",
+        STARBOARD_EMOJI_SET: (emoji: string) =>
+          `Successfully set the starboard emoji to ${emoji}`,
+        STARBOARD_CONTAINS_VIDEO: "__Message contains a video__",
+        STARBOARD_CONTAINS_AUDIO: "__Message contains an audio file__",
+        STARBOARD_JUMP_TO: "Jump to message",
         STATS_COMMAND_DESCRIPTION: "View cluster & overall stats.",
+        STATS_UNKNOWN_CLUSTER:
+          "There doesn't seem to be a cluster with that ID. Maybe it's offline?",
         STATS_TITLE: (name: string, version: string) =>
           `Stats for ${name} [${version}]`,
         STATS_MEMORY_USAGE: "Memory Usage",
@@ -1278,7 +1311,6 @@ ${success.map((s) => "- " + s).join("\n")}${
         STATS_NODE_VER: "Node.JS Version",
         STATS_UPTIME: "Uptime",
         STATS_COMMANDS: "Commands",
-        STATS_EVENTS: "Events",
         STATS_FOOTER: (manager: number, shard: number) =>
           `PID: ${process.pid} | Cluster: ${manager} | Shard: ${shard}`,
         STEAL_COMMAND_DESCRIPTION: "Steal an emote to use in your own server",
@@ -1291,6 +1323,8 @@ ${success.map((s) => "- " + s).join("\n")}${
         STEAL_STOLEN: (emoji: string) =>
           `Nice! You stole ${emoji} without getting caught by a nasty error :)`,
         SUGGEST_COMMAND_DESCRIPTION: "Suggest a feature for Fire.",
+        SUGGEST_COMMAND_DEPRECATED:
+          "This command has been deprecated in favor of <https://inv.wtf/firesuggest> and will eventually be removed",
         SUGGESTION_SUCCESS: (card: any) =>
           `Thanks! Your suggestion was added to the Trello @ <${card.url}>. Make sure to check it every now and then for a response.
 Abuse of this command __**will**__ result in being temporarily blacklisted from Fire`,
@@ -1416,6 +1450,7 @@ Your existing premium servers are: ${current.join(", ")}`,
         TICKET_COMMAND_DESCRIPTION: "Manage ticket configuration in the server",
         TICKET_MAIN_DESCRIPTION:
           "Here are all the ticket configuration commands",
+        TICKET_CATEGORY_COMMAND_DESCRIPTION: `Set the category where tickets are made and enable tickets`,
         TICKET_CATEGORY_DESCRIPTION: `Set the category were tickets are made. **Setting this enables tickets**
 Running this command without providing a category resets it, therefore disabling tickets`,
         TICKET_LIMIT_DESCRIPTION: "Limit the number of tickets a user can make",

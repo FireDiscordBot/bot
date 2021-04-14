@@ -49,6 +49,8 @@ export default class Prefix extends Command {
         : await message.error("PREFIX_MISSING_ARG");
     if (validActions.list.includes(args.action) && !args.prefix)
       return await message.send("PREFIXES_CURRENT", current);
+    if (process.env.SPECIAL_PREFIX)
+      return await message.error("PREFIX_CHANGE_DISALLOWED");
     if (!args.prefix && !actionNames.includes(args.action)) {
       if (
         current.map((prefix) => prefix.trim()).includes(args.action?.trim())
