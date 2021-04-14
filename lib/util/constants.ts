@@ -76,6 +76,7 @@ let emojis = {
   channels: {
     text: "<:channeltext:794243232648921109>",
     voice: "<:channelvoice:794243248444407838>",
+    stage: "<:channelstage:831890012366307379>",
     news: "<:channelannouncements:794243262822350919>",
   },
   badlyDrawnBadges: {
@@ -94,6 +95,7 @@ let emojis = {
   badlyDrawnChannels: {
     text: "<:text:801665348448813086>",
     voice: "<:voice:801665653651275846>",
+    stage: "<a:stage_channel:826632283195965450>", // animated because emote slots i assume
     news: "<:announcement:801666040324947969>",
   },
   breadBadges: {
@@ -165,6 +167,7 @@ if (process.env.EMOJI_SET == "1") {
     channels: {
       text: "<:channeltext:823154571105927169>",
       voice: "<:channelvoice:823154571105927168>",
+      stage: "",
       news: "<:channelannouncements:823154571105927170>",
     },
   };

@@ -121,6 +121,9 @@ export default class GuildCommand extends Command {
           }, ${bad ? badlyDrawnChannels.voice : channels.voice} ${
             guild.channels.cache.filter((channel) => channel.type == "voice")
               .size
+          }, ${bad ? badlyDrawnChannels.stage : channels.stage} ${
+            guild.channels.cache.filter((channel) => channel.type == "stage")
+              .size
           }, ${bad ? badlyDrawnChannels.news : channels.news} ${
             guild.channels.cache.filter((channel) => channel.type == "news")
               .size
