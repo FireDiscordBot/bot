@@ -18,13 +18,11 @@ import * as moment from "moment";
 export class FireMember extends GuildMember {
   changingNick?: boolean;
   guild: FireGuild;
-  pending: boolean;
   user: FireUser;
   client: Fire;
 
   constructor(client: Fire, data: any, guild: FireGuild) {
     super(client, data, guild);
-    this.pending = data?.pending ?? false;
     this.changingNick = false;
   }
 
@@ -51,7 +49,6 @@ export class FireMember extends GuildMember {
   _patch(data: any) {
     // @ts-ignore
     super._patch(data);
-    this.pending = data?.pending ?? false;
   }
 
   isModerator(channel?: Channel) {
