@@ -1,5 +1,4 @@
 export interface PermRolesData {
-  allow: number;
-  deny: number;
+  allow: bigint;
+  deny: bigint;
 }
-// TODO: change to BigInt

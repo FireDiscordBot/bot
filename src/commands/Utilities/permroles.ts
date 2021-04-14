@@ -38,7 +38,6 @@ export default class PermRoles extends Command {
       for (const [id, perms] of message.guild.permRoles) {
         const role = message.guild.roles.cache.get(id);
         if (!role) continue;
-        // TODO change to bigint when updating d.js
         const allow = new Permissions(perms.allow);
         const deny = new Permissions(perms.deny);
         const friendlyAllowed = allow

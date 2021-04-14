@@ -62,7 +62,10 @@ export default class Help extends Command {
             (message.channel as GuildChannel)
               .permissionsFor(message.author)
               .missing(
-                command.userPermissions as BitFieldResolvable<PermissionString>
+                command.userPermissions as BitFieldResolvable<
+                  PermissionString,
+                  bigint
+                >
               ).length
           )
             return false;
