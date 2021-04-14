@@ -594,9 +594,9 @@ discord-api-types@^0.10.0:
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.10.0.tgz#cbbb81571b33f679013c601232afb27955e59fbc"
   integrity sha512-Toqpj9wbUAVCTitY4YBAtaV+vjau30M2qHLwyjhqulBadcxqm8OSD8qw6/wBxLLtgvKxXgmoKQbvImLMVDfQ7g==
 
-discord.js@discordjs/discord.js#ee5bc1a5c4e218ea1f16992694a2bff86c86d2d2:
+discord.js@discordjs/discord.js#63ff6a07ebcba7e9134e3902e338e8dc6564ee63:
   version "12.5.0"
-  resolved "https://codeload.github.com/discordjs/discord.js/tar.gz/ee5bc1a5c4e218ea1f16992694a2bff86c86d2d2"
+  resolved "https://codeload.github.com/discordjs/discord.js/tar.gz/63ff6a07ebcba7e9134e3902e338e8dc6564ee63"
   dependencies:
     "@discordjs/collection" "^0.1.6"
     "@discordjs/form-data" "^3.0.1"
@@ -604,7 +604,7 @@ discord.js@discordjs/discord.js#ee5bc1a5c4e218ea1f16992694a2bff86c86d2d2:
     node-fetch "^2.6.1"
     prism-media "^1.2.2"
     tweetnacl "^1.0.3"
-    ws "^7.4.4"
+    ws "^7.3.1"
 
 dotenv-extended@^2.9.0:
   version "2.9.0"
@@ -1283,7 +1283,7 @@ printj@~1.1.0:
   resolved "https://registry.yarnpkg.com/printj/-/printj-1.1.2.tgz#d90deb2975a8b9f600fb3a1c94e3f4c53c78a222"
   integrity sha512-zA2SmoLaxZyArQTOPj5LXecR+RagfPSU5Kw1qP+jkWeNlrq+eJZyY2oS68SU1Z/7/myXM4lo9716laOFAVStCQ==
 
-prism-media@^1.2.9:
+prism-media@^1.2.2:
   version "1.2.9"
   resolved "https://registry.yarnpkg.com/prism-media/-/prism-media-1.2.9.tgz#8d4f97b36efdfc82483eb8d3db64020767866f36"
   integrity sha512-UHCYuqHipbTR1ZsXr5eg4JUmHER8Ss4YEb9Azn+9zzJ7/jlTtD1h0lc4g6tNx3eMlB8Mp6bfll0LPMAV4R6r3Q==
@@ -1630,7 +1630,7 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
 
-ws@^7.2.3, ws@^7.4.4:
+ws@^7.2.3, ws@^7.3.1:
   version "7.4.4"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.4.tgz#383bc9742cb202292c9077ceab6f6047b17f2d59"
   integrity sha512-Qm8k8ojNQIMx7S+Zp8u/uHOx7Qazv3Yv4q68MiWWWOJhiwG5W3x7iqmRtJo8xxrciZUY4vRxUTJCKuRnF28ZZw==
