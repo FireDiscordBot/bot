@@ -8,7 +8,7 @@ import {
   DMChannel,
 } from "discord.js";
 import { constants, humanize, zws } from "@fire/lib/util/constants";
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
@@ -20,7 +20,12 @@ import * as moment from "moment";
 const {
   emojis,
   statusEmojis,
-  emojis: { badges, badlyDrawnBadges, breadBadges, breadlyDrawnBadges: badlyDrawnBreadBadges },
+  emojis: {
+    badges,
+    badlyDrawnBadges,
+    breadBadges,
+    breadlyDrawnBadges: badlyDrawnBreadBadges,
+  },
 } = constants;
 export default class User extends Command {
   constructor() {
@@ -339,7 +344,7 @@ export default class User extends Command {
       );
     }
 
-    if (message.guild.roles.cache.has(snowflake.snowflake))
+    if (message.guild && message.guild.roles.cache.has(snowflake.snowflake))
       info.push(
         message.language.get(
           "USER_SNOWFLAKE_BELONGS_TO",
