@@ -16,6 +16,7 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Ban } from "@aero/ksoft";
 import * as moment from "moment";
+import { FireGuild } from "@fire/lib/extensions/guild";
 
 const {
   emojis,
@@ -100,7 +101,7 @@ export default class User extends Command {
     const color = member
       ? member.displayHexColor
       : message.member?.displayHexColor || "#ffffff";
-    const badges = this.getBadges(user, message.author);
+    const badges = this.getBadges(user, message.author, message.guild);
     const info = this.getInfo(message, member ? member : user);
     const embed = new MessageEmbed()
       .setColor(color)
@@ -196,24 +197,37 @@ export default class User extends Command {
     return await message.channel.send(embed);
   }
 
-  getBadges(user: FireUser, author?: FireMember | FireUser) {
+  getBadges(user: FireUser, author: FireMember | FireUser, guild?: FireGuild) {
     const bad = author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
     const bread = author?.hasExperiment("w4y3qODd79XgvqjA_It3Z", 1);
     const hannahMontana = // you get the best of both worlds, bread + badly drawn
       author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 3) ||
       author?.hasExperiment("w4y3qODd79XgvqjA_It3Z", 3);
     const flags = user.flags?.toArray() || [];
-    let emojis: string[] = Object.keys(badges)
-      .filter((badge: UserFlagsString) => flags.includes(badge))
-      .map((badge) =>
+    let emojis: string[] = [];
+    if (guild && guild.ownerID == user.id)
+      emojis.push(
         hannahMontana
-          ? badlyDrawnBreadBadges[badge]
+          ? badlyDrawnBreadBadges["OWNER"]
           : bad
-          ? badlyDrawnBadges[badge]
+          ? badlyDrawnBadges["OWNER"]
           : bread
-          ? breadBadges[badge]
-          : badges[badge]
+          ? breadBadges["OWNER"]
+          : badges["OWNER"]
       );
+    emojis.push(
+      ...Object.keys(badges)
+        .filter((badge: UserFlagsString) => flags.includes(badge))
+        .map((badge) =>
+          hannahMontana
+            ? badlyDrawnBreadBadges[badge]
+            : bad
+            ? badlyDrawnBadges[badge]
+            : bread
+            ? breadBadges[badge]
+            : badges[badge]
+        )
+    );
     if (user.isSuperuser()) emojis.push(badges.FIRE_ADMIN);
     if (user.premium) emojis.push(badges.FIRE_PREMIUM);
     if (emojis.length) emojis.push(zws);
