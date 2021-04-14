@@ -40,12 +40,15 @@ export default class Tag extends Command {
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", args.tag);
     await manager.useTag(cachedTag.name);
     let referenced: FireMessage;
-    if (message.reference?.messageID) {
+    if (message.type == "REPLY") {
       referenced = (await message.channel.messages
         .fetch(message.reference.messageID)
         .catch(() => {})) as FireMessage;
     }
-    if (referenced) referenced.replyRaw(cachedTag.content, true);
+    if (referenced)
+      return await referenced.reply(cachedTag.content, {
+        allowedMentions: { repliedUser: true },
+      });
     else return await message.channel.send(cachedTag.content);
   }
 

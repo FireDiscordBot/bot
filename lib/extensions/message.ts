@@ -65,28 +65,6 @@ export class FireMessage extends Message {
     return this.channel.send(this.language.get(key, ...args));
   }
 
-  replyRaw(content: string, mention: boolean = false): Promise<Message> {
-    return this.client.req
-      .channels(this.channel.id)
-      .messages.post({
-        data: {
-          content,
-          message_reference: { message_id: this.id },
-          allowed_mentions: {
-            ...this.client.options.allowedMentions,
-            replied_user: mention,
-          },
-        },
-      })
-      .then(
-        // @ts-ignore
-        (m: object) => this.client.actions.MessageCreate.handle(m).message
-      )
-      .catch(() => {
-        return this.channel.send(content);
-      });
-  }
-
   success(
     key: string = "",
     ...args: any[]
@@ -106,7 +84,16 @@ export class FireMessage extends Message {
     if (!key && this.deleted) return;
     return !key
       ? this.react(reactions.error).catch(() => {})
-      : this.replyRaw(`${emojis.error} ${this.language.get(key, ...args)}`);
+      : this.reply(`${emojis.error} ${this.language.get(key, ...args)}`);
+  }
+
+  async delete(options?: { timeout: number }) {
+    if (options?.timeout) await this.client.util.sleep(options.timeout);
+    // e.g. if deleted before timeout finishes
+    // (which is the reason why timeout was removed)
+    // https://github.com/discordjs/discord.js/pull/4999
+    if (this.deleted) return this;
+    return (await super.delete()) as FireMessage;
   }
 
   async quote(
@@ -554,7 +541,7 @@ export class FireMessage extends Message {
     if (
       this.guild.settings.get("mod.antieveryone", false) &&
       (this.content.includes("@everyone") || this.content.includes("@here")) &&
-      !this.member.hasPermission("MENTION_EVERYONE")
+      !this.member.permissions.has("MENTION_EVERYONE")
     )
       return await this.delete().catch(() => {});
 

@@ -77,7 +77,7 @@ export default class GuildMemberUpdate extends Listener {
       const role = newMember.guild.roles.cache.get(
         newMember.guild.settings.get("mod.autobotrole", null)
       );
-      if (role && newMember.guild.me.hasPermission("MANAGE_ROLES"))
+      if (role && newMember.guild.me.permissions.has("MANAGE_ROLES"))
         await newMember.roles
           .add(role, newMember.guild.language.get("AUTOROLE_REASON") as string)
           .catch(() => {});
@@ -97,7 +97,7 @@ export default class GuildMemberUpdate extends Listener {
         !newMember.user.bot
       ) {
         const role = newMember.guild.roles.cache.get(autoroleId);
-        if (role && newMember.guild.me.hasPermission("MANAGE_ROLES"))
+        if (role && newMember.guild.me.permissions.has("MANAGE_ROLES"))
           await newMember.roles
             .add(
               role,

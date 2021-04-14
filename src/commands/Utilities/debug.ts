@@ -106,7 +106,10 @@ export default class Debug extends Command {
         : channel
             .permissionsFor(this.client.user)
             .missing(
-              cmd.clientPermissions as BitFieldResolvable<PermissionString>
+              cmd.clientPermissions as BitFieldResolvable<
+                PermissionString,
+                bigint
+              >
             );
     const userMissing =
       channel instanceof DMChannel
@@ -114,7 +117,10 @@ export default class Debug extends Command {
         : channel
             .permissionsFor(message.member)
             .missing(
-              cmd.userPermissions as BitFieldResolvable<PermissionString>
+              cmd.userPermissions as BitFieldResolvable<
+                PermissionString,
+                bigint
+              >
             );
 
     const permissionChecks = clientMissing?.length || userMissing?.length;

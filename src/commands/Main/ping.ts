@@ -44,34 +44,7 @@ export default class Ping extends Command {
       .setTimestamp();
 
     return message instanceof SlashCommandMessage
-      ? await message.channel.send(embed)
-      : await this.replyEmbedPing(message, pingMessage, embed);
-  }
-
-  async replyEmbedPing(
-    message: FireMessage,
-    pingMsg: FireMessage,
-    embed: MessageEmbed
-  ) {
-    pingMsg.delete();
-    return this.client.req
-      .channels(message.channel.id)
-      .messages.post({
-        data: {
-          embed: embed.toJSON(),
-          message_reference: { message_id: message.id },
-          allowed_mentions: {
-            ...this.client.options.allowedMentions,
-            replied_user: false,
-          },
-        },
-      })
-      .then(
-        // @ts-ignore
-        (m: object) => this.client.actions.MessageCreate.handle(m).message
-      )
-      .catch(() => {
-        return message.channel.send(embed);
-      });
+      ? message.channel.send(embed)
+      : pingMessage.delete() && (await message.reply(embed));
   }
 }

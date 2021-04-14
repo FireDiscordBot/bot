@@ -140,9 +140,7 @@ export default class MCLogs extends Module {
     if (this.regexes.noRaw.test(message.content)) {
       this.regexes.noRaw.lastIndex = 0;
       try {
-        await message.delete({
-          reason: "Unable to reupload log from source to hastebin",
-        });
+        await message.delete();
       } catch {}
       return await message.channel.send(
         message.language.get("SK1ER_NO_REUPLOAD", message.author.toMention()),
@@ -245,9 +243,7 @@ export default class MCLogs extends Module {
         const zip = await sk1erModule.createModcoreZip();
         if (zip) {
           try {
-            await message.delete({
-              reason: "Removing log and sending Modcore zip",
-            });
+            await message.delete();
           } catch {}
 
           await message.channel.send(
@@ -314,11 +310,7 @@ export default class MCLogs extends Module {
       const haste = await this.client.util.haste(text).catch((e: Error) => e);
       if (haste instanceof Error)
         return await message.error("MC_LOG_FAILED", haste.message);
-      try {
-        await message.delete({
-          reason: "Removing log and sending haste",
-        });
-      } catch {}
+      message.delete().catch(() => {});
 
       let possibleSolutions = this.getSolutions(text);
       const user = this.regexes.settingUser.exec(text);

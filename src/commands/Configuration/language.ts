@@ -29,7 +29,7 @@ export default class LanguageCommand extends Command {
         "LANGUAGE_COMMAND_CURRENT",
         message.language.id
       );
-    else if (message.guild && message.member.hasPermission("MANAGE_GUILD")) {
+    else if (message.guild && message.member.permissions.has("MANAGE_GUILD")) {
       args.language.id == "en-US"
         ? message.guild.settings.delete("utils.language") // en-US is default so we can delete the setting instead
         : message.guild.settings.set("utils.language", args.language.id);

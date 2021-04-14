@@ -138,18 +138,10 @@ export default class Filters extends Module {
         inv.guild.id != message.guild.id &&
         !constants.allowedInvites.includes(inv.guild.id)
       )
-        await message
-          .delete({
-            reason: `Found invite for ${inv.guild} in message`,
-          })
-          .catch(() => {});
+        await message.delete().catch(() => {});
     };
     const deleteFail = async (e: Error) =>
-      await message
-        .delete({
-          reason: `Failed to fetch info for invite found in message; ${e}`,
-        })
-        .catch(() => {});
+      await message.delete().catch(() => {});
     const searchString =
       message.content +
       " " +
@@ -356,10 +348,7 @@ export default class Filters extends Module {
     const match = regexes.paypal.exec(sanitizer(searchString));
     if (!match) return;
     await message
-      .delete({
-        // I don't think this is even exposed anywhere lol
-        reason: `Nobody wants to send you money on PayPal, shut up.`,
-      })
+      .delete()
       .catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
@@ -393,9 +382,7 @@ export default class Filters extends Module {
     const match = regexes.youtube.video.exec(sanitizer(searchString));
     if (!match) return;
     await message
-      .delete({
-        reason: `YouTube video link found in message`,
-      })
+      .delete()
       .catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const video = await this.client.util
@@ -481,9 +468,7 @@ export default class Filters extends Module {
     const match = regexes.youtube.channel.exec(sanitizer(searchString));
     if (!match) return;
     await message
-      .delete({
-        reason: `YouTube channel link found in message`,
-      })
+      .delete()
       .catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const channel = await this.client.util
@@ -560,11 +545,7 @@ export default class Filters extends Module {
     const channelMatch = regexes.twitch.channel.exec(sanitizer(searchString));
     if (!clipMatch && !channelMatch) return;
     await message
-      .delete({
-        reason: clipMatch
-          ? `Twitch clip link found in message`
-          : `Twitch channel link found in message`,
-      })
+      .delete()
       .catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
@@ -600,9 +581,7 @@ export default class Filters extends Module {
     const match = regexes.twitter.exec(sanitizer(searchString));
     if (!match) return;
     await message
-      .delete({
-        reason: `Twitter link found in message`,
-      })
+      .delete()
       .catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
@@ -636,9 +615,7 @@ export default class Filters extends Module {
     const match = this.shortURLRegex.exec(sanitizer(searchString));
     if (!match) return;
     await message
-      .delete({
-        reason: `Shortened link found in message`,
-      })
+      .delete()
       .catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()

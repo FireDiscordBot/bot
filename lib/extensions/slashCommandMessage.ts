@@ -335,8 +335,8 @@ export class FakeChannel {
 
   permissionsFor(memberOrRole: GuildMemberResolvable | RoleResolvable) {
     return this.real instanceof DMChannel
-      ? new Permissions(0) // may change to basic perms in the future
-      : this.real?.permissionsFor(memberOrRole) || new Permissions(0);
+      ? new Permissions(0n) // may change to basic perms in the future
+      : this.real?.permissionsFor(memberOrRole) || new Permissions(0n);
   }
 
   startTyping(count?: number) {
