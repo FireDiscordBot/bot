@@ -42,7 +42,9 @@ export default class Ping extends Command {
         )
       )
       .setTimestamp();
-    message.delete();
-    return await message.reply(embed);
+
+    return message instanceof SlashCommandMessage
+      ? message.channel.send(embed)
+      : pingMessage.delete() && (await message.reply(embed));
   }
 }
