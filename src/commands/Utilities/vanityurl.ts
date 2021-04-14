@@ -79,8 +79,9 @@ export default class VanityURL extends Command {
             .fetchInvite(message.guild.vanityURLCode)
             .catch();
         else {
-          const code = await message.guild.fetchVanityCode().catch(() => {});
-          if (code) invite = await this.client.fetchInvite(code).catch();
+          const vanity = await message.guild.fetchVanityData().catch(() => {});
+          if (vanity)
+            invite = await this.client.fetchInvite(vanity.code).catch();
         }
       }
 
