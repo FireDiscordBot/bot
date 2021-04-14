@@ -48,11 +48,14 @@ export default class Ready extends Listener {
     } catch {}
     this.client.ws.shards.forEach((shard) =>
       this.client.user?.setPresence({
-        activity: {
-          name: this.client.manager.ws
-            ? `with fire | ${shard.id + 1}/${this.client.options.shardCount}`
-            : "with fire",
-        },
+        activities: [
+          {
+            name: this.client.manager.ws
+              ? `with fire | ${shard.id + 1}/${this.client.options.shardCount}`
+              : "with fire",
+            type: "PLAYING",
+          },
+        ],
         status: "dnd",
         shardID: shard.id,
       })

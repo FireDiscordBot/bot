@@ -37,4 +37,8 @@ export const discord: ClientOptions = {
     intents.DIRECT_MESSAGES |
     intents.GUILD_VOICE_STATES,
   ...litecord,
+  presence: {
+    status: "idle",
+    activities: [{ name: "things load...", type: "WATCHING" }],
+  },
 };
