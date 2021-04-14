@@ -8,8 +8,11 @@ const { Endpoints } = Constants;
 
 export class RESTManager {
   handlers: Collection<string, RequestHandler>;
+  globalDelay: Promise<void>;
+  globalRemaining: number;
+  globalLimit: number;
+  globalReset: number;
   tokenPrefix: string;
-  globalTimeout: any;
   versioned: boolean;
   client: Fire;
 
@@ -18,7 +21,13 @@ export class RESTManager {
     this.handlers = new Collection();
     this.tokenPrefix = tokenPrefix;
     this.versioned = true;
-    this.globalTimeout = null;
+    this.globalLimit =
+      client.options.restGlobalRateLimit > 0
+        ? client.options.restGlobalRateLimit
+        : Infinity;
+    this.globalRemaining = this.globalLimit;
+    this.globalReset = null;
+    this.globalDelay = null;
     if (client.options.restSweepInterval > 0) {
       client.setInterval(() => {
         this.handlers.sweep((handler) => handler._inactive);
