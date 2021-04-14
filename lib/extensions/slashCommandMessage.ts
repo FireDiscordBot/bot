@@ -256,9 +256,7 @@ export class SlashCommandMessage {
       const message = await this.client.req
         .webhooks(this.client.user.id, this.slashCommand.token)
         .messages(messageId)
-        .patch({
-          data: {},
-        })
+        .get()
         .catch(() => {});
       messageId = message?.id;
     }
