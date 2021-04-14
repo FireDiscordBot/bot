@@ -310,11 +310,7 @@ export default class MCLogs extends Module {
       const haste = await this.client.util.haste(text).catch((e: Error) => e);
       if (haste instanceof Error)
         return await message.error("MC_LOG_FAILED", haste.message);
-      try {
-        await message.delete({
-          reason: "Removing log and sending haste",
-        });
-      } catch {}
+      message.delete().catch(() => {});
 
       let possibleSolutions = this.getSolutions(text);
       const user = this.regexes.settingUser.exec(text);
