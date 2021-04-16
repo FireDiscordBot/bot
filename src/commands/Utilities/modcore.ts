@@ -21,7 +21,7 @@ export default class Modcore extends Command {
           required: true,
         },
       ],
-      requiresExperiment: { id: "M373RC8U0mKf0vbmRUdH_", treatmentId: 1},
+      requiresExperiment: { id: "M373RC8U0mKf0vbmRUdH_", treatmentId: 1 },
       enableSlashCommand: true,
       restrictTo: "all",
     });
@@ -38,9 +38,9 @@ export default class Modcore extends Command {
     const profileReq = await centra(
       `https://api.modcore.net/api/v1/profile/${uuid}`
     ).send();
-    const profile: ModcoreProfile = await profileReq.json();
     if (profileReq.statusCode != 200)
       return await message.error("MODCORE_PROFILE_FETCH_FAIL");
+    const profile: ModcoreProfile = await profileReq.json();
     let purchases: string[] = [];
     if (profile.purchase_profile) {
       purchases = Object.entries(profile.purchase_profile)
