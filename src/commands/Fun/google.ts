@@ -1,4 +1,5 @@
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
+import { DiscordAPIError, SnowflakeUtil } from "discord.js";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
@@ -6,7 +7,6 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import Filters from "@fire/src/modules/filters";
 import { Message } from "@fire/lib/ws/Message";
-import { SnowflakeUtil } from "discord.js";
 
 type PlaywrightResponse = {
   screenshot: { type: "Buffer"; data: number[] };
@@ -112,9 +112,16 @@ export default class Google extends Command {
       message.member || message.author
     );
     if (!html)
-      return await message.reply(
-        message.language.get("PLAYWRIGHT_ERROR_UNKNOWN") as string
-      );
+      return await message
+        .reply(message.language.get("PLAYWRIGHT_ERROR_UNKNOWN") as string)
+        .catch((e) => {
+          if (
+            e instanceof DiscordAPIError &&
+            // hacky detection but it works
+            e.message.includes("message_reference: Unknown message")
+          )
+            return message.send("PLAYWRIGHT_ERROR_UNKNOWN");
+        });
     const playwrightResponse = await this.getImageFromPlaywright(
       message,
       html

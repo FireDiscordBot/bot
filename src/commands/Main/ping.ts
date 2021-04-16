@@ -1,8 +1,8 @@
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { DiscordAPIError, MessageEmbed } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { MessageEmbed } from "discord.js";
 
 export default class Ping extends Command {
   constructor() {
@@ -45,6 +45,14 @@ export default class Ping extends Command {
 
     return message instanceof SlashCommandMessage
       ? message.channel.send(embed)
-      : pingMessage.delete() && (await message.reply(embed));
+      : pingMessage.delete() &&
+          (await message.reply(embed).catch((e) => {
+            if (
+              e instanceof DiscordAPIError &&
+              // hacky detection but it works
+              e.message.includes("message_reference: Unknown message")
+            )
+              return message.channel.send(embed);
+          }));
   }
 }

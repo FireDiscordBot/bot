@@ -1,7 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import { DiscordAPIError, MessageEmbed } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { MessageEmbed } from "discord.js";
 
 export default class Tag extends Command {
   constructor() {
@@ -46,9 +46,18 @@ export default class Tag extends Command {
         .catch(() => {})) as FireMessage;
     }
     if (referenced)
-      return await referenced.reply(cachedTag.content, {
-        allowedMentions: { repliedUser: true },
-      });
+      return await referenced
+        .reply(cachedTag.content, {
+          allowedMentions: { repliedUser: true },
+        })
+        .catch((e) => {
+          if (
+            e instanceof DiscordAPIError &&
+            // hacky detection but it works
+            e.message.includes("message_reference: Unknown message")
+          )
+            return message.channel.send(cachedTag.content);
+        });
     else return await message.channel.send(cachedTag.content);
   }
 
