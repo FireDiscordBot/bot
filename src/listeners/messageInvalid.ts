@@ -138,8 +138,8 @@ export default class MessageInvalid extends Listener {
               destination: {
                 nsfw: (message.channel as FireTextChannel)?.nsfw || false,
                 permissions: message.guild
-                  ? message.member?.permissions.bitfield || 0
-                  : 0,
+                  ? message.member?.permissions.bitfield.toString() || "0"
+                  : "0",
                 guild_id: message.guild?.id,
                 id: message.channel.id,
               } as PartialQuoteDestination,

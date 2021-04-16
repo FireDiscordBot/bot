@@ -7,7 +7,7 @@ export interface MessageLinkMatch {
 }
 
 export interface PartialQuoteDestination {
-  permissions: number;
+  permissions: string;
   guild_id?: string;
   guild?: FireGuild;
   nsfw: boolean;

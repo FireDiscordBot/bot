@@ -212,7 +212,7 @@ export class FireMessage extends Message {
       (destination instanceof FireTextChannel &&
         quoter.permissionsIn(destination).has("ATTACH_FILES")) ||
       (!(destination instanceof FireTextChannel) &&
-        (destination.permissions & 0x8000) == 0x8000)
+        (BigInt(destination.permissions) & 32768n) == 32768n)
     ) {
       const names = this.attachments.map((attach) => attach.name);
       const attachReqs = await Promise.all(
