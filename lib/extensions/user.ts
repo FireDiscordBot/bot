@@ -2,7 +2,7 @@ import { MessageEmbed, Structures, User, Util } from "discord.js";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { UserSettings } from "@fire/lib/util/settings";
-import { FireTextChannel} from "./textchannel";
+import { FireTextChannel } from "./textchannel";
 import { Message } from "@fire/lib/ws/Message";
 import { FireMember } from "./guildmember";
 import { Fire } from "@fire/lib/Fire";
@@ -110,10 +110,11 @@ export class FireUser extends User {
   async createReminder(when: Date, why: string, link: string) {
     if (!this.client.manager.ws?.open) return this.client.config.dev;
     const timestamp = +when;
+    if (isNaN(timestamp) || timestamp < +new Date() + 60000) return false;
     const reminder = await this.client.db
       .query(
         "INSERT INTO remind (uid, forwhen, reminder, link) VALUES ($1, $2, $3, $4);",
-        [this.id, timestamp, why, link]
+        [this.id, timestamp.toString(), why, link]
       )
       .catch(() => {});
     if (!reminder) return false;
