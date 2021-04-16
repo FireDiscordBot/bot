@@ -367,10 +367,14 @@ export class FireMessage extends Message {
       stars = this.guild.starboardReactions.get(this.id);
       if (action == "add") stars++;
       else if (action == "remove") stars--;
-      this.guild.starboardReactions.set(this.id, stars);
+      stars > 0
+        ? this.guild.starboardReactions.set(this.id, stars)
+        : this.guild.starboardReactions.delete(this.id);
       await this.client.db
         .query(
-          "UPDATE starboard_reactions SET reactions=$1 WHERE gid=$2 AND mid=$3",
+          stars > 0
+            ? "UPDATE starboard_reactions SET reactions=$1 WHERE gid=$2 AND mid=$3"
+            : "DELETE FROM starboard_reactions WHERE gid=$2 AND mid=$3;",
           [stars, this.guild.id, this.id]
         )
         .catch(() => {});
