@@ -171,6 +171,7 @@ export default class MCLogs extends Module {
         toJSON: () => {
           return {};
         },
+        contentType: "text/plain; charset=utf-8",
         name: "message.txt",
         id: message.id,
         attachment: "",

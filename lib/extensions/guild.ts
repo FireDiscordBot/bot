@@ -11,6 +11,7 @@ import {
   WebhookClient,
   CategoryChannel,
   MessageAttachment,
+  FetchOwnerOptions,
   MessageEmbedOptions,
   PermissionOverwriteOption,
 } from "discord.js";
@@ -66,7 +67,6 @@ export class FireGuild extends Guild {
   settings: GuildSettings;
   logger: GuildLogManager;
   tags: GuildTagManager;
-  owner: FireMember;
   client: Fire;
 
   constructor(client: Fire, data: object) {
@@ -134,6 +134,10 @@ export class FireGuild extends Guild {
 
     // @ts-ignore
     super._patch(data);
+  }
+
+  fetchOwner(options?: FetchOwnerOptions) {
+    return super.fetchOwner(options) as Promise<FireMember>;
   }
 
   async initMuteRole() {

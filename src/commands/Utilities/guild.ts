@@ -86,15 +86,16 @@ export default class GuildCommand extends Command {
         ).diff(moment()),
         language.id.split("-")[0]
       ) + language.get("AGO");
-    if (guild instanceof FireGuild && !guild.members.cache.has(guild.ownerID))
-      await guild.members.fetch(guild.ownerID).catch(() => {});
+    let owner: FireMember;
+    if (guild instanceof FireGuild) owner = await guild.fetchOwner();
     let messages = [
       message.language.get(
         "GUILD_CREATED_AT",
         guild instanceof FireGuild &&
-          guild.owner.joinedTimestamp - guild.createdTimestamp < 5000
-          ? guild.owner?.user?.discriminator != null
-            ? guild.owner
+          owner &&
+          owner.joinedTimestamp - guild.createdTimestamp < 5000
+          ? owner?.user?.discriminator != null
+            ? owner.toString()
             : "Unknown#0000"
           : null,
         created

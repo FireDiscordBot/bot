@@ -357,7 +357,7 @@ export class FakeChannel {
       : this.real?.bulkDelete(messages, filterOld);
   }
 
-  awaitMessages(filter: CollectorFilter, options?: AwaitMessagesOptions) {
+  awaitMessages(filter: CollectorFilter<[FireMessage]>, options?: AwaitMessagesOptions) {
     return this.real?.awaitMessages(filter, options);
   }
 
