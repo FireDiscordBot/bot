@@ -157,9 +157,9 @@ export default class Filters extends Module {
 
       const apiReq = await centra(
         message instanceof FireMessage
-        // the query params are so I know I can identify requests from this function and the messages that trigger it
-        // so that I can monitor requests and if I see odd behavior, I can check the message that triggered it
-          ? `https://inv.wtf/api/${code}?userId=${message.author?.id}&messageId=${message.id}&channelId=${message.channel.id}&guildId=${message.guild?.id}`
+          ? // the query params are so I know I can identify requests from this function and the messages that trigger it
+            // so that I can monitor requests and if I see odd behavior, I can check the message that triggered it
+            `https://inv.wtf/api/${code}?userId=${message.author?.id}&messageId=${message.id}&channelId=${message.channel.id}&guildId=${message.guild?.id}`
           : `https://inv.wtf/api/${code}`
       )
         .header(
@@ -190,6 +190,13 @@ export default class Filters extends Module {
             new RegExp(`inv\.wtf\/${code}`, "gim"),
             `discord.gg/${data.invite}`
           );
+        if (message instanceof FireMessage && message.embeds.length) {
+          const index = message.embeds.findIndex((embed) =>
+            embed.url.includes(`inv.wtf/${code}`)
+          );
+          if (typeof index == "number")
+            message.embeds[index].url = `discord.gg/${data.invite}`;
+        }
       } else if (data && data.url) {
         if (message instanceof FireMessage)
           message.content = message.content.replace(
@@ -206,6 +213,12 @@ export default class Filters extends Module {
             new RegExp(`(https?:\/\/)?inv\.wtf\/${code}`, "gim"),
             data.url
           );
+        if (message instanceof FireMessage && message.embeds.length) {
+          const index = message.embeds.findIndex((embed) =>
+            embed.url.includes(`inv.wtf/${code}`)
+          );
+          if (typeof index == "number") message.embeds[index].url = data.url;
+        }
       }
     }
     return [message, extra];
