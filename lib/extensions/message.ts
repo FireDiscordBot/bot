@@ -4,6 +4,7 @@ import {
   WebhookClient,
   MessageEmbed,
   NewsChannel,
+  Collection,
   Structures,
   DMChannel,
   Webhook,
@@ -32,6 +33,7 @@ const {
 } = constants;
 
 export class FireMessage extends Message {
+  invWtfResolved: Collection<string, { invite?: string; url?: string }>;
   channel: DMChannel | FireTextChannel | NewsChannel;
   paginator?: PaginatorInterface;
   starLock: Semaphore;
@@ -53,6 +55,7 @@ export class FireMessage extends Message {
       this.content = this.content.slice(0, this.content.length - 9).trimEnd();
       if (!this.attachments.size) this.silent = true;
     }
+    this.invWtfResolved = new Collection();
   }
 
   get language() {

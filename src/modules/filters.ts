@@ -140,10 +140,17 @@ export default class Filters extends Module {
 
   async invWtfReplace(message: FireMessage | string, extra?: string) {
     let exec: RegExpExecArray;
-    const codes = [];
     while (
       (exec = regexes.invwtf.exec(
-        typeof message == "string" ? message : message.content
+        typeof message == "string"
+          ? message
+          : message.content +
+              " " +
+              message.embeds
+                .map((embed) => JSON.stringify(embed.toJSON()))
+                .join(" ") +
+              " " +
+              extra
       )) != null
     ) {
       if (regexes.invwtf.lastIndex == exec.index) regexes.invwtf.lastIndex++;
@@ -151,75 +158,86 @@ export default class Filters extends Module {
       const code = exec.groups?.code;
       if (!code) continue; // idk how this would happen but sure
 
-      // prevent fetching the same code multiple times
-      if (codes.includes(code)) continue;
-      codes.push(code);
-
-      const apiReq = await centra(
-        message instanceof FireMessage
-          ? // the query params are so I know I can identify requests from this function and the messages that trigger it
-            // so that I can monitor requests and if I see odd behavior, I can check the message that triggered it
-            `https://inv.wtf/api/${code}?userId=${message.author?.id}&messageId=${message.id}&channelId=${message.channel.id}&guildId=${message.guild?.id}`
-          : `https://inv.wtf/api/${code}`
-      )
-        .header(
-          "User-Agent",
-          `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-        )
-        .header("Authorization", process.env.VANITY_KEY)
-        .send();
-      if (apiReq.statusCode != 200) continue;
-      const data = (await apiReq.json().catch(() => {})) as {
+      let data: {
         invite?: string;
         url?: string;
       };
 
-      if (data && data.invite) {
+      if (
+        !(message instanceof FireMessage) ||
+        !message.invWtfResolved.has(code)
+      ) {
+        const apiReq = await centra(`https://inv.wtf/api/${code}`)
+          .header(
+            "User-Agent",
+            `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
+          )
+          .header("Referer", message instanceof FireMessage ? message.url : "")
+          .header("Authorization", process.env.VANITY_KEY)
+          .send();
+        if (apiReq.statusCode != 200) continue;
+        data = (await apiReq.json().catch(() => {})) as {
+          invite?: string;
+          url?: string;
+        };
         if (message instanceof FireMessage)
-          message.content = message.content.replace(
-            new RegExp(`inv\.wtf\/${code}`, "gim"),
-            `discord.gg/${data.invite}`
-          );
-        else
-          message = message.replace(
-            new RegExp(`inv\.wtf\/${code}`, "gim"),
-            `discord.gg/${data.invite}`
-          );
-        if (extra)
-          extra = extra.replace(
-            new RegExp(`inv\.wtf\/${code}`, "gim"),
-            `discord.gg/${data.invite}`
-          );
-        if (message instanceof FireMessage && message.embeds.length) {
-          const index = message.embeds.findIndex((embed) =>
-            embed.url.includes(`inv.wtf/${code}`)
-          );
-          if (typeof index == "number")
-            message.embeds[index].url = `discord.gg/${data.invite}`;
+          message.invWtfResolved.set(code, {
+            invite: data.invite,
+            url: data.url,
+          });
+      } else if (message instanceof FireMessage)
+        data = message.invWtfResolved.get(code);
+
+      try {
+        if (data && data.invite) {
+          if (message instanceof FireMessage)
+            message.content = message.content.replace(
+              new RegExp(`inv\.wtf\/${code}`, "gim"),
+              `discord.gg/${data.invite}`
+            );
+          else
+            message = message.replace(
+              new RegExp(`inv\.wtf\/${code}`, "gim"),
+              `discord.gg/${data.invite}`
+            );
+          if (extra)
+            extra = extra.replace(
+              new RegExp(`inv\.wtf\/${code}`, "gim"),
+              `discord.gg/${data.invite}`
+            );
+          if (message instanceof FireMessage && message.embeds.length) {
+            const index = message.embeds.findIndex((embed) =>
+              embed.url.includes(`inv.wtf/${code}`)
+            );
+            console.log(message.embeds[index]?.url);
+            if (index >= 0)
+              message.embeds[index].url = `discord.gg/${data.invite}`;
+          }
+        } else if (data && data.url) {
+          if (message instanceof FireMessage)
+            message.content = message.content.replace(
+              new RegExp(`(https?:\/\/)?inv\.wtf\/${code}`, "gim"),
+              data.url
+            );
+          else
+            message = message.replace(
+              new RegExp(`(https?:\/\/)?inv\.wtf\/${code}`, "gim"),
+              data.url
+            );
+          if (extra)
+            extra = extra.replace(
+              new RegExp(`(https?:\/\/)?inv\.wtf\/${code}`, "gim"),
+              data.url
+            );
+          if (message instanceof FireMessage && message.embeds.length) {
+            const index = message.embeds.findIndex((embed) =>
+              embed.url.includes(`inv.wtf/${code}`)
+            );
+            console.log(message.embeds[index]?.url);
+            if (index >= 0) message.embeds[index].url = data.url;
+          }
         }
-      } else if (data && data.url) {
-        if (message instanceof FireMessage)
-          message.content = message.content.replace(
-            new RegExp(`(https?:\/\/)?inv\.wtf\/${code}`, "gim"),
-            data.url
-          );
-        else
-          message = message.replace(
-            new RegExp(`(https?:\/\/)?inv\.wtf\/${code}`, "gim"),
-            data.url
-          );
-        if (extra)
-          extra = extra.replace(
-            new RegExp(`(https?:\/\/)?inv\.wtf\/${code}`, "gim"),
-            data.url
-          );
-        if (message instanceof FireMessage && message.embeds.length) {
-          const index = message.embeds.findIndex((embed) =>
-            embed.url.includes(`inv.wtf/${code}`)
-          );
-          if (typeof index == "number") message.embeds[index].url = data.url;
-        }
-      }
+      } catch {}
     }
     return [message, extra];
   }
@@ -327,7 +345,7 @@ export default class Filters extends Module {
     }
   }
 
-  async handleExtInvite(message: FireMessage, extra: string = "") {
+  async handleExtInvite(message: FireMessage) {
     for (const embed of message.embeds) {
       try {
         if (
@@ -343,6 +361,7 @@ export default class Filters extends Module {
               "User-Agent",
               `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
             )
+            .header("Referer", message.url)
             .send();
           const inviteMatch = this.getInviteMatchFromReq(req);
           if (inviteMatch && inviteMatch.groups.code) {
@@ -381,6 +400,7 @@ export default class Filters extends Module {
             "User-Agent",
             `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
           )
+          .header("Referer", message.url)
           .send()
       ).json();
       if (vanity?.invite) {
@@ -394,6 +414,7 @@ export default class Filters extends Module {
           "User-Agent",
           `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
         )
+        .header("Referer", message.url)
         .send();
       const inviteMatch = this.getInviteMatchFromReq(invReq, exec);
       if (inviteMatch && inviteMatch.groups.code) {
