@@ -165,7 +165,10 @@ export default class Carbon extends Command {
         : `http://localhost:${process.env.REST_PORT}/img/carbon`,
       "POST"
     )
-      .header("User-Agent", "Fire Discord Bot")
+      .header(
+        "User-Agent",
+        `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
+      )
       .header("Authorization", process.env.WS_AUTH)
       .body(body, "json")
       .send()

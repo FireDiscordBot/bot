@@ -19,7 +19,10 @@ export default class Redirects extends Module {
         : "https://inv.wtf/fetch",
       "PUT"
     )
-      .header("User-Agent", "Fire Discord Bot")
+      .header(
+        "User-Agent",
+        `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
+      )
       .header("Authorization", process.env.VANITY_KEY)
       .body({ reason }, "json")
       .send();
@@ -35,7 +38,10 @@ export default class Redirects extends Module {
         ? `https://test.inv.wtf/api/${code}`
         : `https://inv.wtf/api/${code}`
     )
-      .header("User-Agent", "Fire Discord Bot")
+      .header(
+        "User-Agent",
+        `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
+      )
       .header("Authorization", process.env.VANITY_KEY)
       .send();
     if (redirectReq.statusCode != 200) return false;

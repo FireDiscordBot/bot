@@ -218,7 +218,10 @@ export class FireMessage extends Message {
       const attachReqs = await Promise.all(
         this.attachments.map((attachment) =>
           centra(attachment.url)
-            .header("User-Agent", "Fire Discord Bot")
+            .header(
+              "User-Agent",
+              `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
+            )
             .send()
             .catch(() => {})
         )

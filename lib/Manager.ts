@@ -11,13 +11,16 @@ export class Manager {
   killing: boolean = false;
   sentry: typeof Sentry;
   session?: string;
+  version: string;
   ws?: Websocket;
   client: Fire;
   seq?: number;
   id: number;
 
-  constructor(sentry?: typeof Sentry) {
+  constructor(version: string, sentry?: typeof Sentry) {
+    this.version = version
     this.sentry = sentry;
+
     this.client = new Fire(this, sentry);
 
     if (process.env.BOOT_SINGLE == "false") {

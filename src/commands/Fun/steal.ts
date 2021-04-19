@@ -70,7 +70,10 @@ export default class Steal extends Command {
 
   async getFormat(url: string) {
     const emojiReq = await centra(`${url}.gif`)
-      .header("User-Agent", "Fire Discord Bot")
+      .header(
+        "User-Agent",
+        `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
+      )
       .send();
     if (emojiReq.statusCode == 415) return ".png";
     else if ([200, 304].includes(emojiReq.statusCode)) return ".gif";

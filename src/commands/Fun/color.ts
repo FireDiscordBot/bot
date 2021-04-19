@@ -53,7 +53,10 @@ export default class Color extends Command {
     const image = await centra(
       `${constants.url.imageGen}/color?color=${color.toHex()}`
     )
-      .header("User-Agent", "Fire Discord Bot")
+      .header(
+        "User-Agent",
+        `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
+      )
       .send();
 
     if (image.statusCode != 200) return await message.channel.send(colorInfo);

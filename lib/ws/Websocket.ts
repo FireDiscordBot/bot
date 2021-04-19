@@ -23,7 +23,7 @@ export class Websocket extends Client {
           "x-aether-seq": manager.seq?.toString() || "0",
           "x-aether-session": manager.session || "",
           authorization: process.env.WS_AUTH,
-          "User-Agent": "Fire Discord Bot",
+          "User-Agent": `Fire Discord Bot/${manager.version} (+https://fire.gaminggeek.dev/)`,
           "x-aether-encoding": "zlib",
         },
       }

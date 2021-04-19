@@ -29,7 +29,10 @@ export const hasteTypeCaster: ArgumentTypeCaster = async (
   }
 
   const hasteReq = await centra(`https://${uploader}/raw/${key}`)
-    .header("User-Agent", "Fire Discord Bot")
+    .header(
+      "User-Agent",
+      `Fire Discord Bot/${message.client.manager.version} (+https://fire.gaminggeek.dev/)`
+    )
     .send()
     .catch(() => {});
   if (!hasteReq || hasteReq.statusCode != 200) {

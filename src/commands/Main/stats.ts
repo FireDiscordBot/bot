@@ -37,7 +37,10 @@ export default class Stats extends Command {
           ? `https://${process.env.REST_HOST}/stats`
           : `http://127.0.0.1:${process.env.REST_PORT}/stats`
       )
-        .header("User-Agent", "Fire Discord Bot")
+        .header(
+          "User-Agent",
+          `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
+        )
         .send()
     ).json();
     if (!stats.clusters.length) return await this.singularStats(message);
@@ -106,7 +109,7 @@ export default class Stats extends Command {
         message.language.get("STATS_COMMANDS"),
         clusterStats.commands,
         true
-      )
+      );
     return await message.channel.send(embed);
   }
 
@@ -151,7 +154,7 @@ export default class Stats extends Command {
         true
       )
       .addField(message.language.get("STATS_UPTIME"), stats.uptime, true)
-      .addField(message.language.get("STATS_COMMANDS"), stats.commands, true)
+      .addField(message.language.get("STATS_COMMANDS"), stats.commands, true);
     return await message.channel.send(embed);
   }
 }

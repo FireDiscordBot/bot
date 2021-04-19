@@ -32,7 +32,7 @@ if (loadSentry) {
   });
 }
 
-const manager = new Manager(loadSentry ? sentry : undefined);
+const manager = new Manager(version, loadSentry ? sentry : undefined);
 manager.init();
 
 process.on("exit", () => {

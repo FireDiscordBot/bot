@@ -100,7 +100,10 @@ export class Util extends ClientUtil {
         await Centra(url, "POST")
           .path("/documents")
           .body(text, "buffer")
-          .header("User-Agent", "Fire Discord Bot")
+          .header(
+            "User-Agent",
+            `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
+          )
           .send()
       ).json();
       if (!h.key) throw new Error(JSON.stringify(h));

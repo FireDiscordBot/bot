@@ -63,7 +63,10 @@ export default class Message extends Listener {
     try {
       const gist = await (
         await centra("https://api.github.com/gists", "POST")
-          .header("User-Agent", "Fire Discord Bot")
+          .header(
+            "User-Agent",
+            `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
+          )
           .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
           .body(body, "json")
           .send()
@@ -81,7 +84,10 @@ export default class Message extends Listener {
       );
       await this.client.util.sleep(10000);
       await centra(`https://api.github.com/gists/${gist.id}`, "DELETE")
-        .header("User-Agent", "Fire Discord Bot")
+        .header(
+          "User-Agent",
+          `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
+        )
         .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
         .send();
     } catch (e) {

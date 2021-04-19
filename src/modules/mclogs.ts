@@ -74,7 +74,10 @@ export default class MCLogs extends Module {
     const solutionsReq = await centra(
       `https://api.github.com/repos/GamingGeek/BlockGameSolutions/contents/mc_solutions.json`
     )
-      .header("User-Agent", "Fire Discord Bot")
+      .header(
+        "User-Agent",
+        `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
+      )
       .header("Authorization", `token ${process.env.GITHUB_SOLUTIONS_TOKEN}`)
       .send();
     if (solutionsReq.statusCode == 200) {
