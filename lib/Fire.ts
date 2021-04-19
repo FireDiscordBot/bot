@@ -29,6 +29,7 @@ import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSno
 import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChannel";
 import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
 import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
+import { SlashCommandMessage } from "./extensions/slashCommandMessage";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
 import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
@@ -216,6 +217,7 @@ export class Fire extends AkairoClient {
       automateCategories: true,
       commandUtilLifetime: 30000,
       prefix: (message: FireMessage) => {
+        if (message instanceof SlashCommandMessage) return ["/"];
         const prefixes = message.guild?.settings.get("config.prefix", [
           "$",
         ]) as string[];
