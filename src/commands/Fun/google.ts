@@ -91,7 +91,7 @@ export default class Google extends Command {
     if (!response.html)
       return await message.react("a:okaygoogle:769207087674032129");
     const filters = this.client.getModule("filters") as Filters;
-    const html = filters.runReplace(
+    const html = await filters.runReplace(
       response.html
         ?.replace(
           "<html>",

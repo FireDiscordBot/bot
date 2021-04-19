@@ -1,5 +1,5 @@
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { constants, shortURLs } from "@fire/lib/util/constants";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -8,6 +8,7 @@ import { MessageEmbed, Invite } from "discord.js";
 import { Module } from "@fire/lib/util/module";
 import * as sanitizer from "@aero/sanitizer";
 import * as centra from "centra";
+import { Redirect, VanityURL } from "@fire/lib/interfaces/invwtf";
 
 const { regexes } = constants;
 
@@ -94,6 +95,7 @@ export default class Filters extends Module {
           ", "
         )} in guild ${message.guild}`
       );
+    await this.invWtfReplace(message).catch(() => {});
     Object.keys(this.filters).forEach((name) => {
       if (!exclude.includes(name) && enabled.includes(name)) {
         if (this.debug.includes(message.guild.id))
@@ -106,7 +108,7 @@ export default class Filters extends Module {
     });
   }
 
-  runReplace(
+  async runReplace(
     text: string,
     context?: FireMessage | SlashCommandMessage | FireMember | FireUser
   ) {
@@ -117,6 +119,8 @@ export default class Filters extends Module {
           : this.shouldRun(null, context);
       if (!check) return text;
     }
+    const replaced = await this.invWtfReplace(text).catch(() => {});
+    if (replaced && typeof replaced == "string") text = replaced;
     const enabled: string[] =
       !context || context instanceof FireUser
         ? null
@@ -130,6 +134,60 @@ export default class Filters extends Module {
     });
     text = text.replace(filteredReplaceRegex, "[ filtered ]");
     return text;
+  }
+
+  async invWtfReplace(message: FireMessage | string) {
+    let exec: RegExpExecArray;
+    const codes = [];
+    while (
+      (exec = regexes.invwtf.exec(
+        typeof message == "string" ? message : message.content
+      )) != null
+    ) {
+      if (regexes.invwtf.lastIndex == exec.index) regexes.invwtf.lastIndex++;
+
+      const code = exec.groups?.code;
+      if (!code) continue; // idk how this would happen but sure
+
+      // prevent fetching the same code multiple times
+      if (codes.includes(code)) continue;
+      codes.push(code);
+
+      const apiReq = await centra(`https://inv.wtf/api/${code}`)
+        .header("User-Agent", "Fire Discord Bot")
+        .header("Authorization", process.env.VANITY_KEY)
+        .send();
+      if (apiReq.statusCode != 200) continue;
+      const data = (await apiReq.json().catch(() => {})) as {
+        invite?: string;
+        url?: string;
+      };
+
+      if (data && data.invite) {
+        if (message instanceof FireMessage)
+          message.content = message.content.replace(
+            new RegExp(`inv\.wtf\/${code}`, "gim"),
+            `discord.gg/${data.invite}`
+          );
+        else
+          message = message.replace(
+            new RegExp(`inv\.wtf\/${code}`, "gim"),
+            `discord.gg/${data.invite}`
+          );
+      } else if (data && data.url) {
+        if (message instanceof FireMessage)
+          message.content = message.content.replace(
+            new RegExp(`inv\.wtf\/${code}`, "gim"),
+            data.url
+          );
+        else
+          message = message.replace(
+            new RegExp(`inv\.wtf\/${code}`, "gim"),
+            data.url
+          );
+      }
+    }
+    return message;
   }
 
   async handleInvite(message: FireMessage, extra: string = "") {
@@ -347,9 +405,7 @@ export default class Filters extends Module {
       extra;
     const match = regexes.paypal.exec(sanitizer(searchString));
     if (!match) return;
-    await message
-      .delete()
-      .catch(() => {});
+    await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayHexColor || "#ffffff")
@@ -381,9 +437,7 @@ export default class Filters extends Module {
       extra;
     const match = regexes.youtube.video.exec(sanitizer(searchString));
     if (!match) return;
-    await message
-      .delete()
-      .catch(() => {});
+    await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const video = await this.client.util
       .getYouTubeVideo(match.groups.video)
@@ -467,9 +521,7 @@ export default class Filters extends Module {
     ).replace(regexes.youtube.video, "[ youtube video ]"); // prevents videos being matched
     const match = regexes.youtube.channel.exec(sanitizer(searchString));
     if (!match) return;
-    await message
-      .delete()
-      .catch(() => {});
+    await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const channel = await this.client.util
       .getYouTubeChannel(match.groups.channel)
@@ -544,9 +596,7 @@ export default class Filters extends Module {
     const clipMatch = regexes.twitch.clip.exec(sanitizer(searchString));
     const channelMatch = regexes.twitch.channel.exec(sanitizer(searchString));
     if (!clipMatch && !channelMatch) return;
-    await message
-      .delete()
-      .catch(() => {});
+    await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayHexColor || "#ffffff")
@@ -580,9 +630,7 @@ export default class Filters extends Module {
       extra;
     const match = regexes.twitter.exec(sanitizer(searchString));
     if (!match) return;
-    await message
-      .delete()
-      .catch(() => {});
+    await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayHexColor || "#ffffff")
@@ -614,9 +662,7 @@ export default class Filters extends Module {
       extra;
     const match = this.shortURLRegex.exec(sanitizer(searchString));
     if (!match) return;
-    await message
-      .delete()
-      .catch(() => {});
+    await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayHexColor || "#ffffff")

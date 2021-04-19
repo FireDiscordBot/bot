@@ -288,7 +288,7 @@ export default class MCLogs extends Module {
     }
 
     const filters = this.client.getModule("filters") as Filters;
-    data = filters.runReplace(data, message);
+    data = await filters.runReplace(data, message);
 
     data = data
       .split("\n")

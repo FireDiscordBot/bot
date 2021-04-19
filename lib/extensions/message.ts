@@ -205,7 +205,7 @@ export class FireMessage extends Message {
           );
       }
       const filters = this.client.getModule("filters") as Filters;
-      content = filters.runReplace(content, quoter);
+      content = await filters.runReplace(content, quoter);
     }
     let attachments: { attachment: Buffer; name: string }[] = [];
     if (

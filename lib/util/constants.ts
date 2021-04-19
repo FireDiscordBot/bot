@@ -241,16 +241,17 @@ export const constants = {
       guild: /{(?:guild|server)}/gim,
       count: /{count}/gim,
     },
+    invwtf: /inv\.wtf\/(?<code>[\w-]{2,25})/gim,
     discord: {
-      invite: /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[a-zA-Z\d-]{1,25})/im,
+      invite: /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[\w-]{1,25})/im,
       message: /(?:ptb\.|canary\.|staging\.)?discord(?:app)?\.com?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
       messageGlobal: /<?(?:ptb\.|canary\.|staging\.)?discord(?:app)?\.com?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})>?/gim,
       webhook: /discord(?:app)?\.com\/api\/webhooks\/(?<id>\d{15,21})\/(?<token>[\w-]{50,80})/im,
     },
     invites: [
-      /(?<domain>(?:dsc|dis|discord|invite)\.(?:gd|gg|io|me))\/(?<code>[a-zA-Z\d-]+)/gim,
-      /(?<domain>(?:discord(?:app)?|watchanimeattheoffice)\.com)\/invite\/(?<code>[a-zA-Z\d-]+)/gim,
-      /(?<domain>(?:h\.|i\.)?inv\.wtf)\/(?<code>[a-zA-Z\d-]+)/gim,
+      /(?<domain>(?:dsc|dis|discord|invite)\.(?:gd|gg|io|me))\/(?<code>[\w-]+)/gim,
+      /(?<domain>(?:discord(?:app)?|watchanimeattheoffice)\.com)\/invite\/(?<code>[\w-]+)/gim,
+      /(?<domain>(?:h\.|i\.)?inv\.wtf)\/(?<code>[\w-]+)/gim,
     ],
     paypal: /(?:paypal\.me|paypal\.com\/paypalme)\/(?<name>[\w-]+)/im,
     youtube: {
