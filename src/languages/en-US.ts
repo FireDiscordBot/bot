@@ -1229,7 +1229,7 @@ ${success.map((s) => "- " + s).join("\n")}${
         DELREMIND_TIME:
           "You didn't respond quick enough. The reminder has not been deleted",
         DELREMIND_YES:
-          "It is gone! Remember, when using this command again, the indexes will have changed so make sure you're using the right one",
+          "It is gone! Remember, when using this command again, the indices will have changed so make sure you're using the right one",
         ROLEADDLOG_FIELD_TITLE: "Added Roles",
         ROLEREMOVELOG_FIELD_TITLE: "Removed Roles",
         ROLEPERSIST_REASON: "Adding persisted roles",

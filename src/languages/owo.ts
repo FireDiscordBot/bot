@@ -1016,7 +1016,7 @@ ${success.map((s) => "- " + s).join("\n")}${
         DELREMIND_TIME:
           "You didn't wespond quick enough. The wemindew has not been deweted",
         DELREMIND_YES:
-          "It is gone! Wemembew, when using this command again, the indexes wiww have changed so make suwe you'we using the wight one",
+          "It is gone! Wemembew, when using this command again, the indices wiww have changed so make suwe you'we using the wight one",
         ROLEPERSIST_REASON: "Adding pewsisted wowes",
         ROLEPERSIST_COMMAND_DESCRIPTION:
           "Add a wowe(s) that wiww stay with the usew, even if they weave and wejoin.",
