@@ -162,6 +162,17 @@ export class SlashCommandMessage {
     return this.snowflake.timestamp;
   }
 
+  get url() {
+    if (this.sourceMessage)
+      return `https://discord.com/channels/${
+        this.guild ? this.guild.id : "@me"
+      }/${this.realChannel?.id || "0"}/${this.sourceMessage.id}`;
+    else
+      return `https://discord.com/channels/${
+        this.guild ? this.guild.id : "@me"
+      }/${this.realChannel?.id || "0"}/${this.id}`;
+  }
+
   async generateContent() {
     let prefix = (this.client.commandHandler.prefix as (
       message: any
@@ -357,7 +368,10 @@ export class FakeChannel {
       : this.real?.bulkDelete(messages, filterOld);
   }
 
-  awaitMessages(filter: CollectorFilter<[FireMessage]>, options?: AwaitMessagesOptions) {
+  awaitMessages(
+    filter: CollectorFilter<[FireMessage]>,
+    options?: AwaitMessagesOptions
+  ) {
     return this.real?.awaitMessages(filter, options);
   }
 
