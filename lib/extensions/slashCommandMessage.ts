@@ -1,5 +1,6 @@
 import {
   APIMessageContentResolvable,
+  EmojiIdentifierResolvable,
   PermissionOverwriteOption,
   DeconstructedSnowflake,
   GuildMemberResolvable,
@@ -308,6 +309,14 @@ export class SlashCommandMessage {
       .messages(this.latestResponse)
       .delete()
       .catch(() => {});
+  }
+
+  async react(emoji: EmojiIdentifierResolvable) {
+    await this.getRealMessage();
+    if (!this.sourceMessage || typeof this.sourceMessage.react != "function")
+      return;
+
+    return await this.sourceMessage.react(emoji);
   }
 }
 
