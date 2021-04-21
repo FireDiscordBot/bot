@@ -8,6 +8,9 @@ import { Argument } from "discord-akairo";
 import * as tinycolor from "tinycolor2";
 import * as centra from "centra";
 
+const maybeColor = (_: FireMessage, phrase: string) =>
+  tinycolor(phrase).isValid() ? phrase : null;
+
 export default class Color extends Command {
   constructor() {
     super("color", {
@@ -16,7 +19,7 @@ export default class Color extends Command {
       args: [
         {
           id: "color",
-          type: Argument.union("roleSilent", "memberSilent", "string"),
+          type: Argument.union(maybeColor, "roleSilent", "memberSilent"),
           required: false,
           default: undefined,
         },
@@ -32,7 +35,7 @@ export default class Color extends Command {
   ) {
     let color: tinycolor.Instance;
     if (typeof args.color == "undefined") color = tinycolor.random();
-    else if (typeof args.color == "string") tinycolor(args.color);
+    else if (typeof args.color == "string") color = tinycolor(args.color);
     else if (args.color instanceof Role) color = tinycolor(args.color.hexColor);
     else if (args.color instanceof FireMember)
       color = tinycolor(args.color.displayHexColor);
