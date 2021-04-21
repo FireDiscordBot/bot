@@ -7,16 +7,17 @@ import {
   ClientUser,
   DMChannel,
 } from "discord.js";
+import { APIApplication, ApplicationFlags } from "discord-api-types";
 import { constants, humanize, zws } from "@fire/lib/util/constants";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Ban } from "@aero/ksoft";
 import * as moment from "moment";
-import { FireGuild } from "@fire/lib/extensions/guild";
 
 const {
   emojis,
@@ -28,6 +29,15 @@ const {
     breadlyDrawnBadges: badlyDrawnBreadBadges,
   },
 } = constants;
+
+const isValidURL = (url: string) => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
 export default class User extends Command {
   constructor() {
     super("user", {
@@ -98,11 +108,15 @@ export default class User extends Command {
       member = message.guild?.members.cache.get(user.id) as FireMember;
       user = member.user;
     }
-    const color = member
+    let color = member
       ? member.displayHexColor
       : message.member?.displayHexColor || "#ffffff";
+    if (user.bot && this.client.config.bots[user.id])
+      color = this.client.config.bots[user.id].color;
     const badges = this.getBadges(user, message.author, message.guild);
     const info = this.getInfo(message, member ? member : user);
+    let application: Exclude<APIApplication, "rpc_origins" | "owner" | "team">;
+    if (user.bot) application = await this.getApplication(user.id);
     const embed = new MessageEmbed()
       .setColor(color)
       .setTimestamp()
@@ -118,10 +132,25 @@ export default class User extends Command {
               size: 2048,
               format: "png",
               dynamic: true,
-            })
+            }),
+        application && application.bot_public
+          ? `https://discord.com/oauth2/authorize?client_id=${
+              application.id
+            }&scope=bot%20applications.commands${
+              application.id == this.client.user.id
+                ? "&permissions=1007021303"
+                : ""
+            }`
+          : null
       )
       .addField(`» ${message.language.get("ABOUT")}`, info.join("\n"));
-    if (badges.length) embed.setDescription(badges.join("  "));
+    if (badges.length)
+      embed.setDescription(
+        application
+          ? `${badges.join("  ")}\n\n${application.description}`
+          : badges.join("  ")
+      );
+    else if (application) embed.setDescription(application.description);
     if (member) {
       const roles = member.roles.cache
         .filter((role) => role.id != message.guild.id)
@@ -183,6 +212,74 @@ export default class User extends Command {
           notes.join("\n"),
           false
         );
+    }
+    if (application) {
+      const appInfo: string[] = [];
+      if (application.bot_public)
+        appInfo.push(
+          `${emojis.success} ${message.language.get("USER_BOT_PUBLIC")}`
+        );
+      else
+        appInfo.push(
+          `${emojis.error} ${message.language.get("USER_BOT_PRIVATE")}`
+        );
+      if (
+        (application.flags & ApplicationFlags.GatewayGuildMembers) ==
+          ApplicationFlags.GatewayGuildMembers ||
+        (application.flags & ApplicationFlags.GatewayGuildMembersLimited) ==
+          ApplicationFlags.GatewayGuildMembersLimited
+      )
+        appInfo.push(
+          `${
+            application.flags & ApplicationFlags.GatewayGuildMembers
+              ? emojis.success
+              : emojis.warning
+          } ${message.language.get("USER_BOT_MEMBERS_INTENT")}`
+        );
+      else
+        appInfo.push(
+          `${emojis.error} ${message.language.get("USER_BOT_MEMBERS_INTENT")}`
+        );
+      if (
+        (application.flags & ApplicationFlags.GatewayPresence) ==
+          ApplicationFlags.GatewayPresence ||
+        (application.flags & ApplicationFlags.GatewayPresenceLimited) ==
+          ApplicationFlags.GatewayPresenceLimited
+      )
+        appInfo.push(
+          `${
+            application.flags & ApplicationFlags.GatewayPresence
+              ? emojis.success
+              : emojis.warning
+          } ${message.language.get("USER_BOT_PRESENCE_INTENT")}`
+        );
+      else
+        appInfo.push(
+          `${emojis.error} ${message.language.get("USER_BOT_PRESENCE_INTENT")}`
+        );
+      if (application.privacy_policy_url || application.terms_of_service_url)
+        appInfo.push(""); // spacing between public/intents and links
+
+      if (
+        application.privacy_policy_url &&
+        isValidURL(application.privacy_policy_url)
+      )
+        appInfo.push(
+          `[${message.language.get("USER_BOT_PRIVACY_POLICY")}](${
+            application.privacy_policy_url
+          })`
+        );
+      if (
+        application.terms_of_service_url &&
+        isValidURL(application.terms_of_service_url)
+      )
+        appInfo.push(
+          `[${message.language.get("USER_BOT_TERMS")}](${
+            application.terms_of_service_url
+          })`
+        );
+
+      embed.addField(`» ${message.language.get("BOT")}`, appInfo.join("\n"));
     }
     member?.presence?.clientStatus
       ? embed.setFooter(
@@ -292,6 +389,16 @@ export default class User extends Command {
         );
     }
     return info;
+  }
+
+  async getApplication(id: string) {
+    return (await this.client.req
+      .applications(id)
+      .rpc.get()
+      .catch(() => {})) as Exclude<
+      APIApplication,
+      "rpc_origins" | "owner" | "team"
+    >;
   }
 
   async getKsoftBan(message: FireMessage, user: FireUser) {
