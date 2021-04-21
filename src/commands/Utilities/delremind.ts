@@ -1,3 +1,4 @@
+import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Reminder } from "@fire/lib/interfaces/reminders";
 import { Language } from "@fire/lib/util/language";
@@ -58,7 +59,9 @@ export default class DeleteReminder extends Command {
       .awaitMessages(
         (msg: FireMessage) =>
           msg.author.id == message.author.id &&
-          msg.channel.id == message.channel.id,
+          (message instanceof SlashCommandMessage
+            ? msg.channel.id == message.realChannel.id
+            : msg.channel.id == message.channel.id),
         { max: 1, time: 10000, errors: ["time"] }
       )
       .catch(() => {});
