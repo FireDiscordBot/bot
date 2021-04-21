@@ -32,7 +32,7 @@ export default class Skin extends Command {
     if (!uuid) return await message.error("MCUUID_FETCH_FAIL");
     const embed = new MessageEmbed()
       .setColor(message.member?.displayHexColor || "#ffffff")
-      .setImage(`https://visage.surgeplay.com/full/512/${uuid}`)
+      .setImage(`https://visage.surgeplay.com/full/512/${uuid}?ts=${+new Date()}`)
       .setFooter(
         `Requested by ${message.author}`,
         message.author.displayAvatarURL({ size: 2048, dynamic: true })
