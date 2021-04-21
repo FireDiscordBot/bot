@@ -1,11 +1,12 @@
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { roleConverter } from "@fire/lib/util/converters";
+import { constants } from "@fire/lib/util/constants";
+import { MessageAttachment, Role } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Argument } from "discord-akairo";
 import * as tinycolor from "tinycolor2";
 import * as centra from "centra";
-import { constants } from "@fire/lib/util/constants";
-import { MessageAttachment } from "discord.js";
 
 export default class Color extends Command {
   constructor() {
@@ -15,9 +16,9 @@ export default class Color extends Command {
       args: [
         {
           id: "color",
-          type: "string",
+          type: Argument.union("roleSilent", "memberSilent", "string"),
           required: false,
-          default: null,
+          default: undefined,
         },
       ],
       aliases: ["colour", "colors", "colours"],
@@ -25,19 +26,21 @@ export default class Color extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { color?: string }) {
-    // i cba to make a separate type caster for role/string
-    // so consider this an undocumented feature ok cool
-    const isARole = await roleConverter(message, args.color, true);
-    let color = args.color ? tinycolor(args.color) : tinycolor.random();
-    // prioritize tinycolor() over role
-    if (!color.isValid()) {
-      if (isARole) color = tinycolor(isARole.hexColor);
-      else
-        return await message.error(
-          "COLOR_ARGUMENT_INVALID",
-          tinycolor.random().toHexString()
-        );
+  async exec(
+    message: FireMessage,
+    args: { color?: Role | FireMember | string }
+  ) {
+    let color: tinycolor.Instance;
+    if (typeof args.color == "undefined") color = tinycolor.random();
+    else if (typeof args.color == "string") tinycolor(args.color);
+    else if (args.color instanceof Role) color = tinycolor(args.color.hexColor);
+    else if (args.color instanceof FireMember)
+      color = tinycolor(args.color.displayHexColor);
+    if (!color || !color.isValid()) {
+      return await message.error(
+        "COLOR_ARGUMENT_INVALID",
+        tinycolor.random().toHexString()
+      );
     }
 
     const colorInfo = `<:pallete:804044718379237407> ${message.language.get(
