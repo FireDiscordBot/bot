@@ -818,7 +818,7 @@ export class FireGuild extends Guild {
           buttons: [
             {
               type: 2,
-              style: ButtonStyle.DANGER,
+              style: ButtonStyle.DESTRUCTIVE,
               custom_id: `ticket_close_${ticket.id}`,
               label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
             },
@@ -837,7 +837,7 @@ export class FireGuild extends Guild {
           buttons: [
             {
               type: 2,
-              style: ButtonStyle.DANGER,
+              style: ButtonStyle.DESTRUCTIVE,
               custom_id: `ticket_close_${ticket.id}`,
               label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
             },

@@ -122,17 +122,16 @@ export interface ComponentData {
 }
 
 export enum ButtonStyle {
-  BLURPLE = 1,
-  GREY = 2,
-  GRAY = 2,
+  PRIMARY = 1,
+  SECONDARY,
   SUCCESS,
-  DANGER,
-  URL,
+  DESTRUCTIVE,
+  LINK,
 }
 
 export enum ButtonType {
-  GROUP = 1,
-  SINGLE,
+  ACTION_ROW = 1,
+  BUTTON,
 }
 
 export type APIComponent =
@@ -144,7 +143,7 @@ export type APIComponent =
     }
   | {
       type: ButtonType;
-      style: ButtonStyle.URL;
+      style: ButtonStyle.LINK;
       url: string;
       label: string;
     };
