@@ -78,6 +78,7 @@ export default class enUS extends Language {
         MORE_INTEGRATIONS:
           "Want more integrations? Use the suggest command to suggest some!",
         RAW: "Raw",
+        BOT: "Bot",
         AGO: " ago", // Used for dates, e.g. 20 seconds ago. Make sure to keep the space at the start
         FROM_NOW: " from now", // Also used for dates, e.g. 20 seconds from now.
         UUID: "UUID",
@@ -1341,6 +1342,12 @@ You must have Developer Mode enabled, which is found in User Settings > Appearan
           `**Belongs To**: ${type} ${extra ? "(" + extra + ")" : ""}`,
         USER_KSOFT_BANNED: (user: string, reason: string, proof: string) =>
           `Banned on [KSoft.Si](https://bans.ksoft.si/share?user=${user}) for ${reason} - [Proof](${proof})`,
+        USER_BOT_PUBLIC: "Public Bot",
+        USER_BOT_PRIVATE: "Private Bot",
+        USER_BOT_MEMBERS_INTENT: "Guild Members Intent",
+        USER_BOT_PRESENCE_INTENT: "Presence Intent",
+        USER_BOT_PRIVACY_POLICY: "Privacy Policy",
+        USER_BOT_TERMS: "Terms of Service",
         PERMROLES_COMMAND_DESCRIPTION:
           "Copy the permissions of a role from the current channel and automatically apply it to all channels",
         PERMROLES_NONE_FOUND:
