@@ -209,7 +209,6 @@ export default class Filters extends Module {
             const index = message.embeds.findIndex((embed) =>
               embed.url.includes(`inv.wtf/${code}`)
             );
-            console.log(message.embeds[index]?.url);
             if (index >= 0)
               message.embeds[index].url = `discord.gg/${data.invite}`;
           }
@@ -233,7 +232,6 @@ export default class Filters extends Module {
             const index = message.embeds.findIndex((embed) =>
               embed.url.includes(`inv.wtf/${code}`)
             );
-            console.log(message.embeds[index]?.url);
             if (index >= 0) message.embeds[index].url = data.url;
           }
         }
