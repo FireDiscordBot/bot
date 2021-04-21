@@ -1,7 +1,6 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageReaction, GuildEmoji } from "discord.js";
-import { constants } from "@fire/lib/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
 import Sk1er from "@fire/src/modules/sk1er";
@@ -19,7 +18,7 @@ export default class MessageReactionAdd extends Listener {
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     if (message.id == sk1erModule?.supportMessageId) {
       const ticket = await sk1erModule
-        .handleSupportReaction(messageReaction, user)
+        .handleSupport(messageReaction, user)
         .catch((e: Error) => e);
       if (!(ticket instanceof FireTextChannel))
         this.client.console.error(

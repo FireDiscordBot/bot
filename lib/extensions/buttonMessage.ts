@@ -1,134 +1,144 @@
 import {
   APIMessageContentResolvable,
-  EmojiIdentifierResolvable,
   PermissionOverwriteOption,
+  EmojiIdentifierResolvable,
   DeconstructedSnowflake,
   GuildMemberResolvable,
   AwaitMessagesOptions,
   MessageEditOptions,
   MessageResolvable,
-  MessageAttachment,
   StringResolvable,
   MessageAdditions,
-  CollectorFilter,
-  MessageMentions,
   MessageReaction,
-  UserResolvable,
-  RoleResolvable,
+  CollectorFilter,
   MessageOptions,
   MessageManager,
-  SnowflakeUtil,
+  RoleResolvable,
+  UserResolvable,
   InviteOptions,
+  SnowflakeUtil,
   MessageEmbed,
-  Permissions,
   NewsChannel,
+  Permissions,
   APIMessage,
   Collection,
-  DMChannel,
   Snowflake,
+  DMChannel,
 } from "discord.js";
-import { SlashCommand, Interaction } from "@fire/lib/interfaces/interactions";
-import { ArgumentOptions, Command } from "@fire/lib/util/command";
-import { CommandUtil } from "@fire/lib/util/commandutil";
-import { constants } from "@fire/lib/util/constants";
-import { Language } from "@fire/lib/util/language";
+import { APIComponent, Button, Interaction } from "../interfaces/interactions";
 import { FireTextChannel } from "./textchannel";
+import { constants } from "../util/constants";
+import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
-import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
+import { Fire } from "../Fire";
 
 const { emojis, reactions } = constants;
 
-export class SlashCommandMessage {
+export class ButtonMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
-  attachments: Collection<string, MessageAttachment>;
   private snowflake: DeconstructedSnowflake;
-  sent: false | "ack" | "message";
   sourceMessage: FireMessage;
-  slashCommand: SlashCommand;
-  mentions: MessageMentions;
   private _flags: number;
   latestResponse: string;
+  message: FireMessage;
   channel: FakeChannel;
-  member?: FireMember;
+  member: FireMember;
   language: Language;
-  guild?: FireGuild;
-  util: CommandUtil;
-  command: Command;
+  custom_id: string;
+  guild: FireGuild;
   author: FireUser;
-  content: string;
+  button: Button;
+  sent: boolean;
   client: Fire;
   id: string;
 
-  constructor(client: Fire, command: Interaction) {
-    if (command.type != 2)
-      throw new TypeError("Interaction is not ApplicationCommand");
+  constructor(client: Fire, button: Interaction) {
+    if (button.type != 3) throw new TypeError("Interaction is not Button");
     this.client = client;
-    this.id = command.id;
+    this.id = button.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
-    this.slashCommand = command;
-    if (command.data.options?.length && command.data.options[0]?.type == 1) {
-      command.data.name = `${command.data.name}-${command.data.options[0].name}`;
-      command.data.options = command.data.options[0].options;
-    }
-    this.guild = client.guilds.cache.get(command.guild_id) as FireGuild;
-    this.command = this.client.getCommand(command.data.name);
-    this._flags = 0;
-    if (this.guild?.tags?.slashCommands[command.data.id] == command.data.name) {
-      this.command = this.client.getCommand("tag");
-      command.data.options = [{ name: "tag", value: command.data.name }];
-      if (this.guild.tags.ephemeral) this.flags = 64;
-    }
-    if (this.command?.ephemeral) this.flags = 64;
-    // @ts-ignore
-    this.mentions = new MessageMentions(this, [], [], false);
-    this.attachments = new Collection();
-    // @mason pls just always include user ty
-    const user = command.user ?? command.member?.user;
-    this.author =
-      (client.users.cache.get(user.id) as FireUser) ||
-      new FireUser(client, user);
-    if (!client.users.cache.has(this.author.id))
-      client.users.add(command.member ? command.member.user : command.user);
-    if (this.guild) {
+    this.custom_id = button.data.custom_id;
+    this.button = button;
+    this.sent = false;
+    this.guild = client.guilds.cache.get(button.guild_id) as FireGuild;
+    this.realChannel = client.channels.cache.get(button.channel_id) as
+      | FireTextChannel
+      | NewsChannel
+      | DMChannel;
+    this.message =
+      (this.realChannel.messages.cache.get(
+        button.message?.id
+      ) as FireMessage) ||
+      new FireMessage(client, button.message, this.realChannel);
+    if (button.member)
       this.member =
-        (this.guild.members.cache.get(this.author.id) as FireMember) ||
-        new FireMember(client, command.member, this.guild);
-      if (!this.guild.members.cache.has(this.member.id))
-        this.guild.members.add(command.member);
-    }
+        (this.guild.members.cache.get(button.member.user.id) as FireMember) ||
+        new FireMember(client, button.member, this.guild);
+    this.author = button.user
+      ? (client.users.cache.get(button.user.id) as FireUser) ||
+        new FireUser(client, button.user)
+      : button.member &&
+        ((client.users.cache.get(button.member.user.id) as FireUser) ||
+          new FireUser(client, button.member.user));
     this.language = this.author?.settings.get("utils.language")
       ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
         ? this.guild?.language
         : this.author.language
       : this.guild?.language || client.getLanguage("en-US");
-    this.realChannel = this.client.channels.cache.get(
-      this.slashCommand.channel_id
-    ) as FireTextChannel | NewsChannel | DMChannel;
-    this.latestResponse = "@original";
-    this.sent = false;
-    this.util = new CommandUtil(this.client.commandHandler, this);
     if (!this.guild) {
-      // This will happen if a guild authorizes w/applications.commands only
-      // or if a slash command is invoked in DMs (discord/discord-api-docs #2568)
       this.channel = new FakeChannel(
         this,
         client,
-        command.id,
-        command.token,
-        command.guild_id ? null : this.author.dmChannel
+        button.id,
+        button.token,
+        button.guild_id ? null : this.author.dmChannel
       );
       return this;
     }
     this.channel = new FakeChannel(
       this,
       client,
-      command.id,
-      command.token,
+      button.id,
+      button.token,
       this.realChannel
     );
+  }
+
+  // temp helper function
+  static async sendWithButtons(
+    channel: FireTextChannel,
+    content: StringResolvable | APIMessage | MessageEmbed,
+    options?: (MessageOptions | MessageAdditions) & { buttons?: APIComponent[] }
+  ) {
+    let apiMessage: APIMessage;
+
+    if (content instanceof MessageEmbed) {
+      options = {
+        ...options,
+        embed: content,
+      };
+      content = null;
+    }
+
+    if (content instanceof APIMessage) apiMessage = content.resolveData();
+    else {
+      apiMessage = APIMessage.create(channel, content, options).resolveData();
+    }
+
+    const { data, files } = (await apiMessage.resolveFiles()) as {
+      data: any;
+      files: any[];
+    };
+
+    if (options.buttons)
+      data.components = [{ type: 1, components: options.buttons }];
+
+    return await channel.client.req
+      .channels(channel.id)
+      .messages.post({ data, files });
   }
 
   set flags(flags: number) {
@@ -165,52 +175,6 @@ export class SlashCommandMessage {
     return this.snowflake.timestamp;
   }
 
-  get url() {
-    if (this.sourceMessage)
-      return `https://discord.com/channels/${
-        this.guild ? this.guild.id : "@me"
-      }/${this.realChannel?.id || "0"}/${this.sourceMessage.id}`;
-    else
-      return `https://discord.com/channels/${
-        this.guild ? this.guild.id : "@me"
-      }/${this.realChannel?.id || "0"}/${this.id}`;
-  }
-
-  async generateContent() {
-    let prefix = (this.client.commandHandler.prefix as (
-      message: any
-    ) => string | string[] | Promise<string | string[]>)(this);
-    if (this.client.util.isPromise(prefix)) prefix = await prefix;
-    if (prefix instanceof Array) prefix = prefix[0].trim();
-    let content = (prefix as string) + " ";
-    content += this.command.id + " ";
-    if (this.command.args?.length && this.slashCommand.data.options?.length) {
-      const commandArgs = this.command.args as ArgumentOptions[];
-      const argNames = this.slashCommand.data.options.map((opt) => opt.name);
-      const sortedArgs = this.slashCommand.data.options.sort(
-        (a, b) =>
-          argNames.indexOf(a.name.toLowerCase()) -
-          argNames.indexOf(b.name.toLowerCase())
-      );
-      let args = sortedArgs.map((opt) => {
-        if (
-          commandArgs.find(
-            (arg) => arg.id == opt.name && arg.flag && arg.match == "flag"
-          ) &&
-          opt.value
-        ) {
-          const arg = commandArgs.find((arg) => arg.id == opt.name);
-          return arg.flag;
-        } else if (commandArgs.find((arg) => arg.id == opt.name && arg.flag))
-          return `--${opt.name} ${opt.value}`;
-        return opt.value;
-      });
-      content += args.join(" ");
-    }
-    this.content = content;
-    return this.content;
-  }
-
   send(key: string = "", ...args: any[]) {
     return this.channel.send(this.language.get(key, ...args), {}, this.flags);
   }
@@ -218,7 +182,7 @@ export class SlashCommandMessage {
   success(
     key: string = "",
     ...args: any[]
-  ): Promise<SlashCommandMessage | MessageReaction | void> {
+  ): Promise<ButtonMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
         return this.sourceMessage.react(reactions.success).catch(() => {});
@@ -241,7 +205,7 @@ export class SlashCommandMessage {
   error(
     key: string = "",
     ...args: any[]
-  ): Promise<SlashCommandMessage | MessageReaction | void> {
+  ): Promise<ButtonMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
         return this.sourceMessage.react(reactions.error).catch(() => {});
@@ -268,7 +232,7 @@ export class SlashCommandMessage {
     let messageId = this.latestResponse;
     if (messageId == "@original") {
       const message = await this.client.req
-        .webhooks(this.client.user.id, this.slashCommand.token)
+        .webhooks(this.client.user.id, this.button.token)
         .messages(messageId)
         .get()
         .catch(() => {});
@@ -296,7 +260,7 @@ export class SlashCommandMessage {
         : // @ts-ignore
           APIMessage.create(this, content, options).resolveData();
     await this.client.req
-      .webhooks(this.client.user.id, this.slashCommand.token)
+      .webhooks(this.client.user.id, this.button.token)
       .messages(this.latestResponse)
       .patch({
         data,
@@ -307,7 +271,7 @@ export class SlashCommandMessage {
 
   async delete() {
     await this.client.req
-      .webhooks(this.client.user.id, this.slashCommand.token)
+      .webhooks(this.client.user.id, this.button.token)
       .messages(this.latestResponse)
       .delete()
       .catch(() => {});
@@ -324,14 +288,14 @@ export class SlashCommandMessage {
 
 export class FakeChannel {
   real: FireTextChannel | NewsChannel | DMChannel;
-  message: SlashCommandMessage;
+  message: ButtonMessage;
   messages: MessageManager;
   token: string;
   client: Fire;
   id: string;
 
   constructor(
-    message: SlashCommandMessage,
+    message: ButtonMessage,
     client: Fire,
     id: string,
     token: string,
@@ -402,26 +366,11 @@ export class FakeChannel {
       : false;
   }
 
-  // Acknowledges without sending a message
-  async ack(ephemeral = false) {
-    if (ephemeral || (this.flags & 64) != 0) return;
-    await this.client.req
-      .interactions(this.id)(this.token)
-      .callback.post({
-        data: { type: 5, data: { flags: this.flags } },
-      })
-      .then(() => {
-        this.message.sent = "ack";
-        this.message.getRealMessage().catch(() => {});
-      })
-      .catch(() => (this.message.sent = "ack"));
-  }
-
   async send(
     content: StringResolvable | APIMessage | MessageEmbed,
     options?: MessageOptions | MessageAdditions,
     flags?: number // Used for success/error, can also be set
-  ): Promise<SlashCommandMessage> {
+  ): Promise<ButtonMessage> {
     let apiMessage: APIMessage;
 
     if (content instanceof MessageEmbed) {
@@ -470,31 +419,16 @@ export class FakeChannel {
           files,
         })
         .then(() => {
-          this.message.sent = "message";
+          this.message.sent = true;
         })
         .catch(() => {});
-    else if (this.message.sent == "ack") {
-      await this.client.req
-        .webhooks(this.client.user.id)(this.token)
-        .messages("@original")
-        .patch({
-          data,
-          files,
-        })
-        .then(() => {
-          this.message.sent = "message";
-        })
-        .catch(() => {});
-    } else {
+    else {
       const message = await this.client.req
         .webhooks(this.client.user.id)(this.token)
         .post({
           data,
           files,
           query: { wait: true },
-        })
-        .then(() => {
-          this.message.sent = "message";
         })
         .catch(() => {});
       if (message?.id) this.message.latestResponse = message.id;

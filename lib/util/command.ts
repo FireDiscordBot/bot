@@ -10,7 +10,7 @@ import {
   ApplicationCommand,
   ApplicationCommandOption,
   ApplicationCommandOptionType,
-} from "@fire/lib/interfaces/slashCommands";
+} from "@fire/lib/interfaces/interactions";
 import { DiscordAPIError } from "discord.js";
 import { titleCase } from "./constants";
 import { Language } from "./language";

@@ -1,5 +1,5 @@
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { Option } from "@fire/lib/interfaces/slashCommands";
+import { Option } from "@fire/lib/interfaces/interactions";
 import { DiscordAPIError, Collection } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";

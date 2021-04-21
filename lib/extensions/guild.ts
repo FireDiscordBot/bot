@@ -23,12 +23,14 @@ import {
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import TicketName from "@fire/src/commands/Tickets/name";
+import { ButtonStyle } from "../interfaces/interactions";
 import { PermRolesData } from "../interfaces/permroles";
 import { GuildSettings } from "@fire/lib/util/settings";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { MessageIterator } from "../util/iterators";
 import { FakeChannel } from "./slashCommandMessage";
+import { ButtonMessage } from "./buttonMessage";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
@@ -761,7 +763,7 @@ export class FireGuild extends Guild {
       this.me.id,
       this.roles.everyone.id,
     ];
-    const ticket = await this.channels
+    const ticket = (await this.channels
       .create(name.slice(0, 50), {
         parent: category,
         permissionOverwrites: [
@@ -792,7 +794,7 @@ export class FireGuild extends Guild {
           subject
         ) as string,
       })
-      .catch((e: Error) => e);
+      .catch((e: Error) => e)) as FireTextChannel;
     if (ticket instanceof Error) {
       locked = false;
       this.ticketLock.lock.release();
@@ -808,14 +810,41 @@ export class FireGuild extends Guild {
     const alertId = this.settings.get("tickets.alert");
     const alert = this.roles.cache.get(alertId);
     let opener: FireMessage;
-    if (alert && !author.isModerator())
-      opener = (await ticket
-        .send(alert.toString(), {
+    if (alert && !author.isModerator()) {
+      if (this.hasExperiment("dUtlJKVFKwBaIYh5BuOkW"))
+        ButtonMessage.sendWithButtons(ticket, alert.toString(), {
           allowedMentions: { roles: [alertId] },
           embed,
-        })
-        .catch(() => {})) as FireMessage;
-    else opener = (await ticket.send(embed).catch(() => {})) as FireMessage;
+          buttons: [
+            {
+              type: 2,
+              style: ButtonStyle.DANGER,
+              custom_id: `ticket_close_${ticket.id}`,
+              label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
+            },
+          ],
+        });
+      else
+        opener = (await ticket
+          .send(alert.toString(), {
+            allowedMentions: { roles: [alertId] },
+            embed,
+          })
+          .catch(() => {})) as FireMessage;
+    } else {
+      if (this.hasExperiment("dUtlJKVFKwBaIYh5BuOkW"))
+        ButtonMessage.sendWithButtons(ticket, embed, {
+          buttons: [
+            {
+              type: 2,
+              style: ButtonStyle.DANGER,
+              custom_id: `ticket_close_${ticket.id}`,
+              label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
+            },
+          ],
+        });
+      else opener = (await ticket.send(embed).catch(() => {})) as FireMessage;
+    }
     channels.push(ticket);
     this.settings.set(
       "tickets.channels",

@@ -1272,6 +1272,8 @@ ${success.map((s) => "- " + s).join("\n")}${
           )}`,
         SK1ER_BETA_MOVED:
           "Beta testing for Sk1er LLC mods has been moved to our support server! You can join with discord.gg/d4KFR9H",
+        SK1ER_SUPPORT_CONFIRM:
+          "Please click the button again to confirm you want to open a ticket. If you don't, you can just dismiss this message",
         STARBOARD_COMMAND_DESCRIPTION:
           "Create a starboard to save messages with a ⭐",
         STARBOARD_MAIN_DESCRIPTION:
@@ -1504,6 +1506,9 @@ Running this command without providing a category resets it, therefore disabling
           "Closes a ticket, uploads the transcript to action logs channel and sends to the ticket author",
         TICKET_WILL_CLOSE:
           "Are you sure you want to close this ticket? Type `close` to confirm",
+        TICKET_CLOSE_BUTTON_TEXT: "Close Ticket",
+        TICKET_CLOSE_BUTTON:
+          "Ticket was closed using close button, no reason can be provided via this means at the moment",
         TICKET_CLOSE_TRANSCRIPT: (guild: string, reason: string) =>
           `Your ticket in ${guild} was closed for the reason "${reason}". The transcript is below`,
         TICKET_CLOSER_TITLE: (channel: string) =>

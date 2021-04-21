@@ -1,5 +1,6 @@
 import { CategoryChannel, MessageReaction, Role } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -12,32 +13,33 @@ import * as centra from "centra";
 import * as moment from "moment";
 
 interface Regexes {
-  reupload: RegExp;
-  noRaw: RegExp;
-  secrets: RegExp;
-  email: RegExp;
-  url: RegExp;
-  home: RegExp;
   settingUser: RegExp;
+  reupload: RegExp;
+  secrets: RegExp;
+  noRaw: RegExp;
+  email: RegExp;
+  home: RegExp;
+  url: RegExp;
 }
 
 export default class Sk1er extends Module {
-  guild: FireGuild;
-  supportGuild: FireGuild;
-  guildId: string;
-  supportGuildId: string;
-  supportMessageId: string;
-  supportMessage: FireMessage;
-  supportChannelId: string;
-  supportChannel: FireTextChannel;
-  nitro: Role;
-  nitroId: string;
   modcoreHeaders: { secret: string };
-  regexes: Regexes;
-  logText: string[];
-  bots: any;
-  statusCheck: NodeJS.Timeout;
   descriptionUpdate: NodeJS.Timeout;
+  supportChannel: FireTextChannel;
+  supportMessage: FireMessage;
+  statusCheck: NodeJS.Timeout;
+  supportMessageId: string;
+  supportChannelId: string;
+  supportGuild: FireGuild;
+  ticketConfirm: string[];
+  supportGuildId: string;
+  logText: string[];
+  guild: FireGuild;
+  regexes: Regexes;
+  nitroId: string;
+  guildId: string;
+  nitro: Role;
+  bots: any;
 
   constructor() {
     super("sk1er");
@@ -61,6 +63,7 @@ export default class Sk1er extends Module {
       "689373971572850842": "747788002738176110",
       "155149108183695360": "747786691074457610",
     };
+    this.ticketConfirm = [];
   }
 
   async init() {
@@ -221,13 +224,23 @@ export default class Sk1er extends Module {
     }
   }
 
-  async handleSupportReaction(reaction: MessageReaction, user: FireUser) {
-    const member = (await this.supportGuild.members.fetch(user)) as FireMember;
-    if (!member) return; // how
-    const emoji = reaction.emoji.name;
-    try {
-      await reaction.users.remove(user);
-    } catch {}
+  async handleSupport(
+    trigger: MessageReaction | ButtonMessage,
+    user: FireUser,
+    emoji?: string
+  ) {
+    const member =
+      trigger instanceof ButtonMessage && trigger.member
+        ? trigger.member
+        : ((await this.supportGuild.members.fetch(user)) as FireMember);
+    if (!member) return "no member"; // how
+    if (trigger instanceof MessageReaction) {
+      emoji = trigger.emoji.name;
+      try {
+        await trigger.users.remove(user);
+      } catch {}
+    }
+    if (!emoji) return "no emoji";
     if (emoji == "🖥️") {
       const category = this.supportGuild.channels.cache.get(
         "755795962462732288"

@@ -1,14 +1,53 @@
-import { APIGuildMember as Member, APIUser as User } from "discord-api-types";
+import { APIGuildMember, APIUser, APIMessage } from "discord-api-types";
+
+export type Interaction =
+  | {
+      member?: APIGuildMember;
+      channel_id: string;
+      data: CommandData;
+      guild_id?: string;
+      token: string;
+      user?: APIUser;
+      id: string;
+      type: 2;
+    }
+  | {
+      member?: APIGuildMember;
+      application_id: string;
+      data: ComponentData;
+      message: APIMessage;
+      channel_id: string;
+      guild_id: string;
+      version: number;
+      user?: APIUser;
+      token: string;
+      id: string;
+      type: 3;
+    };
 
 export interface SlashCommand {
+  member?: APIGuildMember;
   channel_id: string;
   data: CommandData;
   guild_id?: string;
-  member?: Member;
+  user?: APIUser;
   token: string;
-  type: number;
-  user: User;
   id: string;
+  type: 2;
+}
+
+export interface Button {
+  member?: APIGuildMember;
+  application_id: string;
+  data: ComponentData;
+  message: APIMessage;
+  channel_id: string;
+  guild_id: string;
+  version: number;
+  user?: APIUser;
+  token: string;
+  id: string;
+  type: 3;
 }
 
 export interface CommandData {
@@ -76,3 +115,36 @@ export interface ApplicationCommandPermissions {
   type: ApplicationCommandPermissionType;
   permission: boolean; // true to allow, false, to disallow
 }
+
+export interface ComponentData {
+  component_type: number;
+  custom_id: string;
+}
+
+export enum ButtonStyle {
+  BLURPLE = 1,
+  GREY = 2,
+  GRAY = 2,
+  SUCCESS,
+  DANGER,
+  URL,
+}
+
+export enum ButtonType {
+  GROUP = 1,
+  SINGLE,
+}
+
+export type APIComponent =
+  | {
+      type: ButtonType;
+      style: Exclude<ButtonStyle, "URL">;
+      custom_id: string;
+      label: string;
+    }
+  | {
+      type: ButtonType;
+      style: ButtonStyle.URL;
+      url: string;
+      label: string;
+    };

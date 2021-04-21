@@ -3,7 +3,7 @@ import {
   ApplicationCommandPermissions,
   ApplicationCommandPermissionType,
   Option,
-} from "@fire/lib/interfaces/slashCommands";
+} from "@fire/lib/interfaces/interactions";
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
