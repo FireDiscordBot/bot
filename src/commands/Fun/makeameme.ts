@@ -25,6 +25,7 @@ export default class MakeAMeme extends Command {
           required: true,
         },
       ],
+      enableSlashCommand: true,
     });
   }
 
