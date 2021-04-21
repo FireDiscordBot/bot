@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
@@ -15,7 +15,7 @@ export default class Unban extends Command {
           id: "user",
           type: "user",
           required: true,
-          default: null,
+          default: undefined,
         },
         {
           id: "reason",
@@ -32,7 +32,9 @@ export default class Unban extends Command {
   }
 
   async exec(message: FireMessage, args: { user: FireUser; reason?: string }) {
-    if (!args.user) return await message.error("UNBAN_USER_REQUIRED");
+    if (typeof args.user == "undefined")
+      return await message.error("UNBAN_USER_REQUIRED");
+    else if (!args.user) return;
     await message.delete().catch(() => {});
     const unbanned = await message.guild.unban(
       args.user,
