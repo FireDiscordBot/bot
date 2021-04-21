@@ -20,11 +20,13 @@ export default class Color extends Command {
         {
           id: "color",
           type: Argument.union(maybeColor, "roleSilent", "memberSilent"),
+          readableType: "color",
           required: false,
           default: undefined,
         },
       ],
       aliases: ["colour", "colors", "colours"],
+      enableSlashCommand: true,
       restrictTo: "all",
     });
   }
