@@ -54,7 +54,7 @@ export default class Color extends Command {
 **HSV:** ${color.toHsvString()}`;
 
     const image = await centra(
-      `${constants.url.imageGen}/color?color=${color.toHex()}`
+      `${constants.url.imageGen}color?color=${color.toHex()}`
     )
       .header(
         "User-Agent",
