@@ -45,6 +45,7 @@ import { PresenceUpdateAction } from "./util/PresenceUpdate";
 import { Language, LanguageHandler } from "./util/language";
 import { hasteTypeCaster } from "@fire/src/arguments/haste";
 import { Collection, version as djsver } from "discord.js";
+import { ButtonMessage } from "./extensions/buttonMessage";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandhandler";
 import { Module, ModuleHandler } from "./util/module";
@@ -66,6 +67,8 @@ import * as Sentry from "@sentry/node";
 import { Message } from "./ws/Message";
 import { Manager } from "./Manager";
 import * as moment from "moment";
+
+type ButtonHandler = (button: ButtonMessage) => Promise<any> | any;
 
 import "./extensions";
 
@@ -90,6 +93,10 @@ export class Fire extends AkairoClient {
   listenerHandler: ListenerHandler;
   languages: LanguageHandler;
   modules: ModuleHandler;
+
+  // Buttons
+  buttonHandlersOnce: Collection<string, ButtonHandler>;
+  buttonHandlers: Collection<string, ButtonHandler>;
 
   // Common Attributes
   util: Util;
@@ -349,6 +356,9 @@ export class Fire extends AkairoClient {
     this.ksoft = process.env.KSOFT_TOKEN
       ? new KSoftClient(process.env.KSOFT_TOKEN)
       : undefined;
+
+    this.buttonHandlers = new Collection();
+    this.buttonHandlersOnce = new Collection();
   }
 
   get req(): any {

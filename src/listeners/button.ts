@@ -15,6 +15,19 @@ export default class Button extends Listener {
 
   // used to handle generic buttons, like ticket close or reaction roles
   async exec(message: ButtonMessage) {
+    // Run handlers
+    try {
+      if (this.client.buttonHandlers.has(message.custom_id))
+        this.client.buttonHandlers.get(message.custom_id)(message);
+    } catch {}
+    try {
+      if (this.client.buttonHandlersOnce.has(message.custom_id)) {
+        const handler = this.client.buttonHandlersOnce.get(message.custom_id);
+        this.client.buttonHandlersOnce.delete(message.custom_id);
+        handler(message);
+      }
+    } catch {}
+
     // handle ticket close buttons
     if (message.custom_id.startsWith("ticket_close")) {
       const { guild } = message;
