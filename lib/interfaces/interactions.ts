@@ -134,19 +134,17 @@ export enum ButtonType {
   BUTTON,
 }
 
-export type ButtonEmoji =
-  | {
-      id: string; // custom emojis
-    }
-  | {
-      name: string; // twemoji (can also be used for custom but isn't needed)
-    };
+export type ButtonEmoji = {
+  id?: string;
+  name?: string;
+};
 
 export type APIComponent =
   // interaction button with label
   | {
       style: Exclude<ButtonStyle, "LINK">;
       type: ButtonType.BUTTON;
+      emoji?: ButtonEmoji;
       disabled?: boolean;
       custom_id: string;
       label: string;
@@ -158,6 +156,7 @@ export type APIComponent =
       disabled?: boolean;
       emoji: ButtonEmoji;
       custom_id: string;
+      label?: string;
     }
   // interaction button with label and emoji
   | {
