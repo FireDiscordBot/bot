@@ -82,16 +82,12 @@ export default class InteractionCreate extends Listener {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(button.channel_id).catch(() => {});
       const message = new ButtonMessage(this.client, button);
-      // await message.channel.ack((message.flags & 64) != 0);
       this.client.emit("button", message);
-      // if (message.sent != "message")
-      //   await message.sourceMessage?.delete().catch(() => {});
+      // TODO similar handlers to aether ws events
     } catch (error) {
-      const guild = this.client.guilds.cache.get(button.guild_id);
-      if (!guild)
-        await this.callbackError(button, error).catch(
-          async () => await this.webhookError(button, error).catch(() => {})
-        );
+      await this.callbackError(button, error).catch(
+        async () => await this.webhookError(button, error).catch(() => {})
+      );
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
         sentry.setExtras({
@@ -113,26 +109,25 @@ export default class InteractionCreate extends Listener {
   }
 
   async callbackError(interaction: Interaction, error: Error) {
-    await this.client.req
+    return await this.client.req
       .interactions(interaction.id)(interaction.token)
       .callback.post({
         data: {
-          type: 3,
+          type: 4,
           data: {
             content: `${emojis.error} An error occured while trying to handle this interaction that may be caused by being in DMs or the bot not being present...
 
-If this is a slash command and the bot is not present, try inviting the bot (<${this.client.config.inviteLink}>) and try again.
+If this is a slash command, try inviting the bot to a server (<${this.client.config.inviteLink}>) if you haven't already and try again.
 
 Error Message: ${error.message}`,
             flags: 64,
           },
         },
-      })
-      .catch(() => {});
+      });
   }
 
   async webhookError(interaction: Interaction, error: Error) {
-    await this.client.req
+    return await this.client.req
       .webhooks(this.client.user.id)(interaction.token)
       .post({
         data: {
@@ -142,7 +137,6 @@ If this is a slash command and the bot is not present, try inviting the bot (<${
 
 Error Message: ${error.message}`,
         },
-      })
-      .catch(() => {});
+      });
   }
 }
