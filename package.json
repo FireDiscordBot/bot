@@ -51,6 +51,7 @@
     "nodejs-assistant": "^0.8.0",
     "p-event": "^4.2.0",
     "pidusage": "^2.0.21",
+    "pornhub.js": "^0.2.4",
     "semaphore-async-await": "^1.5.1",
     "source-map-support": "^0.5.19",
     "tinycolor2": "^1.4.2",
