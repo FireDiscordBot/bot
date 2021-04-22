@@ -51,9 +51,9 @@ export default class Button extends Listener {
       const sk1erModule = this.client.getModule("sk1er") as Sk1er;
       if (!sk1erModule) return;
 
-      if (sk1erModule.ticketConfirm.includes(message.author.id)) {
+      if (sk1erModule.ticketConfirm.includes(`${message.author.id}_${type}`)) {
         sk1erModule.ticketConfirm = sk1erModule.ticketConfirm.filter(
-          (id) => id != message.author.id
+          (id) => id != `${message.author.id}_${type}`
         );
         const ticket = await sk1erModule
           .handleSupport(message, message.author, sk1erSupportEmojis[type])
@@ -64,7 +64,7 @@ export default class Button extends Listener {
           );
         return;
       } else {
-        sk1erModule.ticketConfirm.push(message.author.id);
+        sk1erModule.ticketConfirm.push(`${message.author.id}_${type}`);
         message.flags += 64; // set ephemeral
         return await message.error("SK1ER_SUPPORT_CONFIRM");
       }
