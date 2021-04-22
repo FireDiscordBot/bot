@@ -4,12 +4,6 @@ import { Listener } from "@fire/lib/util/listener";
 import Sk1er from "../modules/sk1er";
 
 const validSk1erTypes = ["general", "purchase", "bug"];
-// temp to handle both reactions and buttons
-const sk1erSupportEmojis = {
-  general: "🖥️",
-  purchase: "💸",
-  bug: "🐛",
-};
 
 export default class Button extends Listener {
   constructor() {
@@ -56,7 +50,7 @@ export default class Button extends Listener {
           (id) => id != `${message.author.id}_${type}`
         );
         const ticket = await sk1erModule
-          .handleSupport(message, message.author, sk1erSupportEmojis[type])
+          .handleSupport(message, message.author)
           .catch((e: Error) => e);
         if (!(ticket instanceof FireTextChannel))
           this.client.console.error(

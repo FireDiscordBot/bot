@@ -1,3 +1,4 @@
+import { ButtonStyle, ButtonType } from "@fire/lib/interfaces/interactions";
 import { CategoryChannel, MessageReaction, Role } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
@@ -226,19 +227,36 @@ export default class Sk1er extends Module {
 
   async handleSupport(
     trigger: MessageReaction | ButtonMessage,
-    user: FireUser,
-    emoji?: string
+    user: FireUser
   ) {
     const member =
       trigger instanceof ButtonMessage && trigger.member
         ? trigger.member
         : ((await this.supportGuild.members.fetch(user)) as FireMember);
     if (!member) return "no member"; // how
+    let emoji: string;
     if (trigger instanceof MessageReaction) {
       emoji = trigger.emoji.name;
       try {
         await trigger.users.remove(user);
       } catch {}
+    } else {
+      if (!trigger.message) return "no message";
+      const component = trigger.message.components
+        .flat()
+        .find(
+          (component) =>
+            component.type == ButtonType.BUTTON &&
+            component.style != ButtonStyle.LINK &&
+            component.custom_id == trigger.custom_id
+        );
+      if (
+        component.type != ButtonType.BUTTON ||
+        component.style == ButtonStyle.LINK
+      )
+        return "non button";
+      if (!component.emoji?.name) return "unknown emoji";
+      emoji = component.emoji.name;
     }
     if (!emoji) return "no emoji";
     if (emoji == "🖥️") {
