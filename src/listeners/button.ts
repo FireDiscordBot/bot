@@ -30,15 +30,19 @@ export default class Button extends Listener {
         channelId
       ) as FireTextChannel;
       if (!channel || !channel.guild || channel.type != "text") return;
-      if (guild.tickets.find((ticket) => ticket.id == channelId))
-        return await guild
+      if (guild.tickets.find((ticket) => ticket.id == channelId)) {
+        const closure = await guild
           .closeTicket(
             channel,
             message.member,
             guild.language.get("TICKET_CLOSE_BUTTON") as string
           )
           .catch(() => {});
-      else return;
+        if (closure == "forbidden")
+          return await message.error("TICKET_CLOSE_FORBIDDEN");
+        else if (closure == "nonticket")
+          return await message.error("TICKET_NON_TICKET");
+      } else return;
     }
 
     if (message.custom_id.startsWith("sk1er_support_")) {
