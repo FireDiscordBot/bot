@@ -25,7 +25,12 @@ import {
   Snowflake,
   DMChannel,
 } from "discord.js";
-import { APIComponent, Button, Interaction } from "../interfaces/interactions";
+import {
+  APIComponent,
+  Interaction,
+  ButtonType,
+  Button,
+} from "../interfaces/interactions";
 import { FireTextChannel } from "./textchannel";
 import { constants } from "../util/constants";
 import { Language } from "../util/language";
@@ -73,6 +78,23 @@ export class ButtonMessage {
         button.message?.id
       ) as FireMessage) ||
       new FireMessage(client, button.message, this.realChannel);
+    if (
+      !this.message ||
+      !this.message.components.find(
+        (component) =>
+          (component.type == this.button.data.component_type &&
+            // @ts-ignore
+            component.custom_id == this.custom_id) ||
+          (component.type == ButtonType.ACTION_ROW &&
+            component.components.find(
+              (component) =>
+                component.type == this.button.data.component_type &&
+                // @ts-ignore
+                component.custom_id == this.custom_id
+            ))
+      )
+    )
+      throw new Error("Component checks failed, potential mitm/selfbot?");
     if (button.member)
       this.member =
         (this.guild.members.cache.get(button.member.user.id) as FireMember) ||

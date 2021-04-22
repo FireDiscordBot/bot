@@ -136,14 +136,18 @@ export enum ButtonType {
 
 export type APIComponent =
   | {
-      type: ButtonType;
-      style: Exclude<ButtonStyle, "URL">;
+      type: ButtonType.BUTTON;
+      style: Exclude<ButtonStyle, "LINK">;
       custom_id: string;
       label: string;
     }
   | {
-      type: ButtonType;
+      type: ButtonType.BUTTON;
       style: ButtonStyle.LINK;
       url: string;
       label: string;
+    }
+  | {
+      type: ButtonType.ACTION_ROW;
+      components: APIComponent[];
     };
