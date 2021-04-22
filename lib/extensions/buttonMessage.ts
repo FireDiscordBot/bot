@@ -131,10 +131,11 @@ export class ButtonMessage {
 
   // temp helper function
   static async sendWithButtons(
-    channel: FireTextChannel,
+    channel: FireTextChannel | NewsChannel | DMChannel | FireMessage,
     content: StringResolvable | APIMessage | MessageEmbed,
     options?: (MessageOptions | MessageAdditions) & { buttons?: APIComponent[] }
   ) {
+    if (channel instanceof FireMessage) channel = channel.channel;
     let apiMessage: APIMessage;
 
     if (content instanceof MessageEmbed) {
@@ -158,9 +159,47 @@ export class ButtonMessage {
     if (options.buttons)
       data.components = [{ type: 1, components: options.buttons }];
 
-    return await channel.client.req
+    return await (channel.client as Fire).req
       .channels(channel.id)
       .messages.post({ data, files });
+  }
+
+  // temp helper function
+  static async editWithButtons(
+    message: FireMessage,
+    content: StringResolvable | APIMessage | MessageEmbed,
+    options?: (MessageOptions | MessageAdditions) & { buttons?: APIComponent[] }
+  ) {
+    let apiMessage: APIMessage;
+
+    if (content instanceof MessageEmbed) {
+      options = {
+        ...options,
+        embed: content,
+      };
+      content = null;
+    }
+
+    if (content instanceof APIMessage) apiMessage = content.resolveData();
+    else {
+      apiMessage = APIMessage.create(
+        message.channel,
+        content,
+        options
+      ).resolveData();
+    }
+
+    const { data, files } = (await apiMessage.resolveFiles()) as {
+      data: any;
+      files: any[];
+    };
+
+    if (options.buttons)
+      data.components = [{ type: 1, components: options.buttons }];
+
+    return await (message.client as Fire).req
+      .channels(message.id)
+      .messages.patch({ data, files });
   }
 
   set flags(flags: number) {

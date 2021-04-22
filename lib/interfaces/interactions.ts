@@ -134,18 +134,64 @@ export enum ButtonType {
   BUTTON,
 }
 
-export type APIComponent =
+export type ButtonEmoji =
   | {
-      type: ButtonType.BUTTON;
+      id: string; // custom emojis
+    }
+  | {
+      name: string; // twemoji (can also be used for custom but isn't needed)
+    };
+
+export type APIComponent =
+  // interaction button with label
+  | {
       style: Exclude<ButtonStyle, "LINK">;
+      type: ButtonType.BUTTON;
+      disabled?: boolean;
       custom_id: string;
       label: string;
     }
+  // interaction button with emoji
+  | {
+      style: Exclude<ButtonStyle, "LINK">;
+      type: ButtonType.BUTTON;
+      disabled?: boolean;
+      emoji: ButtonEmoji;
+      custom_id: string;
+    }
+  // interaction button with label and emoji
+  | {
+      style: Exclude<ButtonStyle, "LINK">;
+      type: ButtonType.BUTTON;
+      disabled?: boolean;
+      emoji: ButtonEmoji;
+      custom_id: string;
+      label: string;
+    }
+  // link button with label
   | {
       type: ButtonType.BUTTON;
       style: ButtonStyle.LINK;
-      url: string;
+      disabled?: boolean;
       label: string;
+      url: string;
+    }
+  // link button with emoji
+  | {
+      type: ButtonType.BUTTON;
+      style: ButtonStyle.LINK;
+      disabled?: boolean;
+      emoji: ButtonEmoji;
+      url: string;
+    }
+  // link button with label and emoji
+  | {
+      type: ButtonType.BUTTON;
+      style: ButtonStyle.LINK;
+      disabled?: boolean;
+      emoji: ButtonEmoji;
+      label: string;
+      url: string;
     }
   | {
       type: ButtonType.ACTION_ROW;

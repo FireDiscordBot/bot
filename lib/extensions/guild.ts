@@ -821,6 +821,7 @@ export class FireGuild extends Guild {
               style: ButtonStyle.DESTRUCTIVE,
               custom_id: `ticket_close_${ticket.id}`,
               label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
+              emoji: { id: "534174796938870792" },
             },
           ],
         });
@@ -840,6 +841,7 @@ export class FireGuild extends Guild {
               style: ButtonStyle.DESTRUCTIVE,
               custom_id: `ticket_close_${ticket.id}`,
               label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
+              emoji: { id: "534174796938870792" },
             },
           ],
         });
