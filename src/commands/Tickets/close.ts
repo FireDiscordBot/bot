@@ -53,6 +53,5 @@ export default class CloseTicket extends Command {
         args,
         closure
       );
-    return await message.success();
   }
 }
