@@ -344,7 +344,11 @@ export class PaginatorInterface {
     } else this.message = message as FireMessage;
     this.message.paginator = this;
 
-    if (!this.sentPageReactions) await this.sendAllReactions();
+    if (
+      !this.sentPageReactions &&
+      !this.owner.hasExperiment("Cti1sDX_O_MtgjdcRxyUT", 1)
+    )
+      await this.sendAllReactions();
 
     if (!this.ready) this.ready = true;
 
