@@ -433,7 +433,7 @@ export class PaginatorInterface {
               buttons: this.getButtons(),
             });
       else {
-        this.sendAllReactions();
+        if (!this.sentPageReactions) this.sendAllReactions();
         this.slashMessage
           ? this.slashMessage.edit(this.sendArgs)
           : await this.message.edit(this.sendArgs);
