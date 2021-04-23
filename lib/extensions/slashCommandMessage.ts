@@ -294,16 +294,33 @@ export class SlashCommandMessage {
       | APIMessage,
     options?: (MessageEditOptions | MessageEmbed) & { buttons?: APIComponent[] }
   ) {
-    const { data } = (content instanceof APIMessage
-      ? content.resolveData()
-      : // @ts-ignore
-        APIMessage.create(this, content, options).resolveData()) as {
+    let apiMessage: APIMessage;
+
+    if (content instanceof MessageEmbed) {
+      options = {
+        ...options,
+        embed: content,
+      };
+      content = null;
+    }
+
+    if (content instanceof APIMessage) apiMessage = content.resolveData();
+    else {
+      apiMessage = APIMessage.create(
+        // @ts-ignore
+        { client: this.client },
+        content,
+        options
+      ).resolveData();
+    }
+
+    const { data, files } = (await apiMessage.resolveFiles()) as {
       data: any;
       files: any[];
     };
 
     // TODO: rework to automatically make rows
-    if (options.buttons && options.buttons.length)
+    if (options?.buttons && options.buttons.length)
       data.components = [{ type: 1, components: options.buttons }];
 
     await this.client.req
@@ -311,6 +328,7 @@ export class SlashCommandMessage {
       .messages(this.latestResponse)
       .patch({
         data,
+        files,
       })
       .catch(() => {});
     return this;
@@ -461,7 +479,7 @@ export class FakeChannel {
     };
 
     // TODO: rework to automatically make rows
-    if (options.buttons && options.buttons.length)
+    if (options?.buttons && options.buttons.length)
       data.components = [{ type: 1, components: options.buttons }];
 
     data.flags = this.flags;

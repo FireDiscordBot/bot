@@ -39,6 +39,7 @@ import { FireMessage } from "./message";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
+import { SlashCommandMessage } from "./slashCommandMessage";
 
 const { emojis, reactions } = constants;
 
@@ -80,7 +81,8 @@ export class ButtonMessage {
       new FireMessage(client, button.message, this.realChannel);
     if (
       !this.message ||
-      !this.message.components.find(
+      // @ts-ignore
+      !this.button.message.components.find(
         (component) =>
           (component.type == this.button.data.component_type &&
             // @ts-ignore
@@ -157,7 +159,7 @@ export class ButtonMessage {
     };
 
     // TODO: rework to automatically make rows
-    if (options.buttons && options.buttons.length)
+    if (options?.buttons && options.buttons.length)
       data.components = [{ type: 1, components: options.buttons }];
 
     return await (channel.client as Fire).req
@@ -201,7 +203,7 @@ export class ButtonMessage {
     };
 
     // TODO: rework to automatically make rows
-    if (options.buttons && options.buttons.length)
+    if (options?.buttons && options.buttons.length)
       data.components = [{ type: 1, components: options.buttons }];
 
     return await (message.client as Fire).req
