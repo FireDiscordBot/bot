@@ -11,8 +11,14 @@ import {
   FakeChannel,
   SlashCommandMessage,
 } from "@fire/lib/extensions/slashCommandMessage";
+import {
+  APIComponent,
+  ButtonStyle,
+  ButtonType,
+} from "../interfaces/interactions";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { ButtonMessage } from "../extensions/buttonMessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import Semaphore from "semaphore-async-await";
@@ -172,10 +178,11 @@ export class PaginatorInterface {
   ready: boolean;
   updateLock: Semaphore;
 
-  handler: (
+  reactionHandler: (
     emoji: EmojiResolvable,
     users: ReactionUserManager
   ) => Promise<void>;
+  buttonHandler: (button: ButtonMessage) => Promise<any>;
 
   constructor(
     bot: Fire,
@@ -213,7 +220,10 @@ export class PaginatorInterface {
       );
     }
 
-    this.handler = async (emoji: ReactionEmoji, users: ReactionUserManager) => {
+    this.reactionHandler = async (
+      emoji: ReactionEmoji,
+      users: ReactionUserManager
+    ) => {
       if (emoji.name == this.emojis.close) {
         try {
           if (this.deleteMessage) await this.message.delete();
@@ -237,6 +247,20 @@ export class PaginatorInterface {
           .filter((user: FireUser) => user.id != this.bot.user.id)
           .map((user) => users.remove(user).catch(() => {}))
       ).catch(() => {});
+    };
+
+    this.buttonHandler = async (button: ButtonMessage) => {
+      if (button.custom_id == "close")
+        return (
+          this.deleteMessage && (await this.message.delete().catch(() => {}))
+        );
+      else if (button.custom_id == "start") this._displayPage = 0;
+      else if (button.custom_id == "end") this._displayPage = this.pageCount;
+      else if (button.custom_id == "back") this._displayPage -= 1;
+      else if (button.custom_id == "forward") this._displayPage += 1;
+      else return;
+
+      this.update();
     };
   }
 
@@ -297,17 +321,30 @@ export class PaginatorInterface {
     destination: FireTextChannel | NewsChannel | DMChannel | FakeChannel
   ) {
     // if (destination instanceof FakeChannel) destination = destination.real;
-    let message = await destination.send(this.sendArgs);
+    let message: FireMessage | SlashCommandMessage;
+    if (!this.owner.hasExperiment("Cti1sDX_O_MtgjdcRxyUT", 1))
+      message = (await destination.send(this.sendArgs)) as
+        | FireMessage
+        | SlashCommandMessage;
+    else if (destination instanceof FakeChannel)
+      message = await destination.send(this.sendArgs, {
+        buttons: this.getButtons(),
+      });
+    else
+      message = (await ButtonMessage.sendWithButtons(
+        destination,
+        this.sendArgs,
+        {
+          buttons: this.getButtons(),
+        }
+      )) as FireMessage;
     if (message instanceof SlashCommandMessage) {
       this.slashMessage = message;
       this.message = await message.getRealMessage();
     } else this.message = message as FireMessage;
     this.message.paginator = this;
 
-    this.message.react(this.emojis.close);
-
-    if (!this.sentPageReactions && this.pageCount > 1)
-      await this.sendAllReactions();
+    // if (!this.sentPageReactions) await this.sendAllReactions();
 
     if (!this.ready) this.ready = true;
 
@@ -315,15 +352,7 @@ export class PaginatorInterface {
   }
 
   async sendAllReactions() {
-    if (
-      this.pageCount == 1 &&
-      !this.message.reactions.cache.has(
-        this.emojis.close instanceof GuildEmoji ||
-          this.emojis.close instanceof ReactionEmoji
-          ? this.emojis.close.id
-          : this.emojis.close
-      )
-    )
+    if (this.pageCount == 1)
       return this.message.react(this.emojis.close).catch(() => {});
     Object.values(this.emojis)
       .filter((value) => !!value)
@@ -341,6 +370,51 @@ export class PaginatorInterface {
     this.sentPageReactions = true;
   }
 
+  private getButtons(): APIComponent[] {
+    if (this.pageCount == 1)
+      return [
+        {
+          style: ButtonStyle.DESTRUCTIVE,
+          custom_id: "close",
+          type: ButtonType.BUTTON,
+          emoji: { id: "835140711489863701" },
+        },
+      ];
+    else
+      return [
+        {
+          style: ButtonStyle.PRIMARY,
+          custom_id: "start",
+          type: ButtonType.BUTTON,
+          emoji: { id: "835140711606124574" },
+        },
+        {
+          style: ButtonStyle.PRIMARY,
+          custom_id: "back",
+          type: ButtonType.BUTTON,
+          emoji: { id: "835140710982352907" },
+        },
+        {
+          style: ButtonStyle.DESTRUCTIVE,
+          custom_id: "close",
+          type: ButtonType.BUTTON,
+          emoji: { id: "835140711489863701" },
+        },
+        {
+          style: ButtonStyle.PRIMARY,
+          custom_id: "forward",
+          type: ButtonType.BUTTON,
+          emoji: { id: "835140711476494346" },
+        },
+        {
+          style: ButtonStyle.PRIMARY,
+          custom_id: "end",
+          type: ButtonType.BUTTON,
+          emoji: { id: "835140711388676116" },
+        },
+      ];
+  }
+
   async update() {
     if (this.locked) return;
 
@@ -350,14 +424,23 @@ export class PaginatorInterface {
 
       if (!this.message) await this.bot.util.sleep(500);
 
-      if (!this.sentPageReactions && this.pageCount > 1) {
-        this.sendAllReactions();
-        this.sentPageReactions = true;
+      if (this.owner.hasExperiment("Cti1sDX_O_MtgjdcRxyUT", 1))
+        this.slashMessage
+          ? this.slashMessage.edit(this.sendArgs, {
+              buttons: this.getButtons(),
+            })
+          : await ButtonMessage.editWithButtons(this.message, this.sendArgs, {
+              buttons: this.getButtons(),
+            });
+      else {
+        if (!this.sentPageReactions && this.pageCount > 1) {
+          this.sendAllReactions();
+          this.sentPageReactions = true;
+        }
+        this.slashMessage
+          ? this.slashMessage.edit(this.sendArgs)
+          : await this.message.edit(this.sendArgs);
       }
-
-      this.slashMessage
-        ? this.slashMessage.edit(this.sendArgs)
-        : await this.message.edit(this.sendArgs);
     } catch {}
     this.updateLock.release();
   }

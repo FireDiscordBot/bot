@@ -27,7 +27,11 @@ import {
   DMChannel,
   Snowflake,
 } from "discord.js";
-import { SlashCommand, Interaction } from "@fire/lib/interfaces/interactions";
+import {
+  SlashCommand,
+  Interaction,
+  APIComponent,
+} from "@fire/lib/interfaces/interactions";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
@@ -288,13 +292,20 @@ export class SlashCommandMessage {
       | MessageEditOptions
       | MessageEmbed
       | APIMessage,
-    options?: MessageEditOptions | MessageEmbed
+    options?: (MessageEditOptions | MessageEmbed) & { buttons?: APIComponent[] }
   ) {
-    const { data } =
-      content instanceof APIMessage
-        ? content.resolveData()
-        : // @ts-ignore
-          APIMessage.create(this, content, options).resolveData();
+    const { data } = (content instanceof APIMessage
+      ? content.resolveData()
+      : // @ts-ignore
+        APIMessage.create(this, content, options).resolveData()) as {
+      data: any;
+      files: any[];
+    };
+
+    // TODO: rework to automatically make rows
+    if (options.buttons && options.buttons.length)
+      data.components = [{ type: 1, components: options.buttons }];
+
     await this.client.req
       .webhooks(this.client.user.id, this.slashCommand.token)
       .messages(this.latestResponse)
@@ -419,7 +430,9 @@ export class FakeChannel {
 
   async send(
     content: StringResolvable | APIMessage | MessageEmbed,
-    options?: MessageOptions | MessageAdditions,
+    options?: (MessageOptions | MessageAdditions) & {
+      buttons?: APIComponent[];
+    },
     flags?: number // Used for success/error, can also be set
   ): Promise<SlashCommandMessage> {
     let apiMessage: APIMessage;
@@ -446,6 +459,10 @@ export class FakeChannel {
       data: any;
       files: any[];
     };
+
+    // TODO: rework to automatically make rows
+    if (options.buttons && options.buttons.length)
+      data.components = [{ type: 1, components: options.buttons }];
 
     data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;

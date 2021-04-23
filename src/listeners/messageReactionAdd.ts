@@ -85,7 +85,7 @@ export default class MessageReactionAdd extends Listener {
       ) &&
       user.id == message.paginator.owner.id
     )
-      await message.paginator.handler(
+      await message.paginator.reactionHandler(
         messageReaction.emoji,
         messageReaction.users
       );

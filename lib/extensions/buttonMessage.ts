@@ -45,6 +45,7 @@ const { emojis, reactions } = constants;
 export class ButtonMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   private snowflake: DeconstructedSnowflake;
+  sent: false | "ack" | "message";
   sourceMessage: FireMessage;
   private _flags: number;
   latestResponse: string;
@@ -56,7 +57,6 @@ export class ButtonMessage {
   guild: FireGuild;
   author: FireUser;
   button: Button;
-  sent: boolean;
   client: Fire;
   id: string;
 
@@ -156,12 +156,18 @@ export class ButtonMessage {
       files: any[];
     };
 
-    if (options.buttons)
+    // TODO: rework to automatically make rows
+    if (options.buttons && options.buttons.length)
       data.components = [{ type: 1, components: options.buttons }];
 
     return await (channel.client as Fire).req
       .channels(channel.id)
-      .messages.post({ data, files });
+      .messages.post({ data, files })
+      .then(
+        (d: any) =>
+          // @ts-ignore
+          channel.client.actions.MessageCreate.handle(d).message as FireMessage
+      );
   }
 
   // temp helper function
@@ -194,12 +200,20 @@ export class ButtonMessage {
       files: any[];
     };
 
-    if (options.buttons)
+    // TODO: rework to automatically make rows
+    if (options.buttons && options.buttons.length)
       data.components = [{ type: 1, components: options.buttons }];
 
     return await (message.client as Fire).req
-      .channels(message.id)
-      .messages.patch({ data, files });
+      .channels(message.channel.id)
+      .messages(message.id)
+      .patch({ data, files })
+      .then((d: any) => {
+        // @ts-ignore
+        const clone = message._clone();
+        clone._patch(d);
+        return clone as FireMessage;
+      });
   }
 
   set flags(flags: number) {
@@ -427,6 +441,19 @@ export class FakeChannel {
       : false;
   }
 
+  // Acknowledges without sending a message
+  async ack() {
+    await this.client.req
+      .interactions(this.id)(this.token)
+      .callback.post({
+        data: { type: 6 },
+      })
+      .then(() => {
+        this.message.sent = "ack";
+      })
+      .catch(() => (this.message.sent = "ack"));
+  }
+
   async send(
     content: StringResolvable | APIMessage | MessageEmbed,
     options?: MessageOptions | MessageAdditions,
@@ -480,7 +507,7 @@ export class FakeChannel {
           files,
         })
         .then(() => {
-          this.message.sent = true;
+          this.message.sent = "message";
         })
         .catch(() => {});
     else {

@@ -4,6 +4,7 @@ import { Listener } from "@fire/lib/util/listener";
 import Sk1er from "../modules/sk1er";
 
 const validSk1erTypes = ["general", "purchase", "bug"];
+const validPaginatorIds = ["close", "start", "back", "forward", "end"];
 
 export default class Button extends Listener {
   constructor() {
@@ -76,5 +77,11 @@ export default class Button extends Listener {
         return await message.error("SK1ER_SUPPORT_CONFIRM");
       }
     }
+
+    if (
+      validPaginatorIds.includes(message.custom_id) &&
+      message.message?.paginator
+    )
+      await message.message?.paginator.buttonHandler(message).catch(() => {});
   }
 }

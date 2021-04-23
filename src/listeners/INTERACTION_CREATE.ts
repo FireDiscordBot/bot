@@ -82,6 +82,7 @@ export default class InteractionCreate extends Listener {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(button.channel_id).catch(() => {});
       const message = new ButtonMessage(this.client, button);
+      await message.channel.ack();
       this.client.emit("button", message);
       // TODO similar handlers to aether ws events
     } catch (error) {
