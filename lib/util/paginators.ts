@@ -344,7 +344,7 @@ export class PaginatorInterface {
     } else this.message = message as FireMessage;
     this.message.paginator = this;
 
-    // if (!this.sentPageReactions) await this.sendAllReactions();
+    if (!this.sentPageReactions) await this.sendAllReactions();
 
     if (!this.ready) this.ready = true;
 
@@ -433,10 +433,7 @@ export class PaginatorInterface {
               buttons: this.getButtons(),
             });
       else {
-        if (!this.sentPageReactions && this.pageCount > 1) {
-          this.sendAllReactions();
-          this.sentPageReactions = true;
-        }
+        this.sendAllReactions();
         this.slashMessage
           ? this.slashMessage.edit(this.sendArgs)
           : await this.message.edit(this.sendArgs);
