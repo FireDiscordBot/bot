@@ -85,5 +85,10 @@ export default class Button extends Listener {
       button.message.paginator.owner?.id == button.author.id
     )
       await button.message?.paginator.buttonHandler(button).catch(() => {});
+    else if (
+      !button.channel.messages.cache.has(button.message?.id) &&
+      button.custom_id == "close"
+    )
+      await button.message?.delete().catch(() => {});
   }
 }
