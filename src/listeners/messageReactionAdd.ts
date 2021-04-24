@@ -73,7 +73,7 @@ export default class MessageReactionAdd extends Listener {
       ) {
         if (!message.guild.starboardReactions.has(message.id))
           await message.fetch().catch(() => {}); // needed to get reaction counts
-        if (!message.partial) await message.star(messageReaction, user, "add");
+        await message.star(messageReaction, user, "add").catch(() => {});
       }
     }
 

@@ -60,8 +60,7 @@ export default class MessageReactionRemove extends Listener {
       ) {
         if (!message.guild.starboardReactions.has(message.id))
           await message.fetch().catch(() => {}); // needed to get reaction counts
-        if (!message.partial)
-          await message.star(messageReaction, user, "remove");
+        await message.star(messageReaction, user, "remove").catch(() => {});
       }
     }
   }
