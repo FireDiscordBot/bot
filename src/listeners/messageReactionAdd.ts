@@ -71,8 +71,7 @@ export default class MessageReactionAdd extends Listener {
         // (starboardEmoji.trim() == reactionEmoji.trim() ||
         //   reactionEmoji == constants.emojis.antistarId)
       ) {
-        if (!message.guild.starboardReactions.has(message.id))
-          await message.fetch().catch(() => {}); // needed to get reaction counts
+        await message.fetch().catch(() => {}); // needed to get reaction counts and author
         await message.star(messageReaction, user, "add").catch(() => {});
       }
     }

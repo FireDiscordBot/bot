@@ -370,7 +370,7 @@ export class FireMessage extends Message {
     user: FireUser,
     action: "add" | "remove"
   ) {
-    if (user.id == this.author.id || user.bot) return;
+    if (user?.id == this.author?.id || user.bot) return;
 
     const starEmoji: string = this.guild.settings
       .get("starboard.emoji", "⭐")
