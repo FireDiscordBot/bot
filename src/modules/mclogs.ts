@@ -57,6 +57,8 @@ export default class MCLogs extends Module {
       "MojangTricksIntelDriversForPerformance",
       "[DefaultDispatcher-worker-1] INFO Installer",
       "[DefaultDispatcher-worker-1] ERROR Installer",
+      "net.minecraftforge",
+      "club.sk1er",
     ];
   }
 
@@ -96,8 +98,16 @@ export default class MCLogs extends Module {
       if (log.includes(err) && !currentSolutions.includes(`- ${sol}`))
         currentSolutions.push(`- ${sol}`);
     }
-    if (log.includes("OptiFine_1.8.9_HD_U") && !log.match(/_M5(?:\.jar)?$/im))
+    if (
+      log.includes("OptiFine_1.8.9_HD_U") &&
+      !log.match(/HD_U_M5(?:\.jar)?(\s\d{1,3} mods loaded|$)/im)
+    )
       currentSolutions.push("- Update Optifine to the latest version, M5");
+
+    if (log.includes("_MOD") && log.match(/HD_U_\w\d_MOD/gm))
+      currentRecommendations.push(
+        "Don't extract Optifine, just put it in your mods folder"
+      );
 
     const isDefault = this.regexes.jvm.test(log);
     this.regexes.jvm.lastIndex = 0;
@@ -122,7 +132,8 @@ export default class MCLogs extends Module {
         currentRecommendations.push(`- ${sol}`);
     }
 
-    if (currentSolutions.length > 6) currentSolutions = [];
+    if (currentSolutions.length > 8) currentSolutions = [];
+    if (currentRecommendations.length > 15) currentRecommendations = [];
 
     const solutions = currentSolutions.length
       ? `Possible Solutions:\n${currentSolutions.join("\n")}`
@@ -222,13 +233,18 @@ export default class MCLogs extends Module {
             );
             if (processed) text.push(processed);
             if (diff) logDiff = diff;
-            if (text.length >= 5 && !this.hasLogText(text.join())) {
+            if (text.length >= 5 && !this.hasLogText(text.join(""))) {
               text = [];
               break;
             }
           }
-          if (text.length && this.hasLogText(text.join()))
-            await this.handleLogText(message, text.join(), "uploaded", logDiff);
+          if (text.length && this.hasLogText(text.join("")))
+            await this.handleLogText(
+              message,
+              text.join(""),
+              "uploaded",
+              logDiff
+            );
         } catch {
           await message.channel.send(message.language.get("MC_LOG_READ_FAIL"));
         }
