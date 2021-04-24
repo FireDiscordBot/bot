@@ -387,34 +387,38 @@ export class PaginatorInterface {
     else
       return [
         {
-          style: ButtonStyle.PRIMARY,
-          custom_id: "start",
-          type: ButtonType.BUTTON,
           emoji: { id: "835140711606124574" },
+          disabled: this.displayPage == 0,
+          style: ButtonStyle.PRIMARY,
+          type: ButtonType.BUTTON,
+          custom_id: "start",
         },
         {
-          style: ButtonStyle.PRIMARY,
-          custom_id: "back",
-          type: ButtonType.BUTTON,
           emoji: { id: "835140710982352907" },
+          disabled: this.displayPage == 0,
+          style: ButtonStyle.PRIMARY,
+          type: ButtonType.BUTTON,
+          custom_id: "back",
         },
         {
-          style: ButtonStyle.DESTRUCTIVE,
-          custom_id: "close",
-          type: ButtonType.BUTTON,
           emoji: { id: "835140711489863701" },
+          style: ButtonStyle.DESTRUCTIVE,
+          type: ButtonType.BUTTON,
+          custom_id: "close",
         },
         {
-          style: ButtonStyle.PRIMARY,
-          custom_id: "forward",
-          type: ButtonType.BUTTON,
+          disabled: this.displayPage == this.pageCount - 1,
           emoji: { id: "835140711476494346" },
+          style: ButtonStyle.PRIMARY,
+          type: ButtonType.BUTTON,
+          custom_id: "forward",
         },
         {
-          style: ButtonStyle.PRIMARY,
-          custom_id: "end",
-          type: ButtonType.BUTTON,
+          disabled: this.displayPage == this.pageCount - 1,
           emoji: { id: "835140711388676116" },
+          style: ButtonStyle.PRIMARY,
+          type: ButtonType.BUTTON,
+          custom_id: "end",
         },
       ];
   }
