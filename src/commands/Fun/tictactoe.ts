@@ -286,7 +286,12 @@ export default class TicTacToe extends Command {
           : ButtonStyle.DESTRUCTIVE;
       components[actionRowIndex].components[buttonIndex] = {
         ...components[actionRowIndex].components[buttonIndex],
-        label: game.players[button.author.id].toUpperCase(),
+        emoji: {
+          id:
+            game.players[button.author.id] == "x"
+              ? "836004296696659989"
+              : "836004296008269844",
+        },
         custom_id: button.custom_id,
         style,
       };
