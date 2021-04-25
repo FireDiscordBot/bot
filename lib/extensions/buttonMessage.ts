@@ -30,6 +30,7 @@ import {
   Interaction,
   ButtonType,
   Button,
+  ActionRow,
 } from "../interfaces/interactions";
 import { FireTextChannel } from "./textchannel";
 import { constants } from "../util/constants";
@@ -135,8 +136,10 @@ export class ButtonMessage {
   static async sendWithButtons(
     channel: FireTextChannel | NewsChannel | DMChannel | FireMessage,
     content: StringResolvable | APIMessage | MessageEmbed,
-    options?: (MessageOptions | MessageAdditions) & { buttons?: APIComponent[] }
-  ) {
+    options?: (MessageOptions | MessageAdditions) & {
+      buttons?: APIComponent[];
+    }
+  ): Promise<FireMessage> {
     if (channel instanceof FireMessage) channel = channel.channel;
     let apiMessage: APIMessage;
 
@@ -158,9 +161,22 @@ export class ButtonMessage {
       files: any[];
     };
 
-    // TODO: rework to automatically make rows
-    if (options?.buttons && options.buttons.length)
-      data.components = [{ type: 1, components: options.buttons }];
+    const isRow =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.ACTION_ROW
+      );
+    const isButtons =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.BUTTON
+      );
+
+    if (isRow) data.components = options.buttons;
+    else if (isButtons)
+      data.components = [
+        { type: ButtonType.ACTION_ROW, components: options.buttons },
+      ];
 
     return await (channel.client as Fire).req
       .channels(channel.id)
@@ -176,7 +192,9 @@ export class ButtonMessage {
   static async editWithButtons(
     message: FireMessage,
     content: StringResolvable | APIMessage | MessageEmbed,
-    options?: (MessageOptions | MessageAdditions) & { buttons?: APIComponent[] }
+    options?: (MessageOptions | MessageAdditions) & {
+      buttons?: ActionRow[] | APIComponent[];
+    }
   ) {
     let apiMessage: APIMessage;
 
@@ -202,9 +220,21 @@ export class ButtonMessage {
       files: any[];
     };
 
-    // TODO: rework to automatically make rows
-    if (options?.buttons && options.buttons.length)
+    const isRow =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.ACTION_ROW
+      );
+    const isButtons =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.BUTTON
+      );
+
+    if (isRow) data.components = options.buttons;
+    else if (isButtons)
       data.components = [{ type: 1, components: options.buttons }];
+    else if (options?.buttons == null) data.components = [];
 
     return await (message.client as Fire).req
       .channels(message.channel.id)

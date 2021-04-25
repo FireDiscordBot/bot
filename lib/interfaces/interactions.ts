@@ -134,6 +134,11 @@ export enum ButtonType {
   BUTTON,
 }
 
+export type ActionRow = {
+  type: ButtonType.ACTION_ROW;
+  components: APIComponent[];
+};
+
 export type ButtonEmoji = {
   id?: string;
   name?: string;

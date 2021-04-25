@@ -31,6 +31,8 @@ import {
   SlashCommand,
   Interaction,
   APIComponent,
+  ButtonType,
+  ActionRow,
 } from "@fire/lib/interfaces/interactions";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
@@ -292,7 +294,9 @@ export class SlashCommandMessage {
       | MessageEditOptions
       | MessageEmbed
       | APIMessage,
-    options?: (MessageEditOptions | MessageEmbed) & { buttons?: APIComponent[] }
+    options?: (MessageEditOptions | MessageEmbed) & {
+      buttons?: APIComponent[];
+    }
   ) {
     let apiMessage: APIMessage;
 
@@ -319,9 +323,22 @@ export class SlashCommandMessage {
       files: any[];
     };
 
-    // TODO: rework to automatically make rows
-    if (options?.buttons && options.buttons.length)
-      data.components = [{ type: 1, components: options.buttons }];
+    const isRow =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.ACTION_ROW
+      );
+    const isButtons =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.BUTTON
+      );
+
+    if (isRow) data.components = options.buttons;
+    else if (isButtons)
+      data.components = [
+        { type: ButtonType.ACTION_ROW, components: options.buttons },
+      ];
 
     await this.client.req
       .webhooks(this.client.user.id, this.slashCommand.token)
@@ -449,7 +466,7 @@ export class FakeChannel {
   async send(
     content: StringResolvable | APIMessage | MessageEmbed,
     options?: (MessageOptions | MessageAdditions) & {
-      buttons?: APIComponent[];
+      buttons?: ActionRow[] | APIComponent[];
     },
     flags?: number // Used for success/error, can also be set
   ): Promise<SlashCommandMessage> {
@@ -478,8 +495,19 @@ export class FakeChannel {
       files: any[];
     };
 
-    // TODO: rework to automatically make rows
-    if (options?.buttons && options.buttons.length)
+    const isRow =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.ACTION_ROW
+      );
+    const isButtons =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.BUTTON
+      );
+
+    if (isRow) data.components = options.buttons;
+    else if (isButtons)
       data.components = [{ type: 1, components: options.buttons }];
 
     data.flags = this.flags;

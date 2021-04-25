@@ -1493,6 +1493,28 @@ Running this command without providing a category resets it, therefore disabling
         TICKET_AUTHOR_LEFT: (author: string) =>
           `The ticket author (${author}) seems to have left the server, how sad :(`,
         NEW_COMMAND_DESCRIPTION: "Makes a new ticket",
+        TICTACTOE_COMMAND_DESCRIPTION:
+          "Play tic tac toe against server members",
+        TICTACTOE_OPPONENT_REQUIRED:
+          "You need to choose an opponent to play against and it cannot be yourself",
+        TICTACTOE_OPPONENT_BUSY:
+          "Your opponent is currently in a fierce tic tac toe battle and cannot play with you. Please try again later...",
+        TICTACTOE_GAME_REQUEST: (challenger: string, opponent: string) =>
+          `${opponent}, ${challenger} has challenged you to a game of tic tac toe, click the button below to accept. This request will expire in 1 minute`,
+        TICTACTOE_ACCEPT_CHALLENGE: "Accept Challenge",
+        TICTACTOE_REQUEST_EXPIRED:
+          "Darn, seems the challenge request has expired!",
+        TICTACTOE_FORFEIT: "Forfeit",
+        TICTACTOE_FORFEITED: (user: string) => `${user} has forfeited the game`,
+        TICTACTOE_EXISTING:
+          'You must finish your current game of tic tac toe before starting a new one. If you would like to end your previous game, click the "Forfeit" button on the game message',
+        TICTACTOE_COMPUTER:
+          "Eventually attempting to challenge any bot will allow you to play against a bot but my developer was too lazy to implement that. For now, you must challenge an actual user.",
+        TICTACTOE_GAME_START: (opponent: string) =>
+          `${opponent} has accepted the challenge and is up first!`,
+        TICTACTOE_TURN: (current: string) => `It's ${current}'s turn`,
+        TICTACTOE_WINNER: (winner: string) => `Game over, ${winner} has won!`,
+        TICTACTOE_DRAW: "It's a draw!",
         NEW_TICKET_CREATING: "Creating your ticket...",
         NEW_TICKET_CREATED: (channel: string) =>
           `Successfully made your ticket, ${channel}`,
