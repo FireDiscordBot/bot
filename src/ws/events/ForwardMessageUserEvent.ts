@@ -15,7 +15,8 @@ export default class ForwardMessageUserEvent extends Event {
     if (!user) return;
 
     const language = user.language;
-    if (language.has(data.message)) {
+    const defaultLang = this.manager.client.getLanguage("en-US");
+    if (language.has(data.message) || defaultLang.has(data.message)) {
       const message = language.get(data.message, ...data.args);
       if (typeof message == "string")
         return await user.send(message).catch(() => {});
