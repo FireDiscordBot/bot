@@ -44,7 +44,7 @@ export default class TicTacToe extends Command {
       args: [
         {
           id: "opponent",
-          type: "member",
+          type: "memberSilent",
           default: null,
           required: true,
         },
