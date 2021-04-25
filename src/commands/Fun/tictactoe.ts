@@ -4,6 +4,7 @@ import {
   ButtonStyle,
   ButtonType,
 } from "@fire/lib/interfaces/interactions";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -65,33 +66,44 @@ export default class TicTacToe extends Command {
     if (opponent.user.bot) return await message.error("TICTACTOE_COMPUTER");
 
     const requestId = SnowflakeUtil.generate();
-    const requestMsg = await ButtonMessage.sendWithButtons(
-      message.channel,
-      message.guild.language.get(
-        "TICTACTOE_GAME_REQUEST",
-        message.author.username,
-        opponent.toMention()
-      ),
-      {
-        allowedMentions: {
-          users:
-            message.mentions.users.has(opponent.id) ||
-            message.guild.memberCount > 100
-              ? []
-              : [opponent.id],
+    const requestMsgOptions = {
+      allowedMentions: {
+        users:
+          message.mentions.users.has(opponent.id) ||
+          message.guild.memberCount > 100
+            ? []
+            : [opponent.id],
+      },
+      buttons: [
+        {
+          label: message.guild.language.get(
+            "TICTACTOE_ACCEPT_CHALLENGE"
+          ) as string,
+          style: ButtonStyle.SUCCESS,
+          type: ButtonType.BUTTON,
+          custom_id: requestId,
         },
-        buttons: [
-          {
-            label: message.guild.language.get(
-              "TICTACTOE_ACCEPT_CHALLENGE"
-            ) as string,
-            style: ButtonStyle.SUCCESS,
-            type: ButtonType.BUTTON,
-            custom_id: requestId,
-          },
-        ],
-      }
-    ).catch(() => {});
+      ] as APIComponent[], // tsc complains without this for some reason
+    };
+    const requestMsg =
+      message instanceof SlashCommandMessage
+        ? await message.channel.send(
+            message.guild.language.get(
+              "TICTACTOE_GAME_REQUEST",
+              message.author.username,
+              opponent.toMention()
+            ),
+            requestMsgOptions
+          )
+        : await ButtonMessage.sendWithButtons(
+            message.channel,
+            message.guild.language.get(
+              "TICTACTOE_GAME_REQUEST",
+              message.author.username,
+              opponent.toMention()
+            ),
+            requestMsgOptions
+          ).catch(() => {});
     if (!requestMsg) return await message.error();
     const accepted = await this.awaitOpponentResponse(requestId, opponent);
     this.client.buttonHandlers.delete(requestId);
@@ -189,11 +201,28 @@ export default class TicTacToe extends Command {
       },
     ] as ActionRow[];
 
-    return await ButtonMessage.sendWithButtons(
-      message.channel,
-      message.guild.language.get("TICTACTOE_GAME_START", opponent.toMention()),
-      { buttons, allowedMentions: { users: [opponent.id, message.author.id] } }
-    );
+    return message instanceof SlashCommandMessage
+      ? await message.channel.send(
+          message.guild.language.get(
+            "TICTACTOE_GAME_START",
+            opponent.toMention()
+          ),
+          {
+            buttons,
+            allowedMentions: { users: [opponent.id, message.author.id] },
+          }
+        )
+      : await ButtonMessage.sendWithButtons(
+          message.channel,
+          message.guild.language.get(
+            "TICTACTOE_GAME_START",
+            opponent.toMention()
+          ),
+          {
+            buttons,
+            allowedMentions: { users: [opponent.id, message.author.id] },
+          }
+        );
   }
 
   private awaitOpponentResponse(
