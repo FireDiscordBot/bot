@@ -108,7 +108,10 @@ export default class TicTacToe extends Command {
     const accepted = await this.awaitOpponentResponse(requestId, opponent);
     this.client.buttonHandlers.delete(requestId);
     if (!accepted) return await message.error("TICTACTOE_REQUEST_EXPIRED");
-    else await requestMsg.delete().catch(() => {});
+    else
+      message instanceof SlashCommandMessage
+        ? await message.delete()
+        : await requestMsg.delete().catch(() => {});
 
     const authorHasGame = this.games.find(
       (game) => message.author.id in game.players
@@ -201,28 +204,17 @@ export default class TicTacToe extends Command {
       },
     ] as ActionRow[];
 
-    return message instanceof SlashCommandMessage
-      ? await message.channel.send(
-          message.guild.language.get(
-            "TICTACTOE_GAME_START",
-            opponent.toMention()
-          ),
-          {
-            buttons,
-            allowedMentions: { users: [opponent.id, message.author.id] },
-          }
-        )
-      : await ButtonMessage.sendWithButtons(
-          message.channel,
-          message.guild.language.get(
-            "TICTACTOE_GAME_START",
-            opponent.toMention()
-          ),
-          {
-            buttons,
-            allowedMentions: { users: [opponent.id, message.author.id] },
-          }
-        );
+    return await ButtonMessage.sendWithButtons(
+      // followups are dumb and reply to the original message so fuck 'em
+      message instanceof SlashCommandMessage
+        ? message.realChannel
+        : message.channel,
+      message.guild.language.get("TICTACTOE_GAME_START", opponent.toMention()),
+      {
+        buttons,
+        allowedMentions: { users: [opponent.id, message.author.id] },
+      }
+    );
   }
 
   private awaitOpponentResponse(
