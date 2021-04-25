@@ -1,5 +1,6 @@
 import {
   ActionRow,
+  APIComponent,
   ButtonStyle,
   ButtonType,
 } from "@fire/lib/interfaces/interactions";
@@ -83,7 +84,11 @@ export default class TicTacToe extends Command {
       ),
       {
         allowedMentions: {
-          users: message.mentions.users.has(opponent.id) ? [] : [opponent.id],
+          users:
+            message.mentions.users.has(opponent.id) ||
+            message.guild.memberCount > 100
+              ? []
+              : [opponent.id],
         },
         buttons: [
           {
@@ -295,6 +300,37 @@ export default class TicTacToe extends Command {
           this.client.buttonHandlers.delete(button.custom_id);
         this.client.buttonHandlers.delete(`${gameId}:forfeit`);
         this.games.delete(gameId);
+
+        const state = winningStates.find((states) =>
+          states.every(
+            (state) => game.buttons[state].player == button.author.id
+          )
+        );
+        for (const index of state) {
+          const actionRowIndex = components.findIndex(
+            (component) =>
+              component.type == ButtonType.ACTION_ROW &&
+              component.components.find(
+                (component) =>
+                  component.type == ButtonType.BUTTON &&
+                  component.style != ButtonStyle.LINK &&
+                  component.custom_id == game.buttons[index].custom_id
+              )
+          );
+          const buttonIndex = components[actionRowIndex].components.findIndex(
+            (component) =>
+              component.type == ButtonType.BUTTON &&
+              component.style != ButtonStyle.LINK &&
+              component.custom_id == game.buttons[index].custom_id
+          );
+          if (
+            components[actionRowIndex].components[buttonIndex].type ==
+            ButtonType.BUTTON
+          )
+            (components[actionRowIndex].components[buttonIndex] as {
+              style: ButtonStyle;
+            }).style = ButtonStyle.PRIMARY;
+        }
 
         return await ButtonMessage.editWithButtons(
           button.message,
