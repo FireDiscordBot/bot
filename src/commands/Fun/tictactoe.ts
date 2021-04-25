@@ -61,16 +61,6 @@ export default class TicTacToe extends Command {
     if (!args.opponent || args.opponent?.id == message.author.id)
       return await message.error("TICTACTOE_OPPONENT_REQUIRED");
 
-    const authorHasGame = this.games.find(
-      (game) => message.author.id in game.players
-    );
-    if (authorHasGame) return await message.error("TICTACTOE_EXISTING");
-
-    const opponentHasGame = this.games.find(
-      (game) => args.opponent.id in game.players
-    );
-    if (opponentHasGame) return await message.error("TICTACTOE_OPPONENT_BUSY");
-
     const { opponent } = args;
     if (opponent.user.bot) return await message.error("TICTACTOE_COMPUTER");
 
@@ -107,6 +97,16 @@ export default class TicTacToe extends Command {
     this.client.buttonHandlers.delete(requestId);
     if (!accepted) return await message.error("TICTACTOE_REQUEST_EXPIRED");
     else await requestMsg.delete().catch(() => {});
+
+    const authorHasGame = this.games.find(
+      (game) => message.author.id in game.players
+    );
+    if (authorHasGame) return await message.error("TICTACTOE_EXISTING");
+
+    const opponentHasGame = this.games.find(
+      (game) => args.opponent.id in game.players
+    );
+    if (opponentHasGame) return await message.error("TICTACTOE_OPPONENT_BUSY");
 
     const gameId = SnowflakeUtil.generate();
     const gameData = this.games
