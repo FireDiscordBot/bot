@@ -322,22 +322,22 @@ export class PaginatorInterface {
   ) {
     // if (destination instanceof FakeChannel) destination = destination.real;
     let message: FireMessage | SlashCommandMessage;
-    if (!this.owner.hasExperiment("Cti1sDX_O_MtgjdcRxyUT", 1))
-      message = (await destination.send(this.sendArgs)) as
-        | FireMessage
-        | SlashCommandMessage;
-    else if (destination instanceof FakeChannel)
-      message = await destination.send(this.sendArgs, {
-        buttons: this.getButtons(),
-      });
-    else
-      message = (await ButtonMessage.sendWithButtons(
-        destination,
-        this.sendArgs,
-        {
-          buttons: this.getButtons(),
-        }
-      )) as FireMessage;
+    // if (!this.owner.hasExperiment("Cti1sDX_O_MtgjdcRxyUT", 1))
+    message = (await destination.send(this.sendArgs)) as
+      | FireMessage
+      | SlashCommandMessage;
+    // else if (destination instanceof FakeChannel)
+    //   message = await destination.send(this.sendArgs, {
+    //     buttons: this.getButtons(),
+    //   });
+    // else
+    //   message = (await ButtonMessage.sendWithButtons(
+    //     destination,
+    //     this.sendArgs,
+    //     {
+    //       buttons: this.getButtons(),
+    //     }
+    //   )) as FireMessage;
     if (message instanceof SlashCommandMessage) {
       this.slashMessage = message;
       this.message = await message.getRealMessage();
@@ -345,8 +345,9 @@ export class PaginatorInterface {
     this.message.paginator = this;
 
     if (
-      !this.sentPageReactions &&
-      !this.owner.hasExperiment("Cti1sDX_O_MtgjdcRxyUT", 1)
+      !this.sentPageReactions
+      // !this.sentPageReactions &&
+      // !this.owner.hasExperiment("Cti1sDX_O_MtgjdcRxyUT", 1)
     )
       await this.sendAllReactions();
 
@@ -432,20 +433,20 @@ export class PaginatorInterface {
 
       if (!this.message) await this.bot.util.sleep(500);
 
-      if (this.owner.hasExperiment("Cti1sDX_O_MtgjdcRxyUT", 1))
-        this.slashMessage
-          ? this.slashMessage.edit(this.sendArgs, {
-              buttons: this.getButtons(),
-            })
-          : await ButtonMessage.editWithButtons(this.message, this.sendArgs, {
-              buttons: this.getButtons(),
-            });
-      else {
-        if (!this.sentPageReactions) this.sendAllReactions();
-        this.slashMessage
-          ? this.slashMessage.edit(this.sendArgs)
-          : await this.message.edit(this.sendArgs);
-      }
+      // if (this.owner.hasExperiment("Cti1sDX_O_MtgjdcRxyUT", 1))
+      //   this.slashMessage
+      //     ? this.slashMessage.edit(this.sendArgs, {
+      //         buttons: this.getButtons(),
+      //       })
+      //     : await ButtonMessage.editWithButtons(this.message, this.sendArgs, {
+      //         buttons: this.getButtons(),
+      //       });
+      // else {
+      if (!this.sentPageReactions) this.sendAllReactions();
+      this.slashMessage
+        ? this.slashMessage.edit(this.sendArgs)
+        : await this.message.edit(this.sendArgs);
+      // }
     } catch {}
     this.updateLock.release();
   }

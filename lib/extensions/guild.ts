@@ -811,41 +811,42 @@ export class FireGuild extends Guild {
     const alert = this.roles.cache.get(alertId);
     let opener: FireMessage;
     if (alert && !author.isModerator()) {
-      if (this.hasExperiment("dUtlJKVFKwBaIYh5BuOkW"))
-        ButtonMessage.sendWithButtons(ticket, alert.toString(), {
+      // if (this.hasExperiment("dUtlJKVFKwBaIYh5BuOkW"))
+      //   ButtonMessage.sendWithButtons(ticket, alert.toString(), {
+      //     allowedMentions: { roles: [alertId] },
+      //     embed,
+      //     buttons: [
+      //       {
+      //         type: 2,
+      //         style: ButtonStyle.DESTRUCTIVE,
+      //         custom_id: `ticket_close_${ticket.id}`,
+      //         label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
+      //         emoji: { id: "534174796938870792" },
+      //       },
+      //     ],
+      //   });
+      // else
+      opener = (await ticket
+        .send(alert.toString(), {
           allowedMentions: { roles: [alertId] },
           embed,
-          buttons: [
-            {
-              type: 2,
-              style: ButtonStyle.DESTRUCTIVE,
-              custom_id: `ticket_close_${ticket.id}`,
-              label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
-              emoji: { id: "534174796938870792" },
-            },
-          ],
-        });
-      else
-        opener = (await ticket
-          .send(alert.toString(), {
-            allowedMentions: { roles: [alertId] },
-            embed,
-          })
-          .catch(() => {})) as FireMessage;
+        })
+        .catch(() => {})) as FireMessage;
     } else {
-      if (this.hasExperiment("dUtlJKVFKwBaIYh5BuOkW"))
-        ButtonMessage.sendWithButtons(ticket, embed, {
-          buttons: [
-            {
-              type: 2,
-              style: ButtonStyle.DESTRUCTIVE,
-              custom_id: `ticket_close_${ticket.id}`,
-              label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
-              emoji: { id: "534174796938870792" },
-            },
-          ],
-        });
-      else opener = (await ticket.send(embed).catch(() => {})) as FireMessage;
+      // if (this.hasExperiment("dUtlJKVFKwBaIYh5BuOkW"))
+      //   ButtonMessage.sendWithButtons(ticket, embed, {
+      //     buttons: [
+      //       {
+      //         type: 2,
+      //         style: ButtonStyle.DESTRUCTIVE,
+      //         custom_id: `ticket_close_${ticket.id}`,
+      //         label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
+      //         emoji: { id: "534174796938870792" },
+      //       },
+      //     ],
+      //   });
+      // else opener = (await ticket.send(embed).catch(() => {})) as FireMessage;
+      opener = (await ticket.send(embed).catch(() => {})) as FireMessage;
     }
     channels.push(ticket);
     this.settings.set(
