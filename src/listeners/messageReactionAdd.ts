@@ -36,16 +36,19 @@ export default class MessageReactionAdd extends Listener {
         messageReaction.emoji instanceof GuildEmoji
           ? messageReaction.emoji.id
           : messageReaction.emoji.name;
-      const rero = guild.reactionRoles
-        .get(message.id)
-        .find((data) => data.emoji == emoji);
-      if (rero) {
-        const role = guild.roles.cache.get(rero.role);
-        const member = await guild.members.fetch(user).catch(() => {});
-        if (member)
-          await member.roles
-            .add(role, guild.language.get("REACTIONROLE_ROLE_REASON") as string)
-            .catch(() => {});
+      const member = await guild.members.fetch(user).catch(() => {});
+      if (member) {
+        const roles = guild.reactionRoles
+          .get(messageReaction.message?.id)
+          .filter((data) => data.emoji == emoji)
+          .map((data) => data.role)
+          .filter(
+            (role) =>
+              guild.roles.cache.has(role) && !member.roles.cache.has(role)
+          );
+        await member.roles
+          .add(roles, guild.language.get("REACTIONROLE_ROLE_REASON") as string)
+          .catch(() => {});
       }
     }
 

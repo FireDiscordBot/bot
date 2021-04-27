@@ -3,7 +3,6 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageReaction, GuildEmoji } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
-import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 
 export default class MessageReactionRemove extends Listener {
@@ -24,19 +23,23 @@ export default class MessageReactionRemove extends Listener {
         messageReaction.emoji instanceof GuildEmoji
           ? messageReaction.emoji.id
           : messageReaction.emoji.name;
-      const roles = guild.reactionRoles
-        .get(messageReaction.message?.id)
-        .filter((data) => data.emoji == emoji)
-        .map((data) => guild.roles.cache.get(data.role))
-        .filter((role) => !!role);
       const member = await guild.members.fetch(user).catch(() => {});
-      if (member)
+      if (member) {
+        const roles = guild.reactionRoles
+          .get(messageReaction.message?.id)
+          .filter((data) => data.emoji == emoji)
+          .map((data) => data.role)
+          .filter(
+            (role) =>
+              guild.roles.cache.has(role) && member.roles.cache.has(role)
+          );
         await member.roles
           .remove(
             roles,
             guild.language.get("REACTIONROLE_ROLE_REMOVE_REASON") as string
           )
           .catch(() => {});
+      }
     }
 
     if (
