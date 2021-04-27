@@ -43,7 +43,7 @@ export default class MessageUpdate extends Listener {
 
     const autoroleId = after.guild.settings.get("mod.autorole", null);
     const delay = after.guild.settings.get("mod.autorole.waitformsg", false);
-    if (autoroleId && delay) {
+    if (autoroleId && delay && after.type == "DEFAULT") {
       const role = after.guild.roles.cache.get(autoroleId);
       if (role && !after.member.roles.cache.has(role.id))
         await after.member.roles
