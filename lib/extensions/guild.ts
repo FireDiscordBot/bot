@@ -767,10 +767,20 @@ export class FireGuild extends Guild {
       .create(name.slice(0, 50), {
         parent: category,
         permissionOverwrites: [
-          ...category.permissionOverwrites.array().filter(
-            // ensure the overwrites below are used instead
-            (overwrite) => !overwriteTheOverwrites.includes(overwrite.id)
-          ),
+          ...category.permissionOverwrites
+            .array()
+            .filter(
+              // ensure the overwrites below are used instead
+              (overwrite) => !overwriteTheOverwrites.includes(overwrite.id)
+            )
+            .map((overwrite) => {
+              // we can't set manage roles without admin so just remove it
+              if (overwrite.allow.has("MANAGE_ROLES"))
+                overwrite.allow.remove("MANAGE_ROLES");
+              if (overwrite.deny.has("MANAGE_ROLES"))
+                overwrite.deny.remove("MANAGE_ROLES");
+              return overwrite;
+            }),
           { id: author.id, allow: ["VIEW_CHANNEL", "SEND_MESSAGES"] },
           {
             id: this.me.id,
