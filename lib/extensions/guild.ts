@@ -792,30 +792,29 @@ export class FireGuild extends Guild {
               if (overwrite.deny.has("MANAGE_ROLES"))
                 overwrite.deny.remove("MANAGE_ROLES");
               return overwrite;
-            }),
+            })
+            .filter(
+              (overwrite) =>
+                (overwrite.type == "role" &&
+                  this.roles.cache.has(overwrite.id)) ||
+                (overwrite.type == "member" &&
+                  overwriteMembers &&
+                  overwriteMembers.has(overwrite.id)) ||
+                !overwriteMembers
+            ),
           {
             allow: ["VIEW_CHANNEL", "SEND_MESSAGES"],
-            type: "member",
             id: author.id,
           },
           {
             allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_CHANNELS"],
             id: this.me.id,
-            type: "member",
           },
           {
             id: this.roles.everyone.id,
             deny: ["VIEW_CHANNEL"],
-            type: "role",
           },
-        ].filter(
-          (overwrite) =>
-            (overwrite.type == "role" && this.roles.cache.has(overwrite.id)) ||
-            (overwrite.type == "member" &&
-              overwriteMembers &&
-              overwriteMembers.has(overwrite.id)) ||
-            !overwriteMembers
-        ) as OverwriteResolvable[],
+        ],
         topic: this.language.get(
           "TICKET_CHANNEL_TOPIC",
           author.toString(),
