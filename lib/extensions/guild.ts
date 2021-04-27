@@ -13,6 +13,7 @@ import {
   MessageAttachment,
   FetchOwnerOptions,
   MessageEmbedOptions,
+  OverwriteResolvable,
   PermissionOverwriteOption,
 } from "discord.js";
 import {
@@ -23,14 +24,14 @@ import {
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import TicketName from "@fire/src/commands/Tickets/name";
-import { ButtonStyle } from "../interfaces/interactions";
+// import { ButtonStyle } from "../interfaces/interactions";
 import { PermRolesData } from "../interfaces/permroles";
 import { GuildSettings } from "@fire/lib/util/settings";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { MessageIterator } from "../util/iterators";
 import { FakeChannel } from "./slashCommandMessage";
-import { ButtonMessage } from "./buttonMessage";
+// import { ButtonMessage } from "./buttonMessage";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
@@ -763,7 +764,18 @@ export class FireGuild extends Guild {
       this.me.id,
       this.roles.everyone.id,
     ];
-    const ticket = (await this.channels
+    // for whatever reason d.js tries to resolve user overwrites
+    // and if the user isn't cached, it won't create the channel so
+    // lets just fetch them and filter invalid ones
+    const overwriteMembers = await this.members
+      .fetch({
+        user: category.permissionOverwrites
+          .filter((overwrite) => overwrite.type == "member")
+          .map((overwrite) => overwrite.id),
+      })
+      .catch(() => {});
+
+    const ticket = ((await this.channels
       .create(name.slice(0, 50), {
         parent: category,
         permissionOverwrites: [
@@ -781,16 +793,29 @@ export class FireGuild extends Guild {
                 overwrite.deny.remove("MANAGE_ROLES");
               return overwrite;
             }),
-          { id: author.id, allow: ["VIEW_CHANNEL", "SEND_MESSAGES"] },
           {
-            id: this.me.id,
+            allow: ["VIEW_CHANNEL", "SEND_MESSAGES"],
+            type: "member",
+            id: author.id,
+          },
+          {
             allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_CHANNELS"],
+            id: this.me.id,
+            type: "member",
           },
           {
             id: this.roles.everyone.id,
             deny: ["VIEW_CHANNEL"],
+            type: "role",
           },
-        ],
+        ].filter(
+          (overwrite) =>
+            (overwrite.type == "role" && this.roles.cache.has(overwrite.id)) ||
+            (overwrite.type == "member" &&
+              overwriteMembers &&
+              overwriteMembers.has(overwrite.id)) ||
+            !overwriteMembers
+        ) as OverwriteResolvable[],
         topic: this.language.get(
           "TICKET_CHANNEL_TOPIC",
           author.toString(),
@@ -804,7 +829,7 @@ export class FireGuild extends Guild {
           subject
         ) as string,
       })
-      .catch((e: Error) => e)) as FireTextChannel;
+      .catch((e: Error) => e)) as unknown) as FireTextChannel;
     if (ticket instanceof Error) {
       locked = false;
       this.ticketLock.lock.release();
