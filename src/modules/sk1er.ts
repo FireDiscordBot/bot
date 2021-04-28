@@ -135,21 +135,14 @@ export default class Sk1er extends Module {
       )) as [{ combined_total: number }, { total: number }, { all: number }];
       const count = jsons[0].combined_total + jsons[1].total + jsons[2].all;
 
-      const newData = await this.client.req
-        .guilds(this.guildId)
-        .patch({
-          data: {
-            description: `The Official Discord for Sk1er & Sk1er Mods (${count.toLocaleString(
-              this.guild.language.id
-            )} total players)`,
-          },
-          reason: "Description Updater Task",
-        })
-        .catch(() => {});
-
-      if (newData)
-        // @ts-ignore
-        this.client.actions.GuildUpdate.handle(newData);
+      await this.guild.edit(
+        {
+          description: `The Official Discord for Sk1er & Sk1er Mods (${count.toLocaleString(
+            this.guild.language.id
+          )} total players)`,
+        },
+        "Description Updater Task (Now with less hacky code!)"
+      );
     } catch {}
   }
 
