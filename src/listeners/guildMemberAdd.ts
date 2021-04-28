@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { constants, humanize } from "@fire/lib/util/constants";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Listener } from "@fire/lib/util/listener";
@@ -83,9 +83,8 @@ export default class GuildMemberAdd extends Listener {
           .catch(() => {});
     }
 
-    const hasScreening = // @ts-ignore
+    const hasScreening =
       member.guild.features.includes("PREVIEW_ENABLED") &&
-      // @ts-ignore
       member.guild.features.includes("MEMBER_VERIFICATION_GATE_ENABLED");
 
     if (member.user.bot) {

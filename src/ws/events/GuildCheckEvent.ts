@@ -48,7 +48,6 @@ export default class GuildCheckEvent extends Event {
         nick: member.nick,
         premium_since: member.premium_since,
         joined_at: member.joined_at,
-        // @ts-ignore
         pending: member.pending,
         mute: member.mute,
         deaf: member.deaf,
