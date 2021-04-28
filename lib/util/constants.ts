@@ -190,18 +190,6 @@ export const constants = {
     streaming: "https://cdn.discordapp.com/emojis/775514644273954896.png?v=1",
   },
   reactions,
-  poll: {
-    1: "1️⃣",
-    2: "2️⃣",
-    3: "3️⃣",
-    4: "4️⃣",
-    5: "5️⃣",
-    6: "6️⃣",
-    7: "7️⃣",
-    8: "8️⃣",
-    9: "9️⃣",
-    10: "🔟",
-  },
   // urls
   url: {
     discovery: "https://fire.gaminggeek.dev/discover",
@@ -223,7 +211,7 @@ export const constants = {
     maskedLink: /\[(?<name>.+)\]\((?<link>https?:\/\/.+)\)/gim,
     symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,
     spoilerAbuse: /(?:\|\|?[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]?){20,}/gim,
-    zws: /[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]/gim,
+    zws: /[\u1CBC\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]/gim,
     customEmoji: /<a?:(?<name>[a-zA-Z0-9\_]+):(?<id>\d{15,21})>/gim,
     unicodeEmoji: emojiRegex,
     allEmoji: new RegExp(
