@@ -21,7 +21,7 @@ export default class Embed extends Command {
         },
         {
           id: "channel",
-          type: "textChannel",
+          type: "textChannelSilent",
           default: undefined,
           required: false,
         },
