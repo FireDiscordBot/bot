@@ -10,9 +10,9 @@ import {
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { SnowflakeUtil, MessageEmbed } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
 import Rank from "../commands/Premium/rank";
-import { SnowflakeUtil } from "discord.js";
 import Sk1er from "../modules/sk1er";
 
 const validPaginatorIds = ["close", "start", "back", "forward", "end"];
@@ -102,13 +102,24 @@ export default class Button extends Listener {
           .add(role, button.guild.language.get("RANKS_JOIN_REASON") as string)
           .catch(() => button.member)) as FireMember;
 
-      if (!button.ephemeral) {
-        const components = Rank.getRankButtons(button.guild, button.member);
-        await ButtonMessage.editWithButtons(message, null, {
-          embed: message.embeds[0],
-          buttons: components as APIComponent[],
-        }).catch(() => {});
-      }
+      const components = Rank.getRankButtons(button.guild, button.member);
+      const embed = new MessageEmbed()
+        .setColor(button.member?.displayHexColor || "#ffffff")
+        .setTimestamp()
+        .setAuthor(
+          button.language.get("RANKS_AUTHOR", button.guild.toString()),
+          button.guild.icon
+            ? (button.guild.iconURL({
+                size: 2048,
+                format: "png",
+                dynamic: true,
+              }) as string)
+            : undefined
+        );
+      await button.channel.update(null, {
+        embed,
+        buttons: components as APIComponent[],
+      });
     }
 
     if (button.custom_id.startsWith("sk1er_support_")) {

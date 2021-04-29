@@ -602,4 +602,83 @@ export class FakeChannel {
     this.message.getRealMessage().catch(() => {});
     return this.message;
   }
+
+  async update(
+    content: StringResolvable | APIMessage | MessageEmbed,
+    options?: (MessageOptions | MessageAdditions) & {
+      buttons?: APIComponent[];
+    },
+    flags?: number // Used for success/error, can also be set
+  ): Promise<ButtonMessage> {
+    if (this.message.sent) return; // can only update with initial response
+
+    let apiMessage: APIMessage;
+
+    if (content instanceof MessageEmbed) {
+      options = {
+        ...options,
+        embed: content,
+      };
+      content = null;
+    }
+
+    if (content instanceof APIMessage) apiMessage = content.resolveData();
+    else {
+      apiMessage = APIMessage.create(
+        // @ts-ignore
+        { client: this.client },
+        content,
+        options
+      ).resolveData();
+    }
+
+    const { data, files } = (await apiMessage.resolveFiles()) as {
+      data: any;
+      files: any[];
+    };
+
+    const isRow =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.ACTION_ROW
+      );
+    const isButtons =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.BUTTON
+      );
+
+    if (isRow) data.components = options.buttons;
+    else if (isButtons)
+      data.components = [
+        { type: ButtonType.ACTION_ROW, components: options.buttons },
+      ];
+    else if (options?.buttons == null) data.components = [];
+
+    data.flags = this.flags;
+    if (typeof flags == "number") data.flags = flags;
+
+    if (
+      (files?.length || this.real instanceof DMChannel) &&
+      (data.flags & 64) == 64
+    )
+      data.flags -= 64;
+
+    await this.client.req
+      .interactions(this.id)(this.token)
+      .callback.post({
+        data: {
+          type: 7,
+          data,
+        },
+        files,
+      })
+      .then(() => {
+        this.message.sent = "message";
+        this.message.latestResponse = "@original";
+      })
+      .catch(() => {});
+    this.message.getRealMessage().catch(() => {});
+    return this.message;
+  }
 }
