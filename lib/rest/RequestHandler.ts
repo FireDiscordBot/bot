@@ -312,8 +312,8 @@ export class RequestHandler {
     const latency = request.client.restPing;
     const useHigher = !!(request.options.files && request.options.files.length);
     let type: "high" | "extreme";
-    if (useHigher ? latency > 10000 : latency > 5000) type = "high";
-    else if (useHigher ? latency > 20000 : latency > 10000) type = "extreme";
+    if (useHigher ? latency > 15000 : latency > 10000) type = "high";
+    if (useHigher ? latency > 25000 : latency > 15000) type = "extreme";
     if (!type) return;
     const API =
       request.options.versioned === false
@@ -333,7 +333,7 @@ export class RequestHandler {
         request: {
           url,
           method: request.method,
-          data: request.options?.data,
+          data: request.options?.data ?? response.body.toString(),
           headers: request.options?.headers,
         },
         tags: {
