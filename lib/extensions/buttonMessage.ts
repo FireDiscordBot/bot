@@ -336,7 +336,7 @@ export class ButtonMessage {
   }
 
   async getRealMessage() {
-    if (!this.realChannel) return;
+    if (!this.realChannel || this.ephemeral) return;
     if (this.sourceMessage instanceof FireMessage) return this.sourceMessage;
 
     let messageId = this.latestResponse;
@@ -403,7 +403,7 @@ export class ButtonMessage {
   }
 
   async delete(id?: string) {
-    if (this.ephemeral) return
+    if (this.ephemeral) return;
     await this.client.req
       .webhooks(this.client.user.id, this.button.token)
       .messages(id ?? this.latestResponse ?? "@original")
