@@ -142,6 +142,11 @@ export default class Rank extends Command {
         emoji = hasEmoji[0];
         name = "@" + role.name.slice(hasEmoji[0].length).trim();
       }
+      if (
+        components[components.length - 1].components.length >= 5 &&
+        components.length < 5
+      )
+        components.push({ type: ButtonType.ACTION_ROW, components: [] });
       components[components.length - 1].components.push({
         type: ButtonType.BUTTON,
         style: useState
@@ -153,11 +158,6 @@ export default class Rank extends Command {
         custom_id: `!rank:${member?.id}:${role.id}`,
         label: name,
       });
-      if (
-        components[components.length - 1].components.length >= 5 &&
-        components.length < 5
-      )
-        components.push({ type: ButtonType.ACTION_ROW, components: [] });
     }
     return components;
   }
