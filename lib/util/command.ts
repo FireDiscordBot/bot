@@ -52,6 +52,7 @@ const slashCommandTypeMappings = {
     "guildChannelSilent",
   ],
   ROLE: ["role", "roleSilent"],
+  MENTIONABLE: ["member|role"],
 };
 
 export class Command extends AkairoCommand {
