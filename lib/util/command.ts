@@ -91,6 +91,11 @@ export class Command extends AkairoCommand {
         if (!arg.readableType && arg.type) {
           if (arg.type instanceof Array) arg.readableType = arg.type.join("|");
           else arg.readableType = arg.type.toString();
+          if (arg.readableType.toLowerCase().endsWith("silent"))
+            arg.readableType = arg.readableType.slice(
+              0,
+              arg.readableType.length - 6
+            );
           if (
             ["string", "snowflake", "boolean", "number"].includes(
               arg.readableType
@@ -102,8 +107,11 @@ export class Command extends AkairoCommand {
         else if (arg.flag && arg.match == "option" && !arg.type)
           arg.type = arg.readableType = "string";
         if (!arg.slashCommandType) {
-          arg.slashCommandType = arg.readableType?.split("|")[0];
+          arg.slashCommandType =
+            arg.readableType?.split("|")[0] ?? arg.type.toString();
         }
+
+        arg.readableType = arg.readableType.toLowerCase();
       });
     if (!options.restrictTo) options.channel = "guild";
     else if (options.restrictTo != "all") options.channel = options.restrictTo;
