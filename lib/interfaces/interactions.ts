@@ -15,7 +15,7 @@ export type Interaction =
       member?: APIGuildMember;
       application_id: string;
       data: ComponentData;
-      message: APIMessage;
+      message: APIMessage & { components: APIComponent[] };
       channel_id: string;
       guild_id: string;
       version: number;
@@ -40,7 +40,7 @@ export interface Button {
   member?: APIGuildMember;
   application_id: string;
   data: ComponentData;
-  message: APIMessage;
+  message: APIMessage & { components: APIComponent[] };
   channel_id: string;
   guild_id: string;
   version: number;
@@ -100,6 +100,7 @@ export interface APIApplicationCommand {
 
 export interface ApplicationCommand {
   name: string;
+  id?: string;
   description: string;
   default_permission: boolean;
   options?: ApplicationCommandOption[];
