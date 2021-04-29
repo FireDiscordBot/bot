@@ -1097,6 +1097,8 @@ ${prefixes.join(", ")}`,
           "That isn't a valid rank. Use the command without arguments to see a list of valid ranks",
         RANKS_INVALID_ROLE_DEL:
           "That isn't a valid rank. Use the rank command to see a list of valid ranks",
+        RANKS_MENU_INVALID_ROLE:
+          "That isn't a valid rank! Use the rank command to see the current ranks",
         ADDRANK_COMMAND_DESCRIPTION:
           "Add a role that users can join through the rank command.",
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
@@ -1273,7 +1275,11 @@ ${success.map((s) => "- " + s).join("\n")}${
         SK1ER_BETA_MOVED:
           "Beta testing for Sk1er LLC mods has been moved to our support server! You can join with discord.gg/d4KFR9H",
         SK1ER_SUPPORT_CONFIRM:
-          "Please click the button again to confirm you want to open a ticket. If you don't, you can just dismiss this message",
+          "Please ensure you have all necessary details ready to give in the ticket. If you **do not** want to open a ticket, you can click the red button below. Otherwise, in a few seconds you will be able to click the green button",
+        SK1ER_SUPPORT_CONFIRM_EDIT:
+          "Please ensure you have all necessary details ready to give in the ticket. If you **do not** want to open a ticket, you can click the red button below. Otherwise, click the green button to open the ticket",
+        SK1ER_SUPPORT_FAIL: (reason: string) =>
+          `Failed to make ticket due to "${reason}"`,
         STARBOARD_COMMAND_DESCRIPTION:
           "Create a starboard to save messages with a ⭐",
         STARBOARD_MAIN_DESCRIPTION:
