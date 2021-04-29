@@ -100,7 +100,11 @@ export default class Ready extends Listener {
           cmd.enableSlashCommand &&
           slashCommands.find((s) => s.name == cmd.id)
         )
-          commands.push(cmd.getSlashCommandJSON());
+          commands.push(
+            cmd.getSlashCommandJSON(
+              slashCommands.find((s) => s.name == cmd.id)?.id
+            )
+          );
       }
 
       const updated: APIApplicationCommand[] = await this.client.req

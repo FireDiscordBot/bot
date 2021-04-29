@@ -145,15 +145,17 @@ export class Command extends AkairoCommand {
       : [];
   }
 
-  getSlashCommandJSON() {
+  getSlashCommandJSON(id?: string) {
     let data: ApplicationCommand = {
       name: this.id,
       description:
         typeof this.description == "function"
           ? this.description(this.client.getLanguage("en-US"))
           : this.description || "No Description Provided",
-      default_permission: !this.requiresExperiment,
+      // default_permission: !this.requiresExperiment,
+      default_permission: true, // until @everyone is supported
     };
+    if (id) data.id = id;
     if (!this.group) {
       if (this.args?.length)
         data["options"] = [
