@@ -84,7 +84,6 @@ export default class InteractionCreate extends Listener {
       const message = new ButtonMessage(this.client, button);
       await message.channel.ack();
       this.client.emit("button", message);
-      // TODO similar handlers to aether ws events
     } catch (error) {
       await this.callbackError(button, error).catch(
         async () => await this.webhookError(button, error).catch(() => {})
