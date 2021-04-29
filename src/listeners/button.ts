@@ -1,10 +1,26 @@
-import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
+import {
+  ButtonMessage,
+  EphemeralMessage,
+} from "@fire/lib/extensions/buttonMessage";
+import {
+  APIComponent,
+  ButtonStyle,
+  ButtonType,
+} from "@fire/lib/interfaces/interactions";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
 import { Listener } from "@fire/lib/util/listener";
+import Rank from "../commands/Premium/rank";
 import Sk1er from "../modules/sk1er";
 
-const validSk1erTypes = ["general", "purchase", "bug"];
 const validPaginatorIds = ["close", "start", "back", "forward", "end"];
+const validSk1erTypes = ["general", "purchase", "bug"];
+const sk1erTypeToEmoji = {
+  general: "🖥️",
+  purchase: "💸",
+  bug: "🐛",
+};
 
 export default class Button extends Listener {
   constructor() {
@@ -16,6 +32,13 @@ export default class Button extends Listener {
 
   // used to handle generic buttons, like ticket close or reaction roles
   async exec(button: ButtonMessage) {
+    // check for deletion button
+    if (button.custom_id == "delete_me")
+      return await button.delete(button.button.message.id).catch(() => {});
+
+    let message: FireMessage;
+    if (!button.ephemeral) message = button.message as FireMessage;
+
     // Run handlers
     try {
       if (this.client.buttonHandlers.has(button.custom_id))
@@ -53,42 +76,139 @@ export default class Button extends Listener {
       } else return;
     }
 
+    if (button.custom_id.startsWith(`rank:${button.member?.id}:`)) {
+      const roleId = button.custom_id.slice(
+        `rank:${button.member?.id}:`.length
+      );
+      const role = button.guild?.roles.cache.get(roleId);
+      if (!role || !button.guild || !button.member) return;
+      const ranks = (button.guild.settings.get(
+        "utils.ranks",
+        []
+      ) as string[]).filter((id) => button.guild.roles.cache.has(id));
+      if (!ranks.includes(roleId))
+        return await button.error("RANKS_MENU_INVALID_ROLE");
+      const shouldRemove = button.member.roles.cache.has(roleId);
+      if (shouldRemove)
+        button.member = (await button.member.roles
+          .remove(
+            role,
+            button.guild.language.get("RANKS_LEAVE_REASON") as string
+          )
+          .catch(() => button.member)) as FireMember;
+      else
+        button.member = (await button.member.roles
+          .add(role, button.guild.language.get("RANKS_JOIN_REASON") as string)
+          .catch(() => button.member)) as FireMember;
+
+      if (!button.ephemeral) {
+        const components = Rank.getRankButtons(button.guild, button.member);
+        await ButtonMessage.editWithButtons(message, null, {
+          embed: message.embeds[0],
+          buttons: components as APIComponent[],
+        }).catch(() => {});
+      }
+    }
+
     if (button.custom_id.startsWith("sk1er_support_")) {
       const type = button.custom_id.slice(14);
       if (!type || !validSk1erTypes.includes(type)) return;
       const sk1erModule = this.client.getModule("sk1er") as Sk1er;
       if (!sk1erModule) return;
 
-      if (sk1erModule.ticketConfirm.includes(`${button.author.id}_${type}`)) {
-        sk1erModule.ticketConfirm = sk1erModule.ticketConfirm.filter(
-          (id) => id != `${button.author.id}_${type}`
+      if (!message) return "no message";
+      const component = message.components
+        .map((component) =>
+          component.type == ButtonType.ACTION_ROW
+            ? component?.components ?? component
+            : component
+        )
+        .flat()
+        .find(
+          (component) =>
+            component.type == ButtonType.BUTTON &&
+            component.style != ButtonStyle.LINK &&
+            component.custom_id == button.custom_id
         );
-        const ticket = await sk1erModule
-          .handleSupport(button, button.author)
-          .catch((e: Error) => e);
-        if (!(ticket instanceof FireTextChannel))
-          this.client.console.error(
-            `[Sk1er] Failed to make ticket for ${button.author} due to ${ticket}`
-          );
-        return;
-      } else {
-        sk1erModule.ticketConfirm.push(`${button.author.id}_${type}`);
-        button.flags += 64; // set ephemeral
-        return await button.error("SK1ER_SUPPORT_CONFIRM");
-      }
+      if (
+        component?.type != ButtonType.BUTTON ||
+        component?.style == ButtonStyle.LINK
+      )
+        return "non button";
+      if (!component.emoji?.name) return "unknown emoji";
+      const emoji = component.emoji.name;
+
+      button.flags += 64; // set ephemeral
+      const confirmButton: APIComponent = {
+        custom_id: `sk1er_confirm_${type}`,
+        style: ButtonStyle.SUCCESS,
+        type: ButtonType.BUTTON,
+        emoji: { name: emoji },
+        disabled: false,
+      };
+      const deleteButton: APIComponent = {
+        emoji: { id: "534174796938870792" },
+        style: ButtonStyle.DESTRUCTIVE,
+        type: ButtonType.BUTTON,
+        custom_id: `delete_me`,
+      };
+      await button.channel.send(
+        button.language.get("SK1ER_SUPPORT_CONFIRM"),
+        {
+          buttons: [confirmButton, deleteButton],
+        },
+        64
+      );
+      // TODO figure out how someone was able to edit an ephemeral message
+
+      // await this.client.util.sleep(5000);
+      // confirmButton.disabled = false;
+      // await button.edit(button.language.get("SK1ER_SUPPORT_CONFIRM_EDIT"), {
+      //   buttons: [confirmButton, deleteButton],
+      // });
+    } else if (button.custom_id.startsWith("sk1er_confirm_")) {
+      const type = button.custom_id.slice(14);
+      if (!type || !validSk1erTypes.includes(type)) return;
+      const sk1erModule = this.client.getModule("sk1er") as Sk1er;
+      if (!sk1erModule) return;
+
+      // since this is an ephemeral message, it does not give us the components
+      // so we need to fake them
+      (button.message as EphemeralMessage & {
+        components: APIComponent[];
+      }).components = [
+        {
+          type: ButtonType.ACTION_ROW,
+          components: [
+            {
+              custom_id: `sk1er_confirm_${type}`,
+              style: ButtonStyle.SUCCESS,
+              type: ButtonType.BUTTON,
+              emoji: { name: sk1erTypeToEmoji[type] },
+            },
+          ],
+        },
+      ];
+
+      const ticket = await sk1erModule
+        .handleSupport(button, button.author)
+        .catch((e: Error) => e);
+      if (!(ticket instanceof FireTextChannel))
+        return await button.error("SK1ER_SUPPORT_FAIL", ticket.toString());
     }
 
     if (
+      message &&
       validPaginatorIds.includes(button.custom_id) &&
-      button.message?.paginator &&
-      button.message.paginator.ready &&
-      button.message.paginator.owner?.id == button.author.id
+      message?.paginator &&
+      message.paginator.ready &&
+      message.paginator.owner?.id == button.author.id
     )
-      await button.message?.paginator.buttonHandler(button).catch(() => {});
+      await message?.paginator.buttonHandler(button).catch(() => {});
     else if (
       !button.channel.messages.cache.has(button.message?.id) &&
       button.custom_id == "close"
     )
-      await button.message?.delete().catch(() => {});
+      await message?.delete().catch(() => {});
   }
 }

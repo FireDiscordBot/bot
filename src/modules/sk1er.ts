@@ -32,7 +32,6 @@ export default class Sk1er extends Module {
   supportMessageId: string;
   supportChannelId: string;
   supportGuild: FireGuild;
-  ticketConfirm: string[];
   supportGuildId: string;
   logText: string[];
   guild: FireGuild;
@@ -64,7 +63,6 @@ export default class Sk1er extends Module {
       "689373971572850842": "747788002738176110",
       "155149108183695360": "747786691074457610",
     };
-    this.ticketConfirm = [];
   }
 
   async init() {
@@ -235,7 +233,12 @@ export default class Sk1er extends Module {
       } catch {}
     } else {
       if (!trigger.message) return "no message";
-      const component = trigger.message.components
+      const component = (trigger.message as FireMessage).components
+        .map((component) =>
+          component.type == ButtonType.ACTION_ROW
+            ? component?.components ?? component
+            : component
+        )
         .flat()
         .find(
           (component) =>
@@ -256,7 +259,7 @@ export default class Sk1er extends Module {
       const category = this.supportGuild.channels.cache.get(
         "755795962462732288"
       ) as CategoryChannel;
-      if (!category) return "nocategory";
+      if (!category) return "no category";
       return await this.supportGuild.createTicket(
         member,
         "General Support",
@@ -267,7 +270,7 @@ export default class Sk1er extends Module {
       const category = this.supportGuild.channels.cache.get(
         "755796036198596688"
       ) as CategoryChannel;
-      if (!category) return "nocategory";
+      if (!category) return "no category";
       return await this.supportGuild.createTicket(
         member,
         "Purchase Support",
@@ -278,7 +281,7 @@ export default class Sk1er extends Module {
       const category = this.supportGuild.channels.cache.get(
         "755795994855211018"
       ) as CategoryChannel;
-      if (!category) return "nocategory";
+      if (!category) return "no category";
       return await this.supportGuild.createTicket(
         member,
         "Bug Report",
