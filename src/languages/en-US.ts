@@ -1278,6 +1278,8 @@ ${success.map((s) => "- " + s).join("\n")}${
           "Please ensure you have all necessary details ready to give in the ticket. If you **do not** want to open a ticket, you can click the red button below. Otherwise, in a few seconds you will be able to click the green button",
         SK1ER_SUPPORT_CONFIRM_EDIT:
           "Please ensure you have all necessary details ready to give in the ticket. If you **do not** want to open a ticket, you can click the red button below. Otherwise, click the green button to open the ticket",
+        SK1ER_SUPPORT_CANCELLED:
+          'Alright, you can go ahead and click "Dismiss Message"',
         SK1ER_SUPPORT_FAIL: (reason: string) =>
           `Failed to make ticket due to "${reason}"`,
         STARBOARD_COMMAND_DESCRIPTION:
