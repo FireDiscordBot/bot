@@ -40,19 +40,20 @@ import { FireMessage } from "./message";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
-import { SlashCommandMessage } from "./slashCommandMessage";
 
 const { emojis, reactions } = constants;
+export type EphemeralMessage = { id: string; flags: number };
 
 export class ButtonMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   private snowflake: DeconstructedSnowflake;
+  message: FireMessage | EphemeralMessage;
   sent: false | "ack" | "message";
   sourceMessage: FireMessage;
   private _flags: number;
   latestResponse: string;
-  message: FireMessage;
   channel: FakeChannel;
+  ephemeral: boolean;
   member: FireMember;
   language: Language;
   custom_id: string;
@@ -75,27 +76,29 @@ export class ButtonMessage {
       | FireTextChannel
       | NewsChannel
       | DMChannel;
-    this.message =
-      (this.realChannel.messages.cache.get(
-        button.message?.id
-      ) as FireMessage) ||
-      new FireMessage(client, button.message, this.realChannel);
+    this.ephemeral = (button.message.flags & 64) != 0;
+    this.message = this.ephemeral
+      ? (button.message as EphemeralMessage)
+      : (this.realChannel.messages.cache.get(
+          button.message?.id
+        ) as FireMessage) ||
+        new FireMessage(client, button.message, this.realChannel);
     if (
       !this.message ||
-      // @ts-ignore
-      !this.button.message.components.find(
-        (component) =>
-          (component.type == this.button.data.component_type &&
-            // @ts-ignore
-            component.custom_id == this.custom_id) ||
-          (component.type == ButtonType.ACTION_ROW &&
-            component.components.find(
-              (component) =>
-                component.type == this.button.data.component_type &&
-                // @ts-ignore
-                component.custom_id == this.custom_id
-            ))
-      )
+      (!this.ephemeral &&
+        !this.button.message.components?.find(
+          (component) =>
+            (component.type == this.button.data.component_type &&
+              // @ts-ignore
+              component.custom_id == this.custom_id) ||
+            (component.type == ButtonType.ACTION_ROW &&
+              component.components.find(
+                (component) =>
+                  component.type == this.button.data.component_type &&
+                  // @ts-ignore
+                  component.custom_id == this.custom_id
+              ))
+        ))
     )
       throw new Error("Component checks failed, potential mitm/selfbot?");
     if (button.member)
@@ -359,13 +362,36 @@ export class ButtonMessage {
       | MessageEditOptions
       | MessageEmbed
       | APIMessage,
-    options?: MessageEditOptions | MessageEmbed
+    options?: (MessageEditOptions | MessageEmbed) & {
+      buttons?: APIComponent[];
+    }
   ) {
-    const { data } =
-      content instanceof APIMessage
-        ? content.resolveData()
-        : // @ts-ignore
-          APIMessage.create(this, content, options).resolveData();
+    const { data } = (content instanceof APIMessage
+      ? content.resolveData()
+      : // @ts-ignore
+        APIMessage.create(this, content, options).resolveData()) as {
+      data: any;
+      files: any[];
+    };
+
+    data.flags = this.flags;
+
+    const isRow =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.ACTION_ROW
+      );
+    const isButtons =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.BUTTON
+      );
+
+    if (isRow) data.components = options.buttons;
+    else if (isButtons)
+      data.components = [{ type: 1, components: options.buttons }];
+    else if (options?.buttons == null) data.components = [];
+
     await this.client.req
       .webhooks(this.client.user.id, this.button.token)
       .messages(this.latestResponse)
@@ -376,10 +402,10 @@ export class ButtonMessage {
     return this;
   }
 
-  async delete() {
+  async delete(id?: string) {
     await this.client.req
       .webhooks(this.client.user.id, this.button.token)
-      .messages(this.latestResponse)
+      .messages(id ?? this.latestResponse)
       .delete()
       .catch(() => {});
   }
@@ -395,8 +421,8 @@ export class ButtonMessage {
 
 export class FakeChannel {
   real: FireTextChannel | NewsChannel | DMChannel;
-  message: ButtonMessage;
   messages: MessageManager;
+  message: ButtonMessage;
   token: string;
   client: Fire;
   id: string;
@@ -488,7 +514,9 @@ export class FakeChannel {
 
   async send(
     content: StringResolvable | APIMessage | MessageEmbed,
-    options?: MessageOptions | MessageAdditions,
+    options?: (MessageOptions | MessageAdditions) & {
+      buttons?: APIComponent[];
+    },
     flags?: number // Used for success/error, can also be set
   ): Promise<ButtonMessage> {
     let apiMessage: APIMessage;
@@ -516,14 +544,28 @@ export class FakeChannel {
       files: any[];
     };
 
+    const isRow =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.ACTION_ROW
+      );
+    const isButtons =
+      options?.buttons?.length &&
+      options?.buttons.every(
+        (component) => component.type == ButtonType.BUTTON
+      );
+
+    if (isRow) data.components = options.buttons;
+    else if (isButtons)
+      data.components = [
+        { type: ButtonType.ACTION_ROW, components: options.buttons },
+      ];
+
     data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;
 
-    // embeds in ephemeral wen eta
     if (
-      (data.embeds?.length ||
-        files?.length ||
-        this.real instanceof DMChannel) &&
+      (files?.length || this.real instanceof DMChannel) &&
       (data.flags & 64) == 64
     )
       data.flags -= 64;
@@ -551,7 +593,9 @@ export class FakeChannel {
           query: { wait: true },
         })
         .catch(() => {});
-      if (message?.id) this.message.latestResponse = message.id;
+      if (message?.id && this.message.latestResponse == "@original")
+        this.message.latestResponse = message.id;
+      else this.message.latestResponse = "@original";
     }
     this.message.getRealMessage().catch(() => {});
     return this.message;
