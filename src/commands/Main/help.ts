@@ -21,6 +21,7 @@ export default class Help extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "all",
+      ephemeral: true,
     });
   }
 
