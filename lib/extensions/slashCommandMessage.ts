@@ -519,9 +519,7 @@ export class FakeChannel {
 
     // embeds in ephemeral wen eta
     if (
-      (data.embeds?.length ||
-        files?.length ||
-        this.real instanceof DMChannel) &&
+      (files?.length || this.real instanceof DMChannel) &&
       (data.flags & 64) == 64
     )
       data.flags -= 64;
