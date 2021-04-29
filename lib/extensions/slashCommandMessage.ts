@@ -261,7 +261,7 @@ export class SlashCommandMessage {
         });
     }
     return this.channel.send(
-      `${emojis.error} ${this.language.get(key, ...args)}`,
+      `${emojis.slashError} ${this.language.get(key, ...args)}`,
       {},
       this.flags ? this.flags : 64
     );
