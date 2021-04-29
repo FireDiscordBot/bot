@@ -82,7 +82,8 @@ export default class InteractionCreate extends Listener {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(button.channel_id).catch(() => {});
       const message = new ButtonMessage(this.client, button);
-      await message.channel.ack();
+      if (!message.custom_id.startsWith("!")) await message.channel.ack();
+      else message.custom_id = message.custom_id.slice(1);
       this.client.emit("button", message);
     } catch (error) {
       await this.callbackError(button, error).catch(

@@ -394,7 +394,7 @@ export class ButtonMessage {
 
     await this.client.req
       .webhooks(this.client.user.id, this.button.token)
-      .messages(this.latestResponse)
+      .messages(this.latestResponse ?? "@original")
       .patch({
         data,
       })
@@ -403,9 +403,10 @@ export class ButtonMessage {
   }
 
   async delete(id?: string) {
+    if (this.ephemeral) return
     await this.client.req
       .webhooks(this.client.user.id, this.button.token)
-      .messages(id ?? this.latestResponse)
+      .messages(id ?? this.latestResponse ?? "@original")
       .delete()
       .catch(() => {});
   }
@@ -582,6 +583,7 @@ export class FakeChannel {
         })
         .then(() => {
           this.message.sent = "message";
+          this.message.latestResponse = "@original";
         })
         .catch(() => {});
     else {

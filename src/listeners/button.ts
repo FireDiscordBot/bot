@@ -12,6 +12,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Listener } from "@fire/lib/util/listener";
 import Rank from "../commands/Premium/rank";
+import { SnowflakeUtil } from "discord.js";
 import Sk1er from "../modules/sk1er";
 
 const validPaginatorIds = ["close", "start", "back", "forward", "end"];
@@ -128,7 +129,8 @@ export default class Button extends Listener {
           (component) =>
             component.type == ButtonType.BUTTON &&
             component.style != ButtonStyle.LINK &&
-            component.custom_id == button.custom_id
+            (component.custom_id == button.custom_id ||
+              component.custom_id.slice(1) == button.custom_id)
         );
       if (
         component?.type != ButtonType.BUTTON ||
@@ -144,14 +146,22 @@ export default class Button extends Listener {
         style: ButtonStyle.SUCCESS,
         type: ButtonType.BUTTON,
         emoji: { name: emoji },
-        disabled: false,
+        disabled: true,
       };
+      const deleteSnowflake = SnowflakeUtil.generate();
       const deleteButton: APIComponent = {
         emoji: { id: "534174796938870792" },
         style: ButtonStyle.DESTRUCTIVE,
         type: ButtonType.BUTTON,
-        custom_id: `delete_me`,
+        custom_id: deleteSnowflake,
       };
+      this.client.buttonHandlersOnce.set(deleteSnowflake, () => {
+        button
+          .edit(button.language.get("SK1ER_SUPPORT_CANCELLED"), {
+            buttons: null,
+          })
+          .catch(() => {});
+      });
       await button.channel.send(
         button.language.get("SK1ER_SUPPORT_CONFIRM"),
         {
@@ -159,13 +169,14 @@ export default class Button extends Listener {
         },
         64
       );
-      // TODO figure out how someone was able to edit an ephemeral message
 
-      // await this.client.util.sleep(5000);
-      // confirmButton.disabled = false;
-      // await button.edit(button.language.get("SK1ER_SUPPORT_CONFIRM_EDIT"), {
-      //   buttons: [confirmButton, deleteButton],
-      // });
+      await this.client.util.sleep(5000);
+      confirmButton.disabled = false;
+      // user has not clicked delete button
+      if (this.client.buttonHandlersOnce.has(deleteSnowflake))
+        await button.edit(button.language.get("SK1ER_SUPPORT_CONFIRM_EDIT"), {
+          buttons: [confirmButton, deleteButton],
+        });
     } else if (button.custom_id.startsWith("sk1er_confirm_")) {
       const type = button.custom_id.slice(14);
       if (!type || !validSk1erTypes.includes(type)) return;

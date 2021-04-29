@@ -88,17 +88,17 @@ export default class Rank extends Command {
       if (!message.guild.hasExperiment("OQv4baDP7A_Pk60M9zYR9"))
         return await message.channel.send(embed);
       else delete embed.description;
-      const components = Rank.getRankButtons(message.guild, message.member);
+      const components = Rank.getRankButtons(
+        message.guild,
+        message.member,
+        message instanceof FireMessage
+      );
       return message instanceof SlashCommandMessage
         ? message.channel.send(embed, { buttons: components as APIComponent[] })
         : await ButtonMessage.sendWithButtons(message.channel, embed, {
             buttons: components as APIComponent[],
           });
     }
-
-    if (message instanceof SlashCommandMessage)
-      // ts server gets angry without the "as" even though I have the instance check
-      (message as SlashCommandMessage).flags = 64;
 
     if (roles.includes(args.role)) {
       if (args.role.id == "595626786549792793")
@@ -121,7 +121,11 @@ export default class Rank extends Command {
     } else return await message.error("RANKS_INVALID_ROLE");
   }
 
-  static getRankButtons(guild: FireGuild, member: FireMember) {
+  static getRankButtons(
+    guild: FireGuild,
+    member: FireMember,
+    useState: boolean = true
+  ) {
     let roles: string[] | Role[] = (guild.settings.get(
       "utils.ranks",
       []
@@ -142,9 +146,11 @@ export default class Rank extends Command {
       }
       components[components.length - 1].components.push({
         type: ButtonType.BUTTON,
-        style: member.roles.cache.has(role.id)
-          ? ButtonStyle.DESTRUCTIVE
-          : ButtonStyle.SUCCESS,
+        style: useState
+          ? member.roles.cache.has(role.id)
+            ? ButtonStyle.DESTRUCTIVE
+            : ButtonStyle.SUCCESS
+          : ButtonStyle.PRIMARY,
         emoji: emoji ? { name: emoji } : null,
         custom_id: `rank:${member?.id}:${role.id}`,
         label: name,
