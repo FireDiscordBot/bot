@@ -51,6 +51,7 @@ export default class TicTacToe extends Command {
           required: true,
         },
       ],
+      requiresExperiment: { id: "OQv4baDP7A_Pk60M9zYR9", treatmentId: 1 },
       enableSlashCommand: true,
       restrictTo: "guild",
     });
@@ -59,163 +60,162 @@ export default class TicTacToe extends Command {
   }
 
   async exec(message: FireMessage, args: { opponent?: FireMember }) {
-    return await message.error("TICTACTOE_DISABLED_TEMP");
-    // if (!args.opponent || args.opponent?.id == message.author.id)
-    //   return await message.error("TICTACTOE_OPPONENT_REQUIRED");
+    if (!args.opponent || args.opponent?.id == message.author.id)
+      return await message.error("TICTACTOE_OPPONENT_REQUIRED");
 
-    // const { opponent } = args;
-    // if (opponent.user.bot) return await message.error("TICTACTOE_COMPUTER");
+    const { opponent } = args;
+    if (opponent.user.bot) return await message.error("TICTACTOE_COMPUTER");
 
-    // const requestId = SnowflakeUtil.generate();
-    // const requestMsgOptions = {
-    //   allowedMentions: {
-    //     users:
-    //       message.mentions.users.has(opponent.id) ||
-    //       message.guild.memberCount > 100
-    //         ? []
-    //         : [opponent.id],
-    //   },
-    //   buttons: [
-    //     {
-    //       label: message.guild.language.get(
-    //         "TICTACTOE_ACCEPT_CHALLENGE"
-    //       ) as string,
-    //       style: ButtonStyle.SUCCESS,
-    //       type: ButtonType.BUTTON,
-    //       custom_id: requestId,
-    //     },
-    //   ] as APIComponent[], // tsc complains without this for some reason
-    // };
-    // const requestMsg =
-    //   message instanceof SlashCommandMessage
-    //     ? await message.channel.send(
-    //         message.guild.language.get(
-    //           "TICTACTOE_GAME_REQUEST",
-    //           message.author.username,
-    //           opponent.toMention()
-    //         ),
-    //         requestMsgOptions
-    //       )
-    //     : await ButtonMessage.sendWithButtons(
-    //         message.channel,
-    //         message.guild.language.get(
-    //           "TICTACTOE_GAME_REQUEST",
-    //           message.author.username,
-    //           opponent.toMention()
-    //         ),
-    //         requestMsgOptions
-    //       ).catch(() => {});
-    // if (!requestMsg) return await message.error();
-    // const accepted = await this.awaitOpponentResponse(requestId, opponent);
-    // this.client.buttonHandlers.delete(requestId);
-    // if (!accepted) return await message.error("TICTACTOE_REQUEST_EXPIRED");
-    // else
-    //   message instanceof SlashCommandMessage
-    //     ? await message.delete()
-    //     : await requestMsg.delete().catch(() => {});
+    const requestId = SnowflakeUtil.generate();
+    const requestMsgOptions = {
+      allowedMentions: {
+        users:
+          message.mentions.users.has(opponent.id) ||
+          message.guild.memberCount > 100
+            ? []
+            : [opponent.id],
+      },
+      buttons: [
+        {
+          label: message.guild.language.get(
+            "TICTACTOE_ACCEPT_CHALLENGE"
+          ) as string,
+          style: ButtonStyle.SUCCESS,
+          type: ButtonType.BUTTON,
+          custom_id: requestId,
+        },
+      ] as APIComponent[], // tsc complains without this for some reason
+    };
+    const requestMsg =
+      message instanceof SlashCommandMessage
+        ? await message.channel.send(
+            message.guild.language.get(
+              "TICTACTOE_GAME_REQUEST",
+              message.author.username,
+              opponent.toMention()
+            ),
+            requestMsgOptions
+          )
+        : await ButtonMessage.sendWithButtons(
+            message.channel,
+            message.guild.language.get(
+              "TICTACTOE_GAME_REQUEST",
+              message.author.username,
+              opponent.toMention()
+            ),
+            requestMsgOptions
+          ).catch(() => {});
+    if (!requestMsg) return await message.error();
+    const accepted = await this.awaitOpponentResponse(requestId, opponent);
+    this.client.buttonHandlers.delete(requestId);
+    if (!accepted) return await message.error("TICTACTOE_REQUEST_EXPIRED");
+    else
+      message instanceof SlashCommandMessage
+        ? await message.delete()
+        : await requestMsg.delete().catch(() => {});
 
-    // const authorHasGame = this.games.find(
-    //   (game) => message.author.id in game.players
-    // );
-    // if (authorHasGame) return await message.error("TICTACTOE_EXISTING");
+    const authorHasGame = this.games.find(
+      (game) => message.author.id in game.players
+    );
+    if (authorHasGame) return await message.error("TICTACTOE_EXISTING");
 
-    // const opponentHasGame = this.games.find(
-    //   (game) => args.opponent.id in game.players
-    // );
-    // if (opponentHasGame) return await message.error("TICTACTOE_OPPONENT_BUSY");
+    const opponentHasGame = this.games.find(
+      (game) => args.opponent.id in game.players
+    );
+    if (opponentHasGame) return await message.error("TICTACTOE_OPPONENT_BUSY");
 
-    // const gameId = SnowflakeUtil.generate();
-    // const gameData = this.games
-    //   .set(gameId, {
-    //     current: opponent.id, // opponent goes first
-    //     buttons: this.getInitialButtons(),
-    //     players: {
-    //       [message.author.id]: "x",
-    //       [opponent.id]: "o",
-    //     },
-    //   })
-    //   .get(gameId);
+    const gameId = SnowflakeUtil.generate();
+    const gameData = this.games
+      .set(gameId, {
+        current: opponent.id, // opponent goes first
+        buttons: this.getInitialButtons(),
+        players: {
+          [message.author.id]: "x",
+          [opponent.id]: "o",
+        },
+      })
+      .get(gameId);
 
-    // const handler = this.getGameHandler(gameId);
-    // for (const button of Object.values(gameData.buttons))
-    //   this.client.buttonHandlers.set(button.custom_id, handler);
-    // this.client.buttonHandlers.set(`${gameId}:forfeit`, async (button) => {
-    //   const game = this.games.get(gameId);
-    //   if (!(button.author.id in game.players)) return;
+    const handler = this.getGameHandler(gameId);
+    for (const button of Object.values(gameData.buttons))
+      this.client.buttonHandlers.set(button.custom_id, handler);
+    this.client.buttonHandlers.set(`${gameId}:forfeit`, async (button) => {
+      const game = this.games.get(gameId);
+      if (!(button.author.id in game.players)) return;
 
-    //   for (const button of Object.values(game.buttons))
-    //     this.client.buttonHandlers.delete(button.custom_id);
-    //   this.client.buttonHandlers.delete(`${gameId}:forfeit`);
-    //   this.games.delete(gameId);
+      for (const button of Object.values(game.buttons))
+        this.client.buttonHandlers.delete(button.custom_id);
+      this.client.buttonHandlers.delete(`${gameId}:forfeit`);
+      this.games.delete(gameId);
 
-    //   return await ButtonMessage.editWithButtons(
-    //     button.message,
-    //     button.guild.language.get(
-    //       "TICTACTOE_FORFEITED",
-    //       button.member?.toMention()
-    //     ),
-    //     { buttons: null }
-    //   ).catch(() => {});
-    // });
+      return await ButtonMessage.editWithButtons(
+        button.message,
+        button.guild.language.get(
+          "TICTACTOE_FORFEITED",
+          button.member?.toMention()
+        ),
+        { buttons: null }
+      ).catch(() => {});
+    });
 
-    // const buttons = [
-    //   {
-    //     type: ButtonType.ACTION_ROW,
-    //     components: [1, 2, 3].map((pos) => {
-    //       return {
-    //         custom_id: gameData.buttons[pos].custom_id,
-    //         style: ButtonStyle.SECONDARY,
-    //         type: ButtonType.BUTTON,
-    //         label: "\u200b",
-    //       };
-    //     }),
-    //   },
-    //   {
-    //     type: ButtonType.ACTION_ROW,
-    //     components: [4, 5, 6].map((pos) => {
-    //       return {
-    //         custom_id: gameData.buttons[pos].custom_id,
-    //         style: ButtonStyle.SECONDARY,
-    //         type: ButtonType.BUTTON,
-    //         label: "\u200b",
-    //       };
-    //     }),
-    //   },
-    //   {
-    //     type: ButtonType.ACTION_ROW,
-    //     components: [7, 8, 9].map((pos) => {
-    //       return {
-    //         custom_id: gameData.buttons[pos].custom_id,
-    //         style: ButtonStyle.SECONDARY,
-    //         type: ButtonType.BUTTON,
-    //         label: "\u200b",
-    //       };
-    //     }),
-    //   },
-    //   {
-    //     type: ButtonType.ACTION_ROW,
-    //     components: [
-    //       {
-    //         label: message.guild.language.get("TICTACTOE_FORFEIT"),
-    //         custom_id: `${gameId}:forfeit`,
-    //         style: ButtonStyle.PRIMARY,
-    //         type: ButtonType.BUTTON,
-    //       },
-    //     ],
-    //   },
-    // ] as ActionRow[];
+    const buttons = [
+      {
+        type: ButtonType.ACTION_ROW,
+        components: [1, 2, 3].map((pos) => {
+          return {
+            custom_id: gameData.buttons[pos].custom_id,
+            style: ButtonStyle.SECONDARY,
+            type: ButtonType.BUTTON,
+            label: "\u200b",
+          };
+        }),
+      },
+      {
+        type: ButtonType.ACTION_ROW,
+        components: [4, 5, 6].map((pos) => {
+          return {
+            custom_id: gameData.buttons[pos].custom_id,
+            style: ButtonStyle.SECONDARY,
+            type: ButtonType.BUTTON,
+            label: "\u200b",
+          };
+        }),
+      },
+      {
+        type: ButtonType.ACTION_ROW,
+        components: [7, 8, 9].map((pos) => {
+          return {
+            custom_id: gameData.buttons[pos].custom_id,
+            style: ButtonStyle.SECONDARY,
+            type: ButtonType.BUTTON,
+            label: "\u200b",
+          };
+        }),
+      },
+      {
+        type: ButtonType.ACTION_ROW,
+        components: [
+          {
+            label: message.guild.language.get("TICTACTOE_FORFEIT"),
+            custom_id: `${gameId}:forfeit`,
+            style: ButtonStyle.PRIMARY,
+            type: ButtonType.BUTTON,
+          },
+        ],
+      },
+    ] as ActionRow[];
 
-    // return await ButtonMessage.sendWithButtons(
-    //   // followups are dumb and reply to the original message so fuck 'em
-    //   message instanceof SlashCommandMessage
-    //     ? message.realChannel
-    //     : message.channel,
-    //   message.guild.language.get("TICTACTOE_GAME_START", opponent.toMention()),
-    //   {
-    //     buttons,
-    //     allowedMentions: { users: [opponent.id, message.author.id] },
-    //   }
-    // );
+    return await ButtonMessage.sendWithButtons(
+      // followups are dumb and reply to the original message so fuck 'em
+      message instanceof SlashCommandMessage
+        ? message.realChannel
+        : message.channel,
+      message.guild.language.get("TICTACTOE_GAME_START", opponent.toMention()),
+      {
+        buttons,
+        allowedMentions: { users: [opponent.id, message.author.id] },
+      }
+    );
   }
 
   private awaitOpponentResponse(

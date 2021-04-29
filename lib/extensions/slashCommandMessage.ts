@@ -372,6 +372,7 @@ export class FakeChannel {
   real: FireTextChannel | NewsChannel | DMChannel;
   message: SlashCommandMessage;
   messages: MessageManager;
+  guild?: FireGuild;
   token: string;
   client: Fire;
   id: string;
@@ -389,6 +390,9 @@ export class FakeChannel {
     this.client = client;
     this.message = message;
     this.messages = real?.messages;
+
+    if (!(real instanceof DMChannel) && real.guild)
+      this.guild = real.guild as FireGuild;
   }
 
   get flags() {

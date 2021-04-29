@@ -13,7 +13,6 @@ import {
   MessageAttachment,
   FetchOwnerOptions,
   MessageEmbedOptions,
-  OverwriteResolvable,
   PermissionOverwriteOption,
 } from "discord.js";
 import {
@@ -24,14 +23,14 @@ import {
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import TicketName from "@fire/src/commands/Tickets/name";
-// import { ButtonStyle } from "../interfaces/interactions";
+import { ButtonStyle } from "../interfaces/interactions";
 import { PermRolesData } from "../interfaces/permroles";
 import { GuildSettings } from "@fire/lib/util/settings";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { MessageIterator } from "../util/iterators";
 import { FakeChannel } from "./slashCommandMessage";
-// import { ButtonMessage } from "./buttonMessage";
+import { ButtonMessage } from "./buttonMessage";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
@@ -845,42 +844,41 @@ export class FireGuild extends Guild {
     const alert = this.roles.cache.get(alertId);
     let opener: FireMessage;
     if (alert && !author.isModerator()) {
-      // if (this.hasExperiment("dUtlJKVFKwBaIYh5BuOkW"))
-      //   ButtonMessage.sendWithButtons(ticket, alert.toString(), {
-      //     allowedMentions: { roles: [alertId] },
-      //     embed,
-      //     buttons: [
-      //       {
-      //         type: 2,
-      //         style: ButtonStyle.DESTRUCTIVE,
-      //         custom_id: `ticket_close_${ticket.id}`,
-      //         label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
-      //         emoji: { id: "534174796938870792" },
-      //       },
-      //     ],
-      //   });
-      // else
-      opener = (await ticket
-        .send(alert.toString(), {
+      if (this.hasExperiment("OQv4baDP7A_Pk60M9zYR9"))
+        ButtonMessage.sendWithButtons(ticket, alert.toString(), {
           allowedMentions: { roles: [alertId] },
           embed,
-        })
-        .catch(() => {})) as FireMessage;
+          buttons: [
+            {
+              type: 2,
+              style: ButtonStyle.DESTRUCTIVE,
+              custom_id: `ticket_close_${ticket.id}`,
+              label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
+              emoji: { id: "534174796938870792" },
+            },
+          ],
+        });
+      else
+        opener = (await ticket
+          .send(alert.toString(), {
+            allowedMentions: { roles: [alertId] },
+            embed,
+          })
+          .catch(() => {})) as FireMessage;
     } else {
-      // if (this.hasExperiment("dUtlJKVFKwBaIYh5BuOkW"))
-      //   ButtonMessage.sendWithButtons(ticket, embed, {
-      //     buttons: [
-      //       {
-      //         type: 2,
-      //         style: ButtonStyle.DESTRUCTIVE,
-      //         custom_id: `ticket_close_${ticket.id}`,
-      //         label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
-      //         emoji: { id: "534174796938870792" },
-      //       },
-      //     ],
-      //   });
-      // else opener = (await ticket.send(embed).catch(() => {})) as FireMessage;
-      opener = (await ticket.send(embed).catch(() => {})) as FireMessage;
+      if (this.hasExperiment("OQv4baDP7A_Pk60M9zYR9"))
+        ButtonMessage.sendWithButtons(ticket, embed, {
+          buttons: [
+            {
+              type: 2,
+              style: ButtonStyle.DESTRUCTIVE,
+              custom_id: `ticket_close_${ticket.id}`,
+              label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
+              emoji: { id: "534174796938870792" },
+            },
+          ],
+        });
+      else opener = (await ticket.send(embed).catch(() => {})) as FireMessage;
     }
     channels.push(ticket);
     this.settings.set(

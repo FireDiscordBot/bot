@@ -1495,8 +1495,6 @@ Running this command without providing a category resets it, therefore disabling
         NEW_COMMAND_DESCRIPTION: "Makes a new ticket",
         TICTACTOE_COMMAND_DESCRIPTION:
           "Play tic tac toe against server members",
-        TICTACTOE_DISABLED_TEMP:
-          "This command has been disabled as Discord have blocked bots from sending buttons",
         TICTACTOE_OPPONENT_REQUIRED:
           "You need to choose an opponent to play against and it cannot be yourself",
         TICTACTOE_OPPONENT_BUSY:
