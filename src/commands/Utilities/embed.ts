@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageEmbed, NewsChannel } from "discord.js";
 import { Language } from "@fire/lib/util/language";
@@ -75,10 +75,9 @@ export default class Embed extends Command {
       const instance = new MessageEmbed(embeds);
       if (this.isEmpty(instance))
         return await message.error("EMBED_OBJECT_INVALID");
-      content
+      return content
         ? await args.channel.send(content, instance)
         : await args.channel.send(instance);
-      return await message.success();
     } else return await message.error("EMBED_OBJECT_INVALID");
   }
 
