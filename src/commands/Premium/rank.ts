@@ -1,8 +1,21 @@
+import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import {
+  APIComponent,
+  ButtonStyle,
+  ButtonType,
+} from "@fire/lib/interfaces/interactions";
+import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { MessageEmbed, Role } from "discord.js";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+
+const {
+  regexes: { unicodeEmoji },
+} = constants;
 
 export default class Rank extends Command {
   constructor() {
@@ -28,6 +41,7 @@ export default class Rank extends Command {
         "selfranks",
       ],
       enableSlashCommand: true,
+      ephemeral: true,
       premium: true,
     });
   }
@@ -71,7 +85,15 @@ export default class Rank extends Command {
               }) as string)
             : undefined
         );
-      return await message.channel.send(embed);
+      if (!message.guild.hasExperiment("OQv4baDP7A_Pk60M9zYR9"))
+        return await message.channel.send(embed);
+      else delete embed.description;
+      const components = Rank.getRankButtons(message.guild, message.member);
+      return message instanceof SlashCommandMessage
+        ? message.channel.send(embed, { buttons: components as APIComponent[] })
+        : await ButtonMessage.sendWithButtons(message.channel, embed, {
+            buttons: components as APIComponent[],
+          });
     }
 
     if (message instanceof SlashCommandMessage)
@@ -97,5 +119,42 @@ export default class Rank extends Command {
             .catch(() => {})
             .then(() => message.success("RANKS_JOIN_RANK", args.role.name));
     } else return await message.error("RANKS_INVALID_ROLE");
+  }
+
+  static getRankButtons(guild: FireGuild, member: FireMember) {
+    let roles: string[] | Role[] = (guild.settings.get(
+      "utils.ranks",
+      []
+    ) as string[]).filter((id) => guild.roles.cache.has(id));
+    if (guild.settings.get("utils.ranks", []) != roles)
+      guild.settings.set("utils.ranks", roles);
+    if (!roles.length) return [];
+    roles = roles.map((id) => guild.roles.cache.get(id) as Role);
+    const components = [{ type: ButtonType.ACTION_ROW, components: [] }];
+    for (const role of roles) {
+      let name = "@" + role.name;
+      let emoji: string;
+      const hasEmoji = unicodeEmoji.exec(role.name);
+      unicodeEmoji.lastIndex = 0;
+      if (hasEmoji?.length && role.name.startsWith(hasEmoji[0])) {
+        emoji = hasEmoji[0];
+        name = "@" + role.name.slice(hasEmoji[0].length).trim();
+      }
+      components[components.length - 1].components.push({
+        type: ButtonType.BUTTON,
+        style: member.roles.cache.has(role.id)
+          ? ButtonStyle.DESTRUCTIVE
+          : ButtonStyle.SUCCESS,
+        emoji: emoji ? { name: emoji } : null,
+        custom_id: `rank:${member?.id}:${role.id}`,
+        label: name,
+      });
+      if (
+        components[components.length - 1].components.length >= 5 &&
+        components.length < 5
+      )
+        components.push({ type: ButtonType.ACTION_ROW, components: [] });
+    }
+    return components;
   }
 }
