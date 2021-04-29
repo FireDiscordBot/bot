@@ -140,6 +140,8 @@ export default class TicTacToe extends Command {
     for (const button of Object.values(gameData.buttons))
       this.client.buttonHandlers.set(button.custom_id, handler);
     this.client.buttonHandlers.set(`${gameId}:forfeit`, async (button) => {
+      if (button.ephemeral) return;
+      const buttonMessage = button.message as FireMessage;
       const game = this.games.get(gameId);
       if (!(button.author.id in game.players)) return;
 
@@ -149,7 +151,7 @@ export default class TicTacToe extends Command {
       this.games.delete(gameId);
 
       return await ButtonMessage.editWithButtons(
-        button.message,
+        buttonMessage,
         button.guild.language.get(
           "TICTACTOE_FORFEITED",
           button.member?.toMention()
@@ -268,6 +270,8 @@ export default class TicTacToe extends Command {
 
   private getGameHandler(gameId: string) {
     return async (button: ButtonMessage) => {
+      if (button.ephemeral) return;
+      const buttonMessage = button.message as FireMessage;
       const game = this.games.get(gameId);
       if (!game || button.author.id != game.current) return;
 
@@ -285,7 +289,7 @@ export default class TicTacToe extends Command {
       );
       this.games.set(gameId, game);
 
-      const components = button.message.components as ActionRow[];
+      const components = buttonMessage.components as ActionRow[];
       const actionRowIndex = components.findIndex(
         (component) =>
           component.type == ButtonType.ACTION_ROW &&
@@ -360,7 +364,7 @@ export default class TicTacToe extends Command {
         }
 
         return await ButtonMessage.editWithButtons(
-          button.message,
+          buttonMessage,
           button.guild.language.get(
             "TICTACTOE_WINNER",
             button.member?.toMention()
@@ -382,7 +386,7 @@ export default class TicTacToe extends Command {
         this.games.delete(gameId);
 
         return await ButtonMessage.editWithButtons(
-          button.message,
+          buttonMessage,
           button.guild.language.get("TICTACTOE_DRAW"),
           {
             buttons: components.slice(0, -1),
@@ -391,7 +395,7 @@ export default class TicTacToe extends Command {
       }
 
       await ButtonMessage.editWithButtons(
-        button.message,
+        buttonMessage,
         button.guild.language.get("TICTACTOE_TURN", `<@!${game.current}>`),
         {
           buttons: components,
