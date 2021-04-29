@@ -60,16 +60,14 @@ export default class Rank extends Command {
       const isCached =
         message.guild.members.cache.size / message.guild.memberCount;
       let roleInfo: string[] = [];
-      roles.forEach((role: Role) =>
-        roleInfo.push(
-          isCached > 0.98
-            ? (message.language.get(
-                "RANKS_INFO",
-                role.toString(),
-                role.members.size.toLocaleString(message.language.id)
-              ) as string)
-            : `> ${role}`
-        )
+      roles = roles.map((role) =>
+        isCached > 0.98
+          ? (message.language.get(
+              "RANKS_INFO",
+              role.toString(),
+              role.members.size.toLocaleString(message.language.id)
+            ) as string)
+          : `> ${role}`
       );
       const embed = new MessageEmbed()
         .setColor(message.member?.displayHexColor || "#ffffff")
@@ -90,8 +88,8 @@ export default class Rank extends Command {
       else delete embed.description;
       const components = Rank.getRankButtons(
         message.guild,
-        message.member,
-        message instanceof FireMessage
+        message.member
+        // message instanceof FireMessage
       );
       return message instanceof SlashCommandMessage
         ? message.channel.send(embed, { buttons: components as APIComponent[] })
@@ -152,7 +150,7 @@ export default class Rank extends Command {
             : ButtonStyle.SUCCESS
           : ButtonStyle.PRIMARY,
         emoji: emoji ? { name: emoji } : null,
-        custom_id: `rank:${member?.id}:${role.id}`,
+        custom_id: `!rank:${member?.id}:${role.id}`,
         label: name,
       });
       if (
