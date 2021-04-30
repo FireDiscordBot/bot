@@ -125,25 +125,7 @@ export class Fire extends AkairoClient {
     this.console = new FireConsole();
     this.util = new Util(this);
 
-    this.db = new PGClient({
-      host: process.env.POSTGRES_HOST,
-      user: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASS,
-      database: process.env.POSTGRES_DB,
-    });
-    this.db.on("error", (err) =>
-      this.console.error(`[DB] An error occured, ${err}`)
-    );
-    this.db.on("connect", () => this.console.log("[DB] Connected"));
-    this.db.on("end", (end) =>
-      this.console.error(`[DB] Connection ended, ${JSON.stringify(end)}`)
-    );
-
-    this.console.warn("[DB] Attempting to connect...");
-    this.db.connect().catch((err) => {
-      this.console.error(`[DB] Failed to connect\n${err.stack}`);
-      this.manager.kill("db_error");
-    });
+    this.initDB();
 
     this.experiments = new Collection();
     this.aliases = new Collection();
@@ -364,6 +346,34 @@ export class Fire extends AkairoClient {
   get req(): any {
     // @ts-ignore
     return this.api;
+  }
+
+  private async initDB(reconnect: boolean = false) {
+    if (this.db && !this.db.closed) await this.db.end();
+    delete this.db;
+    if (reconnect) await this.util.sleep(2500); // delay reconnect
+    this.db = new PGClient({
+      host: process.env.POSTGRES_HOST,
+      user: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASS,
+      database: process.env.POSTGRES_DB,
+    });
+    this.db.on("error", (err) =>
+      this.console.error(`[DB] An error occured, ${err}`)
+    );
+    this.db.on("connect", () => this.console.log("[DB] Connected"));
+    this.db.on("end", (end) => {
+      this.console.error(`[DB] Connection ended, attempting to reconnect...`);
+      this.initDB(true);
+    });
+
+    this.console.warn("[DB] Attempting to connect...");
+    this.db.connect().catch((err) => {
+      this.console.error(`[DB] Failed to connect\n${err.stack}`);
+      this.manager.kill("db_error");
+    });
+
+    return this.db;
   }
 
   async login() {
