@@ -447,7 +447,7 @@ export class PaginatorInterface {
         (this.slashMessage
           ? this.slashMessage.guild
           : this.message.guild
-        )?.hasExperiment("Cti1sDX_O_MtgjdcRxyUT", 1)
+        )?.hasExperiment("OQv4baDP7A_Pk60M9zYR9", 1)
       )
         this.slashMessage
           ? this.slashMessage.edit(this.sendArgs, {
