@@ -394,6 +394,7 @@ export class FakeChannel {
 
     if (!(real instanceof DMChannel) && real?.guild)
       this.guild = real.guild as FireGuild;
+    else if (this.message.guild) this.guild = this.message.guild;
   }
 
   get flags() {
