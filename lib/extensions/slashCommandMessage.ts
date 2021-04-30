@@ -339,6 +339,7 @@ export class SlashCommandMessage {
       data.components = [
         { type: ButtonType.ACTION_ROW, components: options.buttons },
       ];
+    else if (options?.buttons == null) data.components = [];
 
     await this.client.req
       .webhooks(this.client.user.id, this.slashCommand.token)
