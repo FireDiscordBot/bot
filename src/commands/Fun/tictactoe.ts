@@ -403,6 +403,15 @@ export default class TicTacToe extends Command {
         this.client.buttonHandlers.delete(`${gameId}:forfeit`);
         this.games.delete(gameId);
 
+        for (const [index, row] of components.entries()) {
+          row.components = row.components.map((component) => {
+            if (component.type == ButtonType.ACTION_ROW) return component;
+            component.disabled = true;
+            return component;
+          });
+          components[index] = row;
+        }
+
         return await ButtonMessage.editWithButtons(
           buttonMessage,
           button.guild.language.get("TICTACTOE_DRAW"),
