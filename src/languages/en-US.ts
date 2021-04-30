@@ -1513,6 +1513,8 @@ Running this command without providing a category resets it, therefore disabling
         TICTACTOE_ACCEPT_CHALLENGE: "Accept Challenge",
         TICTACTOE_REQUEST_EXPIRED:
           "Darn, seems the challenge request has expired!",
+        TICTACTOE_REQUEST_EXPIRED_SLASH: (opponent: string) =>
+          `The challenge request for ${opponent} has expired.`,
         TICTACTOE_FORFEIT: "Forfeit",
         TICTACTOE_FORFEITED: (user: string) => `${user} has forfeited the game`,
         TICTACTOE_EXISTING:

@@ -108,8 +108,17 @@ export default class TicTacToe extends Command {
     if (!requestMsg) return await message.error();
     const accepted = await this.awaitOpponentResponse(requestId, opponent);
     this.client.buttonHandlers.delete(requestId);
-    if (!accepted) return await message.error("TICTACTOE_REQUEST_EXPIRED");
-    else
+    if (!accepted) {
+      if (message instanceof SlashCommandMessage)
+        await (message as SlashCommandMessage).edit(
+          message.guild.language.get(
+            "TICTACTOE_REQUEST_EXPIRED_SLASH",
+            opponent.toMention()
+          ),
+          { buttons: null }
+        );
+      return await message.error("TICTACTOE_REQUEST_EXPIRED");
+    } else
       message instanceof SlashCommandMessage
         ? await message.delete()
         : await requestMsg.delete().catch(() => {});
@@ -361,6 +370,15 @@ export default class TicTacToe extends Command {
             (components[actionRowIndex].components[buttonIndex] as {
               style: ButtonStyle;
             }).style = ButtonStyle.PRIMARY;
+        }
+
+        for (const [index, row] of components.entries()) {
+          row.components = row.components.map((component) => {
+            if (component.type == ButtonType.ACTION_ROW) return component;
+            component.disabled = true;
+            return component;
+          });
+          components[index] = row;
         }
 
         return await ButtonMessage.editWithButtons(
