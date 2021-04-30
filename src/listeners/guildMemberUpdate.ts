@@ -179,6 +179,8 @@ export default class GuildMemberUpdate extends Listener {
       newMember.guild.language.get("REACTIONROLE_ROLE_REMOVE_REASON"),
       newMember.guild.language.get("VCROLE_ADD_REASON"),
       newMember.guild.language.get("VCROLE_REMOVE_REASON"),
+      newMember.guild.language.get("RANKS_JOIN_REASON"),
+      newMember.guild.language.get("RANKS_LEAVE_REASON"),
     ];
 
     let filteredActions = auditLogActions.entries.filter(
