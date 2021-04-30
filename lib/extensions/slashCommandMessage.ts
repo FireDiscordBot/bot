@@ -392,7 +392,7 @@ export class FakeChannel {
     this.message = message;
     this.messages = real?.messages;
 
-    if (!(real instanceof DMChannel) && real.guild)
+    if (!(real instanceof DMChannel) && real?.guild)
       this.guild = real.guild as FireGuild;
   }
 
