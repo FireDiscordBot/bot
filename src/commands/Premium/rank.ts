@@ -59,7 +59,6 @@ export default class Rank extends Command {
     if (!args.role) {
       const isCached =
         message.guild.members.cache.size / message.guild.memberCount;
-      let roleInfo: string[] = [];
       roles = roles.map((role) =>
         isCached > 0.98
           ? (message.language.get(
@@ -72,7 +71,7 @@ export default class Rank extends Command {
       const embed = new MessageEmbed()
         .setColor(message.member?.displayHexColor || "#ffffff")
         .setTimestamp()
-        .setDescription(roleInfo.join("\n"))
+        .setDescription(roles.join("\n"))
         .setAuthor(
           message.language.get("RANKS_AUTHOR", message.guild.toString()),
           message.guild.icon
@@ -83,7 +82,7 @@ export default class Rank extends Command {
               }) as string)
             : undefined
         );
-      if (!message.guild.hasExperiment("OQv4baDP7A_Pk60M9zYR9"))
+      if (!message.guild.hasExperiment("OQv4baDP7A_Pk60M9zYR9", 1))
         return await message.channel.send(embed);
       else delete embed.description;
       const components = Rank.getRankButtons(
