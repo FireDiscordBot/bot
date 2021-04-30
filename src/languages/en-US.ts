@@ -57,6 +57,7 @@ export default class enUS extends Language {
         COMMAND_ERROR_COOLDOWN:
           "This command is on cooldown, please wait a bit before running it again",
         COMMAND_ERROR_CACHE: "Something went wrong while checking my cache",
+        COMMAND_ERROR_500: `An internal error occured and command execution was halted. This may be the result of an outage so keep an eye on Fire's status page (<${constants.url.fireStatus}>) for details`,
         COMMAND_ERROR_GENERIC: (id: string) =>
           `Something went wrong while running ${id}`,
         SLASH_COMMAND_HANDLE_FAIL: "I failed to handle that slash command",

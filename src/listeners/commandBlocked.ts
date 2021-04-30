@@ -10,8 +10,10 @@ export default class CommandBlocked extends Listener {
     });
   }
 
-  async exec(message: FireMessage, command: Command, reason: string) {
-    if (reason == "owner") return await message.error("COMMAND_OWNER_ONLY");
+  async exec(message: FireMessage, _: Command, reason: string) {
+    if (reason == "500") return await message.error("COMMAND_ERROR_500");
+    else if (reason == "owner")
+      return await message.error("COMMAND_OWNER_ONLY");
     else if (reason == "superuser")
       return await message.error("COMMAND_SUPERUSER_ONLY");
     else if (reason == "moderator")
