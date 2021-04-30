@@ -40,6 +40,7 @@ export default class AddRank extends Command {
     let current = message.guild.settings.get("utils.ranks", []) as string[];
     if (current.includes(args.role.id))
       return await message.error("RANKS_ALREADY_ADDED");
+    else if (current.length >= 25) return await message.error("RANKS_LIMIT");
     else {
       current.push(args.role.id);
       message.guild.settings.set("utils.ranks", current);

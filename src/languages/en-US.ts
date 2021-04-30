@@ -1102,6 +1102,7 @@ ${prefixes.join(", ")}`,
         ADDRANK_COMMAND_DESCRIPTION:
           "Add a role that users can join through the rank command.",
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
+        RANKS_LIMIT: "You can only have up to 25 ranks!",
         DELRANK_COMMAND_DESCRIPTION:
           "Remove a rank from the list of joinable roles.",
         REACTIONROLE_ROLE_REASON: "Adding reaction role",
