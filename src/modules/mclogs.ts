@@ -223,25 +223,36 @@ export default class MCLogs extends Module {
       .forEach(async (attach) => {
         try {
           // const text = await (await centra(attach.url).send()).text();
-          let text: string[] = [];
+          let chunks: string[] = [];
           const stream = await centra(attach.url).stream().send();
           let logDiff: string;
           for await (const chunk of (stream as unknown) as Readable) {
-            const [processed, diff] = await this.processLogStream(
-              message,
-              chunk.toString()
-            );
-            if (processed) text.push(processed);
-            if (diff) logDiff = diff;
-            if (text.length >= 5 && !this.hasLogText(text.join(""))) {
-              text = [];
+            chunks.push(chunk.toString());
+            if (chunks.length >= 5 && !this.hasLogText(chunks.join(""))) {
+              chunks = [];
               break;
             }
           }
-          if (text.length && this.hasLogText(text.join("")))
+          let processed: string[] = [];
+          while (chunks.length) {
+            let text: string[] = [];
+            for (
+              let i = 0;
+              i < 5;
+              i++ // add up to 5 chunks
+            )
+              if (chunks.length) text.push(chunks.pop());
+            const [data, diff] = await this.processLogStream(
+              message,
+              text.join("")
+            );
+            if (data) processed.push(data);
+            if (diff) logDiff = diff;
+          }
+          if (chunks.length && chunks.some((chunk) => this.hasLogText(chunk)))
             await this.handleLogText(
               message,
-              text.join(""),
+              processed.join(""),
               "uploaded",
               logDiff
             );
