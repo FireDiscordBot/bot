@@ -1,4 +1,5 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
 import { MessageEmbed } from "discord.js";
 
@@ -52,7 +53,13 @@ export default class MessageDelete extends Listener {
       const description = message.guild.language.get(
         "MSGDELETELOG_DESCRIPTION",
         message.author.toMention(),
-        message.channel.toString()
+        message.channel.toString(),
+        message.type == "REPLY"
+          ? message.mentions.users.has(message.referencedMessage?.author?.id)
+            ? (message.referencedMessage?.author as FireUser)?.toMention()
+            : message.referencedMessage?.author?.toString()
+          : null,
+        `https://discord.com/channels/${message.reference?.guildID}/${message.reference?.channelID}/${message.reference?.messageID}`
       ) as string;
       const content = message.content
         ? message.content.length > 1023 - description.length

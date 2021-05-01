@@ -757,8 +757,15 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         MODCORE_NO_COSMETICS: "No Cosmetics",
         MSGEDITLOG_DESCRIPTION: (author: string, channel: string) =>
           `**${author} edited a message in ${channel}**`,
-        MSGDELETELOG_DESCRIPTION: (author: string, channel: string) =>
-          `**${author}'s message in ${channel} was deweted**`,
+        MSGDELETELOG_DESCRIPTION: (
+          author: string,
+          channel: string,
+          reply?: string,
+          replyURL?: string
+        ) =>
+          reply
+            ? `**${author}'s [wepwy](${replyURL}) to ${reply} in ${channel} was deweted**`
+            : `**${author}'s message in ${channel} was deweted**`,
         MSGDELETELOG_ATTACH_WARN:
           "__Attachment UWWs awe invawidated once the message is deweted.__",
         MSGDELETELOG_SPOTIFY_ACTIVITY: "Spotify Invite",

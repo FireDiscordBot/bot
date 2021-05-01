@@ -937,8 +937,15 @@ ${channels.join(", ")}`
         MODCORE_NO_COSMETICS: "No Cosmetics",
         MSGEDITLOG_DESCRIPTION: (author: string, channel: string) =>
           `**${author} edited a message in ${channel}**`,
-        MSGDELETELOG_DESCRIPTION: (author: string, channel: string) =>
-          `**${author}'s message in ${channel} was deleted**`,
+        MSGDELETELOG_DESCRIPTION: (
+          author: string,
+          channel: string,
+          reply?: string,
+          replyURL?: string
+        ) =>
+          reply
+            ? `**${author}'s [reply](${replyURL}) to ${reply} in ${channel} was deleted**`
+            : `**${author}'s message in ${channel} was deleted**`,
         MSGDELETELOG_ATTACH_WARN:
           "__Attachment URLs are invalidated once the message is deleted.__",
         MSGDELETELOG_SPOTIFY_ACTIVITY: "Spotify Invite",
