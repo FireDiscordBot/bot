@@ -918,7 +918,7 @@ export class FireGuild extends Guild {
       );
     }
     transcript.push(`${transcript.length} messages, closed by ${author}`);
-    const buffer = Buffer.from(transcript.join("\n\n"));
+    const buffer = Buffer.from(transcript.join("\n\n"), "ascii");
     const id = getIDMatch(channel.topic, true);
     let creator = author;
     if (id) {
