@@ -1,8 +1,15 @@
 import { BitFieldResolvable, PermissionString, GuildChannel } from "discord.js";
+import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMessage } from "@fire/lib/extensions/message";
+import VanityURLs from "@fire/src/modules/vanityurls";
 import { titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import {
+  APIComponent,
+  ButtonStyle,
+  ButtonType,
+} from "@fire/lib/interfaces/interactions";
 
 export default class Help extends Command {
   constructor() {
@@ -86,20 +93,60 @@ export default class Help extends Command {
           inline: false,
         });
     }
-    fields.push(
-      ...[
+    fields.push({
+      name: message.language.get("HELP_CREDITS_NAME") as string,
+      value: message.language.get("HELP_CREDITS_VALUE") as string,
+      inline: false,
+    });
+    let buttons: APIComponent[] = null;
+    if (message.guild?.hasExperiment("OQv4baDP7A_Pk60M9zYR9", 1)) {
+      let supportInvite = "https://inv.wtf/fire";
+      const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
+      if (vanityurls) {
+        const supportVanity = await vanityurls.getVanity("fire");
+        if (typeof supportVanity == "object" && supportVanity?.invite)
+          supportInvite = `https://discord.gg/${supportVanity.invite}`;
+      }
+      buttons = [
         {
-          name: message.language.get("HELP_CREDITS_NAME") as string,
-          value: message.language.get("HELP_CREDITS_VALUE") as string,
-          inline: false,
+          type: ButtonType.BUTTON,
+          style: ButtonStyle.LINK,
+          url: "https://inv.wtf/",
+          label: "Website",
         },
         {
-          name: message.language.get("HELP_LINKS_NAME") as string,
-          value: message.language.get("HELP_LINKS_VALUE") as string,
-          inline: false,
+          type: ButtonType.BUTTON,
+          style: ButtonStyle.LINK,
+          // right now this opens in browser but
+          // I have been told this may change
+          url: supportInvite,
+          label: "Support",
         },
-      ]
-    );
+        {
+          url: "https://inv.wtf/terms",
+          label: "Terms of Service",
+          type: ButtonType.BUTTON,
+          style: ButtonStyle.LINK,
+        },
+        {
+          url: "https://inv.wtf/privacy",
+          type: ButtonType.BUTTON,
+          style: ButtonStyle.LINK,
+          label: "Privacy Policy",
+        },
+        {
+          url: "https://inv.wtf/premium",
+          type: ButtonType.BUTTON,
+          style: ButtonStyle.LINK,
+          label: "Premium",
+        },
+      ];
+    } else
+      fields.push({
+        name: message.language.get("HELP_LINKS_NAME") as string,
+        value: message.language.get("HELP_LINKS_VALUE") as string,
+        inline: false,
+      });
     const embed = {
       color: message.member?.displayHexColor || "#ffffff",
       author: {
@@ -121,7 +168,11 @@ export default class Help extends Command {
       },
       timestamp: new Date(),
     };
-    await message.channel.send({ embed });
+    // await message.channel.send({ embed });
+    return await ButtonMessage.sendWithButtons(message.channel, null, {
+      buttons,
+      embed,
+    });
   }
 
   async sendUsage(message: FireMessage, command: Command) {
