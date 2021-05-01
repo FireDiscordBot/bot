@@ -55,6 +55,7 @@ export class Websocket extends Client {
           MessageUtil.encode(
             new Message(EventType.IDENTIFY_CLIENT, {
               ready: !!this.manager.client.readyAt,
+              id: this.manager.id,
               pid: process.pid,
               config: {},
             })

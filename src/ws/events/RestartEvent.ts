@@ -21,7 +21,8 @@ export default class RestartEvent extends Event {
     this.manager.client.console.log(
       "[Aether] Received restart event, checking whether sharding options have changed..."
     );
-    if (data.id != this.manager.id) return this.manager.kill("resharding");
+    if (data.id != this.manager.id)
+      return this.manager.kill("cluster_id_mismatch");
     this.manager.session = data.session;
     const currentOptions = this.manager.client.options;
     if (
