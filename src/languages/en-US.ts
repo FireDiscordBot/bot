@@ -1540,6 +1540,10 @@ Running this command without providing a category resets it, therefore disabling
           "Closes a ticket, uploads the transcript to action logs channel and sends to the ticket author",
         TICKET_WILL_CLOSE:
           "Are you sure you want to close this ticket? Type `close` to confirm",
+        TICKET_WILL_CLOSE_BUTTON:
+          "Are you sure you want to close this ticket? Type `close` or click the button below to confirm",
+        TICKET_CONFIRMATION_EXPIRED:
+          "You didn't respond quick enough! If you want to close the ticket, rerun the command",
         TICKET_CLOSE_BUTTON_TEXT: "Close Ticket",
         TICKET_CLOSE_BUTTON:
           "Ticket was closed using close button, no reason can be provided via this means at the moment",
