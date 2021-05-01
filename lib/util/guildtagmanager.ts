@@ -440,5 +440,6 @@ export class GuildTagManager {
     );
     cached.content = newContent;
     this.cache.set(cached.name, cached);
+    return true;
   }
 }

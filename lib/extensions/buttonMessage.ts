@@ -253,7 +253,7 @@ export class ButtonMessage {
 
   set flags(flags: number) {
     // Suppress and ephemeral
-    if (![1 << 2, 1 << 6].includes(flags)) return;
+    if (![1 << 2, 1 << 6].includes(flags) && flags != 0) return;
     this._flags = flags;
   }
 
@@ -308,7 +308,7 @@ export class ButtonMessage {
     return this.channel.send(
       `${emojis.success} ${this.language.get(key, ...args)}`,
       {},
-      this.flags ? this.flags : 64
+      typeof this.flags == "number" ? this.flags : 64
     );
   }
 
@@ -331,7 +331,7 @@ export class ButtonMessage {
     return this.channel.send(
       `${emojis.error} ${this.language.get(key, ...args)}`,
       {},
-      this.flags ? this.flags : 64
+      typeof this.flags == "number" ? this.flags : 64
     );
   }
 

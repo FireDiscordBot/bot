@@ -1435,6 +1435,30 @@ Your existing premium servers are: ${current.join(", ")}`,
           "I searched near and far and could not find any tags...",
         TAG_INVALID_TAG: (tag: string) =>
           `There doesn't seem to be a tag called ${tag}`,
+        TAG_NAME: "Tag Name",
+        TAG_ALIASES: "Tag Aliases",
+        TAG_CREATOR: "Created By",
+        TAG_USES: "Tag Usage",
+        TAG_USED_INFO: (name: string, uses: number) =>
+          `The tag "${name}" has been used ${uses} times.`,
+        TAG_INFO_COMMAND_DESCRIPTION:
+          "View info about a tag such as who created it and how many times it's been used",
+        TAG_INFO_MISSING_ARG:
+          "You need to provide a tag name to view the info for",
+        TAG_INFO_EDIT_BUTTON: "Edit Tag",
+        TAG_INFO_VIEW_BUTTON: "View Full Tag",
+        TAG_INFO_DELETE_BUTTON: "Delete Tag",
+        TAG_EDIT_BUTTON_EMBED:
+          "Alright, you have 2 and a half minutes to send the new tag content or you can click the cancel button",
+        TAG_EDIT_CANCEL_BUTTON: "Cancel Edit",
+        TAG_EDIT_BUTTON_CANCEL_EMBED:
+          "Editing has been cancelled. If you wish to edit the tag, you must rerun the command",
+        TAG_EDIT_BUTTON_EDITING_EMBED:
+          "Attempting to edit tag with your new content...",
+        TAG_DELETE_FAILED: (haste: string) =>
+          `Failed to delete that tag! It should still be usable but if not and you would like to recreate it, I've uploaded the tag data to ${haste}`,
+        TAG_DELETE_SUCCESS: (haste: string) =>
+          `Successfully deleted tag! If you would like to recreate the tag, I've uploaded the data to ${haste}`,
         TAG_RAW_COMMAND_DESCRIPTION: "View the raw content of a tag",
         TAGS_RAW_MISSING_ARG:
           "You need to provide a tag name to get the raw content of",
@@ -1460,6 +1484,9 @@ Your existing premium servers are: ${current.join(", ")}`,
         TAGS_EDIT_MISSING_CONTENT:
           "You need to provide the new content for the tag",
         TAGS_EDIT_LIMIT: "This tag cannot be modified!",
+        TAG_EDIT_FAILED: "I was unable to edit that tag with your new content",
+        TAG_EDIT_SUCCESS:
+          "I successfully updated that tag with your shiny new content!",
         TAG_ALIAS_COMMAND_DESCRIPTION: "Create an alias for a tag",
         TAGS_ALIAS_MISSING_NAME:
           "I can't make an alias for nothing. You need to provide an existing tag name",

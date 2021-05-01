@@ -122,6 +122,156 @@ export default class Button extends Listener {
       });
     }
 
+    if (button.custom_id.startsWith("tag_edit:") && button.guild) {
+      if (!button.member?.permissions.has("MANAGE_MESSAGES"))
+        return await button
+          .error(
+            "MISSING_PERMISSIONS_USER",
+            this.client.util.cleanPermissionName(
+              "MANAGE_MESSAGES",
+              button.language
+            ),
+            "tag edit"
+          )
+          .catch(() => {});
+
+      const name = button.custom_id.slice(9);
+      const tag = await button.guild.tags.getTag(name, false);
+
+      let cancelled = false;
+      const cancelSnowflake = SnowflakeUtil.generate();
+      this.client.buttonHandlersOnce.set(cancelSnowflake, () => {
+        if (button.ephemeral) return;
+        cancelled = true;
+        const cancelledEmbed = new MessageEmbed()
+          .setAuthor(
+            button.guild.name,
+            button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
+          )
+          .setColor(button.member?.displayHexColor || "#ffffff")
+          .setDescription(button.language.get("TAG_EDIT_BUTTON_CANCEL_EMBED"))
+          .setTimestamp();
+        return ButtonMessage.editWithButtons(
+          button.message as FireMessage,
+          cancelledEmbed,
+          {
+            buttons: null,
+          }
+        );
+      });
+      const editEmbed = new MessageEmbed()
+        .setAuthor(
+          button.guild.name,
+          button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
+        )
+        .setColor(button.member?.displayHexColor || "#ffffff")
+        .setDescription(button.language.get("TAG_EDIT_BUTTON_EMBED"))
+        .setTimestamp();
+      await button.channel.update(editEmbed, {
+        buttons: [
+          {
+            label: button.language.get("TAG_EDIT_CANCEL_BUTTON") as string,
+            style: ButtonStyle.DESTRUCTIVE,
+            custom_id: cancelSnowflake,
+            type: ButtonType.BUTTON,
+          },
+        ],
+      });
+
+      const newContent = await button.channel
+        .awaitMessages(
+          (m: FireMessage) =>
+            m.author.id == button.author.id &&
+            m.channel.id == button.button.channel_id,
+          { max: 1, time: 150000, errors: ["time"] }
+        )
+        .catch(() => {});
+      if (cancelled || !newContent || !newContent.first()?.content) return;
+      this.client.buttonHandlersOnce.delete(cancelSnowflake);
+
+      if (!button.ephemeral && !cancelled) {
+        const editingEmbed = new MessageEmbed()
+          .setAuthor(
+            button.guild.name,
+            button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
+          )
+          .setColor(button.member?.displayHexColor || "#ffffff")
+          .setDescription(button.language.get("TAG_EDIT_BUTTON_EDITING_EMBED"))
+          .setTimestamp();
+        await ButtonMessage.editWithButtons(
+          button.message as FireMessage,
+          editingEmbed,
+          {
+            buttons: null,
+          }
+        ).catch(() => {});
+      }
+
+      button.flags = 0;
+      await newContent
+        .first()
+        ?.delete()
+        .catch(() => {});
+
+      const edited = await button.guild.tags
+        .editTag(tag.name, newContent.first()?.content)
+        .catch(() => {});
+      if (!edited) return await button.error("TAG_EDIT_FAILED");
+      else return await button.success("TAG_EDIT_SUCCESS");
+    }
+
+    if (button.custom_id.startsWith(`tag_view:`) && button.guild) {
+      const name = button.custom_id.slice(9);
+      const tag = await button.guild.tags.getTag(name, false);
+      if (!tag) return;
+      else
+        return await button.channel.send(tag.content, {}, 64).catch(() => {});
+    }
+
+    if (button.custom_id.startsWith("tag_delete:") && button.guild) {
+      if (!button.member?.permissions.has("MANAGE_MESSAGES"))
+        return await button
+          .error(
+            "MISSING_PERMISSIONS_USER",
+            this.client.util.cleanPermissionName(
+              "MANAGE_MESSAGES",
+              button.language
+            ),
+            "tag delete"
+          )
+          .catch(() => {});
+
+      const name = button.custom_id.slice(11);
+      const tag = await button.guild.tags.getTag(name, false);
+      if (!tag) return;
+
+      if (typeof tag.createdBy != "string") tag.createdBy = tag.createdBy.id;
+      delete tag.uses;
+
+      const data = await this.client.util
+        .haste(JSON.stringify(tag, null, 4), false, "json")
+        .catch(() => {});
+      if (!data) return;
+
+      const deleted = await button.guild.tags.deleteTag(name);
+      if (!deleted)
+        return await button.channel.update(
+          button.language.get("TAG_DELETE_FAILED", data),
+          { embed: null, buttons: null }
+        );
+      else {
+        const embed = new MessageEmbed()
+          .setAuthor(
+            button.guild.name,
+            button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
+          )
+          .setColor(button.member?.displayHexColor || "#ffffff")
+          .setDescription(button.language.get("TAG_DELETE_SUCCESS", data))
+          .setTimestamp();
+        return await button.channel.update(embed, { buttons: null });
+      }
+    }
+
     if (button.custom_id.startsWith("sk1er_support_")) {
       const type = button.custom_id.slice(14);
       if (!type || !validSk1erTypes.includes(type)) return;
