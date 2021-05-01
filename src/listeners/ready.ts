@@ -195,7 +195,5 @@ export default class Ready extends Listener {
         }
       }
     }
-
-    this.client.cacheSweep();
   }
 }

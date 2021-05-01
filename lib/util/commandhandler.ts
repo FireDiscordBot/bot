@@ -5,14 +5,16 @@ import {
   Constants,
 } from "discord-akairo";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { CommandUtil } from "./commandutil";
 import { Collection } from "discord.js";
-import { Command } from "./command";
 import { Fire } from "@fire/lib/Fire";
+import { Command } from "./command";
 
 const { CommandHandlerEvents } = Constants;
 
 export class CommandHandler extends AkairoCommandHandler {
   categories: Collection<string, Category<string, Command>>;
+  commandUtils: Collection<string, CommandUtil>;
   modules: Collection<string, Command>;
   client: Fire;
 
@@ -20,13 +22,6 @@ export class CommandHandler extends AkairoCommandHandler {
     super(client, options);
   }
 
-  /**
-   * Runs a command.
-   * @param {FireMessage} message - Message to handle.
-   * @param {Command} command - Command to handle.
-   * @param {any} args - Arguments to use.
-   * @returns {Promise<void>}
-   */
   async runCommand(
     message: FireMessage,
     command: Command,
@@ -57,9 +52,22 @@ export class CommandHandler extends AkairoCommandHandler {
     }
   }
 
+  async handle(message: FireMessage) {
+    if (this.commandUtil) {
+      if (this.commandUtils.has(message.id)) {
+        message.util = this.commandUtils.get(message.id);
+      } else {
+        message.util = new CommandUtil(this, message);
+        this.commandUtils.set(message.id, message.util);
+      }
+    }
+
+    return await super.handle(message);
+  }
+
   setup() {
     this.client.once("ready", () => {
-      this.client.on("message", async (m) => {
+      this.client.on("message", async (m: FireMessage) => {
         if (m.partial) await m.fetch().catch(() => {});
         if (!m.partial) this.handle(m);
       });

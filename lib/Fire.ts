@@ -201,6 +201,7 @@ export class Fire extends AkairoClient {
         : "./src/commands/",
       commandUtil: true,
       handleEdits: true,
+      fetchMembers: true,
       defaultCooldown: 5000,
       aliasReplacement: /-/im,
       automateCategories: true,
@@ -416,7 +417,7 @@ export class Fire extends AkairoClient {
       });
       this.users.cache.sweep((user) => user.id != this.user?.id);
     };
-    this.cacheSweepTask = setInterval(this.cacheSweep, 30000);
+    this.cacheSweepTask = setInterval(this.cacheSweep, 120000);
     return super.login();
   }
 
