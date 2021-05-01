@@ -47,7 +47,7 @@ export class MessageIterator {
       );
 
     this.source = source;
-    this.limit = options.limit || 100;
+    this.limit = options.limit ?? null;
 
     if (options.before instanceof Date)
       this.before = SnowflakeUtil.generate(options.before);
