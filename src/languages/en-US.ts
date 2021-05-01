@@ -540,6 +540,18 @@ Hint: Use the \`public\` command to get your server on the list`,
           "You must have the `Manage Messages` permission in the channel you wish to send an embed in if a channel is provided",
         EMBED_OBJECT_INVALID:
           "That doesn't seem to be a valid embed, try using https://gaminggeek.dev/embed-visualizer to generate an embed",
+        EMOJILOCK_COMMAND_DESCRIPTION: "Lock an emoji to specific roles",
+        EMOJILOCK_INVALID_EMOJI:
+          "You must provide a valid emoji from this server to lock",
+        EMOJILOCK_INVALID_ROLE:
+          "You must provide a role to toggle this emoji for",
+        EMOJILOCK_FAILURE: "I was unable to update the roles for that emoji",
+        EMOJILOCK_SUCCESS: (roles: string[]) =>
+          `I successfully updated the roles for that emoji. ${
+            roles.length
+              ? "It is now locked to " + roles.join(", ")
+              : "It is no longer locked to any roles."
+          }`,
         EVAL_COMMAND_DESCRIPTION: "run epic gamer code",
         EVAL_NO_CONTENT:
           "hey idiot you forgot to add the code you want to eval",
