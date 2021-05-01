@@ -1,4 +1,5 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
@@ -20,7 +21,7 @@ export default class BroadcastEvalEvent extends Event {
           around: data.messageId,
           limit: 1,
         })
-      ).first();
+      ).first() as FireMessage;
       if (!this.manager.client.isOwner(message.author)) return;
       message.content = message.content.replace("--broadcast", ""); // We don't want an infinite loop so goodbye flag
       const handled = await this.manager.client.commandHandler.handle(message);
