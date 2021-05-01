@@ -233,6 +233,7 @@ export default class MCLogs extends Module {
               break;
             }
           }
+          chunks = chunks.reverse();
           let processed: string[] = [];
           while (chunks.length) {
             let text: string[] = [];
@@ -249,7 +250,10 @@ export default class MCLogs extends Module {
             if (data) processed.push(data);
             if (diff) logDiff = diff;
           }
-          if (chunks.length && chunks.some((chunk) => this.hasLogText(chunk)))
+          if (
+            processed.length &&
+            processed.some((chunk) => this.hasLogText(chunk))
+          )
             await this.handleLogText(
               message,
               processed.join(""),
