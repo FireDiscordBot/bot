@@ -20,10 +20,10 @@ import {
   MemberLogType,
   ModLogType,
 } from "@fire/lib/util/constants";
+import { ButtonStyle, ButtonType } from "../interfaces/interactions";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import TicketName from "@fire/src/commands/Tickets/name";
-import { ButtonStyle } from "../interfaces/interactions";
 import { PermRolesData } from "../interfaces/permroles";
 import { GuildSettings } from "@fire/lib/util/settings";
 import { getIDMatch } from "@fire/lib/util/converters";
@@ -834,7 +834,7 @@ export class FireGuild extends Guild {
           embed,
           buttons: [
             {
-              type: 2,
+              type: ButtonType.BUTTON,
               style: ButtonStyle.DESTRUCTIVE,
               custom_id: `ticket_close_${ticket.id}`,
               label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
