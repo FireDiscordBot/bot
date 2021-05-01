@@ -1543,6 +1543,8 @@ Running this command without providing a category resets it, therefore disabling
         TICKET_CLOSE_BUTTON_TEXT: "Close Ticket",
         TICKET_CLOSE_BUTTON:
           "Ticket was closed using close button, no reason can be provided via this means at the moment",
+        TICKET_CLOSE_TRANSCRIPT_STICKER: (name: string) =>
+          `Message contained sticker, ${name}`,
         TICKET_CLOSE_TRANSCRIPT: (guild: string, reason: string) =>
           `Your ticket in ${guild} was closed for the reason "${reason}". The transcript is below`,
         TICKET_CLOSER_TITLE: (channel: string) =>

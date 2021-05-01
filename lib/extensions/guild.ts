@@ -742,10 +742,10 @@ export class FireGuild extends Guild {
     const words = (this.client.getCommand("ticket-name") as TicketName).words;
     let increment = this.settings.get("tickets.increment", 0) as number;
     const variables = {
-      "{increment}": increment.toString() as string,
+      "{increment}": increment.toString(),
       "{name}": author.user.username,
       "{id}": author.id,
-      "{word}": this.client.util.randomItem(words) as string,
+      "{word}": this.client.util.randomItem<string>(words),
       "{uuid}": uuidv4().slice(0, 4),
       "{crab}": "🦀", // CRAB IN DA CODE
     };
@@ -763,16 +763,6 @@ export class FireGuild extends Guild {
       this.me.id,
       this.roles.everyone.id,
     ];
-    // for whatever reason d.js tries to resolve user overwrites
-    // and if the user isn't cached, it won't create the channel so
-    // lets just fetch them and filter invalid ones
-    const overwriteMembers = await this.members
-      .fetch({
-        user: category.permissionOverwrites
-          .filter((overwrite) => overwrite.type == "member")
-          .map((overwrite) => overwrite.id),
-      })
-      .catch(() => {});
 
     const ticket = ((await this.channels
       .create(name.slice(0, 50), {
@@ -791,27 +781,21 @@ export class FireGuild extends Guild {
               if (overwrite.deny.has("MANAGE_ROLES"))
                 overwrite.deny.remove("MANAGE_ROLES");
               return overwrite;
-            })
-            .filter(
-              (overwrite) =>
-                (overwrite.type == "role" &&
-                  this.roles.cache.has(overwrite.id)) ||
-                (overwrite.type == "member" &&
-                  overwriteMembers &&
-                  overwriteMembers.has(overwrite.id)) ||
-                !overwriteMembers
-            ),
+            }),
           {
             allow: ["VIEW_CHANNEL", "SEND_MESSAGES"],
+            type: "member",
             id: author.id,
           },
           {
             allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_CHANNELS"],
+            type: "member",
             id: this.me.id,
           },
           {
             id: this.roles.everyone.id,
             deny: ["VIEW_CHANNEL"],
+            type: "role",
           },
         ],
         topic: this.language.get(
@@ -921,18 +905,18 @@ export class FireGuild extends Guild {
       channels.map((c) => c.id)
     );
     let transcript: string[] = [];
-    const iterator = new MessageIterator(channel, { oldestFirst: true });
-    for await (const message of iterator.iterate())
+    const iterator = new MessageIterator(channel, {
+      oldestFirst: true,
+    });
+    for await (const message of iterator.iterate()) {
       transcript.push(
         `${message.author} (${
           message.author.id
-        }) at ${message.createdAt.toLocaleString(this.language.id)}\n${
-          message.content ||
-          message.embeds[0]?.description ||
-          message.attachments.first()?.proxyURL ||
-          `${message.embeds[0]?.fields[0]?.name} | ${message.embeds[0]?.fields[0]?.value}`
-        }`
+        }) at ${message.createdAt.toLocaleString(
+          this.language.id
+        )}\n${this.getTranscriptContent(message)}`
       );
+    }
     transcript.push(`${transcript.length} messages, closed by ${author}`);
     const buffer = Buffer.from(transcript.join("\n\n"));
     const id = getIDMatch(channel.topic, true);
@@ -981,6 +965,27 @@ export class FireGuild extends Guild {
     return (await channel
       .delete(this.language.get("TICKET_CLOSE_REASON") as string)
       .catch((e: Error) => e)) as FireTextChannel | Error;
+  }
+
+  private getTranscriptContent(message: FireMessage) {
+    let text = message.cleanContent ?? "";
+    if (message.embeds.length)
+      for (const embed of message.embeds) {
+        if (embed.description) text += `\n${embed.description}`;
+        if (embed.fields.length)
+          for (const field of embed.fields)
+            text += `\n${field.name} | ${field.value}`;
+      }
+    if (message.attachments.size)
+      for (const [, attachment] of message.attachments)
+        text += `\n${attachment.proxyURL}`;
+    if (message.stickers.size)
+      text += `\n${this.language.get(
+        "TICKET_CLOSE_TRANSCRIPT_STICKER",
+        message.stickers.map((sticker) => sticker.name).join(",")
+      )}`;
+
+    return text.trim() || "¯\\\\_(ツ)_/¯";
   }
 
   async createModLogEntry(
