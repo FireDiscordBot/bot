@@ -20,7 +20,10 @@ const getAPIOffset = (serverDate: string) => {
   return new Date(serverDate).getTime() - Date.now();
 };
 
-const calculateReset = (reset: any, serverDate: string) => {
+const calculateReset = (reset: any, resetAfter: string, serverDate: string) => {
+  if (resetAfter) {
+    return Date.now() + Number(resetAfter) * 1000;
+  }
   return new Date(Number(reset) * 1000).getTime() - getAPIOffset(serverDate);
 };
 
@@ -164,13 +167,18 @@ export class RequestHandler {
       const limit = res.headers["x-ratelimit-limit"];
       const remaining = res.headers["x-ratelimit-remaining"];
       const reset = res.headers["x-ratelimit-reset"];
+      const resetAfter = res.headers["x-ratelimit-reset-after"];
 
       this.limit = limit ? Number(limit) : Infinity;
       this.remaining = remaining ? Number(remaining) : 1;
-      this.reset = reset ? calculateReset(reset, serverDate) : Date.now();
+
+      this.reset =
+        reset || resetAfter
+          ? calculateReset(reset, resetAfter as string, serverDate)
+          : Date.now();
 
       // https://github.com/discordapp/discord-api-docs/issues/182
-      if (request.route.includes("reactions")) {
+      if (!resetAfter && request.route.includes("reactions")) {
         this.reset =
           new Date(serverDate).getTime() - getAPIOffset(serverDate) + 250;
       }
