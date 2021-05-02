@@ -111,6 +111,7 @@ export default class enUS extends Language {
         REASON: "Reason",
         JOINED: "Joined",
         ONLINE: "Online",
+        EMOJIS: "Emojis",
         CHANNEL: "Channel",
         MESSAGE: "Message",
         SUBJECT: "Subject",

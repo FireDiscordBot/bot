@@ -111,6 +111,13 @@ export default class GuildCommand extends Command {
             message.language.id
           )}`
         : null,
+      (guild instanceof FireGuild && guild.emojis.cache.size) ||
+      (guild instanceof GuildPreview && guild.emojis.size)
+        ? `**${message.language.get("EMOJIS")}:** ${(guild instanceof FireGuild
+            ? guild.emojis.cache.size
+            : guild.emojis.size
+          ).toLocaleString(message.language.id)}`
+        : null,
       guild instanceof FireGuild
         ? `**${message.language.get(
             "CHANNELS"
@@ -274,7 +281,11 @@ export default class GuildCommand extends Command {
         : null;
 
     const embed = new MessageEmbed()
-      .setDescription(badges.join(" "))
+      .setDescription(
+        guild.description
+          ? `${badges.join(" ")}\n\n${guild.description}`
+          : badges.join(" ")
+      )
       .setColor(message.member?.displayHexColor || "#ffffff")
       .setAuthor(
         guild.name,
