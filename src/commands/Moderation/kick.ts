@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
@@ -49,7 +49,7 @@ export default class Kick extends Command {
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),
       message.member,
-      message.channel as FireTextChannel
+      message.silent ? undefined : (message.channel as FireTextChannel)
     );
     if (yeeted == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");

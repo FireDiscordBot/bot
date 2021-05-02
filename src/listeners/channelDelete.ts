@@ -3,7 +3,7 @@ import {
   MessageEmbed,
   DMChannel,
 } from "discord.js";
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { humanize } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";

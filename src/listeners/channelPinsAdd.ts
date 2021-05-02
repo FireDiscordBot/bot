@@ -1,4 +1,4 @@
-import { FireTextChannel} from "@fire/lib/extensions/textchannel";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageReference, MessageEmbed } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
