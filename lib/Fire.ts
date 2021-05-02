@@ -29,6 +29,7 @@ import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSno
 import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChannel";
 import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
 import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
+import { Collection, ClientUser, version as djsver } from "discord.js";
 import { SlashCommandMessage } from "./extensions/slashCommandMessage";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
@@ -44,7 +45,6 @@ import { moduleTypeCaster } from "@fire/src/arguments/module";
 import { PresenceUpdateAction } from "./util/PresenceUpdate";
 import { Language, LanguageHandler } from "./util/language";
 import { hasteTypeCaster } from "@fire/src/arguments/haste";
-import { Collection, version as djsver } from "discord.js";
 import { ButtonMessage } from "./extensions/buttonMessage";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandhandler";
@@ -56,6 +56,7 @@ import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
 import { RESTManager } from "./rest/RESTManager";
 import { EventType } from "./ws/util/constants";
+import { FireUser } from "./extensions/user";
 import { Inhibitor } from "./util/inhibitor";
 import { FireConsole } from "./util/console";
 import { config } from "@fire/config/index";
@@ -99,14 +100,15 @@ export class Fire extends AkairoClient {
   buttonHandlers: Collection<string, ButtonHandler>;
 
   // Common Attributes
-  util: Util;
-  db: PGClient;
-  ksoft?: KSoftClient;
-  cacheSweep: () => void;
-  config: typeof config.fire;
-  cacheSweepTask: NodeJS.Timeout;
-  aliases: Collection<string, string[]>;
   experiments: Collection<string, Experiment>;
+  aliases: Collection<string, string[]>;
+  cacheSweepTask: NodeJS.Timeout;
+  config: typeof config.fire;
+  cacheSweep: () => void;
+  ksoft?: KSoftClient;
+  user: FireUser & ClientUser;
+  db: PGClient;
+  util: Util;
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });

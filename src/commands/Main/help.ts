@@ -1,4 +1,5 @@
 import { BitFieldResolvable, PermissionString, GuildChannel } from "discord.js";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import VanityURLs from "@fire/src/modules/vanityurls";
@@ -160,7 +161,7 @@ export default class Help extends Command {
         text: message.language.get(
           "HELP_FOOTER",
           message.util.parsed.prefix.replace(
-            this.client.user.toString(),
+            message.guild?.me?.toMention() ?? this.client.user.toMention(),
             `@${this.client.user.username} `
           ) || "$",
           this.client.manager.id
@@ -169,10 +170,12 @@ export default class Help extends Command {
       timestamp: new Date(),
     };
     // await message.channel.send({ embed });
-    return await ButtonMessage.sendWithButtons(message.channel, null, {
-      buttons,
-      embed,
-    });
+    return message instanceof SlashCommandMessage
+      ? await message.channel.send({ embed, buttons })
+      : await ButtonMessage.sendWithButtons(message.channel, null, {
+          buttons,
+          embed,
+        });
   }
 
   async sendUsage(message: FireMessage, command: Command) {

@@ -69,6 +69,7 @@ export class FireGuild extends Guild {
   settings: GuildSettings;
   logger: GuildLogManager;
   tags: GuildTagManager;
+  me: FireMember | null;
   client: Fire;
 
   constructor(client: Fire, data: object) {
