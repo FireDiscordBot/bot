@@ -53,6 +53,8 @@ export class CommandHandler extends AkairoCommandHandler {
   }
 
   async handle(message: FireMessage) {
+    if (message.webhookID || message.author?.bot) return false;
+
     if (this.commandUtil) {
       if (this.commandUtils.has(message.id)) {
         message.util = this.commandUtils.get(message.id);
