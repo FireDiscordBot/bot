@@ -1,6 +1,7 @@
 import {
   Role,
   Collection,
+  StageChannel,
   GuildChannel,
   VoiceChannel,
   GuildPreview,
@@ -17,10 +18,9 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { constants } from "./constants";
 import * as fuzz from "fuzzball";
 import * as centra from "centra";
-import { StageChannel } from "discord.js";
 
 const messageIDRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
-const userMentionRegex = /<@!?(1|\d{15,21})>$/im;
+const userMentionRegex = /<@!?(\d{15,21})>$/im;
 const channelMentionRegex = /<#(\d{15,21})>$/im;
 const roleMentionRegex = /<@&(\d{15,21})>$/im;
 const idOnlyRegex = /^(\d{15,21})$/im;
