@@ -12,6 +12,8 @@ import {
   ButtonType,
 } from "@fire/lib/interfaces/interactions";
 
+const userMentionRegex = /<@!?(\d{15,21})>$/im;
+
 export default class Help extends Command {
   constructor() {
     super("help", {
@@ -161,7 +163,7 @@ export default class Help extends Command {
         text: message.language.get(
           "HELP_FOOTER",
           message.util.parsed.prefix.replace(
-            message.guild?.me?.toMention() ?? this.client.user.toMention(),
+            userMentionRegex,
             `@${this.client.user.username} `
           ) || "$",
           this.client.manager.id
