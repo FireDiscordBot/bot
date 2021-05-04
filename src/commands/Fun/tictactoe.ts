@@ -71,7 +71,8 @@ export default class TicTacToe extends Command {
       allowedMentions: {
         users:
           message.mentions.users.has(opponent.id) ||
-          message.guild.memberCount > 100
+          // instance check so that using the slash command will mention
+          (message.guild.memberCount > 100 && message instanceof FireMessage)
             ? []
             : [opponent.id],
       },
