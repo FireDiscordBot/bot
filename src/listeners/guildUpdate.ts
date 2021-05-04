@@ -1,18 +1,31 @@
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { MessageEmbed, TextChannel } from "discord.js";
 import { titleCase } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
-import { MessageEmbed } from "discord.js";
 
 export default class GuildUpdate extends Listener {
+  theFunny: boolean;
+
   constructor() {
     super("guildUpdate", {
       emitter: "client",
       event: "guildUpdate",
     });
+    this.theFunny = false;
   }
 
   async exec(before: FireGuild, after: FireGuild) {
+    if (
+      before.id == "411619823445999637" &&
+      !after.features.includes("PARTNERED")
+    ) {
+      await (after.channels.cache.get("411620457754787841") as TextChannel)
+        .send("rip partner")
+        .then(() => (this.theFunny = true))
+        .catch(() => {});
+    }
+
     const notableChanges =
       before.name != after.name ||
       before.ownerID != after.ownerID ||
