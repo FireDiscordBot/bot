@@ -101,7 +101,7 @@ export const guildPreviewConverter = async (
   }
 
   if (!preview.features.includes("DISCOVERABLE")) {
-    if (!message.client.manager.ws?.open) {
+    if (!message.client.manager.ws?.open && !message.author.isSuperuser()) {
       if (!silent) await message.error("PREVIEW_NOT_DISCOVERABLE");
       return null;
     }
@@ -121,7 +121,7 @@ export const guildPreviewConverter = async (
       const publicGuilds: string[] = await publicGuildsReq.json();
       if (publicGuilds.includes(preview.id)) isPublic = true;
     }
-    if (!isPublic) {
+    if (!isPublic && !message.author.isSuperuser()) {
       if (!silent) await message.error("PREVIEW_NOT_DISCOVERABLE");
       return null;
     }
