@@ -1,7 +1,7 @@
 ---
 name: Fire - Bug Report
 about: Found a bug in Fire? Use this template when reporting it
-title: "[BUG]"
+title: "[BUG] Edit me with a valid title for your bug report"
 labels: bug
 assignees: ''
 
