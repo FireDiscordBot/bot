@@ -1,7 +1,7 @@
 ---
 name: Fire Beta - Bug Report
 about: Found a bug in Fire Beta? Use this template when reporting it
-title: "[BUG-BETA]"
+title: "[BUG-BETA] Edit me with a valid title for your bug report"
 labels: beta, bug
 assignees: GamingGeek
 
