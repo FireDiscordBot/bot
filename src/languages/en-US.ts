@@ -1301,13 +1301,13 @@ ${success.map((s) => "- " + s).join("\n")}${
 Do note that we do not provide support for the following:
 * Non-Sk1er LLC mods
 * Hyperium
-* Users who have not purchased the game`,
+* Users who have not purchased the game (Cracked Users)`,
         SK1ER_SUPPORT_CONFIRM_EDIT: `Please ensure you have all necessary details ready to give in the ticket. If you **do not** want to open a ticket, you can click the red button below. Otherwise, click the green button to open the ticket
 
 Do note that we do not provide support for the following:
 * Non-Sk1er LLC mods
 * Hyperium
-* Users who have not purchased the game`,
+* Users who have not purchased the game (Cracked Users)`,
         SK1ER_SUPPORT_CANCELLED:
           'Alright, you can go ahead and click "Dismiss Message"',
         SK1ER_SUPPORT_FAIL: (reason: string) =>
