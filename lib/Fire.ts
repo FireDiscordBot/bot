@@ -103,10 +103,11 @@ export class Fire extends AkairoClient {
   experiments: Collection<string, Experiment>;
   aliases: Collection<string, string[]>;
   cacheSweepTask: NodeJS.Timeout;
+  user: FireUser & ClientUser;
   config: typeof config.fire;
   cacheSweep: () => void;
   ksoft?: KSoftClient;
-  user: FireUser & ClientUser;
+  useCanary: boolean;
   db: PGClient;
   util: Util;
 
@@ -115,6 +116,7 @@ export class Fire extends AkairoClient {
 
     // @ts-ignore
     this.rest = new RESTManager(this);
+    this.useCanary = true; // use canary api by default
 
     // @ts-ignore
     this.actions["PresenceUpdate"] = new PresenceUpdateAction(this);
