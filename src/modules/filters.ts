@@ -192,17 +192,17 @@ export default class Filters extends Module {
         if (data && data.invite) {
           if (message instanceof FireMessage)
             message.content = message.content.replace(
-              new RegExp(`inv\.wtf\/${code}`, "gim"),
+              new RegExp(`inv.wtf\/${code}`, "gim"),
               `discord.gg/${data.invite}`
             );
           else
             message = message.replace(
-              new RegExp(`inv\.wtf\/${code}`, "gim"),
+              new RegExp(`inv.wtf\/${code}`, "gim"),
               `discord.gg/${data.invite}`
             );
           if (extra)
             extra = extra.replace(
-              new RegExp(`inv\.wtf\/${code}`, "gim"),
+              new RegExp(`inv.wtf\/${code}`, "gim"),
               `discord.gg/${data.invite}`
             );
           if (message instanceof FireMessage && message.embeds.length) {
@@ -215,17 +215,17 @@ export default class Filters extends Module {
         } else if (data && data.url) {
           if (message instanceof FireMessage)
             message.content = message.content.replace(
-              new RegExp(`(https?:\/\/)?inv\.wtf\/${code}`, "gim"),
+              new RegExp(`(https?:\/\/)?inv.wtf\/${code}`, "gim"),
               data.url
             );
           else
             message = message.replace(
-              new RegExp(`(https?:\/\/)?inv\.wtf\/${code}`, "gim"),
+              new RegExp(`(https?:\/\/)?inv.wtf\/${code}`, "gim"),
               data.url
             );
           if (extra)
             extra = extra.replace(
-              new RegExp(`(https?:\/\/)?inv\.wtf\/${code}`, "gim"),
+              new RegExp(`(https?:\/\/)?inv.wtf\/${code}`, "gim"),
               data.url
             );
           if (message instanceof FireMessage && message.embeds.length) {
