@@ -1,7 +1,7 @@
 ---
 name: Feature Request
 about: Want to suggest a feature for Fire? Use this template when suggesting it
-title: "[SUGGESTION]"
+title: "[SUGGESTION] Edit me with a valid title for your suggestion"
 labels: suggestion
 assignees: ''
 
