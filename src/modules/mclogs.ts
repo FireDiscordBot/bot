@@ -9,6 +9,14 @@ import Sk1er from "./sk1er";
 
 const { mcLogFilters } = constants;
 
+const allowedURLs = [
+  "minecraftforge.net",
+  "logging.apache.org",
+  "sk1er.club",
+  "lwjgl.org",
+  "127.0.0.1",
+];
+
 export default class MCLogs extends Module {
   statsTask: NodeJS.Timeout;
   regexes: {
@@ -35,7 +43,7 @@ export default class MCLogs extends Module {
     this.regexes = {
       reupload: /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?([\w-\.]+)/gim,
       noRaw: /(justpaste\.it)\/(\w+)/gim,
-      secrets: /(club.sk1er.mods.levelhead.auth.MojangAuth|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*|https:\/\/api\.hypixel\.net\/.+\?key=)/gim,
+      secrets: /("access_key":".+"|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken \S+|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*|https:\/\/api\.hypixel\.net\/.+(\?key=|&key=))/gim,
       jvm: /-Xmx\d{1,2}(?:G|M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
       ram: /-Xmx(?<ram>\d{1,2})(?<type>G|M)/gim,
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}/gim,
@@ -213,57 +221,55 @@ export default class MCLogs extends Module {
         );
     }
 
-    message.attachments
-      .filter(
-        (attachment) =>
-          (attachment.name.endsWith(".log") ||
-            attachment.name.endsWith(".txt")) &&
-          attachment.size <= 8000000
-      )
-      .forEach(async (attach) => {
-        try {
-          // const text = await (await centra(attach.url).send()).text();
-          let chunks: string[] = [];
-          const stream = await centra(attach.url).stream().send();
-          let logDiff: string;
-          for await (const chunk of (stream as unknown) as Readable) {
-            chunks.push(chunk.toString());
-            if (chunks.length >= 5 && !this.hasLogText(chunks.join(""))) {
-              chunks = [];
-              break;
-            }
+    for (const [, attach] of message.attachments.filter(
+      (attachment) =>
+        (attachment.name.endsWith(".log") ||
+          attachment.name.endsWith(".txt")) &&
+        attachment.size <= 8000000
+    )) {
+      try {
+        // const text = await (await centra(attach.url).send()).text();
+        let chunks: string[] = [];
+        const stream = await centra(attach.url).stream().send();
+        let logDiff: string;
+        for await (const chunk of (stream as unknown) as Readable) {
+          chunks.push(chunk.toString());
+          if (chunks.length >= 5 && !this.hasLogText(chunks.join(""))) {
+            chunks = [];
+            break;
           }
-          chunks = chunks.reverse();
-          let processed: string[] = [];
-          while (chunks.length) {
-            let text: string[] = [];
-            for (
-              let i = 0;
-              i < 5;
-              i++ // add up to 5 chunks
-            )
-              if (chunks.length) text.push(chunks.pop());
-            const [data, diff] = await this.processLogStream(
-              message,
-              text.join("")
-            );
-            if (data) processed.push(data);
-            if (diff) logDiff = diff;
-          }
-          if (
-            processed.length &&
-            processed.some((chunk) => this.hasLogText(chunk))
-          )
-            await this.handleLogText(
-              message,
-              processed.join(""),
-              "uploaded",
-              logDiff
-            );
-        } catch {
-          await message.channel.send(message.language.get("MC_LOG_READ_FAIL"));
         }
-      });
+        chunks = chunks.reverse();
+        let processed: string[] = [];
+        while (chunks.length) {
+          let text: string[] = [];
+          for (
+            let i = 0;
+            i < 5;
+            i++ // add up to 5 chunks
+          )
+            if (chunks.length) text.push(chunks.pop());
+          const [data, diff] = await this.processLogStream(
+            message,
+            text.join("")
+          );
+          if (data) processed.push(data);
+          if (diff) logDiff = diff;
+        }
+        if (
+          processed.length &&
+          processed.some((chunk) => this.hasLogText(chunk))
+        )
+          await this.handleLogText(
+            message,
+            processed.join(""),
+            "uploaded",
+            logDiff
+          );
+      } catch {
+        await message.channel.send(message.language.get("MC_LOG_READ_FAIL"));
+      }
+    }
   }
 
   private async processLogStream(message: FireMessage, data: string) {
@@ -298,21 +304,12 @@ export default class MCLogs extends Module {
 
     data = data
       .replace(this.regexes.email, "[removed email]")
-      .replace(this.regexes.home, "USER.HOME");
-
-    this.regexes.url.exec(data)?.forEach((match) => {
-      if (!match.includes("sk1er.club"))
-        data = data.replace(match, "[removed url]");
-      this.regexes.url.lastIndex = 0;
-    });
-
-    for (const line of lines) {
-      if (this.regexes.secrets.test(line)) {
-        this.regexes.secrets.lastIndex = 0;
-        data = data.replace(line, "[line removed to protect sensitive info]");
-      }
-      this.regexes.secrets.lastIndex = 0;
-    }
+      .replace(this.regexes.home, "USER.HOME")
+      .replace(this.regexes.url, (match: string) => {
+        if (allowedURLs.some((allowed) => match.includes(allowed)))
+          return match;
+        else return "[removed url]";
+      });
 
     let diff: string;
     if (this.regexes.date.test(data)) {
@@ -341,6 +338,17 @@ export default class MCLogs extends Module {
     msgType: string,
     diff: string
   ) {
+    const lines = text.split("\n");
+    for (const line of lines) {
+      if (this.regexes.secrets.test(line)) {
+        this.regexes.secrets.lastIndex = 0;
+        text = text.replace(line, "[line removed to protect sensitive info]");
+      }
+      this.regexes.secrets.lastIndex = 0;
+    }
+
+    text = text.replace(this.regexes.secrets, "[secrets removed]");
+
     try {
       const haste = await this.client.util.haste(text).catch((e: Error) => e);
       if (haste instanceof Error)
