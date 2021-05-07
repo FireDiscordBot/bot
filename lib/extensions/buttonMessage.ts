@@ -188,7 +188,8 @@ export class ButtonMessage {
         (d: any) =>
           // @ts-ignore
           channel.client.actions.MessageCreate.handle(d).message as FireMessage
-      );
+      )
+      .catch(() => {});
   }
 
   // temp helper function
@@ -248,7 +249,8 @@ export class ButtonMessage {
         const clone = message._clone();
         clone._patch(d);
         return clone as FireMessage;
-      });
+      })
+      .catch(() => {});
   }
 
   set flags(flags: number) {
