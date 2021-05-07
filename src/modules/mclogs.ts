@@ -267,7 +267,7 @@ export default class MCLogs extends Module {
             logDiff
           );
       } catch {
-        await message.channel.send(message.language.get("MC_LOG_READ_FAIL"));
+        await message.send("MC_LOG_READ_FAIL");
       }
     }
   }
