@@ -292,6 +292,7 @@ export const constants = {
     "169256939211980800", // Townhall
     "81384788765712384", // DAPI
     "670065151621332992", // Demo Server (do invites for this even exist anymore?)
+    "831646372519346186", // Poker Night
 
     // Fire Discord
     "564052798044504084", // Fire
