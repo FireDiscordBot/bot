@@ -370,7 +370,11 @@ export class FireMessage extends Message {
     user: FireUser,
     action: "add" | "remove"
   ) {
-    if (user?.id == this.author?.id || user.bot) return;
+    if (this.partial) await this.fetch().catch(() => {}); // needed to get initial reaction counts and author
+
+    // same condition, checks if still partial
+    if (this.partial) return;
+    else if (user?.id == this.author?.id || user.bot) return;
 
     const starEmoji: string = this.guild.settings
       .get("starboard.emoji", "⭐")

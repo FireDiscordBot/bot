@@ -61,8 +61,6 @@ export default class MessageReactionRemove extends Listener {
         // (starboardEmoji.trim() == reactionEmoji.trim() ||
         // reactionEmoji == constants.emojis.antistarId)
       ) {
-        if (!message.guild.starboardReactions.has(message.id))
-          await message.fetch().catch(() => {}); // needed to get reaction counts
         await message.star(messageReaction, user, "remove").catch(() => {});
       }
     }
