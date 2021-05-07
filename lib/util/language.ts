@@ -2,9 +2,10 @@ import { AkairoHandler, AkairoModule } from "discord-akairo";
 import { Fire } from "@fire/lib/Fire";
 
 export class Language extends AkairoModule {
-  language: any;
+  declare client: Fire;
   enabled: boolean;
-  client: Fire;
+  language: any;
+
   constructor(
     id: string,
     options = {
@@ -24,10 +25,7 @@ export class Language extends AkairoModule {
   }
 
   get(key: string, ...args: any[]): string | object {
-    const defaultLang =
-      this.id == "en-US"
-        ? this
-        : (this.client.languages.modules.get("en-US") as Language);
+    const defaultLang = this.client.languages.modules.get("en-US") as Language;
     const message = this.has(key)
       ? this.language[key]
       : defaultLang.has(key)
