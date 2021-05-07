@@ -1,8 +1,8 @@
 import { ModAnalytics, Sk1erMod } from "@fire/lib/interfaces/sk1ermod";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { MessageEmbed, Permissions } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { MessageEmbed } from "discord.js";
 import * as centra from "centra";
 
 export default class Mod extends Command {
@@ -10,7 +10,10 @@ export default class Mod extends Command {
     super("mod", {
       description: (language: Language) =>
         language.get("MOD_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       args: [
         {
           id: "mod",

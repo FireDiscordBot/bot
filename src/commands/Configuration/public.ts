@@ -1,14 +1,15 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import VanityURLs from "@fire/src/modules/vanityurls";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import VanityURLs from "@fire/src/modules/vanityurls";
+import { Permissions } from "discord.js";
 
 export default class Public extends Command {
   constructor() {
     super("public", {
       description: (language: Language) =>
         language.get("PUBLIC_COMMAND_DESCRIPTION"),
-      userPermissions: ["MANAGE_GUILD"],
+      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       enableSlashCommand: true,
       restrictTo: "guild",
     });

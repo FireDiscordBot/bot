@@ -2,6 +2,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 import * as centra from "centra";
 
 const emojiRegex = constants.regexes.customEmoji;
@@ -12,8 +13,11 @@ export default class Steal extends Command {
     super("steal", {
       description: (language: Language) =>
         language.get("STEAL_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "MANAGE_EMOJIS"],
-      userPermissions: ["MANAGE_EMOJIS"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.MANAGE_EMOJIS,
+      ],
+      userPermissions: [Permissions.FLAGS.MANAGE_EMOJIS],
       args: [
         {
           id: "emoji",

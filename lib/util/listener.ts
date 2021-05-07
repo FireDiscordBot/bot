@@ -2,7 +2,8 @@ import { Listener as AkairoListener, ListenerOptions } from "discord-akairo";
 import { Fire } from "@fire/lib/Fire";
 
 export class Listener extends AkairoListener {
-  client: Fire;
+  declare client: Fire;
+
   constructor(id: string, options?: ListenerOptions) {
     super(id, options);
   }

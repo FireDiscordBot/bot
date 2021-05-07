@@ -1,14 +1,18 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 export default class TagDelete extends Command {
   constructor() {
     super("tag-delete", {
       description: (language: Language) =>
         language.get("TAG_DELETE_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
-      userPermissions: ["MANAGE_MESSAGES"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
+      userPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
       args: [
         {
           id: "tag",

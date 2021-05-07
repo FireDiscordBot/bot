@@ -1,4 +1,9 @@
-import { BitFieldResolvable, PermissionString, GuildChannel } from "discord.js";
+import {
+  BitFieldResolvable,
+  PermissionString,
+  GuildChannel,
+  Permissions,
+} from "discord.js";
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -19,7 +24,10 @@ export default class Help extends Command {
     super("help", {
       description: (language: Language) =>
         language.get("HELP_COMMAND_DESCRIPTION"),
-      clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       aliases: ["helpme", "commands", "h"],
       args: [
         {

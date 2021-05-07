@@ -4,10 +4,9 @@ import {
 } from "@fire/lib/util/paginators";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { MessageEmbed, Permissions } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Argument } from "discord-akairo";
-import { MessageEmbed } from "discord.js";
 import { Track } from "@aero/ksoft";
 
 export default class Lyrics extends Command {
@@ -15,7 +14,11 @@ export default class Lyrics extends Command {
     super("lyrics", {
       description: (language: Language) =>
         language.get("LYRICS_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS", "ADD_REACTIONS"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.ADD_REACTIONS,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       restrictTo: "all",
       args: [
         {

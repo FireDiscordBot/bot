@@ -5,6 +5,7 @@ import {
   DeconstructedSnowflake,
   GuildMemberResolvable,
   AwaitMessagesOptions,
+  CommandInteraction,
   MessageEditOptions,
   MessageResolvable,
   MessageAttachment,
@@ -28,8 +29,6 @@ import {
   Snowflake,
 } from "discord.js";
 import {
-  SlashCommand,
-  Interaction,
   APIComponent,
   ButtonType,
   ActionRow,
@@ -51,9 +50,9 @@ export class SlashCommandMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   attachments: Collection<string, MessageAttachment>;
   private snowflake: DeconstructedSnowflake;
+  slashCommand: CommandInteraction;
   sent: false | "ack" | "message";
   sourceMessage: FireMessage;
-  slashCommand: SlashCommand;
   mentions: MessageMentions;
   private _flags: number;
   latestResponse: string;
@@ -64,27 +63,28 @@ export class SlashCommandMessage {
   util: CommandUtil;
   command: Command;
   author: FireUser;
+  webhookID = null;
   content: string;
   client: Fire;
   id: string;
 
-  constructor(client: Fire, command: Interaction) {
-    if (command.type != 2)
-      throw new TypeError("Interaction is not ApplicationCommand");
+  constructor(client: Fire, command: CommandInteraction) {
     this.client = client;
     this.id = command.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
     this.slashCommand = command;
-    if (command.data.options?.length && command.data.options[0]?.type == 1) {
-      command.data.name = `${command.data.name}-${command.data.options[0].name}`;
-      command.data.options = command.data.options[0].options;
+    if (command.options?.length && command.options[0]?.type == "SUB_COMMAND") {
+      command.commandName = `${command.commandName}-${command.options[0].name}`;
+      command.options = command.options[0].options;
     }
-    this.guild = client.guilds.cache.get(command.guild_id) as FireGuild;
-    this.command = this.client.getCommand(command.data.name);
+    this.guild = client.guilds.cache.get(command.guildID) as FireGuild;
+    this.command = this.client.getCommand(command.commandName);
     this._flags = 0;
-    if (this.guild?.tags?.slashCommands[command.data.id] == command.data.name) {
+    if (this.guild?.tags?.slashCommands[command.id] == command.commandName) {
       this.command = this.client.getCommand("tag");
-      command.data.options = [{ name: "tag", value: command.data.name }];
+      command.options = [
+        { name: "tag", value: command.commandName, type: "STRING" },
+      ];
       if (this.guild.tags.ephemeral) this.flags = 64;
     }
     if (this.command?.ephemeral) this.flags = 64;
@@ -111,7 +111,7 @@ export class SlashCommandMessage {
         : this.author.language
       : this.guild?.language || client.getLanguage("en-US");
     this.realChannel = this.client.channels.cache.get(
-      this.slashCommand.channel_id
+      this.slashCommand.channelID
     ) as FireTextChannel | NewsChannel | DMChannel;
     this.latestResponse = "@original";
     this.sent = false;
@@ -124,7 +124,7 @@ export class SlashCommandMessage {
         client,
         command.id,
         command.token,
-        command.guild_id ? null : this.author.dmChannel
+        command.guildID ? null : this.author.dmChannel
       );
       return this;
     }
@@ -190,10 +190,10 @@ export class SlashCommandMessage {
     if (prefix instanceof Array) prefix = prefix[0].trim();
     let content = (prefix as string) + " ";
     content += this.command.id + " ";
-    if (this.command.args?.length && this.slashCommand.data.options?.length) {
+    if (this.command.args?.length && this.slashCommand.options?.length) {
       const commandArgs = this.command.args as ArgumentOptions[];
-      const argNames = this.slashCommand.data.options.map((opt) => opt.name);
-      const sortedArgs = this.slashCommand.data.options.sort(
+      const argNames = this.slashCommand.options.map((opt) => opt.name);
+      const sortedArgs = this.slashCommand.options.sort(
         (a, b) =>
           argNames.indexOf(a.name.toLowerCase()) -
           argNames.indexOf(b.name.toLowerCase())
@@ -273,12 +273,8 @@ export class SlashCommandMessage {
 
     let messageId = this.latestResponse;
     if (messageId == "@original") {
-      const message = await this.client.req
-        .webhooks(this.client.user.id, this.slashCommand.token)
-        .messages(messageId)
-        .get()
-        .catch(() => {});
-      messageId = message?.id;
+      const message = await this.slashCommand.fetchReply().catch(() => {});
+      if (message) messageId = message.id;
     }
 
     const message = (await this.realChannel.messages
@@ -457,11 +453,8 @@ export class FakeChannel {
   // Acknowledges without sending a message
   async ack(ephemeral = false) {
     if (ephemeral || (this.flags & 64) != 0) return;
-    await this.client.req
-      .interactions(this.id)(this.token)
-      .callback.post({
-        data: { type: 5, data: { flags: this.flags } },
-      })
+    await this.message.slashCommand
+      .defer(!!((this.flags & 64) == 64))
       .then(() => {
         this.message.sent = "ack";
         this.message.getRealMessage().catch(() => {});

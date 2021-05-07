@@ -1,16 +1,20 @@
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageEmbed, Permissions, Role } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Role, MessageEmbed } from "discord.js";
 
 export default class AddModerator extends Command {
   constructor() {
     super("addmod", {
       description: (language: Language) =>
         language.get("ADDMOD_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS", "ADD_REACTIONS"],
-      userPermissions: ["MANAGE_GUILD"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+        Permissions.FLAGS.ADD_REACTIONS,
+      ],
+      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       args: [
         {
           id: "modToAdd",

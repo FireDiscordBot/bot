@@ -1,6 +1,6 @@
+import { MessageEmbed, Collection, Permissions, Role } from "discord.js";
 import { categoryChannelConverter } from "@fire/lib/util/converters";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { MessageEmbed, Collection, Role } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -10,8 +10,12 @@ export default class Lockdown extends Command {
     super("lockdown", {
       description: (language: Language) =>
         language.get("LOCKDOWN_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "MANAGE_CHANNELS", "EMBED_LINKS"],
-      userPermissions: ["MANAGE_CHANNELS"],
+      clientPermissions: [
+        Permissions.FLAGS.MANAGE_CHANNELS,
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
+      userPermissions: [Permissions.FLAGS.MANAGE_CHANNELS],
       args: [
         {
           id: "action",
@@ -66,10 +70,10 @@ export default class Lockdown extends Command {
         channel.type == "text" &&
         channel
           .permissionsFor(message.guild.roles.everyone)
-          .has("VIEW_CHANNEL") &&
+          .has(Permissions.FLAGS.VIEW_CHANNEL) &&
         channel
           .permissionsFor(message.guild.roles.everyone)
-          .has("SEND_MESSAGES")
+          .has(Permissions.FLAGS.SEND_MESSAGES)
     ) as Collection<string, FireTextChannel>;
     channels.forEach(
       async (channel) =>
@@ -128,10 +132,10 @@ export default class Lockdown extends Command {
         channel.type == "text" &&
         channel
           .permissionsFor(message.guild.roles.everyone)
-          .has("VIEW_CHANNEL") &&
+          .has(Permissions.FLAGS.VIEW_CHANNEL) &&
         !channel
           .permissionsFor(message.guild.roles.everyone)
-          .has("SEND_MESSAGES") &&
+          .has(Permissions.FLAGS.SEND_MESSAGES) &&
         locked.includes(channel.id)
     ) as Collection<string, FireTextChannel>;
     channels.forEach(

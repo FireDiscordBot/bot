@@ -4,13 +4,14 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Util } from "@fire/lib/util/clientutil";
+import { Permissions } from "discord.js";
 
 export default class AdminOnly extends Command {
   constructor() {
     super("adminonly", {
       description: (language: Language) =>
         language.get("ADMINONLY_COMMAND_DESCRIPTION"),
-      userPermissions: ["ADMINISTRATOR"],
+      userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
       args: [
         {
           id: "channels",

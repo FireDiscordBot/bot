@@ -594,9 +594,9 @@ discord-api-types@^0.18.0:
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.18.0.tgz#96ff73bcd7cf7b65be3a3db0acee83256d243c40"
   integrity sha512-KxS+opGqrNbzo+wb3SxOqfuv/xX2CyrwEjCQLTI68gzjbSMn55h6o7JtPkWAXItadkNrUWyDqMMsfOz8DnpiNA==
 
-discord.js@discordjs/discord.js#af00ec8970e77ea8a0afd21571eeeef9c554e1ec:
+discord.js@discordjs/discord.js#b456ff1090ad9c0acf27ad96ecaedb03101de556:
   version "12.5.0"
-  resolved "https://codeload.github.com/discordjs/discord.js/tar.gz/af00ec8970e77ea8a0afd21571eeeef9c554e1ec"
+  resolved "https://codeload.github.com/discordjs/discord.js/tar.gz/b456ff1090ad9c0acf27ad96ecaedb03101de556"
   dependencies:
     "@discordjs/collection" "^0.1.6"
     "@discordjs/form-data" "^3.0.1"
@@ -1554,10 +1554,10 @@ tweetnacl@^1.0.3:
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"
   integrity sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==
 
-typescript@^4.2.3:
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.2.3.tgz#39062d8019912d43726298f09493d598048c1ce3"
-  integrity sha512-qOcYwxaByStAWrBf4x0fibwZvMRG+r4cQoTjbPtUlrWjBHbmCAww1i448U0GJ+3cNNEtebDteo/cHOR3xJ4wEw==
+typescript@^4.3.0-dev.20210507:
+  version "4.3.0-dev.20210507"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.0-dev.20210507.tgz#07fdc0479bb1b215865aabb01ed1d920cf844ea0"
+  integrity sha512-SEZV+XOg8exwPXlTmxPT94v9kasblelh4TjL1I12FBv0DiorBHDtUs8GC2h2sg8zJOgFwj06QXiaLLGL5RhzDw==
 
 typpy@2.3.11:
   version "2.3.11"

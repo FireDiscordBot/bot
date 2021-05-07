@@ -2,6 +2,7 @@ import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 type validTypes =
   | "mod"
@@ -22,7 +23,7 @@ export default class Logging extends Command {
     super("logging", {
       description: (language: Language) =>
         language.get("LOGGING_COMMAND_DESCRIPTION"),
-      userPermissions: ["MANAGE_GUILD"],
+      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       args: [
         {
           id: "type",

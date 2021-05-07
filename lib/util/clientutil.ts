@@ -44,9 +44,9 @@ export class Util extends ClientUtil {
   uuidCache: Collection<string, string>;
   premium: Collection<string, PremiumData>;
   hasRoleUpdates: string[];
+  declare client: Fire;
   plonked: string[];
   admins: string[];
-  client: Fire;
 
   constructor(client: Fire) {
     super(client);

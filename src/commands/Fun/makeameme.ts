@@ -1,6 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 import * as centra from "centra";
 
 export default class MakeAMeme extends Command {
@@ -8,7 +9,10 @@ export default class MakeAMeme extends Command {
     super("makeameme", {
       description: (language: Language) =>
         language.get("MAKEAMEME_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "ATTACH_FILES"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.ATTACH_FILES,
+      ],
       restrictTo: "all",
       args: [
         {

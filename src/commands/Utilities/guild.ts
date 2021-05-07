@@ -1,10 +1,10 @@
+import { GuildPreview, MessageEmbed, Permissions } from "discord.js";
 import { humanize, zws, constants } from "@fire/lib/util/constants";
 import { snowflakeConverter } from "@fire/lib/util/converters";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
-import { GuildPreview, MessageEmbed } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import * as moment from "moment";
@@ -24,7 +24,10 @@ export default class GuildCommand extends Command {
     super("guild", {
       description: (language: Language) =>
         language.get("GUILD_COMMAND_DESCRIPTION"),
-      clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       args: [
         {
           id: "guild",

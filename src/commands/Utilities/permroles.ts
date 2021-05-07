@@ -12,8 +12,8 @@ export default class PermRoles extends Command {
     super("permroles", {
       description: (language: Language) =>
         language.get("PERMROLES_COMMAND_DESCRIPTION"),
-      clientPermissions: ["MANAGE_ROLES"],
-      userPermissions: ["MANAGE_ROLES"],
+      clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
+      userPermissions: [Permissions.FLAGS.MANAGE_ROLES],
       args: [
         {
           id: "role",
@@ -88,8 +88,8 @@ export default class PermRoles extends Command {
     if (!channelPerms) return await message.error("PERMROLES_NOTHING_TO_COPY");
 
     if (
-      channelPerms.allow.has("MANAGE_ROLES") ||
-      channelPerms.deny.has("MANAGE_ROLES")
+      channelPerms.allow.has(Permissions.FLAGS.MANAGE_ROLES) ||
+      channelPerms.deny.has(Permissions.FLAGS.MANAGE_ROLES)
     )
       return await message.error("PERMROLES_MANAGE_ROLES");
 
@@ -128,7 +128,9 @@ export default class PermRoles extends Command {
     let failed = 0;
     for (const [, channel] of message.guild.channels.cache.filter(
       (channel) =>
-        channel.permissionsFor(message.guild.me).has("MANAGE_ROLES") &&
+        channel
+          .permissionsFor(message.guild.me)
+          .has(Permissions.FLAGS.MANAGE_ROLES) &&
         (channel.permissionOverwrites.get(args.role.id)?.allow.bitfield !=
           channelPerms.allow.bitfield ||
           channel.permissionOverwrites.get(args.role.id)?.deny.bitfield !=

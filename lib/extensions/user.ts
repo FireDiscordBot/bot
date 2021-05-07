@@ -10,7 +10,7 @@ import { FireGuild } from "./guild";
 
 export class FireUser extends User {
   settings: UserSettings;
-  client: Fire;
+  declare client: Fire;
 
   constructor(client: Fire, data: object) {
     super(client, data);

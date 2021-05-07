@@ -1,6 +1,7 @@
 import {
   MessageEmbed,
   GuildMember,
+  Permissions,
   Structures,
   Channel,
   Util,
@@ -16,10 +17,10 @@ import { FireUser } from "./user";
 import * as moment from "moment";
 
 export class FireMember extends GuildMember {
+  declare guild: FireGuild;
   changingNick?: boolean;
-  guild: FireGuild;
-  user: FireUser;
-  client: Fire;
+  declare user: FireUser;
+  declare client: Fire;
 
   constructor(client: Fire, data: any, guild: FireGuild) {
     super(client, data, guild);
@@ -73,8 +74,8 @@ export class FireMember extends GuildMember {
     if (this.id == this.guild.ownerID) return true;
     if (channel instanceof FakeChannel) channel = channel.real;
     return channel
-      ? this.permissionsIn(channel).has("MANAGE_GUILD")
-      : this.permissions.has("MANAGE_GUILD");
+      ? this.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_GUILD)
+      : this.permissions.has(Permissions.FLAGS.MANAGE_GUILD);
   }
 
   async blacklist(reason: string) {
@@ -104,7 +105,7 @@ export class FireMember extends GuildMember {
     );
     if (this.nickname && this.nickname == badName)
       return this.user.username[0] < "0";
-    return this.permissions.has("CHANGE_NICKNAME")
+    return this.permissions.has(Permissions.FLAGS.CHANGE_NICKNAME)
       ? this.displayName[0] < "0"
       : this.user.username[0] < "0";
   }
@@ -117,7 +118,7 @@ export class FireMember extends GuildMember {
     if (this.nickname && this.nickname == badName)
       return !this.client.util.isASCII(this.user.username);
     return !this.client.util.isASCII(
-      this.permissions.has("CHANGE_NICKNAME")
+      this.permissions.has(Permissions.FLAGS.CHANGE_NICKNAME)
         ? this.displayName
         : this.user.username
     );

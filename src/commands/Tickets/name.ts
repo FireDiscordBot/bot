@@ -1,7 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import { MessageEmbed, Permissions } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { MessageEmbed } from "discord.js";
 import { v4 as uuidv4 } from "uuid";
 import { readFileSync } from "fs";
 
@@ -12,8 +12,12 @@ export default class TicketName extends Command {
     super("ticket-name", {
       description: (language: Language) =>
         language.get("TICKET_NAME_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS", "MANAGE_CHANNELS"],
-      userPermissions: ["MANAGE_GUILD"],
+      clientPermissions: [
+        Permissions.FLAGS.MANAGE_CHANNELS,
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
+      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       restrictTo: "guild",
       args: [
         {

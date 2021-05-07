@@ -1,9 +1,10 @@
 import {
   DeconstructedSnowflake,
-  UserFlagsString,
   PermissionString,
+  UserFlagsString,
   GuildChannel,
   MessageEmbed,
+  Permissions,
   ClientUser,
   DMChannel,
 } from "discord.js";
@@ -43,7 +44,10 @@ export default class User extends Command {
     super("user", {
       description: (language: Language) =>
         language.get("USER_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       args: [
         {
           id: "user",
@@ -165,7 +169,7 @@ export default class User extends Command {
       const permissionsTranslated = message.language.get(
         "PERMISSIONS"
       ) as object;
-      if (!member.permissions.has("ADMINISTRATOR")) {
+      if (!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
         let perms = [];
         const keyPerms: PermissionString[] = [
           "BAN_MEMBERS",
@@ -499,7 +503,7 @@ export default class User extends Command {
           message.author.id
         );
         info.push(
-          member?.permissionsIn(channel).has("VIEW_CHANNEL")
+          member?.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL)
             ? (message.language.get(
                 "USER_SNOWFLAKE_BELONGS_TO",
                 message.language.get("CHANNEL"),
@@ -535,7 +539,8 @@ export default class User extends Command {
         const member = (channel as GuildChannel).guild.members.cache.get(
           message.author.id
         );
-        if (member?.permissionsIn(channel).has("VIEW_CHANNEL")) viewable = true;
+        if (member?.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL))
+          viewable = true;
       }
       info.push(
         viewable
@@ -575,7 +580,8 @@ export default class User extends Command {
         const member = (channel as GuildChannel).guild.members.cache.get(
           message.author.id
         );
-        if (member?.permissionsIn(channel).has("VIEW_CHANNEL")) viewable = true;
+        if (member?.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL))
+          viewable = true;
       }
       info.push(
         viewable && snowflakeMessage.attachments.get(snowflake.snowflake)?.url

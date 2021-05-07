@@ -1,4 +1,4 @@
-import { StageChannel, VoiceChannel, Role } from "discord.js";
+import { StageChannel, VoiceChannel, Permissions, Role } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -8,8 +8,11 @@ export default class VCRole extends Command {
     super("vcrole", {
       description: (language: Language) =>
         language.get("VCROLE_COMMAND_DESCRIPTION"),
-      userPermissions: ["MANAGE_CHANNELS", "MANAGE_ROLES"],
-      clientPermissions: ["MANAGE_ROLES"],
+      userPermissions: [
+        Permissions.FLAGS.MANAGE_CHANNELS,
+        Permissions.FLAGS.MANAGE_ROLES,
+      ],
+      clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
       args: [
         {
           id: "channel",

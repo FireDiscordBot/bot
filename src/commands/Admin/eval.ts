@@ -2,7 +2,7 @@ import {
   PaginatorEmbedInterface,
   WrappedPaginator,
 } from "@fire/lib/util/paginators";
-import { MessageAttachment, MessageEmbed } from "discord.js";
+import { MessageAttachment, MessageEmbed, Permissions } from "discord.js";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { zws, constants } from "@fire/lib/util/constants";
@@ -29,7 +29,11 @@ export default class Eval extends Command {
     super("eval", {
       description: (language: Language) =>
         language.get("EVAL_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS", "ADD_REACTIONS"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.ADD_REACTIONS,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       ownerOnly: true,
       args: [
         {

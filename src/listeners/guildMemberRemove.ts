@@ -1,9 +1,9 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { constants, humanize } from "@fire/lib/util/constants";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageEmbed, Permissions } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
 import Sk1er from "@fire/src/modules/sk1er";
-import { MessageEmbed } from "discord.js";
 import * as moment from "moment";
 
 const {
@@ -100,7 +100,7 @@ export default class GuildMemberRemove extends Listener {
 
     if (member.guild.settings.has("log.members")) {
       let moderator: FireMember, action: string, reason: string;
-      if (member.guild.me.permissions.has("VIEW_AUDIT_LOG")) {
+      if (member.guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)) {
         const auditLogActions = await member.guild
           .fetchAuditLogs({ limit: 5 })
           .catch(() => {});

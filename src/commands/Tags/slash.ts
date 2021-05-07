@@ -1,14 +1,15 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 export default class TagSlash extends Command {
   constructor() {
     super("tag-slash", {
       description: (language: Language) =>
         language.get("TAG_SLASH_COMMAND_DESCRIPTION"),
-      userPermissions: ["MANAGE_MESSAGES"],
-      clientPermissions: ["SEND_MESSAGES"],
+      userPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
+      clientPermissions: [Permissions.FLAGS.SEND_MESSAGES],
       args: [
         {
           id: "ephemeral",

@@ -1,16 +1,15 @@
 import {
-  APIApplicationCommand,
-  ApplicationCommandPermissions,
-  ApplicationCommandPermissionType,
-  Option,
-} from "@fire/lib/interfaces/interactions";
+  ApplicationCommandData,
+  ApplicationCommand,
+  Collection,
+  Snowflake,
+} from "discord.js";
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
-import { Collection } from "discord.js";
 
 export default class Ready extends Listener {
   constructor() {
@@ -77,23 +76,10 @@ export default class Ready extends Listener {
         await guild.tags.prepareSlashCommands();
     }
 
-    const slashCommands: {
-      id: string;
-      application_id: string;
-      name: string;
-      description: string;
-      options?: Option[];
-    }[] = await this.client.req
-      .applications(this.client.user.id)
-      .commands.get();
+    const slashCommands = await this.client.application.commands.fetch();
 
-    if (slashCommands?.length) {
-      let commands: {
-        name: string;
-        description: string;
-        options?: Option[];
-        default_permission: boolean;
-      }[] = [];
+    if (slashCommands?.size) {
+      let commands: (ApplicationCommandData & { id?: string })[] = [];
 
       for (const cmd of this.client.commandHandler.modules.values()) {
         if (
@@ -102,80 +88,25 @@ export default class Ready extends Listener {
         )
           commands.push(
             cmd.getSlashCommandJSON(
-              slashCommands.find((s) => s.name == cmd.id)?.id
+              slashCommands.findKey((s) => s.name == cmd.id)
             )
           );
       }
 
-      const updated: APIApplicationCommand[] = await this.client.req
-        .applications(this.client.user.id)
-        .commands.put({ data: commands })
+      const updated = await this.client.application.commands
+        .set(commands)
         .catch((e: Error) => {
           this.client.console.error(
             `[Commands] Failed to update slash commands\n${e.stack}`
           );
-          return [];
+          return new Collection<Snowflake, ApplicationCommand>();
         });
-      if (updated.length)
+      if (updated && updated.size)
         this.client.console.info(
-          `[Commands] Successfully bulk updated ${updated.length} slash commands`
+          `[Commands] Successfully bulk updated ${updated.size} slash commands`
         );
 
-      for (const slashCommand of updated) {
-        if (slashCommand.default_permission) continue;
-        const command = this.client.getCommand(slashCommand.name);
-        if (!command.requiresExperiment) continue;
-        const experiment = this.client.experiments.get(
-          command.requiresExperiment.id
-        );
-        // there isn't really a good way to do user experiment permissions since they're guild bound
-        if (experiment?.kind != "guild") continue;
-        for (const [, guild] of this.client.guilds.cache as Collection<
-          string,
-          FireGuild
-        >) {
-          if (
-            !guild.hasExperiment(
-              experiment.id,
-              command.requiresExperiment.treatmentId
-            )
-          )
-            continue;
-          const everyoneId = guild.roles.everyone.id; // should always be same as guild id
-          const slashCommandPermissionsReq: {
-            permissions: ApplicationCommandPermissions[];
-          } = await this.client.req
-            .applications(this.client.user.id)
-            .guilds(guild.id)
-            .commands(slashCommand.id)
-            .permissions.get()
-            .catch(() => {
-              return {
-                permissions: [],
-              };
-            });
-          let slashCommandPermissions = slashCommandPermissionsReq.permissions.filter(
-            (permissions) => permissions.id != everyoneId
-          );
-          slashCommandPermissions.push({
-            id: everyoneId,
-            type: ApplicationCommandPermissionType.ROLE,
-            permission: true,
-          });
-          await this.client.req
-            .applications(this.client.user.id)
-            .guilds(guild.id)
-            .commands(slashCommand.id)
-            .permissions.put({ data: { permissions: slashCommandPermissions } })
-            .catch((e: Error) => {
-              this.client.console.error(
-                `[Commands] Failed to update slash command permissions for locked command ${slashCommand.name} in guild ${guild.name}\n${e.stack}`
-              );
-            });
-        }
-      }
-
-      for (const slashCommand of slashCommands) {
+      for (const [, slashCommand] of slashCommands) {
         if (
           !this.client.getCommand(slashCommand.name) ||
           !this.client.getCommand(slashCommand.name).enableSlashCommand
@@ -183,10 +114,8 @@ export default class Ready extends Listener {
           this.client.console.warn(
             `[Commands] Deleting slash command /${slashCommand.name} due to command not being found or slash command disabled`
           );
-          await this.client.req
-            .applications(this.client.user.id)
-            .commands(slashCommand.id)
-            .delete()
+          await this.client.application.commands
+            .delete(slashCommand)
             .catch(() =>
               this.client.console.error(
                 `[Commands] Failed to delete slash command /${slashCommand.name}`

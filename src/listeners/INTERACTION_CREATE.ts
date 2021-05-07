@@ -1,12 +1,7 @@
 // The case of the file name is just to signify that
 // this is listening to an event directly from the gateway
 
-import {
-  Button,
-  Interaction,
-  SlashCommand,
-} from "@fire/lib/interfaces/interactions";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { Button, Interaction } from "@fire/lib/interfaces/interactions";
 import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
@@ -24,57 +19,10 @@ export default class InteractionCreate extends Listener {
 
   async exec(interaction: Interaction) {
     if (!interaction) return;
-    if (interaction.type == 2)
-      return await this.handleApplicationCommand(interaction);
+    // slash command, use client interaction event
+    else if (interaction.type == 2) return;
     else if (interaction.type == 3) return await this.handleButton(interaction);
     else this.client.console.debug(interaction);
-  }
-
-  async handleApplicationCommand(command: SlashCommand) {
-    try {
-      // should be cached if in guild or fetch if dm channel
-      await this.client.channels.fetch(command.channel_id).catch(() => {});
-      const message = new SlashCommandMessage(this.client, command);
-      await message.channel.ack((message.flags & 64) != 0);
-      if (!message.command) {
-        this.client.console.warn(
-          `[Commands] Got slash command request for unknown command, /${command.data.name}`
-        );
-        return await message.error("UNKNOWN_COMMAND");
-      } else if (!message.guild && message.command.channel == "guild")
-        return await message.error(
-          "SLASH_COMMAND_BOT_REQUIRED",
-          this.client.config.inviteLink
-        );
-      await message.generateContent();
-      // @ts-ignore
-      await this.client.commandHandler.handle(message);
-      // if (message.sent != "message")
-      //   await message.sourceMessage?.delete().catch(() => {});
-    } catch (error) {
-      const guild = this.client.guilds.cache.get(command.guild_id);
-      if (!guild)
-        await this.callbackError(command, error).catch(
-          async () => await this.webhookError(command, error).catch(() => {})
-        );
-      if (typeof this.client.sentry != "undefined") {
-        const sentry = this.client.sentry;
-        sentry.setExtras({
-          slashCommand: JSON.stringify(command.data),
-          member: command.member
-            ? `${command.member.user.username}#${command.member.user.discriminator}`
-            : `${command.user.username}#${command.user.discriminator}`,
-          channel_id: command.channel_id,
-          guild_id: command.guild_id,
-          env: process.env.NODE_ENV,
-        });
-        sentry.captureException(error);
-        sentry.configureScope((scope: Scope) => {
-          scope.setUser(null);
-          scope.setExtras(null);
-        });
-      }
-    }
   }
 
   async handleButton(button: Button) {

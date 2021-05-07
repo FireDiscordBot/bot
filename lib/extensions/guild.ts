@@ -5,6 +5,7 @@ import {
   Webhook,
   Collection,
   Structures,
+  Permissions,
   StageChannel,
   VoiceChannel,
   MessageEmbed,
@@ -64,20 +65,20 @@ export class FireGuild extends Guild {
   bans: Collection<string, number>;
   fetchingMemberUpdates: boolean;
   muteCheckTask: NodeJS.Timeout;
+  declare me: FireMember | null;
   banCheckTask: NodeJS.Timeout;
   fetchingRoleUpdates: boolean;
   settings: GuildSettings;
   logger: GuildLogManager;
   tags: GuildTagManager;
-  me: FireMember | null;
-  client: Fire;
+  declare client: Fire;
 
   constructor(client: Fire, data: object) {
     super(client, data);
 
     this.settings = new GuildSettings(client, this);
-    this.tags = new GuildTagManager(client, this);
     this.logger = new GuildLogManager(client, this);
+    this.tags = new GuildTagManager(client, this);
     this.starboardReactions = new Collection();
     this.starboardMessages = new Collection();
     this.persistedRoles = new Collection();
@@ -206,9 +207,9 @@ export class FireGuild extends Guild {
       const denied = channel.permissionOverwrites.get(role.id)?.deny;
       if (
         !denied ||
-        !denied.has("SEND_MESSAGES") ||
-        !denied.has("ADD_REACTIONS") ||
-        !denied.has("SPEAK")
+        !denied.has(Permissions.FLAGS.SEND_MESSAGES) ||
+        !denied.has(Permissions.FLAGS.ADD_REACTIONS) ||
+        !denied.has(Permissions.FLAGS.SPEAK)
       )
         await channel
           .updateOverwrite(
@@ -493,7 +494,7 @@ export class FireGuild extends Guild {
     for (const [id, perms] of this.permRoles) {
       for (const [, channel] of this.channels.cache.filter(
         (channel) =>
-          channel.permissionsFor(this.me).has("MANAGE_ROLES") &&
+          channel.permissionsFor(this.me).has(Permissions.FLAGS.MANAGE_ROLES) &&
           (channel.permissionOverwrites.get(id)?.allow.bitfield !=
             perms.allow ||
             channel.permissionOverwrites.get(id)?.deny.bitfield != perms.deny)
@@ -608,7 +609,7 @@ export class FireGuild extends Guild {
     const channel = this.channels.cache.get(this.settings.get("log.action"));
     if (!channel || channel.type != "text") return;
 
-    if (!this.me.permissionsIn(channel).has("MANAGE_WEBHOOKS"))
+    if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
       return await (channel as FireTextChannel).send(log).catch(() => {});
     else return await this.logger.handleAction(log, type);
   }
@@ -622,7 +623,7 @@ export class FireGuild extends Guild {
     );
     if (!channel || channel.type != "text") return;
 
-    if (!this.me.permissionsIn(channel).has("MANAGE_WEBHOOKS"))
+    if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
       return await (channel as FireTextChannel).send(log).catch(() => {});
     else return await this.logger.handleModeration(log, type);
   }
@@ -634,7 +635,7 @@ export class FireGuild extends Guild {
     const channel = this.channels.cache.get(this.settings.get("log.members"));
     if (!channel || channel.type != "text") return;
 
-    if (!this.me.permissionsIn(channel).has("MANAGE_WEBHOOKS"))
+    if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
       return await (channel as FireTextChannel).send(log).catch(() => {});
     else return await this.logger.handleMembers(log, type);
   }
@@ -777,25 +778,32 @@ export class FireGuild extends Guild {
             )
             .map((overwrite) => {
               // we can't set manage roles without admin so just remove it
-              if (overwrite.allow.has("MANAGE_ROLES"))
-                overwrite.allow.remove("MANAGE_ROLES");
-              if (overwrite.deny.has("MANAGE_ROLES"))
-                overwrite.deny.remove("MANAGE_ROLES");
+              if (overwrite.allow.has(Permissions.FLAGS.MANAGE_ROLES))
+                overwrite.allow.remove(Permissions.FLAGS.MANAGE_ROLES);
+              if (overwrite.deny.has(Permissions.FLAGS.MANAGE_ROLES))
+                overwrite.deny.remove(Permissions.FLAGS.MANAGE_ROLES);
               return overwrite;
             }),
           {
-            allow: ["VIEW_CHANNEL", "SEND_MESSAGES"],
+            allow: [
+              Permissions.FLAGS.VIEW_CHANNEL,
+              Permissions.FLAGS.SEND_MESSAGES,
+            ],
             type: "member",
             id: author.id,
           },
           {
-            allow: ["VIEW_CHANNEL", "SEND_MESSAGES", "MANAGE_CHANNELS"],
+            allow: [
+              Permissions.FLAGS.VIEW_CHANNEL,
+              Permissions.FLAGS.SEND_MESSAGES,
+              Permissions.FLAGS.MANAGE_CHANNELS,
+            ],
             type: "member",
             id: this.me.id,
           },
           {
             id: this.roles.everyone.id,
-            deny: ["VIEW_CHANNEL"],
+            deny: [Permissions.FLAGS.VIEW_CHANNEL],
             type: "role",
           },
         ],
@@ -896,7 +904,7 @@ export class FireGuild extends Guild {
     );
     if (!channels.includes(channel)) return "nonticket";
     if (
-      !author.permissions.has("MANAGE_CHANNELS") &&
+      !author.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS) &&
       !channel.topic.includes(author.id)
     )
       return "forbidden";

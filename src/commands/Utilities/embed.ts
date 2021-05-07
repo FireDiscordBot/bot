@@ -1,6 +1,6 @@
+import { MessageEmbed, NewsChannel, Permissions } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { MessageEmbed, NewsChannel } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -9,8 +9,8 @@ export default class Embed extends Command {
     super("embed", {
       description: (language: Language) =>
         language.get("EMBED_COMMAND_DESCRIPTION"),
-      clientPermissions: ["EMBED_LINKS"],
-      userPermissions: ["EMBED_LINKS"],
+      clientPermissions: [Permissions.FLAGS.EMBED_LINKS],
+      userPermissions: [Permissions.FLAGS.EMBED_LINKS],
       enableSlashCommand: true,
       args: [
         {
@@ -37,7 +37,9 @@ export default class Embed extends Command {
     if (!args.haste) return;
     if (
       args.channel &&
-      !message.member?.permissionsIn(args.channel).has("MANAGE_MESSAGES")
+      !message.member
+        ?.permissionsIn(args.channel)
+        .has(Permissions.FLAGS.MANAGE_MESSAGES)
     )
       return await message.error("EMBED_MISSING_PERMISSIONS");
     if (typeof args.channel == "undefined")

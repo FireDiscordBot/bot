@@ -1,6 +1,4 @@
-import { ClientOptions, HTTPOptions } from "discord.js";
-import { constants } from "@fire/lib/util/constants";
-const intents = constants.intents;
+import { ClientOptions, HTTPOptions, Constants, Intents } from "discord.js";
 
 let litecord: { http?: HTTPOptions } = {};
 if (process.env.USE_LITECORD == "true")
@@ -23,19 +21,25 @@ export const discord: ClientOptions = {
   messageSweepInterval: 60,
   messageCacheMaxSize: 30,
   restSweepInterval: 30,
-  partials: ["REACTION", "MESSAGE", "CHANNEL", "GUILD_MEMBER", "USER"],
+  partials: [
+    Constants.PartialTypes.GUILD_MEMBER,
+    Constants.PartialTypes.REACTION,
+    Constants.PartialTypes.MESSAGE,
+    Constants.PartialTypes.CHANNEL,
+    Constants.PartialTypes.USER,
+  ],
   intents:
-    intents.GUILDS |
-    intents.GUILD_MEMBERS |
-    // intents.GUILD_PRESENCES |
-    intents.GUILD_VOICE_STATES |
-    intents.GUILD_BANS |
-    intents.GUILD_INVITES |
-    intents.GUILD_MESSAGES |
-    intents.GUILD_MESSAGE_REACTIONS |
-    intents.GUILD_WEBHOOKS |
-    intents.DIRECT_MESSAGES |
-    intents.GUILD_VOICE_STATES,
+    Intents.FLAGS.GUILDS |
+    Intents.FLAGS.GUILD_MEMBERS |
+    // Intents.FLAGS.GUILD_PRESENCES |
+    Intents.FLAGS.GUILD_VOICE_STATES |
+    Intents.FLAGS.GUILD_BANS |
+    Intents.FLAGS.GUILD_INVITES |
+    Intents.FLAGS.GUILD_MESSAGES |
+    Intents.FLAGS.GUILD_MESSAGE_REACTIONS |
+    Intents.FLAGS.GUILD_WEBHOOKS |
+    Intents.FLAGS.DIRECT_MESSAGES |
+    Intents.FLAGS.GUILD_VOICE_STATES,
   ...litecord,
   presence: {
     status: "idle",

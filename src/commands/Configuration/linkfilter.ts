@@ -1,6 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 const valid = [
   "discord",
@@ -16,8 +17,11 @@ export default class LinkFilter extends Command {
     super("linkfilter", {
       description: (language: Language) =>
         language.get("LINKFILTER_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "MANAGE_MESSAGES"],
-      userPermissions: ["MANAGE_GUILD"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.MANAGE_MESSAGES,
+      ],
+      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       args: [
         {
           id: "filters",

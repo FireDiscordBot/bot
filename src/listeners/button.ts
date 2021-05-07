@@ -7,10 +7,10 @@ import {
   ButtonStyle,
   ButtonType,
 } from "@fire/lib/interfaces/interactions";
+import { SnowflakeUtil, MessageEmbed, Permissions } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { SnowflakeUtil, MessageEmbed } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
 import Rank from "../commands/Premium/rank";
 import Sk1er from "../modules/sk1er";
@@ -123,7 +123,7 @@ export default class Button extends Listener {
     }
 
     if (button.custom_id.startsWith("tag_edit:") && button.guild) {
-      if (!button.member?.permissions.has("MANAGE_MESSAGES"))
+      if (!button.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
         return await button
           .error(
             "MISSING_PERMISSIONS_USER",
@@ -229,7 +229,7 @@ export default class Button extends Listener {
     }
 
     if (button.custom_id.startsWith("tag_delete:") && button.guild) {
-      if (!button.member?.permissions.has("MANAGE_MESSAGES"))
+      if (!button.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
         return await button
           .error(
             "MISSING_PERMISSIONS_USER",

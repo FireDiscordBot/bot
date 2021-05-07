@@ -2,6 +2,7 @@ import {
   MessageReaction,
   CategoryChannel,
   GuildChannel,
+  Permissions,
 } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -13,8 +14,11 @@ export default class Slowmode extends Command {
     super("slowmode", {
       description: (language: Language) =>
         language.get("SLOWMODE_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "MANAGE_CHANNELS"],
-      userPermissions: ["MANAGE_CHANNELS"],
+      clientPermissions: [
+        Permissions.FLAGS.MANAGE_CHANNELS,
+        Permissions.FLAGS.SEND_MESSAGES,
+      ],
+      userPermissions: [Permissions.FLAGS.MANAGE_CHANNELS],
       args: [
         {
           id: "delay",
@@ -108,7 +112,9 @@ export default class Slowmode extends Command {
     for (const channel of channels) {
       if (
         channel.rateLimitPerUser != delay &&
-        message.guild.me.permissionsIn(channel).has("MANAGE_CHANNELS")
+        message.guild.me
+          .permissionsIn(channel)
+          .has(Permissions.FLAGS.MANAGE_CHANNELS)
       )
         await channel
           .setRateLimitPerUser(

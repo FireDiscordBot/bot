@@ -13,10 +13,10 @@ import { Command } from "./command";
 const { CommandHandlerEvents } = Constants;
 
 export class CommandHandler extends AkairoCommandHandler {
-  categories: Collection<string, Category<string, Command>>;
-  commandUtils: Collection<string, CommandUtil>;
-  modules: Collection<string, Command>;
-  client: Fire;
+  declare categories: Collection<string, Category<string, Command>>;
+  declare commandUtils: Collection<string, CommandUtil>;
+  declare modules: Collection<string, Command>;
+  declare client: Fire;
 
   constructor(client: Fire, options: CommandHandlerOptions) {
     super(client, options);

@@ -1,15 +1,19 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Role } from "discord.js";
+import { Permissions, Role } from "discord.js";
 
 export default class DelRank extends Command {
   constructor() {
     super("delrank", {
       description: (language: Language) =>
         language.get("DELRANK_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS", "MANAGE_ROLES"],
-      userPermissions: ["MANAGE_ROLES"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.MANAGE_ROLES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
+      userPermissions: [Permissions.FLAGS.MANAGE_ROLES],
       restrictTo: "guild",
       args: [
         {

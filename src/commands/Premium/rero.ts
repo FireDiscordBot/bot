@@ -1,4 +1,10 @@
-import { MessageReaction, MessageEmbed, GuildEmoji, Role } from "discord.js";
+import {
+  MessageReaction,
+  MessageEmbed,
+  Permissions,
+  GuildEmoji,
+  Role,
+} from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { constants } from "@fire/lib/util/constants";
@@ -13,8 +19,8 @@ export default class ReactionRole extends Command {
     super("reactionrole", {
       description: (language: Language) =>
         language.get("REACTIONROLE_COMMAND_DESCRIPTION"),
-      clientPermissions: ["MANAGE_ROLES"],
-      userPermissions: ["MANAGE_ROLES"],
+      clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
+      userPermissions: [Permissions.FLAGS.MANAGE_ROLES],
       args: [
         {
           id: "role",

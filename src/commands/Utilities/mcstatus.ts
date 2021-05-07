@@ -1,9 +1,9 @@
 import { MojangStatus } from "@fire/lib/interfaces/mojangstatus";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { MessageEmbed, Permissions } from "discord.js";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { MessageEmbed } from "discord.js";
 import * as centra from "centra";
 
 const { emojis } = constants;
@@ -19,7 +19,10 @@ export default class MinecraftStatus extends Command {
     super("mcstatus", {
       description: (language: Language) =>
         language.get("MCSTATUS_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       enableSlashCommand: true,
       restrictTo: "all",
     });

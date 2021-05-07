@@ -1,8 +1,13 @@
-import { MessageEmbed, GuildChannel, DMChannel } from "discord.js";
+import {
+  MessageEmbed,
+  GuildChannel,
+  VoiceChannel,
+  StageChannel,
+  Permissions,
+  DMChannel,
+} from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
-import { VoiceChannel } from "discord.js";
-import { StageChannel } from "discord.js";
 
 export default class ChannelUpdate extends Listener {
   constructor() {
@@ -25,8 +30,8 @@ export default class ChannelUpdate extends Listener {
     const muteRole = guild.muteRole;
     if (
       muteRole &&
-      (after.permissionsFor(muteRole).has("SEND_MESSAGES") ||
-        after.permissionsFor(muteRole).has("ADD_REACTIONS"))
+      (after.permissionsFor(muteRole).has(Permissions.FLAGS.SEND_MESSAGES) ||
+        after.permissionsFor(muteRole).has(Permissions.FLAGS.ADD_REACTIONS))
     )
       await after
         .updateOverwrite(

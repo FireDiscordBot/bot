@@ -7,13 +7,14 @@ import { Command } from "@fire/lib/util/command";
 import { Module } from "@fire/lib/util/module";
 import { Message } from "@fire/lib/ws/Message";
 import { Argument } from "discord-akairo";
+import { Permissions } from "discord.js";
 
 export default class Reload extends Command {
   constructor() {
     super("reload", {
       description: (language: Language) =>
         language.get("RELOAD_COMMAND_DESCRIPTION"),
-      clientPermissions: ["ADD_REACTIONS"],
+      clientPermissions: [Permissions.FLAGS.ADD_REACTIONS],
       args: [
         {
           id: "module",

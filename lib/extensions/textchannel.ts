@@ -3,8 +3,8 @@ import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 
 export class FireTextChannel extends TextChannel {
-  guild: FireGuild;
-  client: Fire;
+  declare guild: FireGuild;
+  declare client: Fire;
 
   constructor(guild: FireGuild, data?: object) {
     super(guild, data);

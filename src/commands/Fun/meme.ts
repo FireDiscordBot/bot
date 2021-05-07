@@ -1,10 +1,10 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { MessageEmbed, Permissions } from "discord.js";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { RedditImage } from "@aero/ksoft";
-import { MessageEmbed } from "discord.js";
 
 const { imageExts } = constants;
 
@@ -13,7 +13,10 @@ export default class Meme extends Command {
     super("meme", {
       description: (language: Language) =>
         language.get("MEME_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       restrictTo: "all",
       args: [
         {

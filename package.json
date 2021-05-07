@@ -38,7 +38,7 @@
     "chrono-node": "^2.1.10",
     "discord-akairo": "^8.1.0",
     "discord-api-types": "^0.18.0",
-    "discord.js": "discordjs/discord.js#af00ec8970e77ea8a0afd21571eeeef9c554e1ec",
+    "discord.js": "discordjs/discord.js#b456ff1090ad9c0acf27ad96ecaedb03101de556",
     "dotenv-extended": "^2.9.0",
     "emoji-regex": "^9.2.2",
     "erlpack": "discord/erlpack",
@@ -72,6 +72,6 @@
     "@types/uuid": "^8.3.0",
     "@types/ws": "^7.2.6",
     "prettier": "^2.1.2",
-    "typescript": "^4.2.3"
+    "typescript": "^4.3.0-dev.20210507"
   }
 }

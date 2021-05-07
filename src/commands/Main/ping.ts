@@ -1,5 +1,5 @@
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
-import { DiscordAPIError, MessageEmbed } from "discord.js";
+import { DiscordAPIError, MessageEmbed, Permissions } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -9,7 +9,10 @@ export default class Ping extends Command {
     super("ping", {
       description: (language: Language) =>
         language.get("PING_COMMAND_DESCRIPTION"),
-      clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       enableSlashCommand: true,
       restrictTo: "all",
     });

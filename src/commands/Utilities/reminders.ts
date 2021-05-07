@@ -3,10 +3,10 @@ import {
   WrappedPaginator,
 } from "@fire/lib/util/paginators";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { MessageEmbed, Permissions } from "discord.js";
 import { humanize } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { MessageEmbed } from "discord.js";
 import * as moment from "moment";
 
 export default class Reminders extends Command {
@@ -14,7 +14,10 @@ export default class Reminders extends Command {
     super("reminders", {
       description: (language: Language) =>
         language.get("REMINDERS_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       aliases: ["listremind", "listreminders"],
       enableSlashCommand: true,
       restrictTo: "all",

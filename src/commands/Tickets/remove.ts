@@ -3,13 +3,17 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 export default class TicketRemove extends Command {
   constructor() {
     super("remove", {
       description: (language: Language) =>
         language.get("TICKETREMOVE_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "MANAGE_ROLES"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.MANAGE_ROLES,
+      ],
       args: [
         {
           id: "user",
@@ -36,12 +40,12 @@ export default class TicketRemove extends Command {
       return await message.error("TICKET_NON_TICKET");
     if (
       !channel.topic.includes(message.author.id) &&
-      !message.member.permissions.has("MANAGE_CHANNELS")
+      !message.member.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS)
     )
       return await message.error("TICKET_REMOVE_FORBIDDEN");
     if (channel.topic.includes(args.user.id))
       return await message.error("TICKET_REMOVE_AUTHOR");
-    if (!args.user.permissionsIn(channel).has("VIEW_CHANNEL"))
+    if (!args.user.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL))
       return await message.error("TICKET_REMOVE_NOT_FOUND");
     const updated = await channel
       .updateOverwrite(

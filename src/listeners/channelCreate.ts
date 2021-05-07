@@ -1,4 +1,4 @@
-import { GuildChannel, MessageEmbed, DMChannel } from "discord.js";
+import { GuildChannel, MessageEmbed, Permissions, DMChannel } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { humanize } from "@fire/lib/util/constants";
@@ -32,7 +32,10 @@ export default class ChannelCreate extends Listener {
 
     if (guild.permRoles.size) {
       for (const [role, perms] of guild.permRoles) {
-        if (!channel.permissionsFor(guild.me).has("MANAGE_ROLES")) continue;
+        if (
+          !channel.permissionsFor(guild.me).has(Permissions.FLAGS.MANAGE_ROLES)
+        )
+          continue;
         await channel
           .overwritePermissions(
             [
@@ -76,7 +79,9 @@ export default class ChannelCreate extends Listener {
         );
       if (channel.permissionOverwrites.size > 1) {
         const canView = channel.permissionOverwrites
-          .filter((overwrite) => overwrite.allow.has("VIEW_CHANNEL"))
+          .filter((overwrite) =>
+            overwrite.allow.has(Permissions.FLAGS.VIEW_CHANNEL)
+          )
           .map((overwrite) => overwrite.id);
         const roles = [
           ...canView
@@ -85,7 +90,7 @@ export default class ChannelCreate extends Listener {
           ...guild.roles.cache
             .filter(
               (role) =>
-                role.permissions.has("ADMINISTRATOR") &&
+                role.permissions.has(Permissions.FLAGS.ADMINISTRATOR) &&
                 !canView.find((id) => id == role.id)
             )
             .values(),
@@ -104,7 +109,7 @@ export default class ChannelCreate extends Listener {
         const viewers = [...roles.map((role) => role.toString()), ...members];
         embed.addField(language.get("VIEWABLE_BY"), `${viewers.join(" - ")}`);
       }
-      if (guild.me.permissions.has("VIEW_AUDIT_LOG")) {
+      if (guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)) {
         const auditLogActions = await guild
           .fetchAuditLogs({ limit: 2, type: "CHANNEL_CREATE" })
           .catch(() => {});

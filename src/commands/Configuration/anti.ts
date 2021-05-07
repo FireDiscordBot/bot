@@ -1,6 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 const valid = ["everyone", "zws", "spoiler", "selfbot"];
 
@@ -9,8 +10,8 @@ export default class Anti extends Command {
     super("anti", {
       description: (language: Language) =>
         language.get("ANTI_COMMAND_DESCRIPTION"),
-      clientPermissions: ["MANAGE_MESSAGES"],
-      userPermissions: ["MANAGE_MESSAGES"],
+      clientPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
+      userPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
       args: [
         {
           id: "anti",

@@ -2,13 +2,14 @@ import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 export default class StarboardChannel extends Command {
   constructor() {
     super("starboard-channel", {
       description: (language: Language) =>
         language.get("STARBOARD_CHANNEL_DESCRIPTION"),
-      userPermissions: ["MANAGE_GUILD"],
+      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       restrictTo: "guild",
       args: [
         {
@@ -40,7 +41,11 @@ export default class StarboardChannel extends Command {
 
     const missing = message.guild.me
       .permissionsIn(args.channel)
-      .missing(["VIEW_CHANNEL", "SEND_MESSAGES", "EMBED_LINKS"]);
+      .missing([
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.VIEW_CHANNEL,
+        Permissions.FLAGS.EMBED_LINKS,
+      ]);
     if (missing.length)
       return await message.error(
         "MISSING_PERMISSIONS_CLIENT",

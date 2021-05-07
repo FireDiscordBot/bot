@@ -1,5 +1,5 @@
+import { MessageMentionOptions, MessageEmbed, Permissions } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { MessageMentionOptions, MessageEmbed } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
@@ -18,7 +18,7 @@ export default class LeaveMSG extends Command {
     super("leavemsg", {
       description: (language: Language) =>
         language.get("LEAVEMSG_COMMAND_DESCRIPTION"),
-      userPermissions: ["MANAGE_GUILD"],
+      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       args: [
         {
           id: "channel",

@@ -1,8 +1,8 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { constants, humanize } from "@fire/lib/util/constants";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageEmbed, Permissions } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
-import { MessageEmbed } from "discord.js";
 import * as moment from "moment";
 
 const {
@@ -28,7 +28,7 @@ export default class GuildMemberAdd extends Listener {
     if (
       member.guild.premium &&
       !member.user.bot &&
-      member.guild.me.permissions.has("MANAGE_GUILD") &&
+      member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD) &&
       member.guild.invites
     ) {
       const before = member.guild.invites.clone();
@@ -63,7 +63,7 @@ export default class GuildMemberAdd extends Listener {
       }
     } else if (
       member.guild.premium &&
-      member.guild.me.permissions.has("MANAGE_GUILD") &&
+      member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD) &&
       !member.guild.invites
     )
       await member.guild.loadInvites();
@@ -91,7 +91,7 @@ export default class GuildMemberAdd extends Listener {
       const role = member.guild.roles.cache.get(
         member.guild.settings.get("mod.autobotrole", null)
       );
-      if (role && member.guild.me.permissions.has("MANAGE_ROLES"))
+      if (role && member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES))
         await member.roles
           .add(role, member.guild.language.get("AUTOROLE_REASON") as string)
           .catch(() => {});
@@ -107,7 +107,7 @@ export default class GuildMemberAdd extends Listener {
         !member.pending
       ) {
         const role = member.guild.roles.cache.get(autoroleId);
-        if (role && member.guild.me.permissions.has("MANAGE_ROLES"))
+        if (role && member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES))
           await member.roles
             .add(role, member.guild.language.get("AUTOROLE_REASON") as string)
             .catch(() => {});

@@ -2,14 +2,14 @@ import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { NewsChannel } from "discord.js";
+import { NewsChannel, Permissions } from "discord.js";
 
 export default class LogIgnore extends Command {
   constructor() {
     super("logignore", {
       description: (language: Language) =>
         language.get("LOGIGNORE_COMMAND_DESCRIPTION"),
-      userPermissions: ["MANAGE_GUILD"],
+      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       args: [
         {
           id: "channel",

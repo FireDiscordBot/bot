@@ -3,6 +3,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 const { emojis } = constants;
 
@@ -12,10 +13,10 @@ export default class NewTicket extends Command {
       description: (language: Language) =>
         language.get("NEW_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        "SEND_MESSAGES",
-        "EMBED_LINKS",
-        "MANAGE_CHANNELS",
-        "MANAGE_ROLES",
+        Permissions.FLAGS.MANAGE_CHANNELS,
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.MANAGE_ROLES,
+        Permissions.FLAGS.EMBED_LINKS,
       ],
       restrictTo: "guild",
       args: [

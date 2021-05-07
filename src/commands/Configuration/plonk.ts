@@ -2,18 +2,21 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageEmbed, Permissions } from "discord.js";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
-import { MessageEmbed } from "discord.js";
 
 export default class Plonk extends Command {
   constructor() {
     super("plonk", {
       description: (language: Language) =>
         language.get("PLONK_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "ADD_REACTIONS"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.ADD_REACTIONS,
+      ],
       args: [
         {
           id: "user",
@@ -41,7 +44,7 @@ export default class Plonk extends Command {
   ) {
     if (
       !message.author.isSuperuser() &&
-      !message.member?.permissions.has("MANAGE_GUILD")
+      !message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
     )
       return await message.error("PLONK_FORBIDDEN");
 
@@ -56,7 +59,7 @@ export default class Plonk extends Command {
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
 
-    if (message.member?.permissions.has("MANAGE_GUILD"))
+    if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
       await this.localBlacklist(message, args);
     else if (message.author.isSuperuser())
       await this.globalBlacklist(message, args);

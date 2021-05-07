@@ -3,7 +3,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import VanityURLs from "@fire/src/modules/vanityurls";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Invite } from "discord.js";
+import { Permissions, Invite } from "discord.js";
 
 const deleteKeywords = ["remove", "delete", "true", "yeet", "disable"];
 const validityRegex = /[a-zA-Z0-9]{3,25}/gim;
@@ -15,8 +15,8 @@ export default class VanityURL extends Command {
     super("vanityurl", {
       description: (language: Language) =>
         language.get("VANITYURL_COMMAND_DESCRIPTION"),
-      clientPermissions: ["CREATE_INSTANT_INVITE"],
-      userPermissions: ["MANAGE_GUILD"],
+      clientPermissions: [Permissions.FLAGS.CREATE_INSTANT_INVITE],
+      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       args: [
         {
           id: "code",

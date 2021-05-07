@@ -2,7 +2,7 @@ import { AkairoHandler, AkairoModule } from "discord-akairo";
 import { Fire } from "@fire/lib/Fire";
 
 export class Module extends AkairoModule {
-  client: Fire;
+  declare client: Fire;
   // This'll be somewhat of a replacement for cogs
   // but without the commands
   constructor(id: string) {

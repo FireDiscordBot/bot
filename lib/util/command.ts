@@ -6,12 +6,13 @@ import {
   Flag,
 } from "discord-akairo";
 import {
-  APIApplicationCommand,
-  ApplicationCommand,
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-} from "@fire/lib/interfaces/interactions";
-import { DiscordAPIError } from "discord.js";
+  ApplicationCommandOptionData,
+  ApplicationCommandData,
+  DiscordAPIError,
+  Permissions,
+} from "discord.js";
+import { APIApplicationCommand } from "@fire/lib/interfaces/interactions";
+import { ApplicationCommandOptionType } from "discord-api-types";
 import { titleCase } from "./constants";
 import { Language } from "./language";
 import { Fire } from "@fire/lib/Fire";
@@ -56,29 +57,29 @@ const slashCommandTypeMappings = {
 };
 
 export class Command extends AkairoCommand {
-  client: Fire;
-  group: boolean;
+  requiresExperiment?: { id: string; treatmentId?: number };
+  declare description: (language: Language) => string;
+  args?: ArgumentOptions[] | ArgumentGenerator;
+  declare channel?: "guild" | "dm";
+  enableSlashCommand: boolean;
+  moderatorOnly: boolean;
+  superuserOnly: boolean;
+  declare client: Fire;
+  ephemeral: boolean;
+  guilds: string[];
+  premium: boolean;
   parent?: string;
   hidden: boolean;
-  premium: boolean;
-  guilds: string[];
-  ephemeral: boolean;
-  superuserOnly: boolean;
-  moderatorOnly: boolean;
-  channel?: "guild" | "dm";
-  enableSlashCommand: boolean;
-  description: (language: Language) => string;
-  requiresExperiment?: { id: string; treatmentId?: number };
-  args?: ArgumentOptions[] | ArgumentGenerator;
+  group: boolean;
 
   constructor(id: string, options?: CommandOptions) {
     if (!options?.aliases?.length) options.aliases = [id];
     else options?.aliases?.push(id);
     if (!options?.clientPermissions)
       options.clientPermissions = [
-        "SEND_MESSAGES",
-        "USE_EXTERNAL_EMOJIS",
-        "ADD_REACTIONS",
+        Permissions.FLAGS.USE_EXTERNAL_EMOJIS,
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.ADD_REACTIONS,
       ];
     if (
       options.args instanceof Array &&
@@ -155,14 +156,14 @@ export class Command extends AkairoCommand {
   }
 
   getSlashCommandJSON(id?: string) {
-    let data: ApplicationCommand = {
+    let data: ApplicationCommandData & { id?: string } = {
       name: this.id,
       description:
         typeof this.description == "function"
           ? this.description(this.client.getLanguage("en-US"))
           : this.description || "No Description Provided",
-      // default_permission: !this.requiresExperiment,
-      default_permission: true, // until @everyone is supported
+      // defaultPermission: !this.requiresExperiment,
+      defaultPermission: true, // until @everyone is supported
     };
     if (id) data.id = id;
     if (!this.group) {
@@ -187,13 +188,12 @@ export class Command extends AkairoCommand {
   }
 
   getSlashCommandOption(argument: ArgumentOptions) {
-    let options: ApplicationCommandOption = {
-      type:
-        ApplicationCommandOptionType[
-          Object.keys(slashCommandTypeMappings).find((type) =>
-            slashCommandTypeMappings[type].includes(argument.type)
-          ) || "STRING"
-        ],
+    const type =
+      ((Object.keys(slashCommandTypeMappings).find((type) =>
+        slashCommandTypeMappings[type].includes(argument.type)
+      ) as unknown) as ApplicationCommandOptionType) || "STRING";
+    let options: ApplicationCommandOptionData = {
+      type,
       name: (argument.slashCommandType
         ? argument.slashCommandType
         : argument.readableType.split("|")[0]
@@ -221,7 +221,7 @@ export class Command extends AkairoCommand {
       options["choices"] = choices;
     } else if (argument.flag && argument.match == "flag") {
       options["name"] = argument.id;
-      options["type"] = ApplicationCommandOptionType.BOOLEAN;
+      options["type"] = "BOOLEAN";
     } else if (argument.flag && argument.match == "option") {
       options["name"] = argument.id;
     }
@@ -259,40 +259,45 @@ export class Command extends AkairoCommand {
 
   async registerSlashCommand() {
     if (this.parent) return;
-    const command = this.getSlashCommandJSON();
+    const commandData = this.getSlashCommandJSON();
     let commands = [];
     if (!this.guilds.length) {
-      const commandRaw:
-        | APIApplicationCommand
-        | DiscordAPIError = await this.client.req
-        .applications(this.client.user.id)
-        .commands.post({ data: command })
-        .catch((e: DiscordAPIError) => e);
-      if (commandRaw instanceof DiscordAPIError)
-        commandRaw.code != 30032 &&
+      const command = await this.client.application.commands
+        .create(commandData)
+        .catch((e: Error) => e);
+      if (command instanceof DiscordAPIError)
+        command.code != 30032 &&
           this.client.console.warn(
             `[Commands] Failed to register slash command for ${this.id}`,
-            commandRaw
+            command
           );
-      else if (commandRaw.id) commands.push(commandRaw);
+      else if (command instanceof Error)
+        this.client.console.warn(
+          `[Commands] Failed to register slash command for ${this.id}`,
+          command.stack
+        );
+      else if (command.id) commands.push(command);
     } else {
-      this.guilds.forEach(async (guild) => {
-        const commandRaw:
-          | APIApplicationCommand
-          | DiscordAPIError = await this.client.req
-          .applications(this.client.user.id)
-          .guilds(guild)
-          .commands.post({ data: command })
-          .catch((e: DiscordAPIError) => e);
-        if (commandRaw instanceof DiscordAPIError)
-          commandRaw.httpStatus != 403 &&
-            commandRaw.code != 50001 &&
+      for (const guildId of this.guilds) {
+        const guild = this.client.guilds.cache.get(guildId);
+        if (!guild) continue;
+        const command = await guild.commands
+          .create(commandData)
+          .catch((e: Error) => e);
+        if (command instanceof DiscordAPIError)
+          command.httpStatus != 403 &&
+            command.code != 50001 &&
             this.client.console.warn(
               `[Commands] Failed to register slash command for ${this.id} in guild ${guild}`,
-              commandRaw
+              command
             );
-        else if (commandRaw.id) commands.push(commandRaw);
-      });
+        else if (command instanceof Error)
+          this.client.console.warn(
+            `[Commands] Failed to register slash command for ${this.id} in guild ${guild}`,
+            command.stack
+          );
+        else if (command.id) commands.push(command);
+      }
     }
     return commands;
   }

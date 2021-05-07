@@ -72,6 +72,7 @@ import * as moment from "moment";
 type ButtonHandler = (button: ButtonMessage) => Promise<any> | any;
 
 import "./extensions";
+import { Constants } from "discord.js";
 
 // Rewrite completed - 15:10 17/1/2021
 export class Fire extends AkairoClient {
@@ -102,14 +103,14 @@ export class Fire extends AkairoClient {
   // Common Attributes
   experiments: Collection<string, Experiment>;
   aliases: Collection<string, string[]>;
+  declare user: FireUser & ClientUser;
   cacheSweepTask: NodeJS.Timeout;
-  user: FireUser & ClientUser;
   config: typeof config.fire;
   cacheSweep: () => void;
   ksoft?: KSoftClient;
   useCanary: boolean;
+  declare util: Util;
   db: PGClient;
-  util: Util;
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
@@ -140,7 +141,7 @@ export class Fire extends AkairoClient {
     );
     this.on("ready", () => config.fire.readyMessage(this));
     this.on("raw", (r) => {
-      if (r.t == "GUILD_CREATE") {
+      if (r.t == Constants.WSEvents.GUILD_CREATE) {
         const member = r.d.members.find(
           (member: APIGuildMember) => member.user.id == this.user.id
         ) as APIGuildMember;
@@ -152,7 +153,7 @@ export class Fire extends AkairoClient {
             })
           )
         );
-      } else if (r.t == "GUILD_DELETE")
+      } else if (r.t == Constants.WSEvents.GUILD_DELETE)
         this.manager.ws?.send(
           MessageUtil.encode(
             new Message(EventType.GUILD_DELETE, { id: r.d.id })
@@ -160,7 +161,7 @@ export class Fire extends AkairoClient {
         );
 
       if (
-        r.t == "GUILD_MEMBER_ADD" &&
+        r.t == Constants.WSEvents.GUILD_MEMBER_ADD &&
         this.manager.ws?.subscribed.includes(r.d?.user?.id)
       )
         this.manager.ws.send(
@@ -169,7 +170,7 @@ export class Fire extends AkairoClient {
           )
         );
       else if (
-        r.t == "GUILD_MEMBER_REMOVE" &&
+        r.t == Constants.WSEvents.GUILD_MEMBER_REMOVE &&
         this.manager.ws?.subscribed.includes(r.d?.user?.id)
       )
         this.manager.ws.send(

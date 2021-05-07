@@ -8,11 +8,11 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { WebhookClient, Permissions } from "discord.js";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
-import { WebhookClient } from "discord.js";
 
 const { regexes } = constants;
 
@@ -21,7 +21,10 @@ export default class Quote extends Command {
     super("quote", {
       description: (language: Language) =>
         language.get("QUOTE_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       args: [
         {
           id: "quote",

@@ -6,12 +6,12 @@ import {
 } from "@fire/lib/interfaces/interactions";
 import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageEmbed, Permissions, Role } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { MessageEmbed, Role } from "discord.js";
 
 const {
   regexes: { unicodeEmoji },
@@ -22,7 +22,11 @@ export default class Rank extends Command {
     super("rank", {
       description: (language: Language) =>
         language.get("RANK_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS", "MANAGE_ROLES"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.MANAGE_ROLES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       restrictTo: "guild",
       args: [
         {

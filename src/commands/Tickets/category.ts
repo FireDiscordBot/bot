@@ -1,15 +1,19 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import { CategoryChannel, Permissions } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { CategoryChannel } from "discord.js";
 
 export default class TicketCategory extends Command {
   constructor() {
     super("ticket-category", {
       description: (language: Language) =>
         language.get("TICKET_CATEGORY_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS", "MANAGE_CHANNELS"],
-      userPermissions: ["MANAGE_GUILD"],
+      clientPermissions: [
+        Permissions.FLAGS.MANAGE_CHANNELS,
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
+      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       restrictTo: "guild",
       args: [
         {

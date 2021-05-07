@@ -1,5 +1,5 @@
+import { MessageEmbedOptions, MessageEmbed, Permissions } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { MessageEmbed, MessageEmbedOptions } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
@@ -10,8 +10,11 @@ export default class Purge extends Command {
     super("purge", {
       description: (language: Language) =>
         language.get("PURGE_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "MANAGE_MESSAGES"],
-      userPermissions: ["MANAGE_MESSAGES"],
+      clientPermissions: [
+        Permissions.FLAGS.MANAGE_MESSAGES,
+        Permissions.FLAGS.SEND_MESSAGES,
+      ],
+      userPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
       args: [
         {
           id: "amount",

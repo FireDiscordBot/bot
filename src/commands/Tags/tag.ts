@@ -1,5 +1,5 @@
+import { DiscordAPIError, MessageEmbed, Permissions } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { DiscordAPIError, MessageEmbed } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -8,7 +8,10 @@ export default class Tag extends Command {
     super("tag", {
       description: (language: Language) =>
         language.get("TAG_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       args: [
         {
           id: "tag",

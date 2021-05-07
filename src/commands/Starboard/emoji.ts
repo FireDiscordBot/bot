@@ -1,9 +1,9 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
+import { Permissions, GuildEmoji } from "discord.js";
 import { ArgumentTypeCaster } from "discord-akairo";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { GuildEmoji } from "discord.js";
 
 const unicodeEmojiRegex = constants.regexes.unicodeEmoji;
 const discordEmojiRegex = constants.regexes.customEmoji;
@@ -16,7 +16,7 @@ export default class StarboardEmoji extends Command {
     super("starboard-emoji", {
       description: (language: Language) =>
         language.get("STARBOARD_EMOJI_DESCRIPTION"),
-      userPermissions: ["MANAGE_GUILD"],
+      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       args: [
         {
           id: "emoji",

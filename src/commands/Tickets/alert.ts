@@ -1,15 +1,19 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Role } from "discord.js";
+import { Permissions, Role } from "discord.js";
 
 export default class TicketAlert extends Command {
   constructor() {
     super("ticket-alert", {
       description: (language: Language) =>
         language.get("TICKET_ALERT_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS", "MANAGE_CHANNELS"],
-      userPermissions: ["MANAGE_GUILD"],
+      clientPermissions: [
+        Permissions.FLAGS.MANAGE_CHANNELS,
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
+      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       restrictTo: "guild",
       args: [
         {

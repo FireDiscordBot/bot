@@ -1,4 +1,9 @@
-import { GuildAuditLogsEntry, AuditLogChange, MessageEmbed } from "discord.js";
+import {
+  GuildAuditLogsEntry,
+  AuditLogChange,
+  MessageEmbed,
+  Permissions,
+} from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -77,7 +82,10 @@ export default class GuildMemberUpdate extends Listener {
       const role = newMember.guild.roles.cache.get(
         newMember.guild.settings.get("mod.autobotrole", null)
       );
-      if (role && newMember.guild.me.permissions.has("MANAGE_ROLES"))
+      if (
+        role &&
+        newMember.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES)
+      )
         await newMember.roles
           .add(role, newMember.guild.language.get("AUTOROLE_REASON") as string)
           .catch(() => {});
@@ -97,7 +105,7 @@ export default class GuildMemberUpdate extends Listener {
         !newMember.user.bot
       ) {
         const role = newMember.guild.roles.cache.get(autoroleId);
-        if (role && newMember.guild.me.permissions.has("MANAGE_ROLES"))
+        if (role && newMember.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES))
           await newMember.roles
             .add(
               role,

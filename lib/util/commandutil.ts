@@ -10,7 +10,7 @@ import { Fire } from "@fire/lib/Fire";
 import { Command } from "./command";
 
 export class CommandUtil extends AkairoUtil {
-  parsed?: ParsedComponentData;
+  declare parsed?: ParsedComponentData;
 
   constructor(
     handler: CommandHandler,

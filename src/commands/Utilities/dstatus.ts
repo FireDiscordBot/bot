@@ -1,17 +1,20 @@
 import { Incidents, Summary } from "@fire/lib/interfaces/statuspage";
 import { constants, titleCase } from "@fire/lib/util/constants";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { MessageEmbed, Permissions } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import * as centra from "centra";
-import { MessageEmbed } from "discord.js";
 
 export default class DiscordStatus extends Command {
   constructor() {
     super("dstatus", {
       description: (language: Language) =>
         language.get("DSTATUS_COMMAND_DESCRIPTION"),
-      clientPermissions: ["EMBED_LINKS", "SEND_MESSAGES"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       aliases: ["discordstatus"],
       enableSlashCommand: true,
       restrictTo: "all",

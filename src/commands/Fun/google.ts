@@ -1,5 +1,5 @@
+import { DiscordAPIError, SnowflakeUtil, Permissions } from "discord.js";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
-import { DiscordAPIError, SnowflakeUtil } from "discord.js";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
@@ -20,7 +20,10 @@ export default class Google extends Command {
     super("google", {
       description: (language: Language) =>
         language.get("GOOGLE_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "ATTACH_FILES"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.ATTACH_FILES,
+      ],
       restrictTo: "all",
       args: [
         {

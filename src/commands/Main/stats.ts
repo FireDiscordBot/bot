@@ -1,7 +1,7 @@
 import { Cluster, Stats as AetherStats } from "@fire/lib/interfaces/stats";
+import { MessageEmbed, Permissions, version as djsver } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { humanFileSize } from "@fire/lib/util/clientutil";
-import { MessageEmbed, version as djsver } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import * as centra from "centra";
@@ -12,7 +12,10 @@ export default class Stats extends Command {
     super("stats", {
       description: (language: Language) =>
         language.get("STATS_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       restrictTo: "all",
       args: [
         {

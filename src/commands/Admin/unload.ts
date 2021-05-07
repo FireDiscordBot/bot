@@ -7,13 +7,14 @@ import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
 import { Module } from "@fire/lib/util/module";
 import { Argument } from "discord-akairo";
+import { Permissions } from "discord.js";
 
 export default class Unload extends Command {
   constructor() {
     super("unload", {
       description: (language: Language) =>
         language.get("UNLOAD_COMMAND_DESCRIPTION"),
-      clientPermissions: ["ADD_REACTIONS"],
+      clientPermissions: [Permissions.FLAGS.ADD_REACTIONS],
       args: [
         {
           id: "module",

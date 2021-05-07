@@ -1,14 +1,18 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 export default class BadName extends Command {
   constructor() {
     super("badname", {
       description: (language: Language) =>
         language.get("BADNAME_COMMAND_DESCRIPTION"),
-      userPermissions: ["MANAGE_NICKNAMES"],
-      clientPermissions: ["SEND_MESSAGES", "MANAGE_NICKNAMES"],
+      userPermissions: [Permissions.FLAGS.MANAGE_NICKNAMES],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.MANAGE_NICKNAMES,
+      ],
       args: [
         {
           id: "name",

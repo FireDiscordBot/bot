@@ -1,8 +1,9 @@
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { constants } from "@fire/lib/util/constants";
+import { Permissions } from "discord.js";
 
 export default class LanguageCommand extends Command {
   constructor() {
@@ -29,7 +30,10 @@ export default class LanguageCommand extends Command {
         "LANGUAGE_COMMAND_CURRENT",
         message.language.id
       );
-    else if (message.guild && message.member.permissions.has("MANAGE_GUILD")) {
+    else if (
+      message.guild &&
+      message.member.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
+    ) {
       args.language.id == "en-US"
         ? message.guild.settings.delete("utils.language") // en-US is default so we can delete the setting instead
         : message.guild.settings.set("utils.language", args.language.id);

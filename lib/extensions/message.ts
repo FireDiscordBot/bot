@@ -3,6 +3,7 @@ import {
   MessageReaction,
   WebhookClient,
   MessageEmbed,
+  Permissions,
   NewsChannel,
   APIMessage,
   Collection,
@@ -36,16 +37,16 @@ const {
 
 export class FireMessage extends Message {
   invWtfResolved: Collection<string, { invite?: string; url?: string }>;
-  channel: DMChannel | FireTextChannel | NewsChannel;
+  declare channel: DMChannel | FireTextChannel | NewsChannel;
   paginator?: PaginatorInterface;
   components: APIComponent[];
+  declare member: FireMember;
+  declare guild: FireGuild;
+  declare author: FireUser;
+  declare client: Fire;
   starLock: Semaphore;
-  member: FireMember;
   util?: CommandUtil;
-  author: FireUser;
-  guild: FireGuild;
   silent?: boolean;
-  client: Fire;
 
   constructor(
     client: Fire,
@@ -133,10 +134,12 @@ export class FireMessage extends Message {
     if (this.author.system && !quoter.isSuperuser()) return "system";
     if (channel.nsfw && !destination?.nsfw) return "nsfw";
     const isLurkable =
-      this.guild.roles.everyone.permissionsIn(channel).has("VIEW_CHANNEL") &&
       this.guild.roles.everyone
         .permissionsIn(channel)
-        .has("READ_MESSAGE_HISTORY");
+        .has(Permissions.FLAGS.VIEW_CHANNEL) &&
+      this.guild.roles.everyone
+        .permissionsIn(channel)
+        .has(Permissions.FLAGS.READ_MESSAGE_HISTORY);
     let member: FireMember;
     if (this.guild.id == destination?.guild?.id) member = quoter;
     if (
@@ -151,7 +154,10 @@ export class FireMessage extends Message {
     }
 
     if (!isLurkable)
-      if (!member || !member.permissionsIn(this.channel).has("VIEW_CHANNEL"))
+      if (
+        !member ||
+        !member.permissionsIn(this.channel).has(Permissions.FLAGS.VIEW_CHANNEL)
+      )
         return "permissions";
 
     const canUpload =
@@ -226,7 +232,9 @@ export class FireMessage extends Message {
     let attachments: { attachment: Buffer; name: string }[] = [];
     if (
       (destination instanceof FireTextChannel &&
-        quoter.permissionsIn(destination).has("ATTACH_FILES")) ||
+        quoter
+          .permissionsIn(destination)
+          .has(Permissions.FLAGS.ATTACH_FILES)) ||
       (!(destination instanceof FireTextChannel) &&
         (BigInt(destination.permissions) & 32768n) == 32768n)
     ) {
@@ -579,7 +587,7 @@ export class FireMessage extends Message {
     if (
       this.guild.settings.get("mod.antieveryone", false) &&
       (this.content.includes("@everyone") || this.content.includes("@here")) &&
-      !this.member.permissions.has("MENTION_EVERYONE")
+      !this.member.permissions.has(Permissions.FLAGS.MENTION_EVERYONE)
     )
       return await this.delete().catch(() => {});
 

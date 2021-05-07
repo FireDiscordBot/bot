@@ -6,17 +6,20 @@ import {
 } from "@fire/lib/interfaces/interactions";
 import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { MessageEmbed, Permissions } from "discord.js";
 import { Tag } from "@fire/lib/util/guildtagmanager";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { MessageEmbed } from "discord.js";
 
 export default class TagInfo extends Command {
   constructor() {
     super("tag-info", {
       description: (language: Language) =>
         language.get("TAG_INFO_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.EMBED_LINKS,
+      ],
       args: [
         {
           id: "tag",

@@ -3,13 +3,17 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 export default class TicketAdd extends Command {
   constructor() {
     super("add", {
       description: (language: Language) =>
         language.get("TICKETADD_COMMAND_DESCRIPTION"),
-      clientPermissions: ["SEND_MESSAGES", "MANAGE_ROLES"],
+      clientPermissions: [
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.MANAGE_ROLES,
+      ],
       args: [
         {
           id: "user",
@@ -36,7 +40,7 @@ export default class TicketAdd extends Command {
       return await message.error("TICKET_NON_TICKET");
     if (
       !channel.topic.includes(message.author.id) &&
-      !message.member.permissions.has("MANAGE_CHANNELS")
+      !message.member.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS)
     )
       return await message.error("TICKET_ADD_FORBIDDEN");
     const updated = await channel
