@@ -127,13 +127,17 @@ export default class Debug extends Command {
     const permissionChecks = clientMissing?.length || userMissing?.length;
 
     if (permissionChecks && message.guild) {
-      const user = userMissing.map((permission) =>
-        this.client.util.cleanPermissionName(permission, message.language)
-      );
+      const user = userMissing
+        .map((permission) =>
+          this.client.util.cleanPermissionName(permission, message.language)
+        )
+        .filter((permission) => !!permission);
 
-      const client = clientMissing.map((permission) =>
-        this.client.util.cleanPermissionName(permission, message.language)
-      );
+      const client = clientMissing
+        .map((permission) =>
+          this.client.util.cleanPermissionName(permission, message.language)
+        )
+        .filter((permission) => !!permission);
 
       const permMsg = message.language.get(
         "DEBUG_PERMS_FAIL",
@@ -170,7 +174,9 @@ export default class Debug extends Command {
 
     if (cmd.id == "mute" && message.guild && channel instanceof GuildChannel) {
       const canSend = channel.permissionOverwrites
-        .filter((overwrite) => overwrite.allow.has(Permissions.FLAGS.SEND_MESSAGES))
+        .filter((overwrite) =>
+          overwrite.allow.has(Permissions.FLAGS.SEND_MESSAGES)
+        )
         .map((overwrite) => overwrite.id);
       const roles = [
         ...canSend
@@ -219,7 +225,8 @@ export default class Debug extends Command {
 
     if (
       !message.guild ||
-      (message.guild && message.guild.me?.permissions.has(Permissions.FLAGS.EMBED_LINKS))
+      (message.guild &&
+        message.guild.me?.permissions.has(Permissions.FLAGS.EMBED_LINKS))
     )
       return await message.channel.send(this.createEmbed(message, details));
     else {

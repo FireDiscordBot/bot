@@ -44,12 +44,14 @@ export default class PermRoles extends Command {
           .toArray()
           .map((permission) =>
             this.client.util.cleanPermissionName(permission, message.language)
-          );
+          )
+          .filter((permission) => !!permission);
         const friendlyDenied = deny
           .toArray()
           .map((permission) =>
             this.client.util.cleanPermissionName(permission, message.language)
-          );
+          )
+          .filter((permission) => !!permission);
         paginator.addLine(
           message.language.get(
             "PERMROLES_CURRENT_ITEM",

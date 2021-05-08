@@ -197,7 +197,9 @@ export class Command extends AkairoCommand {
       name: (argument.slashCommandType
         ? argument.slashCommandType
         : argument.readableType.split("|")[0]
-      ).replace("Silent", ""),
+      )
+        .replace("Silent", "")
+        .toLowerCase(),
       description:
         typeof argument.description == "function"
           ? argument.description(this.client.getLanguage("en-US"))
@@ -214,16 +216,16 @@ export class Command extends AkairoCommand {
       for (const type of (argument.slashCommandOptions ||
         argument.type) as string[]) {
         choices.push({
-          name: titleCase(type),
+          name: type.toLowerCase(),
           value: type,
         });
       }
       options["choices"] = choices;
     } else if (argument.flag && argument.match == "flag") {
-      options["name"] = argument.id;
+      options["name"] = argument.id.toLowerCase();
       options["type"] = "BOOLEAN";
     } else if (argument.flag && argument.match == "option") {
-      options["name"] = argument.id;
+      options["name"] = argument.id.toLowerCase();
     }
     return options;
   }

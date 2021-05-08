@@ -190,13 +190,10 @@ export default class Help extends Command {
 
   async sendUsage(message: FireMessage, command: Command) {
     let permissions: string[] = [];
-    ((command.userPermissions || []) as Array<string>).forEach(
-      (perm: string) => {
-        permissions.push(
-          this.client.util.cleanPermissionName(perm as PermissionString)
-        );
-      }
-    );
+    for (const perm of (command.userPermissions || []) as Array<
+      PermissionString | bigint
+    >)
+      permissions.push(this.client.util.cleanPermissionName(perm));
     let args: string[] = command.getArgumentsClean();
     const embed = {
       color: message.member?.displayHexColor || "#ffffff",

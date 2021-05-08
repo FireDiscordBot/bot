@@ -1,7 +1,8 @@
 import {
   version as djsver,
-  Collection,
   PermissionString,
+  Permissions,
+  Collection,
   Webhook,
 } from "discord.js";
 import { Channel, Video } from "@fire/lib/interfaces/youtube";
@@ -41,8 +42,9 @@ interface MojangProfile {
 
 export class Util extends ClientUtil {
   loadedData: { plonked: boolean; premium: boolean };
-  uuidCache: Collection<string, string>;
+  permissionFlags: [PermissionString, bigint][];
   premium: Collection<string, PremiumData>;
+  uuidCache: Collection<string, string>;
   hasRoleUpdates: string[];
   declare client: Fire;
   plonked: string[];
@@ -55,6 +57,11 @@ export class Util extends ClientUtil {
     this.premium = new Collection();
     this.hasRoleUpdates = [];
     this.plonked = [];
+
+    this.permissionFlags = Object.entries(Permissions.FLAGS) as [
+      PermissionString,
+      bigint
+    ][];
   }
 
   sleep(ms: number) {
@@ -272,12 +279,26 @@ export class Util extends ClientUtil {
     };
   }
 
-  cleanPermissionName(name: PermissionString, language?: Language): string {
+  cleanPermissionName(
+    permission: PermissionString | BigInt,
+    language?: Language
+  ): string {
+    let name: PermissionString;
+    if (typeof permission == "bigint")
+      name = this.bitToPermissionString(permission);
+    else if (typeof permission == "string") name = permission;
+    if (!name) return null;
     if (language && language.get("PERMISSIONS").hasOwnProperty(name))
       return language.get("PERMISSIONS")[name];
     return titleCase(
       name.toLowerCase().replace(/_/gim, " ").replace(/guild/gim, "server")
     );
+  }
+
+  bitToPermissionString(permission: bigint) {
+    const found = this.permissionFlags.find(([, bit]) => bit == permission);
+    if (found?.length) return found[0];
+    else return null;
   }
 
   async blacklist(user: FireMember | FireUser, reason: string) {

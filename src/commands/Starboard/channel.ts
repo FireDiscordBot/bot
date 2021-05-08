@@ -49,9 +49,11 @@ export default class StarboardChannel extends Command {
     if (missing.length)
       return await message.error(
         "MISSING_PERMISSIONS_CLIENT",
-        missing.map((name) =>
-          this.client.util.cleanPermissionName(name, message.language)
-        ),
+        missing
+          .map((name) =>
+            this.client.util.cleanPermissionName(name, message.language)
+          )
+          .filter((permission) => !!permission),
         `starboard channel`
       );
 

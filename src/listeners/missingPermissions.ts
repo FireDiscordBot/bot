@@ -17,9 +17,11 @@ export default class MissingPermissions extends Listener {
     type: "client" | "user",
     missing: PermissionString[]
   ) {
-    const cleanPermissions = missing.map((name) =>
-      this.client.util.cleanPermissionName(name, message.language)
-    );
+    const cleanPermissions = missing
+      .map((name) =>
+        this.client.util.cleanPermissionName(name, message.language)
+      )
+      .filter((permission) => !!permission);
 
     if (type == "client")
       return await message
