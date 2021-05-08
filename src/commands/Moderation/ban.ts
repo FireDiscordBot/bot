@@ -37,9 +37,10 @@ export default class Ban extends Command {
       aliases: [
         "banish",
         "begone",
+        "perish",
+        "fire",
         "gtfo",
         "410",
-        "perish",
         "bonk",
         "bean",
         "bam",
