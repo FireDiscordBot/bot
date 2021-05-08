@@ -80,7 +80,7 @@ export class SlashCommandMessage {
     this.guild = client.guilds.cache.get(command.guildID) as FireGuild;
     this.command = this.client.getCommand(command.commandName);
     this._flags = 0;
-    if (this.guild?.tags?.slashCommands[command.id] == command.commandName) {
+    if (this.guild?.tags?.slashCommands[command.commandID] == command.commandName) {
       this.command = this.client.getCommand("tag");
       command.options = [
         { name: "tag", value: command.commandName, type: "STRING" },
