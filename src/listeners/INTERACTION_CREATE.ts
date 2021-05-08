@@ -22,7 +22,21 @@ export default class InteractionCreate extends Listener {
     // slash command, use client interaction event
     else if (interaction.type == 2) return;
     else if (interaction.type == 3) return await this.handleButton(interaction);
-    else this.client.console.debug(interaction);
+    else {
+      const haste = await this.client.util.haste(
+        JSON.stringify(interaction, null, 4),
+        false,
+        "json"
+      );
+      this.client.sentry.captureEvent({
+        level: this.client.sentry.Severity.fromString("warning"),
+        message: "Unknown Interaction Type",
+        timestamp: +new Date(),
+        extra: {
+          body: haste,
+        },
+      });
+    }
   }
 
   async handleButton(button: Button) {
