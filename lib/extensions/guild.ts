@@ -1037,7 +1037,7 @@ export class FireGuild extends Guild {
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
-    const ban = await this.fetchBan(user).catch(() => {});
+    const ban = await this.bans.fetch(user).catch(() => {});
     if (!ban) return "no_ban";
     const logEntry = await this.createModLogEntry(
       user,

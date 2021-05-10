@@ -50,14 +50,17 @@ export default class MessageDelete extends Listener {
       message.guild?.settings.has("log.action") &&
       !message.guild.logIgnored.includes(message.channel.id)
     ) {
+      let reference: FireMessage;
+      if (message.type == "REPLY")
+        reference = (await message.fetchReference()) as FireMessage;
       const description = message.guild.language.get(
         "MSGDELETELOG_DESCRIPTION",
         message.author.toMention(),
         message.channel.toString(),
         message.type == "REPLY"
-          ? message.mentions.users.has(message.referencedMessage?.author?.id)
-            ? (message.referencedMessage?.author as FireUser)?.toMention()
-            : message.referencedMessage?.author?.toString()
+          ? message.mentions.users.has(reference?.author?.id)
+            ? (reference?.author as FireUser)?.toMention()
+            : reference?.author?.toString()
           : null,
         `https://discord.com/channels/${message.reference?.guildID}/${message.reference?.channelID}/${message.reference?.messageID}`
       ) as string;
