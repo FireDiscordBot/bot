@@ -6,6 +6,7 @@ import {
 } from "discord.js";
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { getCommitHash } from "@fire/lib/util/gitUtils";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
@@ -35,12 +36,16 @@ export default class Ready extends Listener {
       this.client.manager.ws?.send(
         MessageUtil.encode(
           new Message(EventType.READY_CLIENT, {
-            id: this.client.manager.id,
-            commands: getCommands(this.client),
-            allCommands: getAllCommands(this.client),
             avatar: this.client.user.displayAvatarURL({
               size: 4096,
             }),
+            allCommands: getAllCommands(this.client),
+            commands: getCommands(this.client),
+            name: this.client.user.username,
+            id: this.client.manager.id,
+            env: process.env.NODE_ENV,
+            commit: getCommitHash(),
+            uuid: process.env.pm_id,
           })
         )
       );

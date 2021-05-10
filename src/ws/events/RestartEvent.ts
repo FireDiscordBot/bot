@@ -1,6 +1,7 @@
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { getCommitHash } from "@fire/lib/util/gitUtils";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Event } from "@fire/lib/ws/event/Event";
 import GuildCheckEvent from "./GuildCheckEvent";
@@ -43,12 +44,16 @@ export default class RestartEvent extends Event {
       this.manager.client.manager.ws?.send(
         MessageUtil.encode(
           new Message(EventType.READY_CLIENT, {
-            id: this.manager.client.manager.id,
-            commands: getCommands(this.manager.client),
-            allCommands: getAllCommands(this.manager.client),
             avatar: this.manager.client.user.displayAvatarURL({
               size: 4096,
             }),
+            allCommands: getAllCommands(this.manager.client),
+            commands: getCommands(this.manager.client),
+            name: this.manager.client.user.username,
+            id: this.manager.client.manager.id,
+            env: process.env.NODE_ENV,
+            commit: getCommitHash(),
+            uuid: process.env.pm_id,
           })
         )
       );
