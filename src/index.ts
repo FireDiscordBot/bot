@@ -20,7 +20,9 @@ import { Manager } from "@fire/lib/Manager";
 import * as sentry from "@sentry/node";
 
 const version =
-  process.env.NODE_ENV == "development" ? "dev" : getCommitHash().slice(0, 7);
+  process.env.NODE_ENV == "development"
+    ? `dev-${getCommitHash().slice(0, 7)}`
+    : getCommitHash().slice(0, 7);
 
 const loadSentry =
   typeof process.env.SENTRY_DSN != "undefined" &&
