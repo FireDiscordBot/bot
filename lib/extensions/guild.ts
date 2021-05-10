@@ -62,7 +62,7 @@ export class FireGuild extends Guild {
   vcRoles: Collection<string, string>;
   invites: Collection<string, number>;
   mutes: Collection<string, number>;
-  bans: Collection<string, number>;
+  tempBans: Collection<string, number>;
   fetchingMemberUpdates: boolean;
   muteCheckTask: NodeJS.Timeout;
   declare me: FireMember | null;
@@ -245,7 +245,7 @@ export class FireGuild extends Guild {
   }
 
   private async loadBans() {
-    this.bans = new Collection();
+    this.tempBans = new Collection();
     const bans = await this.client.db
       .query("SELECT * FROM bans WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -254,7 +254,7 @@ export class FireGuild extends Guild {
         `[Guild] Failed to load bans for ${this.name} (${this.id})`
       );
     for await (const ban of bans) {
-      this.bans.set(
+      this.tempBans.set(
         ban.get("uid") as string,
         parseUntil(ban.get("until") as string)
       );
@@ -333,7 +333,7 @@ export class FireGuild extends Guild {
             .catch(() => {})) as FireMember);
     if (!me) return; // could mean discord issues so return
     const now = +new Date();
-    for (const [id] of this.bans.filter(
+    for (const [id] of this.tempBans.filter(
       // likely never gonna be equal but if somehow it is then you're welcome
       (time) => !!time && now >= time
     )) {
@@ -1053,11 +1053,11 @@ export class FireGuild extends Guild {
       const deleted = await this.deleteModLogEntry(logEntry).catch(() => false);
       return deleted ? "unban" : "unban_and_entry";
     }
-    if (this.bans.has(user.id)) {
+    if (this.tempBans.has(user.id)) {
       await this.client.db
         .query("DELETE FROM bans WHERE gid=$1 AND uid=$2;", [this.id, user.id])
         .catch(() => {});
-      this.bans.delete(user.id);
+      this.tempBans.delete(user.id);
     }
     const embed = new MessageEmbed()
       .setColor("#E74C3C")

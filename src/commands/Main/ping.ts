@@ -49,13 +49,10 @@ export default class Ping extends Command {
     return message instanceof SlashCommandMessage
       ? message.channel.send(embed)
       : pingMessage.delete() &&
-          (await message.reply(embed).catch((e) => {
-            if (
-              e instanceof DiscordAPIError &&
-              // hacky detection but it works
-              e.message.includes("message_reference: Unknown message")
-            )
-              return message.channel.send(embed);
-          }));
+          (await message.channel
+            .send(embed, {
+              reply: { messageReference: message, failIfNotExists: false },
+            })
+            .catch(() => {}));
   }
 }

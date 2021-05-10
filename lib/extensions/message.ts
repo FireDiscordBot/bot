@@ -101,16 +101,13 @@ export class FireMessage extends Message {
     if (!key && this.deleted) return;
     return !key
       ? this.react(reactions.error).catch(() => {})
-      : this.reply(`${emojis.error} ${this.language.get(key, ...args)}`).catch(
-          (e) => {
-            if (
-              e instanceof DiscordAPIError &&
-              // hacky detection but it works
-              e.message.includes("message_reference: Unknown message")
-            )
-              return this.channel.send(
-                `${emojis.error} ${this.language.get(key, ...args)}`
-              );
+      : this.channel.send(
+          `${emojis.error} ${this.language.get(key, ...args)}`,
+          {
+            reply: {
+              messageReference: this,
+              failIfNotExists: false,
+            },
           }
         );
   }

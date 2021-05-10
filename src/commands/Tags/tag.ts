@@ -49,9 +49,10 @@ export default class Tag extends Command {
         .catch(() => {})) as FireMessage;
     }
     if (referenced)
-      return await referenced
-        .reply(cachedTag.content, {
+      return await referenced.channel
+        .send(cachedTag.content, {
           allowedMentions: { repliedUser: true },
+          reply: { messageReference: referenced, failIfNotExists: false },
         })
         .catch((e) => {
           if (

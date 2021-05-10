@@ -329,7 +329,7 @@ export class FireMember extends GuildMember {
     }
     let dbadd: any = !until;
     if (until) {
-      this.guild.bans.set(this.id, until || 0);
+      this.guild.tempBans.set(this.id, until || 0);
       dbadd = await this.client.db
         .query("INSERT INTO bans (gid, uid, until) VALUES ($1, $2, $3);", [
           this.guild.id,
