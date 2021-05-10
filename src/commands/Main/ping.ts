@@ -50,7 +50,8 @@ export default class Ping extends Command {
       ? message.channel.send(embed)
       : pingMessage.delete() &&
           (await message.channel
-            .send(embed, {
+            .send(null, {
+              embed,
               reply: { messageReference: message, failIfNotExists: false },
             })
             .catch(() => {}));
