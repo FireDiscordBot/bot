@@ -112,11 +112,7 @@ export default class Sk1er extends Module {
             hoursDifferenceSince(message.createdAt) > 10
         )
         .forEach((message) => {
-          message
-            .unpin({
-              reason: "Incident has lasted more than 10 hours",
-            })
-            .catch(() => {});
+          message.unpin().catch(() => {});
         });
     } catch {}
   }
@@ -414,12 +410,10 @@ export default class Sk1er extends Module {
           .exec(message.content)
           .filter((value) => value.includes("online"));
         if (online.length && message.pinned)
-          await message
-            .unpin({ reason: "Incident is resolved" })
-            .then(() => {});
+          await message.unpin().then(() => {});
         else if (!message.pinned)
           await message
-            .pin({ reason: "New incident" })
+            .pin()
             .catch((reason) =>
               this.client.console.warn(
                 `[Sk1er] Failed to pin Groovy status update; ${reason}`
@@ -430,12 +424,10 @@ export default class Sk1er extends Module {
       // S-tatsu-s ;)
       case "747787792402219128": {
         if (message.content.toLowerCase().includes("resolved"))
-          await message
-            .unpin({ reason: "Incident is resolved" })
-            .then(() => {});
+          await message.unpin().then(() => {});
         else if (!message.pinned)
           await message
-            .pin({ reason: "New incident" })
+            .pin()
             .catch((reason) =>
               this.client.console.warn(
                 `[Sk1er] Failed to pin Tatsu status update; ${reason}`
@@ -446,12 +438,10 @@ export default class Sk1er extends Module {
       // Lunar Status
       case "747788002738176110": {
         if (message.content.toLowerCase().includes("resolved"))
-          await message
-            .unpin({ reason: "Incident is resolved" })
-            .then(() => {});
+          await message.unpin().then(() => {});
         else if (!message.pinned)
           await message
-            .pin({ reason: "New incident" })
+            .pin()
             .catch((reason) =>
               this.client.console.warn(
                 `[Sk1er] Failed to pin Lunar status update; ${reason}`
@@ -476,7 +466,7 @@ export default class Sk1er extends Module {
           );
         else
           await message
-            .pin({ reason: "New(?) incident" })
+            .pin()
             .catch((reason) =>
               this.client.console.warn(
                 `[Sk1er] Failed to pin Dyno status update; ${reason}`
