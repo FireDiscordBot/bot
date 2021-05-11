@@ -52,7 +52,9 @@ export class APIRequest {
     const url = API + this.path;
     let headers: {
       [key: string]: any;
-    } = this.client.useCanary ? { "x-debug-options": "canary" } : {};
+    } = this.client.useCanary
+      ? { ...this.client.options.http.headers, "x-debug-options": "canary" }
+      : { ...this.client.options.http.headers };
 
     if (this.options.auth !== false)
       headers.Authorization = this.rest.getAuth();
