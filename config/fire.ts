@@ -39,7 +39,7 @@ export const fire = {
     "804143990869590066",
     "683466844279275520",
     "742112973799293011",
-    "781913473872560189"
+    "781913473872560189",
   ],
   datamineUsers: [
     "GamingGeek",
@@ -56,6 +56,8 @@ export const fire = {
     "vDelite",
     "NurMarvin",
     "XYZenix",
+    "RedDaedalus",
+    "justsomederpystuff",
   ],
   inviteLink: process.env.INVITE_SUFFIX
     ? `https://inv.wtf/${process.env.INVITE_SUFFIX}`
