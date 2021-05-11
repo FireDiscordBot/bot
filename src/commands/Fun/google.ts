@@ -115,9 +115,9 @@ export default class Google extends Command {
       message.member || message.author
     );
     if (!html)
-      return await message.channel
-        .send(message.language.get("PLAYWRIGHT_ERROR_UNKNOWN") as string, {
-          reply: { messageReference: message, failIfNotExists: false },
+      return await message
+        .reply(message.language.get("PLAYWRIGHT_ERROR_UNKNOWN") as string, {
+          failIfNotExists: false,
         })
         .catch((e) => {
           if (

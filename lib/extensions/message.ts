@@ -101,15 +101,9 @@ export class FireMessage extends Message {
     if (!key && this.deleted) return;
     return !key
       ? this.react(reactions.error).catch(() => {})
-      : this.channel.send(
-          `${emojis.error} ${this.language.get(key, ...args)}`,
-          {
-            reply: {
-              messageReference: this,
-              failIfNotExists: false,
-            },
-          }
-        );
+      : this.reply(`${emojis.error} ${this.language.get(key, ...args)}`, {
+          failIfNotExists: false,
+        });
   }
 
   async delete(options?: { timeout: number }) {

@@ -49,10 +49,10 @@ export default class Ping extends Command {
     return message instanceof SlashCommandMessage
       ? message.channel.send(embed)
       : pingMessage.delete() &&
-          (await message.channel
-            .send(null, {
+          (await message
+            .reply(null, {
+              failIfNotExists: false,
               embed,
-              reply: { messageReference: message, failIfNotExists: false },
             })
             .catch(() => {}));
   }
