@@ -1,6 +1,7 @@
 import {
   ReactionUserManager,
   EmojiResolvable,
+  ThreadChannel,
   ReactionEmoji,
   MessageEmbed,
   NewsChannel,
@@ -319,7 +320,7 @@ export class PaginatorInterface {
   }
 
   async send(
-    destination: FireTextChannel | NewsChannel | DMChannel | FakeChannel
+    destination: FireTextChannel | NewsChannel | ThreadChannel | DMChannel | FakeChannel
   ) {
     // if (destination instanceof FakeChannel) destination = destination.real;
     let message: FireMessage | SlashCommandMessage;

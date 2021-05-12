@@ -2,6 +2,7 @@ import {
   DeconstructedSnowflake,
   PermissionString,
   UserFlagsString,
+  ThreadChannel,
   GuildChannel,
   MessageEmbed,
   Permissions,
@@ -498,6 +499,21 @@ export default class User extends Command {
               message.language.get("DM_CHANNEL")
             ) as string
           );
+      } else if (channel instanceof ThreadChannel) {
+        await channel.members.fetchMembers().catch(() => {});
+        const member = channel.members.cache.get(message.author.id);
+        info.push(
+          member
+            ? (message.language.get(
+                "USER_SNOWFLAKE_BELONGS_TO",
+                message.language.get("CHANNEL"),
+                channel.toString()
+              ) as string)
+            : (message.language.get(
+                "USER_SNOWFLAKE_BELONGS_TO",
+                message.language.get("CHANNEL")
+              ) as string)
+        );
       } else {
         const member = (channel as GuildChannel).guild.members.cache.get(
           message.author.id

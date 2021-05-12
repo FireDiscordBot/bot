@@ -1,6 +1,7 @@
 import {
   DiscordAPIError,
   MessageReaction,
+  ThreadChannel,
   WebhookClient,
   MessageEmbed,
   Permissions,
@@ -36,8 +37,8 @@ const {
 } = constants;
 
 export class FireMessage extends Message {
+  declare channel: DMChannel | FireTextChannel | NewsChannel | ThreadChannel;
   invWtfResolved: Collection<string, { invite?: string; url?: string }>;
-  declare channel: DMChannel | FireTextChannel | NewsChannel;
   paginator?: PaginatorInterface;
   components: APIComponent[];
   declare member: FireMember;
@@ -121,9 +122,20 @@ export class FireMessage extends Message {
     webhook?: WebhookClient
   ) {
     if (this.channel.type == "dm") return "dm";
-    const channel = this.channel as FireTextChannel;
+    const channel =
+      this.channel instanceof ThreadChannel
+        ? (this.channel.parent as FireTextChannel)
+        : (this.channel as FireTextChannel);
     if (this.author.system && !quoter.isSuperuser()) return "system";
     if (channel.nsfw && !destination?.nsfw) return "nsfw";
+    if (this.channel instanceof ThreadChannel)
+      destination = {
+        permissions: channel.permissionsFor(quoter).bitfield.toString(),
+        guild_id: this.guild?.id,
+        guild: this.guild,
+        nsfw: channel.nsfw,
+        id: this.channel.id,
+      };
     const isLurkable =
       this.guild.roles.everyone
         .permissionsIn(channel)
@@ -147,7 +159,7 @@ export class FireMessage extends Message {
     if (!isLurkable)
       if (
         !member ||
-        !member.permissionsIn(this.channel).has(Permissions.FLAGS.VIEW_CHANNEL)
+        !member.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL)
       )
         return "permissions";
 

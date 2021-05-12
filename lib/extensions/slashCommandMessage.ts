@@ -18,6 +18,7 @@ import {
   RoleResolvable,
   MessageOptions,
   MessageManager,
+  ThreadChannel,
   SnowflakeUtil,
   InviteOptions,
   MessageEmbed,
@@ -368,7 +369,7 @@ export class SlashCommandMessage {
 }
 
 export class FakeChannel {
-  real: FireTextChannel | NewsChannel | DMChannel;
+  real: FireTextChannel | NewsChannel | ThreadChannel | DMChannel;
   message: SlashCommandMessage;
   messages: MessageManager;
   guild?: FireGuild;
@@ -441,14 +442,18 @@ export class FakeChannel {
     options: PermissionOverwriteOption,
     reason?: string
   ) {
-    return !(this.real instanceof DMChannel)
+    // TODO: update when threads have permissions
+    return !(this.real instanceof DMChannel) &&
+      !(this.real instanceof ThreadChannel)
       ? this.real?.updateOverwrite(userOrRole, options, { reason })
       : false;
   }
 
   createInvite(options?: InviteOptions) {
     return !(this.real instanceof DMChannel)
-      ? this.real?.createInvite(options)
+      ? this.real instanceof ThreadChannel
+        ? this.real.parent.createInvite(options)
+        : this.real?.createInvite(options)
       : false;
   }
 

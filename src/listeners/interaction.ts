@@ -24,6 +24,12 @@ export default class InteractionListener extends Listener {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(command.channelID).catch(() => {});
       const message = new SlashCommandMessage(this.client, command);
+      this.client.console.debug(
+        "slash command?",
+        !!message,
+        "channel?",
+        !!message.realChannel
+      );
       await message.channel.ack((message.flags & 64) != 0);
       if (!message.command) {
         this.client.console.warn(
