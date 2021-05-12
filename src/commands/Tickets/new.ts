@@ -1,9 +1,9 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { ThreadChannel, Permissions } from "discord.js";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
 
 const { emojis } = constants;
 
@@ -36,7 +36,11 @@ export default class NewTicket extends Command {
     if (!message.member) return; // how
     const creating = await message.send("NEW_TICKET_CREATING");
     const ticket = await message.guild
-      .createTicket(message.member, args.subject)
+      .createTicket(
+        message.member,
+        args.subject,
+        message.channel as FireTextChannel
+      )
       // return author as it'll just return
       .catch(() => "author");
     // how?
@@ -64,7 +68,10 @@ export default class NewTicket extends Command {
         args,
         ticket
       );
-    else if (ticket instanceof FireTextChannel)
+    else if (
+      (ticket instanceof FireTextChannel) ||
+      (ticket instanceof ThreadChannel)
+    )
       return await creating.edit(
         `${emojis.success} ${message.language.get(
           "NEW_TICKET_CREATED",

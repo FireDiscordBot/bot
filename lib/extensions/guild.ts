@@ -1,20 +1,21 @@
 import {
-  Util,
-  Role,
-  Guild,
-  Webhook,
-  Collection,
-  Structures,
-  Permissions,
-  StageChannel,
-  VoiceChannel,
-  MessageEmbed,
-  WebhookClient,
-  CategoryChannel,
-  MessageAttachment,
-  FetchOwnerOptions,
-  MessageEmbedOptions,
   PermissionOverwriteOption,
+  MessageEmbedOptions,
+  FetchOwnerOptions,
+  MessageAttachment,
+  CategoryChannel,
+  WebhookClient,
+  ThreadChannel,
+  MessageEmbed,
+  VoiceChannel,
+  StageChannel,
+  Permissions,
+  Structures,
+  Collection,
+  Webhook,
+  Guild,
+  Role,
+  Util,
 } from "discord.js";
 import {
   ActionLogType,
@@ -706,17 +707,46 @@ export class FireGuild extends Guild {
   }
 
   get tickets() {
-    const textChannels = this.channels.cache.filter(
-      (channel) => channel.type == "text"
-    );
+    const textChannelsAndThreads = [
+      ...this.channels.cache
+        .filter((channel) => channel.type == "text")
+        .array(),
+      ...this.channels.cache
+        .filter((channel) => channel.type == "text")
+        .flatMap((channel: FireTextChannel) => channel.threads.cache)
+        .array(),
+    ] as (FireTextChannel | ThreadChannel)[];
     return (this.settings.get("tickets.channels", []) as string[])
-      .map((id) => textChannels.get(id))
-      .filter((channel) => !!channel) as FireTextChannel[];
+      .map((id) => textChannelsAndThreads.find((channel) => channel.id == id))
+      .filter((channel) => !!channel);
+  }
+
+  getTickets(user?: string) {
+    if (!user) return this.tickets;
+    let channels = (this.settings.get(
+      "tickets.channels",
+      []
+    ) as string[]).map((id) =>
+      this.channels.cache
+        .filter(
+          (channel) =>
+            (channel.type == "text" || channel instanceof ThreadChannel) &&
+            channel.id == id
+        )
+        .get(id)
+    ) as (FireTextChannel | ThreadChannel)[];
+
+    return channels.filter((channel: FireTextChannel | ThreadChannel) =>
+      channel instanceof FireTextChannel
+        ? channel?.topic.includes(user)
+        : channel.name.includes(user)
+    );
   }
 
   async createTicket(
     author: FireMember,
     subject: string,
+    channel?: FireTextChannel,
     category?: CategoryChannel
   ) {
     if (author?.guild?.id != this.id) return "author";
@@ -737,23 +767,12 @@ export class FireGuild extends Guild {
     }, 15000);
     await this.ticketLock.lock.acquire();
     locked = true;
-    let channels = (this.settings.get(
-      "tickets.channels",
-      []
-    ) as string[]).map((id) =>
-      this.channels.cache
-        .filter((channel) => channel.type == "text" && channel.id == id)
-        .get(id)
-    );
-    if (
-      channels.filter((channel: FireTextChannel) =>
-        channel?.topic.includes(author.id)
-      ).length >= limit
-    ) {
+    if (this.getTickets(author.id).length >= limit) {
       locked = false;
       this.ticketLock.lock.release();
       return "limit";
     }
+    let channels = this.tickets;
     const words = (this.client.getCommand("ticket-name") as TicketName).words;
     let increment = this.settings.get("tickets.increment", 0) as number;
     const variables = {
@@ -779,61 +798,94 @@ export class FireGuild extends Guild {
       this.roles.everyone.id,
     ];
 
-    const ticket = ((await this.channels
-      .create(name.slice(0, 50), {
-        parent: category,
-        permissionOverwrites: [
-          ...category.permissionOverwrites
-            .array()
-            .filter(
-              // ensure the overwrites below are used instead
-              (overwrite) => !overwriteTheOverwrites.includes(overwrite.id)
-            )
-            .map((overwrite) => {
-              // we can't set manage roles without admin so just remove it
-              if (overwrite.allow.has(Permissions.FLAGS.MANAGE_ROLES))
-                overwrite.allow.remove(Permissions.FLAGS.MANAGE_ROLES);
-              if (overwrite.deny.has(Permissions.FLAGS.MANAGE_ROLES))
-                overwrite.deny.remove(Permissions.FLAGS.MANAGE_ROLES);
-              return overwrite;
-            }),
-          {
-            allow: [
-              Permissions.FLAGS.VIEW_CHANNEL,
-              Permissions.FLAGS.SEND_MESSAGES,
-            ],
-            type: "member",
-            id: author.id,
-          },
-          {
-            allow: [
-              Permissions.FLAGS.VIEW_CHANNEL,
-              Permissions.FLAGS.SEND_MESSAGES,
-              Permissions.FLAGS.MANAGE_CHANNELS,
-            ],
-            type: "member",
-            id: this.me.id,
-          },
-          {
-            id: this.roles.everyone.id,
-            deny: [Permissions.FLAGS.VIEW_CHANNEL],
-            type: "role",
-          },
-        ],
-        topic: this.language.get(
-          "TICKET_CHANNEL_TOPIC",
-          author.toString(),
-          author.id,
-          subject
-        ) as string,
-        reason: this.language.get(
-          "TICKET_CHANNEL_TOPIC",
-          author.toString(),
-          author.id,
-          subject
-        ) as string,
-      })
-      .catch((e: Error) => e)) as unknown) as FireTextChannel;
+    let ticket: FireTextChannel | ThreadChannel;
+
+    if (this.hasExperiment("QYzOsKLG_o-4EgmRK5P5D")) {
+      ticket = (await channel.threads
+        .create(`${author} (${author.id})`, 10080, {
+          reason: this.language.get(
+            "TICKET_CHANNEL_TOPIC",
+            author.toString(),
+            author.id,
+            subject
+          ) as string,
+        })
+        .catch((e: Error) => e)) as ThreadChannel;
+      if (ticket instanceof ThreadChannel) {
+        await ticket.addMember(author).catch(() => {});
+        if (
+          category.permissionOverwrites.filter(
+            (overwrite) => overwrite.type == "member"
+          ).size
+        ) {
+          const members = await this.members
+            .fetch({
+              user: category.permissionOverwrites
+                .filter((overwrite) => overwrite.type == "member")
+                .map((overwrite) => overwrite.id),
+            })
+            .catch(() => {});
+          if (members)
+            for (const [, member] of members)
+              await ticket.addMember(member).catch(() => {});
+        }
+      }
+    } else
+      ticket = ((await this.channels
+        .create(name.slice(0, 50), {
+          parent: category,
+          permissionOverwrites: [
+            ...category.permissionOverwrites
+              .array()
+              .filter(
+                // ensure the overwrites below are used instead
+                (overwrite) => !overwriteTheOverwrites.includes(overwrite.id)
+              )
+              .map((overwrite) => {
+                // we can't set manage roles without admin so just remove it
+                if (overwrite.allow.has(Permissions.FLAGS.MANAGE_ROLES))
+                  overwrite.allow.remove(Permissions.FLAGS.MANAGE_ROLES);
+                if (overwrite.deny.has(Permissions.FLAGS.MANAGE_ROLES))
+                  overwrite.deny.remove(Permissions.FLAGS.MANAGE_ROLES);
+                return overwrite;
+              }),
+            {
+              allow: [
+                Permissions.FLAGS.VIEW_CHANNEL,
+                Permissions.FLAGS.SEND_MESSAGES,
+              ],
+              type: "member",
+              id: author.id,
+            },
+            {
+              allow: [
+                Permissions.FLAGS.VIEW_CHANNEL,
+                Permissions.FLAGS.SEND_MESSAGES,
+                Permissions.FLAGS.MANAGE_CHANNELS,
+              ],
+              type: "member",
+              id: this.me.id,
+            },
+            {
+              id: this.roles.everyone.id,
+              deny: [Permissions.FLAGS.VIEW_CHANNEL],
+              type: "role",
+            },
+          ],
+          topic: this.language.get(
+            "TICKET_CHANNEL_TOPIC",
+            author.toString(),
+            author.id,
+            subject
+          ) as string,
+          reason: this.language.get(
+            "TICKET_CHANNEL_TOPIC",
+            author.toString(),
+            author.id,
+            subject
+          ) as string,
+        })
+        .catch((e: Error) => e)) as unknown) as FireTextChannel;
     if (ticket instanceof Error) {
       locked = false;
       this.ticketLock.lock.release();
@@ -889,7 +941,7 @@ export class FireGuild extends Guild {
     channels.push(ticket);
     this.settings.set(
       "tickets.channels",
-      channels.map((channel) => channel && channel.id)
+      channels.map((channel) => !!channel && channel.id)
     );
     this.client.emit("ticketCreate", author, ticket, opener);
     locked = false;
@@ -898,7 +950,7 @@ export class FireGuild extends Guild {
   }
 
   async closeTicket(
-    channel: FireTextChannel,
+    channel: FireTextChannel | ThreadChannel,
     author: FireMember,
     reason: string
   ) {
@@ -907,18 +959,13 @@ export class FireGuild extends Guild {
     if (author instanceof FireUser)
       author = (await this.members.fetch(author).catch(() => {})) as FireMember;
     if (!author) return "forbidden";
-    let channels = (this.settings.get(
-      "tickets.channels",
-      []
-    ) as string[]).map((id) =>
-      this.channels.cache
-        .filter((channel) => channel.type == "text" && channel.id == id)
-        .get(id)
-    );
+    let channels = this.tickets;
     if (!channels.includes(channel)) return "nonticket";
     if (
       !author.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS) &&
-      !channel.topic.includes(author.id)
+      (channel instanceof FireTextChannel
+        ? !channel.topic.includes(author.id)
+        : !channel.name.includes(author.id))
     )
       return "forbidden";
     channels = channels.filter((c) => c && c.id != channel.id);
@@ -941,7 +988,10 @@ export class FireGuild extends Guild {
     }
     transcript.push(`${transcript.length} messages, closed by ${author}`);
     const buffer = Buffer.from(transcript.join("\n\n"), "ascii");
-    const id = getIDMatch(channel.topic, true);
+    const id = getIDMatch(
+      channel instanceof FireTextChannel ? channel.topic : channel.name,
+      true
+    );
     let creator = author;
     if (id) {
       creator = (await this.members.fetch(id).catch(() => {})) as FireMember;
@@ -990,6 +1040,18 @@ export class FireGuild extends Guild {
   }
 
   private getTranscriptContent(message: FireMessage) {
+    if (message.type == "RECIPIENT_ADD")
+      return this.language.get(
+        "TICKET_RECIPIENT_ADD",
+        message.author.toString(),
+        message.mentions.users.first()
+      );
+    else if (message.type == "RECIPIENT_REMOVE")
+      return this.language.get(
+        "TICKET_RECIPIENT_REMOVE",
+        message.author.toString(),
+        message.mentions.users.first()
+      );
     let text = message.cleanContent ?? "";
     if (message.embeds.length)
       for (const embed of message.embeds) {

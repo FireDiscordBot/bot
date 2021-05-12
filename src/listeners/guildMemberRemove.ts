@@ -39,7 +39,10 @@ export default class GuildMemberRemove extends Listener {
     for (const channel of tickets) {
       if (
         channel &&
-        channel.topic.startsWith(
+        (channel instanceof FireTextChannel
+          ? channel.topic
+          : channel.name
+        ).startsWith(
           member.guild.language.get(
             "TICKET_CHANNEL_TOPIC",
             member.toString(),

@@ -112,6 +112,7 @@ export default class enUS extends Language {
         JOINED: "Joined",
         ONLINE: "Online",
         EMOJIS: "Emojis",
+        THREAD: "Thread",
         CHANNEL: "Channel",
         MESSAGE: "Message",
         SUBJECT: "Subject",
@@ -1555,6 +1556,11 @@ Running this command without providing a category resets it, therefore disabling
             ? `Ticket created by ${author} (${id}) with subject "${subject}"`
             : `Ticket created by ${author} (${id})`,
         TICKET_OPENER_TILE: (author: string) => `Ticket opened by ${author}`,
+        // when possible, use discord strings for the two recipient strings below
+        TICKET_RECIPIENT_ADD: (author: string, added: string) =>
+          `${author} added ${added} to the thread.`,
+        TICKET_RECIPIENT_REMOVE: (author: string, added: string) =>
+          `${author} removed ${added} from the thread.`,
         TICKET_AUTHOR_LEFT: (author: string) =>
           `The ticket author (${author}) seems to have left the server, how sad :(`,
         NEW_COMMAND_DESCRIPTION: "Makes a new ticket",
