@@ -168,7 +168,10 @@ export class FireGuild extends Guild {
             ADD_REACTIONS: false,
             SPEAK: false,
           },
-          this.language.get("MUTE_ROLE_CREATE_REASON") as string
+          {
+            reason: this.language.get("MUTE_ROLE_CREATE_REASON") as string,
+            type: 0,
+          }
         )
         .catch(() => {});
     }
@@ -193,7 +196,10 @@ export class FireGuild extends Guild {
             ADD_REACTIONS: false,
             SPEAK: false,
           },
-          this.language.get("MUTE_ROLE_CREATE_REASON") as string
+          {
+            reason: this.language.get("MUTE_ROLE_CREATE_REASON") as string,
+            type: 0,
+          }
         )
         .catch(() => {});
     }
@@ -219,7 +225,10 @@ export class FireGuild extends Guild {
               ADD_REACTIONS: false,
               SPEAK: false,
             },
-            this.language.get("MUTE_ROLE_CREATE_REASON") as string
+            {
+              reason: this.language.get("MUTE_ROLE_CREATE_REASON") as string,
+              type: 0,
+            }
           )
           .catch(() => {});
     }
@@ -1105,7 +1114,9 @@ export class FireGuild extends Guild {
       ADD_REACTIONS: false,
     };
     const blocked = await channel
-      .updateOverwrite(blockee, overwrite, `${moderator} | ${reason}`)
+      .updateOverwrite(blockee, overwrite, {
+        reason: `${moderator} | ${reason}`,
+      })
       .catch(() => {});
     if (!blocked) {
       let deleted = true; // ensures "block" is used if logEntry doesn't exist
@@ -1173,7 +1184,9 @@ export class FireGuild extends Guild {
       ADD_REACTIONS: null,
     };
     const unblocked = await channel
-      .updateOverwrite(unblockee, overwrite, `${moderator} | ${reason}`)
+      .updateOverwrite(unblockee, overwrite, {
+        reason: `${moderator} | ${reason}`,
+      })
       .catch(() => {});
     if (
       channel.permissionOverwrites?.get(unblockee.id)?.allow.bitfield == 0n &&

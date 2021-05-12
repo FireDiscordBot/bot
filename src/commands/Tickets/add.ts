@@ -50,11 +50,13 @@ export default class TicketAdd extends Command {
           VIEW_CHANNEL: true,
           SEND_MESSAGES: true,
         },
-        message.language.get(
-          "TICKET_ADD_REASON",
-          message.author.toString(),
-          message.author.id
-        ) as string
+        {
+          reason: message.language.get(
+            "TICKET_ADD_REASON",
+            message.author.toString(),
+            message.author.id
+          ) as string,
+        }
       )
       .catch(() => {});
     return updated ? await message.success() : await message.error();

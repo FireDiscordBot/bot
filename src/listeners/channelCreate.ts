@@ -26,7 +26,10 @@ export default class ChannelCreate extends Listener {
             SEND_MESSAGES: false,
             ADD_REACTIONS: false,
           },
-          guild.language.get("MUTE_ROLE_CREATE_REASON") as string
+          {
+            reason: guild.language.get("MUTE_ROLE_CREATE_REASON") as string,
+            type: 0,
+          }
         )
         .catch(() => (muteFail = true));
 
