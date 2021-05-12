@@ -62,6 +62,8 @@ export default class ThreadCreate extends Listener {
     //   }
     // }
 
+    // TODO: slowmode inheritance toggle
+
     if (guild.settings.has("log.action")) {
       const owner = await guild.members.fetch(channel.ownerID).catch(() => {});
       const now = moment();
