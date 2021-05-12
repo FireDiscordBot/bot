@@ -83,7 +83,8 @@ export class FireMessage extends Message {
       this.content = language.get(
         "TICKET_THREAD_RENAME",
         this.author.toString(),
-        this.cleanContent
+        this.cleanContent,
+        true
       ) as string;
 
     // @ts-ignore
