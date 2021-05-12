@@ -62,9 +62,8 @@ export default class ThreadCreate extends Listener {
     //   }
     // }
 
-    const owner = await guild.members.fetch(channel.ownerID).catch(() => {});
-
     if (guild.settings.has("log.action")) {
+      const owner = await guild.members.fetch(channel.ownerID).catch(() => {});
       const now = moment();
       const autoArchiveAt = new Date(
         +new Date() + channel.autoArchiveDuration * 60000
@@ -90,7 +89,8 @@ export default class ThreadCreate extends Listener {
         .addField(
           language.get("CREATED_BY"),
           owner ? `${owner} (${owner.id})` : channel.ownerID
-        );
+        )
+        .setFooter(channel.id);
       if (channel.parent.messages.cache.has(channel.id))
         embed.addField(
           language.get("THREAD_MESSAGE"),
