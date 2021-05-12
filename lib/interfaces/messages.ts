@@ -7,9 +7,12 @@ export interface MessageLinkMatch {
 }
 
 export interface PartialQuoteDestination {
+  fetchWebhooks?: never;
+  createWebhook?: never;
   permissions: string;
   guild_id?: string;
   guild?: FireGuild;
   nsfw: boolean;
+  name?: never;
   id: string;
 }
