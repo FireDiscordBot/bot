@@ -492,7 +492,7 @@ export class FakeChannel {
     reason?: string
   ) {
     return !(this.real instanceof DMChannel)
-      ? this.real?.updateOverwrite(userOrRole, options, reason)
+      ? this.real?.updateOverwrite(userOrRole, options, { reason })
       : false;
   }
 

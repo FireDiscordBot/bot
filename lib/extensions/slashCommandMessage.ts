@@ -80,7 +80,9 @@ export class SlashCommandMessage {
     this.guild = client.guilds.cache.get(command.guildID) as FireGuild;
     this.command = this.client.getCommand(command.commandName);
     this._flags = 0;
-    if (this.guild?.tags?.slashCommands[command.commandID] == command.commandName) {
+    if (
+      this.guild?.tags?.slashCommands[command.commandID] == command.commandName
+    ) {
       this.command = this.client.getCommand("tag");
       command.options = [
         { name: "tag", value: command.commandName, type: "STRING" },
@@ -440,7 +442,7 @@ export class FakeChannel {
     reason?: string
   ) {
     return !(this.real instanceof DMChannel)
-      ? this.real?.updateOverwrite(userOrRole, options, reason)
+      ? this.real?.updateOverwrite(userOrRole, options, { reason })
       : false;
   }
 

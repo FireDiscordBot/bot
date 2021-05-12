@@ -54,11 +54,14 @@ export default class TicketRemove extends Command {
           VIEW_CHANNEL: false,
           SEND_MESSAGES: false,
         },
-        message.language.get(
-          "TICKET_REMOVE_REASON",
-          message.author.toString(),
-          message.author.id
-        ) as string
+        {
+          reason: message.language.get(
+            "TICKET_REMOVE_REASON",
+            message.author.toString(),
+            message.author.id
+          ) as string,
+          type: 1,
+        }
       )
       .catch(() => {});
     return updated ? await message.success() : await message.error();

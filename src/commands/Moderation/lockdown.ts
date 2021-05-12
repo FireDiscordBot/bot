@@ -97,7 +97,7 @@ export default class Lockdown extends Command {
             {
               SEND_MESSAGES: false,
             },
-            startReason
+            { reason: startReason }
           )
           .catch(() => {
             if (failed.has(channel)) {
@@ -172,7 +172,7 @@ export default class Lockdown extends Command {
             {
               SEND_MESSAGES: null,
             },
-            endReason
+            { reason: endReason }
           )
           .catch(() => {
             if (failed.has(channel)) {
