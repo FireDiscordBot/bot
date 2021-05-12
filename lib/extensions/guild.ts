@@ -10,6 +10,7 @@ import {
   VoiceChannel,
   StageChannel,
   Permissions,
+  NewsChannel,
   Structures,
   Collection,
   Webhook,
@@ -746,9 +747,12 @@ export class FireGuild extends Guild {
   async createTicket(
     author: FireMember,
     subject: string,
-    channel?: FireTextChannel,
+    channel?: FireTextChannel | NewsChannel,
     category?: CategoryChannel
   ) {
+    if (channel instanceof FakeChannel)
+      channel = channel.real as FireTextChannel | NewsChannel;
+
     if (author?.guild?.id != this.id) return "author";
     category =
       category ||
