@@ -18,7 +18,7 @@ export default class ChannelCreate extends Listener {
       language = guild.language;
     const muteRole = guild.muteRole;
     let muteFail = false;
-    if (muteRole && channel instanceof FireTextChannel)
+    if (muteRole)
       await channel
         .updateOverwrite(
           muteRole,
