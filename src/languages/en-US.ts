@@ -1556,11 +1556,13 @@ Running this command without providing a category resets it, therefore disabling
             ? `Ticket created by ${author} (${id}) with subject "${subject}"`
             : `Ticket created by ${author} (${id})`,
         TICKET_OPENER_TILE: (author: string) => `Ticket opened by ${author}`,
-        // when possible, use discord strings for the two recipient strings below
+        // when possible, use discord strings for the two recipient strings & rename string below
         TICKET_RECIPIENT_ADD: (author: string, added: string) =>
           `${author} added ${added} to the thread.`,
         TICKET_RECIPIENT_REMOVE: (author: string, added: string) =>
           `${author} removed ${added} from the thread.`,
+        TICKET_THREAD_RENAME: (author: string, name: string) =>
+          `${author} changed the channel name: ${name}`,
         TICKET_AUTHOR_LEFT: (author: string) =>
           `The ticket author (${author}) seems to have left the server, how sad :(`,
         NEW_COMMAND_DESCRIPTION: "Makes a new ticket",

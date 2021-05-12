@@ -1052,6 +1052,12 @@ export class FireGuild extends Guild {
         message.author.toString(),
         message.mentions.users.first()
       );
+    else if (message.type == "CHANNEL_NAME_CHANGE")
+      return this.language.get(
+        "TICKET_THREAD_RENAME",
+        message.author.toString(),
+        message.cleanContent
+      );
     let text = message.cleanContent ?? "";
     if (message.embeds.length)
       for (const embed of message.embeds) {
