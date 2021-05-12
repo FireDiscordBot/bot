@@ -34,6 +34,8 @@ export default class NewTicket extends Command {
 
   async exec(message: FireMessage, args: { subject: string }) {
     if (!message.member) return; // how
+    if (message.channel instanceof ThreadChannel)
+      return await message.error("NEW_TICKET_THREAD");
     const creating = await message.send("NEW_TICKET_CREATING");
     const ticket = await message.guild
       .createTicket(
@@ -69,8 +71,8 @@ export default class NewTicket extends Command {
         ticket
       );
     else if (
-      (ticket instanceof FireTextChannel) ||
-      (ticket instanceof ThreadChannel)
+      ticket instanceof FireTextChannel ||
+      ticket instanceof ThreadChannel
     )
       return await creating.edit(
         `${emojis.success} ${message.language.get(

@@ -1599,6 +1599,7 @@ Running this command without providing a category resets it, therefore disabling
         TICTACTOE_TURN: (current: string) => `It's ${current}'s turn`,
         TICTACTOE_WINNER: (winner: string) => `Game over, ${winner} has won!`,
         TICTACTOE_DRAW: "It's a draw!",
+        NEW_TICKET_THREAD: "You cannot open a ticket from inside a thread!",
         NEW_TICKET_CREATING: "Creating your ticket...",
         NEW_TICKET_CREATED: (channel: string) =>
           `Successfully made your ticket, ${channel}`,
