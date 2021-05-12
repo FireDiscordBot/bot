@@ -203,7 +203,7 @@ export const constants = {
     support: "https://inv.wtf/fire",
     // selfhosted instance of https://git.farfrom.earth/aero/imagegen (but with profile removed since I don't need it)
     imageGen: "https://gen.inv.wtf/",
-    supportedHaste: ["hastebin.com", "hasteb.in", "hst.sh"],
+    supportedHaste: ["hastebin.com", "hasteb.in", "hst.sh", "h.inv.wtf"],
   },
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
   audioExts: ["mp3", "wav", "flac", "alac", "m4a"],
