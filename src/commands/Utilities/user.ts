@@ -261,7 +261,7 @@ export default class User extends Command {
         appInfo.push(
           `${emojis.error} ${message.language.get("USER_BOT_PRESENCE_INTENT")}`
         );
-      if (user.bot && this.client.config.bots[user.id].best)
+      if (user.bot && this.client.config.bots[user.id]?.best)
         appInfo.push(
           `${emojis.success} ${message.language.get("USER_BOT_BEST")}`
         );
