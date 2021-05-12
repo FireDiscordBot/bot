@@ -113,6 +113,7 @@ export default class enUS extends Language {
         ONLINE: "Online",
         EMOJIS: "Emojis",
         THREAD: "Thread",
+        PARENT: "Parent",
         CHANNEL: "Channel",
         MESSAGE: "Message",
         SUBJECT: "Subject",
@@ -134,6 +135,7 @@ export default class enUS extends Language {
         INCREMENT: "Increment",
         MODERATOR: "Moderator",
         PINNED_BY: "Pinned By",
+        ARCHIVE_AT: "Archive At",
         ATTACHMENT: "Attachment",
         PROCESS_ID: "Process ID",
         STATISTICS: "Statistics",
@@ -149,6 +151,7 @@ export default class enUS extends Language {
         CREATED_GUILD: "Created Guild",
         JOIN_POSITION: "Join Position",
         CLICK_TO_VIEW: "Click To View", // message/attachment link
+        THREAD_MESSAGE: "Thread Message",
         ADDED_FEATURES: "Added Features",
         SYSTEM_CHANNEL: "System Channel",
         ACCOUNT_CREATED: "Account Created",
@@ -1522,6 +1525,7 @@ Your existing premium servers are: ${current.join(", ")}`,
         TAG_SLASH_DISABLED:
           "Slash command tags have been disabled! It may take a little while for the commands to disappear and may require a client reload",
         TAG_LIST: (guild: string) => `${guild}'s tags`,
+        THREADCREATELOG_AUTHOR: (guild: string) => `Thread Create | ${guild}`,
         TICKET_COMMAND_DESCRIPTION: "Manage ticket configuration in the server",
         TICKET_MAIN_DESCRIPTION:
           "Here are all the ticket configuration commands",
