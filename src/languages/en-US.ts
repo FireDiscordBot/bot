@@ -1526,6 +1526,7 @@ Your existing premium servers are: ${current.join(", ")}`,
           "Slash command tags have been disabled! It may take a little while for the commands to disappear and may require a client reload",
         TAG_LIST: (guild: string) => `${guild}'s tags`,
         THREADCREATELOG_AUTHOR: (guild: string) => `Thread Create | ${guild}`,
+        THREADDELETELOG_AUTHOR: (guild: string) => `Thread Delete | ${guild}`,
         TICKET_COMMAND_DESCRIPTION: "Manage ticket configuration in the server",
         TICKET_MAIN_DESCRIPTION:
           "Here are all the ticket configuration commands",
