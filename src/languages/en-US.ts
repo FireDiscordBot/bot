@@ -148,6 +148,8 @@ export default class enUS extends Language {
         ATTACHMENTS: "Attachments",
         DESCRIPTION: "Description",
         INVITE_USED: "Invite Used",
+        NEW_MEMBERS: "Added Members",
+        OLD_MEMBERS: "Removed Members",
         CREATED_GUILD: "Created Guild",
         JOIN_POSITION: "Join Position",
         CLICK_TO_VIEW: "Click To View", // message/attachment link
@@ -1527,6 +1529,8 @@ Your existing premium servers are: ${current.join(", ")}`,
         TAG_LIST: (guild: string) => `${guild}'s tags`,
         THREADCREATELOG_AUTHOR: (guild: string) => `Thread Create | ${guild}`,
         THREADDELETELOG_AUTHOR: (guild: string) => `Thread Delete | ${guild}`,
+        THREADMEMBERUPDATELOG_AUTHOR: (channel: string) =>
+          `Thread Members Update | ${channel}`,
         TICKET_COMMAND_DESCRIPTION: "Manage ticket configuration in the server",
         TICKET_MAIN_DESCRIPTION:
           "Here are all the ticket configuration commands",
