@@ -261,6 +261,10 @@ export default class User extends Command {
         appInfo.push(
           `${emojis.error} ${message.language.get("USER_BOT_PRESENCE_INTENT")}`
         );
+      if (user.bot && this.client.config.bots[user.id].best)
+        appInfo.push(
+          `${emojis.success} ${message.language.get("USER_BOT_BEST")}`
+        );
       if (application.privacy_policy_url || application.terms_of_service_url)
         appInfo.push(""); // spacing between public/intents and links
 

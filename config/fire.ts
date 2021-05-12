@@ -68,14 +68,17 @@ export const fire = {
     // Fire
     "444871677176709141": {
       color: "#D33035",
+      best: true,
     },
     // Fire Beta
     "764995504526327848": {
       color: "#3178C6",
+      best: true,
     },
     // Fire Dev
     "627625765227462656": {
       color: "#FFFFFF",
+      best: true,
     },
     // Status
     "711035674723221574": {

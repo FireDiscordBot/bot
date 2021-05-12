@@ -1386,6 +1386,7 @@ You must have Developer Mode enabled, which is found in User Settings > Appearan
         USER_BOT_PRIVATE: "Private Bot",
         USER_BOT_MEMBERS_INTENT: "Guild Members Intent",
         USER_BOT_PRESENCE_INTENT: "Presence Intent",
+        USER_BOT_BEST: "Best Bot",
         USER_BOT_PRIVACY_POLICY: "Privacy Policy",
         USER_BOT_TERMS: "Terms of Service",
         PERMROLES_COMMAND_DESCRIPTION:
