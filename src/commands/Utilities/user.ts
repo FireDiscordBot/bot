@@ -339,6 +339,7 @@ export default class User extends Command {
     let user = member instanceof FireMember ? member.user : member;
     const created = user.createdAt.toLocaleString(message.language.id);
     const now = moment();
+    const cakeDay = now.dayOfYear() == moment(user.createdAt).dayOfYear();
     const createdDelta =
       humanize(
         moment(user.createdAt).diff(now),
@@ -346,7 +347,9 @@ export default class User extends Command {
       ) + message.language.get("AGO");
     let info = [
       `**${message.language.get("MENTION")}:** ${user.toMention()}`,
-      `**${message.language.get("CREATED")}:** ${created} (${createdDelta})`,
+      `**${message.language.get("CREATED")}:** ${created} (${createdDelta})${
+        cakeDay ? " 🎂" : ""
+      }`,
     ];
     if (member instanceof FireMember) {
       const joined = member.joinedAt.toLocaleString(message.language.id);
