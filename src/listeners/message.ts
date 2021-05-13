@@ -183,6 +183,7 @@ export default class Message extends Listener {
       .replace(regexes.protocol, "")
       .replace(regexes.symbol, "")
       .replace(/\\\/\//gim, "/")
-      .replace(/\s/gim, "");
+      .replace(/\s/gim, "")
+      .replace(/\.gg\/(?<code>[\w-]{1,25})/, "discord.gg/$1");
   }
 }
