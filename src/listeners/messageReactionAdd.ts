@@ -14,6 +14,8 @@ export default class MessageReactionAdd extends Listener {
   }
 
   async exec(messageReaction: MessageReaction, user: FireUser) {
+    if (user.bot) return;
+
     const message = messageReaction.message as FireMessage;
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     if (message.id == sk1erModule?.supportMessageId) {
