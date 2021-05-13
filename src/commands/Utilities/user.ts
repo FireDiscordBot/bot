@@ -20,7 +20,6 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Ban } from "@aero/ksoft";
 import * as moment from "moment";
-import embed from "./embed";
 
 const {
   emojis,

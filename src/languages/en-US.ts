@@ -1379,6 +1379,9 @@ Do note that we do not provide support for the following:
 Abuse of this command __**will**__ result in being temporarily blacklisted from Fire`,
         SUPPORT_COMMAND_DESCRIPTION: "Get a link to Fire's support server",
         USER_COMMAND_DESCRIPTION: "Get a general overview of a user.",
+        SNOWFLAKE_COMMAND_DESCRIPTION:
+          "Get information about a Discord snowflake",
+        SNOWFLAKE_ARGUMENT_DESCRIPTION: "Any valid snowflake",
         // don't change emote
         USER_SNOWFLAKE_DESCRIPTION: `It looks like that isn't a valid user, but it is a valid snowflake! <:snowflak:784510818556706867>
 
