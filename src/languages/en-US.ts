@@ -817,10 +817,16 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           "You must exclude at least one category from server lockdown before you can start/end lockdown",
         LOCKDOWN_REASON: (user: string, reason: string) =>
           `Server lockdown started by ${user} with reason "${reason}".`,
+        LOCKDOWN_FINISH: (time: string, failed: string[], locked: string[]) =>
+          failed?.length
+            ? `I failed to lock ${failed.length} channels, ${failed.join(", ")}`
+            : `Successfully locked ${locked.length} channels in ${time}`,
         LOCKDOWN_END_NONE_LOCKED:
           "It seems there's no locked channels so you can't end lockdown as it was never started",
         LOCKDOWN_END_REASON: (user: string, reason: string) =>
           `Server lockdown ended by ${user} with reason "${reason}".`,
+        LOCKDOWN_END_FAIL: (failed: string[]) =>
+          `I failed to unlock ${failed.length} channels, ${failed.join(", ")}`,
         LOGGING_COMMAND_DESCRIPTION: "Set the channel(s) for logging",
         LOGGING_INVALID_TYPE: (types: string) =>
           `That is not a valid log type! Current types are ${types}`,

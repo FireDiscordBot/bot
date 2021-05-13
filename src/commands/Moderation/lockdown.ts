@@ -1,9 +1,29 @@
-import { MessageEmbed, Collection, Permissions, Role } from "discord.js";
+import {
+  PermissionOverwriteOption,
+  PermissionOverwrites,
+  MessageEmbed,
+  Permissions,
+  Collection,
+} from "discord.js";
 import { categoryChannelConverter } from "@fire/lib/util/converters";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { humanize } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+
+const update = (
+  overwrite: PermissionOverwrites,
+  options: PermissionOverwriteOption
+) => {
+  const { allow, deny } = PermissionOverwrites.resolveOverwriteOptions(
+    options,
+    overwrite
+  );
+  overwrite.allow = allow;
+  overwrite.deny = deny;
+  return overwrite;
+};
 
 export default class Lockdown extends Command {
   constructor() {
@@ -62,8 +82,7 @@ export default class Lockdown extends Command {
   }
 
   async start(message: FireMessage, reason: string) {
-    await message.react("▶️");
-    let failed = new Collection<FireTextChannel, Role[]>();
+    message.react("▶️").catch(() => {});
     let locked: string[] = [];
     const channels = message.guild.channels.cache.filter(
       (channel) =>
@@ -75,12 +94,6 @@ export default class Lockdown extends Command {
           .permissionsFor(message.guild.roles.everyone)
           .has(Permissions.FLAGS.SEND_MESSAGES)
     ) as Collection<string, FireTextChannel>;
-    channels.forEach(
-      async (channel) =>
-        await channel
-          .updateOverwrite(message.guild.me, { SEND_MESSAGES: true })
-          .catch(() => {})
-    );
     const startReason = message.guild.language.get(
       "LOCKDOWN_REASON",
       message.author.toString(),
@@ -89,42 +102,73 @@ export default class Lockdown extends Command {
     const embed = new MessageEmbed()
       .setColor("#ef5350")
       .setDescription(startReason);
-    for (const role of message.guild.roles.cache.values()) {
-      for (const channel of channels.values()) {
-        await channel
-          .updateOverwrite(
-            role,
-            {
-              SEND_MESSAGES: false,
-            },
-            { reason: startReason }
-          )
-          .catch(() => {
-            if (failed.has(channel)) {
-              const fail = failed.get(channel);
-              fail.push(role);
-              failed.set(channel, fail);
-            } else failed.set(channel, [role]);
-          });
-        if (!failed.has(channel)) locked.push(channel.id);
-      }
-    }
+    let failed: string[] = [],
+      lockdownMessages: string[] = message.guild.settings.get(
+        "mod.lockdownmessages",
+        []
+      );
+    const start = +new Date();
+    for (const channel of channels.values())
+      await channel
+        .overwritePermissions(
+          [
+            ...channel.permissionOverwrites
+              .mapValues((overwrite) =>
+                update(overwrite, { SEND_MESSAGES: false })
+              )
+              .values(),
+            channel.permissionOverwrites.has(this.client.user.id)
+              ? update(channel.permissionOverwrites.get(this.client.user.id), {
+                  SEND_MESSAGES: true,
+                })
+              : {
+                  id: this.client.user.id,
+                  allow: ["SEND_MESSAGES"],
+                  type: "member",
+                },
+          ],
+          startReason
+        )
+        .then(() => {
+          locked.push(channel.id);
+          channel
+            .send(embed)
+            .then((m) => lockdownMessages.push(`${channel.id}-${m.id}`))
+            .catch(() => {});
+        })
+        .catch((e) => {
+          this.client.console.debug(
+            `Lockdown permission overwrite failed for ${channel.name} (${channel.id})\n${e.stack}`
+          );
+          failed.push(channel.toString());
+        });
     message.guild.settings.set("mod.locked", locked);
-    let lockdownMessages: string[] = message.guild.settings.get(
-      "mod.lockdownmessages",
-      []
-    );
-    for (const channel of channels.values()) {
-      const message = await channel.send(embed);
-      lockdownMessages.push(`${channel.id}-${message.id}`);
-    }
     message.guild.settings.set("mod.lockdownmessages", lockdownMessages);
-    return await message.success();
+    if (failed.length == channels.size) await message.error();
+    else {
+      const end = +new Date();
+      message.success().catch(() => {});
+      await message
+        .success(
+          "LOCKDOWN_FINISH",
+          humanize(end - start, message.language.id.split("-")[0]),
+          failed,
+          locked.map((id) => channels.get(id).toString())
+        )
+        .then((m) => {
+          if (m instanceof FireMessage) {
+            lockdownMessages.push(`${message.channel.id}-${m.id}`);
+            message.guild.settings.set(
+              "mod.lockdownmessages",
+              lockdownMessages
+            );
+          }
+        });
+    }
   }
 
   async end(message: FireMessage, reason: string) {
-    await message.react("▶️");
-    let failed = new Collection<FireTextChannel, Role[]>();
+    message.react("▶️").catch(() => {});
     const locked: string[] = message.guild.settings.get("mod.locked", []);
     if (!locked.length) return await message.error("LOCKDOWN_END_NONE_LOCKED");
     const channels = message.guild.channels.cache.filter(
@@ -138,10 +182,6 @@ export default class Lockdown extends Command {
           .has(Permissions.FLAGS.SEND_MESSAGES) &&
         locked.includes(channel.id)
     ) as Collection<string, FireTextChannel>;
-    channels.forEach(
-      async (channel) =>
-        await channel.updateOverwrite(message.guild.me, { SEND_MESSAGES: null })
-    );
     let lockdownMessages: string[] = message.guild.settings.get(
       "mod.lockdownmessages",
       []
@@ -151,43 +191,50 @@ export default class Lockdown extends Command {
       message.author.toString(),
       reason
     ) as string;
-    for (const role of message.guild.roles.cache.values()) {
-      for (const channel of channels.values()) {
-        if (lockdownMessages.find((msg) => msg?.startsWith(channel.id))) {
-          const lockdownMessage = lockdownMessages
-            .find((msg) => msg.startsWith(channel.id))
-            .split("-")[1];
-          lockdownMessages = lockdownMessages.filter(
-            (msg) => msg != `${channel.id}-${lockdownMessage}`
-          );
-          await this.deleteMessage(
-            channel.id,
-            lockdownMessage,
-            endReason
-          ).catch(() => {});
-        }
-        await channel
-          .updateOverwrite(
-            role,
-            {
-              SEND_MESSAGES: null,
-            },
-            { reason: endReason }
+    let failed: string[] = [];
+    for (const channel of channels.values()) {
+      if (lockdownMessages.find((msg) => msg?.startsWith(channel.id))) {
+        const lockdownMessage = lockdownMessages
+          .find((msg) => msg.startsWith(channel.id))
+          .split("-")[1];
+        await this.deleteMessage(channel.id, lockdownMessage, endReason)
+          .then(
+            () =>
+              (lockdownMessages = lockdownMessages.filter(
+                (msg) => msg != `${channel.id}-${lockdownMessage}`
+              ))
           )
-          .catch(() => {
-            if (failed.has(channel)) {
-              const fail = failed.get(channel);
-              fail.push(role);
-              failed.set(channel, fail);
-            } else failed.set(channel, [role]);
-          });
+          .catch(() => {});
       }
+      await channel
+        .overwritePermissions(
+          [
+            ...channel.permissionOverwrites
+              .mapValues((overwrite) =>
+                update(overwrite, { SEND_MESSAGES: null })
+              )
+              .values(),
+            channel.permissionOverwrites.has(this.client.user.id)
+              ? update(channel.permissionOverwrites.get(this.client.user.id), {
+                  SEND_MESSAGES: null,
+                })
+              : {
+                  id: this.client.user.id,
+                  allow: ["SEND_MESSAGES"],
+                  type: "member",
+                },
+          ],
+          endReason
+        )
+        .catch(() => failed.push(channel.toString()));
     }
     message.guild.settings.delete("mod.locked");
     lockdownMessages.length
       ? message.guild.settings.set("mod.lockdownmessages", lockdownMessages)
       : message.guild.settings.delete("mod.lockdownmessages");
-    await message.success();
+    failed.length
+      ? await message.error("LOCKDOWN_END_FAIL", failed)
+      : await message.success();
   }
 
   async deleteMessage(channel: string, message: string, reason: string) {
