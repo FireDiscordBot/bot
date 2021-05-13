@@ -20,6 +20,7 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Ban } from "@aero/ksoft";
 import * as moment from "moment";
+import embed from "./embed";
 
 const {
   emojis,
@@ -84,9 +85,7 @@ export default class User extends Command {
         message,
         args.user?.hasOwnProperty("snowflake")
           ? (args.user as { snowflake: string } & DeconstructedSnowflake)
-          : (SnowflakeUtil.deconstruct(
-              (args.user as FireMember | FireUser).id
-            ) as { snowflake: string } & DeconstructedSnowflake)
+          : (args.user as any)
       );
     else if (!args.user) return;
     let member: FireMember, user: FireUser;
@@ -449,6 +448,26 @@ export default class User extends Command {
     message: FireMessage,
     snowflake: { snowflake: string } & DeconstructedSnowflake
   ) {
+    let user: FireUser;
+    if (snowflake instanceof FireUser) {
+      user =
+        // check cache for non reference user
+        (this.client.users.cache.get(snowflake.id) as FireUser) ?? snowflake;
+      snowflake = {
+        snowflake: snowflake.id,
+        ...SnowflakeUtil.deconstruct(snowflake.id),
+      };
+    } else if (snowflake instanceof FireMember) {
+      user =
+        // check cache for non reference member
+        (message.guild.members.cache.get(snowflake.id) as FireMember).user ??
+        snowflake.user;
+      snowflake = {
+        snowflake: snowflake.id,
+        ...SnowflakeUtil.deconstruct(snowflake.id),
+      };
+    }
+
     const created = snowflake.date.toLocaleString(message.language.id);
     const now = moment();
     const createdDelta =
@@ -467,6 +486,23 @@ export default class User extends Command {
       `**${message.language.get("PROCESS_ID")}:** ${snowflake.processID}`,
       `**${message.language.get("INCREMENT")}:** ${snowflake.increment}`,
     ];
+
+    if (user && !message.guild.members.cache.has(snowflake.snowflake))
+      info.push(
+        message.language.get(
+          "USER_SNOWFLAKE_BELONGS_TO",
+          message.language.get("USER"),
+          user.toString()
+        ) as string
+      );
+    else if (user)
+      info.push(
+        message.language.get(
+          "USER_SNOWFLAKE_BELONGS_TO",
+          message.language.get("MEMBER"),
+          user.toString()
+        ) as string
+      );
 
     if (this.client.guilds.cache.has(snowflake.snowflake)) {
       const guild = this.client.guilds.cache.get(snowflake.snowflake);
@@ -627,6 +663,9 @@ export default class User extends Command {
       )
       .setDescription(message.language.get("USER_SNOWFLAKE_DESCRIPTION"))
       .addField(`» ${message.language.get("ABOUT")}`, info.join("\n"));
+
+    if (user)
+      embed.description = embed.description.split("\n").slice(2).join("\n");
 
     return await message.channel.send(embed);
   }
