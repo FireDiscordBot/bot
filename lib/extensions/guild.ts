@@ -14,7 +14,6 @@ import {
   MessageAttachment,
   FetchOwnerOptions,
   MessageEmbedOptions,
-  PermissionResolvable,
   PermissionOverwriteOption,
 } from "discord.js";
 import {
@@ -152,7 +151,7 @@ export class FireGuild extends Guild {
         position: this.me.roles.highest.rawPosition - 2, // -1 seems to fail a lot more than -2 so just do -2 to be safe
         mentionable: false,
         color: "#24242c",
-        permissions: "0" as PermissionResolvable,
+        permissions: [],
         name: "Muted",
         hoist: false,
         reason: this.language.get("MUTE_ROLE_CREATE_REASON") as string,
@@ -187,7 +186,7 @@ export class FireGuild extends Guild {
     const changed = await role
       .edit({
         position: this.me.roles.highest.rawPosition - 2,
-        permissions: "0" as PermissionResolvable,
+        permissions: [],
       })
       .catch(() => {});
     if (!changed) return false;
