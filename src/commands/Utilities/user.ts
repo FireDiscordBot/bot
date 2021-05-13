@@ -60,7 +60,7 @@ export default class User extends Command {
         },
       ],
       enableSlashCommand: true,
-      aliases: ["userinfo", "infouser", "whois", "u", "snowflake"],
+      aliases: ["userinfo", "infouser", "whois", "u"],
       restrictTo: "all",
     });
   }
