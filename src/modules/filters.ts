@@ -94,7 +94,7 @@ export default class Filters extends Module {
           ", "
         )} in guild ${message.guild}`
       );
-    [message, extra] = (await this.invWtfReplace(message).catch(() => [
+    [message, extra] = (await this.invWtfReplace(message, extra).catch(() => [
       message,
       extra,
     ])) as [FireMessage, string];
