@@ -156,7 +156,11 @@ export class FireGuild extends Guild {
         hoist: false,
         reason: this.language.get("MUTE_ROLE_CREATE_REASON") as string,
       })
-      .catch(() => {});
+      .catch((e) => {
+        this.client.console.warn(
+          `[Guilds] Failed to create mute role in ${this.name} due to\n${e.stack}`
+        );
+      });
     if (!role) return false;
     this.settings.set("mod.mutedrole", role.id);
     for (const [, channel] of this.channels.cache) {
