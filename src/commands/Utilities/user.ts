@@ -7,6 +7,7 @@ import {
   Permissions,
   ClientUser,
   DMChannel,
+  SnowflakeUtil,
 } from "discord.js";
 import { APIApplication, ApplicationFlags } from "discord-api-types";
 import { constants, humanize, zws } from "@fire/lib/util/constants";
@@ -75,10 +76,17 @@ export default class User extends Command {
   ) {
     if (typeof args.user == "undefined")
       args.user = message.member || message.author;
-    else if (args.user?.hasOwnProperty("snowflake"))
+    else if (
+      args.user?.hasOwnProperty("snowflake") ||
+      message.util?.parsed?.alias == "snowflake"
+    )
       return await this.snowflakeInfo(
         message,
-        args.user as { snowflake: string } & DeconstructedSnowflake
+        args.user?.hasOwnProperty("snowflake")
+          ? (args.user as { snowflake: string } & DeconstructedSnowflake)
+          : (SnowflakeUtil.deconstruct(
+              (args.user as FireMember | FireUser).id
+            ) as { snowflake: string } & DeconstructedSnowflake)
       );
     else if (!args.user) return;
     let member: FireMember, user: FireUser;
