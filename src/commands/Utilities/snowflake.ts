@@ -15,8 +15,10 @@ export default class Snowflake extends Command {
         {
           id: "snowflake",
           type: "user|member|snowflake",
+          slashCommandType: "snowflake",
           description: (language: Language) =>
             language.get("SNOWFLAKE_ARGUMENT_DESCRIPTION"),
+          readableType: "snowflake",
           required: true,
           default: null,
         },

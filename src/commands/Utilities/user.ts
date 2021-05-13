@@ -459,7 +459,7 @@ export default class User extends Command {
     } else if (snowflake instanceof FireMember) {
       user =
         // check cache for non reference member
-        (message.guild.members.cache.get(snowflake.id) as FireMember).user ??
+        (message.guild?.members.cache.get(snowflake.id) as FireMember).user ??
         snowflake.user;
       snowflake = {
         snowflake: snowflake.id,
@@ -486,7 +486,7 @@ export default class User extends Command {
       `**${message.language.get("INCREMENT")}:** ${snowflake.increment}`,
     ];
 
-    if (user && !message.guild.members.cache.has(snowflake.snowflake))
+    if (user && !message.guild?.members.cache.has(snowflake.snowflake))
       info.push(
         message.language.get(
           "USER_SNOWFLAKE_BELONGS_TO",
