@@ -1,3 +1,4 @@
+import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { DeconstructedSnowflake } from "discord.js";
 import { Language } from "@fire/lib/util/language";
@@ -14,8 +15,7 @@ export default class Snowflake extends Command {
       args: [
         {
           id: "snowflake",
-          type: "user|member|snowflake",
-          slashCommandType: "snowflake",
+          type: "string",
           description: (language: Language) =>
             language.get("SNOWFLAKE_ARGUMENT_DESCRIPTION"),
           readableType: "snowflake",
@@ -28,14 +28,16 @@ export default class Snowflake extends Command {
     });
   }
 
-  async exec(
-    message: FireMessage,
-    args: { snowflake: { snowflake: string } & DeconstructedSnowflake }
-  ) {
+  async exec(message: FireMessage, args: { snowflake: string }) {
+    let { snowflake } = args;
+    if (!snowflake) return;
+    snowflake = await userMemberSnowflakeTypeCaster(message, snowflake);
     if (!this.userCommand)
       this.userCommand = this.client.getCommand("user") as User;
-    if (!this.userCommand || !args.snowflake) return;
-    let { snowflake } = args;
-    return await this.userCommand.snowflakeInfo(message, snowflake);
+    if (!this.userCommand || !snowflake) return;
+    return await this.userCommand.snowflakeInfo(
+      message,
+      snowflake as { snowflake: string } & DeconstructedSnowflake
+    );
   }
 }
