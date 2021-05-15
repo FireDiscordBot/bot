@@ -175,10 +175,10 @@ export default class TicTacToe extends Command {
         type: ButtonType.ACTION_ROW,
         components: [1, 2, 3].map((pos) => {
           return {
-            custom_id: gameData.buttons[pos].custom_id,
+            custom_id: "!" + gameData.buttons[pos].custom_id,
             style: ButtonStyle.SECONDARY,
             type: ButtonType.BUTTON,
-            label: "\u200b",
+            emoji: { id: "842914636026216498" },
           };
         }),
       },
@@ -186,10 +186,10 @@ export default class TicTacToe extends Command {
         type: ButtonType.ACTION_ROW,
         components: [4, 5, 6].map((pos) => {
           return {
-            custom_id: gameData.buttons[pos].custom_id,
+            custom_id: "!" + gameData.buttons[pos].custom_id,
             style: ButtonStyle.SECONDARY,
             type: ButtonType.BUTTON,
-            label: "\u200b",
+            emoji: { id: "842914636026216498" },
           };
         }),
       },
@@ -197,10 +197,10 @@ export default class TicTacToe extends Command {
         type: ButtonType.ACTION_ROW,
         components: [7, 8, 9].map((pos) => {
           return {
-            custom_id: gameData.buttons[pos].custom_id,
+            custom_id: "!" + gameData.buttons[pos].custom_id,
             style: ButtonStyle.SECONDARY,
             type: ButtonType.BUTTON,
-            label: "\u200b",
+            emoji: { id: "842914636026216498" },
           };
         }),
       },
@@ -209,7 +209,7 @@ export default class TicTacToe extends Command {
         components: [
           {
             label: message.guild.language.get("TICTACTOE_FORFEIT"),
-            custom_id: `${gameId}:forfeit`,
+            custom_id: `!${gameId}:forfeit`,
             style: ButtonStyle.PRIMARY,
             type: ButtonType.BUTTON,
           },
@@ -283,7 +283,8 @@ export default class TicTacToe extends Command {
       if (button.ephemeral) return;
       const buttonMessage = button.message as FireMessage;
       const game = this.games.get(gameId);
-      if (!game || button.author.id != game.current) return;
+      if (!game || button.author.id != game.current)
+        return await button.channel.ack().catch(() => {});
 
       const buttonId = button.custom_id;
       const [pos] = Object.entries(game.buttons).find(
@@ -307,14 +308,14 @@ export default class TicTacToe extends Command {
             (component) =>
               component.type == ButtonType.BUTTON &&
               component.style != ButtonStyle.LINK &&
-              component.custom_id == buttonId
+              component.custom_id == "!" + buttonId
           )
       );
       const buttonIndex = components[actionRowIndex].components.findIndex(
         (component) =>
           component.type == ButtonType.BUTTON &&
           component.style != ButtonStyle.LINK &&
-          component.custom_id == buttonId
+          component.custom_id == "!" + buttonId
       );
       const style =
         game.players[button.author.id] == "x"
@@ -382,16 +383,17 @@ export default class TicTacToe extends Command {
           components[index] = row;
         }
 
-        return await ButtonMessage.editWithButtons(
-          buttonMessage,
-          button.guild.language.get(
-            "TICTACTOE_WINNER",
-            button.member?.toMention()
-          ),
-          {
-            buttons: components.slice(0, -1),
-          }
-        ).catch(() => {});
+        return await button.channel
+          .update(
+            button.guild.language.get(
+              "TICTACTOE_WINNER",
+              button.member?.toMention()
+            ),
+            {
+              buttons: components.slice(0, -1),
+            }
+          )
+          .catch(() => {});
       }
 
       const hasTied = Object.values(game.buttons).every(
@@ -413,22 +415,21 @@ export default class TicTacToe extends Command {
           components[index] = row;
         }
 
-        return await ButtonMessage.editWithButtons(
-          buttonMessage,
-          button.guild.language.get("TICTACTOE_DRAW"),
-          {
+        return await button.channel
+          .update(button.guild.language.get("TICTACTOE_DRAW"), {
             buttons: components.slice(0, -1),
-          }
-        ).catch(() => {});
+          })
+          .catch(() => {});
       }
 
-      await ButtonMessage.editWithButtons(
-        buttonMessage,
-        button.guild.language.get("TICTACTOE_TURN", `<@!${game.current}>`),
-        {
-          buttons: components,
-        }
-      ).catch(() => {});
+      await button.channel
+        .update(
+          button.guild.language.get("TICTACTOE_TURN", `<@!${game.current}>`),
+          {
+            buttons: components,
+          }
+        )
+        .catch(() => {});
     };
   }
 }
