@@ -988,6 +988,8 @@ ${channels.join(", ")}`
           "You must provide a valid IGN to claim nitro perks.",
         NITROPERKS_MODULE_ERROR:
           "I can't give nitro perks as the Sk1er module hasn't been loaded, <@287698408855044097> probably broke something...",
+        NITROPERKS_SUCCESS:
+          "Successfully gave nitro perks! You may need to run /refreshpurchases in game to see the cape",
         NITROPERKS_FAILED:
           "Failed to give nitro perks! Make sure your IGN is valid and you've purchased the game.\nThere may also be an issue with the Mojang API or Sk1er's API causing this issue",
         OSS_COMMAND_DESCRIPTION: "Sends my GitHub repo link",
