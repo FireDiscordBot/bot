@@ -32,10 +32,7 @@ export default class CrossClusterQuote extends Event {
     const quoteCommand = this.manager.client.getCommand("quote") as Quote;
     if (!quoteCommand) return;
     const guild = this.manager.client.guilds.cache.get(data.guild_id);
-    if (!guild)
-      return this.manager.client.console.warn(
-        `[Aether] Attempted cross cluster quote with unknown guild`
-      );
+    if (!guild) return;
     destination.guild = guild as FireGuild;
     const member = await guild.members.fetch(data.quoter).catch(() => {});
     if (!member)
@@ -60,9 +57,6 @@ export default class CrossClusterQuote extends Event {
       return this.manager.client.console.warn(
         `[Aether] Attempted cross cluster quote with unknown message`
       );
-    this.manager.client.console.info(
-      `[Aether] Attempting to run quote with message id ${data.message_id}, quoter ${member} and destination id ${data.destination.id}`
-    );
     await quoteCommand.exec(null, {
       quote: message as FireMessage,
       quoter: member as FireMember,
