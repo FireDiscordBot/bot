@@ -109,7 +109,8 @@ export default class GuildUpdate extends Listener {
         );
       if (
         before.description != after.description &&
-        after.id != "411619823445999637"
+        after.id != "411619823445999637" &&
+        after.id != "564052798044504084"
       )
         embed.addField(
           language.get("DESCRIPTION"),
