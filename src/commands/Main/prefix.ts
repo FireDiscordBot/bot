@@ -54,12 +54,13 @@ export default class Prefix extends Command {
       return await message.error("PREFIX_CHANGE_DISALLOWED");
     if (!args.prefix && !actionNames.includes(args.action)) {
       if (
-        current.map((prefix) => prefix.trim()).includes(args.action?.trim())
+        current
+          .map((prefix) => prefix.toLowerCase().trim())
+          .includes(args.action?.toLowerCase()?.trim())
       ) {
-        delete current[
-          current.map((prefix) => prefix.trim()).indexOf(args.action.trim())
-        ];
-        current = current.filter((prefix) => !!prefix);
+        current = current.filter(
+          (prefix) => !!prefix && prefix != args.action.toLowerCase().trim()
+        );
         if (!current.length) current.push("$");
         if (current.length == 1 && current[0] == "$")
           message.guild.settings.delete("config.prefix");
@@ -69,7 +70,11 @@ export default class Prefix extends Command {
         if (args.action.trim() == "fire")
           return await message.error("PREFIX_GLOBAL");
         if (current.length == 1 && current[0] == "$") current = []; // remove default
-        if (current.map((prefix) => prefix.trim()).includes(args.action.trim()))
+        if (
+          current
+            .map((prefix) => prefix.toLowerCase().trim())
+            .includes(args.action.toLowerCase().trim())
+        )
           return await message.error(
             "PREFIX_ALREADY_HOW",
             message.util?.parsed?.prefix,
@@ -110,7 +115,11 @@ export default class Prefix extends Command {
       } catch {}
       if (args.prefix.length >= 15) return await message.error("PREFIX_LENGTH");
       if (current.length == 1 && current[0] == "$") current = []; // remove default
-      if (current.map((prefix) => prefix.trim()).includes(args.prefix.trim()))
+      if (
+        current
+          .map((prefix) => prefix.toLowerCase().trim())
+          .includes(args.prefix.toLowerCase().trim())
+      )
         return await message.error(
           "PREFIX_ALREADY_HOW",
           message.util?.parsed?.prefix,
