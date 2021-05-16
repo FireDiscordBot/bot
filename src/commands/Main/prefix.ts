@@ -72,8 +72,8 @@ export default class Prefix extends Command {
         else message.guild.settings.set("config.prefix", current);
         return await message.success("PREFIX_REMOVED", current);
       } else {
-        if (args.action.trim() == "fire")
-          return await message.error("PREFIX_GLOBAL");
+        const invalid = await this.testPrefix(message, args.action);
+        if (invalid) return;
         if (current.length == 1 && current[0] == "$") current = []; // remove default
         if (
           current
@@ -97,33 +97,8 @@ export default class Prefix extends Command {
       }
     }
     if (validActions.add.includes(args.action)) {
-      if (!args.prefix)
-        return await message.error("PREFIX_ACTION_WITHOUT_VALUE");
-      if (args.prefix.trim() == "fire")
-        return await message.error("PREFIX_GLOBAL");
-      if (args.prefix.startsWith("/"))
-        return await message.error("PREFIX_SLASH_COMMANDS");
-      if (args.prefix.includes("\\"))
-        return await message.error("PREFIX_ESCAPED");
-      const mentionIds = [
-        ...message.mentions.channels.keyArray(),
-        ...message.mentions.users.keyArray(),
-        ...message.mentions.roles.keyArray(),
-      ];
-      if (
-        message.mentions.everyone ||
-        mentionIds.some((id) => args.prefix.includes(id))
-      )
-        return await message.error("PREFIX_MENTION");
-      try {
-        if (new URL(args.prefix)) return await message.error("PREFIX_URI");
-      } catch {}
-      if (allEmoji.test(args.prefix)) {
-        allEmoji.lastIndex = 0;
-        return await message.error("PREFIX_EMOJI");
-      }
-      allEmoji.lastIndex = 0;
-      if (args.prefix.length >= 15) return await message.error("PREFIX_LENGTH");
+      const invalid = await this.testPrefix(message, args.prefix);
+      if (invalid) return;
       if (current.length == 1 && current[0] == "$") current = []; // remove default
       if (
         current
@@ -161,5 +136,32 @@ export default class Prefix extends Command {
         return await message.success("PREFIX_REMOVE", current);
       } else return await message.error("PREFIX_REMOVE_NEVER_WAS");
     }
+  }
+
+  private async testPrefix(message: FireMessage, prefix: string) {
+    if (!prefix) return await message.error("PREFIX_ACTION_WITHOUT_VALUE");
+    if (prefix.trim() == "fire") return await message.error("PREFIX_GLOBAL");
+    if (prefix.startsWith("/"))
+      return await message.error("PREFIX_SLASH_COMMANDS");
+    if (prefix.includes("\\")) return await message.error("PREFIX_ESCAPED");
+    const mentionIds = [
+      ...message.mentions.channels.keyArray(),
+      ...message.mentions.users.keyArray(),
+      ...message.mentions.roles.keyArray(),
+    ];
+    if (
+      message.mentions.everyone ||
+      mentionIds.some((id) => prefix.includes(id))
+    )
+      return await message.error("PREFIX_MENTION");
+    try {
+      if (new URL(prefix)) return await message.error("PREFIX_URI");
+    } catch {}
+    if (allEmoji.test(prefix)) {
+      allEmoji.lastIndex = 0;
+      return await message.error("PREFIX_EMOJI");
+    }
+    allEmoji.lastIndex = 0;
+    if (prefix.length >= 15) return await message.error("PREFIX_LENGTH");
   }
 }
