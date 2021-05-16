@@ -95,6 +95,20 @@ export default class Prefix extends Command {
         return await message.error("PREFIX_SLASH_COMMANDS");
       if (args.prefix.includes("\\"))
         return await message.error("PREFIX_ESCAPED");
+      const mentionIds = [
+        ...message.mentions.channels.keyArray(),
+        ...message.mentions.users.keyArray(),
+        ...message.mentions.roles.keyArray(),
+      ];
+      if (
+        message.mentions.everyone ||
+        mentionIds.some((id) => args.prefix.includes(id))
+      )
+        return await message.error("PREFIX_MENTION");
+      try {
+        if (new URL(args.prefix)) return await message.error("PREFIX_URI");
+      } catch {}
+      if (args.prefix.length >= 15) return await message.error("PREFIX_LENGTH");
       if (current.length == 1 && current[0] == "$") current = []; // remove default
       if (current.map((prefix) => prefix.trim()).includes(args.prefix.trim()))
         return await message.error(
