@@ -1049,6 +1049,7 @@ ${prefixes.join(", ")}`,
           "`/` or anything starting with a slash cannot be used as a prefix as it'd conflict with Discord's slash commands",
         PREFIX_ESCAPED: "Prefixes cannot include backslashes",
         PREFIX_MENTION: "Prefixes cannot contain mentions",
+        PREFIX_EMOJI: "Prefixes cannot contain emojis",
         PREFIX_URI: "Prefixes cannot be made from URIs",
         PREFIX_LENGTH:
           "Prefixes cannot be greater than or equal to 15 characters",

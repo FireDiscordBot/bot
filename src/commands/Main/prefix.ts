@@ -2,6 +2,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Permissions } from "discord.js";
+import { constants } from "@fire/lib/util/constants";
 
 const validActions = {
   add: ["add", "new"],
@@ -9,6 +10,9 @@ const validActions = {
   list: ["list"],
 };
 const actionNames = ["add", "new", "remove", "delete", "yeet", "list"];
+const {
+  regexes: { allEmoji },
+} = constants;
 
 export default class Prefix extends Command {
   constructor() {
@@ -41,9 +45,10 @@ export default class Prefix extends Command {
 
   async exec(message: FireMessage, args: { action?: string; prefix?: string }) {
     args.prefix = args.prefix?.trim();
-    let current = message.guild.settings.get("config.prefix", [
-      "$",
-    ]) as string[];
+    let current = message.guild.settings.get(
+      "config.prefix",
+      process.env.SPECIAL_PREFIX ? [process.env.SPECIAL_PREFIX] : ["$"]
+    ) as string[];
     if (!args.action)
       return message.util?.parsed?.alias == "prefixes"
         ? await message.send("PREFIXES_CURRENT", current)
@@ -113,6 +118,11 @@ export default class Prefix extends Command {
       try {
         if (new URL(args.prefix)) return await message.error("PREFIX_URI");
       } catch {}
+      if (allEmoji.test(args.prefix)) {
+        allEmoji.lastIndex = 0;
+        return await message.error("PREFIX_EMOJI");
+      }
+      allEmoji.lastIndex = 0;
       if (args.prefix.length >= 15) return await message.error("PREFIX_LENGTH");
       if (current.length == 1 && current[0] == "$") current = []; // remove default
       if (
