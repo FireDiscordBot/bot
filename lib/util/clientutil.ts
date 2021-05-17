@@ -3,6 +3,7 @@ import {
   PermissionString,
   Permissions,
   Collection,
+  Snowflake,
   Webhook,
 } from "discord.js";
 import { Channel, Video } from "@fire/lib/interfaces/youtube";
@@ -299,6 +300,30 @@ export class Util extends ClientUtil {
     const found = this.permissionFlags.find(([, bit]) => bit == permission);
     if (found?.length) return found[0];
     else return null;
+  }
+
+  isSuperuser(user: string): boolean {
+    return this.client.userSettings.get(user, "utils.superuser", false);
+  }
+
+  isBlacklisted(
+    user: FireMember | FireUser | Snowflake,
+    guild?: FireGuild,
+    command?: string
+  ) {
+    // Conditions where blacklist does not apply
+    if (command == "debug") return false;
+    else if (typeof user != "string" && user.isSuperuser()) return false;
+    else if (typeof user == "string" && this.isSuperuser(user)) return false;
+
+    // convert user/member to id
+    if (user instanceof FireMember || user instanceof FireUser) user = user.id;
+
+    // global blacklist
+    if (this.plonked.includes(user)) return true;
+
+    // guild blacklist
+    if (guild?.settings.get("utils.plonked", []).includes(user)) return true;
   }
 
   async blacklist(user: FireMember | FireUser, reason: string) {
