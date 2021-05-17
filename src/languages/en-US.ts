@@ -384,6 +384,10 @@ This will **not** rename existing users`,
           "Block a user or role from chatting in the current channel",
         BLOCK_ARG_REQUIRED:
           "You must provide a user or role to block from chatting in the current channel!",
+        BLOCK_GOD:
+          "That user has a role higher than or equal to your highest and are too powerful for you to block",
+        BLOCK_ROLE_HIGH:
+          "That role is higher than or equal to your highest and is too powerful for you to block",
         CARBON_COMMAND_DESCRIPTION:
           "Create and share beautiful images of your code.",
         CARBON_NOT_READY:
@@ -1674,6 +1678,10 @@ Running this command without providing a category resets it, therefore disabling
           "Unblock a user or role and allow them to chat in this channel",
         UNBLOCK_ARG_REQUIRED:
           "You must provide a user or role to unblock from this channel",
+        UNBLOCK_GOD:
+          "That user has a role higher than or equal to your highest and are too powerful for you to unblock",
+        UNBLOCK_ROLE_HIGH:
+          "That role is higher than or equal to your highest and is too powerful for you to unblock",
         UNMUTE_AUTOMATIC: "Time's up!",
         UNMUTE_AUTO_FAIL: (
           member: string,

@@ -42,6 +42,18 @@ export default class Unblock extends Command {
       message.author.id != message.guild.ownerID
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
+    else if (
+      args.tounblock instanceof FireMember &&
+      args.tounblock.roles.highest.rawPosition >=
+        message.member?.roles?.highest?.rawPosition
+    )
+      return await message.error("UNBLOCK_GOD");
+    else if (
+      args.tounblock instanceof Role &&
+      args.tounblock.rawPosition >= message.member?.roles?.highest?.rawPosition
+    )
+      return await message.error("UNBLOCK_ROLE_HIGH");
+
     await message.delete().catch(() => {});
     const blocked = await message.guild.unblock(
       args.tounblock,
