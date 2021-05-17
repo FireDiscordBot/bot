@@ -1,5 +1,6 @@
 import { EventHandler } from "./ws/event/EventHandler";
 import { Reconnector } from "./ws/Reconnector";
+import { version as djsver } from "discord.js";
 import { Websocket } from "./ws/Websocket";
 import { Command } from "./util/command";
 import * as Sentry from "@sentry/node";
@@ -18,7 +19,7 @@ export class Manager {
   id: number;
 
   constructor(version: string, sentry?: typeof Sentry) {
-    this.version = version
+    this.version = version;
     this.sentry = sentry;
 
     this.client = new Fire(this, sentry);
@@ -31,6 +32,14 @@ export class Manager {
     } else this.id = 0; // default to shard 0
 
     this.listen();
+  }
+
+  get ua() {
+    return `Fire Discord Bot/${this.version} Node.JS/${process.version} (+https://fire.gaminggeek.dev/)`;
+  }
+
+  get djsua() {
+    return `Fire Discord Bot/${this.version} Discord.JS/${djsver} Node.JS/${process.version} (+https://fire.gaminggeek.dev/)`;
   }
 
   init(reconnecting = false) {

@@ -111,10 +111,7 @@ export const guildPreviewConverter = async (
         ? `https://${process.env.REST_HOST}/public`
         : `http://localhost:${process.env.REST_PORT}/public`
     )
-      .header(
-        "User-Agent",
-        `Fire Discord Bot/${message.client.manager.version} (+https://fire.gaminggeek.dev/)`
-      )
+      .header("User-Agent", message.client.manager.ua)
       .header("Authorization", process.env.WS_AUTH)
       .send();
     if (publicGuildsReq.statusCode == 200) {

@@ -60,7 +60,7 @@ export class APIRequest {
       headers.Authorization = this.rest.getAuth();
     if (this.options.reason)
       headers["X-Audit-Log-Reason"] = encodeURIComponent(this.options.reason);
-    headers["User-Agent"] = UserAgent;
+    headers["User-Agent"] = this.client.manager.djsua;
     if (this.options.headers)
       headers = Object.assign(headers, this.options.headers);
 

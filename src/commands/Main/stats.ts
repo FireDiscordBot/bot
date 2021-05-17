@@ -40,13 +40,10 @@ export default class Stats extends Command {
           ? `https://${process.env.REST_HOST}/stats`
           : `http://127.0.0.1:${process.env.REST_PORT}/stats`
       )
-        .header(
-          "User-Agent",
-          `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-        )
+        .header("User-Agent", this.client.manager.ua)
         .send()
     ).json();
-    if (!stats.clusters.length) return await this.singularStats(message);
+    if (stats.clusters.length <= 1) return await this.singularStats(message);
     const clusterId = args.cluster;
     if (clusterId) {
       clusterStats = stats.clusters.find(

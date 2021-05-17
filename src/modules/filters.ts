@@ -168,10 +168,7 @@ export default class Filters extends Module {
         !message.invWtfResolved.has(code)
       ) {
         const apiReq = await centra(`https://inv.wtf/api/${code}`)
-          .header(
-            "User-Agent",
-            `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-          )
+          .header("User-Agent", this.client.manager.ua)
           .header("Referer", message instanceof FireMessage ? message.url : "")
           .header("Authorization", process.env.VANITY_KEY)
           .send();
@@ -355,10 +352,7 @@ export default class Filters extends Module {
           ].some((url) => embed.thumbnail.url.includes(url))
         ) {
           const req = await centra(embed.url)
-            .header(
-              "User-Agent",
-              `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-            )
+            .header("User-Agent", this.client.manager.ua)
             .header("Referer", message.url)
             .send();
           const inviteMatch = this.getInviteMatchFromReq(req);
@@ -394,10 +388,7 @@ export default class Filters extends Module {
     } else if (exec.groups.domain == "inv.wtf") {
       const vanity = await (
         await centra(`https://inv.wtf/api/${exec.groups.code}`)
-          .header(
-            "User-Agent",
-            `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-          )
+          .header("User-Agent", this.client.manager.ua)
           .header("Referer", message.url)
           .send()
       ).json();
@@ -408,10 +399,7 @@ export default class Filters extends Module {
       } else throw new Error("Could not find actual invite");
     } else {
       const invReq = await centra("https://" + exec[0])
-        .header(
-          "User-Agent",
-          `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-        )
+        .header("User-Agent", this.client.manager.ua)
         .header("Referer", message.url)
         .send();
       const inviteMatch = this.getInviteMatchFromReq(invReq, exec);

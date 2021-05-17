@@ -6,7 +6,7 @@ export default class CacheInhibitor extends Inhibitor {
     super("cache", {
       reason: "cache",
       priority: 10,
-      type: "post",
+      type: "pre",
     });
   }
 
