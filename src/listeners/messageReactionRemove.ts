@@ -14,7 +14,15 @@ export default class MessageReactionRemove extends Listener {
   }
 
   async exec(messageReaction: MessageReaction, user: FireUser) {
-    if (!messageReaction.message?.guild || user.bot) return;
+    if (
+      !messageReaction.message?.guild ||
+      user.bot ||
+      this.client.util.isBlacklisted(
+        user,
+        messageReaction.message?.guild as FireGuild
+      )
+    )
+      return;
     const message = messageReaction.message as FireMessage;
     const guild = messageReaction.message?.guild as FireGuild;
 

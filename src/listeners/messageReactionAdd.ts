@@ -1,6 +1,7 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageReaction, GuildEmoji } from "discord.js";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
 import Sk1er from "@fire/src/modules/sk1er";
@@ -14,7 +15,14 @@ export default class MessageReactionAdd extends Listener {
   }
 
   async exec(messageReaction: MessageReaction, user: FireUser) {
-    if (user.bot) return;
+    if (
+      user.bot ||
+      this.client.util.isBlacklisted(
+        user,
+        messageReaction.message?.guild as FireGuild
+      )
+    )
+      return;
 
     const message = messageReaction.message as FireMessage;
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
