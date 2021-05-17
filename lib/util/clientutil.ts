@@ -324,6 +324,8 @@ export class Util extends ClientUtil {
 
     // guild blacklist
     if (guild?.settings.get("utils.plonked", []).includes(user)) return true;
+
+    return false;
   }
 
   async blacklist(user: FireMember | FireUser, reason: string) {
