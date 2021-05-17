@@ -444,6 +444,7 @@ Make sure I have permission to manage roles`,
               : null,
           };
         },
+        DEBUG_BLACKLISTED: "You are forbidden from interacting with me here",
         DEBUG_COMMAND_DISABLE_BYPASS:
           "Command is disabled but you are bypassed",
         DEBUG_COMMAND_DISABLED: "Command is disabled.",

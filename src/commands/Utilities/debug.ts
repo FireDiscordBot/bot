@@ -47,6 +47,8 @@ export default class Debug extends Command {
     if (!cmd.id) return await this.sendSingleError(message, "UNKNOWN_COMMAND");
     if (cmd.id == this.id)
       return await this.sendSingleSuccess(message, "DEBUGGING_DEBUG");
+    if (this.client.util.isBlacklisted(message.author.id, message.guild))
+      return await this.sendSingleError(message, "DEBUG_BLACKLISTED");
     if (moment(new Date()).diff(message.author.createdAt) < 86400000)
       return await this.sendSingleError(message, "COMMAND_ACCOUNT_TOO_YOUNG");
     if (cmd.ownerOnly && !this.client.isOwner(message.author))
