@@ -953,7 +953,8 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           prefix: string
         ) =>
           `${codes.join(", ")}
-You can cweate ${remaining} mowe wediwects! (Each pwemium sewvew you have gives 5 wediwects)
+
+You can cweate ${remaining.toLocaleString()} mowe wediwects! (Each pwemium sewvew you have gives 5 wediwects)
 Use \`${prefix}redirect <code>\` to view infowmation about a wediwect`,
         REDIRECT_NOT_FOUND: "You don't seem to have a wediwect with that code.",
         REDIRECT_URL_INVALID:

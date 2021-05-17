@@ -1199,7 +1199,7 @@ Otherwise, react with ${constants.emojis.error} to cancel.
         ) =>
           `${codes.join(", ")}
 
-You can create ${remaining} more redirects! (Each premium server you have gives 5 redirects)
+You can create ${remaining.toLocaleString()} more redirects! (Each premium server you have gives 5 redirects)
 Use \`${prefix}redirect <code>\` to view information about a redirect`,
         REDIRECT_NOT_FOUND: "You don't seem to have a redirect with that code.",
         REDIRECT_URL_INVALID:
