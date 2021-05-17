@@ -3,6 +3,7 @@
 
 import { Button, Interaction } from "@fire/lib/interfaces/interactions";
 import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Scope } from "@sentry/node";
@@ -101,5 +102,15 @@ If this is a slash command and the bot is not present, try inviting the bot (<${
 Error Message: ${error.message}`,
         },
       });
+  }
+
+  blacklistCheck(interaction: Interaction) {
+    const guild = interaction.guild_id;
+    const user = interaction.user.id;
+
+    return this.client.util.isBlacklisted(
+      user,
+      this.client.guilds.cache.get(guild) as FireGuild
+    );
   }
 }

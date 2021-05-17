@@ -104,7 +104,7 @@ export class FireUser extends User {
   }
 
   isSuperuser() {
-    return this.settings.get("utils.superuser", false);
+    return this.client.util.isSuperuser(this.id);
   }
 
   async createReminder(when: Date, why: string, link: string) {
