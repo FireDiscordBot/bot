@@ -84,6 +84,10 @@ export default class InteractionListener extends Listener {
     const guild = interaction.guild as FireGuild;
     const user = interaction.user as FireUser;
 
-    return this.client.util.isBlacklisted(user, guild);
+    return this.client.util.isBlacklisted(
+      user,
+      guild,
+      interaction.isCommand() ? interaction.commandName : null
+    );
   }
 }
