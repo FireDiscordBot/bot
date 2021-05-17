@@ -18,16 +18,10 @@ export default class MessageReactionAdd extends Listener {
 
     const message = messageReaction.message as FireMessage;
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-    if (message.id == sk1erModule?.supportMessageId) {
-      const ticket = await sk1erModule
+    if (message.id == sk1erModule?.supportMessageId)
+      return await sk1erModule
         .handleSupport(messageReaction, user)
-        .catch((e: Error) => e);
-      if (!(ticket instanceof FireTextChannel))
-        this.client.console.error(
-          `[Sk1er] Failed to make ticket for ${user} due to ${ticket}`
-        );
-      return;
-    }
+        .catch(() => {});
 
     if (
       message.guild?.premium &&

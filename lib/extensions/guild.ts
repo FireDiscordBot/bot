@@ -720,6 +720,14 @@ export class FireGuild extends Guild {
     category?: CategoryChannel
   ) {
     if (author?.guild?.id != this.id) return "author";
+    if (
+      (this.client.util.plonked.includes(author.id) ||
+        (this?.settings.get("utils.plonked", []) as string[]).includes(
+          author.id
+        )) &&
+      !author.isSuperuser()
+    )
+      return "blacklisted";
     category =
       category ||
       (this.channels.cache

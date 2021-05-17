@@ -40,7 +40,7 @@ export default class NewTicket extends Command {
       // return author as it'll just return
       .catch(() => "author");
     // how?
-    if (ticket == "author") return;
+    if (ticket == "author" || ticket == "blacklisted") return;
     else if (ticket == "disabled")
       return await creating.edit(
         `${emojis.error} ${message.language.get("NEW_TICKET_DISABLED")}`
