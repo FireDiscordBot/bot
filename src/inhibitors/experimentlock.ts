@@ -6,6 +6,7 @@ export default class ExperimentLockInhibitor extends Inhibitor {
   constructor() {
     super("experimentlock", {
       reason: "experimentlock",
+      type: "post",
       priority: 4,
     });
   }

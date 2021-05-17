@@ -7,6 +7,7 @@ export default class AccountAgeInhibitor extends Inhibitor {
   constructor() {
     super("accountage", {
       reason: "accountage",
+      type: "post",
       priority: 4,
     });
   }

@@ -7,7 +7,7 @@ export default class BlacklistInhibitor extends Inhibitor {
     super("blacklist", {
       reason: "blacklist",
       priority: 10,
-      type: "all",
+      type: "post",
     });
   }
 
@@ -15,7 +15,7 @@ export default class BlacklistInhibitor extends Inhibitor {
     return this.client.util.isBlacklisted(
       message.author.id,
       message.guild,
-      command.id
+      command?.id
     );
   }
 

@@ -7,6 +7,7 @@ export default class DisabledCommandsInhibitor extends Inhibitor {
   constructor() {
     super("disabledcommands", {
       reason: "locallydisabled",
+      type: "post",
       priority: 4,
     });
   }

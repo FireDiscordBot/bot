@@ -7,6 +7,7 @@ export default class ModOnlyInhibitor extends Inhibitor {
     super("modonly", {
       reason: "modonly",
       priority: 4,
+      type: "pre",
     });
   }
 

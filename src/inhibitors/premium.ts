@@ -12,6 +12,7 @@ export default class PremiumInhibitor extends Inhibitor {
   constructor() {
     super("premium", {
       reason: "premium",
+      type: "post",
       priority: 5,
     });
   }

@@ -7,6 +7,7 @@ export default class AdminOnlyInhibitor extends Inhibitor {
     super("adminonly", {
       reason: "adminonly",
       priority: 5,
+      type: "pre",
     });
   }
 
