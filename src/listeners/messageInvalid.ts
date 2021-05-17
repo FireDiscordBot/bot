@@ -91,7 +91,10 @@ export default class MessageInvalid extends Listener {
     if (!matches.length) {
       this.cleanCommandUtil(message);
       return;
-    }
+    } else if (matches.length > 5 && !message.author.premium)
+      matches = matches.slice(0, 5);
+    else if (matches.length > 10 && !message.author.isSuperuser())
+      matches = matches.slice(0, 10);
 
     const messageIds = matches.map((match) => match.message_id);
     matches = matches.filter(
