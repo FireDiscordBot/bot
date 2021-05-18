@@ -128,7 +128,10 @@ export class GuildTagManager {
     if (current instanceof DiscordAPIError && current.code == 50001) {
       // hasn't authorized applications.commands
       return null;
-    } else if (current instanceof DiscordAPIError) {
+    } else if (
+      current instanceof DiscordAPIError ||
+      typeof current.find != "function"
+    ) {
       return false;
     }
 
@@ -229,7 +232,10 @@ export class GuildTagManager {
     if (current instanceof DiscordAPIError && current.code == 50001) {
       // hasn't authorized applications.commands
       return null;
-    } else if (current instanceof DiscordAPIError) {
+    } else if (
+      current instanceof DiscordAPIError ||
+      typeof current.find != "function"
+    ) {
       return false;
     }
 
