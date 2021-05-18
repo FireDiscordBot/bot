@@ -354,6 +354,11 @@ export class Fire extends AkairoClient {
     return this.api;
   }
 
+  get restManager(): RESTManager {
+    // @ts-ignore
+    return this.rest;
+  }
+
   private async initDB(reconnect: boolean = false) {
     if (this.db && !this.db.closed) await this.db.end();
     delete this.db;

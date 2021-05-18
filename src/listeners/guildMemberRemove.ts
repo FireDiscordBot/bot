@@ -131,7 +131,7 @@ export default class GuildMemberRemove extends Listener {
         .setTimestamp()
         .setAuthor(
           language.get("MEMBERLEAVE_LOG_AUTHOR", member.toString()),
-          member.user.displayAvatarURL({
+          member.displayAvatarURL({
             size: 2048,
             format: "png",
             dynamic: true,

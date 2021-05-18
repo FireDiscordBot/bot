@@ -149,17 +149,11 @@ export default class Plonk extends Command {
               "PLONK_LOG_AUTHOR",
               args.user.toString()
             ),
-        args.user instanceof FireMember
-          ? args.user.user.displayAvatarURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            })
-          : args.user.displayAvatarURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            })
+        args.user.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        })
       )
       .addField(
         message.guild.language.get("MODERATOR"),

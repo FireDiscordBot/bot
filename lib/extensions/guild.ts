@@ -1142,7 +1142,7 @@ export class FireGuild extends Guild {
           blockee instanceof FireMember ? blockee.toString() : blockee.name
         ),
         blockee instanceof FireMember
-          ? blockee.user.displayAvatarURL({
+          ? blockee.displayAvatarURL({
               size: 2048,
               format: "png",
               dynamic: true,
@@ -1223,7 +1223,7 @@ export class FireGuild extends Guild {
             : unblockee.name
         ),
         unblockee instanceof FireMember
-          ? unblockee.user.displayAvatarURL({
+          ? unblockee.displayAvatarURL({
               size: 2048,
               format: "png",
               dynamic: true,

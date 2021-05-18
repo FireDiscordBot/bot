@@ -36,6 +36,9 @@ export const humanFileSize = (size: number) => {
   );
 };
 
+const AllowedImageFormats = ["webp", "png", "jpg", "jpeg", "gif"];
+const AllowedImageSizes = Array.from({ length: 9 }, (e, i) => 2 ** (i + 4));
+
 interface MojangProfile {
   name: string;
   id: string;
@@ -462,5 +465,13 @@ export class Util extends ClientUtil {
         .catch(() => null);
     }
     return hook?.url;
+  }
+
+  makeImageUrl(root: string, { format = "webp", size = 512 } = {}) {
+    if (format && !AllowedImageFormats.includes(format))
+      throw new Error(`Invalid image format: ${format}`);
+    if (size && !AllowedImageSizes.includes(size))
+      throw new RangeError(`Invalid image size: ${size}`);
+    return `${root}.${format}${size ? `?size=${size}` : ""}`;
   }
 }

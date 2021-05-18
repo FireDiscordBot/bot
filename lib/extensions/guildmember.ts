@@ -5,6 +5,7 @@ import {
   Structures,
   Channel,
   Util,
+  ImageURLOptions,
 } from "discord.js";
 import { FakeChannel } from "./slashCommandMessage";
 import { humanize } from "@fire/lib/util/constants";
@@ -20,10 +21,12 @@ export class FireMember extends GuildMember {
   declare guild: FireGuild;
   changingNick?: boolean;
   declare user: FireUser;
+  avatar: string | null;
   declare client: Fire;
 
   constructor(client: Fire, data: any, guild: FireGuild) {
     super(client, data, guild);
+    this.avatar = data.avatar ?? null;
     this.changingNick = false;
   }
 
@@ -50,6 +53,32 @@ export class FireMember extends GuildMember {
   _patch(data: any) {
     // @ts-ignore
     super._patch(data);
+
+    if (data.avatar) this.avatar = data.avatar ?? null;
+  }
+
+  avatarURL({
+    format,
+    size,
+    dynamic,
+    display,
+  }: ImageURLOptions & { dynamic?: boolean; display?: boolean } = {}) {
+    if (!this.avatar)
+      return display
+        ? this.user.displayAvatarURL({ format, size, dynamic })
+        : this.user.avatarURL({ format, size, dynamic });
+    if (dynamic) format = this.avatar.startsWith("a_") ? "gif" : format;
+    return this.client.util.makeImageUrl(
+      `${this.client.options.http.cdn}/guilds/${this.guild.id}/users/${this.id}/avatars/${this.avatar}`,
+      { format, size }
+    );
+  }
+
+  displayAvatarURL(options: ImageURLOptions & { dynamic?: boolean }) {
+    return (
+      this.avatarURL({ ...options, display: true }) ||
+      this.user.displayAvatarURL(options)
+    );
   }
 
   isModerator(channel?: Channel) {
@@ -237,7 +266,7 @@ export class FireMember extends GuildMember {
       .setTimestamp()
       .setAuthor(
         this.guild.language.get("WARN_LOG_AUTHOR", this.toString()),
-        this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
+        this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
@@ -343,7 +372,7 @@ export class FireMember extends GuildMember {
       .setTimestamp()
       .setAuthor(
         this.guild.language.get("BAN_LOG_AUTHOR", this.toString()),
-        this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
+        this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
@@ -407,7 +436,7 @@ export class FireMember extends GuildMember {
       .setTimestamp()
       .setAuthor(
         this.guild.language.get("KICK_LOG_AUTHOR", this.toString()),
-        this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
+        this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
@@ -462,7 +491,7 @@ export class FireMember extends GuildMember {
       .setTimestamp()
       .setAuthor(
         this.guild.language.get("DERANK_LOG_AUTHOR", this.toString()),
-        this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
+        this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
@@ -548,7 +577,7 @@ export class FireMember extends GuildMember {
       .setTimestamp()
       .setAuthor(
         this.guild.language.get("MUTE_LOG_AUTHOR", this.toString()),
-        this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
+        this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
@@ -642,7 +671,7 @@ export class FireMember extends GuildMember {
       .setTimestamp()
       .setAuthor(
         this.guild.language.get("UNMUTE_LOG_AUTHOR", this.toString()),
-        this.user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
+        this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
@@ -665,7 +694,7 @@ export class FireMember extends GuildMember {
   }
 
   isSuperuser() {
-    return this.client.util.isSuperuser(this.id)
+    return this.client.util.isSuperuser(this.id);
   }
 
   createReminder(when: Date, why: string, link: string) {

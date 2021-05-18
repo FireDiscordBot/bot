@@ -179,7 +179,7 @@ export default class GuildMemberAdd extends Listener {
         .setTimestamp()
         .setAuthor(
           language.get("MEMBERJOIN_LOG_AUTHOR", member.toString()),
-          member.user.displayAvatarURL({
+          member.displayAvatarURL({
             size: 2048,
             format: "png",
             dynamic: true,

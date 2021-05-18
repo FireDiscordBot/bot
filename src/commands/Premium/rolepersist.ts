@@ -109,7 +109,7 @@ export default class RolePersist extends Command {
       .setColor(roles.length ? member.displayHexColor || "#2ECC71" : "#E74C3C")
       .setAuthor(
         member.guild.language.get("ROLEPERSIST_LOG_AUTHOR", member.toString()),
-        member.user.displayAvatarURL({
+        member.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,

@@ -132,17 +132,11 @@ export default class User extends Command {
       .setTimestamp()
       .setAuthor(
         user.toString(),
-        user instanceof FireMember
-          ? user.user.displayAvatarURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            })
-          : user.displayAvatarURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            }),
+        user.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
         application && application.bot_public
           ? `https://discord.com/oauth2/authorize?client_id=${
               application.id
