@@ -67,9 +67,9 @@ export default class Autorole extends Command {
     if (bot && delay) return await message.error("AUTOROLE_INVALID_FLAGS");
 
     delay
-      ? message.guild.settings.set("mod.autorole.waitformsg", true)
+      ? message.guild.settings.set<boolean>("mod.autorole.waitformsg", true)
       : message.guild.settings.delete("mod.autorole.waitformsg");
-    message.guild.settings.set(
+    message.guild.settings.set<string>(
       bot ? "mod.autobotrole" : "mod.autorole",
       role.id
     );

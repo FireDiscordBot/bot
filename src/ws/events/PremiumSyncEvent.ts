@@ -1,7 +1,4 @@
-import {
-  PremiumData,
-  SubscriptionStatus,
-} from "@fire/lib/interfaces/premium";
+import { PremiumData, SubscriptionStatus } from "@fire/lib/interfaces/premium";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Event } from "@fire/lib/ws/event/Event";
@@ -24,12 +21,12 @@ export default class PremiumSyncEvent extends Event {
       const instance = client.guilds.cache.get(guild) as FireGuild;
       if (
         premium.status == "trialing" &&
-        instance?.settings.get("premium.trialeligible", true)
+        instance?.settings.get<boolean>("premium.trialeligible", true)
       ) {
         client.console.warn(
           `[Premium] Setting trial eligibility for ${instance} due to subscription from ${premium.user} in trial period`
         );
-        instance.settings.set("premium.trialeligible", false);
+        instance.settings.set<boolean>("premium.trialeligible", false);
       }
       if (premium.action == "remove") client.util.premium.delete(guild);
       else if (dataKeys.every((key) => premium.hasOwnProperty(key)))
@@ -69,7 +66,11 @@ export default class PremiumSyncEvent extends Event {
     const members = await guild.members.fetch().catch(() => {});
     if (!members) return;
     for (const [, member] of members)
-      if (member.roles.cache.has(role.id) && removeIds.includes(member.id) && !client.config.dev)
+      if (
+        member.roles.cache.has(role.id) &&
+        removeIds.includes(member.id) &&
+        !client.config.dev
+      )
         await member.roles.remove(role, "premium is gone :crabrave:");
       else if (paidIds.includes(member.id))
         await member.roles.add(role, "wow member now has premium");

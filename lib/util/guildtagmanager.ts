@@ -107,11 +107,14 @@ export class GuildTagManager {
   }
 
   async prepareSlashCommands() {
-    const useSlash = this.guild.settings.get("tags.slashcommands", false);
+    const useSlash = this.guild.settings.get<boolean>(
+      "tags.slashcommands",
+      false
+    );
     if (!useSlash) return false;
     if (this.names.length && !this.cache.size) await this.loadTags();
 
-    this.ephemeral = this.guild.settings.get("tags.ephemeral", true);
+    this.ephemeral = this.guild.settings.get<boolean>("tags.ephemeral", true);
 
     let current: {
       id: string;

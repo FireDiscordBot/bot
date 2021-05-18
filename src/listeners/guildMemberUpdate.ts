@@ -80,7 +80,7 @@ export default class GuildMemberUpdate extends Listener {
 
     if (newMember.user.bot) {
       const role = newMember.guild.roles.cache.get(
-        newMember.guild.settings.get("mod.autobotrole", null)
+        newMember.guild.settings.get<string>("mod.autobotrole", null)
       );
       if (
         role &&
@@ -90,12 +90,14 @@ export default class GuildMemberUpdate extends Listener {
           .add(role, newMember.guild.language.get("AUTOROLE_REASON") as string)
           .catch(() => {});
     } else if (!newMember.pending) {
-      let autoroleId: string;
-      const delay = newMember.guild.settings.get(
+      const autoroleId = newMember.guild.settings.get<string>(
+        "mod.autorole",
+        null
+      );
+      const delay = newMember.guild.settings.get<boolean>(
         "mod.autorole.waitformsg",
         false
       );
-      autoroleId = newMember.guild.settings.get("mod.autorole", null);
 
       if (
         autoroleId &&
@@ -105,7 +107,10 @@ export default class GuildMemberUpdate extends Listener {
         !newMember.user.bot
       ) {
         const role = newMember.guild.roles.cache.get(autoroleId);
-        if (role && newMember.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES))
+        if (
+          role &&
+          newMember.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES)
+        )
           await newMember.roles
             .add(
               role,
@@ -168,7 +173,7 @@ export default class GuildMemberUpdate extends Listener {
   }
 
   async checkRoleUpdates(newMember: FireMember) {
-    const latestId: string = newMember.guild.settings.get(
+    const latestId = newMember.guild.settings.get<string>(
       "auditlog.member_role_update.latestid",
       "0"
     );
@@ -204,7 +209,7 @@ export default class GuildMemberUpdate extends Listener {
     // @ts-ignore
     filteredActions = filteredActions.sort((a, b) => a.id - b.id);
 
-    newMember.guild.settings.set(
+    newMember.guild.settings.set<string>(
       "auditlog.member_role_update.latestid",
       filteredActions.last()?.id
     );
@@ -228,7 +233,7 @@ export default class GuildMemberUpdate extends Listener {
   }
 
   async checkNicknameUpdates(newMember: FireMember) {
-    const latestId: string = newMember.guild.settings.get(
+    const latestId = newMember.guild.settings.get<string>(
       "auditlog.member_update.latestid",
       "0"
     );
@@ -242,7 +247,7 @@ export default class GuildMemberUpdate extends Listener {
       .catch(() => {});
     if (!auditLogActions || !auditLogActions.entries?.size) return;
 
-    const badName = newMember.guild.settings.get(
+    const badName = newMember.guild.settings.get<string>(
       "utils.badname",
       `John Doe ${newMember.user.discriminator}`
     );
@@ -273,7 +278,7 @@ export default class GuildMemberUpdate extends Listener {
     // @ts-ignore
     filteredActions = filteredActions.sort((a, b) => a.id - b.id);
 
-    newMember.guild.settings.set(
+    newMember.guild.settings.set<string>(
       "auditlog.member_update.latestid",
       filteredActions.last()?.id
     );

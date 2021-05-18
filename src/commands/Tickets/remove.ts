@@ -32,10 +32,10 @@ export default class TicketRemove extends Command {
   async exec(message: FireMessage, args: { user: FireMember }) {
     if (!args.user) return await message.error("TICKET_REMOVE_NOBODY");
     const channel = message.channel as FireTextChannel;
-    const channels = message.guild.settings.get(
+    const channels = message.guild.settings.get<string[]>(
       "tickets.channels",
       []
-    ) as string[];
+    );
     if (!channels.includes(channel.id))
       return await message.error("TICKET_NON_TICKET");
     if (

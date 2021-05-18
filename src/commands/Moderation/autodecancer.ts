@@ -19,9 +19,12 @@ export default class AutoDecancer extends Command {
   }
 
   exec(message: FireMessage) {
-    const current = message.guild.settings.get("mod.autodecancer", false);
+    const current = message.guild.settings.get<boolean>(
+      "mod.autodecancer",
+      false
+    );
 
-    message.guild.settings.set("mod.autodecancer", !current);
+    message.guild.settings.set<boolean>("mod.autodecancer", !current);
 
     return !current
       ? message.success("AUTODECANCER_ENABLED")

@@ -70,7 +70,7 @@ export default class MessageInvalid extends Listener {
       }
     }
 
-    if (!message.guild.settings.get("utils.autoquote", false)) {
+    if (!message.guild.settings.get<boolean>("utils.autoquote", false)) {
       this.cleanCommandUtil(message);
       return;
     }
@@ -179,7 +179,7 @@ export default class MessageInvalid extends Listener {
           process.env.SPECIAL_PREFIX
             ? process.env.SPECIAL_PREFIX
             : message.guild
-            ? message.guild.settings.get("main.prefix", "$")
+            ? message.guild.settings.get<string[]>("config.prefix", ["$"])[0]
             : "$"
         )
         .catch(() => {});

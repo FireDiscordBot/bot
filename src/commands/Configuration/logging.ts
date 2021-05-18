@@ -64,8 +64,8 @@ export default class Logging extends Command {
       names.includes(args.type)
     );
     const otherTypes = Object.keys(typeMapping).filter((t) => t != type);
-    const otherChannels = otherTypes.map(
-      (t) => message.guild.settings.get(`log.${t}`) as string
+    const otherChannels = otherTypes.map((t) =>
+      message.guild.settings.get<string>(`log.${t}`)
     );
     if (
       args.channel &&
@@ -85,7 +85,10 @@ export default class Logging extends Command {
     } else {
       let set: any;
       try {
-        set = await message.guild.settings.set(`log.${type}`, args.channel.id);
+        set = await message.guild.settings.set<string>(
+          `log.${type}`,
+          args.channel.id
+        );
         if (set) await message.guild.logger.refreshWebhooks().catch(() => {});
       } catch {}
       return set

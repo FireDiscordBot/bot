@@ -148,8 +148,11 @@ export default class Message extends Listener {
 
     if (!message.member || message.author.bot) return;
 
-    const autoroleId = message.guild.settings.get("mod.autorole", null);
-    const delay = message.guild.settings.get("mod.autorole.waitformsg", false);
+    const autoroleId = message.guild.settings.get<string>("mod.autorole", null);
+    const delay = message.guild.settings.get<boolean>(
+      "mod.autorole.waitformsg",
+      false
+    );
     if (autoroleId && delay && message.type == "DEFAULT") {
       const role = message.guild.roles.cache.get(autoroleId);
       if (role && !message.member.roles.cache.has(role.id))

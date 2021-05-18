@@ -30,17 +30,15 @@ export default class ModeratorOnly extends Command {
     let channels = args.channels;
     if (channels instanceof FireTextChannel) channels = [channels];
     if (!channels.length) return message.error("MODONLY_NO_CHANNELS");
-    let current = message.guild.settings.get(
-      "commands.modonly",
-      []
-    ) as string[];
+    let current = message.guild.settings.get<string[]>("commands.modonly", []);
     let modonly = [...current];
     channels.forEach((channel) => {
       if (!modonly.includes(channel.id)) modonly.push(channel.id);
       if (current.includes(channel.id))
         modonly = modonly.filter((cid) => cid != channel.id);
     });
-    if (modonly.length) message.guild.settings.set("commands.modonly", modonly);
+    if (modonly.length)
+      message.guild.settings.set<string[]>("commands.modonly", modonly);
     else message.guild.settings.delete("commands.modonly");
     let mentions: string[] = [];
     modonly.forEach((cid) => {

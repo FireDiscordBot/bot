@@ -19,9 +19,12 @@ export default class AutoDehoist extends Command {
   }
 
   exec(message: FireMessage) {
-    const current = message.guild.settings.get("mod.autodehoist", false);
+    const current = message.guild.settings.get<boolean>(
+      "mod.autodehoist",
+      false
+    );
 
-    message.guild.settings.set("mod.autodehoist", !current);
+    message.guild.settings.set<boolean>("mod.autodehoist", !current);
 
     return !current
       ? message.success("AUTODEHOIST_ENABLED")

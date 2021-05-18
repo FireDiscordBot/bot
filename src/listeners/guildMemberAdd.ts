@@ -89,16 +89,24 @@ export default class GuildMemberAdd extends Listener {
 
     if (member.user.bot) {
       const role = member.guild.roles.cache.get(
-        member.guild.settings.get("mod.autobotrole", null)
+        member.guild.settings.get<string>("mod.autobotrole", null)
       );
-      if (role && member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES))
+      if (
+        role &&
+        member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES)
+      )
         await member.roles
           .add(role, member.guild.language.get("AUTOROLE_REASON") as string)
           .catch(() => {});
     } else if (!hasScreening) {
-      let autoroleId: string;
-      const delay = member.guild.settings.get("mod.autorole.waitformsg", false);
-      autoroleId = member.guild.settings.get("mod.autorole", null);
+      const autoroleId = member.guild.settings.get<string>(
+        "mod.autorole",
+        null
+      );
+      const delay = member.guild.settings.get<boolean>(
+        "mod.autorole.waitformsg",
+        false
+      );
 
       if (
         autoroleId &&
@@ -107,7 +115,10 @@ export default class GuildMemberAdd extends Listener {
         !member.pending
       ) {
         const role = member.guild.roles.cache.get(autoroleId);
-        if (role && member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES))
+        if (
+          role &&
+          member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES)
+        )
           await member.roles
             .add(role, member.guild.language.get("AUTOROLE_REASON") as string)
             .catch(() => {});
@@ -119,7 +130,7 @@ export default class GuildMemberAdd extends Listener {
 
     if (member.guild.memberCount >= 1000) {
       const logChannelIds = logTypes.map((type) =>
-        member.guild.settings.get(`log.${type}`)
+        member.guild.settings.get<string>(`log.${type}`)
       );
       logTypes.forEach((type, index) => {
         const id = logChannelIds[index];
@@ -143,9 +154,9 @@ export default class GuildMemberAdd extends Listener {
     const language = member.guild.language;
 
     if (!member.user.bot) {
-      let joinMessage = member.guild.settings.get("greet.joinmsg") as string;
+      let joinMessage = member.guild.settings.get<string>("greet.joinmsg");
       const channel = member.guild.channels.cache.get(
-        member.guild.settings.get("greet.joinchannel")
+        member.guild.settings.get<string>("greet.joinchannel")
       );
       if (joinMessage && channel instanceof FireTextChannel) {
         const regexes = [

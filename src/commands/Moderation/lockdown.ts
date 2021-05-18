@@ -67,14 +67,14 @@ export default class Lockdown extends Command {
     }
   ) {
     if (!args.action) return await message.error("LOCKDOWN_ACTION_REQUIRED");
-    let excluded: string[] = message.guild.settings.get("mod.lockdownexcl", []);
+    let excluded = message.guild.settings.get<string[]>("mod.lockdownexcl", []);
     if (!excluded.length && args.action != "exclude")
       return await message.error("LOCKDOWN_EXCLUDE_REQUIRED");
     if (args.action == "exclude") {
       const category = await categoryChannelConverter(message, args.reason);
       if (!category) return;
       if (!excluded.includes(category.id)) excluded.push(category.id);
-      message.guild.settings.set("mod.lockdownexcl", excluded);
+      message.guild.settings.set<string[]>("mod.lockdownexcl", excluded);
       return await message.success();
     } else if (args.action == "start")
       return await this.start(message, args.reason);
@@ -103,7 +103,7 @@ export default class Lockdown extends Command {
       .setColor("#ef5350")
       .setDescription(startReason);
     let failed: string[] = [],
-      lockdownMessages: string[] = message.guild.settings.get(
+      lockdownMessages = message.guild.settings.get<string[]>(
         "mod.lockdownmessages",
         []
       );
@@ -142,8 +142,11 @@ export default class Lockdown extends Command {
           );
           failed.push(channel.toString());
         });
-    message.guild.settings.set("mod.locked", locked);
-    message.guild.settings.set("mod.lockdownmessages", lockdownMessages);
+    message.guild.settings.set<string[]>("mod.locked", locked);
+    message.guild.settings.set<string[]>(
+      "mod.lockdownmessages",
+      lockdownMessages
+    );
     if (failed.length == channels.size) await message.error();
     else {
       const end = +new Date();
@@ -158,7 +161,7 @@ export default class Lockdown extends Command {
         .then((m) => {
           if (m instanceof FireMessage) {
             lockdownMessages.push(`${message.channel.id}-${m.id}`);
-            message.guild.settings.set(
+            message.guild.settings.set<string[]>(
               "mod.lockdownmessages",
               lockdownMessages
             );
@@ -169,7 +172,7 @@ export default class Lockdown extends Command {
 
   async end(message: FireMessage, reason: string) {
     message.react("▶️").catch(() => {});
-    const locked: string[] = message.guild.settings.get("mod.locked", []);
+    const locked = message.guild.settings.get<string[]>("mod.locked", []);
     if (!locked.length) return await message.error("LOCKDOWN_END_NONE_LOCKED");
     const channels = message.guild.channels.cache.filter(
       (channel) =>
@@ -182,7 +185,7 @@ export default class Lockdown extends Command {
           .has(Permissions.FLAGS.SEND_MESSAGES) &&
         locked.includes(channel.id)
     ) as Collection<string, FireTextChannel>;
-    let lockdownMessages: string[] = message.guild.settings.get(
+    let lockdownMessages = message.guild.settings.get<string[]>(
       "mod.lockdownmessages",
       []
     );
@@ -230,7 +233,10 @@ export default class Lockdown extends Command {
     }
     message.guild.settings.delete("mod.locked");
     lockdownMessages.length
-      ? message.guild.settings.set("mod.lockdownmessages", lockdownMessages)
+      ? message.guild.settings.set<string[]>(
+          "mod.lockdownmessages",
+          lockdownMessages
+        )
       : message.guild.settings.delete("mod.lockdownmessages");
     failed.length
       ? await message.error("LOCKDOWN_END_FAIL", failed)

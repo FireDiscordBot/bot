@@ -92,7 +92,7 @@ export default class VanityURLs extends Module {
   async delete(code: FireGuild | string) {
     const original = code;
     if (code instanceof FireGuild) {
-      code.settings.set("utils.public", false);
+      code.settings.set<boolean>("utils.public", false);
       code = code.id;
     }
     const deleteResult = await this.client.db

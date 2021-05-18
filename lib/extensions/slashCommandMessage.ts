@@ -107,7 +107,7 @@ export class SlashCommandMessage {
       if (!this.guild.members.cache.has(this.member.id))
         this.guild.members.add(command.member);
     }
-    this.language = this.author?.settings.get("utils.language")
+    this.language = this.author?.settings.has("utils.language")
       ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
         ? this.guild?.language
         : this.author.language

@@ -42,6 +42,8 @@ import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
 
+type Primitive = string | boolean | number | null;
+
 const parseUntil = (time?: string) => {
   if (!time) return 0;
   if (time.includes(".")) {
@@ -98,7 +100,7 @@ export class FireGuild extends Guild {
 
   get language() {
     return this.client.getLanguage(
-      this.settings.get("utils.language", "en-US")
+      this.settings.get<string>("utils.language", "en-US")
     );
   }
 
@@ -107,7 +109,7 @@ export class FireGuild extends Guild {
   }
 
   get muteRole() {
-    const id: string = this.settings.get(
+    const id = this.settings.get<string>(
       "mod.mutedrole",
       this.roles.cache.find((role) => role.name == "Muted")?.id
     );
@@ -115,8 +117,8 @@ export class FireGuild extends Guild {
     return this.roles.cache.get(id);
   }
 
-  get logIgnored(): string[] {
-    return this.settings.get("utils.logignore", []);
+  get logIgnored() {
+    return this.settings.get<string[]>("utils.logignore", []);
   }
 
   get regions() {
@@ -162,7 +164,7 @@ export class FireGuild extends Guild {
         );
       });
     if (!role) return false;
-    this.settings.set("mod.mutedrole", role.id);
+    this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.channels.cache) {
       await channel
         .updateOverwrite(
@@ -190,7 +192,7 @@ export class FireGuild extends Guild {
       })
       .catch(() => {});
     if (!changed) return false;
-    this.settings.set("mod.mutedrole", role.id);
+    this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.channels.cache) {
       await channel
         .updateOverwrite(
@@ -548,7 +550,7 @@ export class FireGuild extends Guild {
   isPublic() {
     if (!this.available) return false;
     return (
-      this.settings.get("utils.public", false) ||
+      this.settings.get<boolean>("utils.public", false) ||
       (this.features && this.features.includes("DISCOVERABLE"))
     );
   }
@@ -619,7 +621,9 @@ export class FireGuild extends Guild {
     log: string | MessageEmbed | MessageEmbedOptions,
     type: ActionLogType
   ) {
-    const channel = this.channels.cache.get(this.settings.get("log.action"));
+    const channel = this.channels.cache.get(
+      this.settings.get<string>("log.action")
+    );
     if (!channel || channel.type != "text") return;
 
     if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
@@ -632,7 +636,7 @@ export class FireGuild extends Guild {
     type: ModLogType
   ) {
     const channel = this.channels.cache.get(
-      this.settings.get("log.moderation")
+      this.settings.get<string>("log.moderation")
     );
     if (!channel || channel.type != "text") return;
 
@@ -645,7 +649,9 @@ export class FireGuild extends Guild {
     log: string | MessageEmbed | MessageEmbedOptions,
     type: MemberLogType
   ) {
-    const channel = this.channels.cache.get(this.settings.get("log.members"));
+    const channel = this.channels.cache.get(
+      this.settings.get<string>("log.members")
+    );
     if (!channel || channel.type != "text") return;
 
     if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
@@ -662,15 +668,19 @@ export class FireGuild extends Guild {
       if (!treatment) return false;
       return Object.keys(treatment.config).every(
         (c) =>
-          this.settings.get(c, experiment.defaultConfig[c] || null) ==
-          treatment.config[c]
+          this.settings.get<Primitive | Primitive[]>(
+            c,
+            experiment.defaultConfig[c] || null
+          ) == treatment.config[c]
       );
     } else
       return experiment.treatments.some((treatment) => {
         return Object.keys(treatment.config).every(
           (c) =>
-            this.settings.get(c, experiment.defaultConfig[c] || null) ==
-            treatment.config[c]
+            this.settings.get<Primitive | Primitive[]>(
+              c,
+              experiment.defaultConfig[c] || null
+            ) == treatment.config[c]
         );
       });
   }
@@ -683,10 +693,14 @@ export class FireGuild extends Guild {
     if (!treatment) throw new Error("Invalid Treatment ID");
     Object.keys(experiment.defaultConfig).forEach(
       // Set to default before applying treatment changes
-      (c) => this.settings.set(c, experiment.defaultConfig[c])
+      (c) =>
+        this.settings.set<Primitive | Primitive[]>(
+          c,
+          experiment.defaultConfig[c]
+        )
     );
     Object.keys(treatment.config).forEach((c) =>
-      this.settings.set(c, treatment.config[c])
+      this.settings.set<Primitive | Primitive[]>(c, treatment.config[c])
     );
     return this.hasExperiment(id, treatmentId);
   }
@@ -696,7 +710,7 @@ export class FireGuild extends Guild {
     if (!experiment || experiment.kind != "guild")
       throw new Error("Experiment is not a guild experiment");
     Object.keys(experiment.defaultConfig).forEach((c) =>
-      this.settings.set(c, experiment.defaultConfig[c])
+      this.settings.set<Primitive | Primitive[]>(c, experiment.defaultConfig[c])
     );
     return this.hasExperiment(id);
   }
@@ -705,7 +719,8 @@ export class FireGuild extends Guild {
     const textChannels = this.channels.cache.filter(
       (channel) => channel.type == "text"
     );
-    return (this.settings.get("tickets.channels", []) as string[])
+    return this.settings
+      .get<string[]>("tickets.channels", [])
       .map((id) => textChannels.get(id))
       .filter((channel) => !!channel) as FireTextChannel[];
   }
@@ -721,9 +736,9 @@ export class FireGuild extends Guild {
       category ||
       (this.channels.cache
         .filter((channel) => channel.type == "category")
-        .get(this.settings.get("tickets.parent")) as CategoryChannel);
+        .get(this.settings.get<string>("tickets.parent")) as CategoryChannel);
     if (!category) return "disabled";
-    const limit = this.settings.get("tickets.limit", 1);
+    const limit = this.settings.get<number>("tickets.limit", 1);
     if (!this.ticketLock?.lock || this.ticketLock?.limit != limit)
       this.ticketLock = { lock: new Semaphore(limit), limit };
     const permits = this.ticketLock.lock.getPermits();
@@ -734,14 +749,13 @@ export class FireGuild extends Guild {
     }, 15000);
     await this.ticketLock.lock.acquire();
     locked = true;
-    let channels = (this.settings.get(
-      "tickets.channels",
-      []
-    ) as string[]).map((id) =>
-      this.channels.cache
-        .filter((channel) => channel.type == "text" && channel.id == id)
-        .get(id)
-    );
+    let channels = this.settings
+      .get<string[]>("tickets.channels", [])
+      .map((id) =>
+        this.channels.cache
+          .filter((channel) => channel.type == "text" && channel.id == id)
+          .get(id)
+      );
     if (
       channels.filter((channel: FireTextChannel) =>
         channel?.topic.includes(author.id)
@@ -752,7 +766,7 @@ export class FireGuild extends Guild {
       return "limit";
     }
     const words = (this.client.getCommand("ticket-name") as TicketName).words;
-    let increment = this.settings.get("tickets.increment", 0) as number;
+    let increment = this.settings.get<number>("tickets.increment", 0);
     const variables = {
       "{increment}": increment.toString(),
       "{name}": author.user.username,
@@ -761,15 +775,12 @@ export class FireGuild extends Guild {
       "{uuid}": uuidv4().slice(0, 4),
       "{crab}": "🦀", // CRAB IN DA CODE
     };
-    let name = this.settings.get(
-      "tickets.name",
-      "ticket-{increment}"
-    ) as string;
+    let name = this.settings.get<string>("tickets.name", "ticket-{increment}");
     for (const [key, value] of Object.entries(variables)) {
       name = name.replace(key, value);
     }
     name = name.replace(/crab/gim, "🦀");
-    this.settings.set("tickets.increment", ++increment);
+    this.settings.set<number>("tickets.increment", ++increment);
     const overwriteTheOverwrites = [
       author.id,
       this.me.id,
@@ -841,9 +852,9 @@ export class FireGuild extends Guild {
       .setTimestamp()
       .setColor(author.displayHexColor || "#ffffff")
       .addField(this.language.get("SUBJECT"), subject);
-    const description = this.settings.get("tickets.description");
+    const description = this.settings.get<string>("tickets.description");
     if (description) embed.setDescription(description);
-    const alertId = this.settings.get("tickets.alert");
+    const alertId = this.settings.get<string>("tickets.alert");
     const alert = this.roles.cache.get(alertId);
     let opener: FireMessage;
     if (alert && !author.isModerator()) {
@@ -884,7 +895,7 @@ export class FireGuild extends Guild {
       else opener = (await ticket.send(embed).catch(() => {})) as FireMessage;
     }
     channels.push(ticket);
-    this.settings.set(
+    this.settings.set<string[]>(
       "tickets.channels",
       channels.map((channel) => channel && channel.id)
     );
@@ -904,14 +915,13 @@ export class FireGuild extends Guild {
     if (author instanceof FireUser)
       author = (await this.members.fetch(author).catch(() => {})) as FireMember;
     if (!author) return "forbidden";
-    let channels = (this.settings.get(
-      "tickets.channels",
-      []
-    ) as string[]).map((id) =>
-      this.channels.cache
-        .filter((channel) => channel.type == "text" && channel.id == id)
-        .get(id)
-    );
+    let channels = this.settings
+      .get<string[]>("tickets.channels", [])
+      .map((id) =>
+        this.channels.cache
+          .filter((channel) => channel.type == "text" && channel.id == id)
+          .get(id)
+      );
     if (!channels.includes(channel)) return "nonticket";
     if (
       !author.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS) &&
@@ -920,7 +930,7 @@ export class FireGuild extends Guild {
       return "forbidden";
     channels = channels.filter((c) => c && c.id != channel.id);
     if (channels.length)
-      this.settings.set(
+      this.settings.set<string[]>(
         "tickets.channels",
         channels.map((c) => c.id)
       );
@@ -959,10 +969,10 @@ export class FireGuild extends Guild {
     }
     const log =
       (this.channels.cache.get(
-        this.settings.get("tickets.transcript_logs")
+        this.settings.get<string>("tickets.transcript_logs")
       ) as FireTextChannel) ||
       (this.channels.cache.get(
-        this.settings.get("log.action")
+        this.settings.get<string>("log.action")
       ) as FireTextChannel);
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))

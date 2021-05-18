@@ -22,7 +22,7 @@ export default class Public extends Command {
     else if (moment(new Date()).diff(message.guild.createdAt) < 2629800000)
       return await message.error("PUBLIC_GUILD_TOO_YOUNG");
 
-    const current = message.guild.settings.get("utils.public", false);
+    const current = message.guild.settings.get<boolean>("utils.public", false);
     const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
     if (vanityurls.blacklisted.includes(message.guild.id))
       return await message.error("PUBLIC_VANITY_BLACKLIST");
@@ -35,7 +35,7 @@ export default class Public extends Command {
         "PUBLIC_VANITY_REQUIRED",
         message.util.parsed.prefix
       );
-    await message.guild.settings.set("utils.public", !current);
+    await message.guild.settings.set<boolean>("utils.public", !current);
     if (!current) {
       await message.success("PUBLIC_ENABLED", vanitys.rows[0][0]);
       await message.guild.actionLog(

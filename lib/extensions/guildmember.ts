@@ -86,10 +86,10 @@ export class FireMember extends GuildMember {
     if (this.id == this.guild.ownerID) return true;
     if (channel instanceof FakeChannel) channel = channel.real;
     if (this.isAdmin(channel)) return true;
-    const moderators = this.guild.settings.get(
+    const moderators = this.guild.settings.get<string[]>(
       "utils.moderators",
       []
-    ) as string[];
+    );
     if (moderators.length) {
       if (moderators.includes(this.id)) return true;
       else if (this.roles.cache.some((role) => moderators.includes(role.id)))
@@ -128,7 +128,7 @@ export class FireMember extends GuildMember {
   }
 
   get hoisted() {
-    const badName = this.guild.settings.get(
+    const badName = this.guild.settings.get<string>(
       "utils.badname",
       `John Doe ${this.user.discriminator}`
     );
@@ -140,7 +140,7 @@ export class FireMember extends GuildMember {
   }
 
   get cancerous() {
-    const badName = this.guild.settings.get(
+    const badName = this.guild.settings.get<string>(
       "utils.badname",
       `John Doe ${this.user.discriminator}`
     );
@@ -155,9 +155,9 @@ export class FireMember extends GuildMember {
 
   async dehoist() {
     if (this.isModerator() || this.changingNick) return;
-    if (!this.guild.settings.get("mod.autodehoist")) return;
+    if (!this.guild.settings.get<boolean>("mod.autodehoist")) return;
     this.changingNick = true;
-    const badName = this.guild.settings.get(
+    const badName = this.guild.settings.get<string>(
       "utils.badname",
       `John Doe ${this.user.discriminator}`
     );
@@ -200,9 +200,9 @@ export class FireMember extends GuildMember {
 
   async decancer() {
     if (this.isModerator() || this.changingNick) return;
-    if (!this.guild.settings.get("mod.autodecancer")) return;
+    if (!this.guild.settings.get<boolean>("mod.autodecancer")) return;
     this.changingNick = true;
-    let badName = this.guild.settings.get(
+    let badName = this.guild.settings.get<string>(
       "utils.badname",
       `John Doe ${this.user.discriminator}`
     );

@@ -15,11 +15,11 @@ export default class AutoQuote extends Command {
   }
 
   async exec(message: FireMessage) {
-    const current: boolean = message.guild.settings.get(
+    const current = message.guild.settings.get<boolean>(
       "utils.autoquote",
       false
     );
-    message.guild.settings.set("utils.autoquote", !current);
+    message.guild.settings.set<boolean>("utils.autoquote", !current);
     return await message.success(
       !current ? "AUTOQUOTE_ENABLED" : "AUTOQUOTE_DISABLED"
     );

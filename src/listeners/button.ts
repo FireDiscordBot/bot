@@ -83,10 +83,9 @@ export default class Button extends Listener {
       );
       const role = button.guild?.roles.cache.get(roleId);
       if (!role || !button.guild || !button.member) return;
-      const ranks = (button.guild.settings.get(
-        "utils.ranks",
-        []
-      ) as string[]).filter((id) => button.guild.roles.cache.has(id));
+      const ranks = button.guild.settings
+        .get<string[]>("utils.ranks", [])
+        .filter((id) => button.guild.roles.cache.has(id));
       if (!ranks.includes(roleId))
         return await button.error("RANKS_MENU_INVALID_ROLE");
       const shouldRemove = button.member.roles.cache.has(roleId);

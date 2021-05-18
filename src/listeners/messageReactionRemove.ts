@@ -56,9 +56,9 @@ export default class MessageReactionRemove extends Listener {
       !user?.bot
     ) {
       const channel = guild.channels.cache.get(
-        guild.settings.get("starboard.channel")
+        guild.settings.get<string>("starboard.channel")
       ) as FireTextChannel;
-      const starboardEmoji = guild.settings.get("starboard.emoji", "⭐");
+      const starboardEmoji = guild.settings.get<string>("starboard.emoji", "⭐");
       const reactionEmoji =
         messageReaction.emoji instanceof GuildEmoji
           ? messageReaction.emoji.id

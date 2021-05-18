@@ -45,10 +45,10 @@ export default class Prefix extends Command {
 
   async exec(message: FireMessage, args: { action?: string; prefix?: string }) {
     args.prefix = args.prefix?.trim();
-    let current = message.guild.settings.get(
+    let current = message.guild.settings.get<string[]>(
       "config.prefix",
       process.env.SPECIAL_PREFIX ? [process.env.SPECIAL_PREFIX] : ["$"]
-    ) as string[];
+    );
     if (!args.action)
       return message.util?.parsed?.alias == "prefixes"
         ? await message.send("PREFIXES_CURRENT", current)
@@ -69,7 +69,7 @@ export default class Prefix extends Command {
         if (!current.length) current.push("$");
         if (current.length == 1 && current[0] == "$")
           message.guild.settings.delete("config.prefix");
-        else message.guild.settings.set("config.prefix", current);
+        else message.guild.settings.set<string[]>("config.prefix", current);
         return await message.success("PREFIX_REMOVED", current);
       } else {
         const invalid = await this.testPrefix(message, args.action);
@@ -89,7 +89,7 @@ export default class Prefix extends Command {
         if (current.length == 1 && current[0] == "$")
           message.guild.settings.delete("config.prefix");
         else
-          message.guild.settings.set(
+          message.guild.settings.set<string[]>(
             "config.prefix",
             current.filter((prefix) => !!prefix)
           );
@@ -114,7 +114,7 @@ export default class Prefix extends Command {
       if (current.length == 1 && current[0] == "$")
         message.guild.settings.delete("config.prefix");
       else
-        message.guild.settings.set(
+        message.guild.settings.set<string[]>(
           "config.prefix",
           current.filter((prefix) => !!prefix)
         );
@@ -132,7 +132,7 @@ export default class Prefix extends Command {
         if (!current.length) current.push("$");
         if (current.length == 1 && current[0] == "$")
           message.guild.settings.delete("config.prefix");
-        else message.guild.settings.set("config.prefix", current);
+        else message.guild.settings.set<string[]>("config.prefix", current);
         return await message.success("PREFIX_REMOVE", current);
       } else return await message.error("PREFIX_REMOVE_NEVER_WAS");
     }

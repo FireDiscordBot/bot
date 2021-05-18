@@ -26,22 +26,28 @@ export default class TagSlash extends Command {
 
   async exec(message: FireMessage, args: { ephemeral?: boolean }) {
     if (typeof args.ephemeral == "boolean") {
-      const current = message.guild.settings.get("tags.ephemeral", true);
-      message.guild.settings.set("tags.ephemeral", !current);
+      const current = message.guild.settings.get<boolean>(
+        "tags.ephemeral",
+        true
+      );
+      message.guild.settings.set<boolean>("tags.ephemeral", !current);
       message.guild.tags.ephemeral = !current;
       return !current
         ? await message.success("TAG_SLASH_EPHEMERAL_ENABLED")
         : await message.success("TAG_SLASH_EPHEMERAL_DISABLED");
     }
 
-    const current = message.guild.settings.get("tags.slashcommands", false);
-    message.guild.settings.set("tags.slashcommands", !current);
+    const current = message.guild.settings.get<boolean>(
+      "tags.slashcommands",
+      false
+    );
+    message.guild.settings.set<boolean>("tags.slashcommands", !current);
     if (!current) {
       message.channel.startTyping(5);
       const prepared = await message.guild.tags?.prepareSlashCommands();
       message.channel.stopTyping(true);
       if (prepared == null) {
-        message.guild.settings.set("tags.slashcommands", false);
+        message.guild.settings.set<boolean>("tags.slashcommands", false);
         return await message.error("TAG_SLASH_MISSING_ACCESS");
       } else if (!prepared) return await message.error();
       else return await message.success("TAG_SLASH_ENABLED");

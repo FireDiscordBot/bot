@@ -34,28 +34,25 @@ export default class Anti extends Command {
       const options = {
         [message.language.get(
           "ANTI_EVERYONE"
-        ) as string]: message.guild.settings.get(
+        ) as string]: message.guild.settings.get<boolean>(
           "mod.antieveryone",
           false
-        ) as boolean,
+        ),
         [message.language.get(
           "ANTI_ZWS"
-        ) as string]: message.guild.settings.get(
-          "mod.antizws",
-          false
-        ) as boolean,
+        ) as string]: message.guild.settings.get<boolean>("mod.antizws", false),
         [message.language.get(
           "ANTI_SPOILER"
-        ) as string]: message.guild.settings.get(
+        ) as string]: message.guild.settings.get<boolean>(
           "mod.antispoilers",
           false
-        ) as boolean,
+        ),
         [message.language.get(
           "ANTI_SELFBOT"
-        ) as string]: message.guild.settings.get(
+        ) as string]: message.guild.settings.get<boolean>(
           "mod.antiselfbot",
           false
-        ) as boolean,
+        ),
       };
       return await message.send(
         "ANTI_CURRENT_OPTIONS",
@@ -67,29 +64,41 @@ export default class Anti extends Command {
     // so use a switch from the get go
     switch (args.anti) {
       case "everyone": {
-        const current = message.guild.settings.get("mod.antieveryone", false);
-        message.guild.settings.set("mod.antieveryone", !current);
+        const current = message.guild.settings.get<boolean>(
+          "mod.antieveryone",
+          false
+        );
+        message.guild.settings.set<boolean>("mod.antieveryone", !current);
         return current
           ? await message.success("ANTI_EVERYONE_DISABLED")
           : await message.success("ANTI_EVERYONE_ENABLED");
       }
       case "zws": {
-        const current = message.guild.settings.get("mod.antizws", false);
-        message.guild.settings.set("mod.antizws", !current);
+        const current = message.guild.settings.get<boolean>(
+          "mod.antizws",
+          false
+        );
+        message.guild.settings.set<boolean>("mod.antizws", !current);
         return current
           ? await message.success("ANTI_ZWS_DISABLED")
           : await message.success("ANTI_ZWS_ENABLED");
       }
       case "spoiler": {
-        const current = message.guild.settings.get("mod.antispoilers", false);
-        message.guild.settings.set("mod.antispoilers", !current);
+        const current = message.guild.settings.get<boolean>(
+          "mod.antispoilers",
+          false
+        );
+        message.guild.settings.set<boolean>("mod.antispoilers", !current);
         return current
           ? await message.success("ANTI_SPOILER_DISABLED")
           : await message.success("ANTI_SPOILER_ENABLED");
       }
       case "selfbot": {
-        const current = message.guild.settings.get("mod.antiselfbot", false);
-        message.guild.settings.set("mod.antiselfbot", !current);
+        const current = message.guild.settings.get<boolean>(
+          "mod.antiselfbot",
+          false
+        );
+        message.guild.settings.set<boolean>("mod.antiselfbot", !current);
         return current
           ? await message.success("ANTI_SELFBOT_DISABLED")
           : await message.success("ANTI_SELFBOT_ENABLED");

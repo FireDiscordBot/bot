@@ -51,12 +51,13 @@ export default class LinkFilter extends Command {
     if (!args.filters || !valid.includes(args.filters))
       return await message.error("LINKFILTER_FILTER_LIST", valid);
     else {
-      let current: string[] = message.guild.settings.get("mod.linkfilter", []);
+      let current = message.guild.settings.get<string[]>("mod.linkfilter", []);
       const filter = args.filters;
       if (current.includes(filter))
         current = current.filter((f) => f != filter && valid.includes(f));
       else current.push(filter);
-      if (current.length) message.guild.settings.set("mod.linkfilter", current);
+      if (current.length)
+        message.guild.settings.set<string[]>("mod.linkfilter", current);
       else message.guild.settings.delete("mod.linkfilter");
       return await message.success(
         current.length ? "LINKFILTER_SET" : "LINKFILTER_RESET",

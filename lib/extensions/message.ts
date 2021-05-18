@@ -158,7 +158,7 @@ export class FireMessage extends Message {
         0;
     const useWebhooks =
       (!!webhook ||
-        (destination.guild as FireGuild).settings.get(
+        (destination.guild as FireGuild).settings.get<boolean>(
           "utils.quotehooks",
           true
         )) &&
@@ -380,7 +380,7 @@ export class FireMessage extends Message {
     if (!stars) return;
 
     const starboard = this.guild.channels.cache.get(
-      this.guild?.settings.get("starboard.channel")
+      this.guild?.settings.get<string>("starboard.channel")
     ) as FireTextChannel;
     if (!starboard || this.channel.id == starboard.id) return;
 
@@ -410,7 +410,7 @@ export class FireMessage extends Message {
         .catch(() => {});
     }
 
-    const minimum = this.guild.settings.get("starboard.minimum", 5);
+    const minimum = this.guild.settings.get<number>("starboard.minimum", 5);
     const emoji = messageReaction.emoji.toString();
     if (stars >= minimum) {
       if (!this.starLock) this.starLock = new Semaphore(1);
@@ -573,14 +573,14 @@ export class FireMessage extends Message {
     if (!this.member) return; // if we still don't have access to member, just ignore
 
     if (
-      this.guild.settings.get("mod.antieveryone", false) &&
+      this.guild.settings.get<boolean>("mod.antieveryone", false) &&
       (this.content.includes("@everyone") || this.content.includes("@here")) &&
       !this.member.permissions.has(Permissions.FLAGS.MENTION_EVERYONE)
     )
       return await this.delete().catch(() => {});
 
     if (
-      this.guild.settings.get("mod.antizws", false) &&
+      this.guild.settings.get<boolean>("mod.antizws", false) &&
       // some emojis use \u200d (e.g. trans flag) so we replace all unicode emoji before checking for zero width characters
       regexes.zws.test(this.content.replace(regexes.unicodeEmoji, "")) &&
       !this.member.isModerator()
@@ -591,7 +591,7 @@ export class FireMessage extends Message {
     regexes.zws.lastIndex = 0;
 
     if (
-      this.guild.settings.get("mod.antispoilers", false) &&
+      this.guild.settings.get<boolean>("mod.antispoilers", false) &&
       regexes.spoilerAbuse.test(this.content) &&
       !this.member.isModerator()
     ) {
@@ -601,7 +601,7 @@ export class FireMessage extends Message {
     regexes.spoilerAbuse.lastIndex = 0;
 
     if (
-      this.guild.settings.get("mod.antiselfbot", false) &&
+      this.guild.settings.get<boolean>("mod.antiselfbot", false) &&
       this.embeds.length &&
       this.embeds.filter(
         (embed) =>

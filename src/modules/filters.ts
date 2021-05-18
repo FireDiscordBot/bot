@@ -66,8 +66,10 @@ export default class Filters extends Module {
     if ((message && message.author.bot) || (user && user.bot)) return false;
     if (!message?.guild && !member) return false;
     if (message?.member?.isModerator() || member?.isModerator()) return false;
-    const excluded: string[] =
-      message?.guild.settings.get("excluded.filter", []) || [];
+    const excluded = message?.guild.settings.get<string[]>(
+      "excluded.filter",
+      []
+    );
     const roleIds = message
       ? message.member?.roles.cache.map((role) => role.id)
       : member?.roles.cache.map((role) => role.id);
@@ -87,7 +89,7 @@ export default class Filters extends Module {
     exclude: string[] = []
   ) {
     if (!this.shouldRun(message)) return;
-    const enabled: string[] = message.guild.settings.get("mod.linkfilter", []);
+    const enabled = message.guild.settings.get<string[]>("mod.linkfilter", []);
     if (this.debug.includes(message.guild.id) && enabled.length)
       this.client.console.warn(
         `[Filters] Running handler(s) for filters ${enabled.join(
@@ -126,7 +128,7 @@ export default class Filters extends Module {
     const enabled: string[] =
       !context || context instanceof FireUser
         ? null
-        : context.guild?.settings.get("mod.linkfilter", []);
+        : context.guild?.settings.get<string[]>("mod.linkfilter", []);
     Object.entries(this.regexes).forEach(([name, regexes]) => {
       if (enabled instanceof Array && !enabled.includes(name)) return;
       regexes.forEach((regex) => {

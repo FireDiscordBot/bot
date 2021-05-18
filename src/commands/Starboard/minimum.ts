@@ -34,14 +34,14 @@ export default class StarboardMinimum extends Command {
         : await message.success("STARBOARD_MINIMUM_RESET");
     }
 
-    message.guild.settings.set("starboard.minimum", args.minimum);
+    message.guild.settings.set<number>("starboard.minimum", args.minimum);
     this.check(message, args.minimum);
     return await message.success("STARBOARD_MINIMUM_SET", args.minimum);
   }
 
   async check(message: FireMessage, minimum: number) {
     const starboard = message.guild.channels.cache.get(
-      message.guild.settings.get("starboard.channel")
+      message.guild.settings.get<string>("starboard.channel")
     ) as FireTextChannel;
     if (!starboard) return;
     for (const [id, reactions] of message.guild.starboardReactions) {

@@ -302,8 +302,12 @@ export class Util extends ClientUtil {
     else return null;
   }
 
-  isSuperuser(user: string): boolean {
-    return this.client.userSettings.get(user, "utils.superuser", false);
+  isSuperuser(user: string) {
+    return this.client.userSettings.get<boolean>(
+      user,
+      "utils.superuser",
+      false
+    );
   }
 
   isBlacklisted(
@@ -323,7 +327,7 @@ export class Util extends ClientUtil {
     if (this.plonked.includes(user)) return true;
 
     // guild blacklist
-    if (guild?.settings.get("utils.plonked", []).includes(user)) return true;
+    if (guild?.settings.get<string[]>("utils.plonked", []).includes(user)) return true;
 
     return false;
   }

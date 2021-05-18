@@ -53,7 +53,7 @@ export default class NewTicket extends Command {
       return await creating.edit(
         `${emojis.error} ${message.language.get(
           "NEW_TICKET_LOCK",
-          message.guild.settings.get("tickets.limit", 1)
+          message.guild.settings.get<number>("tickets.limit", 1)
         )}`
       );
     else if (ticket instanceof Error)

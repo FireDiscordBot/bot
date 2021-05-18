@@ -111,7 +111,7 @@ export class ButtonMessage {
       : button.member &&
         ((client.users.cache.get(button.member.user.id) as FireUser) ||
           new FireUser(client, button.member.user));
-    this.language = this.author?.settings.get("utils.language")
+    this.language = this.author?.settings.has("utils.language")
       ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
         ? this.guild?.language
         : this.author.language

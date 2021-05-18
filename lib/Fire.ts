@@ -213,9 +213,10 @@ export class Fire extends AkairoClient {
       commandUtilLifetime: 30000,
       prefix: (message: FireMessage) => {
         if (message instanceof SlashCommandMessage) return ["/"];
-        const prefixes = message.guild?.settings.get("config.prefix", [
-          "$",
-        ]) as string[];
+        const prefixes = message.guild?.settings.get<string[]>(
+          "config.prefix",
+          ["$"]
+        );
         return process.env.SPECIAL_PREFIX
           ? [process.env.SPECIAL_PREFIX, process.env.SPECIAL_PREFIX + " "]
           : message.guild

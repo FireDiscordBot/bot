@@ -1,4 +1,4 @@
-import { Client, ResultIterator } from "ts-postgres";
+import { Client, ResultIterator, ArrayValue, Primitive } from "ts-postgres";
 import Semaphore from "semaphore-async-await";
 import { Provider } from "discord-akairo";
 import { Fire } from "@fire/lib/Fire";
@@ -65,7 +65,7 @@ export class PostgresProvider extends Provider {
     return this.items;
   }
 
-  get(id: string, key: string, defaultValue: any = null): any {
+  get<T>(id: string, key: string, defaultValue: T = null): T {
     if (this.items.has(id)) {
       const value = this.items.get(id)[key];
       return value == null ? defaultValue : value;
@@ -74,7 +74,7 @@ export class PostgresProvider extends Provider {
     return defaultValue;
   }
 
-  set(id: string, key: string, value: any): ResultIterator | boolean {
+  set<T>(id: string, key: string, value: T): ResultIterator | boolean {
     const data = this.items.get(id) || {};
     const exists = this.items.has(id);
 
@@ -96,7 +96,7 @@ export class PostgresProvider extends Provider {
       exists
         ? `UPDATE ${this.tableName} SET ${key} = $2 WHERE ${this.idColumn} = $1`
         : `INSERT INTO ${this.tableName} (${this.idColumn}, ${key}) VALUES ($1, $2)`,
-      [id, value]
+      [id, (value as unknown) as ArrayValue<Primitive>]
     );
   }
 

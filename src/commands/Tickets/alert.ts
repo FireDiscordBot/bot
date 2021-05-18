@@ -34,7 +34,7 @@ export default class TicketAlert extends Command {
       return await message.success("TICKET_ALERT_RESET");
     } else if (!args.alert) return;
     else {
-      message.guild.settings.set("tickets.alert", args.alert.id);
+      message.guild.settings.set<string>("tickets.alert", args.alert.id);
       await message.success("TICKET_ALERT_SET", args.alert.toString());
     }
   }

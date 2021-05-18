@@ -8,6 +8,8 @@ import { FireMember } from "./guildmember";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 
+type Primitive = string | boolean | number | null;
+
 export class FireUser extends User {
   settings: UserSettings;
   declare client: Fire;
@@ -19,7 +21,7 @@ export class FireUser extends User {
 
   get language() {
     return this.client.getLanguage(
-      this.settings.get("utils.language", "en-US")
+      this.settings.get<string>("utils.language", "en-US")
     );
   }
 
@@ -54,13 +56,15 @@ export class FireUser extends User {
       if (!treatment) return false;
       return Object.keys(treatment.config).every(
         (c) =>
-          this.settings.get(c, experiment.defaultConfig[c] || null) ==
-          treatment.config[c]
+          this.settings.get<Primitive | Primitive[]>(
+            c,
+            experiment.defaultConfig[c] || null
+          ) == treatment.config[c]
       );
     } else
       return experiment.treatments.some((treatment) =>
         Object.keys(treatment.config).every(
-          (c) => this.settings.get(c, null) == treatment.config[c]
+          (c) => this.settings.get<Primitive | Primitive[]>(c, null) == treatment.config[c]
         )
       );
   }
@@ -73,10 +77,10 @@ export class FireUser extends User {
     if (!treatment) throw new Error("Invalid Treatment ID");
     Object.keys(experiment.defaultConfig).forEach(
       // Set to default before applying treatment changes
-      (c) => this.settings.set(c, experiment.defaultConfig[c])
+      (c) => this.settings.set<Primitive | Primitive[]>(c, experiment.defaultConfig[c])
     );
     Object.keys(treatment.config).forEach((c) =>
-      this.settings.set(c, treatment.config[c])
+      this.settings.set<Primitive | Primitive[]>(c, treatment.config[c])
     );
     return this.hasExperiment(id, treatmentId);
   }
@@ -86,7 +90,7 @@ export class FireUser extends User {
     if (!experiment || experiment.kind != "user")
       throw new Error("Experiment is not a user experiment");
     Object.keys(experiment.defaultConfig).forEach((c) =>
-      this.settings.set(c, experiment.defaultConfig[c])
+      this.settings.set<Primitive | Primitive[]>(c, experiment.defaultConfig[c])
     );
     return this.hasExperiment(id);
   }

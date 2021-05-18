@@ -62,9 +62,9 @@ export default class MessageReactionAdd extends Listener {
       !user?.bot
     ) {
       const channel = message.guild.channels.cache.get(
-        message.guild?.settings.get("starboard.channel")
+        message.guild?.settings.get<string>("starboard.channel")
       ) as FireTextChannel;
-      const starboardEmoji = message.guild?.settings.get(
+      const starboardEmoji = message.guild?.settings.get<string>(
         "starboard.emoji",
         "⭐"
       );

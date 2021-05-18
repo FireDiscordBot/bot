@@ -51,12 +51,11 @@ export default class Rank extends Command {
   }
 
   async exec(message: FireMessage, args: { role?: Role }) {
-    let roles: string[] | Role[] = (message.guild.settings.get(
-      "utils.ranks",
-      []
-    ) as string[]).filter((id) => message.guild.roles.cache.has(id));
-    if (message.guild.settings.get("utils.ranks", []) != roles)
-      message.guild.settings.set("utils.ranks", roles);
+    let roles: string[] | Role[] = message.guild.settings
+      .get<string[]>("utils.ranks", [])
+      .filter((id) => message.guild.roles.cache.has(id));
+    if (message.guild.settings.get<string[]>("utils.ranks", []) != roles)
+      message.guild.settings.set<string[]>("utils.ranks", roles);
     if (!roles.length) return await message.error("RANKS_NONE_FOUND");
     roles = roles.map((id) => message.guild.roles.cache.get(id) as Role);
 
@@ -127,12 +126,11 @@ export default class Rank extends Command {
     member: FireMember,
     useState: boolean = true
   ) {
-    let roles: string[] | Role[] = (guild.settings.get(
-      "utils.ranks",
-      []
-    ) as string[]).filter((id) => guild.roles.cache.has(id));
-    if (guild.settings.get("utils.ranks", []) != roles)
-      guild.settings.set("utils.ranks", roles);
+    let roles: string[] | Role[] = guild.settings
+      .get<string[]>("utils.ranks", [])
+      .filter((id) => guild.roles.cache.has(id));
+    if (guild.settings.get<string[]>("utils.ranks", []) != roles)
+      guild.settings.set<string[]>("utils.ranks", roles);
     if (!roles.length) return [];
     roles = roles.map((id) => guild.roles.cache.get(id) as Role);
     const components = [{ type: ButtonType.ACTION_ROW, components: [] }];

@@ -38,19 +38,19 @@ export default class FilterExclude extends Command {
     if (typeof args.toexclude == "undefined")
       return await this.sendCurrent(message);
     else if (!args.toexclude) return;
-    let current: string[] = message.guild.settings.get("excluded.filter", []);
+    let current = message.guild.settings.get<string[]>("excluded.filter", []);
     if (current.includes(args.toexclude.id))
       current = current.filter((id) => id != args.toexclude.id);
     else current.push(args.toexclude.id);
     if (current.length)
-      await message.guild.settings.set("excluded.filter", current);
+      await message.guild.settings.set<string[]>("excluded.filter", current);
     else await message.guild.settings.delete("excluded.filter");
     return await this.sendCurrent(message, true);
   }
 
   async sendCurrent(message: FireMessage, changed: boolean = false) {
     let mentions: { [key: string]: string } = {};
-    let current: string[] = message.guild.settings.get("excluded.filter", []);
+    let current = message.guild.settings.get<string[]>("excluded.filter", []);
     for (const exclude of current) {
       if (message.guild.roles.cache.has(exclude))
         mentions[exclude] = message.guild.roles.cache.get(exclude).toString();
@@ -71,13 +71,13 @@ export default class FilterExclude extends Command {
     mentionKeys = Object.keys(mentions);
     current = current.filter((id) => !mentionKeys.includes(id));
     if (current.length) {
-      let excluded: string[] = message.guild.settings.get(
+      let excluded = message.guild.settings.get<string[]>(
         "excluded.filter",
         []
       );
       excluded = excluded.filter((id) => !current.includes(id));
       if (excluded.length)
-        await message.guild.settings.set("excluded.filter", excluded);
+        await message.guild.settings.set<string[]>("excluded.filter", excluded);
       else await message.guild.settings.delete("excluded.filter");
     }
     if (!changed)

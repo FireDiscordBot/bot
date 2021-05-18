@@ -38,13 +38,11 @@ export default class AddModerator extends Command {
       !modToAdd
     )
       return await this.getModeratorEmbed(message);
-    let current = message.guild.settings.get(
-      "utils.moderators",
-      []
-    ) as string[];
+    let current = message.guild.settings.get<string[]>("utils.moderators", []);
     if (!current.includes(modToAdd.id)) current.push(modToAdd.id);
     else current = current.filter((id) => id != modToAdd.id);
-    if (current.length) message.guild.settings.set("utils.moderators", current);
+    if (current.length)
+      message.guild.settings.set<string[]>("utils.moderators", current);
     else message.guild.settings.delete("utils.moderators");
     // prevent "reacting" on slash commands
     if (message instanceof FireMessage) await message.success();
@@ -52,10 +50,10 @@ export default class AddModerator extends Command {
   }
 
   async getModeratorEmbed(message: FireMessage) {
-    const moderators = message.guild.settings.get(
+    const moderators = message.guild.settings.get<string[]>(
       "utils.moderators",
       []
-    ) as string[];
+    );
     if (!moderators.length) return await message.error("NO_MODERATORS_SET");
     const roles = moderators.filter((id) => message.guild.roles.cache.has(id));
     const members = (
@@ -73,7 +71,10 @@ export default class AddModerator extends Command {
     ];
     let filteredModerators = moderators.filter((id) => !invalid.includes(id));
     if (moderators != filteredModerators)
-      message.guild.settings.set("utils.moderators", filteredModerators);
+      message.guild.settings.set<string[]>(
+        "utils.moderators",
+        filteredModerators
+      );
     const embed = new MessageEmbed()
       .setColor(message.member?.displayHexColor || "#ffffff")
       .addField(
