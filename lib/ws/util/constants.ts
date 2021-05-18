@@ -31,6 +31,7 @@ export enum EventType {
   UNSUBSCRIBE_USER,
   DISCORD_GUILD_MEMBER_ADD,
   DISCORD_GUILD_MEMBER_REMOVE,
+  CREATE_INVITE_DISCOVERABLE,
 }
 
 export enum WebsocketStates {

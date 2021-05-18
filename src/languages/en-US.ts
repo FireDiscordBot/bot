@@ -1025,6 +1025,8 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           "Your guild is no longer public and will no longer show on the Fire website",
         PUBLIC_DISABLED_LOG: (user: string) =>
           `${constants.emojis.statuspage.major_outage} Ths server was manually removed from Fire\'s public server list by ${user}`,
+        PUBLIC_DISCOVERABLE_INVITE:
+          'Creating invite for use on Fire\'s public servers page as this server has the "DISCOVERABLE" feature',
         PLONK_COMMAND_DESCRIPTION:
           "Make a user unable to use the best discord bot in your server",
         PLONK_FORBIDDEN: () =>
