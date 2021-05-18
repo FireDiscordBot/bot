@@ -71,7 +71,7 @@ export default class MCLogs extends Module {
   }
 
   async init() {
-    // if (this.client.config.dev) return this.remove();
+    if (this.client.config.dev) return this.remove();
     if (
       !this.client.config.hasteLogEnabled.some((guild) =>
         (this.client.options.shards as number[]).includes(
