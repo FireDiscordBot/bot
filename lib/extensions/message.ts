@@ -134,8 +134,8 @@ export class FireMessage extends Message {
     let member: FireMember;
     if (this.guild.id == destination?.guild?.id) member = quoter;
     if (
-      !this.guild.features.includes("DISCOVERABLE") ||
-      (this.guild.features.includes("DISCOVERABLE") && !isLurkable)
+      !this.guild.features?.includes("DISCOVERABLE") ||
+      (this.guild.features?.includes("DISCOVERABLE") && !isLurkable)
     ) {
       if (this.guild.id != destination?.guild.id) {
         member = (await this.guild.members
@@ -249,7 +249,7 @@ export class FireMessage extends Message {
         avatarURL: this.author.displayAvatarURL({ size: 2048, format: "png" }),
         embeds: this.embeds.filter(
           (embed) =>
-            !this.content.includes(embed.url) && !this.isImageEmbed(embed)
+            !this.content?.includes(embed.url) && !this.isImageEmbed(embed)
         ),
         files: attachments,
         allowedMentions: this.client.options.allowedMentions,
@@ -273,7 +273,9 @@ export class FireMessage extends Message {
       !embed.image &&
       !embed.author &&
       !embed.footer &&
-      embed.url == embed.thumbnail.url
+      (embed.url == embed.thumbnail.url ||
+        (embed.url.includes("imgur.com") &&
+          embed.thumbnail.url.includes("i.imgur.com")))
     );
   }
 
@@ -574,7 +576,8 @@ export class FireMessage extends Message {
 
     if (
       this.guild.settings.get<boolean>("mod.antieveryone", false) &&
-      (this.content.includes("@everyone") || this.content.includes("@here")) &&
+      (this.content?.includes("@everyone") ||
+        this.content?.includes("@here")) &&
       !this.member.permissions.has(Permissions.FLAGS.MENTION_EVERYONE)
     )
       return await this.delete().catch(() => {});
@@ -606,7 +609,7 @@ export class FireMessage extends Message {
       this.embeds.filter(
         (embed) =>
           embed.type == "rich" &&
-          (!embed.url || !this.content.includes(embed.url))
+          (!embed.url || !this.content?.includes(embed.url))
       ).length
     )
       return await this.delete().catch(() => {});
