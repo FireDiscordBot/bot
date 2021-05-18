@@ -117,7 +117,8 @@ export default class Plonk extends Command {
     if (isPlonked) current = current.filter((id) => id != args.user.id);
     else current.push(args.user.id);
 
-    message.guild.settings.set("utils.plonked", current);
+    if (current.length) message.guild.settings.set("utils.plonked", current);
+    else message.guild.settings.delete("utils.plonked");
     await message.guild.createModLogEntry(
       args.user,
       message.member,

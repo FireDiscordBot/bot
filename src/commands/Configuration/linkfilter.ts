@@ -56,7 +56,8 @@ export default class LinkFilter extends Command {
       if (current.includes(filter))
         current = current.filter((f) => f != filter && valid.includes(f));
       else current.push(filter);
-      message.guild.settings.set("mod.linkfilter", current);
+      if (current.length) message.guild.settings.set("mod.linkfilter", current);
+      else message.guild.settings.delete("mod.linkfilter");
       return await message.success(
         current.length ? "LINKFILTER_SET" : "LINKFILTER_RESET",
         current

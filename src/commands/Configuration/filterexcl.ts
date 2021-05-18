@@ -42,7 +42,9 @@ export default class FilterExclude extends Command {
     if (current.includes(args.toexclude.id))
       current = current.filter((id) => id != args.toexclude.id);
     else current.push(args.toexclude.id);
-    await message.guild.settings.set("excluded.filter", current);
+    if (current.length)
+      await message.guild.settings.set("excluded.filter", current);
+    else await message.guild.settings.delete("excluded.filter");
     return await this.sendCurrent(message, true);
   }
 
@@ -74,7 +76,9 @@ export default class FilterExclude extends Command {
         []
       );
       excluded = excluded.filter((id) => !current.includes(id));
-      await message.guild.settings.set("excluded.filter", excluded);
+      if (excluded.length)
+        await message.guild.settings.set("excluded.filter", excluded);
+      else await message.guild.settings.delete("excluded.filter");
     }
     if (!changed)
       return await message.send(

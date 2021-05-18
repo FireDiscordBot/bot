@@ -33,8 +33,14 @@ export default class CommandCommand extends Command {
       []
     ) as string[];
     if (current.includes(args.command.id)) {
-      current = current.filter((command) => command != args.command.id);
-      message.guild.settings.set("disabled.commands", current);
+      current = current.filter(
+        (command) =>
+          command != args.command.id &&
+          this.client.commandHandler.modules.has(command)
+      );
+      if (current.length)
+        message.guild.settings.set("disabled.commands", current);
+      else message.guild.settings.delete("disabled.commands");
       return await message.success("COMMAND_ENABLE", args.command.id);
     } else {
       current.push(args.command.id);

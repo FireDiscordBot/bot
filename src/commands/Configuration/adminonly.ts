@@ -40,7 +40,9 @@ export default class AdminOnly extends Command {
       if (current.includes(channel.id))
         adminonly = adminonly.filter((cid) => cid != channel.id);
     });
-    message.guild.settings.set("commands.adminonly", adminonly);
+    if (adminonly.length)
+      message.guild.settings.set("commands.adminonly", adminonly);
+    else message.guild.settings.delete("commands.adminonly");
     let mentions: string[] = [];
     adminonly.forEach((cid) => {
       const channel = message.guild.channels.cache.get(cid);

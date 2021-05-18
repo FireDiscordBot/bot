@@ -31,8 +31,10 @@ export default class LogIgnore extends Command {
     const beforeSize = current.length;
     current = current.filter((id) => message.guild.channels.cache.has(id));
     // remove deleted channels
-    if (current.length != beforeSize)
+    if (current.length != beforeSize && current.length)
       message.guild.settings.set("utils.logignore", current);
+    else if (current.length != beforeSize)
+      message.guild.settings.delete("utils.logignore");
 
     if (!args.channel) {
       current = current

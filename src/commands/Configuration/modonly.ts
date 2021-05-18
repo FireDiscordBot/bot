@@ -40,7 +40,8 @@ export default class ModeratorOnly extends Command {
       if (current.includes(channel.id))
         modonly = modonly.filter((cid) => cid != channel.id);
     });
-    message.guild.settings.set("commands.modonly", modonly);
+    if (modonly.length) message.guild.settings.set("commands.modonly", modonly);
+    else message.guild.settings.delete("commands.modonly");
     let mentions: string[] = [];
     modonly.forEach((cid) => {
       const channel = message.guild.channels.cache.get(cid);

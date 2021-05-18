@@ -919,10 +919,12 @@ export class FireGuild extends Guild {
     )
       return "forbidden";
     channels = channels.filter((c) => c && c.id != channel.id);
-    this.settings.set(
-      "tickets.channels",
-      channels.map((c) => c.id)
-    );
+    if (channels.length)
+      this.settings.set(
+        "tickets.channels",
+        channels.map((c) => c.id)
+      );
+    else this.settings.delete("tickets.channels");
     let transcript: string[] = [];
     const iterator = new MessageIterator(channel, {
       oldestFirst: true,
