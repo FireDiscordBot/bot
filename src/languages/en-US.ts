@@ -1008,6 +1008,8 @@ ${channels.join(", ")}`
         PINSADDLOG_AUTHOR: (channel: string) => `Message Pinned | ${channel}`,
         PUBLIC_COMMAND_DESCRIPTION:
           "Set your server to public allowing it to be visible on Fire's Public Servers page",
+        PUBLIC_MEMBER_COUNT_TOO_SMALL:
+          "This server does not have enough members to be set as public!",
         PUBLIC_VANITY_BLACKLIST:
           "This guild has been blacklisted from vanity features and therefore cannot be public!",
         PUBLIC_VANITY_REQUIRED: (prefix: string) =>

@@ -16,6 +16,9 @@ export default class Public extends Command {
   }
 
   async exec(message: FireMessage) {
+    if (message.guild.memberCount <= 20)
+      return await message.error("PUBLIC_MEMBER_COUNT_TOO_SMALL");
+
     const current = message.guild.settings.get("utils.public", false);
     const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
     if (vanityurls.blacklisted.includes(message.guild.id))
