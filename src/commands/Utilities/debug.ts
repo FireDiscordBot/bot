@@ -157,10 +157,8 @@ export default class Debug extends Command {
       details.push(`${error} ${message.language.get("DEBUG_REQUIRES_PERMS")}`);
     else details.push(`${success} ${message.language.get("DEBUG_PERMS_PASS")}`);
 
-    const disabledCommands = message.guild?.settings.get<string[]>(
-      "disabled.commands",
-      []
-    );
+    const disabledCommands =
+      message.guild?.settings.get<string[]>("disabled.commands", []) ?? [];
 
     if (disabledCommands.includes(cmd.id)) {
       if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
