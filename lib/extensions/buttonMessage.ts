@@ -32,6 +32,7 @@ import {
   Button,
   ActionRow,
 } from "../interfaces/interactions";
+import { APIMessage as DiscordAPIMessage } from "discord-api-types";
 import { FireTextChannel } from "./textchannel";
 import { constants } from "../util/constants";
 import { Language } from "../util/language";
@@ -142,7 +143,7 @@ export class ButtonMessage {
     options?: (MessageOptions | MessageAdditions) & {
       buttons?: APIComponent[];
     }
-  ): Promise<FireMessage> {
+  ): Promise<FireMessage | void> {
     if (channel instanceof FireMessage) channel = channel.channel;
     let apiMessage: APIMessage;
 
@@ -183,9 +184,9 @@ export class ButtonMessage {
 
     return await (channel.client as Fire).req
       .channels(channel.id)
-      .messages.post({ data, files })
+      .messages.post<DiscordAPIMessage>({ data, files })
       .then(
-        (d: any) =>
+        (d) =>
           // @ts-ignore
           channel.client.actions.MessageCreate.handle(d).message as FireMessage
       )
@@ -243,8 +244,8 @@ export class ButtonMessage {
     return await (message.client as Fire).req
       .channels(message.channel.id)
       .messages(message.id)
-      .patch({ data, files })
-      .then((d: any) => {
+      .patch<DiscordAPIMessage>({ data, files })
+      .then((d) => {
         // @ts-ignore
         const clone = message._clone();
         clone._patch(d);
@@ -346,9 +347,9 @@ export class ButtonMessage {
       const message = await this.client.req
         .webhooks(this.client.user.id, this.button.token)
         .messages(messageId)
-        .get()
+        .get<DiscordAPIMessage>()
         .catch(() => {});
-      messageId = message?.id;
+      if (message) messageId = message.id;
     }
 
     const message = (await this.realChannel.messages
@@ -591,13 +592,13 @@ export class FakeChannel {
     else {
       const message = await this.client.req
         .webhooks(this.client.user.id)(this.token)
-        .post({
+        .post<DiscordAPIMessage>({
           data,
           files,
           query: { wait: true },
         })
         .catch(() => {});
-      if (message?.id && this.message.latestResponse == "@original")
+      if (message && message.id && this.message.latestResponse == "@original")
         this.message.latestResponse = message.id;
       else this.message.latestResponse = "@original";
     }

@@ -33,6 +33,7 @@ import {
   ButtonType,
   ActionRow,
 } from "@fire/lib/interfaces/interactions";
+import { APIMessage as DiscordAPIMessage } from "discord-api-types";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
@@ -550,16 +551,17 @@ export class FakeChannel {
     } else {
       const message = await this.client.req
         .webhooks(this.client.user.id)(this.token)
-        .post({
+        .post<DiscordAPIMessage>({
           data,
           files,
           query: { wait: true },
         })
-        .then(() => {
+        .then((message) => {
           this.message.sent = "message";
+          return message;
         })
         .catch(() => {});
-      if (message?.id) this.message.latestResponse = message.id;
+      if (message && message.id) this.message.latestResponse = message.id;
     }
     this.message.getRealMessage().catch(() => {});
     return this.message;

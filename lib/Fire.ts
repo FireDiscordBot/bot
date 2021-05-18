@@ -350,9 +350,8 @@ export class Fire extends AkairoClient {
     this.buttonHandlersOnce = new Collection();
   }
 
-  get req(): any {
-    // @ts-ignore
-    return this.api;
+  get req() {
+    return this.restManager.api;
   }
 
   get restManager(): RESTManager {

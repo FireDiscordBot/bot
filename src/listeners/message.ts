@@ -6,6 +6,7 @@ import Filters from "@fire/src/modules/filters";
 import MCLogs from "@fire/src/modules/mclogs";
 import Sk1er from "@fire/src/modules/sk1er";
 import * as centra from "centra";
+import { APIMessage } from "discord-api-types";
 
 const { regexes } = constants;
 const tokenExtras = /(?:(?:  )?',(?: ')?\n?|  '|\s|\n)/gim;
@@ -129,7 +130,7 @@ export default class Message extends Listener {
     ) {
       const dataminingMessage = await this.client.req
         .channels("731330454422290463")
-        .messages.post({
+        .messages.post<APIMessage>({
           data: {
             embed: message.embeds[0].toJSON(),
           },
@@ -139,7 +140,11 @@ export default class Message extends Listener {
             `[Listener] Failed to post datamining message\n${e.stack}`
           );
         });
-      if (dataminingMessage?.id && message.embeds[0].title.includes("comment"))
+      if (
+        dataminingMessage &&
+        dataminingMessage.id &&
+        message.embeds[0].title.includes("comment")
+      )
         await this.client.req
           .channels("731330454422290463")
           .messages(dataminingMessage.id)

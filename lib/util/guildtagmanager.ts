@@ -1,5 +1,8 @@
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { Option } from "@fire/lib/interfaces/interactions";
+import {
+  APIApplicationCommand,
+  Option,
+} from "@fire/lib/interfaces/interactions";
 import { DiscordAPIError, Collection } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
@@ -116,17 +119,11 @@ export class GuildTagManager {
 
     this.ephemeral = this.guild.settings.get<boolean>("tags.ephemeral", true);
 
-    let current: {
-      id: string;
-      application_id: string;
-      name: string;
-      description: string;
-      options?: Option[];
-    }[] = await this.client.req
+    let current = (await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
-      .commands.get()
-      .catch((e: DiscordAPIError) => e);
+      .commands.get<APIApplicationCommand[]>()
+      .catch((e: DiscordAPIError) => e)) as APIApplicationCommand[];
 
     if (current instanceof DiscordAPIError && current.code == 50001) {
       // hasn't authorized applications.commands
@@ -220,17 +217,11 @@ export class GuildTagManager {
   }
 
   async removeSlashCommands() {
-    let current: {
-      id: string;
-      application_id: string;
-      name: string;
-      description: string;
-      options?: Option[];
-    }[] = await this.client.req
+    let current = (await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
-      .commands.get()
-      .catch((e: DiscordAPIError) => e);
+      .commands.get<APIApplicationCommand[]>()
+      .catch((e: DiscordAPIError) => e)) as APIApplicationCommand[];
 
     if (current instanceof DiscordAPIError && current.code == 50001) {
       // hasn't authorized applications.commands
@@ -349,16 +340,15 @@ export class GuildTagManager {
     const commandRaw = await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
-      .commands.post({ data: command })
-      .catch((e) => e);
-    if (commandRaw?.id) this.slashCommands[commandRaw.id] = tag;
-    else {
+      .commands.post<APIApplicationCommand>({ data: command })
+      .catch((e: DiscordAPIError) => e);
+    if (commandRaw instanceof Error) {
       if (commandRaw.httpStatus != 403 && commandRaw.code != 50001)
         this.client.console.warn(
           `[Commands] Failed to register slash command for tag "${tag}" in guild ${this.guild.name}`,
           commandRaw
         );
-    }
+    } else if (commandRaw?.id) this.slashCommands[commandRaw.id] = tag;
   }
 
   async deleteTag(name: string) {
