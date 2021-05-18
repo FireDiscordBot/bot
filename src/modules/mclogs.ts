@@ -71,7 +71,7 @@ export default class MCLogs extends Module {
   }
 
   async init() {
-    if (this.client.config.dev) return this.remove();
+    // if (this.client.config.dev) return this.remove();
     if (
       !this.client.config.hasteLogEnabled.some((guild) =>
         (this.client.options.shards as number[]).includes(
@@ -101,7 +101,7 @@ export default class MCLogs extends Module {
 
     for (const [err, sol] of Object.entries(this.solutions.solutions)) {
       if (log.includes(err) && !currentSolutions.includes(`- ${sol}`))
-        currentSolutions.push(`- ${sol}`);
+        currentSolutions.push(`- **${sol}**`);
     }
     if (
       log.includes("OptiFine_1.8.9_HD_U") &&
