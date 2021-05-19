@@ -5,6 +5,7 @@ import {
   DeconstructedSnowflake,
   GuildMemberResolvable,
   AwaitMessagesOptions,
+  PermissionOverwrites,
   CommandInteraction,
   MessageEditOptions,
   MessageResolvable,
@@ -371,7 +372,6 @@ export class SlashCommandMessage {
 export class FakeChannel {
   real: FireTextChannel | NewsChannel | DMChannel;
   message: SlashCommandMessage;
-  messages: MessageManager;
   guild?: FireGuild;
   token: string;
   client: Fire;
@@ -389,7 +389,6 @@ export class FakeChannel {
     this.token = token;
     this.client = client;
     this.message = message;
-    this.messages = real?.messages;
 
     if (!(real instanceof DMChannel) && real?.guild)
       this.guild = real.guild as FireGuild;
@@ -398,6 +397,16 @@ export class FakeChannel {
 
   get flags() {
     return this.message.flags;
+  }
+
+  get permissionOverwrites() {
+    return this.real instanceof DMChannel
+      ? new Collection<string, PermissionOverwrites>()
+      : this.real.permissionOverwrites;
+  }
+
+  get messages() {
+    return this.real.messages;
   }
 
   toString() {
