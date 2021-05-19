@@ -871,7 +871,7 @@ export class FireGuild extends Guild {
               emoji: { id: "534174796938870792" },
             },
           ],
-        });
+        }).catch(() => {});
       else
         opener = (await ticket
           .send(alert.toString(), {
@@ -891,7 +891,7 @@ export class FireGuild extends Guild {
               emoji: { id: "534174796938870792" },
             },
           ],
-        });
+        }).catch(() => {});
       else opener = (await ticket.send(embed).catch(() => {})) as FireMessage;
     }
     channels.push(ticket);

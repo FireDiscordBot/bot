@@ -148,7 +148,8 @@ export default class Message extends Listener {
         await this.client.req
           .channels("731330454422290463")
           .messages(dataminingMessage.id)
-          .crosspost.post();
+          .crosspost.post<void>()
+          .catch(() => {});
     }
 
     if (!message.member || message.author.bot) return;

@@ -143,7 +143,7 @@ export class ButtonMessage {
     options?: (MessageOptions | MessageAdditions) & {
       buttons?: APIComponent[];
     }
-  ): Promise<FireMessage | void> {
+  ): Promise<FireMessage> {
     if (channel instanceof FireMessage) channel = channel.channel;
     let apiMessage: APIMessage;
 
@@ -189,8 +189,7 @@ export class ButtonMessage {
         (d) =>
           // @ts-ignore
           channel.client.actions.MessageCreate.handle(d).message as FireMessage
-      )
-      .catch(() => {});
+      );
   }
 
   // temp helper function

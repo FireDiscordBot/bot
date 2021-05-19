@@ -344,7 +344,7 @@ export class PaginatorInterface {
         {
           buttons: this.getButtons(),
         }
-      )) as FireMessage;
+      ).catch(() => {})) as FireMessage;
     if (message instanceof SlashCommandMessage) {
       this.slashMessage = message;
       this.message = await message.getRealMessage();

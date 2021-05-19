@@ -126,7 +126,8 @@ export default class User extends Command {
     const badges = this.getBadges(user, message.author, message.guild);
     const info = this.getInfo(message, member ? member : user);
     let application: Exclude<APIApplication, "rpc_origins" | "owner" | "team">;
-    if (user.bot) application = await this.getApplication(user.id);
+    if (user.bot)
+      application = await this.getApplication(user.id).catch(() => null);
     const embed = new MessageEmbed()
       .setColor(color)
       .setTimestamp()
@@ -403,13 +404,9 @@ export default class User extends Command {
   }
 
   async getApplication(id: string) {
-    return (await this.client.req
+    return await this.client.req
       .applications(id)
-      .rpc.get()
-      .catch(() => {})) as Exclude<
-      APIApplication,
-      "rpc_origins" | "owner" | "team"
-    >;
+      .rpc.get<Exclude<APIApplication, "rpc_origins" | "owner" | "team">>();
   }
 
   async getKsoftBan(message: FireMessage, user: FireUser) {

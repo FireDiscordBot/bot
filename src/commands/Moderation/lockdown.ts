@@ -247,6 +247,6 @@ export default class Lockdown extends Command {
     await this.client.req
       .channels(channel)
       .messages(message)
-      .delete({ reason });
+      .delete<void>({ reason });
   }
 }

@@ -66,7 +66,7 @@ export default class CloseTicket extends Command {
         message.channel,
         `${emojis.error} ${message.language.get("TICKET_WILL_CLOSE_BUTTON")}`,
         buttonOptions
-      );
+      ).catch(() => {});
     else if (message instanceof SlashCommandMessage) {
       // if ((message.flags & 64) != 64)
       //   (message as SlashCommandMessage).flags += 64;
