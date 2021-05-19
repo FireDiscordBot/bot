@@ -305,6 +305,10 @@ export default class Filters extends Module {
         )
         .setFooter(message.author.id);
       if (invite) {
+        if (invite.guild.description.length + embed.description.length < 2000)
+          embed.setDescription(
+            embed.description + `\n\n${invite.guild.description}`
+          );
         embed
           .addField(
             message.guild.language.get("FILTER_INVITE_LOG_CODE"),
