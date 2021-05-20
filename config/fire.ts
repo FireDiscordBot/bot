@@ -58,6 +58,7 @@ export const fire = {
     "XYZenix",
     "RedDaedalus",
     "justsomederpystuff",
+    "webtax-gh",
   ],
   inviteLink: process.env.INVITE_SUFFIX
     ? `https://inv.wtf/${process.env.INVITE_SUFFIX}`
