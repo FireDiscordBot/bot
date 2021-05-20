@@ -29,7 +29,7 @@ export default class ClearWarnings extends Command {
     message: FireMessage,
     args: { userOrCaseID: FireMember | string }
   ) {
-    if (!args.userOrCaseID) return await message.error("");
+    if (!args.userOrCaseID) return await message.error();
     else if (
       args.userOrCaseID instanceof FireMember &&
       args.userOrCaseID.isModerator(message.channel) &&

@@ -467,6 +467,7 @@ Make sure I have permission to manage roles`,
         DESC_RESET: "Successfully reset guild description!",
         DEEPFRY_COMMAND_DESCRIPTION:
           "Deepfry an image or your avatar (your avatar is used if no argument is provided)",
+        DEEPFRY_TOO_LARGE: "The image is too large",
         DEEPFRY_UPLOAD_FAIL: "Deepfry machine broke :(",
         DISCOVER_COMMAND_DESCRIPTION: "Links to Fire's public servers page",
         DISCOVER_MESSAGE: `You can find Fire\'s public server list at <${constants.url.discovery}>
@@ -878,6 +879,7 @@ ${channels.join(", ")}`
         MAKEAMEME_NO_IMAGE:
           "You need to provide an image url or attach an image to make a meme",
         MAKEAMEME_NO_TEXT: "You must provide text separated by **|**",
+        MAKEAMEME_TOO_LARGE: "The meme is too spicy for me to upload",
         MAKEAMEME_UPLOAD_FAIL: "Failed to upload spicy meme :(",
         MEMBERJOIN_LOG_AUTHOR: (member: string) => `Member Join | ${member}`,
         MEMBERJOIN_LOG_PREMIUM_UPSELL_TITLE:

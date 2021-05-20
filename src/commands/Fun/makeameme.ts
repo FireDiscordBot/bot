@@ -63,13 +63,13 @@ export default class MakeAMeme extends Command {
     if (memeReq.statusCode != 200) return await message.error();
     else {
       const meme = memeReq.body;
+      if (meme.byteLength >= 8e6)
+        return await message.error("MAKEAMEME_TOO_LARGE");
       return await message.channel
-        .send("", {
-          files: [{ attachment: meme, name: `spicymeme.png` }],
+        .send(null, {
+          files: [{ attachment: meme, name: "spicymeme.png" }],
         })
-        .catch(async (reason) => {
-          return await message.error("MAKEAMEME_UPLOAD_FAIL");
-        });
+        .catch(() => message.error("MAKEAMEME_UPLOAD_FAIL"));
     }
   }
 }
