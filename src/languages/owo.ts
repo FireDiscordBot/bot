@@ -13,8 +13,10 @@ export default class owo extends Language {
         INVALID_MEMBER_ID: "Channew not found! Twy use an ID instead.",
         INVALID_CHANNEL_ID: "Channew not found! Make suwe the ID is vawid.",
         INVALID_ROLE_ID: "Wowe not found! Make suwe the ID is vawid.",
-        INVALID_SNOWFLAKE:
+        INVALID_SNOWFLAKE_USER:
           "Usew not found and awgument is not a vawid snowfwake. Twy using an ID if you want to find a usew.",
+        INVALID_SNOWFLAKE_GUILD:
+          "Guiwd nyot found ow awgument is nyot a vawid snyowfwake. Make suwe the ID is cowwect and twy again.",
         INVALID_MEMBER_ROLE_CHANNEL:
           "That is not a vawid membew, wowe ow channew. Make suwe the name ow ID you'we pwoviding is vawid.",
         INVALID_MESSAGE:

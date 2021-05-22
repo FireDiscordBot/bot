@@ -59,15 +59,17 @@ export const snowflakeConverter = async (
 ): Promise<({ snowflake: string } & DeconstructedSnowflake) | null> => {
   if (!argument) return;
 
+  const type = message.util?.parsed?.command?.id == "guild" ? "GUILD" : "USER";
+
   const snowflake = getIDMatch(argument.trim());
   if (!snowflake) {
-    if (!silent) await message.error("INVALID_SNOWFLAKE");
+    if (!silent) await message.error(`INVALID_SNOWFLAKE_${type}`);
     return null;
   }
 
   const deconstructed = SnowflakeUtil.deconstruct(snowflake);
   if (deconstructed.timestamp < 1420070400000) {
-    if (!silent) await message.error("INVALID_SNOWFLAKE");
+    if (!silent) await message.error(`INVALID_SNOWFLAKE_${type}`);
     return null;
   }
 

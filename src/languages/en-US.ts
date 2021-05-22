@@ -16,8 +16,10 @@ export default class enUS extends Language {
         INVALID_MEMBER_ID: "Member not found! Make sure the ID is valid.",
         INVALID_CHANNEL_ID: "Channel not found! Make sure the ID is valid.",
         INVALID_ROLE_ID: "Role not found! Make sure the ID is valid.",
-        INVALID_SNOWFLAKE:
+        INVALID_SNOWFLAKE_USER:
           "User not found and argument is not a valid snowflake. Try using an ID if you want to find a user.",
+        INVALID_SNOWFLAKE_GUILD:
+          "Guild not found or argument is not a valid snowflake. Make sure the ID is correct and try again.",
         INVALID_MEMBER_ROLE_CHANNEL:
           "That is not a valid member, role or channel. Make sure the name or ID you're providing is valid.",
         INVALID_MESSAGE:
