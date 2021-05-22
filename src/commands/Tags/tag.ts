@@ -36,7 +36,7 @@ export default class Tag extends Command {
       );
       return await this.client.commandHandler.handle(message);
     }
-    if (["dtag", "dtags"].includes(message.util?.parsed?.alias))
+    if (["dtag", "dtags"].includes(message.util?.parsed?.alias.toLowerCase()))
       message.delete();
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(args.tag);
