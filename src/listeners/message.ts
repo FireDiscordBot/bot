@@ -1,12 +1,11 @@
-import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
+import { APIMessage } from "discord-api-types";
 import MCLogs from "@fire/src/modules/mclogs";
 import Sk1er from "@fire/src/modules/sk1er";
 import * as centra from "centra";
-import { APIMessage } from "discord-api-types";
 
 const { regexes } = constants;
 const tokenExtras = /(?:(?:  )?',(?: ')?\n?|  '|\s|\n)/gim;
