@@ -69,7 +69,7 @@ export default class TagInfo extends Command {
     if (cachedTag.uses)
       embed.addField(message.language.get("TAG_USES"), cachedTag.uses);
 
-    if (message.guild.hasExperiment("OQv4baDP7A_Pk60M9zYR9", 1))
+    if (message.guild.hasExperiment(1781045144, 1))
       return await ButtonMessage.sendWithButtons(message.channel, embed, {
         buttons: this.getInitialButtons(message, cachedTag),
       });

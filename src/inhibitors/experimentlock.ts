@@ -21,7 +21,7 @@ export default class ExperimentLockInhibitor extends Inhibitor {
         experiment.kind == "user" &&
         !message.author.hasExperiment(
           experiment.id,
-          requiresExperiment.treatmentId
+          requiresExperiment.bucket
         )
       )
         return true;
@@ -30,7 +30,7 @@ export default class ExperimentLockInhibitor extends Inhibitor {
         (!message.guild ||
           !message.guild?.hasExperiment(
             experiment.id,
-            requiresExperiment.treatmentId
+            requiresExperiment.bucket
           ))
       )
         return true;

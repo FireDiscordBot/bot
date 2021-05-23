@@ -6,20 +6,10 @@
 
 export interface Experiment {
   kind: "user" | "guild";
-  id: string;
-  label: string;
-  defaultConfig: Config;
-  treatments: Treatment[];
-}
-
-export interface Config {
-  [key: string]: boolean;
-}
-
-export interface Treatment {
   id: number;
   label: string;
-  config: Config;
+  buckets: number[];
+  data: [string, number][];
 }
 
 export interface BuildOverride {

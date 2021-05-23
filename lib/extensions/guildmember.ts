@@ -115,16 +115,16 @@ export class FireMember extends GuildMember {
     return await this.client.util.unblacklist(this);
   }
 
-  hasExperiment(id: string, treatmentId?: number) {
-    return this.user.hasExperiment(id, treatmentId);
+  hasExperiment(id: number, bucket: number) {
+    return this.user.hasExperiment(id, bucket);
   }
 
-  giveExperiment(id: string, treatmentId: number) {
-    return this.user.giveExperiment(id, treatmentId);
+  giveExperiment(id: number, bucket: number) {
+    return this.user.giveExperiment(id, bucket);
   }
 
-  removeExperiment(id: string) {
-    return this.user.removeExperiment(id);
+  removeExperiment(id: number, bucket: number) {
+    return this.user.removeExperiment(id, bucket);
   }
 
   get hoisted() {

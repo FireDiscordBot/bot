@@ -304,35 +304,13 @@ export default class User extends Command {
   }
 
   getBadges(user: FireUser, author: FireMember | FireUser, guild?: FireGuild) {
-    const bad = author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
-    const bread = author?.hasExperiment("w4y3qODd79XgvqjA_It3Z", 1);
-    const hannahMontana = // you get the best of both worlds, bread + badly drawn
-      author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 3) ||
-      author?.hasExperiment("w4y3qODd79XgvqjA_It3Z", 3);
     const flags = user.flags?.toArray() || [];
     let emojis: string[] = [];
-    if (guild && guild.ownerID == user.id)
-      emojis.push(
-        hannahMontana
-          ? badlyDrawnBreadBadges["OWNER"]
-          : bad
-          ? badlyDrawnBadges["OWNER"]
-          : bread
-          ? breadBadges["OWNER"]
-          : badges["OWNER"]
-      );
+    if (guild && guild.ownerID == user.id) emojis.push(badges["OWNER"]);
     emojis.push(
       ...Object.keys(badges)
         .filter((badge: UserFlagsString) => flags.includes(badge))
-        .map((badge) =>
-          hannahMontana
-            ? badlyDrawnBreadBadges[badge]
-            : bad
-            ? badlyDrawnBadges[badge]
-            : bread
-            ? breadBadges[badge]
-            : badges[badge]
-        )
+        .map((badge) => badges[badge])
     );
     if (user.isSuperuser()) emojis.push(badges.FIRE_ADMIN);
     if (user.premium) emojis.push(badges.FIRE_PREMIUM);

@@ -85,7 +85,7 @@ export default class Rank extends Command {
               }) as string)
             : undefined
         );
-      if (!message.guild.hasExperiment("OQv4baDP7A_Pk60M9zYR9", 1))
+      if (!message.guild.hasExperiment(1781045144, 1))
         return await message.channel.send(embed);
       else delete embed.description;
       const components = Rank.getRankButtons(

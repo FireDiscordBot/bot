@@ -80,7 +80,7 @@ export default class Debug extends Command {
         experiment.kind == "user" &&
         !message.author.hasExperiment(
           experiment.id,
-          requiresExperiment.treatmentId
+          requiresExperiment.bucket
         )
       )
         return await this.sendSingleError(
@@ -92,7 +92,7 @@ export default class Debug extends Command {
         (!message.guild ||
           !message.guild?.hasExperiment(
             experiment.id,
-            requiresExperiment.treatmentId
+            requiresExperiment.bucket
           ))
       )
         return await this.sendSingleError(

@@ -37,7 +37,6 @@ import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
 import { languageTypeCaster } from "@fire/src/arguments/language";
 import { listenerTypeCaster } from "@fire/src/arguments/listener";
 import GuildCheckEvent from "@fire/src/ws/events/GuildCheckEvent";
-import { Experiment, Treatment } from "./interfaces/experiments";
 import { booleanTypeCaster } from "@fire/src/arguments/boolean";
 import { commandTypeCaster } from "@fire/src/arguments/command";
 import { messageTypeCaster } from "@fire/src/arguments/message";
@@ -50,6 +49,7 @@ import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandhandler";
 import { Module, ModuleHandler } from "./util/module";
 import { FireMember } from "./extensions/guildmember";
+import { Experiment } from "./interfaces/experiments";
 import { MessageUtil } from "./ws/util/MessageUtil";
 import { APIGuildMember } from "discord-api-types";
 import { FireMessage } from "./extensions/message";
@@ -101,7 +101,7 @@ export class Fire extends AkairoClient {
   buttonHandlers: Collection<string, ButtonHandler>;
 
   // Common Attributes
-  experiments: Collection<string, Experiment>;
+  experiments: Collection<number, Experiment>;
   aliases: Collection<string, string[]>;
   declare user: FireUser & ClientUser;
   cacheSweepTask: NodeJS.Timeout;
@@ -448,16 +448,22 @@ export class Fire extends AkairoClient {
     if (!experiments) return;
     for await (const experiment of experiments) {
       const data: Experiment = {
-        id: experiment.get("id") as string,
+        id: experiment.get("id") as number,
         kind: experiment.get("kind") as "user" | "guild",
         label: experiment.get("label") as string,
-        defaultConfig: experiment.get("defaultconfig") as {
-          [key: string]: any;
-        },
-        treatments: (experiment.get("treatments") as unknown) as Treatment[],
+        buckets: experiment.get("buckets") as number[],
+        data: (experiment.get("data") ?? []) as [string, number][],
       };
       this.experiments.set(data.id, data);
     }
+  }
+
+  refreshExperiments() {
+    this.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(EventType.RELOAD_EXPERIMENTS, this.experiments.array())
+      )
+    );
   }
 
   async loadAliases() {

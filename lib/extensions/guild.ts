@@ -659,60 +659,44 @@ export class FireGuild extends Guild {
     else return await this.logger.handleMembers(log, type);
   }
 
-  hasExperiment(id: string, treatmentId?: number) {
+  hasExperiment(id: number, bucket: number) {
     // if (this.client.config.dev) return true;
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "guild") return false;
-    if (treatmentId != undefined) {
-      const treatment = experiment.treatments.find((t) => t.id == treatmentId);
-      if (!treatment) return false;
-      return Object.keys(treatment.config).every(
-        (c) =>
-          this.settings.get<Primitive | Primitive[]>(
-            c,
-            experiment.defaultConfig[c] || null
-          ) == treatment.config[c]
-      );
-    } else
-      return experiment.treatments.some((treatment) => {
-        return Object.keys(treatment.config).every(
-          (c) =>
-            this.settings.get<Primitive | Primitive[]>(
-              c,
-              experiment.defaultConfig[c] || null
-            ) == treatment.config[c]
-        );
-      });
+    return !!experiment.data.find(([i, b]) => i == this.id && b == bucket);
   }
 
-  giveExperiment(id: string, treatmentId: number) {
+  async giveExperiment(id: number, bucket: number) {
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "guild")
       throw new Error("Experiment is not a guild experiment");
-    const treatment = experiment.treatments.find((t) => t.id == treatmentId);
-    if (!treatment) throw new Error("Invalid Treatment ID");
-    Object.keys(experiment.defaultConfig).forEach(
-      // Set to default before applying treatment changes
-      (c) =>
-        this.settings.set<Primitive | Primitive[]>(
-          c,
-          experiment.defaultConfig[c]
-        )
-    );
-    Object.keys(treatment.config).forEach((c) =>
-      this.settings.set<Primitive | Primitive[]>(c, treatment.config[c])
-    );
-    return this.hasExperiment(id, treatmentId);
+    if (!experiment.buckets.includes(bucket)) throw new Error("Invalid Bucket");
+    experiment.data = experiment.data.filter(([i]) => i != this.id);
+    experiment.data.push([this.id, bucket]);
+    await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
+      experiment.data?.length ? experiment.data : null,
+      experiment.id,
+    ]);
+    this.client.experiments.set(experiment.id, experiment);
+    this.client.refreshExperiments();
+    return this.hasExperiment(id, bucket);
   }
 
-  removeExperiment(id: string) {
+  async removeExperiment(id: number, bucket: number) {
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "guild")
       throw new Error("Experiment is not a guild experiment");
-    Object.keys(experiment.defaultConfig).forEach((c) =>
-      this.settings.set<Primitive | Primitive[]>(c, experiment.defaultConfig[c])
+    const b = experiment.data.length;
+    experiment.data = experiment.data.filter(
+      ([i, b]) => i != this.id && b != bucket
     );
-    return this.hasExperiment(id);
+    if (b == experiment.data.length) return !this.hasExperiment(id, bucket);
+    await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
+      experiment.data?.length ? experiment.data : null,
+      experiment.id,
+    ]);
+    this.client.experiments.set(experiment.id, experiment);
+    return !this.hasExperiment(id, bucket);
   }
 
   get tickets() {
@@ -858,7 +842,7 @@ export class FireGuild extends Guild {
     const alert = this.roles.cache.get(alertId);
     let opener: FireMessage;
     if (alert && !author.isModerator()) {
-      if (this.hasExperiment("OQv4baDP7A_Pk60M9zYR9"))
+      if (this.hasExperiment(1781045144, 1))
         ButtonMessage.sendWithButtons(ticket, alert.toString(), {
           allowedMentions: { roles: [alertId] },
           embed,
@@ -880,7 +864,7 @@ export class FireGuild extends Guild {
           })
           .catch(() => {})) as FireMessage;
     } else {
-      if (this.hasExperiment("OQv4baDP7A_Pk60M9zYR9"))
+      if (this.hasExperiment(1781045144, 1))
         ButtonMessage.sendWithButtons(ticket, embed, {
           buttons: [
             {
