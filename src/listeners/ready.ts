@@ -81,6 +81,8 @@ export default class Ready extends Listener {
         await guild.tags.prepareSlashCommands();
     }
 
+    if (process.env.USE_LITECORD) return;
+
     const slashCommands = await this.client.application.commands.fetch();
 
     if (slashCommands?.size) {
