@@ -62,7 +62,7 @@ export class FireUser extends User {
     experiment.data.filter(([i]) => i != this.id).push([this.id, bucket]);
     await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
       experiment.data?.length ? experiment.data : null,
-      experiment.id,
+      BigInt(experiment.id),
     ]);
     this.client.experiments.set(experiment.id, experiment);
     this.client.refreshExperiments();
@@ -80,7 +80,7 @@ export class FireUser extends User {
     if (b == experiment.data.length) return !this.hasExperiment(id, bucket);
     await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
       experiment.data?.length ? experiment.data : null,
-      experiment.id,
+      BigInt(experiment.id),
     ]);
     this.client.experiments.set(experiment.id, experiment);
     return !this.hasExperiment(id, bucket);

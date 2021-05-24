@@ -448,7 +448,7 @@ export class Fire extends AkairoClient {
     if (!experiments) return;
     for await (const experiment of experiments) {
       const data: Experiment = {
-        id: experiment.get("id") as number,
+        id: Number(experiment.get("id")),
         kind: experiment.get("kind") as "user" | "guild",
         label: experiment.get("label") as string,
         buckets: experiment.get("buckets") as number[],
