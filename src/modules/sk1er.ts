@@ -24,7 +24,7 @@ interface Regexes {
 }
 
 export default class Sk1er extends Module {
-  modcoreHeaders: { secret: string };
+  essentialHeaders: { secret: string };
   descriptionUpdate: NodeJS.Timeout;
   supportChannel: FireTextChannel;
   supportMessage: FireMessage;
@@ -82,7 +82,7 @@ export default class Sk1er extends Module {
     this.supportChannel = this.client.channels.cache.get(
       this.supportChannelId
     ) as FireTextChannel;
-    this.modcoreHeaders = { secret: process.env.MODCORE_SECRET };
+    this.essentialHeaders = { secret: process.env.MODCORE_SECRET };
     if (this.guild) {
       await this.statusChecker();
       await this.descriptionUpdater();
@@ -142,10 +142,10 @@ export default class Sk1er extends Module {
 
   async nitroChecker() {
     let users: string[] = [];
-    const modcoreResult = await this.client.db.query(
-      "SELECT uid FROM modcore;"
+    const essentialResult = await this.client.db.query(
+      "SELECT uid FROM essential;"
     );
-    for await (const row of modcoreResult) {
+    for await (const row of essentialResult) {
       users.push(row.get("uid") as string);
     }
     const members = await this.guild.members.fetch({ user: users });
@@ -288,7 +288,7 @@ export default class Sk1er extends Module {
 
   async getUUID(user: FireMember | FireUser) {
     const rows = (
-      await this.client.db.query("SELECT uuid FROM modcore WHERE uid=$1;", [
+      await this.client.db.query("SELECT uuid FROM essential WHERE uid=$1;", [
         user.id,
       ])
     ).rows;
@@ -300,13 +300,13 @@ export default class Sk1er extends Module {
     try {
       const current = await this.getUUID(user);
       if (current)
-        await this.client.db.query("UPDATE modcore SET uuid=$1 WHERE uid=$2;", [
+        await this.client.db.query("UPDATE essential SET uuid=$1 WHERE uid=$2;", [
           uuid,
           user.id,
         ]);
       else
         await this.client.db.query(
-          "INSERT INTO modcore (uid, uuid) VALUES ($1, $2);",
+          "INSERT INTO essential (uid, uuid) VALUES ($1, $2);",
           [user.id, uuid]
         );
       return true;
@@ -323,12 +323,12 @@ export default class Sk1er extends Module {
       `https://api.modcore.net/api/v1/nitro/${uuid}/false`,
       "POST"
     )
-      .header("secret", this.modcoreHeaders.secret)
+      .header("secret", this.essentialHeaders.secret)
       .send();
 
     if (nitroReq.statusCode == 200) {
       const result = await this.client.db.query(
-        "DELETE FROM modcore WHERE uid=$1;",
+        "DELETE FROM essential WHERE uid=$1;",
         [user.id]
       );
       if (result.status != "DELETE 0") return true;
@@ -347,37 +347,10 @@ export default class Sk1er extends Module {
       `https://api.modcore.net/api/v1/nitro/${uuid}/true`,
       "POST"
     )
-      .header("secret", this.modcoreHeaders.secret)
+      .header("secret", this.essentialHeaders.secret)
       .send();
 
     return nitroReq.statusCode == 200;
-  }
-
-  async createModcoreZip() {
-    const out = createWriteStream("/var/www/sharex/uploads/modcore.zip");
-    const archive = archiver("zip", {
-      zlib: { level: 9 },
-    });
-    archive.pipe(out);
-
-    const versionsReq = await (
-      await centra("https://api.modcore.net/api/v1/versions").send()
-    ).json();
-    const current = versionsReq.versions["1.8.9"];
-    if (!current) return false;
-    const modcore = (
-      await centra(
-        `https://static.sk1er.club/repo/mods/modcore/${current}/1.8.9/ModCore-${current}%20(1.8.9).jar`
-      ).send()
-    ).body;
-    archive.append(modcore, { name: `Sk1er Modcore-${current} (1.8.9).jar` });
-    archive.append(JSON.stringify({ "1.8.9": current }), {
-      name: "metadata.json",
-    });
-
-    await archive.finalize();
-    out.close();
-    return "https://static.inv.wtf/modcore.zip";
   }
 
   async checkBotStatus(message: FireMessage) {

@@ -270,35 +270,6 @@ export default class MCLogs extends Module {
   }
 
   private async processLogStream(message: FireMessage, data: string) {
-    let lines = data.split("\n");
-    if (
-      /ModCoreInstaller:download:\d{1,5}]: MAX: \d+/im.test(
-        lines[lines.length - 1]
-      )
-    ) {
-      try {
-        const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-        const zip = await sk1erModule.createModcoreZip();
-        if (zip) {
-          try {
-            await message.delete();
-          } catch {}
-
-          await message.channel.send(
-            message.language.get(
-              "SK1ER_MODCORE_ZIP",
-              message.author.toMention(),
-              zip
-            ),
-            {
-              allowedMentions: { users: [message.author.id] },
-            }
-          );
-          return;
-        }
-      } catch {}
-    }
-
     data = data
       .replace(this.regexes.email, "[removed email]")
       .replace(this.regexes.home, "USER.HOME")

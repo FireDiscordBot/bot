@@ -1,4 +1,4 @@
-import { ModcoreProfile } from "@fire/lib/interfaces/modcore";
+import { EssentialProfile } from "@fire/lib/interfaces/essential";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageEmbed, Permissions } from "discord.js";
 import { titleCase } from "@fire/lib/util/constants";
@@ -6,11 +6,11 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import * as centra from "centra";
 
-export default class Modcore extends Command {
+export default class Essential extends Command {
   constructor() {
-    super("modcore", {
+    super("essential", {
       description: (language: Language) =>
-        language.get("MODCORE_COMMAND_DESCRIPTION"),
+        language.get("ESSENTIAL_COMMAND_DESCRIPTION"),
       clientPermissions: [
         Permissions.FLAGS.SEND_MESSAGES,
         Permissions.FLAGS.EMBED_LINKS,
@@ -24,7 +24,6 @@ export default class Modcore extends Command {
           required: true,
         },
       ],
-      requiresExperiment: { id: 3074841291, bucket: 1 },
       enableSlashCommand: true,
       restrictTo: "all",
     });
@@ -34,7 +33,7 @@ export default class Modcore extends Command {
     message: FireMessage,
     args: { ign?: { match: any[]; matches: any[] } }
   ) {
-    if (!args.ign) return await message.error("MODCORE_INVALID_IGN");
+    if (!args.ign) return await message.error("ESSENTIAL_INVALID_IGN");
     const ign: string = args.ign.match[0];
     let uuid = await this.client.util.nameToUUID(ign);
     if (!uuid) return await message.error("MCUUID_FETCH_FAIL");
@@ -42,8 +41,8 @@ export default class Modcore extends Command {
       `https://api.modcore.net/api/v1/profile/${uuid}`
     ).send();
     if (profileReq.statusCode != 200)
-      return await message.error("MODCORE_PROFILE_FETCH_FAIL");
-    const profile: ModcoreProfile = await profileReq.json();
+      return await message.error("ESSENTIAL_PROFILE_FETCH_FAIL");
+    const profile: EssentialProfile = await profileReq.json();
     let purchases: string[] = [];
     if (profile.purchase_profile) {
       purchases = Object.entries(profile.purchase_profile)
@@ -70,12 +69,12 @@ export default class Modcore extends Command {
     }
     const purchasesString = purchases.join(", ");
     const embed = new MessageEmbed()
-      .setTitle(message.language.get("MODCORE_PROFILE_TITLE", ign))
+      .setTitle(message.language.get("ESSENTIAL_PROFILE_TITLE", ign))
       .setColor(message.member?.displayHexColor || "#ffffff")
       .addField(message.language.get("UUID"), uuid)
       .addField(
-        message.language.get("MODCORE_ENABLED_COSMETICS"),
-        purchasesString || message.language.get("MODCORE_NO_COSMETICS")
+        message.language.get("ESSENTIAL_ENABLED_COSMETICS"),
+        purchasesString || message.language.get("ESSENTIAL_NO_COSMETICS")
       );
     if (profile.online && profile.status)
       embed.addField(message.language.get("STATUS"), profile.status);

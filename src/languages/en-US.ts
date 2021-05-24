@@ -744,8 +744,6 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           `I was unable to read your log. Please upload it directly rather than using ${domain}`,
         MC_LOG_READ_FAIL:
           "I was unable to read the attachment, try reupload it. If it still doesn't work, yell at Geek :)",
-        SK1ER_MODCORE_ZIP: (user: string, zip: string) =>
-          `${user}, Download the zip from ${zip} and then unzip it in \`.minecraft/modcore\` and your issue should be resolved.`,
         MC_LOG_FAILED: (error: string) =>
           `Failed to create log haste, ${error}`,
         MC_LOG_HASTE: (
@@ -945,14 +943,14 @@ ${channels.join(", ")}`
         MOD_FETCH_FAIL: "Failed to fetch mod data",
         MOD_INVALID: "You must provide a valid mod",
         MOD_LIST: "All Mods",
-        MODCORE_COMMAND_DESCRIPTION: "Get a player's modcore profile",
-        MODCORE_INVALID_IGN:
-          "You must provide a valid IGN to get the ModCore profile of",
-        MODCORE_PROFILE_FETCH_FAIL: "Failed to fetch that player's profile",
-        MODCORE_PROFILE_TITLE: (player: string) =>
-          `${player}'s ModCore Profile`,
-        MODCORE_ENABLED_COSMETICS: "Enabled Cosmetics",
-        MODCORE_NO_COSMETICS: "No Cosmetics",
+        ESSENTIAL_COMMAND_DESCRIPTION: "Get a player's essential profile",
+        ESSENTIAL_INVALID_IGN:
+          "You must provide a valid IGN to get the essential profile of",
+        ESSENTIAL_PROFILE_FETCH_FAIL: "Failed to fetch that player's profile",
+        ESSENTIAL_PROFILE_TITLE: (player: string) =>
+          `${player}'s Essential Profile`,
+        ESSENTIAL_ENABLED_COSMETICS: "Enabled Cosmetics",
+        ESSENTIAL_NO_COSMETICS: "No Cosmetics",
         MSGEDITLOG_DESCRIPTION: (author: string, channel: string) =>
           `**${author} edited a message in ${channel}**`,
         MSGDELETELOG_DESCRIPTION: (
