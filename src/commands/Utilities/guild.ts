@@ -10,13 +10,7 @@ import { Command } from "@fire/lib/util/command";
 import * as moment from "moment";
 
 const {
-  emojis: {
-    badges,
-    badlyDrawnBadges,
-    channels,
-    badlyDrawnChannels,
-    breadlyDrawnBadges: badlyDrawnBreadBadges,
-  },
+  emojis: { badges, channels },
 } = constants;
 
 export default class GuildCommand extends Command {

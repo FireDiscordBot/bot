@@ -24,12 +24,7 @@ import * as moment from "moment";
 const {
   emojis,
   statusEmojis,
-  emojis: {
-    badges,
-    badlyDrawnBadges,
-    breadBadges,
-    breadlyDrawnBadges: badlyDrawnBreadBadges,
-  },
+  emojis: { badges },
 } = constants;
 
 const isValidURL = (url: string) => {
