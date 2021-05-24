@@ -51,7 +51,7 @@ export default class TicTacToe extends Command {
           required: true,
         },
       ],
-      requiresExperiment: { id: 1781045144, bucket: 1 },
+      requiresExperiment: { id: 1621199146, bucket: 1 },
       enableSlashCommand: true,
       restrictTo: "guild",
     });

@@ -843,7 +843,7 @@ export class FireGuild extends Guild {
     const alert = this.roles.cache.get(alertId);
     let opener: FireMessage;
     if (alert && !author.isModerator()) {
-      if (this.hasExperiment(1781045144, 1))
+      if (this.hasExperiment(1621199146, 1))
         ButtonMessage.sendWithButtons(ticket, alert.toString(), {
           allowedMentions: { roles: [alertId] },
           embed,
@@ -865,7 +865,7 @@ export class FireGuild extends Guild {
           })
           .catch(() => {})) as FireMessage;
     } else {
-      if (this.hasExperiment(1781045144, 1))
+      if (this.hasExperiment(1621199146, 1))
         ButtonMessage.sendWithButtons(ticket, embed, {
           buttons: [
             {

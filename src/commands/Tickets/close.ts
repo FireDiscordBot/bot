@@ -61,7 +61,7 @@ export default class CloseTicket extends Command {
     } as (MessageOptions | MessageAdditions) & {
       buttons?: APIComponent[];
     };
-    if (message.guild.hasExperiment(1781045144, 1))
+    if (message.guild.hasExperiment(1621199146, 1))
       await ButtonMessage.sendWithButtons(
         message.channel,
         `${emojis.error} ${message.language.get("TICKET_WILL_CLOSE_BUTTON")}`,

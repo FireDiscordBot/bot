@@ -52,7 +52,7 @@ export default class Lockdown extends Command {
           required: false,
         },
       ],
-      requiresExperiment: { id: 3769882217, bucket: 1 },
+      requiresExperiment: { id: 1387469587, bucket: 1 },
       enableSlashCommand: true,
       moderatorOnly: true,
       restrictTo: "guild",
