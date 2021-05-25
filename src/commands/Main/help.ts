@@ -179,9 +179,8 @@ export default class Help extends Command {
       },
       timestamp: new Date(),
     };
-    // await message.channel.send({ embed });
     return message instanceof SlashCommandMessage
-      ? await message.channel.send({ embed, buttons })
+      ? await message.channel.send(null, { embed, buttons })
       : await ButtonMessage.sendWithButtons(message.channel, null, {
           buttons,
           embed,
@@ -216,6 +215,6 @@ export default class Help extends Command {
         value: permissions.join(", "),
         inline: false,
       });
-    await message.channel.send({ embed });
+    await message.channel.send(null, { embed });
   }
 }
