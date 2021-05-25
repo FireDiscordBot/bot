@@ -663,6 +663,7 @@ export class FireGuild extends Guild {
     // if (this.client.config.dev) return true;
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "guild") return false;
+    if (!experiment.active) return true;
     return !!experiment.data.find(([i, b]) => i == this.id && b == bucket);
   }
 

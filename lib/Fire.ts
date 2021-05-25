@@ -452,6 +452,7 @@ export class Fire extends AkairoClient {
         kind: experiment.get("kind") as "user" | "guild",
         label: experiment.get("label") as string,
         buckets: experiment.get("buckets") as number[],
+        active: experiment.get("active") as boolean,
         data: (experiment.get("data") ?? []) as [string, number][],
       };
       this.experiments.set(data.id, data);

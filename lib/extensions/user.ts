@@ -51,6 +51,7 @@ export class FireUser extends User {
     // if (this.client.config.dev) return true;
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "user") return false;
+    if (!experiment.active) return true;
     return !!experiment.data.find(([i, b]) => i == this.id && b == bucket);
   }
 

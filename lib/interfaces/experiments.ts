@@ -9,6 +9,7 @@ export interface Experiment {
   id: number;
   label: string;
   buckets: number[];
+  active: boolean;
   data: [string, number][];
 }
 
