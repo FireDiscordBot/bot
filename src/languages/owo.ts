@@ -747,12 +747,12 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         MOD_FETCH_FAIL: "Faiwed to fetch mod data",
         MOD_INVALID: "You must pwovide a vawid mod",
         MOD_LIST: "Aww Mods",
-        ESSENTIAL_COMMAND_DESCRIPTION: "Get a pwayew's modcowe pwofiwe",
+        ESSENTIAL_COMMAND_DESCRIPTION: "Get a pwayew's essentiaw pwofiwe",
         ESSENTIAL_INVALID_IGN:
-          "You must pwovide a vawid IGN to get the ModCowe pwofiwe of",
+          "You must pwovide a vawid IGN to get the Essentiaw pwofiwe of",
         ESSENTIAL_PROFILE_FETCH_FAIL: "Faiwed to fetch that pwayew's pwofiwe",
         ESSENTIAL_PROFILE_TITLE: (player: string) =>
-          `${player}'s ModCowe Pwofiwe`,
+          `${player}'s Essentiaw Pwofiwe`,
         ESSENTIAL_ENABLED_COSMETICS: "Enabwed Cosmetics",
         ESSENTIAL_NO_COSMETICS: "No Cosmetics",
         MSGEDITLOG_DESCRIPTION: (author: string, channel: string) =>
