@@ -339,7 +339,7 @@ export default class Button extends Listener {
 
       if (!message) return "no message";
       const component = message.components
-        .map((component) =>
+        ?.map((component) =>
           component.type == ButtonType.ACTION_ROW
             ? component?.components ?? component
             : component
