@@ -53,7 +53,10 @@ export default class InteractionCreate extends Listener {
       await this.callbackError(button, error).catch(
         async () => await this.webhookError(button, error).catch(() => {})
       );
-      if (typeof this.client.sentry != "undefined") {
+      if (
+        typeof this.client.sentry != "undefined" &&
+        error.message != "Component checks failed, potential mitm/selfbot?"
+      ) {
         const sentry = this.client.sentry;
         sentry.setExtras({
           button: JSON.stringify(button.data),
