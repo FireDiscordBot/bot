@@ -4,22 +4,23 @@ import { RESTManager } from "./RESTManager";
 import { Constants } from "discord.js";
 import * as centra from "centra";
 import { Fire } from "@fire/lib/Fire";
+import { RequestOptions } from "./APIRouter";
 
 const { UserAgent } = Constants;
 
 export class APIRequest {
+  options: RequestOptions;
   rest: RESTManager;
-  client: Fire;
+  retries: number;
   method: string;
   route: string;
-  options: { [key: string]: any };
-  retries: number;
+  client: Fire;
   path: string;
   constructor(
     rest: RESTManager,
     method: string,
     path: string,
-    options: { [key: string]: any }
+    options: RequestOptions
   ) {
     this.rest = rest;
     this.client = rest.client;
@@ -60,11 +61,11 @@ export class APIRequest {
       headers.Authorization = this.rest.getAuth();
     if (this.options.reason)
       headers["X-Audit-Log-Reason"] = encodeURIComponent(this.options.reason);
-    headers["User-Agent"] = UserAgent;
+    headers["User-Agent"] = this.client.manager.djsua;
     if (this.options.headers)
       headers = Object.assign(headers, this.options.headers);
 
-    let body: FormData;
+    let body: FormData | BodyInit;
     if (this.options.files && this.options.files.length) {
       body = new FormData();
       for (const file of this.options.files)

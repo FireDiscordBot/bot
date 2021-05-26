@@ -8,6 +8,8 @@ import { FireMember } from "./guildmember";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 
+type Primitive = string | boolean | number | null;
+
 export class FireUser extends User {
   settings: UserSettings;
   declare client: Fire;
@@ -19,7 +21,7 @@ export class FireUser extends User {
 
   get language() {
     return this.client.getLanguage(
-      this.settings.get("utils.language", "en-US")
+      this.settings.get<string>("utils.language", "en-US")
     );
   }
 
@@ -45,54 +47,45 @@ export class FireUser extends User {
     return await this.client.util.unblacklist(this);
   }
 
-  hasExperiment(id: string, treatmentId?: number) {
+  hasExperiment(id: number, bucket: number) {
     // if (this.client.config.dev) return true;
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "user") return false;
-    for (const c of Object.keys(experiment.defaultConfig)) {
-      if (!this.settings.has(c))
-        this.settings.set(c, experiment.defaultConfig[c]);
-    }
-    if (treatmentId != undefined) {
-      const treatment = experiment.treatments.find((t) => t.id == treatmentId);
-      if (!treatment) return false;
-      return Object.keys(treatment.config).every(
-        (c) =>
-          this.settings.get(c, experiment.defaultConfig[c] || null) ==
-          treatment.config[c]
-      );
-    } else
-      return experiment.treatments.some((treatment) =>
-        Object.keys(treatment.config).every(
-          (c) => this.settings.get(c, null) == treatment.config[c]
-        )
-      );
+    if (!experiment.active) return true;
+    return !!experiment.data.find(([i, b]) => i == this.id && b == bucket);
   }
 
-  giveExperiment(id: string, treatmentId: number) {
+  async giveExperiment(id: number, bucket: number) {
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "user")
       throw new Error("Experiment is not a user experiment");
-    const treatment = experiment.treatments.find((t) => t.id == treatmentId);
-    if (!treatment) throw new Error("Invalid Treatment ID");
-    Object.keys(experiment.defaultConfig).forEach(
-      // Set to default before applying treatment changes
-      (c) => this.settings.set(c, experiment.defaultConfig[c])
-    );
-    Object.keys(treatment.config).forEach((c) =>
-      this.settings.set(c, treatment.config[c])
-    );
-    return this.hasExperiment(id, treatmentId);
+    if (!experiment.buckets.includes(bucket)) throw new Error("Invalid Bucket");
+    experiment.data.filter(([i]) => i != this.id).push([this.id, bucket]);
+    await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
+      experiment.data?.length ? experiment.data : null,
+      BigInt(experiment.id),
+    ]);
+    this.client.experiments.set(experiment.id, experiment);
+    this.client.refreshExperiments();
+    return this.hasExperiment(id, bucket);
   }
 
-  removeExperiment(id: string) {
+  async removeExperiment(id: number, bucket: number) {
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "user")
       throw new Error("Experiment is not a user experiment");
-    Object.keys(experiment.defaultConfig).forEach((c) =>
-      this.settings.set(c, experiment.defaultConfig[c])
+    const b = experiment.data.length;
+    experiment.data = experiment.data.filter(
+      ([i, b]) => i != this.id && b != bucket
     );
-    return this.hasExperiment(id);
+    if (b == experiment.data.length) return !this.hasExperiment(id, bucket);
+    await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
+      experiment.data?.length ? experiment.data : null,
+      BigInt(experiment.id),
+    ]);
+    this.client.experiments.set(experiment.id, experiment);
+    this.client.refreshExperiments();
+    return !this.hasExperiment(id, bucket);
   }
 
   get hoisted() {
@@ -104,7 +97,7 @@ export class FireUser extends User {
   }
 
   isSuperuser() {
-    return this.settings.get("utils.superuser", false);
+    return this.client.util.isSuperuser(this.id);
   }
 
   async createReminder(when: Date, why: string, link: string) {

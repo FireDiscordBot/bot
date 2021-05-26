@@ -110,7 +110,7 @@ export default class Help extends Command {
       inline: false,
     });
     let buttons: APIComponent[] = null;
-    if (message.guild?.hasExperiment("OQv4baDP7A_Pk60M9zYR9", 1)) {
+    if (message.guild?.hasExperiment(1621199146, 1)) {
       let supportInvite = "https://inv.wtf/fire";
       const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
       if (vanityurls) {
@@ -179,9 +179,8 @@ export default class Help extends Command {
       },
       timestamp: new Date(),
     };
-    // await message.channel.send({ embed });
     return message instanceof SlashCommandMessage
-      ? await message.channel.send({ embed, buttons })
+      ? await message.channel.send(null, { embed, buttons })
       : await ButtonMessage.sendWithButtons(message.channel, null, {
           buttons,
           embed,
@@ -216,6 +215,6 @@ export default class Help extends Command {
         value: permissions.join(", "),
         inline: false,
       });
-    await message.channel.send({ embed });
+    await message.channel.send(null, { embed });
   }
 }

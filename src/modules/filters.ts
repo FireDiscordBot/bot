@@ -66,13 +66,13 @@ export default class Filters extends Module {
     if ((message && message.author.bot) || (user && user.bot)) return false;
     if (!message?.guild && !member) return false;
     if (message?.member?.isModerator() || member?.isModerator()) return false;
-    const excluded: string[] =
-      message?.guild.settings.get("excluded.filter", []) || [];
+    const excluded =
+      message?.guild.settings.get<string[]>("excluded.filter", []) ?? [];
     const roleIds = message
       ? message.member?.roles.cache.map((role) => role.id)
       : member?.roles.cache.map((role) => role.id);
     if (
-      excluded.includes(message?.author?.id || user?.id) ||
+      (excluded && excluded.includes(message?.author?.id || user?.id)) ||
       excluded.includes(message?.channel?.id) ||
       excluded.includes((message?.channel as FireTextChannel)?.parentID) ||
       excluded.some((id) => roleIds.includes(id))
@@ -87,7 +87,7 @@ export default class Filters extends Module {
     exclude: string[] = []
   ) {
     if (!this.shouldRun(message)) return;
-    const enabled: string[] = message.guild.settings.get("mod.linkfilter", []);
+    const enabled = message.guild.settings.get<string[]>("mod.linkfilter", []);
     if (this.debug.includes(message.guild.id) && enabled.length)
       this.client.console.warn(
         `[Filters] Running handler(s) for filters ${enabled.join(
@@ -126,7 +126,7 @@ export default class Filters extends Module {
     const enabled: string[] =
       !context || context instanceof FireUser
         ? null
-        : context.guild?.settings.get("mod.linkfilter", []);
+        : context.guild?.settings.get<string[]>("mod.linkfilter", []);
     Object.entries(this.regexes).forEach(([name, regexes]) => {
       if (enabled instanceof Array && !enabled.includes(name)) return;
       regexes.forEach((regex) => {
@@ -168,10 +168,7 @@ export default class Filters extends Module {
         !message.invWtfResolved.has(code)
       ) {
         const apiReq = await centra(`https://inv.wtf/api/${code}`)
-          .header(
-            "User-Agent",
-            `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-          )
+          .header("User-Agent", this.client.manager.ua)
           .header("Referer", message instanceof FireMessage ? message.url : "")
           .header("Authorization", process.env.VANITY_KEY)
           .send();
@@ -308,6 +305,10 @@ export default class Filters extends Module {
         )
         .setFooter(message.author.id);
       if (invite) {
+        if (invite.guild.description.length + embed.description.length < 2000)
+          embed.setDescription(
+            embed.description + `\n\n${invite.guild.description}`
+          );
         embed
           .addField(
             message.guild.language.get("FILTER_INVITE_LOG_CODE"),
@@ -355,10 +356,7 @@ export default class Filters extends Module {
           ].some((url) => embed.thumbnail.url.includes(url))
         ) {
           const req = await centra(embed.url)
-            .header(
-              "User-Agent",
-              `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-            )
+            .header("User-Agent", this.client.manager.ua)
             .header("Referer", message.url)
             .send();
           const inviteMatch = this.getInviteMatchFromReq(req);
@@ -394,10 +392,7 @@ export default class Filters extends Module {
     } else if (exec.groups.domain == "inv.wtf") {
       const vanity = await (
         await centra(`https://inv.wtf/api/${exec.groups.code}`)
-          .header(
-            "User-Agent",
-            `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-          )
+          .header("User-Agent", this.client.manager.ua)
           .header("Referer", message.url)
           .send()
       ).json();
@@ -408,10 +403,7 @@ export default class Filters extends Module {
       } else throw new Error("Could not find actual invite");
     } else {
       const invReq = await centra("https://" + exec[0])
-        .header(
-          "User-Agent",
-          `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-        )
+        .header("User-Agent", this.client.manager.ua)
         .header("Referer", message.url)
         .send();
       const inviteMatch = this.getInviteMatchFromReq(invReq, exec);

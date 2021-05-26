@@ -11,7 +11,7 @@ export default class MigrationInhibitor extends Inhibitor {
     });
   }
 
-  async exec(message: FireMessage, command?: Command) {
+  async exec(message: FireMessage) {
     if (this.client.guildSettings.toMigrate?.includes(message.guild?.id)) {
       await message.error("CONFIG_GUILD_MIGRATION").catch(() => {});
       return true;

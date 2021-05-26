@@ -61,20 +61,20 @@ export default class CloseTicket extends Command {
     } as (MessageOptions | MessageAdditions) & {
       buttons?: APIComponent[];
     };
-    if (message.guild.hasExperiment("OQv4baDP7A_Pk60M9zYR9"))
-      await ButtonMessage.sendWithButtons(
-        message.channel,
-        `${emojis.error} ${message.language.get("TICKET_WILL_CLOSE_BUTTON")}`,
-        buttonOptions
-      );
-    else if (message instanceof SlashCommandMessage) {
+    if (message instanceof SlashCommandMessage) {
       // if ((message.flags & 64) != 64)
       //   (message as SlashCommandMessage).flags += 64;
       await message.channel.send(
         `${emojis.error} ${message.language.get("TICKET_WILL_CLOSE_BUTTON")}`,
         buttonOptions
       );
-    } else await message.error("TICKET_WILL_CLOSE");
+    } else if (message.guild.hasExperiment(1621199146, 1))
+      await ButtonMessage.sendWithButtons(
+        message.channel,
+        `${emojis.error} ${message.language.get("TICKET_WILL_CLOSE_BUTTON")}`,
+        buttonOptions
+      ).catch(() => {});
+    else await message.error("TICKET_WILL_CLOSE");
     const willClose = await this.getConfirmationPromise(
       message,
       buttonSnowflake

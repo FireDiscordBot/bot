@@ -173,8 +173,8 @@ export class FireMessage extends Message {
     let member: FireMember;
     if (this.guild.id == destination?.guild?.id) member = quoter;
     if (
-      !this.guild.features.includes("DISCOVERABLE") ||
-      (this.guild.features.includes("DISCOVERABLE") && !isLurkable)
+      !this.guild.features?.includes("DISCOVERABLE") ||
+      (this.guild.features?.includes("DISCOVERABLE") && !isLurkable)
     ) {
       if (this.guild.id != destination?.guild.id) {
         member = (await this.guild.members
@@ -197,7 +197,7 @@ export class FireMessage extends Message {
         0;
     const useWebhooks =
       (!!webhook ||
-        ((destination.guild as FireGuild).settings.get(
+        ((destination.guild as FireGuild).settings.get<boolean>(
           "utils.quotehooks",
           true
         ) &&
@@ -280,10 +280,7 @@ export class FireMessage extends Message {
       const attachReqs = await Promise.all(
         this.attachments.map((attachment) =>
           centra(attachment.url)
-            .header(
-              "User-Agent",
-              `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-            )
+            .header("User-Agent", this.client.manager.ua)
             .send()
             .catch(() => {})
         )
@@ -299,7 +296,7 @@ export class FireMessage extends Message {
         avatarURL: this.author.displayAvatarURL({ size: 2048, format: "png" }),
         embeds: this.embeds.filter(
           (embed) =>
-            !this.content.includes(embed.url) && !this.isImageEmbed(embed)
+            !this.content?.includes(embed.url) && !this.isImageEmbed(embed)
         ),
         files: attachments,
         allowedMentions: this.client.options.allowedMentions,
@@ -323,7 +320,9 @@ export class FireMessage extends Message {
       !embed.image &&
       !embed.author &&
       !embed.footer &&
-      embed.url == embed.thumbnail.url
+      (embed.url == embed.thumbnail.url ||
+        (embed.url.includes("imgur.com") &&
+          embed.thumbnail.url.includes("i.imgur.com")))
     );
   }
 
@@ -434,7 +433,7 @@ export class FireMessage extends Message {
     if (!stars) return;
 
     const starboard = this.guild.channels.cache.get(
-      this.guild?.settings.get("starboard.channel")
+      this.guild?.settings.get<string>("starboard.channel")
     ) as FireTextChannel;
     if (!starboard || this.channel.id == starboard.id) return;
 
@@ -464,7 +463,7 @@ export class FireMessage extends Message {
         .catch(() => {});
     }
 
-    const minimum = this.guild.settings.get("starboard.minimum", 5);
+    const minimum = this.guild.settings.get<number>("starboard.minimum", 5);
     const emoji = messageReaction.emoji.toString();
     if (stars >= minimum) {
       if (!this.starLock) this.starLock = new Semaphore(1);
@@ -627,14 +626,15 @@ export class FireMessage extends Message {
     if (!this.member) return; // if we still don't have access to member, just ignore
 
     if (
-      this.guild.settings.get("mod.antieveryone", false) &&
-      (this.content.includes("@everyone") || this.content.includes("@here")) &&
+      this.guild.settings.get<boolean>("mod.antieveryone", false) &&
+      (this.content?.includes("@everyone") ||
+        this.content?.includes("@here")) &&
       !this.member.permissions.has(Permissions.FLAGS.MENTION_EVERYONE)
     )
       return await this.delete().catch(() => {});
 
     if (
-      this.guild.settings.get("mod.antizws", false) &&
+      this.guild.settings.get<boolean>("mod.antizws", false) &&
       // some emojis use \u200d (e.g. trans flag) so we replace all unicode emoji before checking for zero width characters
       regexes.zws.test(this.content.replace(regexes.unicodeEmoji, "")) &&
       !this.member.isModerator()
@@ -645,7 +645,7 @@ export class FireMessage extends Message {
     regexes.zws.lastIndex = 0;
 
     if (
-      this.guild.settings.get("mod.antispoilers", false) &&
+      this.guild.settings.get<boolean>("mod.antispoilers", false) &&
       regexes.spoilerAbuse.test(this.content) &&
       !this.member.isModerator()
     ) {
@@ -655,12 +655,12 @@ export class FireMessage extends Message {
     regexes.spoilerAbuse.lastIndex = 0;
 
     if (
-      this.guild.settings.get("mod.antiselfbot", false) &&
+      this.guild.settings.get<boolean>("mod.antiselfbot", false) &&
       this.embeds.length &&
       this.embeds.filter(
         (embed) =>
           embed.type == "rich" &&
-          (!embed.url || !this.content.includes(embed.url))
+          (!embed.url || !this.content?.includes(embed.url))
       ).length
     )
       return await this.delete().catch(() => {});

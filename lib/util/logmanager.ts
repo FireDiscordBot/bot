@@ -110,7 +110,7 @@ export class GuildLogManager {
 
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
-        this.guild.settings.get("log.moderation")
+        this.guild.settings.get<string>("log.moderation")
       ) as FireTextChannel;
       if (!channel) return;
 
@@ -120,7 +120,7 @@ export class GuildLogManager {
     }
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
-        this.guild.settings.get("log.moderation")
+        this.guild.settings.get<string>("log.moderation")
       ) as FireTextChannel;
       data.webhook = await channel
         .createWebhook("Moderation Logs", {
@@ -212,7 +212,7 @@ export class GuildLogManager {
 
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
-        this.guild.settings.get("log.members")
+        this.guild.settings.get<string>("log.members")
       ) as FireTextChannel;
       if (!channel) return;
 
@@ -222,7 +222,7 @@ export class GuildLogManager {
     }
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
-        this.guild.settings.get("log.members")
+        this.guild.settings.get<string>("log.members")
       ) as FireTextChannel;
       data.webhook = await channel
         .createWebhook("Member Logs", {
@@ -314,7 +314,7 @@ export class GuildLogManager {
 
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
-        this.guild.settings.get("log.action")
+        this.guild.settings.get<string>("log.action")
       ) as FireTextChannel;
       if (!channel) return;
 
@@ -324,7 +324,7 @@ export class GuildLogManager {
     }
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
-        this.guild.settings.get("log.action")
+        this.guild.settings.get<string>("log.action")
       ) as FireTextChannel;
       data.webhook = await channel
         .createWebhook("Action Logs", {
@@ -403,7 +403,7 @@ export class GuildLogManager {
       const newWebhook = await this.client
         .fetchWebhook(webhook.id, webhook.token)
         .catch(() => {});
-      const channelId = this.guild.settings.get(`log.${type}`);
+      const channelId = this.guild.settings.get<string>(`log.${type}`);
       if (!channelId || !newWebhook || newWebhook.channelID != channelId)
         this._data[type].webhook = null;
     }

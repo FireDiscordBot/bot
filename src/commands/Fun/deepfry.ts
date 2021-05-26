@@ -56,14 +56,14 @@ export default class Deepfry extends Command {
       .send();
     if (deepfryReq.statusCode != 200) return await message.error();
     else {
-      const meme = deepfryReq.body;
+      const fried = deepfryReq.body;
+      if (fried.byteLength >= 8e6)
+        return await message.error("DEEPFRY_TOO_LARGE");
       return await message.channel
-        .send("", {
-          files: [{ attachment: meme, name: `f'deepfried.png` }],
+        .send(null, {
+          files: [{ attachment: fried, name: "deepfried.png" }],
         })
-        .catch(async () => {
-          return await message.error("DEEPFRY_UPLOAD_FAIL");
-        });
+        .catch(() => message.error("DEEPFRY_UPLOAD_FAIL"));
     }
   }
 }

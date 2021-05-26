@@ -30,17 +30,19 @@ export default class AdminOnly extends Command {
     let channels = args.channels;
     if (channels instanceof FireTextChannel) channels = [channels];
     if (!channels.length) return message.error("ADMINONLY_NO_CHANNELS");
-    let current = message.guild.settings.get(
+    let current = message.guild.settings.get<string[]>(
       "commands.adminonly",
       []
-    ) as string[];
+    );
     let adminonly = [...current];
     channels.forEach((channel) => {
       if (!adminonly.includes(channel.id)) adminonly.push(channel.id);
       if (current.includes(channel.id))
         adminonly = adminonly.filter((cid) => cid != channel.id);
     });
-    message.guild.settings.set("commands.adminonly", adminonly);
+    if (adminonly.length)
+      message.guild.settings.set<string[]>("commands.adminonly", adminonly);
+    else message.guild.settings.delete("commands.adminonly");
     let mentions: string[] = [];
     adminonly.forEach((cid) => {
       const channel = message.guild.channels.cache.get(cid);

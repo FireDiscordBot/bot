@@ -24,6 +24,7 @@ export default class TagAlias extends Command {
           id: "alias",
           type: "string",
           required: false,
+          match: "rest",
           default: null,
         },
       ],

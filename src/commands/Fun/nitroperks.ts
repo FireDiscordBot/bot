@@ -42,7 +42,7 @@ export default class NitroPerks extends Command {
     if (hasAlready && !successOld) return await message.error();
     const success = await sk1erModule.giveNitroPerks(message.author, ign);
     return success
-      ? await message.success()
+      ? await message.success("NITROPERKS_SUCCESS")
       : await message.error("NITROPERKS_FAILED");
   }
 }

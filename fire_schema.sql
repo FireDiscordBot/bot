@@ -78,13 +78,13 @@ ALTER TABLE public.blacklist OWNER TO postgres;
 --
 
 CREATE TABLE public.buildoverrides (
-    id text NOT NULL,
-    treatment integer NOT NULL,
+    id bigint NOT NULL,
+    bucket integer NOT NULL,
     releasechannel text NOT NULL,
     userids text[],
     expiry integer,
     hash text NOT NULL,
-    experiment text NOT NULL
+    experiment bigint NOT NULL
 );
 
 
@@ -120,15 +120,27 @@ CREATE TABLE public.datapackages (
 ALTER TABLE public.datapackages OWNER TO postgres;
 
 --
+-- Name: essential; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.essential (
+    uid text NOT NULL,
+    uuid text NOT NULL
+);
+
+
+ALTER TABLE public.essential OWNER TO postgres;
+
+--
 -- Name: experiments; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.experiments (
-    id text NOT NULL,
+    id bigint NOT NULL,
     kind text NOT NULL,
     label text NOT NULL,
-    defaultconfig json NOT NULL,
-    treatments json[]
+    buckets integer[],
+    data json
 );
 
 
@@ -158,18 +170,6 @@ CREATE TABLE public.invrole (
 
 
 ALTER TABLE public.invrole OWNER TO postgres;
-
---
--- Name: modcore; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.modcore (
-    uid text NOT NULL,
-    uuid text NOT NULL
-);
-
-
-ALTER TABLE public.modcore OWNER TO postgres;
 
 --
 -- Name: modlogs; Type: TABLE; Schema: public; Owner: postgres
@@ -301,16 +301,30 @@ CREATE TABLE public.rolepersists (
 ALTER TABLE public.rolepersists OWNER TO postgres;
 
 --
--- Name: socketstats; Type: TABLE; Schema: public; Owner: postgres
+-- Name: starboard; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.socketstats (
-    cluster integer NOT NULL,
-    count integer
+CREATE TABLE public.starboard (
+    gid text NOT NULL,
+    original text NOT NULL,
+    board text NOT NULL
 );
 
 
-ALTER TABLE public.socketstats OWNER TO postgres;
+ALTER TABLE public.starboard OWNER TO postgres;
+
+--
+-- Name: starboard_reactions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.starboard_reactions (
+    gid text NOT NULL,
+    mid text NOT NULL,
+    reactions integer DEFAULT 1 NOT NULL
+);
+
+
+ALTER TABLE public.starboard_reactions OWNER TO postgres;
 
 --
 -- Name: statushooks; Type: TABLE; Schema: public; Owner: postgres
@@ -425,14 +439,6 @@ CREATE TABLE public.vcroles (
 
 
 ALTER TABLE public.vcroles OWNER TO postgres;
-
---
--- Name: socketstats noduplicates; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.socketstats
-    ADD CONSTRAINT noduplicates UNIQUE (cluster);
-
 
 --
 -- Name: statushooks statushooks_url_key; Type: CONSTRAINT; Schema: public; Owner: postgres
@@ -559,4 +565,3 @@ GRANT SELECT ON TABLE public.vanitybl TO grafana;
 --
 -- PostgreSQL database dump complete
 --
-

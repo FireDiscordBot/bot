@@ -42,7 +42,9 @@ export default class ForwardMessageEvent extends Event {
     ) as FireTextChannel;
     if (channel.type == "text")
       await channel
-        .send(content, { embed: new MessageEmbed(JSON.parse(embed)) })
+        .send(content, {
+          embed: embed ? new MessageEmbed(JSON.parse(embed)) : null,
+        })
         .catch(() => {});
   }
 }

@@ -16,8 +16,10 @@ export default class enUS extends Language {
         INVALID_MEMBER_ID: "Member not found! Make sure the ID is valid.",
         INVALID_CHANNEL_ID: "Channel not found! Make sure the ID is valid.",
         INVALID_ROLE_ID: "Role not found! Make sure the ID is valid.",
-        INVALID_SNOWFLAKE:
+        INVALID_SNOWFLAKE_USER:
           "User not found and argument is not a valid snowflake. Try using an ID if you want to find a user.",
+        INVALID_SNOWFLAKE_GUILD:
+          "Guild not found or argument is not a valid snowflake. Make sure the ID is correct and try again.",
         INVALID_MEMBER_ROLE_CHANNEL:
           "That is not a valid member, role or channel. Make sure the name or ID you're providing is valid.",
         INVALID_MESSAGE:
@@ -88,6 +90,7 @@ export default class enUS extends Language {
         NAME: "Name",
         ROLE: "Role",
         ICON: "Icon",
+        USER: "User",
         UNTIL: "Until",
         AFTER: "After",
         TOPIC: "Topic",
@@ -102,6 +105,7 @@ export default class enUS extends Language {
         ERROR: "Error",
         USERS: "Users",
         OWNER: "Owner",
+        MEMBER: "Member",
         BEFORE: "Before",
         CLICKS: "Clicks",
         GUILDS: "Guilds",
@@ -388,6 +392,10 @@ This will **not** rename existing users`,
           "Block a user or role from chatting in the current channel",
         BLOCK_ARG_REQUIRED:
           "You must provide a user or role to block from chatting in the current channel!",
+        BLOCK_GOD:
+          "That user has a role higher than or equal to your highest and are too powerful for you to block",
+        BLOCK_ROLE_HIGH:
+          "That role is higher than or equal to your highest and is too powerful for you to block",
         CARBON_COMMAND_DESCRIPTION:
           "Create and share beautiful images of your code.",
         CARBON_NOT_READY:
@@ -444,6 +452,7 @@ Make sure I have permission to manage roles`,
               : null,
           };
         },
+        DEBUG_BLACKLISTED: "You are forbidden from interacting with me here",
         DEBUG_COMMAND_DISABLE_BYPASS:
           "Command is disabled but you are bypassed",
         DEBUG_COMMAND_DISABLED: "Command is disabled.",
@@ -466,6 +475,7 @@ Make sure I have permission to manage roles`,
         DESC_RESET: "Successfully reset guild description!",
         DEEPFRY_COMMAND_DESCRIPTION:
           "Deepfry an image or your avatar (your avatar is used if no argument is provided)",
+        DEEPFRY_TOO_LARGE: "The image is too large",
         DEEPFRY_UPLOAD_FAIL: "Deepfry machine broke :(",
         DISCOVER_COMMAND_DESCRIPTION: "Links to Fire's public servers page",
         DISCOVER_MESSAGE: `You can find Fire\'s public server list at <${constants.url.discovery}>
@@ -740,8 +750,6 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           `I was unable to read your log. Please upload it directly rather than using ${domain}`,
         MC_LOG_READ_FAIL:
           "I was unable to read the attachment, try reupload it. If it still doesn't work, yell at Geek :)",
-        SK1ER_MODCORE_ZIP: (user: string, zip: string) =>
-          `${user}, Download the zip from ${zip} and then unzip it in \`.minecraft/modcore\` and your issue should be resolved.`,
         MC_LOG_FAILED: (error: string) =>
           `Failed to create log haste, ${error}`,
         MC_LOG_HASTE: (
@@ -823,10 +831,16 @@ Fire uses libraries/services made by [Ravy](https://ravy.pink/) & [The Aero Team
           "You must exclude at least one category from server lockdown before you can start/end lockdown",
         LOCKDOWN_REASON: (user: string, reason: string) =>
           `Server lockdown started by ${user} with reason "${reason}".`,
+        LOCKDOWN_FINISH: (time: string, failed: string[], locked: string[]) =>
+          failed?.length
+            ? `I failed to lock ${failed.length} channels, ${failed.join(", ")}`
+            : `Successfully locked ${locked.length} channels in ${time}`,
         LOCKDOWN_END_NONE_LOCKED:
           "It seems there's no locked channels so you can't end lockdown as it was never started",
         LOCKDOWN_END_REASON: (user: string, reason: string) =>
           `Server lockdown ended by ${user} with reason "${reason}".`,
+        LOCKDOWN_END_FAIL: (failed: string[]) =>
+          `I failed to unlock ${failed.length} channels, ${failed.join(", ")}`,
         LOGGING_COMMAND_DESCRIPTION: "Set the channel(s) for logging",
         LOGGING_INVALID_TYPE: (types: string) =>
           `That is not a valid log type! Current types are ${types}`,
@@ -871,6 +885,7 @@ ${channels.join(", ")}`
         MAKEAMEME_NO_IMAGE:
           "You need to provide an image url or attach an image to make a meme",
         MAKEAMEME_NO_TEXT: "You must provide text separated by **|**",
+        MAKEAMEME_TOO_LARGE: "The meme is too spicy for me to upload",
         MAKEAMEME_UPLOAD_FAIL: "Failed to upload spicy meme :(",
         MEMBERJOIN_LOG_AUTHOR: (member: string) => `Member Join | ${member}`,
         MEMBERJOIN_LOG_PREMIUM_UPSELL_TITLE:
@@ -934,14 +949,14 @@ ${channels.join(", ")}`
         MOD_FETCH_FAIL: "Failed to fetch mod data",
         MOD_INVALID: "You must provide a valid mod",
         MOD_LIST: "All Mods",
-        MODCORE_COMMAND_DESCRIPTION: "Get a player's modcore profile",
-        MODCORE_INVALID_IGN:
-          "You must provide a valid IGN to get the ModCore profile of",
-        MODCORE_PROFILE_FETCH_FAIL: "Failed to fetch that player's profile",
-        MODCORE_PROFILE_TITLE: (player: string) =>
-          `${player}'s ModCore Profile`,
-        MODCORE_ENABLED_COSMETICS: "Enabled Cosmetics",
-        MODCORE_NO_COSMETICS: "No Cosmetics",
+        ESSENTIAL_COMMAND_DESCRIPTION: "Get a player's essential profile",
+        ESSENTIAL_INVALID_IGN:
+          "You must provide a valid IGN to get the essential profile of",
+        ESSENTIAL_PROFILE_FETCH_FAIL: "Failed to fetch that player's profile",
+        ESSENTIAL_PROFILE_TITLE: (player: string) =>
+          `${player}'s Essential Profile`,
+        ESSENTIAL_ENABLED_COSMETICS: "Enabled Cosmetics",
+        ESSENTIAL_NO_COSMETICS: "No Cosmetics",
         MSGEDITLOG_DESCRIPTION: (author: string, channel: string) =>
           `**${author} edited a message in ${channel}**`,
         MSGDELETELOG_DESCRIPTION: (
@@ -986,6 +1001,8 @@ ${channels.join(", ")}`
           "You must provide a valid IGN to claim nitro perks.",
         NITROPERKS_MODULE_ERROR:
           "I can't give nitro perks as the Sk1er module hasn't been loaded, <@287698408855044097> probably broke something...",
+        NITROPERKS_SUCCESS:
+          "Successfully gave nitro perks! You may need to run /refreshpurchases in game to see the cape",
         NITROPERKS_FAILED:
           "Failed to give nitro perks! Make sure your IGN is valid and you've purchased the game.\nThere may also be an issue with the Mojang API or Sk1er's API causing this issue",
         OSS_COMMAND_DESCRIPTION: "Sends my GitHub repo link",
@@ -999,6 +1016,10 @@ ${channels.join(", ")}`
         PINSADDLOG_AUTHOR: (channel: string) => `Message Pinned | ${channel}`,
         PUBLIC_COMMAND_DESCRIPTION:
           "Set your server to public allowing it to be visible on Fire's Public Servers page",
+        PUBLIC_MEMBER_COUNT_TOO_SMALL:
+          "This server does not have enough members to be set as public!",
+        PUBLIC_GUILD_TOO_YOUNG:
+          "This server is not old enough to be set as public!",
         PUBLIC_VANITY_BLACKLIST:
           "This guild has been blacklisted from vanity features and therefore cannot be public!",
         PUBLIC_VANITY_REQUIRED: (prefix: string) =>
@@ -1012,6 +1033,8 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           "Your guild is no longer public and will no longer show on the Fire website",
         PUBLIC_DISABLED_LOG: (user: string) =>
           `${constants.emojis.statuspage.major_outage} Ths server was manually removed from Fire\'s public server list by ${user}`,
+        PUBLIC_DISCOVERABLE_INVITE:
+          'Creating invite for use on Fire\'s public servers page as this server has the "DISCOVERABLE" feature',
         PLONK_COMMAND_DESCRIPTION:
           "Make a user unable to use the best discord bot in your server",
         PLONK_FORBIDDEN: () =>
@@ -1046,6 +1069,11 @@ ${prefixes.join(", ")}`,
         PREFIX_SLASH_COMMANDS:
           "`/` or anything starting with a slash cannot be used as a prefix as it'd conflict with Discord's slash commands",
         PREFIX_ESCAPED: "Prefixes cannot include backslashes",
+        PREFIX_MENTION: "Prefixes cannot contain mentions",
+        PREFIX_EMOJI: "Prefixes cannot contain emojis",
+        PREFIX_URI: "Prefixes cannot be made from URIs",
+        PREFIX_LENGTH:
+          "Prefixes cannot be greater than or equal to 15 characters",
         PREFIX_REMOVE_SINGLE:
           "That is the only prefix set in this server! You must set another to remove it.",
         PREFIX_REMOVE_NEVER_WAS:
@@ -1190,7 +1218,7 @@ Otherwise, react with ${constants.emojis.error} to cancel.
         ) =>
           `${codes.join(", ")}
 
-You can create ${remaining} more redirects! (Each premium server you have gives 5 redirects)
+You can create ${remaining.toLocaleString()} more redirects! (Each premium server you have gives 5 redirects)
 Use \`${prefix}redirect <code>\` to view information about a redirect`,
         REDIRECT_NOT_FOUND: "You don't seem to have a redirect with that code.",
         REDIRECT_URL_INVALID:
@@ -1377,6 +1405,9 @@ Do note that we do not provide support for the following:
 Abuse of this command __**will**__ result in being temporarily blacklisted from Fire`,
         SUPPORT_COMMAND_DESCRIPTION: "Get a link to Fire's support server",
         USER_COMMAND_DESCRIPTION: "Get a general overview of a user.",
+        SNOWFLAKE_COMMAND_DESCRIPTION:
+          "Get information about a Discord snowflake",
+        SNOWFLAKE_ARGUMENT_DESCRIPTION: "Any valid snowflake",
         // don't change emote
         USER_SNOWFLAKE_DESCRIPTION: `It looks like that isn't a valid user, but it is a valid snowflake! <:snowflak:784510818556706867>
 
@@ -1392,6 +1423,7 @@ You must have Developer Mode enabled, which is found in User Settings > Appearan
         USER_BOT_PRIVATE: "Private Bot",
         USER_BOT_MEMBERS_INTENT: "Guild Members Intent",
         USER_BOT_PRESENCE_INTENT: "Presence Intent",
+        USER_BOT_BEST: "Best Bot",
         USER_BOT_PRIVACY_POLICY: "Privacy Policy",
         USER_BOT_TERMS: "Terms of Service",
         PERMROLES_COMMAND_DESCRIPTION:
@@ -1679,6 +1711,10 @@ Running this command without providing a category resets it, therefore disabling
           "Unblock a user or role and allow them to chat in this channel",
         UNBLOCK_ARG_REQUIRED:
           "You must provide a user or role to unblock from this channel",
+        UNBLOCK_GOD:
+          "That user has a role higher than or equal to your highest and are too powerful for you to unblock",
+        UNBLOCK_ROLE_HIGH:
+          "That role is higher than or equal to your highest and is too powerful for you to unblock",
         UNMUTE_AUTOMATIC: "Time's up!",
         UNMUTE_AUTO_FAIL: (
           member: string,

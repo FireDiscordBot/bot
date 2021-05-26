@@ -84,10 +84,7 @@ export default class MCLogs extends Module {
     const solutionsReq = await centra(
       `https://api.github.com/repos/GamingGeek/BlockGameSolutions/contents/mc_solutions.json`
     )
-      .header(
-        "User-Agent",
-        `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-      )
+      .header("User-Agent", this.client.manager.ua)
       .header("Authorization", `token ${process.env.GITHUB_SOLUTIONS_TOKEN}`)
       .send();
     if (solutionsReq.statusCode == 200) {
@@ -104,7 +101,7 @@ export default class MCLogs extends Module {
 
     for (const [err, sol] of Object.entries(this.solutions.solutions)) {
       if (log.includes(err) && !currentSolutions.includes(`- ${sol}`))
-        currentSolutions.push(`- ${sol}`);
+        currentSolutions.push(`- **${sol}**`);
     }
     if (
       log.includes("OptiFine_1.8.9_HD_U") &&
@@ -273,35 +270,6 @@ export default class MCLogs extends Module {
   }
 
   private async processLogStream(message: FireMessage, data: string) {
-    let lines = data.split("\n");
-    if (
-      /ModCoreInstaller:download:\d{1,5}]: MAX: \d+/im.test(
-        lines[lines.length - 1]
-      )
-    ) {
-      try {
-        const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-        const zip = await sk1erModule.createModcoreZip();
-        if (zip) {
-          try {
-            await message.delete();
-          } catch {}
-
-          await message.channel.send(
-            message.language.get(
-              "SK1ER_MODCORE_ZIP",
-              message.author.toMention(),
-              zip
-            ),
-            {
-              allowedMentions: { users: [message.author.id] },
-            }
-          );
-          return;
-        }
-      } catch {}
-    }
-
     data = data
       .replace(this.regexes.email, "[removed email]")
       .replace(this.regexes.home, "USER.HOME")

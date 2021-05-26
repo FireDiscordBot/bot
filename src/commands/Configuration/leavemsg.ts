@@ -54,7 +54,7 @@ export default class LeaveMSG extends Command {
       !disableArgs.includes(args.channel)
     )
       return await message.error("LEAVEMSG_ARGUMENT_INVALID");
-    let msg = message.guild.settings.get("greet.leavemsg") as string;
+    let msg = message.guild.settings.get<string>("greet.leavemsg");
     if (args.channel instanceof FireTextChannel && !args.message && !msg)
       return await message.error("LEAVEMSG_MESSAGE_REQUIRED");
     const variableMap = {
@@ -81,7 +81,7 @@ export default class LeaveMSG extends Command {
         return await message.channel.send(embed);
       }
       const channel = message.guild.channels.cache.get(
-        message.guild.settings.get("greet.leavechannel")
+        message.guild.settings.get<string>("greet.leavechannel")
       );
       const embed = new MessageEmbed()
         .setColor(message.member?.displayHexColor || "#ffffff")
@@ -115,10 +115,10 @@ export default class LeaveMSG extends Command {
       users: [message.author.id],
     };
     if (args.message) {
-      message.guild.settings.set("greet.leavemsg", args.message);
+      message.guild.settings.set<string>("greet.leavemsg", args.message);
       msg = args.message;
     }
-    message.guild.settings.set("greet.leavechannel", channel.id);
+    message.guild.settings.set<string>("greet.leavechannel", channel.id);
     const regexes = [
       [joinleavemsgs.user, message.author.toString()],
       [joinleavemsgs.mention, message.author.toMention()],

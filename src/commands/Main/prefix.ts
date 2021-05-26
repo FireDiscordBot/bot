@@ -2,6 +2,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Permissions } from "discord.js";
+import { constants } from "@fire/lib/util/constants";
 
 const validActions = {
   add: ["add", "new"],
@@ -9,6 +10,9 @@ const validActions = {
   list: ["list"],
 };
 const actionNames = ["add", "new", "remove", "delete", "yeet", "list"];
+const {
+  regexes: { allEmoji },
+} = constants;
 
 export default class Prefix extends Command {
   constructor() {
@@ -41,9 +45,10 @@ export default class Prefix extends Command {
 
   async exec(message: FireMessage, args: { action?: string; prefix?: string }) {
     args.prefix = args.prefix?.trim();
-    let current = message.guild.settings.get("config.prefix", [
-      "$",
-    ]) as string[];
+    let current = message.guild.settings.get<string[]>(
+      "config.prefix",
+      process.env.SPECIAL_PREFIX ? [process.env.SPECIAL_PREFIX] : ["$"]
+    );
     if (!args.action)
       return message.util?.parsed?.alias == "prefixes"
         ? await message.send("PREFIXES_CURRENT", current)
@@ -54,22 +59,27 @@ export default class Prefix extends Command {
       return await message.error("PREFIX_CHANGE_DISALLOWED");
     if (!args.prefix && !actionNames.includes(args.action)) {
       if (
-        current.map((prefix) => prefix.trim()).includes(args.action?.trim())
+        current
+          .map((prefix) => prefix.toLowerCase().trim())
+          .includes(args.action?.toLowerCase()?.trim())
       ) {
-        delete current[
-          current.map((prefix) => prefix.trim()).indexOf(args.action.trim())
-        ];
-        current = current.filter((prefix) => !!prefix);
+        current = current.filter(
+          (prefix) => !!prefix && prefix != args.action.toLowerCase().trim()
+        );
         if (!current.length) current.push("$");
         if (current.length == 1 && current[0] == "$")
           message.guild.settings.delete("config.prefix");
-        else message.guild.settings.set("config.prefix", current);
+        else message.guild.settings.set<string[]>("config.prefix", current);
         return await message.success("PREFIX_REMOVED", current);
       } else {
-        if (args.action.trim() == "fire")
-          return await message.error("PREFIX_GLOBAL");
+        const invalid = await this.testPrefix(message, args.action);
+        if (invalid) return;
         if (current.length == 1 && current[0] == "$") current = []; // remove default
-        if (current.map((prefix) => prefix.trim()).includes(args.action.trim()))
+        if (
+          current
+            .map((prefix) => prefix.toLowerCase().trim())
+            .includes(args.action.toLowerCase().trim())
+        )
           return await message.error(
             "PREFIX_ALREADY_HOW",
             message.util?.parsed?.prefix,
@@ -79,7 +89,7 @@ export default class Prefix extends Command {
         if (current.length == 1 && current[0] == "$")
           message.guild.settings.delete("config.prefix");
         else
-          message.guild.settings.set(
+          message.guild.settings.set<string[]>(
             "config.prefix",
             current.filter((prefix) => !!prefix)
           );
@@ -87,16 +97,14 @@ export default class Prefix extends Command {
       }
     }
     if (validActions.add.includes(args.action)) {
-      if (!args.prefix)
-        return await message.error("PREFIX_ACTION_WITHOUT_VALUE");
-      if (args.prefix.trim() == "fire")
-        return await message.error("PREFIX_GLOBAL");
-      if (args.prefix.startsWith("/"))
-        return await message.error("PREFIX_SLASH_COMMANDS");
-      if (args.prefix.includes("\\"))
-        return await message.error("PREFIX_ESCAPED");
+      const invalid = await this.testPrefix(message, args.prefix);
+      if (invalid) return;
       if (current.length == 1 && current[0] == "$") current = []; // remove default
-      if (current.map((prefix) => prefix.trim()).includes(args.prefix.trim()))
+      if (
+        current
+          .map((prefix) => prefix.toLowerCase().trim())
+          .includes(args.prefix.toLowerCase().trim())
+      )
         return await message.error(
           "PREFIX_ALREADY_HOW",
           message.util?.parsed?.prefix,
@@ -106,7 +114,7 @@ export default class Prefix extends Command {
       if (current.length == 1 && current[0] == "$")
         message.guild.settings.delete("config.prefix");
       else
-        message.guild.settings.set(
+        message.guild.settings.set<string[]>(
           "config.prefix",
           current.filter((prefix) => !!prefix)
         );
@@ -124,9 +132,36 @@ export default class Prefix extends Command {
         if (!current.length) current.push("$");
         if (current.length == 1 && current[0] == "$")
           message.guild.settings.delete("config.prefix");
-        else message.guild.settings.set("config.prefix", current);
+        else message.guild.settings.set<string[]>("config.prefix", current);
         return await message.success("PREFIX_REMOVE", current);
       } else return await message.error("PREFIX_REMOVE_NEVER_WAS");
     }
+  }
+
+  private async testPrefix(message: FireMessage, prefix: string) {
+    if (!prefix) return await message.error("PREFIX_ACTION_WITHOUT_VALUE");
+    if (prefix.trim() == "fire") return await message.error("PREFIX_GLOBAL");
+    if (prefix.startsWith("/"))
+      return await message.error("PREFIX_SLASH_COMMANDS");
+    if (prefix.includes("\\")) return await message.error("PREFIX_ESCAPED");
+    const mentionIds = [
+      ...message.mentions.channels.keyArray(),
+      ...message.mentions.users.keyArray(),
+      ...message.mentions.roles.keyArray(),
+    ];
+    if (
+      message.mentions.everyone ||
+      mentionIds.some((id) => prefix.includes(id))
+    )
+      return await message.error("PREFIX_MENTION");
+    try {
+      if (new URL(prefix)) return await message.error("PREFIX_URI");
+    } catch {}
+    if (allEmoji.test(prefix)) {
+      allEmoji.lastIndex = 0;
+      return await message.error("PREFIX_EMOJI");
+    }
+    allEmoji.lastIndex = 0;
+    if (prefix.length >= 15) return await message.error("PREFIX_LENGTH");
   }
 }

@@ -44,6 +44,8 @@ import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
 
+type Primitive = string | boolean | number | null;
+
 const parseUntil = (time?: string) => {
   if (!time) return 0;
   if (time.includes(".")) {
@@ -100,7 +102,7 @@ export class FireGuild extends Guild {
 
   get language() {
     return this.client.getLanguage(
-      this.settings.get("utils.language", "en-US")
+      this.settings.get<string>("utils.language", "en-US")
     );
   }
 
@@ -109,7 +111,7 @@ export class FireGuild extends Guild {
   }
 
   get muteRole() {
-    const id: string = this.settings.get(
+    const id = this.settings.get<string>(
       "mod.mutedrole",
       this.roles.cache.find((role) => role.name == "Muted")?.id
     );
@@ -117,8 +119,8 @@ export class FireGuild extends Guild {
     return this.roles.cache.get(id);
   }
 
-  get logIgnored(): string[] {
-    return this.settings.get("utils.logignore", []);
+  get logIgnored() {
+    return this.settings.get<string[]>("utils.logignore", []);
   }
 
   get regions() {
@@ -153,14 +155,18 @@ export class FireGuild extends Guild {
         position: this.me.roles.highest.rawPosition - 2, // -1 seems to fail a lot more than -2 so just do -2 to be safe
         mentionable: false,
         color: "#24242c",
-        permissions: 0n,
+        permissions: [],
         name: "Muted",
         hoist: false,
         reason: this.language.get("MUTE_ROLE_CREATE_REASON") as string,
       })
-      .catch(() => {});
+      .catch((e) => {
+        this.client.console.warn(
+          `[Guilds] Failed to create mute role in ${this.name} due to\n${e.stack}`
+        );
+      });
     if (!role) return false;
-    this.settings.set("mod.mutedrole", role.id);
+    this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.channels.cache) {
       await channel
         .updateOverwrite(
@@ -186,11 +192,11 @@ export class FireGuild extends Guild {
     const changed = await role
       .edit({
         position: this.me.roles.highest.rawPosition - 2,
-        permissions: 0n,
+        permissions: [],
       })
       .catch(() => {});
     if (!changed) return false;
-    this.settings.set("mod.mutedrole", role.id);
+    this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.channels.cache) {
       await channel
         .updateOverwrite(
@@ -550,7 +556,7 @@ export class FireGuild extends Guild {
   isPublic() {
     if (!this.available) return false;
     return (
-      this.settings.get("utils.public", false) ||
+      this.settings.get<boolean>("utils.public", false) ||
       (this.features && this.features.includes("DISCOVERABLE"))
     );
   }
@@ -621,7 +627,9 @@ export class FireGuild extends Guild {
     log: string | MessageEmbed | MessageEmbedOptions,
     type: ActionLogType
   ) {
-    const channel = this.channels.cache.get(this.settings.get("log.action"));
+    const channel = this.channels.cache.get(
+      this.settings.get<string>("log.action")
+    );
     if (!channel || channel.type != "text") return;
 
     if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
@@ -634,7 +642,7 @@ export class FireGuild extends Guild {
     type: ModLogType
   ) {
     const channel = this.channels.cache.get(
-      this.settings.get("log.moderation")
+      this.settings.get<string>("log.moderation")
     );
     if (!channel || channel.type != "text") return;
 
@@ -647,7 +655,9 @@ export class FireGuild extends Guild {
     log: string | MessageEmbed | MessageEmbedOptions,
     type: MemberLogType
   ) {
-    const channel = this.channels.cache.get(this.settings.get("log.members"));
+    const channel = this.channels.cache.get(
+      this.settings.get<string>("log.members")
+    );
     if (!channel || channel.type != "text") return;
 
     if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
@@ -655,56 +665,46 @@ export class FireGuild extends Guild {
     else return await this.logger.handleMembers(log, type);
   }
 
-  hasExperiment(id: string, treatmentId?: number) {
+  hasExperiment(id: number, bucket: number) {
     // if (this.client.config.dev) return true;
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "guild") return false;
-    for (const c of Object.keys(experiment.defaultConfig)) {
-      if (!this.settings.has(c))
-        this.settings.set(c, experiment.defaultConfig[c]);
-    }
-    if (treatmentId != undefined) {
-      const treatment = experiment.treatments.find((t) => t.id == treatmentId);
-      if (!treatment) return false;
-      return Object.keys(treatment.config).every(
-        (c) =>
-          this.settings.get(c, experiment.defaultConfig[c] || null) ==
-          treatment.config[c]
-      );
-    } else
-      return experiment.treatments.some((treatment) => {
-        return Object.keys(treatment.config).every(
-          (c) =>
-            this.settings.get(c, experiment.defaultConfig[c] || null) ==
-            treatment.config[c]
-        );
-      });
+    if (!experiment.active) return true;
+    return !!experiment.data.find(([i, b]) => i == this.id && b == bucket);
   }
 
-  giveExperiment(id: string, treatmentId: number) {
+  async giveExperiment(id: number, bucket: number) {
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "guild")
       throw new Error("Experiment is not a guild experiment");
-    const treatment = experiment.treatments.find((t) => t.id == treatmentId);
-    if (!treatment) throw new Error("Invalid Treatment ID");
-    Object.keys(experiment.defaultConfig).forEach(
-      // Set to default before applying treatment changes
-      (c) => this.settings.set(c, experiment.defaultConfig[c])
-    );
-    Object.keys(treatment.config).forEach((c) =>
-      this.settings.set(c, treatment.config[c])
-    );
-    return this.hasExperiment(id, treatmentId);
+    if (!experiment.buckets.includes(bucket)) throw new Error("Invalid Bucket");
+    experiment.data = experiment.data.filter(([i]) => i != this.id);
+    experiment.data.push([this.id, bucket]);
+    await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
+      experiment.data?.length ? experiment.data : null,
+      BigInt(experiment.id),
+    ]);
+    this.client.experiments.set(experiment.id, experiment);
+    this.client.refreshExperiments();
+    return this.hasExperiment(id, bucket);
   }
 
-  removeExperiment(id: string) {
+  async removeExperiment(id: number, bucket: number) {
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "guild")
       throw new Error("Experiment is not a guild experiment");
-    Object.keys(experiment.defaultConfig).forEach((c) =>
-      this.settings.set(c, experiment.defaultConfig[c])
+    const b = experiment.data.length;
+    experiment.data = experiment.data.filter(
+      ([i, b]) => i != this.id && b != bucket
     );
-    return this.hasExperiment(id);
+    if (b == experiment.data.length) return !this.hasExperiment(id, bucket);
+    await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
+      experiment.data?.length ? experiment.data : null,
+      BigInt(experiment.id),
+    ]);
+    this.client.experiments.set(experiment.id, experiment);
+    this.client.refreshExperiments();
+    return !this.hasExperiment(id, bucket);
   }
 
   get tickets() {
@@ -717,17 +717,16 @@ export class FireGuild extends Guild {
         .flatMap((channel: FireTextChannel) => channel.threads.cache)
         .array(),
     ] as (FireTextChannel | ThreadChannel)[];
-    return (this.settings.get("tickets.channels", []) as string[])
+    return this.settings
+    .get<string[]>("tickets.channels", [])
       .map((id) => textChannelsAndThreads.find((channel) => channel.id == id))
       .filter((channel) => !!channel);
   }
 
   getTickets(user?: string) {
     if (!user) return this.tickets;
-    let channels = (this.settings.get(
-      "tickets.channels",
-      []
-    ) as string[]).map((id) =>
+    let channels = this.settings
+    .get<string[]>("tickets.channels", []).map((id) =>
       this.channels.cache
         .filter(
           (channel) =>
@@ -754,13 +753,14 @@ export class FireGuild extends Guild {
       channel = channel.real as FireTextChannel | NewsChannel;
 
     if (author?.guild?.id != this.id) return "author";
+    if (this.client.util.isBlacklisted(author.id, this)) return "blacklisted";
     category =
       category ||
       (this.channels.cache
         .filter((channel) => channel.type == "category")
-        .get(this.settings.get("tickets.parent")) as CategoryChannel);
+        .get(this.settings.get<string>("tickets.parent")) as CategoryChannel);
     if (!category) return "disabled";
-    const limit = this.settings.get("tickets.limit", 1);
+    const limit = this.settings.get<number>("tickets.limit", 1);
     if (!this.ticketLock?.lock || this.ticketLock?.limit != limit)
       this.ticketLock = { lock: new Semaphore(limit), limit };
     const permits = this.ticketLock.lock.getPermits();
@@ -778,7 +778,7 @@ export class FireGuild extends Guild {
     }
     let channels = this.tickets;
     const words = (this.client.getCommand("ticket-name") as TicketName).words;
-    let increment = this.settings.get("tickets.increment", 0) as number;
+    let increment = this.settings.get<number>("tickets.increment", 0);
     const variables = {
       "{increment}": increment.toString(),
       "{name}": author.user.username,
@@ -787,15 +787,12 @@ export class FireGuild extends Guild {
       "{uuid}": uuidv4().slice(0, 4),
       "{crab}": "🦀", // CRAB IN DA CODE
     };
-    let name = this.settings.get(
-      "tickets.name",
-      "ticket-{increment}"
-    ) as string;
+    let name = this.settings.get<string>("tickets.name", "ticket-{increment}");
     for (const [key, value] of Object.entries(variables)) {
       name = name.replace(key, value);
     }
     name = name.replace(/crab/gim, "🦀");
-    this.settings.set("tickets.increment", ++increment);
+    this.settings.set<number>("tickets.increment", ++increment);
     const overwriteTheOverwrites = [
       author.id,
       this.me.id,
@@ -804,7 +801,7 @@ export class FireGuild extends Guild {
 
     let ticket: FireTextChannel | ThreadChannel;
 
-    if (this.hasExperiment("QYzOsKLG_o-4EgmRK5P5D")) {
+    if (this.hasExperiment(1651882237, 1)) {
       ticket = (await channel.threads
         .create(`${author} (${author.id})`, 10080, {
           reason: this.language.get(
@@ -900,13 +897,13 @@ export class FireGuild extends Guild {
       .setTimestamp()
       .setColor(author.displayHexColor || "#ffffff")
       .addField(this.language.get("SUBJECT"), subject);
-    const description = this.settings.get("tickets.description");
+    const description = this.settings.get<string>("tickets.description");
     if (description) embed.setDescription(description);
-    const alertId = this.settings.get("tickets.alert");
+    const alertId = this.settings.get<string>("tickets.alert");
     const alert = this.roles.cache.get(alertId);
     let opener: FireMessage;
     if (alert && !author.isModerator()) {
-      if (this.hasExperiment("OQv4baDP7A_Pk60M9zYR9"))
+      if (this.hasExperiment(1621199146, 1))
         ButtonMessage.sendWithButtons(ticket, alert.toString(), {
           allowedMentions: { roles: [alertId] },
           embed,
@@ -919,7 +916,7 @@ export class FireGuild extends Guild {
               emoji: { id: "534174796938870792" },
             },
           ],
-        });
+        }).catch(() => {});
       else
         opener = (await ticket
           .send(alert.toString(), {
@@ -928,7 +925,7 @@ export class FireGuild extends Guild {
           })
           .catch(() => {})) as FireMessage;
     } else {
-      if (this.hasExperiment("OQv4baDP7A_Pk60M9zYR9"))
+      if (this.hasExperiment(1621199146, 1))
         ButtonMessage.sendWithButtons(ticket, embed, {
           buttons: [
             {
@@ -939,11 +936,11 @@ export class FireGuild extends Guild {
               emoji: { id: "534174796938870792" },
             },
           ],
-        });
+        }).catch(() => {});
       else opener = (await ticket.send(embed).catch(() => {})) as FireMessage;
     }
     channels.push(ticket);
-    this.settings.set(
+    this.settings.set<string[]>(
       "tickets.channels",
       channels.map((channel) => !!channel && channel.id)
     );
@@ -973,10 +970,12 @@ export class FireGuild extends Guild {
     )
       return "forbidden";
     channels = channels.filter((c) => c && c.id != channel.id);
-    this.settings.set(
-      "tickets.channels",
-      channels.map((c) => c.id)
-    );
+    if (channels.length)
+      this.settings.set<string[]>(
+        "tickets.channels",
+        channels.map((c) => c.id)
+      );
+    else this.settings.delete("tickets.channels");
     let transcript: string[] = [];
     const iterator = new MessageIterator(channel, {
       oldestFirst: true,
@@ -1014,10 +1013,10 @@ export class FireGuild extends Guild {
     }
     const log =
       (this.channels.cache.get(
-        this.settings.get("tickets.transcript_logs")
+        this.settings.get<string>("tickets.transcript_logs")
       ) as FireTextChannel) ||
       (this.channels.cache.get(
-        this.settings.get("log.action")
+        this.settings.get<string>("log.action")
       ) as FireTextChannel);
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))
@@ -1029,7 +1028,7 @@ export class FireGuild extends Guild {
       )
       .addField(this.language.get("REASON"), reason);
     await log
-      ?.send({
+      ?.send(null, {
         embed,
         files:
           channel.parentID == "755796036198596688"
@@ -1213,7 +1212,7 @@ export class FireGuild extends Guild {
           blockee instanceof FireMember ? blockee.toString() : blockee.name
         ),
         blockee instanceof FireMember
-          ? blockee.user.displayAvatarURL({
+          ? blockee.displayAvatarURL({
               size: 2048,
               format: "png",
               dynamic: true,
@@ -1294,7 +1293,7 @@ export class FireGuild extends Guild {
             : unblockee.name
         ),
         unblockee instanceof FireMember
-          ? unblockee.user.displayAvatarURL({
+          ? unblockee.displayAvatarURL({
               size: 2048,
               format: "png",
               dynamic: true,

@@ -9,12 +9,12 @@ export default class ReloadExperimentsEvent extends Event {
     super(manager, EventType.RELOAD_EXPERIMENTS);
   }
 
-  run(data: { [id: string]: Experiment }) {
+  run(experiments: Experiment[]) {
     this.manager.client.console.log(
       "[Aether] Received request to reload experiments."
     );
     this.manager.client.experiments = new Collection();
-    for (const experiment of Object.values(data))
+    for (const experiment of experiments)
       this.manager.client.experiments.set(experiment.id, experiment);
   }
 }

@@ -59,15 +59,17 @@ export const snowflakeConverter = async (
 ): Promise<({ snowflake: string } & DeconstructedSnowflake) | null> => {
   if (!argument) return;
 
+  const type = message.util?.parsed?.command?.id == "guild" ? "GUILD" : "USER";
+
   const snowflake = getIDMatch(argument.trim());
   if (!snowflake) {
-    if (!silent) await message.error("INVALID_SNOWFLAKE");
+    if (!silent) await message.error(`INVALID_SNOWFLAKE_${type}`);
     return null;
   }
 
   const deconstructed = SnowflakeUtil.deconstruct(snowflake);
   if (deconstructed.timestamp < 1420070400000) {
-    if (!silent) await message.error("INVALID_SNOWFLAKE");
+    if (!silent) await message.error(`INVALID_SNOWFLAKE_${type}`);
     return null;
   }
 
@@ -111,10 +113,7 @@ export const guildPreviewConverter = async (
         ? `https://${process.env.REST_HOST}/public`
         : `http://localhost:${process.env.REST_PORT}/public`
     )
-      .header(
-        "User-Agent",
-        `Fire Discord Bot/${message.client.manager.version} (+https://fire.gaminggeek.dev/)`
-      )
+      .header("User-Agent", message.client.manager.ua)
       .header("Authorization", process.env.WS_AUTH)
       .send();
     if (publicGuildsReq.statusCode == 200) {

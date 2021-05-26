@@ -76,9 +76,9 @@ export default class GuildMemberRemove extends Listener {
     const language = member.guild.language;
 
     if (!member.user.bot) {
-      let leaveMessage = member.guild.settings.get("greet.leavemsg") as string;
+      let leaveMessage = member.guild.settings.get<string>("greet.leavemsg");
       const channel = member.guild.channels.cache.get(
-        member.guild.settings.get("greet.leavechannel")
+        member.guild.settings.get<string>("greet.leavechannel")
       );
       if (leaveMessage && channel instanceof FireTextChannel) {
         const regexes = [
@@ -134,7 +134,7 @@ export default class GuildMemberRemove extends Listener {
         .setTimestamp()
         .setAuthor(
           language.get("MEMBERLEAVE_LOG_AUTHOR", member.toString()),
-          member.user.displayAvatarURL({
+          member.displayAvatarURL({
             size: 2048,
             format: "png",
             dynamic: true,

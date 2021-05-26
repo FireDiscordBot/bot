@@ -27,12 +27,14 @@ export default class LogIgnore extends Command {
     message: FireMessage,
     args: { channel?: FireTextChannel | NewsChannel }
   ) {
-    let current: string[] = message.guild.settings.get("utils.logignore", []);
+    let current = message.guild.settings.get<string[]>("utils.logignore", []);
     const beforeSize = current.length;
     current = current.filter((id) => message.guild.channels.cache.has(id));
     // remove deleted channels
-    if (current.length != beforeSize)
-      message.guild.settings.set("utils.logignore", current);
+    if (current.length != beforeSize && current.length)
+      message.guild.settings.set<string[]>("utils.logignore", current);
+    else if (current.length != beforeSize)
+      message.guild.settings.delete("utils.logignore");
 
     if (!args.channel) {
       current = current
@@ -45,7 +47,7 @@ export default class LogIgnore extends Command {
       current = current.filter((id) => id != args.channel.id);
     else current.push(args.channel.id);
 
-    message.guild.settings.set("utils.logignore", current);
+    message.guild.settings.set<string[]>("utils.logignore", current);
     current = current
       .map((id) => message.guild.channels.cache.get(id)?.toString())
       .filter((mention) => !!mention);

@@ -5,6 +5,7 @@ import {
   DeconstructedSnowflake,
   GuildMemberResolvable,
   AwaitMessagesOptions,
+  PermissionOverwrites,
   CommandInteraction,
   MessageEditOptions,
   MessageResolvable,
@@ -34,6 +35,7 @@ import {
   ButtonType,
   ActionRow,
 } from "@fire/lib/interfaces/interactions";
+import { APIMessage as DiscordAPIMessage } from "discord-api-types";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
@@ -108,7 +110,7 @@ export class SlashCommandMessage {
       if (!this.guild.members.cache.has(this.member.id))
         this.guild.members.add(command.member);
     }
-    this.language = this.author?.settings.get("utils.language")
+    this.language = this.author?.settings.has("utils.language")
       ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
         ? this.guild?.language
         : this.author.language
@@ -371,7 +373,6 @@ export class SlashCommandMessage {
 export class FakeChannel {
   real: FireTextChannel | NewsChannel | ThreadChannel | DMChannel;
   message: SlashCommandMessage;
-  messages: MessageManager;
   guild?: FireGuild;
   token: string;
   client: Fire;
@@ -389,7 +390,6 @@ export class FakeChannel {
     this.token = token;
     this.client = client;
     this.message = message;
-    this.messages = real?.messages;
 
     if (!(real instanceof DMChannel) && real?.guild)
       this.guild = real.guild as FireGuild;
@@ -398,6 +398,16 @@ export class FakeChannel {
 
   get flags() {
     return this.message.flags;
+  }
+
+  get permissionOverwrites() {
+    return this.real instanceof DMChannel || this.real instanceof ThreadChannel
+      ? new Collection<string, PermissionOverwrites>()
+      : this.real.permissionOverwrites;
+  }
+
+  get messages() {
+    return this.real.messages;
   }
 
   toString() {
@@ -555,16 +565,17 @@ export class FakeChannel {
     } else {
       const message = await this.client.req
         .webhooks(this.client.user.id)(this.token)
-        .post({
+        .post<DiscordAPIMessage>({
           data,
           files,
           query: { wait: true },
         })
-        .then(() => {
+        .then((message) => {
           this.message.sent = "message";
+          return message;
         })
         .catch(() => {});
-      if (message?.id) this.message.latestResponse = message.id;
+      if (message && message.id) this.message.latestResponse = message.id;
     }
     this.message.getRealMessage().catch(() => {});
     return this.message;

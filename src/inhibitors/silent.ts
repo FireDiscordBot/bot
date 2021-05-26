@@ -6,6 +6,7 @@ export default class SilentInhibitor extends Inhibitor {
   constructor() {
     super("silent", {
       reason: "silent",
+      type: "post",
       priority: 2,
     });
   }

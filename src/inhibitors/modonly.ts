@@ -7,6 +7,7 @@ export default class ModOnlyInhibitor extends Inhibitor {
     super("modonly", {
       reason: "modonly",
       priority: 4,
+      type: "pre",
     });
   }
 
@@ -19,9 +20,9 @@ export default class ModOnlyInhibitor extends Inhibitor {
       return false;
     if (
       message.guild &&
-      (message.guild.settings.get("commands.modonly", []) as string[]).includes(
-        channel.id
-      )
+      message.guild.settings
+        .get<string[]>("commands.modonly", [])
+        .includes(channel.id)
     ) {
       if (message.member.isSuperuser()) return false;
       if (message instanceof SlashCommandMessage && message.command.ephemeral)

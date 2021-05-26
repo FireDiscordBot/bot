@@ -54,7 +54,7 @@ export default class JoinMSG extends Command {
       !disableArgs.includes(args.channel)
     )
       return await message.error("JOINMSG_ARGUMENT_INVALID");
-    let msg = message.guild.settings.get("greet.joinmsg") as string;
+    let msg = message.guild.settings.get<string>("greet.joinmsg");
     if (args.channel instanceof FireTextChannel && !args.message && !msg)
       return await message.error("JOINMSG_MESSAGE_REQUIRED");
     const variableMap = {
@@ -81,7 +81,7 @@ export default class JoinMSG extends Command {
         return await message.channel.send(embed);
       }
       const channel = message.guild.channels.cache.get(
-        message.guild.settings.get("greet.joinchannel")
+        message.guild.settings.get<string>("greet.joinchannel")
       );
       const embed = new MessageEmbed()
         .setColor(message.member?.displayHexColor || "#ffffff")
@@ -115,10 +115,10 @@ export default class JoinMSG extends Command {
       users: [message.author.id],
     };
     if (args.message) {
-      message.guild.settings.set("greet.joinmsg", args.message);
+      message.guild.settings.set<string>("greet.joinmsg", args.message);
       msg = args.message;
     }
-    message.guild.settings.set("greet.joinchannel", channel.id);
+    message.guild.settings.set<string>("greet.joinchannel", channel.id);
     const regexes = [
       [joinleavemsgs.user, message.author.toString()],
       [joinleavemsgs.mention, message.author.toMention()],

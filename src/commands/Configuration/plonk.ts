@@ -112,12 +112,14 @@ export default class Plonk extends Command {
     args: { user: FireMember | FireUser; reason?: string }
   ) {
     await message.delete().catch(() => {});
-    let current: string[] = message.guild.settings.get("utils.plonked", []);
+    let current = message.guild.settings.get<string[]>("utils.plonked", []);
     const isPlonked = current.includes(args.user.id);
     if (isPlonked) current = current.filter((id) => id != args.user.id);
     else current.push(args.user.id);
 
-    message.guild.settings.set("utils.plonked", current);
+    if (current.length)
+      message.guild.settings.set<string[]>("utils.plonked", current);
+    else message.guild.settings.delete("utils.plonked");
     await message.guild.createModLogEntry(
       args.user,
       message.member,
@@ -149,17 +151,11 @@ export default class Plonk extends Command {
               "PLONK_LOG_AUTHOR",
               args.user.toString()
             ),
-        args.user instanceof FireMember
-          ? args.user.user.displayAvatarURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            })
-          : args.user.displayAvatarURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            })
+        args.user.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        })
       )
       .addField(
         message.guild.language.get("MODERATOR"),

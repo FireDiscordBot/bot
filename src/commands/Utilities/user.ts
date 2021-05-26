@@ -8,6 +8,7 @@ import {
   Permissions,
   ClientUser,
   DMChannel,
+  SnowflakeUtil,
 } from "discord.js";
 import { APIApplication, ApplicationFlags } from "discord-api-types";
 import { constants, humanize, zws } from "@fire/lib/util/constants";
@@ -24,12 +25,7 @@ import * as moment from "moment";
 const {
   emojis,
   statusEmojis,
-  emojis: {
-    badges,
-    badlyDrawnBadges,
-    breadBadges,
-    breadlyDrawnBadges: badlyDrawnBreadBadges,
-  },
+  emojis: { badges },
 } = constants;
 
 const isValidURL = (url: string) => {
@@ -60,7 +56,7 @@ export default class User extends Command {
         },
       ],
       enableSlashCommand: true,
-      aliases: ["userinfo", "infouser", "whois", "u", "snowflake"],
+      aliases: ["userinfo", "infouser", "whois", "u"],
       restrictTo: "all",
     });
   }
@@ -76,10 +72,15 @@ export default class User extends Command {
   ) {
     if (typeof args.user == "undefined")
       args.user = message.member || message.author;
-    else if (args.user?.hasOwnProperty("snowflake"))
+    else if (
+      args.user?.hasOwnProperty("snowflake") ||
+      message.util?.parsed?.alias == "snowflake"
+    )
       return await this.snowflakeInfo(
         message,
-        args.user as { snowflake: string } & DeconstructedSnowflake
+        args.user?.hasOwnProperty("snowflake")
+          ? (args.user as { snowflake: string } & DeconstructedSnowflake)
+          : (args.user as any)
       );
     else if (!args.user) return;
     let member: FireMember, user: FireUser;
@@ -121,23 +122,18 @@ export default class User extends Command {
     const badges = this.getBadges(user, message.author, message.guild);
     const info = this.getInfo(message, member ? member : user);
     let application: Exclude<APIApplication, "rpc_origins" | "owner" | "team">;
-    if (user.bot) application = await this.getApplication(user.id);
+    if (user.bot)
+      application = await this.getApplication(user.id).catch(() => null);
     const embed = new MessageEmbed()
       .setColor(color)
       .setTimestamp()
       .setAuthor(
         user.toString(),
-        user instanceof FireMember
-          ? user.user.displayAvatarURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            })
-          : user.displayAvatarURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            }),
+        user.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
         application && application.bot_public
           ? `https://discord.com/oauth2/authorize?client_id=${
               application.id
@@ -262,6 +258,10 @@ export default class User extends Command {
         appInfo.push(
           `${emojis.error} ${message.language.get("USER_BOT_PRESENCE_INTENT")}`
         );
+      if (user.bot && this.client.config.bots[user.id]?.best)
+        appInfo.push(
+          `${emojis.success} ${message.language.get("USER_BOT_BEST")}`
+        );
       if (application.privacy_policy_url || application.terms_of_service_url)
         appInfo.push(""); // spacing between public/intents and links
 
@@ -300,35 +300,13 @@ export default class User extends Command {
   }
 
   getBadges(user: FireUser, author: FireMember | FireUser, guild?: FireGuild) {
-    const bad = author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
-    const bread = author?.hasExperiment("w4y3qODd79XgvqjA_It3Z", 1);
-    const hannahMontana = // you get the best of both worlds, bread + badly drawn
-      author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 3) ||
-      author?.hasExperiment("w4y3qODd79XgvqjA_It3Z", 3);
     const flags = user.flags?.toArray() || [];
     let emojis: string[] = [];
-    if (guild && guild.ownerID == user.id)
-      emojis.push(
-        hannahMontana
-          ? badlyDrawnBreadBadges["OWNER"]
-          : bad
-          ? badlyDrawnBadges["OWNER"]
-          : bread
-          ? breadBadges["OWNER"]
-          : badges["OWNER"]
-      );
+    if (guild && guild.ownerID == user.id) emojis.push(badges["OWNER"]);
     emojis.push(
       ...Object.keys(badges)
         .filter((badge: UserFlagsString) => flags.includes(badge))
-        .map((badge) =>
-          hannahMontana
-            ? badlyDrawnBreadBadges[badge]
-            : bad
-            ? badlyDrawnBadges[badge]
-            : bread
-            ? breadBadges[badge]
-            : badges[badge]
-        )
+        .map((badge) => badges[badge])
     );
     if (user.isSuperuser()) emojis.push(badges.FIRE_ADMIN);
     if (user.premium) emojis.push(badges.FIRE_PREMIUM);
@@ -340,6 +318,7 @@ export default class User extends Command {
     let user = member instanceof FireMember ? member.user : member;
     const created = user.createdAt.toLocaleString(message.language.id);
     const now = moment();
+    const cakeDay = now.dayOfYear() == moment(user.createdAt).dayOfYear();
     const createdDelta =
       humanize(
         moment(user.createdAt).diff(now),
@@ -347,7 +326,9 @@ export default class User extends Command {
       ) + message.language.get("AGO");
     let info = [
       `**${message.language.get("MENTION")}:** ${user.toMention()}`,
-      `**${message.language.get("CREATED")}:** ${created} (${createdDelta})`,
+      `**${message.language.get("CREATED")}:** ${created} (${createdDelta})${
+        cakeDay ? " 🎂" : ""
+      }`,
     ];
     if (member instanceof FireMember) {
       const joined = member.joinedAt.toLocaleString(message.language.id);
@@ -397,13 +378,9 @@ export default class User extends Command {
   }
 
   async getApplication(id: string) {
-    return (await this.client.req
+    return await this.client.req
       .applications(id)
-      .rpc.get()
-      .catch(() => {})) as Exclude<
-      APIApplication,
-      "rpc_origins" | "owner" | "team"
-    >;
+      .rpc.get<Exclude<APIApplication, "rpc_origins" | "owner" | "team">>();
   }
 
   async getKsoftBan(message: FireMessage, user: FireUser) {
@@ -435,6 +412,26 @@ export default class User extends Command {
     message: FireMessage,
     snowflake: { snowflake: string } & DeconstructedSnowflake
   ) {
+    let user: FireUser;
+    if (snowflake instanceof FireUser) {
+      user =
+        // check cache for non reference user
+        (this.client.users.cache.get(snowflake.id) as FireUser) ?? snowflake;
+      snowflake = {
+        snowflake: snowflake.id,
+        ...SnowflakeUtil.deconstruct(snowflake.id),
+      };
+    } else if (snowflake instanceof FireMember) {
+      user =
+        // check cache for non reference member
+        (message.guild?.members.cache.get(snowflake.id) as FireMember).user ??
+        snowflake.user;
+      snowflake = {
+        snowflake: snowflake.id,
+        ...SnowflakeUtil.deconstruct(snowflake.id),
+      };
+    }
+
     const created = snowflake.date.toLocaleString(message.language.id);
     const now = moment();
     const createdDelta =
@@ -453,6 +450,23 @@ export default class User extends Command {
       `**${message.language.get("PROCESS_ID")}:** ${snowflake.processID}`,
       `**${message.language.get("INCREMENT")}:** ${snowflake.increment}`,
     ];
+
+    if (user && !message.guild?.members.cache.has(snowflake.snowflake))
+      info.push(
+        message.language.get(
+          "USER_SNOWFLAKE_BELONGS_TO",
+          message.language.get("USER"),
+          user.toString()
+        ) as string
+      );
+    else if (user)
+      info.push(
+        message.language.get(
+          "USER_SNOWFLAKE_BELONGS_TO",
+          message.language.get("MEMBER"),
+          user.toString()
+        ) as string
+      );
 
     if (this.client.guilds.cache.has(snowflake.snowflake)) {
       const guild = this.client.guilds.cache.get(snowflake.snowflake);
@@ -633,6 +647,9 @@ export default class User extends Command {
       )
       .setDescription(message.language.get("USER_SNOWFLAKE_DESCRIPTION"))
       .addField(`» ${message.language.get("ABOUT")}`, info.join("\n"));
+
+    if (user)
+      embed.description = embed.description.split("\n").slice(2).join("\n");
 
     return await message.channel.send(embed);
   }

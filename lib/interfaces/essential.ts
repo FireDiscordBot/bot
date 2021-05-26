@@ -1,4 +1,4 @@
-export interface ModcoreProfile {
+export interface EssentialProfile {
   _id: ID;
   uuid: string;
   online: boolean;

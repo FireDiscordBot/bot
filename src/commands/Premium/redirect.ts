@@ -60,7 +60,9 @@ export default class Redirect extends Command {
           message.language.get(
             "REDIRECT_LIST_DESCRIPTION",
             current,
-            5 * message.author.premium - current.length,
+            message.author.isSuperuser()
+              ? 1_337_420.69
+              : 5 * message.author.premium - current.length,
             message.util?.parsed?.prefix
           )
         );

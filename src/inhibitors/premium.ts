@@ -12,6 +12,7 @@ export default class PremiumInhibitor extends Inhibitor {
   constructor() {
     super("premium", {
       reason: "premium",
+      type: "post",
       priority: 5,
     });
   }
@@ -46,14 +47,14 @@ export default class PremiumInhibitor extends Inhibitor {
           const instance = this.client.guilds.cache.get(guild) as FireGuild;
           if (
             row.get("status") == "trialing" &&
-            instance?.settings.get("premium.trialeligible", true)
+            instance?.settings.get<boolean>("premium.trialeligible", true)
           ) {
             this.client.console.warn(
               `[Premium] Setting trial eligibility for ${instance} due to subscription from ${row.get(
                 "uid"
               )} in trial period`
             );
-            instance.settings.set("premium.trialeligible", false);
+            instance.settings.set<boolean>("premium.trialeligible", false);
           }
           this.client.util.premium.set(guild, {
             status: row.get("status") as SubscriptionStatus,
@@ -93,7 +94,11 @@ export default class PremiumInhibitor extends Inhibitor {
       const members = await guild.members.fetch().catch(() => {});
       if (!members) return;
       for (const [, member] of members)
-        if (member.roles.cache.has(role.id) && removeIds.includes(member.id) && !this.client.config.dev)
+        if (
+          member.roles.cache.has(role.id) &&
+          removeIds.includes(member.id) &&
+          !this.client.config.dev
+        )
           await member.roles.remove(role, "premium is gone :crabrave:");
         else if (paidIds.includes(member.id))
           await member.roles.add(role, "wow member now has premium");

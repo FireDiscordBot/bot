@@ -4,9 +4,9 @@ import {
   CommandHandlerOptions,
   Constants,
 } from "discord-akairo";
+import { CommandUtil, ParsedComponentData } from "./commandutil";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { CommandUtil } from "./commandutil";
-import { Collection } from "discord.js";
+import { DiscordAPIError, Collection } from "discord.js";
 import { Fire } from "@fire/lib/Fire";
 import { Command } from "./command";
 
@@ -55,16 +55,58 @@ export class CommandHandler extends AkairoCommandHandler {
   async handle(message: FireMessage) {
     if (message.webhookID || message.author?.bot) return false;
 
-    if (this.commandUtil) {
-      if (this.commandUtils.has(message.id)) {
-        message.util = this.commandUtils.get(message.id);
-      } else {
-        message.util = new CommandUtil(this, message);
-        this.commandUtils.set(message.id, message.util);
-      }
-    }
+    try {
+      if (this.fetchMembers && message.guild && !message.member)
+        await message.guild.members.fetch(message.author);
 
-    return await super.handle(message);
+      if (await this.runAllTypeInhibitors(message)) return false;
+
+      if (this.commandUtil) {
+        if (this.commandUtils.has(message.id))
+          message.util = this.commandUtils.get(message.id);
+        else {
+          message.util = new CommandUtil(this, message);
+          this.commandUtils.set(message.id, message.util);
+        }
+      }
+
+      if (await this.runPreTypeInhibitors(message)) return false;
+
+      let parsed = await this.parseCommand(message);
+      if (!parsed.command) {
+        const overParsed = await this.parseCommandOverwrittenPrefixes(message);
+        if (
+          overParsed.command ||
+          (parsed.prefix == null && overParsed.prefix != null)
+        ) {
+          parsed = overParsed;
+        }
+      }
+
+      if (this.commandUtil) message.util.parsed = parsed as ParsedComponentData;
+
+      let ran = false;
+      if (!parsed.command)
+        ran = await this.handleRegexAndConditionalCommands(message);
+      else
+        ran = await this.handleDirectCommand(
+          message,
+          parsed.content,
+          parsed.command
+        );
+
+      if (ran === false) {
+        this.emit(CommandHandlerEvents.MESSAGE_INVALID, message);
+        return false;
+      }
+
+      return ran;
+    } catch (err) {
+      if (err instanceof DiscordAPIError && err.code == 10007) return null;
+
+      this.emitError(err, message);
+      return null;
+    }
   }
 
   setup() {

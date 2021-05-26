@@ -7,6 +7,7 @@ export default class AdminOnlyInhibitor extends Inhibitor {
     super("adminonly", {
       reason: "adminonly",
       priority: 5,
+      type: "pre",
     });
   }
 
@@ -17,10 +18,9 @@ export default class AdminOnlyInhibitor extends Inhibitor {
         : message.channel;
     if (
       message.guild &&
-      (message.guild.settings.get(
-        "commands.adminonly",
-        []
-      ) as string[]).includes(channel.id)
+      message.guild.settings
+        .get<string[]>("commands.adminonly", [])
+        .includes(channel.id)
     ) {
       if (message.member.isSuperuser()) return false;
       if (message instanceof SlashCommandMessage && message.command.ephemeral)

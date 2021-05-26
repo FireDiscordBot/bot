@@ -37,16 +37,16 @@ export class GuildSettings {
     );
   }
 
-  get(option: string, defaultValue: any = null) {
-    return this.client.guildSettings.get(
+  get<T>(option: string, defaultValue: T = null): T | null {
+    return this.client.guildSettings.get<T>(
       this.guild instanceof FireGuild ? this.guild.id : this.guild,
       option,
       defaultValue
     );
   }
 
-  set(option: string, value: any = null) {
-    return this.client.guildSettings.set(
+  set<T>(option: string, value: T = null) {
+    return this.client.guildSettings.set<T>(
       this.guild instanceof FireGuild ? this.guild.id : this.guild,
       option,
       value
@@ -92,16 +92,16 @@ export class UserSettings {
     );
   }
 
-  get(option: string, defaultValue: any = null) {
-    return this.client.userSettings.get(
+  get<T>(option: string, defaultValue: T = null): T | null {
+    return this.client.userSettings.get<T>(
       this.user instanceof FireUser ? this.user.id : this.user,
       option,
       defaultValue
     );
   }
 
-  set(option: string, value: any = null) {
-    const result = this.client.userSettings.set(
+  set<T>(option: string, value: T = null) {
+    const result = this.client.userSettings.set<T>(
       this.user instanceof FireUser ? this.user.id : this.user,
       option,
       value

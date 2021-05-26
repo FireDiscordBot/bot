@@ -6,6 +6,7 @@ export default class GuildLockInhibitor extends Inhibitor {
   constructor() {
     super("guildlock", {
       reason: "guildlock",
+      type: "post",
       priority: 4,
     });
   }

@@ -47,6 +47,8 @@ export default class Debug extends Command {
     if (!cmd.id) return await this.sendSingleError(message, "UNKNOWN_COMMAND");
     if (cmd.id == this.id)
       return await this.sendSingleSuccess(message, "DEBUGGING_DEBUG");
+    if (this.client.util.isBlacklisted(message.author.id, message.guild))
+      return await this.sendSingleError(message, "DEBUG_BLACKLISTED");
     if (moment(new Date()).diff(message.author.createdAt) < 86400000)
       return await this.sendSingleError(message, "COMMAND_ACCOUNT_TOO_YOUNG");
     if (cmd.ownerOnly && !this.client.isOwner(message.author))
@@ -78,7 +80,7 @@ export default class Debug extends Command {
         experiment.kind == "user" &&
         !message.author.hasExperiment(
           experiment.id,
-          requiresExperiment.treatmentId
+          requiresExperiment.bucket
         )
       )
         return await this.sendSingleError(
@@ -90,7 +92,7 @@ export default class Debug extends Command {
         (!message.guild ||
           !message.guild?.hasExperiment(
             experiment.id,
-            requiresExperiment.treatmentId
+            requiresExperiment.bucket
           ))
       )
         return await this.sendSingleError(
@@ -155,8 +157,8 @@ export default class Debug extends Command {
       details.push(`${error} ${message.language.get("DEBUG_REQUIRES_PERMS")}`);
     else details.push(`${success} ${message.language.get("DEBUG_PERMS_PASS")}`);
 
-    const disabledCommands: string[] =
-      message.guild?.settings.get("disabled.commands", []) || [];
+    const disabledCommands =
+      message.guild?.settings.get<string[]>("disabled.commands", []) ?? [];
 
     if (disabledCommands.includes(cmd.id)) {
       if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))

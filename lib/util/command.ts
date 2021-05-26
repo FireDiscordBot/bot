@@ -57,7 +57,7 @@ const slashCommandTypeMappings = {
 };
 
 export class Command extends AkairoCommand {
-  requiresExperiment?: { id: string; treatmentId?: number };
+  requiresExperiment?: { id: number; bucket: number };
   declare description: (language: Language) => string;
   args?: ArgumentOptions[] | ArgumentGenerator;
   declare channel?: "guild" | "dm";
@@ -306,7 +306,7 @@ export class Command extends AkairoCommand {
 }
 
 export interface CommandOptions extends AkairoCommandOptions {
-  requiresExperiment?: { id: string; treatmentId?: number };
+  requiresExperiment?: { id: number; bucket: number };
   args?: ArgumentOptions[] | ArgumentGenerator;
   restrictTo?: "guild" | "dm" | "all";
   enableSlashCommand?: boolean;

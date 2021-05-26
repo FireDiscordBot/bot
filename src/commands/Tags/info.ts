@@ -10,6 +10,7 @@ import { MessageEmbed, Permissions } from "discord.js";
 import { Tag } from "@fire/lib/util/guildtagmanager";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 
 export default class TagInfo extends Command {
   constructor() {
@@ -69,10 +70,15 @@ export default class TagInfo extends Command {
     if (cachedTag.uses)
       embed.addField(message.language.get("TAG_USES"), cachedTag.uses);
 
-    if (message.guild.hasExperiment("OQv4baDP7A_Pk60M9zYR9", 1))
-      return await ButtonMessage.sendWithButtons(message.channel, embed, {
-        buttons: this.getInitialButtons(message, cachedTag),
-      });
+    if (message.guild.hasExperiment(1621199146, 1))
+      return message instanceof SlashCommandMessage
+        ? await message.channel.send(null, {
+            embed,
+            buttons: this.getInitialButtons(message, cachedTag),
+          })
+        : await ButtonMessage.sendWithButtons(message.channel, embed, {
+            buttons: this.getInitialButtons(message, cachedTag),
+          });
     else return await message.channel.send(embed);
   }
 

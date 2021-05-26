@@ -55,7 +55,7 @@ export default class TicketName extends Command {
     } else {
       if (args.name.length > 50)
         return await message.error("TICKET_NAME_LENGTH");
-      message.guild.settings.set(
+      message.guild.settings.set<string>(
         "tickets.name",
         args.name.replace(/\s/gim, "-")
       );

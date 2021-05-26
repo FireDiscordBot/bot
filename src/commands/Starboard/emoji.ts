@@ -44,7 +44,7 @@ export default class StarboardEmoji extends Command {
 
     if (emoji == defaultEmoji) message.guild.settings.delete("starboard.emoji");
     else
-      message.guild.settings.set(
+      message.guild.settings.set<string>(
         "starboard.emoji",
         emoji instanceof GuildEmoji ? emoji.id : emoji
       );

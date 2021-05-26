@@ -1,7 +1,7 @@
 import { Collection, Constants } from "discord.js";
 import { RequestHandler } from "./RequestHandler";
 import { APIRequest } from "./APIRequest";
-import routeBuilder from "./APIRouter";
+import routeBuilder, { RequestOptions } from "./APIRouter";
 import { Fire } from "@fire/lib/Fire";
 
 const { Endpoints } = Constants;
@@ -50,7 +50,7 @@ export class RESTManager {
     return Endpoints.CDN(this.client.options.http.cdn);
   }
 
-  request(method: string, url: string, options = {}) {
+  request(method: string, url: string, options: RequestOptions = {}) {
     const apiRequest = new APIRequest(this, method, url, options);
     let handler = this.handlers.get(apiRequest.route);
 

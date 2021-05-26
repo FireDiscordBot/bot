@@ -1,7 +1,4 @@
-import {
-  PremiumData,
-  SubscriptionStatus,
-} from "@fire/lib/interfaces/premium";
+import { PremiumData, SubscriptionStatus } from "@fire/lib/interfaces/premium";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
@@ -49,7 +46,7 @@ export default class Premium extends Command {
     }
 
     if (
-      !message.guild.settings.get("premium.trialeligible", true) &&
+      !message.guild.settings.get<boolean>("premium.trialeligible", true) &&
       premiumInfo.get("status") == "trialing" &&
       !current.includes(message.guild.id) // allow for removing premium if set during trial
     )
@@ -74,12 +71,12 @@ export default class Premium extends Command {
       };
       if (
         updated.get("status") == "trialing" &&
-        message.guild.settings.get("premium.trialeligible")
+        message.guild.settings.get<boolean>("premium.trialeligible")
       ) {
         this.client.console.warn(
           `[Premium] Setting trial eligibility for ${message.guild} due to subscription from ${message.author} in trial period`
         );
-        message.guild.settings.set("premium.trialeligible", false);
+        message.guild.settings.set<boolean>("premium.trialeligible", false);
       }
       if (current.includes(message.guild.id))
         this.client.util.premium.set(message.guild.id, syncData);

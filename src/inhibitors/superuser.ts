@@ -6,6 +6,7 @@ export default class SuperuserInhibitor extends Inhibitor {
   constructor() {
     super("superuser", {
       reason: "superuser",
+      type: "post",
       priority: 8,
     });
   }

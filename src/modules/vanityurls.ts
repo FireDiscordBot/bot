@@ -29,10 +29,7 @@ export default class VanityURLs extends Module {
         : "https://inv.wtf/fetch",
       "PUT"
     )
-      .header(
-        "User-Agent",
-        `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-      )
+      .header("User-Agent", this.client.manager.ua)
       .header("Authorization", process.env.VANITY_KEY)
       .body({ reason }, "json")
       .send();
@@ -48,10 +45,7 @@ export default class VanityURLs extends Module {
         ? `https://test.inv.wtf/api/${code}`
         : `https://inv.wtf/api/${code}`
     )
-      .header(
-        "User-Agent",
-        `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-      )
+      .header("User-Agent", this.client.manager.ua)
       .header("Authorization", process.env.VANITY_KEY)
       .send();
     if (vanityReq.statusCode != 200) return false;
@@ -98,7 +92,7 @@ export default class VanityURLs extends Module {
   async delete(code: FireGuild | string) {
     const original = code;
     if (code instanceof FireGuild) {
-      code.settings.set("utils.public", false);
+      code.settings.set<boolean>("utils.public", false);
       code = code.id;
     }
     const deleteResult = await this.client.db

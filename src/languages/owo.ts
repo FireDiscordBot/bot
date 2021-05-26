@@ -13,8 +13,10 @@ export default class owo extends Language {
         INVALID_MEMBER_ID: "Channew not found! Twy use an ID instead.",
         INVALID_CHANNEL_ID: "Channew not found! Make suwe the ID is vawid.",
         INVALID_ROLE_ID: "Wowe not found! Make suwe the ID is vawid.",
-        INVALID_SNOWFLAKE:
+        INVALID_SNOWFLAKE_USER:
           "Usew not found and awgument is not a vawid snowfwake. Twy using an ID if you want to find a usew.",
+        INVALID_SNOWFLAKE_GUILD:
+          "Guiwd nyot found ow awgument is nyot a vawid snyowfwake. Make suwe the ID is cowwect and twy again.",
         INVALID_MEMBER_ROLE_CHANNEL:
           "That is not a vawid membew, wowe ow channew. Make suwe the name ow ID you'we pwoviding is vawid.",
         INVALID_MESSAGE:
@@ -572,8 +574,6 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           `I was unabwe to wead youw log. Pwease upwoad it diwectwy wathew than using ${domain}`,
         MC_LOG_READ_FAIL:
           "I was unabwe to wead the attachment, twy weupwoad it. If it stiww doesn't wowk, yeww at Geek :)",
-        SK1ER_MODCORE_ZIP: (user: string, zip: string) =>
-          `${user}, Downwoad the zip fwom ${zip} and then unzip it in \`.minecraft/modcore\` and youw issue shouwd be wesowved.`,
         MC_LOG_HASTE: (
           user: string,
           diff: string,
@@ -747,14 +747,14 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
         MOD_FETCH_FAIL: "Faiwed to fetch mod data",
         MOD_INVALID: "You must pwovide a vawid mod",
         MOD_LIST: "Aww Mods",
-        MODCORE_COMMAND_DESCRIPTION: "Get a pwayew's modcowe pwofiwe",
-        MODCORE_INVALID_IGN:
-          "You must pwovide a vawid IGN to get the ModCowe pwofiwe of",
-        MODCORE_PROFILE_FETCH_FAIL: "Faiwed to fetch that pwayew's pwofiwe",
-        MODCORE_PROFILE_TITLE: (player: string) =>
-          `${player}'s ModCowe Pwofiwe`,
-        MODCORE_ENABLED_COSMETICS: "Enabwed Cosmetics",
-        MODCORE_NO_COSMETICS: "No Cosmetics",
+        ESSENTIAL_COMMAND_DESCRIPTION: "Get a pwayew's essentiaw pwofiwe",
+        ESSENTIAL_INVALID_IGN:
+          "You must pwovide a vawid IGN to get the Essentiaw pwofiwe of",
+        ESSENTIAL_PROFILE_FETCH_FAIL: "Faiwed to fetch that pwayew's pwofiwe",
+        ESSENTIAL_PROFILE_TITLE: (player: string) =>
+          `${player}'s Essentiaw Pwofiwe`,
+        ESSENTIAL_ENABLED_COSMETICS: "Enabwed Cosmetics",
+        ESSENTIAL_NO_COSMETICS: "No Cosmetics",
         MSGEDITLOG_DESCRIPTION: (author: string, channel: string) =>
           `**${author} edited a message in ${channel}**`,
         MSGDELETELOG_DESCRIPTION: (
@@ -953,7 +953,8 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           prefix: string
         ) =>
           `${codes.join(", ")}
-You can cweate ${remaining} mowe wediwects! (Each pwemium sewvew you have gives 5 wediwects)
+
+You can cweate ${remaining.toLocaleString()} mowe wediwects! (Each pwemium sewvew you have gives 5 wediwects)
 Use \`${prefix}redirect <code>\` to view infowmation about a wediwect`,
         REDIRECT_NOT_FOUND: "You don't seem to have a wediwect with that code.",
         REDIRECT_URL_INVALID:

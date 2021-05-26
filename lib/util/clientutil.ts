@@ -3,6 +3,7 @@ import {
   PermissionString,
   Permissions,
   Collection,
+  Snowflake,
   Webhook,
 } from "discord.js";
 import { Channel, Video } from "@fire/lib/interfaces/youtube";
@@ -34,6 +35,9 @@ export const humanFileSize = (size: number) => {
     ["B", "kB", "MB", "GB", "TB"][i]
   );
 };
+
+const AllowedImageFormats = ["webp", "png", "jpg", "jpeg", "gif"];
+const AllowedImageSizes = Array.from({ length: 9 }, (e, i) => 2 ** (i + 4));
 
 interface MojangProfile {
   name: string;
@@ -107,10 +111,7 @@ export class Util extends ClientUtil {
         await Centra(url, "POST")
           .path("/documents")
           .body(text, "buffer")
-          .header(
-            "User-Agent",
-            `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-          )
+          .header("User-Agent", this.client.manager.ua)
           .send()
       ).json();
       if (!h.key) throw new Error(JSON.stringify(h));
@@ -301,6 +302,36 @@ export class Util extends ClientUtil {
     else return null;
   }
 
+  isSuperuser(user: string) {
+    return this.client.userSettings.get<boolean>(
+      user,
+      "utils.superuser",
+      false
+    );
+  }
+
+  isBlacklisted(
+    user: FireMember | FireUser | Snowflake,
+    guild?: FireGuild,
+    command?: string
+  ) {
+    // Conditions where blacklist does not apply
+    if (command == "debug") return false;
+    else if (typeof user != "string" && user.isSuperuser()) return false;
+    else if (typeof user == "string" && this.isSuperuser(user)) return false;
+
+    // convert user/member to id
+    if (user instanceof FireMember || user instanceof FireUser) user = user.id;
+
+    // global blacklist
+    if (this.plonked.includes(user)) return true;
+
+    // guild blacklist
+    if (guild?.settings.get<string[]>("utils.plonked", []).includes(user)) return true;
+
+    return false;
+  }
+
   async blacklist(user: FireMember | FireUser, reason: string) {
     try {
       if (this.client.util.plonked.includes(user.id))
@@ -438,5 +469,13 @@ export class Util extends ClientUtil {
         .catch(() => null);
     }
     return hook?.url;
+  }
+
+  makeImageUrl(root: string, { format = "webp", size = 512 } = {}) {
+    if (format && !AllowedImageFormats.includes(format))
+      throw new Error(`Invalid image format: ${format}`);
+    if (size && !AllowedImageSizes.includes(size))
+      throw new RangeError(`Invalid image size: ${size}`);
+    return `${root}.${format}${size ? `?size=${size}` : ""}`;
   }
 }

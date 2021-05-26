@@ -1,6 +1,8 @@
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import { CommandInteraction, Interaction } from "discord.js";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
+import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
 import { Scope } from "@sentry/node";
 
@@ -15,6 +17,7 @@ export default class InteractionListener extends Listener {
   }
 
   async exec(interaction: Interaction) {
+    if (this.blacklistCheck(interaction)) return;
     if (!interaction.isCommand()) return;
     else await this.handleApplicationCommand(interaction);
   }
@@ -74,6 +77,17 @@ export default class InteractionListener extends Listener {
     
     Error Message: ${error.message}`,
       { ephemeral: true }
+    );
+  }
+
+  blacklistCheck(interaction: Interaction) {
+    const guild = interaction.guild as FireGuild;
+    const user = interaction.user as FireUser;
+
+    return this.client.util.isBlacklisted(
+      user,
+      guild,
+      interaction.isCommand() ? interaction.commandName : null
     );
   }
 }

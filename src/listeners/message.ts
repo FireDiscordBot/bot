@@ -1,8 +1,8 @@
-import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
+import { APIMessage } from "discord-api-types";
 import MCLogs from "@fire/src/modules/mclogs";
 import Sk1er from "@fire/src/modules/sk1er";
 import * as centra from "centra";
@@ -63,10 +63,7 @@ export default class Message extends Listener {
     try {
       const gist = await (
         await centra("https://api.github.com/gists", "POST")
-          .header(
-            "User-Agent",
-            `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-          )
+          .header("User-Agent", this.client.manager.ua)
           .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
           .body(body, "json")
           .send()
@@ -84,10 +81,7 @@ export default class Message extends Listener {
       );
       await this.client.util.sleep(10000);
       await centra(`https://api.github.com/gists/${gist.id}`, "DELETE")
-        .header(
-          "User-Agent",
-          `Fire Discord Bot/${this.client.manager.version} (+https://fire.gaminggeek.dev/)`
-        )
+        .header("User-Agent", this.client.manager.ua)
         .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
         .send();
     } catch (e) {
@@ -135,7 +129,7 @@ export default class Message extends Listener {
     ) {
       const dataminingMessage = await this.client.req
         .channels("731330454422290463")
-        .messages.post({
+        .messages.post<APIMessage>({
           data: {
             embed: message.embeds[0].toJSON(),
           },
@@ -145,17 +139,25 @@ export default class Message extends Listener {
             `[Listener] Failed to post datamining message\n${e.stack}`
           );
         });
-      if (dataminingMessage?.id && message.embeds[0].title.includes("comment"))
+      if (
+        dataminingMessage &&
+        dataminingMessage.id &&
+        message.embeds[0].title.includes("comment")
+      )
         await this.client.req
           .channels("731330454422290463")
           .messages(dataminingMessage.id)
-          .crosspost.post();
+          .crosspost.post<void>()
+          .catch(() => {});
     }
 
     if (!message.member || message.author.bot) return;
 
-    const autoroleId = message.guild.settings.get("mod.autorole", null);
-    const delay = message.guild.settings.get("mod.autorole.waitformsg", false);
+    const autoroleId = message.guild.settings.get<string>("mod.autorole", null);
+    const delay = message.guild.settings.get<boolean>(
+      "mod.autorole.waitformsg",
+      false
+    );
     if (autoroleId && delay && message.type == "DEFAULT") {
       const role = message.guild.roles.cache.get(autoroleId);
       if (role && !message.member.roles.cache.has(role.id))

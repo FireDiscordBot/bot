@@ -10,13 +10,7 @@ import { Command } from "@fire/lib/util/command";
 import * as moment from "moment";
 
 const {
-  emojis: {
-    badges,
-    badlyDrawnBadges,
-    channels,
-    badlyDrawnChannels,
-    breadlyDrawnBadges: badlyDrawnBreadBadges,
-  },
+  emojis: { badges, channels },
 } = constants;
 
 export default class GuildCommand extends Command {
@@ -43,31 +37,13 @@ export default class GuildCommand extends Command {
   }
 
   getBadges(guild: FireGuild | GuildPreview, author?: FireMember | FireUser) {
-    const bad = author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
-    const badBread =
-      author?.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 3) ||
-      author?.hasExperiment("w4y3qODd79XgvqjA_It3Z", 3);
     const emojis: string[] = [];
 
     if (guild.id == "564052798044504084") emojis.push(badges.FIRE_ADMIN);
     if (this.client.util?.premium.has(guild.id))
       emojis.push(badges.FIRE_PREMIUM);
-    if (guild.features.includes("PARTNERED"))
-      emojis.push(
-        badBread
-          ? badlyDrawnBreadBadges.PARTNERED
-          : bad
-          ? badlyDrawnBadges.PARTNERED
-          : badges.PARTNERED
-      );
-    if (guild.features.includes("VERIFIED"))
-      emojis.push(
-        badBread
-          ? badlyDrawnBreadBadges.VERIFIED
-          : bad
-          ? badlyDrawnBadges.VERIFIED
-          : badges.VERIFIED
-      );
+    if (guild.features.includes("PARTNERED")) emojis.push(badges.PARTNERED);
+    if (guild.features.includes("VERIFIED")) emojis.push(badges.VERIFIED);
 
     if (emojis.length) {
       emojis.push(zws);
@@ -79,7 +55,6 @@ export default class GuildCommand extends Command {
   async getInfo(message: FireMessage, guild: FireGuild | GuildPreview) {
     if (guild instanceof FireGuild) await guild.fetch(); // gets approximatePresenceCount
 
-    const bad = message.author.hasExperiment("VxEOpzU63ddCPgD8HdKU5", 1);
     const language = message.language;
     const guildSnowflake = await snowflakeConverter(message, guild.id);
     const created =
@@ -126,16 +101,16 @@ export default class GuildCommand extends Command {
             "CHANNELS"
           )}:** ${guild.channels.cache.size.toLocaleString(
             message.language.id
-          )} (${bad ? badlyDrawnChannels.text : channels.text} ${
+          )} (${channels.text} ${
             guild.channels.cache.filter((channel) => channel.type == "text")
               .size
-          }, ${bad ? badlyDrawnChannels.voice : channels.voice} ${
+          }, ${channels.voice} ${
             guild.channels.cache.filter((channel) => channel.type == "voice")
               .size
-          }, ${bad ? badlyDrawnChannels.stage : channels.stage} ${
+          }, ${channels.stage} ${
             guild.channels.cache.filter((channel) => channel.type == "stage")
               .size
-          }, ${bad ? badlyDrawnChannels.news : channels.news} ${
+          }, ${channels.news} ${
             guild.channels.cache.filter((channel) => channel.type == "news")
               .size
           })`

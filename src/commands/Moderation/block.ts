@@ -42,6 +42,18 @@ export default class Block extends Command {
       message.author.id != message.guild.ownerID
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
+    else if (
+      args.toblock instanceof FireMember &&
+      args.toblock.roles.highest.rawPosition >=
+        message.member?.roles?.highest?.rawPosition
+    )
+      return await message.error("BLOCK_GOD");
+    else if (
+      args.toblock instanceof Role &&
+      args.toblock.rawPosition >= message.member?.roles?.highest?.rawPosition
+    )
+      return await message.error("BLOCK_ROLE_HIGH");
+
     await message.delete().catch(() => {});
     const blocked = await message.guild.block(
       args.toblock,

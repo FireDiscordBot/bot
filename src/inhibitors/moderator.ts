@@ -6,6 +6,7 @@ export default class ModeratorInhibitor extends Inhibitor {
   constructor() {
     super("moderator", {
       reason: "moderator",
+      type: "post",
       priority: 8,
     });
   }

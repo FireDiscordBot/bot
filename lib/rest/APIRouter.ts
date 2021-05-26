@@ -11,7 +11,32 @@ const reflectors = [
   Symbol.for("nodejs.util.inspect.custom"),
 ];
 
-export default (manager: RESTManager) => {
+export interface RequestOptions {
+  query?:
+    | string[][]
+    | Record<string, string | number | boolean>
+    | string
+    | URLSearchParams;
+  files?: { name: string; file: any }[];
+  headers?: Record<string, any>;
+  versioned?: boolean;
+  debug?: boolean;
+  reason?: string;
+  auth?: boolean;
+  route?: string;
+  data?: any;
+}
+
+// below is a hot mess but it allows cool things
+type RequestMethod = "get" | "post" | "delete" | "patch" | "put";
+type Handler = <T>(options?: RequestOptions) => Promise<T>;
+type Execute = Record<RequestMethod, Handler> &
+  Record<string, Executor> &
+  ((...args: string[]) => Executor);
+// @ts-ignore
+interface Executor extends Execute {}
+
+const routeBuilder = (manager: RESTManager) => {
   const route = [""];
   const handler = {
     get(target: any, name: string) {
@@ -30,7 +55,7 @@ export default (manager: RESTManager) => {
           // All other parts of the route should be considered as part of the bucket identifier
           else routeBucket.push(route[i]);
         }
-        return (options: { [key: string]: any }) =>
+        return (options: RequestOptions) =>
           manager.request(
             name,
             route.join("/"),
@@ -48,8 +73,10 @@ export default (manager: RESTManager) => {
     },
     apply(target: any, _: any, args: any[]) {
       route.push(...args.filter((x) => x != null));
-      return new Proxy(noop, handler);
+      return new Proxy(noop, handler) as Execute;
     },
   };
-  return new Proxy(noop, handler);
+  return new Proxy(noop, handler) as Execute;
 };
+
+export default routeBuilder;

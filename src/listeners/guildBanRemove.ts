@@ -12,7 +12,7 @@ export default class GuildBanRemove extends Listener {
   }
 
   async exec(guild: FireGuild, user: FireUser) {
-    if (!guild) return;
+    if (!guild || typeof guild.fetchAuditLogs != "function") return;
     let action: GuildAuditLogsEntry;
     const auditLogActions = await guild
       .fetchAuditLogs({ limit: 2, type: "MEMBER_BAN_REMOVE" })

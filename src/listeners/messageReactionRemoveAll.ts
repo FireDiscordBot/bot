@@ -15,7 +15,10 @@ export default class MessageReactionRemoveAll extends Listener {
 
     if (!guild.starboardReactions.has(message.id)) return;
     else {
-      const starboardEmoji = guild.settings.get("starboard.emoji", "⭐");
+      const starboardEmoji = guild.settings.get<string>(
+        "starboard.emoji",
+        "⭐"
+      );
 
       // these two variables satisfy the needs for FireMessage#star
       // so they'll be used in place of an actual reaction and user

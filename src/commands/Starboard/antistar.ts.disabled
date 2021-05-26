@@ -16,9 +16,12 @@ export default class StarboardAntistar extends Command {
   }
 
   async exec(message: FireMessage) {
-    const current = message.guild.settings.get("starboard.antistar", false);
+    const current = message.guild.settings.get<boolean>(
+      "starboard.antistar",
+      false
+    );
     if (current) message.guild.settings.delete("starboard.antistar");
-    else message.guild.settings.set("starboard.antistar", true);
+    else message.guild.settings.set<boolean>("starboard.antistar", true);
 
     return !current
       ? await message.success("STARBOARD_ANTISTAR_ENABLED")

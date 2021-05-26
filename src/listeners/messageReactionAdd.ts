@@ -1,6 +1,7 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageReaction, GuildEmoji } from "discord.js";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
 import Sk1er from "@fire/src/modules/sk1er";
@@ -14,18 +15,21 @@ export default class MessageReactionAdd extends Listener {
   }
 
   async exec(messageReaction: MessageReaction, user: FireUser) {
+    if (
+      user.bot ||
+      this.client.util.isBlacklisted(
+        user,
+        messageReaction.message?.guild as FireGuild
+      )
+    )
+      return;
+
     const message = messageReaction.message as FireMessage;
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-    if (message.id == sk1erModule?.supportMessageId) {
-      const ticket = await sk1erModule
+    if (message.id == sk1erModule?.supportMessageId)
+      return await sk1erModule
         .handleSupport(messageReaction, user)
-        .catch((e: Error) => e);
-      if (!(ticket instanceof FireTextChannel))
-        this.client.console.error(
-          `[Sk1er] Failed to make ticket for ${user} due to ${ticket}`
-        );
-      return;
-    }
+        .catch(() => {});
 
     if (
       message.guild?.premium &&
@@ -58,9 +62,9 @@ export default class MessageReactionAdd extends Listener {
       !user?.bot
     ) {
       const channel = message.guild.channels.cache.get(
-        message.guild?.settings.get("starboard.channel")
+        message.guild?.settings.get<string>("starboard.channel")
       ) as FireTextChannel;
-      const starboardEmoji = message.guild?.settings.get(
+      const starboardEmoji = message.guild?.settings.get<string>(
         "starboard.emoji",
         "⭐"
       );

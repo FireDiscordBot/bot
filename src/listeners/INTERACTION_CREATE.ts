@@ -3,6 +3,7 @@
 
 import { Button, Interaction } from "@fire/lib/interfaces/interactions";
 import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Scope } from "@sentry/node";
@@ -19,6 +20,7 @@ export default class InteractionCreate extends Listener {
 
   async exec(interaction: Interaction) {
     if (!interaction) return;
+    if (this.blacklistCheck(interaction)) return;
     // slash command, use client interaction event
     else if (interaction.type == 2) return;
     else if (interaction.type == 3) return await this.handleButton(interaction);
@@ -101,5 +103,17 @@ If this is a slash command and the bot is not present, try inviting the bot (<${
 Error Message: ${error.message}`,
         },
       });
+  }
+
+  blacklistCheck(interaction: Interaction) {
+    const guild = interaction.guild_id;
+    const user = interaction.user
+      ? interaction.user.id
+      : interaction.member.user.id;
+
+    return this.client.util.isBlacklisted(
+      user,
+      this.client.guilds.cache.get(guild) as FireGuild
+    );
   }
 }

@@ -7,18 +7,15 @@ export default class BlacklistInhibitor extends Inhibitor {
     super("blacklist", {
       reason: "blacklist",
       priority: 10,
-      type: "all",
+      type: "post",
     });
   }
 
   exec(message: FireMessage, command?: Command) {
-    return (
-      (this.client.util.plonked.includes(message.author.id) ||
-        (message.guild?.settings.get("utils.plonked", []) as string[]).includes(
-          message.author.id
-        )) &&
-      !message.author.isSuperuser() &&
-      command?.id != "debug"
+    return this.client.util.isBlacklisted(
+      message.author.id,
+      message.guild,
+      command?.id
     );
   }
 
