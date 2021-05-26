@@ -6,7 +6,7 @@ if (process.env.USE_LITECORD == "true")
     http: {
       api: process.env.LITECORD_HOST,
       cdn: process.env.LITECORD_CDN,
-      version: parseInt(process.env.LITECORD_VERSION),
+      version: 9,
     },
   };
 
