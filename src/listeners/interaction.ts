@@ -49,7 +49,10 @@ export default class InteractionListener extends Listener {
         await this.error(command, error).catch(() => {
           command.reply(`${emojis.error} Something went wrong...`);
         });
-      if (typeof this.client.sentry != "undefined") {
+      if (
+        typeof this.client.sentry != "undefined" &&
+        error.message != "Component checks failed, potential mitm/selfbot?"
+      ) {
         const sentry = this.client.sentry;
         sentry.setExtras({
           slashCommand: JSON.stringify(command),
