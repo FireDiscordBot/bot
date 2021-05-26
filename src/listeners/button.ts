@@ -11,9 +11,13 @@ import { SnowflakeUtil, MessageEmbed, Permissions } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import Rank from "../commands/Premium/rank";
 import Sk1er from "../modules/sk1er";
+import * as centra from "centra";
+
+const { url } = constants;
 
 const validPaginatorIds = ["close", "start", "back", "forward", "end"];
 const validSk1erTypes = ["general", "purchase", "bug"];
@@ -52,6 +56,62 @@ export default class Button extends Listener {
         handler(button);
       }
     } catch {}
+
+    if (
+      url.supportedHaste.some((url) => button.custom_id.startsWith(`h:${url}:`))
+    ) {
+      button.flags = 64;
+      const [, uploader, key] = button.custom_id.split(":");
+      const hasteReq = await centra(`https://${uploader}/raw/${key}`)
+        .header(
+          "User-Agent",
+          `Fire Discord Bot/${button.client.manager.version} (+https://fire.gaminggeek.dev/)`
+        )
+        .send()
+        .catch(() => {});
+      if (!hasteReq || hasteReq.statusCode != 200) {
+        return await button.error("HASTE_FETCH_FAILED");
+      } else {
+        const hasteBody = hasteReq.body?.toString();
+        if (!hasteBody) return await button.error("HASTE_FETCH_FAILED");
+        let embeds: object | object[], content: string;
+        try {
+          const data: {
+            content?: string;
+            embed?: object;
+            embeds?: object[];
+          } = JSON.parse(hasteBody);
+          if (data?.embed) embeds = data.embed;
+          else if (data?.embeds) embeds = data.embeds;
+          if (data?.content) content = data.content;
+        } catch {
+          return await button.error("EMBED_OBJECT_INVALID");
+        }
+
+        if (!embeds && !content)
+          return await button.error("EMBED_OBJECT_INVALID");
+
+        if (embeds instanceof Array) {
+          let sentContent = false;
+          for (const embed of embeds) {
+            const instance = new MessageEmbed(embed);
+            if (this.isEmbedEmpty(instance)) continue;
+            content && !sentContent
+              ? await button.channel.send(content, instance)
+              : await button.channel.send(instance);
+            if (!sentContent) sentContent = true;
+          }
+          return await message.success();
+        } else if (typeof embeds == "object") {
+          const instance = new MessageEmbed(embeds);
+          if (this.isEmbedEmpty(instance))
+            return await message.error("EMBED_OBJECT_INVALID");
+          return content
+            ? await button.channel.send(content, instance)
+            : await button.channel.send(instance);
+        } else return await message.error("EMBED_OBJECT_INVALID");
+      }
+    }
 
     // handle ticket close buttons
     if (button.custom_id.startsWith("ticket_close")) {
@@ -381,5 +441,21 @@ export default class Button extends Listener {
       button.custom_id == "close"
     )
       await message?.delete().catch(() => {});
+  }
+
+  private isEmbedEmpty(embed: MessageEmbed) {
+    return (
+      !embed.title &&
+      !embed.description &&
+      !embed.url &&
+      !embed.timestamp &&
+      !embed.footer?.text &&
+      !embed.footer?.iconURL &&
+      !embed.image?.url &&
+      !embed.thumbnail?.url &&
+      !embed.author?.name &&
+      !embed.author?.url &&
+      !embed.fields?.length
+    );
   }
 }
