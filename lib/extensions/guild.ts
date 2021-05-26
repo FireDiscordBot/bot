@@ -718,7 +718,7 @@ export class FireGuild extends Guild {
         .array(),
     ] as (FireTextChannel | ThreadChannel)[];
     return this.settings
-    .get<string[]>("tickets.channels", [])
+      .get<string[]>("tickets.channels", [])
       .map((id) => textChannelsAndThreads.find((channel) => channel.id == id))
       .filter((channel) => !!channel);
   }
@@ -726,20 +726,21 @@ export class FireGuild extends Guild {
   getTickets(user?: string) {
     if (!user) return this.tickets;
     let channels = this.settings
-    .get<string[]>("tickets.channels", []).map((id) =>
-      this.channels.cache
-        .filter(
-          (channel) =>
-            (channel.type == "text" || channel instanceof ThreadChannel) &&
-            channel.id == id
-        )
-        .get(id)
-    ) as (FireTextChannel | ThreadChannel)[];
+      .get<string[]>("tickets.channels", [])
+      .map((id) =>
+        this.channels.cache
+          .filter(
+            (channel) =>
+              (channel.type == "text" || channel instanceof ThreadChannel) &&
+              channel.id == id
+          )
+          .get(id)
+      ) as (FireTextChannel | ThreadChannel)[];
 
     return channels.filter((channel: FireTextChannel | ThreadChannel) =>
       channel instanceof FireTextChannel
         ? channel?.topic.includes(user)
-        : channel.name.includes(user)
+        : channel?.name.includes(user)
     );
   }
 
