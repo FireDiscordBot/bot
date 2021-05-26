@@ -32,12 +32,6 @@ export default class Quote extends Command {
           required: true,
           default: null,
         },
-        {
-          id: "debug",
-          match: "flag",
-          flag: "--debug",
-          default: false,
-        },
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
@@ -51,7 +45,6 @@ export default class Quote extends Command {
       quoter?: FireMember;
       quote: FireMessage | "cross_cluster";
       webhook?: string;
-      debug?: boolean;
     }
   ) {
     if (!args?.quote) return;
@@ -116,7 +109,6 @@ export default class Quote extends Command {
                   guild_id: message.guild?.id,
                   id: message.channel.id,
                 } as PartialQuoteDestination,
-                debug: args.debug,
               })
             )
           );
@@ -130,14 +122,9 @@ export default class Quote extends Command {
       regexes.discord.webhook.lastIndex = 0;
       if (!match?.groups.id || !match?.groups.token) return;
       webhook = new WebhookClient(match.groups.id, match.groups.token);
-      const quoted = await args.quote
+      return await args.quote
         .quote(args.destination, args.quoter, webhook)
         .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
-      if (args.debug && typeof quoted == "string")
-        return !message
-          ? await webhook.send(quoted)
-          : await message.channel.send(quoted);
-      else return;
     } else if (!message) return;
     const quoted = await args.quote
       .quote(
@@ -148,9 +135,5 @@ export default class Quote extends Command {
         webhook
       )
       .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
-    if (args.debug && typeof quoted == "string")
-      return !message
-        ? await webhook.send(quoted)
-        : await message.channel.send(quoted);
   }
 }
