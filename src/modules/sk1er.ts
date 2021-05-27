@@ -26,11 +26,9 @@ interface Regexes {
 export default class Sk1er extends Module {
   essentialHeaders: { secret: string };
   descriptionUpdate: NodeJS.Timeout;
-  supportChannel: FireTextChannel;
   supportMessage: FireMessage;
   statusCheck: NodeJS.Timeout;
   supportMessageId: string;
-  supportChannelId: string;
   supportGuild: FireGuild;
   supportGuildId: string;
   logText: string[];
@@ -46,7 +44,6 @@ export default class Sk1er extends Module {
     this.guildId = "411619823445999637";
     this.supportGuildId = "755794954743185438";
     this.supportMessageId = "755817441581596783";
-    this.supportChannelId = "755796557692928031";
     this.nitroId = "585534346551754755";
     this.statusCheck = setInterval(
       async () => await this.statusChecker(),
@@ -79,9 +76,6 @@ export default class Sk1er extends Module {
     if ([!this.guild, !this.supportGuild].every((value) => value == true))
       return this.remove();
     this.nitro = this.guild?.roles.cache.get(this.nitroId);
-    this.supportChannel = this.client.channels.cache.get(
-      this.supportChannelId
-    ) as FireTextChannel;
     this.essentialHeaders = { secret: process.env.MODCORE_SECRET };
     if (this.guild) {
       await this.statusChecker();
