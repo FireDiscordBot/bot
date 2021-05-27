@@ -17,7 +17,7 @@ import Rank from "../commands/Premium/rank";
 import Sk1er from "../modules/sk1er";
 import * as centra from "centra";
 
-const { url } = constants;
+const { url, emojis } = constants;
 
 const validPaginatorIds = ["close", "start", "back", "forward", "end"];
 const validSk1erTypes = ["general", "purchase", "bug"];
@@ -426,6 +426,15 @@ export default class Button extends Listener {
         .catch((e: Error) => e);
       if (!(ticket instanceof FireTextChannel))
         return await button.error("SK1ER_SUPPORT_FAIL", ticket.toString());
+      else
+        await button
+          .edit(
+            `${emojis.success} ${button.language.get(
+              "NEW_TICKET_CREATED",
+              ticket.toString()
+            )}`
+          )
+          .catch(() => {});
     }
 
     if (
