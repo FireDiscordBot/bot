@@ -70,12 +70,6 @@ export class ButtonMessage {
     this.id = button.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
     this.custom_id = button.data.custom_id;
-    this.client.console.warn(
-      "button press",
-      button.message.flags,
-      button.data,
-      Object.keys(button.message)
-    );
     this.button = button;
     this.sent = false;
     this.guild = client.guilds.cache.get(button.guild_id) as FireGuild;
