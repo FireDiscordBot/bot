@@ -70,6 +70,12 @@ export class ButtonMessage {
     this.id = button.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
     this.custom_id = button.data.custom_id;
+    this.client.console.warn(
+      "button press",
+      button.message.flags,
+      button.data,
+      Object.keys(button.message)
+    );
     this.button = button;
     this.sent = false;
     this.guild = client.guilds.cache.get(button.guild_id) as FireGuild;
@@ -77,13 +83,6 @@ export class ButtonMessage {
       | FireTextChannel
       | NewsChannel
       | DMChannel;
-    if (this.custom_id.startsWith("sk1er_support_"))
-      this.client.console.warn(
-        "sk1er support",
-        button.message.flags,
-        button.data,
-        Object.keys(button.message)
-      );
     this.ephemeral = (button.message.flags & 64) != 0;
     this.message = this.ephemeral
       ? (button.message as EphemeralMessage)
