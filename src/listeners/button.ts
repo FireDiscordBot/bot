@@ -44,13 +44,6 @@ export default class Button extends Listener {
     let message: FireMessage;
     if (!button.ephemeral) message = button.message as FireMessage;
 
-    if (button.custom_id.startsWith("sk1er_support_"))
-      this.client.console.warn(
-        "sk1er support",
-        button.ephemeral,
-        button.message instanceof FireMessage
-      );
-
     // Run handlers
     try {
       if (this.client.buttonHandlers.has(button.custom_id))

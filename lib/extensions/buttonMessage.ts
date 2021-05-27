@@ -77,6 +77,13 @@ export class ButtonMessage {
       | FireTextChannel
       | NewsChannel
       | DMChannel;
+    if (this.custom_id.startsWith("sk1er_support_"))
+      this.client.console.warn(
+        "sk1er support",
+        button.message.flags,
+        button.data,
+        Object.keys(button.message)
+      );
     this.ephemeral = (button.message.flags & 64) != 0;
     this.message = this.ephemeral
       ? (button.message as EphemeralMessage)
