@@ -44,6 +44,13 @@ export default class Button extends Listener {
     let message: FireMessage;
     if (!button.ephemeral) message = button.message as FireMessage;
 
+    if (button.custom_id.startsWith("sk1er_support_"))
+      this.client.console.warn(
+        "sk1er support",
+        button.ephemeral,
+        button.message instanceof FireMessage
+      );
+
     // Run handlers
     try {
       if (this.client.buttonHandlers.has(button.custom_id))
@@ -335,10 +342,9 @@ export default class Button extends Listener {
       const type = button.custom_id.slice(14);
       if (!type || !validSk1erTypes.includes(type)) return;
       const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-      if (!sk1erModule) return this.client.console.warn("sk1er support", "no module");
+      if (!sk1erModule) return;
 
-      if (!message)
-        return this.client.console.warn("sk1er support", "no message");
+      if (!message) return "no message";
       const component = message.components
         ?.map((component) =>
           component.type == ButtonType.ACTION_ROW
@@ -357,8 +363,8 @@ export default class Button extends Listener {
         component?.type != ButtonType.BUTTON ||
         component?.style == ButtonStyle.LINK
       )
-      return this.client.console.warn("sk1er support", "non button");
-      if (!component.emoji?.name) return this.client.console.warn("sk1er support", "unknown emoji");
+        return "non button";
+      if (!component.emoji?.name) return "unknown emoji";
       const emoji = component.emoji.name;
 
       button.flags += 64; // set ephemeral
