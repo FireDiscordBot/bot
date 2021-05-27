@@ -335,9 +335,10 @@ export default class Button extends Listener {
       const type = button.custom_id.slice(14);
       if (!type || !validSk1erTypes.includes(type)) return;
       const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-      if (!sk1erModule) return;
+      if (!sk1erModule) return this.client.console.warn("sk1er support", "no module");
 
-      if (!message) return "no message";
+      if (!message)
+        return this.client.console.warn("sk1er support", "no message");
       const component = message.components
         ?.map((component) =>
           component.type == ButtonType.ACTION_ROW
@@ -356,8 +357,8 @@ export default class Button extends Listener {
         component?.type != ButtonType.BUTTON ||
         component?.style == ButtonStyle.LINK
       )
-        return "non button";
-      if (!component.emoji?.name) return "unknown emoji";
+      return this.client.console.warn("sk1er support", "non button");
+      if (!component.emoji?.name) return this.client.console.warn("sk1er support", "unknown emoji");
       const emoji = component.emoji.name;
 
       button.flags += 64; // set ephemeral
