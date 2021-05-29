@@ -90,6 +90,8 @@ export class APIRequest {
       this.client.console.warn(
         `[Rest] Sending request to ${this.method.toUpperCase()} ${this.path}`
       );
+    if (process.env.USE_LITECORD)
+      request.header("cookie", process.env.LITECORD_COOKIES);
     const start = +new Date();
     return request.send().finally(() => {
       this.client.clearTimeout(timeout);
