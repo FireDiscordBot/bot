@@ -65,7 +65,7 @@ export default class Sk1er extends Module {
   async init() {
     if (this.client.config.dev) return this.remove();
     if (this.client.readyAt) await this.ready();
-    else this.client.once("ready", async () => this.ready());
+    else this.client.once("ready", () => this.ready());
   }
 
   async ready() {
@@ -73,8 +73,10 @@ export default class Sk1er extends Module {
     this.supportGuild = this.client.guilds.cache.get(
       this.supportGuildId
     ) as FireGuild;
-    if ([!this.guild, !this.supportGuild].every((value) => value == true))
-      return this.remove();
+    if ([!this.guild, !this.supportGuild].every((value) => value == true)) {
+      this.remove();
+      return;
+    }
     this.nitro = this.guild?.roles.cache.get(this.nitroId);
     this.essentialHeaders = { secret: process.env.MODCORE_SECRET };
     if (this.guild) {
@@ -294,10 +296,10 @@ export default class Sk1er extends Module {
     try {
       const current = await this.getUUID(user);
       if (current)
-        await this.client.db.query("UPDATE essential SET uuid=$1 WHERE uid=$2;", [
-          uuid,
-          user.id,
-        ]);
+        await this.client.db.query(
+          "UPDATE essential SET uuid=$1 WHERE uid=$2;",
+          [uuid, user.id]
+        );
       else
         await this.client.db.query(
           "INSERT INTO essential (uid, uuid) VALUES ($1, $2);",

@@ -1,5 +1,5 @@
 import {
-  PermissionOverwriteOption,
+  PermissionOverwriteOptions,
   PermissionOverwrites,
   MessageEmbed,
   Permissions,
@@ -14,7 +14,7 @@ import { Command } from "@fire/lib/util/command";
 
 const update = (
   overwrite: PermissionOverwrites,
-  options: PermissionOverwriteOption
+  options: PermissionOverwriteOptions
 ) => {
   const { allow, deny } = PermissionOverwrites.resolveOverwriteOptions(
     options,

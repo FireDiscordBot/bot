@@ -1,20 +1,20 @@
 import {
-  Util,
-  Role,
-  Guild,
-  Webhook,
-  Collection,
-  Structures,
-  Permissions,
+  PermissionOverwriteOptions,
+  MessageEmbedOptions,
+  FetchOwnerOptions,
+  MessageAttachment,
+  CategoryChannel,
+  WebhookClient,
   StageChannel,
   VoiceChannel,
   MessageEmbed,
-  WebhookClient,
-  CategoryChannel,
-  MessageAttachment,
-  FetchOwnerOptions,
-  MessageEmbedOptions,
-  PermissionOverwriteOption,
+  Permissions,
+  Collection,
+  Structures,
+  Webhook,
+  Guild,
+  Util,
+  Role,
 } from "discord.js";
 import {
   ActionLogType,
@@ -1108,7 +1108,7 @@ export class FireGuild extends Guild {
       ).catch(() => {});
       if (!logEntry) return "entry";
     }
-    const overwrite: PermissionOverwriteOption = {
+    const overwrite: PermissionOverwriteOptions = {
       SEND_MESSAGES: false,
       ADD_REACTIONS: false,
     };
@@ -1178,7 +1178,7 @@ export class FireGuild extends Guild {
       ).catch(() => {});
       if (!logEntry) return "entry";
     }
-    const overwrite: PermissionOverwriteOption = {
+    const overwrite: PermissionOverwriteOptions = {
       SEND_MESSAGES: null,
       ADD_REACTIONS: null,
     };
