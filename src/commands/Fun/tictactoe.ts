@@ -54,6 +54,7 @@ export default class TicTacToe extends Command {
       requiresExperiment: { id: 1621199146, bucket: 1 },
       enableSlashCommand: true,
       restrictTo: "guild",
+      aliases: ["ttt"],
     });
 
     this.games = new Collection();
