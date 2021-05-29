@@ -264,6 +264,11 @@ export class FireMessage extends Message {
   }
 
   private isImageEmbed(embed: MessageEmbed) {
+    let embedURL: URL, thumbURL: URL;
+    try {
+      embedURL = new URL(embed.url);
+      thumbURL = new URL(embed.thumbnail.url);
+    } catch {}
     return (
       !embed.title &&
       !embed.description &&
@@ -274,8 +279,8 @@ export class FireMessage extends Message {
       !embed.author &&
       !embed.footer &&
       (embed.url == embed.thumbnail.url ||
-        (embed.url.includes("imgur.com") &&
-          embed.thumbnail.url.includes("i.imgur.com")))
+        (embedURL?.host.includes("imgur.com") &&
+          thumbURL?.host.includes("i.imgur.com")))
     );
   }
 
