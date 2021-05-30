@@ -18,6 +18,10 @@ const cleanMap = {
   "": [regexes.zws, regexes.protocol, regexes.symbol, /\s/gim, /(\*|_|\|)/gim],
   com: [/c.m/gim],
   "discord.gg/$1": [/\.gg\/(?<code>[\w-]{1,25})/gim],
+  // always keep this at the end
+  "lets be honest there is no reason to post this other than trying to send rick roll so lol, youtu.be/dQw4w9WgXcQ": [
+    /\/(?:watch\?v=)?dQw4w9WgXcQ/gim,
+  ],
 };
 
 export default class Message extends Listener {
