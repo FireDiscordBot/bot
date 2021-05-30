@@ -1,7 +1,7 @@
 import {
   APIMessageContentResolvable,
+  PermissionOverwriteOptions,
   EmojiIdentifierResolvable,
-  PermissionOverwriteOption,
   DeconstructedSnowflake,
   GuildMemberResolvable,
   AwaitMessagesOptions,
@@ -449,7 +449,7 @@ export class FakeChannel {
 
   updateOverwrite(
     userOrRole: RoleResolvable | UserResolvable,
-    options: PermissionOverwriteOption,
+    options: PermissionOverwriteOptions,
     reason?: string
   ) {
     // TODO: update when threads have permissions
@@ -471,7 +471,7 @@ export class FakeChannel {
   async ack(ephemeral = false) {
     if (ephemeral || (this.flags & 64) != 0) return;
     await this.message.slashCommand
-      .defer(!!((this.flags & 64) == 64))
+      .defer({ ephemeral: !!((this.flags & 64) == 64) })
       .then(() => {
         this.message.sent = "ack";
         this.message.getRealMessage().catch(() => {});

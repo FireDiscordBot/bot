@@ -1,6 +1,6 @@
 import {
   APIMessageContentResolvable,
-  PermissionOverwriteOption,
+  PermissionOverwriteOptions,
   EmojiIdentifierResolvable,
   DeconstructedSnowflake,
   GuildMemberResolvable,
@@ -494,7 +494,7 @@ export class FakeChannel {
 
   updateOverwrite(
     userOrRole: RoleResolvable | UserResolvable,
-    options: PermissionOverwriteOption,
+    options: PermissionOverwriteOptions,
     reason?: string
   ) {
     // TODO: update when threads have permissions

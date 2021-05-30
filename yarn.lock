@@ -601,7 +601,7 @@ discord-api-types@^0.18.0:
 
 discord.js@ckohen/discord.js#threads:
   version "13.0.0-dev"
-  resolved "https://codeload.github.com/ckohen/discord.js/tar.gz/092376fb50d46a44bd0abfa37d1f38a0706ea72c"
+  resolved "https://codeload.github.com/ckohen/discord.js/tar.gz/daf99a725bdeef2566d1772a10eb5b8440bc4a7d"
   dependencies:
     "@discordjs/collection" "^0.1.6"
     "@discordjs/form-data" "^3.0.1"

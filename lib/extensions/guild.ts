@@ -1,5 +1,5 @@
 import {
-  PermissionOverwriteOption,
+  PermissionOverwriteOptions,
   MessageEmbedOptions,
   FetchOwnerOptions,
   MessageAttachment,
@@ -1185,7 +1185,7 @@ export class FireGuild extends Guild {
       ).catch(() => {});
       if (!logEntry) return "entry";
     }
-    const overwrite: PermissionOverwriteOption = {
+    const overwrite: PermissionOverwriteOptions = {
       SEND_MESSAGES: false,
       ADD_REACTIONS: false,
     };
@@ -1255,7 +1255,7 @@ export class FireGuild extends Guild {
       ).catch(() => {});
       if (!logEntry) return "entry";
     }
-    const overwrite: PermissionOverwriteOption = {
+    const overwrite: PermissionOverwriteOptions = {
       SEND_MESSAGES: null,
       ADD_REACTIONS: null,
     };
