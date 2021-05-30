@@ -10,6 +10,16 @@ import * as centra from "centra";
 const { regexes } = constants;
 const tokenExtras = /(?:(?:  )?',(?: ')?\n?|  '|\s|\n)/gim;
 const snowflakeRegex = /\d{15,21}/gim;
+
+const cleanMap = {
+  ":": [/\\:/gim],
+  ".": [/\\\./gim, /\(\.\)/gim, /dot/gim, /\/\./gim],
+  "/": [/\.\//gim, /\\\/\//gim, /slash/gim],
+  "": [regexes.zws, regexes.protocol, regexes.symbol, /\s/gim, /(\*|_|\|)/gim],
+  com: [/c.m/gim],
+  "discord.gg/$1": [/\.gg\/(?<code>[\w-]{1,25})/gim],
+};
+
 export default class Message extends Listener {
   recentTokens: string[];
   tokenRegex: RegExp;
@@ -174,18 +184,11 @@ export default class Message extends Listener {
   }
 
   cleanContent(message: FireMessage) {
-    return message.content
-      .replace(/\\:/gim, ":")
-      .replace(/\\\./gim, ".")
-      .replace(regexes.zws, "")
-      .replace(/\(\.\)/gim, ".")
-      .replace(/\.\//gim, "/")
-      .replace(/dot/gim, ".")
-      .replace(/\/\./gim, ".")
-      .replace(regexes.protocol, "")
-      .replace(regexes.symbol, "")
-      .replace(/\\\/\//gim, "/")
-      .replace(/\s/gim, "")
-      .replace(/\.gg\/(?<code>[\w-]{1,25})/, "discord.gg/$1");
+    let content = message.cleanContent;
+    for (const [replacement, regexes] of Object.entries(cleanMap)) {
+      for (const regex of regexes)
+        content = content.replace(regex, replacement);
+    }
+    return content;
   }
 }
