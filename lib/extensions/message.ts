@@ -144,25 +144,24 @@ export class FireMessage extends Message {
   }
 
   async quote(
-    destination: FireTextChannel | PartialQuoteDestination,
+    destination: FireTextChannel | ThreadChannel | PartialQuoteDestination,
     quoter: FireMember,
     webhook?: WebhookClient
   ) {
     if (this.channel.type == "dm") return "dm";
+    let thread: ThreadChannel;
+    if (destination instanceof ThreadChannel) {
+      // we can't assign thread to destination since we're reassigning it
+      thread = this.client.channels.cache.get(destination.id) as ThreadChannel;
+      destination = destination.parent as FireTextChannel;
+    }
+
     const channel =
       this.channel instanceof ThreadChannel
         ? (this.channel.parent as FireTextChannel)
         : (this.channel as FireTextChannel);
     if (this.author.system && !quoter.isSuperuser()) return "system";
     if (channel.nsfw && !destination?.nsfw) return "nsfw";
-    // if (destination instanceof ThreadChannel)
-    //   destination = {
-    //     permissions: channel.permissionsFor(quoter).bitfield.toString(),
-    //     guild_id: this.guild?.id,
-    //     guild: this.guild,
-    //     nsfw: channel.nsfw,
-    //     id: this.channel.id,
-    //   };
     const isLurkable =
       this.guild.roles.everyone
         .permissionsIn(channel)
@@ -183,7 +182,14 @@ export class FireMessage extends Message {
       } else member = quoter;
     }
 
-    if (!isLurkable)
+    // check thread members if private thread
+    if (this.channel.type == "private_thread") {
+      const members = await this.channel.members.fetchMembers();
+      if (!members?.size || !members.has(quoter.id)) return "permissions";
+      this.channel.members.cache.sweep(() => true); // we do not need y'all anymore stop taking up memory geez
+    }
+
+    if (!isLurkable && this.channel.type != "private_thread")
       if (
         !member ||
         !member.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL)
@@ -206,14 +212,15 @@ export class FireMessage extends Message {
       canUpload;
 
     return useWebhooks
-      ? await this.webhookQuote(destination, quoter, webhook)
+      ? await this.webhookQuote(destination, quoter, webhook, thread)
       : await this.embedQuote(destination, quoter);
   }
 
   private async webhookQuote(
     destination: FireTextChannel | PartialQuoteDestination,
     quoter: FireMember,
-    webhook?: WebhookClient
+    webhook?: WebhookClient,
+    thread?: ThreadChannel
   ) {
     let hook: Webhook | WebhookClient = webhook;
     if (!this.guild?.quoteHooks.has(destination.id)) {
@@ -300,13 +307,15 @@ export class FireMessage extends Message {
         ),
         files: attachments,
         allowedMentions: this.client.options.allowedMentions,
+        threadID: thread?.id,
       })
-      .catch(async () => {
+      .catch(async (e) => {
+        this.client.console.debug(e.stack);
         // this will ensure deleted webhooks are deleted
         // but also allow webhooks to be refreshed
         // even if the cached one still exists
         this.guild?.quoteHooks.delete(destination.id);
-        return await this.embedQuote(destination, quoter);
+        return await this.embedQuote(thread ?? destination, quoter);
       });
   }
 
