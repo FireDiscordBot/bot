@@ -113,7 +113,7 @@ export default class Message extends Listener {
       this.client.emit("channelPinsAdd", message.reference, message.member);
 
     if (
-      message.guild.id == "411619823445999637" &&
+      message.guild?.id == "411619823445999637" &&
       message.content.includes("strearmcommunity")
     )
       return await message.member?.bean(
