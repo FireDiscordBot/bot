@@ -91,8 +91,11 @@ export default class PremiumInhibitor extends Inhibitor {
       );
       if (!guild) return;
       const role = guild.roles.cache.get("564060922688176139");
-      const members = await guild.members.fetch().catch(() => {});
-      if (!members) return;
+      if (!role) return;
+      const members = await guild.members
+        .fetch({ user: [...paidIds, ...removeIds] })
+        .catch(() => {});
+      if (!members || !members.size) return;
       for (const [, member] of members)
         if (
           member.roles.cache.has(role.id) &&
@@ -100,7 +103,10 @@ export default class PremiumInhibitor extends Inhibitor {
           !this.client.config.dev
         )
           await member.roles.remove(role, "premium is gone :crabrave:");
-        else if (paidIds.includes(member.id))
+        else if (
+          paidIds.includes(member.id) &&
+          !member.roles.cache.has(role.id)
+        )
           await member.roles.add(role, "wow member now has premium");
     });
   }
