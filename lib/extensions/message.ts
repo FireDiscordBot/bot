@@ -493,6 +493,7 @@ export class FireMessage extends Message {
           dynamic: true,
         })
       )
+      .setColor(this.member?.displayHexColor || "#FFFFFF")
       .setFooter(this.id);
     if (this.content) embed.setDescription(this.content);
     if (this.embeds.length) {
