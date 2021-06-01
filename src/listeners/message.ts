@@ -1,3 +1,4 @@
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
@@ -110,6 +111,18 @@ export default class Message extends Listener {
 
     if (message.type == "PINS_ADD")
       this.client.emit("channelPinsAdd", message.reference, message.member);
+
+    if (
+      message.guild.id == "411619823445999637" &&
+      message.content.includes("strearmcommunity")
+    )
+      return await message.member?.bean(
+        "Phishing links",
+        message.guild.me,
+        null,
+        7,
+        message.channel as FireTextChannel
+      );
 
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
