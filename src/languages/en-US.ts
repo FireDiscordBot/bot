@@ -573,7 +573,7 @@ Hint: Use the \`public\` command to get your server on the list`,
           experiment: string,
           position: number
         ) =>
-          `${user}'s position in the experiment ${experiment} is ${position}`,
+          `**${user}**'s position in the experiment **${experiment}** is **${position}**`,
         EXPLICIT_CONTENT_FILTER_DISABLED: "No Filter",
         EXPLICIT_CONTENT_FILTER_MEMBERS_WITHOUT_ROLES: "Members Without Roles",
         EXPLICIT_CONTENT_FILTER_ALL_MEMBERS: "All Members",
