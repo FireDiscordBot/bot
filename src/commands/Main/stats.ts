@@ -107,7 +107,7 @@ export default class Stats extends Command {
       .addField(message.language.get("STATS_UPTIME"), clusterStats.uptime, true)
       .addField(
         message.language.get("STATS_COMMANDS"),
-        clusterStats.commands,
+        clusterStats.commands.toLocaleString(message.language.id),
         true
       );
     return await message.channel.send(embed);
@@ -154,7 +154,11 @@ export default class Stats extends Command {
         true
       )
       .addField(message.language.get("STATS_UPTIME"), stats.uptime, true)
-      .addField(message.language.get("STATS_COMMANDS"), stats.commands, true);
+      .addField(
+        message.language.get("STATS_COMMANDS"),
+        stats.commands.toLocaleString(message.language.id),
+        true
+      );
     return await message.channel.send(embed);
   }
 }

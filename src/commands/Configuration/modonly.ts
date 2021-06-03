@@ -1,10 +1,10 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { textChannelConverter } from "@fire/lib/util/converters";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { Permissions, Snowflake } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Util } from "@fire/lib/util/clientutil";
-import { Permissions } from "discord.js";
 
 export default class ModeratorOnly extends Command {
   constructor() {
@@ -30,7 +30,7 @@ export default class ModeratorOnly extends Command {
     let channels = args.channels;
     if (channels instanceof FireTextChannel) channels = [channels];
     if (!channels.length) return message.error("MODONLY_NO_CHANNELS");
-    let current = message.guild.settings.get<string[]>("commands.modonly", []);
+    let current = message.guild.settings.get<Snowflake[]>("commands.modonly", []);
     let modonly = [...current];
     channels.forEach((channel) => {
       if (!modonly.includes(channel.id)) modonly.push(channel.id);

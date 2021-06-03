@@ -34,11 +34,11 @@ export interface PaginatorEmojiSettings {
 }
 
 const EMOJI_DEFAULTS: PaginatorEmojiSettings = {
-  start: "⏮️",
-  back: "◀️",
-  forward: "▶️",
-  end: "⏭️",
-  close: "⏹️",
+  start: "⏮️" as EmojiResolvable,
+  back: "◀️" as EmojiResolvable,
+  forward: "▶️" as EmojiResolvable,
+  end: "⏭️" as EmojiResolvable,
+  close: "⏹️" as EmojiResolvable,
 };
 
 export class Paginator {

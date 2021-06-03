@@ -566,6 +566,14 @@ Hint: Use the \`public\` command to get your server on the list`,
         EVAL_COMMAND_DESCRIPTION: "run epic gamer code",
         EVAL_NO_CONTENT:
           "hey idiot you forgot to add the code you want to eval",
+        EXPERIMENTCHECK_COMMAND_DESCRIPTION:
+          "Check a user id's range in an experiment",
+        EXPERIMENTCHECK_POSITION: (
+          user: string,
+          experiment: string,
+          position: number
+        ) =>
+          `${user}'s position in the experiment ${experiment} is ${position}`,
         EXPLICIT_CONTENT_FILTER_DISABLED: "No Filter",
         EXPLICIT_CONTENT_FILTER_MEMBERS_WITHOUT_ROLES: "Members Without Roles",
         EXPLICIT_CONTENT_FILTER_ALL_MEMBERS: "All Members",
@@ -966,7 +974,11 @@ ${channels.join(", ")}`
           "__Attachment URLs are invalidated once the message is deleted.__",
         MSGDELETELOG_SPOTIFY_ACTIVITY: "Spotify Invite",
         MSGDELETELOG_ACTIVITY: (partyID: string, type: number) =>
-          `Party ID: ${partyID}\nType: ${this.get("ACTIVITY_TYPES")[type]}`,
+          `Party ID: ${partyID}\nType: ${
+            ((this.get("ACTIVITY_TYPES") as unknown) as Record<number, string>)[
+              type
+            ]
+          }`,
         MUTEROLE_COMMAND_DESCRIPTION: "Change the role used to mute members",
         MUTE_ROLE_CREATE_REASON: "Setting up muted role...",
         MUTE_LOG_AUTHOR: (user: string) => `Mute | ${user}`,
@@ -1033,7 +1045,9 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           "Make a user unable to use the best discord bot in your server",
         PLONK_FORBIDDEN: () =>
           `You must be in a server and have the **${
-            this.get("PERMISSIONS")["MANAGE_GUILD"]
+            ((this.get("PERMISSIONS") as unknown) as Record<string, string>)[
+              "MANAGE_GUILD"
+            ]
           }** permission to use this.`,
         PLONK_USER_REQUIRED: "You must provide a user to plonk",
         PLONK_LOG_AUTHOR: (user: string) => `Blacklist | ${user}`,

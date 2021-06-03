@@ -1,8 +1,8 @@
 import {
   ArgumentGenerator as AkairoArgumentGenerator,
   ArgumentOptions as AkairoArgumentOptions,
-  Command as AkairoCommand,
   CommandOptions as AkairoCommandOptions,
+  Command as AkairoCommand,
   Flag,
 } from "discord-akairo";
 import {
@@ -10,10 +10,9 @@ import {
   ApplicationCommandData,
   DiscordAPIError,
   Permissions,
+  Snowflake,
 } from "discord.js";
-import { APIApplicationCommand } from "@fire/lib/interfaces/interactions";
 import { ApplicationCommandOptionType } from "discord-api-types";
-import { titleCase } from "./constants";
 import { Language } from "./language";
 import { Fire } from "@fire/lib/Fire";
 
@@ -65,8 +64,8 @@ export class Command extends AkairoCommand {
   moderatorOnly: boolean;
   superuserOnly: boolean;
   declare client: Fire;
+  guilds: Snowflake[];
   ephemeral: boolean;
-  guilds: string[];
   premium: boolean;
   parent?: string;
   hidden: boolean;
@@ -177,6 +176,7 @@ export class Command extends AkairoCommand {
       const subcommands = this.client.commandHandler.modules.filter(
         (command: Command) => command.parent == this.id
       );
+      // @ts-ignore (i am in too much pain to figure out why this is complaining)
       data["options"] = [
         ...subcommands.map((command: Command) => command.getSubcommand()),
         ...(this.args as ArgumentOptions[])
@@ -193,7 +193,7 @@ export class Command extends AkairoCommand {
         slashCommandTypeMappings[type].includes(argument.type)
       ) as unknown) as ApplicationCommandOptionType) || "STRING";
     let options: ApplicationCommandOptionData = {
-      type,
+      type: type as keyof typeof ApplicationCommandOptionType,
       name: (argument.slashCommandType
         ? argument.slashCommandType
         : argument.readableType.split("|")[0]
@@ -312,9 +312,9 @@ export interface CommandOptions extends AkairoCommandOptions {
   enableSlashCommand?: boolean;
   superuserOnly?: boolean;
   moderatorOnly?: boolean;
+  guilds?: Snowflake[];
   ephemeral?: boolean;
   premium?: boolean;
-  guilds?: string[];
   hidden?: boolean;
   group?: boolean;
   parent?: string;

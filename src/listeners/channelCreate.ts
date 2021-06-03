@@ -27,7 +27,7 @@ export default class ChannelCreate extends Listener {
             ADD_REACTIONS: false,
           },
           {
-            reason: guild.language.get("MUTE_ROLE_CREATE_REASON") as string,
+            reason: guild.language.get("MUTE_ROLE_CREATE_REASON"),
             type: 0,
           }
         )
@@ -53,7 +53,7 @@ export default class ChannelCreate extends Listener {
                 type: "role",
               },
             ],
-            guild.language.get("PERMROLES_REASON") as string
+            guild.language.get("PERMROLES_REASON")
           )
           .catch(() => {});
       }

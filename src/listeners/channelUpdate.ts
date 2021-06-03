@@ -41,7 +41,7 @@ export default class ChannelUpdate extends Listener {
             ADD_REACTIONS: false,
           },
           {
-            reason: guild.language.get("MUTE_ROLE_CREATE_REASON") as string,
+            reason: guild.language.get("MUTE_ROLE_CREATE_REASON"),
             type: 0,
           }
         )

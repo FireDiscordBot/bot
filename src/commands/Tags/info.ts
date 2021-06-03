@@ -68,7 +68,10 @@ export default class TagInfo extends Command {
           : `${cachedTag.createdBy.toMention()} (${cachedTag.createdBy.toString()})`
       );
     if (cachedTag.uses)
-      embed.addField(message.language.get("TAG_USES"), cachedTag.uses);
+      embed.addField(
+        message.language.get("TAG_USES"),
+        cachedTag.uses.toLocaleString(message.language.id)
+      );
 
     if (message.guild.hasExperiment(1621199146, 1))
       return message instanceof SlashCommandMessage
@@ -85,21 +88,21 @@ export default class TagInfo extends Command {
   private getInitialButtons(message: FireMessage, tag: Tag) {
     return [
       {
-        label: message.language.get("TAG_INFO_EDIT_BUTTON") as string,
+        label: message.language.get("TAG_INFO_EDIT_BUTTON"),
         custom_id: `!tag_edit:${tag.name}`,
         style: ButtonStyle.PRIMARY,
         type: ButtonType.BUTTON,
       },
       tag.content.length >= 100
         ? {
-            label: message.language.get("TAG_INFO_VIEW_BUTTON") as string,
+            label: message.language.get("TAG_INFO_VIEW_BUTTON"),
             custom_id: `tag_view:${tag.name}`,
             style: ButtonStyle.PRIMARY,
             type: ButtonType.BUTTON,
           }
         : null,
       {
-        label: message.language.get("TAG_INFO_DELETE_BUTTON") as string,
+        label: message.language.get("TAG_INFO_DELETE_BUTTON"),
         custom_id: `!tag_delete:${tag.name}`,
         style: ButtonStyle.DESTRUCTIVE,
         type: ButtonType.BUTTON,

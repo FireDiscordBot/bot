@@ -140,8 +140,14 @@ export default class VanityURLs extends Module {
       .addField("URL", `https://inv.wtf/${code}`)
       .setTimestamp();
     if (guild.premium) {
-      embed.addField(language.get("CLICKS"), data.clicks);
-      embed.addField(language.get("LINKS"), data.links);
+      embed.addField(
+        language.get("CLICKS"),
+        data.clicks.toLocaleString(language.id)
+      );
+      embed.addField(
+        language.get("LINKS"),
+        data.links.toLocaleString(language.id)
+      );
     }
     if (splash) embed.setImage(splash);
     return embed;

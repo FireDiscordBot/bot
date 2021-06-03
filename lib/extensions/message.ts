@@ -9,6 +9,7 @@ import {
   Collection,
   Structures,
   DMChannel,
+  Snowflake,
   Webhook,
   Message,
 } from "discord.js";
@@ -387,7 +388,7 @@ export class FireMessage extends Message {
     if (!stars) return;
 
     const starboard = this.guild.channels.cache.get(
-      this.guild?.settings.get<string>("starboard.channel")
+      this.guild?.settings.get<Snowflake>("starboard.channel")
     ) as FireTextChannel;
     if (!starboard || this.channel.id == starboard.id) return;
 

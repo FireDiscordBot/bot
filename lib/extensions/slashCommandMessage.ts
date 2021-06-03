@@ -1,7 +1,7 @@
 import {
-  APIMessageContentResolvable,
   PermissionOverwriteOptions,
   EmojiIdentifierResolvable,
+  CommandInteractionOption,
   DeconstructedSnowflake,
   GuildMemberResolvable,
   AwaitMessagesOptions,
@@ -10,7 +10,6 @@ import {
   MessageEditOptions,
   MessageResolvable,
   MessageAttachment,
-  StringResolvable,
   MessageAdditions,
   CollectorFilter,
   MessageMentions,
@@ -18,7 +17,6 @@ import {
   UserResolvable,
   RoleResolvable,
   MessageOptions,
-  MessageManager,
   SnowflakeUtil,
   InviteOptions,
   MessageEmbed,
@@ -56,8 +54,8 @@ export class SlashCommandMessage {
   sent: false | "ack" | "message";
   sourceMessage: FireMessage;
   mentions: MessageMentions;
+  latestResponse: Snowflake;
   private _flags: number;
-  latestResponse: string;
   channel: FakeChannel;
   member?: FireMember;
   language: Language;
@@ -67,17 +65,22 @@ export class SlashCommandMessage {
   author: FireUser;
   webhookID = null;
   content: string;
+  id: Snowflake;
   client: Fire;
-  id: string;
 
   constructor(client: Fire, command: CommandInteraction) {
     this.client = client;
     this.id = command.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
     this.slashCommand = command;
-    if (command.options?.length && command.options[0]?.type == "SUB_COMMAND") {
-      command.commandName = `${command.commandName}-${command.options[0].name}`;
-      command.options = command.options[0].options;
+    if (
+      command.options?.size &&
+      command.options.first()?.type == "SUB_COMMAND"
+    ) {
+      command.commandName = `${command.commandName}-${
+        command.options.first().name
+      }`;
+      command.options = command.options.first().options;
     }
     this.guild = client.guilds.cache.get(command.guildID) as FireGuild;
     this.command = this.client.getCommand(command.commandName);
@@ -86,9 +89,14 @@ export class SlashCommandMessage {
       this.guild?.tags?.slashCommands[command.commandID] == command.commandName
     ) {
       this.command = this.client.getCommand("tag");
-      command.options = [
-        { name: "tag", value: command.commandName, type: "STRING" },
-      ];
+      command.options = new Collection<string, CommandInteractionOption>().set(
+        "tag",
+        {
+          name: "tag",
+          value: command.commandName,
+          type: "STRING",
+        }
+      );
       if (this.guild.tags.ephemeral) this.flags = 64;
     }
     if (this.command?.ephemeral) this.flags = 64;
@@ -117,7 +125,7 @@ export class SlashCommandMessage {
     this.realChannel = this.client.channels.cache.get(
       this.slashCommand.channelID
     ) as FireTextChannel | NewsChannel | DMChannel;
-    this.latestResponse = "@original";
+    this.latestResponse = "@original" as Snowflake;
     this.sent = false;
     this.util = new CommandUtil(this.client.commandHandler, this);
     if (!this.guild) {
@@ -194,7 +202,7 @@ export class SlashCommandMessage {
     if (prefix instanceof Array) prefix = prefix[0].trim();
     let content = (prefix as string) + " ";
     content += this.command.id + " ";
-    if (this.command.args?.length && this.slashCommand.options?.length) {
+    if (this.command.args?.length && this.slashCommand.options?.size) {
       const commandArgs = this.command.args as ArgumentOptions[];
       const argNames = this.slashCommand.options.map((opt) => opt.name);
       const sortedArgs = this.slashCommand.options.sort(
@@ -275,7 +283,7 @@ export class SlashCommandMessage {
     if (!this.realChannel) return;
     if (this.sourceMessage instanceof FireMessage) return this.sourceMessage;
 
-    let messageId = this.latestResponse;
+    let messageId = this.latestResponse as Snowflake;
     if (messageId == "@original") {
       const message = await this.slashCommand.fetchReply().catch(() => {});
       if (message) messageId = message.id;
@@ -289,11 +297,7 @@ export class SlashCommandMessage {
   }
 
   async edit(
-    content:
-      | APIMessageContentResolvable
-      | MessageEditOptions
-      | MessageEmbed
-      | APIMessage,
+    content: string | MessageEditOptions | MessageEmbed | APIMessage,
     options?: (MessageEditOptions | MessageEmbed) & {
       buttons?: APIComponent[];
     }
@@ -374,13 +378,13 @@ export class FakeChannel {
   message: SlashCommandMessage;
   guild?: FireGuild;
   token: string;
+  id: Snowflake;
   client: Fire;
-  id: string;
 
   constructor(
     message: SlashCommandMessage,
     client: Fire,
-    id: string,
+    id: Snowflake,
     token: string,
     real?: FireTextChannel | NewsChannel | DMChannel
   ) {
@@ -475,7 +479,7 @@ export class FakeChannel {
   }
 
   async send(
-    content: StringResolvable | APIMessage | MessageEmbed,
+    content: string | APIMessage | MessageEmbed,
     options?: (MessageOptions | MessageAdditions) & {
       buttons?: ActionRow[] | APIComponent[];
     },

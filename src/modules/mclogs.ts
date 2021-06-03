@@ -162,7 +162,10 @@ export default class MCLogs extends Module {
         await message.delete();
       } catch {}
       return await message.channel.send(
-        message.language.get("SK1ER_NO_REUPLOAD", message.author.toMention()),
+        message.language.get(
+          "SK1ER_NO_REUPLOAD",
+          message.author.toMention()
+        ) as string,
         {
           allowedMentions: { users: [message.author.id] },
         }

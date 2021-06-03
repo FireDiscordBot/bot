@@ -3,14 +3,14 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Message } from "@fire/lib/ws/Message";
+import { Snowflake } from "discord.js";
 import { Fire } from "@fire/lib/Fire";
-import * as pEvent from "p-event";
 
 export class GuildSettings {
-  guild: string | FireGuild;
+  guild: Snowflake | FireGuild;
   client: Fire;
 
-  constructor(client: Fire, guild: string | FireGuild) {
+  constructor(client: Fire, guild: Snowflake | FireGuild) {
     this.client = client;
     this.guild = guild;
     if (this.shouldMigrate) this.runMigration();
@@ -63,10 +63,10 @@ export class GuildSettings {
 }
 
 export class UserSettings {
-  user: string | FireUser;
+  user: Snowflake | FireUser;
   client: Fire;
 
-  constructor(client: Fire, user: string | FireUser) {
+  constructor(client: Fire, user: Snowflake | FireUser) {
     this.client = client;
     this.user = user;
     if (this.shouldMigrate) this.runMigration();

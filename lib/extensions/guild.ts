@@ -11,6 +11,7 @@ import {
   Permissions,
   Collection,
   Structures,
+  Snowflake,
   Webhook,
   Guild,
   Util,
@@ -54,17 +55,17 @@ const parseUntil = (time?: string) => {
 
 export class FireGuild extends Guild {
   quoteHooks: Collection<string, Webhook | WebhookClient>;
-  reactionRoles: Collection<string, ReactionRoleData[]>;
-  starboardReactions: Collection<string, number>;
-  starboardMessages: Collection<string, string>;
-  persistedRoles: Collection<string, string[]>;
+  reactionRoles: Collection<Snowflake, ReactionRoleData[]>;
+  starboardMessages: Collection<Snowflake, Snowflake>;
+  persistedRoles: Collection<Snowflake, Snowflake[]>;
+  starboardReactions: Collection<Snowflake, number>;
+  permRoles: Collection<Snowflake, PermRolesData>;
   ticketLock?: { lock: Semaphore; limit: any };
-  permRoles: Collection<string, PermRolesData>;
-  inviteRoles: Collection<string, string>;
-  vcRoles: Collection<string, string>;
+  inviteRoles: Collection<string, Snowflake>;
+  vcRoles: Collection<Snowflake, Snowflake>;
+  tempBans: Collection<Snowflake, number>;
+  mutes: Collection<Snowflake, number>;
   invites: Collection<string, number>;
-  mutes: Collection<string, number>;
-  tempBans: Collection<string, number>;
   fetchingMemberUpdates: boolean;
   muteCheckTask: NodeJS.Timeout;
   declare me: FireMember | null;
@@ -109,7 +110,7 @@ export class FireGuild extends Guild {
   }
 
   get muteRole() {
-    const id = this.settings.get<string>(
+    const id = this.settings.get<Snowflake>(
       "mod.mutedrole",
       this.roles.cache.find((role) => role.name == "Muted")?.id
     );
@@ -156,7 +157,7 @@ export class FireGuild extends Guild {
         permissions: [],
         name: "Muted",
         hoist: false,
-        reason: this.language.get("MUTE_ROLE_CREATE_REASON") as string,
+        reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
       })
       .catch((e) => {
         this.client.console.warn(
@@ -175,7 +176,7 @@ export class FireGuild extends Guild {
             SPEAK: false,
           },
           {
-            reason: this.language.get("MUTE_ROLE_CREATE_REASON") as string,
+            reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
             type: 0,
           }
         )
@@ -203,7 +204,7 @@ export class FireGuild extends Guild {
             SPEAK: false,
           },
           {
-            reason: this.language.get("MUTE_ROLE_CREATE_REASON") as string,
+            reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
             type: 0,
           }
         )
@@ -232,7 +233,7 @@ export class FireGuild extends Guild {
               SPEAK: false,
             },
             {
-              reason: this.language.get("MUTE_ROLE_CREATE_REASON") as string,
+              reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
               type: 0,
             }
           )
@@ -251,7 +252,7 @@ export class FireGuild extends Guild {
       );
     for await (const mute of mutes) {
       this.mutes.set(
-        mute.get("uid") as string,
+        mute.get("uid") as Snowflake,
         parseUntil(mute.get("until") as string)
       );
     }
@@ -270,7 +271,7 @@ export class FireGuild extends Guild {
       );
     for await (const ban of bans) {
       this.tempBans.set(
-        ban.get("uid") as string,
+        ban.get("uid") as Snowflake,
         parseUntil(ban.get("until") as string)
       );
     }
@@ -297,7 +298,7 @@ export class FireGuild extends Guild {
         .catch(() => {})) as FireMember;
       if (member) {
         const unmuted = await member.unmute(
-          this.language.get("UNMUTE_AUTOMATIC") as string,
+          this.language.get("UNMUTE_AUTOMATIC"),
           this.me as FireMember
         );
         this.mutes.delete(id); // ensures id is removed from cache even if above fails to do so
@@ -358,7 +359,7 @@ export class FireGuild extends Guild {
       if (!user) continue;
       await this.unban(
         user,
-        this.language.get("UNMUTE_AUTOMATIC") as string,
+        this.language.get("UNMUTE_AUTOMATIC"),
         this.me as FireMember
       );
     }
@@ -375,8 +376,8 @@ export class FireGuild extends Guild {
       );
     for await (const message of messages)
       this.starboardMessages.set(
-        message.get("original") as string,
-        message.get("board") as string
+        message.get("original") as Snowflake,
+        message.get("board") as Snowflake
       );
   }
 
@@ -391,7 +392,7 @@ export class FireGuild extends Guild {
       );
     for await (const reaction of reactions)
       this.starboardReactions.set(
-        reaction.get("mid") as string,
+        reaction.get("mid") as Snowflake,
         reaction.get("reactions") as number
       );
   }
@@ -409,7 +410,7 @@ export class FireGuild extends Guild {
     for await (const invrole of invroles)
       this.inviteRoles.set(
         invrole.get("inv") as string,
-        invrole.get("rid") as string
+        invrole.get("rid") as Snowflake
       );
   }
 
@@ -425,8 +426,8 @@ export class FireGuild extends Guild {
       );
     for await (const role of persisted)
       this.persistedRoles.set(
-        role.get("uid") as string,
-        role.get("roles") as string[]
+        role.get("uid") as Snowflake,
+        role.get("roles") as Snowflake[]
       );
   }
 
@@ -442,14 +443,14 @@ export class FireGuild extends Guild {
       );
     for await (const vcrole of voiceroles) {
       this.vcRoles.set(
-        vcrole.get("cid") as string,
-        vcrole.get("rid") as string
+        vcrole.get("cid") as Snowflake,
+        vcrole.get("rid") as Snowflake
       );
-      const channel = this.channels.cache.get(vcrole.get("cid") as string) as
+      const channel = this.channels.cache.get(vcrole.get("cid") as Snowflake) as
         | VoiceChannel
         | StageChannel;
       if (!channel) continue;
-      const role = this.roles.cache.get(vcrole.get("rid") as string);
+      const role = this.roles.cache.get(vcrole.get("rid") as Snowflake);
       if (!role) continue;
       const members = await this.members
         .fetch({
@@ -465,7 +466,7 @@ export class FireGuild extends Guild {
       ))
         await members
           .get(state.id)
-          ?.roles.add(role, this.language.get("VCROLE_ADD_REASON") as string)
+          ?.roles.add(role, this.language.get("VCROLE_ADD_REASON"))
           .catch(() => {});
     }
   }
@@ -481,11 +482,11 @@ export class FireGuild extends Guild {
         `[Guild] Failed to load reaction roles for ${this.name} (${this.id})`
       );
     for await (const rero of reactRoles) {
-      const mid = rero.get("mid") as string;
+      const mid = rero.get("mid") as Snowflake;
       if (!this.reactionRoles.has(mid)) this.reactionRoles.set(mid, []);
       this.reactionRoles.get(mid).push({
-        role: rero.get("rid") as string,
-        emoji: rero.get("eid") as string,
+        role: rero.get("rid") as Snowflake,
+        emoji: rero.get("eid") as Snowflake | string,
       });
     }
   }
@@ -501,7 +502,7 @@ export class FireGuild extends Guild {
         `[Guild] Failed to load permission roles for ${this.name} (${this.id})`
       );
     for await (const role of permRoles) {
-      this.permRoles.set(role.get("rid") as string, {
+      this.permRoles.set(role.get("rid") as Snowflake, {
         allow: BigInt(role.get("allow") as string),
         deny: BigInt(role.get("deny") as string),
       });
@@ -528,7 +529,7 @@ export class FireGuild extends Guild {
                 type: "role",
               },
             ],
-            this.language.get("PERMROLES_REASON") as string
+            this.language.get("PERMROLES_REASON")
           )
           .catch(() => {});
     }
@@ -622,7 +623,7 @@ export class FireGuild extends Guild {
     type: ActionLogType
   ) {
     const channel = this.channels.cache.get(
-      this.settings.get<string>("log.action")
+      this.settings.get<Snowflake>("log.action")
     );
     if (!channel || channel.type != "text") return;
 
@@ -636,7 +637,7 @@ export class FireGuild extends Guild {
     type: ModLogType
   ) {
     const channel = this.channels.cache.get(
-      this.settings.get<string>("log.moderation")
+      this.settings.get<Snowflake>("log.moderation")
     );
     if (!channel || channel.type != "text") return;
 
@@ -650,7 +651,7 @@ export class FireGuild extends Guild {
     type: MemberLogType
   ) {
     const channel = this.channels.cache.get(
-      this.settings.get<string>("log.members")
+      this.settings.get<Snowflake>("log.members")
     );
     if (!channel || channel.type != "text") return;
 
@@ -706,7 +707,7 @@ export class FireGuild extends Guild {
       (channel) => channel.type == "text"
     );
     return this.settings
-      .get<string[]>("tickets.channels", [])
+      .get<Snowflake[]>("tickets.channels", [])
       .map((id) => textChannels.get(id))
       .filter((channel) => !!channel) as FireTextChannel[];
   }
@@ -722,7 +723,7 @@ export class FireGuild extends Guild {
       category ||
       (this.channels.cache
         .filter((channel) => channel.type == "category")
-        .get(this.settings.get<string>("tickets.parent")) as CategoryChannel);
+        .get(this.settings.get<Snowflake>("tickets.parent")) as CategoryChannel);
     if (!category) return "disabled";
     const limit = this.settings.get<number>("tickets.limit", 1);
     if (!this.ticketLock?.lock || this.ticketLock?.limit != limit)
@@ -736,7 +737,7 @@ export class FireGuild extends Guild {
     await this.ticketLock.lock.acquire();
     locked = true;
     let channels = this.settings
-      .get<string[]>("tickets.channels", [])
+      .get<Snowflake[]>("tickets.channels", [])
       .map((id) =>
         this.channels.cache
           .filter((channel) => channel.type == "text" && channel.id == id)
@@ -840,7 +841,7 @@ export class FireGuild extends Guild {
       .addField(this.language.get("SUBJECT"), subject);
     const description = this.settings.get<string>("tickets.description");
     if (description) embed.setDescription(description);
-    const alertId = this.settings.get<string>("tickets.alert");
+    const alertId = this.settings.get<Snowflake>("tickets.alert");
     const alert = this.roles.cache.get(alertId);
     let opener: FireMessage;
     if (alert && !author.isModerator()) {
@@ -853,7 +854,7 @@ export class FireGuild extends Guild {
               type: ButtonType.BUTTON,
               style: ButtonStyle.DESTRUCTIVE,
               custom_id: `ticket_close_${ticket.id}`,
-              label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
+              label: this.language.get("TICKET_CLOSE_BUTTON_TEXT"),
               emoji: { id: "534174796938870792" },
             },
           ],
@@ -873,7 +874,7 @@ export class FireGuild extends Guild {
               type: 2,
               style: ButtonStyle.DESTRUCTIVE,
               custom_id: `ticket_close_${ticket.id}`,
-              label: this.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
+              label: this.language.get("TICKET_CLOSE_BUTTON_TEXT"),
               emoji: { id: "534174796938870792" },
             },
           ],
@@ -902,7 +903,7 @@ export class FireGuild extends Guild {
       author = (await this.members.fetch(author).catch(() => {})) as FireMember;
     if (!author) return "forbidden";
     let channels = this.settings
-      .get<string[]>("tickets.channels", [])
+      .get<Snowflake[]>("tickets.channels", [])
       .map((id) =>
         this.channels.cache
           .filter((channel) => channel.type == "text" && channel.id == id)
@@ -955,10 +956,10 @@ export class FireGuild extends Guild {
     }
     const log =
       (this.channels.cache.get(
-        this.settings.get<string>("tickets.transcript_logs")
+        this.settings.get<Snowflake>("tickets.transcript_logs")
       ) as FireTextChannel) ||
       (this.channels.cache.get(
-        this.settings.get<string>("log.action")
+        this.settings.get<Snowflake>("log.action")
       ) as FireTextChannel);
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))
@@ -980,7 +981,7 @@ export class FireGuild extends Guild {
       .catch(() => {});
     this.client.emit("ticketClose", creator);
     return (await channel
-      .delete(this.language.get("TICKET_CLOSE_REASON") as string)
+      .delete(this.language.get("TICKET_CLOSE_REASON"))
       .catch((e: Error) => e)) as FireTextChannel | Error;
   }
 

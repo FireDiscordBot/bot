@@ -770,7 +770,11 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           "__Attachment UWWs awe invawidated once the message is deweted.__",
         MSGDELETELOG_SPOTIFY_ACTIVITY: "Spotify Invite",
         MSGDELETELOG_ACTIVITY: (partyID: string, type: number) =>
-          `Pawty ID: ${partyID}\nType: ${this.get("ACTIVITY_TYPES")[type]}`,
+          `Pawty ID: ${partyID}\nType: ${
+            ((this.get("ACTIVITY_TYPES") as unknown) as Record<number, string>)[
+              type
+            ]
+          }`,
         MUTEROLE_COMMAND_DESCRIPTION: "Change the wowe used to mute membews",
         MUTE_ROLE_CREATE_REASON: "Setting up muted wowe...",
         MUTE_LOG_AUTHOR: (user: string) => `Mute | ${user}`,

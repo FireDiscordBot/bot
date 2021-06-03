@@ -1,5 +1,5 @@
+import { MessageEmbed, Permissions, Snowflake, Role } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageEmbed, Permissions, Role } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -50,7 +50,7 @@ export default class AddModerator extends Command {
   }
 
   async getModeratorEmbed(message: FireMessage) {
-    const moderators = message.guild.settings.get<string[]>(
+    const moderators = message.guild.settings.get<Snowflake[]>(
       "utils.moderators",
       []
     );

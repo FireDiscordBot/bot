@@ -152,7 +152,7 @@ export default class PermRoles extends Command {
               type: "role",
             },
           ],
-          message.guild.language.get("PERMROLES_REASON") as string
+          message.guild.language.get("PERMROLES_REASON")
         )
         .catch(() => failed++);
     return await updating.edit(

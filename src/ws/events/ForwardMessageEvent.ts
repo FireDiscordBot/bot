@@ -1,9 +1,9 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageEmbed, Snowflake } from "discord.js";
 import { Event } from "@fire/lib/ws/event/Event";
 import { APIEmbed } from "discord-api-types";
 import { Manager } from "@fire/lib/Manager";
-import { MessageEmbed } from "discord.js";
 
 export default class ForwardMessageEvent extends Event {
   constructor(manager: Manager) {
@@ -12,8 +12,8 @@ export default class ForwardMessageEvent extends Event {
 
   async run(data: {
     message: string | APIEmbed;
-    parseUsers?: string[];
-    channel?: string;
+    parseUsers?: Snowflake[];
+    channel?: Snowflake;
   }) {
     if (!this.manager.client.channels.cache.has(data.channel)) return;
 

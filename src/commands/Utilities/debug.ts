@@ -78,10 +78,7 @@ export default class Debug extends Command {
         );
       else if (
         experiment.kind == "user" &&
-        !message.author.hasExperiment(
-          experiment.id,
-          requiresExperiment.bucket
-        )
+        !message.author.hasExperiment(experiment.id, requiresExperiment.bucket)
       )
         return await this.sendSingleError(
           message,
@@ -141,11 +138,11 @@ export default class Debug extends Command {
         )
         .filter((permission) => !!permission);
 
-      const permMsg = message.language.get(
+      const permMsg = (message.language.get(
         "DEBUG_PERMS_FAIL",
         user,
         client
-      ) as { user: string | null; client: string | null };
+      ) as unknown) as { user: string | null; client: string | null };
 
       if (permMsg.user || permMsg.client)
         details.push(

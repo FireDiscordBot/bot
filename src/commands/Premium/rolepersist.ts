@@ -78,7 +78,7 @@ export default class RolePersist extends Command {
         roles.map((role) => role.id)
       );
       await args.user.roles
-        .add(roles, message.guild.language.get("ROLEPERSIST_REASON") as string)
+        .add(roles, message.guild.language.get("ROLEPERSIST_REASON"))
         .catch(() => {});
       await this.sendLog(args.user, roles, message.member).catch(() => {});
     }

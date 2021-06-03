@@ -1,8 +1,8 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { Permissions, Snowflake } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
 
 export default class StarboardMinimum extends Command {
   constructor() {
@@ -41,7 +41,7 @@ export default class StarboardMinimum extends Command {
 
   async check(message: FireMessage, minimum: number) {
     const starboard = message.guild.channels.cache.get(
-      message.guild.settings.get<string>("starboard.channel")
+      message.guild.settings.get<Snowflake>("starboard.channel")
     ) as FireTextChannel;
     if (!starboard) return;
     for (const [id, reactions] of message.guild.starboardReactions) {

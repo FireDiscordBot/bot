@@ -116,7 +116,7 @@ export default class Google extends Command {
     );
     if (!html)
       return await message
-        .reply(message.language.get("PLAYWRIGHT_ERROR_UNKNOWN") as string, {
+        .reply(message.language.get("PLAYWRIGHT_ERROR_UNKNOWN"), {
           failIfNotExists: false,
         })
         .catch((e) => {

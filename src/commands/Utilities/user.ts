@@ -2,12 +2,13 @@ import {
   DeconstructedSnowflake,
   PermissionString,
   UserFlagsString,
+  SnowflakeUtil,
   GuildChannel,
   MessageEmbed,
   Permissions,
   ClientUser,
   DMChannel,
-  SnowflakeUtil,
+  Snowflake,
 } from "discord.js";
 import { APIApplication, ApplicationFlags } from "discord-api-types";
 import { constants, humanize, zws } from "@fire/lib/util/constants";
@@ -164,7 +165,7 @@ export default class User extends Command {
         );
       const permissionsTranslated = message.language.get(
         "PERMISSIONS"
-      ) as object;
+      ) as unknown as object;
       if (!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
         let perms = [];
         const keyPerms: PermissionString[] = [
@@ -409,7 +410,7 @@ export default class User extends Command {
 
   async snowflakeInfo(
     message: FireMessage,
-    snowflake: { snowflake: string } & DeconstructedSnowflake
+    snowflake: { snowflake: Snowflake } & DeconstructedSnowflake
   ) {
     let user: FireUser;
     if (snowflake instanceof FireUser) {
@@ -624,7 +625,9 @@ export default class User extends Command {
           dynamic: true,
         })
       )
-      .setDescription(message.language.get("USER_SNOWFLAKE_DESCRIPTION"))
+      .setDescription(
+        message.language.get("USER_SNOWFLAKE_DESCRIPTION")
+      )
       .addField(`» ${message.language.get("ABOUT")}`, info.join("\n"));
 
     if (user)

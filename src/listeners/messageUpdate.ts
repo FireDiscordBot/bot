@@ -1,8 +1,8 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import { MessageEmbed, Snowflake } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
 import Sk1er from "@fire/src/modules/sk1er";
-import { MessageEmbed } from "discord.js";
 import Message from "./message";
 
 export default class MessageUpdate extends Listener {
@@ -41,7 +41,7 @@ export default class MessageUpdate extends Listener {
 
     if (!after.member || after.author.bot) return;
 
-    const autoroleId = after.guild.settings.get<string>("mod.autorole", null);
+    const autoroleId = after.guild.settings.get<Snowflake>("mod.autorole", null);
     const delay = after.guild.settings.get<boolean>(
       "mod.autorole.waitformsg",
       false
@@ -52,7 +52,7 @@ export default class MessageUpdate extends Listener {
         await after.member.roles
           .add(
             role,
-            after.member.guild.language.get("AUTOROLE_REASON") as string
+            after.member.guild.language.get("AUTOROLE_REASON")
           )
           .catch(() => {});
     }

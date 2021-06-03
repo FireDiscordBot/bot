@@ -1,6 +1,6 @@
+import { MessageReaction, GuildEmoji, Snowflake } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { MessageReaction, GuildEmoji } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
@@ -51,7 +51,7 @@ export default class MessageReactionAdd extends Listener {
               guild.roles.cache.has(role) && !member.roles.cache.has(role)
           );
         await member.roles
-          .add(roles, guild.language.get("REACTIONROLE_ROLE_REASON") as string)
+          .add(roles, guild.language.get("REACTIONROLE_ROLE_REASON"))
           .catch(() => {});
       }
     }
@@ -62,7 +62,7 @@ export default class MessageReactionAdd extends Listener {
       !user?.bot
     ) {
       const channel = message.guild.channels.cache.get(
-        message.guild?.settings.get<string>("starboard.channel")
+        message.guild?.settings.get<Snowflake>("starboard.channel")
       ) as FireTextChannel;
       const starboardEmoji = message.guild?.settings.get<string>(
         "starboard.emoji",

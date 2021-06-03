@@ -3,13 +3,14 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
+import { Snowflake } from "discord.js";
 
 export default class BroadcastEvalEvent extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.BROADCAST_EVAL);
   }
 
-  async run(data: { messageId: string; channelId: string }) {
+  async run(data: { messageId: Snowflake; channelId: Snowflake }) {
     this.manager.client.console.warn(
       `[Event] Received eval request for /${data.channelId}/messages/${data.messageId}`
     );

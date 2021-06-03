@@ -8,9 +8,9 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import Quote from "@fire/src/commands/Utilities/quote";
+import { NewsChannel, Snowflake } from "discord.js";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
-import { NewsChannel } from "discord.js";
 
 export default class CrossClusterQuote extends Event {
   constructor(manager: Manager) {
@@ -20,8 +20,8 @@ export default class CrossClusterQuote extends Event {
   async run(
     data: MessageLinkMatch & {
       destination: PartialQuoteDestination;
+      quoter: Snowflake;
       webhook: string;
-      quoter: string;
       debug: boolean;
     }
   ) {

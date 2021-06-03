@@ -150,8 +150,7 @@ export class RequestHandler {
           error.message,
           error.constructor.name,
           error.status,
-          request.method,
-          request.path
+          request
         );
       }
 
@@ -268,8 +267,7 @@ export class RequestHandler {
           err.message,
           err.constructor.name,
           err.status,
-          request.method,
-          request.path
+          request
         );
       }
 
@@ -287,12 +285,7 @@ export class RequestHandler {
           res.statusCode == 404
         )
       )
-        throw new DiscordAPIError(
-          request.path,
-          data,
-          request.method,
-          res.statusCode
-        );
+        throw new DiscordAPIError(data, res.statusCode, request);
     }
 
     // Handle 5xx responses
@@ -303,8 +296,7 @@ export class RequestHandler {
           res.coreRes.statusMessage,
           res.constructor.name,
           res.statusCode,
-          request.method,
-          request.path
+          request
         );
       }
 

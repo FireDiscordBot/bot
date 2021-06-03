@@ -123,8 +123,10 @@ export default class GuildCommand extends Command {
               ? guild.regions
                   .map(
                     (region) =>
-                      message.language.get("REGIONS")[region] ||
-                      message.language.get("REGION_AUTOMATIC")
+                      ((message.language.get("REGIONS") as unknown) as Record<
+                        string,
+                        string
+                      >)[region] || message.language.get("REGION_AUTOMATIC")
                   )
                   .join(", ")
               : message.language.get("REGION_AUTOMATIC")
@@ -243,7 +245,9 @@ export default class GuildCommand extends Command {
     const info = await this.getInfo(message, guild);
     const security = this.getSecurity(message, guild);
 
-    const featuresLocalization = message.language.get("FEATURES");
+    const featuresLocalization = (message.language.get(
+      "FEATURES"
+    ) as unknown) as Record<string, string>;
     const features: string[] = guild.features
       .filter((feature) => featuresLocalization.hasOwnProperty(feature))
       .map((feature) => featuresLocalization[feature]);
@@ -275,9 +279,13 @@ export default class GuildCommand extends Command {
       )
       .setFooter(guild.id)
       .setTimestamp();
-    if (info.length) embed.addField(message.language.get("GUILD_ABOUT"), info);
+    if (info.length)
+      embed.addField(message.language.get("GUILD_ABOUT"), info.join("\n"));
     if (security.length)
-      embed.addField(message.language.get("GUILD_SECURITY"), security);
+      embed.addField(
+        message.language.get("GUILD_SECURITY"),
+        security.join("\n")
+      );
 
     if (features.length > 0) {
       embed.addField(

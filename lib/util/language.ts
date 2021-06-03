@@ -24,7 +24,7 @@ export class Language extends AkairoModule {
     return this.language.hasOwnProperty(key);
   }
 
-  get(key: string, ...args: any[]): string | object {
+  get(key: string, ...args: any[]): string {
     const defaultLang = this.client.languages.modules.get("en-US") as Language;
     const message = this.has(key)
       ? this.language[key]

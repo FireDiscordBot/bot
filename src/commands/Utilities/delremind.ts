@@ -3,6 +3,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Reminder } from "@fire/lib/interfaces/reminders";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Snowflake } from "discord.js";
 
 export default class DeleteReminder extends Command {
   constructor() {
@@ -42,7 +43,7 @@ export default class DeleteReminder extends Command {
         : parseInt(reminder.get("forwhen") as string);
       timestamps.push(timestamp);
       reminders.push({
-        user: reminder.get("uid") as string,
+        user: reminder.get("uid") as Snowflake,
         text: reminder.get("reminder") as string,
         link: reminder.get("link") as string,
         legacy,

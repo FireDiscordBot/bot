@@ -1,5 +1,4 @@
 import {
-  APIMessageContentResolvable,
   PermissionOverwriteOptions,
   EmojiIdentifierResolvable,
   DeconstructedSnowflake,
@@ -7,7 +6,6 @@ import {
   AwaitMessagesOptions,
   MessageEditOptions,
   MessageResolvable,
-  StringResolvable,
   MessageAdditions,
   MessageReaction,
   CollectorFilter,
@@ -29,8 +27,8 @@ import {
   APIComponent,
   Interaction,
   ButtonType,
-  Button,
   ActionRow,
+  Button,
 } from "../interfaces/interactions";
 import { APIMessage as DiscordAPIMessage } from "discord-api-types";
 import { FireTextChannel } from "./textchannel";
@@ -43,7 +41,7 @@ import { FireUser } from "./user";
 import { Fire } from "../Fire";
 
 const { emojis, reactions } = constants;
-export type EphemeralMessage = { id: string; flags: number };
+export type EphemeralMessage = { id: Snowflake; flags: number };
 
 export class ButtonMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
@@ -51,8 +49,8 @@ export class ButtonMessage {
   message: FireMessage | EphemeralMessage;
   sent: false | "ack" | "message";
   sourceMessage: FireMessage;
+  latestResponse: Snowflake;
   private _flags: number;
-  latestResponse: string;
   channel: FakeChannel;
   ephemeral: boolean;
   member: FireMember;
@@ -61,8 +59,8 @@ export class ButtonMessage {
   guild: FireGuild;
   author: FireUser;
   button: Button;
+  id: Snowflake;
   client: Fire;
-  id: string;
 
   constructor(client: Fire, button: Interaction) {
     if (button.type != 3) throw new TypeError("Interaction is not Button");
@@ -139,7 +137,7 @@ export class ButtonMessage {
   // temp helper function
   static async sendWithButtons(
     channel: FireTextChannel | NewsChannel | DMChannel | FireMessage,
-    content: StringResolvable | APIMessage | MessageEmbed,
+    content: string | APIMessage | MessageEmbed,
     options?: (MessageOptions | MessageAdditions) & {
       buttons?: APIComponent[];
     }
@@ -157,7 +155,11 @@ export class ButtonMessage {
 
     if (content instanceof APIMessage) apiMessage = content.resolveData();
     else {
-      apiMessage = APIMessage.create(channel, content, options).resolveData();
+      apiMessage = APIMessage.create(
+        channel,
+        content as string,
+        options
+      ).resolveData();
     }
 
     const { data, files } = (await apiMessage.resolveFiles()) as {
@@ -195,7 +197,7 @@ export class ButtonMessage {
   // temp helper function
   static async editWithButtons(
     message: FireMessage,
-    content: StringResolvable | APIMessage | MessageEmbed,
+    content: string | APIMessage | MessageEmbed,
     options?: (MessageOptions | MessageAdditions) & {
       buttons?: ActionRow[] | APIComponent[];
     }
@@ -214,7 +216,7 @@ export class ButtonMessage {
     else {
       apiMessage = APIMessage.create(
         message.channel,
-        content,
+        content as string,
         options
       ).resolveData();
     }
@@ -359,11 +361,7 @@ export class ButtonMessage {
   }
 
   async edit(
-    content:
-      | APIMessageContentResolvable
-      | MessageEditOptions
-      | MessageEmbed
-      | APIMessage,
+    content: string | MessageEditOptions | MessageEmbed | APIMessage,
     options?: (MessageEditOptions | MessageEmbed) & {
       buttons?: APIComponent[];
     }
@@ -516,7 +514,7 @@ export class FakeChannel {
   }
 
   async send(
-    content: StringResolvable | APIMessage | MessageEmbed,
+    content: string | APIMessage | MessageEmbed,
     options?: (MessageOptions | MessageAdditions) & {
       buttons?: APIComponent[];
     },
@@ -585,7 +583,7 @@ export class FakeChannel {
         })
         .then(() => {
           this.message.sent = "message";
-          this.message.latestResponse = "@original";
+          this.message.latestResponse = "@original" as Snowflake;
         })
         .catch(() => {});
     else {
@@ -599,14 +597,14 @@ export class FakeChannel {
         .catch(() => {});
       if (message && message.id && this.message.latestResponse == "@original")
         this.message.latestResponse = message.id;
-      else this.message.latestResponse = "@original";
+      else this.message.latestResponse = "@original" as Snowflake;
     }
     this.message.getRealMessage().catch(() => {});
     return this.message;
   }
 
   async update(
-    content: StringResolvable | APIMessage | MessageEmbed,
+    content: string | APIMessage | MessageEmbed,
     options?: (MessageOptions | MessageAdditions) & {
       buttons?: APIComponent[];
     },
@@ -677,7 +675,7 @@ export class FakeChannel {
       })
       .then(() => {
         this.message.sent = "message";
-        this.message.latestResponse = "@original";
+        this.message.latestResponse = "@original" as Snowflake;
       })
       .catch(() => {});
     this.message.getRealMessage().catch(() => {});

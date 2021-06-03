@@ -116,7 +116,7 @@ export default class TicTacToe extends Command {
           message.guild.language.get(
             "TICTACTOE_REQUEST_EXPIRED_SLASH",
             opponent.toMention()
-          ),
+          ) as string,
           { buttons: null }
         );
       return await message.error("TICTACTOE_REQUEST_EXPIRED");

@@ -3,6 +3,7 @@ import {
   AuditLogChange,
   MessageEmbed,
   Permissions,
+  Snowflake,
 } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
@@ -80,17 +81,17 @@ export default class GuildMemberUpdate extends Listener {
 
     if (newMember.user.bot) {
       const role = newMember.guild.roles.cache.get(
-        newMember.guild.settings.get<string>("mod.autobotrole", null)
+        newMember.guild.settings.get<Snowflake>("mod.autobotrole", null)
       );
       if (
         role &&
         newMember.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES)
       )
         await newMember.roles
-          .add(role, newMember.guild.language.get("AUTOROLE_REASON") as string)
+          .add(role, newMember.guild.language.get("AUTOROLE_REASON"))
           .catch(() => {});
     } else if (!newMember.pending) {
-      const autoroleId = newMember.guild.settings.get<string>(
+      const autoroleId = newMember.guild.settings.get<Snowflake>(
         "mod.autorole",
         null
       );
@@ -112,10 +113,7 @@ export default class GuildMemberUpdate extends Listener {
           newMember.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES)
         )
           await newMember.roles
-            .add(
-              role,
-              newMember.guild.language.get("AUTOROLE_REASON") as string
-            )
+            .add(role, newMember.guild.language.get("AUTOROLE_REASON"))
             .catch(() => {});
       }
     }

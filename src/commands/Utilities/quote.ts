@@ -4,11 +4,11 @@ import {
 } from "@fire/lib/interfaces/messages";
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { WebhookClient, Permissions, Snowflake } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { WebhookClient, Permissions } from "discord.js";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -129,7 +129,7 @@ export default class Quote extends Command {
       const match = regexes.discord.webhook.exec(args.webhook);
       regexes.discord.webhook.lastIndex = 0;
       if (!match?.groups.id || !match?.groups.token) return;
-      webhook = new WebhookClient(match.groups.id, match.groups.token);
+      webhook = new WebhookClient(match.groups.id as Snowflake, match.groups.token);
       const quoted = await args.quote
         .quote(args.destination, args.quoter, webhook)
         .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));

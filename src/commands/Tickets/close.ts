@@ -54,7 +54,7 @@ export default class CloseTicket extends Command {
           type: ButtonType.BUTTON,
           style: ButtonStyle.DESTRUCTIVE,
           custom_id: buttonSnowflake,
-          label: message.language.get("TICKET_CLOSE_BUTTON_TEXT") as string,
+          label: message.language.get("TICKET_CLOSE_BUTTON_TEXT"),
           emoji: { id: "534174796938870792" },
         },
       ],

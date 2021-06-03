@@ -1,5 +1,5 @@
+import { CategoryChannel, MessageReaction, Snowflake, Role } from "discord.js";
 import { ButtonStyle, ButtonType } from "@fire/lib/interfaces/interactions";
-import { CategoryChannel, MessageReaction, Role } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -8,8 +8,6 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
-import { createWriteStream } from "fs";
-import * as archiver from "archiver";
 import * as centra from "centra";
 import * as moment from "moment";
 
@@ -28,14 +26,14 @@ export default class Sk1er extends Module {
   descriptionUpdate: NodeJS.Timeout;
   supportMessage: FireMessage;
   statusCheck: NodeJS.Timeout;
-  supportMessageId: string;
+  supportMessageId: Snowflake;
+  supportGuildId: Snowflake;
   supportGuild: FireGuild;
-  supportGuildId: string;
+  nitroId: Snowflake;
+  guildId: Snowflake;
   logText: string[];
   guild: FireGuild;
   regexes: Regexes;
-  nitroId: string;
-  guildId: string;
   nitro: Role;
   bots: any;
 
@@ -137,12 +135,12 @@ export default class Sk1er extends Module {
   }
 
   async nitroChecker() {
-    let users: string[] = [];
+    let users: Snowflake[] = [];
     const essentialResult = await this.client.db.query(
       "SELECT uid FROM essential;"
     );
     for await (const row of essentialResult) {
-      users.push(row.get("uid") as string);
+      users.push(row.get("uid") as Snowflake);
     }
     const members = await this.guild.members.fetch({ user: users });
     const memberIds = members.map((m) => m.id);
@@ -169,7 +167,7 @@ export default class Sk1er extends Module {
               this.guild.language.get(
                 "SK1ER_NITRO_PERKS_REMOVED",
                 member.toMention()
-              ),
+              ) as string,
               { allowedMentions: { users: [member.id] } }
             );
         }

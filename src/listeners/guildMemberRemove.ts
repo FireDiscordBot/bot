@@ -1,7 +1,7 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { MessageEmbed, Permissions, Snowflake } from "discord.js";
 import { constants, humanize } from "@fire/lib/util/constants";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageEmbed, Permissions } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
 import Sk1er from "@fire/src/modules/sk1er";
 import * as moment from "moment";
@@ -75,7 +75,7 @@ export default class GuildMemberRemove extends Listener {
     if (!member.user.bot) {
       let leaveMessage = member.guild.settings.get<string>("greet.leavemsg");
       const channel = member.guild.channels.cache.get(
-        member.guild.settings.get<string>("greet.leavechannel")
+        member.guild.settings.get<Snowflake>("greet.leavechannel")
       );
       if (leaveMessage && channel instanceof FireTextChannel) {
         const regexes = [
@@ -120,7 +120,7 @@ export default class GuildMemberRemove extends Listener {
             ) as string;
             reason =
               auditAction.reason ||
-              (language.get("MODERATOR_ACTION_DEFAULT_REASON") as string);
+              (language.get("MODERATOR_ACTION_DEFAULT_REASON"));
           }
         }
       }

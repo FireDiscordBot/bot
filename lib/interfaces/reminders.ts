@@ -1,5 +1,7 @@
+import { Snowflake } from "discord.js";
+
 export interface Reminder {
-  user: string;
+  user: Snowflake;
   text: string;
   link?: string;
   legacy?: boolean;

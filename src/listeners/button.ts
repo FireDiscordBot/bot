@@ -7,7 +7,12 @@ import {
   ButtonStyle,
   ButtonType,
 } from "@fire/lib/interfaces/interactions";
-import { SnowflakeUtil, MessageEmbed, Permissions } from "discord.js";
+import {
+  SnowflakeUtil,
+  MessageEmbed,
+  Permissions,
+  Snowflake,
+} from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -117,7 +122,7 @@ export default class Button extends Listener {
     if (button.custom_id.startsWith("ticket_close")) {
       const { guild } = button;
       if (!guild) return;
-      const channelId = button.custom_id.slice(13);
+      const channelId = button.custom_id.slice(13) as Snowflake;
       const channel = this.client.channels.cache.get(
         channelId
       ) as FireTextChannel;
@@ -127,7 +132,7 @@ export default class Button extends Listener {
           .closeTicket(
             channel,
             button.member,
-            guild.language.get("TICKET_CLOSE_BUTTON") as string
+            guild.language.get("TICKET_CLOSE_BUTTON")
           )
           .catch(() => {});
         if (closure == "forbidden")
@@ -140,25 +145,22 @@ export default class Button extends Listener {
     if (button.custom_id.startsWith(`rank:${button.member?.id}:`)) {
       const roleId = button.custom_id.slice(
         `rank:${button.member?.id}:`.length
-      );
+      ) as Snowflake;
       const role = button.guild?.roles.cache.get(roleId);
       if (!role || !button.guild || !button.member) return;
       const ranks = button.guild.settings
-        .get<string[]>("utils.ranks", [])
+        .get<Snowflake[]>("utils.ranks", [])
         .filter((id) => button.guild.roles.cache.has(id));
       if (!ranks.includes(roleId))
         return await button.error("RANKS_MENU_INVALID_ROLE");
       const shouldRemove = button.member.roles.cache.has(roleId);
       if (shouldRemove)
         button.member = (await button.member.roles
-          .remove(
-            role,
-            button.guild.language.get("RANKS_LEAVE_REASON") as string
-          )
+          .remove(role, button.guild.language.get("RANKS_LEAVE_REASON"))
           .catch(() => button.member)) as FireMember;
       else
         button.member = (await button.member.roles
-          .add(role, button.guild.language.get("RANKS_JOIN_REASON") as string)
+          .add(role, button.guild.language.get("RANKS_JOIN_REASON"))
           .catch(() => button.member)) as FireMember;
 
       const components = Rank.getRankButtons(button.guild, button.member);
@@ -229,7 +231,7 @@ export default class Button extends Listener {
       await button.channel.update(editEmbed, {
         buttons: [
           {
-            label: button.language.get("TAG_EDIT_CANCEL_BUTTON") as string,
+            label: button.language.get("TAG_EDIT_CANCEL_BUTTON"),
             style: ButtonStyle.DESTRUCTIVE,
             custom_id: cancelSnowflake,
             type: ButtonType.BUTTON,

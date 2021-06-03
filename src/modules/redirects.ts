@@ -6,6 +6,7 @@ import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
+import language from "../commands/Configuration/language";
 
 export default class Redirects extends Module {
   constructor() {
@@ -123,10 +124,19 @@ export default class Redirects extends Module {
         user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .setColor("#2ECC71")
-      .addField(language.get("REDIRECT_SHORT_URL"), `https://inv.wtf/${code}`)
+      .addField(
+        language.get("REDIRECT_SHORT_URL"),
+        `https://inv.wtf/${code}`
+      )
       .addField("URL", data.url)
-      .addField(language.get("CLICKS"), data.clicks)
-      .addField(language.get("LINKS"), data.links)
+      .addField(
+        language.get("CLICKS"),
+        data.clicks.toLocaleString(language.id)
+      )
+      .addField(
+        language.get("LINKS"),
+        data.links.toLocaleString(language.id)
+      )
       .setTimestamp();
     return embed;
   }

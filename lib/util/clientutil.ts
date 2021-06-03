@@ -289,8 +289,17 @@ export class Util extends ClientUtil {
       name = this.bitToPermissionString(permission);
     else if (typeof permission == "string") name = permission;
     if (!name) return null;
-    if (language && language.get("PERMISSIONS").hasOwnProperty(name))
-      return language.get("PERMISSIONS")[name];
+    if (
+      language &&
+      ((language.get("PERMISSIONS") as unknown) as Record<
+        string,
+        string
+      >).hasOwnProperty(name)
+    )
+      return ((language.get("PERMISSIONS") as unknown) as Record<
+        string,
+        string
+      >)[name];
     return titleCase(
       name.toLowerCase().replace(/_/gim, " ").replace(/guild/gim, "server")
     );
@@ -302,7 +311,7 @@ export class Util extends ClientUtil {
     else return null;
   }
 
-  isSuperuser(user: string) {
+  isSuperuser(user: Snowflake) {
     return this.client.userSettings.get<boolean>(
       user,
       "utils.superuser",
@@ -327,7 +336,8 @@ export class Util extends ClientUtil {
     if (this.plonked.includes(user)) return true;
 
     // guild blacklist
-    if (guild?.settings.get<string[]>("utils.plonked", []).includes(user)) return true;
+    if (guild?.settings.get<string[]>("utils.plonked", []).includes(user))
+      return true;
 
     return false;
   }

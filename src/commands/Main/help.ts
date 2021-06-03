@@ -105,8 +105,8 @@ export default class Help extends Command {
         });
     }
     fields.push({
-      name: message.language.get("HELP_CREDITS_NAME") as string,
-      value: message.language.get("HELP_CREDITS_VALUE") as string,
+      name: message.language.get("HELP_CREDITS_NAME"),
+      value: message.language.get("HELP_CREDITS_VALUE"),
       inline: false,
     });
     let buttons: APIComponent[] = null;
@@ -154,8 +154,8 @@ export default class Help extends Command {
       ];
     } else
       fields.push({
-        name: message.language.get("HELP_LINKS_NAME") as string,
-        value: message.language.get("HELP_LINKS_VALUE") as string,
+        name: message.language.get("HELP_LINKS_NAME"),
+        value: message.language.get("HELP_LINKS_VALUE"),
         inline: false,
       });
     const embed = {

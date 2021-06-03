@@ -3,7 +3,7 @@ import {
   APIApplicationCommand,
   Option,
 } from "@fire/lib/interfaces/interactions";
-import { DiscordAPIError, Collection } from "discord.js";
+import { DiscordAPIError, Collection, Snowflake } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Fire } from "@fire/lib/Fire";
@@ -12,7 +12,7 @@ import * as fuzz from "fuzzball";
 const slashCommandNameRegex = /^[\w-]{1,32}$/gim;
 
 export interface Tag {
-  createdBy: string | FireUser | FireMember;
+  createdBy: Snowflake | FireUser | FireMember;
   aliases: string[];
   content: string;
   name: string;
@@ -294,7 +294,7 @@ export class GuildTagManager {
           (tag.get("aliases") as string[])?.map((alias) =>
             alias.toLowerCase()
           ) || [],
-        createdBy: tag.get("uid") as string,
+        createdBy: tag.get("uid") as Snowflake,
         uses: tag.get("uses") as number,
       });
     }

@@ -1,10 +1,10 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { textChannelConverter } from "@fire/lib/util/converters";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { Permissions, Snowflake } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Util } from "@fire/lib/util/clientutil";
-import { Permissions } from "discord.js";
 
 export default class AdminOnly extends Command {
   constructor() {
@@ -30,7 +30,7 @@ export default class AdminOnly extends Command {
     let channels = args.channels;
     if (channels instanceof FireTextChannel) channels = [channels];
     if (!channels.length) return message.error("ADMINONLY_NO_CHANNELS");
-    let current = message.guild.settings.get<string[]>(
+    let current = message.guild.settings.get<Snowflake[]>(
       "commands.adminonly",
       []
     );
@@ -41,7 +41,7 @@ export default class AdminOnly extends Command {
         adminonly = adminonly.filter((cid) => cid != channel.id);
     });
     if (adminonly.length)
-      message.guild.settings.set<string[]>("commands.adminonly", adminonly);
+      message.guild.settings.set<Snowflake[]>("commands.adminonly", adminonly);
     else message.guild.settings.delete("commands.adminonly");
     let mentions: string[] = [];
     adminonly.forEach((cid) => {

@@ -6,6 +6,7 @@ import Filters from "@fire/src/modules/filters";
 import { APIMessage } from "discord-api-types";
 import MCLogs from "@fire/src/modules/mclogs";
 import Sk1er from "@fire/src/modules/sk1er";
+import { Snowflake } from "discord.js";
 import * as centra from "centra";
 
 const { regexes } = constants;
@@ -180,7 +181,7 @@ export default class Message extends Listener {
 
     if (!message.member || message.author.bot) return;
 
-    const autoroleId = message.guild.settings.get<string>("mod.autorole", null);
+    const autoroleId = message.guild.settings.get<Snowflake>("mod.autorole", null);
     const delay = message.guild.settings.get<boolean>(
       "mod.autorole.waitformsg",
       false
@@ -191,7 +192,7 @@ export default class Message extends Listener {
         await message.member.roles
           .add(
             role,
-            message.member.guild.language.get("AUTOROLE_REASON") as string
+            message.member.guild.language.get("AUTOROLE_REASON")
           )
           .catch(() => {});
     }

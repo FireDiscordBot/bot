@@ -1,5 +1,5 @@
+import { CategoryChannel, Permissions, Snowflake, Role } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { CategoryChannel, Permissions, Role } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
@@ -50,7 +50,7 @@ export default class FilterExclude extends Command {
 
   async sendCurrent(message: FireMessage, changed: boolean = false) {
     let mentions: { [key: string]: string } = {};
-    let current = message.guild.settings.get<string[]>("excluded.filter", []);
+    let current = message.guild.settings.get<Snowflake[]>("excluded.filter", []);
     for (const exclude of current) {
       if (message.guild.roles.cache.has(exclude))
         mentions[exclude] = message.guild.roles.cache.get(exclude).toString();
@@ -71,7 +71,7 @@ export default class FilterExclude extends Command {
     mentionKeys = Object.keys(mentions);
     current = current.filter((id) => !mentionKeys.includes(id));
     if (current.length) {
-      let excluded = message.guild.settings.get<string[]>(
+      let excluded = message.guild.settings.get<Snowflake[]>(
         "excluded.filter",
         []
       );
