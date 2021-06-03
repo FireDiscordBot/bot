@@ -30,12 +30,12 @@ const { regexes } = constants;
 
 export const getIDMatch = (argument: string, extra = false) => {
   const match = extra ? idRegex.exec(argument) : idOnlyRegex.exec(argument);
-  return match ? match[1] as Snowflake : null;
+  return match ? (match[1] as Snowflake) : null;
 };
 
 export const getUserMentionMatch = (argument: string) => {
   const match = userMentionRegex.exec(argument);
-  return match ? match[1] as Snowflake : null;
+  return match ? (match[1] as Snowflake) : null;
 };
 
 const getMessageIDMatch = (argument: string) => argument.match(messageIDRegex);
@@ -45,12 +45,12 @@ const getMessageLinkMatch = (argument: string) =>
 
 const getChannelMentionMatch = (argument: string) => {
   const match = channelMentionRegex.exec(argument);
-  return match ? match[1] as Snowflake : null;
+  return match ? (match[1] as Snowflake) : null;
 };
 
 const getRoleMentionMatch = (argument: string) => {
   const match = roleMentionRegex.exec(argument);
-  return match ? match[1] as Snowflake : null;
+  return match ? (match[1] as Snowflake) : null;
 };
 
 export const snowflakeConverter = async (
@@ -59,6 +59,8 @@ export const snowflakeConverter = async (
   silent = false
 ): Promise<({ snowflake: Snowflake } & DeconstructedSnowflake) | null> => {
   if (!argument) return;
+
+  if (argument == "@me") argument = message.author.id;
 
   const type = message.util?.parsed?.command?.id == "guild" ? "GUILD" : "USER";
 
@@ -137,6 +139,8 @@ export const memberConverter = async (
 ): Promise<FireMember | null> => {
   if (!argument) return;
 
+  if (argument == "@me" && message.member) return message.member;
+
   const guild = message.guild;
   if (!guild) {
     if (!silent) await message.error();
@@ -212,6 +216,8 @@ export const userConverter = async (
   silent = false
 ): Promise<FireUser | null> => {
   if (!argument) return;
+
+  if (argument == "@me") return message.author;
 
   if (argument == "^" && message.channel.messages.cache.size >= 4)
     return message.channel.messages.cache
