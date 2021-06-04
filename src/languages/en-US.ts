@@ -1622,9 +1622,12 @@ Running this command without providing a category resets it, therefore disabling
         TICTACTOE_REQUEST_EXPIRED_SLASH: (opponent: string) =>
           `The challenge request for ${opponent} has expired.`,
         TICTACTOE_FORFEIT: "Forfeit",
+        TICTACTOE_END_GAME: "End Game",
         TICTACTOE_FORFEITED: (user: string) => `${user} has forfeited the game`,
+        TICTACTOE_JOINED_NEW: (user: string) =>
+          `${user} ended this game and joined a new one`,
         TICTACTOE_EXISTING:
-          'You must finish your current game of tic tac toe before starting a new one. If you would like to end your previous game, click the "Forfeit" button on the game message',
+          "You must finish your current game of tic tac toe before starting a new one. If you would like to end your previous game, click the button below.",
         TICTACTOE_COMPUTER:
           "Eventually attempting to challenge any bot will allow you to play against a bot but my developer was too lazy to implement that. For now, you must challenge an actual user.",
         TICTACTOE_GAME_START: (opponent: string) =>

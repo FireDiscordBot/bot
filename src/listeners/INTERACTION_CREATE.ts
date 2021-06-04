@@ -22,8 +22,7 @@ export default class InteractionCreate extends Listener {
     if (!interaction) return;
     if (this.blacklistCheck(interaction)) return;
     // slash command, use client interaction event
-    else if (interaction.type == 2) return;
-    else if (interaction.type == 3) return await this.handleButton(interaction);
+    else if (interaction.type == 2 || interaction.type == 3) return;
     else {
       const haste = await this.client.util.haste(
         JSON.stringify(interaction, null, 4),
@@ -38,41 +37,6 @@ export default class InteractionCreate extends Listener {
           body: haste,
         },
       });
-    }
-  }
-
-  async handleButton(button: Button) {
-    try {
-      // should be cached if in guild or fetch if dm channel
-      await this.client.channels.fetch(button.channel_id).catch(() => {});
-      const message = new ButtonMessage(this.client, button);
-      if (!message.custom_id.startsWith("!")) await message.channel.ack();
-      else message.custom_id = message.custom_id.slice(1);
-      this.client.emit("button", message);
-    } catch (error) {
-      await this.callbackError(button, error).catch(
-        async () => await this.webhookError(button, error).catch(() => {})
-      );
-      if (
-        typeof this.client.sentry != "undefined" &&
-        error.message != "Component checks failed, potential mitm/selfbot?"
-      ) {
-        const sentry = this.client.sentry;
-        sentry.setExtras({
-          button: JSON.stringify(button.data),
-          member: button.member
-            ? `${button.member.user.username}#${button.member.user.discriminator}`
-            : `${button.user.username}#${button.user.discriminator}`,
-          channel_id: button.channel_id,
-          guild_id: button.guild_id,
-          env: process.env.NODE_ENV,
-        });
-        sentry.captureException(error);
-        sentry.configureScope((scope: Scope) => {
-          scope.setUser(null);
-          scope.setExtras(null);
-        });
-      }
     }
   }
 

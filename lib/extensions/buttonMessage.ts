@@ -1,6 +1,8 @@
 import {
+  MessageComponentInteraction,
   PermissionOverwriteOptions,
   EmojiIdentifierResolvable,
+  WebhookEditMessageOptions,
   DeconstructedSnowflake,
   GuildMemberResolvable,
   WebhookMessageOptions,
@@ -10,7 +12,6 @@ import {
   MessageAdditions,
   MessageReaction,
   CollectorFilter,
-  MessageOptions,
   MessageManager,
   RoleResolvable,
   UserResolvable,
@@ -25,13 +26,6 @@ import {
   DMChannel,
   Webhook,
 } from "discord.js";
-import {
-  APIComponent,
-  Interaction,
-  ButtonType,
-  ActionRow,
-  Button,
-} from "../interfaces/interactions";
 import { APIMessage as DiscordAPIMessage } from "discord-api-types";
 import { FireTextChannel } from "./textchannel";
 import { constants } from "../util/constants";
@@ -49,6 +43,7 @@ export class ButtonMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   private snowflake: DeconstructedSnowflake;
   message: FireMessage | EphemeralMessage;
+  interaction: MessageComponentInteraction;
   sent: false | "ack" | "message";
   sourceMessage: FireMessage;
   latestResponse: Snowflake;
@@ -57,48 +52,41 @@ export class ButtonMessage {
   ephemeral: boolean;
   member: FireMember;
   language: Language;
-  custom_id: string;
+  customID: string;
   guild: FireGuild;
   author: FireUser;
-  button: Button;
   id: Snowflake;
   client: Fire;
 
-  constructor(client: Fire, button: Interaction) {
-    if (button.type != 3) throw new TypeError("Interaction is not Button");
+  constructor(client: Fire, button: MessageComponentInteraction) {
     this.client = client;
     this.id = button.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
-    this.custom_id = button.data.custom_id;
-    this.button = button;
+    this.customID = button.customID;
+    this.interaction = button;
     this.sent = false;
-    this.guild = client.guilds.cache.get(button.guild_id) as FireGuild;
-    this.realChannel = client.channels.cache.get(button.channel_id) as
+    this.guild = button.guild as FireGuild;
+    this.realChannel = client.channels.cache.get(button.channelID) as
       | FireTextChannel
       | NewsChannel
       | DMChannel;
-    this.ephemeral = (button.message.flags & 64) != 0;
+    this.ephemeral = button.message.flags
+      ? (button.message.flags.valueOf() & 64) != 0
+      : false;
     this.message = this.ephemeral
       ? (button.message as EphemeralMessage)
-      : (this.realChannel.messages.cache.get(
-          button.message?.id
-        ) as FireMessage) ||
-        new FireMessage(client, button.message, this.realChannel);
+      : button.message instanceof FireMessage
+      ? button.message
+      : new FireMessage(client, button.message, this.realChannel);
     if (
       !this.message ||
       (!this.ephemeral &&
-        !this.button.message.components?.find(
+        !(this.message as FireMessage).components?.find(
           (component) =>
-            (component.type == this.button.data.component_type &&
-              // @ts-ignore
-              component.custom_id == this.custom_id) ||
-            (component.type == ButtonType.ACTION_ROW &&
-              component.components.find(
-                (component) =>
-                  component.type == this.button.data.component_type &&
-                  // @ts-ignore
-                  component.custom_id == this.custom_id
-              ))
+            component.type == "ACTION_ROW" &&
+            component.components.find(
+              (component) => component.customID == this.customID
+            )
         ))
     )
       throw new Error("Component checks failed, potential mitm/selfbot?");
@@ -123,7 +111,7 @@ export class ButtonMessage {
         client,
         button.id,
         button.token,
-        button.guild_id ? null : this.author.dmChannel
+        button.guildID ? null : this.author.dmChannel
       );
       return this;
     }
@@ -134,127 +122,6 @@ export class ButtonMessage {
       button.token,
       this.realChannel
     );
-  }
-
-  // temp helper function
-  static async sendWithButtons(
-    channel: FireTextChannel | NewsChannel | DMChannel | FireMessage,
-    content: string | APIMessage | MessageEmbed,
-    options?: (MessageOptions | MessageAdditions) & {
-      buttons?: APIComponent[];
-    }
-  ): Promise<FireMessage> {
-    if (channel instanceof FireMessage) channel = channel.channel;
-    let apiMessage: APIMessage;
-
-    if (content instanceof MessageEmbed) {
-      options = {
-        ...options,
-        embed: content,
-      };
-      content = null;
-    }
-
-    if (content instanceof APIMessage) apiMessage = content.resolveData();
-    else {
-      apiMessage = APIMessage.create(
-        channel,
-        content as string,
-        options
-      ).resolveData();
-    }
-
-    const { data, files } = (await apiMessage.resolveFiles()) as {
-      data: any;
-      files: any[];
-    };
-
-    const isRow =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.ACTION_ROW
-      );
-    const isButtons =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.BUTTON
-      );
-
-    if (isRow) data.components = options.buttons;
-    else if (isButtons)
-      data.components = [
-        { type: ButtonType.ACTION_ROW, components: options.buttons },
-      ];
-
-    return await (channel.client as Fire).req
-      .channels(channel.id)
-      .messages.post<DiscordAPIMessage>({ data, files })
-      .then(
-        (d) =>
-          // @ts-ignore
-          channel.client.actions.MessageCreate.handle(d).message as FireMessage
-      );
-  }
-
-  // temp helper function
-  static async editWithButtons(
-    message: FireMessage,
-    content: string | APIMessage | MessageEmbed,
-    options?: (MessageOptions | MessageAdditions) & {
-      buttons?: ActionRow[] | APIComponent[];
-    }
-  ) {
-    let apiMessage: APIMessage;
-
-    if (content instanceof MessageEmbed) {
-      options = {
-        ...options,
-        embed: content,
-      };
-      content = null;
-    }
-
-    if (content instanceof APIMessage) apiMessage = content.resolveData();
-    else {
-      apiMessage = APIMessage.create(
-        message.channel,
-        content as string,
-        options
-      ).resolveData();
-    }
-
-    const { data, files } = (await apiMessage.resolveFiles()) as {
-      data: any;
-      files: any[];
-    };
-
-    const isRow =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.ACTION_ROW
-      );
-    const isButtons =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.BUTTON
-      );
-
-    if (isRow) data.components = options.buttons;
-    else if (isButtons)
-      data.components = [{ type: 1, components: options.buttons }];
-    else if (options?.buttons == null) data.components = [];
-
-    return await (message.client as Fire).req
-      .channels(message.channel.id)
-      .messages(message.id)
-      .patch<DiscordAPIMessage>({ data, files })
-      .then((d) => {
-        // @ts-ignore
-        const clone = message._clone();
-        clone._patch(d);
-        return clone as FireMessage;
-      })
-      .catch(() => {});
   }
 
   set flags(flags: number) {
@@ -348,7 +215,7 @@ export class ButtonMessage {
     let messageId = this.latestResponse;
     if (messageId == "@original") {
       const message = await this.client.req
-        .webhooks(this.client.user.id, this.button.token)
+        .webhooks(this.client.user.id, this.interaction.token)
         .messages(messageId)
         .get<DiscordAPIMessage>()
         .catch(() => {});
@@ -364,41 +231,41 @@ export class ButtonMessage {
 
   async edit(
     content: string | MessageEditOptions | MessageEmbed | APIMessage,
-    options?: (MessageEditOptions | MessageEmbed) & {
-      buttons?: APIComponent[];
-    }
+    options?: WebhookEditMessageOptions & { embed?: MessageEmbed }
   ) {
-    const { data } = (content instanceof APIMessage
-      ? content.resolveData()
-      : APIMessage.create(
-          new Webhook(this.client, null), // needed to make isWebhook true for embeds array
-          content as string,
-          options
-        ).resolveData()) as {
+    let apiMessage: APIMessage;
+
+    if (content instanceof MessageEmbed) {
+      options = {
+        ...options,
+        embeds: [content],
+      };
+      content = null;
+    }
+
+    if (options.embed) {
+      options.embeds = [options.embed];
+      delete options.embed;
+    }
+
+    if (content instanceof APIMessage) apiMessage = content.resolveData();
+    else {
+      apiMessage = APIMessage.create(
+        new Webhook(this.client, null), // needed to make isWebhook true for embeds array
+        content as string,
+        options
+      ).resolveData();
+    }
+
+    const { data } = (await apiMessage.resolveFiles()) as {
       data: any;
       files: any[];
     };
 
     data.flags = this.flags;
 
-    const isRow =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.ACTION_ROW
-      );
-    const isButtons =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.BUTTON
-      );
-
-    if (isRow) data.components = options.buttons;
-    else if (isButtons)
-      data.components = [{ type: 1, components: options.buttons }];
-    else if (options?.buttons == null) data.components = [];
-
     await this.client.req
-      .webhooks(this.client.user.id, this.button.token)
+      .webhooks(this.client.user.id, this.interaction.token)
       .messages(this.latestResponse ?? "@original")
       .patch({
         data,
@@ -410,7 +277,7 @@ export class ButtonMessage {
   async delete(id?: string) {
     if (this.ephemeral) return;
     await this.client.req
-      .webhooks(this.client.user.id, this.button.token)
+      .webhooks(this.client.user.id, this.interaction.token)
       .messages(id ?? this.latestResponse ?? "@original")
       .delete()
       .catch(() => {});
@@ -520,9 +387,7 @@ export class FakeChannel {
 
   async send(
     content: string | APIMessage | MessageEmbed,
-    options?: (WebhookMessageOptions | MessageAdditions) & {
-      buttons?: APIComponent[];
-    },
+    options?: WebhookMessageOptions & { embed?: MessageEmbed },
     flags?: number // Used for success/error, can also be set
   ): Promise<ButtonMessage> {
     let apiMessage: APIMessage;
@@ -533,6 +398,11 @@ export class FakeChannel {
         embeds: [content],
       };
       content = null;
+    }
+
+    if (options.embed) {
+      options.embeds = [options.embed];
+      delete options.embed;
     }
 
     if (content instanceof APIMessage) apiMessage = content.resolveData();
@@ -548,23 +418,6 @@ export class FakeChannel {
       data: any;
       files: any[];
     };
-
-    const isRow =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.ACTION_ROW
-      );
-    const isButtons =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.BUTTON
-      );
-
-    if (isRow) data.components = options.buttons;
-    else if (isButtons)
-      data.components = [
-        { type: ButtonType.ACTION_ROW, components: options.buttons },
-      ];
 
     data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;
@@ -609,9 +462,7 @@ export class FakeChannel {
 
   async update(
     content: string | APIMessage | MessageEmbed,
-    options?: (WebhookMessageOptions | MessageAdditions) & {
-      buttons?: APIComponent[];
-    },
+    options?: WebhookMessageOptions & { embed?: MessageEmbed },
     flags?: number // Used for success/error, can also be set
   ): Promise<ButtonMessage> {
     if (this.message.sent) return; // can only update with initial response
@@ -624,6 +475,11 @@ export class FakeChannel {
         embeds: [content],
       };
       content = null;
+    }
+
+    if (options.embed) {
+      options.embeds = [options.embed];
+      delete options.embed;
     }
 
     if (content instanceof APIMessage) apiMessage = content.resolveData();
@@ -639,24 +495,6 @@ export class FakeChannel {
       data: any;
       files: any[];
     };
-
-    const isRow =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.ACTION_ROW
-      );
-    const isButtons =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.BUTTON
-      );
-
-    if (isRow) data.components = options.buttons;
-    else if (isButtons)
-      data.components = [
-        { type: ButtonType.ACTION_ROW, components: options.buttons },
-      ];
-    else if (options?.buttons == null) data.components = [];
 
     data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;

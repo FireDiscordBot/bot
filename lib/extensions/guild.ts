@@ -3,8 +3,10 @@ import {
   MessageEmbedOptions,
   FetchOwnerOptions,
   MessageAttachment,
+  MessageActionRow,
   CategoryChannel,
   WebhookClient,
+  MessageButton,
   StageChannel,
   VoiceChannel,
   MessageEmbed,
@@ -22,7 +24,6 @@ import {
   MemberLogType,
   ModLogType,
 } from "@fire/lib/util/constants";
-import { ButtonStyle, ButtonType } from "../interfaces/interactions";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import TicketName from "@fire/src/commands/Tickets/name";
@@ -32,7 +33,6 @@ import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { MessageIterator } from "../util/iterators";
 import { FakeChannel } from "./slashCommandMessage";
-import { ButtonMessage } from "./buttonMessage";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
@@ -446,9 +446,9 @@ export class FireGuild extends Guild {
         vcrole.get("cid") as Snowflake,
         vcrole.get("rid") as Snowflake
       );
-      const channel = this.channels.cache.get(vcrole.get("cid") as Snowflake) as
-        | VoiceChannel
-        | StageChannel;
+      const channel = this.channels.cache.get(
+        vcrole.get("cid") as Snowflake
+      ) as VoiceChannel | StageChannel;
       if (!channel) continue;
       const role = this.roles.cache.get(vcrole.get("rid") as Snowflake);
       if (!role) continue;
@@ -723,7 +723,9 @@ export class FireGuild extends Guild {
       category ||
       (this.channels.cache
         .filter((channel) => channel.type == "category")
-        .get(this.settings.get<Snowflake>("tickets.parent")) as CategoryChannel);
+        .get(
+          this.settings.get<Snowflake>("tickets.parent")
+        ) as CategoryChannel);
     if (!category) return "disabled";
     const limit = this.settings.get<number>("tickets.limit", 1);
     if (!this.ticketLock?.lock || this.ticketLock?.limit != limit)
@@ -843,50 +845,53 @@ export class FireGuild extends Guild {
     if (description) embed.setDescription(description);
     const alertId = this.settings.get<Snowflake>("tickets.alert");
     const alert = this.roles.cache.get(alertId);
-    let opener: FireMessage;
     if (alert && !author.isModerator()) {
       if (this.hasExperiment(1621199146, 1))
-        ButtonMessage.sendWithButtons(ticket, alert.toString(), {
-          allowedMentions: { roles: [alertId] },
-          embed,
-          buttons: [
-            {
-              type: ButtonType.BUTTON,
-              style: ButtonStyle.DESTRUCTIVE,
-              custom_id: `ticket_close_${ticket.id}`,
-              label: this.language.get("TICKET_CLOSE_BUTTON_TEXT"),
-              emoji: { id: "534174796938870792" },
-            },
-          ],
-        }).catch(() => {});
+        await ticket
+          .send(alert.toString(), {
+            allowedMentions: { roles: [alertId] },
+            embed,
+            components: [
+              new MessageActionRow().addComponents(
+                new MessageButton()
+                  .setStyle("DANGER")
+                  .setCustomID(`ticket_close_${ticket.id}`)
+                  .setLabel(this.language.get("TICKET_CLOSE_BUTTON_TEXT"))
+                  .setEmoji("534174796938870792")
+              ),
+            ],
+          })
+          .catch(() => {});
       else
-        opener = (await ticket
+        await ticket
           .send(alert.toString(), {
             allowedMentions: { roles: [alertId] },
             embed,
           })
-          .catch(() => {})) as FireMessage;
+          .catch(() => {});
     } else {
       if (this.hasExperiment(1621199146, 1))
-        ButtonMessage.sendWithButtons(ticket, embed, {
-          buttons: [
-            {
-              type: 2,
-              style: ButtonStyle.DESTRUCTIVE,
-              custom_id: `ticket_close_${ticket.id}`,
-              label: this.language.get("TICKET_CLOSE_BUTTON_TEXT"),
-              emoji: { id: "534174796938870792" },
-            },
-          ],
-        }).catch(() => {});
-      else opener = (await ticket.send(embed).catch(() => {})) as FireMessage;
+        await ticket
+          .send(null, {
+            embed,
+            components: [
+              new MessageActionRow().addComponents(
+                new MessageButton()
+                  .setStyle("DANGER")
+                  .setCustomID(`ticket_close_${ticket.id}`)
+                  .setLabel(this.language.get("TICKET_CLOSE_BUTTON_TEXT"))
+                  .setEmoji("534174796938870792")
+              ),
+            ],
+          })
+          .catch(() => {});
+      else await ticket.send(embed).catch(() => {});
     }
     channels.push(ticket);
     this.settings.set<string[]>(
       "tickets.channels",
       channels.map((channel) => channel && channel.id)
     );
-    this.client.emit("ticketCreate", author, ticket, opener);
     locked = false;
     this.ticketLock.lock.release();
     return ticket;

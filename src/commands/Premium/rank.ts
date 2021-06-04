@@ -1,11 +1,11 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import {
-  APIComponent,
-  ButtonStyle,
-  ButtonType,
-} from "@fire/lib/interfaces/interactions";
-import { MessageEmbed, Permissions, Snowflake, Role } from "discord.js";
-import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  Permissions,
+  Snowflake,
+  Role,
+} from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -93,11 +93,7 @@ export default class Rank extends Command {
         message.member
         // message instanceof FireMessage
       );
-      return message instanceof SlashCommandMessage
-        ? message.channel.send(embed, { buttons: components as APIComponent[] })
-        : await ButtonMessage.sendWithButtons(message.channel, embed, {
-            buttons: components as APIComponent[],
-          });
+      return message.channel.send(null, { embed, components });
     }
 
     if (roles.includes(args.role)) {
@@ -130,7 +126,7 @@ export default class Rank extends Command {
       guild.settings.set<Snowflake[]>("utils.ranks", roles);
     if (!roles.length) return [];
     roles = roles.map((id) => guild.roles.cache.get(id) as Role);
-    const components = [{ type: ButtonType.ACTION_ROW, components: [] }];
+    const components = [new MessageActionRow()];
     for (const role of roles) {
       let name = "@" + role.name;
       let emoji: string;
@@ -144,18 +140,23 @@ export default class Rank extends Command {
         components[components.length - 1].components.length >= 5 &&
         components.length < 5
       )
-        components.push({ type: ButtonType.ACTION_ROW, components: [] });
-      components[components.length - 1].components.push({
-        type: ButtonType.BUTTON,
-        style: useState
-          ? member.roles.cache.has(role.id)
-            ? ButtonStyle.DESTRUCTIVE
-            : ButtonStyle.SUCCESS
-          : ButtonStyle.PRIMARY,
-        emoji: emoji ? { name: emoji } : null,
-        custom_id: `!rank:${member?.id}:${role.id}`,
-        label: name,
-      });
+        components.push(new MessageActionRow());
+      components[components.length - 1].addComponents(
+        new MessageButton()
+          .setStyle(
+            useState
+              ? member.roles.cache.has(role.id)
+                ? "DANGER"
+                : "SUCCESS"
+              : "PRIMARY"
+          )
+          .setCustomID(`!rank:${member?.id}:${role.id}`)
+          .setLabel(name)
+      );
+      if (emoji) {
+        const length = components[components.length - 1].components.length - 1;
+        components[components.length - 1].components[length].setEmoji(emoji);
+      }
     }
     return components;
   }

@@ -225,24 +225,24 @@ export default class Sk1er extends Module {
       if (!trigger.message) return "no message";
       const component = (trigger.message as FireMessage).components
         .map((component) =>
-          component.type == ButtonType.ACTION_ROW
+          component.type == "ACTION_ROW"
             ? component?.components ?? component
             : component
         )
         .flat()
         .find(
           (component) =>
-            component.type == ButtonType.BUTTON &&
-            component.style != ButtonStyle.LINK &&
-            component.custom_id == trigger.custom_id
+            component.type == "BUTTON" &&
+            component.style != "LINK" &&
+            component.customID == trigger.customID
         );
-      if (
-        component.type != ButtonType.BUTTON ||
-        component.style == ButtonStyle.LINK
-      )
+      if (component.type != "BUTTON" || component.style == "LINK")
         return "non button";
-      if (!component.emoji?.name) return "unknown emoji";
-      emoji = component.emoji.name;
+      if (!component.emoji) return "unknown emoji";
+      emoji =
+        typeof component.emoji == "string"
+          ? component.emoji
+          : component.emoji.name;
     }
     if (!emoji) return "no emoji";
     if (emoji == "🖥️") {

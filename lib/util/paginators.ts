@@ -1,6 +1,8 @@
 import {
   ReactionUserManager,
+  MessageActionRow,
   EmojiResolvable,
+  MessageButton,
   ReactionEmoji,
   MessageEmbed,
   NewsChannel,
@@ -11,19 +13,14 @@ import {
   FakeChannel,
   SlashCommandMessage,
 } from "@fire/lib/extensions/slashCommandMessage";
-import {
-  APIComponent,
-  ButtonStyle,
-  ButtonType,
-} from "../interfaces/interactions";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { ButtonMessage } from "../extensions/buttonMessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
+import { FireGuild } from "../extensions/guild";
 import Semaphore from "semaphore-async-await";
 import { Fire } from "@fire/lib/Fire";
-import { FireGuild } from "../extensions/guild";
 
 export interface PaginatorEmojiSettings {
   start: EmojiResolvable;
@@ -251,14 +248,14 @@ export class PaginatorInterface {
     };
 
     this.buttonHandler = async (button: ButtonMessage) => {
-      if (button.custom_id == "close")
+      if (button.customID == "close")
         return (
           this.deleteMessage && (await this.message.delete().catch(() => {}))
         );
-      else if (button.custom_id == "start") this._displayPage = 0;
-      else if (button.custom_id == "end") this._displayPage = this.pageCount;
-      else if (button.custom_id == "back") this._displayPage -= 1;
-      else if (button.custom_id == "forward") this._displayPage += 1;
+      else if (button.customID == "start") this._displayPage = 0;
+      else if (button.customID == "end") this._displayPage = this.pageCount;
+      else if (button.customID == "back") this._displayPage -= 1;
+      else if (button.customID == "forward") this._displayPage += 1;
       else return;
 
       this.update();
@@ -331,17 +328,22 @@ export class PaginatorInterface {
         | FireMessage
         | SlashCommandMessage;
     else if (destination instanceof FakeChannel)
-      message = await destination.send(this.sendArgs, {
-        buttons: this.getButtons(),
-      });
-    else
-      message = (await ButtonMessage.sendWithButtons(
-        destination,
-        this.sendArgs,
+      message = await destination.send(
+        typeof this.sendArgs == "string" ? this.sendArgs : null,
         {
-          buttons: this.getButtons(),
+          embeds:
+            this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+          components: this.getButtons(),
         }
-      ).catch(() => {})) as FireMessage;
+      );
+    else
+      message = (await destination.send(
+        typeof this.sendArgs == "string" ? this.sendArgs : null,
+        {
+          embed: this.sendArgs instanceof MessageEmbed ? this.sendArgs : null,
+          components: this.getButtons(),
+        }
+      )) as FireMessage;
     if (message instanceof SlashCommandMessage) {
       this.slashMessage = message;
       this.message = await message.getRealMessage();
@@ -379,52 +381,44 @@ export class PaginatorInterface {
     this.sentPageReactions = true;
   }
 
-  private getButtons(): APIComponent[] {
+  private getButtons() {
     if (this.pageCount == 1)
       return [
-        {
-          style: ButtonStyle.DESTRUCTIVE,
-          custom_id: "close",
-          type: ButtonType.BUTTON,
-          emoji: { id: "835140711489863701" },
-        },
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setStyle("DANGER")
+            .setCustomID("close")
+            .setEmoji("835140711489863701")
+        ),
       ];
     else
       return [
-        {
-          emoji: { id: "835140711606124574" },
-          disabled: this.displayPage == 0,
-          style: ButtonStyle.PRIMARY,
-          type: ButtonType.BUTTON,
-          custom_id: "start",
-        },
-        {
-          emoji: { id: "835140710982352907" },
-          disabled: this.displayPage == 0,
-          style: ButtonStyle.PRIMARY,
-          type: ButtonType.BUTTON,
-          custom_id: "back",
-        },
-        {
-          emoji: { id: "835140711489863701" },
-          style: ButtonStyle.DESTRUCTIVE,
-          type: ButtonType.BUTTON,
-          custom_id: "close",
-        },
-        {
-          disabled: this.displayPage == this.pageCount - 1,
-          emoji: { id: "835140711476494346" },
-          style: ButtonStyle.PRIMARY,
-          type: ButtonType.BUTTON,
-          custom_id: "forward",
-        },
-        {
-          disabled: this.displayPage == this.pageCount - 1,
-          emoji: { id: "835140711388676116" },
-          style: ButtonStyle.PRIMARY,
-          type: ButtonType.BUTTON,
-          custom_id: "end",
-        },
+        new MessageActionRow().addComponents([
+          new MessageButton()
+            .setEmoji("835140711606124574")
+            .setDisabled(this.displayPage == 0)
+            .setStyle("PRIMARY")
+            .setCustomID("start"),
+          new MessageButton()
+            .setEmoji("835140710982352907")
+            .setDisabled(this.displayPage == 0)
+            .setStyle("PRIMARY")
+            .setCustomID("back"),
+          new MessageButton()
+            .setStyle("DANGER")
+            .setCustomID("close")
+            .setEmoji("835140711489863701"),
+          new MessageButton()
+            .setEmoji("835140711476494346")
+            .setDisabled(this.displayPage == this.pageCount - 1)
+            .setStyle("PRIMARY")
+            .setCustomID("forward"),
+          new MessageButton()
+            .setEmoji("835140711388676116")
+            .setDisabled(this.displayPage == this.pageCount - 1)
+            .setStyle("PRIMARY")
+            .setCustomID("end"),
+        ]),
       ];
   }
 
@@ -444,12 +438,24 @@ export class PaginatorInterface {
         )?.hasExperiment(1621199146, 1)
       )
         this.slashMessage
-          ? this.slashMessage.edit(this.sendArgs, {
-              buttons: this.getButtons(),
-            })
-          : await ButtonMessage.editWithButtons(this.message, this.sendArgs, {
-              buttons: this.getButtons(),
-            });
+          ? this.slashMessage.edit(
+              typeof this.sendArgs == "string" ? this.sendArgs : null,
+              {
+                embeds:
+                  this.sendArgs instanceof MessageEmbed
+                    ? [this.sendArgs]
+                    : null,
+                components: this.getButtons(),
+              }
+            )
+          : await this.message.edit(
+              typeof this.sendArgs == "string" ? this.sendArgs : null,
+              {
+                embed:
+                  this.sendArgs instanceof MessageEmbed ? this.sendArgs : null,
+                components: this.getButtons(),
+              }
+            );
       else {
         if (!this.sentPageReactions) this.sendAllReactions();
         this.slashMessage

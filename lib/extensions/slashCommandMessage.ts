@@ -1,6 +1,7 @@
 import {
   PermissionOverwriteOptions,
   EmojiIdentifierResolvable,
+  WebhookEditMessageOptions,
   CommandInteractionOption,
   DeconstructedSnowflake,
   GuildMemberResolvable,
@@ -27,11 +28,6 @@ import {
   DMChannel,
   Snowflake,
 } from "discord.js";
-import {
-  APIComponent,
-  ButtonType,
-  ActionRow,
-} from "@fire/lib/interfaces/interactions";
 import { APIMessage as DiscordAPIMessage } from "discord-api-types";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
@@ -298,18 +294,23 @@ export class SlashCommandMessage {
 
   async edit(
     content: string | MessageEditOptions | MessageEmbed | APIMessage,
-    options?: (MessageEditOptions | MessageEmbed) & {
-      buttons?: APIComponent[];
-    }
+    options?:
+      | (WebhookEditMessageOptions & { embed?: MessageEmbed })
+      | MessageEmbed
   ) {
     let apiMessage: APIMessage;
 
     if (content instanceof MessageEmbed) {
       options = {
         ...options,
-        embed: content,
+        embeds: [content],
       };
       content = null;
+    }
+
+    if (!(options instanceof MessageEmbed) && options.embed) {
+      options.embeds = [options.embed];
+      delete options.embed;
     }
 
     if (content instanceof APIMessage) apiMessage = content.resolveData();
@@ -325,24 +326,6 @@ export class SlashCommandMessage {
       data: any;
       files: any[];
     };
-
-    const isRow =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.ACTION_ROW
-      );
-    const isButtons =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.BUTTON
-      );
-
-    if (isRow) data.components = options.buttons;
-    else if (isButtons)
-      data.components = [
-        { type: ButtonType.ACTION_ROW, components: options.buttons },
-      ];
-    else if (options?.buttons == null) data.components = [];
 
     await this.client.req
       .webhooks(this.client.user.id, this.slashCommand.token)
@@ -479,8 +462,8 @@ export class FakeChannel {
 
   async send(
     content: string | APIMessage | MessageEmbed,
-    options?: (WebhookMessageOptions | MessageAdditions) & {
-      buttons?: ActionRow[] | APIComponent[];
+    options?: WebhookMessageOptions & {
+      embed?: MessageEmbed;
     },
     flags?: number // Used for success/error, can also be set
   ): Promise<SlashCommandMessage> {
@@ -492,6 +475,11 @@ export class FakeChannel {
         embeds: [content],
       };
       content = null;
+    }
+
+    if (options.embed) {
+      options.embeds = [options.embed];
+      delete options.embed;
     }
 
     if (content instanceof APIMessage) apiMessage = content.resolveData();
@@ -507,21 +495,6 @@ export class FakeChannel {
       data: any;
       files: any[];
     };
-
-    const isRow =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.ACTION_ROW
-      );
-    const isButtons =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.BUTTON
-      );
-
-    if (isRow) data.components = options.buttons;
-    else if (isButtons)
-      data.components = [{ type: 1, components: options.buttons }];
 
     data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;

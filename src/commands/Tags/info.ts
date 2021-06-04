@@ -1,16 +1,20 @@
 import {
-  ActionRow,
   APIComponent,
   ButtonStyle,
   ButtonType,
 } from "@fire/lib/interfaces/interactions";
+import {
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  Permissions,
+} from "discord.js";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { MessageEmbed, Permissions } from "discord.js";
 import { Tag } from "@fire/lib/util/guildtagmanager";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 
 export default class TagInfo extends Command {
   constructor() {
@@ -74,39 +78,33 @@ export default class TagInfo extends Command {
       );
 
     if (message.guild.hasExperiment(1621199146, 1))
-      return message instanceof SlashCommandMessage
-        ? await message.channel.send(null, {
-            embeds: [embed],
-            buttons: this.getInitialButtons(message, cachedTag),
-          })
-        : await ButtonMessage.sendWithButtons(message.channel, embed, {
-            buttons: this.getInitialButtons(message, cachedTag),
-          });
+      await message.channel.send(null, {
+        embed,
+        components: this.getInitialButtons(message, cachedTag),
+      });
     else return await message.channel.send(embed);
   }
 
   private getInitialButtons(message: FireMessage, tag: Tag) {
     return [
-      {
-        label: message.language.get("TAG_INFO_EDIT_BUTTON"),
-        custom_id: `!tag_edit:${tag.name}`,
-        style: ButtonStyle.PRIMARY,
-        type: ButtonType.BUTTON,
-      },
-      tag.content.length >= 100
-        ? {
-            label: message.language.get("TAG_INFO_VIEW_BUTTON"),
-            custom_id: `tag_view:${tag.name}`,
-            style: ButtonStyle.PRIMARY,
-            type: ButtonType.BUTTON,
-          }
-        : null,
-      {
-        label: message.language.get("TAG_INFO_DELETE_BUTTON"),
-        custom_id: `!tag_delete:${tag.name}`,
-        style: ButtonStyle.DESTRUCTIVE,
-        type: ButtonType.BUTTON,
-      },
-    ].filter((component) => !!component) as APIComponent[];
+      new MessageActionRow().addComponents(
+        [
+          new MessageButton()
+            .setLabel(message.language.get("TAG_INFO_EDIT_BUTTON"))
+            .setCustomID(`!tag_edit:${tag.name}`)
+            .setStyle("PRIMARY"),
+          tag.content.length >= 100
+            ? new MessageButton()
+                .setLabel(message.language.get("TAG_INFO_VIEW_BUTTON"))
+                .setCustomID(`tag_view:${tag.name}`)
+                .setStyle("PRIMARY")
+            : null,
+          new MessageButton()
+            .setLabel(message.language.get("TAG_INFO_DELETE_BUTTON"))
+            .setCustomID(`!tag_delete:${tag.name}`)
+            .setStyle("DANGER"),
+        ].filter((component) => !!component)
+      ),
+    ];
   }
 }

@@ -15,7 +15,6 @@ import {
 } from "discord.js";
 import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
 import { PaginatorInterface } from "@fire/lib/util/paginators";
-import { APIComponent } from "../interfaces/interactions";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
 import Filters from "@fire/src/modules/filters";
@@ -40,7 +39,6 @@ export class FireMessage extends Message {
   invWtfResolved: Collection<string, { invite?: string; url?: string }>;
   declare channel: DMChannel | FireTextChannel | NewsChannel;
   paginator?: PaginatorInterface;
-  components: APIComponent[];
   declare member: FireMember;
   declare guild: FireGuild;
   declare author: FireUser;
@@ -60,17 +58,7 @@ export class FireMessage extends Message {
       this.content = this.content.slice(0, this.content.length - 9).trimEnd();
       if (!this.attachments.size) this.silent = true;
     }
-    // @ts-ignore
-    if (data.components) this.components = data.components;
     this.invWtfResolved = new Collection();
-  }
-
-  _patch(data: APIMessage) {
-    // @ts-ignore
-    super._patch(data);
-
-    // @ts-ignore
-    if (data.components) this.components = data.components;
   }
 
   get language() {

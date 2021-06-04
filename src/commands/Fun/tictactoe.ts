@@ -1,28 +1,34 @@
 import {
-  ActionRow,
-  APIComponent,
-  ButtonStyle,
-  ButtonType,
-} from "@fire/lib/interfaces/interactions";
+  MessageActionRow,
+  SnowflakeUtil,
+  MessageButton,
+  Collection,
+  Snowflake,
+} from "discord.js";
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { SnowflakeUtil, Collection } from "discord.js";
+import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
 type TicTacToeSymbol = "x" | "o";
 type TicTacToeButtons = { [location: number]: ButtonData };
 interface ButtonData {
-  custom_id: string;
+  customID: string;
   player?: string;
 }
 interface GameData {
   players: { [id: string]: TicTacToeSymbol };
   buttons: TicTacToeButtons;
+  message?: Snowflake;
+  channel: Snowflake;
   current: string;
 }
+
+const { emojis } = constants;
 
 // these are the positions required for winning
 const winningStates = [
@@ -67,6 +73,53 @@ export default class TicTacToe extends Command {
     const { opponent } = args;
     if (opponent.user.bot) return await message.error("TICTACTOE_COMPUTER");
 
+    const authorHasGame = this.games.findKey(
+      (game) => message.author.id in game.players
+    );
+    if (authorHasGame) {
+      const existing = this.games.get(authorHasGame);
+      const endId = SnowflakeUtil.generate();
+      const endGameMessage = await message.channel.send(
+        `${emojis.error} ${message.language.get("TICTACTOE_EXISTING")}`,
+        {
+          components: [
+            new MessageActionRow().addComponents(
+              new MessageButton()
+                .setLabel(message.guild.language.get("TICTACTOE_END_GAME"))
+                .setCustomID(endId)
+                .setStyle("PRIMARY")
+            ),
+          ],
+        }
+      );
+      try {
+        await this.awaitEndGame(endId, message.member);
+        for (const button of Object.values(existing.buttons))
+          this.client.buttonHandlers.delete(button.customID);
+        this.client.buttonHandlers.delete(`${authorHasGame}:forfeit`);
+        this.games.delete(authorHasGame);
+
+        const existingMessage = (await (this.client.channels.cache.get(
+          existing.channel
+        ) as FireTextChannel)?.messages
+          .fetch(existing.message)
+          .catch(() => {})) as FireMessage;
+        if (existingMessage) {
+          const existingGuild = existingMessage.guild;
+          await existingMessage.edit(
+            existingGuild.language.get(
+              "TICTACTOE_JOINED_NEW",
+              message.member?.toMention()
+            ),
+            { components: [] }
+          );
+        }
+        await endGameMessage.delete().catch(() => {});
+      } catch {
+        return;
+      }
+    }
+
     const requestId = SnowflakeUtil.generate();
     const requestMsgOptions = {
       allowedMentions: {
@@ -77,36 +130,24 @@ export default class TicTacToe extends Command {
             ? []
             : [opponent.id],
       },
-      buttons: [
-        {
-          label: message.guild.language.get(
-            "TICTACTOE_ACCEPT_CHALLENGE"
-          ) as string,
-          style: ButtonStyle.SUCCESS,
-          type: ButtonType.BUTTON,
-          custom_id: requestId,
-        },
-      ] as APIComponent[], // tsc complains without this for some reason
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setLabel(message.guild.language.get("TICTACTOE_ACCEPT_CHALLENGE"))
+            .setStyle("SUCCESS")
+            .setCustomID(requestId)
+        ),
+      ],
     };
-    const requestMsg =
-      message instanceof SlashCommandMessage
-        ? await message.channel.send(
-            message.guild.language.get(
-              "TICTACTOE_GAME_REQUEST",
-              message.author.username,
-              opponent.toMention()
-            ),
-            requestMsgOptions
-          )
-        : await ButtonMessage.sendWithButtons(
-            message.channel,
-            message.guild.language.get(
-              "TICTACTOE_GAME_REQUEST",
-              message.author.username,
-              opponent.toMention()
-            ),
-            requestMsgOptions
-          ).catch(() => {});
+
+    const requestMsg = await message.channel.send(
+      message.guild.language.get(
+        "TICTACTOE_GAME_REQUEST",
+        message.author.username,
+        opponent.toMention()
+      ),
+      requestMsgOptions
+    );
     if (!requestMsg) return await message.error();
     const accepted = await this.awaitOpponentResponse(requestId, opponent);
     this.client.buttonHandlers.delete(requestId);
@@ -117,18 +158,13 @@ export default class TicTacToe extends Command {
             "TICTACTOE_REQUEST_EXPIRED_SLASH",
             opponent.toMention()
           ) as string,
-          { buttons: null }
+          { components: [] }
         );
-      return await message.error("TICTACTOE_REQUEST_EXPIRED");
+      else return await message.error("TICTACTOE_REQUEST_EXPIRED");
     } else
       message instanceof SlashCommandMessage
         ? await message.delete()
         : await requestMsg.delete().catch(() => {});
-
-    const authorHasGame = this.games.find(
-      (game) => message.author.id in game.players
-    );
-    if (authorHasGame) return await message.error("TICTACTOE_EXISTING");
 
     const opponentHasGame = this.games.find(
       (game) => args.opponent.id in game.players
@@ -140,6 +176,7 @@ export default class TicTacToe extends Command {
       .set(gameId, {
         current: opponent.id, // opponent goes first
         buttons: this.getInitialButtons(),
+        channel: message.channel.id,
         players: {
           [message.author.id]: "x",
           [opponent.id]: "o",
@@ -149,86 +186,76 @@ export default class TicTacToe extends Command {
 
     const handler = this.getGameHandler(gameId);
     for (const button of Object.values(gameData.buttons))
-      this.client.buttonHandlers.set(button.custom_id, handler);
+      this.client.buttonHandlers.set(button.customID, handler);
     this.client.buttonHandlers.set(`${gameId}:forfeit`, async (button) => {
       if (button.ephemeral) return;
-      const buttonMessage = button.message as FireMessage;
+      let buttonMessage = button.message as FireMessage;
       const game = this.games.get(gameId);
-      if (!(button.author.id in game.players)) return;
+      if (!(button.author.id in game.players))
+        return await button.channel.ack();
+      if (game.message != buttonMessage.id)
+        buttonMessage = (await button.channel.messages
+          .fetch(game.message)
+          .catch(() => {})) as FireMessage;
+
+      if (!buttonMessage) return;
 
       for (const button of Object.values(game.buttons))
-        this.client.buttonHandlers.delete(button.custom_id);
+        this.client.buttonHandlers.delete(button.customID);
       this.client.buttonHandlers.delete(`${gameId}:forfeit`);
       this.games.delete(gameId);
 
-      return await ButtonMessage.editWithButtons(
-        buttonMessage,
+      return await buttonMessage.edit(
         button.guild.language.get(
           "TICTACTOE_FORFEITED",
           button.member?.toMention()
         ),
-        { buttons: null }
-      ).catch(() => {});
+        { components: [] }
+      );
     });
 
-    const buttons = [
-      {
-        type: ButtonType.ACTION_ROW,
-        components: [1, 2, 3].map((pos) => {
-          return {
-            custom_id: "!" + gameData.buttons[pos].custom_id,
-            style: ButtonStyle.SECONDARY,
-            type: ButtonType.BUTTON,
-            emoji: { id: "842914636026216498" },
-          };
-        }),
-      },
-      {
-        type: ButtonType.ACTION_ROW,
-        components: [4, 5, 6].map((pos) => {
-          return {
-            custom_id: "!" + gameData.buttons[pos].custom_id,
-            style: ButtonStyle.SECONDARY,
-            type: ButtonType.BUTTON,
-            emoji: { id: "842914636026216498" },
-          };
-        }),
-      },
-      {
-        type: ButtonType.ACTION_ROW,
-        components: [7, 8, 9].map((pos) => {
-          return {
-            custom_id: "!" + gameData.buttons[pos].custom_id,
-            style: ButtonStyle.SECONDARY,
-            type: ButtonType.BUTTON,
-            emoji: { id: "842914636026216498" },
-          };
-        }),
-      },
-      {
-        type: ButtonType.ACTION_ROW,
-        components: [
-          {
-            label: message.guild.language.get("TICTACTOE_FORFEIT"),
-            custom_id: `!${gameId}:forfeit`,
-            style: ButtonStyle.PRIMARY,
-            type: ButtonType.BUTTON,
-          },
-        ],
-      },
-    ] as ActionRow[];
+    const components = [
+      new MessageActionRow().addComponents(
+        [1, 2, 3].map((pos) =>
+          new MessageButton()
+            .setCustomID("!" + gameData.buttons[pos].customID)
+            .setStyle("SECONDARY")
+            .setEmoji("842914636026216498")
+        )
+      ),
+      new MessageActionRow().addComponents(
+        [4, 5, 6].map((pos) =>
+          new MessageButton()
+            .setCustomID("!" + gameData.buttons[pos].customID)
+            .setStyle("SECONDARY")
+            .setEmoji("842914636026216498")
+        )
+      ),
+      new MessageActionRow().addComponents(
+        [7, 8, 9].map((pos) =>
+          new MessageButton()
+            .setCustomID("!" + gameData.buttons[pos].customID)
+            .setStyle("SECONDARY")
+            .setEmoji("842914636026216498")
+        )
+      ),
+      new MessageActionRow().addComponents(
+        new MessageButton()
+          .setLabel(message.guild.language.get("TICTACTOE_FORFEIT"))
+          .setCustomID(`!${gameId}:forfeit`)
+          .setStyle("PRIMARY")
+      ),
+    ];
 
-    return await ButtonMessage.sendWithButtons(
-      // followups are dumb and reply to the original message so fuck 'em
-      message instanceof SlashCommandMessage
-        ? message.realChannel
-        : message.channel,
+    const game = await message.channel.send(
       message.guild.language.get("TICTACTOE_GAME_START", opponent.toMention()),
       {
-        buttons,
+        components,
         allowedMentions: { users: [opponent.id, message.author.id] },
       }
     );
+    gameData.message = game.id;
+    this.games.set(gameId, gameData);
   }
 
   private awaitOpponentResponse(
@@ -247,34 +274,50 @@ export default class TicTacToe extends Command {
     });
   }
 
+  private awaitEndGame(
+    requestId: string,
+    author: FireMember
+  ): Promise<boolean> {
+    return new Promise((resolve) => {
+      let resolved = false;
+      setTimeout(() => {
+        if (!resolved) resolve(false);
+      }, 60000);
+      const handler = (button: ButtonMessage) => {
+        if (button.author.id == author.id) resolve(true);
+      };
+      this.client.buttonHandlers.set(requestId, handler);
+    });
+  }
+
   private getInitialButtons(): TicTacToeButtons {
     return {
       1: {
-        custom_id: SnowflakeUtil.generate(),
+        customID: SnowflakeUtil.generate(),
       },
       2: {
-        custom_id: SnowflakeUtil.generate(),
+        customID: SnowflakeUtil.generate(),
       },
       3: {
-        custom_id: SnowflakeUtil.generate(),
+        customID: SnowflakeUtil.generate(),
       },
       4: {
-        custom_id: SnowflakeUtil.generate(),
+        customID: SnowflakeUtil.generate(),
       },
       5: {
-        custom_id: SnowflakeUtil.generate(),
+        customID: SnowflakeUtil.generate(),
       },
       6: {
-        custom_id: SnowflakeUtil.generate(),
+        customID: SnowflakeUtil.generate(),
       },
       7: {
-        custom_id: SnowflakeUtil.generate(),
+        customID: SnowflakeUtil.generate(),
       },
       8: {
-        custom_id: SnowflakeUtil.generate(),
+        customID: SnowflakeUtil.generate(),
       },
       9: {
-        custom_id: SnowflakeUtil.generate(),
+        customID: SnowflakeUtil.generate(),
       },
     };
   }
@@ -287,9 +330,9 @@ export default class TicTacToe extends Command {
       if (!game || button.author.id != game.current)
         return await button.channel.ack().catch(() => {});
 
-      const buttonId = button.custom_id;
+      const buttonId = button.customID;
       const [pos] = Object.entries(game.buttons).find(
-        ([, data]) => data.custom_id == buttonId
+        ([, data]) => data.customID == buttonId
       );
       const parsedPos = parseInt(pos);
 
@@ -301,38 +344,31 @@ export default class TicTacToe extends Command {
       );
       this.games.set(gameId, game);
 
-      const components = buttonMessage.components as ActionRow[];
+      const components = buttonMessage.components;
       const actionRowIndex = components.findIndex(
         (component) =>
-          component.type == ButtonType.ACTION_ROW &&
+          component.type == "ACTION_ROW" &&
           component.components.find(
             (component) =>
-              component.type == ButtonType.BUTTON &&
-              component.style != ButtonStyle.LINK &&
-              component.custom_id == "!" + buttonId
+              component.type == "BUTTON" &&
+              component.style != "LINK" &&
+              component.customID == "!" + buttonId
           )
       );
       const buttonIndex = components[actionRowIndex].components.findIndex(
         (component) =>
-          component.type == ButtonType.BUTTON &&
-          component.style != ButtonStyle.LINK &&
-          component.custom_id == "!" + buttonId
+          component.type == "BUTTON" &&
+          component.style != "LINK" &&
+          component.customID == "!" + buttonId
       );
-      const style =
-        game.players[button.author.id] == "x"
-          ? ButtonStyle.SUCCESS
-          : ButtonStyle.DESTRUCTIVE;
-      components[actionRowIndex].components[buttonIndex] = {
-        ...components[actionRowIndex].components[buttonIndex],
-        emoji: {
-          id:
-            game.players[button.author.id] == "x"
-              ? "836004296696659989"
-              : "836004296008269844",
-        },
-        custom_id: button.custom_id,
-        style,
-      };
+      components[actionRowIndex].components[buttonIndex]
+        .setEmoji(
+          game.players[button.author.id] == "x"
+            ? "836004296696659989"
+            : "836004296008269844"
+        )
+        .setCustomID(button.customID)
+        .setStyle(game.players[button.author.id] == "x" ? "SUCCESS" : "DANGER");
 
       const hasWon = winningStates.some((states) =>
         states.every((state) => game.buttons[state].player == button.author.id)
@@ -340,7 +376,7 @@ export default class TicTacToe extends Command {
       if (hasWon) {
         // game is over, remove handler, game data & edit message
         for (const button of Object.values(game.buttons))
-          this.client.buttonHandlers.delete(button.custom_id);
+          this.client.buttonHandlers.delete(button.customID);
         this.client.buttonHandlers.delete(`${gameId}:forfeit`);
         this.games.delete(gameId);
 
@@ -352,35 +388,32 @@ export default class TicTacToe extends Command {
         for (const index of state) {
           const actionRowIndex = components.findIndex(
             (component) =>
-              component.type == ButtonType.ACTION_ROW &&
+              component.type == "ACTION_ROW" &&
               component.components.find(
                 (component) =>
-                  component.type == ButtonType.BUTTON &&
-                  component.style != ButtonStyle.LINK &&
-                  component.custom_id == game.buttons[index].custom_id
+                  component.type == "BUTTON" &&
+                  component.style != "LINK" &&
+                  component.customID == game.buttons[index].customID
               )
           );
           const buttonIndex = components[actionRowIndex].components.findIndex(
             (component) =>
-              component.type == ButtonType.BUTTON &&
-              component.style != ButtonStyle.LINK &&
-              component.custom_id == game.buttons[index].custom_id
+              component.type == "BUTTON" &&
+              component.style != "LINK" &&
+              component.customID == game.buttons[index].customID
           );
           if (
-            components[actionRowIndex].components[buttonIndex].type ==
-            ButtonType.BUTTON
+            components[actionRowIndex].components[buttonIndex].type == "BUTTON"
           )
-            (components[actionRowIndex].components[buttonIndex] as {
-              style: ButtonStyle;
-            }).style = ButtonStyle.PRIMARY;
+            components[actionRowIndex].components[buttonIndex].setStyle(
+              "PRIMARY"
+            );
         }
 
         for (const [index, row] of components.entries()) {
-          row.components = row.components.map((component) => {
-            if (component.type == ButtonType.ACTION_ROW) return component;
-            component.disabled = true;
-            return component;
-          });
+          row.components = row.components.map((component) =>
+            component.setDisabled(true)
+          );
           components[index] = row;
         }
 
@@ -391,7 +424,7 @@ export default class TicTacToe extends Command {
               button.member?.toMention()
             ),
             {
-              buttons: components.slice(0, -1),
+              components: components.slice(0, -1),
             }
           )
           .catch(() => {});
@@ -403,22 +436,20 @@ export default class TicTacToe extends Command {
       if (hasTied) {
         // game is over, remove handler, game data & edit message
         for (const button of Object.values(game.buttons))
-          this.client.buttonHandlers.delete(button.custom_id);
+          this.client.buttonHandlers.delete(button.customID);
         this.client.buttonHandlers.delete(`${gameId}:forfeit`);
         this.games.delete(gameId);
 
         for (const [index, row] of components.entries()) {
-          row.components = row.components.map((component) => {
-            if (component.type == ButtonType.ACTION_ROW) return component;
-            component.disabled = true;
-            return component;
-          });
+          row.components = row.components.map((component) =>
+            component.setDisabled(true)
+          );
           components[index] = row;
         }
 
         return await button.channel
           .update(button.guild.language.get("TICTACTOE_DRAW"), {
-            buttons: components.slice(0, -1),
+            components: components.slice(0, -1),
           })
           .catch(() => {});
       }
@@ -426,9 +457,7 @@ export default class TicTacToe extends Command {
       await button.channel
         .update(
           button.guild.language.get("TICTACTOE_TURN", `<@!${game.current}>`),
-          {
-            buttons: components,
-          }
+          { components }
         )
         .catch(() => {});
     };

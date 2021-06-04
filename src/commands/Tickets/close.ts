@@ -1,21 +1,12 @@
-import {
-  APIComponent,
-  ButtonStyle,
-  ButtonType,
-} from "@fire/lib/interfaces/interactions";
-import {
-  MessageAdditions,
-  SnowflakeUtil,
-  MessageOptions,
-  Permissions,
-} from "discord.js";
+import { SnowflakeUtil, MessageOptions, Permissions } from "discord.js";
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { MessageActionRow } from "discord.js";
+import { MessageButton } from "discord.js";
 
 const { emojis } = constants;
 
@@ -49,31 +40,21 @@ export default class CloseTicket extends Command {
     if (!message.member) return; // how
     const buttonSnowflake = SnowflakeUtil.generate();
     const buttonOptions = {
-      buttons: [
-        {
-          type: ButtonType.BUTTON,
-          style: ButtonStyle.DESTRUCTIVE,
-          custom_id: buttonSnowflake,
-          label: message.language.get("TICKET_CLOSE_BUTTON_TEXT"),
-          emoji: { id: "534174796938870792" },
-        },
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setStyle("DANGER")
+            .setCustomID(buttonSnowflake)
+            .setLabel(message.language.get("TICKET_CLOSE_BUTTON_TEXT"))
+            .setEmoji("534174796938870792")
+        ),
       ],
-    } as (MessageOptions | MessageAdditions) & {
-      buttons?: APIComponent[];
-    };
-    if (message instanceof SlashCommandMessage) {
-      // if ((message.flags & 64) != 64)
-      //   (message as SlashCommandMessage).flags += 64;
+    } as MessageOptions;
+    if (message.guild.hasExperiment(1621199146, 1))
       await message.channel.send(
         `${emojis.error} ${message.language.get("TICKET_WILL_CLOSE_BUTTON")}`,
         buttonOptions
       );
-    } else if (message.guild.hasExperiment(1621199146, 1))
-      await ButtonMessage.sendWithButtons(
-        message.channel,
-        `${emojis.error} ${message.language.get("TICKET_WILL_CLOSE_BUTTON")}`,
-        buttonOptions
-      ).catch(() => {});
     else await message.error("TICKET_WILL_CLOSE");
     const willClose = await this.getConfirmationPromise(
       message,
