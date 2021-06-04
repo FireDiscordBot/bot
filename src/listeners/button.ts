@@ -414,7 +414,8 @@ export default class Button extends Listener {
             `${emojis.success} ${button.language.get(
               "NEW_TICKET_CREATED",
               ticket.toString()
-            )}`
+            )}`,
+            { components: [] }
           )
           .catch(() => {});
     }
