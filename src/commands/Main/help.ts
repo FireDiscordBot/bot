@@ -180,7 +180,7 @@ export default class Help extends Command {
       timestamp: new Date(),
     };
     return message instanceof SlashCommandMessage
-      ? await message.channel.send(null, { embed, buttons })
+      ? await message.channel.send(null, { embeds: [embed], buttons })
       : await ButtonMessage.sendWithButtons(message.channel, null, {
           buttons,
           embed,

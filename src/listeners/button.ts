@@ -178,7 +178,7 @@ export default class Button extends Listener {
             : undefined
         );
       await button.channel.update(null, {
-        embed,
+        embeds: [embed],
         buttons: components as APIComponent[],
       });
     }
@@ -318,7 +318,7 @@ export default class Button extends Listener {
       if (!deleted)
         return await button.channel.update(
           button.language.get("TAG_DELETE_FAILED", data),
-          { embed: null, buttons: null }
+          { embeds: [], buttons: null }
         );
       else {
         const embed = new MessageEmbed()

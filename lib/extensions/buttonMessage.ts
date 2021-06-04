@@ -3,6 +3,7 @@ import {
   EmojiIdentifierResolvable,
   DeconstructedSnowflake,
   GuildMemberResolvable,
+  WebhookMessageOptions,
   AwaitMessagesOptions,
   MessageEditOptions,
   MessageResolvable,
@@ -22,6 +23,7 @@ import {
   Collection,
   Snowflake,
   DMChannel,
+  Webhook,
 } from "discord.js";
 import {
   APIComponent,
@@ -368,8 +370,11 @@ export class ButtonMessage {
   ) {
     const { data } = (content instanceof APIMessage
       ? content.resolveData()
-      : // @ts-ignore
-        APIMessage.create(this, content, options).resolveData()) as {
+      : APIMessage.create(
+          new Webhook(this.client, null), // needed to make isWebhook true for embeds array
+          content as string,
+          options
+        ).resolveData()) as {
       data: any;
       files: any[];
     };
@@ -515,7 +520,7 @@ export class FakeChannel {
 
   async send(
     content: string | APIMessage | MessageEmbed,
-    options?: (MessageOptions | MessageAdditions) & {
+    options?: (WebhookMessageOptions | MessageAdditions) & {
       buttons?: APIComponent[];
     },
     flags?: number // Used for success/error, can also be set
@@ -525,7 +530,7 @@ export class FakeChannel {
     if (content instanceof MessageEmbed) {
       options = {
         ...options,
-        embed: content,
+        embeds: [content],
       };
       content = null;
     }
@@ -533,9 +538,8 @@ export class FakeChannel {
     if (content instanceof APIMessage) apiMessage = content.resolveData();
     else {
       apiMessage = APIMessage.create(
-        // @ts-ignore
-        { client: this.client },
-        content,
+        new Webhook(this.client, null), // needed to make isWebhook true for embeds array
+        content as string,
         options
       ).resolveData();
     }
@@ -605,7 +609,7 @@ export class FakeChannel {
 
   async update(
     content: string | APIMessage | MessageEmbed,
-    options?: (MessageOptions | MessageAdditions) & {
+    options?: (WebhookMessageOptions | MessageAdditions) & {
       buttons?: APIComponent[];
     },
     flags?: number // Used for success/error, can also be set
@@ -617,7 +621,7 @@ export class FakeChannel {
     if (content instanceof MessageEmbed) {
       options = {
         ...options,
-        embed: content,
+        embeds: [content],
       };
       content = null;
     }
@@ -625,9 +629,8 @@ export class FakeChannel {
     if (content instanceof APIMessage) apiMessage = content.resolveData();
     else {
       apiMessage = APIMessage.create(
-        // @ts-ignore
-        { client: this.client },
-        content,
+        new Webhook(this.client, null), // needed to make isWebhook true for embeds array
+        content as string,
         options
       ).resolveData();
     }

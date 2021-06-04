@@ -76,7 +76,7 @@ export default class TagInfo extends Command {
     if (message.guild.hasExperiment(1621199146, 1))
       return message instanceof SlashCommandMessage
         ? await message.channel.send(null, {
-            embed,
+            embeds: [embed],
             buttons: this.getInitialButtons(message, cachedTag),
           })
         : await ButtonMessage.sendWithButtons(message.channel, embed, {

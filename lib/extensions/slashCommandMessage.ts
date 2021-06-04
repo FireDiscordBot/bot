@@ -4,6 +4,7 @@ import {
   CommandInteractionOption,
   DeconstructedSnowflake,
   GuildMemberResolvable,
+  WebhookMessageOptions,
   AwaitMessagesOptions,
   PermissionOverwrites,
   CommandInteraction,
@@ -16,7 +17,6 @@ import {
   MessageReaction,
   UserResolvable,
   RoleResolvable,
-  MessageOptions,
   SnowflakeUtil,
   InviteOptions,
   MessageEmbed,
@@ -315,9 +315,8 @@ export class SlashCommandMessage {
     if (content instanceof APIMessage) apiMessage = content.resolveData();
     else {
       apiMessage = APIMessage.create(
-        // @ts-ignore
-        { client: this.client },
-        content,
+        this.slashCommand,
+        content as string,
         options
       ).resolveData();
     }
@@ -480,7 +479,7 @@ export class FakeChannel {
 
   async send(
     content: string | APIMessage | MessageEmbed,
-    options?: (MessageOptions | MessageAdditions) & {
+    options?: (WebhookMessageOptions | MessageAdditions) & {
       buttons?: ActionRow[] | APIComponent[];
     },
     flags?: number // Used for success/error, can also be set
@@ -490,7 +489,7 @@ export class FakeChannel {
     if (content instanceof MessageEmbed) {
       options = {
         ...options,
-        embed: content,
+        embeds: [content],
       };
       content = null;
     }
@@ -498,9 +497,8 @@ export class FakeChannel {
     if (content instanceof APIMessage) apiMessage = content.resolveData();
     else {
       apiMessage = APIMessage.create(
-        // @ts-ignore
-        { client: this.client },
-        content,
+        this.message.slashCommand,
+        content as string,
         options
       ).resolveData();
     }
