@@ -243,7 +243,7 @@ export class ButtonMessage {
       content = null;
     }
 
-    if (options.embed) {
+    if (options?.embed) {
       options.embeds = [options.embed];
       delete options.embed;
     }
@@ -400,7 +400,7 @@ export class FakeChannel {
       content = null;
     }
 
-    if (options.embed) {
+    if (options?.embed) {
       options.embeds = [options.embed];
       delete options.embed;
     }
@@ -477,7 +477,7 @@ export class FakeChannel {
       content = null;
     }
 
-    if (options.embed) {
+    if (options?.embed) {
       options.embeds = [options.embed];
       delete options.embed;
     }

@@ -308,7 +308,7 @@ export class SlashCommandMessage {
       content = null;
     }
 
-    if (!(options instanceof MessageEmbed) && options.embed) {
+    if (!(options instanceof MessageEmbed) && options?.embed) {
       options.embeds = [options.embed];
       delete options.embed;
     }
@@ -477,7 +477,7 @@ export class FakeChannel {
       content = null;
     }
 
-    if (options.embed) {
+    if (options?.embed) {
       options.embeds = [options.embed];
       delete options.embed;
     }
