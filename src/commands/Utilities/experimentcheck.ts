@@ -57,7 +57,11 @@ export default class ExperimentCheck extends Command {
           default: null,
         },
       ],
-      guilds: ["342506939340685312"],
+      guilds: [
+        "342506939340685312",
+        "767344022980132884",
+        "721369354775560294",
+      ],
       enableSlashCommand: true,
       restrictTo: "guild",
     });
