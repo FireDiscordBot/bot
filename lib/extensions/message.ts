@@ -245,7 +245,7 @@ export class FireMessage extends Message {
       }
     }
     return await hook
-      .send(content, {
+      .send(content.length ? content : null, {
         username: this.author.toString().replace(/#0000/gim, ""),
         avatarURL: this.author.displayAvatarURL({ size: 2048, format: "png" }),
         embeds: this.embeds.filter(
