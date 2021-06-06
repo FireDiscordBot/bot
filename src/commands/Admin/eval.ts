@@ -139,10 +139,12 @@ export default class Eval extends Command {
       .setColor(
         success ? message.member?.displayHexColor || "#ffffff" : "#ef5350"
       )
-      .setDescription(type.toString() != "any" ? `Output Type: ${type}` : null);
+      .setDescription(
+        type.toString() != "any" ? `Output Type: ${type}` : "fuck"
+      );
     if (input.length <= 1024) embed.addField(":inbox_tray: Input", input);
     embed.setFooter(`Cluster ID: ${this.client.manager.id}`);
-    if (embed.description == "null") embed.description = null;
+    if (embed.description == "fuck") embed.description = null;
     if (result.length > 1014) {
       const paginator = new WrappedPaginator("```js", "```", 1200);
       result.split("\n").forEach((line: string) => paginator.addLine(line));
