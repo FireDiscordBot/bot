@@ -152,8 +152,17 @@ export default class TicTacToe extends Command {
     const accepted = await this.awaitOpponentResponse(requestId, opponent);
     this.client.buttonHandlers.delete(requestId);
     if (!accepted) {
+      requestMsgOptions.components[0].components[0].setDisabled(true);
+      await requestMsg.edit(
+        message.guild.language.get(
+          "TICTACTOE_GAME_REQUEST",
+          message.author.username,
+          opponent.toMention()
+        ),
+        requestMsgOptions
+      );
       if (message instanceof SlashCommandMessage)
-        await (message as SlashCommandMessage).edit(
+        return await (message as SlashCommandMessage).edit(
           message.guild.language.get(
             "TICTACTOE_REQUEST_EXPIRED_SLASH",
             opponent.toMention()
@@ -368,7 +377,8 @@ export default class TicTacToe extends Command {
             : "836004296008269844"
         )
         .setCustomID(button.customID)
-        .setStyle(game.players[button.author.id] == "x" ? "SUCCESS" : "DANGER");
+        .setStyle(game.players[button.author.id] == "x" ? "SUCCESS" : "DANGER")
+        .setDisabled(true);
 
       const hasWon = winningStates.some((states) =>
         states.every((state) => game.buttons[state].player == button.author.id)
