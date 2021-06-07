@@ -430,16 +430,15 @@ export default class Button extends Listener {
     }
 
     if (button.customID.startsWith("deploy:") && button.author.isSuperuser()) {
+      const components = (button.message as FireMessage).components;
+      components[0].components = components[0].components.map((c) => {
+        c.setDisabled(true);
+        return c;
+      });
       await button.channel
         .update(null, {
           embeds: (button.message as FireMessage).embeds,
-          components: (button.message as FireMessage).components.flatMap(
-            (row) =>
-              row.components.map((c) => {
-                c.setDisabled(true);
-                return c;
-              })
-          ),
+          components,
         })
         .catch(() => {});
       const commit = button.customID.slice(7);
