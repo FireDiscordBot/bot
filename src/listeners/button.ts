@@ -182,10 +182,12 @@ export default class Button extends Listener {
         return await button
           .error(
             "MISSING_PERMISSIONS_USER",
-            this.client.util.cleanPermissionName(
-              "MANAGE_MESSAGES",
-              button.language
-            ),
+            [
+              this.client.util.cleanPermissionName(
+                "MANAGE_MESSAGES",
+                button.language
+              ),
+            ],
             "tag edit"
           )
           .catch(() => {});
@@ -282,10 +284,12 @@ export default class Button extends Listener {
         return await button
           .error(
             "MISSING_PERMISSIONS_USER",
-            this.client.util.cleanPermissionName(
-              "MANAGE_MESSAGES",
-              button.language
-            ),
+            [
+              this.client.util.cleanPermissionName(
+                "MANAGE_MESSAGES",
+                button.language
+              ),
+            ],
             "tag delete"
           )
           .catch(() => {});
