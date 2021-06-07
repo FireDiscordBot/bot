@@ -9,12 +9,17 @@ import {
 } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { constants } from "@fire/lib/util/constants";
+import { getBranch } from "@fire/lib/util/gitUtils";
 import { Listener } from "@fire/lib/util/listener";
+import { Message } from "@fire/lib/ws/Message";
 import Rank from "../commands/Premium/rank";
 import Sk1er from "../modules/sk1er";
 import * as centra from "centra";
+import { codeblockTypeCaster } from "../arguments/codeblock";
 
 const { url, emojis } = constants;
 
@@ -422,6 +427,38 @@ export default class Button extends Listener {
             { components: [] }
           )
           .catch(() => {});
+    }
+
+    if (button.customID.startsWith("deploy:") && button.author.isSuperuser()) {
+      await button.channel
+        .update(null, {
+          embeds: (button.message as FireMessage).embeds,
+          components: (button.message as FireMessage).components.flatMap(
+            (row) =>
+              row.components.map((c) => {
+                c.setDisabled(true);
+                return c;
+              })
+          ),
+        })
+        .catch(() => {});
+      const commit = button.customID.slice(7);
+      // i should probably make this less jank
+      const commitMessage =
+        codeblockTypeCaster(
+          null,
+          (button.message as FireMessage).embeds[0].fields[0].value
+        )?.content ?? "Commit Message Unknown";
+      const branch = getBranch();
+      return this.client.manager.ws.send(
+        MessageUtil.encode(
+          new Message(EventType.DEPLOY, {
+            commit,
+            branch,
+            message: commitMessage,
+          })
+        )
+      );
     }
 
     if (
