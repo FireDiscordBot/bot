@@ -4,6 +4,7 @@ import "module-alias/register";
 
 const env = {
   development: "dev.env",
+  staging: "stg.env",
   production: ".env",
   litecord: "lc.env",
 };

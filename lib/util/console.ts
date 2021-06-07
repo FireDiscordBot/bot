@@ -8,7 +8,9 @@ export class FireConsole {
   constructor() {
     this.logger = Logger;
     this.logger.setLevel(
-      process.env.NODE_ENV == "development" ? "debug" : "info"
+      process.env.NODE_ENV == "development" || process.env.NODE_ENV == "staging"
+        ? "debug"
+        : "info"
     );
     this.template = new Timestamp("DD/MM/YYYY @ HH:mm:ss");
   }

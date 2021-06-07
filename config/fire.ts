@@ -4,7 +4,8 @@ import { Fire } from "@fire/lib/Fire";
 import * as moment from "moment";
 
 export const fire = {
-  dev: process.env.NODE_ENV == "development",
+  dev:
+    process.env.NODE_ENV == "development" || process.env.NODE_ENV == "staging",
   readyMessage: (client: Fire) => {
     client.console.log("-------------------------");
     client.console.log(`Bot: ${client.user}`);
