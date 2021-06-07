@@ -20,6 +20,14 @@ export default class GuildMemberAdd extends Listener {
   }
 
   async exec(member: FireMember) {
+    // auto ban dumbass blatant bots in select servers
+    if (
+      member.user.username.includes("twitter.com/h0nde") &&
+      member.guild.hasExperiment(1187986866, 1)
+    ) {
+      return await member.bean("Bot.", member.guild.me, 0, 0);
+    }
+
     // This will check permissions & whether
     // dehoist/decancer is enabled so no need for checks here
     member.dehoistAndDecancer();
