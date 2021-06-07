@@ -74,7 +74,7 @@ type ButtonHandler = (button: ButtonMessage) => Promise<any> | any;
 import "./extensions";
 import { Constants } from "discord.js";
 
-// Rewrite completed - 15:10 17/1/2021
+// Rewrite completed - 15:10 17/1/2021 :)
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
   started: boolean;
