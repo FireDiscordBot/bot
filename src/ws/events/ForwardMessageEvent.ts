@@ -13,7 +13,7 @@ export default class ForwardMessageEvent extends Event {
   async run(data: {
     buttons?: MessageActionRowOptions[];
     message: string | APIEmbed;
-    parseUsers?: Snowflake[];
+    parseUsers: Snowflake[];
     channel?: Snowflake;
   }) {
     if (!this.manager.client.channels.cache.has(data.channel)) return;
@@ -21,7 +21,7 @@ export default class ForwardMessageEvent extends Event {
     let content = typeof data.message == "string" ? data.message : null;
     let embed =
       typeof data.message == "object" ? JSON.stringify(data.message) : null;
-    for (const id of data.parseUsers ?? []) {
+    for (const id of data.parseUsers) {
       const user = await this.manager.client.users.fetch(id).catch(() => {});
       if (user)
         content = (content ?? embed).replace(
