@@ -430,15 +430,10 @@ export default class Button extends Listener {
     }
 
     if (button.customID.startsWith("deploy:") && button.author.isSuperuser()) {
-      const components = (button.message as FireMessage).components;
-      const newButtons = components[0].components.map((c) => {
-        c.setDisabled(true);
-        return c;
-      });
       await button.channel
         .update(null, {
           embeds: (button.message as FireMessage).embeds,
-          components: [new MessageActionRow().addComponents(newButtons)],
+          components: [],
         })
         .catch(() => {});
       const commit = button.customID.slice(7);
@@ -447,7 +442,7 @@ export default class Button extends Listener {
         codeblockTypeCaster(
           null,
           (button.message as FireMessage).embeds[0].fields[0].value
-        )?.content ?? "Commit Message Unknown";
+        )?.content.trim() ?? "Commit Message Unknown";
       const branch = getBranch();
       return this.client.manager.ws.send(
         MessageUtil.encode(
