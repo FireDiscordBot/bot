@@ -1,4 +1,4 @@
-import { exec } from "child_process";
+import { execSync } from "child_process";
 import { readFileSync } from "fs";
 
 let currentHash: string, currentBranch: string;
@@ -23,9 +23,6 @@ export const getCommitHash = () => {
 
 export const getBranch = () => {
   if (currentBranch) return currentBranch;
-  exec("git rev-parse --abbrev-ref HEAD", (err, stdout, _) => {
-    if (err) return;
-
-    if (stdout) currentBranch = stdout.trim();
-  });
+  currentBranch = execSync("git rev-parse --abbrev-ref HEAD").toString();
+  return currentBranch;
 };
