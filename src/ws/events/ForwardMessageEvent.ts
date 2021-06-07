@@ -40,7 +40,7 @@ export default class ForwardMessageEvent extends Event {
     const channel = this.manager.client.channels.cache.get(
       data.channel
     ) as FireTextChannel;
-    if (channel.type == "text")
+    if (channel.isText())
       await channel
         .send(content, {
           embed: embed ? new MessageEmbed(JSON.parse(embed)) : null,
