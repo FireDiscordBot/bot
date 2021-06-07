@@ -23,6 +23,6 @@ export const getCommitHash = () => {
 
 export const getBranch = () => {
   if (currentBranch) return currentBranch;
-  currentBranch = execSync("git rev-parse --abbrev-ref HEAD").toString();
+  currentBranch = execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
   return currentBranch;
 };
