@@ -89,7 +89,7 @@ module.exports = {
       post_update: ["yarn compile"],
       automation: false,
       env: {
-        NODE_ENV: "development",
+        NODE_ENV: "staging",
       },
       max_restarts: 5,
       max_memory_restart: "1G",
