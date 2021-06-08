@@ -894,7 +894,7 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           `This sewvew's pwefix has been set fwom "${old}" to "${newp}"`,
         PURGE_COMMAND_DESCRIPTION:
           "Buwk dewete messages with optionaw fwags to sewectivewy dewete messages based on cewtain factows",
-        PURGE_AMOUNT_INVALID: "Invawid amount. Minumum is 2, Maximum is 100",
+        PURGE_AMOUNT_INVALID: "Invawid amount. Minimum is 2, Maximum is 100",
         PURGE_HISTORY_FAIL: "Faiwed to fetch messages",
         PURGE_SUCCESS: (messages: number) =>
           `Successfuwwy deweted **${messages}** messages!`,
