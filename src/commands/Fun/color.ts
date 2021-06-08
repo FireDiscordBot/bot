@@ -36,7 +36,7 @@ export default class Color extends Command {
     args: { color?: Role | FireMember | string }
   ) {
     let color: tinycolor.Instance;
-    if (typeof args.color == "undefined") color = tinycolor.random();
+    if (args.color == null) color = tinycolor.random();
     else if (typeof args.color == "string") color = tinycolor(args.color);
     else if (args.color instanceof Role) color = tinycolor(args.color.hexColor);
     else if (args.color instanceof FireMember)
