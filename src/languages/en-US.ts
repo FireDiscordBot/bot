@@ -1114,7 +1114,7 @@ ${prefixes.join(", ")}`,
 ${prefixes.join(", ")}`,
         PURGE_COMMAND_DESCRIPTION:
           "Bulk delete messages with optional flags to selectively delete messages based on certain factors",
-        PURGE_AMOUNT_INVALID: "Invalid amount. Minumum is 2, Maximum is 100",
+        PURGE_AMOUNT_INVALID: "Invalid amount. Minimum is 2, Maximum is 100",
         PURGE_HISTORY_FAIL: "Failed to fetch messages",
         PURGE_SUCCESS: (messages: number) =>
           `Successfully deleted **${messages}** messages!`,
