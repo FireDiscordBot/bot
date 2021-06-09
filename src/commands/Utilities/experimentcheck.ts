@@ -18,6 +18,7 @@ const experiments = [
   "2021-05_application_command_callout",
   "2021-05_application_command_suggestions",
   "2021-04_friend_nicknames",
+  " 2021-06_desktop_dm_start_convos",
 ] as const;
 const experimentValues = [...experiments.values()];
 
