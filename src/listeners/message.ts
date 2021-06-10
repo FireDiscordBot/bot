@@ -1,5 +1,8 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Message as AetherMessage } from "@fire/lib/ws/Message";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
@@ -155,6 +158,13 @@ export default class Message extends Listener {
       message.embeds.length &&
       this.client.config.datamineUsers.includes(message.embeds[0].author.name)
     ) {
+      this.client.manager.ws.send(
+        MessageUtil.encode(
+          new AetherMessage(EventType.FETCH_DISCORD_EXPERIMENTS, {
+            current: this.client.manager.state.discordExperiments?.length ?? 0,
+          })
+        )
+      );
       const dataminingMessage = await this.client.req
         .channels("731330454422290463")
         .messages.post<APIMessage>({
@@ -181,7 +191,10 @@ export default class Message extends Listener {
 
     if (!message.member || message.author.bot) return;
 
-    const autoroleId = message.guild.settings.get<Snowflake>("mod.autorole", null);
+    const autoroleId = message.guild.settings.get<Snowflake>(
+      "mod.autorole",
+      null
+    );
     const delay = message.guild.settings.get<boolean>(
       "mod.autorole.waitformsg",
       false
@@ -190,10 +203,7 @@ export default class Message extends Listener {
       const role = message.guild.roles.cache.get(autoroleId);
       if (role && !message.member.roles.cache.has(role.id))
         await message.member.roles
-          .add(
-            role,
-            message.member.guild.language.get("AUTOROLE_REASON")
-          )
+          .add(role, message.member.guild.language.get("AUTOROLE_REASON"))
           .catch(() => {});
     }
 

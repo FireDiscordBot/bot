@@ -30,7 +30,16 @@ export interface UserExperimentConfig extends ExperimentConfig {
   kind: "user";
 }
 
+export interface DiscordExperiment {
+  id: string;
+  type: "user" | "guild";
+  title: string;
+  description: string[];
+  buckets: number[];
+}
+
 export interface ManagerState {
   loadedGuildExperiments: GuildExperimentConfig[];
   loadedUserExperiments: UserExperimentConfig[];
+  discordExperiments: DiscordExperiment[];
 }
