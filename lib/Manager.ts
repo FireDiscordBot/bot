@@ -41,7 +41,7 @@ export class Manager {
   }
 
   get djsua() {
-    return `Fire Discord Bot/${this.version} Discord.JS/${djsver} Node.JS/${process.version} (+https://fire.gaminggeek.dev/)`;
+    return `DiscordBot (https://discord.js.org, ${djsver}) Fire/${this.version} Node.JS/${process.version}`;
   }
 
   init(reconnecting = false) {

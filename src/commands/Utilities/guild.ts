@@ -308,48 +308,14 @@ export default class GuildCommand extends Command {
       message.author.hasExperiment(4026299021, 1) &&
       this.client.manager.state.discordExperiments?.length
     ) {
-      const knownExperiments: { [hash: number]: DiscordExperiment } = {};
-      for (const experiment of this.client.manager.state.discordExperiments) {
-        const hash = murmur3(experiment.id);
-        knownExperiments[hash] = experiment;
-      }
-
-      const {
-        guild_experiments: GuildExperiments,
-      } = await this.client.req.experiments
-        .get<Experiments>({ query: { with_guild_experiments: true } })
-        .catch(() => {
-          return {
-            assignments: [],
-            guild_experiments: [],
-          } as Experiments;
-        });
-
-      const hashAndBucket: [number, number][] = [];
-      for (const experiment of GuildExperiments) {
-        if (experiment.length != 5) continue;
-        const bucket = experiment[4].find((o) => o.k.includes(guild.id));
-        if (bucket && typeof bucket.b == "number")
-          hashAndBucket.push([experiment[0], bucket.b]);
-      }
-
-      if (hashAndBucket.length) {
-        const friendlyExperiments: string[] = [];
-        for (const [hash, bucket] of hashAndBucket) {
-          const experiment = knownExperiments[hash];
-          if (experiment)
-            friendlyExperiments.push(
-              `${titleCase(experiment.title)} | ${titleCase(
-                experiment.description[bucket]
-              )}`
-            );
-        }
-        if (friendlyExperiments.length)
-          embed.addField(
-            message.language.get("GUILD_EXPERIMENTS"),
-            friendlyExperiments.join("\n")
-          );
-      }
+      const experiments = await this.client.util.getFriendlyGuildExperiments(
+        guild.id
+      );
+      if (experiments.length)
+        embed.addField(
+          message.language.get("GUILD_EXPERIMENTS"),
+          experiments.join("\n")
+        );
     }
 
     await message.channel.send(embed);

@@ -21,6 +21,7 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Ban } from "@aero/ksoft";
 import * as moment from "moment";
+import { DiscordAPIError } from "discord.js";
 
 const {
   emojis,
@@ -163,9 +164,9 @@ export default class User extends Command {
           this.shorten(roles, 1000, " - "),
           false
         );
-      const permissionsTranslated = message.language.get(
+      const permissionsTranslated = (message.language.get(
         "PERMISSIONS"
-      ) as unknown as object;
+      ) as unknown) as object;
       if (!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
         let perms = [];
         const keyPerms: PermissionString[] = [
@@ -614,6 +615,19 @@ export default class User extends Command {
       );
     }
 
+    const maybeGuild = await this.client.req
+      .guilds(snowflake.snowflake)
+      .channels.get()
+      .catch((e) => e);
+    if (maybeGuild instanceof DiscordAPIError && maybeGuild.code == 50001) {
+      info.push(
+        message.language.get(
+          "USER_SNOWFLAKE_BELONGS_TO",
+          message.language.get("GUILD")
+        ) as string
+      );
+    }
+
     const embed = new MessageEmbed()
       .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp(snowflake.date)
@@ -625,13 +639,26 @@ export default class User extends Command {
           dynamic: true,
         })
       )
-      .setDescription(
-        message.language.get("USER_SNOWFLAKE_DESCRIPTION")
-      )
+      .setDescription(message.language.get("USER_SNOWFLAKE_DESCRIPTION"))
       .addField(`» ${message.language.get("ABOUT")}`, info.join("\n"));
 
     if (user)
       embed.description = embed.description.split("\n").slice(2).join("\n");
+
+    if (
+      (this.client.guilds.cache.has(snowflake.snowflake) || maybeGuild) &&
+      message.author.hasExperiment(4026299021, 1) &&
+      this.client.manager.state.discordExperiments?.length
+    ) {
+      const experiments = await this.client.util.getFriendlyGuildExperiments(
+        snowflake.snowflake
+      );
+      if (experiments.length)
+        embed.addField(
+          message.language.get("GUILD_EXPERIMENTS"),
+          experiments.join("\n")
+        );
+    }
 
     return await message.channel.send(embed);
   }
