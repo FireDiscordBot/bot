@@ -1,7 +1,4 @@
-import {
-  GuildExperimentConfig,
-  UserExperimentConfig,
-} from "@fire/lib/interfaces/aether";
+import { ManagerState } from "@fire/lib/interfaces/aether";
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
@@ -18,8 +15,7 @@ export default class RestartEvent extends Event {
   }
 
   async run(data: {
-    guildExperiments: GuildExperimentConfig[];
-    userExperiments: UserExperimentConfig[];
+    state: ManagerState;
     shardCount: number;
     shards: number[];
     session: string;
@@ -48,10 +44,7 @@ export default class RestartEvent extends Event {
         )
       );
     this.manager.session = data.session;
-    if (data.guildExperiments)
-      this.manager.state.loadedGuildExperiments = data.guildExperiments;
-    if (data.userExperiments)
-      this.manager.state.loadedUserExperiments = data.userExperiments;
+    this.manager.state = data.state;
     this.manager.client.manager.ws?.send(
       MessageUtil.encode(
         new Message(EventType.READY_CLIENT, {

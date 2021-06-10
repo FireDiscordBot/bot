@@ -1,12 +1,15 @@
+import { humanize, zws, constants, titleCase } from "@fire/lib/util/constants";
 import { GuildPreview, MessageEmbed, Permissions } from "discord.js";
-import { humanize, zws, constants } from "@fire/lib/util/constants";
+import { DiscordExperiment } from "@fire/lib/interfaces/aether";
 import { snowflakeConverter } from "@fire/lib/util/converters";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { Experiments } from "@fire/lib/interfaces/discord";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { murmur3 } from "murmurhash-js";
 import * as moment from "moment";
 
 const {
@@ -297,9 +300,57 @@ export default class GuildCommand extends Command {
     if (guild instanceof FireGuild && roles?.length)
       embed.addField(
         message.language.get("GUILD_ROLES") +
-          ` [${guild.roles.cache.array().length}]`,
+          ` [${guild.roles.cache.array().length - 1}]`,
         this.shorten(roles, 1000, " - ")
       );
+
+    if (
+      message.author.hasExperiment(4026299021, 1) &&
+      this.client.manager.state.discordExperiments?.length
+    ) {
+      const knownExperiments: { [hash: number]: DiscordExperiment } = {};
+      for (const experiment of this.client.manager.state.discordExperiments) {
+        const hash = murmur3(experiment.id);
+        knownExperiments[hash] = experiment;
+      }
+
+      const {
+        guild_experiments: GuildExperiments,
+      } = await this.client.req.experiments
+        .get<Experiments>({ query: { with_guild_experiments: true } })
+        .catch(() => {
+          return {
+            assignments: [],
+            guild_experiments: [],
+          } as Experiments;
+        });
+
+      const hashAndBucket: [number, number][] = [];
+      for (const experiment of GuildExperiments) {
+        if (experiment.length != 5) continue;
+        const bucket = experiment[4].find((o) => o.k.includes(guild.id));
+        if (bucket && typeof bucket.b == "number")
+          hashAndBucket.push([experiment[0], bucket.b]);
+      }
+
+      if (hashAndBucket.length) {
+        const friendlyExperiments: string[] = [];
+        for (const [hash, bucket] of hashAndBucket) {
+          const experiment = knownExperiments[hash];
+          if (experiment)
+            friendlyExperiments.push(
+              `${titleCase(experiment.title)} | ${titleCase(
+                experiment.description[bucket]
+              )}`
+            );
+        }
+        if (friendlyExperiments.length)
+          embed.addField(
+            message.language.get("GUILD_EXPERIMENTS"),
+            friendlyExperiments.join("\n")
+          );
+      }
+    }
 
     await message.channel.send(embed);
   }

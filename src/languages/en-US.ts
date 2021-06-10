@@ -671,6 +671,7 @@ Hint: Use the \`public\` command to get your server on the list`,
         GUILD_SECURITY: "» Security",
         GUILD_FEATURES: "» Features",
         GUILD_ROLES: "» Roles",
+        GUILD_EXPERIMENTS: "» Experiments",
         HELP_COMMAND_DESCRIPTION:
           "Lists all of Fire's commands and provides information about them",
         HELP_NO_COMMAND:
