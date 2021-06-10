@@ -12,14 +12,17 @@ import { FireTextChannel } from "../extensions/textchannel";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { PremiumData } from "@fire/lib/interfaces/premium";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { DiscordExperiment } from "../interfaces/aether";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Cluster } from "@fire/lib/interfaces/stats";
 import { FireUser } from "@fire/lib/extensions/user";
+import { Experiments } from "../interfaces/discord";
 import { humanize, titleCase } from "./constants";
 import { Message } from "@fire/lib/ws/Message";
 import { ClientUtil } from "discord-akairo";
 import { getCommitHash } from "./gitUtils";
+import { murmur3 } from "murmurhash-js";
 import { Fire } from "@fire/lib/Fire";
 import { Language } from "./language";
 import * as pidusage from "pidusage";
@@ -487,5 +490,48 @@ export class Util extends ClientUtil {
     if (size && !AllowedImageSizes.includes(size))
       throw new RangeError(`Invalid image size: ${size}`);
     return `${root}.${format}${size ? `?size=${size}` : ""}`;
+  }
+
+  async getFriendlyGuildExperiments(id: Snowflake) {
+    const knownExperiments: { [hash: number]: DiscordExperiment } = {};
+    for (const experiment of this.client.manager.state.discordExperiments) {
+      const hash = murmur3(experiment.id);
+      knownExperiments[hash] = experiment;
+    }
+
+    const {
+      guild_experiments: GuildExperiments,
+    } = await this.client.req.experiments
+      .get<Experiments>({ query: { with_guild_experiments: true } })
+      .catch(() => {
+        return {
+          assignments: [],
+          guild_experiments: [],
+        } as Experiments;
+      });
+
+    const hashAndBucket: [number, number][] = [];
+    for (const experiment of GuildExperiments) {
+      if (experiment.length != 5) continue;
+      const bucket = experiment[4].find((o) => o.k.includes(id));
+      if (bucket && typeof bucket.b == "number")
+        hashAndBucket.push([experiment[0], bucket.b]);
+    }
+
+    if (hashAndBucket.length) {
+      const friendlyExperiments: string[] = [];
+      for (const [hash, bucket] of hashAndBucket) {
+        const experiment = knownExperiments[hash];
+        if (experiment)
+          friendlyExperiments.push(
+            `${titleCase(experiment.title)} | ${titleCase(
+              experiment.description[bucket]
+            )}`
+          );
+      }
+      if (friendlyExperiments.length) return friendlyExperiments;
+    }
+
+    return [];
   }
 }
