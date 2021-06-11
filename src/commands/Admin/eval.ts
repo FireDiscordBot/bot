@@ -23,6 +23,32 @@ const codeBlock = (lang: string, expression: any) => {
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
+const reserved = [
+  "break",
+  "case",
+  "catch",
+  "continue",
+  "debugger",
+  "default",
+  "delete",
+  "do",
+  "else",
+  "finally",
+  "for",
+  "function",
+  "if",
+  "in",
+  "instanceof",
+  "new",
+  "return",
+  "switch",
+  "throw",
+  "try",
+  "var",
+  "while",
+  "with",
+];
+
 export default class Eval extends Command {
   response: { id: string; message: FireMessage };
   constructor() {
@@ -175,7 +201,19 @@ export default class Eval extends Command {
     let {
       code: { content },
     } = args;
-    content = content.replace(/[“”]/gim, '"').replace(/[‘’]/gim, "'");
+    content = content
+      .replace(/[“”]/gim, '"')
+      .replace(/[‘’]/gim, "'")
+      .split(";")
+      .map((ln) => ln.trim())
+      .join(";\n");
+    const lines = content.split("\n");
+    if (
+      !reserved.some((keyword) => lines[lines.length - 1].startsWith(keyword))
+    ) {
+      lines[lines.length - 1] = "return " + lines[lines.length - 1];
+      content = lines.join("\n");
+    }
     let success: boolean, result: any;
     let type: Type;
     try {
