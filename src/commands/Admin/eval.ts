@@ -191,16 +191,20 @@ export default class Eval extends Command {
         guild: message.guild,
         channel: message.channel,
       };
-      result =
-        args.async || content.includes("await ")
-          ? new AsyncFunction(...Object.keys(scope), content)(
-              ...Object.values(scope)
-            )
-          : new Function(...Object.keys(scope), content)(
-              ...Object.values(scope)
-            );
-      if (this.client.util.isPromise(result)) {
-        result = await result;
+      try {
+        result =
+          args.async || content.includes("await ")
+            ? new AsyncFunction(...Object.keys(scope), content)(
+                ...Object.values(scope)
+              )
+            : new Function(...Object.keys(scope), content)(
+                ...Object.values(scope)
+              );
+        if (this.client.util.isPromise(result)) {
+          result = await result;
+        }
+      } catch (err) {
+        result = err;
       }
       type = new Type(result);
       success = true;
