@@ -124,7 +124,7 @@ export default class Quote extends Command {
       }
       return;
     }
-    if (args.quote && args.quote.content.length > 2000)
+    if (args.quote.content.length > 2000)
       return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
     let webhook: WebhookClient;
     if (args.webhook && args.quoter) {
