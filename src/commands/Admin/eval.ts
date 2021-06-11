@@ -193,17 +193,19 @@ export default class Eval extends Command {
       };
       result =
         args.async || content.includes("await ")
-          ? new AsyncFunction(...Object.keys(scope), content)(
-              ...Object.values(scope)
-            )
-          : new Function(...Object.keys(scope), content)(
-              ...Object.values(scope)
-            );
+          ? new AsyncFunction(
+              ...Object.keys(scope),
+              "try {\n  " + content + "\n} catch (err) {\n  return err;\n}"
+            )(...Object.values(scope))
+          : new Function(
+              ...Object.keys(scope),
+              "try {\n  " + content + "\n} catch (err) {\n  return err;\n}"
+            )(...Object.values(scope));
       if (this.client.util.isPromise(result)) {
         result = await result;
       }
       type = new Type(result);
-      success = true;
+      success = result instanceof Error ? false : true;
     } catch (error) {
       if (!type) type = new Type(error);
       result = error;
