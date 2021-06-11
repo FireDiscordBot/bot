@@ -168,7 +168,7 @@ export default class Help extends Command {
       },
       timestamp: new Date(),
     };
-    return await message.channel.send(null, {
+    return await message.channel.send({
       components,
       embed,
     });
@@ -202,6 +202,6 @@ export default class Help extends Command {
         value: permissions.join(", "),
         inline: false,
       });
-    await message.channel.send(null, { embed });
+    await message.channel.send({ embed });
   }
 }

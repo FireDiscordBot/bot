@@ -45,7 +45,7 @@ export default class Mod extends Command {
         .setTitle(message.language.get("MOD_LIST"))
         .setDescription(names.join(", "))
         .setTimestamp();
-      return await message.channel.send(embed).catch(async () => {
+      return await message.channel.send({ embed }).catch(async () => {
         return await message.error("MOD_FETCH_FAIL");
       });
     }
@@ -114,6 +114,6 @@ Online: ${analytics.online.toLocaleString(message.language.id)}
 Last Day: ${analytics.day.toLocaleString(message.language.id)}
 Last Week: ${analytics.week.toLocaleString(message.language.id)}`
       );
-    return await message.channel.send(embed);
+    return await message.channel.send({ embed });
   }
 }

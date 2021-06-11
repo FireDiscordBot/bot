@@ -9,7 +9,6 @@ import {
   AwaitMessagesOptions,
   MessageEditOptions,
   MessageResolvable,
-  MessageAdditions,
   MessageReaction,
   CollectorFilter,
   MessageManager,
@@ -159,7 +158,10 @@ export class ButtonMessage {
   }
 
   send(key: string = "", ...args: any[]) {
-    return this.channel.send(this.language.get(key, ...args), {}, this.flags);
+    return this.channel.send(
+      { content: this.language.get(key, ...args) },
+      this.flags
+    );
   }
 
   success(
@@ -180,7 +182,6 @@ export class ButtonMessage {
     }
     return this.channel.send(
       `${emojis.success} ${this.language.get(key, ...args)}`,
-      {},
       typeof this.flags == "number" ? this.flags : 64
     );
   }
@@ -203,7 +204,6 @@ export class ButtonMessage {
     }
     return this.channel.send(
       `${emojis.error} ${this.language.get(key, ...args)}`,
-      {},
       typeof this.flags == "number" ? this.flags : 64
     );
   }
@@ -386,30 +386,15 @@ export class FakeChannel {
   }
 
   async send(
-    content: string | APIMessage | MessageEmbed,
-    options?: WebhookMessageOptions & { embed?: MessageEmbed },
+    options?: string | APIMessage | (WebhookMessageOptions & { split?: false }),
     flags?: number // Used for success/error, can also be set
   ): Promise<ButtonMessage> {
     let apiMessage: APIMessage;
 
-    if (content instanceof MessageEmbed) {
-      options = {
-        ...options,
-        embeds: [content],
-      };
-      content = null;
-    }
-
-    if (options?.embed) {
-      options.embeds = [options.embed];
-      delete options.embed;
-    }
-
-    if (content instanceof APIMessage) apiMessage = content.resolveData();
+    if (options instanceof APIMessage) apiMessage = options.resolveData();
     else {
       apiMessage = APIMessage.create(
         new Webhook(this.client, null), // needed to make isWebhook true for embeds array
-        content as string,
         options
       ).resolveData();
     }

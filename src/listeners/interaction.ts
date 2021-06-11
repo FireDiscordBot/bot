@@ -115,14 +115,14 @@ export default class InteractionListener extends Listener {
     interaction: CommandInteraction | MessageComponentInteraction,
     error: Error
   ) {
-    return interaction.reply(
-      `${emojis.error} An error occured while trying to handle this interaction that may be caused by being in DMs or the bot not being present...
+    return interaction.reply({
+      content: `${emojis.error} An error occured while trying to handle this interaction that may be caused by being in DMs or the bot not being present...
 
-    If this is a slash command, try inviting the bot to a server (<${this.client.config.inviteLink}>) if you haven't already and try again.
-    
-    Error Message: ${error.message}`,
-      { ephemeral: true }
-    );
+      If this is a slash command, try inviting the bot to a server (<${this.client.config.inviteLink}>) if you haven't already and try again.
+      
+      Error Message: ${error.message}`,
+      ephemeral: true,
+    });
   }
 
   blacklistCheck(interaction: Interaction) {

@@ -166,7 +166,8 @@ export class GuildLogManager {
         (sending.find((log) => typeof log.content == "string")
           .content as string) || null;
     await data.webhook
-      .send(message, {
+      .send({
+        content: message,
         username: this.client.user.username,
         avatarURL: this.client.user.displayAvatarURL({
           size: 2048,
@@ -268,7 +269,8 @@ export class GuildLogManager {
         (sending.find((log) => typeof log.content == "string")
           .content as string) || null;
     await data.webhook
-      .send(message, {
+      .send({
+        content: message,
         username: this.client.user.username,
         avatarURL: this.client.user.displayAvatarURL({
           size: 2048,
@@ -370,7 +372,8 @@ export class GuildLogManager {
         (sending.find((log) => typeof log.content == "string")
           .content as string) || null;
     await data.webhook
-      .send(message, {
+      .send({
+        content: message,
         username: this.client.user.username,
         avatarURL: this.client.user.displayAvatarURL({
           size: 2048,

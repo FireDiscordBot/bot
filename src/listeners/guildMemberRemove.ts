@@ -94,7 +94,7 @@ export default class GuildMemberRemove extends Listener {
             regex as RegExp,
             replacement as string
           );
-        await channel.send(leaveMessage).catch(() => {});
+        await channel.send({ content: leaveMessage }).catch(() => {});
       }
     }
 
@@ -120,7 +120,7 @@ export default class GuildMemberRemove extends Listener {
             ) as string;
             reason =
               auditAction.reason ||
-              (language.get("MODERATOR_ACTION_DEFAULT_REASON"));
+              language.get("MODERATOR_ACTION_DEFAULT_REASON");
           }
         }
       }

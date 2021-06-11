@@ -34,7 +34,6 @@ export default class GuildUpdate extends Listener {
       before.splash != after.splash ||
       before.banner != after.banner ||
       before.description != after.description ||
-      before.region != after.region ||
       before.verificationLevel != after.verificationLevel ||
       before.explicitContentFilter != after.explicitContentFilter ||
       before.features.length != after.features.length;

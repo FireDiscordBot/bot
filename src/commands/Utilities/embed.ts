@@ -68,8 +68,8 @@ export default class Embed extends Command {
         const instance = new MessageEmbed(embed);
         if (this.isEmpty(instance)) continue;
         content && !sentContent
-          ? await args.channel.send(content, instance)
-          : await args.channel.send(instance);
+          ? await args.channel.send({ content, embed: instance })
+          : await args.channel.send({ embed: instance });
         if (!sentContent) sentContent = true;
       }
       return await message.success();
@@ -78,8 +78,8 @@ export default class Embed extends Command {
       if (this.isEmpty(instance))
         return await message.error("EMBED_OBJECT_INVALID");
       return content
-        ? await args.channel.send(content, instance)
-        : await args.channel.send(instance);
+        ? await args.channel.send({ content, embed: instance })
+        : await args.channel.send({ embed: instance });
     } else return await message.error("EMBED_OBJECT_INVALID");
   }
 

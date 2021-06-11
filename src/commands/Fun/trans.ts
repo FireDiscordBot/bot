@@ -48,6 +48,6 @@ export default class Trans extends Command {
       .send();
 
     const attachment = new MessageAttachment(transReq.body, "avatar.png");
-    return await message.channel.send(attachment);
+    return await message.channel.send({ files: [attachment] });
   }
 }

@@ -101,8 +101,8 @@ export default class Button extends Listener {
             const instance = new MessageEmbed(embed);
             if (this.isEmbedEmpty(instance)) continue;
             content && !sentContent
-              ? await button.channel.send(content, instance)
-              : await button.channel.send(instance);
+              ? await button.channel.send({ content, embeds: [instance] })
+              : await button.channel.send({ embeds: [instance] });
             if (!sentContent) sentContent = true;
           }
           return await message.success();
@@ -111,8 +111,8 @@ export default class Button extends Listener {
           if (this.isEmbedEmpty(instance))
             return await message.error("EMBED_OBJECT_INVALID");
           return content
-            ? await button.channel.send(content, instance)
-            : await button.channel.send(instance);
+            ? await button.channel.send({ content, embeds: [instance] })
+            : await button.channel.send({ embeds: [instance] });
         } else return await message.error("EMBED_OBJECT_INVALID");
       }
     }
@@ -213,7 +213,7 @@ export default class Button extends Listener {
           .setColor(button.member?.displayHexColor || "#ffffff")
           .setDescription(button.language.get("TAG_EDIT_BUTTON_CANCEL_EMBED"))
           .setTimestamp();
-        return (button.message as FireMessage).edit(null, {
+        return (button.message as FireMessage).edit({
           embed: cancelledEmbed,
           components: [],
         });
@@ -257,7 +257,7 @@ export default class Button extends Listener {
           .setColor(button.member?.displayHexColor || "#ffffff")
           .setDescription(button.language.get("TAG_EDIT_BUTTON_EDITING_EMBED"))
           .setTimestamp();
-        await (button.message as FireMessage).edit(null, {
+        await (button.message as FireMessage).edit({
           embed: editingEmbed,
           components: [],
         });
@@ -281,7 +281,9 @@ export default class Button extends Listener {
       const tag = await button.guild.tags.getTag(name, false);
       if (!tag) return;
       else
-        return await button.channel.send(tag.content, {}, 64).catch(() => {});
+        return await button.channel
+          .send({ content: tag.content }, 64)
+          .catch(() => {});
     }
 
     if (button.customID.startsWith("tag_delete:") && button.guild) {
@@ -378,8 +380,8 @@ export default class Button extends Listener {
           .catch(() => {});
       });
       await button.channel.send(
-        button.language.get("SK1ER_SUPPORT_CONFIRM"),
         {
+          content: button.language.get("SK1ER_SUPPORT_CONFIRM"),
           components: [
             new MessageActionRow().addComponents([confirmButton, deleteButton]),
           ],

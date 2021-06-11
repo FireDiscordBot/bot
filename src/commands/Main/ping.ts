@@ -47,10 +47,10 @@ export default class Ping extends Command {
       .setTimestamp();
 
     return message instanceof SlashCommandMessage
-      ? message.channel.send(embed)
+      ? message.channel.send({ embed })
       : pingMessage.delete() &&
           (await message
-            .reply(null, {
+            .reply({
               failIfNotExists: false,
               embed,
             })

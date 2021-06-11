@@ -140,8 +140,8 @@ export default class Quote extends Command {
         .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
       if (args.debug && typeof quoted == "string")
         return !message
-          ? await webhook.send(quoted)
-          : await message.channel.send(quoted);
+          ? await webhook.send({ content: quoted })
+          : await message.channel.send({ content: quoted });
       else return;
     } else if (!message) return;
     const quoted = await args.quote
@@ -155,7 +155,7 @@ export default class Quote extends Command {
       .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
     if (args.debug && typeof quoted == "string")
       return !message
-        ? await webhook.send(quoted)
-        : await message.channel.send(quoted);
+        ? await webhook.send({ content: quoted })
+        : await message.channel.send({ content: quoted });
   }
 }

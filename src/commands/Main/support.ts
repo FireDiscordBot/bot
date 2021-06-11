@@ -15,6 +15,6 @@ export default class Support extends Command {
   }
 
   async exec(message: FireMessage) {
-    await message.channel.send(`<${constants.url.support}>`);
+    await message.channel.send({ content: `<${constants.url.support}>` });
   }
 }

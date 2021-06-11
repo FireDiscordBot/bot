@@ -324,26 +324,22 @@ export class PaginatorInterface {
       destination instanceof DMChannel ||
       !(destination.guild as FireGuild).hasExperiment(1621199146, 1)
     )
-      message = (await destination.send(this.sendArgs)) as
-        | FireMessage
-        | SlashCommandMessage;
+      message = (await destination.send({
+        content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+        embeds: this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+      })) as FireMessage | SlashCommandMessage;
     else if (destination instanceof FakeChannel)
-      message = await destination.send(
-        typeof this.sendArgs == "string" ? this.sendArgs : null,
-        {
-          embeds:
-            this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
-          components: this.getButtons(),
-        }
-      );
+      message = await destination.send({
+        content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+        embeds: this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+        components: this.getButtons(),
+      });
     else
-      message = (await destination.send(
-        typeof this.sendArgs == "string" ? this.sendArgs : null,
-        {
-          embed: this.sendArgs instanceof MessageEmbed ? this.sendArgs : null,
-          components: this.getButtons(),
-        }
-      )) as FireMessage;
+      message = (await destination.send({
+        content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+        embed: this.sendArgs instanceof MessageEmbed ? this.sendArgs : null,
+        components: this.getButtons(),
+      })) as FireMessage;
     if (message instanceof SlashCommandMessage) {
       this.slashMessage = message;
       this.message = await message.getRealMessage();
@@ -448,14 +444,12 @@ export class PaginatorInterface {
                 components: this.getButtons(),
               }
             )
-          : await this.message.edit(
-              typeof this.sendArgs == "string" ? this.sendArgs : null,
-              {
-                embed:
-                  this.sendArgs instanceof MessageEmbed ? this.sendArgs : null,
-                components: this.getButtons(),
-              }
-            );
+          : await this.message.edit({
+              content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+              embed:
+                this.sendArgs instanceof MessageEmbed ? this.sendArgs : null,
+              components: this.getButtons(),
+            });
       else {
         if (!this.sentPageReactions) this.sendAllReactions();
         this.slashMessage

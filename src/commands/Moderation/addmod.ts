@@ -91,6 +91,6 @@ export default class AddModerator extends Command {
         message.language.get("MODERATORS_REMOVE_INVALID"),
         message.language.get("MODERATORS_REMOVED", invalid)
       );
-    return await message.channel.send(embed);
+    return await message.channel.send({ embed });
   }
 }

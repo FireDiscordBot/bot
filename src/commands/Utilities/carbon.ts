@@ -128,9 +128,9 @@ export default class Carbon extends Command {
 
     if (!args.code.content) return await message.error("CARBON_CODE_REQUIRED");
     if (args.code.content == "listthemes")
-      return await message.channel.send(validThemes.join(", "));
+      return await message.channel.send({ content: validThemes.join(", ") });
     else if (args.code.content == "listfonts")
-      return await message.channel.send(validFonts.join(", "));
+      return await message.channel.send({ content: validFonts.join(", ") });
     const language = languageMapping[args.code.language] || "auto";
     let theme = "one-dark";
     let font = "JetBrains Mono";
@@ -175,7 +175,7 @@ export default class Carbon extends Command {
       return await message.error("CARBON_IMAGE_FAILED");
     else {
       const attach = new MessageAttachment(image.body, "code.png");
-      return await message.channel.send(attach);
+      return await message.channel.send({ files: [attach] });
     }
   }
 }

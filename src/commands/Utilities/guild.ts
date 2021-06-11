@@ -120,7 +120,7 @@ export default class GuildCommand extends Command {
         : null,
       guild instanceof FireGuild
         ? `**${message.language.get(
-            guild.region.length > 1 ? "REGION_PLURAL" : "REGION"
+            guild.regions.length > 1 ? "REGION_PLURAL" : "REGION"
           )}:** ${
             guild.regions.length > 1
               ? guild.regions
@@ -318,6 +318,6 @@ export default class GuildCommand extends Command {
         );
     }
 
-    await message.channel.send(embed);
+    await message.channel.send({ embed });
   }
 }

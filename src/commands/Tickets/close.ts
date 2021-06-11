@@ -49,12 +49,14 @@ export default class CloseTicket extends Command {
             .setEmoji("534174796938870792")
         ),
       ],
-    } as MessageOptions;
+    } as MessageOptions & { split?: false };
     if (message.guild.hasExperiment(1621199146, 1))
-      await message.channel.send(
-        `${emojis.error} ${message.language.get("TICKET_WILL_CLOSE_BUTTON")}`,
-        buttonOptions
-      );
+      await message.channel.send({
+        content: `${emojis.error} ${message.language.get(
+          "TICKET_WILL_CLOSE_BUTTON"
+        )}`,
+        ...buttonOptions,
+      });
     else await message.error("TICKET_WILL_CLOSE");
     const willClose = await this.getConfirmationPromise(
       message,

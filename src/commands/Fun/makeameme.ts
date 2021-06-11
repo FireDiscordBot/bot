@@ -66,7 +66,7 @@ export default class MakeAMeme extends Command {
       if (meme.byteLength >= 8e6)
         return await message.error("MAKEAMEME_TOO_LARGE");
       return await message.channel
-        .send(null, {
+        .send({
           files: [{ attachment: meme, name: "spicymeme.png" }],
         })
         .catch(() => message.error("MAKEAMEME_UPLOAD_FAIL"));

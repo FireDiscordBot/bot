@@ -50,19 +50,13 @@ export default class Tag extends Command {
     }
     if (referenced)
       return await referenced
-        .reply(cachedTag.content, {
+        .reply({
           allowedMentions: { repliedUser: true },
+          content: cachedTag.content,
           failIfNotExists: false,
         })
-        .catch((e) => {
-          if (
-            e instanceof DiscordAPIError &&
-            // hacky detection but it works
-            e.message.includes("message_reference: Unknown message")
-          )
-            return message.channel.send(cachedTag.content);
-        });
-    else return await message.channel.send(cachedTag.content);
+        .catch(() => {});
+    else return await message.channel.send({ content: cachedTag.content });
   }
 
   async sendTagsList(message: FireMessage) {
@@ -76,6 +70,6 @@ export default class Tag extends Command {
       )
       .setColor(message.member?.displayHexColor || "#ffffff")
       .setDescription(names.join(", "));
-    return await message.channel.send(embed);
+    return await message.channel.send({ embed });
   }
 }

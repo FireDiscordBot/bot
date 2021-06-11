@@ -79,19 +79,19 @@ export default class TicTacToe extends Command {
     if (authorHasGame) {
       const existing = this.games.get(authorHasGame);
       const endId = SnowflakeUtil.generate();
-      const endGameMessage = await message.channel.send(
-        `${emojis.error} ${message.language.get("TICTACTOE_EXISTING")}`,
-        {
-          components: [
-            new MessageActionRow().addComponents(
-              new MessageButton()
-                .setLabel(message.guild.language.get("TICTACTOE_END_GAME"))
-                .setCustomID(endId)
-                .setStyle("PRIMARY")
-            ),
-          ],
-        }
-      );
+      const endGameMessage = await message.channel.send({
+        content: `${emojis.error} ${message.language.get(
+          "TICTACTOE_EXISTING"
+        )}`,
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setLabel(message.guild.language.get("TICTACTOE_END_GAME"))
+              .setCustomID(endId)
+              .setStyle("PRIMARY")
+          ),
+        ],
+      });
       try {
         await this.awaitEndGame(endId, message.member);
         for (const button of Object.values(existing.buttons))
@@ -106,13 +106,13 @@ export default class TicTacToe extends Command {
           .catch(() => {})) as FireMessage;
         if (existingMessage) {
           const existingGuild = existingMessage.guild;
-          await existingMessage.edit(
-            existingGuild.language.get(
+          await existingMessage.edit({
+            content: existingGuild.language.get(
               "TICTACTOE_JOINED_NEW",
               message.member?.toMention()
             ),
-            { components: [] }
-          );
+            components: [],
+          });
         }
         await endGameMessage.delete().catch(() => {});
       } catch {
@@ -140,27 +140,27 @@ export default class TicTacToe extends Command {
       ],
     };
 
-    const requestMsg = await message.channel.send(
-      message.guild.language.get(
+    const requestMsg = await message.channel.send({
+      content: message.guild.language.get(
         "TICTACTOE_GAME_REQUEST",
         message.author.username,
         opponent.toMention()
       ),
-      requestMsgOptions
-    );
+      ...requestMsgOptions,
+    });
     if (!requestMsg) return await message.error();
     const accepted = await this.awaitOpponentResponse(requestId, opponent);
     this.client.buttonHandlers.delete(requestId);
     if (!accepted) {
       requestMsgOptions.components[0].components[0].setDisabled(true);
-      await requestMsg.edit(
-        message.guild.language.get(
+      await requestMsg.edit({
+        content: message.guild.language.get(
           "TICTACTOE_GAME_REQUEST",
           message.author.username,
           opponent.toMention()
         ),
-        requestMsgOptions
-      );
+        ...requestMsgOptions,
+      });
       if (message instanceof SlashCommandMessage)
         return await (message as SlashCommandMessage).edit(
           message.guild.language.get(
@@ -214,13 +214,13 @@ export default class TicTacToe extends Command {
       this.client.buttonHandlers.delete(`${gameId}:forfeit`);
       this.games.delete(gameId);
 
-      return await buttonMessage.edit(
-        button.guild.language.get(
+      return await buttonMessage.edit({
+        content: button.guild.language.get(
           "TICTACTOE_FORFEITED",
           button.member?.toMention()
         ),
-        { components: [] }
-      );
+        components: [],
+      });
     });
 
     const components = [
@@ -256,13 +256,14 @@ export default class TicTacToe extends Command {
       ),
     ];
 
-    const game = await message.channel.send(
-      message.guild.language.get("TICTACTOE_GAME_START", opponent.toMention()),
-      {
-        components,
-        allowedMentions: { users: [opponent.id, message.author.id] },
-      }
-    );
+    const game = await message.channel.send({
+      content: message.guild.language.get(
+        "TICTACTOE_GAME_START",
+        opponent.toMention()
+      ),
+      components,
+      allowedMentions: { users: [opponent.id, message.author.id] },
+    });
     gameData.message = game.id;
     this.games.set(gameId, gameData);
   }

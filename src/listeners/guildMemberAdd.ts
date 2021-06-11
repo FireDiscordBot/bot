@@ -183,7 +183,7 @@ export default class GuildMemberAdd extends Listener {
             regex as RegExp,
             replacement as string
           );
-        await channel.send(joinMessage).catch(() => {});
+        await channel.send({ content: joinMessage }).catch(() => {});
       }
     }
 

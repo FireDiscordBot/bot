@@ -68,7 +68,7 @@ export class FireMessage extends Message {
   }
 
   send(key: string = "", ...args: any[]) {
-    return this.channel.send(this.language.get(key, ...args));
+    return this.channel.send({ content: this.language.get(key, ...args) });
   }
 
   success(
@@ -78,9 +78,9 @@ export class FireMessage extends Message {
     if (!key && this.deleted) return;
     return !key
       ? this.react(reactions.success).catch(() => {})
-      : this.channel.send(
-          `${emojis.success} ${this.language.get(key, ...args)}`
-        );
+      : this.channel.send({
+          content: `${emojis.success} ${this.language.get(key, ...args)}`,
+        });
   }
 
   error(
@@ -90,7 +90,8 @@ export class FireMessage extends Message {
     if (!key && this.deleted) return;
     return !key
       ? this.react(reactions.error).catch(() => {})
-      : this.reply(`${emojis.error} ${this.language.get(key, ...args)}`, {
+      : this.reply({
+          content: `${emojis.error} ${this.language.get(key, ...args)}`,
           failIfNotExists: false,
         });
   }
@@ -233,7 +234,8 @@ export class FireMessage extends Message {
       }
     }
     return await hook
-      .send(content.length ? content : null, {
+      .send({
+        content: content.length ? content : null,
         username: this.author.toString().replace(/#0000/gim, ""),
         avatarURL: this.author.displayAvatarURL({ size: 2048, format: "png" }),
         embeds: this.embeds.filter(
@@ -283,14 +285,14 @@ export class FireMessage extends Message {
     if (!(destination instanceof FireTextChannel)) return;
     const { language } = destination.guild as FireGuild;
     if (!this.content && this.author.bot && this.embeds?.length == 1) {
-      return await destination.send(
-        language.get(
+      return await destination.send({
+        content: language.get(
           "QUOTE_EMBED_FROM",
           this.author.toString(),
           (this.channel as FireTextChannel).name
         ),
-        this.embeds[0]
-      );
+        embed: this.embeds[0],
+      });
     }
     const embed = new MessageEmbed()
       .setColor(
@@ -354,7 +356,7 @@ export class FireMessage extends Message {
           )
         );
     } else embed.setFooter(language.get("QUOTE_EMBED_FOOTER", quoter));
-    return await destination.send(embed).catch(() => {});
+    return await destination.send({ embed }).catch(() => {});
   }
 
   async star(
@@ -432,10 +434,10 @@ export class FireMessage extends Message {
             }
           })) as FireMessage;
         if (message)
-          return await message.edit(content, { embed }).catch(() => {});
+          return await message.edit({ content, embed }).catch(() => {});
       } else {
         const message = await starboard
-          .send(content, { embed })
+          .send({ content, embed })
           .catch(() => {});
         if (!message) return;
         this.guild.starboardMessages.set(this.id, message.id);
