@@ -1127,6 +1127,8 @@ ${prefixes.join(", ")}`,
         PURGED_MESSAGES: "Purged Messages",
         PURGED_MESSAGES_FAILED: "Failed to upload messages to hastebin",
         QUOTE_COMMAND_DESCRIPTION: "Quote a message from an ID or URL",
+        QUOTE_PREMIUM_INCREASED_LENGTH:
+          "This message is using the new 4,000 character limit for nitro users. Because of this, I am unable to quote it.",
         AUTOQUOTE_COMMAND_DESCRIPTION:
           "Enable automatic quoting when a message URL is sent",
         AUTOQUOTE_ENABLED:

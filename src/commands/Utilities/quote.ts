@@ -124,12 +124,17 @@ export default class Quote extends Command {
       }
       return;
     }
+    if (args.quote && args.quote.content.length > 2000)
+      return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
     let webhook: WebhookClient;
     if (args.webhook && args.quoter) {
       const match = regexes.discord.webhook.exec(args.webhook);
       regexes.discord.webhook.lastIndex = 0;
       if (!match?.groups.id || !match?.groups.token) return;
-      webhook = new WebhookClient(match.groups.id as Snowflake, match.groups.token);
+      webhook = new WebhookClient(
+        match.groups.id as Snowflake,
+        match.groups.token
+      );
       const quoted = await args.quote
         .quote(args.destination, args.quoter, webhook)
         .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
