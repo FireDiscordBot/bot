@@ -158,13 +158,15 @@ export default class Message extends Listener {
       message.embeds.length &&
       this.client.config.datamineUsers.includes(message.embeds[0].author.name)
     ) {
-      this.client.manager.ws.send(
-        MessageUtil.encode(
-          new AetherMessage(EventType.FETCH_DISCORD_EXPERIMENTS, {
-            current: this.client.manager.state.discordExperiments?.length ?? 0,
-          })
-        )
-      );
+      if (message.embeds[0].title.includes("new commit"))
+        this.client.manager.ws.send(
+          MessageUtil.encode(
+            new AetherMessage(EventType.FETCH_DISCORD_EXPERIMENTS, {
+              current:
+                this.client.manager.state.discordExperiments?.length ?? 0,
+            })
+          )
+        );
       const dataminingMessage = await this.client.req
         .channels("731330454422290463")
         .messages.post<APIMessage>({
