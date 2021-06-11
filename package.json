@@ -38,7 +38,7 @@
     "chrono-node": "^2.1.10",
     "discord-akairo": "^8.1.0",
     "discord-api-types": "^0.18.1",
-    "discord.js": "discordjs/discord.js#a7ebb2145c380214567514906393c4ab87932e95",
+    "discord.js": "discordjs/discord.js#e3e466d3e56145110ba0cfcba7b3c594267d36fb",
     "dotenv-extended": "^2.9.0",
     "emoji-regex": "^9.2.2",
     "erlpack": "discord/erlpack",
