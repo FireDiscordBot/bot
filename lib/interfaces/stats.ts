@@ -60,3 +60,9 @@ export interface DiscoverableGuild {
   shard?: number;
   cluster?: number;
 }
+
+export enum DiscoveryUpdateOp {
+  SYNC = 1,
+  REMOVE = 2,
+  ADD = 3,
+}

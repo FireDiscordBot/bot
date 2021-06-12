@@ -1,6 +1,7 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { MessageEmbed, Permissions, Snowflake } from "discord.js";
 import { constants, humanize } from "@fire/lib/util/constants";
+import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
@@ -35,10 +36,10 @@ export default class GuildMemberAdd extends Listener {
       // send discovery update for realtime member counts
       this.client.manager.ws?.send(
         MessageUtil.encode(
-          new Message(
-            EventType.DISCOVERY_UPDATE,
-            this.client.util.getDiscoverableGuilds()
-          )
+          new Message(EventType.DISCOVERY_UPDATE, {
+            op: DiscoveryUpdateOp.SYNC,
+            guilds: [member.guild.getDiscoverableData()],
+          })
         )
       );
 

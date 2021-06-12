@@ -1,3 +1,4 @@
+import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
@@ -39,10 +40,10 @@ export default class GuildUpdate extends Listener {
       // send discovery update
       this.client.manager.ws?.send(
         MessageUtil.encode(
-          new Message(
-            EventType.DISCOVERY_UPDATE,
-            this.client.util.getDiscoverableGuilds()
-          )
+          new Message(EventType.DISCOVERY_UPDATE, {
+            op: DiscoveryUpdateOp.SYNC,
+            guilds: [after.getDiscoverableData()],
+          })
         )
       );
 

@@ -567,6 +567,8 @@ export class FireGuild extends Guild {
         splash,
         vanity: `https://discover.inv.wtf/${this.id}`,
         members: 0,
+        shard: this.shardID,
+        cluster: this.client.manager.id,
       };
     if (this.splash)
       splash = this.splashURL({
@@ -591,6 +593,8 @@ export class FireGuild extends Guild {
       splash,
       vanity: `https://discover.inv.wtf/${this.id}`,
       members: this.memberCount,
+      shard: this.shardID,
+      cluster: this.client.manager.id,
     };
   }
 
