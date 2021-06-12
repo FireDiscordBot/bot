@@ -116,9 +116,12 @@ export default class Message extends Listener {
     if (message.type == "PINS_ADD")
       this.client.emit("channelPinsAdd", message.reference, message.member);
 
+    const lowerContent = message.content.toLowerCase();
     if (
       message.guild?.id == "411619823445999637" &&
-      message.content.includes("strearmcommunity")
+      lowerContent.includes(".ru") &&
+      lowerContent.includes("@everyone") &&
+      lowerContent.includes("partner")
     )
       return await message.member?.bean(
         "Phishing links",
