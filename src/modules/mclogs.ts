@@ -161,15 +161,13 @@ export default class MCLogs extends Module {
       try {
         await message.delete();
       } catch {}
-      return await message.channel.send(
-        message.language.get(
+      return await message.channel.send({
+        content: message.language.get(
           "SK1ER_NO_REUPLOAD",
           message.author.toMention()
         ) as string,
-        {
-          allowedMentions: { users: [message.author.id] },
-        }
-      );
+        allowedMentions: { users: [message.author.id] },
+      });
     } else this.regexes.noRaw.lastIndex = 0;
 
     const reupload = this.regexes.reupload.exec(message.content);

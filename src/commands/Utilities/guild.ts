@@ -1,15 +1,12 @@
-import { humanize, zws, constants, titleCase } from "@fire/lib/util/constants";
-import { GuildPreview, MessageEmbed, Permissions } from "discord.js";
-import { DiscordExperiment } from "@fire/lib/interfaces/aether";
+import { GuildPreview, MessageEmbed, Permissions, DMChannel } from "discord.js";
+import { humanize, zws, constants } from "@fire/lib/util/constants";
 import { snowflakeConverter } from "@fire/lib/util/converters";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Experiments } from "@fire/lib/interfaces/discord";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { murmur3 } from "murmurhash-js";
 import * as moment from "moment";
 
 const {
@@ -35,7 +32,7 @@ export default class GuildCommand extends Command {
       ],
       aliases: ["guildinfo", "infoguild", "serverinfo", "infoserver", "server"],
       enableSlashCommand: true,
-      restrictTo: "guild",
+      restrictTo: "all",
     });
   }
 
@@ -120,7 +117,7 @@ export default class GuildCommand extends Command {
         : null,
       guild instanceof FireGuild
         ? `**${message.language.get(
-            guild.region.length > 1 ? "REGION_PLURAL" : "REGION"
+            guild.regions.length > 1 ? "REGION_PLURAL" : "REGION"
           )}:** ${
             guild.regions.length > 1
               ? guild.regions
@@ -241,6 +238,11 @@ export default class GuildCommand extends Command {
   }
 
   async exec(message: FireMessage, args: { guild?: GuildPreview | FireGuild }) {
+    if (message.channel instanceof DMChannel && !args.guild)
+      return await message.error(
+        "COMMAND_GUILD_ONLY",
+        this.client.config.inviteLink
+      );
     if (!args.guild && typeof args.guild != "undefined") return;
     const guild = args.guild ? args.guild : message.guild;
 
@@ -305,7 +307,7 @@ export default class GuildCommand extends Command {
       );
 
     if (
-      message.author.hasExperiment(4026299021, 1) &&
+      message.hasExperiment(4026299021, 1) &&
       this.client.manager.state.discordExperiments?.length
     ) {
       const experiments = await this.client.util.getFriendlyGuildExperiments(
@@ -318,6 +320,6 @@ export default class GuildCommand extends Command {
         );
     }
 
-    await message.channel.send(embed);
+    await message.channel.send({ embeds: [embed] });
   }
 }

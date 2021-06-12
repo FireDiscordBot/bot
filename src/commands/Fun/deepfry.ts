@@ -60,7 +60,7 @@ export default class Deepfry extends Command {
       if (fried.byteLength >= 8e6)
         return await message.error("DEEPFRY_TOO_LARGE");
       return await message.channel
-        .send(null, {
+        .send({
           files: [{ attachment: fried, name: "deepfried.png" }],
         })
         .catch(() => message.error("DEEPFRY_UPLOAD_FAIL"));

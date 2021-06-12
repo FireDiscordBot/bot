@@ -1,8 +1,12 @@
+import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { VanityURL } from "@fire/lib/interfaces/invwtf";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Language } from "@fire/lib/util/language";
 import { MessageEmbed, Invite } from "discord.js";
 import { Module } from "@fire/lib/util/module";
+import { Message } from "@fire/lib/ws/Message";
 import * as centra from "centra";
 
 export default class VanityURLs extends Module {
@@ -93,6 +97,14 @@ export default class VanityURLs extends Module {
     const original = code;
     if (code instanceof FireGuild) {
       code.settings.set<boolean>("utils.public", false);
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.DISCOVERY_UPDATE, {
+            op: DiscoveryUpdateOp.REMOVE,
+            guilds: [{ id: code.id }],
+          })
+        )
+      );
       code = code.id;
     }
     const deleteResult = await this.client.db
@@ -104,6 +116,24 @@ export default class VanityURLs extends Module {
       .catch(() => {});
     if (deleteResult) {
       await this.requestFetch(`Deleted vanity ${deleteResult.get("code")}`);
+      const guild = this.client.guilds.cache.get(
+        deleteResult.get("gid") as `${bigint}`
+      );
+      if (
+        guild &&
+        guild instanceof FireGuild &&
+        guild.settings.get<boolean>("utils.public")
+      ) {
+        guild.settings.set<boolean>("utils.public", false);
+        this.client.manager.ws?.send(
+          MessageUtil.encode(
+            new Message(EventType.DISCOVERY_UPDATE, {
+              op: DiscoveryUpdateOp.REMOVE,
+              guilds: [{ id: guild.id }],
+            })
+          )
+        );
+      }
       const invite = await this.client
         .fetchInvite(deleteResult.get("invite") as string)
         .catch(() => {});

@@ -321,29 +321,19 @@ export class PaginatorInterface {
     // if (destination instanceof FakeChannel) destination = destination.real;
     let message: FireMessage | SlashCommandMessage;
     if (
-      destination instanceof DMChannel ||
+      !(destination instanceof DMChannel) &&
       !(destination.guild as FireGuild).hasExperiment(1621199146, 1)
     )
-      message = (await destination.send(this.sendArgs)) as
-        | FireMessage
-        | SlashCommandMessage;
-    else if (destination instanceof FakeChannel)
-      message = await destination.send(
-        typeof this.sendArgs == "string" ? this.sendArgs : null,
-        {
-          embeds:
-            this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
-          components: this.getButtons(),
-        }
-      );
+      message = (await destination.send({
+        content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+        embeds: this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+      })) as FireMessage | SlashCommandMessage;
     else
-      message = (await destination.send(
-        typeof this.sendArgs == "string" ? this.sendArgs : null,
-        {
-          embed: this.sendArgs instanceof MessageEmbed ? this.sendArgs : null,
-          components: this.getButtons(),
-        }
-      )) as FireMessage;
+      message = (await destination.send({
+        content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+        embeds: this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+        components: this.getButtons(),
+      })) as FireMessage | SlashCommandMessage;
     if (message instanceof SlashCommandMessage) {
       this.slashMessage = message;
       this.message = await message.getRealMessage();
@@ -352,10 +342,11 @@ export class PaginatorInterface {
 
     if (
       !this.sentPageReactions &&
-      (destination instanceof DMChannel ||
-        !(destination.guild as FireGuild).hasExperiment(1621199146, 1))
+      !(destination instanceof DMChannel) &&
+      !(destination.guild as FireGuild).hasExperiment(1621199146, 1)
     )
       await this.sendAllReactions();
+    else this.sentPageReactions = true;
 
     if (!this.ready) this.ready = true;
 
@@ -438,29 +429,31 @@ export class PaginatorInterface {
         )?.hasExperiment(1621199146, 1)
       )
         this.slashMessage
-          ? this.slashMessage.edit(
-              typeof this.sendArgs == "string" ? this.sendArgs : null,
-              {
-                embeds:
-                  this.sendArgs instanceof MessageEmbed
-                    ? [this.sendArgs]
-                    : null,
-                components: this.getButtons(),
-              }
-            )
-          : await this.message.edit(
-              typeof this.sendArgs == "string" ? this.sendArgs : null,
-              {
-                embed:
-                  this.sendArgs instanceof MessageEmbed ? this.sendArgs : null,
-                components: this.getButtons(),
-              }
-            );
+          ? this.slashMessage.edit({
+              content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+              embeds:
+                this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+              components: this.getButtons(),
+            })
+          : await this.message.edit({
+              content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+              embeds:
+                this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+              components: this.getButtons(),
+            });
       else {
         if (!this.sentPageReactions) this.sendAllReactions();
         this.slashMessage
-          ? this.slashMessage.edit(this.sendArgs)
-          : await this.message.edit(this.sendArgs);
+          ? this.slashMessage.edit({
+              content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+              embeds:
+                this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+            })
+          : await this.message.edit({
+              content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+              embeds:
+                this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+            });
       }
     } catch {}
     this.updateLock.release();

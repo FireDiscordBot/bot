@@ -85,15 +85,15 @@ export default class Rank extends Command {
               }) as string)
             : undefined
         );
-      if (!message.guild.hasExperiment(1621199146, 1))
-        return await message.channel.send(embed);
+      if (!message.hasExperiment(1621199146, 1))
+        return await message.channel.send({ embeds: [embed] });
       else delete embed.description;
       const components = Rank.getRankButtons(
         message.guild,
         message.member
         // message instanceof FireMessage
       );
-      return message.channel.send(null, { embed, components });
+      return message.channel.send({ embeds: [embed], components });
     }
 
     if (roles.includes(args.role)) {

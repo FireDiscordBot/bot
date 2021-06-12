@@ -116,17 +116,11 @@ export default class Google extends Command {
     );
     if (!html)
       return await message
-        .reply(message.language.get("PLAYWRIGHT_ERROR_UNKNOWN"), {
+        .reply({
+          content: message.language.get("PLAYWRIGHT_ERROR_UNKNOWN"),
           failIfNotExists: false,
         })
-        .catch((e) => {
-          if (
-            e instanceof DiscordAPIError &&
-            // hacky detection but it works
-            e.message.includes("message_reference: Unknown message")
-          )
-            return message.send("PLAYWRIGHT_ERROR_UNKNOWN");
-        });
+        .catch(() => {});
     const playwrightResponse = await this.getImageFromPlaywright(
       message,
       html
@@ -140,7 +134,7 @@ export default class Google extends Command {
     else if (playwrightResponse.screenshot) {
       const screenshot = Buffer.from(playwrightResponse.screenshot.data);
       await message.channel
-        .send(null, {
+        .send({
           files: [{ attachment: screenshot, name: "playwright.png" }],
         })
         .catch(() => {});

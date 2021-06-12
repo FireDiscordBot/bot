@@ -108,7 +108,7 @@ export default class Help extends Command {
       inline: false,
     });
     let components: MessageActionRow[] = null;
-    if (message.guild?.hasExperiment(1621199146, 1)) {
+    if (message.hasExperiment(1621199146, 1)) {
       let supportInvite = "https://inv.wtf/fire";
       const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
       if (vanityurls) {
@@ -168,9 +168,9 @@ export default class Help extends Command {
       },
       timestamp: new Date(),
     };
-    return await message.channel.send(null, {
+    return await message.channel.send({
       components,
-      embed,
+      embeds: [embed],
     });
   }
 
@@ -202,6 +202,6 @@ export default class Help extends Command {
         value: permissions.join(", "),
         inline: false,
       });
-    await message.channel.send(null, { embed });
+    await message.channel.send({ embeds: [embed] });
   }
 }

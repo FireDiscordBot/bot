@@ -85,7 +85,7 @@ export default class JoinMSG extends Command {
               .map(([key, val]) => `${key}: ${val}`)
               .join("\n")
           );
-        return await message.channel.send(embed);
+        return await message.channel.send({ embeds: [embed] });
       }
       const channel = message.guild.channels.cache.get(
         message.guild.settings.get<Snowflake>("greet.joinchannel")
@@ -107,7 +107,7 @@ export default class JoinMSG extends Command {
             .map(([key, val]) => `${key}: ${val}`)
             .join("\n")
         );
-      return await message.channel.send(embed);
+      return await message.channel.send({ embeds: [embed] });
     } else if (
       typeof args.channel == "string" &&
       disableArgs.includes(args.channel)
@@ -141,12 +141,12 @@ export default class JoinMSG extends Command {
     ];
     for (const [regex, replacement] of regexes)
       msg = msg.replace(regex as RegExp, replacement as string);
-    return await message.channel.send(
-      `${emojis.success} ${message.language.get(
+    return await message.channel.send({
+      content: `${emojis.success} ${message.language.get(
         "JOINMSG_SET_SUCCESS",
         channel.toString()
       )} ${msg}`,
-      { allowedMentions }
-    );
+      allowedMentions,
+    });
   }
 }

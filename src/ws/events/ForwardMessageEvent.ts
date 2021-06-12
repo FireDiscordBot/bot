@@ -1,8 +1,12 @@
-import { MessageActionRowOptions, MessageEmbed, Snowflake } from "discord.js";
+import {
+  MessageActionRowOptions,
+  MessageEmbedOptions,
+  MessageEmbed,
+  Snowflake,
+} from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Event } from "@fire/lib/ws/event/Event";
-import { APIEmbed } from "discord-api-types";
 import { Manager } from "@fire/lib/Manager";
 
 export default class ForwardMessageEvent extends Event {
@@ -12,30 +16,47 @@ export default class ForwardMessageEvent extends Event {
 
   async run(data: {
     buttons?: MessageActionRowOptions[];
-    message: string | APIEmbed;
+    message: string | MessageEmbedOptions[];
     parseUsers: Snowflake[];
     channel?: Snowflake;
   }) {
     if (!this.manager.client.channels.cache.has(data.channel)) return;
 
     let content = typeof data.message == "string" ? data.message : null;
-    let embed =
-      typeof data.message == "object" ? JSON.stringify(data.message) : null;
+    let embeds: MessageEmbedOptions[] | MessageEmbed[] = Array.isArray(
+      data.message
+    )
+      ? data.message
+      : null;
     for (const id of data.parseUsers) {
       const user = await this.manager.client.users.fetch(id).catch(() => {});
       if (user)
-        content = (content ?? embed).replace(
-          new RegExp(id, "gim"),
-          `${user} (${user.id})`
-        );
+        if (content)
+          content = content.replace(
+            new RegExp(id, "gim"),
+            `${user} (${user.id})`
+          );
+        else
+          embeds = embeds.map(
+            (e) =>
+              JSON.parse(
+                JSON.stringify(e).replace(
+                  new RegExp(id, "gim"),
+                  `${user} (${user.id})`
+                )
+              ) as MessageEmbedOptions
+          );
     }
 
-    if (embed) {
-      try {
-        new MessageEmbed(JSON.parse(embed));
-      } catch {
-        embed = null;
-      }
+    if (embeds) {
+      for (const [index] of embeds.entries())
+        try {
+          embeds[index] = new MessageEmbed(
+            embeds[index] as MessageEmbedOptions
+          );
+        } catch {
+          embeds = null;
+        }
     }
 
     const channel = this.manager.client.channels.cache.get(
@@ -43,9 +64,10 @@ export default class ForwardMessageEvent extends Event {
     ) as FireTextChannel;
     if (channel.isText())
       await channel
-        .send(content, {
-          embed: embed ? new MessageEmbed(JSON.parse(embed)) : null,
+        .send({
+          embeds: embeds as MessageEmbed[],
           components: data.buttons,
+          content,
         })
         .catch(() => {});
   }

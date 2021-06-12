@@ -20,7 +20,7 @@ export default class ForwardMessageUserEvent extends Event {
     if (language.has(data.message) || defaultLang.has(data.message)) {
       const message = language.get(data.message, ...data.args);
       if (typeof message == "string")
-        return await user.send(message).catch(() => {});
-    } else return await user.send(data.message).catch(() => {});
+        return await user.send({ content: message }).catch(() => {});
+    } else return await user.send({ content: data.message }).catch(() => {});
   }
 }

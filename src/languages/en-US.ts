@@ -1127,6 +1127,8 @@ ${prefixes.join(", ")}`,
         PURGED_MESSAGES: "Purged Messages",
         PURGED_MESSAGES_FAILED: "Failed to upload messages to hastebin",
         QUOTE_COMMAND_DESCRIPTION: "Quote a message from an ID or URL",
+        QUOTE_PREMIUM_INCREASED_LENGTH:
+          "This message is using the new 4,000 character limit for nitro users. Because of this, I am unable to quote it.",
         AUTOQUOTE_COMMAND_DESCRIPTION:
           "Enable automatic quoting when a message URL is sent",
         AUTOQUOTE_ENABLED:
@@ -1136,7 +1138,7 @@ ${prefixes.join(", ")}`,
         QUOTE_WEBHOOK_CREATE_REASON:
           "This webhook will be used for quoting messages in this channel",
         QUOTE_EMBED_FROM: (author: string, channel: string) =>
-          `Raw embed from ${author} in #${channel}`,
+          `Raw embed(s) from ${author} in #${channel}`,
         QUOTE_EMBED_FOOTER_ALL: (
           user: string,
           channel: string,
@@ -1283,6 +1285,8 @@ ${success.map((s) => "- " + s).join("\n")}${
         REMINDERS_COMMAND_DESCRIPTION: "List all reminders you have set",
         REMINDERS_NONE_FOUND:
           "You must have a good memory because I found no reminders",
+        REMINDERS_FOOTER: (prefix: string) =>
+          `Use "${prefix}delremind [number]" to delete a reminder`,
         DELREMIND_COMMAND_DESCRIPTION:
           "Delete a reminder using the index from the reminders command",
         DELREMIND_ARG_DESCRIPTION:

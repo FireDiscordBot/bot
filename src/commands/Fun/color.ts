@@ -64,13 +64,17 @@ export default class Color extends Command {
       .header("User-Agent", this.client.manager.ua)
       .send();
 
-    if (image.statusCode != 200) return await message.channel.send(colorInfo);
+    if (image.statusCode != 200)
+      return await message.channel.send({ content: colorInfo });
     else {
       const attachment = new MessageAttachment(
         image.body,
         `${color.toHex()}.png`
       );
-      return await message.channel.send(colorInfo, attachment);
+      return await message.channel.send({
+        content: colorInfo,
+        files: [attachment],
+      });
     }
   }
 }

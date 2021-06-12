@@ -1,4 +1,9 @@
-import { MessageMentionOptions, MessageEmbed, Permissions, Snowflake } from "discord.js";
+import {
+  MessageMentionOptions,
+  MessageEmbed,
+  Permissions,
+  Snowflake,
+} from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
@@ -80,7 +85,7 @@ export default class LeaveMSG extends Command {
               .map(([key, val]) => `${key}: ${val}`)
               .join("\n")
           );
-        return await message.channel.send(embed);
+        return await message.channel.send({ embeds: [embed] });
       }
       const channel = message.guild.channels.cache.get(
         message.guild.settings.get<Snowflake>("greet.leavechannel")
@@ -102,7 +107,7 @@ export default class LeaveMSG extends Command {
             .map(([key, val]) => `${key}: ${val}`)
             .join("\n")
         );
-      return await message.channel.send(embed);
+      return await message.channel.send({ embeds: [embed] });
     } else if (
       typeof args.channel == "string" &&
       disableArgs.includes(args.channel)
@@ -136,12 +141,12 @@ export default class LeaveMSG extends Command {
     ];
     for (const [regex, replacement] of regexes)
       msg = msg.replace(regex as RegExp, replacement as string);
-    return await message.channel.send(
-      `${emojis.success} ${message.language.get(
+    return await message.channel.send({
+      content: `${emojis.success} ${message.language.get(
         "LEAVEMSG_SET_SUCCESS",
         channel.toString()
       )} ${msg}`,
-      { allowedMentions }
-    );
+      allowedMentions,
+    });
   }
 }

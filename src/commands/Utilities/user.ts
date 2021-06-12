@@ -297,7 +297,7 @@ export default class User extends Command {
             : statusEmojis[member.presence.status]
         )
       : embed.setFooter(user.id);
-    return await message.channel.send(embed);
+    return await message.channel.send({ embeds: [embed] });
   }
 
   getBadges(user: FireUser, author: FireMember | FireUser, guild?: FireGuild) {
@@ -647,7 +647,7 @@ export default class User extends Command {
 
     if (
       (this.client.guilds.cache.has(snowflake.snowflake) || maybeGuild) &&
-      message.author.hasExperiment(4026299021, 1) &&
+      message.hasExperiment(4026299021, 1) &&
       this.client.manager.state.discordExperiments?.length
     ) {
       const experiments = await this.client.util.getFriendlyGuildExperiments(
@@ -660,6 +660,6 @@ export default class User extends Command {
         );
     }
 
-    return await message.channel.send(embed);
+    return await message.channel.send({ embeds: [embed] });
   }
 }

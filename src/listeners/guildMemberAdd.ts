@@ -1,8 +1,12 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { MessageEmbed, Permissions, Snowflake } from "discord.js";
 import { constants, humanize } from "@fire/lib/util/constants";
+import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { Message } from "@fire/lib/ws/Message";
 import * as moment from "moment";
 
 const {
@@ -22,11 +26,22 @@ export default class GuildMemberAdd extends Listener {
   async exec(member: FireMember) {
     // auto ban dumbass blatant bots in select servers
     if (
-      member.user.username.toLowerCase().includes("twitter.com/h0nde") &&
-      member.guild.hasExperiment(1187986866, 1)
-    ) {
+      (member.user.username.toLowerCase().includes("twitter.com/h0nde") ||
+        member.user.username.toLowerCase().includes("h0nda")) &&
+      member.hasExperiment(1187986866, 1)
+    )
       return await member.bean("Bot.", member.guild.me, 0, 0);
-    }
+
+    if (member.guild.isPublic())
+      // send discovery update for realtime member counts
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.DISCOVERY_UPDATE, {
+            op: DiscoveryUpdateOp.SYNC,
+            guilds: [member.guild.getDiscoverableData()],
+          })
+        )
+      );
 
     // This will check permissions & whether
     // dehoist/decancer is enabled so no need for checks here
@@ -183,7 +198,7 @@ export default class GuildMemberAdd extends Listener {
             regex as RegExp,
             replacement as string
           );
-        await channel.send(joinMessage).catch(() => {});
+        await channel.send({ content: joinMessage }).catch(() => {});
       }
     }
 
@@ -231,6 +246,13 @@ export default class GuildMemberAdd extends Listener {
         }
       }
       if (usedInvite) embed.addField(language.get("INVITE_USED"), usedInvite);
+      const roles = member.roles.cache
+        .array()
+        .filter((role) => role.id != member.guild.roles.everyone.id)
+        .map((role) => role.toString())
+        .join(", ");
+      if (roles && roles.length <= 1024)
+        embed.addField(language.get("ROLES"), roles);
       await member.guild.memberLog(embed, "join");
     }
   }

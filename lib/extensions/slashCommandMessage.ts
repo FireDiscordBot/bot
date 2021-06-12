@@ -12,7 +12,6 @@ import {
   MessageEditOptions,
   MessageResolvable,
   MessageAttachment,
-  MessageAdditions,
   CollectorFilter,
   MessageMentions,
   MessageReaction,
@@ -226,7 +225,10 @@ export class SlashCommandMessage {
   }
 
   send(key: string = "", ...args: any[]) {
-    return this.channel.send(this.language.get(key, ...args), {}, this.flags);
+    return this.channel.send(
+      { content: this.language.get(key, ...args) },
+      this.flags
+    );
   }
 
   success(
@@ -247,7 +249,6 @@ export class SlashCommandMessage {
     }
     return this.channel.send(
       `${emojis.success} ${this.language.get(key, ...args)}`,
-      {},
       typeof this.flags == "number" ? this.flags : 64
     );
   }
@@ -270,7 +271,6 @@ export class SlashCommandMessage {
     }
     return this.channel.send(
       `${emojis.slashError} ${this.language.get(key, ...args)}`,
-      {},
       typeof this.flags == "number" ? this.flags : 64
     );
   }
@@ -292,34 +292,12 @@ export class SlashCommandMessage {
     return message;
   }
 
-  async edit(
-    content: string | MessageEditOptions | MessageEmbed | APIMessage,
-    options?:
-      | (WebhookEditMessageOptions & { embed?: MessageEmbed })
-      | MessageEmbed
-  ) {
+  async edit(options?: WebhookEditMessageOptions | APIMessage) {
     let apiMessage: APIMessage;
 
-    if (content instanceof MessageEmbed) {
-      options = {
-        ...options,
-        embeds: [content],
-      };
-      content = null;
-    }
-
-    if (!(options instanceof MessageEmbed) && options?.embed) {
-      options.embeds = [options.embed];
-      delete options.embed;
-    }
-
-    if (content instanceof APIMessage) apiMessage = content.resolveData();
+    if (options instanceof APIMessage) apiMessage = options.resolveData();
     else {
-      apiMessage = APIMessage.create(
-        this.slashCommand,
-        content as string,
-        options
-      ).resolveData();
+      apiMessage = APIMessage.create(this.slashCommand, options).resolveData();
     }
 
     const { data, files } = (await apiMessage.resolveFiles()) as {
@@ -461,32 +439,15 @@ export class FakeChannel {
   }
 
   async send(
-    content: string | APIMessage | MessageEmbed,
-    options?: WebhookMessageOptions & {
-      embed?: MessageEmbed;
-    },
+    options?: string | APIMessage | (WebhookMessageOptions & { split?: false }),
     flags?: number // Used for success/error, can also be set
   ): Promise<SlashCommandMessage> {
     let apiMessage: APIMessage;
 
-    if (content instanceof MessageEmbed) {
-      options = {
-        ...options,
-        embeds: [content],
-      };
-      content = null;
-    }
-
-    if (options?.embed) {
-      options.embeds = [options.embed];
-      delete options.embed;
-    }
-
-    if (content instanceof APIMessage) apiMessage = content.resolveData();
+    if (options instanceof APIMessage) apiMessage = options.resolveData();
     else {
       apiMessage = APIMessage.create(
         this.message.slashCommand,
-        content as string,
         options
       ).resolveData();
     }

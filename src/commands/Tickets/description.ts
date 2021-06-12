@@ -33,7 +33,10 @@ export default class TicketDescription extends Command {
       message.guild.settings.delete("tickets.description");
       return await message.success("TICKET_DESCRIPTION_RESET");
     } else {
-      message.guild.settings.set<string>("tickets.description", args.description);
+      message.guild.settings.set<string>(
+        "tickets.description",
+        args.description
+      );
       await message.success("TICKET_DESCRIPTION_SET");
       const embed = new MessageEmbed()
         .setTitle(
@@ -49,7 +52,7 @@ export default class TicketDescription extends Command {
           message.guild.language.get("SUBJECT"),
           message.guild.language.get("TICKET_DESCRIPTION_EXAMPLE_SUBJECT")
         );
-      return await message.channel.send(embed);
+      return await message.channel.send({ embeds: [embed] });
     }
   }
 }

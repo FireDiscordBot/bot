@@ -134,13 +134,13 @@ export default class GuildMemberUpdate extends Listener {
         if (typeof removed == "boolean" && removed)
           (sk1erModule.guild.channels.cache.get(
             "411620457754787841"
-          ) as FireTextChannel).send(
-            sk1erModule.guild.language.get(
+          ) as FireTextChannel).send({
+            content: sk1erModule.guild.language.get(
               "SK1ER_NITRO_PERKS_REMOVED",
               newMember.toMention()
             ),
-            { allowedMentions: { users: [newMember.id] } }
-          );
+            allowedMentions: { users: [newMember.id] },
+          });
       }
     }
 

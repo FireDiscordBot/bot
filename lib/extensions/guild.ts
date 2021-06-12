@@ -29,6 +29,7 @@ import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import TicketName from "@fire/src/commands/Tickets/name";
 import { PermRolesData } from "../interfaces/permroles";
 import { GuildSettings } from "@fire/lib/util/settings";
+import { DiscoverableGuild } from "../interfaces/stats";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { MessageIterator } from "../util/iterators";
@@ -41,6 +42,7 @@ import { FireMessage } from "./message";
 import { Fire } from "@fire/lib/Fire";
 import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
+import * as moment from "moment";
 import { nanoid } from "nanoid";
 
 type Primitive = string | boolean | number | null;
@@ -550,13 +552,17 @@ export class FireGuild extends Guild {
 
   isPublic() {
     if (!this.available) return false;
+    // node_env is only "development" for local testing, it's "staging" for fire beta
+    if (process.env.NODE_ENV == "development") return true;
     return (
-      this.settings.get<boolean>("utils.public", false) ||
+      (this.settings.get<boolean>("utils.public", false) &&
+        this.memberCount >= 20 &&
+        moment(new Date()).diff(this.createdAt) > 2629800000) ||
       (this.features && this.features.includes("DISCOVERABLE"))
     );
   }
 
-  getDiscoverableData() {
+  getDiscoverableData(): DiscoverableGuild {
     let splash = "https://i.imgur.com/jWRMBRd.png";
     if (!this.available)
       return {
@@ -566,6 +572,8 @@ export class FireGuild extends Guild {
         splash,
         vanity: `https://discover.inv.wtf/${this.id}`,
         members: 0,
+        shard: this.shardID,
+        cluster: this.client.manager.id,
       };
     if (this.splash)
       splash = this.splashURL({
@@ -590,6 +598,8 @@ export class FireGuild extends Guild {
       splash,
       vanity: `https://discover.inv.wtf/${this.id}`,
       members: this.memberCount,
+      shard: this.shardID,
+      cluster: this.client.manager.id,
     };
   }
 
@@ -628,7 +638,12 @@ export class FireGuild extends Guild {
     if (!channel || channel.type != "text") return;
 
     if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
-      return await (channel as FireTextChannel).send(log).catch(() => {});
+      return await (channel as FireTextChannel)
+        .send({
+          content: typeof log == "string" ? log : null,
+          embeds: typeof log != "string" ? [log] : null,
+        })
+        .catch(() => {});
     else return await this.logger.handleAction(log, type);
   }
 
@@ -642,7 +657,12 @@ export class FireGuild extends Guild {
     if (!channel || channel.type != "text") return;
 
     if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
-      return await (channel as FireTextChannel).send(log).catch(() => {});
+      return await (channel as FireTextChannel)
+        .send({
+          content: typeof log == "string" ? log : null,
+          embeds: typeof log != "string" ? [log] : null,
+        })
+        .catch(() => {});
     else return await this.logger.handleModeration(log, type);
   }
 
@@ -656,7 +676,12 @@ export class FireGuild extends Guild {
     if (!channel || channel.type != "text") return;
 
     if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
-      return await (channel as FireTextChannel).send(log).catch(() => {});
+      return await (channel as FireTextChannel)
+        .send({
+          content: typeof log == "string" ? log : null,
+          embeds: typeof log != "string" ? [log] : null,
+        })
+        .catch(() => {});
     else return await this.logger.handleMembers(log, type);
   }
 
@@ -848,9 +873,10 @@ export class FireGuild extends Guild {
     if (alert && !author.isModerator()) {
       if (this.hasExperiment(1621199146, 1))
         await ticket
-          .send(alert.toString(), {
+          .send({
+            content: alert.toString(),
             allowedMentions: { roles: [alertId] },
-            embed,
+            embeds: [embed],
             components: [
               new MessageActionRow().addComponents(
                 new MessageButton()
@@ -864,16 +890,17 @@ export class FireGuild extends Guild {
           .catch(() => {});
       else
         await ticket
-          .send(alert.toString(), {
+          .send({
+            content: alert.toString(),
             allowedMentions: { roles: [alertId] },
-            embed,
+            embeds: [embed],
           })
           .catch(() => {});
     } else {
       if (this.hasExperiment(1621199146, 1))
         await ticket
-          .send(null, {
-            embed,
+          .send({
+            embeds: [embed],
             components: [
               new MessageActionRow().addComponents(
                 new MessageButton()
@@ -885,7 +912,7 @@ export class FireGuild extends Guild {
             ],
           })
           .catch(() => {});
-      else await ticket.send(embed).catch(() => {});
+      else await ticket.send({ embeds: [embed] }).catch(() => {});
     }
     channels.push(ticket);
     this.settings.set<string[]>(
@@ -948,14 +975,16 @@ export class FireGuild extends Guild {
       creator = (await this.members.fetch(id).catch(() => {})) as FireMember;
       if (creator)
         await creator
-          .send(
-            creator.language.get("TICKET_CLOSE_TRANSCRIPT", this.name, reason),
-            {
-              files: [
-                new MessageAttachment(buffer, `${channel.name}-transcript.txt`),
-              ],
-            }
-          )
+          .send({
+            content: creator.language.get(
+              "TICKET_CLOSE_TRANSCRIPT",
+              this.name,
+              reason
+            ),
+            files: [
+              new MessageAttachment(buffer, `${channel.name}-transcript.txt`),
+            ],
+          })
           .catch(() => {});
       else creator = author;
     }
@@ -976,8 +1005,8 @@ export class FireGuild extends Guild {
       )
       .addField(this.language.get("REASON"), reason);
     await log
-      ?.send(null, {
-        embed,
+      ?.send({
+        embeds: [embed],
         files:
           channel.parentID == "755796036198596688"
             ? []

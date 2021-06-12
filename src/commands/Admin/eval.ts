@@ -23,6 +23,32 @@ const codeBlock = (lang: string, expression: any) => {
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
+const reserved = [
+  "break",
+  "case",
+  "catch",
+  "continue",
+  "debugger",
+  "default",
+  "delete",
+  "do",
+  "else",
+  "finally",
+  "for",
+  "function",
+  "if",
+  "in",
+  "instanceof",
+  "new",
+  "return",
+  "switch",
+  "throw",
+  "try",
+  "var",
+  "while",
+  "with",
+];
+
 export default class Eval extends Command {
   response: { id: string; message: FireMessage };
   constructor() {
@@ -71,9 +97,11 @@ export default class Eval extends Command {
   // Allows editing previous response
   async send(message: FireMessage, embed: MessageEmbed) {
     if (message.editedAt && this.response.id == message.id)
-      return await this.response.message.edit(null, embed);
+      return await this.response.message.edit({ embeds: [embed] });
     else {
-      const newMessage = (await message.channel.send(embed)) as FireMessage;
+      const newMessage = (await message.channel.send({
+        embeds: [embed],
+      })) as FireMessage;
       this.response = { id: message.id, message: newMessage };
       return newMessage;
     }
@@ -175,7 +203,19 @@ export default class Eval extends Command {
     let {
       code: { content },
     } = args;
-    content = content.replace(/[“”]/gim, '"').replace(/[‘’]/gim, "'");
+    content = content
+      .replace(/[“”]/gim, '"')
+      .replace(/[‘’]/gim, "'")
+      .split(";")
+      .map((ln) => ln.trim())
+      .join(";\n");
+    const lines = content.split("\n");
+    if (
+      !reserved.some((keyword) => lines[lines.length - 1].startsWith(keyword))
+    ) {
+      lines[lines.length - 1] = "return " + lines[lines.length - 1];
+      content = lines.join("\n");
+    }
     let success: boolean, result: any;
     let type: Type;
     try {
@@ -193,17 +233,19 @@ export default class Eval extends Command {
       };
       result =
         args.async || content.includes("await ")
-          ? new AsyncFunction(...Object.keys(scope), content)(
-              ...Object.values(scope)
-            )
-          : new Function(...Object.keys(scope), content)(
-              ...Object.values(scope)
-            );
+          ? new AsyncFunction(
+              ...Object.keys(scope),
+              "try {\n  " + content + "\n} catch (err) {\n  return err;\n}"
+            )(...Object.values(scope))
+          : new Function(
+              ...Object.keys(scope),
+              "try {\n  " + content + "\n} catch (err) {\n  return err;\n}"
+            )(...Object.values(scope));
       if (this.client.util.isPromise(result)) {
         result = await result;
       }
       type = new Type(result);
-      success = true;
+      success = result instanceof Error ? false : true;
     } catch (error) {
       if (!type) type = new Type(error);
       result = error;
@@ -212,7 +254,10 @@ export default class Eval extends Command {
 
     if (result instanceof MessageAttachment || result instanceof MessageEmbed) {
       try {
-        await message.channel.send(result);
+        await message.channel.send({
+          embeds: result instanceof MessageEmbed ? [result] : null,
+          files: result instanceof MessageAttachment ? [result] : null,
+        });
         return { success: true, type, result: null };
       } catch {
         return { success: false, type, result: result };

@@ -49,6 +49,14 @@ export default class Ready extends Listener {
           })
         )
       );
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(
+            EventType.DISCOVERY_UPDATE,
+            this.client.util.getDiscoverableGuilds()
+          )
+        )
+      );
     } catch {}
     this.client.ws.shards.forEach((shard) =>
       this.client.user?.setPresence({

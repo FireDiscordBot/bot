@@ -61,6 +61,14 @@ export default class RestartEvent extends Event {
         })
       )
     );
+    this.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(
+          EventType.DISCOVERY_UPDATE,
+          this.manager.client.util.getDiscoverableGuilds()
+        )
+      )
+    );
     return;
   }
 }
