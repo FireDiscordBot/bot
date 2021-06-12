@@ -42,6 +42,7 @@ import { FireMessage } from "./message";
 import { Fire } from "@fire/lib/Fire";
 import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
+import * as moment from "moment";
 import { nanoid } from "nanoid";
 
 type Primitive = string | boolean | number | null;
@@ -551,8 +552,12 @@ export class FireGuild extends Guild {
 
   isPublic() {
     if (!this.available) return false;
+    // node_env is only "development" for local testing, it's "staging" for fire beta
+    if (process.env.NODE_ENV == "development") return true;
     return (
-      this.settings.get<boolean>("utils.public", false) ||
+      (this.settings.get<boolean>("utils.public", false) &&
+        this.memberCount >= 20 &&
+        moment(new Date()).diff(this.createdAt) > 2629800000) ||
       (this.features && this.features.includes("DISCOVERABLE"))
     );
   }
