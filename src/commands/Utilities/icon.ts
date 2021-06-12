@@ -35,6 +35,6 @@ export default class Icon extends Command {
         })
       );
 
-    return await message.channel.send({ embed });
+    return await message.channel.send({ embeds: [embed] });
   }
 }

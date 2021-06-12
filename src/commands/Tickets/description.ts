@@ -52,7 +52,7 @@ export default class TicketDescription extends Command {
           message.guild.language.get("SUBJECT"),
           message.guild.language.get("TICKET_DESCRIPTION_EXAMPLE_SUBJECT")
         );
-      return await message.channel.send({ embed });
+      return await message.channel.send({ embeds: [embed] });
     }
   }
 }

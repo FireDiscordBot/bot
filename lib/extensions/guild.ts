@@ -641,7 +641,7 @@ export class FireGuild extends Guild {
       return await (channel as FireTextChannel)
         .send({
           content: typeof log == "string" ? log : null,
-          embed: typeof log != "string" ? log : null,
+          embeds: typeof log != "string" ? [log] : null,
         })
         .catch(() => {});
     else return await this.logger.handleAction(log, type);
@@ -660,7 +660,7 @@ export class FireGuild extends Guild {
       return await (channel as FireTextChannel)
         .send({
           content: typeof log == "string" ? log : null,
-          embed: typeof log != "string" ? log : null,
+          embeds: typeof log != "string" ? [log] : null,
         })
         .catch(() => {});
     else return await this.logger.handleModeration(log, type);
@@ -679,7 +679,7 @@ export class FireGuild extends Guild {
       return await (channel as FireTextChannel)
         .send({
           content: typeof log == "string" ? log : null,
-          embed: typeof log != "string" ? log : null,
+          embeds: typeof log != "string" ? [log] : null,
         })
         .catch(() => {});
     else return await this.logger.handleMembers(log, type);
@@ -876,7 +876,7 @@ export class FireGuild extends Guild {
           .send({
             content: alert.toString(),
             allowedMentions: { roles: [alertId] },
-            embed,
+            embeds: [embed],
             components: [
               new MessageActionRow().addComponents(
                 new MessageButton()
@@ -893,14 +893,14 @@ export class FireGuild extends Guild {
           .send({
             content: alert.toString(),
             allowedMentions: { roles: [alertId] },
-            embed,
+            embeds: [embed],
           })
           .catch(() => {});
     } else {
       if (this.hasExperiment(1621199146, 1))
         await ticket
           .send({
-            embed,
+            embeds: [embed],
             components: [
               new MessageActionRow().addComponents(
                 new MessageButton()
@@ -912,7 +912,7 @@ export class FireGuild extends Guild {
             ],
           })
           .catch(() => {});
-      else await ticket.send({ embed }).catch(() => {});
+      else await ticket.send({ embeds: [embed] }).catch(() => {});
     }
     channels.push(ticket);
     this.settings.set<string[]>(
@@ -1006,7 +1006,7 @@ export class FireGuild extends Guild {
       .addField(this.language.get("REASON"), reason);
     await log
       ?.send({
-        embed,
+        embeds: [embed],
         files:
           channel.parentID == "755796036198596688"
             ? []

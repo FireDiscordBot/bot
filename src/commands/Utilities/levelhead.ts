@@ -49,7 +49,7 @@ export default class Levelhead extends Command {
         .setURL("https://purchase.sk1er.club/category/1050972")
         .setTimestamp()
         .setDescription(`Level: ${levelhead.level}`);
-      return await message.channel.send({ embed });
+      return await message.channel.send({ embeds: [embed] });
     }
     if (uuid.length < 28)
       return await message.error("LEVELHEAD_MALFORMED_UUID");
@@ -114,6 +114,6 @@ export default class Levelhead extends Command {
       )}: ${chat}\n${language.get("LEVELHEAD_ADDON_LAYERS")}: ${head}`,
       false
     );
-    return await message.channel.send({ embed });
+    return await message.channel.send({ embeds: [embed] });
   }
 }

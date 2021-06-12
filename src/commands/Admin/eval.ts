@@ -97,9 +97,11 @@ export default class Eval extends Command {
   // Allows editing previous response
   async send(message: FireMessage, embed: MessageEmbed) {
     if (message.editedAt && this.response.id == message.id)
-      return await this.response.message.edit({ embed });
+      return await this.response.message.edit({ embeds: [embed] });
     else {
-      const newMessage = (await message.channel.send({ embed })) as FireMessage;
+      const newMessage = (await message.channel.send({
+        embeds: [embed],
+      })) as FireMessage;
       this.response = { id: message.id, message: newMessage };
       return newMessage;
     }
@@ -253,7 +255,7 @@ export default class Eval extends Command {
     if (result instanceof MessageAttachment || result instanceof MessageEmbed) {
       try {
         await message.channel.send({
-          embed: result instanceof MessageEmbed ? result : null,
+          embeds: result instanceof MessageEmbed ? [result] : null,
           files: result instanceof MessageAttachment ? [result] : null,
         });
         return { success: true, type, result: null };

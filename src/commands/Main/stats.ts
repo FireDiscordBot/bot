@@ -110,7 +110,7 @@ export default class Stats extends Command {
         clusterStats.commands.toLocaleString(message.language.id),
         true
       );
-    return await message.channel.send({ embed });
+    return await message.channel.send({ embeds: [embed] });
   }
 
   async singularStats(message: FireMessage) {
@@ -159,6 +159,6 @@ export default class Stats extends Command {
         stats.commands.toLocaleString(message.language.id),
         true
       );
-    return await message.channel.send({ embed });
+    return await message.channel.send({ embeds: [embed] });
   }
 }

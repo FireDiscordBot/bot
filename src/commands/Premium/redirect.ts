@@ -66,7 +66,7 @@ export default class Redirect extends Command {
             message.util?.parsed?.prefix
           )
         );
-      return await message.channel.send({ embed });
+      return await message.channel.send({ embeds: [embed] });
     } else if (!args.url) {
       const embed = await this.module.current(
         message.author,
@@ -74,7 +74,7 @@ export default class Redirect extends Command {
         message.language
       );
       if (!embed) return await message.error("REDIRECT_NOT_FOUND");
-      return await message.channel.send({ embed });
+      return await message.channel.send({ embeds: [embed] });
     }
 
     if (deleteKeywords.includes(args.url)) {

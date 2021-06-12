@@ -132,7 +132,7 @@ export default class Lockdown extends Command {
         .then(() => {
           locked.push(channel.id);
           channel
-            .send({ embed })
+            .send({ embeds: [embed] })
             .then((m) => lockdownMessages.push(`${channel.id}-${m.id}`))
             .catch(() => {});
         })

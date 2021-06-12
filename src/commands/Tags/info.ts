@@ -79,10 +79,10 @@ export default class TagInfo extends Command {
 
     if (message.hasExperiment(1621199146, 1))
       await message.channel.send({
-        embed,
+        embeds: [embed],
         components: this.getInitialButtons(message, cachedTag),
       });
-    else return await message.channel.send({ embed });
+    else return await message.channel.send({ embeds: [embed] });
   }
 
   private getInitialButtons(message: FireMessage, tag: Tag) {

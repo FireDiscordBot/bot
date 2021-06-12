@@ -98,6 +98,6 @@ export default class Meme extends Command {
       embed.setImage(meme.url);
     else
       embed.addField(language.get("ATTACHMENT"), `[Click Here](${meme.url})`);
-    return await message.channel.send({ embed });
+    return await message.channel.send({ embeds: [embed] });
   }
 }

@@ -328,18 +328,12 @@ export class PaginatorInterface {
         content: typeof this.sendArgs == "string" ? this.sendArgs : null,
         embeds: this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
       })) as FireMessage | SlashCommandMessage;
-    else if (destination instanceof FakeChannel)
-      message = await destination.send({
-        content: typeof this.sendArgs == "string" ? this.sendArgs : null,
-        embeds: this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
-        components: this.getButtons(),
-      });
     else
       message = (await destination.send({
         content: typeof this.sendArgs == "string" ? this.sendArgs : null,
-        embed: this.sendArgs instanceof MessageEmbed ? this.sendArgs : null,
+        embeds: this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
         components: this.getButtons(),
-      })) as FireMessage;
+      })) as FireMessage | SlashCommandMessage;
     if (message instanceof SlashCommandMessage) {
       this.slashMessage = message;
       this.message = await message.getRealMessage();
@@ -443,8 +437,8 @@ export class PaginatorInterface {
             })
           : await this.message.edit({
               content: typeof this.sendArgs == "string" ? this.sendArgs : null,
-              embed:
-                this.sendArgs instanceof MessageEmbed ? this.sendArgs : null,
+              embeds:
+                this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
               components: this.getButtons(),
             });
       else {
@@ -457,8 +451,8 @@ export class PaginatorInterface {
             })
           : await this.message.edit({
               content: typeof this.sendArgs == "string" ? this.sendArgs : null,
-              embed:
-                this.sendArgs instanceof MessageEmbed ? this.sendArgs : null,
+              embeds:
+                this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
             });
       }
     } catch {}

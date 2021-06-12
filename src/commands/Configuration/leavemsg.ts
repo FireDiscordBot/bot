@@ -85,7 +85,7 @@ export default class LeaveMSG extends Command {
               .map(([key, val]) => `${key}: ${val}`)
               .join("\n")
           );
-        return await message.channel.send({ embed });
+        return await message.channel.send({ embeds: [embed] });
       }
       const channel = message.guild.channels.cache.get(
         message.guild.settings.get<Snowflake>("greet.leavechannel")
@@ -107,7 +107,7 @@ export default class LeaveMSG extends Command {
             .map(([key, val]) => `${key}: ${val}`)
             .join("\n")
         );
-      return await message.channel.send({ embed });
+      return await message.channel.send({ embeds: [embed] });
     } else if (
       typeof args.channel == "string" &&
       disableArgs.includes(args.channel)

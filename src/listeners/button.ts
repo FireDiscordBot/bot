@@ -214,7 +214,7 @@ export default class Button extends Listener {
           .setDescription(button.language.get("TAG_EDIT_BUTTON_CANCEL_EMBED"))
           .setTimestamp();
         return (button.message as FireMessage).edit({
-          embed: cancelledEmbed,
+          embeds: [cancelledEmbed],
           components: [],
         });
       });
@@ -258,7 +258,7 @@ export default class Button extends Listener {
           .setDescription(button.language.get("TAG_EDIT_BUTTON_EDITING_EMBED"))
           .setTimestamp();
         await (button.message as FireMessage).edit({
-          embed: editingEmbed,
+          embeds: [editingEmbed],
           components: [],
         });
       }

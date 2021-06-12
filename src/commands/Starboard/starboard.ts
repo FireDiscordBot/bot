@@ -64,6 +64,6 @@ export default class Starboard extends Command {
         `${message.util.parsed?.prefix}starboard emoji [<emoji>]`,
         message.language.get("STARBOARD_EMOJI_DESCRIPTION")
       );
-    return await message.channel.send({ embed });
+    return await message.channel.send({ embeds: [embed] });
   }
 }

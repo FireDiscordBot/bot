@@ -70,6 +70,6 @@ export default class Tag extends Command {
       )
       .setColor(message.member?.displayHexColor || "#ffffff")
       .setDescription(names.join(", "));
-    return await message.channel.send({ embed });
+    return await message.channel.send({ embeds: [embed] });
   }
 }

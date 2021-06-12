@@ -66,6 +66,6 @@ export default class MinecraftStatus extends Command {
     const embed = new MessageEmbed()
       .setColor(message.member?.displayHexColor || "#ffffff")
       .setDescription(statuses.join("\n"));
-    return await message.channel.send({ embed });
+    return await message.channel.send({ embeds: [embed] });
   }
 }

@@ -302,7 +302,7 @@ export class FireMessage extends Message {
           this.author.toString(),
           (this.channel as FireTextChannel).name
         ),
-        embed: this.embeds[0],
+        embeds: this.embeds,
       });
     }
     const embed = new MessageEmbed()
@@ -367,7 +367,7 @@ export class FireMessage extends Message {
           )
         );
     } else embed.setFooter(language.get("QUOTE_EMBED_FOOTER", quoter));
-    return await destination.send({ embed }).catch(() => {});
+    return await destination.send({ embeds: [embed] }).catch(() => {});
   }
 
   async star(
@@ -445,10 +445,12 @@ export class FireMessage extends Message {
             }
           })) as FireMessage;
         if (message)
-          return await message.edit({ content, embed }).catch(() => {});
+          return await message
+            .edit({ content, embeds: [embed] })
+            .catch(() => {});
       } else {
         const message = await starboard
-          .send({ content, embed })
+          .send({ content, embeds: [embed] })
           .catch(() => {});
         if (!message) return;
         this.guild.starboardMessages.set(this.id, message.id);

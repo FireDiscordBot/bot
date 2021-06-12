@@ -213,7 +213,7 @@ export default class Debug extends Command {
         message.guild.me?.permissions.has(Permissions.FLAGS.EMBED_LINKS))
     )
       return await message.channel.send({
-        embed: this.createEmbed(message, details),
+        embeds: [this.createEmbed(message, details)],
       });
     else {
       details.push(`${error} ${message.language.get("DEBUG_NO_EMBEDS")}`);
@@ -236,9 +236,11 @@ export default class Debug extends Command {
     ...args: any[]
   ) {
     return await message.channel.send({
-      embed: this.createEmbed(message, [
-        `${error} ${message.language.get(key, ...args)}`,
-      ]),
+      embeds: [
+        this.createEmbed(message, [
+          `${error} ${message.language.get(key, ...args)}`,
+        ]),
+      ],
     });
   }
 
@@ -248,9 +250,11 @@ export default class Debug extends Command {
     ...args: any[]
   ) {
     return await message.channel.send({
-      embed: this.createEmbed(message, [
-        `${success} ${message.language.get(key, ...args)}`,
-      ]),
+      embeds: [
+        this.createEmbed(message, [
+          `${success} ${message.language.get(key, ...args)}`,
+        ]),
+      ],
     });
   }
 }

@@ -1138,7 +1138,7 @@ ${prefixes.join(", ")}`,
         QUOTE_WEBHOOK_CREATE_REASON:
           "This webhook will be used for quoting messages in this channel",
         QUOTE_EMBED_FROM: (author: string, channel: string) =>
-          `Raw embed from ${author} in #${channel}`,
+          `Raw embed(s) from ${author} in #${channel}`,
         QUOTE_EMBED_FOOTER_ALL: (
           user: string,
           channel: string,

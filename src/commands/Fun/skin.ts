@@ -39,6 +39,6 @@ export default class Skin extends Command {
         `Requested by ${message.author}`,
         message.author.displayAvatarURL({ size: 2048, dynamic: true })
       );
-    return await message.channel.send({ embed });
+    return await message.channel.send({ embeds: [embed] });
   }
 }

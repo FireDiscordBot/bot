@@ -51,7 +51,7 @@ export default class TicketName extends Command {
         .setColor(message.member?.displayHexColor || "#ffffff")
         .setTimestamp()
         .addField(message.language.get("VARIABLES"), variableString);
-      return await message.channel.send({ embed });
+      return await message.channel.send({ embeds: [embed] });
     } else {
       if (args.name.length > 50)
         return await message.error("TICKET_NAME_LENGTH");

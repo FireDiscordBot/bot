@@ -63,23 +63,19 @@ export default class Embed extends Command {
     if (!embeds && !content) return await message.error("EMBED_OBJECT_INVALID");
 
     if (embeds instanceof Array) {
-      let sentContent = false;
-      for (const embed of embeds) {
-        const instance = new MessageEmbed(embed);
-        if (this.isEmpty(instance)) continue;
-        content && !sentContent
-          ? await args.channel.send({ content, embed: instance })
-          : await args.channel.send({ embed: instance });
-        if (!sentContent) sentContent = true;
-      }
+      const instances = embeds
+        .map((e) => new MessageEmbed(e))
+        .filter((e) => !this.isEmpty(e))
+        .slice(0, 10);
+      await args.channel.send({ content, embeds: instances });
       return await message.success();
     } else if (typeof embeds == "object") {
       const instance = new MessageEmbed(embeds);
       if (this.isEmpty(instance))
         return await message.error("EMBED_OBJECT_INVALID");
       return content
-        ? await args.channel.send({ content, embed: instance })
-        : await args.channel.send({ embed: instance });
+        ? await args.channel.send({ content, embeds: [instance] })
+        : await args.channel.send({ embeds: [instance] });
     } else return await message.error("EMBED_OBJECT_INVALID");
   }
 

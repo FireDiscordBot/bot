@@ -170,7 +170,7 @@ export default class Help extends Command {
     };
     return await message.channel.send({
       components,
-      embed,
+      embeds: [embed],
     });
   }
 
@@ -202,6 +202,6 @@ export default class Help extends Command {
         value: permissions.join(", "),
         inline: false,
       });
-    await message.channel.send({ embed });
+    await message.channel.send({ embeds: [embed] });
   }
 }

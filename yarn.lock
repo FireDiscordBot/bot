@@ -611,9 +611,9 @@ discord-api-types@^0.18.1:
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.18.1.tgz#5d08ed1263236be9c21a22065d0e6b51f790f492"
   integrity sha512-hNC38R9ZF4uaujaZQtQfm5CdQO58uhdkoHQAVvMfIL0LgOSZeW575W8H6upngQOuoxWd8tiRII3LLJm9zuQKYg==
 
-discord.js@discordjs/discord.js#e3e466d3e56145110ba0cfcba7b3c594267d36fb:
+discord.js@discordjs/discord.js#02693bc02f45980d8165820a103220f0027b96b7:
   version "13.0.0-dev"
-  resolved "https://codeload.github.com/discordjs/discord.js/tar.gz/e3e466d3e56145110ba0cfcba7b3c594267d36fb"
+  resolved "https://codeload.github.com/discordjs/discord.js/tar.gz/02693bc02f45980d8165820a103220f0027b96b7"
   dependencies:
     "@discordjs/collection" "^0.1.6"
     "@discordjs/form-data" "^3.0.1"
