@@ -77,7 +77,7 @@ export default class TagInfo extends Command {
         cachedTag.uses.toLocaleString(message.language.id)
       );
 
-    if (message.guild.hasExperiment(1621199146, 1))
+    if (message.hasExperiment(1621199146, 1))
       await message.channel.send({
         embed,
         components: this.getInitialButtons(message, cachedTag),

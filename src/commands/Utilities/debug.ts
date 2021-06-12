@@ -76,22 +76,7 @@ export default class Debug extends Command {
           message,
           "COMMAND_EXPERIMENT_REQUIRED"
         );
-      else if (
-        experiment.kind == "user" &&
-        !message.author.hasExperiment(experiment.id, requiresExperiment.bucket)
-      )
-        return await this.sendSingleError(
-          message,
-          "COMMAND_EXPERIMENT_REQUIRED"
-        );
-      else if (
-        experiment.kind == "guild" &&
-        (!message.guild ||
-          !message.guild?.hasExperiment(
-            experiment.id,
-            requiresExperiment.bucket
-          ))
-      )
+      else if (!message.hasExperiment(experiment.id, requiresExperiment.bucket))
         return await this.sendSingleError(
           message,
           "COMMAND_EXPERIMENT_REQUIRED"

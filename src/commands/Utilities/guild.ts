@@ -305,7 +305,7 @@ export default class GuildCommand extends Command {
       );
 
     if (
-      message.author.hasExperiment(4026299021, 1) &&
+      message.hasExperiment(4026299021, 1) &&
       this.client.manager.state.discordExperiments?.length
     ) {
       const experiments = await this.client.util.getFriendlyGuildExperiments(

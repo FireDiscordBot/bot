@@ -22,8 +22,9 @@ export default class GuildMemberAdd extends Listener {
   async exec(member: FireMember) {
     // auto ban dumbass blatant bots in select servers
     if (
-      member.user.username.toLowerCase().includes("twitter.com/h0nde") &&
-      member.guild.hasExperiment(1187986866, 1)
+      (member.user.username.toLowerCase().includes("twitter.com/h0nde") ||
+        member.user.username.toLowerCase().includes("h0nda")) &&
+      member.hasExperiment(1187986866, 1)
     ) {
       return await member.bean("Bot.", member.guild.me, 0, 0);
     }

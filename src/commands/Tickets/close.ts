@@ -50,7 +50,7 @@ export default class CloseTicket extends Command {
         ),
       ],
     } as MessageOptions & { split?: false };
-    if (message.guild.hasExperiment(1621199146, 1))
+    if (message.hasExperiment(1621199146, 1))
       await message.channel.send({
         content: `${emojis.error} ${message.language.get(
           "TICKET_WILL_CLOSE_BUTTON"

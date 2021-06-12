@@ -108,7 +108,7 @@ export default class Help extends Command {
       inline: false,
     });
     let components: MessageActionRow[] = null;
-    if (message.guild?.hasExperiment(1621199146, 1)) {
+    if (message.hasExperiment(1621199146, 1)) {
       let supportInvite = "https://inv.wtf/fire";
       const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
       if (vanityurls) {

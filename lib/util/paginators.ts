@@ -321,7 +321,7 @@ export class PaginatorInterface {
     // if (destination instanceof FakeChannel) destination = destination.real;
     let message: FireMessage | SlashCommandMessage;
     if (
-      destination instanceof DMChannel ||
+      !(destination instanceof DMChannel) &&
       !(destination.guild as FireGuild).hasExperiment(1621199146, 1)
     )
       message = (await destination.send({
@@ -348,10 +348,11 @@ export class PaginatorInterface {
 
     if (
       !this.sentPageReactions &&
-      (destination instanceof DMChannel ||
-        !(destination.guild as FireGuild).hasExperiment(1621199146, 1))
+      !(destination instanceof DMChannel) &&
+      !(destination.guild as FireGuild).hasExperiment(1621199146, 1)
     )
       await this.sendAllReactions();
+    else this.sentPageReactions = true;
 
     if (!this.ready) this.ready = true;
 

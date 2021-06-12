@@ -647,7 +647,7 @@ export default class User extends Command {
 
     if (
       (this.client.guilds.cache.has(snowflake.snowflake) || maybeGuild) &&
-      message.author.hasExperiment(4026299021, 1) &&
+      message.hasExperiment(4026299021, 1) &&
       this.client.manager.state.discordExperiments?.length
     ) {
       const experiments = await this.client.util.getFriendlyGuildExperiments(
