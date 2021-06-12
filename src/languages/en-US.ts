@@ -1285,6 +1285,8 @@ ${success.map((s) => "- " + s).join("\n")}${
         REMINDERS_COMMAND_DESCRIPTION: "List all reminders you have set",
         REMINDERS_NONE_FOUND:
           "You must have a good memory because I found no reminders",
+        REMINDERS_FOOTER: (prefix: string) =>
+          `Use "${prefix}delremind [number]" to delete a reminder`,
         DELREMIND_COMMAND_DESCRIPTION:
           "Delete a reminder using the index from the reminders command",
         DELREMIND_ARG_DESCRIPTION:
