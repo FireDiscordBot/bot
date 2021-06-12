@@ -162,13 +162,13 @@ export default class TicTacToe extends Command {
         ...requestMsgOptions,
       });
       if (message instanceof SlashCommandMessage)
-        return await (message as SlashCommandMessage).edit(
-          message.guild.language.get(
+        return await (message as SlashCommandMessage).edit({
+          content: message.guild.language.get(
             "TICTACTOE_REQUEST_EXPIRED_SLASH",
             opponent.toMention()
           ) as string,
-          { components: [] }
-        );
+          components: [],
+        });
       else return await message.error("TICTACTOE_REQUEST_EXPIRED");
     } else
       message instanceof SlashCommandMessage

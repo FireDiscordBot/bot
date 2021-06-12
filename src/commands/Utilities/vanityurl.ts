@@ -48,13 +48,13 @@ export default class VanityURL extends Command {
         .catch(() => {});
       if (!current) return await message.error("VANITYURL_CODE_REQUIRED");
       else
-        return await message.channel.send(
-          await this.module.current(
+        return await message.channel.send({
+          embed: await this.module.current(
             message.guild,
             current.get("code") as string,
             message.language
-          )
-        );
+          ),
+        });
     }
 
     if (deleteKeywords.includes(args.code)) {

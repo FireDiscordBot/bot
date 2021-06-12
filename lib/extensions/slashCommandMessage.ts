@@ -292,34 +292,12 @@ export class SlashCommandMessage {
     return message;
   }
 
-  async edit(
-    content: string | MessageEditOptions | MessageEmbed | APIMessage,
-    options?:
-      | (WebhookEditMessageOptions & { embed?: MessageEmbed })
-      | MessageEmbed
-  ) {
+  async edit(options?: WebhookEditMessageOptions | APIMessage) {
     let apiMessage: APIMessage;
 
-    if (content instanceof MessageEmbed) {
-      options = {
-        ...options,
-        embeds: [content],
-      };
-      content = null;
-    }
-
-    if (!(options instanceof MessageEmbed) && options?.embed) {
-      options.embeds = [options.embed];
-      delete options.embed;
-    }
-
-    if (content instanceof APIMessage) apiMessage = content.resolveData();
+    if (options instanceof APIMessage) apiMessage = options.resolveData();
     else {
-      apiMessage = APIMessage.create(
-        this.slashCommand,
-        content as string,
-        options
-      ).resolveData();
+      apiMessage = APIMessage.create(this.slashCommand, options).resolveData();
     }
 
     const { data, files } = (await apiMessage.resolveFiles()) as {

@@ -434,16 +434,12 @@ export class PaginatorInterface {
         )?.hasExperiment(1621199146, 1)
       )
         this.slashMessage
-          ? this.slashMessage.edit(
-              typeof this.sendArgs == "string" ? this.sendArgs : null,
-              {
-                embeds:
-                  this.sendArgs instanceof MessageEmbed
-                    ? [this.sendArgs]
-                    : null,
-                components: this.getButtons(),
-              }
-            )
+          ? this.slashMessage.edit({
+              content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+              embeds:
+                this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+              components: this.getButtons(),
+            })
           : await this.message.edit({
               content: typeof this.sendArgs == "string" ? this.sendArgs : null,
               embed:
@@ -453,8 +449,16 @@ export class PaginatorInterface {
       else {
         if (!this.sentPageReactions) this.sendAllReactions();
         this.slashMessage
-          ? this.slashMessage.edit(this.sendArgs)
-          : await this.message.edit(this.sendArgs);
+          ? this.slashMessage.edit({
+              content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+              embeds:
+                this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+            })
+          : await this.message.edit({
+              content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+              embed:
+                this.sendArgs instanceof MessageEmbed ? this.sendArgs : null,
+            });
       }
     } catch {}
     this.updateLock.release();
