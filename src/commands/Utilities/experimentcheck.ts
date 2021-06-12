@@ -51,6 +51,7 @@ export default class ExperimentCheck extends Command {
         "767344022980132884",
         "721369354775560294",
         "255808649249816576",
+        "756804501947547698",
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
