@@ -68,6 +68,7 @@ jspm_packages/
 # dotenv environment variables file
 .env
 dev.env
+stg.env
 lc.env
 # i am doing thing and i needed to make a copy of this
 lc.env.real
