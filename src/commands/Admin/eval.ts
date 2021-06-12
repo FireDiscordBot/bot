@@ -206,11 +206,12 @@ export default class Eval extends Command {
     content = content
       .replace(/[“”]/gim, '"')
       .replace(/[‘’]/gim, "'")
-      .split(";")
+      .split(/;\s/g)
       .map((ln) => ln.trim())
       .join(";\n");
     const lines = content.split("\n");
     if (
+      !content.includes("return ") &&
       !reserved.some((keyword) => lines[lines.length - 1].startsWith(keyword))
     ) {
       lines[lines.length - 1] = "return " + lines[lines.length - 1];

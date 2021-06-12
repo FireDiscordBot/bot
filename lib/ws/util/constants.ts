@@ -35,6 +35,7 @@ export enum EventType {
   CREATE_INVITE_DISCOVERABLE,
   FETCH_DISCORD_EXPERIMENTS,
   DISCOVERY_UPDATE,
+  API_REQUEST,
 }
 
 export enum WebsocketStates {
