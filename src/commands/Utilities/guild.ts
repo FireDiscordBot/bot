@@ -1,15 +1,12 @@
 import { humanize, zws, constants, titleCase } from "@fire/lib/util/constants";
 import { GuildPreview, MessageEmbed, Permissions } from "discord.js";
-import { DiscordExperiment } from "@fire/lib/interfaces/aether";
 import { snowflakeConverter } from "@fire/lib/util/converters";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Experiments } from "@fire/lib/interfaces/discord";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { murmur3 } from "murmurhash-js";
 import * as moment from "moment";
 
 const {
