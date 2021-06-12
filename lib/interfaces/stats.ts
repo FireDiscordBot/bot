@@ -48,13 +48,15 @@ export interface Shard {
   unavailableGuilds: number;
   users: number;
   status: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-  publicGuilds?: string[];
-  discoverableGuilds?: {
-    name: string;
-    id: string;
-    icon: string;
-    splash: string;
-    vanity: string;
-    members: number;
-  }[];
+}
+
+export interface DiscoverableGuild {
+  name: string;
+  id: string;
+  icon: string;
+  splash: string;
+  vanity: string;
+  members: number;
+  shard?: number;
+  cluster?: number;
 }

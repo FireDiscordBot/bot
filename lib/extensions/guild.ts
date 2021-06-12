@@ -29,6 +29,7 @@ import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import TicketName from "@fire/src/commands/Tickets/name";
 import { PermRolesData } from "../interfaces/permroles";
 import { GuildSettings } from "@fire/lib/util/settings";
+import { DiscoverableGuild } from "../interfaces/stats";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { MessageIterator } from "../util/iterators";
@@ -556,7 +557,7 @@ export class FireGuild extends Guild {
     );
   }
 
-  getDiscoverableData() {
+  getDiscoverableData(): DiscoverableGuild {
     let splash = "https://i.imgur.com/jWRMBRd.png";
     if (!this.available)
       return {

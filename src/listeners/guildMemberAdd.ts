@@ -2,7 +2,10 @@ import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { MessageEmbed, Permissions, Snowflake } from "discord.js";
 import { constants, humanize } from "@fire/lib/util/constants";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { Message } from "@fire/lib/ws/Message";
 import * as moment from "moment";
 
 const {
@@ -25,9 +28,19 @@ export default class GuildMemberAdd extends Listener {
       (member.user.username.toLowerCase().includes("twitter.com/h0nde") ||
         member.user.username.toLowerCase().includes("h0nda")) &&
       member.hasExperiment(1187986866, 1)
-    ) {
+    )
       return await member.bean("Bot.", member.guild.me, 0, 0);
-    }
+
+    if (member.guild.isPublic())
+      // send discovery update for realtime member counts
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(
+            EventType.DISCOVERY_UPDATE,
+            this.client.util.getDiscoverableGuilds()
+          )
+        )
+      );
 
     // This will check permissions & whether
     // dehoist/decancer is enabled so no need for checks here

@@ -103,6 +103,12 @@ export class Util extends ClientUtil {
     return Number((BigInt(id) >> 22n) % BigInt(this.client.options.shardCount));
   }
 
+  getDiscoverableGuilds() {
+    return (this.client.guilds.cache
+      .filter((guild: FireGuild) => guild.isPublic())
+      .array() as FireGuild[]).map((guild) => guild.getDiscoverableData());
+  }
+
   async haste(
     text: string,
     fallback = false,
@@ -264,20 +270,6 @@ export class Util extends ClientUtil {
                   .reduce((a, b) => a + b)
               : 0,
           status: shard.status as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
-          publicGuilds: this.client.guilds.cache
-            .filter(
-              (guild: FireGuild) =>
-                guild.shardID == shard.id && guild.isPublic()
-            )
-            .map((guild) => guild.id),
-          discoverableGuilds: (this.client.guilds.cache
-            .filter(
-              (guild: FireGuild) =>
-                guild.shardID == shard.id && guild.isPublic()
-            )
-            .array() as FireGuild[]).map((guild) =>
-            guild.getDiscoverableData()
-          ),
         };
       }),
     };

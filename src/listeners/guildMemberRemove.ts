@@ -2,7 +2,10 @@ import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { MessageEmbed, Permissions, Snowflake } from "discord.js";
 import { constants, humanize } from "@fire/lib/util/constants";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { Message } from "@fire/lib/ws/Message";
 import Sk1er from "@fire/src/modules/sk1er";
 import * as moment from "moment";
 
@@ -19,6 +22,16 @@ export default class GuildMemberRemove extends Listener {
   }
 
   async exec(member: FireMember) {
+    if (member.guild.isPublic())
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(
+            EventType.DISCOVERY_UPDATE,
+            this.client.util.getDiscoverableGuilds()
+          )
+        )
+      );
+
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     if (sk1erModule && member.guild.id == sk1erModule.guildId) {
       const removed = await sk1erModule
