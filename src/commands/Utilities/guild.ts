@@ -1,5 +1,5 @@
-import { humanize, zws, constants, titleCase } from "@fire/lib/util/constants";
-import { GuildPreview, MessageEmbed, Permissions } from "discord.js";
+import { GuildPreview, MessageEmbed, Permissions, DMChannel } from "discord.js";
+import { humanize, zws, constants } from "@fire/lib/util/constants";
 import { snowflakeConverter } from "@fire/lib/util/converters";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -32,7 +32,7 @@ export default class GuildCommand extends Command {
       ],
       aliases: ["guildinfo", "infoguild", "serverinfo", "infoserver", "server"],
       enableSlashCommand: true,
-      restrictTo: "guild",
+      restrictTo: "all",
     });
   }
 
@@ -238,6 +238,11 @@ export default class GuildCommand extends Command {
   }
 
   async exec(message: FireMessage, args: { guild?: GuildPreview | FireGuild }) {
+    if (message.channel instanceof DMChannel && !args.guild)
+      return await message.error(
+        "COMMAND_GUILD_ONLY",
+        this.client.config.inviteLink
+      );
     if (!args.guild && typeof args.guild != "undefined") return;
     const guild = args.guild ? args.guild : message.guild;
 
