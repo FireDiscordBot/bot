@@ -40,7 +40,12 @@ export class Websocket extends Client {
             `[Aether] Did not receive pong in time. Closing connection with ${this.pongs} pongs...`
           );
           this.manager.reconnector.state = WebsocketStates.CLOSING;
-          return this.close(4009, "Did not receive pong in time");
+          return this.open
+            ? this.close(4009, "Did not receive pong in time")
+            : (() => {
+                this.terminate();
+                this.manager.reconnector.activate();
+              })();
         }
         this.waitingForPong = true;
         this.ping();
