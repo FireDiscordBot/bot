@@ -481,6 +481,45 @@ export class Fire extends AkairoClient {
     }
   }
 
+  setReadyPresence() {
+    // if disconnected, it should fallback to this
+    this.options.presence = {
+      activities: [
+        {
+          name: "with fire",
+          type: "PLAYING",
+        },
+      ],
+      status: "dnd",
+    };
+    this.ws.shards.forEach((shard) =>
+      this.user?.setPresence({
+        activities: [
+          {
+            name: this.manager.ws
+              ? `with fire | ${shard.id + 1}/${this.options.shardCount}`
+              : "with fire",
+            type: "PLAYING",
+          },
+        ],
+        status: "dnd",
+        shardID: shard.id,
+      })
+    );
+  }
+
+  setPartialOutageStatus() {
+    this.user?.setPresence({
+      activities: [
+        {
+          name: "a potential outage",
+          type: "WATCHING",
+        },
+      ],
+      status: "idle",
+    });
+  }
+
   getCommand(id: string) {
     id = id.toLowerCase();
     if (this.commandHandler.modules.has(id))

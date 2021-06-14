@@ -58,20 +58,7 @@ export default class Ready extends Listener {
         )
       );
     } catch {}
-    this.client.ws.shards.forEach((shard) =>
-      this.client.user?.setPresence({
-        activities: [
-          {
-            name: this.client.manager.ws
-              ? `with fire | ${shard.id + 1}/${this.client.options.shardCount}`
-              : "with fire",
-            type: "PLAYING",
-          },
-        ],
-        status: "dnd",
-        shardID: shard.id,
-      })
-    );
+    this.client.setReadyPresence()
     this.client.guildSettings.items = this.client.guildSettings.items.filter(
       (value, key) => this.client.guilds.cache.has(key) || key == "0"
     ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
