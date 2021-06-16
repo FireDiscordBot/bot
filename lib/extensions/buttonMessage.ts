@@ -7,6 +7,7 @@ import {
   GuildMemberResolvable,
   WebhookMessageOptions,
   AwaitMessagesOptions,
+  CreateInviteOptions,
   MessageEditOptions,
   MessageResolvable,
   MessageReaction,
@@ -14,7 +15,6 @@ import {
   MessageManager,
   RoleResolvable,
   UserResolvable,
-  InviteOptions,
   SnowflakeUtil,
   MessageEmbed,
   NewsChannel,
@@ -366,7 +366,7 @@ export class FakeChannel {
       : false;
   }
 
-  createInvite(options?: InviteOptions) {
+  createInvite(options?: CreateInviteOptions) {
     return !(this.real instanceof DMChannel)
       ? this.real?.createInvite(options)
       : false;
