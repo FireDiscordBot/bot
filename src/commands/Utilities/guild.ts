@@ -194,7 +194,7 @@ export default class GuildCommand extends Command {
         break;
     }
 
-    if (guild.defaultMessageNotifications == "MENTIONS")
+    if (guild.defaultMessageNotifications == "ONLY_MENTIONS")
       info.push(
         `${constants.emojis.statuspage.operational} ${message.language.get(
           "GUILD_NOTIFS_MENTIONS"

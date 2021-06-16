@@ -8,8 +8,8 @@ import {
   WebhookMessageOptions,
   AwaitMessagesOptions,
   PermissionOverwrites,
+  CreateInviteOptions,
   CommandInteraction,
-  MessageEditOptions,
   MessageResolvable,
   MessageAttachment,
   CollectorFilter,
@@ -18,8 +18,6 @@ import {
   UserResolvable,
   RoleResolvable,
   SnowflakeUtil,
-  InviteOptions,
-  MessageEmbed,
   Permissions,
   NewsChannel,
   APIMessage,
@@ -431,7 +429,7 @@ export class FakeChannel {
       : false;
   }
 
-  createInvite(options?: InviteOptions) {
+  createInvite(options?: CreateInviteOptions) {
     return !(this.real instanceof DMChannel)
       ? this.real?.createInvite(options)
       : false;

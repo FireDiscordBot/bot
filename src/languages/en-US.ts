@@ -371,7 +371,7 @@ This will **not** rename existing users`,
         BAN_FAILED_PARSE_TIME: "I was unable to parse the time in your message",
         BAN_TIME_TOO_SHORT:
           "That time is too short! It must be at least 30 minutes",
-        BAN_SMTH_SPECIAL: "smth special",
+        BAN_SMTH_SPECIAL: "You cannot put out a flame with fire",
         BAN_MEMBER_REQUIRED: "You can only tempban an existing member",
         BAN_MUTED_REASON:
           "User is about to be banned, mute will no longer be needed",
