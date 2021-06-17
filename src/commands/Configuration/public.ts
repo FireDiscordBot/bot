@@ -41,28 +41,30 @@ export default class Public extends Command {
       );
     await message.guild.settings.set<boolean>("utils.public", !current);
     if (!current) {
-      this.client.manager.ws?.send(
-        MessageUtil.encode(
-          new Message(EventType.DISCOVERY_UPDATE, {
-            op: DiscoveryUpdateOp.ADD,
-            guilds: [message.guild.getDiscoverableData()],
-          })
-        )
-      );
+      if (this.client.manager.ws?.open)
+        this.client.manager.ws?.send(
+          MessageUtil.encode(
+            new Message(EventType.DISCOVERY_UPDATE, {
+              op: DiscoveryUpdateOp.ADD,
+              guilds: [message.guild.getDiscoverableData()],
+            })
+          )
+        );
       await message.success("PUBLIC_ENABLED", vanitys.rows[0][0]);
       await message.guild.actionLog(
         message.language.get("PUBLIC_ENABLED_LOG", message.author.toString()),
         "public_toggle"
       );
     } else {
-      this.client.manager.ws?.send(
-        MessageUtil.encode(
-          new Message(EventType.DISCOVERY_UPDATE, {
-            op: DiscoveryUpdateOp.REMOVE,
-            guilds: [{ id: message.guild.id }],
-          })
-        )
-      );
+      if (this.client.manager.ws?.open)
+        this.client.manager.ws?.send(
+          MessageUtil.encode(
+            new Message(EventType.DISCOVERY_UPDATE, {
+              op: DiscoveryUpdateOp.REMOVE,
+              guilds: [{ id: message.guild.id }],
+            })
+          )
+        );
       await message.success("PUBLIC_DISABLED");
       await message.guild.actionLog(
         message.language.get("PUBLIC_DISABLED_LOG", message.author.toString()),

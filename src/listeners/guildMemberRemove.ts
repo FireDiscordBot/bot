@@ -23,7 +23,7 @@ export default class GuildMemberRemove extends Listener {
   }
 
   async exec(member: FireMember) {
-    if (member.guild.isPublic())
+    if (member.guild.isPublic() && this.client.manager.ws?.open)
       this.client.manager.ws?.send(
         MessageUtil.encode(
           new Message(EventType.DISCOVERY_UPDATE, {

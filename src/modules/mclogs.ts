@@ -88,10 +88,11 @@ export default class MCLogs extends Module {
       .header("Authorization", `token ${process.env.GITHUB_SOLUTIONS_TOKEN}`)
       .send();
     if (solutionsReq.statusCode == 200) {
-      const solutions = await solutionsReq.json();
-      this.solutions = JSON.parse(
-        Buffer.from(solutions.content, "base64").toString("ascii")
-      );
+      const solutions = await solutionsReq.json().catch(() => {});
+      if (solutions?.content)
+        this.solutions = JSON.parse(
+          Buffer.from(solutions.content, "base64").toString("ascii")
+        );
     }
   }
 
