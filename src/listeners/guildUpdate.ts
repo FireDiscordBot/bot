@@ -36,7 +36,7 @@ export default class GuildUpdate extends Listener {
       before.splash != after.splash ||
       before.discoverySplash != after.discoverySplash;
 
-    if (discoveryChanges && after.isPublic())
+    if (discoveryChanges && after.isPublic() && this.client.manager.ws?.open)
       // send discovery update
       this.client.manager.ws?.send(
         MessageUtil.encode(

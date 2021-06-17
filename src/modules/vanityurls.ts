@@ -97,14 +97,15 @@ export default class VanityURLs extends Module {
     const original = code;
     if (code instanceof FireGuild) {
       code.settings.set<boolean>("utils.public", false);
-      this.client.manager.ws?.send(
-        MessageUtil.encode(
-          new Message(EventType.DISCOVERY_UPDATE, {
-            op: DiscoveryUpdateOp.REMOVE,
-            guilds: [{ id: code.id }],
-          })
-        )
-      );
+      if (this.client.manager.ws?.open)
+        this.client.manager.ws?.send(
+          MessageUtil.encode(
+            new Message(EventType.DISCOVERY_UPDATE, {
+              op: DiscoveryUpdateOp.REMOVE,
+              guilds: [{ id: code.id }],
+            })
+          )
+        );
       code = code.id;
     }
     const deleteResult = await this.client.db
@@ -125,14 +126,15 @@ export default class VanityURLs extends Module {
         guild.settings.get<boolean>("utils.public")
       ) {
         guild.settings.set<boolean>("utils.public", false);
-        this.client.manager.ws?.send(
-          MessageUtil.encode(
-            new Message(EventType.DISCOVERY_UPDATE, {
-              op: DiscoveryUpdateOp.REMOVE,
-              guilds: [{ id: guild.id }],
-            })
-          )
-        );
+        if (this.client.manager.ws?.open)
+          this.client.manager.ws?.send(
+            MessageUtil.encode(
+              new Message(EventType.DISCOVERY_UPDATE, {
+                op: DiscoveryUpdateOp.REMOVE,
+                guilds: [{ id: guild.id }],
+              })
+            )
+          );
       }
       const invite = await this.client
         .fetchInvite(deleteResult.get("invite") as string)

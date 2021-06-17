@@ -32,7 +32,7 @@ export default class GuildMemberAdd extends Listener {
     )
       return await member.bean("Bot.", member.guild.me, 0, 0);
 
-    if (member.guild.isPublic())
+    if (member.guild.isPublic() && this.client.manager.ws?.open)
       // send discovery update for realtime member counts
       this.client.manager.ws?.send(
         MessageUtil.encode(

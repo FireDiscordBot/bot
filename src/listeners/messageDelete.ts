@@ -52,12 +52,14 @@ export default class MessageDelete extends Listener {
     ) {
       let reference: FireMessage;
       if (message.type == "REPLY")
-        reference = (await message.fetchReference()) as FireMessage;
+        reference = (await message
+          .fetchReference()
+          .catch(() => {})) as FireMessage;
       const description = message.guild.language.get(
         "MSGDELETELOG_DESCRIPTION",
         message.author.toMention(),
         message.channel.toString(),
-        message.type == "REPLY"
+        message.type == "REPLY" && reference
           ? message.mentions.users.has(reference?.author?.id)
             ? (reference?.author as FireUser)?.toMention()
             : reference?.author?.toString()
