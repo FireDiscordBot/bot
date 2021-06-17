@@ -151,7 +151,7 @@ export const constants = {
   url: {
     discovery: "https://fire.gaminggeek.dev/discover",
     discordStatus: "https://discordstatus.com",
-    fireStatus: "https://status.gaminggeek.dev",
+    fireStatus: "https://firestatus.link",
     website: "https://fire.gaminggeek.dev/",
     terms: "https://inv.wtf/terms",
     privacy: "https://inv.wtf/privacy",
