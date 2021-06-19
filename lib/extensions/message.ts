@@ -212,7 +212,7 @@ export class FireMessage extends Message {
       let maskedMatch: RegExpExecArray;
       while ((maskedMatch = regexes.maskedLink.exec(this.content))) {
         const { name, link } = maskedMatch.groups;
-        if (name && link && !this.webhookID && !quoter?.isSuperuser())
+        if (name && link && !quoter?.isSuperuser())
           content = content.replace(
             maskedMatch[0],
             `\\[${name}\\]\\(${link}\\)`
