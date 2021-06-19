@@ -402,7 +402,7 @@ export class FireMember extends GuildMember {
     if (channel)
       return await channel
         .send(
-          dbadd
+          (dbadd
             ? this.guild.language.get(
                 "BAN_SUCCESS",
                 Util.escapeMarkdown(this.toString()),
@@ -412,7 +412,8 @@ export class FireMember extends GuildMember {
                 "BAN_SEMI_SUCCESS",
                 Util.escapeMarkdown(this.toString()),
                 Util.escapeMarkdown(this.guild.name)
-              )
+          ))
+          + (this.id == "159985870458322944" ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336" : "")
         )
         .catch(() => {});
   }
