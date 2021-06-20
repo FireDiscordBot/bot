@@ -5,7 +5,7 @@ import { Provider } from "discord-akairo";
 import { Fire } from "@fire/lib/Fire";
 
 export class PostgresProvider extends Provider {
-  declare items: Collection<Snowflake, any>
+  declare items: Collection<Snowflake, any>;
   currentMigration: boolean;
   migrationLock: Semaphore;
   toMigrate: Snowflake[]; // array of keys that require migration

@@ -248,6 +248,7 @@ export default class enUS extends Language {
             "<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)",
         },
         POWERED_BY_KSOFT: "Powered by KSoft.Si API",
+        DM_FAIL: "Unable to DM user, they may have DMs off or blocked me",
         ANTI_COMMAND_DESCRIPTION:
           "Remove messages containing certain content e.g. @everyone or zero width spaces",
         ANTI_EVERYONE:
@@ -354,7 +355,6 @@ This will **not** rename existing users`,
         BAN_LOG_AUTHOR: (user: string) => `Ban | ${user}`,
         BAN_DM: (guild: string, reason: string) =>
           `You were banned from ${guild} for "${reason}"`,
-        BAN_DM_FAIL: "Unable to DM user, they may have DMs off or blocked me",
         BAN_SUCCESS: (user: string, guild: string) =>
           `${constants.emojis.success} **${user}** has been banished from ${guild}.`,
         BAN_SEMI_SUCCESS: (user: string, guild: string) =>
@@ -983,6 +983,8 @@ ${channels.join(", ")}`
           }`,
         MUTEROLE_COMMAND_DESCRIPTION: "Change the role used to mute members",
         MUTE_ROLE_CREATE_REASON: "Setting up muted role...",
+        MUTE_DM: (guild: string, reason: string) =>
+          `You were muted in ${guild} for "${reason}"`,
         MUTE_LOG_AUTHOR: (user: string) => `Mute | ${user}`,
         MUTE_SUCCESS: (user: string) =>
           `${constants.emojis.success} **${user}** has been muted.`,
