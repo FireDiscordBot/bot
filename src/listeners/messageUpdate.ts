@@ -41,7 +41,10 @@ export default class MessageUpdate extends Listener {
 
     if (!after.member || after.author.bot) return;
 
-    const autoroleId = after.guild.settings.get<Snowflake>("mod.autorole", null);
+    const autoroleId = after.guild.settings.get<Snowflake>(
+      "mod.autorole",
+      null
+    );
     const delay = after.guild.settings.get<boolean>(
       "mod.autorole.waitformsg",
       false
@@ -50,10 +53,7 @@ export default class MessageUpdate extends Listener {
       const role = after.guild.roles.cache.get(autoroleId);
       if (role && !after.member.roles.cache.has(role.id))
         await after.member.roles
-          .add(
-            role,
-            after.member.guild.language.get("AUTOROLE_REASON")
-          )
+          .add(role, after.member.guild.language.get("AUTOROLE_REASON"))
           .catch(() => {});
     }
 

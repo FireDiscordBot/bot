@@ -124,19 +124,10 @@ export default class Redirects extends Module {
         user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .setColor("#2ECC71")
-      .addField(
-        language.get("REDIRECT_SHORT_URL"),
-        `https://inv.wtf/${code}`
-      )
+      .addField(language.get("REDIRECT_SHORT_URL"), `https://inv.wtf/${code}`)
       .addField("URL", data.url)
-      .addField(
-        language.get("CLICKS"),
-        data.clicks.toLocaleString(language.id)
-      )
-      .addField(
-        language.get("LINKS"),
-        data.links.toLocaleString(language.id)
-      )
+      .addField(language.get("CLICKS"), data.clicks.toLocaleString(language.id))
+      .addField(language.get("LINKS"), data.links.toLocaleString(language.id))
       .setTimestamp();
     return embed;
   }
