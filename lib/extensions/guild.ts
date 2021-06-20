@@ -784,7 +784,7 @@ export class FireGuild extends Guild {
     category =
       category ||
       (this.channels.cache
-        .filter((channel) => channel.type == "category")
+        .filter((chan) => chan.type == "category")
         .get(
           this.settings.get<Snowflake>("tickets.parent")
         ) as CategoryChannel);
@@ -830,7 +830,7 @@ export class FireGuild extends Guild {
 
     let ticket: FireTextChannel | ThreadChannel;
 
-    if (this.hasExperiment(1651882237, 1)) {
+    if (channel && this.hasExperiment(1651882237, 1)) {
       ticket = (await channel.threads
         .create({
           name: `${author} (${author.id})`,
@@ -979,7 +979,7 @@ export class FireGuild extends Guild {
     channels.push(ticket);
     this.settings.set<string[]>(
       "tickets.channels",
-      channels.map((channel) => !!channel && channel.id)
+      channels.filter((chan) => !!chan).map((chan) => chan.id)
     );
     locked = false;
     this.ticketLock.lock.release();

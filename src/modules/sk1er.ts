@@ -253,7 +253,7 @@ export default class Sk1er extends Module {
       return await this.supportGuild.createTicket(
         member,
         "General Support",
-        this.supportChannel,
+        null,
         category
       );
     }
@@ -265,7 +265,7 @@ export default class Sk1er extends Module {
       return await this.supportGuild.createTicket(
         member,
         "Purchase Support",
-        this.supportChannel,
+        null,
         category
       );
     }
@@ -277,7 +277,7 @@ export default class Sk1er extends Module {
       return await this.supportGuild.createTicket(
         member,
         "Bug Report",
-        this.supportChannel,
+        null,
         category
       );
     }
