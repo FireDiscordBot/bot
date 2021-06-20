@@ -123,7 +123,10 @@ export default class Message extends Listener {
         lowerContent.includes("@everyone") &&
         lowerContent.includes("partner")) ||
         lowerContent.includes("/king8") ||
-        (lowerContent.includes("cs:go") && lowerContent.includes("?partner=")))
+        (lowerContent.includes("cs:go") &&
+          lowerContent.includes("?partner=")) ||
+        (lowerContent.includes("fucking game") &&
+          lowerContent.includes("partner=")))
     )
       return await message.member?.bean(
         "Phishing links",
