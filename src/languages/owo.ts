@@ -171,37 +171,38 @@ export default class owo extends Language {
           // CUSTOM FEATUWUES
           PREMIUM:
             "<:firelogo:665339492072292363> [Pwemiuwum](https://gaminggeek.dev/premium)",
-          ADDMOD_COMMAND_DESCRIPTION:
-            "Add a membew/wowe as a mowodewatow. Wun the command again to wemuv.",
-          AUTOROLE_COMMAND_DESCRIPTION:
-            "Automaticawwy add a wowe to a usew/bot when they join/send theiw fiwst message",
-          AUTOROLE_ROLE_REQUIRED:
-            "You can't automaticawwy give nothing, you need to pwovide a wowe",
-          AUTOROLE_INVALID_FLAGS: "You cannot combine --bot and --delay",
-          AUTOROLE_DISABLED:
-            "Autowowe has been disabwed, usews wiww no wongew weceive a wowe upon join/fiwst message.",
-          AUTOROLE_DISABLED_BOT:
-            "Autowowe has been disabwed, bots wiww no wongew weceive a wowe upon join.",
-          AUTOROLE_ENABLED: (role: string, delay: boolean) =>
-            `Autowowe has been enabwed, usews wiww weceive ${role} upon ${
-              delay ? "fiwst message" : "join"
-            }.`,
-          AUTOROLE_ENABLED_BOT: (role: string, delay: boolean) =>
-            `Autowowe has been enabwed, bots wiww weceive ${role} upon join.`,
-          POWERED_BY_KSOFT: "Powewed by KSoft.Si API",
-          AUDIT_ACTION_MEMBER_BAN_ADD: "Banned",
-          AUDIT_ACTION_MEMBER_KICK: "Kicked",
-          AUDIT_ACTION_BY: (action: string) => `${action} By`, // e.g. Kicked By or Banned By
-          MODERATORS_ROLES: "Mowodewatow Wowes",
-          NO_MODERATOR_ROLES: "No wowes have been set as mowodewatows.",
-          MODERATORS_MEMBERS: "Mowodewatow Membews",
-          NO_MODERATOR_MEMBERS: "No membews have been set as mowodewatows.",
-          MODERATORS_REMOVE_INVALID: "Invawid Mowodewatows",
-          MODERATORS_REMOVED: (invalid: string[]) =>
-            `I have wemoved some mowodewatows as a matching wowe/membew couwd not be found...\nThe wemoved ids awe: ${invalid.join(
-              ", "
-            )}`,
         },
+        POWERED_BY_KSOFT: "Powewed by KSoft.Si API",
+        DM_FAIL: "Unabwe to DM usew, they may have DMs off ow bwocked me",
+        AUDIT_ACTION_MEMBER_BAN_ADD: "Banned",
+        AUDIT_ACTION_MEMBER_KICK: "Kicked",
+        AUDIT_ACTION_BY: (action: string) => `${action} By`, // e.g. Kicked By or Banned By
+        ADDMOD_COMMAND_DESCRIPTION:
+          "Add a membew/wowe as a mowodewatow. Wun the command again to wemuv.",
+        AUTOROLE_COMMAND_DESCRIPTION:
+          "Automaticawwy add a wowe to a usew/bot when they join/send theiw fiwst message",
+        AUTOROLE_ROLE_REQUIRED:
+          "You can't automaticawwy give nothing, you need to pwovide a wowe",
+        AUTOROLE_INVALID_FLAGS: "You cannot combine --bot and --delay",
+        AUTOROLE_DISABLED:
+          "Autowowe has been disabwed, usews wiww no wongew weceive a wowe upon join/fiwst message.",
+        AUTOROLE_DISABLED_BOT:
+          "Autowowe has been disabwed, bots wiww no wongew weceive a wowe upon join.",
+        AUTOROLE_ENABLED: (role: string, delay: boolean) =>
+          `Autowowe has been enabwed, usews wiww weceive ${role} upon ${
+            delay ? "fiwst message" : "join"
+          }.`,
+        AUTOROLE_ENABLED_BOT: (role: string, delay: boolean) =>
+          `Autowowe has been enabwed, bots wiww weceive ${role} upon join.`,
+        MODERATORS_ROLES: "Mowodewatow Wowes",
+        NO_MODERATOR_ROLES: "No wowes have been set as mowodewatows.",
+        MODERATORS_MEMBERS: "Mowodewatow Membews",
+        NO_MODERATOR_MEMBERS: "No membews have been set as mowodewatows.",
+        MODERATORS_REMOVE_INVALID: "Invawid Mowodewatows",
+        MODERATORS_REMOVED: (invalid: string[]) =>
+          `I have wemoved some mowodewatows as a matching wowe/membew couwd not be found...\nThe wemoved ids awe: ${invalid.join(
+            ", "
+          )}`,
         AUTODECANCER_COMMAND_DESCRIPTION:
           'Toggwe wenaming those with "cancewous" (non-ascii) names',
         AUTODECANCER_ENABLED:
@@ -235,7 +236,6 @@ This wiww **not** wename existing usews`,
         BAN_LOG_AUTHOR: (user: string) => `Ban | ${user}`,
         BAN_DM: (guild: string, reason: string) =>
           `You wewe banned fwom ${guild} fow "${reason}"`,
-        BAN_DM_FAIL: "Unabwe to DM usew, they may have DMs off ow bwocked me",
         BAN_SUCCESS: (user: string, guild: string) =>
           `${constants.emojis.success} **${user}** has been banished fwom ${guild}.`,
         BAN_FAILED_ENTRY:

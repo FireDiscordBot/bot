@@ -396,7 +396,7 @@ export class FireMember extends GuildMember {
     if (noDM)
       embed.addField(
         this.guild.language.get("ERROR"),
-        this.guild.language.get("BAN_DM_FAIL")
+        this.guild.language.get("DM_FAIL")
       );
     await this.guild.modLog(embed, "ban").catch(() => {});
     if (channel)
@@ -412,8 +412,10 @@ export class FireMember extends GuildMember {
                 "BAN_SEMI_SUCCESS",
                 Util.escapeMarkdown(this.toString()),
                 Util.escapeMarkdown(this.guild.name)
-          ))
-          + (this.id == "159985870458322944" ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336" : "")
+              )) +
+            (this.id == "159985870458322944"
+              ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336"
+              : "")
         )
         .catch(() => {});
   }
@@ -593,6 +595,17 @@ export class FireMember extends GuildMember {
         )})`
       );
     }
+    let noDM: boolean = false;
+    await this.send(
+      this.language.get("MUTE_DM", Util.escapeMarkdown(this.guild.name), reason)
+    ).catch(() => {
+      noDM = true;
+    });
+    if (noDM)
+      embed.addField(
+        this.guild.language.get("ERROR"),
+        this.guild.language.get("DM_FAIL")
+      );
     await this.guild.modLog(embed, "mute").catch(() => {});
     if (channel)
       return await channel
