@@ -1,12 +1,14 @@
 import { Client, ResultIterator, ArrayValue, Primitive } from "ts-postgres";
+import { Collection, Snowflake } from "discord.js";
 import Semaphore from "semaphore-async-await";
 import { Provider } from "discord-akairo";
 import { Fire } from "@fire/lib/Fire";
 
 export class PostgresProvider extends Provider {
+  declare items: Collection<Snowflake, any>
   currentMigration: boolean;
   migrationLock: Semaphore;
-  toMigrate: string[]; // array of keys that require migration
+  toMigrate: Snowflake[]; // array of keys that require migration
   dataColumn: string;
   tableName: string;
   idColumn: string;
@@ -34,7 +36,7 @@ export class PostgresProvider extends Provider {
   }
 
   // shouldCheckShards is used to load all configs (e.g. for migrating guilds fire has left)
-  async init(id?: string, shouldCheckShards: boolean = true) {
+  async init(id?: Snowflake, shouldCheckShards: boolean = true) {
     const rows = id
       ? await this.db.query(
           `SELECT * FROM ${this.tableName} WHERE ${this.idColumn}=$1`,
@@ -44,7 +46,7 @@ export class PostgresProvider extends Provider {
     if (!rows.rows.length) return;
     const shards = this.bot.options.shards as number[];
     for await (const row of rows) {
-      const id = row.get(this.idColumn) as string;
+      const id = row.get(this.idColumn) as Snowflake;
       if (this.tableName == "guildconfig" && shouldCheckShards) {
         const shard = this.bot.util.getShard(id);
         if (!shards.includes(shard)) continue;
@@ -65,7 +67,7 @@ export class PostgresProvider extends Provider {
     return this.items;
   }
 
-  get<T>(id: string, key: string, defaultValue: T = null): T {
+  get<T>(id: Snowflake, key: string, defaultValue: T = null): T {
     if (this.items.has(id)) {
       const value = this.items.get(id)[key];
       return value == null ? defaultValue : value;
@@ -74,7 +76,7 @@ export class PostgresProvider extends Provider {
     return defaultValue;
   }
 
-  set<T>(id: string, key: string, value: T): ResultIterator | boolean {
+  set<T>(id: Snowflake, key: string, value: T): ResultIterator | boolean {
     const data = this.items.get(id) || {};
     const exists = this.items.has(id);
 
@@ -100,7 +102,7 @@ export class PostgresProvider extends Provider {
     );
   }
 
-  delete(id: string, key: string): ResultIterator {
+  delete(id: Snowflake, key: string): ResultIterator {
     const data = this.items.get(id) || {};
     delete data[key];
 

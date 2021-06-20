@@ -36,7 +36,7 @@ export default class Color extends Command {
     args: { color?: Role | FireMember | string }
   ) {
     let color: tinycolor.Instance;
-    if (typeof args.color == "undefined") color = tinycolor.random();
+    if (args.color == null) color = tinycolor.random();
     else if (typeof args.color == "string") color = tinycolor(args.color);
     else if (args.color instanceof Role) color = tinycolor(args.color.hexColor);
     else if (args.color instanceof FireMember)
@@ -64,13 +64,17 @@ export default class Color extends Command {
       .header("User-Agent", this.client.manager.ua)
       .send();
 
-    if (image.statusCode != 200) return await message.channel.send(colorInfo);
+    if (image.statusCode != 200)
+      return await message.channel.send({ content: colorInfo });
     else {
       const attachment = new MessageAttachment(
         image.body,
         `${color.toHex()}.png`
       );
-      return await message.channel.send(colorInfo, attachment);
+      return await message.channel.send({
+        content: colorInfo,
+        files: [attachment],
+      });
     }
   }
 }

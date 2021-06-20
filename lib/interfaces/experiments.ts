@@ -14,7 +14,7 @@ export interface Experiment {
 }
 
 export interface BuildOverride {
-  releaseChannel: "development" | "production";
+  releaseChannel: "development" | "staging" | "production";
   validForUserIds: string[];
   expiresAt: Date;
 }

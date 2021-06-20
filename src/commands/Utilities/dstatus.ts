@@ -94,6 +94,6 @@ export default class DiscordStatus extends Command {
       )
       .setTimestamp();
 
-    await message.channel.send({ embed });
+    await message.channel.send({ embeds: [embed] });
   }
 }

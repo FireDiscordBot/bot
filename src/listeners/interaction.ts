@@ -1,10 +1,15 @@
 import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
-import { CommandInteraction, Interaction } from "discord.js";
+import {
+  CommandInteraction,
+  Interaction,
+  MessageComponentInteraction,
+} from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
 import { Scope } from "@sentry/node";
+import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 
 const { emojis } = constants;
 
@@ -18,8 +23,10 @@ export default class InteractionListener extends Listener {
 
   async exec(interaction: Interaction) {
     if (this.blacklistCheck(interaction)) return;
-    if (!interaction.isCommand()) return;
-    else await this.handleApplicationCommand(interaction);
+    else if (interaction.isCommand())
+      return await this.handleApplicationCommand(interaction);
+    else if (interaction.isMessageComponent())
+      return await this.handleButton(interaction);
   }
 
   async handleApplicationCommand(command: CommandInteraction) {
@@ -69,15 +76,53 @@ export default class InteractionListener extends Listener {
     }
   }
 
-  async error(interaction: CommandInteraction, error: Error) {
-    return interaction.reply(
-      `${emojis.error} An error occured while trying to handle this interaction that may be caused by being in DMs or the bot not being present...
+  async handleButton(button: MessageComponentInteraction) {
+    try {
+      // should be cached if in guild or fetch if dm channel
+      await this.client.channels.fetch(button.channelID).catch(() => {});
+      const message = new ButtonMessage(this.client, button);
+      if (!message.customID.startsWith("!")) await message.channel.ack();
+      else message.customID = message.customID.slice(1);
+      this.client.emit("button", message);
+    } catch (error) {
+      await this.error(button, error).catch(() => {
+        button.reply(`${emojis.error} Something went wrong...`);
+      });
+      if (
+        typeof this.client.sentry != "undefined" &&
+        error.message != "Component checks failed, potential mitm/selfbot?"
+      ) {
+        const sentry = this.client.sentry;
+        sentry.setExtras({
+          button: JSON.stringify(button),
+          member: button.member
+            ? `${button.member.user.username}#${button.member.user.discriminator}`
+            : `${button.user.username}#${button.user.discriminator}`,
+          channel_id: button.channelID,
+          guild_id: button.guildID,
+          env: process.env.NODE_ENV,
+        });
+        sentry.captureException(error);
+        sentry.configureScope((scope: Scope) => {
+          scope.setUser(null);
+          scope.setExtras(null);
+        });
+      }
+    }
+  }
 
-    If this is a slash command, try inviting the bot to a server (<${this.client.config.inviteLink}>) if you haven't already and try again.
-    
-    Error Message: ${error.message}`,
-      { ephemeral: true }
-    );
+  async error(
+    interaction: CommandInteraction | MessageComponentInteraction,
+    error: Error
+  ) {
+    return interaction.reply({
+      content: `${emojis.error} An error occured while trying to handle this interaction that may be caused by being in DMs or the bot not being present...
+
+      If this is a slash command, try inviting the bot to a server (<${this.client.config.inviteLink}>) if you haven't already and try again.
+      
+      Error Message: ${error.message}`,
+      ephemeral: true,
+    });
   }
 
   blacklistCheck(interaction: Interaction) {

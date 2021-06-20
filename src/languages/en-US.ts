@@ -377,6 +377,7 @@ This will **not** rename existing users`,
         BAN_FAILED_PARSE_TIME: "I was unable to parse the time in your message",
         BAN_TIME_TOO_SHORT:
           "That time is too short! It must be at least 30 minutes",
+        BAN_SMTH_SPECIAL: "You cannot put out a flame with fire",
         BAN_MEMBER_REQUIRED: "You can only tempban an existing member",
         BAN_MUTED_REASON:
           "User is about to be banned, mute will no longer be needed",
@@ -572,6 +573,14 @@ Hint: Use the \`public\` command to get your server on the list`,
         EVAL_COMMAND_DESCRIPTION: "run epic gamer code",
         EVAL_NO_CONTENT:
           "hey idiot you forgot to add the code you want to eval",
+        EXPERIMENTCHECK_COMMAND_DESCRIPTION:
+          "Check a user id's range in an experiment",
+        EXPERIMENTCHECK_POSITION: (
+          user: string,
+          experiment: string,
+          position: number
+        ) =>
+          `**${user}**'s position in the experiment **${experiment}** is **${position}**`,
         EXPLICIT_CONTENT_FILTER_DISABLED: "No Filter",
         EXPLICIT_CONTENT_FILTER_MEMBERS_WITHOUT_ROLES: "Members Without Roles",
         EXPLICIT_CONTENT_FILTER_ALL_MEMBERS: "All Members",
@@ -669,6 +678,7 @@ Hint: Use the \`public\` command to get your server on the list`,
         GUILD_SECURITY: "» Security",
         GUILD_FEATURES: "» Features",
         GUILD_ROLES: "» Roles",
+        GUILD_EXPERIMENTS: "» Experiments",
         HELP_COMMAND_DESCRIPTION:
           "Lists all of Fire's commands and provides information about them",
         HELP_NO_COMMAND:
@@ -972,7 +982,11 @@ ${channels.join(", ")}`
           "__Attachment URLs are invalidated once the message is deleted.__",
         MSGDELETELOG_SPOTIFY_ACTIVITY: "Spotify Invite",
         MSGDELETELOG_ACTIVITY: (partyID: string, type: number) =>
-          `Party ID: ${partyID}\nType: ${this.get("ACTIVITY_TYPES")[type]}`,
+          `Party ID: ${partyID}\nType: ${
+            ((this.get("ACTIVITY_TYPES") as unknown) as Record<number, string>)[
+              type
+            ]
+          }`,
         MUTEROLE_COMMAND_DESCRIPTION: "Change the role used to mute members",
         MUTE_ROLE_CREATE_REASON: "Setting up muted role...",
         MUTE_LOG_AUTHOR: (user: string) => `Mute | ${user}`,
@@ -1039,7 +1053,9 @@ People will be able to use your guild's vanity url (<https://inv.wtf/${vanity}>)
           "Make a user unable to use the best discord bot in your server",
         PLONK_FORBIDDEN: () =>
           `You must be in a server and have the **${
-            this.get("PERMISSIONS")["MANAGE_GUILD"]
+            ((this.get("PERMISSIONS") as unknown) as Record<string, string>)[
+              "MANAGE_GUILD"
+            ]
           }** permission to use this.`,
         PLONK_USER_REQUIRED: "You must provide a user to plonk",
         PLONK_LOG_AUTHOR: (user: string) => `Blacklist | ${user}`,
@@ -1106,7 +1122,7 @@ ${prefixes.join(", ")}`,
 ${prefixes.join(", ")}`,
         PURGE_COMMAND_DESCRIPTION:
           "Bulk delete messages with optional flags to selectively delete messages based on certain factors",
-        PURGE_AMOUNT_INVALID: "Invalid amount. Minumum is 2, Maximum is 100",
+        PURGE_AMOUNT_INVALID: "Invalid amount. Minimum is 2, Maximum is 100",
         PURGE_HISTORY_FAIL: "Failed to fetch messages",
         PURGE_SUCCESS: (messages: number) =>
           `Successfully deleted **${messages}** messages!`,
@@ -1118,6 +1134,8 @@ ${prefixes.join(", ")}`,
         PURGED_MESSAGES: "Purged Messages",
         PURGED_MESSAGES_FAILED: "Failed to upload messages to hastebin",
         QUOTE_COMMAND_DESCRIPTION: "Quote a message from an ID or URL",
+        QUOTE_PREMIUM_INCREASED_LENGTH:
+          "This message is using the new 4,000 character limit for nitro users. Because of this, I am unable to quote it.",
         AUTOQUOTE_COMMAND_DESCRIPTION:
           "Enable automatic quoting when a message URL is sent",
         AUTOQUOTE_ENABLED:
@@ -1127,7 +1145,7 @@ ${prefixes.join(", ")}`,
         QUOTE_WEBHOOK_CREATE_REASON:
           "This webhook will be used for quoting messages in this channel",
         QUOTE_EMBED_FROM: (author: string, channel: string) =>
-          `Raw embed from ${author} in #${channel}`,
+          `Raw embed(s) from ${author} in #${channel}`,
         QUOTE_EMBED_FOOTER_ALL: (
           user: string,
           channel: string,
@@ -1274,6 +1292,8 @@ ${success.map((s) => "- " + s).join("\n")}${
         REMINDERS_COMMAND_DESCRIPTION: "List all reminders you have set",
         REMINDERS_NONE_FOUND:
           "You must have a good memory because I found no reminders",
+        REMINDERS_FOOTER: (prefix: string) =>
+          `Use "${prefix}delremind [number]" to delete a reminder`,
         DELREMIND_COMMAND_DESCRIPTION:
           "Delete a reminder using the index from the reminders command",
         DELREMIND_ARG_DESCRIPTION:
@@ -1330,18 +1350,22 @@ ${success.map((s) => "- " + s).join("\n")}${
           )}`,
         SK1ER_BETA_MOVED:
           "Beta testing for Sk1er LLC mods has been moved to our support server! You can join with discord.gg/d4KFR9H",
-        SK1ER_SUPPORT_CONFIRM: `Please ensure you have all necessary details ready to give in the ticket. If you **do not** want to open a ticket, you can click the red button below. Otherwise, in a few seconds you will be able to click the green button
+        SK1ER_SUPPORT_CONFIRM: `Please ensure you have all necessary details ready to give in the ticket.
           
 Do note that we do not provide support for the following:
 * Non-Sk1er LLC mods
 * Hyperium
-* Users who have not purchased the game (Cracked Users)`,
-        SK1ER_SUPPORT_CONFIRM_EDIT: `Please ensure you have all necessary details ready to give in the ticket. If you **do not** want to open a ticket, you can click the red button below. Otherwise, click the green button to open the ticket
+* Users who have not purchased the game (Cracked Users)
+
+If you **do not** want to open a ticket, you can click the red button below. Otherwise, in a few seconds you will be able to click the green button`,
+        SK1ER_SUPPORT_CONFIRM_EDIT: `Please ensure you have all necessary details ready to give in the ticket.
 
 Do note that we do not provide support for the following:
 * Non-Sk1er LLC mods
 * Hyperium
-* Users who have not purchased the game (Cracked Users)`,
+* Users who have not purchased the game (Cracked Users)
+
+If you **do not** want to open a ticket, you can click the red button below. Otherwise, click the green button to open the ticket`,
         SK1ER_SUPPORT_CANCELLED:
           'Alright, you can go ahead and click "Dismiss Message"',
         SK1ER_SUPPORT_FAIL: (reason: string) =>
@@ -1627,9 +1651,12 @@ Running this command without providing a category resets it, therefore disabling
         TICTACTOE_REQUEST_EXPIRED_SLASH: (opponent: string) =>
           `The challenge request for ${opponent} has expired.`,
         TICTACTOE_FORFEIT: "Forfeit",
+        TICTACTOE_END_GAME: "End Game",
         TICTACTOE_FORFEITED: (user: string) => `${user} has forfeited the game`,
+        TICTACTOE_JOINED_NEW: (user: string) =>
+          `${user} ended this game and joined a new one`,
         TICTACTOE_EXISTING:
-          'You must finish your current game of tic tac toe before starting a new one. If you would like to end your previous game, click the "Forfeit" button on the game message',
+          "You must finish your current game of tic tac toe before starting a new one. If you would like to end your previous game, click the button below.",
         TICTACTOE_COMPUTER:
           "Eventually attempting to challenge any bot will allow you to play against a bot but my developer was too lazy to implement that. For now, you must challenge an actual user.",
         TICTACTOE_GAME_START: (opponent: string) =>

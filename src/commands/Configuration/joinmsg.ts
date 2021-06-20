@@ -1,4 +1,9 @@
-import { MessageMentionOptions, MessageEmbed, Permissions } from "discord.js";
+import {
+  MessageMentionOptions,
+  MessageEmbed,
+  Permissions,
+  Snowflake,
+} from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
@@ -76,12 +81,14 @@ export default class JoinMSG extends Command {
           .setDescription(message.language.get("JOINMSG_SETUP_REQUIRED"))
           .addField(
             message.language.get("VARIABLES"),
-            Object.entries(variableMap).map(([key, val]) => `${key}: ${val}`)
+            Object.entries(variableMap)
+              .map(([key, val]) => `${key}: ${val}`)
+              .join("\n")
           );
-        return await message.channel.send(embed);
+        return await message.channel.send({ embeds: [embed] });
       }
       const channel = message.guild.channels.cache.get(
-        message.guild.settings.get<string>("greet.joinchannel")
+        message.guild.settings.get<Snowflake>("greet.joinchannel")
       );
       const embed = new MessageEmbed()
         .setColor(message.member?.displayHexColor || "#ffffff")
@@ -96,9 +103,11 @@ export default class JoinMSG extends Command {
         .addField(message.language.get("MESSAGE"), msg)
         .addField(
           message.language.get("VARIABLES"),
-          Object.entries(variableMap).map(([key, val]) => `${key}: ${val}`)
+          Object.entries(variableMap)
+            .map(([key, val]) => `${key}: ${val}`)
+            .join("\n")
         );
-      return await message.channel.send(embed);
+      return await message.channel.send({ embeds: [embed] });
     } else if (
       typeof args.channel == "string" &&
       disableArgs.includes(args.channel)
@@ -132,12 +141,12 @@ export default class JoinMSG extends Command {
     ];
     for (const [regex, replacement] of regexes)
       msg = msg.replace(regex as RegExp, replacement as string);
-    return await message.channel.send(
-      `${emojis.success} ${message.language.get(
+    return await message.channel.send({
+      content: `${emojis.success} ${message.language.get(
         "JOINMSG_SET_SUCCESS",
         channel.toString()
       )} ${msg}`,
-      { allowedMentions }
-    );
+      allowedMentions,
+    });
   }
 }

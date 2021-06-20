@@ -3,6 +3,7 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
+import { Snowflake } from "discord.js";
 
 const paidStatuses = ["trialing", "active", "past_due"];
 const dataKeys = ["user", "limit", "status", "periodEnd", "action"];
@@ -18,7 +19,7 @@ export default class PremiumSyncEvent extends Event {
   }) {
     const { client } = this.manager;
     for (const [guild, premium] of Object.entries(data)) {
-      const instance = client.guilds.cache.get(guild) as FireGuild;
+      const instance = client.guilds.cache.get(guild as Snowflake) as FireGuild;
       if (
         premium.status == "trialing" &&
         instance?.settings.get<boolean>("premium.trialeligible", true)
@@ -51,10 +52,10 @@ export default class PremiumSyncEvent extends Event {
       .catch(() => {});
     if (!premiumStripeResult) return;
 
-    let paidIds: string[] = [];
-    let removeIds: string[] = [];
+    let paidIds: Snowflake[] = [];
+    let removeIds: Snowflake[] = [];
     for await (const entry of premiumStripeResult) {
-      const uid = entry.get("uid") as string;
+      const uid = entry.get("uid") as Snowflake;
       const status = entry.get("status") as SubscriptionStatus;
       if (uid && hasPaid(status)) paidIds.push(uid);
       else if (uid) removeIds.push(uid);
@@ -63,8 +64,11 @@ export default class PremiumSyncEvent extends Event {
     const guild = client.guilds.cache.get(client.config.fireGuildId);
     if (!guild) return;
     const role = guild.roles.cache.get("564060922688176139");
-    const members = await guild.members.fetch().catch(() => {});
-    if (!members) return;
+    if (!role) return;
+    const members = await guild.members
+      .fetch({ user: [...paidIds, ...removeIds] })
+      .catch(() => {});
+    if (!members || !members.size) return;
     for (const [, member] of members)
       if (
         member.roles.cache.has(role.id) &&
@@ -72,7 +76,7 @@ export default class PremiumSyncEvent extends Event {
         !client.config.dev
       )
         await member.roles.remove(role, "premium is gone :crabrave:");
-      else if (paidIds.includes(member.id))
+      else if (paidIds.includes(member.id) && !member.roles.cache.has(role.id))
         await member.roles.add(role, "wow member now has premium");
   }
 }

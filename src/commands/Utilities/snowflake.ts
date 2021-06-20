@@ -37,7 +37,8 @@ export default class Snowflake extends Command {
     if (!this.userCommand || !snowflake) return;
     return await this.userCommand.snowflakeInfo(
       message,
-      snowflake as { snowflake: string } & DeconstructedSnowflake
+      // @ts-ignore (i can't figure out why this complains)
+      snowflake
     );
   }
 }

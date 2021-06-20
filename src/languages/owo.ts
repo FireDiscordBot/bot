@@ -770,7 +770,11 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           "__Attachment UWWs awe invawidated once the message is deweted.__",
         MSGDELETELOG_SPOTIFY_ACTIVITY: "Spotify Invite",
         MSGDELETELOG_ACTIVITY: (partyID: string, type: number) =>
-          `Pawty ID: ${partyID}\nType: ${this.get("ACTIVITY_TYPES")[type]}`,
+          `Pawty ID: ${partyID}\nType: ${
+            ((this.get("ACTIVITY_TYPES") as unknown) as Record<number, string>)[
+              type
+            ]
+          }`,
         MUTEROLE_COMMAND_DESCRIPTION: "Change the wowe used to mute membews",
         MUTE_ROLE_CREATE_REASON: "Setting up muted wowe...",
         MUTE_LOG_AUTHOR: (user: string) => `Mute | ${user}`,
@@ -890,7 +894,7 @@ Fire uses wibwawies/sewvices made by [Ravy](https://ravy.pink/) & [The Aero Team
           `This sewvew's pwefix has been set fwom "${old}" to "${newp}"`,
         PURGE_COMMAND_DESCRIPTION:
           "Buwk dewete messages with optionaw fwags to sewectivewy dewete messages based on cewtain factows",
-        PURGE_AMOUNT_INVALID: "Invawid amount. Minumum is 2, Maximum is 100",
+        PURGE_AMOUNT_INVALID: "Invawid amount. Minimum is 2, Maximum is 100",
         PURGE_HISTORY_FAIL: "Faiwed to fetch messages",
         PURGE_SUCCESS: (messages: number) =>
           `Successfuwwy deweted **${messages}** messages!`,

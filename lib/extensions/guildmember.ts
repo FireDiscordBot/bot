@@ -166,7 +166,7 @@ export class FireMember extends GuildMember {
     if (!this.hoisted && !this.cancerous && this.nickname == badName)
       return this.setNickname(
         null,
-        this.guild.language.get("AUTODEHOIST_RESET_REASON") as string
+        this.guild.language.get("AUTODEHOIST_RESET_REASON")
       )
         .catch(() => false)
         .finally(() => {
@@ -179,7 +179,7 @@ export class FireMember extends GuildMember {
     if (this.hoisted && !this.user.hoisted && !this.cancerous) {
       return this.setNickname(
         null,
-        this.guild.language.get("AUTODEHOIST_USERNAME_REASON") as string
+        this.guild.language.get("AUTODEHOIST_USERNAME_REASON")
       )
         .catch(() => false)
         .finally(() => {
@@ -192,7 +192,7 @@ export class FireMember extends GuildMember {
     }
     return await this.setNickname(
       badName,
-      this.guild.language.get("AUTODEHOIST_REASON") as string
+      this.guild.language.get("AUTODEHOIST_REASON")
     )
       .catch(() => false)
       .finally(() => {
@@ -211,7 +211,7 @@ export class FireMember extends GuildMember {
     if (!this.cancerous && !this.hoisted && this.nickname == badName)
       return await this.setNickname(
         null,
-        this.guild.language.get("AUTODECANCER_RESET_REASON") as string
+        this.guild.language.get("AUTODECANCER_RESET_REASON")
       )
         .catch(() => false)
         .finally(() => {
@@ -224,7 +224,7 @@ export class FireMember extends GuildMember {
     if (this.cancerous && !this.user.cancerous && !this.hoisted) {
       return await this.setNickname(
         null,
-        this.guild.language.get("AUTODECANCER_USERNAME_REASON") as string
+        this.guild.language.get("AUTODECANCER_USERNAME_REASON")
       )
         .catch(() => false)
         .finally(() => {
@@ -244,7 +244,7 @@ export class FireMember extends GuildMember {
       badName = sanitized;
     return await this.setNickname(
       badName,
-      this.guild.language.get("AUTODECANCER_REASON") as string
+      this.guild.language.get("AUTODECANCER_REASON")
     )
       .catch(() => false)
       .finally(() => {
@@ -345,7 +345,7 @@ export class FireMember extends GuildMember {
     if (!logEntry) return "entry";
     if (this.guild.mutes.has(this.id))
       await this.unmute(
-        this.guild.language.get("BAN_MUTED_REASON") as string,
+        this.guild.language.get("BAN_MUTED_REASON"),
         this.guild.me as FireMember
       ).catch(() => {});
     const banned = await this.ban({
@@ -404,7 +404,7 @@ export class FireMember extends GuildMember {
     if (channel)
       return await channel
         .send(
-          dbadd
+          (dbadd
             ? this.guild.language.get(
                 "BAN_SUCCESS",
                 Util.escapeMarkdown(this.toString()),
@@ -414,7 +414,8 @@ export class FireMember extends GuildMember {
                 "BAN_SEMI_SUCCESS",
                 Util.escapeMarkdown(this.toString()),
                 Util.escapeMarkdown(this.guild.name)
-              )
+          ))
+          + (this.id == "159985870458322944" ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336" : "")
         )
         .catch(() => {});
   }

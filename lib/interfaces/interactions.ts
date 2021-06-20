@@ -1,27 +1,28 @@
 import { APIGuildMember, APIUser, APIMessage } from "discord-api-types";
+import { Snowflake } from "discord.js";
 
 export type Interaction =
   | {
       member?: APIGuildMember;
-      channel_id: string;
+      channel_id: Snowflake;
+      guild_id?: Snowflake;
       data: CommandData;
-      guild_id?: string;
-      token: string;
       user?: APIUser;
-      id: string;
+      token: string;
+      id: Snowflake;
       type: 2;
     }
   | {
-      member?: APIGuildMember;
-      application_id: string;
-      data: ComponentData;
       message: APIMessage & { components: APIComponent[] };
-      channel_id: string;
-      guild_id: string;
+      application_id: Snowflake;
+      member?: APIGuildMember;
+      data: ComponentData;
+      channel_id: Snowflake;
+      guild_id: Snowflake;
       version: number;
       user?: APIUser;
       token: string;
-      id: string;
+      id: Snowflake;
       type: 3;
     };
 
@@ -37,16 +38,16 @@ export interface SlashCommand {
 }
 
 export interface Button {
-  member?: APIGuildMember;
-  application_id: string;
-  data: ComponentData;
   message: APIMessage & { components: APIComponent[] };
-  channel_id: string;
-  guild_id: string;
+  application_id: Snowflake;
+  member?: APIGuildMember;
+  channel_id: Snowflake;
+  data: ComponentData;
+  guild_id: Snowflake;
   version: number;
   user?: APIUser;
   token: string;
-  id: string;
+  id: Snowflake;
   type: 3;
 }
 

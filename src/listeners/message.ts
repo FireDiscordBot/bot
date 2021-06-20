@@ -1,15 +1,34 @@
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Message as AetherMessage } from "@fire/lib/ws/Message";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
 import { APIMessage } from "discord-api-types";
 import MCLogs from "@fire/src/modules/mclogs";
 import Sk1er from "@fire/src/modules/sk1er";
+import { Snowflake } from "discord.js";
 import * as centra from "centra";
 
 const { regexes } = constants;
 const tokenExtras = /(?:(?:  )?',(?: ')?\n?|  '|\s|\n)/gim;
 const snowflakeRegex = /\d{15,21}/gim;
+
+const cleanMap = {
+  ":": [/\\:/gim],
+  ".": [/\\\./gim, /\(\.\)/gim, /dot/gim, /\/\./gim],
+  "/": [/\.\//gim, /\\\/\//gim, /slash/gim],
+  "": [regexes.zws, regexes.protocol, regexes.symbol, /\s/gim, /(\*|_|\|)/gim],
+  com: [/c.m/gim],
+  "discord.gg/$1": [/\.gg\/(?<code>[\w-]{1,25})/gim],
+  // always keep this at the end
+  "lets be honest there is no reason to post this other than trying to send rick roll so lol, youtu.be/dQw4w9WgXcQ": [
+    /\/(?:watch\?v=)?dQw4w9WgXcQ/gim,
+  ],
+};
+
 export default class Message extends Listener {
   recentTokens: string[];
   tokenRegex: RegExp;
@@ -97,6 +116,23 @@ export default class Message extends Listener {
     if (message.type == "PINS_ADD")
       this.client.emit("channelPinsAdd", message.reference, message.member);
 
+    const lowerContent = message.content.toLowerCase();
+    if (
+      (message.guild?.id == "411619823445999637" &&
+        lowerContent.includes(".ru") &&
+        lowerContent.includes("@everyone") &&
+        lowerContent.includes("partner")) ||
+      lowerContent.includes("/king8") ||
+      (lowerContent.includes("cs:go") && lowerContent.includes("?partner="))
+    )
+      return await message.member?.bean(
+        "Phishing links",
+        message.guild.me,
+        null,
+        7,
+        message.channel as FireTextChannel
+      );
+
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
     // These won't run if the modules aren't loaded
@@ -127,6 +163,15 @@ export default class Message extends Listener {
       message.embeds.length &&
       this.client.config.datamineUsers.includes(message.embeds[0].author.name)
     ) {
+      if (message.embeds[0].title.includes("new commit"))
+        this.client.manager.ws.send(
+          MessageUtil.encode(
+            new AetherMessage(EventType.FETCH_DISCORD_EXPERIMENTS, {
+              current:
+                this.client.manager.state.discordExperiments?.length ?? 0,
+            })
+          )
+        );
       const dataminingMessage = await this.client.req
         .channels("731330454422290463")
         .messages.post<APIMessage>({
@@ -153,7 +198,10 @@ export default class Message extends Listener {
 
     if (!message.member || message.author.bot) return;
 
-    const autoroleId = message.guild.settings.get<string>("mod.autorole", null);
+    const autoroleId = message.guild.settings.get<Snowflake>(
+      "mod.autorole",
+      null
+    );
     const delay = message.guild.settings.get<boolean>(
       "mod.autorole.waitformsg",
       false
@@ -162,10 +210,7 @@ export default class Message extends Listener {
       const role = message.guild.roles.cache.get(autoroleId);
       if (role && !message.member.roles.cache.has(role.id))
         await message.member.roles
-          .add(
-            role,
-            message.member.guild.language.get("AUTOROLE_REASON") as string
-          )
+          .add(role, message.member.guild.language.get("AUTOROLE_REASON"))
           .catch(() => {});
     }
 
@@ -174,18 +219,11 @@ export default class Message extends Listener {
   }
 
   cleanContent(message: FireMessage) {
-    return message.content
-      .replace(/\\:/gim, ":")
-      .replace(/\\\./gim, ".")
-      .replace(regexes.zws, "")
-      .replace(/\(\.\)/gim, ".")
-      .replace(/\.\//gim, "/")
-      .replace(/dot/gim, ".")
-      .replace(/\/\./gim, ".")
-      .replace(regexes.protocol, "")
-      .replace(regexes.symbol, "")
-      .replace(/\\\/\//gim, "/")
-      .replace(/\s/gim, "")
-      .replace(/\.gg\/(?<code>[\w-]{1,25})/, "discord.gg/$1");
+    let content = message.cleanContent;
+    for (const [replacement, regexes] of Object.entries(cleanMap)) {
+      for (const regex of regexes)
+        content = content.replace(regex, replacement);
+    }
+    return content;
   }
 }

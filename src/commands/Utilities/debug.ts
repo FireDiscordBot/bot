@@ -76,25 +76,7 @@ export default class Debug extends Command {
           message,
           "COMMAND_EXPERIMENT_REQUIRED"
         );
-      else if (
-        experiment.kind == "user" &&
-        !message.author.hasExperiment(
-          experiment.id,
-          requiresExperiment.bucket
-        )
-      )
-        return await this.sendSingleError(
-          message,
-          "COMMAND_EXPERIMENT_REQUIRED"
-        );
-      else if (
-        experiment.kind == "guild" &&
-        (!message.guild ||
-          !message.guild?.hasExperiment(
-            experiment.id,
-            requiresExperiment.bucket
-          ))
-      )
+      else if (!message.hasExperiment(experiment.id, requiresExperiment.bucket))
         return await this.sendSingleError(
           message,
           "COMMAND_EXPERIMENT_REQUIRED"
@@ -141,11 +123,11 @@ export default class Debug extends Command {
         )
         .filter((permission) => !!permission);
 
-      const permMsg = message.language.get(
+      const permMsg = (message.language.get(
         "DEBUG_PERMS_FAIL",
         user,
         client
-      ) as { user: string | null; client: string | null };
+      ) as unknown) as { user: string | null; client: string | null };
 
       if (permMsg.user || permMsg.client)
         details.push(
@@ -230,10 +212,12 @@ export default class Debug extends Command {
       (message.guild &&
         message.guild.me?.permissions.has(Permissions.FLAGS.EMBED_LINKS))
     )
-      return await message.channel.send(this.createEmbed(message, details));
+      return await message.channel.send({
+        embeds: [this.createEmbed(message, details)],
+      });
     else {
       details.push(`${error} ${message.language.get("DEBUG_NO_EMBEDS")}`);
-      return await message.channel.send(details.join("\n"));
+      return await message.channel.send({ content: details.join("\n") });
     }
   }
 
@@ -252,9 +236,11 @@ export default class Debug extends Command {
     ...args: any[]
   ) {
     return await message.channel.send({
-      embed: this.createEmbed(message, [
-        `${error} ${message.language.get(key, ...args)}`,
-      ]),
+      embeds: [
+        this.createEmbed(message, [
+          `${error} ${message.language.get(key, ...args)}`,
+        ]),
+      ],
     });
   }
 
@@ -264,9 +250,11 @@ export default class Debug extends Command {
     ...args: any[]
   ) {
     return await message.channel.send({
-      embed: this.createEmbed(message, [
-        `${success} ${message.language.get(key, ...args)}`,
-      ]),
+      embeds: [
+        this.createEmbed(message, [
+          `${success} ${message.language.get(key, ...args)}`,
+        ]),
+      ],
     });
   }
 }

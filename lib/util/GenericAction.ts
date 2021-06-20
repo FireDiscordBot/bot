@@ -1,4 +1,6 @@
 import {
+  MessageReactionResolvable,
+  MessageReaction,
   PartialTypes,
   NewsChannel,
   BaseManager,
@@ -44,7 +46,7 @@ export class GenericAction {
     partialType: PartialTypes,
     cache?: boolean
   ) {
-    const existing = manager.cache.get(id);
+    const existing = manager.cache.get(id as Snowflake);
     if (!existing && this.client.options.partials.includes(partialType)) {
       return manager.add(data, cache);
     }
@@ -68,7 +70,11 @@ export class GenericAction {
     );
   }
 
-  getMessage(data: any, channel: FireTextChannel | NewsChannel, cache: boolean) {
+  getMessage(
+    data: any,
+    channel: FireTextChannel | NewsChannel,
+    cache: boolean
+  ) {
     const id = data.message_id || data.id;
     return (
       data.message ||
@@ -94,7 +100,7 @@ export class GenericAction {
         count: message.partial ? null : 0,
         me: user ? user.id === this.client.user.id : false,
       },
-      message.reactions,
+      message.reactions as BaseManager<Snowflake, MessageReaction, MessageReactionResolvable>,
       id,
       PartialTypes.REACTION
     );

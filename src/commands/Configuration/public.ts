@@ -1,7 +1,11 @@
+import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { EventType } from "@fire/lib/ws/util/constants";
 import VanityURLs from "@fire/src/modules/vanityurls";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Message } from "@fire/lib/ws/Message";
 import { Permissions } from "discord.js";
 import * as moment from "moment";
 
@@ -37,12 +41,30 @@ export default class Public extends Command {
       );
     await message.guild.settings.set<boolean>("utils.public", !current);
     if (!current) {
+      if (this.client.manager.ws?.open)
+        this.client.manager.ws?.send(
+          MessageUtil.encode(
+            new Message(EventType.DISCOVERY_UPDATE, {
+              op: DiscoveryUpdateOp.ADD,
+              guilds: [message.guild.getDiscoverableData()],
+            })
+          )
+        );
       await message.success("PUBLIC_ENABLED", vanitys.rows[0][0]);
       await message.guild.actionLog(
         message.language.get("PUBLIC_ENABLED_LOG", message.author.toString()),
         "public_toggle"
       );
     } else {
+      if (this.client.manager.ws?.open)
+        this.client.manager.ws?.send(
+          MessageUtil.encode(
+            new Message(EventType.DISCOVERY_UPDATE, {
+              op: DiscoveryUpdateOp.REMOVE,
+              guilds: [{ id: message.guild.id }],
+            })
+          )
+        );
       await message.success("PUBLIC_DISABLED");
       await message.guild.actionLog(
         message.language.get("PUBLIC_DISABLED_LOG", message.author.toString()),

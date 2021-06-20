@@ -1,13 +1,16 @@
+import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
+import { Stats } from "@fire/lib/interfaces/stats";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
 import { Module } from "@fire/lib/util/module";
 import { Argument } from "discord-akairo";
 import { Permissions } from "discord.js";
+import * as centra from "centra";
 
 export default class Unload extends Command {
   constructor() {
@@ -71,6 +74,28 @@ export default class Unload extends Command {
         return await message.react("📤");
       } else {
         args.module.remove();
+        // check if only a single cluster is running and if so, sync commands with aether
+        const stats = (await (
+          await centra(
+            process.env.REST_HOST
+              ? `https://${process.env.REST_HOST}/stats`
+              : `http://127.0.0.1:${process.env.REST_PORT}/stats`
+          )
+            .header("User-Agent", this.client.manager.ua)
+            .send()
+        )
+          .json()
+          .catch(() => {})) as Stats | void;
+        if (stats && stats.clusters.length == 1)
+          this.client.manager.ws.send(
+            MessageUtil.encode(
+              new Message(EventType.REQUEST_COMMANDS, {
+                id: this.client.manager.id,
+                commands: getCommands(this.client),
+                allCommands: getAllCommands(this.client),
+              })
+            )
+          );
         return await message.success();
       }
     } catch {

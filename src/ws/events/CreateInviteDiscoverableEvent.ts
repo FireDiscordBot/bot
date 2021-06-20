@@ -4,13 +4,14 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Message } from "@fire/lib/ws/Message";
 import { Manager } from "@fire/lib/Manager";
+import { Snowflake } from "discord.js";
 
 export default class CreateInviteDiscoverableEvent extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.CREATE_INVITE_DISCOVERABLE);
   }
 
-  async run(data: { id: string }, nonce?: string) {
+  async run(data: { id: Snowflake }, nonce?: string) {
     const guild = this.manager.client?.guilds.cache.get(data.id) as FireGuild;
     if (!guild || !guild.features.includes("DISCOVERABLE")) return;
 
@@ -52,7 +53,7 @@ export default class CreateInviteDiscoverableEvent extends Event {
         temporary: false,
         maxAge: 300,
         maxUses: 1,
-        reason: guild.language.get("PUBLIC_DISCOVERABLE_INVITE") as string,
+        reason: guild.language.get("PUBLIC_DISCOVERABLE_INVITE"),
       })
       .catch(() => {});
     if (invite && invite.code)

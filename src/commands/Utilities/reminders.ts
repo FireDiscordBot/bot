@@ -59,6 +59,12 @@ export default class Reminders extends Command {
       {
         owner: message.member || message.author,
         embed,
+        footer: {
+          text: message.language.get(
+            "REMINDERS_FOOTER",
+            message.util?.parsed?.prefix
+          ),
+        },
       }
     );
     return await paginatorInterface.send(message.channel);

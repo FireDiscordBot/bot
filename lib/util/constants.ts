@@ -68,6 +68,7 @@ let emojis = {
     VERIFIED_BOT:
       "<:verifiedbot1:700325427998097449><:verifiedbot2:700325521665425429>",
     EARLY_VERIFIED_BOT_DEVELOPER: "<:VerifiedBotDev:720179031785340938>",
+    DISCORD_CERTIFIED_MODERATOR: "<:CertifiedModerator:844189980305653790>",
     PARTNERED: "<:PartnerWithBanner:844154648680071189>",
     VERIFIED: "<:VerifiedWithBanner:751196492517081189>",
     OWNER: "<:ownercrown:831858918161776661>",
@@ -113,6 +114,7 @@ if (process.env.EMOJI_SET == "1") {
       VERIFIED_BOT:
         "<:verifiedbot1:823121735774765057><:verifiedbot2:823121736273887239>",
       EARLY_VERIFIED_BOT_DEVELOPER: "<:VerifiedBotDev:823121736273887234>",
+      DISCORD_CERTIFIED_MODERATOR: "<:CertifiedModerator:844189980305653790>",
       PARTNERED: "<:PartnerWithBanner:823121736273887238>",
       VERIFIED: "<:VerifiedWithBanner:823121735774765058>",
       OWNER: "",
@@ -149,7 +151,7 @@ export const constants = {
   url: {
     discovery: "https://fire.gaminggeek.dev/discover",
     discordStatus: "https://discordstatus.com",
-    fireStatus: "https://status.gaminggeek.dev",
+    fireStatus: "https://firestatus.link",
     website: "https://fire.gaminggeek.dev/",
     terms: "https://inv.wtf/terms",
     privacy: "https://inv.wtf/privacy",

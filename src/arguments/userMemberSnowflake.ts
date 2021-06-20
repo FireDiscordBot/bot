@@ -3,11 +3,11 @@ import {
   memberConverter,
   snowflakeConverter,
 } from "@fire/lib/util/converters";
+import { DeconstructedSnowflake, Snowflake } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { ArgumentTypeCaster } from "discord-akairo";
-import { DeconstructedSnowflake } from "discord.js";
 
 export const userMemberSnowflakeTypeCaster: ArgumentTypeCaster = async (
   message: FireMessage,
@@ -15,7 +15,7 @@ export const userMemberSnowflakeTypeCaster: ArgumentTypeCaster = async (
 ): Promise<
   | FireMember
   | FireUser
-  | ({ snowflake: string } & DeconstructedSnowflake)
+  | ({ snowflake: Snowflake } & DeconstructedSnowflake)
   | null
 > => {
   const member = await memberConverter(message, phrase, true);

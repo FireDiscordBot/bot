@@ -1,8 +1,8 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { NewsChannel, Permissions, Snowflake } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { NewsChannel, Permissions } from "discord.js";
 
 export default class LogIgnore extends Command {
   constructor() {
@@ -27,9 +27,13 @@ export default class LogIgnore extends Command {
     message: FireMessage,
     args: { channel?: FireTextChannel | NewsChannel }
   ) {
-    let current = message.guild.settings.get<string[]>("utils.logignore", []);
+    let current: Snowflake[] | string[] = message.guild.settings.get<
+      Snowflake[]
+    >("utils.logignore", []);
     const beforeSize = current.length;
-    current = current.filter((id) => message.guild.channels.cache.has(id));
+    current = current.filter((id) =>
+      message.guild.channels.cache.has(id as Snowflake)
+    );
     // remove deleted channels
     if (current.length != beforeSize && current.length)
       message.guild.settings.set<string[]>("utils.logignore", current);
@@ -38,7 +42,9 @@ export default class LogIgnore extends Command {
 
     if (!args.channel) {
       current = current
-        .map((id) => message.guild.channels.cache.get(id)?.toString())
+        .map((id) =>
+          message.guild.channels.cache.get(id as Snowflake)?.toString()
+        )
         .filter((mention) => !!mention);
       return await message.send("LOGIGNORE_LIST_CURRENT", current);
     }
@@ -47,9 +53,14 @@ export default class LogIgnore extends Command {
       current = current.filter((id) => id != args.channel.id);
     else current.push(args.channel.id);
 
-    message.guild.settings.set<string[]>("utils.logignore", current);
+    message.guild.settings.set<Snowflake[]>(
+      "utils.logignore",
+      current as Snowflake[]
+    );
     current = current
-      .map((id) => message.guild.channels.cache.get(id)?.toString())
+      .map((id) =>
+        message.guild.channels.cache.get(id as Snowflake)?.toString()
+      )
       .filter((mention) => !!mention);
     return await message.success("LOGIGNORE_LIST_CURRENT", current);
   }

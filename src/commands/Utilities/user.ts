@@ -2,13 +2,15 @@ import {
   DeconstructedSnowflake,
   PermissionString,
   UserFlagsString,
+  DiscordAPIError,
   ThreadChannel,
+  SnowflakeUtil,
   GuildChannel,
   MessageEmbed,
   Permissions,
   ClientUser,
   DMChannel,
-  SnowflakeUtil,
+  Snowflake,
 } from "discord.js";
 import { APIApplication, ApplicationFlags } from "discord-api-types";
 import { constants, humanize, zws } from "@fire/lib/util/constants";
@@ -163,9 +165,9 @@ export default class User extends Command {
           this.shorten(roles, 1000, " - "),
           false
         );
-      const permissionsTranslated = message.language.get(
+      const permissionsTranslated = (message.language.get(
         "PERMISSIONS"
-      ) as object;
+      ) as unknown) as object;
       if (!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
         let perms = [];
         const keyPerms: PermissionString[] = [
@@ -296,7 +298,7 @@ export default class User extends Command {
             : statusEmojis[member.presence.status]
         )
       : embed.setFooter(user.id);
-    return await message.channel.send(embed);
+    return await message.channel.send({ embeds: [embed] });
   }
 
   getBadges(user: FireUser, author: FireMember | FireUser, guild?: FireGuild) {
@@ -410,7 +412,7 @@ export default class User extends Command {
 
   async snowflakeInfo(
     message: FireMessage,
-    snowflake: { snowflake: string } & DeconstructedSnowflake
+    snowflake: { snowflake: Snowflake } & DeconstructedSnowflake
   ) {
     let user: FireUser;
     if (snowflake instanceof FireUser) {
@@ -634,6 +636,19 @@ export default class User extends Command {
       );
     }
 
+    const maybeGuild = await this.client.req
+      .guilds(snowflake.snowflake)
+      .channels.get()
+      .catch((e) => e);
+    if (maybeGuild instanceof DiscordAPIError && maybeGuild.code == 50001) {
+      info.push(
+        message.language.get(
+          "USER_SNOWFLAKE_BELONGS_TO",
+          message.language.get("GUILD")
+        ) as string
+      );
+    }
+
     const embed = new MessageEmbed()
       .setColor(message.member?.displayHexColor || "#ffffff")
       .setTimestamp(snowflake.date)
@@ -651,6 +666,21 @@ export default class User extends Command {
     if (user)
       embed.description = embed.description.split("\n").slice(2).join("\n");
 
-    return await message.channel.send(embed);
+    if (
+      (this.client.guilds.cache.has(snowflake.snowflake) || maybeGuild) &&
+      message.hasExperiment(4026299021, 1) &&
+      this.client.manager.state.discordExperiments?.length
+    ) {
+      const experiments = await this.client.util.getFriendlyGuildExperiments(
+        snowflake.snowflake
+      );
+      if (experiments.length)
+        embed.addField(
+          message.language.get("GUILD_EXPERIMENTS"),
+          experiments.join("\n")
+        );
+    }
+
+    return await message.channel.send({ embeds: [embed] });
   }
 }

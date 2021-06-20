@@ -13,9 +13,9 @@ const EmptyReactionCollection = new Collection<string, FireUser>();
 type MessageSource = { messages: MessageManager };
 type MessageCollection = Collection<string, FireMessage>;
 type MessageOptions = {
-  around?: Date | string;
-  before?: Date | string;
-  after?: Date | string;
+  around?: Date | Snowflake;
+  before?: Date | Snowflake;
+  after?: Date | Snowflake;
   oldestFirst?: boolean;
   limit?: number;
 };
@@ -34,10 +34,10 @@ export class MessageIterator {
     | AsyncGenerator<FireMessage, void, unknown>;
   private next: number;
   source: MessageSource;
+  before?: Snowflake;
+  around?: Snowflake;
+  after?: Snowflake;
   reverse: boolean;
-  before?: string;
-  around?: string;
-  after?: string;
   limit?: number;
 
   constructor(source: MessageSource, options: MessageOptions) {
@@ -196,8 +196,8 @@ export class ReactionIterator {
   emoji: Snowflake | string;
   private next: number;
   source: FireMessage;
-  before?: string;
-  after?: string;
+  before?: Snowflake;
+  after?: Snowflake;
   limit?: number;
 
   constructor(source: FireMessage, options: ReactionOptions) {

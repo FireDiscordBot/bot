@@ -37,9 +37,9 @@ export default class TagRaw extends Command {
     const hasMarkdown = markdownRegex.test(cachedTag.content);
     markdownRegex.lastIndex = 0;
     if (hasMarkdown || cachedTag.content.length >= 2000)
-      return await message.channel.send(
-        await this.client.util.haste(cachedTag.content, false, "md")
-      );
-    else return await message.channel.send(cachedTag.content);
+      return await message.channel.send({
+        content: await this.client.util.haste(cachedTag.content, false, "md"),
+      });
+    else return await message.channel.send({ content: cachedTag.content });
   }
 }

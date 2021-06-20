@@ -2,8 +2,8 @@ import { SubscriptionStatus } from "@fire/lib/interfaces/premium";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
+import { Collection, Snowflake } from "discord.js";
 import { Command } from "@fire/lib/util/command";
-import { Collection } from "discord.js";
 
 const paidStatuses = ["trialing", "active", "past_due"];
 const hasPaid = (status: SubscriptionStatus) => paidStatuses.includes(status);
@@ -39,7 +39,7 @@ export default class PremiumInhibitor extends Inhibitor {
     );
     const now = new Date();
     for await (const row of premiumStripe) {
-      const guilds = row.get("guilds") as string[];
+      const guilds = row.get("guilds") as Snowflake[];
       const expiry = new Date((row.get("periodend") as number) * 1000);
       if (now > expiry) continue;
       if (guilds && guilds.length)
@@ -76,10 +76,10 @@ export default class PremiumInhibitor extends Inhibitor {
     )
       return;
 
-    let paidIds: string[] = [];
-    let removeIds: string[] = [];
+    let paidIds: Snowflake[] = [];
+    let removeIds: Snowflake[] = [];
     for await (const entry of premiumStripe) {
-      const uid = entry.get("uid") as string;
+      const uid = entry.get("uid") as Snowflake;
       const status = entry.get("status") as SubscriptionStatus;
       if (uid && hasPaid(status)) paidIds.push(uid);
       else if (uid) removeIds.push(uid);
@@ -91,8 +91,11 @@ export default class PremiumInhibitor extends Inhibitor {
       );
       if (!guild) return;
       const role = guild.roles.cache.get("564060922688176139");
-      const members = await guild.members.fetch().catch(() => {});
-      if (!members) return;
+      if (!role) return;
+      const members = await guild.members
+        .fetch({ user: [...paidIds, ...removeIds] })
+        .catch(() => {});
+      if (!members || !members.size) return;
       for (const [, member] of members)
         if (
           member.roles.cache.has(role.id) &&
@@ -100,7 +103,10 @@ export default class PremiumInhibitor extends Inhibitor {
           !this.client.config.dev
         )
           await member.roles.remove(role, "premium is gone :crabrave:");
-        else if (paidIds.includes(member.id))
+        else if (
+          paidIds.includes(member.id) &&
+          !member.roles.cache.has(role.id)
+        )
           await member.roles.add(role, "wow member now has premium");
     });
   }

@@ -41,7 +41,7 @@ export class Manager {
   }
 
   get djsua() {
-    return `Fire Discord Bot/${this.version} Discord.JS/${djsver} Node.JS/${process.version} (+https://fire.gaminggeek.dev/)`;
+    return `DiscordBot (https://discord.js.org, ${djsver}) Fire/${this.version} Node.JS/${process.version}`;
   }
 
   init(reconnecting = false) {
@@ -60,11 +60,13 @@ export class Manager {
 
     this.ws.once("open", () => {
       this.client.console.log("[Sharder] WS opened.");
+      if (this.client.readyAt) this.client.setReadyPresence();
       this.reconnector.handleOpen();
     });
 
     this.ws.once("close", (code: number, reason: string) => {
       this.client.console.warn("[Sharder] WS closed.");
+      if (this.client.readyAt) this.client.setPartialOutageStatus();
       this.ws.subscribed = [];
       this.reconnector.handleClose(code, reason);
     });

@@ -73,6 +73,6 @@ export default class Tickets extends Command {
         `${message.util.parsed?.prefix}ticket alert [<role>]`,
         message.language.get("TICKET_ALERT_DESCRIPTION")
       );
-    return await message.channel.send(embed);
+    return await message.channel.send({ embeds: [embed] });
   }
 }

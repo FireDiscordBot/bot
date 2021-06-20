@@ -1,8 +1,8 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import { MessageEmbed, Snowflake } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
 import Sk1er from "@fire/src/modules/sk1er";
-import { MessageEmbed } from "discord.js";
 import Message from "./message";
 
 export default class MessageUpdate extends Listener {
@@ -41,7 +41,7 @@ export default class MessageUpdate extends Listener {
 
     if (!after.member || after.author.bot) return;
 
-    const autoroleId = after.guild.settings.get<string>("mod.autorole", null);
+    const autoroleId = after.guild.settings.get<Snowflake>("mod.autorole", null);
     const delay = after.guild.settings.get<boolean>(
       "mod.autorole.waitformsg",
       false
@@ -52,7 +52,7 @@ export default class MessageUpdate extends Listener {
         await after.member.roles
           .add(
             role,
-            after.member.guild.language.get("AUTOROLE_REASON") as string
+            after.member.guild.language.get("AUTOROLE_REASON")
           )
           .catch(() => {});
     }
@@ -70,8 +70,8 @@ export default class MessageUpdate extends Listener {
       // if it's too long to show any changes
       // (since it is sliced to prevent huge embeds),
       // don't bother logging the edit
-      before.content.slice(0, 501) + "..." !=
-        after.content.slice(0, 501) + "..." &&
+      before.content.slice(0, 801) + "..." !=
+        after.content.slice(0, 801) + "..." &&
       !after.guild.logIgnored.includes(after.channel.id)
     ) {
       const embed = new MessageEmbed()
@@ -95,15 +95,15 @@ export default class MessageUpdate extends Listener {
         )
         .addField(
           after.guild.language.get("BEFORE"),
-          before.content.length <= 500
+          before.content.length <= 800
             ? before.content
-            : before.content.slice(0, 501) + "..."
+            : before.content.slice(0, 801) + "..."
         )
         .addField(
           after.guild.language.get("AFTER"),
-          after.content.length <= 500
+          after.content.length <= 800
             ? after.content
-            : after.content.slice(0, 501) + "..."
+            : after.content.slice(0, 801) + "..."
         )
         .setFooter(`${after.author.id} | ${after.id} | ${after.channel.id}`);
       await after.guild.actionLog(embed, "message_edit");

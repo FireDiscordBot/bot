@@ -88,10 +88,11 @@ export default class MCLogs extends Module {
       .header("Authorization", `token ${process.env.GITHUB_SOLUTIONS_TOKEN}`)
       .send();
     if (solutionsReq.statusCode == 200) {
-      const solutions = await solutionsReq.json();
-      this.solutions = JSON.parse(
-        Buffer.from(solutions.content, "base64").toString("ascii")
-      );
+      const solutions = await solutionsReq.json().catch(() => {});
+      if (solutions?.content)
+        this.solutions = JSON.parse(
+          Buffer.from(solutions.content, "base64").toString("ascii")
+        );
     }
   }
 
@@ -161,12 +162,13 @@ export default class MCLogs extends Module {
       try {
         await message.delete();
       } catch {}
-      return await message.channel.send(
-        message.language.get("SK1ER_NO_REUPLOAD", message.author.toMention()),
-        {
-          allowedMentions: { users: [message.author.id] },
-        }
-      );
+      return await message.channel.send({
+        content: message.language.get(
+          "SK1ER_NO_REUPLOAD",
+          message.author.toMention()
+        ) as string,
+        allowedMentions: { users: [message.author.id] },
+      });
     } else this.regexes.noRaw.lastIndex = 0;
 
     const reupload = this.regexes.reupload.exec(message.content);

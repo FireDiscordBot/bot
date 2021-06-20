@@ -1,12 +1,12 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import {
-  APIComponent,
-  ButtonStyle,
-  ButtonType,
-} from "@fire/lib/interfaces/interactions";
-import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  Permissions,
+  Snowflake,
+  Role,
+} from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageEmbed, Permissions, Role } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
@@ -51,8 +51,8 @@ export default class Rank extends Command {
   }
 
   async exec(message: FireMessage, args: { role?: Role }) {
-    let roles: string[] | Role[] = message.guild.settings
-      .get<string[]>("utils.ranks", [])
+    let roles: Snowflake[] | Role[] | string[] = message.guild.settings
+      .get<Snowflake[]>("utils.ranks", [])
       .filter((id) => message.guild.roles.cache.has(id));
     if (message.guild.settings.get<string[]>("utils.ranks", []) != roles)
       message.guild.settings.set<string[]>("utils.ranks", roles);
@@ -85,19 +85,15 @@ export default class Rank extends Command {
               }) as string)
             : undefined
         );
-      if (!message.guild.hasExperiment(1621199146, 1))
-        return await message.channel.send(embed);
+      if (!message.hasExperiment(1621199146, 1))
+        return await message.channel.send({ embeds: [embed] });
       else delete embed.description;
       const components = Rank.getRankButtons(
         message.guild,
         message.member
         // message instanceof FireMessage
       );
-      return message instanceof SlashCommandMessage
-        ? message.channel.send(embed, { buttons: components as APIComponent[] })
-        : await ButtonMessage.sendWithButtons(message.channel, embed, {
-            buttons: components as APIComponent[],
-          });
+      return message.channel.send({ embeds: [embed], components });
     }
 
     if (roles.includes(args.role)) {
@@ -107,15 +103,12 @@ export default class Rank extends Command {
         ? await message.member?.roles
             ?.remove(
               args.role,
-              message.guild.language.get("RANKS_LEAVE_REASON") as string
+              message.guild.language.get("RANKS_LEAVE_REASON")
             )
             .catch(() => {})
             .then(() => message.success("RANKS_LEFT_RANK", args.role.name))
         : await message.member?.roles
-            ?.add(
-              args.role,
-              message.guild.language.get("RANKS_JOIN_REASON") as string
-            )
+            ?.add(args.role, message.guild.language.get("RANKS_JOIN_REASON"))
             .catch(() => {})
             .then(() => message.success("RANKS_JOIN_RANK", args.role.name));
     } else return await message.error("RANKS_INVALID_ROLE");
@@ -126,14 +119,14 @@ export default class Rank extends Command {
     member: FireMember,
     useState: boolean = true
   ) {
-    let roles: string[] | Role[] = guild.settings
-      .get<string[]>("utils.ranks", [])
+    let roles: Snowflake[] | Role[] = guild.settings
+      .get<Snowflake[]>("utils.ranks", [])
       .filter((id) => guild.roles.cache.has(id));
-    if (guild.settings.get<string[]>("utils.ranks", []) != roles)
-      guild.settings.set<string[]>("utils.ranks", roles);
+    if (guild.settings.get<Snowflake[]>("utils.ranks", []) != roles)
+      guild.settings.set<Snowflake[]>("utils.ranks", roles);
     if (!roles.length) return [];
     roles = roles.map((id) => guild.roles.cache.get(id) as Role);
-    const components = [{ type: ButtonType.ACTION_ROW, components: [] }];
+    const components = [new MessageActionRow()];
     for (const role of roles) {
       let name = "@" + role.name;
       let emoji: string;
@@ -147,18 +140,23 @@ export default class Rank extends Command {
         components[components.length - 1].components.length >= 5 &&
         components.length < 5
       )
-        components.push({ type: ButtonType.ACTION_ROW, components: [] });
-      components[components.length - 1].components.push({
-        type: ButtonType.BUTTON,
-        style: useState
-          ? member.roles.cache.has(role.id)
-            ? ButtonStyle.DESTRUCTIVE
-            : ButtonStyle.SUCCESS
-          : ButtonStyle.PRIMARY,
-        emoji: emoji ? { name: emoji } : null,
-        custom_id: `!rank:${member?.id}:${role.id}`,
-        label: name,
-      });
+        components.push(new MessageActionRow());
+      components[components.length - 1].addComponents(
+        new MessageButton()
+          .setStyle(
+            useState
+              ? member.roles.cache.has(role.id)
+                ? "DANGER"
+                : "SUCCESS"
+              : "PRIMARY"
+          )
+          .setCustomID(`!rank:${member?.id}:${role.id}`)
+          .setLabel(name)
+      );
+      if (emoji) {
+        const length = components[components.length - 1].components.length - 1;
+        components[components.length - 1].components[length].setEmoji(emoji);
+      }
     }
     return components;
   }

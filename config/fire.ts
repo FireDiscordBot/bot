@@ -1,9 +1,11 @@
 import { humanize } from "@fire/lib/util/constants";
+import { Snowflake } from "discord.js";
 import { Fire } from "@fire/lib/Fire";
 import * as moment from "moment";
 
 export const fire = {
-  dev: process.env.NODE_ENV == "development",
+  dev:
+    process.env.NODE_ENV == "development" || process.env.NODE_ENV == "staging",
   readyMessage: (client: Fire) => {
     client.console.log("-------------------------");
     client.console.log(`Bot: ${client.user}`);
@@ -25,7 +27,7 @@ export const fire = {
     client.console.log("-------------------------");
   },
   aetherPingTimeout: 10000,
-  fireGuildId: "564052798044504084",
+  fireGuildId: "564052798044504084" as Snowflake,
   hasteLogEnabled: [
     "411619823445999637",
     "755794954743185438",

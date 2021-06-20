@@ -1,8 +1,12 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { MessageEmbed, Permissions, Snowflake } from "discord.js";
 import { constants, humanize } from "@fire/lib/util/constants";
+import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageEmbed, Permissions } from "discord.js";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { Message } from "@fire/lib/ws/Message";
 import Sk1er from "@fire/src/modules/sk1er";
 import * as moment from "moment";
 
@@ -19,6 +23,16 @@ export default class GuildMemberRemove extends Listener {
   }
 
   async exec(member: FireMember) {
+    if (member.guild.isPublic() && this.client.manager.ws?.open)
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.DISCOVERY_UPDATE, {
+            op: DiscoveryUpdateOp.SYNC,
+            guilds: [member.guild.getDiscoverableData()],
+          })
+        )
+      );
+
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     if (sk1erModule && member.guild.id == sk1erModule.guildId) {
       const removed = await sk1erModule
@@ -78,7 +92,7 @@ export default class GuildMemberRemove extends Listener {
     if (!member.user.bot) {
       let leaveMessage = member.guild.settings.get<string>("greet.leavemsg");
       const channel = member.guild.channels.cache.get(
-        member.guild.settings.get<string>("greet.leavechannel")
+        member.guild.settings.get<Snowflake>("greet.leavechannel")
       );
       if (leaveMessage && channel instanceof FireTextChannel) {
         const regexes = [
@@ -97,7 +111,7 @@ export default class GuildMemberRemove extends Listener {
             regex as RegExp,
             replacement as string
           );
-        await channel.send(leaveMessage).catch(() => {});
+        await channel.send({ content: leaveMessage }).catch(() => {});
       }
     }
 
@@ -123,7 +137,7 @@ export default class GuildMemberRemove extends Listener {
             ) as string;
             reason =
               auditAction.reason ||
-              (language.get("MODERATOR_ACTION_DEFAULT_REASON") as string);
+              language.get("MODERATOR_ACTION_DEFAULT_REASON");
           }
         }
       }

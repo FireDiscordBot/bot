@@ -1,21 +1,20 @@
 import {
-  APIMessageContentResolvable,
+  MessageComponentInteraction,
   PermissionOverwriteOptions,
   EmojiIdentifierResolvable,
+  WebhookEditMessageOptions,
   DeconstructedSnowflake,
   GuildMemberResolvable,
+  WebhookMessageOptions,
   AwaitMessagesOptions,
+  CreateInviteOptions,
   MessageEditOptions,
   MessageResolvable,
-  StringResolvable,
-  MessageAdditions,
   MessageReaction,
   CollectorFilter,
-  MessageOptions,
   MessageManager,
   RoleResolvable,
   UserResolvable,
-  InviteOptions,
   SnowflakeUtil,
   ThreadChannel,
   MessageEmbed,
@@ -25,14 +24,8 @@ import {
   Collection,
   Snowflake,
   DMChannel,
+  Webhook,
 } from "discord.js";
-import {
-  APIComponent,
-  Interaction,
-  ButtonType,
-  Button,
-  ActionRow,
-} from "../interfaces/interactions";
 import { APIMessage as DiscordAPIMessage } from "discord-api-types";
 import { FireTextChannel } from "./textchannel";
 import { constants } from "../util/constants";
@@ -44,62 +37,56 @@ import { FireUser } from "./user";
 import { Fire } from "../Fire";
 
 const { emojis, reactions } = constants;
-export type EphemeralMessage = { id: string; flags: number };
+export type EphemeralMessage = { id: Snowflake; flags: number };
 
 export class ButtonMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   private snowflake: DeconstructedSnowflake;
   message: FireMessage | EphemeralMessage;
+  interaction: MessageComponentInteraction;
   sent: false | "ack" | "message";
   sourceMessage: FireMessage;
+  latestResponse: Snowflake;
   private _flags: number;
-  latestResponse: string;
   channel: FakeChannel;
   ephemeral: boolean;
   member: FireMember;
   language: Language;
-  custom_id: string;
+  customID: string;
   guild: FireGuild;
   author: FireUser;
-  button: Button;
+  id: Snowflake;
   client: Fire;
-  id: string;
 
-  constructor(client: Fire, button: Interaction) {
-    if (button.type != 3) throw new TypeError("Interaction is not Button");
+  constructor(client: Fire, button: MessageComponentInteraction) {
     this.client = client;
     this.id = button.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
-    this.custom_id = button.data.custom_id;
-    this.button = button;
+    this.customID = button.customID;
+    this.interaction = button;
     this.sent = false;
-    this.guild = client.guilds.cache.get(button.guild_id) as FireGuild;
-    this.realChannel = client.channels.cache.get(button.channel_id) as
+    this.guild = button.guild as FireGuild;
+    this.realChannel = client.channels.cache.get(button.channelID) as
       | FireTextChannel
       | NewsChannel
       | DMChannel;
-    this.ephemeral = (button.message.flags & 64) != 0;
+    this.ephemeral = button.message.flags
+      ? (button.message.flags.valueOf() & 64) != 0
+      : false;
     this.message = this.ephemeral
       ? (button.message as EphemeralMessage)
-      : (this.realChannel.messages.cache.get(
-          button.message?.id
-        ) as FireMessage) ||
-        new FireMessage(client, button.message, this.realChannel);
+      : button.message instanceof FireMessage
+      ? button.message
+      : new FireMessage(client, button.message, this.realChannel);
     if (
       !this.message ||
       (!this.ephemeral &&
-        !this.button.message.components?.find(
+        !(this.message as FireMessage).components?.find(
           (component) =>
-            (component.type == this.button.data.component_type &&
-              // @ts-ignore
-              component.custom_id == this.custom_id) ||
-            (component.type == ButtonType.ACTION_ROW &&
-              component.components.find(
-                (component) =>
-                  component.type == this.button.data.component_type &&
-                  // @ts-ignore
-                  component.custom_id == this.custom_id
-              ))
+            component.type == "ACTION_ROW" &&
+            component.components.find(
+              (component) => component.customID == this.customID
+            )
         ))
     )
       throw new Error("Component checks failed, potential mitm/selfbot?");
@@ -124,7 +111,7 @@ export class ButtonMessage {
         client,
         button.id,
         button.token,
-        button.guild_id ? null : this.author.dmChannel
+        button.guildID ? null : this.author.dmChannel
       );
       return this;
     }
@@ -135,128 +122,6 @@ export class ButtonMessage {
       button.token,
       this.realChannel
     );
-  }
-
-  // temp helper function
-  static async sendWithButtons(
-    channel:
-      | FireTextChannel
-      | NewsChannel
-      | ThreadChannel
-      | DMChannel
-      | FireMessage,
-    content: StringResolvable | APIMessage | MessageEmbed,
-    options?: (MessageOptions | MessageAdditions) & {
-      buttons?: APIComponent[];
-    }
-  ): Promise<FireMessage> {
-    if (channel instanceof FireMessage) channel = channel.channel;
-    let apiMessage: APIMessage;
-
-    if (content instanceof MessageEmbed) {
-      options = {
-        ...options,
-        embed: content,
-      };
-      content = null;
-    }
-
-    if (content instanceof APIMessage) apiMessage = content.resolveData();
-    else {
-      apiMessage = APIMessage.create(channel, content, options).resolveData();
-    }
-
-    const { data, files } = (await apiMessage.resolveFiles()) as {
-      data: any;
-      files: any[];
-    };
-
-    const isRow =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.ACTION_ROW
-      );
-    const isButtons =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.BUTTON
-      );
-
-    if (isRow) data.components = options.buttons;
-    else if (isButtons)
-      data.components = [
-        { type: ButtonType.ACTION_ROW, components: options.buttons },
-      ];
-
-    return await (channel.client as Fire).req
-      .channels(channel.id)
-      .messages.post<DiscordAPIMessage>({ data, files })
-      .then(
-        (d) =>
-          // @ts-ignore
-          channel.client.actions.MessageCreate.handle(d).message as FireMessage
-      );
-  }
-
-  // temp helper function
-  static async editWithButtons(
-    message: FireMessage,
-    content: StringResolvable | APIMessage | MessageEmbed,
-    options?: (MessageOptions | MessageAdditions) & {
-      buttons?: ActionRow[] | APIComponent[];
-    }
-  ) {
-    let apiMessage: APIMessage;
-
-    if (content instanceof MessageEmbed) {
-      options = {
-        ...options,
-        embed: content,
-      };
-      content = null;
-    }
-
-    if (content instanceof APIMessage) apiMessage = content.resolveData();
-    else {
-      apiMessage = APIMessage.create(
-        message.channel,
-        content,
-        options
-      ).resolveData();
-    }
-
-    const { data, files } = (await apiMessage.resolveFiles()) as {
-      data: any;
-      files: any[];
-    };
-
-    const isRow =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.ACTION_ROW
-      );
-    const isButtons =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.BUTTON
-      );
-
-    if (isRow) data.components = options.buttons;
-    else if (isButtons)
-      data.components = [{ type: 1, components: options.buttons }];
-    else if (options?.buttons == null) data.components = [];
-
-    return await (message.client as Fire).req
-      .channels(message.channel.id)
-      .messages(message.id)
-      .patch<DiscordAPIMessage>({ data, files })
-      .then((d) => {
-        // @ts-ignore
-        const clone = message._clone();
-        clone._patch(d);
-        return clone as FireMessage;
-      })
-      .catch(() => {});
   }
 
   set flags(flags: number) {
@@ -294,7 +159,10 @@ export class ButtonMessage {
   }
 
   send(key: string = "", ...args: any[]) {
-    return this.channel.send(this.language.get(key, ...args), {}, this.flags);
+    return this.channel.send(
+      { content: this.language.get(key, ...args) },
+      this.flags
+    );
   }
 
   success(
@@ -315,7 +183,6 @@ export class ButtonMessage {
     }
     return this.channel.send(
       `${emojis.success} ${this.language.get(key, ...args)}`,
-      {},
       typeof this.flags == "number" ? this.flags : 64
     );
   }
@@ -338,7 +205,6 @@ export class ButtonMessage {
     }
     return this.channel.send(
       `${emojis.error} ${this.language.get(key, ...args)}`,
-      {},
       typeof this.flags == "number" ? this.flags : 64
     );
   }
@@ -350,7 +216,7 @@ export class ButtonMessage {
     let messageId = this.latestResponse;
     if (messageId == "@original") {
       const message = await this.client.req
-        .webhooks(this.client.user.id, this.button.token)
+        .webhooks(this.client.user.id, this.interaction.token)
         .messages(messageId)
         .get<DiscordAPIMessage>()
         .catch(() => {});
@@ -365,43 +231,42 @@ export class ButtonMessage {
   }
 
   async edit(
-    content:
-      | APIMessageContentResolvable
-      | MessageEditOptions
-      | MessageEmbed
-      | APIMessage,
-    options?: (MessageEditOptions | MessageEmbed) & {
-      buttons?: APIComponent[];
-    }
+    content: string | MessageEditOptions | MessageEmbed | APIMessage,
+    options?: WebhookEditMessageOptions & { embed?: MessageEmbed }
   ) {
-    const { data } = (content instanceof APIMessage
-      ? content.resolveData()
-      : // @ts-ignore
-        APIMessage.create(this, content, options).resolveData()) as {
+    let apiMessage: APIMessage;
+
+    if (content instanceof MessageEmbed) {
+      options = {
+        ...options,
+        embeds: [content],
+      };
+      content = null;
+    }
+
+    if (options?.embed) {
+      options.embeds = [options.embed];
+      delete options.embed;
+    }
+
+    if (content instanceof APIMessage) apiMessage = content.resolveData();
+    else {
+      apiMessage = APIMessage.create(
+        new Webhook(this.client, null), // needed to make isWebhook true for embeds array
+        content as string,
+        options
+      ).resolveData();
+    }
+
+    const { data } = (await apiMessage.resolveFiles()) as {
       data: any;
       files: any[];
     };
 
     data.flags = this.flags;
 
-    const isRow =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.ACTION_ROW
-      );
-    const isButtons =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.BUTTON
-      );
-
-    if (isRow) data.components = options.buttons;
-    else if (isButtons)
-      data.components = [{ type: 1, components: options.buttons }];
-    else if (options?.buttons == null) data.components = [];
-
     await this.client.req
-      .webhooks(this.client.user.id, this.button.token)
+      .webhooks(this.client.user.id, this.interaction.token)
       .messages(this.latestResponse ?? "@original")
       .patch({
         data,
@@ -413,7 +278,7 @@ export class ButtonMessage {
   async delete(id?: string) {
     if (this.ephemeral) return;
     await this.client.req
-      .webhooks(this.client.user.id, this.button.token)
+      .webhooks(this.client.user.id, this.interaction.token)
       .messages(id ?? this.latestResponse ?? "@original")
       .delete()
       .catch(() => {});
@@ -504,7 +369,7 @@ export class FakeChannel {
       : false;
   }
 
-  createInvite(options?: InviteOptions) {
+  createInvite(options?: CreateInviteOptions) {
     return !(this.real instanceof DMChannel)
       ? this.real instanceof ThreadChannel
         ? this.real.parent.createInvite(options)
@@ -526,28 +391,15 @@ export class FakeChannel {
   }
 
   async send(
-    content: StringResolvable | APIMessage | MessageEmbed,
-    options?: (MessageOptions | MessageAdditions) & {
-      buttons?: APIComponent[];
-    },
+    options?: string | APIMessage | (WebhookMessageOptions & { split?: false }),
     flags?: number // Used for success/error, can also be set
   ): Promise<ButtonMessage> {
     let apiMessage: APIMessage;
 
-    if (content instanceof MessageEmbed) {
-      options = {
-        ...options,
-        embed: content,
-      };
-      content = null;
-    }
-
-    if (content instanceof APIMessage) apiMessage = content.resolveData();
+    if (options instanceof APIMessage) apiMessage = options.resolveData();
     else {
       apiMessage = APIMessage.create(
-        // @ts-ignore
-        { client: this.client },
-        content,
+        new Webhook(this.client, null), // needed to make isWebhook true for embeds array
         options
       ).resolveData();
     }
@@ -556,23 +408,6 @@ export class FakeChannel {
       data: any;
       files: any[];
     };
-
-    const isRow =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.ACTION_ROW
-      );
-    const isButtons =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.BUTTON
-      );
-
-    if (isRow) data.components = options.buttons;
-    else if (isButtons)
-      data.components = [
-        { type: ButtonType.ACTION_ROW, components: options.buttons },
-      ];
 
     data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;
@@ -595,7 +430,7 @@ export class FakeChannel {
         })
         .then(() => {
           this.message.sent = "message";
-          this.message.latestResponse = "@original";
+          this.message.latestResponse = "@original" as Snowflake;
         })
         .catch(() => {});
     else {
@@ -609,17 +444,15 @@ export class FakeChannel {
         .catch(() => {});
       if (message && message.id && this.message.latestResponse == "@original")
         this.message.latestResponse = message.id;
-      else this.message.latestResponse = "@original";
+      else this.message.latestResponse = "@original" as Snowflake;
     }
     this.message.getRealMessage().catch(() => {});
     return this.message;
   }
 
   async update(
-    content: StringResolvable | APIMessage | MessageEmbed,
-    options?: (MessageOptions | MessageAdditions) & {
-      buttons?: APIComponent[];
-    },
+    content: string | APIMessage | MessageEmbed,
+    options?: WebhookMessageOptions & { embed?: MessageEmbed },
     flags?: number // Used for success/error, can also be set
   ): Promise<ButtonMessage> {
     if (this.message.sent) return; // can only update with initial response
@@ -629,17 +462,21 @@ export class FakeChannel {
     if (content instanceof MessageEmbed) {
       options = {
         ...options,
-        embed: content,
+        embeds: [content],
       };
       content = null;
+    }
+
+    if (options?.embed) {
+      options.embeds = [options.embed];
+      delete options.embed;
     }
 
     if (content instanceof APIMessage) apiMessage = content.resolveData();
     else {
       apiMessage = APIMessage.create(
-        // @ts-ignore
-        { client: this.client },
-        content,
+        new Webhook(this.client, null), // needed to make isWebhook true for embeds array
+        content as string,
         options
       ).resolveData();
     }
@@ -648,24 +485,6 @@ export class FakeChannel {
       data: any;
       files: any[];
     };
-
-    const isRow =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.ACTION_ROW
-      );
-    const isButtons =
-      options?.buttons?.length &&
-      options?.buttons.every(
-        (component) => component.type == ButtonType.BUTTON
-      );
-
-    if (isRow) data.components = options.buttons;
-    else if (isButtons)
-      data.components = [
-        { type: ButtonType.ACTION_ROW, components: options.buttons },
-      ];
-    else if (options?.buttons == null) data.components = [];
 
     data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;
@@ -687,7 +506,7 @@ export class FakeChannel {
       })
       .then(() => {
         this.message.sent = "message";
-        this.message.latestResponse = "@original";
+        this.message.latestResponse = "@original" as Snowflake;
       })
       .catch(() => {});
     this.message.getRealMessage().catch(() => {});

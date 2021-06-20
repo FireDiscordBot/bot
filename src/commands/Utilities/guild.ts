@@ -1,4 +1,4 @@
-import { GuildPreview, MessageEmbed, Permissions } from "discord.js";
+import { GuildPreview, MessageEmbed, Permissions, DMChannel } from "discord.js";
 import { humanize, zws, constants } from "@fire/lib/util/constants";
 import { snowflakeConverter } from "@fire/lib/util/converters";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -32,7 +32,7 @@ export default class GuildCommand extends Command {
       ],
       aliases: ["guildinfo", "infoguild", "serverinfo", "infoserver", "server"],
       enableSlashCommand: true,
-      restrictTo: "guild",
+      restrictTo: "all",
     });
   }
 
@@ -117,14 +117,16 @@ export default class GuildCommand extends Command {
         : null,
       guild instanceof FireGuild
         ? `**${message.language.get(
-            guild.region.length > 1 ? "REGION_PLURAL" : "REGION"
+            guild.regions.length > 1 ? "REGION_PLURAL" : "REGION"
           )}:** ${
             guild.regions.length > 1
               ? guild.regions
                   .map(
                     (region) =>
-                      message.language.get("REGIONS")[region] ||
-                      message.language.get("REGION_AUTOMATIC")
+                      ((message.language.get("REGIONS") as unknown) as Record<
+                        string,
+                        string
+                      >)[region] || message.language.get("REGION_AUTOMATIC")
                   )
                   .join(", ")
               : message.language.get("REGION_AUTOMATIC")
@@ -192,7 +194,7 @@ export default class GuildCommand extends Command {
         break;
     }
 
-    if (guild.defaultMessageNotifications == "MENTIONS")
+    if (guild.defaultMessageNotifications == "ONLY_MENTIONS")
       info.push(
         `${constants.emojis.statuspage.operational} ${message.language.get(
           "GUILD_NOTIFS_MENTIONS"
@@ -236,6 +238,11 @@ export default class GuildCommand extends Command {
   }
 
   async exec(message: FireMessage, args: { guild?: GuildPreview | FireGuild }) {
+    if (message.channel instanceof DMChannel && !args.guild)
+      return await message.error(
+        "COMMAND_GUILD_ONLY",
+        this.client.config.inviteLink
+      );
     if (!args.guild && typeof args.guild != "undefined") return;
     const guild = args.guild ? args.guild : message.guild;
 
@@ -243,7 +250,9 @@ export default class GuildCommand extends Command {
     const info = await this.getInfo(message, guild);
     const security = this.getSecurity(message, guild);
 
-    const featuresLocalization = message.language.get("FEATURES");
+    const featuresLocalization = (message.language.get(
+      "FEATURES"
+    ) as unknown) as Record<string, string>;
     const features: string[] = guild.features
       .filter((feature) => featuresLocalization.hasOwnProperty(feature))
       .map((feature) => featuresLocalization[feature]);
@@ -275,9 +284,13 @@ export default class GuildCommand extends Command {
       )
       .setFooter(guild.id)
       .setTimestamp();
-    if (info.length) embed.addField(message.language.get("GUILD_ABOUT"), info);
+    if (info.length)
+      embed.addField(message.language.get("GUILD_ABOUT"), info.join("\n"));
     if (security.length)
-      embed.addField(message.language.get("GUILD_SECURITY"), security);
+      embed.addField(
+        message.language.get("GUILD_SECURITY"),
+        security.join("\n")
+      );
 
     if (features.length > 0) {
       embed.addField(
@@ -289,10 +302,24 @@ export default class GuildCommand extends Command {
     if (guild instanceof FireGuild && roles?.length)
       embed.addField(
         message.language.get("GUILD_ROLES") +
-          ` [${guild.roles.cache.array().length}]`,
+          ` [${guild.roles.cache.array().length - 1}]`,
         this.shorten(roles, 1000, " - ")
       );
 
-    await message.channel.send(embed);
+    if (
+      message.hasExperiment(4026299021, 1) &&
+      this.client.manager.state.discordExperiments?.length
+    ) {
+      const experiments = await this.client.util.getFriendlyGuildExperiments(
+        guild.id
+      );
+      if (experiments.length)
+        embed.addField(
+          message.language.get("GUILD_EXPERIMENTS"),
+          experiments.join("\n")
+        );
+    }
+
+    await message.channel.send({ embeds: [embed] });
   }
 }

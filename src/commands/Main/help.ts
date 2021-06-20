@@ -1,6 +1,8 @@
 import {
   BitFieldResolvable,
+  MessageActionRow,
   PermissionString,
+  MessageButton,
   GuildChannel,
   Permissions,
 } from "discord.js";
@@ -11,11 +13,7 @@ import VanityURLs from "@fire/src/modules/vanityurls";
 import { titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import {
-  APIComponent,
-  ButtonStyle,
-  ButtonType,
-} from "@fire/lib/interfaces/interactions";
+import { ButtonStyle, ButtonType } from "@fire/lib/interfaces/interactions";
 
 const userMentionRegex = /<@!?(\d{15,21})>$/im;
 
@@ -105,12 +103,12 @@ export default class Help extends Command {
         });
     }
     fields.push({
-      name: message.language.get("HELP_CREDITS_NAME") as string,
-      value: message.language.get("HELP_CREDITS_VALUE") as string,
+      name: message.language.get("HELP_CREDITS_NAME"),
+      value: message.language.get("HELP_CREDITS_VALUE"),
       inline: false,
     });
-    let buttons: APIComponent[] = null;
-    if (message.guild?.hasExperiment(1621199146, 1)) {
+    let components: MessageActionRow[] = null;
+    if (message.hasExperiment(1621199146, 1)) {
       let supportInvite = "https://inv.wtf/fire";
       const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
       if (vanityurls) {
@@ -118,44 +116,35 @@ export default class Help extends Command {
         if (typeof supportVanity == "object" && supportVanity?.invite)
           supportInvite = `https://discord.gg/${supportVanity.invite}`;
       }
-      buttons = [
-        {
-          type: ButtonType.BUTTON,
-          style: ButtonStyle.LINK,
-          url: "https://inv.wtf/",
-          label: "Website",
-        },
-        {
-          type: ButtonType.BUTTON,
-          style: ButtonStyle.LINK,
-          // right now this opens in browser but
-          // I have been told this may change
-          url: supportInvite,
-          label: "Support",
-        },
-        {
-          url: "https://inv.wtf/terms",
-          label: "Terms of Service",
-          type: ButtonType.BUTTON,
-          style: ButtonStyle.LINK,
-        },
-        {
-          url: "https://inv.wtf/privacy",
-          type: ButtonType.BUTTON,
-          style: ButtonStyle.LINK,
-          label: "Privacy Policy",
-        },
-        {
-          url: "https://inv.wtf/premium",
-          type: ButtonType.BUTTON,
-          style: ButtonStyle.LINK,
-          label: "Premium",
-        },
+      components = [
+        // TODO: i18n for labels
+        new MessageActionRow().addComponents([
+          new MessageButton()
+            .setStyle("LINK")
+            .setURL("https://fire.gaminggeek.dev/")
+            .setLabel("Website"),
+          new MessageButton()
+            .setStyle("LINK")
+            .setURL(supportInvite)
+            .setLabel("Support"),
+          new MessageButton()
+            .setStyle("LINK")
+            .setURL("https://inv.wtf/terms")
+            .setLabel("Terms of Service"),
+          new MessageButton()
+            .setStyle("LINK")
+            .setURL("https://inv.wtf/privacy")
+            .setLabel("Privacy Policy"),
+          new MessageButton()
+            .setStyle("LINK")
+            .setURL("https://inv.wtf/premium")
+            .setLabel("Premium"),
+        ]),
       ];
     } else
       fields.push({
-        name: message.language.get("HELP_LINKS_NAME") as string,
-        value: message.language.get("HELP_LINKS_VALUE") as string,
+        name: message.language.get("HELP_LINKS_NAME"),
+        value: message.language.get("HELP_LINKS_VALUE"),
         inline: false,
       });
     const embed = {
@@ -179,12 +168,10 @@ export default class Help extends Command {
       },
       timestamp: new Date(),
     };
-    return message instanceof SlashCommandMessage
-      ? await message.channel.send(null, { embed, buttons })
-      : await ButtonMessage.sendWithButtons(message.channel, null, {
-          buttons,
-          embed,
-        });
+    return await message.channel.send({
+      components,
+      embeds: [embed],
+    });
   }
 
   async sendUsage(message: FireMessage, command: Command) {
@@ -215,6 +202,6 @@ export default class Help extends Command {
         value: permissions.join(", "),
         inline: false,
       });
-    await message.channel.send(null, { embed });
+    await message.channel.send({ embeds: [embed] });
   }
 }

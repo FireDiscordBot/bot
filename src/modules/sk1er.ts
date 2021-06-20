@@ -1,5 +1,5 @@
+import { CategoryChannel, MessageReaction, Snowflake, Role } from "discord.js";
 import { ButtonStyle, ButtonType } from "@fire/lib/interfaces/interactions";
-import { CategoryChannel, MessageReaction, Role } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -8,8 +8,6 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
-import { createWriteStream } from "fs";
-import * as archiver from "archiver";
 import * as centra from "centra";
 import * as moment from "moment";
 
@@ -26,18 +24,16 @@ interface Regexes {
 export default class Sk1er extends Module {
   essentialHeaders: { secret: string };
   descriptionUpdate: NodeJS.Timeout;
-  supportChannel: FireTextChannel;
   supportMessage: FireMessage;
   statusCheck: NodeJS.Timeout;
-  supportMessageId: string;
-  supportChannelId: string;
+  supportMessageId: Snowflake;
+  supportGuildId: Snowflake;
   supportGuild: FireGuild;
-  supportGuildId: string;
+  nitroId: Snowflake;
+  guildId: Snowflake;
   logText: string[];
   guild: FireGuild;
   regexes: Regexes;
-  nitroId: string;
-  guildId: string;
   nitro: Role;
   bots: any;
 
@@ -46,7 +42,6 @@ export default class Sk1er extends Module {
     this.guildId = "411619823445999637";
     this.supportGuildId = "755794954743185438";
     this.supportMessageId = "755817441581596783";
-    this.supportChannelId = "755796557692928031";
     this.nitroId = "585534346551754755";
     this.statusCheck = setInterval(
       async () => await this.statusChecker(),
@@ -81,9 +76,6 @@ export default class Sk1er extends Module {
       return;
     }
     this.nitro = this.guild?.roles.cache.get(this.nitroId);
-    this.supportChannel = this.client.channels.cache.get(
-      this.supportChannelId
-    ) as FireTextChannel;
     this.essentialHeaders = { secret: process.env.MODCORE_SECRET };
     if (this.guild) {
       await this.statusChecker();
@@ -143,12 +135,12 @@ export default class Sk1er extends Module {
   }
 
   async nitroChecker() {
-    let users: string[] = [];
+    let users: Snowflake[] = [];
     const essentialResult = await this.client.db.query(
       "SELECT uid FROM essential;"
     );
     for await (const row of essentialResult) {
-      users.push(row.get("uid") as string);
+      users.push(row.get("uid") as Snowflake);
     }
     const members = await this.guild.members.fetch({ user: users });
     const memberIds = members.map((m) => m.id);
@@ -171,13 +163,13 @@ export default class Sk1er extends Module {
           else if (typeof removed == "boolean" && removed)
             (this.guild.channels.cache.get(
               "411620457754787841"
-            ) as FireTextChannel).send(
-              this.guild.language.get(
+            ) as FireTextChannel).send({
+              content: this.guild.language.get(
                 "SK1ER_NITRO_PERKS_REMOVED",
                 member.toMention()
-              ),
-              { allowedMentions: { users: [member.id] } }
-            );
+              ) as string,
+              allowedMentions: { users: [member.id] },
+            });
         }
       });
     };
@@ -233,24 +225,24 @@ export default class Sk1er extends Module {
       if (!trigger.message) return "no message";
       const component = (trigger.message as FireMessage).components
         .map((component) =>
-          component.type == ButtonType.ACTION_ROW
+          component.type == "ACTION_ROW"
             ? component?.components ?? component
             : component
         )
         .flat()
         .find(
           (component) =>
-            component.type == ButtonType.BUTTON &&
-            component.style != ButtonStyle.LINK &&
-            component.custom_id == trigger.custom_id
+            component.type == "BUTTON" &&
+            component.style != "LINK" &&
+            component.customID == trigger.customID
         );
-      if (
-        component.type != ButtonType.BUTTON ||
-        component.style == ButtonStyle.LINK
-      )
+      if (component.type != "BUTTON" || component.style == "LINK")
         return "non button";
-      if (!component.emoji?.name) return "unknown emoji";
-      emoji = component.emoji.name;
+      if (!component.emoji) return "unknown emoji";
+      emoji =
+        typeof component.emoji == "string"
+          ? component.emoji
+          : component.emoji.name;
     }
     if (!emoji) return "no emoji";
     if (emoji == "🖥️") {

@@ -14,6 +14,8 @@ export default class Invite extends Command {
   }
 
   async exec(message: FireMessage) {
-    await message.channel.send(`<${this.client.config.inviteLink}>`);
+    await message.channel.send({
+      content: `<${this.client.config.inviteLink}>`,
+    });
   }
 }

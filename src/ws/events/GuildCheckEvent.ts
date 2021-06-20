@@ -5,6 +5,7 @@ import { APIGuildMember } from "discord-api-types";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Message } from "@fire/lib/ws/Message";
 import { Manager } from "@fire/lib/Manager";
+import { Snowflake } from "discord.js";
 
 export default class GuildCheckEvent extends Event {
   constructor(manager: Manager) {
@@ -56,7 +57,7 @@ export default class GuildCheckEvent extends Event {
     }
   }
 
-  run(data: { id: string }, nonce: string) {
+  run(data: { id: Snowflake }, nonce: string) {
     this.manager.ws.send(
       MessageUtil.encode(
         new Message(

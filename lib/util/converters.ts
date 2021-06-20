@@ -1,14 +1,15 @@
 import {
-  Role,
-  Collection,
+  DeconstructedSnowflake,
+  FetchMembersOptions,
+  CategoryChannel,
+  SnowflakeUtil,
   StageChannel,
   GuildChannel,
   VoiceChannel,
   GuildPreview,
-  SnowflakeUtil,
-  CategoryChannel,
-  FetchMembersOptions,
-  DeconstructedSnowflake,
+  Collection,
+  Snowflake,
+  Role,
 } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireTextChannel } from "../extensions/textchannel";
@@ -29,12 +30,12 @@ const { regexes } = constants;
 
 export const getIDMatch = (argument: string, extra = false) => {
   const match = extra ? idRegex.exec(argument) : idOnlyRegex.exec(argument);
-  return match ? match[1] : null;
+  return match ? (match[1] as Snowflake) : null;
 };
 
 export const getUserMentionMatch = (argument: string) => {
   const match = userMentionRegex.exec(argument);
-  return match ? match[1] : null;
+  return match ? (match[1] as Snowflake) : null;
 };
 
 const getMessageIDMatch = (argument: string) => argument.match(messageIDRegex);
@@ -44,20 +45,22 @@ const getMessageLinkMatch = (argument: string) =>
 
 const getChannelMentionMatch = (argument: string) => {
   const match = channelMentionRegex.exec(argument);
-  return match ? match[1] : null;
+  return match ? (match[1] as Snowflake) : null;
 };
 
 const getRoleMentionMatch = (argument: string) => {
   const match = roleMentionRegex.exec(argument);
-  return match ? match[1] : null;
+  return match ? (match[1] as Snowflake) : null;
 };
 
 export const snowflakeConverter = async (
   message: FireMessage,
   argument: string,
   silent = false
-): Promise<({ snowflake: string } & DeconstructedSnowflake) | null> => {
+): Promise<({ snowflake: Snowflake } & DeconstructedSnowflake) | null> => {
   if (!argument) return;
+
+  if (argument == "@me") argument = message.author.id;
 
   const type = message.util?.parsed?.command?.id == "guild" ? "GUILD" : "USER";
 
@@ -136,6 +139,8 @@ export const memberConverter = async (
 ): Promise<FireMember | null> => {
   if (!argument) return;
 
+  if (argument == "@me" && message.member) return message.member;
+
   const guild = message.guild;
   if (!guild) {
     if (!silent) await message.error();
@@ -211,6 +216,8 @@ export const userConverter = async (
   silent = false
 ): Promise<FireUser | null> => {
   if (!argument) return;
+
+  if (argument == "@me") return message.author;
 
   if (argument == "^" && message.channel.messages.cache.size >= 4)
     return message.channel.messages.cache
@@ -309,23 +316,23 @@ export const messageConverter = async (
   )
     return "cross_cluster";
 
-  let messageID: string, channelID: string;
+  let messageID: Snowflake, channelID: Snowflake;
   if (linkMatch || groups?.message_id) {
     groups =
       groups ||
       (linkMatch.groups as {
-        guild_id: string;
-        message_id: string;
-        channel_id: string;
+        guild_id: Snowflake;
+        message_id: Snowflake;
+        channel_id: Snowflake;
       });
     if (!groups) {
       if (!silent) await message.error("INVALID_MESSAGE");
       return null;
     }
-    messageID = groups.message_id;
-    channelID = groups.channel_id;
+    messageID = groups.message_id as Snowflake;
+    channelID = groups.channel_id as Snowflake;
   } else {
-    messageID = idMatch[0];
+    messageID = idMatch[0] as Snowflake;
     channelID = message.channel.id;
   }
   const channel = (message.client.channels.cache.get(channelID) ||

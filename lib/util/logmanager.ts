@@ -2,6 +2,7 @@ import {
   MessageEmbedOptions,
   DiscordAPIError,
   MessageEmbed,
+  Snowflake,
   Webhook,
 } from "discord.js";
 import { ActionLogType, MemberLogType, ModLogType } from "./constants";
@@ -110,7 +111,7 @@ export class GuildLogManager {
 
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
-        this.guild.settings.get<string>("log.moderation")
+        this.guild.settings.get<Snowflake>("log.moderation")
       ) as FireTextChannel;
       if (!channel) return;
 
@@ -120,7 +121,7 @@ export class GuildLogManager {
     }
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
-        this.guild.settings.get<string>("log.moderation")
+        this.guild.settings.get<Snowflake>("log.moderation")
       ) as FireTextChannel;
       data.webhook = await channel
         .createWebhook("Moderation Logs", {
@@ -165,7 +166,8 @@ export class GuildLogManager {
         (sending.find((log) => typeof log.content == "string")
           .content as string) || null;
     await data.webhook
-      .send(message, {
+      .send({
+        content: message,
         username: this.client.user.username,
         avatarURL: this.client.user.displayAvatarURL({
           size: 2048,
@@ -212,7 +214,7 @@ export class GuildLogManager {
 
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
-        this.guild.settings.get<string>("log.members")
+        this.guild.settings.get<Snowflake>("log.members")
       ) as FireTextChannel;
       if (!channel) return;
 
@@ -222,7 +224,7 @@ export class GuildLogManager {
     }
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
-        this.guild.settings.get<string>("log.members")
+        this.guild.settings.get<Snowflake>("log.members")
       ) as FireTextChannel;
       data.webhook = await channel
         .createWebhook("Member Logs", {
@@ -267,7 +269,8 @@ export class GuildLogManager {
         (sending.find((log) => typeof log.content == "string")
           .content as string) || null;
     await data.webhook
-      .send(message, {
+      .send({
+        content: message,
         username: this.client.user.username,
         avatarURL: this.client.user.displayAvatarURL({
           size: 2048,
@@ -314,7 +317,7 @@ export class GuildLogManager {
 
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
-        this.guild.settings.get<string>("log.action")
+        this.guild.settings.get<Snowflake>("log.action")
       ) as FireTextChannel;
       if (!channel) return;
 
@@ -324,7 +327,7 @@ export class GuildLogManager {
     }
     if (!data.webhook) {
       const channel = this.guild.channels.cache.get(
-        this.guild.settings.get<string>("log.action")
+        this.guild.settings.get<Snowflake>("log.action")
       ) as FireTextChannel;
       data.webhook = await channel
         .createWebhook("Action Logs", {
@@ -369,7 +372,8 @@ export class GuildLogManager {
         (sending.find((log) => typeof log.content == "string")
           .content as string) || null;
     await data.webhook
-      .send(message, {
+      .send({
+        content: message,
         username: this.client.user.username,
         avatarURL: this.client.user.displayAvatarURL({
           size: 2048,

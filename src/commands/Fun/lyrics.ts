@@ -91,7 +91,7 @@ export default class Lyrics extends Command {
         message.language.get("LYRICS_TITLE", lyrics.name, lyrics.artist.name)
       );
     const footer = {
-      text: message.language.get("POWERED_BY_KSOFT") as string,
+      text: message.language.get("POWERED_BY_KSOFT"),
       iconURL: "https://cdn.ksoft.si/images/Logo1024.png",
     };
     const paginatorInterface = new PaginatorEmbedInterface(

@@ -1,8 +1,12 @@
+import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { MessageEmbed, TextChannel } from "discord.js";
 import { titleCase } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { Message } from "@fire/lib/ws/Message";
 
 export default class GuildUpdate extends Listener {
   theFunny: boolean;
@@ -26,6 +30,23 @@ export default class GuildUpdate extends Listener {
         .catch(() => {});
     }
 
+    const discoveryChanges =
+      before.name != after.name ||
+      before.icon != after.icon ||
+      before.splash != after.splash ||
+      before.discoverySplash != after.discoverySplash;
+
+    if (discoveryChanges && after.isPublic() && this.client.manager.ws?.open)
+      // send discovery update
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.DISCOVERY_UPDATE, {
+            op: DiscoveryUpdateOp.SYNC,
+            guilds: [after.getDiscoverableData()],
+          })
+        )
+      );
+
     const notableChanges =
       before.name != after.name ||
       before.ownerID != after.ownerID ||
@@ -34,7 +55,6 @@ export default class GuildUpdate extends Listener {
       before.splash != after.splash ||
       before.banner != after.banner ||
       before.description != after.description ||
-      before.region != after.region ||
       before.verificationLevel != after.verificationLevel ||
       before.explicitContentFilter != after.explicitContentFilter ||
       before.features.length != after.features.length;

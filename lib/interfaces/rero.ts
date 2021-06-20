@@ -1,4 +1,6 @@
+import { Snowflake } from "discord.js";
+
 export interface ReactionRoleData {
-  role: string;
-  emoji: string;
+  role: Snowflake;
+  emoji: Snowflake | string;
 }

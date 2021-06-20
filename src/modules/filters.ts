@@ -8,6 +8,7 @@ import { MessageEmbed, Invite } from "discord.js";
 import { Module } from "@fire/lib/util/module";
 import * as sanitizer from "@aero/sanitizer";
 import * as centra from "centra";
+import { Snowflake } from "discord.js";
 
 const { regexes } = constants;
 
@@ -67,7 +68,7 @@ export default class Filters extends Module {
     if (!message?.guild && !member) return false;
     if (message?.member?.isModerator() || member?.isModerator()) return false;
     const excluded =
-      message?.guild.settings.get<string[]>("excluded.filter", []) ?? [];
+      message?.guild.settings.get<Snowflake[]>("excluded.filter", []) ?? [];
     const roleIds = message
       ? message.member?.roles.cache.map((role) => role.id)
       : member?.roles.cache.map((role) => role.id);
@@ -244,6 +245,16 @@ export default class Filters extends Module {
         !constants.allowedInvites.includes(inv.guild.id)
       )
         await message.delete().catch(() => {});
+
+      if (
+        inv.guild.id == "753315331564371999" &&
+        message.guild.id == "411619823445999637"
+      ) {
+        const member = (await message.guild.members.fetch(
+          message.author.id
+        )) as FireMember;
+        await member.mute("No.", message.guild.me).catch(() => {});
+      }
     };
     const deleteFail = async (e: Error) =>
       await message.delete().catch(() => {});
@@ -293,7 +304,7 @@ export default class Filters extends Module {
           message.guild.language.get(
             "FILTER_INVITE_LOG_DESCRIPTION",
             message.channel.toString()
-          )
+          ) as string
         )
         .setAuthor(
           message.author.toString(),
@@ -468,7 +479,7 @@ export default class Filters extends Module {
         message.guild.language.get(
           "FILTER_PAYPAL_LOG_DESCRIPTION",
           message.channel.toString()
-        )
+        ) as string
       )
       .setAuthor(
         message.author.toString(),
@@ -503,7 +514,7 @@ export default class Filters extends Module {
         message.guild.language.get(
           "FILTER_YOUTUBE_LOG_DESCRIPTION",
           message.channel.toString()
-        )
+        ) as string
       )
       .setAuthor(
         message.author.toString(),
@@ -553,7 +564,7 @@ export default class Filters extends Module {
           message.guild.language.get(
             "FILTER_YOUTUBE_VIDEO_LOG_STATS",
             ...Object.values(statistics)
-          )
+          ) as string
         )
         .addField(
           message.guild.language.get("DESCRIPTION"),
@@ -587,7 +598,7 @@ export default class Filters extends Module {
         message.guild.language.get(
           "FILTER_YOUTUBE_LOG_DESCRIPTION",
           message.channel.toString()
-        )
+        ) as string
       )
       .setAuthor(
         message.author.toString(),
@@ -634,7 +645,7 @@ export default class Filters extends Module {
         message.guild.language.get(
           "FILTER_YOUTUBE_CHANNEL_LOG_STATS",
           ...Object.values(statistics)
-        )
+        ) as string
       );
     }
     await message.guild.actionLog(embed, "linkfilter").catch(() => {});
@@ -661,7 +672,7 @@ export default class Filters extends Module {
             ? "FILTER_TWITCH_CLIP_LOG_DESCRIPTION"
             : "FILTER_TWITCH_CHANNEL_LOG_DESCRIPTION",
           message.channel.toString()
-        )
+        ) as string
       )
       .setAuthor(
         message.author.toString(),
@@ -693,7 +704,7 @@ export default class Filters extends Module {
         message.guild.language.get(
           "FILTER_TWITTER_LOG_DESCRIPTION",
           message.channel.toString()
-        )
+        ) as string
       )
       .setAuthor(
         message.author.toString(),
@@ -725,7 +736,7 @@ export default class Filters extends Module {
         message.guild.language.get(
           "FILTER_SHORT_LOG_DESCRIPTION",
           message.channel.toString()
-        )
+        ) as string
       )
       .setAuthor(
         message.author.toString(),

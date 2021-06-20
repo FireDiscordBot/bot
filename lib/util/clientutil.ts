@@ -12,14 +12,17 @@ import { FireTextChannel } from "../extensions/textchannel";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { PremiumData } from "@fire/lib/interfaces/premium";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { DiscordExperiment } from "../interfaces/aether";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Cluster } from "@fire/lib/interfaces/stats";
 import { FireUser } from "@fire/lib/extensions/user";
+import { Experiments } from "../interfaces/discord";
 import { humanize, titleCase } from "./constants";
 import { Message } from "@fire/lib/ws/Message";
 import { ClientUtil } from "discord-akairo";
 import { getCommitHash } from "./gitUtils";
+import { murmur3 } from "murmurhash-js";
 import { Fire } from "@fire/lib/Fire";
 import { Language } from "./language";
 import * as pidusage from "pidusage";
@@ -98,6 +101,12 @@ export class Util extends ClientUtil {
   getShard(guild: string | FireGuild) {
     const id = guild instanceof FireGuild ? guild.id : guild;
     return Number((BigInt(id) >> 22n) % BigInt(this.client.options.shardCount));
+  }
+
+  getDiscoverableGuilds() {
+    return (this.client.guilds.cache
+      .filter((guild: FireGuild) => guild.isPublic())
+      .array() as FireGuild[]).map((guild) => guild.getDiscoverableData());
   }
 
   async haste(
@@ -261,20 +270,6 @@ export class Util extends ClientUtil {
                   .reduce((a, b) => a + b)
               : 0,
           status: shard.status as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
-          publicGuilds: this.client.guilds.cache
-            .filter(
-              (guild: FireGuild) =>
-                guild.shardID == shard.id && guild.isPublic()
-            )
-            .map((guild) => guild.id),
-          discoverableGuilds: (this.client.guilds.cache
-            .filter(
-              (guild: FireGuild) =>
-                guild.shardID == shard.id && guild.isPublic()
-            )
-            .array() as FireGuild[]).map((guild) =>
-            guild.getDiscoverableData()
-          ),
         };
       }),
     };
@@ -289,8 +284,17 @@ export class Util extends ClientUtil {
       name = this.bitToPermissionString(permission);
     else if (typeof permission == "string") name = permission;
     if (!name) return null;
-    if (language && language.get("PERMISSIONS").hasOwnProperty(name))
-      return language.get("PERMISSIONS")[name];
+    if (
+      language &&
+      ((language.get("PERMISSIONS") as unknown) as Record<
+        string,
+        string
+      >).hasOwnProperty(name)
+    )
+      return ((language.get("PERMISSIONS") as unknown) as Record<
+        string,
+        string
+      >)[name];
     return titleCase(
       name.toLowerCase().replace(/_/gim, " ").replace(/guild/gim, "server")
     );
@@ -302,7 +306,7 @@ export class Util extends ClientUtil {
     else return null;
   }
 
-  isSuperuser(user: string) {
+  isSuperuser(user: Snowflake) {
     return this.client.userSettings.get<boolean>(
       user,
       "utils.superuser",
@@ -327,7 +331,8 @@ export class Util extends ClientUtil {
     if (this.plonked.includes(user)) return true;
 
     // guild blacklist
-    if (guild?.settings.get<string[]>("utils.plonked", []).includes(user)) return true;
+    if (guild?.settings.get<string[]>("utils.plonked", []).includes(user))
+      return true;
 
     return false;
   }
@@ -477,5 +482,48 @@ export class Util extends ClientUtil {
     if (size && !AllowedImageSizes.includes(size))
       throw new RangeError(`Invalid image size: ${size}`);
     return `${root}.${format}${size ? `?size=${size}` : ""}`;
+  }
+
+  async getFriendlyGuildExperiments(id: Snowflake) {
+    const knownExperiments: { [hash: number]: DiscordExperiment } = {};
+    for (const experiment of this.client.manager.state.discordExperiments) {
+      const hash = murmur3(experiment.id);
+      knownExperiments[hash] = experiment;
+    }
+
+    const {
+      guild_experiments: GuildExperiments,
+    } = await this.client.req.experiments
+      .get<Experiments>({ query: { with_guild_experiments: true } })
+      .catch(() => {
+        return {
+          assignments: [],
+          guild_experiments: [],
+        } as Experiments;
+      });
+
+    const hashAndBucket: [number, number][] = [];
+    for (const experiment of GuildExperiments) {
+      if (experiment.length != 5) continue;
+      const bucket = experiment[4].find((o) => o.k.includes(id));
+      if (bucket && typeof bucket.b == "number")
+        hashAndBucket.push([experiment[0], bucket.b]);
+    }
+
+    if (hashAndBucket.length) {
+      const friendlyExperiments: string[] = [];
+      for (const [hash, bucket] of hashAndBucket) {
+        const experiment = knownExperiments[hash];
+        if (experiment)
+          friendlyExperiments.push(
+            `${titleCase(experiment.title)} | ${titleCase(
+              experiment.description[bucket]
+            )}`
+          );
+      }
+      if (friendlyExperiments.length) return friendlyExperiments;
+    }
+
+    return [];
   }
 }

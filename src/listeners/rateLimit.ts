@@ -2,6 +2,7 @@ import { Listener } from "@fire/lib/util/listener";
 
 export default class RateLimit extends Listener {
   limited: string[]; // array of routes that are limited
+  last: string; // last route
 
   constructor() {
     super("rateLimit", {
@@ -9,6 +10,7 @@ export default class RateLimit extends Listener {
       event: "rateLimit",
     });
     this.limited = [];
+    this.last = null;
   }
 
   async exec(rateLimit: {
@@ -25,6 +27,8 @@ export default class RateLimit extends Listener {
       }, rateLimit.timeout);
     }
     if (rateLimit.route.includes("/messages/:id/reactions")) return;
+    if (this.last == rateLimit.route) return;
+    else this.last = rateLimit.route;
     this.client.console.warn(
       `[Rest] Limited on route ${
         rateLimit.route

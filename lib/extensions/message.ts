@@ -10,12 +10,12 @@ import {
   Collection,
   Structures,
   DMChannel,
+  Snowflake,
   Webhook,
   Message,
 } from "discord.js";
 import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
 import { PaginatorInterface } from "@fire/lib/util/paginators";
-import { APIComponent } from "../interfaces/interactions";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
 import Filters from "@fire/src/modules/filters";
@@ -40,7 +40,6 @@ export class FireMessage extends Message {
   declare channel: DMChannel | FireTextChannel | NewsChannel | ThreadChannel;
   invWtfResolved: Collection<string, { invite?: string; url?: string }>;
   paginator?: PaginatorInterface;
-  components: APIComponent[];
   declare member: FireMember;
   declare guild: FireGuild;
   declare author: FireUser;
@@ -92,14 +91,6 @@ export class FireMessage extends Message {
     this.invWtfResolved = new Collection();
   }
 
-  _patch(data: APIMessage) {
-    // @ts-ignore
-    super._patch(data);
-
-    // @ts-ignore
-    if (data.components) this.components = data.components;
-  }
-
   get language() {
     return this.author?.settings.has("utils.language")
       ? this.author.language
@@ -107,7 +98,7 @@ export class FireMessage extends Message {
   }
 
   send(key: string = "", ...args: any[]) {
-    return this.channel.send(this.language.get(key, ...args));
+    return this.channel.send({ content: this.language.get(key, ...args) });
   }
 
   success(
@@ -117,9 +108,9 @@ export class FireMessage extends Message {
     if (!key && this.deleted) return;
     return !key
       ? this.react(reactions.success).catch(() => {})
-      : this.channel.send(
-          `${emojis.success} ${this.language.get(key, ...args)}`
-        );
+      : this.channel.send({
+          content: `${emojis.success} ${this.language.get(key, ...args)}`,
+        });
   }
 
   error(
@@ -129,9 +120,21 @@ export class FireMessage extends Message {
     if (!key && this.deleted) return;
     return !key
       ? this.react(reactions.error).catch(() => {})
-      : this.reply(`${emojis.error} ${this.language.get(key, ...args)}`, {
+      : this.reply({
+          content: `${emojis.error} ${this.language.get(key, ...args)}`,
           failIfNotExists: false,
         });
+  }
+
+  hasExperiment(id: number, bucket: number) {
+    // if (this.client.config.dev) return true;
+    const experiment = this.client.experiments.get(id);
+    if (!experiment) return false;
+    else if (!experiment.active) return true;
+    else if (experiment.kind == "guild" && !this.guild) return false;
+    else if (experiment.kind == "guild")
+      return this.guild.hasExperiment(id, bucket);
+    else return this.author.hasExperiment(id, bucket);
   }
 
   async delete(options?: { timeout: number }) {
@@ -184,7 +187,7 @@ export class FireMessage extends Message {
 
     // check thread members if private thread
     if (this.channel.type == "private_thread") {
-      const members = await this.channel.members.fetchMembers();
+      const members = await this.channel.members.fetch();
       if (!members?.size || !members.has(quoter.id)) return "permissions";
       this.channel.members.cache.sweep(() => true); // we do not need y'all anymore stop taking up memory geez
     }
@@ -265,7 +268,7 @@ export class FireMessage extends Message {
       let maskedMatch: RegExpExecArray;
       while ((maskedMatch = regexes.maskedLink.exec(this.content))) {
         const { name, link } = maskedMatch.groups;
-        if (name && link && !this.webhookID && !quoter?.isSuperuser())
+        if (name && link && !quoter?.isSuperuser())
           content = content.replace(
             maskedMatch[0],
             `\\[${name}\\]\\(${link}\\)`
@@ -298,7 +301,8 @@ export class FireMessage extends Message {
       }
     }
     return await hook
-      .send(content, {
+      .send({
+        content: content.length ? content : null,
         username: this.author.toString().replace(/#0000/gim, ""),
         avatarURL: this.author.displayAvatarURL({ size: 2048, format: "png" }),
         embeds: this.embeds.filter(
@@ -320,6 +324,11 @@ export class FireMessage extends Message {
   }
 
   private isImageEmbed(embed: MessageEmbed) {
+    let embedURL: URL, thumbURL: URL;
+    try {
+      embedURL = new URL(embed.url);
+      thumbURL = new URL(embed.thumbnail.url);
+    } catch {}
     return (
       !embed.title &&
       !embed.description &&
@@ -330,8 +339,8 @@ export class FireMessage extends Message {
       !embed.author &&
       !embed.footer &&
       (embed.url == embed.thumbnail.url ||
-        (embed.url.includes("imgur.com") &&
-          embed.thumbnail.url.includes("i.imgur.com")))
+        (embedURL?.host.includes("imgur.com") &&
+          thumbURL?.host.includes("i.imgur.com")))
     );
   }
 
@@ -349,14 +358,14 @@ export class FireMessage extends Message {
       return;
     const { language } = destination.guild as FireGuild;
     if (!this.content && this.author.bot && this.embeds?.length == 1) {
-      return await destination.send(
-        language.get(
+      return await destination.send({
+        content: language.get(
           "QUOTE_EMBED_FROM",
           this.author.toString(),
           (this.channel as FireTextChannel).name
         ),
-        this.embeds[0]
-      );
+        embeds: this.embeds,
+      });
     }
     const embed = new MessageEmbed()
       .setColor(
@@ -420,7 +429,7 @@ export class FireMessage extends Message {
           )
         );
     } else embed.setFooter(language.get("QUOTE_EMBED_FOOTER", quoter));
-    return await destination.send(embed).catch(() => {});
+    return await destination.send({ embeds: [embed] }).catch(() => {});
   }
 
   async star(
@@ -442,7 +451,7 @@ export class FireMessage extends Message {
     if (!stars) return;
 
     const starboard = this.guild.channels.cache.get(
-      this.guild?.settings.get<string>("starboard.channel")
+      this.guild?.settings.get<Snowflake>("starboard.channel")
     ) as FireTextChannel;
     if (!starboard || this.channel.id == starboard.id) return;
 
@@ -498,10 +507,12 @@ export class FireMessage extends Message {
             }
           })) as FireMessage;
         if (message)
-          return await message.edit(content, { embed }).catch(() => {});
+          return await message
+            .edit({ content, embeds: [embed] })
+            .catch(() => {});
       } else {
         const message = await starboard
-          .send(content, { embed })
+          .send({ content, embeds: [embed] })
           .catch(() => {});
         if (!message) return;
         this.guild.starboardMessages.set(this.id, message.id);
@@ -548,6 +559,7 @@ export class FireMessage extends Message {
           dynamic: true,
         })
       )
+      .setColor(this.member?.displayHexColor || "#FFFFFF")
       .setFooter(this.id);
     if (this.content) embed.setDescription(this.content);
     if (this.embeds.length) {

@@ -57,6 +57,12 @@ export default class Ban extends Command {
     if (typeof args.user == "undefined")
       return await message.error("BAN_USER_REQUIRED");
     else if (!args.user) return;
+    if (
+      args.user.id == this.client.user.id &&
+      message.util?.parsed?.prefix.trim() == "fire" &&
+      message.util?.parsed?.alias.trim() == "fire"
+    )
+      return await message.error("BAN_SMTH_SPECIAL");
     // TODO user|member has no silent variety so add one future me kthx
     else if (
       args.user instanceof FireMember &&
