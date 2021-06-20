@@ -118,12 +118,12 @@ export default class Message extends Listener {
 
     const lowerContent = message.content.toLowerCase();
     if (
-      (message.guild?.id == "411619823445999637" &&
-        lowerContent.includes(".ru") &&
+      message.guild?.id == "411619823445999637" &&
+      ((lowerContent.includes(".ru") &&
         lowerContent.includes("@everyone") &&
         lowerContent.includes("partner")) ||
-      lowerContent.includes("/king8") ||
-      (lowerContent.includes("cs:go") && lowerContent.includes("?partner="))
+        lowerContent.includes("/king8") ||
+        (lowerContent.includes("cs:go") && lowerContent.includes("?partner=")))
     )
       return await message.member?.bean(
         "Phishing links",
