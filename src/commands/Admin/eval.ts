@@ -246,7 +246,7 @@ export default class Eval extends Command {
         result = await result;
       }
       type = new Type(result);
-      success = !(result instanceof Error)
+      success = !(result instanceof Error);
     } catch (error) {
       if (!type) type = new Type(error);
       result = error;

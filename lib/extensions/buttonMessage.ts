@@ -360,7 +360,7 @@ export class FakeChannel {
   updateOverwrite(
     userOrRole: RoleResolvable | UserResolvable,
     options: PermissionOverwriteOptions,
-    overwriteOptions?: GuildChannelOverwriteOptions,
+    overwriteOptions?: GuildChannelOverwriteOptions
   ) {
     return !(this.real instanceof DMChannel)
       ? this.real?.updateOverwrite(userOrRole, options, overwriteOptions)

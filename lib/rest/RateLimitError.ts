@@ -11,9 +11,9 @@ export class RateLimitError extends Error {
   limit: number;
 
   constructor({ timeout, limit, method, path, route, global }) {
-    super(`A ${global ? 'global ' : ''}rate limit was hit on route ${route}`);
+    super(`A ${global ? "global " : ""}rate limit was hit on route ${route}`);
 
-    this.name = 'RateLimitError';
+    this.name = "RateLimitError";
     this.timeout = timeout;
     this.method = method;
     this.path = path;

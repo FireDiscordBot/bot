@@ -54,9 +54,7 @@ export default class Warnings extends Command {
 **-----------------**`)
       );
     }
-    const embed = new MessageEmbed()
-      .setColor("#E67E22")
-      .setTimestamp();
+    const embed = new MessageEmbed().setColor("#E67E22").setTimestamp();
     const paginatorInterface = new PaginatorEmbedInterface(
       this.client,
       paginator,

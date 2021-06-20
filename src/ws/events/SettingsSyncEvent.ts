@@ -10,7 +10,11 @@ export default class SettingsSyncEvent extends Event {
     super(manager, EventType.SETTINGS_SYNC);
   }
 
-  run(data: { user: Snowflake; setting: string; value: Primitive | Primitive[] }) {
+  run(data: {
+    user: Snowflake;
+    setting: string;
+    value: Primitive | Primitive[];
+  }) {
     if (data.value != "deleteSetting")
       this.manager.client.userSettings.set(data.user, data.setting, data.value);
     else this.manager.client.userSettings.delete(data.user, data.setting);
