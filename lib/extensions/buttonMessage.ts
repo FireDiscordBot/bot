@@ -1,4 +1,5 @@
 import {
+  GuildChannelOverwriteOptions,
   MessageComponentInteraction,
   PermissionOverwriteOptions,
   EmojiIdentifierResolvable,
@@ -359,10 +360,10 @@ export class FakeChannel {
   updateOverwrite(
     userOrRole: RoleResolvable | UserResolvable,
     options: PermissionOverwriteOptions,
-    reason?: string
+    overwriteOptions?: GuildChannelOverwriteOptions,
   ) {
     return !(this.real instanceof DMChannel)
-      ? this.real?.updateOverwrite(userOrRole, options, { reason })
+      ? this.real?.updateOverwrite(userOrRole, options, overwriteOptions)
       : false;
   }
 
