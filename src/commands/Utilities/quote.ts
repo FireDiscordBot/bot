@@ -55,6 +55,7 @@ export default class Quote extends Command {
     }
   ) {
     if (!args?.quote) return;
+    args.debug = args.debug && message.author?.isSuperuser();
     if (args.quote == "cross_cluster") {
       let matches: MessageLinkMatch[] = [];
       let messageLink: RegExpExecArray;
@@ -153,6 +154,8 @@ export default class Quote extends Command {
         webhook
       )
       .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
+    if (quoted == "QUOTE_PREMIUM_INCREASED_LENGTH")
+      return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
     if (args.debug && typeof quoted == "string")
       return !message
         ? await webhook.send({ content: quoted })
