@@ -116,7 +116,7 @@ export default class Message extends Listener {
     if (message.type == "PINS_ADD")
       this.client.emit("channelPinsAdd", message.reference, message.member);
 
-    const lowerContent = message.content.toLowerCase();
+    const lowerContent = message.content.toLowerCase().replace(/\s/gim, "");
     if (
       message.guild?.id == "411619823445999637" &&
       ((lowerContent.includes(".ru") &&
@@ -125,6 +125,10 @@ export default class Message extends Listener {
         lowerContent.includes("/king8") ||
         (lowerContent.includes("cs:go") &&
           lowerContent.includes("?partner=")) ||
+        (lowerContent.includes("leave") &&
+          lowerContent.includes("cs:go") &&
+          lowerContent.includes("give") &&
+          lowerContent.includes("knife")) ||
         (lowerContent.includes("fucking game") &&
           lowerContent.includes("partner=")))
     )
