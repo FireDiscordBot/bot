@@ -173,7 +173,7 @@ export default class GuildUpdate extends Listener {
             language.get("REMOVED_FEATURES"),
             removed
               .map((feature) => titleCase(feature.split("_").join(" ")))
-              .join(", ")
+              .join("\n")
           );
       }
       if (embed.fields.length)
