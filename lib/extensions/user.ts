@@ -162,7 +162,10 @@ export class FireUser extends User {
       .catch(() => {});
     if (!logEntry) return "entry";
     const banned = await guild.members
-      .ban(this, { reason, days })
+      .ban(this, {
+        reason: `${moderator} | ${reason}`,
+        days,
+      })
       .catch(() => {});
     if (!banned) {
       const deleted = await guild
