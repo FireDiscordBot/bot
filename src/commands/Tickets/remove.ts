@@ -60,6 +60,7 @@ export default class TicketRemove extends Command {
             message.author.toString(),
             message.author.id
           ) as string,
+          type: 1,
         }
       )
       .catch(() => {});

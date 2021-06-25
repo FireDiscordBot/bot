@@ -72,6 +72,7 @@ export default class Ready extends Listener {
       await guild.loadInviteRoles();
       await guild.loadReactionRoles();
       await guild.loadPersistedRoles();
+      if (process.env.USE_LITECORD) continue;
       if (guild.tags?.names.length && !guild.tags.preparedSlashCommands)
         await guild.tags.prepareSlashCommands();
     }

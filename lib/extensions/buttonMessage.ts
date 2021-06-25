@@ -17,6 +17,7 @@ import {
   RoleResolvable,
   UserResolvable,
   SnowflakeUtil,
+  ThreadChannel,
   MessageEmbed,
   NewsChannel,
   Permissions,
@@ -294,7 +295,7 @@ export class ButtonMessage {
 }
 
 export class FakeChannel {
-  real: FireTextChannel | NewsChannel | DMChannel;
+  real: FireTextChannel | ThreadChannel | NewsChannel | DMChannel;
   messages: MessageManager;
   message: ButtonMessage;
   token: string;
@@ -362,14 +363,17 @@ export class FakeChannel {
     options: PermissionOverwriteOptions,
     overwriteOptions?: GuildChannelOverwriteOptions
   ) {
-    return !(this.real instanceof DMChannel)
+    return !(this.real instanceof DMChannel) &&
+      !(this.real instanceof ThreadChannel)
       ? this.real?.updateOverwrite(userOrRole, options, overwriteOptions)
       : false;
   }
 
   createInvite(options?: CreateInviteOptions) {
     return !(this.real instanceof DMChannel)
-      ? this.real?.createInvite(options)
+      ? this.real instanceof ThreadChannel
+        ? this.real.parent.createInvite(options)
+        : this.real?.createInvite(options)
       : false;
   }
 

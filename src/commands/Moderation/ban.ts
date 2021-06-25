@@ -20,18 +20,18 @@ export default class Ban extends Command {
           default: null,
         },
         {
-          id: "days",
-          flag: "--days",
-          match: "option",
-          required: false,
-          type: "number",
-        },
-        {
           id: "reason",
           type: "string",
           required: false,
           default: null,
           match: "rest",
+        },
+        {
+          id: "days",
+          flag: "--days",
+          match: "option",
+          required: false,
+          type: "number",
         },
       ],
       aliases: [

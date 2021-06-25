@@ -116,6 +116,8 @@ export default class enUS extends Language {
         JOINED: "Joined",
         ONLINE: "Online",
         EMOJIS: "Emojis",
+        THREAD: "Thread",
+        PARENT: "Parent",
         CHANNEL: "Channel",
         MESSAGE: "Message",
         SUBJECT: "Subject",
@@ -137,6 +139,7 @@ export default class enUS extends Language {
         INCREMENT: "Increment",
         MODERATOR: "Moderator",
         PINNED_BY: "Pinned By",
+        ARCHIVE_AT: "Archive At",
         ATTACHMENT: "Attachment",
         PROCESS_ID: "Process ID",
         STATISTICS: "Statistics",
@@ -149,9 +152,12 @@ export default class enUS extends Language {
         ATTACHMENTS: "Attachments",
         DESCRIPTION: "Description",
         INVITE_USED: "Invite Used",
+        NEW_MEMBERS: "Added Members",
+        OLD_MEMBERS: "Removed Members",
         CREATED_GUILD: "Created Guild",
         JOIN_POSITION: "Join Position",
         CLICK_TO_VIEW: "Click To View", // message/attachment link
+        THREAD_MESSAGE: "Thread Message",
         ADDED_FEATURES: "Added Features",
         SYSTEM_CHANNEL: "System Channel",
         ACCOUNT_CREATED: "Account Created",
@@ -1579,6 +1585,10 @@ Your existing premium servers are: ${current.join(", ")}`,
         TAG_SLASH_DISABLED:
           "Slash command tags have been disabled! It may take a little while for the commands to disappear and may require a client reload",
         TAG_LIST: (guild: string) => `${guild}'s tags`,
+        THREADCREATELOG_AUTHOR: (guild: string) => `Thread Create | ${guild}`,
+        THREADDELETELOG_AUTHOR: (guild: string) => `Thread Delete | ${guild}`,
+        THREADMEMBERUPDATELOG_AUTHOR: (channel: string) =>
+          `Thread Members Update | ${channel}`,
         TICKET_COMMAND_DESCRIPTION: "Manage ticket configuration in the server",
         TICKET_MAIN_DESCRIPTION:
           "Here are all the ticket configuration commands",
@@ -1613,6 +1623,19 @@ Running this command without providing a category resets it, therefore disabling
             ? `Ticket created by ${author} (${id}) with subject "${subject}"`
             : `Ticket created by ${author} (${id})`,
         TICKET_OPENER_TILE: (author: string) => `Ticket opened by ${author}`,
+        // when possible, use discord strings for the two recipient strings & rename string below
+        TICKET_RECIPIENT_ADD: (author: string, added: string) =>
+          `${author} added ${added} to the thread.`,
+        TICKET_RECIPIENT_REMOVE: (author: string, added: string) =>
+          `${author} removed ${added} from the thread.`,
+        TICKET_THREAD_RENAME: (
+          author: string,
+          name: string,
+          includeMarkdown: boolean = false
+        ) =>
+          `${author} changed the channel name: ${
+            includeMarkdown ? "**" + name + "**" : name
+          }`,
         TICKET_AUTHOR_LEFT: (author: string) =>
           `The ticket author (${author}) seems to have left the server, how sad :(`,
         NEW_COMMAND_DESCRIPTION: "Makes a new ticket",
@@ -1643,6 +1666,7 @@ Running this command without providing a category resets it, therefore disabling
         TICTACTOE_TURN: (current: string) => `It's ${current}'s turn`,
         TICTACTOE_WINNER: (winner: string) => `Game over, ${winner} has won!`,
         TICTACTOE_DRAW: "It's a draw!",
+        NEW_TICKET_THREAD: "You cannot open a ticket from inside a thread!",
         NEW_TICKET_CREATING: "Creating your ticket...",
         NEW_TICKET_CREATED: (channel: string) =>
           `Successfully made your ticket, ${channel}`,

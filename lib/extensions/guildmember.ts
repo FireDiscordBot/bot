@@ -1,4 +1,5 @@
 import {
+  ThreadChannel,
   MessageEmbed,
   GuildMember,
   Permissions,
@@ -102,6 +103,7 @@ export class FireMember extends GuildMember {
     if (this.id == this.client.user?.id) return true;
     if (this.id == this.guild.ownerID) return true;
     if (channel instanceof FakeChannel) channel = channel.real;
+    else if (channel instanceof ThreadChannel) channel = channel.parent;
     return channel
       ? this.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_GUILD)
       : this.permissions.has(Permissions.FLAGS.MANAGE_GUILD);

@@ -1,4 +1,5 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
 
 export default class GuildDelete extends Listener {
@@ -10,11 +11,15 @@ export default class GuildDelete extends Listener {
   }
 
   async exec(guild: FireGuild) {
-    const owner = await this.client.users.fetch(guild.ownerID, {
-      cache: false,
-    });
+    let owner: FireUser;
+    if (guild.ownerID)
+      owner = (await this.client.users.fetch(guild.ownerID, {
+        cache: false,
+      })) as FireUser;
     this.client.console.log(
-      `[Guilds] Fire left a guild! ${guild.name} (${guild.id}) with ${guild.memberCount} members owned by ${owner} (${guild.ownerID})`
+      `[Guilds] Fire left a guild! ${guild.name} (${guild.id}) with ${
+        guild.memberCount
+      } members owned by ${owner ?? "an unknown user"} (${guild.ownerID})`
     );
   }
 }

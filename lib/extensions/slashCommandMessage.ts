@@ -18,6 +18,7 @@ import {
   MessageReaction,
   UserResolvable,
   RoleResolvable,
+  ThreadChannel,
   SnowflakeUtil,
   Permissions,
   NewsChannel,
@@ -344,7 +345,7 @@ export class SlashCommandMessage {
 }
 
 export class FakeChannel {
-  real: FireTextChannel | NewsChannel | DMChannel;
+  real: FireTextChannel | NewsChannel | ThreadChannel | DMChannel;
   message: SlashCommandMessage;
   guild?: FireGuild;
   token: string;
@@ -374,7 +375,7 @@ export class FakeChannel {
   }
 
   get permissionOverwrites() {
-    return this.real instanceof DMChannel
+    return this.real instanceof DMChannel || this.real instanceof ThreadChannel
       ? new Collection<string, PermissionOverwrites>()
       : this.real.permissionOverwrites;
   }
@@ -425,14 +426,17 @@ export class FakeChannel {
     options: PermissionOverwriteOptions,
     overwriteOptions?: GuildChannelOverwriteOptions
   ) {
-    return !(this.real instanceof DMChannel)
+    return !(this.real instanceof DMChannel) &&
+      !(this.real instanceof ThreadChannel)
       ? this.real?.updateOverwrite(userOrRole, options, overwriteOptions)
       : false;
   }
 
   createInvite(options?: CreateInviteOptions) {
     return !(this.real instanceof DMChannel)
-      ? this.real?.createInvite(options)
+      ? this.real instanceof ThreadChannel
+        ? this.real.parent.createInvite(options)
+        : this.real?.createInvite(options)
       : false;
   }
 
