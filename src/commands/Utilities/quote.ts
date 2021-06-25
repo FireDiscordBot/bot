@@ -39,7 +39,6 @@ export default class Quote extends Command {
           default: false,
         },
       ],
-      enableSlashCommand: true,
       restrictTo: "guild",
     });
   }
