@@ -1456,6 +1456,8 @@ You must have Developer Mode enabled, which is found in User Settings > Appearan
         USER_BOT_TERMS: "Terms of Service",
         PERMROLES_COMMAND_DESCRIPTION:
           "Copy the permissions of a role from the current channel and automatically apply it to all channels",
+        PERMROLES_CHANNEL_LIMIT:
+          "Permission roles cannot be used with more than 100 channels",
         PERMROLES_NONE_FOUND:
           "There doesn't seem to be any permission roles set in this server...",
         PERMROLES_CURRENT_ITEM: (

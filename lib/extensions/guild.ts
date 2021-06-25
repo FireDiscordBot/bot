@@ -515,6 +515,11 @@ export class FireGuild extends Guild {
         deny: BigInt(role.get("deny") as string),
       });
     }
+    if (
+      this.channels.cache.filter((channel) => !channel.type.endsWith("thread"))
+        .size >= 100
+    )
+      return;
     for (const [id, perms] of this.permRoles) {
       for (const [, channel] of this.channels.cache.filter(
         (channel) =>
