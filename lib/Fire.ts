@@ -153,12 +153,19 @@ export class Fire extends AkairoClient {
             })
           )
         );
-      } else if (r.t == Constants.WSEvents.GUILD_DELETE)
+      } else if (r.t == Constants.WSEvents.GUILD_DELETE) {
         this.manager.ws?.send(
           MessageUtil.encode(
             new Message(EventType.GUILD_DELETE, { id: r.d.id })
           )
         );
+        if (!this.guilds.cache.has(r.d.id))
+          this.util?.haste(JSON.stringify(r), true, "json").then((url) => {
+            this.console.warn(
+              `[Gateway] GUILD_DELETE received for unknown guild, ${url}`
+            );
+          });
+      }
 
       if (
         r.t == Constants.WSEvents.GUILD_MEMBER_ADD &&
