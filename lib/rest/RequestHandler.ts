@@ -147,7 +147,8 @@ export class RequestHandler {
           path: request.path,
           route: request.route,
           global: isGlobal,
-        });
+          reason: request.options.reason,
+        } as any);
 
       if (isGlobal) {
         // If this is the first task to reach the global timeout, set the global delay
