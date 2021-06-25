@@ -170,12 +170,10 @@ export class GuildTagManager {
         !(cmd.id in this.slashCommands && !this.cache.has(cmd.name))
     );
 
-    const newCommandData = [...current, ...commandData];
-
     await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
-      .commands.put({ data: newCommandData.slice(0, 100) })
+      .commands.put({ data: [...current, ...commandData].slice(0, 99) })
       .then(
         (
           updated: {
@@ -210,16 +208,19 @@ export class GuildTagManager {
           for (const tag of slashTags) this.slashCommands[tag.id] = tag.name;
         }
       )
-      .catch(async (e: Error) =>
+      .catch((e: DiscordAPIError) => {
         this.client.console.error(
-          `[Commands] Failed to update slash command tags for guild ${this.guild.name}\n${e.stack}`,
-          await this.client.util.haste(
-            JSON.stringify(newCommandData, null, 2),
-            true,
-            "json"
+          `[Commands] Failed to update slash command tags for guild ${
+            this.guild.name
+          }\n${e.code ?? 0}: ${e.stack}`
+        );
+        if (
+          e.message.includes(
+            "Maximum number of application commands reached (100)"
           )
         )
-      );
+          this.guild.settings.set<boolean>("tags.slashcommands", null);
+      });
     return (this.preparedSlashCommands = true);
   }
 

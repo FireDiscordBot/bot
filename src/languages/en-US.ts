@@ -77,6 +77,8 @@ export default class enUS extends Language {
           "This role cannot be used as it is either managed by an integration, higher than my top role or the default role.",
         ERROR_NO_KSOFT:
           "Unable to use KSoft.Si API due to lack of authentication",
+        ERROR_CONTACT_SUPPORT:
+          "Something went wrong, please contact support! <https://inv.wtf/fire>",
         NO_MODERATORS_SET: "There are no moderators set in this guild.",
         MORE_INTEGRATIONS:
           "Want more integrations? Use the suggest command to suggest some!",
