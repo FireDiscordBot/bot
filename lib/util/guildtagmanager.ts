@@ -173,7 +173,7 @@ export class GuildTagManager {
     await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
-      .commands.put({ data: [...current, ...commandData].slice(0, 99) })
+      .commands.put({ data: [...current, ...commandData] })
       .then(
         (
           updated: {
