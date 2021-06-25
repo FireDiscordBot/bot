@@ -32,6 +32,12 @@ export default class Quote extends Command {
           required: true,
           default: null,
         },
+        {
+          id: "debug",
+          match: "flag",
+          flag: "--debug",
+          default: false,
+        },
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
@@ -45,9 +51,11 @@ export default class Quote extends Command {
       quoter?: FireMember;
       quote: FireMessage | "cross_cluster";
       webhook?: string;
+      debug?: boolean;
     }
   ) {
     if (!args?.quote) return;
+    args.debug = args.debug && message.author?.isSuperuser();
     if (args.quote == "cross_cluster") {
       let matches: MessageLinkMatch[] = [];
       let messageLink: RegExpExecArray;
@@ -109,6 +117,7 @@ export default class Quote extends Command {
                   guild_id: message.guild?.id,
                   id: message.channel.id,
                 } as PartialQuoteDestination,
+                debug: args.debug,
               })
             )
           );
@@ -131,7 +140,7 @@ export default class Quote extends Command {
         .quote(args.destination, args.quoter, webhook)
         .catch(() => {});
     } else if (!message) return;
-    await args.quote
+    const quoted = await args.quote
       .quote(
         message instanceof SlashCommandMessage
           ? (message.realChannel as FireTextChannel)
@@ -139,6 +148,12 @@ export default class Quote extends Command {
         message.member,
         webhook
       )
-      .catch(() => {});
+      .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
+    if (quoted == "QUOTE_PREMIUM_INCREASED_LENGTH")
+      return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
+    else if (args.debug && typeof quoted == "string")
+      return !message
+        ? await webhook.send({ content: quoted })
+        : await message.channel.send({ content: quoted });
   }
 }

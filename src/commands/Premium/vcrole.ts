@@ -97,10 +97,7 @@ export default class VCRole extends Command {
         for (const [, member] of members)
           if (!member.user.bot)
             await member.roles
-              .add(
-                args.role,
-                message.guild.language.get("VCROLE_ADD_REASON")
-              )
+              .add(args.role, message.guild.language.get("VCROLE_ADD_REASON"))
               .catch(() => {});
       }
       return await message.success(

@@ -165,7 +165,7 @@ export const constants = {
   audioExts: ["mp3", "wav", "flac", "alac", "m4a"],
   videoExts: ["mp4", "mkv", "mov"],
   regexes: {
-    maskedLink: /\[(?<name>.+)\]\((?<link>https?:\/\/.+)\)/gim,
+    maskedLink: /\[(?<name>.+)\]\((?<link><?https?:\/\/.+>?)\)/gim,
     symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,
     spoilerAbuse: /(?:\|\|?[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]?){20,}/gim,
     zws: /[\u1CBC\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]/gim,

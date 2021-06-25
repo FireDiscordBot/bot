@@ -3,8 +3,7 @@ name: Feature Request
 about: Want to suggest a feature for Fire? Use this template when suggesting it
 title: "[SUGGESTION] Edit me with a valid title for your suggestion"
 labels: suggestion
-assignees: ''
-
+assignees: ""
 ---
 
 **Is your feature request related to a problem? Please describe.**

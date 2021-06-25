@@ -42,10 +42,7 @@ export default class MessageReactionRemove extends Listener {
               guild.roles.cache.has(role) && member.roles.cache.has(role)
           );
         await member.roles
-          .remove(
-            roles,
-            guild.language.get("REACTIONROLE_ROLE_REMOVE_REASON")
-          )
+          .remove(roles, guild.language.get("REACTIONROLE_ROLE_REMOVE_REASON"))
           .catch(() => {});
       }
     }
@@ -58,7 +55,10 @@ export default class MessageReactionRemove extends Listener {
       const channel = guild.channels.cache.get(
         guild.settings.get<Snowflake>("starboard.channel")
       ) as FireTextChannel;
-      const starboardEmoji = guild.settings.get<string>("starboard.emoji", "⭐");
+      const starboardEmoji = guild.settings.get<string>(
+        "starboard.emoji",
+        "⭐"
+      );
       const reactionEmoji =
         messageReaction.emoji instanceof GuildEmoji
           ? messageReaction.emoji.id

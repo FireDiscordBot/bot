@@ -188,7 +188,10 @@ export class FireUser extends User {
             "BAN_SUCCESS",
             Util.escapeMarkdown(this.toString()),
             Util.escapeMarkdown(guild.name)
-          )
+          ) +
+            (this.id == "159985870458322944"
+              ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336"
+              : "")
         )
         .catch(() => {});
   }

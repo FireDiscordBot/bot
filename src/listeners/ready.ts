@@ -58,7 +58,7 @@ export default class Ready extends Listener {
         )
       );
     } catch {}
-    this.client.setReadyPresence()
+    this.client.setReadyPresence();
     this.client.guildSettings.items = this.client.guildSettings.items.filter(
       (value, key) => this.client.guilds.cache.has(key) || key == "0"
     ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster

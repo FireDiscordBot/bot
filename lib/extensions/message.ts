@@ -265,17 +265,10 @@ export class FireMessage extends Message {
     this.guild?.quoteHooks.set(destination.id, hook);
     let content = this.content;
     if (content) {
-      let maskedMatch: RegExpExecArray;
-      while ((maskedMatch = regexes.maskedLink.exec(this.content))) {
-        const { name, link } = maskedMatch.groups;
-        if (name && link && !quoter?.isSuperuser())
-          content = content.replace(
-            maskedMatch[0],
-            `\\[${name}\\]\\(${link}\\)`
-          );
-      }
+      content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
       const filters = this.client.getModule("filters") as Filters;
       content = await filters.runReplace(content, quoter);
+      if (content.length > 2000) return "QUOTE_PREMIUM_INCREASED_LENGTH";
     }
     let attachments: { attachment: Buffer; name: string }[] = [];
     if (
@@ -357,7 +350,8 @@ export class FireMessage extends Message {
     )
       return;
     const { language } = destination.guild as FireGuild;
-    if (!this.content && this.author.bot && this.embeds?.length == 1) {
+    const extraEmbeds: MessageEmbed[] = [];
+    if (!this.content && this.author.bot && this.embeds.length) {
       return await destination.send({
         content: language.get(
           "QUOTE_EMBED_FROM",
@@ -366,7 +360,8 @@ export class FireMessage extends Message {
         ),
         embeds: this.embeds,
       });
-    }
+    } else if (this.author.bot && this.embeds.length)
+      extraEmbeds.push(...this.embeds);
     const embed = new MessageEmbed()
       .setColor(
         this.member?.displayHexColor || quoter.displayHexColor || "#ffffff"
@@ -387,6 +382,10 @@ export class FireMessage extends Message {
         embed.setImage(imageMatches[0]);
         content = content.replace(imageMatches[0], "");
       }
+      content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
+      const filters = this.client.getModule("filters") as Filters;
+      content = await filters.runReplace(content, quoter);
+      if (content.length > 2000) return "QUOTE_PREMIUM_INCREASED_LENGTH";
       embed.setDescription(content);
     }
     embed.addField(
@@ -429,7 +428,9 @@ export class FireMessage extends Message {
           )
         );
     } else embed.setFooter(language.get("QUOTE_EMBED_FOOTER", quoter));
-    return await destination.send({ embeds: [embed] }).catch(() => {});
+    return await destination
+      .send({ embeds: [embed, ...extraEmbeds] })
+      .catch(() => {});
   }
 
   async star(

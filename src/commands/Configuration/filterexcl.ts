@@ -50,7 +50,10 @@ export default class FilterExclude extends Command {
 
   async sendCurrent(message: FireMessage, changed: boolean = false) {
     let mentions: { [key: string]: string } = {};
-    let current = message.guild.settings.get<Snowflake[]>("excluded.filter", []);
+    let current = message.guild.settings.get<Snowflake[]>(
+      "excluded.filter",
+      []
+    );
     for (const exclude of current) {
       if (message.guild.roles.cache.has(exclude))
         mentions[exclude] = message.guild.roles.cache.get(exclude).toString();

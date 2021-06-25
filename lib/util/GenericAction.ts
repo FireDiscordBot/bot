@@ -100,7 +100,11 @@ export class GenericAction {
         count: message.partial ? null : 0,
         me: user ? user.id === this.client.user.id : false,
       },
-      message.reactions as BaseManager<Snowflake, MessageReaction, MessageReactionResolvable>,
+      message.reactions as BaseManager<
+        Snowflake,
+        MessageReaction,
+        MessageReactionResolvable
+      >,
       id,
       PartialTypes.REACTION
     );

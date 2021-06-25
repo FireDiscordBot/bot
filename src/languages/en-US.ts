@@ -254,6 +254,7 @@ export default class enUS extends Language {
             "<:firelogo:665339492072292363> [Premium](https://gaminggeek.dev/premium)",
         },
         POWERED_BY_KSOFT: "Powered by KSoft.Si API",
+        DM_FAIL: "Unable to DM user, they may have DMs off or blocked me",
         ANTI_COMMAND_DESCRIPTION:
           "Remove messages containing certain content e.g. @everyone or zero width spaces",
         ANTI_EVERYONE:
@@ -360,7 +361,6 @@ This will **not** rename existing users`,
         BAN_LOG_AUTHOR: (user: string) => `Ban | ${user}`,
         BAN_DM: (guild: string, reason: string) =>
           `You were banned from ${guild} for "${reason}"`,
-        BAN_DM_FAIL: "Unable to DM user, they may have DMs off or blocked me",
         BAN_SUCCESS: (user: string, guild: string) =>
           `${constants.emojis.success} **${user}** has been banished from ${guild}.`,
         BAN_SEMI_SUCCESS: (user: string, guild: string) =>
@@ -989,6 +989,8 @@ ${channels.join(", ")}`
           }`,
         MUTEROLE_COMMAND_DESCRIPTION: "Change the role used to mute members",
         MUTE_ROLE_CREATE_REASON: "Setting up muted role...",
+        MUTE_DM: (guild: string, reason: string) =>
+          `You were muted in ${guild} for "${reason}"`,
         MUTE_LOG_AUTHOR: (user: string) => `Mute | ${user}`,
         MUTE_SUCCESS: (user: string) =>
           `${constants.emojis.success} **${user}** has been muted.`,
@@ -1135,7 +1137,7 @@ ${prefixes.join(", ")}`,
         PURGED_MESSAGES_FAILED: "Failed to upload messages to hastebin",
         QUOTE_COMMAND_DESCRIPTION: "Quote a message from an ID or URL",
         QUOTE_PREMIUM_INCREASED_LENGTH:
-          "This message is using the new 4,000 character limit for nitro users. Because of this, I am unable to quote it.",
+          "This message is using the new 4,000 character limit for nitro users or has been altered due to filters and is now greater than 2,000 characters. Because of this, I am unable to quote it.",
         AUTOQUOTE_COMMAND_DESCRIPTION:
           "Enable automatic quoting when a message URL is sent",
         AUTOQUOTE_ENABLED:
