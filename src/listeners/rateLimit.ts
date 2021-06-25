@@ -30,6 +30,7 @@ export default class RateLimit extends Listener {
     if (rateLimit.route.includes("/messages/:id/reactions")) return;
     if (this.last == rateLimit.route) return;
     else this.last = rateLimit.route;
+    if (rateLimit.limit == Infinity) return;
     this.client.console.warn(
       `[Rest] Limited on route ${
         rateLimit.route
