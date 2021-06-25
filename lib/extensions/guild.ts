@@ -844,7 +844,7 @@ export class FireGuild extends Guild {
         })
         .catch((e: Error) => e)) as ThreadChannel;
       if (ticket instanceof ThreadChannel) {
-        await ticket.addMember(author).catch(() => {});
+        await ticket.members.add(author).catch(() => {});
         if (
           category.permissionOverwrites.filter(
             (overwrite) => overwrite.type == "member"
@@ -859,7 +859,7 @@ export class FireGuild extends Guild {
             .catch(() => {});
           if (members)
             for (const [, member] of members)
-              await ticket.addMember(member).catch(() => {});
+              await ticket.members.add(member).catch(() => {});
         }
       }
     } else

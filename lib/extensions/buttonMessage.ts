@@ -363,7 +363,6 @@ export class FakeChannel {
     options: PermissionOverwriteOptions,
     overwriteOptions?: GuildChannelOverwriteOptions
   ) {
-    // TODO: update when threads have permissions
     return !(this.real instanceof DMChannel) &&
       !(this.real instanceof ThreadChannel)
       ? this.real?.updateOverwrite(userOrRole, options, overwriteOptions)

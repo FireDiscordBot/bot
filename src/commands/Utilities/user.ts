@@ -516,15 +516,9 @@ export default class User extends Command {
             ) as string
           );
       } else if (channel instanceof ThreadChannel) {
-        // TODO: this may change and return an array of thread members
-        // like it's supposed to, marking with TODO so I can easily find
-        // this comment
-        const ids = (await this.client.req
-          .channels(channel.id, "thread-members")
-          .get()
-          .catch(() => [])) as string[];
+        const members = await channel.members.fetch(false).catch(() => {});
         info.push(
-          ids.includes(message.author.id)
+          members && members.has(message.author.id)
             ? (message.language.get(
                 "USER_SNOWFLAKE_BELONGS_TO",
                 message.language.get("THREAD"),
@@ -535,6 +529,7 @@ export default class User extends Command {
                 message.language.get("THREAD")
               ) as string)
         );
+        members && members.sweep(() => true);
       } else {
         const member = (channel as GuildChannel).guild.members.cache.get(
           message.author.id

@@ -187,9 +187,11 @@ export class FireMessage extends Message {
 
     // check thread members if private thread
     if (this.channel.type == "private_thread") {
-      const members = await this.channel.members.fetch();
+      const members = await this.channel.members.fetch(false);
       if (!members?.size || !members.has(quoter.id)) return "permissions";
-      this.channel.members.cache.sweep(() => true); // we do not need y'all anymore stop taking up memory geez
+      // @ts-ignore (ThreadMemberManager#cache seemingly exists but is not in the types)
+      this.channel.members.cache?.sweep(() => true) // we do not need y'all anymore stop taking up memory geez
+      members.sweep(() => true); // we do not need y'all anymore stop taking up memory geez
     }
 
     if (!isLurkable && this.channel.type != "private_thread")
