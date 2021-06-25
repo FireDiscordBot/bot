@@ -41,6 +41,7 @@ export default class TagSlash extends Command {
       "tags.slashcommands",
       false
     );
+    if (current == null) return await message.error("ERROR_CONTACT_SUPPORT");
     message.guild.settings.set<boolean>("tags.slashcommands", !current);
     if (!current) {
       message.channel.startTyping(5);

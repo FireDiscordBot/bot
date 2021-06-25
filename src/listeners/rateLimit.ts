@@ -19,6 +19,7 @@ export default class RateLimit extends Listener {
     method: string;
     path: string;
     route: string;
+    reason?: string;
   }) {
     if (!this.limited.includes(rateLimit.route)) {
       this.limited.push(rateLimit.route);
@@ -32,9 +33,11 @@ export default class RateLimit extends Listener {
     this.client.console.warn(
       `[Rest] Limited on route ${
         rateLimit.route
-      } while trying to ${rateLimit.method?.toUpperCase()} with limit ${
-        rateLimit.limit
-      }, waiting for timeout of ${rateLimit.timeout}ms`
+      } while trying to ${rateLimit.method?.toUpperCase()}${
+        rateLimit.reason ? ' due to "' + rateLimit.reason + '"' : ""
+      } with limit ${rateLimit.limit}, waiting for timeout of ${
+        rateLimit.timeout
+      }ms`
     );
   }
 }
