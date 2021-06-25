@@ -170,10 +170,12 @@ export class GuildTagManager {
         !(cmd.id in this.slashCommands && !this.cache.has(cmd.name))
     );
 
+    const newCommandData = [...current, ...commandData];
+
     await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
-      .commands.put({ data: [...current, ...commandData].slice(0, 100) })
+      .commands.put({ data: newCommandData.slice(0, 100) })
       .then(
         (
           updated: {
@@ -208,9 +210,14 @@ export class GuildTagManager {
           for (const tag of slashTags) this.slashCommands[tag.id] = tag.name;
         }
       )
-      .catch((e: Error) =>
+      .catch(async (e: Error) =>
         this.client.console.error(
-          `[Commands] Failed to update slash command tags for guild ${this.guild.name}\n${e.stack}`
+          `[Commands] Failed to update slash command tags for guild ${this.guild.name}\n${e.stack}`,
+          await this.client.util.haste(
+            JSON.stringify(newCommandData, null, 2),
+            true,
+            "json"
+          )
         )
       );
     return (this.preparedSlashCommands = true);
