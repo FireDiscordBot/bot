@@ -317,7 +317,12 @@ export class PaginatorInterface {
   }
 
   async send(
-    destination: FireTextChannel | NewsChannel | ThreadChannel | DMChannel | FakeChannel
+    destination:
+      | FireTextChannel
+      | NewsChannel
+      | ThreadChannel
+      | DMChannel
+      | FakeChannel
   ) {
     // if (destination instanceof FakeChannel) destination = destination.real;
     let message: FireMessage | SlashCommandMessage;
@@ -487,7 +492,7 @@ export class PaginatorEmbedInterface extends PaginatorInterface {
 
   get sendArgs() {
     const displayPage = this.displayPage;
-    this.embed.setDescription(this.pages[displayPage]);
+    this.embed.setDescription(this.pages[displayPage].toString());
     if (this.footer.text)
       this.footer.iconURL
         ? this.embed.setFooter(
