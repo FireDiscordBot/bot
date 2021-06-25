@@ -1,4 +1,4 @@
-import { MessageEmbed, Permissions, ThreadChannel } from "discord.js";
+import { MessageEmbed, ThreadChannel } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { humanize } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
@@ -16,51 +16,6 @@ export default class ThreadCreate extends Listener {
   async exec(channel: ThreadChannel) {
     const guild = channel.guild as FireGuild,
       language = guild.language;
-    // const muteRole = guild.muteRole;
-    // let muteFail = false;
-    // if (muteRole)
-    //   await channel
-    //     .updateOverwrite(
-    //       muteRole,
-    //       {
-    //         USE_PRIVATE_THREADS: false,
-    //         USE_PUBLIC_THREADS: false,
-    //         SEND_MESSAGES: false,
-    //         ADD_REACTIONS: false,
-    //         SPEAK: false,
-    //       },
-    //       {
-    //         reason: guild.language.get("MUTE_ROLE_CREATE_REASON") as string,
-    //         type: 0,
-    //       }
-    //     )
-    //     .catch(() => (muteFail = true));
-
-    // if (guild.permRoles.size) {
-    //   for (const [role, perms] of guild.permRoles) {
-    //     if (
-    //       !channel.permissionsFor(guild.me).has(Permissions.FLAGS.MANAGE_ROLES)
-    //     )
-    //       continue;
-    //     await channel
-    //       .overwritePermissions(
-    //         [
-    //           ...channel.permissionOverwrites.array().filter(
-    //             // ensure the overwrites below are used instead
-    //             (overwrite) => overwrite.id != role
-    //           ),
-    //           {
-    //             allow: perms.allow,
-    //             deny: perms.deny,
-    //             id: role,
-    //             type: "role",
-    //           },
-    //         ],
-    //         guild.language.get("PERMROLES_REASON") as string
-    //       )
-    //       .catch(() => {});
-    //   }
-    // }
 
     // TODO: slowmode inheritance toggle
 

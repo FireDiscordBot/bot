@@ -31,6 +31,13 @@ export default class PermRoles extends Command {
   }
 
   async exec(message: FireMessage, args: { role?: Role }) {
+    if (
+      message.guild.channels.cache.filter(
+        (channel) => !channel.type.endsWith("thread")
+      ).size >= 100
+    )
+      return await message.error("PERMROLES_CHANNEL_LIMIT");
+
     if (!args.role) {
       if (!message.guild.permRoles.size)
         return await message.error("PERMROLES_NONE_FOUND");
@@ -132,6 +139,7 @@ export default class PermRoles extends Command {
     let failed = 0;
     for (const [, channel] of message.guild.channels.cache.filter(
       (channel) =>
+        !channel.type.endsWith("thread") &&
         channel
           .permissionsFor(message.guild.me)
           .has(Permissions.FLAGS.MANAGE_ROLES) &&
