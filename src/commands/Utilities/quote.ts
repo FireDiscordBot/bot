@@ -136,14 +136,9 @@ export default class Quote extends Command {
         match.groups.id as Snowflake,
         match.groups.token
       );
-      const quoted = await args.quote
+      return await args.quote
         .quote(args.destination, args.quoter, webhook)
-        .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
-      if (args.debug && typeof quoted == "string")
-        return !message
-          ? await webhook.send({ content: quoted })
-          : await message.channel.send({ content: quoted });
-      else return;
+        .catch(() => {});
     } else if (!message) return;
     const quoted = await args.quote
       .quote(
@@ -156,7 +151,7 @@ export default class Quote extends Command {
       .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
     if (quoted == "QUOTE_PREMIUM_INCREASED_LENGTH")
       return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
-    if (args.debug && typeof quoted == "string")
+    else if (args.debug && typeof quoted == "string")
       return !message
         ? await webhook.send({ content: quoted })
         : await message.channel.send({ content: quoted });

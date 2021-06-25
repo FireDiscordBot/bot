@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { codeblockTypeCaster } from "../arguments/codeblock";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
@@ -19,7 +20,6 @@ import { Message } from "@fire/lib/ws/Message";
 import Rank from "../commands/Premium/rank";
 import Sk1er from "../modules/sk1er";
 import * as centra from "centra";
-import { codeblockTypeCaster } from "../arguments/codeblock";
 
 const { url, emojis } = constants;
 

@@ -159,7 +159,7 @@ export const constants = {
     support: "https://inv.wtf/fire",
     // selfhosted instance of https://git.farfrom.earth/aero/imagegen (but with profile removed since I don't need it)
     imageGen: "https://gen.inv.wtf/",
-    supportedHaste: ["hastebin.com", "hasteb.in", "hst.sh"],
+    supportedHaste: ["hastebin.com", "hasteb.in", "hst.sh", "h.inv.wtf"],
   },
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
   audioExts: ["mp3", "wav", "flac", "alac", "m4a"],
@@ -189,7 +189,7 @@ export const constants = {
     invwtf: /inv\.wtf\/(?<code>[\w-]{2,25})/gim,
     discord: {
       invite: /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[\w-]{1,25})/im,
-      message: /(?:ptb\.|canary\.|staging\.)?discord(?:app)?\.com?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
+      message: /(?:ptb\.|canary\.|staging\.|lc\.)?(?:discord(?:app)|inv)?\.(?:com|wtf)?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
       messageGlobal: /<?(?:ptb\.|canary\.|staging\.)?discord(?:app)?\.com?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})>?/gim,
       webhook: /discord(?:app)?\.com\/api\/webhooks\/(?<id>\d{15,21})\/(?<token>[\w-]{50,80})/im,
     },

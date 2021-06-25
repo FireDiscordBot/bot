@@ -37,8 +37,11 @@ export default class ChannelUpdate extends Listener {
         .updateOverwrite(
           muteRole,
           {
+            USE_PRIVATE_THREADS: false,
+            USE_PUBLIC_THREADS: false,
             SEND_MESSAGES: false,
             ADD_REACTIONS: false,
+            SPEAK: false,
           },
           {
             reason: guild.language.get("MUTE_ROLE_CREATE_REASON"),

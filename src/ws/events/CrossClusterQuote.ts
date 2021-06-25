@@ -61,7 +61,6 @@ export default class CrossClusterQuote extends Event {
       quote: message as FireMessage,
       quoter: member as FireMember,
       webhook: data.webhook,
-      debug: data.debug,
       destination,
     });
   }

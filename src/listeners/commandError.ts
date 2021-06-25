@@ -2,9 +2,9 @@ import {
   FakeChannel,
   SlashCommandMessage,
 } from "@fire/lib/extensions/slashCommandMessage";
+import { GuildChannel, ThreadChannel, DMChannel } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { GuildChannel, DMChannel } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
 import { Command } from "@fire/lib/util/command";
 import { Scope } from "@sentry/node";
@@ -46,14 +46,7 @@ export default class CommandError extends Listener {
           channel instanceof FakeChannel
             ? channel.real?.id
             : channel?.id || "0",
-        "channel.name":
-          channel instanceof GuildChannel
-            ? (channel as FireTextChannel).name
-            : channel instanceof FakeChannel
-            ? channel.real instanceof DMChannel
-              ? "dm"
-              : channel.real.name
-            : channel?.recipient?.toString() || "Unknown",
+        "channel.name": this.getChannelName(channel) || "Unknown",
         "command.name": command.id,
         env: process.env.NODE_ENV,
       };
@@ -79,5 +72,14 @@ export default class CommandError extends Listener {
         return await message.channel.send("```js\n" + error.stack + "```");
       }
     } catch {}
+  }
+
+  getChannelName(
+    channel: GuildChannel | ThreadChannel | FakeChannel | DMChannel
+  ) {
+    if (channel instanceof DMChannel) return channel.recipient?.toString();
+    else if (channel instanceof FakeChannel)
+      return this.getChannelName(channel.real);
+    else return channel.name;
   }
 }

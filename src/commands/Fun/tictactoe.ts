@@ -371,7 +371,7 @@ export default class TicTacToe extends Command {
           component.style != "LINK" &&
           component.customID == "!" + buttonId
       );
-      components[actionRowIndex].components[buttonIndex]
+      (components[actionRowIndex].components[buttonIndex] as MessageButton)
         .setEmoji(
           game.players[button.author.id] == "x"
             ? "836004296696659989"
@@ -416,9 +416,9 @@ export default class TicTacToe extends Command {
           if (
             components[actionRowIndex].components[buttonIndex].type == "BUTTON"
           )
-            components[actionRowIndex].components[buttonIndex].setStyle(
-              "PRIMARY"
-            );
+            (components[actionRowIndex].components[
+              buttonIndex
+            ] as MessageButton).setStyle("PRIMARY");
         }
 
         for (const [index, row] of components.entries()) {

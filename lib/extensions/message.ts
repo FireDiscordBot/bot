@@ -1,6 +1,7 @@
 import {
   DiscordAPIError,
   MessageReaction,
+  ThreadChannel,
   WebhookClient,
   MessageEmbed,
   Permissions,
@@ -36,8 +37,8 @@ const {
 } = constants;
 
 export class FireMessage extends Message {
+  declare channel: DMChannel | FireTextChannel | NewsChannel | ThreadChannel;
   invWtfResolved: Collection<string, { invite?: string; url?: string }>;
-  declare channel: DMChannel | FireTextChannel | NewsChannel;
   paginator?: PaginatorInterface;
   declare member: FireMember;
   declare guild: FireGuild;
@@ -58,6 +59,35 @@ export class FireMessage extends Message {
       this.content = this.content.slice(0, this.content.length - 9).trimEnd();
       if (!this.attachments.size) this.silent = true;
     }
+    const language = this.guild ? this.guild.language : this.author.language;
+    if (this.type == "RECIPIENT_ADD" && this.channel instanceof ThreadChannel)
+      this.content = language.get(
+        "TICKET_RECIPIENT_ADD",
+        this.author.toString(),
+        this.mentions.users.first()?.toString()
+      ) as string;
+    else if (
+      this.type == "RECIPIENT_REMOVE" &&
+      this.channel instanceof ThreadChannel
+    )
+      this.content = language.get(
+        "TICKET_RECIPIENT_REMOVE",
+        this.author.toString(),
+        this.mentions.users.first()?.toString()
+      ) as string;
+    else if (
+      this.type == "CHANNEL_NAME_CHANGE" &&
+      this.channel instanceof ThreadChannel
+    )
+      this.content = language.get(
+        "TICKET_THREAD_RENAME",
+        this.author.toString(),
+        this.cleanContent,
+        true
+      ) as string;
+
+    // @ts-ignore
+    if (data.components) this.components = data.components;
     this.invWtfResolved = new Collection();
   }
 
@@ -117,12 +147,22 @@ export class FireMessage extends Message {
   }
 
   async quote(
-    destination: FireTextChannel | PartialQuoteDestination,
+    destination: FireTextChannel | ThreadChannel | PartialQuoteDestination,
     quoter: FireMember,
     webhook?: WebhookClient
   ) {
     if (this.channel.type == "dm") return "dm";
-    const channel = this.channel as FireTextChannel;
+    let thread: ThreadChannel;
+    if (destination instanceof ThreadChannel) {
+      // we can't assign thread to destination since we're reassigning it
+      thread = this.client.channels.cache.get(destination.id) as ThreadChannel;
+      destination = destination.parent as FireTextChannel;
+    }
+
+    const channel =
+      this.channel instanceof ThreadChannel
+        ? (this.channel.parent as FireTextChannel)
+        : (this.channel as FireTextChannel);
     if (this.author.system && !quoter.isSuperuser()) return "system";
     if (channel.nsfw && !destination?.nsfw) return "nsfw";
     const isLurkable =
@@ -145,10 +185,19 @@ export class FireMessage extends Message {
       } else member = quoter;
     }
 
-    if (!isLurkable)
+    // check thread members if private thread
+    if (this.channel.type == "private_thread") {
+      const members = await this.channel.members.fetch(false);
+      if (!members?.size || !members.has(quoter.id)) return "permissions";
+      // @ts-ignore (ThreadMemberManager#cache seemingly exists but is not in the types)
+      this.channel.members.cache?.sweep(() => true) // we do not need y'all anymore stop taking up memory geez
+      members.sweep(() => true); // we do not need y'all anymore stop taking up memory geez
+    }
+
+    if (!isLurkable && this.channel.type != "private_thread")
       if (
         !member ||
-        !member.permissionsIn(this.channel).has(Permissions.FLAGS.VIEW_CHANNEL)
+        !member.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL)
       )
         return "permissions";
 
@@ -159,42 +208,51 @@ export class FireMessage extends Message {
         0;
     const useWebhooks =
       (!!webhook ||
-        (destination.guild as FireGuild).settings.get<boolean>(
+        ((destination.guild as FireGuild).settings.get<boolean>(
           "utils.quotehooks",
           true
-        )) &&
+        ) &&
+          typeof destination.fetchWebhooks == "function" &&
+          typeof destination.createWebhook == "function")) &&
       canUpload;
+
     return useWebhooks
-      ? await this.webhookQuote(destination, quoter, webhook)
+      ? await this.webhookQuote(destination, quoter, webhook, thread)
       : await this.embedQuote(destination, quoter);
   }
 
   private async webhookQuote(
     destination: FireTextChannel | PartialQuoteDestination,
     quoter: FireMember,
-    webhook?: WebhookClient
+    webhook?: WebhookClient,
+    thread?: ThreadChannel
   ) {
     let hook: Webhook | WebhookClient = webhook;
     if (!this.guild?.quoteHooks.has(destination.id)) {
       const hooks =
-        destination instanceof FireTextChannel
+        typeof destination.fetchWebhooks == "function"
           ? await destination.fetchWebhooks().catch(() => {})
           : null;
       if (hooks && !hook)
         hook = hooks
           ?.filter((hook) => !!hook.token && hook.channelID == destination.id)
           ?.first();
-      if (!hook && destination instanceof FireTextChannel) {
+      if (!hook && typeof destination.createWebhook == "function") {
         hook = await destination
-          .createWebhook(`Fire Quotes #${destination.name}`, {
-            avatar: this.client.user.displayAvatarURL({
-              size: 2048,
-              format: "png",
-            }),
-            reason: (destination.guild as FireGuild).language.get(
-              "QUOTE_WEBHOOK_CREATE_REASON"
-            ) as string,
-          })
+          .createWebhook(
+            `Fire Quotes #${
+              destination.name ? destination.name : destination.id
+            }`,
+            {
+              avatar: this.client.user.displayAvatarURL({
+                size: 2048,
+                format: "png",
+              }),
+              reason: (destination.guild as FireGuild).language.get(
+                "QUOTE_WEBHOOK_CREATE_REASON"
+              ) as string,
+            }
+          )
           .catch(() => null);
         if (!hook) return await this.embedQuote(destination, quoter);
       }
@@ -248,13 +306,15 @@ export class FireMessage extends Message {
         ),
         files: attachments,
         allowedMentions: this.client.options.allowedMentions,
+        threadID: thread?.id,
       })
-      .catch(async () => {
+      .catch(async (e) => {
+        this.client.console.debug(e.stack);
         // this will ensure deleted webhooks are deleted
         // but also allow webhooks to be refreshed
         // even if the cached one still exists
         this.guild?.quoteHooks.delete(destination.id);
-        return await this.embedQuote(destination, quoter);
+        return await this.embedQuote(thread ?? destination, quoter);
       });
   }
 
@@ -280,13 +340,17 @@ export class FireMessage extends Message {
   }
 
   private async embedQuote(
-    destination: FireTextChannel | PartialQuoteDestination,
+    destination: FireTextChannel | ThreadChannel | PartialQuoteDestination,
     quoter: FireMember
   ) {
     // PartialQuoteDestination needs to be set for type here
     // since this#quote can take either but it should never
     // actually end up at this point
-    if (!(destination instanceof FireTextChannel)) return;
+    if (
+      !(destination instanceof FireTextChannel) &&
+      !(destination instanceof ThreadChannel)
+    )
+      return;
     const { language } = destination.guild as FireGuild;
     const extraEmbeds: MessageEmbed[] = [];
     if (!this.content && this.author.bot && this.embeds.length) {

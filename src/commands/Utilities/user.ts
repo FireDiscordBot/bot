@@ -2,6 +2,8 @@ import {
   DeconstructedSnowflake,
   PermissionString,
   UserFlagsString,
+  DiscordAPIError,
+  ThreadChannel,
   SnowflakeUtil,
   GuildChannel,
   MessageEmbed,
@@ -21,7 +23,6 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Ban } from "@aero/ksoft";
 import * as moment from "moment";
-import { DiscordAPIError } from "discord.js";
 
 const {
   emojis,
@@ -514,6 +515,21 @@ export default class User extends Command {
               message.language.get("DM_CHANNEL")
             ) as string
           );
+      } else if (channel instanceof ThreadChannel) {
+        const members = await channel.members.fetch(false).catch(() => {});
+        info.push(
+          members && members.has(message.author.id)
+            ? (message.language.get(
+                "USER_SNOWFLAKE_BELONGS_TO",
+                message.language.get("THREAD"),
+                channel.toString()
+              ) as string)
+            : (message.language.get(
+                "USER_SNOWFLAKE_BELONGS_TO",
+                message.language.get("THREAD")
+              ) as string)
+        );
+        members && members.sweep(() => true);
       } else {
         const member = (channel as GuildChannel).guild.members.cache.get(
           message.author.id
