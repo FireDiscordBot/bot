@@ -19,7 +19,7 @@ const snowflakeRegex = /\d{15,21}/gim;
 const cleanMap = {
   ":": [/\\:/gim],
   ".": [/\\\./gim, /\(\.\)/gim, /dot/gim, /\/\./gim],
-  "/": [/\.\//gim, /\\\/\//gim, /slash/gim],
+  "/": [/\.\//gim, /\\\/\//gim, /\\\//gim, /slash/gim],
   "": [regexes.zws, regexes.protocol, regexes.symbol, /\s/gim, /(\*|_|\|)/gim],
   com: [/c.m/gim],
   "discord.gg/$1": [/\.gg\/(?<code>[\w-]{1,25})/gim],
