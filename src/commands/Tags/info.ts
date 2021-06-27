@@ -53,9 +53,9 @@ export default class TagInfo extends Command {
       )
       .setColor(message.member?.displayHexColor || "#ffffff")
       .setDescription(
-        cachedTag.content.length < 100
+        cachedTag.content.length < 250
           ? cachedTag.content
-          : cachedTag.content.slice(0, 99) + "..."
+          : cachedTag.content.slice(0, 249) + "..."
       )
       .setTimestamp()
       .addField(message.language.get("TAG_NAME"), cachedTag.name);
