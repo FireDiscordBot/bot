@@ -387,7 +387,6 @@ export class FireMessage extends Message {
       content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
       const filters = this.client.getModule("filters") as Filters;
       content = await filters.runReplace(content, quoter);
-      if (content.length > 2000) return "QUOTE_PREMIUM_INCREASED_LENGTH";
       embed.setDescription(content);
     }
     embed.addField(

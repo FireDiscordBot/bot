@@ -316,7 +316,7 @@ export default class Filters extends Module {
         )
         .setFooter(message.author.id);
       if (invite) {
-        if (invite.guild.description.length + embed.description.length < 2000)
+        if (invite.guild.description.length + embed.description.length < 4000)
           embed.setDescription(
             embed.description + `\n\n${invite.guild.description}`
           );

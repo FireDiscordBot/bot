@@ -484,7 +484,7 @@ export class PaginatorEmbedInterface extends PaginatorInterface {
       footer?: { text: string; iconURL?: string };
     }
   ) {
-    if (options.maxPageSize > 2048) options.maxPageSize = 2048;
+    if (options.maxPageSize > 4096) options.maxPageSize = 4096;
     super(bot, paginator, options);
     this.embed = options.embed;
     this.footer = options.footer || { text: "" };
