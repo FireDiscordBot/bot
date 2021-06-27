@@ -16,23 +16,23 @@ import {
   CollectorFilter,
   MessageMentions,
   MessageReaction,
+  MessagePayload,
   UserResolvable,
   RoleResolvable,
   ThreadChannel,
   SnowflakeUtil,
   Permissions,
   NewsChannel,
-  APIMessage,
   Collection,
   DMChannel,
   Snowflake,
 } from "discord.js";
-import { APIMessage as DiscordAPIMessage } from "discord-api-types";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { FireTextChannel } from "./textchannel";
+import { APIMessage } from "discord-api-types";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
 import { Fire } from "@fire/lib/Fire";
@@ -292,12 +292,15 @@ export class SlashCommandMessage {
     return message;
   }
 
-  async edit(options?: WebhookEditMessageOptions | APIMessage) {
-    let apiMessage: APIMessage;
+  async edit(options?: WebhookEditMessageOptions | MessagePayload) {
+    let apiMessage: MessagePayload;
 
-    if (options instanceof APIMessage) apiMessage = options.resolveData();
+    if (options instanceof MessagePayload) apiMessage = options.resolveData();
     else {
-      apiMessage = APIMessage.create(this.slashCommand, options).resolveData();
+      apiMessage = MessagePayload.create(
+        this.slashCommand,
+        options
+      ).resolveData();
     }
 
     const { data, files } = (await apiMessage.resolveFiles()) as {
@@ -414,11 +417,8 @@ export class FakeChannel {
       : this.real?.bulkDelete(messages, filterOld);
   }
 
-  awaitMessages(
-    filter: CollectorFilter<[FireMessage]>,
-    options?: AwaitMessagesOptions
-  ) {
-    return this.real?.awaitMessages(filter, options);
+  awaitMessages(options?: AwaitMessagesOptions) {
+    return this.real?.awaitMessages(options);
   }
 
   updateOverwrite(
@@ -453,14 +453,17 @@ export class FakeChannel {
   }
 
   async send(
-    options?: string | APIMessage | (WebhookMessageOptions & { split?: false }),
+    options?:
+      | string
+      | MessagePayload
+      | (WebhookMessageOptions & { split?: false }),
     flags?: number // Used for success/error, can also be set
   ): Promise<SlashCommandMessage> {
-    let apiMessage: APIMessage;
+    let apiMessage: MessagePayload;
 
-    if (options instanceof APIMessage) apiMessage = options.resolveData();
+    if (options instanceof MessagePayload) apiMessage = options.resolveData();
     else {
-      apiMessage = APIMessage.create(
+      apiMessage = MessagePayload.create(
         this.message.slashCommand,
         options
       ).resolveData();
@@ -510,7 +513,7 @@ export class FakeChannel {
     } else {
       const message = await this.client.req
         .webhooks(this.client.user.id)(this.token)
-        .post<DiscordAPIMessage>({
+        .post<APIMessage>({
           data,
           files,
           query: { wait: true },

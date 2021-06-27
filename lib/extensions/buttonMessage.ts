@@ -16,19 +16,19 @@ import {
   MessageManager,
   RoleResolvable,
   UserResolvable,
+  MessagePayload,
   SnowflakeUtil,
   ThreadChannel,
   MessageEmbed,
   NewsChannel,
   Permissions,
-  APIMessage,
   Collection,
   Snowflake,
   DMChannel,
   Webhook,
 } from "discord.js";
-import { APIMessage as DiscordAPIMessage } from "discord-api-types";
 import { FireTextChannel } from "./textchannel";
+import { APIMessage } from "discord-api-types";
 import { constants } from "../util/constants";
 import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
@@ -219,7 +219,7 @@ export class ButtonMessage {
       const message = await this.client.req
         .webhooks(this.client.user.id, this.interaction.token)
         .messages(messageId)
-        .get<DiscordAPIMessage>()
+        .get<APIMessage>()
         .catch(() => {});
       if (message) messageId = message.id;
     }
@@ -232,10 +232,10 @@ export class ButtonMessage {
   }
 
   async edit(
-    content: string | MessageEditOptions | MessageEmbed | APIMessage,
+    content: string | MessageEditOptions | MessageEmbed | MessagePayload,
     options?: WebhookEditMessageOptions & { embed?: MessageEmbed }
   ) {
-    let apiMessage: APIMessage;
+    let apiMessage: MessagePayload;
 
     if (content instanceof MessageEmbed) {
       options = {
@@ -250,9 +250,9 @@ export class ButtonMessage {
       delete options.embed;
     }
 
-    if (content instanceof APIMessage) apiMessage = content.resolveData();
+    if (content instanceof MessagePayload) apiMessage = content.resolveData();
     else {
-      apiMessage = APIMessage.create(
+      apiMessage = MessagePayload.create(
         new Webhook(this.client, null), // needed to make isWebhook true for embeds array
         content as string,
         options
@@ -351,11 +351,8 @@ export class FakeChannel {
       : this.real?.bulkDelete(messages, filterOld);
   }
 
-  awaitMessages(
-    filter: CollectorFilter<[FireMessage]>,
-    options?: AwaitMessagesOptions
-  ) {
-    return this.real?.awaitMessages(filter, options);
+  awaitMessages(options?: AwaitMessagesOptions) {
+    return this.real?.awaitMessages(options);
   }
 
   updateOverwrite(
@@ -391,14 +388,17 @@ export class FakeChannel {
   }
 
   async send(
-    options?: string | APIMessage | (WebhookMessageOptions & { split?: false }),
+    options?:
+      | string
+      | MessagePayload
+      | (WebhookMessageOptions & { split?: false }),
     flags?: number // Used for success/error, can also be set
   ): Promise<ButtonMessage> {
-    let apiMessage: APIMessage;
+    let apiMessage: MessagePayload;
 
-    if (options instanceof APIMessage) apiMessage = options.resolveData();
+    if (options instanceof MessagePayload) apiMessage = options.resolveData();
     else {
-      apiMessage = APIMessage.create(
+      apiMessage = MessagePayload.create(
         new Webhook(this.client, null), // needed to make isWebhook true for embeds array
         options
       ).resolveData();
@@ -436,7 +436,7 @@ export class FakeChannel {
     else {
       const message = await this.client.req
         .webhooks(this.client.user.id)(this.token)
-        .post<DiscordAPIMessage>({
+        .post<APIMessage>({
           data,
           files,
           query: { wait: true },
@@ -451,13 +451,13 @@ export class FakeChannel {
   }
 
   async update(
-    content: string | APIMessage | MessageEmbed,
+    content: string | MessagePayload | MessageEmbed,
     options?: WebhookMessageOptions & { embed?: MessageEmbed },
     flags?: number // Used for success/error, can also be set
   ): Promise<ButtonMessage> {
     if (this.message.sent) return; // can only update with initial response
 
-    let apiMessage: APIMessage;
+    let apiMessage: MessagePayload;
 
     if (content instanceof MessageEmbed) {
       options = {
@@ -472,9 +472,9 @@ export class FakeChannel {
       delete options.embed;
     }
 
-    if (content instanceof APIMessage) apiMessage = content.resolveData();
+    if (content instanceof MessagePayload) apiMessage = content.resolveData();
     else {
-      apiMessage = APIMessage.create(
+      apiMessage = MessagePayload.create(
         new Webhook(this.client, null), // needed to make isWebhook true for embeds array
         content as string,
         options
