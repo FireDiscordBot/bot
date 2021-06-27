@@ -238,12 +238,14 @@ export default class Button extends Listener {
       });
 
       const newContent = await button.channel
-        .awaitMessages(
-          (m: FireMessage) =>
+        .awaitMessages({
+          max: 1,
+          time: 150000,
+          errors: ["time"],
+          filter: (m: FireMessage) =>
             m.author.id == button.author.id &&
             m.channel.id == button.interaction.channelID,
-          { max: 1, time: 150000, errors: ["time"] }
-        )
+        })
         .catch(() => {});
       if (cancelled || !newContent || !newContent.first()?.content) return;
       this.client.buttonHandlersOnce.delete(cancelSnowflake);

@@ -57,14 +57,16 @@ export default class DeleteReminder extends Command {
     const reminder = reminders[args.index - 1];
     const confirmation = await message.send("DELREMIND_CONFIRM", reminder);
     const yesOrNo = await message.channel
-      .awaitMessages(
-        (msg: FireMessage) =>
+      .awaitMessages({
+        max: 1,
+        time: 10000,
+        errors: ["time"],
+        filter: (msg: FireMessage) =>
           msg.author.id == message.author.id &&
           (message instanceof SlashCommandMessage
             ? msg.channel.id == message.realChannel.id
             : msg.channel.id == message.channel.id),
-        { max: 1, time: 10000, errors: ["time"] }
-      )
+      })
       .catch(() => {});
     if (yesOrNo)
       await yesOrNo

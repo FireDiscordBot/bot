@@ -6,7 +6,6 @@ import {
   MessageEmbed,
   Permissions,
   NewsChannel,
-  APIMessage,
   Collection,
   Structures,
   DMChannel,

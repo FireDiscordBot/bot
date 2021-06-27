@@ -93,12 +93,14 @@ export default class CloseTicket extends Command {
     return new Promise((resolve, reject) => {
       this.client.buttonHandlersOnce.set(customId, resolve);
       message.channel
-        .awaitMessages(
-          (m: FireMessage) =>
+        .awaitMessages({
+          max: 1,
+          time: 10000,
+          errors: ["time"],
+          filter: (m: FireMessage) =>
             m.content.toLowerCase().trim() == "close" &&
             m.author.id == message.author.id,
-          { max: 1, time: 10000, errors: ["time"] }
-        )
+        })
         .then(resolve)
         .catch(reject);
     });
