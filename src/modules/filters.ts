@@ -64,19 +64,21 @@ export default class Filters extends Module {
       member = userOrMember;
     } else if (userOrMember && userOrMember instanceof FireUser)
       user = userOrMember;
+    const guild = message?.guild ?? member?.guild;
     if ((message && message.author.bot) || (user && user.bot)) return false;
-    if (!message?.guild && !member) return false;
+    if (!guild && !member) return false;
     if (message?.member?.isModerator() || member?.isModerator()) return false;
     const excluded =
-      message?.guild.settings.get<Snowflake[]>("excluded.filter", []) ?? [];
+      guild?.settings.get<Snowflake[]>("excluded.filter", []) ?? [];
     const roleIds = message
       ? message.member?.roles.cache.map((role) => role.id)
       : member?.roles.cache.map((role) => role.id);
     if (
-      (excluded && excluded.includes(message?.author?.id || user?.id)) ||
-      excluded.includes(message?.channel?.id) ||
-      excluded.includes((message?.channel as FireTextChannel)?.parentID) ||
-      excluded.some((id) => roleIds.includes(id))
+      excluded?.length &&
+      (excluded.includes(message?.author?.id || user?.id) ||
+        excluded.includes(message?.channel?.id) ||
+        excluded.includes((message?.channel as FireTextChannel)?.parentID) ||
+        excluded.some((id) => roleIds?.includes(id)))
     )
       return false;
     return true;
