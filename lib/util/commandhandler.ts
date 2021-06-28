@@ -4,9 +4,9 @@ import {
   CommandHandlerOptions,
   Constants,
 } from "discord-akairo";
+import { DiscordAPIError, ThreadChannel, Collection } from "discord.js";
 import { CommandUtil, ParsedComponentData } from "./commandutil";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { DiscordAPIError, Collection } from "discord.js";
 import { Fire } from "@fire/lib/Fire";
 import { Command } from "./command";
 
@@ -54,6 +54,24 @@ export class CommandHandler extends AkairoCommandHandler {
 
   async handle(message: FireMessage) {
     if (message.webhookID || message.author?.bot) return false;
+
+    const isThreadMember =
+      message.channel instanceof ThreadChannel &&
+      message.channel.members.cache.has(this.client.user.id);
+
+    if (
+      message.channel instanceof ThreadChannel &&
+      message.channel.joinable &&
+      !isThreadMember
+    ) {
+      const joined = await message.channel.join().catch(() => {});
+      if (!joined) return;
+    } else if (
+      message.channel instanceof ThreadChannel &&
+      !message.channel.joinable &&
+      !isThreadMember
+    )
+      return;
 
     try {
       if (this.fetchMembers && message.guild && !message.member)
