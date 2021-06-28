@@ -1,4 +1,4 @@
-import { GenericAction } from "./GenericAction";
+import { GenericAction } from "../GenericAction";
 import { Constants, Presence } from "discord.js";
 
 const { Events } = Constants;
