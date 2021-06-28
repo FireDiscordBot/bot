@@ -228,7 +228,7 @@ export default class GuildMemberAdd extends Listener {
           language.get("MEMBERJOIN_LOG_PREMIUM_UPSELL_TITLE"),
           language.get("MEMBERJOIN_LOG_PREMIUM_UPSELL_VALUE")
         );
-      if (member.user.bot) {
+      if (member.user.bot && member.guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)) {
         const auditLogActions = await member.guild
           .fetchAuditLogs({ limit: 2, type: "BOT_ADD" })
           .catch(() => {});

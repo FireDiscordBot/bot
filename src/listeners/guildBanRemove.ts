@@ -1,4 +1,4 @@
-import { GuildAuditLogsEntry, MessageEmbed } from "discord.js";
+import { GuildAuditLogsEntry, MessageEmbed, Permissions } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
@@ -12,7 +12,12 @@ export default class GuildBanRemove extends Listener {
   }
 
   async exec(guild: FireGuild, user: FireUser) {
-    if (!guild || typeof guild.fetchAuditLogs != "function") return;
+    if (
+      !guild ||
+      typeof guild.fetchAuditLogs != "function" ||
+      !guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)
+    )
+      return;
     let action: GuildAuditLogsEntry;
     const auditLogActions = await guild
       .fetchAuditLogs({ limit: 2, type: "MEMBER_BAN_REMOVE" })
