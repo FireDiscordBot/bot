@@ -3,6 +3,7 @@ import {
   MessageReaction,
   ThreadChannel,
   WebhookClient,
+  ThreadMember,
   MessageEmbed,
   Permissions,
   NewsChannel,
@@ -190,9 +191,13 @@ export class FireMessage extends Message {
         false
       );
       if (!members?.size || !members.has(quoter.id)) return "permissions";
+
+      // we do not need y'all anymore stop taking up memory geez
       // @ts-ignore (ThreadMemberManager#cache seemingly exists but is not in the types)
-      this.channel.members.cache?.sweep(() => true); // we do not need y'all anymore stop taking up memory geez
-      members.sweep(() => true); // we do not need y'all anymore stop taking up memory geez
+      this.channel.members.cache?.sweep(
+        (member: ThreadMember) => member.id != this.client.user?.id
+      );
+      members.sweep(() => true);
     } else if (!isLurkable)
       if (
         !member ||
