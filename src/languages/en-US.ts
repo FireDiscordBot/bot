@@ -1,4 +1,4 @@
-import { constants } from "@fire/lib/util/constants";
+import { constants, titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 
 export default class enUS extends Language {
@@ -407,19 +407,13 @@ This will **not** rename existing users`,
           'You must provide code in a codeblock to generate an image from, "listthemes" to list valid themes or "listfonts" to list valid fonts',
         CARBON_IMAGE_FAILED: "Failed to generate image!",
         CHANNELCREATELOG_AUTHOR: (type: string, guild: string) =>
-          `${
-            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
-          } Channel Create | ${guild}`,
+          `${titleCase(type)} Channel Create | ${guild}`,
         CHANNELCREATELOG_MUTE_PERMS_FAIL: `I was unable to set permissions for the muted role in this channel, users may be able to bypass mutes here.
 Make sure I have permission to manage roles`,
         CHANNELDELETELOG_AUTHOR: (type: string, guild: string) =>
-          `${
-            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
-          } Channel Delete | ${guild}`,
+          `${titleCase(type)} Channel Delete | ${guild}`,
         CHANNELUPDATELOG_AUTHOR: (type: string, channel: string) =>
-          `${
-            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
-          } Channel Update | ${channel}`,
+          `${titleCase(type)} Channel Update | ${channel}`,
         COLOR_COMMAND_DESCRIPTION: "Get information about a color",
         COLOR_ARGUMENT_INVALID: (random: string) =>
           `That does not seem to be a valid color, maybe try ${random}`,

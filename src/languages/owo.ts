@@ -1,4 +1,4 @@
-import { constants } from "@fire/lib/util/constants";
+import { constants, titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 
 export default class owo extends Language {
@@ -260,20 +260,14 @@ This wiww **not** wename existing usews`,
         BLOCK_ARG_REQUIRED:
           "You must pwovide a usew ow wowe to bwock fwom chatting in the cuwwent channew!",
         CHANNELCREATELOG_AUTHOR: (type: string, guild: string) =>
-          `${
-            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
-          } Channew Cweate | ${guild}`,
+          `${titleCase(type)} Channew Cweate | ${guild}`,
         CHANNELCREATELOG_MUTE_PERMS_FAIL: `I was unabwe to set pewmissions fow the muted wowe in this channew, usews may be abwe to bypass mutes hewe.
 Make suwe I have pewmission to manage wowes`,
         CHANNELDELETELOG_AUTHOR: (type: string, guild: string) =>
-          `${
-            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
-          } Channew Dewete | ${guild}`,
+          `${titleCase(type)} Channew Dewete | ${guild}`,
         COMMAND_COMMAND_DESCRIPTION: "Enabwe/disabwe a command in youw sewvew",
         CHANNELUPDATELOG_AUTHOR: (type: string, channel: string) =>
-          `${
-            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
-          } Channew Update | ${channel}`,
+          `${titleCase(type)} Channew Update | ${channel}`,
         COMMAND_DISABLE_FORBIDDEN: "You cannot disabwe this command!",
         COMMAND_ENABLE: (command: string) => `Successfuwwy enabwed ${command}!`,
         COMMAND_DISABLE: (command: string) =>

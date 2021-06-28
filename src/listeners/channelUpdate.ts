@@ -1,4 +1,5 @@
 import {
+  ThreadChannel,
   MessageEmbed,
   GuildChannel,
   VoiceChannel,
@@ -18,17 +19,18 @@ export default class ChannelUpdate extends Listener {
   }
 
   async exec(
-    before: GuildChannel | DMChannel,
-    after: GuildChannel | DMChannel
+    before: GuildChannel | ThreadChannel | DMChannel,
+    after: GuildChannel | ThreadChannel | DMChannel
   ) {
     if (after instanceof DMChannel) return;
 
-    before = before as GuildChannel;
-    after = after as GuildChannel;
+    before = before as GuildChannel | ThreadChannel;
+    after = after as GuildChannel | ThreadChannel;
 
     const guild = after.guild as FireGuild;
     const muteRole = guild.muteRole;
     if (
+      after instanceof GuildChannel &&
       muteRole &&
       (after.permissionsFor(muteRole).has(Permissions.FLAGS.SEND_MESSAGES) ||
         after.permissionsFor(muteRole).has(Permissions.FLAGS.ADD_REACTIONS))
@@ -54,8 +56,10 @@ export default class ChannelUpdate extends Listener {
       afterOverwrites: string[] = [];
 
     if (
+      before instanceof GuildChannel &&
+      after instanceof GuildChannel &&
       before.permissionOverwrites.keyArray().sort((a, b) => (a > b ? 1 : -1)) !=
-      after.permissionOverwrites.keyArray().sort((a, b) => (a > b ? 1 : -1))
+        after.permissionOverwrites.keyArray().sort((a, b) => (a > b ? 1 : -1))
     ) {
       if (before.permissionOverwrites.size > 1) {
         const roleOverwrites = before.permissionOverwrites
@@ -85,7 +89,7 @@ export default class ChannelUpdate extends Listener {
       before.parentID != after.parentID ||
       newOverwrites.length ||
       removedOverwrites.length ||
-      // @ts-ignore
+      // @ts-ignore (cba to do instance checks everywhere, ignoring is easier)
       before.topic != after.topic ||
       // @ts-ignore
       before.region != after.region;
@@ -96,7 +100,11 @@ export default class ChannelUpdate extends Listener {
         .setColor("#2ECC71")
         .setTimestamp()
         .setAuthor(
-          language.get("CHANNELUPDATELOG_AUTHOR", after.type, after.name),
+          language.get(
+            "CHANNELUPDATELOG_AUTHOR",
+            after.type.replace("_", " "),
+            after.name
+          ),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .setFooter(after.id);

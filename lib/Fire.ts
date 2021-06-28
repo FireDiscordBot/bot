@@ -25,11 +25,17 @@ import {
   previewSilentTypeCaster,
   previewTypeCaster,
 } from "@fire/src/arguments/preview";
+import {
+  version as djsver,
+  ThreadChannel,
+  Collection,
+  ClientUser,
+  Constants,
+} from "discord.js";
 import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
 import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChannel";
 import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
 import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
-import { Collection, ClientUser, version as djsver } from "discord.js";
 import { SlashCommandMessage } from "./extensions/slashCommandMessage";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
@@ -72,7 +78,6 @@ import * as moment from "moment";
 type ButtonHandler = (button: ButtonMessage) => Promise<any> | any;
 
 import "./extensions";
-import { Constants } from "discord.js";
 
 // Rewrite completed - 15:10 17/1/2021
 export class Fire extends AkairoClient {
@@ -426,6 +431,12 @@ export class Fire extends AkairoClient {
         guild.presences.cache.sweep(() => true);
       });
       this.users.cache.sweep((user) => user.id != this.user?.id);
+      for (const [, thread] of this.channels.cache.filter(
+        (channel) => channel instanceof ThreadChannel
+      ))
+        (thread as ThreadChannel).members.cache.sweep(
+          (member) => member.id != this.user?.id
+        );
     };
     this.cacheSweepTask = setInterval(this.cacheSweep, 120000);
     return super.login();
