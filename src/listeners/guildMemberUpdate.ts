@@ -144,7 +144,11 @@ export default class GuildMemberUpdate extends Listener {
       }
     }
 
-    if (!newMember.guild.settings.has("log.members")) return;
+    if (
+      !newMember.guild.settings.has("log.members") ||
+      !newMember.guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)
+    )
+      return;
 
     const isPartial = oldMember.partial && newMember.partial;
     const hasRoleUpdates =
