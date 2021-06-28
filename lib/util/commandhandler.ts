@@ -5,6 +5,7 @@ import {
   Constants,
 } from "discord-akairo";
 import { DiscordAPIError, ThreadChannel, Collection } from "discord.js";
+import { SlashCommandMessage } from "../extensions/slashCommandMessage";
 import { CommandUtil, ParsedComponentData } from "./commandutil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Fire } from "@fire/lib/Fire";
@@ -54,24 +55,6 @@ export class CommandHandler extends AkairoCommandHandler {
 
   async handle(message: FireMessage) {
     if (message.webhookID || message.author?.bot) return false;
-
-    const isThreadMember =
-      message.channel instanceof ThreadChannel &&
-      message.channel.members.cache.has(this.client.user.id);
-
-    if (
-      message.channel instanceof ThreadChannel &&
-      message.channel.joinable &&
-      !isThreadMember
-    ) {
-      const joined = await message.channel.join().catch(() => {});
-      if (!joined) return;
-    } else if (
-      message.channel instanceof ThreadChannel &&
-      !message.channel.joinable &&
-      !isThreadMember
-    )
-      return;
 
     try {
       if (this.fetchMembers && message.guild && !message.member)
@@ -125,6 +108,30 @@ export class CommandHandler extends AkairoCommandHandler {
       this.emitError(err, message);
       return null;
     }
+  }
+
+  async preThreadChecks(message: FireMessage | SlashCommandMessage) {
+    if (message instanceof SlashCommandMessage) return; // only needed for typing compatibility
+
+    const isThreadMember =
+      message.channel instanceof ThreadChannel &&
+      message.channel.members.cache.has(this.client.user.id);
+
+    if (
+      message.channel instanceof ThreadChannel &&
+      message.channel.joinable &&
+      !isThreadMember
+    ) {
+      const joined = await message.channel.join().catch(() => {});
+      if (!joined) return;
+    } else if (
+      message.channel instanceof ThreadChannel &&
+      !message.channel.joinable &&
+      !isThreadMember
+    )
+      return;
+
+    return true;
   }
 
   setup() {
