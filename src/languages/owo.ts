@@ -245,6 +245,7 @@ This wiww **not** wename existing usews`,
           "Faiwed to ban usew and was unabwe to dewete the cweated mod log entwy.",
         BAN_COMMAND_DESCRIPTION:
           "Ban a usew fwom the sewvew. Use the --days fwag to dewete message histowy",
+        BAN_SMTH_SPECIAL: "You cannot put out a fwame with fiwe",
         BAN_USER_REQUIRED: "You must pwovide a usew to ban!",
         BAN_INVALID_DAYS: "Days must be a numbew fwom 1 to 7",
         BLOCK_LOG_AUTHOR: (blockee: string) => `Bwock | ${blockee}`,
