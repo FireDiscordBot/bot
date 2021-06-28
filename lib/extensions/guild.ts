@@ -835,7 +835,13 @@ export class FireGuild extends Guild {
 
     let ticket: FireTextChannel | ThreadChannel;
 
-    if (channel && this.hasExperiment(1651882237, 1)) {
+    if (
+      channel &&
+      this.hasExperiment(1651882237, 1) &&
+      // TODO: Remove comment when feature is added to typings
+      // @ts-ignore
+      this.features.includes("PRIVATE_THREADS")
+    ) {
       ticket = (await channel.threads
         .create({
           name: `${author} (${author.id})`,
