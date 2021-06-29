@@ -42,8 +42,8 @@ export type EphemeralMessage = { id: Snowflake; flags: number };
 export class ComponentMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   private snowflake: DeconstructedSnowflake;
-  message: FireMessage | EphemeralMessage;
   interaction: MessageComponentInteraction;
+  message: FireMessage | EphemeralMessage;
   sent: false | "ack" | "message";
   sourceMessage: FireMessage;
   latestResponse: Snowflake;
