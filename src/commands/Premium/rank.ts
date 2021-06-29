@@ -106,7 +106,9 @@ export default class Rank extends Command {
         );
       else if (message.hasExperiment(1685450372, 1))
         components = Rank.getRankDropdown(message.guild);
-      return message.channel.send({ embeds: [embed], components });
+      if (components.length)
+        return message.channel.send({ embeds: [embed], components });
+      else return message.error();
     }
 
     if (
