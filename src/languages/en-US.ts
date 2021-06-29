@@ -1186,6 +1186,7 @@ ${prefixes.join(", ")}`,
           "That isn't a valid rank. Use the rank command to see a list of valid ranks",
         RANKS_MENU_INVALID_ROLE:
           "That isn't a valid rank. Use the rank command to see the current ranks",
+        RANKS_SELECT_PLACEHOLDER: "Select one or more ranks to join/leave",
         ADDRANK_COMMAND_DESCRIPTION:
           "Add a role that users can join through the rank command.",
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
