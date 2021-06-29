@@ -1158,18 +1158,35 @@ ${prefixes.join(", ")}`,
         RANKS_INFO: (role: string, members: string) =>
           `> ${role} (${members} members)`,
         RANKS_AUTHOR: (guild: string) => `${guild}'s ranks`,
+        RANKS_SELECT_NONE:
+          "You did not choose any valid ranks. You may need to re-run the command to get an updated list",
         RANKS_JOIN_REASON: "Joined rank",
         RANKS_JOIN_RANK: (role: string) =>
           `You successfully joined the **${role}** rank.`,
+        RANKS_SELECT_JOIN_SINGLE: (role: string) =>
+          `You successfully joined the **${role}** rank.`,
+        RANKS_SELECT_JOIN_MULTI: (roles: string) =>
+          `You successfully joined the ${roles} ranks.`,
         RANKS_LEAVE_REASON: "Left rank",
         RANKS_LEFT_RANK: (role: string) =>
           `You successfully left the **${role}** rank.`,
+        RANKS_SELECT_LEAVE_SINGLE: (role: string) =>
+          `You successfully left the **${role}** rank.`,
+        RANKS_SELECT_LEAVE_MULTI: (roles: string) =>
+          `You successfully left the ${roles} ranks.`,
+        RANKS_SELECT_JOIN_LEAVE_SINGLE: (join: string, leave: string) =>
+          `You successfully joined the **${join}** rank and left the **${leave}** rank.`,
+        RANKS_SELECT_JOIN_SINGLE_LEAVE_MULTI: (join: string, left: string) =>
+          `You successfully joined the **${join}** rank and left the ${left} ranks.`,
+        RANKS_SELECT_JOIN_LEAVE_MULTI: (joined: string, left: string) =>
+          `You successfully joined the ${joined} ranks and left the ${left} ranks.`,
         RANKS_INVALID_ROLE:
           "That isn't a valid rank. Use the command without arguments to see a list of valid ranks",
         RANKS_INVALID_ROLE_DEL:
           "That isn't a valid rank. Use the rank command to see a list of valid ranks",
         RANKS_MENU_INVALID_ROLE:
           "That isn't a valid rank. Use the rank command to see the current ranks",
+        RANKS_SELECT_PLACEHOLDER: "Select one or more ranks to join/leave",
         ADDRANK_COMMAND_DESCRIPTION:
           "Add a role that users can join through the rank command.",
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",

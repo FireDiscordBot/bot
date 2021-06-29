@@ -37,7 +37,7 @@ import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChann
 import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
 import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
 import { ThreadMembersUpdateAction } from "./util/actions/ThreadMembersUpdate";
-import { SlashCommandMessage } from "./extensions/slashCommandMessage";
+import { SlashCommandMessage } from "./extensions/slashcommandmessage";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
 import { PresenceUpdateAction } from "./util/actions/PresenceUpdate";
@@ -45,13 +45,13 @@ import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
 import { languageTypeCaster } from "@fire/src/arguments/language";
 import { listenerTypeCaster } from "@fire/src/arguments/listener";
 import GuildCheckEvent from "@fire/src/ws/events/GuildCheckEvent";
+import { ComponentMessage } from "./extensions/componentmessage";
 import { booleanTypeCaster } from "@fire/src/arguments/boolean";
 import { commandTypeCaster } from "@fire/src/arguments/command";
 import { messageTypeCaster } from "@fire/src/arguments/message";
 import { moduleTypeCaster } from "@fire/src/arguments/module";
 import { Language, LanguageHandler } from "./util/language";
 import { hasteTypeCaster } from "@fire/src/arguments/haste";
-import { ButtonMessage } from "./extensions/buttonMessage";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandhandler";
 import { Module, ModuleHandler } from "./util/module";
@@ -76,7 +76,7 @@ import { Message } from "./ws/Message";
 import { Manager } from "./Manager";
 import * as moment from "moment";
 
-type ButtonHandler = (button: ButtonMessage) => Promise<any> | any;
+type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
 
 import "./extensions";
 

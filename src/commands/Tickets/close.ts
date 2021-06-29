@@ -1,5 +1,5 @@
+import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { SnowflakeUtil, MessageOptions, Permissions } from "discord.js";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";

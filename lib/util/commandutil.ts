@@ -2,7 +2,7 @@ import {
   CommandUtil as AkairoUtil,
   ParsedComponentData as AkairoParsed,
 } from "discord-akairo";
-import { SlashCommandMessage } from "../extensions/slashCommandMessage";
+import { SlashCommandMessage } from "../extensions/slashcommandmessage";
 import { FireMessage } from "../extensions/message";
 import { CommandHandler } from "./commandhandler";
 import { Language } from "./language";

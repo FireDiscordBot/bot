@@ -1,15 +1,15 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 import {
   CommandInteraction,
   Interaction,
   MessageComponentInteraction,
 } from "discord.js";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
 import { Scope } from "@sentry/node";
-import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 
 const { emojis } = constants;
 
@@ -25,8 +25,16 @@ export default class InteractionListener extends Listener {
     if (this.blacklistCheck(interaction)) return;
     else if (interaction.isCommand())
       return await this.handleApplicationCommand(interaction);
-    else if (interaction.isMessageComponent())
+    else if (
+      interaction.isMessageComponent() &&
+      interaction.componentType == "BUTTON"
+    )
       return await this.handleButton(interaction);
+    else if (
+      interaction.isMessageComponent() &&
+      interaction.componentType == "SELECT_MENU"
+    )
+      return await this.handleSelect(interaction);
   }
 
   async handleApplicationCommand(command: CommandInteraction) {
@@ -80,7 +88,7 @@ export default class InteractionListener extends Listener {
     try {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(button.channelID).catch(() => {});
-      const message = new ButtonMessage(this.client, button);
+      const message = new ComponentMessage(this.client, button);
       if (!message.customID.startsWith("!")) await message.channel.ack();
       else message.customID = message.customID.slice(1);
       this.client.emit("button", message);
@@ -100,6 +108,41 @@ export default class InteractionListener extends Listener {
             : `${button.user.username}#${button.user.discriminator}`,
           channel_id: button.channelID,
           guild_id: button.guildID,
+          env: process.env.NODE_ENV,
+        });
+        sentry.captureException(error);
+        sentry.configureScope((scope: Scope) => {
+          scope.setUser(null);
+          scope.setExtras(null);
+        });
+      }
+    }
+  }
+
+  async handleSelect(select: MessageComponentInteraction) {
+    try {
+      // should be cached if in guild or fetch if dm channel
+      await this.client.channels.fetch(select.channelID).catch(() => {});
+      const message = new ComponentMessage(this.client, select);
+      if (!message.customID.startsWith("!")) await message.channel.ack();
+      else message.customID = message.customID.slice(1);
+      this.client.emit("select", message);
+    } catch (error) {
+      await this.error(select, error).catch(() => {
+        select.reply(`${emojis.error} Something went wrong...`);
+      });
+      if (
+        typeof this.client.sentry != "undefined" &&
+        error.message != "Component checks failed, potential mitm/selfbot?"
+      ) {
+        const sentry = this.client.sentry;
+        sentry.setExtras({
+          button: JSON.stringify(select),
+          member: select.member
+            ? `${select.member.user.username}#${select.member.user.discriminator}`
+            : `${select.user.username}#${select.user.discriminator}`,
+          channel_id: select.channelID,
+          guild_id: select.guildID,
           env: process.env.NODE_ENV,
         });
         sentry.captureException(error);
