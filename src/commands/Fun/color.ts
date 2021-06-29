@@ -40,7 +40,7 @@ export default class Color extends Command {
     else if (typeof args.color == "string") color = tinycolor(args.color);
     else if (args.color instanceof Role) color = tinycolor(args.color.hexColor);
     else if (args.color instanceof FireMember)
-      color = tinycolor(args.color.displayHexColor);
+      color = tinycolor(args.color.displayHexColor ?? "#FFFFFF");
     if (!color || !color.isValid()) {
       return await message.error(
         "COLOR_ARGUMENT_INVALID",

@@ -66,7 +66,7 @@ export default class Meme extends Command {
     const language = message.language;
     const embed = new MessageEmbed()
       .setTitle(language.get("MEME_EMBED_TITLE"))
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setURL(meme.post.link)
       .setTimestamp()
       .setAuthor(

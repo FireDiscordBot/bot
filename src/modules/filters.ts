@@ -300,7 +300,7 @@ export default class Filters extends Module {
       }
       if (message.guild.logIgnored.includes(message.channel.id)) continue;
       const embed = new MessageEmbed()
-        .setColor(message.member?.displayHexColor || "#ffffff")
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setDescription(
           message.guild.language.get(
@@ -475,7 +475,7 @@ export default class Filters extends Module {
     await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -510,7 +510,7 @@ export default class Filters extends Module {
       .getYouTubeVideo(match.groups.video)
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -594,7 +594,7 @@ export default class Filters extends Module {
       .getYouTubeChannel(match.groups.channel)
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -666,7 +666,7 @@ export default class Filters extends Module {
     await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -700,7 +700,7 @@ export default class Filters extends Module {
     await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -732,7 +732,7 @@ export default class Filters extends Module {
     await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(

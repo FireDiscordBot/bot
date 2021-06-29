@@ -45,7 +45,7 @@ export default class Levelhead extends Command {
     if (!uuid) {
       const embed = new MessageEmbed()
         .setTitle(language.get("LEVELHEAD_EMBED_TITLE", args.player))
-        .setColor(message.member?.displayHexColor || "#ffffff")
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setURL("https://purchase.sk1er.club/category/1050972")
         .setTimestamp()
         .setDescription(`Level: ${levelhead.level}`);
@@ -86,7 +86,7 @@ export default class Levelhead extends Command {
     const head = purchase?.head || 0;
     const embed = new MessageEmbed()
       .setTitle(language.get("LEVELHEAD_EMBED_TITLE", args.player))
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setURL("https://purchase.sk1er.club/category/1050972")
       .setTimestamp()
       .setFooter(language.get("MORE_INTEGRATIONS"));

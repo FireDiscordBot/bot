@@ -136,7 +136,7 @@ export default class PermRoles extends Command {
 
     const updating = await message.send("PERMROLES_UPDATING_CHANNELS");
     let failed = 0;
-    for (const [, channel] of message.guild.channels.cache.filter(
+    for (const [, channel] of message.guild.guildChannels.cache.filter(
       (channel) =>
         !channel.type.endsWith("thread") &&
         channel

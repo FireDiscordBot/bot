@@ -133,7 +133,7 @@ export default class Plonk extends Command {
     const embed = new MessageEmbed()
       .setColor(
         args.user instanceof FireMember
-          ? args.user.displayHexColor || isPlonked
+          ? args.user.displayColor || isPlonked
             ? "#2ECC71"
             : "#E74C3C"
           : isPlonked

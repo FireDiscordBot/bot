@@ -164,7 +164,7 @@ export default class Button extends Listener {
 
       const components = Rank.getRankButtons(button.guild, button.member);
       const embed = new MessageEmbed()
-        .setColor(button.member?.displayHexColor || "#ffffff")
+        .setColor(button.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setAuthor(
           button.language.get("RANKS_AUTHOR", button.guild.toString()),
@@ -210,7 +210,7 @@ export default class Button extends Listener {
             button.guild.name,
             button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
           )
-          .setColor(button.member?.displayHexColor || "#ffffff")
+          .setColor(button.member?.displayColor ?? "#FFFFFF")
           .setDescription(button.language.get("TAG_EDIT_BUTTON_CANCEL_EMBED"))
           .setTimestamp();
         return (button.message as FireMessage).edit({
@@ -223,7 +223,7 @@ export default class Button extends Listener {
           button.guild.name,
           button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
-        .setColor(button.member?.displayHexColor || "#ffffff")
+        .setColor(button.member?.displayColor ?? "#FFFFFF")
         .setDescription(button.language.get("TAG_EDIT_BUTTON_EMBED"))
         .setTimestamp();
       await button.channel.update(editEmbed, {
@@ -256,7 +256,7 @@ export default class Button extends Listener {
             button.guild.name,
             button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
           )
-          .setColor(button.member?.displayHexColor || "#ffffff")
+          .setColor(button.member?.displayColor ?? "#FFFFFF")
           .setDescription(button.language.get("TAG_EDIT_BUTTON_EDITING_EMBED"))
           .setTimestamp();
         await (button.message as FireMessage).edit({
@@ -327,7 +327,7 @@ export default class Button extends Listener {
             button.guild.name,
             button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
           )
-          .setColor(button.member?.displayHexColor || "#ffffff")
+          .setColor(button.member?.displayColor ?? "#FFFFFF")
           .setDescription(button.language.get("TAG_DELETE_SUCCESS", data))
           .setTimestamp();
         return await button.channel.update(embed, { components: [] });

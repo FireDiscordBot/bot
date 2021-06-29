@@ -106,7 +106,7 @@ export default class RolePersist extends Command {
       .catch(() => {});
     const embed = new MessageEmbed()
       .setTimestamp()
-      .setColor(roles.length ? member.displayHexColor || "#2ECC71" : "#E74C3C")
+      .setColor(roles.length ? member.displayColor || "#2ECC71" : "#E74C3C")
       .setAuthor(
         member.guild.language.get("ROLEPERSIST_LOG_AUTHOR", member.toString()),
         member.displayAvatarURL({

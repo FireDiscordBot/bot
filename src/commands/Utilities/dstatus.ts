@@ -78,7 +78,7 @@ export default class DiscordStatus extends Command {
       .setDescription(components.join("\n"))
       .setColor(
         constants.statuspage.colors[summary.status.indicator] ||
-          message.member?.displayHexColor ||
+          message.member?.displayColor ||
           "#ffffff"
       )
       .addField(

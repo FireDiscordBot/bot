@@ -143,7 +143,7 @@ export default class GuildMemberRemove extends Listener {
       }
       const embed = new MessageEmbed()
         .setColor(
-          member.partial ? "#E74C3C" : member.displayHexColor || "#E74C3C"
+          member.partial ? "#E74C3C" : member.displayColor || "#E74C3C"
         )
         .setTimestamp()
         .setAuthor(

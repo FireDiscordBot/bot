@@ -370,7 +370,7 @@ export class FireMessage extends Message {
       extraEmbeds.push(...this.embeds);
     const embed = new MessageEmbed()
       .setColor(
-        this.member?.displayHexColor || quoter.displayHexColor || "#ffffff"
+        this.member?.displayColor || quoter.displayColor 
       )
       .setTimestamp(this.createdAt)
       .setAuthor(
@@ -565,7 +565,7 @@ export class FireMessage extends Message {
           dynamic: true,
         })
       )
-      .setColor(this.member?.displayHexColor || "#FFFFFF")
+      .setColor(this.member?.displayColor ?? "#FFFFFF")
       .setFooter(this.id);
     if (this.content) embed.setDescription(this.content);
     if (this.embeds.length) {
