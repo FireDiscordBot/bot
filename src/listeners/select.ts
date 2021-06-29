@@ -63,22 +63,28 @@ export default class Select extends Listener {
       select.flags = 64;
       if (leave.length && !join.length)
         return leave.length == 1
-          ? await select.success("RANKS_SELECT_LEAVE_SINGLE", leave[0])
+          ? await select.success(
+              "RANKS_SELECT_LEAVE_SINGLE",
+              guild.roles.cache.get(leave[0])?.name
+            )
           : await select.success("RANKS_SELECT_LEAVE_MULTI", mapRoles(leave));
       else if (join.length && !leave.length)
         return join.length == 1
-          ? await select.success("RANKS_SELECT_JOIN_SINGLE", join[0])
+          ? await select.success(
+              "RANKS_SELECT_JOIN_SINGLE",
+              guild.roles.cache.get(join[0])?.name
+            )
           : await select.success("RANKS_SELECT_JOIN_MULTI", mapRoles(join));
       else if (join.length == 1 && leave.length == 1)
         return await select.success(
           "RANKS_SELECT_JOIN_LEAVE_SINGLE",
-          join[0],
-          leave[0]
+          guild.roles.cache.get(join[0])?.name,
+          guild.roles.cache.get(leave[0])?.name
         );
       else if (join.length == 1)
         return await select.success(
           "RANKS_SELECT_JOIN_SINGLE_LEAVE_MULTI",
-          join[0],
+          guild.roles.cache.get(join[0])?.name,
           mapRoles(leave)
         );
       else
