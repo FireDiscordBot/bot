@@ -51,7 +51,7 @@ export default class TagInfo extends Command {
         message.guild.name,
         message.guild.iconURL({ size: 2048, format: "png", dynamic: true })
       )
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setDescription(
         cachedTag.content.length < 250
           ? cachedTag.content

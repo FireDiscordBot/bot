@@ -31,7 +31,7 @@ export default class ChannelPinsAdd extends Listener {
       !guild.logIgnored.includes(channel.id)
     ) {
       const embed = new MessageEmbed()
-        .setColor(member?.displayHexColor || "#ffffff")
+        .setColor(member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setAuthor(
           language.get("PINSADDLOG_AUTHOR", channel.name),

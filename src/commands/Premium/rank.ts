@@ -72,7 +72,7 @@ export default class Rank extends Command {
           : `> ${role}`
       );
       const embed = new MessageEmbed()
-        .setColor(message.member?.displayHexColor || "#ffffff")
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setDescription(roles.join("\n"))
         .setAuthor(

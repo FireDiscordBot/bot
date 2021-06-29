@@ -36,7 +36,7 @@ export default class Starboard extends Command {
 
   async sendDefaultMessage(message: FireMessage) {
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(message.language.get("STARBOARD_MAIN_DESCRIPTION"))
       .setAuthor(

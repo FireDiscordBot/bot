@@ -46,7 +46,7 @@ export default class CreateInviteDiscoverableEvent extends Event {
     const invite = await (
       guild.systemChannel ||
       guild.rulesChannel ||
-      guild.channels.cache.first()
+      guild.guildChannels.cache.first()
     )
       .createInvite({
         unique: true,

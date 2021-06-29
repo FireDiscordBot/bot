@@ -47,7 +47,7 @@ export default class TicketDescription extends Command {
         )
         .setDescription(args.description)
         .setTimestamp()
-        .setColor(message.member?.displayHexColor || "#ffffff")
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
         .addField(
           message.guild.language.get("SUBJECT"),
           message.guild.language.get("TICKET_DESCRIPTION_EXAMPLE_SUBJECT")

@@ -273,7 +273,7 @@ export default class GuildCommand extends Command {
           ? `${badges.join(" ")}\n\n${guild.description}`
           : badges.join(" ")
       )
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setAuthor(
         guild.name,
         guild.iconURL({

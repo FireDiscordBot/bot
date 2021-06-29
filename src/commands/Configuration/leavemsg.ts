@@ -91,7 +91,7 @@ export default class LeaveMSG extends Command {
         message.guild.settings.get<Snowflake>("greet.leavechannel")
       );
       const embed = new MessageEmbed()
-        .setColor(message.member?.displayHexColor || "#ffffff")
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setDescription(
           message.language.get(

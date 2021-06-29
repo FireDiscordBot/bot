@@ -24,7 +24,7 @@ export default class Icon extends Command {
     args: { user: FireMember | FireUser | null }
   ) {
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setTitle(message.language.get("ICON_TITLE", message.guild.name))
       .setImage(

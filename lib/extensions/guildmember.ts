@@ -1,12 +1,14 @@
 import {
+  ColorResolvable,
+  ImageURLOptions,
   ThreadChannel,
+  GuildChannel,
   MessageEmbed,
   GuildMember,
   Permissions,
   Structures,
   Channel,
   Util,
-  ImageURLOptions,
 } from "discord.js";
 import { FakeChannel } from "./slashCommandMessage";
 import { humanize } from "@fire/lib/util/constants";
@@ -105,7 +107,7 @@ export class FireMember extends GuildMember {
     if (channel instanceof FakeChannel) channel = channel.real;
     else if (channel instanceof ThreadChannel) channel = channel.parent;
     return channel
-      ? this.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_GUILD)
+      ? this.permissionsIn(channel as GuildChannel).has(Permissions.FLAGS.MANAGE_GUILD)
       : this.permissions.has(Permissions.FLAGS.MANAGE_GUILD);
   }
 
@@ -370,7 +372,7 @@ export class FireMember extends GuildMember {
         .catch(() => {});
     }
     const embed = new MessageEmbed()
-      .setColor(this.displayHexColor || "#E74C3C")
+      .setColor(this.displayColor || "#E74C3C")
       .setTimestamp()
       .setAuthor(
         this.guild.language.get("BAN_LOG_AUTHOR", this.toString()),
@@ -437,7 +439,7 @@ export class FireMember extends GuildMember {
       return deleted ? "kick" : "kick_and_entry";
     }
     const embed = new MessageEmbed()
-      .setColor(this.displayHexColor || "#E74C3C")
+      .setColor(this.displayColor || "#E74C3C")
       .setTimestamp()
       .setAuthor(
         this.guild.language.get("KICK_LOG_AUTHOR", this.toString()),
@@ -492,7 +494,7 @@ export class FireMember extends GuildMember {
     }
     if (afterIds.length >= 1) failed = true;
     const embed = new MessageEmbed()
-      .setColor(this.displayHexColor || "#E74C3C")
+      .setColor(this.displayColor || "#E74C3C")
       .setTimestamp()
       .setAuthor(
         this.guild.language.get("DERANK_LOG_AUTHOR", this.toString()),
@@ -578,7 +580,7 @@ export class FireMember extends GuildMember {
       ])
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(this.displayHexColor || "#2ECC71")
+      .setColor(this.displayColor || "#2ECC71")
       .setTimestamp()
       .setAuthor(
         this.guild.language.get("MUTE_LOG_AUTHOR", this.toString()),
@@ -683,7 +685,7 @@ export class FireMember extends GuildMember {
       ])
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(this.displayHexColor || "#2ECC71")
+      .setColor(this.displayColor || "#2ECC71")
       .setTimestamp()
       .setAuthor(
         this.guild.language.get("UNMUTE_LOG_AUTHOR", this.toString()),
