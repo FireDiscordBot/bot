@@ -104,8 +104,8 @@ export default class Rank extends Command {
           message.member
           // message instanceof FireMessage
         );
-      // TODO: use Rank#getDropdown
-      else if (message.hasExperiment(1685450372, 1)) components = [];
+      else if (message.hasExperiment(1685450372, 1))
+        components = Rank.getRankDropdown(message.guild);
       return message.channel.send({ embeds: [embed], components });
     }
 
@@ -214,6 +214,6 @@ export default class Rank extends Command {
       });
     }
     dropdown.addOptions(options);
-    return new MessageActionRow().addComponents(dropdown);
+    return [new MessageActionRow().addComponents(dropdown)];
   }
 }
