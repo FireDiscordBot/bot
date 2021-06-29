@@ -8,6 +8,7 @@ import {
   GuildMemberResolvable,
   WebhookMessageOptions,
   AwaitMessagesOptions,
+  MessageComponentType,
   CreateInviteOptions,
   MessageEditOptions,
   MessageResolvable,
@@ -46,6 +47,7 @@ export class ComponentMessage {
   message: FireMessage | EphemeralMessage;
   sent: false | "ack" | "message";
   sourceMessage: FireMessage;
+  type: MessageComponentType;
   latestResponse: Snowflake;
   private _flags: number;
   channel: FakeChannel;
@@ -63,6 +65,7 @@ export class ComponentMessage {
     this.id = component.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
     this.customID = component.customID;
+    this.type = component.componentType;
     this.interaction = component;
     this.sent = false;
     this.guild = component.guild as FireGuild;
