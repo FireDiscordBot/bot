@@ -25,7 +25,10 @@ export default class InteractionListener extends Listener {
     if (this.blacklistCheck(interaction)) return;
     else if (interaction.isCommand())
       return await this.handleApplicationCommand(interaction);
-    else if (interaction.isMessageComponent())
+    else if (
+      interaction.isMessageComponent() &&
+      interaction.componentType == "BUTTON"
+    )
       return await this.handleButton(interaction);
   }
 
