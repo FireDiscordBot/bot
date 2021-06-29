@@ -857,8 +857,6 @@ export class FireGuild extends Guild {
             author.id,
             subject
           ) as string,
-          // TODO: remove when discordjs/discord.js#5969 is merged
-          // @ts-ignore
           type: "private_thread",
         })
         .catch((e: Error) => e)) as ThreadChannel;
