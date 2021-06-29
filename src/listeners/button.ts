@@ -1,4 +1,3 @@
-import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import {
   MessageActionRow,
   MessageButton,
@@ -7,6 +6,7 @@ import {
   Permissions,
   Snowflake,
 } from "discord.js";
+import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { codeblockTypeCaster } from "../arguments/codeblock";
@@ -40,7 +40,7 @@ export default class Button extends Listener {
   }
 
   // used to handle generic buttons, like ticket close or reaction roles
-  async exec(button: ButtonMessage) {
+  async exec(button: ComponentMessage) {
     // check for deletion button
     if (button.customID == "delete_me")
       return await button.delete(button.interaction.message.id).catch(() => {});

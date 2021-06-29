@@ -2,7 +2,7 @@ import {
   MessageLinkMatch,
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { WebhookClient, Permissions, Snowflake } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -84,9 +84,7 @@ export default class Quote extends Command {
           if (!this.client.manager.ws?.open) continue;
           const webhookURL = await this.client.util
             .getQuoteWebhookURL(
-              message instanceof SlashCommandMessage
-                ? (message.realChannel as FireTextChannel)
-                : (message.channel as FireTextChannel)
+              message.channel as FireTextChannel
             )
             .catch(() => {});
           if (!webhookURL || typeof webhookURL != "string") continue;

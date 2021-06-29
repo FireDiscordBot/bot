@@ -1,14 +1,13 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { constants, shortURLs } from "@fire/lib/util/constants";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageEmbed, Snowflake, Invite } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
-import { MessageEmbed, Invite } from "discord.js";
 import { Module } from "@fire/lib/util/module";
 import * as sanitizer from "@aero/sanitizer";
 import * as centra from "centra";
-import { Snowflake } from "discord.js";
 
 const { regexes } = constants;
 

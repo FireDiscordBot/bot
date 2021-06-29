@@ -1,7 +1,7 @@
 import {
   FakeChannel,
   SlashCommandMessage,
-} from "@fire/lib/extensions/slashCommandMessage";
+} from "@fire/lib/extensions/slashcommandmessage";
 import { GuildChannel, ThreadChannel, DMChannel } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Listener } from "@fire/lib/util/listener";
