@@ -58,26 +58,26 @@ export class ComponentMessage {
   id: Snowflake;
   client: Fire;
 
-  constructor(client: Fire, button: MessageComponentInteraction) {
+  constructor(client: Fire, component: MessageComponentInteraction) {
     this.client = client;
-    this.id = button.id;
+    this.id = component.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
-    this.customID = button.customID;
-    this.interaction = button;
+    this.customID = component.customID;
+    this.interaction = component;
     this.sent = false;
-    this.guild = button.guild as FireGuild;
-    this.realChannel = client.channels.cache.get(button.channelID) as
+    this.guild = component.guild as FireGuild;
+    this.realChannel = client.channels.cache.get(component.channelID) as
       | FireTextChannel
       | NewsChannel
       | DMChannel;
-    this.ephemeral = button.message.flags
-      ? (button.message.flags.valueOf() & 64) != 0
+    this.ephemeral = component.message.flags
+      ? (component.message.flags.valueOf() & 64) != 0
       : false;
     this.message = this.ephemeral
-      ? (button.message as EphemeralMessage)
-      : button.message instanceof FireMessage
-      ? button.message
-      : new FireMessage(client, button.message, this.realChannel);
+      ? (component.message as EphemeralMessage)
+      : component.message instanceof FireMessage
+      ? component.message
+      : new FireMessage(client, component.message, this.realChannel);
     if (
       !this.message ||
       (!this.ephemeral &&
@@ -90,16 +90,16 @@ export class ComponentMessage {
         ))
     )
       throw new Error("Component checks failed, potential mitm/selfbot?");
-    if (button.member)
+    if (component.member)
       this.member =
-        (this.guild.members.cache.get(button.member.user.id) as FireMember) ||
-        new FireMember(client, button.member, this.guild);
-    this.author = button.user
-      ? (client.users.cache.get(button.user.id) as FireUser) ||
-        new FireUser(client, button.user)
-      : button.member &&
-        ((client.users.cache.get(button.member.user.id) as FireUser) ||
-          new FireUser(client, button.member.user));
+        (this.guild.members.cache.get(component.member.user.id) as FireMember) ||
+        new FireMember(client, component.member, this.guild);
+    this.author = component.user
+      ? (client.users.cache.get(component.user.id) as FireUser) ||
+        new FireUser(client, component.user)
+      : component.member &&
+        ((client.users.cache.get(component.member.user.id) as FireUser) ||
+          new FireUser(client, component.member.user));
     this.language = this.author?.settings.has("utils.language")
       ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
         ? this.guild?.language
@@ -109,17 +109,17 @@ export class ComponentMessage {
       this.channel = new FakeChannel(
         this,
         client,
-        button.id,
-        button.token,
-        button.guildID ? null : this.author.dmChannel
+        component.id,
+        component.token,
+        component.guildID ? null : this.author.dmChannel
       );
       return this;
     }
     this.channel = new FakeChannel(
       this,
       client,
-      button.id,
-      button.token,
+      component.id,
+      component.token,
       this.realChannel
     );
   }
