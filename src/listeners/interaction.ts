@@ -30,6 +30,11 @@ export default class InteractionListener extends Listener {
       interaction.componentType == "BUTTON"
     )
       return await this.handleButton(interaction);
+    else if (
+      interaction.isMessageComponent() &&
+      interaction.componentType == "SELECT_MENU"
+    )
+      return await this.handleSelect(interaction);
   }
 
   async handleApplicationCommand(command: CommandInteraction) {
