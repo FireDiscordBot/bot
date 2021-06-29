@@ -5,8 +5,8 @@ import {
   Collection,
   Snowflake,
 } from "discord.js";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
-import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -277,7 +277,7 @@ export default class TicTacToe extends Command {
       setTimeout(() => {
         if (!resolved) resolve(false);
       }, 60000);
-      const handler = (button: ButtonMessage) => {
+      const handler = (button: ComponentMessage) => {
         if (button.author.id == opponent.id) resolve(true);
       };
       this.client.buttonHandlers.set(requestId, handler);
@@ -293,7 +293,7 @@ export default class TicTacToe extends Command {
       setTimeout(() => {
         if (!resolved) resolve(false);
       }, 60000);
-      const handler = (button: ButtonMessage) => {
+      const handler = (button: ComponentMessage) => {
         if (button.author.id == author.id) resolve(true);
       };
       this.client.buttonHandlers.set(requestId, handler);
@@ -333,7 +333,7 @@ export default class TicTacToe extends Command {
   }
 
   private getGameHandler(gameId: string) {
-    return async (button: ButtonMessage) => {
+    return async (button: ComponentMessage) => {
       if (button.ephemeral) return;
       const buttonMessage = button.message as FireMessage;
       const game = this.games.get(gameId);

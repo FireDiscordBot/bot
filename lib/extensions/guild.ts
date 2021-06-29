@@ -36,7 +36,7 @@ import { DiscoverableGuild } from "../interfaces/stats";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { MessageIterator } from "../util/iterators";
-import { FakeChannel } from "./slashCommandMessage";
+import { FakeChannel } from "./slashcommandmessage";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
@@ -47,7 +47,6 @@ import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import * as moment from "moment";
 import { nanoid } from "nanoid";
-import cache from "@fire/src/inhibitors/cache";
 
 type Primitive = string | boolean | number | null;
 

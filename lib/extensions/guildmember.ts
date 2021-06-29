@@ -1,5 +1,4 @@
 import {
-  ColorResolvable,
   ImageURLOptions,
   ThreadChannel,
   GuildChannel,
@@ -10,7 +9,7 @@ import {
   Channel,
   Util,
 } from "discord.js";
-import { FakeChannel } from "./slashCommandMessage";
+import { FakeChannel } from "./slashcommandmessage";
 import { humanize } from "@fire/lib/util/constants";
 import { FireTextChannel } from "./textchannel";
 import * as sanitizer from "@aero/sanitizer";

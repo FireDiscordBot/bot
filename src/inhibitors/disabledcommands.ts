@@ -1,7 +1,7 @@
+import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
 import { Command } from "@fire/lib/util/command";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
 
 export default class DisabledCommandsInhibitor extends Inhibitor {
   constructor() {
