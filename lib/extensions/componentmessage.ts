@@ -57,6 +57,7 @@ export class ComponentMessage {
   customID: string;
   guild: FireGuild;
   author: FireUser;
+  values: string[];
   id: Snowflake;
   client: Fire;
 
@@ -66,6 +67,8 @@ export class ComponentMessage {
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
     this.customID = component.customID;
     this.type = component.componentType;
+    this.values = [];
+    if (component.isSelectMenu()) this.values = component.values;
     this.interaction = component;
     this.sent = false;
     this.guild = component.guild as FireGuild;
@@ -95,7 +98,9 @@ export class ComponentMessage {
       throw new Error("Component checks failed, potential mitm/selfbot?");
     if (component.member)
       this.member =
-        (this.guild.members.cache.get(component.member.user.id) as FireMember) ||
+        (this.guild.members.cache.get(
+          component.member.user.id
+        ) as FireMember) ||
         new FireMember(client, component.member, this.guild);
     this.author = component.user
       ? (client.users.cache.get(component.user.id) as FireUser) ||
