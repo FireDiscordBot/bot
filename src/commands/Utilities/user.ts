@@ -117,8 +117,8 @@ export default class User extends Command {
       user = member.user;
     }
     let color = member
-      ? member.displayHexColor
-      : message.member?.displayHexColor || "#ffffff";
+      ? member.displayColor
+      : message.member?.displayColor ;
     if (user.bot && this.client.config.bots[user.id])
       color = this.client.config.bots[user.id].color;
     const badges = this.getBadges(user, message.author, message.guild);
@@ -535,7 +535,9 @@ export default class User extends Command {
           message.author.id
         );
         info.push(
-          member?.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL)
+          member
+            ?.permissionsIn(channel as GuildChannel)
+            .has(Permissions.FLAGS.VIEW_CHANNEL)
             ? (message.language.get(
                 "USER_SNOWFLAKE_BELONGS_TO",
                 message.language.get("CHANNEL"),
@@ -571,7 +573,7 @@ export default class User extends Command {
         const member = (channel as GuildChannel).guild.members.cache.get(
           message.author.id
         );
-        if (member?.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL))
+        if (member?.permissionsIn(channel as GuildChannel).has(Permissions.FLAGS.VIEW_CHANNEL))
           viewable = true;
       }
       info.push(
@@ -612,7 +614,7 @@ export default class User extends Command {
         const member = (channel as GuildChannel).guild.members.cache.get(
           message.author.id
         );
-        if (member?.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL))
+        if (member?.permissionsIn(channel as GuildChannel).has(Permissions.FLAGS.VIEW_CHANNEL))
           viewable = true;
       }
       info.push(
@@ -645,7 +647,7 @@ export default class User extends Command {
     }
 
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp(snowflake.date)
       .setAuthor(
         message.author.toString(),

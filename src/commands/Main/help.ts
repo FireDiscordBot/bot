@@ -1,4 +1,5 @@
 import {
+  MessageEmbedOptions,
   BitFieldResolvable,
   MessageActionRow,
   PermissionString,
@@ -6,14 +7,11 @@ import {
   GuildChannel,
   Permissions,
 } from "discord.js";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
-import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import VanityURLs from "@fire/src/modules/vanityurls";
 import { titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { ButtonStyle, ButtonType } from "@fire/lib/interfaces/interactions";
 
 const userMentionRegex = /<@!?(\d{15,21})>$/im;
 
@@ -148,7 +146,7 @@ export default class Help extends Command {
         inline: false,
       });
     const embed = {
-      color: message.member?.displayHexColor || "#ffffff",
+      color: message.member?.displayColor ,
       author: {
         icon_url: this.client.user.displayAvatarURL({
           size: 2048,
@@ -167,7 +165,7 @@ export default class Help extends Command {
         ) as string,
       },
       timestamp: new Date(),
-    };
+    } as MessageEmbedOptions;
     return await message.channel.send({
       components,
       embeds: [embed],
@@ -182,7 +180,7 @@ export default class Help extends Command {
       permissions.push(this.client.util.cleanPermissionName(perm));
     let args: string[] = command.getArgumentsClean();
     const embed = {
-      color: message.member?.displayHexColor || "#ffffff",
+      color: message.member?.displayColor ,
       title: titleCase(command.id),
       description: command.description(message.language),
       fields: [
@@ -195,7 +193,7 @@ export default class Help extends Command {
         },
       ],
       timestamp: new Date(),
-    };
+    } as MessageEmbedOptions;
     if (permissions.length)
       embed.fields.push({
         name: "» Permission" + (permissions.length > 1 ? "s" : ""),

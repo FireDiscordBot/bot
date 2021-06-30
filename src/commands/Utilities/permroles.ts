@@ -85,8 +85,7 @@ export default class PermRoles extends Command {
 
     if (
       args.role &&
-      (args.role.managed ||
-        args.role.rawPosition >= message.guild.me.roles.highest.rawPosition ||
+      (args.role.rawPosition >= message.guild.me.roles.highest.rawPosition ||
         args.role.id == message.guild.roles.everyone.id ||
         (args.role.rawPosition >= message.member.roles.highest.rawPosition &&
           message.guild.ownerID != message.author.id))
@@ -137,7 +136,7 @@ export default class PermRoles extends Command {
 
     const updating = await message.send("PERMROLES_UPDATING_CHANNELS");
     let failed = 0;
-    for (const [, channel] of message.guild.channels.cache.filter(
+    for (const [, channel] of message.guild.guildChannels.cache.filter(
       (channel) =>
         !channel.type.endsWith("thread") &&
         channel

@@ -1,14 +1,13 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { constants, shortURLs } from "@fire/lib/util/constants";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageEmbed, Snowflake, Invite } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
-import { MessageEmbed, Invite } from "discord.js";
 import { Module } from "@fire/lib/util/module";
 import * as sanitizer from "@aero/sanitizer";
 import * as centra from "centra";
-import { Snowflake } from "discord.js";
 
 const { regexes } = constants;
 
@@ -64,19 +63,21 @@ export default class Filters extends Module {
       member = userOrMember;
     } else if (userOrMember && userOrMember instanceof FireUser)
       user = userOrMember;
+    const guild = message?.guild ?? member?.guild;
     if ((message && message.author.bot) || (user && user.bot)) return false;
-    if (!message?.guild && !member) return false;
+    if (!guild && !member) return false;
     if (message?.member?.isModerator() || member?.isModerator()) return false;
     const excluded =
-      message?.guild.settings.get<Snowflake[]>("excluded.filter", []) ?? [];
+      guild?.settings.get<Snowflake[]>("excluded.filter", []) ?? [];
     const roleIds = message
       ? message.member?.roles.cache.map((role) => role.id)
       : member?.roles.cache.map((role) => role.id);
     if (
-      (excluded && excluded.includes(message?.author?.id || user?.id)) ||
-      excluded.includes(message?.channel?.id) ||
-      excluded.includes((message?.channel as FireTextChannel)?.parentID) ||
-      excluded.some((id) => roleIds.includes(id))
+      excluded?.length &&
+      (excluded.includes(message?.author?.id || user?.id) ||
+        excluded.includes(message?.channel?.id) ||
+        excluded.includes((message?.channel as FireTextChannel)?.parentID) ||
+        excluded.some((id) => roleIds?.includes(id)))
     )
       return false;
     return true;
@@ -298,7 +299,7 @@ export default class Filters extends Module {
       }
       if (message.guild.logIgnored.includes(message.channel.id)) continue;
       const embed = new MessageEmbed()
-        .setColor(message.member?.displayHexColor || "#ffffff")
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setDescription(
           message.guild.language.get(
@@ -316,7 +317,7 @@ export default class Filters extends Module {
         )
         .setFooter(message.author.id);
       if (invite) {
-        if (invite.guild.description.length + embed.description.length < 2000)
+        if (invite.guild.description.length + embed.description.length < 4000)
           embed.setDescription(
             embed.description + `\n\n${invite.guild.description}`
           );
@@ -473,7 +474,7 @@ export default class Filters extends Module {
     await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -508,7 +509,7 @@ export default class Filters extends Module {
       .getYouTubeVideo(match.groups.video)
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -592,7 +593,7 @@ export default class Filters extends Module {
       .getYouTubeChannel(match.groups.channel)
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -664,7 +665,7 @@ export default class Filters extends Module {
     await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -698,7 +699,7 @@ export default class Filters extends Module {
     await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -730,7 +731,7 @@ export default class Filters extends Module {
     await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channel.id)) return;
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(

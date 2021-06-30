@@ -144,7 +144,11 @@ export default class GuildMemberUpdate extends Listener {
       }
     }
 
-    if (!newMember.guild.settings.has("log.members")) return;
+    if (
+      !newMember.guild.settings.has("log.members") ||
+      !newMember.guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)
+    )
+      return;
 
     const isPartial = oldMember.partial && newMember.partial;
     const hasRoleUpdates =
@@ -326,7 +330,7 @@ export default class GuildMemberUpdate extends Listener {
           : guild.iconURL({ size: 2048, format: "png", dynamic: true })
       )
       .setTimestamp(action.createdTimestamp)
-      .setColor(roles.random().hexColor)
+      .setColor(roles.random().hexColor as `#${string}`)
       .addField(
         guild.language.get("ROLEADDLOG_FIELD_TITLE"),
         roles.map((role) => role.toString()).join(" - ")
@@ -373,7 +377,7 @@ export default class GuildMemberUpdate extends Listener {
           : guild.iconURL({ size: 2048, format: "png", dynamic: true })
       )
       .setTimestamp(action.createdTimestamp)
-      .setColor(roles.random().hexColor)
+      .setColor(roles.random().hexColor as `#${string}`)
       .addField(
         guild.language.get("ROLEREMOVELOG_FIELD_TITLE"),
         roles.map((role) => role.toString()).join(" - ")
@@ -416,7 +420,7 @@ export default class GuildMemberUpdate extends Listener {
           : guild.iconURL({ size: 2048, format: "png", dynamic: true })
       )
       .setTimestamp(action.createdTimestamp)
-      .setColor(target ? target?.displayHexColor || "#ffffff" : "#ffffff")
+      .setColor(target ? target?.displayColor : "#ffffff")
       .addField(
         guild.language.get("MODERATOR"),
         executor ? executor.toString() : "???"

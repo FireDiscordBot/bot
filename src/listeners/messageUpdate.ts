@@ -70,12 +70,12 @@ export default class MessageUpdate extends Listener {
       // if it's too long to show any changes
       // (since it is sliced to prevent huge embeds),
       // don't bother logging the edit
-      before.content.slice(0, 801) + "..." !=
-        after.content.slice(0, 801) + "..." &&
+      before.content.slice(0, 1001) + "..." !=
+        after.content.slice(0, 1001) + "..." &&
       !after.guild.logIgnored.includes(after.channel.id)
     ) {
       const embed = new MessageEmbed()
-        .setColor(after.member.displayHexColor || "#ffffff")
+        .setColor(after.member.displayColor ?? "#FFFFFF")
         .setTimestamp(after.editedAt)
         .setAuthor(
           after.author.toString(),
@@ -95,15 +95,15 @@ export default class MessageUpdate extends Listener {
         )
         .addField(
           after.guild.language.get("BEFORE"),
-          before.content.length <= 800
+          before.content.length <= 1000
             ? before.content
-            : before.content.slice(0, 801) + "..."
+            : before.content.slice(0, 1001) + "..."
         )
         .addField(
           after.guild.language.get("AFTER"),
-          after.content.length <= 800
+          after.content.length <= 1000
             ? after.content
-            : after.content.slice(0, 801) + "..."
+            : after.content.slice(0, 1001) + "..."
         )
         .setFooter(`${after.author.id} | ${after.id} | ${after.channel.id}`);
       await after.guild.actionLog(embed, "message_edit");

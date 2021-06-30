@@ -59,7 +59,7 @@ export default class Stats extends Command {
           cluster.env == process.env.NODE_ENV.toLowerCase()
       );
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setAuthor(
         this.client.user.username,
         this.client.user.displayAvatarURL({ size: 2048, format: "png" })
@@ -116,7 +116,7 @@ export default class Stats extends Command {
   async singularStats(message: FireMessage) {
     const stats = await this.client.util.getClusterStats();
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setAuthor(
         this.client.user.username,
         this.client.user.displayAvatarURL({ size: 2048, format: "png" })

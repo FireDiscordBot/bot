@@ -39,8 +39,8 @@ export default class Avatar extends Command {
 
     const color =
       user instanceof FireMember
-        ? user?.displayHexColor
-        : message.member?.displayHexColor || "#ffffff";
+        ? user?.displayColor
+        : message.member?.displayColor ;
 
     const embed = new MessageEmbed()
       .setColor(color)

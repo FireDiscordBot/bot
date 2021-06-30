@@ -67,12 +67,12 @@ export default class MessageDelete extends Listener {
         `https://discord.com/channels/${message.reference?.guildID}/${message.reference?.channelID}/${message.reference?.messageID}`
       ) as string;
       const content = message.content
-        ? message.content.length > 2047 - description.length
-          ? `\n${message.content.slice(0, 2040 - description.length)}...`
-          : "\n" + message.content.slice(0, 2040)
+        ? message.content.length > 4047 - description.length
+          ? `\n${message.content.slice(0, 4040 - description.length)}...`
+          : "\n" + message.content.slice(0, 4040)
         : "";
       const embed = new MessageEmbed()
-        .setColor(message.member?.displayHexColor || "#ffffff")
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setTimestamp(message.createdAt)
         .setAuthor(
           message.author.toString(),

@@ -1,7 +1,6 @@
 import { CategoryChannel, MessageReaction, Snowflake, Role } from "discord.js";
-import { ButtonStyle, ButtonType } from "@fire/lib/interfaces/interactions";
+import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -207,11 +206,11 @@ export default class Sk1er extends Module {
   }
 
   async handleSupport(
-    trigger: MessageReaction | ButtonMessage,
+    trigger: MessageReaction | ComponentMessage,
     user: FireUser
   ) {
     const member =
-      trigger instanceof ButtonMessage && trigger.member
+      trigger instanceof ComponentMessage && trigger.member
         ? trigger.member
         : ((await this.supportGuild.members.fetch(user)) as FireMember);
     if (!member) return "no member"; // how

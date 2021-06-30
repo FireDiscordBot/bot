@@ -6,7 +6,7 @@ import {
   Permissions,
   DMChannel,
 } from "discord.js";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
@@ -225,7 +225,7 @@ export default class Debug extends Command {
     const issues = details.filter((detail) => detail.startsWith(error));
     return new MessageEmbed()
       .setTitle(message.language.get("DEBUG_ISSUES", issues))
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(details.join("\n"));
   }

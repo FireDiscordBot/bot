@@ -25,26 +25,33 @@ import {
   previewSilentTypeCaster,
   previewTypeCaster,
 } from "@fire/src/arguments/preview";
+import {
+  version as djsver,
+  ThreadChannel,
+  Collection,
+  ClientUser,
+  Constants,
+} from "discord.js";
 import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
 import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChannel";
 import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
 import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
-import { Collection, ClientUser, version as djsver } from "discord.js";
-import { SlashCommandMessage } from "./extensions/slashCommandMessage";
+import { ThreadMembersUpdateAction } from "./util/actions/ThreadMembersUpdate";
+import { SlashCommandMessage } from "./extensions/slashcommandmessage";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
+import { PresenceUpdateAction } from "./util/actions/PresenceUpdate";
 import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
 import { languageTypeCaster } from "@fire/src/arguments/language";
 import { listenerTypeCaster } from "@fire/src/arguments/listener";
 import GuildCheckEvent from "@fire/src/ws/events/GuildCheckEvent";
+import { ComponentMessage } from "./extensions/componentmessage";
 import { booleanTypeCaster } from "@fire/src/arguments/boolean";
 import { commandTypeCaster } from "@fire/src/arguments/command";
 import { messageTypeCaster } from "@fire/src/arguments/message";
 import { moduleTypeCaster } from "@fire/src/arguments/module";
-import { PresenceUpdateAction } from "./util/PresenceUpdate";
 import { Language, LanguageHandler } from "./util/language";
 import { hasteTypeCaster } from "@fire/src/arguments/haste";
-import { ButtonMessage } from "./extensions/buttonMessage";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandhandler";
 import { Module, ModuleHandler } from "./util/module";
@@ -69,10 +76,9 @@ import { Message } from "./ws/Message";
 import { Manager } from "./Manager";
 import * as moment from "moment";
 
-type ButtonHandler = (button: ButtonMessage) => Promise<any> | any;
+type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
 
 import "./extensions";
-import { Constants } from "discord.js";
 
 // Rewrite completed - 15:10 17/1/2021
 export class Fire extends AkairoClient {
@@ -121,6 +127,8 @@ export class Fire extends AkairoClient {
 
     // @ts-ignore
     this.actions["PresenceUpdate"] = new PresenceUpdateAction(this);
+    // @ts-ignore
+    this.actions["ThreadMembersUpdate"] = new ThreadMembersUpdateAction(this);
 
     this.launchTime = moment();
     this.started = false;
@@ -426,6 +434,12 @@ export class Fire extends AkairoClient {
         guild.presences.cache.sweep(() => true);
       });
       this.users.cache.sweep((user) => user.id != this.user?.id);
+      // for (const [, thread] of this.channels.cache.filter(
+      //   (channel) => channel instanceof ThreadChannel
+      // ))
+      //   (thread as ThreadChannel).members.cache.sweep(
+      //     (member) => member.id != this.user?.id
+      //   );
     };
     this.cacheSweepTask = setInterval(this.cacheSweep, 120000);
     return super.login();

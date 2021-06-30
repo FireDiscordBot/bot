@@ -1,9 +1,8 @@
 import {
   FakeChannel,
   SlashCommandMessage,
-} from "@fire/lib/extensions/slashCommandMessage";
+} from "@fire/lib/extensions/slashcommandmessage";
 import { GuildChannel, ThreadChannel, DMChannel } from "discord.js";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Listener } from "@fire/lib/util/listener";
 import { Command } from "@fire/lib/util/command";
@@ -23,6 +22,13 @@ export default class CommandError extends Listener {
     args: any[],
     error: Error
   ) {
+    if (message.channel instanceof ThreadChannel) {
+      const checks = await this.client.commandHandler
+        .preThreadChecks(message)
+        .catch(() => {});
+      if (!checks) return;
+    }
+
     try {
       await message.error();
     } catch {}

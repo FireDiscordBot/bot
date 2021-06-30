@@ -4,9 +4,10 @@ import {
   CommandHandlerOptions,
   Constants,
 } from "discord-akairo";
+import { DiscordAPIError, ThreadChannel, Collection } from "discord.js";
+import { SlashCommandMessage } from "../extensions/slashcommandmessage";
 import { CommandUtil, ParsedComponentData } from "./commandutil";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { DiscordAPIError, Collection } from "discord.js";
 import { Fire } from "@fire/lib/Fire";
 import { Command } from "./command";
 
@@ -107,6 +108,30 @@ export class CommandHandler extends AkairoCommandHandler {
       this.emitError(err, message);
       return null;
     }
+  }
+
+  async preThreadChecks(message: FireMessage | SlashCommandMessage) {
+    if (message instanceof SlashCommandMessage) return; // only needed for typing compatibility
+
+    const isThreadMember =
+      message.channel instanceof ThreadChannel &&
+      message.channel.members.cache.has(this.client.user.id);
+
+    if (
+      message.channel instanceof ThreadChannel &&
+      message.channel.joinable &&
+      !isThreadMember
+    ) {
+      const joined = await message.channel.join().catch(() => {});
+      if (!joined) return;
+    } else if (
+      message.channel instanceof ThreadChannel &&
+      !message.channel.joinable &&
+      !isThreadMember
+    )
+      return;
+
+    return true;
   }
 
   setup() {

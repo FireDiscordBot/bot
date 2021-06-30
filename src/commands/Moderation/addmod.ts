@@ -76,7 +76,7 @@ export default class AddModerator extends Command {
         filteredModerators
       );
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .addField(
         message.language.get("MODERATORS_ROLES"),
         mentions.roles.join("\n") || message.language.get("NO_MODERATOR_ROLES")

@@ -1,6 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Listener } from "@fire/lib/util/listener";
 import { Command } from "@fire/lib/util/command";
+import { ThreadChannel } from "discord.js";
 
 export default class CommandBlocked extends Listener {
   constructor() {
@@ -11,6 +12,13 @@ export default class CommandBlocked extends Listener {
   }
 
   async exec(message: FireMessage, _: Command, reason: string) {
+    if (message.channel instanceof ThreadChannel) {
+      const checks = await this.client.commandHandler
+        .preThreadChecks(message)
+        .catch(() => {});
+      if (!checks) return;
+    }
+
     if (reason == "500") return await message.error("COMMAND_ERROR_500");
     else if (reason == "owner")
       return await message.error("COMMAND_OWNER_ONLY");

@@ -361,24 +361,16 @@ export const guildChannelConverter = async (
   }
 
   if (!match) {
-    const channel = guild.channels.cache
-      .filter(
-        (channel) =>
-          channel.name.toLowerCase() == argument.toLowerCase() &&
-          channel instanceof GuildChannel
-      )
+    const channel = guild.guildChannels.cache
+      .filter((channel) => channel.name.toLowerCase() == argument.toLowerCase())
       .first();
-    if (channel) {
-      return channel;
-    }
+    if (channel) return channel;
 
     if (!silent) await message.error("CHANNEL_NOT_FOUND");
     return null;
   } else {
-    const channel = guild.channels.cache.get(match);
-    if (channel && channel instanceof GuildChannel) {
-      return channel;
-    }
+    const channel = guild.guildChannels.cache.get(match);
+    if (channel) return channel;
 
     if (!silent) await message.error("INVALID_CHANNEL_ID");
     return null;

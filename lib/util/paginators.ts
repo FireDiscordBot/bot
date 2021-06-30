@@ -13,10 +13,10 @@ import {
 import {
   FakeChannel,
   SlashCommandMessage,
-} from "@fire/lib/extensions/slashCommandMessage";
+} from "@fire/lib/extensions/slashcommandmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { ComponentMessage } from "../extensions/componentmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { ButtonMessage } from "../extensions/buttonMessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { FireGuild } from "../extensions/guild";
@@ -181,7 +181,7 @@ export class PaginatorInterface {
     emoji: EmojiResolvable,
     users: ReactionUserManager
   ) => Promise<void>;
-  buttonHandler: (button: ButtonMessage) => Promise<any>;
+  buttonHandler: (button: ComponentMessage) => Promise<any>;
 
   constructor(
     bot: Fire,
@@ -248,7 +248,7 @@ export class PaginatorInterface {
       ).catch(() => {});
     };
 
-    this.buttonHandler = async (button: ButtonMessage) => {
+    this.buttonHandler = async (button: ComponentMessage) => {
       if (button.customID == "close")
         return (
           this.deleteMessage && (await this.message.delete().catch(() => {}))
@@ -484,7 +484,7 @@ export class PaginatorEmbedInterface extends PaginatorInterface {
       footer?: { text: string; iconURL?: string };
     }
   ) {
-    if (options.maxPageSize > 2048) options.maxPageSize = 2048;
+    if (options.maxPageSize > 4096) options.maxPageSize = 4096;
     super(bot, paginator, options);
     this.embed = options.embed;
     this.footer = options.footer || { text: "" };

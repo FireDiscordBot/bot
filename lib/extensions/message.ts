@@ -3,10 +3,10 @@ import {
   MessageReaction,
   ThreadChannel,
   WebhookClient,
+  ThreadMember,
   MessageEmbed,
   Permissions,
   NewsChannel,
-  APIMessage,
   Collection,
   Structures,
   DMChannel,
@@ -186,15 +186,19 @@ export class FireMessage extends Message {
     }
 
     // check thread members if private thread
-    if (this.channel.type == "private_thread") {
-      const members = await this.channel.members.fetch(false);
+    if (this.channel.type.endsWith("thread")) {
+      const members = await (this.channel as ThreadChannel).members.fetch(
+        false
+      );
       if (!members?.size || !members.has(quoter.id)) return "permissions";
-      // @ts-ignore (ThreadMemberManager#cache seemingly exists but is not in the types)
-      this.channel.members.cache?.sweep(() => true) // we do not need y'all anymore stop taking up memory geez
-      members.sweep(() => true); // we do not need y'all anymore stop taking up memory geez
-    }
 
-    if (!isLurkable && this.channel.type != "private_thread")
+      // we do not need y'all anymore stop taking up memory geez
+      // @ts-ignore (ThreadMemberManager#cache seemingly exists but is not in the types)
+      this.channel.members.cache?.sweep(
+        (member: ThreadMember) => member.id != this.client.user?.id
+      );
+      members.sweep(() => true);
+    } else if (!isLurkable)
       if (
         !member ||
         !member.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL)
@@ -366,7 +370,7 @@ export class FireMessage extends Message {
       extraEmbeds.push(...this.embeds);
     const embed = new MessageEmbed()
       .setColor(
-        this.member?.displayHexColor || quoter.displayHexColor || "#ffffff"
+        this.member?.displayColor || quoter.displayColor 
       )
       .setTimestamp(this.createdAt)
       .setAuthor(
@@ -387,7 +391,6 @@ export class FireMessage extends Message {
       content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
       const filters = this.client.getModule("filters") as Filters;
       content = await filters.runReplace(content, quoter);
-      if (content.length > 2000) return "QUOTE_PREMIUM_INCREASED_LENGTH";
       embed.setDescription(content);
     }
     embed.addField(
@@ -562,7 +565,7 @@ export class FireMessage extends Message {
           dynamic: true,
         })
       )
-      .setColor(this.member?.displayHexColor || "#FFFFFF")
+      .setColor(this.member?.displayColor ?? "#FFFFFF")
       .setFooter(this.id);
     if (this.content) embed.setDescription(this.content);
     if (this.embeds.length) {

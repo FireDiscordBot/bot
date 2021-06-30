@@ -119,9 +119,10 @@ export default class Ready extends Listener {
           );
           await this.client.application.commands
             .delete(slashCommand)
-            .catch(() =>
+            .catch((e) =>
               this.client.console.error(
-                `[Commands] Failed to delete slash command /${slashCommand.name}`
+                `[Commands] Failed to delete slash command /${slashCommand.name}`,
+                e.stack
               )
             );
         }

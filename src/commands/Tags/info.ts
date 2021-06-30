@@ -1,16 +1,9 @@
 import {
-  APIComponent,
-  ButtonStyle,
-  ButtonType,
-} from "@fire/lib/interfaces/interactions";
-import {
   MessageActionRow,
   MessageButton,
   MessageEmbed,
   Permissions,
 } from "discord.js";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashCommandMessage";
-import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Tag } from "@fire/lib/util/guildtagmanager";
 import { Language } from "@fire/lib/util/language";
@@ -51,11 +44,11 @@ export default class TagInfo extends Command {
         message.guild.name,
         message.guild.iconURL({ size: 2048, format: "png", dynamic: true })
       )
-      .setColor(message.member?.displayHexColor || "#ffffff")
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setDescription(
-        cachedTag.content.length < 100
+        cachedTag.content.length < 250
           ? cachedTag.content
-          : cachedTag.content.slice(0, 99) + "..."
+          : cachedTag.content.slice(0, 249) + "..."
       )
       .setTimestamp()
       .addField(message.language.get("TAG_NAME"), cachedTag.name);

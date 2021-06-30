@@ -91,7 +91,7 @@ export default class JoinMSG extends Command {
         message.guild.settings.get<Snowflake>("greet.joinchannel")
       );
       const embed = new MessageEmbed()
-        .setColor(message.member?.displayHexColor || "#ffffff")
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setDescription(
           message.language.get(

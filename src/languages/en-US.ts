@@ -1,4 +1,4 @@
-import { constants } from "@fire/lib/util/constants";
+import { constants, titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 
 export default class enUS extends Language {
@@ -407,19 +407,13 @@ This will **not** rename existing users`,
           'You must provide code in a codeblock to generate an image from, "listthemes" to list valid themes or "listfonts" to list valid fonts',
         CARBON_IMAGE_FAILED: "Failed to generate image!",
         CHANNELCREATELOG_AUTHOR: (type: string, guild: string) =>
-          `${
-            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
-          } Channel Create | ${guild}`,
+          `${titleCase(type)} Channel Create | ${guild}`,
         CHANNELCREATELOG_MUTE_PERMS_FAIL: `I was unable to set permissions for the muted role in this channel, users may be able to bypass mutes here.
 Make sure I have permission to manage roles`,
         CHANNELDELETELOG_AUTHOR: (type: string, guild: string) =>
-          `${
-            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
-          } Channel Delete | ${guild}`,
+          `${titleCase(type)} Channel Delete | ${guild}`,
         CHANNELUPDATELOG_AUTHOR: (type: string, channel: string) =>
-          `${
-            type.charAt(0).toUpperCase() + type.toLowerCase().slice(1)
-          } Channel Update | ${channel}`,
+          `${titleCase(type)} Channel Update | ${channel}`,
         COLOR_COMMAND_DESCRIPTION: "Get information about a color",
         COLOR_ARGUMENT_INVALID: (random: string) =>
           `That does not seem to be a valid color, maybe try ${random}`,
@@ -1164,18 +1158,35 @@ ${prefixes.join(", ")}`,
         RANKS_INFO: (role: string, members: string) =>
           `> ${role} (${members} members)`,
         RANKS_AUTHOR: (guild: string) => `${guild}'s ranks`,
+        RANKS_SELECT_NONE:
+          "You did not choose any valid ranks. You may need to re-run the command to get an updated list",
         RANKS_JOIN_REASON: "Joined rank",
         RANKS_JOIN_RANK: (role: string) =>
           `You successfully joined the **${role}** rank.`,
+        RANKS_SELECT_JOIN_SINGLE: (role: string) =>
+          `You successfully joined the **${role}** rank.`,
+        RANKS_SELECT_JOIN_MULTI: (roles: string) =>
+          `You successfully joined the ${roles} ranks.`,
         RANKS_LEAVE_REASON: "Left rank",
         RANKS_LEFT_RANK: (role: string) =>
           `You successfully left the **${role}** rank.`,
+        RANKS_SELECT_LEAVE_SINGLE: (role: string) =>
+          `You successfully left the **${role}** rank.`,
+        RANKS_SELECT_LEAVE_MULTI: (roles: string) =>
+          `You successfully left the ${roles} ranks.`,
+        RANKS_SELECT_JOIN_LEAVE_SINGLE: (join: string, leave: string) =>
+          `You successfully joined the **${join}** rank and left the **${leave}** rank.`,
+        RANKS_SELECT_JOIN_SINGLE_LEAVE_MULTI: (join: string, left: string) =>
+          `You successfully joined the **${join}** rank and left the ${left} ranks.`,
+        RANKS_SELECT_JOIN_LEAVE_MULTI: (joined: string, left: string) =>
+          `You successfully joined the ${joined} ranks and left the ${left} ranks.`,
         RANKS_INVALID_ROLE:
           "That isn't a valid rank. Use the command without arguments to see a list of valid ranks",
         RANKS_INVALID_ROLE_DEL:
           "That isn't a valid rank. Use the rank command to see a list of valid ranks",
         RANKS_MENU_INVALID_ROLE:
           "That isn't a valid rank. Use the rank command to see the current ranks",
+        RANKS_SELECT_PLACEHOLDER: "Select one or more ranks to join/leave",
         ADDRANK_COMMAND_DESCRIPTION:
           "Add a role that users can join through the rank command.",
         RANKS_ALREADY_ADDED: "You can't add a rank twice silly",
@@ -1318,6 +1329,9 @@ ${success.map((s) => "- " + s).join("\n")}${
         ROLEPERSIST_REASON: "Adding persisted roles",
         ROLEPERSIST_COMMAND_DESCRIPTION:
           "Add a role(s) that will stay with the user, even if they leave and rejoin.",
+        ROLEPERSIST_ARG_USER:
+          "You must provide a valid member to persist a role to",
+        ROLEPERSIST_ARG_ROLE: "You must provide a valid role to persist",
         ROLEPERSIST_ROLE_INVALID:
           "I am unable to persist this role. It must be lower than my top role & your top role, not managed & not the everyone role",
         ROLEPERSIST_SELF: "You cannot persist roles to yourself!",

@@ -11,6 +11,7 @@ import {
   MessageEmbed,
   VoiceChannel,
   StageChannel,
+  GuildChannel,
   Permissions,
   NewsChannel,
   Structures,
@@ -35,7 +36,7 @@ import { DiscoverableGuild } from "../interfaces/stats";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { MessageIterator } from "../util/iterators";
-import { FakeChannel } from "./slashCommandMessage";
+import { FakeChannel } from "./slashcommandmessage";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
@@ -139,6 +140,14 @@ export class FireGuild extends Guild {
     return regions;
   }
 
+  get guildChannels() {
+    return {
+      cache: this.channels.cache.filter(
+        (channel) => !channel.type.endsWith("thread")
+      ) as Collection<`${bigint}`, GuildChannel>,
+    };
+  }
+
   _patch(data: APIGuild) {
     delete data.members;
     delete data.presences;
@@ -170,7 +179,7 @@ export class FireGuild extends Guild {
       });
     if (!role) return false;
     this.settings.set<string>("mod.mutedrole", role.id);
-    for (const [, channel] of this.channels.cache) {
+    for (const [, channel] of this.guildChannels.cache) {
       await channel
         .updateOverwrite(
           role,
@@ -200,7 +209,7 @@ export class FireGuild extends Guild {
       .catch(() => {});
     if (!changed) return false;
     this.settings.set<string>("mod.mutedrole", role.id);
-    for (const [, channel] of this.channels.cache) {
+    for (const [, channel] of this.guildChannels.cache) {
       await channel
         .updateOverwrite(
           role,
@@ -224,7 +233,7 @@ export class FireGuild extends Guild {
   async syncMuteRolePermissions() {
     const role = this.muteRole;
     if (!role) return;
-    for (const [, channel] of this.channels.cache) {
+    for (const [, channel] of this.guildChannels.cache) {
       const denied = channel.permissionOverwrites.get(role.id)?.deny;
       if (
         !denied ||
@@ -515,13 +524,9 @@ export class FireGuild extends Guild {
         deny: BigInt(role.get("deny") as string),
       });
     }
-    if (
-      this.channels.cache.filter((channel) => !channel.type.endsWith("thread"))
-        .size >= 100
-    )
-      return;
+    if (this.guildChannels.cache.size >= 100) return;
     for (const [id, perms] of this.permRoles) {
-      for (const [, channel] of this.channels.cache.filter(
+      for (const [, channel] of this.guildChannels.cache.filter(
         (channel) =>
           channel.permissionsFor(this.me).has(Permissions.FLAGS.MANAGE_ROLES) &&
           (channel.permissionOverwrites.get(id)?.allow.bitfield !=
@@ -835,7 +840,12 @@ export class FireGuild extends Guild {
 
     let ticket: FireTextChannel | ThreadChannel;
 
-    if (channel && this.hasExperiment(1651882237, 1)) {
+    if (
+      channel &&
+      this.hasExperiment(1651882237, 1) &&
+      // @ts-ignore
+      this.features.includes("PRIVATE_THREADS")
+    ) {
       ticket = (await channel.threads
         .create({
           name: `${author} (${author.id})`,
@@ -846,6 +856,7 @@ export class FireGuild extends Guild {
             author.id,
             subject
           ) as string,
+          type: "private_thread",
         })
         .catch((e: Error) => e)) as ThreadChannel;
       if (ticket instanceof ThreadChannel) {
@@ -931,7 +942,7 @@ export class FireGuild extends Guild {
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_OPENER_TILE", author.toString()))
       .setTimestamp()
-      .setColor(author.displayHexColor || "#ffffff")
+      .setColor(author.displayColor ?? "#FFFFFF")
       .addField(this.language.get("SUBJECT"), subject);
     const description = this.settings.get<string>("tickets.description");
     if (description) embed.setDescription(description);
@@ -1064,7 +1075,7 @@ export class FireGuild extends Guild {
     const embed = new MessageEmbed()
       .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))
       .setTimestamp()
-      .setColor(author.displayHexColor || "#ffffff")
+      .setColor(author.displayColor ?? "#FFFFFF")
       .addField(
         this.language.get("TICKET_CLOSER_CLOSED_BY"),
         `${author} (${author.id})`
@@ -1244,9 +1255,7 @@ export class FireGuild extends Guild {
     }
     const embed = new MessageEmbed()
       .setColor(
-        blockee instanceof FireMember
-          ? blockee.displayHexColor
-          : null || "#E74C3C"
+        blockee instanceof FireMember ? blockee.displayColor : null || "#E74C3C"
       )
       .setTimestamp()
       .setAuthor(
@@ -1324,7 +1333,7 @@ export class FireGuild extends Guild {
     const embed = new MessageEmbed()
       .setColor(
         unblockee instanceof FireMember
-          ? unblockee.displayHexColor
+          ? unblockee.displayColor
           : null || "#2ECC71"
       )
       .setTimestamp()

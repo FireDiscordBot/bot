@@ -1,4 +1,3 @@
-import { ButtonMessage } from "@fire/lib/extensions/buttonMessage";
 import {
   MessageActionRow,
   MessageButton,
@@ -7,6 +6,7 @@ import {
   Permissions,
   Snowflake,
 } from "discord.js";
+import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { codeblockTypeCaster } from "../arguments/codeblock";
@@ -40,7 +40,7 @@ export default class Button extends Listener {
   }
 
   // used to handle generic buttons, like ticket close or reaction roles
-  async exec(button: ButtonMessage) {
+  async exec(button: ComponentMessage) {
     // check for deletion button
     if (button.customID == "delete_me")
       return await button.delete(button.interaction.message.id).catch(() => {});
@@ -164,7 +164,7 @@ export default class Button extends Listener {
 
       const components = Rank.getRankButtons(button.guild, button.member);
       const embed = new MessageEmbed()
-        .setColor(button.member?.displayHexColor || "#ffffff")
+        .setColor(button.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setAuthor(
           button.language.get("RANKS_AUTHOR", button.guild.toString()),
@@ -210,7 +210,7 @@ export default class Button extends Listener {
             button.guild.name,
             button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
           )
-          .setColor(button.member?.displayHexColor || "#ffffff")
+          .setColor(button.member?.displayColor ?? "#FFFFFF")
           .setDescription(button.language.get("TAG_EDIT_BUTTON_CANCEL_EMBED"))
           .setTimestamp();
         return (button.message as FireMessage).edit({
@@ -223,7 +223,7 @@ export default class Button extends Listener {
           button.guild.name,
           button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
-        .setColor(button.member?.displayHexColor || "#ffffff")
+        .setColor(button.member?.displayColor ?? "#FFFFFF")
         .setDescription(button.language.get("TAG_EDIT_BUTTON_EMBED"))
         .setTimestamp();
       await button.channel.update(editEmbed, {
@@ -238,12 +238,14 @@ export default class Button extends Listener {
       });
 
       const newContent = await button.channel
-        .awaitMessages(
-          (m: FireMessage) =>
+        .awaitMessages({
+          max: 1,
+          time: 150000,
+          errors: ["time"],
+          filter: (m: FireMessage) =>
             m.author.id == button.author.id &&
             m.channel.id == button.interaction.channelID,
-          { max: 1, time: 150000, errors: ["time"] }
-        )
+        })
         .catch(() => {});
       if (cancelled || !newContent || !newContent.first()?.content) return;
       this.client.buttonHandlersOnce.delete(cancelSnowflake);
@@ -254,7 +256,7 @@ export default class Button extends Listener {
             button.guild.name,
             button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
           )
-          .setColor(button.member?.displayHexColor || "#ffffff")
+          .setColor(button.member?.displayColor ?? "#FFFFFF")
           .setDescription(button.language.get("TAG_EDIT_BUTTON_EDITING_EMBED"))
           .setTimestamp();
         await (button.message as FireMessage).edit({
@@ -325,7 +327,7 @@ export default class Button extends Listener {
             button.guild.name,
             button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
           )
-          .setColor(button.member?.displayHexColor || "#ffffff")
+          .setColor(button.member?.displayColor ?? "#FFFFFF")
           .setDescription(button.language.get("TAG_DELETE_SUCCESS", data))
           .setTimestamp();
         return await button.channel.update(embed, { components: [] });
