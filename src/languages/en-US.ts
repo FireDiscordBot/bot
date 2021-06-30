@@ -1329,6 +1329,9 @@ ${success.map((s) => "- " + s).join("\n")}${
         ROLEPERSIST_REASON: "Adding persisted roles",
         ROLEPERSIST_COMMAND_DESCRIPTION:
           "Add a role(s) that will stay with the user, even if they leave and rejoin.",
+        ROLEPERSIST_ARG_USER:
+          "You must provide a valid member to persist a role to",
+        ROLEPERSIST_ARG_ROLE: "You must provide a valid role to persist",
         ROLEPERSIST_ROLE_INVALID:
           "I am unable to persist this role. It must be lower than my top role & your top role, not managed & not the everyone role",
         ROLEPERSIST_SELF: "You cannot persist roles to yourself!",

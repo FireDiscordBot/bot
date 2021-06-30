@@ -15,14 +15,14 @@ export default class RolePersist extends Command {
           id: "user",
           type: "member",
           required: true,
-          default: null,
+          default: undefined,
         },
         {
           id: "role",
           type: "role",
           match: "rest",
           required: true,
-          default: null,
+          default: undefined,
         },
       ],
       aliases: ["rolepersists", "persistroles", "persistrole"],
@@ -33,7 +33,11 @@ export default class RolePersist extends Command {
   }
 
   async exec(message: FireMessage, args: { user: FireMember; role: Role }) {
-    if (!args.user || !args.role) return;
+    if (typeof args.user == "undefined")
+      return await message.error("ROLEPERSIST_ARG_USER");
+    else if (typeof args.role == "undefined")
+      return await message.error("ROLEPERSIST_ARG_ROLE");
+    else if (!args.user || !args.role) return;
     if (
       args.role &&
       (args.role.managed ||
