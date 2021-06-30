@@ -84,18 +84,6 @@ export class ComponentMessage {
       : component.message instanceof FireMessage
       ? component.message
       : new FireMessage(client, component.message, this.realChannel);
-    if (
-      !this.message ||
-      (!this.ephemeral &&
-        !(this.message as FireMessage).components?.find(
-          (component) =>
-            component.type == "ACTION_ROW" &&
-            component.components.find(
-              (component) => component.customID == this.customID
-            )
-        ))
-    )
-      throw new Error("Component checks failed, potential mitm/selfbot?");
     if (component.member)
       this.member =
         (this.guild.members.cache.get(
