@@ -96,10 +96,7 @@ export default class InteractionListener extends Listener {
       await this.error(button, error).catch(() => {
         button.reply(`${emojis.error} Something went wrong...`);
       });
-      if (
-        typeof this.client.sentry != "undefined" &&
-        error.message != "Component checks failed, potential mitm/selfbot?"
-      ) {
+      if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
         sentry.setExtras({
           button: JSON.stringify(button),
@@ -131,10 +128,7 @@ export default class InteractionListener extends Listener {
       await this.error(select, error).catch(() => {
         select.reply(`${emojis.error} Something went wrong...`);
       });
-      if (
-        typeof this.client.sentry != "undefined" &&
-        error.message != "Component checks failed, potential mitm/selfbot?"
-      ) {
+      if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
         sentry.setExtras({
           button: JSON.stringify(select),
