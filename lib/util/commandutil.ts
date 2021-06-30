@@ -34,6 +34,7 @@ interface Category {
     description: string;
     usage: string;
     aliases: string;
+    hidden: boolean;
   }[];
 }
 
@@ -42,6 +43,7 @@ interface ResponseCommand {
   description: string;
   usage: string;
   aliases: string;
+  hidden: boolean;
   category: string;
 }
 
@@ -84,6 +86,7 @@ export const getCommands = (client: Fire) => {
             aliases: command.aliases
               .filter((alias) => alias != command.id)
               .join(", "),
+            hidden: command.hidden,
           };
         });
 
@@ -112,6 +115,7 @@ export const getAllCommands = (client: Fire) => {
         aliases: command.aliases
           .filter((alias) => alias != command.id)
           .join(", "),
+        hidden: command.hidden,
         category: command.category.toString(),
       } as ResponseCommand;
     });
