@@ -52,6 +52,7 @@ export default class Help extends Command {
       let commands: string[] = [];
       category
         .filter((command) => {
+          if (command.hidden && !message.author.isSuperuser()) return false;
           if (command.ownerOnly && this.client.ownerID != message.author.id)
             return false;
           if (command.superuserOnly && !message.author.isSuperuser())
@@ -146,7 +147,7 @@ export default class Help extends Command {
         inline: false,
       });
     const embed = {
-      color: message.member?.displayColor ,
+      color: message.member?.displayColor,
       author: {
         icon_url: this.client.user.displayAvatarURL({
           size: 2048,
@@ -180,7 +181,7 @@ export default class Help extends Command {
       permissions.push(this.client.util.cleanPermissionName(perm));
     let args: string[] = command.getArgumentsClean();
     const embed = {
-      color: message.member?.displayColor ,
+      color: message.member?.displayColor,
       title: titleCase(command.id),
       description: command.description(message.language),
       fields: [
