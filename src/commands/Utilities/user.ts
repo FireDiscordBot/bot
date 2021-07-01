@@ -432,14 +432,19 @@ export default class User extends Command {
 
     const created = snowflake.date.toLocaleString(message.language.id);
     const now = moment();
-    const createdDelta =
-      humanize(
-        moment(snowflake.date).diff(now),
-        message.language.id.split("-")[0]
-      ) +
-      (now.isBefore(snowflake.date)
-        ? message.language.get("FROM_NOW")
-        : message.language.get("AGO"));
+    const createdDelta = now.isBefore(snowflake.date)
+      ? message.language.get("FROM_NOW", {
+          time: humanize(
+            moment(snowflake.date).diff(now),
+            message.language.id.split("-")[0]
+          ),
+        })
+      : message.language.get("AGO", {
+          time: humanize(
+            moment(snowflake.date).diff(now),
+            message.language.id.split("-")[0]
+          ),
+        });
 
     let info = [
       `**${message.language.get("CREATED")}:** ${created} (${createdDelta})`,

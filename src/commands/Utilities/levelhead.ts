@@ -90,8 +90,7 @@ export default class Levelhead extends Command {
       .setTitle(language.get("LEVELHEAD_EMBED_TITLE", { player: args.player }))
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setURL("https://purchase.sk1er.club/category/1050972")
-      .setTimestamp()
-      .setFooter(language.get("MORE_INTEGRATIONS"));
+      .setTimestamp();
     embed.addField("IGN", args.player);
     embed.addField("Levelhead", `${header}:${footer}`);
     if (proposal && proposal.hasOwnProperty("denied")) {
