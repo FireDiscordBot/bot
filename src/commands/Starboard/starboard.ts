@@ -55,10 +55,6 @@ export default class Starboard extends Command {
         `${message.util.parsed?.prefix}starboard minimum <number>`,
         message.language.get("STARBOARD_MINIMUM_DESCRIPTION")
       )
-      // .addField(
-      //   `${message.util.parsed?.prefix}starboard antistar`,
-      //   message.language.get("STARBOARD_ANTISTAR_DESCRIPTION")
-      // )
       .addField(
         // for now, this will be a premium perk but I am open to changing it
         `${message.util.parsed?.prefix}starboard emoji [<emoji>]`,

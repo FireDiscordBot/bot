@@ -128,8 +128,6 @@ VANITYURL_CREATED needs to provide full url as {{vanity}}
 
 
 
-// TODO: remove all antistar references
-
 // FIX BELOW
 "FILTEREXCL_LIST_SOME_REMOVED": (mentions: string[], removed: string[]) =>
     mentions.length

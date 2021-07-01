@@ -66,8 +66,6 @@ export default class MessageReactionRemove extends Listener {
       if (
         channel?.id != message.channel.id &&
         starboardEmoji.trim() == reactionEmoji.trim()
-        // (starboardEmoji.trim() == reactionEmoji.trim() ||
-        // reactionEmoji == constants.emojis.antistarId)
       ) {
         await message.star(messageReaction, user, "remove").catch(() => {});
       }

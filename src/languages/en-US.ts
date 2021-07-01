@@ -1396,7 +1396,6 @@ If you **do not** want to open a ticket, you can click the red button below. Oth
           "Set the channel starred messages will be sent to",
         STARBOARD_MINIMUM_DESCRIPTION:
           "Set the minimum amount of stars needed to get on the starboard (Defaults to 5)",
-        STARBOARD_ANTISTAR_DESCRIPTION: `Toggle "antistar" allowing users to react with ${constants.emojis.antistar} to remove 1 from a message's star count`,
         STARBOARD_EMOJI_DESCRIPTION:
           "Set a custom starboard emoji (Requires Premium)",
         STARBOARD_CHANNEL_RESET: "Successfully disabled starboard",
@@ -1407,10 +1406,6 @@ If you **do not** want to open a ticket, you can click the red button below. Oth
           "Successfully reset the starboard minimum! Messages will now need 5 stars to appear on the starboard",
         STARBOARD_MINIMUM_SET: (min: number) =>
           `Successfully set the starboard minimum! Messages will now need ${min} stars to appear on the starboard`,
-        STARBOARD_ANTISTAR_COMMAND_DESCRIPTION: `Toggle "antistar" allowing users to subtract 1 from a message's star count with a reaction`,
-        STARBOARD_ANTISTAR_ENABLED: `Successfully enabled antistar. When a message gets at least 1 star, I will react with ${constants.emojis.antistar} which users can use to subtract from a message's star count`,
-        STARBOARD_ANTISTAR_DISABLED:
-          "Successfully disabled antistar. I will no longer add the antistar reaction and users will no longer be able to subtract from a message's star count other than removing their own star",
         STARBOARD_EMOJI_INVALID:
           "That emoji isn't valid! It must be a default emoji or an emoji from this guild",
         STARBOARD_EMOJI_SET: (emoji: string) =>

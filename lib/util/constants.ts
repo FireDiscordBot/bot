@@ -56,8 +56,6 @@ let emojis = {
     major_outage: "<:major_outage:685538400639385706>",
     under_maintenance: "<:maintenance:685538400337395743>",
   },
-  antistar: "<:antistar:824239146930667560>",
-  antistarId: "824239146930667560",
   badges: {
     DISCORD_EMPLOYEE: "<:DiscordStaff:844154550402809916>",
     PARTNERED_SERVER_OWNER: "<:partnericon:844154710637805580>",
@@ -87,7 +85,6 @@ let reactions = {
   success: "yes:534174796888408074",
   error: "no:534174796938870792",
   warning: "maybe:534174796578160640",
-  antistar: "antistar:824239146930667560",
 };
 
 // e.g. for litecord
