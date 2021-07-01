@@ -52,6 +52,7 @@ export default class Help extends Command {
       let commands: string[] = [];
       category
         .filter((command) => {
+          if (command.hidden && !message.author.isSuperuser()) return false;
           if (command.ownerOnly && this.client.ownerID != message.author.id)
             return false;
           if (command.superuserOnly && !message.author.isSuperuser())

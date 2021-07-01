@@ -41,6 +41,7 @@ export default class JoinMSG extends Command {
         },
       ],
       enableSlashCommand: true,
+      aliases: ["joinmessage"],
       restrictTo: "guild",
       ephemeral: true,
     });
