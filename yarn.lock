@@ -25,6 +25,13 @@
     unidecode "^0.1.8"
     unorm "^1.6.0"
 
+"@babel/runtime@^7.12.0":
+  version "7.14.6"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.14.6.tgz#535203bc0892efc7dec60bdc27b2ecf6e409062d"
+  integrity sha512-/PCB2uJ7oM44tz8YhC4Z/6PeOKXp4K588f+5M3clr1M4zbqztlo0XEfJ2LEzj/FgwfgGcIdl8n7YYjTCI0BYwg==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
 "@discordjs/collection@^0.1.6":
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/@discordjs/collection/-/collection-0.1.6.tgz#9e9a7637f4e4e0688fd8b2b5c63133c91607682c"
@@ -627,12 +634,12 @@ discord.js@discordjs/discord.js#3174507d57d9f6011e97b4f3209f42179e050f9b:
   dependencies:
     "@discordjs/collection" "^0.1.6"
     "@discordjs/form-data" "^3.0.1"
-    "@sapphire/async-queue" "^1.1.4"
-    "@types/ws" "^7.4.5"
+    "@sapphire/async-queue" "^1.1.2"
     abort-controller "^3.0.0"
-    discord-api-types "^0.19.0-next.f393ba520d7d6d2aacaca7b3ca5d355fab614f6e"
     node-fetch "^2.6.1"
-    ws "^7.5.0"
+    prism-media "^1.2.9"
+    tweetnacl "^1.0.3"
+    ws "^7.4.5"
 
 dotenv-extended@^2.9.0:
   version "2.9.0"
@@ -863,6 +870,13 @@ humanize-duration@^3.23.1:
   version "3.25.1"
   resolved "https://registry.yarnpkg.com/humanize-duration/-/humanize-duration-3.25.1.tgz#50e12bf4b3f515ec91106107ee981e8cfe955d6f"
   integrity sha512-P+dRo48gpLgc2R9tMRgiDRNULPKCmqFYgguwqOO2C0fjO35TgdURDQDANSR1Nt92iHlbHGMxOTnsB8H8xnMa2Q==
+
+i18next@^20.3.2:
+  version "20.3.2"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-20.3.2.tgz#5195e76b9e0848a1c198001bf6c7fc72995a55f1"
+  integrity sha512-e8CML2R9Ng2sSQOM80wb/PrM2j8mDm84o/T4Amzn9ArVyNX5/ENWxxAXkRpZdTQNDaxKImF93Wep4mAoozFrKw==
+  dependencies:
+    "@babel/runtime" "^7.12.0"
 
 iconv-lite@^0.4.4:
   version "0.4.24"
@@ -1388,6 +1402,11 @@ readdir-glob@^1.0.0:
   integrity sha512-91/k1EzZwDx6HbERR+zucygRFfiPl2zkIYZtv3Jjr6Mn7SkKcVct8aVO+sSRiGMc6fLf72du3d92/uY63YPdEA==
   dependencies:
     minimatch "^3.0.4"
+
+regenerator-runtime@^0.13.4:
+  version "0.13.7"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.7.tgz#cac2dacc8a1ea675feaabaeb8ae833898ae46f55"
+  integrity sha512-a54FxoJDIr27pgf7IgeQGxmqUNYrcV338lf/6gH456HZ/PhX+5BcwHXG9ajESmwe6WRO0tAzRUrRmNONWgkrew==
 
 remove-accents@^0.4.2:
   version "0.4.2"
