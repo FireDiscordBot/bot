@@ -106,13 +106,16 @@ TICKET_THREAD_RENAME needs to handle markdown outside
 VANITYURL_CREATED needs to provide full url as {{vanity}}
 
 
+FILTEREXCL_LIST_SOME_REMOVED needs to be split into FILTEREXCL_LIST_SOME_REMOVED_SINGLE, FILTEREXCL_LIST_SOME_REMOVED_MULTI & FILTEREXCL_RESET
+
+FILTEREXCL_SET_SOME_REMOVED needs to be split into FILTEREXCL_SET_SOME_REMOVED & FILTEREXCL_RESET
+
+FILTEREXCL_LIST needs to be split into FILTEREXCL_LIST_SINGLE & FILTEREXCL_LIST_MULTI
+
+FILTEREXCL_SET needs to be split into FILTEREXCL_SET & FILTEREXCL_RESET
 
 
-
-
-
-
-
+FILTEREXCL_XXXXX needs to provide joined strings
 
 
 
@@ -129,38 +132,18 @@ VANITYURL_CREATED needs to provide full url as {{vanity}}
 
 
 // FIX BELOW
-"FILTEREXCL_LIST_SOME_REMOVED": (mentions: string[], removed: string[]) =>
-    mentions.length
-      ? `Currently excluded from filtering ${
-          mentions.length > 1 ? "are" : "is"
-        }:\n${mentions.join(
-          ", "
-        )}\n\nI have also removed some items from the exclusion list due to not being found (member left, role/channel deleted):\n${removed.join(
-          ", "
-        )}`
-      : `I have reset the filter exclusion list due to some items from the exclusion list (${removed.join(
-          ", "
-        )}) not being found (member left, role/channel deleted)",
   "FILTEREXCL_SET_SOME_REMOVED": (mentions: string[], removed: string[]) =>
     mentions.length
-      ? `Successfully set filter exclusion list to:\n${mentions.join(
-          ", "
-        )}\n\nI have also removed some items from the exclusion list due to not being found (member left, role/channel deleted):\n${removed.join(
-          ", "
-        )}`
+      ? ``
       : `I have reset the filter exclusion list due to the remaining items on the exclusion list (${removed.join(
           ", "
         )}) not being found (member left, role/channel deleted)",
   "FILTEREXCL_LIST": (mentions: string[], removed: string[]) =>
     mentions.length
-      ? `Currently excluded from filtering ${
-          mentions.length > 1 ? "are" : "is"
-        }:\n${mentions.join(", ")}`
-      : "No members, roles or channels are excluded from the filter. Only moderators will bypass link filtering",
+      ? ``
+      : "",
   "FILTEREXCL_SET": (mentions: string[], removed: string[]) =>
     mentions.length
-      ? `Successfully set filter exclusion list to:\n${mentions.join(
-          ", "
-        )}`
+      ? ``
       : "Successfully reset filter exclusion list.",
 // FIX ABOVE
