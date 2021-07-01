@@ -40,8 +40,8 @@ export default class LeaveMSG extends Command {
           required: false,
         },
       ],
-      aliases: ["leavemessage"],
       enableSlashCommand: true,
+      aliases: ["leavemessage"],
       restrictTo: "guild",
       ephemeral: true,
     });
