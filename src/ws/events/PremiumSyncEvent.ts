@@ -43,7 +43,8 @@ export default class PremiumSyncEvent extends Event {
     if (
       !(client.options.shards as number[]).includes(
         client.util.getShard(client.config.fireGuildId)
-      )
+      ) ||
+      process.env.NODE_ENV != "production"
     )
       return;
 

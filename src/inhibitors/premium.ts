@@ -72,7 +72,8 @@ export default class PremiumInhibitor extends Inhibitor {
     if (
       !(this.client.options.shards as number[]).includes(
         this.client.util.getShard(this.client.config.fireGuildId)
-      )
+      ) ||
+      process.env.NODE_ENV != "production"
     )
       return;
 
