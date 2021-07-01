@@ -16,11 +16,10 @@ export default class Purge extends Listener {
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
-        message.guild.language.get(
-          "PURGE_LOG_DESCRIPTION",
-          purged.length,
-          message.channel.toString()
-        )
+        message.guild.language.get("PURGE_LOG_DESCRIPTION", {
+          amount: purged.length,
+          channel: message.channel.toString(),
+        })
       )
       .setAuthor(
         message.author.toString(),
@@ -31,11 +30,10 @@ export default class Purge extends Listener {
         })
       )
       .setFooter(
-        message.guild.language.get(
-          "PURGE_LOG_FOOTER",
-          message.author.id,
-          message.channel.id
-        )
+        message.guild.language.get("PURGE_LOG_FOOTER", {
+          user: message.author.id,
+          channel: message.channel.id,
+        })
       );
     if (reason) embed.addField(message.guild.language.get("REASON"), reason);
     if (purged.length) {

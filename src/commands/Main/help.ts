@@ -7,9 +7,9 @@ import {
   GuildChannel,
   Permissions,
 } from "discord.js";
+import { titleCase, constants } from "@fire/lib/util/constants";
 import { FireMessage } from "@fire/lib/extensions/message";
 import VanityURLs from "@fire/src/modules/vanityurls";
-import { titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -102,7 +102,13 @@ export default class Help extends Command {
     }
     fields.push({
       name: message.language.get("HELP_CREDITS_NAME"),
-      value: message.language.get("HELP_CREDITS_VALUE"),
+      value:
+        "\n" +
+        message.language.get("HELP_CREDITS_VALUE", {
+          links:
+            "[Ravy](https://ravy.pink/) & [The Aero Team](https://aero.bot/)",
+        }) +
+        "\n[@aero/sanitizer](https://www.npmjs.com/package/@aero/sanitizer)\n[@aero/ksoft](https://www.npmjs.com/package/@aero/ksoft)\n[Aether](https://git.farfrom.earth/aero/aether)\n",
       inline: false,
     });
     let components: MessageActionRow[] = null;
@@ -115,38 +121,49 @@ export default class Help extends Command {
           supportInvite = `https://discord.gg/${supportVanity.invite}`;
       }
       components = [
-        // TODO: i18n for labels
         new MessageActionRow().addComponents([
           new MessageButton()
             .setStyle("LINK")
             .setURL("https://fire.gaminggeek.dev/")
-            .setLabel("Website"),
+            .setLabel(message.language.get("HELP_BUTTON_WEBSITE")),
           new MessageButton()
             .setStyle("LINK")
             .setURL(supportInvite)
-            .setLabel("Support"),
+            .setLabel(message.language.get("HELP_BUTTON_SUPPORT")),
           new MessageButton()
             .setStyle("LINK")
             .setURL("https://inv.wtf/terms")
-            .setLabel("Terms of Service"),
+            .setLabel(message.language.get("HELP_BUTTON_TOS")),
           new MessageButton()
             .setStyle("LINK")
             .setURL("https://inv.wtf/privacy")
-            .setLabel("Privacy Policy"),
+            .setLabel(message.language.get("HELP_BUTTON_PRIVACY")),
           new MessageButton()
             .setStyle("LINK")
             .setURL("https://inv.wtf/premium")
-            .setLabel("Premium"),
+            .setLabel(message.language.get("HELP_BUTTON_PREMIUM")),
         ]),
       ];
     } else
       fields.push({
         name: message.language.get("HELP_LINKS_NAME"),
-        value: message.language.get("HELP_LINKS_VALUE"),
+        value: `[${message.language.get("HELP_BUTTON_WEBSITE")}](${
+          constants.url.website
+        }) - [${message.language.get("HELP_BUTTON_SUPPORT")}](${
+          constants.url.support
+        }) - [${message.language.get("HELP_BUTTON_TOS")}](${
+          constants.url.terms
+        }) - [${message.language.get("HELP_BUTTON_PRIVACY")}](${
+          constants.url.privacy
+        }) - [${message.language.get("STATUS")}](${
+          constants.url.fireStatus
+        }) - [${message.language.get("HELP_BUTTON_PREMIUM")}](${
+          constants.url.premium
+        })`,
         inline: false,
       });
     const embed = {
-      color: message.member?.displayColor ,
+      color: message.member?.displayColor,
       author: {
         icon_url: this.client.user.displayAvatarURL({
           size: 2048,
@@ -155,14 +172,14 @@ export default class Help extends Command {
       },
       fields,
       footer: {
-        text: message.language.get(
-          "HELP_FOOTER",
-          message.util.parsed.prefix.replace(
-            userMentionRegex,
-            `@${this.client.user.username} `
-          ) || "$",
-          this.client.manager.id
-        ) as string,
+        text: message.language.get("HELP_FOOTER", {
+          prefix:
+            message.util.parsed.prefix.replace(
+              userMentionRegex,
+              `@${this.client.user.username} `
+            ) || "$",
+          cluster: this.client.manager.id,
+        }) as string,
       },
       timestamp: new Date(),
     } as MessageEmbedOptions;
@@ -180,7 +197,7 @@ export default class Help extends Command {
       permissions.push(this.client.util.cleanPermissionName(perm));
     let args: string[] = command.getArgumentsClean();
     const embed = {
-      color: message.member?.displayColor ,
+      color: message.member?.displayColor,
       title: titleCase(command.id),
       description: command.description(message.language),
       fields: [

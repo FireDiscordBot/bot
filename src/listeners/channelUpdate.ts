@@ -7,7 +7,9 @@ import {
   Permissions,
   DMChannel,
 } from "discord.js";
+import { LanguageKeys } from "@fire/lib/util/language";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { titleCase } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 
 export default class ChannelUpdate extends Listener {
@@ -100,11 +102,10 @@ export default class ChannelUpdate extends Listener {
         .setColor("#2ECC71")
         .setTimestamp()
         .setAuthor(
-          language.get(
-            "CHANNELUPDATELOG_AUTHOR",
-            after.type.replace("_", " "),
-            after.name
-          ),
+          language.get("CHANNELUPDATELOG_AUTHOR", {
+            type: titleCase(after.type.replace("_", " ")),
+            channel: after.name,
+          }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .setFooter(after.id);
@@ -133,8 +134,8 @@ export default class ChannelUpdate extends Listener {
           const unknown = language.get("REGION_AUTOMATIC");
           embed.addField(
             language.get("REGION"),
-            `${language.get("REGIONS")[before.rtcRegion] || unknown} ➜ ${
-              language.get("REGIONS")[after.rtcRegion] || unknown
+            `${language.get(`REGIONS.${before.rtcRegion}` as LanguageKeys) || "???"} ➜ ${
+              language.get(`REGIONS.${after.rtcRegion}` as LanguageKeys) || "???"
             }`
           );
         }

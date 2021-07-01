@@ -40,12 +40,12 @@ export default class Avatar extends Command {
     const color =
       user instanceof FireMember
         ? user?.displayColor
-        : message.member?.displayColor ;
+        : message.member?.displayColor;
 
     const embed = new MessageEmbed()
       .setColor(color)
       .setTimestamp()
-      .setTitle(message.language.get("AVATAR_TITLE", user.toString()))
+      .setTitle(message.language.get("AVATAR_TITLE", { user: user.toString() }))
       .setImage(
         user?.displayAvatarURL({
           size: 2048,

@@ -33,7 +33,7 @@ export default class TagRaw extends Command {
     const { tag } = args;
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(tag);
-    if (!cachedTag) return await message.error("TAG_INVALID_TAG", tag);
+    if (!cachedTag) return await message.error("TAG_INVALID_TAG", { tag });
     const hasMarkdown = markdownRegex.test(cachedTag.content);
     markdownRegex.lastIndex = 0;
     if (hasMarkdown || cachedTag.content.length >= 2000)

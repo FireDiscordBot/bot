@@ -1,7 +1,7 @@
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
 import Redirects from "@fire/src/modules/redirects";
+import { Command } from "@fire/lib/util/command";
 import Filters from "@fire/src/modules/filters";
 import { MessageEmbed } from "discord.js";
 
@@ -57,14 +57,13 @@ export default class Redirect extends Command {
           })
         )
         .setDescription(
-          message.language.get(
-            "REDIRECT_LIST_DESCRIPTION",
-            current,
-            message.author.isSuperuser()
+          message.language.get("REDIRECT_LIST_DESCRIPTION", {
+            codes: current.join(", "),
+            remaining: message.author.isSuperuser()
               ? 1_337_420.69
               : 5 * message.author.premium - current.length,
-            message.util?.parsed?.prefix
-          )
+            prefix: message.util?.parsed?.prefix,
+          })
         );
       return await message.channel.send({ embeds: [embed] });
     } else if (!args.url) {
@@ -115,13 +114,15 @@ export default class Redirect extends Command {
     if (!created) return await message.error();
 
     if (typeof created == "string")
-      return await message.error(`REDIRECT_ERROR_${created.toUpperCase()}`);
+      return await message.error(
+        `REDIRECT_ERROR_${created.toUpperCase()}` as LanguageKeys
+      );
 
-    return await message.success(
-      "REDIRECT_CREATED",
-      created.get("code"),
-      created.get("redirect"),
-      this.client.config.dev
-    );
+    return await message.success("REDIRECT_CREATED", {
+      redirect: `https://${
+        process.env.NODE_ENV != "development" ? "test." : ""
+      }inv.wtf/${created.get("code")}`,
+      url: created.get("redirect"),
+    });
   }
 }

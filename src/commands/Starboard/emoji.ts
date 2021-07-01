@@ -48,6 +48,8 @@ export default class StarboardEmoji extends Command {
         "starboard.emoji",
         emoji instanceof GuildEmoji ? emoji.id : emoji
       );
-    return await message.success("STARBOARD_EMOJI_SET", emoji.toString());
+    return await message.success("STARBOARD_EMOJI_SET", {
+      emoji: emoji.toString(),
+    });
   }
 }

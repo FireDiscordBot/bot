@@ -100,11 +100,10 @@ export default class VCRole extends Command {
               .add(args.role, message.guild.language.get("VCROLE_ADD_REASON"))
               .catch(() => {});
       }
-      return await message.success(
-        "VCROLE_SET",
-        args.channel.name,
-        args.role.toString()
-      );
+      return await message.success("VCROLE_SET", {
+        channel: args.channel.name,
+        role: args.role.toString(),
+      });
     } else return await message.error("VCROLE_SET_FAILED");
   }
 }

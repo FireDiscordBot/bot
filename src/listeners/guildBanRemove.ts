@@ -37,7 +37,7 @@ export default class GuildBanRemove extends Listener {
       .setColor("#E74C3C")
       .setTimestamp()
       .setAuthor(
-        guild.language.get("UNBAN_LOG_AUTHOR", user.toString()),
+        guild.language.get("UNBAN_LOG_AUTHOR", { user: user.toString() }),
         user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(guild.language.get("MODERATOR"), action.executor.toString())

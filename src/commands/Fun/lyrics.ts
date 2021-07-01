@@ -79,7 +79,7 @@ export default class Lyrics extends Command {
         textOnly: false,
       });
     } catch (e) {
-      return await message.error("LYRICS_NOT_FOUND", e);
+      return await message.error("LYRICS_NOT_FOUND");
     }
     if (!lyrics.id || !lyrics.lyrics)
       return await message.error("LYRICS_NOT_FOUND");
@@ -88,7 +88,10 @@ export default class Lyrics extends Command {
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTitle(
-        message.language.get("LYRICS_TITLE", lyrics.name, lyrics.artist.name)
+        message.language.get("LYRICS_TITLE", {
+          title: lyrics.name,
+          artist: lyrics.artist.name,
+        })
       );
     const footer = {
       text: message.language.get("POWERED_BY_KSOFT"),

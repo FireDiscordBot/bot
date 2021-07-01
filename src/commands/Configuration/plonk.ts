@@ -1,10 +1,10 @@
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageEmbed, Permissions } from "discord.js";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
 
@@ -46,7 +46,9 @@ export default class Plonk extends Command {
       !message.author.isSuperuser() &&
       !message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
     )
-      return await message.error("PLONK_FORBIDDEN");
+      return await message.error("PLONK_FORBIDDEN", {
+        manage: message.language.get("PERMISSIONS.MANAGE_GUILD" as LanguageKeys),
+      });
 
     if (!args.user && typeof args.user == "undefined")
       return await message.error("PLONK_USER_REQUIRED");
@@ -63,7 +65,10 @@ export default class Plonk extends Command {
       await this.localBlacklist(message, args);
     else if (message.author.isSuperuser())
       await this.globalBlacklist(message, args);
-    else return await message.error("PLONK_FORBIDDEN");
+    else
+      return await message.error("PLONK_FORBIDDEN", {
+        manage: message.language.get("PERMISSIONS.MANAGE_GUILD" as LanguageKeys),
+      });
   }
 
   async globalBlacklist(
@@ -143,14 +148,12 @@ export default class Plonk extends Command {
       .setTimestamp()
       .setAuthor(
         isPlonked
-          ? message.guild.language.get(
-              "UNPLONK_LOG_AUTHOR",
-              args.user.toString()
-            )
-          : message.guild.language.get(
-              "PLONK_LOG_AUTHOR",
-              args.user.toString()
-            ),
+          ? message.guild.language.get("UNPLONK_LOG_AUTHOR", {
+              user: args.user.toString(),
+            })
+          : message.guild.language.get("PLONK_LOG_AUTHOR", {
+              user: args.user.toString(),
+            }),
         args.user.displayAvatarURL({
           size: 2048,
           format: "png",
@@ -170,11 +173,9 @@ export default class Plonk extends Command {
       )
       .setFooter(`${args.user.id} | ${message.author.id}`);
     await message.guild.modLog(embed, isPlonked ? "unblacklist" : "blacklist");
-    return await message.send(
-      "PLONK_SUCCESS",
-      args.user.toString(),
-      message.guild.name,
-      !isPlonked
+    return await message.success(
+      isPlonked ? "UNPLONK_SUCCESS" : "PLONK_SUCCESS",
+      { user: args.user.toString(), guild: message.guild.name }
     );
   }
 }

@@ -20,7 +20,7 @@ export default class InviteCreate extends Listener {
         .setColor("#2ECC71")
         .setTimestamp()
         .setAuthor(
-          language.get("INVCREATE_LOG_AUTHOR", guild.name),
+          language.get("INVCREATE_LOG_AUTHOR", { guild: guild.name }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .addField(language.get("FILTER_INVITE_LOG_CODE"), invite.code)

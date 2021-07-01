@@ -52,10 +52,12 @@ export default class EmojiLock extends Command {
 
     emoji = (await emoji.edit({ roles }).catch(() => {})) as GuildEmoji;
     if (!emoji) return await message.error("EMOJILOCK_FAILURE");
-    else
+    else {
+      const roles = emoji.roles.cache.map((role) => role.toString());
       return await message.success(
-        "EMOJILOCK_SUCCESS",
-        emoji.roles.cache.map((role) => role.toString())
+        roles.length ? "EMOJILOCK_SUCCESS" : "EMOJILOCK_DISABLED",
+        { roles }
       );
+    }
   }
 }

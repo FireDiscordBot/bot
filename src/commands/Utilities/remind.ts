@@ -96,7 +96,15 @@ export default class Remind extends Command {
       .filter(([, success]) => !success)
       .map(([duration]) => duration);
     return failed.length != repeat
-      ? await message.success("REMINDER_CREATED", success, failed)
+      ? await message.success(
+          success.length == 1
+            ? "REMINDER_CREATED_SINGLE"
+            : "REMINDER_CREATED_MULTI",
+          {
+            time: success[0],
+            times: success.map((s) => "- " + s).join("\n"),
+          }
+        )
       : await message.error();
   }
 }

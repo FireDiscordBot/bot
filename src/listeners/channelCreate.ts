@@ -1,7 +1,7 @@
 import { GuildChannel, MessageEmbed, Permissions, DMChannel } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { humanize, titleCase } from "@fire/lib/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { humanize } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 
 export default class ChannelCreate extends Listener {
@@ -67,7 +67,10 @@ export default class ChannelCreate extends Listener {
         .setColor("#2ECC71")
         .setTimestamp(channel.createdAt)
         .setAuthor(
-          language.get("CHANNELCREATELOG_AUTHOR", channel.type, guild.name),
+          language.get("CHANNELCREATELOG_AUTHOR", {
+            type: titleCase(channel.type),
+            guild: guild.name,
+          }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .addField(language.get("NAME"), channel.name);

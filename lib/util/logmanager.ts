@@ -129,10 +129,9 @@ export class GuildLogManager {
             size: 2048,
             format: "png",
           }),
-          reason: this.guild.language.get(
-            "LOGGING_WEBHOOK_CREATE",
-            "moderation"
-          ) as string,
+          reason: this.guild.language.get("LOGGING_WEBHOOK_CREATE", {
+            type: "moderation",
+          }) as string,
         })
         .catch(() => null);
       if (!data.webhook) return data.queue.push({ content, type });
@@ -232,10 +231,9 @@ export class GuildLogManager {
             size: 2048,
             format: "png",
           }),
-          reason: this.guild.language.get(
-            "LOGGING_WEBHOOK_CREATE",
-            "member"
-          ) as string,
+          reason: this.guild.language.get("LOGGING_WEBHOOK_CREATE", {
+            type: "member",
+          }) as string,
         })
         .catch(() => null);
       if (!data.webhook) return;
@@ -335,10 +333,9 @@ export class GuildLogManager {
             size: 2048,
             format: "png",
           }),
-          reason: this.guild.language.get(
-            "LOGGING_WEBHOOK_CREATE",
-            "action"
-          ) as string,
+          reason: this.guild.language.get("LOGGING_WEBHOOK_CREATE", {
+            type: "action",
+          }) as string,
         })
         .catch(() => null);
       if (!data.webhook) return;

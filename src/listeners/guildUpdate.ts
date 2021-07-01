@@ -3,6 +3,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { LanguageKeys } from "@fire/lib/util/language";
 import { MessageEmbed, TextChannel } from "discord.js";
 import { titleCase } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
@@ -76,7 +77,7 @@ export default class GuildUpdate extends Listener {
         .setColor("#2ECC71")
         .setTimestamp()
         .setAuthor(
-          language.get("GUILDUPDATELOG_AUTHOR", after.name),
+          language.get("GUILDUPDATELOG_AUTHOR", { name: after.name }),
           after.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .setFooter(after.id);
@@ -140,18 +141,18 @@ export default class GuildUpdate extends Listener {
         embed.addField(
           language.get("VERIFICATION_LEVEL"),
           `${language.get(
-            "GUILD_VERIF_" + before.verificationLevel.toString()
+            "GUILD_VERIF_" + before.verificationLevel.toString() as LanguageKeys
           )} ➜ ${language.get(
-            "GUILD_VERIF_" + after.verificationLevel.toString()
+            "GUILD_VERIF_" + after.verificationLevel.toString() as LanguageKeys
           )}`.replace(/\*/gim, "")
         );
       if (before.explicitContentFilter != after.explicitContentFilter)
         embed.addField(
           language.get("EXPLICIT_CONTENT_FILTER"),
           `${language.get(
-            "EXPLICIT_CONTENT_FILTER_" + before.explicitContentFilter.toString()
+            "EXPLICIT_CONTENT_FILTER_" + before.explicitContentFilter.toString() as LanguageKeys
           )} ➜ ${language.get(
-            "EXPLICIT_CONTENT_FILTER_" + after.explicitContentFilter.toString()
+            "EXPLICIT_CONTENT_FILTER_" + after.explicitContentFilter.toString() as LanguageKeys
           )}`
         );
       if (before.features.length != after.features.length) {

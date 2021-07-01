@@ -94,11 +94,10 @@ export default class Lockdown extends Command {
           .permissionsFor(message.guild.roles.everyone)
           .has(Permissions.FLAGS.SEND_MESSAGES)
     ) as Collection<string, FireTextChannel>;
-    const startReason = message.guild.language.get(
-      "LOCKDOWN_REASON",
-      message.author.toString(),
-      reason
-    ) as string;
+    const startReason = message.guild.language.get("LOCKDOWN_REASON", {
+      user: message.author.toString(),
+      reason,
+    }) as string;
     const embed = new MessageEmbed()
       .setColor("#ef5350")
       .setDescription(startReason);
@@ -151,22 +150,36 @@ export default class Lockdown extends Command {
     else {
       const end = +new Date();
       message.success().catch(() => {});
-      await message
-        .success(
-          "LOCKDOWN_FINISH",
-          humanize(end - start, message.language.id.split("-")[0]),
-          failed,
-          locked.map((id) => channels.get(id).toString())
-        )
-        .then((m) => {
-          if (m instanceof FireMessage) {
-            lockdownMessages.push(`${message.channel.id}-${m.id}`);
-            message.guild.settings.set<string[]>(
-              "mod.lockdownmessages",
-              lockdownMessages
-            );
-          }
-        });
+      if (!failed.length)
+        await message
+          .success("LOCKDOWN_FINISH", {
+            time: humanize(end - start, message.language.id.split("-")[0]),
+            locked: locked.length,
+          })
+          .then((m) => {
+            if (m instanceof FireMessage) {
+              lockdownMessages.push(`${message.channel.id}-${m.id}`);
+              message.guild.settings.set<string[]>(
+                "mod.lockdownmessages",
+                lockdownMessages
+              );
+            }
+          });
+      else
+        await message
+          .warn("LOCKDOWN_FINISH_FAILED", {
+            failcount: failed.length,
+            failed: failed.join(", "),
+          })
+          .then((m) => {
+            if (m instanceof FireMessage) {
+              lockdownMessages.push(`${message.channel.id}-${m.id}`);
+              message.guild.settings.set<string[]>(
+                "mod.lockdownmessages",
+                lockdownMessages
+              );
+            }
+          });
     }
   }
 
@@ -189,11 +202,10 @@ export default class Lockdown extends Command {
       "mod.lockdownmessages",
       []
     );
-    const endReason = message.guild.language.get(
-      "LOCKDOWN_END_REASON",
-      message.author.toString(),
-      reason
-    ) as string;
+    const endReason = message.guild.language.get("LOCKDOWN_END_REASON", {
+      user: message.author.toString(),
+      reason,
+    }) as string;
     let failed: string[] = [];
     for (const channel of channels.values()) {
       if (lockdownMessages.find((msg) => msg?.startsWith(channel.id))) {
@@ -239,7 +251,10 @@ export default class Lockdown extends Command {
         )
       : message.guild.settings.delete("mod.lockdownmessages");
     failed.length
-      ? await message.error("LOCKDOWN_END_FAIL", failed)
+      ? await message.error("LOCKDOWN_END_FAIL", {
+          failcount: failed.length,
+          failed: failed.join(", "),
+        })
       : await message.success();
   }
 

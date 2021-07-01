@@ -51,12 +51,30 @@ export default class Prefix extends Command {
     );
     if (!args.action)
       return message.util?.parsed?.alias == "prefixes"
-        ? await message.send("PREFIXES_CURRENT", current)
+        ? await message.send(
+            current.length == 1
+              ? "PREFIXES_CURRENT_SINGLE"
+              : "PREFIXES_CURRENT_MULTI",
+            {
+              prefix: current[0],
+              prefixes: current.join(", "),
+            }
+          )
         : await message.error("PREFIX_MISSING_ARG");
     if (validActions.list.includes(args.action) && !args.prefix)
-      return await message.send("PREFIXES_CURRENT", current);
+      return await message.send(
+        current.length == 1
+          ? "PREFIXES_CURRENT_SINGLE"
+          : "PREFIXES_CURRENT_MULTI",
+        {
+          prefix: current[0],
+          prefixes: current.join(", "),
+        }
+      );
     if (process.env.SPECIAL_PREFIX)
-      return await message.error("PREFIX_CHANGE_DISALLOWED");
+      return await message.error("PREFIX_CHANGE_DISALLOWED", {
+        special: process.env.SPECIAL_PREFIX,
+      });
     if (!args.prefix && !actionNames.includes(args.action)) {
       if (
         current
@@ -70,7 +88,17 @@ export default class Prefix extends Command {
         if (current.length == 1 && current[0] == "$")
           message.guild.settings.delete("config.prefix");
         else message.guild.settings.set<string[]>("config.prefix", current);
-        return await message.success("PREFIX_REMOVED", current);
+        return await message.success(
+          current.length == 1 && current[0] == "$"
+            ? "PREFIX_REMOVED_RESET"
+            : current.length == 1
+            ? "PREFIX_REMOVED_SINGLE"
+            : "PREFIX_REMOVED_MULTI",
+          {
+            prefix: current[0],
+            prefixes: current.join(", "),
+          }
+        );
       } else {
         const invalid = await this.testPrefix(message, args.action);
         if (invalid) return;
@@ -80,11 +108,10 @@ export default class Prefix extends Command {
             .map((prefix) => prefix.toLowerCase().trim())
             .includes(args.action.toLowerCase().trim())
         )
-          return await message.error(
-            "PREFIX_ALREADY_HOW",
-            message.util?.parsed?.prefix,
-            args.action
-          );
+          return await message.error("PREFIX_ALREADY_HOW", {
+            usedPrefix: message.util?.parsed?.prefix,
+            toRemove: args.action,
+          });
         current.push(args.action);
         if (current.length == 1 && current[0] == "$")
           message.guild.settings.delete("config.prefix");
@@ -93,7 +120,13 @@ export default class Prefix extends Command {
             "config.prefix",
             current.filter((prefix) => !!prefix)
           );
-        return await message.success("PREFIX_ADDED", current);
+        return await message.success(
+          current.length == 1 ? "PREFIX_ADDED_SINGLE" : "PREFIX_ADDED_MULTI",
+          {
+            prefix: current[current.length - 1],
+            prefixes: current.join(", "),
+          }
+        );
       }
     }
     if (validActions.add.includes(args.action)) {
@@ -105,11 +138,10 @@ export default class Prefix extends Command {
           .map((prefix) => prefix.toLowerCase().trim())
           .includes(args.prefix.toLowerCase().trim())
       )
-        return await message.error(
-          "PREFIX_ALREADY_HOW",
-          message.util?.parsed?.prefix,
-          args.prefix
-        );
+        return await message.error("PREFIX_ALREADY_HOW", {
+          usedPrefix: message.util?.parsed?.prefix,
+          toRemove: args.action,
+        });
       current.push(args.prefix);
       if (current.length == 1 && current[0] == "$")
         message.guild.settings.delete("config.prefix");
@@ -118,12 +150,18 @@ export default class Prefix extends Command {
           "config.prefix",
           current.filter((prefix) => !!prefix)
         );
-      return await message.success("PREFIX_ADDED", current);
+      return await message.success(
+        current.length == 1 ? "PREFIX_ADDED_SINGLE" : "PREFIX_ADDED_MULTI",
+        {
+          prefix: current[current.length - 1],
+          prefixes: current.join(", "),
+        }
+      );
     } else if (validActions.remove.includes(args.action.trim())) {
       if (!args.prefix)
         return await message.error("PREFIX_ACTION_WITHOUT_VALUE");
       // if (current.length == 1 && current[0].trim() == args.prefix?.trim())
-      //   return await message.error("PREFIX_REMOVE_SINGLE");
+      //   return await message.error("PREFIX_REMOVE_ONLY");
       if (current.map((prefix) => prefix.trim()).includes(args.prefix.trim())) {
         delete current[
           current.map((prefix) => prefix.trim()).indexOf(args.prefix.trim())
@@ -133,7 +171,17 @@ export default class Prefix extends Command {
         if (current.length == 1 && current[0] == "$")
           message.guild.settings.delete("config.prefix");
         else message.guild.settings.set<string[]>("config.prefix", current);
-        return await message.success("PREFIX_REMOVE", current);
+        return await message.success(
+          current.length == 1 && current[0] == "$"
+            ? "PREFIX_REMOVED_RESET"
+            : current.length == 1
+            ? "PREFIX_REMOVED_SINGLE"
+            : "PREFIX_REMOVED_MULTI",
+          {
+            prefix: current[0],
+            prefixes: current.join(", "),
+          }
+        );
       } else return await message.error("PREFIX_REMOVE_NEVER_WAS");
     }
   }

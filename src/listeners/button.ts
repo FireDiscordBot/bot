@@ -167,7 +167,9 @@ export default class Button extends Listener {
         .setColor(button.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setAuthor(
-          button.language.get("RANKS_AUTHOR", button.guild.toString()),
+          button.language.get("RANKS_AUTHOR", {
+            guild: button.guild.toString(),
+          }),
           button.guild.icon
             ? (button.guild.iconURL({
                 size: 2048,
@@ -185,16 +187,13 @@ export default class Button extends Listener {
     if (button.customID.startsWith("tag_edit:") && button.guild) {
       if (!button.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
         return await button
-          .error(
-            "MISSING_PERMISSIONS_USER",
-            [
-              this.client.util.cleanPermissionName(
-                "MANAGE_MESSAGES",
-                button.language
-              ),
-            ],
-            "tag edit"
-          )
+          .error("MISSING_PERMISSIONS_USER", {
+            permissions: this.client.util.cleanPermissionName(
+              "MANAGE_MESSAGES",
+              button.language
+            ),
+            command: "tag edit",
+          })
           .catch(() => {});
 
       const name = button.customID.slice(9);
@@ -291,16 +290,13 @@ export default class Button extends Listener {
     if (button.customID.startsWith("tag_delete:") && button.guild) {
       if (!button.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
         return await button
-          .error(
-            "MISSING_PERMISSIONS_USER",
-            [
-              this.client.util.cleanPermissionName(
-                "MANAGE_MESSAGES",
-                button.language
-              ),
-            ],
-            "tag delete"
-          )
+          .error("MISSING_PERMISSIONS_USER", {
+            permissions: this.client.util.cleanPermissionName(
+              "MANAGE_MESSAGES",
+              button.language
+            ),
+            command: "tag delete",
+          })
           .catch(() => {});
 
       const name = button.customID.slice(11);
@@ -318,7 +314,7 @@ export default class Button extends Listener {
       const deleted = await button.guild.tags.deleteTag(name);
       if (!deleted)
         return await button.channel.update(
-          button.language.get("TAG_DELETE_FAILED", data),
+          button.language.get("TAG_DELETE_FAILED", { haste: data }),
           { embeds: [], components: [] }
         );
       else {
@@ -328,7 +324,9 @@ export default class Button extends Listener {
             button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
           )
           .setColor(button.member?.displayColor ?? "#FFFFFF")
-          .setDescription(button.language.get("TAG_DELETE_SUCCESS", data))
+          .setDescription(
+            button.language.get("TAG_DELETE_SUCCESS", { haste: data })
+          )
           .setTimestamp();
         return await button.channel.update(embed, { components: [] });
       }
@@ -420,14 +418,15 @@ export default class Button extends Listener {
         .handleSupport(button, button.author)
         .catch((e: Error) => e);
       if (!(ticket instanceof FireTextChannel))
-        return await button.error("SK1ER_SUPPORT_FAIL", ticket.toString());
+        return await button.error("SK1ER_SUPPORT_FAIL", {
+          reason: ticket.toString(),
+        });
       else
         await button
           .edit(
-            `${emojis.success} ${button.language.get(
-              "NEW_TICKET_CREATED",
-              ticket.toString()
-            )}`,
+            `${emojis.success} ${button.language.get("NEW_TICKET_CREATED", {
+              channel: ticket.toString(),
+            })}`,
             { components: [] }
           )
           .catch(() => {});

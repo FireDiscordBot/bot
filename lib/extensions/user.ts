@@ -177,7 +177,7 @@ export class FireUser extends User {
       .setColor("#E74C3C")
       .setTimestamp()
       .setAuthor(
-        guild.language.get("BAN_LOG_AUTHOR", this.toString()),
+        guild.language.get("BAN_LOG_AUTHOR", { user: this.toString() }),
         this.avatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(guild.language.get("MODERATOR"), moderator.toString())
@@ -187,11 +187,10 @@ export class FireUser extends User {
     if (channel)
       return await channel
         .send(
-          guild.language.get(
-            "BAN_SUCCESS",
-            Util.escapeMarkdown(this.toString()),
-            Util.escapeMarkdown(guild.name)
-          ) +
+          guild.language.get("BAN_SUCCESS", {
+            user: Util.escapeMarkdown(this.toString()),
+            guild: Util.escapeMarkdown(guild.name),
+          }) +
             (this.id == "159985870458322944"
               ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336"
               : "")

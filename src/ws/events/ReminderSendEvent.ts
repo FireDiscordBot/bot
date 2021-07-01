@@ -38,22 +38,17 @@ export default class ReminderSendEvent extends Event {
 
     const message = await user
       .send(
-        data.link
-          ? user.language.get(
-              "REMINDER_MESSAGE",
-              data.text,
+        user.language.get(
+          data.link ? "REMINDER_MESSAGE_LINKED" : "REMINDER_MESSAGE_UNKNOWN",
+          {
+            time:
               duration != 0
                 ? humanize(duration, user.language.id.split("-")[0])
                 : user.language.get("REMINDER_TIME_UNKNOWN"),
-              data.link
-            )
-          : user.language.get(
-              "REMINDER_MESSAGE",
-              data.text,
-              duration != 0
-                ? humanize(duration, user.language.id.split("-")[0])
-                : user.language.get("REMINDER_TIME_UNKNOWN")
-            )
+            text: data.text,
+            link: data.link,
+          }
+        )
       )
       .catch(() => {});
     if (message) this.sent.push(`${data.user}-${data.timestamp}`);

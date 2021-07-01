@@ -32,6 +32,14 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
+"@discordjs/builders@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@discordjs/builders/-/builders-0.1.1.tgz#d1e888ee8ef273cce639c79cb24abac7169cfb88"
+  integrity sha512-9eBC22bX2HBsob5ixMwZ6quy/vewU5GHuSJhpmSZ3cDGg8XPnrYdzbwI54U+V9kQBTa7M+aMu1lYVqMEPojj8A==
+  dependencies:
+    discord-api-types "^0.18.1"
+    tslib "^2.3.0"
+
 "@discordjs/collection@^0.1.6":
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/@discordjs/collection/-/collection-0.1.6.tgz#9e9a7637f4e4e0688fd8b2b5c63133c91607682c"
@@ -628,18 +636,19 @@ discord-api-types@^0.19.0-next.f393ba520d7d6d2aacaca7b3ca5d355fab614f6e:
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.19.0-next.f393ba520d7d6d2aacaca7b3ca5d355fab614f6e.tgz#d5f36f5712ec8fe2fe928b5c37618c94a3969d6a"
   integrity sha512-ttRA/8e/WKHDbGFfED5WlS7gID+kalmNr6iMiWBCvkphQ7kFHiTOVbnj/zX9ksaRaYXp/I38SCQ+qZvLu8DJZg==
 
-discord.js@discordjs/discord.js#3174507d57d9f6011e97b4f3209f42179e050f9b:
+discord.js@discordjs/discord.js#941cd86881c8205fbbb6a8579e41b006bcf72c2c:
   version "13.0.0-dev"
-  resolved "https://codeload.github.com/discordjs/discord.js/tar.gz/3174507d57d9f6011e97b4f3209f42179e050f9b"
+  resolved "https://codeload.github.com/discordjs/discord.js/tar.gz/941cd86881c8205fbbb6a8579e41b006bcf72c2c"
   dependencies:
+    "@discordjs/builders" "^0.1.1"
     "@discordjs/collection" "^0.1.6"
     "@discordjs/form-data" "^3.0.1"
-    "@sapphire/async-queue" "^1.1.2"
+    "@sapphire/async-queue" "^1.1.4"
+    "@types/ws" "^7.4.5"
     abort-controller "^3.0.0"
+    discord-api-types "^0.19.0-next.f393ba520d7d6d2aacaca7b3ca5d355fab614f6e"
     node-fetch "^2.6.1"
-    prism-media "^1.2.9"
-    tweetnacl "^1.0.3"
-    ws "^7.4.5"
+    ws "^7.5.1"
 
 dotenv-extended@^2.9.0:
   version "2.9.0"
@@ -1596,6 +1605,11 @@ tslib@^1.9.3:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
+tslib@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.0.tgz#803b8cdab3e12ba581a4ca41c8839bbb0dacb09e"
+  integrity sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==
+
 typescript@^4.3.0-dev.20210507:
   version "4.3.0-dev.20210507"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.0-dev.20210507.tgz#07fdc0479bb1b215865aabb01ed1d920cf844ea0"
@@ -1677,7 +1691,7 @@ ws@^7.4.6:
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.4.6.tgz#5654ca8ecdeee47c33a9a4bf6d28e2be2980377c"
   integrity sha512-YmhHDO4MzaDLB+M9ym/mDA5z0naX8j7SIlT8f8z+I0VtzsRbekxEutHSme7NPS2qE8StCYQNUnfWdXta/Yu85A==
 
-ws@^7.5.0:
+ws@^7.5.1:
   version "7.5.1"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.5.1.tgz#44fc000d87edb1d9c53e51fbc69a0ac1f6871d66"
   integrity sha512-2c6faOUH/nhoQN6abwMloF7Iyl0ZS2E9HGtsiLrWn0zOOMWlhtDmdf/uihDt6jnuCxgtwGBNy6Onsoy2s2O2Ow==

@@ -13,7 +13,8 @@
     "paths": {
       "@fire/lib/*": ["lib/*"],
       "@fire/src/*": ["src/*"],
-      "@fire/config/*": ["config/*"]
+      "@fire/config/*": ["config/*"],
+      "@fire/i18n/*": ["languages/*"]
     }
   },
   "exclude": [

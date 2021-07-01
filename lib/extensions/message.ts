@@ -20,7 +20,9 @@ import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
 import Filters from "@fire/src/modules/filters";
 import { FireTextChannel } from "./textchannel";
+import { LanguageKeys } from "../util/language";
 import Semaphore from "semaphore-async-await";
+import { TOptions, StringMap } from "i18next";
 import { FireMember } from "./guildmember";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
@@ -61,30 +63,26 @@ export class FireMessage extends Message {
     }
     const language = this.guild ? this.guild.language : this.author.language;
     if (this.type == "RECIPIENT_ADD" && this.channel instanceof ThreadChannel)
-      this.content = language.get(
-        "TICKET_RECIPIENT_ADD",
-        this.author.toString(),
-        this.mentions.users.first()?.toString()
-      ) as string;
+      this.content = language.get("TICKET_RECIPIENT_ADD", {
+        author: this.author.toString(),
+        added: this.mentions.users.first()?.toString(),
+      }) as string;
     else if (
       this.type == "RECIPIENT_REMOVE" &&
       this.channel instanceof ThreadChannel
     )
-      this.content = language.get(
-        "TICKET_RECIPIENT_REMOVE",
-        this.author.toString(),
-        this.mentions.users.first()?.toString()
-      ) as string;
+      this.content = language.get("TICKET_RECIPIENT_REMOVE", {
+        author: this.author.toString(),
+        removed: this.mentions.users.first()?.toString(),
+      }) as string;
     else if (
       this.type == "CHANNEL_NAME_CHANGE" &&
       this.channel instanceof ThreadChannel
     )
-      this.content = language.get(
-        "TICKET_THREAD_RENAME",
-        this.author.toString(),
-        this.cleanContent,
-        true
-      ) as string;
+      this.content = language.get("TICKET_THREAD_RENAME", {
+        author: this.author.toString(),
+        name: "**" + this.cleanContent + "**",
+      });
 
     // @ts-ignore
     if (data.components) this.components = data.components;
@@ -97,31 +95,44 @@ export class FireMessage extends Message {
       : this.guild?.language || this.client.getLanguage("en-US");
   }
 
-  send(key: string = "", ...args: any[]) {
-    return this.channel.send({ content: this.language.get(key, ...args) });
+  send(key?: LanguageKeys, args?: TOptions<StringMap>) {
+    return this.channel.send({ content: this.language.get(key, args) });
   }
 
   success(
-    key: string = "",
-    ...args: any[]
+    key?: LanguageKeys,
+    args?: TOptions<StringMap>
   ): Promise<MessageReaction | Message | void> {
     if (!key && this.deleted) return;
     return !key
       ? this.react(reactions.success).catch(() => {})
       : this.channel.send({
-          content: `${emojis.success} ${this.language.get(key, ...args)}`,
+          content: `${emojis.success} ${this.language.get(key, args)}`,
+        });
+  }
+
+  warn(
+    key?: LanguageKeys,
+    args?: TOptions<StringMap>
+  ): Promise<MessageReaction | Message | void> {
+    if (!key && this.deleted) return;
+    return !key
+      ? this.react(reactions.warning).catch(() => {})
+      : this.reply({
+          content: `${emojis.warning} ${this.language.get(key, args)}`,
+          failIfNotExists: false,
         });
   }
 
   error(
-    key: string = "",
-    ...args: any[]
+    key?: LanguageKeys,
+    args?: TOptions<StringMap>
   ): Promise<MessageReaction | Message | void> {
     if (!key && this.deleted) return;
     return !key
       ? this.react(reactions.error).catch(() => {})
       : this.reply({
-          content: `${emojis.error} ${this.language.get(key, ...args)}`,
+          content: `${emojis.error} ${this.language.get(key, args)}`,
           failIfNotExists: false,
         });
   }
@@ -313,7 +324,6 @@ export class FireMessage extends Message {
         threadID: thread?.id,
       })
       .catch(async (e) => {
-        this.client.console.debug(e.stack);
         // this will ensure deleted webhooks are deleted
         // but also allow webhooks to be refreshed
         // even if the cached one still exists
@@ -359,19 +369,16 @@ export class FireMessage extends Message {
     const extraEmbeds: MessageEmbed[] = [];
     if (!this.content && this.author.bot && this.embeds.length) {
       return await destination.send({
-        content: language.get(
-          "QUOTE_EMBED_FROM",
-          this.author.toString(),
-          (this.channel as FireTextChannel).name
-        ),
+        content: language.get("QUOTE_EMBED_FROM", {
+          author: this.author.toString(),
+          channel: (this.channel as FireTextChannel).name,
+        }),
         embeds: this.embeds,
       });
     } else if (this.author.bot && this.embeds.length)
       extraEmbeds.push(...this.embeds);
     const embed = new MessageEmbed()
-      .setColor(
-        this.member?.displayColor || quoter.displayColor 
-      )
+      .setColor(this.member?.displayColor || quoter.displayColor)
       .setTimestamp(this.createdAt)
       .setAuthor(
         this.author.toString(),
@@ -417,22 +424,23 @@ export class FireMessage extends Message {
     if (this.channel != destination) {
       if (this.guild.id != destination.guild.id)
         embed.setFooter(
-          language.get(
-            "QUOTE_EMBED_FOOTER_ALL",
-            quoter,
-            (this.channel as FireTextChannel).name,
-            this.guild.name
-          )
+          language.get("QUOTE_EMBED_FOOTER_ALL", {
+            user: quoter.toString(),
+            channel: (this.channel as FireTextChannel).name,
+            guild: this.guild.name,
+          })
         );
       else
         embed.setFooter(
-          language.get(
-            "QUOTE_EMBED_FOOTER_SOME",
-            quoter,
-            (this.channel as FireTextChannel).name
-          )
+          language.get("QUOTE_EMBED_FOOTER_SOME", {
+            user: quoter.toString(),
+            channel: (this.channel as FireTextChannel).name,
+          })
         );
-    } else embed.setFooter(language.get("QUOTE_EMBED_FOOTER", quoter));
+    } else
+      embed.setFooter(
+        language.get("QUOTE_EMBED_FOOTER", { user: quoter.toString() })
+      );
     return await destination
       .send({ embeds: [embed, ...extraEmbeds] })
       .catch(() => {});

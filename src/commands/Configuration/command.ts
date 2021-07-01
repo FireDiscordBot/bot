@@ -38,11 +38,15 @@ export default class CommandCommand extends Command {
       if (current.length)
         message.guild.settings.set<string[]>("disabled.commands", current);
       else message.guild.settings.delete("disabled.commands");
-      return await message.success("COMMAND_ENABLE", args.command.id);
+      return await message.success("COMMAND_ENABLE", {
+        command: args.command.id,
+      });
     } else {
       current.push(args.command.id);
       message.guild.settings.set<string[]>("disabled.commands", current);
-      return await message.success("COMMAND_DISABLE", args.command.id);
+      return await message.success("COMMAND_DISABLE", {
+        command: args.command.id,
+      });
     }
   }
 }

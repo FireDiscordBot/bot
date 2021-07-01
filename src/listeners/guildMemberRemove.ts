@@ -5,6 +5,7 @@ import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 import Sk1er from "@fire/src/modules/sk1er";
@@ -42,10 +43,9 @@ export default class GuildMemberRemove extends Listener {
         (sk1erModule.guild.channels.cache.get(
           "411620457754787841"
         ) as FireTextChannel).send(
-          sk1erModule.guild.language.get(
-            "SK1ER_NITRO_PERKS_REMOVED_LEFT",
-            member.toString()
-          )
+          sk1erModule.guild.language.get("SK1ER_NITRO_PERKS_REMOVED_LEFT", {
+            member: member.toString(),
+          })
         );
     }
 
@@ -57,12 +57,10 @@ export default class GuildMemberRemove extends Listener {
           ? channel.topic
           : channel.name
         ).startsWith(
-          member.guild.language.get(
-            "TICKET_CHANNEL_TOPIC",
-            member.toString(),
-            member.id,
-            null
-          ) as string
+          member.guild.language.get("TICKET_CHANNEL_TOPIC", {
+            author: member.toString(),
+            id: member.id,
+          }) as string
         )
       ) {
         const history = await channel.messages
@@ -75,14 +73,15 @@ export default class GuildMemberRemove extends Listener {
           await member.guild.closeTicket(
             channel,
             member.guild.me as FireMember,
-            member.guild.language.get(
-              "TICKET_AUTHOR_LEFT",
-              member.toString()
-            ) as string
+            member.guild.language.get("TICKET_AUTHOR_LEFT", {
+              author: member.toString(),
+            }) as string
           );
         else
           await channel.send(
-            member.guild.language.get("TICKET_AUTHOR_LEFT", member.toString())
+            member.guild.language.get("TICKET_AUTHOR_LEFT", {
+              author: member.toString(),
+            })
           );
       }
     }
@@ -133,7 +132,7 @@ export default class GuildMemberRemove extends Listener {
               .fetch(auditAction.executor)
               .catch(() => {})) as FireMember;
             action = language.get(
-              `AUDIT_ACTION_${auditAction.action}`
+              `AUDIT_ACTION_${auditAction.action}` as LanguageKeys
             ) as string;
             reason =
               auditAction.reason ||
@@ -142,12 +141,10 @@ export default class GuildMemberRemove extends Listener {
         }
       }
       const embed = new MessageEmbed()
-        .setColor(
-          member.partial ? "#E74C3C" : member.displayColor || "#E74C3C"
-        )
+        .setColor(member.partial ? "#E74C3C" : member.displayColor || "#E74C3C")
         .setTimestamp()
         .setAuthor(
-          language.get("MEMBERLEAVE_LOG_AUTHOR", member.toString()),
+          language.get("MEMBERLEAVE_LOG_AUTHOR", { member: member.toString() }),
           member.displayAvatarURL({
             size: 2048,
             format: "png",
@@ -158,7 +155,7 @@ export default class GuildMemberRemove extends Listener {
         .setFooter(member.id);
       if (moderator && action)
         embed.addField(
-          language.get("AUDIT_ACTION_BY", action),
+          language.get("AUDIT_ACTION_BY", { action }),
           `${moderator} (${moderator.id})`
         );
       if (action && reason) embed.addField(language.get("REASON"), reason);

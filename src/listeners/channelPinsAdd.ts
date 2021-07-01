@@ -34,7 +34,7 @@ export default class ChannelPinsAdd extends Listener {
         .setColor(member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setAuthor(
-          language.get("PINSADDLOG_AUTHOR", channel.name),
+          language.get("PINSADDLOG_AUTHOR", { channel: channel.name }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true }),
           message.url
         )

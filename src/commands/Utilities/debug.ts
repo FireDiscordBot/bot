@@ -7,11 +7,12 @@ import {
   DMChannel,
 } from "discord.js";
 import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { TOptions, StringMap } from "i18next";
 import * as moment from "moment";
 
 const {
@@ -58,11 +59,9 @@ export default class Debug extends Command {
     if (cmd.moderatorOnly && !message.member?.isModerator())
       return await this.sendSingleError(message, "COMMAND_MODERATOR_ONLY");
     if (cmd.channel == "guild" && !message.guild)
-      return await this.sendSingleError(
-        message,
-        "COMMAND_GUILD_ONLY",
-        this.client.config.inviteLink
-      );
+      return await this.sendSingleError(message, "COMMAND_GUILD_ONLY", {
+        invite: this.client.config.inviteLink,
+      });
     if (cmd.guilds.length && !cmd.guilds.includes(message.guild?.id))
       return await this.sendSingleError(message, "COMMAND_GUILD_LOCKED");
     if (cmd.premium && !message.guild?.premium)
@@ -123,17 +122,21 @@ export default class Debug extends Command {
         )
         .filter((permission) => !!permission);
 
-      const permMsg = (message.language.get(
-        "DEBUG_PERMS_FAIL",
-        user,
-        client
-      ) as unknown) as { user: string | null; client: string | null };
+      let permMsgUser: string, permMsgClient: string;
+      if (user.length)
+        permMsgUser = message.language.get("DEBUG_PERMS_FAIL_USER", {
+          missing: user.join(", "),
+        });
+      if (client.length)
+        permMsgUser = message.language.get("DEBUG_PERMS_FAIL_CLIENT", {
+          missing: user.join(", "),
+        });
 
-      if (permMsg.user || permMsg.client)
+      if (permMsgUser || permMsgClient)
         details.push(
           `${error} ${message.language.get("DEBUG_PERMS_CHECKS_FAIL")}` +
-            (permMsg.user ? `\n${permMsg.user}` : "") +
-            (permMsg.client ? `\n${permMsg.client}` : "")
+            (permMsgUser ? `\n${permMsgUser}` : "") +
+            (permMsgClient ? `\n${permMsgClient}` : "")
         );
     } else if (permissionChecks)
       details.push(`${error} ${message.language.get("DEBUG_REQUIRES_PERMS")}`);
@@ -149,7 +152,7 @@ export default class Debug extends Command {
         );
       else
         details.push(
-          `${error} ${message.language.get("DEBUG_COMMAND_DISABLE")}`
+          `${error} ${message.language.get("DEBUG_COMMAND_DISABLED")}`
         );
     } else if (message.guild)
       details.push(
@@ -192,18 +195,16 @@ export default class Debug extends Command {
 
       if (bypass.length > 0)
         details.push(
-          `${error} ${message.language.get(
-            "DEBUG_MUTE_BYPASS",
-            channel.toString(),
-            bypass
-          )}`
+          `${error} ${message.language.get("DEBUG_MUTE_BYPASS", {
+            channel: channel.toString(),
+            bypass: bypass.map((b) => b.toString()).join(", "),
+          })}`
         );
       else
         details.push(
-          `${success} ${message.language.get(
-            "DEBUG_MUTE_NO_BYPASS",
-            channel.toString()
-          )}`
+          `${success} ${message.language.get("DEBUG_MUTE_NO_BYPASS", {
+            channel: channel.toString(),
+          })}`
         );
     }
 
@@ -224,7 +225,12 @@ export default class Debug extends Command {
   private createEmbed(message: FireMessage, details: string[]) {
     const issues = details.filter((detail) => detail.startsWith(error));
     return new MessageEmbed()
-      .setTitle(message.language.get("DEBUG_ISSUES", issues))
+      .setTitle(
+        message.language.get(
+          issues.length ? "DEBUG_ISSUES_FOUND" : "DEBUG_NO_ISSUES",
+          { issues: issues.length }
+        )
+      )
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(details.join("\n"));
@@ -232,13 +238,13 @@ export default class Debug extends Command {
 
   private async sendSingleError(
     message: FireMessage,
-    key: string,
-    ...args: any[]
+    key: LanguageKeys,
+    args?: TOptions<StringMap>
   ) {
     return await message.channel.send({
       embeds: [
         this.createEmbed(message, [
-          `${error} ${message.language.get(key, ...args)}`,
+          `${error} ${message.language.get(key, args)}`,
         ]),
       ],
     });
@@ -246,13 +252,13 @@ export default class Debug extends Command {
 
   private async sendSingleSuccess(
     message: FireMessage,
-    key: string,
-    ...args: any[]
+    key: LanguageKeys,
+    args?: TOptions<StringMap>
   ) {
     return await message.channel.send({
       embeds: [
         this.createEmbed(message, [
-          `${success} ${message.language.get(key, ...args)}`,
+          `${success} ${message.language.get(key, args)}`,
         ]),
       ],
     });

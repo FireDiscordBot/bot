@@ -48,10 +48,8 @@ export default class ModeratorOnly extends Command {
       const channel = message.guild.channels.cache.get(cid);
       if (channel) mentions.push(channel.toString());
     });
-    if (mentions.length) {
-      const channelslist = mentions.join(", ");
-      return message.success("MODONLY_SET", channelslist);
-    }
+    if (mentions.length)
+      return message.success("MODONLY_SET", { channels: mentions.join(", ") });
     return message.success("MODONLY_RESET");
   }
 }

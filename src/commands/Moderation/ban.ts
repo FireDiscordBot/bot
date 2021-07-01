@@ -1,9 +1,9 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { parseTime } from "@fire/lib/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
 export default class Ban extends Command {
@@ -112,6 +112,6 @@ export default class Ban extends Command {
     if (beaned == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof beaned == "string")
-      return await message.error(`BAN_FAILED_${beaned.toUpperCase()}`);
+      return await message.error(`BAN_FAILED_${beaned.toUpperCase()}` as LanguageKeys);
   }
 }

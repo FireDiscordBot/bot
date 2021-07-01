@@ -1,7 +1,7 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
 export default class Unban extends Command {
@@ -48,6 +48,6 @@ export default class Unban extends Command {
     if (unbanned == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof unbanned == "string")
-      return await message.error(`UNBAN_FAILED_${unbanned.toUpperCase()}`);
+      return await message.error(`UNBAN_FAILED_${unbanned.toUpperCase()}` as LanguageKeys);
   }
 }

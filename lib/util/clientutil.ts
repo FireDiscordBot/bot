@@ -18,13 +18,13 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { Cluster } from "@fire/lib/interfaces/stats";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Experiments } from "../interfaces/discord";
+import { Language, LanguageKeys } from "./language";
 import { humanize, titleCase } from "./constants";
 import { Message } from "@fire/lib/ws/Message";
 import { ClientUtil } from "discord-akairo";
 import { getCommitHash } from "./gitUtils";
 import { murmur3 } from "murmurhash-js";
 import { Fire } from "@fire/lib/Fire";
-import { Language } from "./language";
 import * as pidusage from "pidusage";
 import * as Centra from "centra";
 import * as moment from "moment";
@@ -284,19 +284,11 @@ export class Util extends ClientUtil {
       name = this.bitToPermissionString(permission);
     else if (typeof permission == "string") name = permission;
     if (!name) return null;
-    if (
-      language &&
-      ((language.get("PERMISSIONS") as unknown) as Record<
-        string,
-        string
-      >).hasOwnProperty(name)
-    )
-      return ((language.get("PERMISSIONS") as unknown) as Record<
-        string,
-        string
-      >)[name];
-    return titleCase(
-      name.toLowerCase().replace(/_/gim, " ").replace(/guild/gim, "server")
+    return (
+      language.get(`PERMISSIONS.${name}` as LanguageKeys) ??
+      titleCase(
+        name.toLowerCase().replace(/_/gim, " ").replace(/guild/gim, "server")
+      )
     );
   }
 

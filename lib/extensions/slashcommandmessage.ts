@@ -27,11 +27,12 @@ import {
   Snowflake,
 } from "discord.js";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
-import { Language } from "@fire/lib/util/language";
 import { FireTextChannel } from "./textchannel";
 import { APIMessage } from "discord-api-types";
+import { TOptions, StringMap } from "i18next";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
 import { Fire } from "@fire/lib/Fire";
@@ -223,16 +224,16 @@ export class SlashCommandMessage {
     return this.content;
   }
 
-  send(key: string = "", ...args: any[]) {
+  send(key?: LanguageKeys, args?: TOptions<StringMap>) {
     return this.channel.send(
-      { content: this.language.get(key, ...args) },
+      { content: this.language.get(key, args) },
       this.flags
     );
   }
 
   success(
-    key: string = "",
-    ...args: any[]
+    key?: LanguageKeys,
+    args?: TOptions<StringMap>
   ): Promise<SlashCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
@@ -247,14 +248,36 @@ export class SlashCommandMessage {
         });
     }
     return this.channel.send(
-      `${emojis.success} ${this.language.get(key, ...args)}`,
+      `${emojis.success} ${this.language.get(key, args)}`,
+      typeof this.flags == "number" ? this.flags : 64
+    );
+  }
+
+  warn(
+    key?: LanguageKeys,
+    args?: TOptions<StringMap>
+  ): Promise<SlashCommandMessage | MessageReaction | void> {
+    if (!key) {
+      if (this.sourceMessage instanceof FireMessage)
+        return this.sourceMessage.react(reactions.warning).catch(() => {});
+      else
+        return this.getRealMessage().then((message) => {
+          if (!message || !(message instanceof FireMessage))
+            return this.warn("SLASH_COMMAND_HANDLE_FAIL");
+          message.react(reactions.warning).catch(() => {
+            return this.warn("SLASH_COMMAND_HANDLE_FAIL");
+          });
+        });
+    }
+    return this.channel.send(
+      `${emojis.warning} ${this.language.get(key, args)}`,
       typeof this.flags == "number" ? this.flags : 64
     );
   }
 
   error(
-    key: string = "",
-    ...args: any[]
+    key?: LanguageKeys,
+    args?: TOptions<StringMap>
   ): Promise<SlashCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
@@ -269,7 +292,7 @@ export class SlashCommandMessage {
         });
     }
     return this.channel.send(
-      `${emojis.slashError} ${this.language.get(key, ...args)}`,
+      `${emojis.slashError} ${this.language.get(key, args)}`,
       typeof this.flags == "number" ? this.flags : 64
     );
   }

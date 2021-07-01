@@ -167,7 +167,7 @@ export default class Purge extends Command {
         .then(async (messages) => {
           this.client.emit("purge", message, null, recentPurge);
           return message
-            .success("PURGE_SUCCESS", messages.size)
+            .success("PURGE_SUCCESS", { amount: messages.size })
             .then((message: FireMessage) => message.delete({ timeout: 5000 }));
         });
     } catch {
@@ -268,7 +268,7 @@ export default class Purge extends Command {
         .then(async (messages) => {
           this.client.emit("purge", message, args.reason, recentPurge);
           return message
-            .success("PURGE_SUCCESS", messages.size)
+            .success("PURGE_SUCCESS", { amount: messages.size })
             .then((message: FireMessage) => message.delete({ timeout: 5000 }));
         });
     } catch {

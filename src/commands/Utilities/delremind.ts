@@ -55,7 +55,10 @@ export default class DeleteReminder extends Command {
       return await message.error("DELREMIND_TOO_HIGH");
     const timestamp = timestamps[args.index - 1];
     const reminder = reminders[args.index - 1];
-    const confirmation = await message.send("DELREMIND_CONFIRM", reminder);
+    const confirmation = await message.send("DELREMIND_CONFIRM", {
+      text: reminder.text,
+      date: reminder.date.toLocaleString(message.language.id),
+    });
     const yesOrNo = await message.channel
       .awaitMessages({
         max: 1,
