@@ -840,7 +840,7 @@
   "USER_COMMAND_DESCRIPTION": "Get a general overview of a user.",
   "SNOWFLAKE_COMMAND_DESCRIPTION": "Get information about a Discord snowflake",
   "SNOWFLAKE_ARGUMENT_DESCRIPTION": "Any valid snowflake",
-  "USER_SNOWFLAKE_DESCRIPTION": "It looks like that isn't a valid user, but it is a valid snowflake! <:snowflak:784510818556706867>\n\nA [Snowflake](https://discord.com/developers/docs/reference#snowflakes) is essentially a unique ID for a resource (message, user, channel, etc) which contains a timestamp.\n\nYou can copy the snowflakes from messages in Discord by right clicking on them.\nYou must have Developer Mode enabled, which is found in User Settings > Appearance",
+  "USER_SNOWFLAKE_DESCRIPTION": "It looks like that isn't a valid user, but it is a valid snowflake! <:snowflak:784510818556706867>\n\nA [Snowflake](https://discord.com/developers/docs/reference#snowflakes) is essentially a unique ID for a resource (message, user, channel, etc) which contains a timestamp.\n\nYou can copy the snowflakes from messages in Discord by right clicking on them.\nYou must have Developer Mode enabled, which is found in User Settings > Advanced",
   "USER_SNOWFLAKE_BELONGS_TO": "**Belongs To**: {{type}}",
   "USER_SNOWFLAKE_BELONGS_TO_EXTRA": "**Belongs To**: {{type}} ({{extra}})",
   "USER_KSOFT_BANNED": "Banned on [KSoft.Si](https://bans.ksoft.si/share?user={{user}}) for {{reason}} - [Proof]({{proof}})",
