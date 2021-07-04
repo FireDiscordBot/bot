@@ -45,6 +45,8 @@ export class Language extends AkairoModule {
   }
 
   get(key?: LanguageKeys, args?: TOptions<StringMap>) {
+    if (args && !("interpolation" in args))
+      args.interpolation = { escapeValue: false };
     if (!this.enabled) return this.client.i18n.t(key, { ...args });
     else if (!this.has(key))
       return this.client.i18n.t("DEFAULT", { key, lng: "en-US" });
