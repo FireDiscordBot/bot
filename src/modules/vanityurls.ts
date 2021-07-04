@@ -14,6 +14,7 @@ export default class VanityURLs extends Module {
 
   constructor() {
     super("vanityurls");
+    this.blacklisted = [];
   }
 
   async init() {
