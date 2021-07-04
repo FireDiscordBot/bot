@@ -71,7 +71,11 @@ export default class VanityURL extends Command {
     validityRegex.lastIndex = 0;
 
     const exists = await this.module.getVanity(args.code).catch(() => true);
-    if (exists && typeof exists == "object" && exists.gid != message.guild.id)
+    if (
+      exists &&
+      ((typeof exists == "object" && exists.gid != message.guild.id) ||
+        exists === true)
+    )
       return await message.error("VANITYURL_ALREADY_EXISTS");
 
     let invite = args.invite;
