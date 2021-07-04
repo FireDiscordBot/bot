@@ -80,7 +80,10 @@ export default class VanityURL extends Command {
 
     let invite = args.invite;
     if (!invite) {
-      if (message.guild.features.includes("VANITY_URL")) {
+      if (
+        message.guild.features.includes("VANITY_URL") &&
+        message.guild.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
+      ) {
         if (message.guild.vanityURLCode)
           invite = await this.client
             .fetchInvite(message.guild.vanityURLCode)
@@ -92,11 +95,14 @@ export default class VanityURL extends Command {
         }
       }
 
+      const channel =
+        message.guild.systemChannel || (message.channel as FireTextChannel);
+      if (typeof channel.createInvite != "function")
+        return await message.error();
+
       // this will be false if above failed
       if (!invite)
-        invite = await (
-          message.guild.systemChannel || (message.channel as FireTextChannel)
-        )
+        invite = await channel
           .createInvite({
             unique: true,
             temporary: false,
