@@ -41,7 +41,7 @@ export default class ThreadDelete extends Listener {
         .setColor("#E74C3C")
         .setTimestamp()
         .setAuthor(
-          language.get("THREADDELETELOG_AUTHOR", guild.name),
+          language.get("THREADDELETELOG_AUTHOR", { guild: guild.name }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .addField(language.get("NAME"), channel.name)

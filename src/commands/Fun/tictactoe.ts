@@ -107,10 +107,9 @@ export default class TicTacToe extends Command {
         if (existingMessage) {
           const existingGuild = existingMessage.guild;
           await existingMessage.edit({
-            content: existingGuild.language.get(
-              "TICTACTOE_JOINED_NEW",
-              message.member?.toMention()
-            ),
+            content: existingGuild.language.get("TICTACTOE_JOINED_NEW", {
+              user: message.member?.toMention(),
+            }),
             components: [],
           });
         }
@@ -141,11 +140,10 @@ export default class TicTacToe extends Command {
     };
 
     const requestMsg = await message.channel.send({
-      content: message.guild.language.get(
-        "TICTACTOE_GAME_REQUEST",
-        message.author.username,
-        opponent.toMention()
-      ),
+      content: message.guild.language.get("TICTACTOE_GAME_REQUEST", {
+        challenger: message.author.username,
+        opponent: opponent.toMention(),
+      }),
       ...requestMsgOptions,
     });
     if (!requestMsg) return await message.error();
@@ -154,18 +152,17 @@ export default class TicTacToe extends Command {
     if (!accepted) {
       requestMsgOptions.components[0].components[0].setDisabled(true);
       await requestMsg.edit({
-        content: message.guild.language.get(
-          "TICTACTOE_GAME_REQUEST",
-          message.author.username,
-          opponent.toMention()
-        ),
+        content: message.guild.language.get("TICTACTOE_GAME_REQUEST", {
+          challenger: message.author.username,
+          opponent: opponent.toMention(),
+        }),
         ...requestMsgOptions,
       });
       if (message instanceof SlashCommandMessage)
         return await (message as SlashCommandMessage).edit({
           content: message.guild.language.get(
             "TICTACTOE_REQUEST_EXPIRED_SLASH",
-            opponent.toMention()
+            { opponent: opponent.toMention() }
           ) as string,
           components: [],
         });
@@ -215,10 +212,9 @@ export default class TicTacToe extends Command {
       this.games.delete(gameId);
 
       return await buttonMessage.edit({
-        content: button.guild.language.get(
-          "TICTACTOE_FORFEITED",
-          button.member?.toMention()
-        ),
+        content: button.guild.language.get("TICTACTOE_FORFEITED", {
+          user: button.member?.toMention(),
+        }),
         components: [],
       });
     });
@@ -257,10 +253,9 @@ export default class TicTacToe extends Command {
     ];
 
     const game = await message.channel.send({
-      content: message.guild.language.get(
-        "TICTACTOE_GAME_START",
-        opponent.toMention()
-      ),
+      content: message.guild.language.get("TICTACTOE_GAME_START", {
+        opponent: opponent.toMention(),
+      }),
       components,
       allowedMentions: { users: [opponent.id, message.author.id] },
     });
@@ -430,10 +425,9 @@ export default class TicTacToe extends Command {
 
         return await button.channel
           .update(
-            button.guild.language.get(
-              "TICTACTOE_WINNER",
-              button.member?.toMention()
-            ),
+            button.guild.language.get("TICTACTOE_WINNER", {
+              winner: button.member?.toMention(),
+            }),
             {
               components: components.slice(0, -1),
             }
@@ -467,7 +461,9 @@ export default class TicTacToe extends Command {
 
       await button.channel
         .update(
-          button.guild.language.get("TICTACTOE_TURN", `<@!${game.current}>`),
+          button.guild.language.get("TICTACTOE_TURN", {
+            current: `<@!${game.current}>`,
+          }),
           { components }
         )
         .catch(() => {});

@@ -57,10 +57,9 @@ export default class NewTicket extends Command {
       );
     else if (ticket == "lock")
       return await creating.edit(
-        `${emojis.error} ${message.language.get(
-          "NEW_TICKET_LOCK",
-          message.guild.settings.get<number>("tickets.limit", 1)
-        )}`
+        `${emojis.error} ${message.language.get("NEW_TICKET_LOCK", {
+          limit: message.guild.settings.get<number>("tickets.limit", 1),
+        })}`
       );
     else if (ticket instanceof Error)
       return this.client.commandHandler.emit(
@@ -75,10 +74,9 @@ export default class NewTicket extends Command {
       ticket instanceof ThreadChannel
     )
       return await creating.edit(
-        `${emojis.success} ${message.language.get(
-          "NEW_TICKET_CREATED",
-          ticket.toString()
-        )}`
+        `${emojis.success} ${message.language.get("NEW_TICKET_CREATED", {
+          channel: ticket.toString(),
+        })}`
       );
   }
 }

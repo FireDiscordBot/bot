@@ -40,7 +40,7 @@ export default class TagDelete extends Command {
     const { tag } = args;
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(tag, false);
-    if (!cachedTag) return await message.error("TAG_INVALID_TAG", tag);
+    if (!cachedTag) return await message.error("TAG_INVALID_TAG", { tag });
     const deleted = await manager.deleteTag(tag).catch(() => false);
     if (typeof deleted == "boolean" && !deleted) return await message.error();
     else return await message.success();

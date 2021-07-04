@@ -87,11 +87,10 @@ export default class MessageUpdate extends Listener {
           after.url
         )
         .setDescription(
-          after.guild.language.get(
-            "MSGEDITLOG_DESCRIPTION",
-            after.author.toMention(),
-            after.channel.toString()
-          )
+          after.guild.language.get("MSGEDITLOG_DESCRIPTION", {
+            author: after.author.toMention(),
+            channel: after.channel.toString(),
+          })
         )
         .addField(
           after.guild.language.get("BEFORE"),

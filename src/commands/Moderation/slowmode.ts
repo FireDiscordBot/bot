@@ -85,7 +85,7 @@ export default class Slowmode extends Command {
             });
       });
       return failed.length
-        ? await message.error("SLOWMODE_FAILED", failed)
+        ? await message.error("SLOWMODE_FAILED", { failed: failed.join(", ") })
         : await message.success();
     } else if (args.channel.type == "text") {
       const limited = await args.channel
@@ -105,10 +105,9 @@ export default class Slowmode extends Command {
       .array() as FireTextChannel[];
     let warning: FireMessage;
     if (channels.length > 50)
-      warning = (await message.send(
-        "SLOWMODE_SETTING_GLOBAL",
-        channels.length
-      )) as FireMessage;
+      warning = (await message.send("SLOWMODE_SETTING_GLOBAL", {
+        channels: channels.length,
+      })) as FireMessage;
     for (const channel of channels) {
       if (
         channel.rateLimitPerUser != delay &&
@@ -127,7 +126,9 @@ export default class Slowmode extends Command {
     }
     if (warning) await warning.delete().catch(() => {});
     return failed.length
-      ? await message.error("SLOWMODE_GLOBAL_FAIL_SOME", failed)
+      ? await message.error("SLOWMODE_GLOBAL_FAIL_SOME", {
+          failed: failed.join(", "),
+        })
       : await message.success();
   }
 }

@@ -163,10 +163,9 @@ export default class MCLogs extends Module {
         await message.delete();
       } catch {}
       return await message.channel.send({
-        content: message.language.get(
-          "SK1ER_NO_REUPLOAD",
-          message.author.toMention()
-        ) as string,
+        content: message.language.get("MC_LOG_NO_REUPLOAD", {
+          user: message.author.toMention(),
+        }) as string,
         allowedMentions: { users: [message.author.id] },
       });
     } else this.regexes.noRaw.lastIndex = 0;
@@ -322,7 +321,7 @@ export default class MCLogs extends Module {
     try {
       const haste = await this.client.util.haste(text).catch((e: Error) => e);
       if (haste instanceof Error)
-        return await message.error("MC_LOG_FAILED", haste.message);
+        return await message.error("MC_LOG_FAILED", { error: haste.message });
       message.delete().catch(() => {});
 
       let possibleSolutions = this.getSolutions(text);
@@ -338,15 +337,13 @@ export default class MCLogs extends Module {
         } catch {}
       }
 
-      return await message.send(
-        "MC_LOG_HASTE",
-        message.author.toString(),
-        diff,
+      return await message.send("MC_LOG_HASTE", {
+        user: message.author.toString(),
         msgType,
-        msgType == "uploaded" ? message.content : "",
+        extra: msgType == "uploaded" ? message.content : "",
         haste,
-        possibleSolutions
-      );
+        solutions: possibleSolutions,
+      });
     } catch (e) {
       this.client.console.error(
         `[MCLogs] Failed to create log haste\n${e.stack}`

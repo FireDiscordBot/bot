@@ -58,7 +58,7 @@ export default class Meme extends Command {
         );
       else meme = await this.client.ksoft.images.meme();
     } catch (e) {
-      return await message.error("MEME_NOT_FOUND", e);
+      return await message.error("MEME_NOT_FOUND");
     }
     if (!meme.url || !meme.post) return await message.error("MEME_NOT_FOUND");
     if (meme.tag.nsfw && !(message.channel as FireTextChannel).nsfw)
@@ -70,7 +70,7 @@ export default class Meme extends Command {
       .setURL(meme.post.link)
       .setTimestamp()
       .setAuthor(
-        language.get("MEME_EMBED_AUTHOR", message.author.toString()),
+        language.get("MEME_EMBED_AUTHOR", { user: message.author.toString() }),
         message.author.displayAvatarURL({
           size: 2048,
           format: "png",

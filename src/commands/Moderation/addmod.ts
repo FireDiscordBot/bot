@@ -89,7 +89,9 @@ export default class AddModerator extends Command {
     if (invalid.length)
       embed.addField(
         message.language.get("MODERATORS_REMOVE_INVALID"),
-        message.language.get("MODERATORS_REMOVED", invalid)
+        message.language.get("MODERATORS_REMOVED", {
+          invalid: invalid.join(", "),
+        })
       );
     return await message.channel.send({ embeds: [embed] });
   }

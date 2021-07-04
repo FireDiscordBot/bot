@@ -1,7 +1,7 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
 export default class Kick extends Command {
@@ -54,6 +54,6 @@ export default class Kick extends Command {
     if (yeeted == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof yeeted == "string")
-      return await message.error(`KICK_FAILED_${yeeted.toUpperCase()}`);
+      return await message.error(`KICK_FAILED_${yeeted.toUpperCase()}` as LanguageKeys);
   }
 }

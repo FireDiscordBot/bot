@@ -74,7 +74,11 @@ import { Util } from "./util/clientutil";
 import * as Sentry from "@sentry/node";
 import { Message } from "./ws/Message";
 import { Manager } from "./Manager";
+import * as i18next from "i18next";
 import * as moment from "moment";
+
+// this shit has some weird import fuckery, this is the only way I can use it
+const i18n = (i18next as unknown) as typeof i18next.default;
 
 type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
 
@@ -85,6 +89,9 @@ export class Fire extends AkairoClient {
   launchTime: moment.Moment;
   started: boolean;
   restPing: number;
+
+  // i18n
+  i18n: typeof i18next.default;
 
   // Sharding
   manager: Manager;
@@ -120,6 +127,8 @@ export class Fire extends AkairoClient {
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
+
+    this.i18n = i18n;
 
     // @ts-ignore
     this.rest = new RESTManager(this);
@@ -336,6 +345,16 @@ export class Fire extends AkairoClient {
         : "./src/languages/",
     });
     this.languages.loadAll();
+    i18n
+      .init({
+        fallbackLng: "en-US",
+        fallbackNS: "fire",
+        resources: {},
+        lng: "en-US",
+      })
+      .then(() => {
+        this.languages.modules.forEach((language: Language) => language.init());
+      });
 
     this.modules = new ModuleHandler(this, {
       directory: __dirname.includes("/dist/")

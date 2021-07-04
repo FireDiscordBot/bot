@@ -1,8 +1,8 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { parseTime } from "@fire/lib/util/constants";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
 export default class Mute extends Command {
@@ -68,6 +68,6 @@ export default class Mute extends Command {
     if (muted == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof muted == "string")
-      return await message.error(`MUTE_FAILED_${muted.toUpperCase()}`);
+      return await message.error(`MUTE_FAILED_${muted.toUpperCase()}` as LanguageKeys);
   }
 }

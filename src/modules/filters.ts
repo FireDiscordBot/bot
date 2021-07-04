@@ -302,10 +302,9 @@ export default class Filters extends Module {
         .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setDescription(
-          message.guild.language.get(
-            "FILTER_INVITE_LOG_DESCRIPTION",
-            message.channel.toString()
-          ) as string
+          message.guild.language.get("FILTER_INVITE_LOG_DESCRIPTION", {
+            channel: message.channel.toString(),
+          }) as string
         )
         .setAuthor(
           message.author.toString(),
@@ -477,10 +476,9 @@ export default class Filters extends Module {
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
-        message.guild.language.get(
-          "FILTER_PAYPAL_LOG_DESCRIPTION",
-          message.channel.toString()
-        ) as string
+        message.guild.language.get("FILTER_PAYPAL_LOG_DESCRIPTION", {
+          channel: message.channel.toString(),
+        }) as string
       )
       .setAuthor(
         message.author.toString(),
@@ -512,10 +510,9 @@ export default class Filters extends Module {
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
-        message.guild.language.get(
-          "FILTER_YOUTUBE_LOG_DESCRIPTION",
-          message.channel.toString()
-        ) as string
+        message.guild.language.get("FILTER_YOUTUBE_LOG_DESCRIPTION", {
+          channel: message.channel.toString(),
+        }) as string
       )
       .setAuthor(
         message.author.toString(),
@@ -562,10 +559,9 @@ export default class Filters extends Module {
         )
         .addField(
           message.guild.language.get("STATISTICS"),
-          message.guild.language.get(
-            "FILTER_YOUTUBE_VIDEO_LOG_STATS",
-            ...Object.values(statistics)
-          ) as string
+          message.guild.language.get("FILTER_YOUTUBE_VIDEO_LOG_STATS", {
+            ...statistics,
+          }) as string
         )
         .addField(
           message.guild.language.get("DESCRIPTION"),
@@ -596,10 +592,9 @@ export default class Filters extends Module {
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
-        message.guild.language.get(
-          "FILTER_YOUTUBE_LOG_DESCRIPTION",
-          message.channel.toString()
-        ) as string
+        message.guild.language.get("FILTER_YOUTUBE_LOG_DESCRIPTION", {
+          channel: message.channel.toString(),
+        }) as string
       )
       .setAuthor(
         message.author.toString(),
@@ -643,10 +638,9 @@ export default class Filters extends Module {
         );
       embed.addField(
         message.guild.language.get("STATISTICS"),
-        message.guild.language.get(
-          "FILTER_YOUTUBE_CHANNEL_LOG_STATS",
-          ...Object.values(statistics)
-        ) as string
+        message.guild.language.get("FILTER_YOUTUBE_CHANNEL_LOG_STATS", {
+          ...statistics,
+        }) as string
       );
     }
     await message.guild.actionLog(embed, "linkfilter").catch(() => {});
@@ -672,7 +666,7 @@ export default class Filters extends Module {
           clipMatch
             ? "FILTER_TWITCH_CLIP_LOG_DESCRIPTION"
             : "FILTER_TWITCH_CHANNEL_LOG_DESCRIPTION",
-          message.channel.toString()
+          { channel: message.channel.toString() }
         ) as string
       )
       .setAuthor(
@@ -702,10 +696,9 @@ export default class Filters extends Module {
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
-        message.guild.language.get(
-          "FILTER_TWITTER_LOG_DESCRIPTION",
-          message.channel.toString()
-        ) as string
+        message.guild.language.get("FILTER_TWITTER_LOG_DESCRIPTION", {
+          channel: message.channel.toString(),
+        }) as string
       )
       .setAuthor(
         message.author.toString(),
@@ -734,10 +727,9 @@ export default class Filters extends Module {
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(
-        message.guild.language.get(
-          "FILTER_SHORT_LOG_DESCRIPTION",
-          message.channel.toString()
-        ) as string
+        message.guild.language.get("FILTER_SHORT_LOG_DESCRIPTION", {
+          channel: message.channel.toString(),
+        }) as string
       )
       .setAuthor(
         message.author.toString(),

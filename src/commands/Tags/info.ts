@@ -37,7 +37,7 @@ export default class TagInfo extends Command {
     const { tag } = args;
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(tag);
-    if (!cachedTag) return await message.error("TAG_INVALID_TAG", tag);
+    if (!cachedTag) return await message.error("TAG_INVALID_TAG", { tag });
 
     const embed = new MessageEmbed()
       .setAuthor(

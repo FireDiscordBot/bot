@@ -26,10 +26,12 @@ export default class LanguageCommand extends Command {
 
   async exec(message: FireMessage, args: { language: Language }) {
     if (!args.language)
-      return await message.send(
-        "LANGUAGE_COMMAND_CURRENT",
-        message.language.id
-      );
+      return await message.send("LANGUAGE_COMMAND_CURRENT", {
+        current: message.language.id,
+        languages: this.client.languages.modules
+          .map((lang) => lang.id)
+          .join(", "),
+      });
     else if (
       message.guild &&
       message.member.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
@@ -43,8 +45,7 @@ export default class LanguageCommand extends Command {
       return await message.channel.send(
         // message.success will use message.language which will use author's language if not default
         `${constants.emojis.success} ${args.language.get(
-          "LANGUAGE_COMMAND_HELLO",
-          "guild"
+          "LANGUAGE_COMMAND_HELLO_GUILD"
         )}`
       );
     } else {
@@ -57,7 +58,7 @@ export default class LanguageCommand extends Command {
       if (message instanceof SlashCommandMessage)
         // ts server gets angry without the "as" even though I have the instance check
         (message as SlashCommandMessage).flags = 64;
-      return await message.success("LANGUAGE_COMMAND_HELLO", "user");
+      return await message.success("LANGUAGE_COMMAND_HELLO_USER");
     }
   }
 }

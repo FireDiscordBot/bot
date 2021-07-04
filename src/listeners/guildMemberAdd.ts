@@ -5,6 +5,7 @@ import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 import * as moment from "moment";
@@ -73,10 +74,9 @@ export default class GuildMemberAdd extends Listener {
             const role = member.guild.roles.cache.get(roleId);
             await member.roles.add(
               role,
-              member.guild.language.get(
-                "INVITE_ROLE_REASON",
-                usedInvite
-              ) as string
+              member.guild.language.get("INVITE_ROLE_REASON", {
+                invite: usedInvite,
+              }) as string
             );
           }
         } else if (member.guild.features.includes("DISCOVERABLE"))
@@ -161,7 +161,7 @@ export default class GuildMemberAdd extends Listener {
         const isMulti = logChannelIds.filter((lid) => lid == id).length > 1;
         if (isMulti) {
           const message = member.guild.language.get(
-            `LOGGING_${type.toUpperCase()}_DISABLED_MEMBERCOUNT`
+            `LOGGING_${type.toUpperCase()}_DISABLED_MEMBERCOUNT` as LanguageKeys
           ) as string;
           if (type == "moderation")
             member.guild.modLog(message, "system").catch(() => {});
@@ -212,7 +212,7 @@ export default class GuildMemberAdd extends Listener {
         .setColor("#2ECC71")
         .setTimestamp()
         .setAuthor(
-          language.get("MEMBERJOIN_LOG_AUTHOR", member.toString()),
+          language.get("MEMBERJOIN_LOG_AUTHOR", { member: member.toString() }),
           member.displayAvatarURL({
             size: 2048,
             format: "png",
@@ -228,7 +228,10 @@ export default class GuildMemberAdd extends Listener {
           language.get("MEMBERJOIN_LOG_PREMIUM_UPSELL_TITLE"),
           language.get("MEMBERJOIN_LOG_PREMIUM_UPSELL_VALUE")
         );
-      if (member.user.bot && member.guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)) {
+      if (
+        member.user.bot &&
+        member.guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)
+      ) {
         const auditLogActions = await member.guild
           .fetchAuditLogs({ limit: 2, type: "BOT_ADD" })
           .catch(() => {});

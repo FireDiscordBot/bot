@@ -34,7 +34,7 @@ export default class ThreadCreate extends Listener {
         .setColor("#2ECC71")
         .setTimestamp(channel.createdAt)
         .setAuthor(
-          language.get("THREADCREATELOG_AUTHOR", guild.name),
+          language.get("THREADCREATELOG_AUTHOR", { guild: guild.name }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .addField(language.get("NAME"), channel.name)

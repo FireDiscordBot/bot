@@ -48,7 +48,7 @@ export default class TagEdit extends Command {
     const { tag, content } = args;
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(tag, false);
-    if (!cachedTag) return await message.error("TAG_INVALID_TAG", tag);
+    if (!cachedTag) return await message.error("TAG_INVALID_TAG", { tag });
     if (
       manager.cache.size > 20 &&
       manager.cache.keyArray().indexOf(cachedTag.name) > 20 &&

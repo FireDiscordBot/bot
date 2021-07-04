@@ -1,4 +1,5 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import { LanguageKeys } from "@fire/lib/util/language";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
 import { MessageEmbed } from "discord.js";
@@ -56,16 +57,21 @@ export default class MessageDelete extends Listener {
           .fetchReference()
           .catch(() => {})) as FireMessage;
       const description = message.guild.language.get(
-        "MSGDELETELOG_DESCRIPTION",
-        message.author.toMention(),
-        message.channel.toString(),
         message.type == "REPLY" && reference
-          ? message.mentions.users.has(reference?.author?.id)
-            ? (reference?.author as FireUser)?.toMention()
-            : reference?.author?.toString()
-          : null,
-        `https://discord.com/channels/${message.reference?.guildID}/${message.reference?.channelID}/${message.reference?.messageID}`
-      ) as string;
+          ? "MSGDELETELOG_DESCRIPTION_REPLY"
+          : "MSGDELETELOG_DESCRIPTION",
+        {
+          author: message.author.toMention(),
+          channel: message.channel.toString(),
+          reply:
+            message.type == "REPLY" && reference
+              ? message.mentions.users.has(reference?.author?.id)
+                ? (reference?.author as FireUser)?.toMention()
+                : reference?.author?.toString()
+              : null,
+          replyURL: `https://discord.com/channels/${message.reference?.guildID}/${message.reference?.channelID}/${message.reference?.messageID}`,
+        }
+      );
       const content = message.content
         ? message.content.length > 4047 - description.length
           ? `\n${message.content.slice(0, 4040 - description.length)}...`
@@ -99,11 +105,12 @@ export default class MessageDelete extends Listener {
           (message.activity.partyID.startsWith("spotify:")
             ? message.guild.language.get("MSGDELETELOG_SPOTIFY_ACTIVITY") + "\n"
             : "") +
-            message.guild.language.get(
-              "MSGDELETELOG_ACTIVITY",
-              message.activity.partyID,
-              message.activity.type
-            )
+            message.guild.language.get("MSGDELETELOG_ACTIVITY", {
+              partyID: message.activity.partyID,
+              type: message.guild.language.get(
+                `ACTIVITY_TYPES.${message.activity.type}` as LanguageKeys
+              ),
+            })
         );
       if (embed.description != description || embed.fields.length)
         await message.guild.actionLog(embed, "message_delete");

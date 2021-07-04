@@ -46,7 +46,10 @@ export default class LogIgnore extends Command {
           message.guild.channels.cache.get(id as Snowflake)?.toString()
         )
         .filter((mention) => !!mention);
-      return await message.send("LOGIGNORE_LIST_CURRENT", current);
+      return await message.send(
+        current.length ? "LOGIGNORE_LIST_CURRENT" : "LOGIGNORE_LIST_NONE",
+        { current: current.join(", ") }
+      );
     }
 
     if (current.includes(args.channel.id))
@@ -62,6 +65,9 @@ export default class LogIgnore extends Command {
         message.guild.channels.cache.get(id as Snowflake)?.toString()
       )
       .filter((mention) => !!mention);
-    return await message.success("LOGIGNORE_LIST_CURRENT", current);
+    return await message.success(
+      current.length ? "LOGIGNORE_LIST_CURRENT" : "LOGIGNORE_LIST_NONE",
+      { current: current.join(", ") }
+    );
   }
 }

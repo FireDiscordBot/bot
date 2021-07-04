@@ -79,7 +79,7 @@ export default class LeaveMSG extends Command {
         const embed = new MessageEmbed()
           .setColor("#E74C3C")
           .setTimestamp()
-          .setDescription(message.language.get("LEAVEMSG_SETUP_REQUIRED"))
+          .setDescription(message.language.getError("LEAVEMSG_SETUP_REQUIRED"))
           .addField(
             message.language.get("VARIABLES"),
             Object.entries(variableMap)
@@ -95,10 +95,9 @@ export default class LeaveMSG extends Command {
         .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setDescription(
-          message.language.get(
-            "LEAVEMSG_CURRENT_SETTINGS",
-            message.util?.parsed?.prefix
-          )
+          message.language.get("LEAVEMSG_CURRENT_SETTINGS", {
+            prefix: message.util?.parsed?.prefix,
+          })
         )
         .addField(message.language.get("CHANNEL"), channel?.toString())
         .addField(message.language.get("MESSAGE"), msg)
@@ -145,7 +144,7 @@ export default class LeaveMSG extends Command {
     return await message.channel.send({
       content: `${emojis.success} ${message.language.get(
         "LEAVEMSG_SET_SUCCESS",
-        channel.toString()
+        { channel: channel.toString() }
       )} ${msg}`,
       allowedMentions,
     });

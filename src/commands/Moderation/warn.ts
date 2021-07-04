@@ -1,7 +1,7 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
 export default class Warn extends Command {
@@ -47,6 +47,6 @@ export default class Warn extends Command {
     if (warned == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof warned == "string")
-      return await message.error(`WARN_FAILED_${warned.toUpperCase()}`);
+      return await message.error(`WARN_FAILED_${warned.toUpperCase()}` as LanguageKeys);
   }
 }

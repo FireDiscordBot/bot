@@ -2,6 +2,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Listener } from "@fire/lib/util/listener";
 import { Command } from "@fire/lib/util/command";
 import { ThreadChannel } from "discord.js";
+import { constants } from "@fire/lib/util/constants";
 
 export default class CommandBlocked extends Listener {
   constructor() {
@@ -19,7 +20,10 @@ export default class CommandBlocked extends Listener {
       if (!checks) return;
     }
 
-    if (reason == "500") return await message.error("COMMAND_ERROR_500");
+    if (reason == "500")
+      return await message.error("COMMAND_ERROR_500", {
+        status: constants.url.fireStatus,
+      });
     else if (reason == "owner")
       return await message.error("COMMAND_OWNER_ONLY");
     else if (reason == "superuser")
@@ -27,10 +31,9 @@ export default class CommandBlocked extends Listener {
     else if (reason == "moderator")
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (reason == "guild")
-      return await message.error(
-        "COMMAND_GUILD_ONLY",
-        this.client.config.inviteLink
-      );
+      return await message.error("COMMAND_GUILD_ONLY", {
+        invite: this.client.config.inviteLink,
+      });
     else if (reason == "premium")
       return await message.error("COMMAND_PREMIUM_GUILD_ONLY");
     else if (reason == "experimentlock")

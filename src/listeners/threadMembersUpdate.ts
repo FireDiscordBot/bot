@@ -29,7 +29,7 @@ export default class ThreadMembersUpdate extends Listener {
         .setColor("#2ECC71")
         .setTimestamp()
         .setAuthor(
-          language.get("THREADMEMBERUPDATELOG_AUTHOR", thread.name),
+          language.get("THREADMEMBERUPDATELOG_AUTHOR", { thread: thread.name }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .setFooter(thread.id);

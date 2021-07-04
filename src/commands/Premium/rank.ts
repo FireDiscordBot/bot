@@ -69,11 +69,10 @@ export default class Rank extends Command {
         message.guild.members.cache.size / message.guild.memberCount;
       const rankInfo = roles.map((role) =>
         isCached > 0.98
-          ? (message.language.get(
-              "RANKS_INFO",
-              role.toString(),
-              role.members.size.toLocaleString(message.language.id)
-            ) as string)
+          ? message.language.get("RANKS_INFO", {
+              role: role.toString(),
+              members: role.members.size.toLocaleString(message.language.id),
+            })
           : `> ${role}`
       );
       const embed = new MessageEmbed()
@@ -81,7 +80,7 @@ export default class Rank extends Command {
         .setTimestamp()
         .setDescription(rankInfo.join("\n"))
         .setAuthor(
-          message.language.get("RANKS_AUTHOR", message.guild.toString()),
+          message.language.get("RANKS_AUTHOR", { guild: message.guild.name }),
           message.guild.icon
             ? (message.guild.iconURL({
                 size: 2048,
@@ -127,11 +126,15 @@ export default class Rank extends Command {
               message.guild.language.get("RANKS_LEAVE_REASON")
             )
             .catch(() => {})
-            .then(() => message.success("RANKS_LEFT_RANK", args.role.name))
+            .then(() =>
+              message.success("RANKS_LEFT_RANK", { role: args.role.name })
+            )
         : await message.member?.roles
             ?.add(args.role, message.guild.language.get("RANKS_JOIN_REASON"))
             .catch(() => {})
-            .then(() => message.success("RANKS_JOIN_RANK", args.role.name));
+            .then(() =>
+              message.success("RANKS_JOIN_RANK", { role: args.role.name })
+            );
     } else return await message.error("RANKS_INVALID_ROLE");
   }
 

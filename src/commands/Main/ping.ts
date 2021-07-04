@@ -38,11 +38,10 @@ export default class Ping extends Command {
       )
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setFooter(
-        message.language.get(
-          "PING_FOOTER",
-          message.guild ? message.guild.shardID : 0,
-          this.client.manager.id
-        )
+        message.language.get("PING_FOOTER", {
+          shard: message.guild ? message.guild.shardID : 0,
+          cluster: this.client.manager.id,
+        })
       )
       .setTimestamp();
 

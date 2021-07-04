@@ -61,11 +61,17 @@ export default class PermRoles extends Command {
           .filter((permission) => !!permission);
         paginator.addLine(
           message.language.get(
-            "PERMROLES_CURRENT_ITEM",
-            role.toString(),
-            friendlyAllowed,
-            friendlyDenied
-          ) as string
+            friendlyAllowed.length && friendlyDenied.length
+              ? "PERMROLES_CURRENT_ITEM_COMBINED"
+              : friendlyAllowed.length
+              ? "PERMROLES_CURRENT_ITEM_ALLOW"
+              : "PERMROLES_CURRENT_ITEM_DENY",
+            {
+              role: role.toString(),
+              allowed: friendlyAllowed.join(", "),
+              denied: friendlyDenied.join(", "),
+            }
+          )
         );
       }
       if (!paginator.pages.length)
@@ -167,7 +173,7 @@ export default class PermRoles extends Command {
     return await updating.edit(
       message.language.get(
         failed ? "PERMROLES_FINISHED_FAIL_SOME" : "PERMROLES_FINISHED",
-        failed
+        { failed }
       )
     );
   }

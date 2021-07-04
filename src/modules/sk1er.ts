@@ -163,10 +163,9 @@ export default class Sk1er extends Module {
             (this.guild.channels.cache.get(
               "411620457754787841"
             ) as FireTextChannel).send({
-              content: this.guild.language.get(
-                "SK1ER_NITRO_PERKS_REMOVED",
-                member.toMention()
-              ) as string,
+              content: this.guild.language.get("SK1ER_NITRO_PERKS_REMOVED", {
+                member: member.toMention(),
+              }) as string,
               allowedMentions: { users: [member.id] },
             });
         }
@@ -195,10 +194,9 @@ export default class Sk1er extends Module {
             (this.guild.channels.cache.get(
               "411620457754787841"
             ) as FireTextChannel).send(
-              this.guild.language.get(
-                "SK1ER_NITRO_PERKS_REMOVED_LEFT",
-                user.toString()
-              )
+              this.guild.language.get("SK1ER_NITRO_PERKS_REMOVED_LEFT", {
+                member: user.toString(),
+              })
             );
         }
       });

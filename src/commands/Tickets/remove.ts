@@ -55,11 +55,10 @@ export default class TicketRemove extends Command {
           SEND_MESSAGES: false,
         },
         {
-          reason: message.language.get(
-            "TICKET_REMOVE_REASON",
-            message.author.toString(),
-            message.author.id
-          ) as string,
+          reason: message.language.get("TICKET_REMOVE_REASON", {
+            author: message.author.toString(),
+            id: message.author.id,
+          }) as string,
           type: 1,
         }
       )

@@ -63,36 +63,35 @@ export default class Select extends Listener {
       select.flags = 64;
       if (leave.length && !join.length)
         return leave.length == 1
-          ? await select.success(
-              "RANKS_SELECT_LEAVE_SINGLE",
-              guild.roles.cache.get(leave[0])?.name
-            )
-          : await select.success("RANKS_SELECT_LEAVE_MULTI", mapRoles(leave));
+          ? await select.success("RANKS_SELECT_LEAVE_SINGLE", {
+              role: guild.roles.cache.get(leave[0])?.name,
+            })
+          : await select.success("RANKS_SELECT_LEAVE_MULTI", {
+              roles: mapRoles(leave),
+            });
       else if (join.length && !leave.length)
         return join.length == 1
-          ? await select.success(
-              "RANKS_SELECT_JOIN_SINGLE",
-              guild.roles.cache.get(join[0])?.name
-            )
-          : await select.success("RANKS_SELECT_JOIN_MULTI", mapRoles(join));
+          ? await select.success("RANKS_SELECT_JOIN_SINGLE", {
+              role: guild.roles.cache.get(join[0])?.name,
+            })
+          : await select.success("RANKS_SELECT_JOIN_MULTI", {
+              roles: mapRoles(join),
+            });
       else if (join.length == 1 && leave.length == 1)
-        return await select.success(
-          "RANKS_SELECT_JOIN_LEAVE_SINGLE",
-          guild.roles.cache.get(join[0])?.name,
-          guild.roles.cache.get(leave[0])?.name
-        );
+        return await select.success("RANKS_SELECT_JOIN_LEAVE_SINGLE", {
+          join: guild.roles.cache.get(join[0])?.name,
+          leave: guild.roles.cache.get(leave[0])?.name,
+        });
       else if (join.length == 1)
-        return await select.success(
-          "RANKS_SELECT_JOIN_SINGLE_LEAVE_MULTI",
-          guild.roles.cache.get(join[0])?.name,
-          mapRoles(leave)
-        );
+        return await select.success("RANKS_SELECT_JOIN_SINGLE_LEAVE_MULTI", {
+          join: guild.roles.cache.get(join[0])?.name,
+          left: mapRoles(leave),
+        });
       else
-        return await select.success(
-          "RANKS_SELECT_JOIN_LEAVE_MULTI",
-          mapRoles(join),
-          mapRoles(leave)
-        );
+        return await select.success("RANKS_SELECT_JOIN_LEAVE_MULTI", {
+          joined: mapRoles(join),
+          left: mapRoles(leave),
+        });
     }
   }
 }

@@ -37,6 +37,7 @@ import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { MessageIterator } from "../util/iterators";
 import { FakeChannel } from "./slashcommandmessage";
+import { LanguageKeys } from "../util/language";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
@@ -324,11 +325,12 @@ export class FireGuild extends Guild {
             `[Guild] Failed to remove mute for ${member} (${id}) in ${this.name} (${this.id}) due to ${unmuted}`
           );
           await this.modLog(
-            this.language.get(
-              "UNMUTE_AUTO_FAIL",
-              `${member} (${id})`,
-              this.language.get(`UNMUTE_FAILED_${unmuted.toUpperCase()}`)
-            ),
+            this.language.get("UNMUTE_AUTO_FAIL", {
+              member: `${member} (${id})`,
+              reason: this.language.get(
+                `UNMUTE_FAILED_${unmuted.toUpperCase()}` as LanguageKeys
+              ),
+            }),
             "unmute"
           );
         } else continue;
@@ -341,7 +343,7 @@ export class FireGuild extends Guild {
           .setColor("#2ECC71")
           .setTimestamp(now)
           .setAuthor(
-            this.language.get("UNMUTE_LOG_AUTHOR", id),
+            this.language.get("UNMUTE_LOG_AUTHOR", { user: id }),
             this.iconURL({ size: 2048, format: "png", dynamic: true })
           )
           .addField(this.language.get("MODERATOR"), me.toString())
@@ -851,11 +853,11 @@ export class FireGuild extends Guild {
           name: `${author} (${author.id})`,
           autoArchiveDuration: 10080,
           reason: this.language.get(
-            "TICKET_CHANNEL_TOPIC",
-            author.toString(),
-            author.id,
             subject
-          ) as string,
+              ? ("TICKET_SUBJECT_CHANNEL_TOPIC" as LanguageKeys)
+              : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
+            { author: author.toString(), id: author.id, subject }
+          ),
           type: "private_thread",
         })
         .catch((e: Error) => e)) as ThreadChannel;
@@ -921,17 +923,17 @@ export class FireGuild extends Guild {
             },
           ],
           topic: this.language.get(
-            "TICKET_CHANNEL_TOPIC",
-            author.toString(),
-            author.id,
             subject
-          ) as string,
+              ? ("TICKET_CHANNEL_SUBJECT_TOPIC" as LanguageKeys)
+              : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
+            { author: author.toString(), id: author.id, subject }
+          ),
           reason: this.language.get(
-            "TICKET_CHANNEL_TOPIC",
-            author.toString(),
-            author.id,
             subject
-          ) as string,
+              ? ("TICKET_CHANNEL_SUBJECT_TOPIC" as LanguageKeys)
+              : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
+            { author: author.toString(), id: author.id, subject }
+          ),
         })
         .catch((e: Error) => e)) as unknown) as FireTextChannel;
     if (ticket instanceof Error) {
@@ -940,7 +942,9 @@ export class FireGuild extends Guild {
       return ticket;
     }
     const embed = new MessageEmbed()
-      .setTitle(this.language.get("TICKET_OPENER_TILE", author.toString()))
+      .setTitle(
+        this.language.get("TICKET_OPENER_TILE", { author: author.toString() })
+      )
       .setTimestamp()
       .setColor(author.displayColor ?? "#FFFFFF")
       .addField(this.language.get("SUBJECT"), subject);
@@ -1053,11 +1057,10 @@ export class FireGuild extends Guild {
       if (creator)
         await creator
           .send({
-            content: creator.language.get(
-              "TICKET_CLOSE_TRANSCRIPT",
-              this.name,
-              reason
-            ),
+            content: creator.language.get("TICKET_CLOSE_TRANSCRIPT", {
+              guild: this.name,
+              reason,
+            }),
             files: [
               new MessageAttachment(buffer, `${channel.name}-transcript.txt`),
             ],
@@ -1073,7 +1076,9 @@ export class FireGuild extends Guild {
         this.settings.get<Snowflake>("log.action")
       ) as FireTextChannel);
     const embed = new MessageEmbed()
-      .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))
+      .setTitle(
+        this.language.get("TICKET_CLOSER_TITLE", { channel: channel.name })
+      )
       .setTimestamp()
       .setColor(author.displayColor ?? "#FFFFFF")
       .addField(
@@ -1098,23 +1103,20 @@ export class FireGuild extends Guild {
 
   private getTranscriptContent(message: FireMessage) {
     if (message.type == "RECIPIENT_ADD")
-      return this.language.get(
-        "TICKET_RECIPIENT_ADD",
-        message.author.toString(),
-        message.mentions.users.first()
-      );
+      return this.language.get("TICKET_RECIPIENT_ADD", {
+        author: message.author.toString(),
+        added: message.mentions.users.first().toString(),
+      });
     else if (message.type == "RECIPIENT_REMOVE")
-      return this.language.get(
-        "TICKET_RECIPIENT_REMOVE",
-        message.author.toString(),
-        message.mentions.users.first()
-      );
+      return this.language.get("TICKET_RECIPIENT_REMOVE", {
+        author: message.author.toString(),
+        removed: message.mentions.users.first().toString(),
+      });
     else if (message.type == "CHANNEL_NAME_CHANGE")
-      return this.language.get(
-        "TICKET_THREAD_RENAME",
-        message.author.toString(),
-        message.cleanContent
-      );
+      return this.language.get("TICKET_THREAD_RENAME", {
+        author: message.author.toString(),
+        name: message.cleanContent,
+      });
     let text = message.cleanContent ?? "";
     if (message.embeds.length)
       for (const embed of message.embeds) {
@@ -1127,10 +1129,9 @@ export class FireGuild extends Guild {
       for (const [, attachment] of message.attachments)
         text += `\n${attachment.proxyURL}`;
     if (message.stickers.size)
-      text += `\n${this.language.get(
-        "TICKET_CLOSE_TRANSCRIPT_STICKER",
-        message.stickers.map((sticker) => sticker.name).join(",")
-      )}`;
+      text += `\n${this.language.get("TICKET_CLOSE_TRANSCRIPT_STICKER", {
+        name: message.stickers.map((sticker) => sticker.name)[0],
+      })}`;
 
     return text.trim() || "¯\\\\_(ツ)_/¯";
   }
@@ -1201,7 +1202,7 @@ export class FireGuild extends Guild {
       .setColor("#E74C3C")
       .setTimestamp()
       .setAuthor(
-        this.language.get("UNBAN_LOG_AUTHOR", user.toString()),
+        this.language.get("UNBAN_LOG_AUTHOR", { user: user.toString() }),
         user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.language.get("MODERATOR"), moderator.toString())
@@ -1211,11 +1212,10 @@ export class FireGuild extends Guild {
     if (channel)
       return await channel
         .send(
-          this.language.get(
-            "UNBAN_SUCCESS",
-            Util.escapeMarkdown(user.toString()),
-            Util.escapeMarkdown(this.name)
-          )
+          this.language.getSuccess("UNBAN_SUCCESS", {
+            user: Util.escapeMarkdown(user.toString()),
+            guild: Util.escapeMarkdown(this.name),
+          })
         )
         .catch(() => {});
   }
@@ -1259,10 +1259,10 @@ export class FireGuild extends Guild {
       )
       .setTimestamp()
       .setAuthor(
-        this.language.get(
-          "BLOCK_LOG_AUTHOR",
-          blockee instanceof FireMember ? blockee.toString() : blockee.name
-        ),
+        this.language.get("BLOCK_LOG_AUTHOR", {
+          blockee:
+            blockee instanceof FireMember ? blockee.toString() : blockee.name,
+        }),
         blockee instanceof FireMember
           ? blockee.displayAvatarURL({
               size: 2048,
@@ -1278,12 +1278,11 @@ export class FireGuild extends Guild {
     await this.modLog(embed, "block").catch(() => {});
     return await channel
       .send(
-        this.language.get(
-          "BLOCK_SUCCESS",
-          Util.escapeMarkdown(
+        this.language.getSuccess("BLOCK_SUCCESS", {
+          blockee: Util.escapeMarkdown(
             blockee instanceof FireMember ? blockee.toString() : blockee.name
-          )
-        )
+          ),
+        })
       )
       .catch(() => {});
   }
@@ -1338,12 +1337,12 @@ export class FireGuild extends Guild {
       )
       .setTimestamp()
       .setAuthor(
-        this.language.get(
-          "UNBLOCK_LOG_AUTHOR",
-          unblockee instanceof FireMember
-            ? unblockee.toString()
-            : unblockee.name
-        ),
+        this.language.get("UNBLOCK_LOG_AUTHOR", {
+          unblockee:
+            unblockee instanceof FireMember
+              ? unblockee.toString()
+              : unblockee.name,
+        }),
         unblockee instanceof FireMember
           ? unblockee.displayAvatarURL({
               size: 2048,
@@ -1358,14 +1357,13 @@ export class FireGuild extends Guild {
     await this.modLog(embed, "unblock").catch(() => {});
     return await channel
       .send(
-        this.language.get(
-          "UNBLOCK_SUCCESS",
-          Util.escapeMarkdown(
+        this.language.getSuccess("UNBLOCK_SUCCESS", {
+          unblockee: Util.escapeMarkdown(
             unblockee instanceof FireMember
               ? unblockee.toString()
               : unblockee.name
-          )
-        )
+          ),
+        })
       )
       .catch(() => {});
   }

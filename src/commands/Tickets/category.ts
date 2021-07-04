@@ -35,7 +35,9 @@ export default class TicketCategory extends Command {
       return await message.success("TICKETS_DISABLED");
     } else {
       message.guild.settings.set<string>("tickets.parent", args.category.id);
-      return await message.success("TICKETS_ENABLED", args.category.name);
+      return await message.success("TICKETS_ENABLED", {
+        category: args.category.name,
+      });
     }
   }
 }

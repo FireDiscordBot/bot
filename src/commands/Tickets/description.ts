@@ -40,10 +40,9 @@ export default class TicketDescription extends Command {
       await message.success("TICKET_DESCRIPTION_SET");
       const embed = new MessageEmbed()
         .setTitle(
-          message.guild.language.get(
-            "TICKET_OPENER_TILE",
-            message.member?.toString()
-          )
+          message.guild.language.get("TICKET_OPENER_TILE", {
+            author: message.author.toString(),
+          })
         )
         .setDescription(args.description)
         .setTimestamp()

@@ -137,7 +137,7 @@ export default class GuildMemberUpdate extends Listener {
           ) as FireTextChannel).send({
             content: sk1erModule.guild.language.get(
               "SK1ER_NITRO_PERKS_REMOVED",
-              newMember.toMention()
+              { member: newMember.toMention() }
             ),
             allowedMentions: { users: [newMember.id] },
           });

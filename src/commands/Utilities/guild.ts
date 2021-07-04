@@ -5,7 +5,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Language } from "@fire/lib/util/language";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import * as moment from "moment";
 
@@ -66,17 +66,18 @@ export default class GuildCommand extends Command {
       ) + language.get("AGO");
     let owner: FireMember;
     if (guild instanceof FireGuild) owner = await guild.fetchOwner();
+    const ownerString =
+      guild instanceof FireGuild &&
+      owner &&
+      owner.joinedTimestamp - guild.createdTimestamp < 5000
+        ? owner?.user?.discriminator != null
+          ? owner.toString()
+          : "Unknown#0000"
+        : null;
     let messages = [
       message.language.get(
-        "GUILD_CREATED_AT",
-        guild instanceof FireGuild &&
-          owner &&
-          owner.joinedTimestamp - guild.createdTimestamp < 5000
-          ? owner?.user?.discriminator != null
-            ? owner.toString()
-            : "Unknown#0000"
-          : null,
-        created
+        ownerString ? "GUILD_CREATED_BY" : "GUILD_CREATED_AT",
+        { owner: ownerString, created }
       ),
       `**${message.language.get("MEMBERS")}:** ${(guild instanceof FireGuild
         ? guild.memberCount
@@ -123,10 +124,8 @@ export default class GuildCommand extends Command {
               ? guild.regions
                   .map(
                     (region) =>
-                      ((message.language.get("REGIONS") as unknown) as Record<
-                        string,
-                        string
-                      >)[region] || message.language.get("REGION_AUTOMATIC")
+                      message.language.get(`REGIONS.${region}` as LanguageKeys) ||
+                      message.language.get("REGION_AUTOMATIC")
                   )
                   .join(", ")
               : message.language.get("REGION_AUTOMATIC")
@@ -138,15 +137,14 @@ export default class GuildCommand extends Command {
       guild.members.cache.size / guild.memberCount > 0.98
     )
       messages.push(
-        message.language.get(
-          "GUILD_JOIN_POS",
-          (
+        message.language.get("GUILD_JOIN_POS", {
+          pos: (
             guild.members.cache
               .array()
               .sort((one, two) => (one.joinedAt > two.joinedAt ? 1 : -1))
               .indexOf(message.member) + 1
-          ).toLocaleString(message.language.id)
-        )
+          ).toLocaleString(message.language.id),
+        })
       );
     return messages.filter((message) => !!message);
   }
@@ -239,10 +237,9 @@ export default class GuildCommand extends Command {
 
   async exec(message: FireMessage, args: { guild?: GuildPreview | FireGuild }) {
     if (message.channel instanceof DMChannel && !args.guild)
-      return await message.error(
-        "COMMAND_GUILD_ONLY",
-        this.client.config.inviteLink
-      );
+      return await message.error("COMMAND_GUILD_ONLY", {
+        prefix: this.client.config.inviteLink,
+      });
     if (!args.guild && typeof args.guild != "undefined") return;
     const guild = args.guild ? args.guild : message.guild;
 
@@ -250,9 +247,9 @@ export default class GuildCommand extends Command {
     const info = await this.getInfo(message, guild);
     const security = this.getSecurity(message, guild);
 
-    const featuresLocalization = (message.language.get(
-      "FEATURES"
-    ) as unknown) as Record<string, string>;
+    const featuresLocalization = (message.language.get("FEATURES", {
+      returnObjects: true,
+    }) as unknown) as Record<string, string>;
     const features: string[] = guild.features
       .filter((feature) => featuresLocalization.hasOwnProperty(feature))
       .map((feature) => featuresLocalization[feature]);

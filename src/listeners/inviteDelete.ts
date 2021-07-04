@@ -20,7 +20,7 @@ export default class InviteDelete extends Listener {
         .setColor("#E74C3C")
         .setTimestamp()
         .setAuthor(
-          language.get("INVDELETE_LOG_AUTHOR", guild.name),
+          language.get("INVDELETE_LOG_AUTHOR", { guild: guild.name }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .addField(language.get("FILTER_INVITE_LOG_CODE"), invite.code)

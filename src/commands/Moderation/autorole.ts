@@ -74,10 +74,11 @@ export default class Autorole extends Command {
       role.id
     );
 
-    await message.success(
-      bot ? "AUTOROLE_ENABLED_BOT" : "AUTOROLE_ENABLED",
-      role.toString(),
-      !!delay
-    );
+    await message.success(bot ? "AUTOROLE_ENABLED_BOT" : "AUTOROLE_ENABLED", {
+      role: role.toString(),
+      delay: !!delay
+        ? message.language.get("AUTOROLE_ENABLED_FIRST_MESSAGE")
+        : message.language.get("AUTOROLE_ENABLED_JOIN"),
+    });
   }
 }

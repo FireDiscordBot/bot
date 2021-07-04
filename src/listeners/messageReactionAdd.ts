@@ -75,8 +75,6 @@ export default class MessageReactionAdd extends Listener {
       if (
         channel?.id != message.channel.id &&
         starboardEmoji.trim() == reactionEmoji.trim()
-        // (starboardEmoji.trim() == reactionEmoji.trim() ||
-        //   reactionEmoji == constants.emojis.antistarId)
       ) {
         await message.star(messageReaction, user, "add").catch(() => {});
       }

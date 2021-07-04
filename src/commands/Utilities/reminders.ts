@@ -50,9 +50,7 @@ export default class Reminders extends Command {
         )} (${delta})`
       );
     }
-    const embed = new MessageEmbed().setColor(
-      message.member?.displayColor 
-    );
+    const embed = new MessageEmbed().setColor(message.member?.displayColor);
     const paginatorInterface = new PaginatorEmbedInterface(
       this.client,
       paginator,
@@ -60,10 +58,9 @@ export default class Reminders extends Command {
         owner: message.member || message.author,
         embed,
         footer: {
-          text: message.language.get(
-            "REMINDERS_FOOTER",
-            message.util?.parsed?.prefix
-          ),
+          text: message.language.get("REMINDERS_FOOTER", {
+            prefix: message.util?.parsed?.prefix,
+          }),
         },
       }
     );

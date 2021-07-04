@@ -98,10 +98,9 @@ export class GuildTagManager {
     slashCommandNameRegex.lastIndex = 0;
 
     const description =
-      (this.guild.language.get(
-        "TAG_SLASH_DESCRIPTION",
-        cached.name
-      ) as string) + "\u200b"; // the zws will be used to idenfity tag commands
+      (this.guild.language.get("TAG_SLASH_DESCRIPTION", {
+        tag: cached.name,
+      }) as string) + "\u200b"; // the zws will be used to idenfity tag commands
 
     return {
       name: cached.name,

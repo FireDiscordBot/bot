@@ -49,10 +49,9 @@ export default class InteractionListener extends Listener {
         );
         return await message.error("UNKNOWN_COMMAND");
       } else if (!message.guild && message.command.channel == "guild")
-        return await message.error(
-          "SLASH_COMMAND_BOT_REQUIRED",
-          this.client.config.inviteLink
-        );
+        return await message.error("SLASH_COMMAND_BOT_REQUIRED", {
+          invite: this.client.config.inviteLink,
+        });
       await message.generateContent();
       // @ts-ignore
       await this.client.commandHandler.handle(message);
