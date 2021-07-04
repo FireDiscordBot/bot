@@ -181,8 +181,8 @@ export class FireGuild extends Guild {
     if (!role) return false;
     this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.guildChannels.cache) {
-      await channel
-        .updateOverwrite(
+      await channel.permissionOverwrites
+        .edit(
           role,
           {
             USE_PRIVATE_THREADS: false,
@@ -211,8 +211,8 @@ export class FireGuild extends Guild {
     if (!changed) return false;
     this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.guildChannels.cache) {
-      await channel
-        .updateOverwrite(
+      await channel.permissionOverwrites
+        .edit(
           role,
           {
             USE_PRIVATE_THREADS: false,
@@ -235,15 +235,15 @@ export class FireGuild extends Guild {
     const role = this.muteRole;
     if (!role) return;
     for (const [, channel] of this.guildChannels.cache) {
-      const denied = channel.permissionOverwrites.get(role.id)?.deny;
+      const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
       if (
         !denied ||
         !denied.has(Permissions.FLAGS.SEND_MESSAGES) ||
         !denied.has(Permissions.FLAGS.ADD_REACTIONS) ||
         !denied.has(Permissions.FLAGS.SPEAK)
       )
-        await channel
-          .updateOverwrite(
+        await channel.permissionOverwrites
+          .edit(
             role,
             {
               SEND_MESSAGES: false,
@@ -531,14 +531,15 @@ export class FireGuild extends Guild {
       for (const [, channel] of this.guildChannels.cache.filter(
         (channel) =>
           channel.permissionsFor(this.me).has(Permissions.FLAGS.MANAGE_ROLES) &&
-          (channel.permissionOverwrites.get(id)?.allow.bitfield !=
+          (channel.permissionOverwrites.cache.get(id)?.allow.bitfield !=
             perms.allow ||
-            channel.permissionOverwrites.get(id)?.deny.bitfield != perms.deny)
+            channel.permissionOverwrites.cache.get(id)?.deny.bitfield !=
+              perms.deny)
       ))
-        channel
-          .overwritePermissions(
+        channel.permissionOverwrites
+          .set(
             [
-              ...channel.permissionOverwrites.array().filter(
+              ...channel.permissionOverwrites.cache.array().filter(
                 // ensure the overwrites below are used instead
                 (overwrite) => overwrite.id != id
               ),
@@ -785,11 +786,11 @@ export class FireGuild extends Guild {
   async createTicket(
     author: FireMember,
     subject: string,
-    channel?: FireTextChannel | NewsChannel,
+    channel?: FireTextChannel,
     category?: CategoryChannel
   ) {
     if (channel instanceof FakeChannel)
-      channel = channel.real as FireTextChannel | NewsChannel;
+      channel = channel.real as FireTextChannel;
 
     if (author?.guild?.id != this.id) return "author";
     if (this.client.util.isBlacklisted(author.id, this)) return "blacklisted";
@@ -864,13 +865,13 @@ export class FireGuild extends Guild {
       if (ticket instanceof ThreadChannel) {
         await ticket.members.add(author).catch(() => {});
         if (
-          category.permissionOverwrites.filter(
+          category.permissionOverwrites.cache.filter(
             (overwrite) => overwrite.type == "member"
           ).size
         ) {
           const members = await this.members
             .fetch({
-              user: category.permissionOverwrites
+              user: category.permissionOverwrites.cache
                 .filter((overwrite) => overwrite.type == "member")
                 .map((overwrite) => overwrite.id),
             })
@@ -885,7 +886,7 @@ export class FireGuild extends Guild {
         .create(name.slice(0, 50), {
           parent: category,
           permissionOverwrites: [
-            ...category.permissionOverwrites
+            ...category.permissionOverwrites.cache
               .array()
               .filter(
                 // ensure the overwrites below are used instead
@@ -1242,8 +1243,8 @@ export class FireGuild extends Guild {
       SEND_MESSAGES: false,
       ADD_REACTIONS: false,
     };
-    const blocked = await channel
-      .updateOverwrite(blockee, overwrite, {
+    const blocked = await channel.permissionOverwrites
+      .edit(blockee, overwrite, {
         reason: `${moderator} | ${reason}`,
       })
       .catch(() => {});
@@ -1309,17 +1310,19 @@ export class FireGuild extends Guild {
       SEND_MESSAGES: null,
       ADD_REACTIONS: null,
     };
-    const unblocked = await channel
-      .updateOverwrite(unblockee, overwrite, {
+    const unblocked = await channel.permissionOverwrites
+      .edit(unblockee, overwrite, {
         reason: `${moderator} | ${reason}`,
       })
       .catch(() => {});
     if (
-      channel.permissionOverwrites?.get(unblockee.id)?.allow.bitfield == 0n &&
-      channel.permissionOverwrites?.get(unblockee.id)?.deny.bitfield == 0n &&
+      channel.permissionOverwrites?.cache.get(unblockee.id)?.allow.bitfield ==
+        0n &&
+      channel.permissionOverwrites?.cache.get(unblockee.id)?.deny.bitfield ==
+        0n &&
       unblockee.id != this.roles.everyone.id
     )
-      await channel.permissionOverwrites
+      await channel.permissionOverwrites.cache
         .get(unblockee.id)
         .delete()
         .catch(() => {}); // this doesn't matter *too* much

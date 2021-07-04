@@ -160,7 +160,7 @@ export default class Debug extends Command {
       );
 
     if (cmd.id == "mute" && message.guild && channel instanceof GuildChannel) {
-      const canSend = channel.permissionOverwrites
+      const canSend = channel.permissionOverwrites.cache
         .filter((overwrite) =>
           overwrite.allow.has(Permissions.FLAGS.SEND_MESSAGES)
         )

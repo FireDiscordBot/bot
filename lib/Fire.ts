@@ -40,7 +40,6 @@ import { ThreadMembersUpdateAction } from "./util/actions/ThreadMembersUpdate";
 import { SlashCommandMessage } from "./extensions/slashcommandmessage";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
-import { PresenceUpdateAction } from "./util/actions/PresenceUpdate";
 import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
 import { languageTypeCaster } from "@fire/src/arguments/language";
 import { listenerTypeCaster } from "@fire/src/arguments/listener";
@@ -134,8 +133,6 @@ export class Fire extends AkairoClient {
     this.rest = new RESTManager(this);
     this.useCanary = true; // use canary api by default
 
-    // @ts-ignore
-    this.actions["PresenceUpdate"] = new PresenceUpdateAction(this);
     // @ts-ignore
     this.actions["ThreadMembersUpdate"] = new ThreadMembersUpdateAction(this);
 

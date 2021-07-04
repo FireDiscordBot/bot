@@ -25,6 +25,7 @@ import {
   Collection,
   DMChannel,
   Snowflake,
+  GuildChannel,
 } from "discord.js";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
@@ -400,9 +401,9 @@ export class FakeChannel {
   }
 
   get permissionOverwrites() {
-    return this.real instanceof DMChannel || this.real instanceof ThreadChannel
-      ? new Collection<string, PermissionOverwrites>()
-      : this.real.permissionOverwrites;
+    return this.real instanceof GuildChannel
+      ? this.real.permissionOverwrites
+      : null;
   }
 
   get messages() {
@@ -441,17 +442,6 @@ export class FakeChannel {
 
   awaitMessages(options?: AwaitMessagesOptions) {
     return this.real?.awaitMessages(options);
-  }
-
-  updateOverwrite(
-    userOrRole: RoleResolvable | UserResolvable,
-    options: PermissionOverwriteOptions,
-    overwriteOptions?: GuildChannelOverwriteOptions
-  ) {
-    return !(this.real instanceof DMChannel) &&
-      !(this.real instanceof ThreadChannel)
-      ? this.real?.updateOverwrite(userOrRole, options, overwriteOptions)
-      : false;
   }
 
   createInvite(options?: CreateInviteOptions) {

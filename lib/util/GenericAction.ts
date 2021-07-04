@@ -1,9 +1,9 @@
 import {
   MessageReactionResolvable,
   MessageReaction,
+  CachedManager,
   PartialTypes,
   NewsChannel,
-  BaseManager,
   Snowflake,
   Constants,
 } from "discord.js";
@@ -41,7 +41,7 @@ export class GenericAction {
 
   getPayload(
     data: any,
-    manager: BaseManager<Snowflake, any, any>,
+    manager: CachedManager<Snowflake, any, any>,
     id: string,
     partialType: PartialTypes,
     cache?: boolean
@@ -100,7 +100,7 @@ export class GenericAction {
         count: message.partial ? null : 0,
         me: user ? user.id === this.client.user.id : false,
       },
-      message.reactions as BaseManager<
+      message.reactions as CachedManager<
         Snowflake,
         MessageReaction,
         MessageReactionResolvable

@@ -20,7 +20,7 @@ export default class ChannelDelete extends Listener {
     if (guild.settings.has("log.action")) {
       const data = {
         ...channel,
-        permissionOverwrites: channel.permissionOverwrites.toJSON(),
+        permissionOverwrites: channel.permissionOverwrites.cache.toJSON(),
         messages: null,
       };
       if (channel.hasOwnProperty("messages"))
@@ -52,8 +52,8 @@ export default class ChannelDelete extends Listener {
           language.get("SLOWMODE"),
           humanize(channel.rateLimitPerUser, language.id.split("-")[0])
         );
-      if (channel.permissionOverwrites.size > 1) {
-        const canView = channel.permissionOverwrites
+      if (channel.permissionOverwrites.cache.size > 1) {
+        const canView = channel.permissionOverwrites.cache
           .filter((overwrite) =>
             overwrite.allow.has(Permissions.FLAGS.VIEW_CHANNEL)
           )

@@ -1,4 +1,11 @@
-import { ClientOptions, HTTPOptions, Constants, Intents } from "discord.js";
+import {
+  ClientOptions,
+  HTTPOptions,
+  Constants,
+  Intents,
+  Collection,
+} from "discord.js";
+import { LimitedCollection } from "@fire/lib/util/limitedcollection";
 
 let litecord: { http?: HTTPOptions } = {};
 if (process.env.USE_LITECORD == "true")
@@ -17,9 +24,14 @@ export const discord: ClientOptions = {
     roles: [],
     repliedUser: false,
   },
+  makeCache: (manager) => {
+    if (manager.name == "MessageManager") return new LimitedCollection(30);
+    else if (manager.name == "PresenceManager") return new LimitedCollection(0);
+    return new Collection();
+  },
   messageCacheLifetime: 150,
   messageSweepInterval: 60,
-  messageCacheMaxSize: 30,
+  // messageCacheMaxSize: 30,
   restSweepInterval: 30,
   partials: [
     Constants.PartialTypes.GUILD_MEMBER,

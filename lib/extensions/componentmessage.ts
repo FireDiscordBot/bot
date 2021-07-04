@@ -1,7 +1,5 @@
 import {
-  GuildChannelOverwriteOptions,
   MessageComponentInteraction,
-  PermissionOverwriteOptions,
   EmojiIdentifierResolvable,
   WebhookEditMessageOptions,
   DeconstructedSnowflake,
@@ -15,10 +13,10 @@ import {
   MessageReaction,
   MessageManager,
   RoleResolvable,
-  UserResolvable,
   MessagePayload,
   SnowflakeUtil,
   ThreadChannel,
+  GuildChannel,
   MessageEmbed,
   NewsChannel,
   Permissions,
@@ -314,8 +312,8 @@ export class ComponentMessage {
 
 export class FakeChannel {
   real: FireTextChannel | ThreadChannel | NewsChannel | DMChannel;
-  messages: MessageManager;
   message: ComponentMessage;
+  guild: FireGuild;
   token: string;
   client: Fire;
   id: string;
@@ -332,11 +330,24 @@ export class FakeChannel {
     this.token = token;
     this.client = client;
     this.message = message;
-    this.messages = real?.messages;
+
+    if (!(real instanceof DMChannel) && real?.guild)
+      this.guild = real.guild as FireGuild;
+    else if (this.message.guild) this.guild = this.message.guild;
   }
 
   get flags() {
     return this.message.flags;
+  }
+
+  get permissionOverwrites() {
+    return this.real instanceof GuildChannel
+      ? this.real.permissionOverwrites
+      : null;
+  }
+
+  get messages() {
+    return this.real.messages;
   }
 
   toString() {
@@ -371,17 +382,6 @@ export class FakeChannel {
 
   awaitMessages(options?: AwaitMessagesOptions) {
     return this.real?.awaitMessages(options);
-  }
-
-  updateOverwrite(
-    userOrRole: RoleResolvable | UserResolvable,
-    options: PermissionOverwriteOptions,
-    overwriteOptions?: GuildChannelOverwriteOptions
-  ) {
-    return !(this.real instanceof DMChannel) &&
-      !(this.real instanceof ThreadChannel)
-      ? this.real?.updateOverwrite(userOrRole, options, overwriteOptions)
-      : false;
   }
 
   createInvite(options?: CreateInviteOptions) {

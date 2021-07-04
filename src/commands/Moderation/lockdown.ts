@@ -108,18 +108,21 @@ export default class Lockdown extends Command {
       );
     const start = +new Date();
     for (const channel of channels.values())
-      await channel
-        .overwritePermissions(
+      await channel.permissionOverwrites
+        .set(
           [
-            ...channel.permissionOverwrites
+            ...channel.permissionOverwrites.cache
               .mapValues((overwrite) =>
                 update(overwrite, { SEND_MESSAGES: false })
               )
               .values(),
-            channel.permissionOverwrites.has(this.client.user.id)
-              ? update(channel.permissionOverwrites.get(this.client.user.id), {
-                  SEND_MESSAGES: true,
-                })
+            channel.permissionOverwrites.cache.has(this.client.user.id)
+              ? update(
+                  channel.permissionOverwrites.cache.get(this.client.user.id),
+                  {
+                    SEND_MESSAGES: true,
+                  }
+                )
               : {
                   id: this.client.user.id,
                   allow: ["SEND_MESSAGES"],
@@ -222,15 +225,15 @@ export default class Lockdown extends Command {
           .catch(() => {});
       }
       await channel
-        .overwritePermissions(
+        .permissionOverwrites.set(
           [
-            ...channel.permissionOverwrites
+            ...channel.permissionOverwrites.cache
               .mapValues((overwrite) =>
                 update(overwrite, { SEND_MESSAGES: null })
               )
               .values(),
-            channel.permissionOverwrites.has(this.client.user.id)
-              ? update(channel.permissionOverwrites.get(this.client.user.id), {
+            channel.permissionOverwrites.cache.has(this.client.user.id)
+              ? update(channel.permissionOverwrites.cache.get(this.client.user.id), {
                   SEND_MESSAGES: null,
                 })
               : {

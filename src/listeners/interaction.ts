@@ -17,7 +17,7 @@ export default class InteractionListener extends Listener {
   constructor() {
     super("interaction", {
       emitter: "client",
-      event: "interaction",
+      event: "interactionCreate",
     });
   }
 

@@ -37,8 +37,8 @@ export default class ChannelUpdate extends Listener {
       (after.permissionsFor(muteRole).has(Permissions.FLAGS.SEND_MESSAGES) ||
         after.permissionsFor(muteRole).has(Permissions.FLAGS.ADD_REACTIONS))
     )
-      await after
-        .updateOverwrite(
+      await after.permissionOverwrites
+        .edit(
           muteRole,
           {
             USE_PRIVATE_THREADS: false,
@@ -60,18 +60,22 @@ export default class ChannelUpdate extends Listener {
     if (
       before instanceof GuildChannel &&
       after instanceof GuildChannel &&
-      before.permissionOverwrites.keyArray().sort((a, b) => (a > b ? 1 : -1)) !=
-        after.permissionOverwrites.keyArray().sort((a, b) => (a > b ? 1 : -1))
+      before.permissionOverwrites.cache
+        .keyArray()
+        .sort((a, b) => (a > b ? 1 : -1)) !=
+        after.permissionOverwrites.cache
+          .keyArray()
+          .sort((a, b) => (a > b ? 1 : -1))
     ) {
-      if (before.permissionOverwrites.size > 1) {
-        const roleOverwrites = before.permissionOverwrites
+      if (before.permissionOverwrites.cache.size > 1) {
+        const roleOverwrites = before.permissionOverwrites.cache
           .map((overwrite) => overwrite.id)
           .map((id) => guild.roles.cache.get(id))
           .filter((role) => !!role);
         beforeOverwrites = roleOverwrites.map((role) => role.toString());
       }
-      if (after.permissionOverwrites.size > 1) {
-        const roleOverwrites = after.permissionOverwrites
+      if (after.permissionOverwrites.cache.size > 1) {
+        const roleOverwrites = after.permissionOverwrites.cache
           .map((overwrite) => overwrite.id)
           .map((id) => guild.roles.cache.get(id))
           .filter((role) => !!role);
@@ -134,8 +138,12 @@ export default class ChannelUpdate extends Listener {
           const unknown = language.get("REGION_AUTOMATIC");
           embed.addField(
             language.get("REGION"),
-            `${language.get(`REGIONS.${before.rtcRegion}` as LanguageKeys) || "???"} ➜ ${
-              language.get(`REGIONS.${after.rtcRegion}` as LanguageKeys) || "???"
+            `${
+              language.get(`REGIONS.${before.rtcRegion}` as LanguageKeys) ||
+              "???"
+            } ➜ ${
+              language.get(`REGIONS.${after.rtcRegion}` as LanguageKeys) ||
+              "???"
             }`
           );
         }

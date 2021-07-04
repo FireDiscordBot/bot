@@ -44,7 +44,7 @@ export default class TicketAdd extends Command {
     )
       return await message.error("TICKET_ADD_FORBIDDEN");
     const updated = await channel
-      .updateOverwrite(
+      .permissionOverwrites.edit(
         args.user,
         {
           VIEW_CHANNEL: true,

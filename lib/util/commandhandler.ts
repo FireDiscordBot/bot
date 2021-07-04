@@ -136,7 +136,7 @@ export class CommandHandler extends AkairoCommandHandler {
 
   setup() {
     this.client.once("ready", () => {
-      this.client.on("message", async (m: FireMessage) => {
+      this.client.on("messageCreate", async (m: FireMessage) => {
         if (m.partial) await m.fetch().catch(() => {});
         if (!m.partial) this.handle(m);
       });
