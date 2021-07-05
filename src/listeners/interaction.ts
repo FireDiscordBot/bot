@@ -40,7 +40,7 @@ export default class InteractionListener extends Listener {
   async handleApplicationCommand(command: CommandInteraction) {
     try {
       // should be cached if in guild or fetch if dm channel
-      await this.client.channels.fetch(command.channelID).catch(() => {});
+      await this.client.channels.fetch(command.channelId).catch(() => {});
       const message = new SlashCommandMessage(this.client, command);
       await message.channel.ack((message.flags & 64) != 0);
       if (!message.command) {
@@ -58,7 +58,7 @@ export default class InteractionListener extends Listener {
       // if (message.sent != "message")
       //   await message.sourceMessage?.delete().catch(() => {});
     } catch (error) {
-      const guild = this.client.guilds.cache.get(command.guildID);
+      const guild = this.client.guilds.cache.get(command.guildId);
       if (!guild)
         await this.error(command, error).catch(() => {
           command.reply(`${emojis.error} Something went wrong...`);
@@ -70,8 +70,8 @@ export default class InteractionListener extends Listener {
           member: command.member
             ? `${command.member.user.username}#${command.member.user.discriminator}`
             : `${command.user.username}#${command.user.discriminator}`,
-          channel_id: command.channelID,
-          guild_id: command.guildID,
+          channel_id: command.channelId,
+          guild_id: command.guildId,
           env: process.env.NODE_ENV,
         });
         sentry.captureException(error);
@@ -86,10 +86,10 @@ export default class InteractionListener extends Listener {
   async handleButton(button: MessageComponentInteraction) {
     try {
       // should be cached if in guild or fetch if dm channel
-      await this.client.channels.fetch(button.channelID).catch(() => {});
+      await this.client.channels.fetch(button.channelId).catch(() => {});
       const message = new ComponentMessage(this.client, button);
-      if (!message.customID.startsWith("!")) await message.channel.ack();
-      else message.customID = message.customID.slice(1);
+      if (!message.customId.startsWith("!")) await message.channel.ack();
+      else message.customId = message.customId.slice(1);
       this.client.emit("button", message);
     } catch (error) {
       await this.error(button, error).catch(() => {
@@ -102,8 +102,8 @@ export default class InteractionListener extends Listener {
           member: button.member
             ? `${button.member.user.username}#${button.member.user.discriminator}`
             : `${button.user.username}#${button.user.discriminator}`,
-          channel_id: button.channelID,
-          guild_id: button.guildID,
+          channel_id: button.channelId,
+          guild_id: button.guildId,
           env: process.env.NODE_ENV,
         });
         sentry.captureException(error);
@@ -118,10 +118,10 @@ export default class InteractionListener extends Listener {
   async handleSelect(select: MessageComponentInteraction) {
     try {
       // should be cached if in guild or fetch if dm channel
-      await this.client.channels.fetch(select.channelID).catch(() => {});
+      await this.client.channels.fetch(select.channelId).catch(() => {});
       const message = new ComponentMessage(this.client, select);
-      if (!message.customID.startsWith("!")) await message.channel.ack();
-      else message.customID = message.customID.slice(1);
+      if (!message.customId.startsWith("!")) await message.channel.ack();
+      else message.customId = message.customId.slice(1);
       this.client.emit("select", message);
     } catch (error) {
       await this.error(select, error).catch(() => {
@@ -134,8 +134,8 @@ export default class InteractionListener extends Listener {
           member: select.member
             ? `${select.member.user.username}#${select.member.user.discriminator}`
             : `${select.user.username}#${select.user.discriminator}`,
-          channel_id: select.channelID,
-          guild_id: select.guildID,
+          channel_id: select.channelId,
+          guild_id: select.guildId,
           env: process.env.NODE_ENV,
         });
         sentry.captureException(error);

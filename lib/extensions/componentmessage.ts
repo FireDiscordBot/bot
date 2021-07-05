@@ -53,7 +53,7 @@ export class ComponentMessage {
   ephemeral: boolean;
   member: FireMember;
   language: Language;
-  customID: string;
+  customId: string;
   guild: FireGuild;
   author: FireUser;
   values: string[];
@@ -64,14 +64,14 @@ export class ComponentMessage {
     this.client = client;
     this.id = component.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
-    this.customID = component.customID;
+    this.customId = component.customId;
     this.type = component.componentType;
     this.values = [];
     if (component.isSelectMenu()) this.values = component.values;
     this.interaction = component;
     this.sent = false;
     this.guild = component.guild as FireGuild;
-    this.realChannel = client.channels.cache.get(component.channelID) as
+    this.realChannel = client.channels.cache.get(component.channelId) as
       | FireTextChannel
       | NewsChannel
       | DMChannel;
@@ -106,7 +106,7 @@ export class ComponentMessage {
         client,
         component.id,
         component.token,
-        component.guildID ? null : this.author.dmChannel
+        component.guildId ? null : this.author.dmChannel
       );
       return this;
     }

@@ -59,7 +59,7 @@ export class SlashCommandMessage {
   util: CommandUtil;
   command: Command;
   author: FireUser;
-  webhookID = null;
+  webhookId = null;
   content: string;
   id: Snowflake;
   client: Fire;
@@ -78,11 +78,11 @@ export class SlashCommandMessage {
       }`;
       command.options = command.options.first().options;
     }
-    this.guild = client.guilds.cache.get(command.guildID) as FireGuild;
+    this.guild = client.guilds.cache.get(command.guildId) as FireGuild;
     this.command = this.client.getCommand(command.commandName);
     this._flags = 0;
     if (
-      this.guild?.tags?.slashCommands[command.commandID] == command.commandName
+      this.guild?.tags?.slashCommands[command.commandId] == command.commandName
     ) {
       this.command = this.client.getCommand("tag");
       command.options = new Collection<string, CommandInteractionOption>().set(
@@ -119,7 +119,7 @@ export class SlashCommandMessage {
         : this.author.language
       : this.guild?.language || client.getLanguage("en-US");
     this.realChannel = this.client.channels.cache.get(
-      this.slashCommand.channelID
+      this.slashCommand.channelId
     ) as FireTextChannel | NewsChannel | DMChannel;
     this.latestResponse = "@original" as Snowflake;
     this.sent = false;
@@ -132,7 +132,7 @@ export class SlashCommandMessage {
         client,
         command.id,
         command.token,
-        command.guildID ? null : this.author.dmChannel
+        command.guildId ? null : this.author.dmChannel
       );
       return this;
     }

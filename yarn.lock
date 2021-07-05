@@ -621,10 +621,9 @@ detect-libc@^1.0.2:
   resolved "https://registry.yarnpkg.com/detect-libc/-/detect-libc-1.0.3.tgz#fa137c4bd698edf55cd5cd02ac559f91a4c4ba9b"
   integrity sha1-+hN8S9aY7fVc1c0CrFWfkaTEups=
 
-discord-akairo@^8.1.0:
+discord-akairo@discord-akairo/discord-akairo:
   version "8.1.0"
-  resolved "https://registry.yarnpkg.com/discord-akairo/-/discord-akairo-8.1.0.tgz#9f3d910e12c197d40d3522a3a93679e2a746a6ca"
-  integrity sha512-INWYmHo6NgyYx1ZKGSCmgznVfvkXpWGj4fGCGjO8IPkZ06Bidb9YKr4rXy2lwG0kprCjvqY0qbbhcw6N050abQ==
+  resolved "https://codeload.github.com/discord-akairo/discord-akairo/tar.gz/7953ddcead9ec398d820caa45c376146c1dde0f7"
 
 discord-api-types@^0.18.1:
   version "0.18.1"
@@ -638,17 +637,16 @@ discord-api-types@^0.19.0-next.f393ba520d7d6d2aacaca7b3ca5d355fab614f6e:
 
 discord.js@FireDiscordBot/discord.js:
   version "13.0.0-dev"
-  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/43d9f4ca8b80cd3b252cb230352012d2996761a7"
+  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/9ea0dad0610b672f7ab7c5309d06f7da128299df"
   dependencies:
-    "@discordjs/builders" "^0.2.0"
     "@discordjs/collection" "^0.1.6"
     "@discordjs/form-data" "^3.0.1"
-    "@sapphire/async-queue" "^1.1.4"
-    "@types/ws" "^7.4.5"
+    "@sapphire/async-queue" "^1.1.2"
     abort-controller "^3.0.0"
-    discord-api-types "^0.19.0-next.f393ba520d7d6d2aacaca7b3ca5d355fab614f6e"
     node-fetch "^2.6.1"
-    ws "^7.5.1"
+    prism-media "^1.2.9"
+    tweetnacl "^1.0.3"
+    ws "^7.4.5"
 
 dotenv-extended@^2.9.0:
   version "2.9.0"

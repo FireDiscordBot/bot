@@ -10,6 +10,8 @@ import { CommandUtil, ParsedComponentData } from "./commandutil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Fire } from "@fire/lib/Fire";
 import { Command } from "./command";
+import { FireUser } from "../extensions/user";
+import { FireTextChannel } from "../extensions/textchannel";
 
 const { CommandHandlerEvents } = Constants;
 
@@ -54,7 +56,7 @@ export class CommandHandler extends AkairoCommandHandler {
   }
 
   async handle(message: FireMessage) {
-    if (message.webhookID || message.author?.bot) return false;
+    if (message.webhookId || message.author?.bot) return false;
 
     try {
       if (this.fetchMembers && message.guild && !message.member)

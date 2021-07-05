@@ -80,7 +80,7 @@ export class Manager {
   listen() {
     if (process.env.BOOT_SINGLE != "false") {
       this.client.options.shardCount = 1;
-      this.client.options.presence.shardID = this.client.options.shards = [
+      this.client.options.presence.shardId = this.client.options.shards = [
         this.id,
       ];
       return this.client.login();
@@ -96,7 +96,7 @@ export class Manager {
     this.client.console.log(`[Sharder] Received sharding config.`);
     this.id = data.id;
     this.session = data.session;
-    this.client.options.presence.shardID = this.client.options.shards =
+    this.client.options.presence.shardId = this.client.options.shards =
       data.shards;
     this.client.options.shardCount = data.shardCount;
     return this.client.login();

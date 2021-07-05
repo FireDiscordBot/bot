@@ -92,7 +92,7 @@ export default class ChannelUpdate extends Listener {
 
     const notableChanges =
       before.name != after.name ||
-      before.parentID != after.parentID ||
+      before.parentId != after.parentId ||
       newOverwrites.length ||
       removedOverwrites.length ||
       // @ts-ignore (cba to do instance checks everywhere, ignoring is easier)
@@ -115,7 +115,7 @@ export default class ChannelUpdate extends Listener {
         .setFooter(after.id);
       if (before.name != after.name)
         embed.addField(language.get("NAME"), `${before.name} ➜ ${after.name}`);
-      if (before.parentID != after.parentID)
+      if (before.parentId != after.parentId)
         embed.addField(
           language.get("CATEGORY"),
           `${before.parent?.name || "???"} ➜ ${after.parent?.name || "???"}`

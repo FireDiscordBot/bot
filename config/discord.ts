@@ -1,11 +1,11 @@
 import {
+  LimitedCollection,
   ClientOptions,
   HTTPOptions,
+  Collection,
   Constants,
   Intents,
-  Collection,
 } from "discord.js";
-import { LimitedCollection } from "@fire/lib/util/limitedcollection";
 
 let litecord: { http?: HTTPOptions } = {};
 if (process.env.USE_LITECORD == "true")

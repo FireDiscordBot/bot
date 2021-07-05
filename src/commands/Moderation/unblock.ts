@@ -39,7 +39,7 @@ export default class Unblock extends Command {
     else if (
       args.tounblock instanceof FireMember &&
       args.tounblock.isModerator(message.channel) &&
-      message.author.id != message.guild.ownerID
+      message.author.id != message.guild.ownerId
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     else if (

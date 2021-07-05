@@ -108,7 +108,7 @@ export default class ChannelCreate extends Listener {
           (id) => !roles.find((role) => role.id == id)
         );
         // owner can always see
-        memberIds.push(guild.ownerID);
+        memberIds.push(guild.ownerId);
         const members: string[] = memberIds.length
           ? await guild.members
               .fetch({ user: memberIds })

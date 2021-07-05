@@ -42,7 +42,7 @@ export default class PremiumSyncEvent extends Event {
     // Premium role stuffs
     if (
       !(client.options.shards as number[]).includes(
-        client.util.getShard(client.config.fireGuildId)
+        client.util.getShard(client.config.fireguildId)
       ) ||
       process.env.NODE_ENV != "production"
     )
@@ -62,7 +62,7 @@ export default class PremiumSyncEvent extends Event {
       else if (uid) removeIds.push(uid);
     }
 
-    const guild = client.guilds.cache.get(client.config.fireGuildId);
+    const guild = client.guilds.cache.get(client.config.fireguildId);
     if (!guild) return;
     const role = guild.roles.cache.get("564060922688176139");
     if (!role) return;

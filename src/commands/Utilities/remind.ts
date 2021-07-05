@@ -54,11 +54,11 @@ export default class Remind extends Command {
     else if (parsedMinutes < 2)
       return await message.error("REMINDER_TOO_SHORT");
     let reminder = parseTime(args.reminder, true) as string;
-    if (!reminder.replace(/\s/gim, "").length && !message.reference?.messageID)
+    if (!reminder.replace(/\s/gim, "").length && !message.reference?.messageId)
       return await message.error("REMINDER_MISSING_CONTENT");
     else if (!reminder.replace(/\s/gim, "").length) {
       const referenced = await message.channel.messages
-        .fetch(message.reference.messageID)
+        .fetch(message.reference.messageId)
         .catch(() => {});
       if (!referenced || !referenced.content)
         return await message.error("REMINDER_MISSING_CONTENT");

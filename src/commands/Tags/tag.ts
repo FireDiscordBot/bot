@@ -46,7 +46,7 @@ export default class Tag extends Command {
     let referenced: FireMessage;
     if (message.type == "REPLY") {
       referenced = (await message.channel.messages
-        .fetch(message.reference.messageID)
+        .fetch(message.reference.messageId)
         .catch(() => {})) as FireMessage;
     }
     if (referenced)

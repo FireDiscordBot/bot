@@ -20,7 +20,7 @@ export default class CacheInhibitor extends Inhibitor {
       message.guild &&
       message.author?.id &&
       !message.member &&
-      !message.webhookID
+      !message.webhookId
     )
       await message.guild.members.fetch(message.author).catch(() => {});
     if (message.guild)

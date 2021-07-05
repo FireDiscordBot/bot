@@ -21,7 +21,7 @@ export default class GuildUnavailable extends Listener {
         roleCount: guild.roles.cache.size,
         maxMembers: guild.maximumMembers,
         memberCount: guild.memberCount,
-        shard: guild.shardID,
+        shard: guild.shardId,
       },
     });
   }

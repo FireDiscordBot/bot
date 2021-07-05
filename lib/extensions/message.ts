@@ -250,7 +250,7 @@ export class FireMessage extends Message {
           : null;
       if (hooks && !hook)
         hook = hooks
-          ?.filter((hook) => !!hook.token && hook.channelID == destination.id)
+          ?.filter((hook) => !!hook.token && hook.channelId == destination.id)
           ?.first();
       if (!hook && typeof destination.createWebhook == "function") {
         hook = await destination
@@ -275,7 +275,7 @@ export class FireMessage extends Message {
     // if hook doesn't exist by now, something went wrong
     // and it's best to just ignore it
     if (!hook) return;
-    if (hook instanceof Webhook && hook.channelID != destination.id) {
+    if (hook instanceof Webhook && hook.channelId != destination.id) {
       this.guild.quoteHooks.delete(destination.id);
       return;
     }
@@ -321,7 +321,7 @@ export class FireMessage extends Message {
         ),
         files: attachments,
         allowedMentions: this.client.options.allowedMentions,
-        threadID: thread?.id,
+        threadId: thread?.id,
       })
       .catch(async (e) => {
         // this will ensure deleted webhooks are deleted

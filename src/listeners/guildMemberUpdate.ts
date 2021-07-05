@@ -427,9 +427,15 @@ export default class GuildMemberUpdate extends Listener {
       )
       .setFooter(targetId);
     if (change.old)
-      embed.addField(guild.language.get("NICKCHANGELOG_OLD_NICK"), change.old);
+      embed.addField(
+        guild.language.get("NICKCHANGELOG_OLD_NICK"),
+        change.old.toString() || "???"
+      );
     if (change.new)
-      embed.addField(guild.language.get("NICKCHANGELOG_NEW_NICK"), change.new);
+      embed.addField(
+        guild.language.get("NICKCHANGELOG_NEW_NICK"),
+        change.new.toString() || "???"
+      );
     if (embed.fields.length <= 1) return;
     if (action.reason)
       embed.addField(guild.language.get("REASON"), action.reason);

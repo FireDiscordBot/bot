@@ -13,7 +13,7 @@ export default class InviteCreate extends Listener {
   async exec(invite: Invite) {
     const guild = invite.guild as FireGuild;
     const language = guild.language;
-    if (guild.premium) guild.invites.set(invite.code, 0);
+    if (guild.premium) guild.inviteUses.set(invite.code, 0);
 
     if (guild.settings.has("log.action")) {
       const embed = new MessageEmbed()

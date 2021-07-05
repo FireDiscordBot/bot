@@ -40,7 +40,7 @@ export default class Mute extends Command {
     else if (
       args.user instanceof FireMember &&
       (args.user.isModerator(message.channel) || args.user.user.bot) &&
-      message.author.id != message.guild.ownerID
+      message.author.id != message.guild.ownerId
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     let minutes: number;

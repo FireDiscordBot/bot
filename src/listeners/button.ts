@@ -42,7 +42,7 @@ export default class Button extends Listener {
   // used to handle generic buttons, like ticket close or reaction roles
   async exec(button: ComponentMessage) {
     // check for deletion button
-    if (button.customID == "delete_me")
+    if (button.customId == "delete_me")
       return await button.delete(button.interaction.message.id).catch(() => {});
 
     let message: FireMessage;
@@ -50,22 +50,22 @@ export default class Button extends Listener {
 
     // Run handlers
     try {
-      if (this.client.buttonHandlers.has(button.customID))
-        this.client.buttonHandlers.get(button.customID)(button);
+      if (this.client.buttonHandlers.has(button.customId))
+        this.client.buttonHandlers.get(button.customId)(button);
     } catch {}
     try {
-      if (this.client.buttonHandlersOnce.has(button.customID)) {
-        const handler = this.client.buttonHandlersOnce.get(button.customID);
-        this.client.buttonHandlersOnce.delete(button.customID);
+      if (this.client.buttonHandlersOnce.has(button.customId)) {
+        const handler = this.client.buttonHandlersOnce.get(button.customId);
+        this.client.buttonHandlersOnce.delete(button.customId);
         handler(button);
       }
     } catch {}
 
     if (
-      url.supportedHaste.some((url) => button.customID.startsWith(`h:${url}:`))
+      url.supportedHaste.some((url) => button.customId.startsWith(`h:${url}:`))
     ) {
       button.flags = 64;
-      const [, uploader, key] = button.customID.split(":");
+      const [, uploader, key] = button.customId.split(":");
       const hasteReq = await centra(`https://${uploader}/raw/${key}`)
         .header(
           "User-Agent",
@@ -118,10 +118,10 @@ export default class Button extends Listener {
     }
 
     // handle ticket close buttons
-    if (button.customID.startsWith("ticket_close")) {
+    if (button.customId.startsWith("ticket_close")) {
       const { guild } = button;
       if (!guild) return;
-      const channelId = button.customID.slice(13) as Snowflake;
+      const channelId = button.customId.slice(13) as Snowflake;
       const channel = this.client.channels.cache.get(
         channelId
       ) as FireTextChannel;
@@ -141,8 +141,8 @@ export default class Button extends Listener {
       } else return;
     }
 
-    if (button.customID.startsWith(`rank:${button.member?.id}:`)) {
-      const roleId = button.customID.slice(
+    if (button.customId.startsWith(`rank:${button.member?.id}:`)) {
+      const roleId = button.customId.slice(
         `rank:${button.member?.id}:`.length
       ) as Snowflake;
       const role = button.guild?.roles.cache.get(roleId);
@@ -184,7 +184,7 @@ export default class Button extends Listener {
       });
     }
 
-    if (button.customID.startsWith("tag_edit:") && button.guild) {
+    if (button.customId.startsWith("tag_edit:") && button.guild) {
       if (!button.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
         return await button
           .error("MISSING_PERMISSIONS_USER", {
@@ -196,7 +196,7 @@ export default class Button extends Listener {
           })
           .catch(() => {});
 
-      const name = button.customID.slice(9);
+      const name = button.customId.slice(9);
       const tag = await button.guild.tags.getTag(name, false);
 
       let cancelled = false;
@@ -231,7 +231,7 @@ export default class Button extends Listener {
             new MessageButton()
               .setLabel(button.language.get("TAG_EDIT_CANCEL_BUTTON"))
               .setStyle("DANGER")
-              .setCustomID(cancelSnowflake)
+              .setCustomId(cancelSnowflake)
           ),
         ],
       });
@@ -243,7 +243,7 @@ export default class Button extends Listener {
           errors: ["time"],
           filter: (m: FireMessage) =>
             m.author.id == button.author.id &&
-            m.channel.id == button.interaction.channelID,
+            m.channel.id == button.interaction.channelId,
         })
         .catch(() => {});
       if (cancelled || !newContent || !newContent.first()?.content) return;
@@ -277,8 +277,8 @@ export default class Button extends Listener {
       else return await button.success("TAG_EDIT_SUCCESS");
     }
 
-    if (button.customID.startsWith(`tag_view:`) && button.guild) {
-      const name = button.customID.slice(9);
+    if (button.customId.startsWith(`tag_view:`) && button.guild) {
+      const name = button.customId.slice(9);
       const tag = await button.guild.tags.getTag(name, false);
       if (!tag) return;
       else
@@ -287,7 +287,7 @@ export default class Button extends Listener {
           .catch(() => {});
     }
 
-    if (button.customID.startsWith("tag_delete:") && button.guild) {
+    if (button.customId.startsWith("tag_delete:") && button.guild) {
       if (!button.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
         return await button
           .error("MISSING_PERMISSIONS_USER", {
@@ -299,7 +299,7 @@ export default class Button extends Listener {
           })
           .catch(() => {});
 
-      const name = button.customID.slice(11);
+      const name = button.customId.slice(11);
       const tag = await button.guild.tags.getTag(name, false);
       if (!tag) return;
 
@@ -332,8 +332,8 @@ export default class Button extends Listener {
       }
     }
 
-    if (button.customID.startsWith("sk1er_support_")) {
-      const type = button.customID.slice(14);
+    if (button.customId.startsWith("sk1er_support_")) {
+      const type = button.customId.slice(14);
       if (!type || !validSk1erTypes.includes(type)) return;
       const sk1erModule = this.client.getModule("sk1er") as Sk1er;
       if (!sk1erModule) return;
@@ -350,8 +350,8 @@ export default class Button extends Listener {
           (component) =>
             component.type == "BUTTON" &&
             component.style != "LINK" &&
-            (component.customID == button.customID ||
-              component.customID.slice(1) == button.customID)
+            (component.customId == button.customId ||
+              component.customId.slice(1) == button.customId)
         );
       if (component?.type != "BUTTON" || component?.style == "LINK")
         return "non button";
@@ -363,7 +363,7 @@ export default class Button extends Listener {
 
       button.flags += 64; // set ephemeral
       const confirmButton = new MessageButton()
-        .setCustomID(`sk1er_confirm_${type}`)
+        .setCustomId(`sk1er_confirm_${type}`)
         .setStyle("SUCCESS")
         .setEmoji(emoji)
         .setDisabled(true);
@@ -371,7 +371,7 @@ export default class Button extends Listener {
       const deleteButton = new MessageButton()
         .setEmoji("534174796938870792")
         .setStyle("DANGER")
-        .setCustomID(deleteSnowflake);
+        .setCustomId(deleteSnowflake);
       this.client.buttonHandlersOnce.set(deleteSnowflake, () => {
         button
           .edit(button.language.get("SK1ER_SUPPORT_CANCELLED"), {
@@ -398,8 +398,8 @@ export default class Button extends Listener {
             new MessageActionRow().addComponents([confirmButton, deleteButton]),
           ],
         });
-    } else if (button.customID.startsWith("sk1er_confirm_")) {
-      const type = button.customID.slice(14);
+    } else if (button.customId.startsWith("sk1er_confirm_")) {
+      const type = button.customId.slice(14);
       if (!type || !validSk1erTypes.includes(type)) return;
       const sk1erModule = this.client.getModule("sk1er") as Sk1er;
       if (!sk1erModule) return;
@@ -409,7 +409,7 @@ export default class Button extends Listener {
       (button.message as FireMessage).components = [
         new MessageActionRow().addComponents(
           new MessageButton()
-            .setCustomID(`sk1er_confirm_${type}`)
+            .setCustomId(`sk1er_confirm_${type}`)
             .setEmoji(sk1erTypeToEmoji[type])
         ),
       ];
@@ -432,14 +432,14 @@ export default class Button extends Listener {
           .catch(() => {});
     }
 
-    if (button.customID.startsWith("deploy:") && button.author.isSuperuser()) {
+    if (button.customId.startsWith("deploy:") && button.author.isSuperuser()) {
       await button.channel
         .update(null, {
           embeds: (button.message as FireMessage).embeds,
           components: [],
         })
         .catch(() => {});
-      const commit = button.customID.slice(7);
+      const commit = button.customId.slice(7);
       // i should probably make this less jank
       const commitMessage =
         codeblockTypeCaster(
@@ -460,7 +460,7 @@ export default class Button extends Listener {
 
     if (
       message &&
-      validPaginatorIds.includes(button.customID) &&
+      validPaginatorIds.includes(button.customId) &&
       message?.paginator &&
       message.paginator.ready &&
       message.paginator.owner?.id == button.author.id
@@ -468,7 +468,7 @@ export default class Button extends Listener {
       await message?.paginator.buttonHandler(button).catch(() => {});
     else if (
       !button.channel.messages.cache.has(button.message?.id) &&
-      button.customID == "close"
+      button.customId == "close"
     )
       await message?.delete().catch(() => {});
   }

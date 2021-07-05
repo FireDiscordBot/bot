@@ -15,9 +15,9 @@ export default class VoiceStateUpdate extends Listener {
     const member = await guild.members.fetch(after.id).catch(() => {});
     if (!member || member.user.bot) return;
 
-    if (before.channelID && !after.channelID) {
-      if (guild.vcRoles.has(before.channelID)) {
-        const role = guild.roles.cache.get(guild.vcRoles.get(before.channelID));
+    if (before.channelId && !after.channelId) {
+      if (guild.vcRoles.has(before.channelId)) {
+        const role = guild.roles.cache.get(guild.vcRoles.get(before.channelId));
         if (role)
           await member.roles
             .remove(role, guild.language.get("VCROLE_REMOVE_REASON"))
@@ -26,18 +26,18 @@ export default class VoiceStateUpdate extends Listener {
     }
 
     if (
-      guild.vcRoles.has(before.channelID) &&
-      !guild.vcRoles.has(after.channelID)
+      guild.vcRoles.has(before.channelId) &&
+      !guild.vcRoles.has(after.channelId)
     ) {
-      const role = guild.roles.cache.get(guild.vcRoles.get(before.channelID));
+      const role = guild.roles.cache.get(guild.vcRoles.get(before.channelId));
       if (role)
         await member.roles
           .remove(role, guild.language.get("VCROLE_REMOVE_REASON"))
           .catch(() => {});
     }
 
-    if (guild.vcRoles.has(after.channelID)) {
-      const role = guild.roles.cache.get(guild.vcRoles.get(after.channelID));
+    if (guild.vcRoles.has(after.channelId)) {
+      const role = guild.roles.cache.get(guild.vcRoles.get(after.channelId));
       if (role)
         await member.roles
           .add(role, guild.language.get("VCROLE_ADD_REASON"))

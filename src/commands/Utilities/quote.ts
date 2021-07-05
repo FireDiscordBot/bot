@@ -95,7 +95,7 @@ export default class Quote extends Command {
             message.guild &&
             message.author?.id &&
             !message.member &&
-            !message.webhookID
+            !message.webhookId
           )
             // ensure member is cached so message.member.permissions works
             await message.guild.members.fetch(message.author).catch(() => {});

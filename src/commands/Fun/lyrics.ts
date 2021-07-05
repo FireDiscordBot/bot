@@ -53,7 +53,7 @@ export default class Lyrics extends Command {
       member.presence.activities.filter(
         (activity) =>
           activity.name == "Spotify" &&
-          !activity.applicationID &&
+          !activity.applicationId &&
           activity.type == "LISTENING"
       ).length
     ) {

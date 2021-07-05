@@ -115,6 +115,7 @@ export class Command extends AkairoCommand {
       });
     if (!options.restrictTo) options.channel = "guild";
     else if (options.restrictTo != "all") options.channel = options.restrictTo;
+    // @ts-ignore
     super(id, options);
     if (this.ownerOnly || options.superuserOnly) this.hidden = true;
     this.enableSlashCommand = options.enableSlashCommand || false;
@@ -305,7 +306,9 @@ export class Command extends AkairoCommand {
   }
 }
 
+// @ts-ignore
 export interface CommandOptions extends AkairoCommandOptions {
+  description?: ((language: Language) => string) | string;
   requiresExperiment?: { id: number; bucket: number };
   args?: ArgumentOptions[] | ArgumentGenerator;
   restrictTo?: "guild" | "dm" | "all";
@@ -320,7 +323,9 @@ export interface CommandOptions extends AkairoCommandOptions {
   parent?: string;
 }
 
+// @ts-ignore
 export interface ArgumentOptions extends AkairoArgumentOptions {
+  description?: ((language: Language) => string) | string;
   slashCommandOptions?: Array<string>;
   slashCommandType?: string;
   readableType?: string;

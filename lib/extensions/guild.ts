@@ -70,8 +70,8 @@ export class FireGuild extends Guild {
   inviteRoles: Collection<string, Snowflake>;
   vcRoles: Collection<Snowflake, Snowflake>;
   tempBans: Collection<Snowflake, number>;
+  inviteUses: Collection<string, number>;
   mutes: Collection<Snowflake, number>;
-  invites: Collection<string, number>;
   fetchingMemberUpdates: boolean;
   muteCheckTask: NodeJS.Timeout;
   declare me: FireMember | null;
@@ -98,7 +98,7 @@ export class FireGuild extends Guild {
     this.permRoles = new Collection();
     this.fetchingRoleUpdates = false;
     this.vcRoles = new Collection();
-    this.invites = new Collection();
+    this.inviteUses = new Collection();
     this.loadStarboardReactions();
     this.loadStarboardMessages();
     this.loadMutes();
@@ -479,7 +479,7 @@ export class FireGuild extends Guild {
       if (!members) return;
       for (const [, state] of this.voiceStates.cache.filter(
         (state) =>
-          state.channelID == channel.id &&
+          state.channelId == channel.id &&
           !members.get(state.id)?.roles.cache.has(role.id) &&
           !members.get(state.id)?.user.bot
       ))
@@ -557,16 +557,16 @@ export class FireGuild extends Guild {
   }
 
   async loadInvites() {
-    this.invites = new Collection();
+    this.inviteUses = new Collection();
     if (!this.premium || !this.available) return;
-    const invites = await this.fetchInvites().catch(() => {});
-    if (!invites) return this.invites;
-    for (const [code, invite] of invites) this.invites.set(code, invite.uses);
+    const invites = await this.invites.fetch().catch(() => {});
+    if (!invites) return this.inviteUses;
+    for (const [code, invite] of invites) this.inviteUses.set(code, invite.uses);
     if (this.features.includes("VANITY_URL")) {
       const vanity = await this.fetchVanityData().catch(() => {});
-      if (vanity) this.invites.set(vanity.code, vanity.uses);
+      if (vanity) this.inviteUses.set(vanity.code, vanity.uses);
     }
-    return this.invites;
+    return this.inviteUses;
   }
 
   isPublic() {
@@ -591,7 +591,7 @@ export class FireGuild extends Guild {
         splash,
         vanity: `https://discover.inv.wtf/${this.id}`,
         members: 0,
-        shard: this.shardID,
+        shard: this.shardId,
         cluster: this.client.manager.id,
       };
     if (this.splash)
@@ -617,7 +617,7 @@ export class FireGuild extends Guild {
       splash,
       vanity: `https://discover.inv.wtf/${this.id}`,
       members: this.memberCount,
-      shard: this.shardID,
+      shard: this.shardId,
       cluster: this.client.manager.id,
     };
   }
@@ -964,7 +964,7 @@ export class FireGuild extends Guild {
               new MessageActionRow().addComponents(
                 new MessageButton()
                   .setStyle("DANGER")
-                  .setCustomID(`ticket_close_${ticket.id}`)
+                  .setCustomId(`ticket_close_${ticket.id}`)
                   .setLabel(this.language.get("TICKET_CLOSE_BUTTON_TEXT"))
                   .setEmoji("534174796938870792")
               ),
@@ -988,7 +988,7 @@ export class FireGuild extends Guild {
               new MessageActionRow().addComponents(
                 new MessageButton()
                   .setStyle("DANGER")
-                  .setCustomID(`ticket_close_${ticket.id}`)
+                  .setCustomId(`ticket_close_${ticket.id}`)
                   .setLabel(this.language.get("TICKET_CLOSE_BUTTON_TEXT"))
                   .setEmoji("534174796938870792")
               ),
@@ -1091,7 +1091,7 @@ export class FireGuild extends Guild {
       ?.send({
         embeds: [embed],
         files:
-          channel.parentID == "755796036198596688"
+          channel.parentId == "755796036198596688"
             ? []
             : [new MessageAttachment(buffer, `${channel.name}-transcript.txt`)],
       })

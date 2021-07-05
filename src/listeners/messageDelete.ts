@@ -69,7 +69,7 @@ export default class MessageDelete extends Listener {
                 ? (reference?.author as FireUser)?.toMention()
                 : reference?.author?.toString()
               : null,
-          replyURL: `https://discord.com/channels/${message.reference?.guildID}/${message.reference?.channelID}/${message.reference?.messageID}`,
+          replyURL: `https://discord.com/channels/${message.reference?.guildId}/${message.reference?.channelId}/${message.reference?.messageId}`,
         }
       );
       const content = message.content
@@ -102,11 +102,11 @@ export default class MessageDelete extends Listener {
       if (message.activity)
         embed.addField(
           message.guild.language.get("ACTIVITY"),
-          (message.activity.partyID.startsWith("spotify:")
+          (message.activity.partyId.startsWith("spotify:")
             ? message.guild.language.get("MSGDELETELOG_SPOTIFY_ACTIVITY") + "\n"
             : "") +
             message.guild.language.get("MSGDELETELOG_ACTIVITY", {
-              partyID: message.activity.partyID,
+              partyID: message.activity.partyId,
               type: message.guild.language.get(
                 `ACTIVITY_TYPES.${message.activity.type}` as LanguageKeys
               ),

@@ -84,17 +84,17 @@ export default class TagInfo extends Command {
         [
           new MessageButton()
             .setLabel(message.language.get("TAG_INFO_EDIT_BUTTON"))
-            .setCustomID(`!tag_edit:${tag.name}`)
+            .setCustomId(`!tag_edit:${tag.name}`)
             .setStyle("PRIMARY"),
           tag.content.length >= 100
             ? new MessageButton()
                 .setLabel(message.language.get("TAG_INFO_VIEW_BUTTON"))
-                .setCustomID(`tag_view:${tag.name}`)
+                .setCustomId(`tag_view:${tag.name}`)
                 .setStyle("PRIMARY")
             : null,
           new MessageButton()
             .setLabel(message.language.get("TAG_INFO_DELETE_BUTTON"))
-            .setCustomID(`!tag_delete:${tag.name}`)
+            .setCustomId(`!tag_delete:${tag.name}`)
             .setStyle("DANGER"),
         ].filter((component) => !!component)
       ),

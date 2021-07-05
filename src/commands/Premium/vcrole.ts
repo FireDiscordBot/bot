@@ -52,7 +52,7 @@ export default class VCRole extends Command {
       if (removed) {
         message.guild.vcRoles.delete(args.channel.id);
         const states = message.guild.voiceStates.cache.filter(
-          (state) => state.channelID == args.channel.id
+          (state) => state.channelId == args.channel.id
         );
         const members = await message.guild.members
           .fetch({
@@ -86,7 +86,7 @@ export default class VCRole extends Command {
     if (inserted) {
       message.guild.vcRoles.set(args.channel.id, args.role.id);
       const states = message.guild.voiceStates.cache.filter(
-        (state) => state.channelID == args.channel.id
+        (state) => state.channelId == args.channel.id
       );
       const members = await message.guild.members
         .fetch({

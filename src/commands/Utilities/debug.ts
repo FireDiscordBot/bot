@@ -181,7 +181,7 @@ export default class Debug extends Command {
         (id) => !roles.find((role) => role.id == id)
       );
       // owner can always bypass
-      memberIds.push(message.guild.ownerID);
+      memberIds.push(message.guild.ownerId);
       const members: string[] = memberIds.length
         ? await message.guild.members
             .fetch({ user: memberIds })

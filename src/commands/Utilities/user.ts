@@ -302,7 +302,7 @@ export default class User extends Command {
   getBadges(user: FireUser, author: FireMember | FireUser, guild?: FireGuild) {
     const flags = user.flags?.toArray() || [];
     let emojis: string[] = [];
-    if (guild && guild.ownerID == user.id) emojis.push(badges["OWNER"]);
+    if (guild && guild.ownerId == user.id) emojis.push(badges["OWNER"]);
     emojis.push(
       ...Object.keys(badges)
         .filter((badge: UserFlagsString) => flags.includes(badge))
@@ -339,7 +339,7 @@ export default class User extends Command {
         ) + message.language.get("AGO");
       if (
         message.guild &&
-        message.guild.ownerID == member.id &&
+        message.guild.ownerId == member.id &&
         member.joinedTimestamp - message.guild.createdTimestamp < 5000
       )
         info.push(
@@ -449,8 +449,8 @@ export default class User extends Command {
     let info = [
       `**${message.language.get("CREATED")}:** ${created} (${createdDelta})`,
       `**${message.language.get("TIMESTAMP")}:** ${snowflake.timestamp}`,
-      `**${message.language.get("WORKER_ID")}:** ${snowflake.workerID}`,
-      `**${message.language.get("PROCESS_ID")}:** ${snowflake.processID}`,
+      `**${message.language.get("WORKER_ID")}:** ${snowflake.workerId}`,
+      `**${message.language.get("PROCESS_ID")}:** ${snowflake.processId}`,
       `**${message.language.get("INCREMENT")}:** ${snowflake.increment}`,
     ];
 

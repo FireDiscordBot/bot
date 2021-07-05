@@ -83,7 +83,7 @@ export class GuildLogManager {
       this._data.members.webhook,
       this._data.moderation.webhook,
     ];
-    return !!hooks.filter((hook) => !!hook && hook.channelID == channelId)
+    return !!hooks.filter((hook) => !!hook && hook.channelId == channelId)
       .length;
   }
 
@@ -405,7 +405,7 @@ export class GuildLogManager {
         .fetchWebhook(webhook.id, webhook.token)
         .catch(() => {});
       const channelId = this.guild.settings.get<string>(`log.${type}`);
-      if (!channelId || !newWebhook || newWebhook.channelID != channelId)
+      if (!channelId || !newWebhook || newWebhook.channelId != channelId)
         this._data[type].webhook = null;
     }
   }

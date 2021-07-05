@@ -161,7 +161,7 @@ export class Util extends ClientUtil {
         online:
           this.client.guilds.cache.size > 1
             ? this.client.guilds.cache
-                .filter((guild) => !shard || guild.shardID == shard)
+                .filter((guild) => !shard || guild.shardId == shard)
                 .map(
                   (guild) =>
                     guild.members.cache.filter(
@@ -173,7 +173,7 @@ export class Util extends ClientUtil {
         dnd:
           this.client.guilds.cache.size > 1
             ? this.client.guilds.cache
-                .filter((guild) => !shard || guild.shardID == shard)
+                .filter((guild) => !shard || guild.shardId == shard)
                 .map(
                   (guild) =>
                     guild.members.cache.filter(
@@ -185,7 +185,7 @@ export class Util extends ClientUtil {
         idle:
           this.client.guilds.cache.size > 1
             ? this.client.guilds.cache
-                .filter((guild) => !shard || guild.shardID == shard)
+                .filter((guild) => !shard || guild.shardId == shard)
                 .map(
                   (guild) =>
                     guild.members.cache.filter(
@@ -197,7 +197,7 @@ export class Util extends ClientUtil {
         offline:
           this.client.guilds.cache.size > 1
             ? this.client.guilds.cache
-                .filter((guild) => !shard || guild.shardID == shard)
+                .filter((guild) => !shard || guild.shardId == shard)
                 .map(
                   (guild) =>
                     guild.members.cache.filter(
@@ -255,17 +255,17 @@ export class Util extends ClientUtil {
           id: shard.id,
           wsPing: shard.ping,
           guilds: this.client.guilds.cache.filter(
-            (guild) => guild.shardID == shard.id && guild.available
+            (guild) => guild.shardId == shard.id && guild.available
           ).size,
           unavailableGuilds: this.client.guilds.cache.filter(
-            (guild) => guild.shardID == shard.id && !guild.available
+            (guild) => guild.shardId == shard.id && !guild.available
           ).size,
           users:
             this.client.guilds.cache.filter(
-              (guild) => guild.shardID == shard.id
+              (guild) => guild.shardId == shard.id
             ).size >= 1
               ? this.client.guilds.cache
-                  .filter((guild) => guild.shardID == shard.id)
+                  .filter((guild) => guild.shardId == shard.id)
                   .map((guild) => guild.memberCount || 0)
                   .reduce((a, b) => a + b)
               : 0,

@@ -53,9 +53,9 @@ export default class GuildMemberAdd extends Listener {
       member.guild.premium &&
       !member.user.bot &&
       member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD) &&
-      member.guild.invites
+      member.guild.inviteUses
     ) {
-      const before = member.guild.invites.clone();
+      const before = member.guild.inviteUses.clone();
       const after = await member.guild.loadInvites();
       if (before.size && after.size) {
         for (const [code, uses] of before) {
@@ -87,7 +87,7 @@ export default class GuildMemberAdd extends Listener {
     } else if (
       member.guild.premium &&
       member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD) &&
-      !member.guild.invites
+      !member.guild.inviteUses
     )
       await member.guild.loadInvites();
 
@@ -148,7 +148,7 @@ export default class GuildMemberAdd extends Listener {
       }
     }
 
-    if (member.premium && member.guild.id == this.client.config.fireGuildId)
+    if (member.premium && member.guild.id == this.client.config.fireguildId)
       await member.roles.add("564060922688176139").catch(() => {});
 
     if (member.guild.memberCount >= 1000) {

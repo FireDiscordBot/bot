@@ -34,7 +34,7 @@ export default class Warn extends Command {
     if (!args.user) return;
     else if (
       (args.user.isModerator(message.channel) || args.user.user.bot) &&
-      message.author.id != message.guild.ownerID
+      message.author.id != message.guild.ownerId
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     if (!args.reason) return await message.error("WARN_REASON_MISSING");

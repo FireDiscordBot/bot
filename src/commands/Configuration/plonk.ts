@@ -57,7 +57,7 @@ export default class Plonk extends Command {
       args.user.id == message.author.id ||
       (args.user instanceof FireMember &&
         (args.user.isModerator() || args.user.user.bot) &&
-        message.author.id != message.guild.ownerID)
+        message.author.id != message.guild.ownerId)
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
 
@@ -85,7 +85,7 @@ export default class Plonk extends Command {
               guild: message.guild
                 ? `${message.guild} (${message.guild.id})`
                 : "N/A",
-              shard: message.guild ? message.guild.shardID : 0,
+              shard: message.guild ? message.guild.shardId : 0,
               cluster: this.client.manager.id,
               action: `${args.user} (${args.user.id}) was unblacklisted`,
             })
@@ -102,7 +102,7 @@ export default class Plonk extends Command {
               guild: message.guild
                 ? `${message.guild} (${message.guild.id})`
                 : "N/A",
-              shard: message.guild ? message.guild.shardID : 0,
+              shard: message.guild ? message.guild.shardId : 0,
               cluster: this.client.manager.id,
               action: `${args.user} (${args.user.id}) was blacklisted`,
             })

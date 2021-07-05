@@ -67,7 +67,7 @@ export default class Ban extends Command {
     else if (
       args.user instanceof FireMember &&
       args.user.isModerator(message.channel) &&
-      message.author.id != message.guild.ownerID
+      message.author.id != message.guild.ownerId
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     if (args.days && (args.days < 1 || args.days > 7))

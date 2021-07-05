@@ -34,7 +34,7 @@ export default class ClearWarnings extends Command {
       args.userOrCaseID instanceof FireMember &&
       args.userOrCaseID.isModerator(message.channel) &&
       !args.userOrCaseID.isAdmin(message.channel) &&
-      message.author.id != message.guild.ownerID
+      message.author.id != message.guild.ownerId
     )
       // you can't warn mods anyways
       return await message.error("MODERATOR_ACTION_DISALLOWED");

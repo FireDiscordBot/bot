@@ -1,4 +1,4 @@
-import { MessageEmbed, Structures, User, Util } from "discord.js";
+import { MessageEmbed, UserMention, Structures, User, Util } from "discord.js";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { UserSettings } from "@fire/lib/util/settings";
@@ -32,7 +32,7 @@ export class FireUser extends User {
   }
 
   toString() {
-    return `${this.username}#${this.discriminator}`;
+    return (`${this.username}#${this.discriminator}` as unknown) as UserMention;
   }
 
   toMention() {
@@ -200,3 +200,8 @@ export class FireUser extends User {
 }
 
 Structures.extend("User", () => FireUser);
+// hack of the century
+const clientUserCacheKey = Object.keys(require.cache).find((key) =>
+  key.includes("ClientUser")
+);
+delete require.cache[clientUserCacheKey];

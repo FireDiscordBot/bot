@@ -76,7 +76,7 @@ export default class Filters extends Module {
       excluded?.length &&
       (excluded.includes(message?.author?.id || user?.id) ||
         excluded.includes(message?.channel?.id) ||
-        excluded.includes((message?.channel as FireTextChannel)?.parentID) ||
+        excluded.includes((message?.channel as FireTextChannel)?.parentId) ||
         excluded.some((id) => roleIds?.includes(id)))
     )
       return false;

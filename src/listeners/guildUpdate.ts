@@ -50,8 +50,8 @@ export default class GuildUpdate extends Listener {
 
     const notableChanges =
       before.name != after.name ||
-      before.ownerID != after.ownerID ||
-      before.systemChannelID != after.systemChannelID ||
+      before.ownerId != after.ownerId ||
+      before.systemChannelId != after.systemChannelId ||
       before.icon != after.icon ||
       before.splash != after.splash ||
       before.banner != after.banner ||
@@ -62,12 +62,12 @@ export default class GuildUpdate extends Listener {
 
     let beforeOwner: FireMember, afterOwner: FireMember;
 
-    if (before.ownerID != after.ownerID) {
+    if (before.ownerId != after.ownerId) {
       beforeOwner = (await after.members
-        .fetch(before.ownerID)
+        .fetch(before.ownerId)
         .catch(() => {})) as FireMember;
       afterOwner = (await after.members
-        .fetch(after.ownerID)
+        .fetch(after.ownerId)
         .catch(() => {})) as FireMember;
     }
 
@@ -83,17 +83,17 @@ export default class GuildUpdate extends Listener {
         .setFooter(after.id);
       if (before.name != after.name)
         embed.addField(language.get("NAME"), `${before.name} ➜ ${after.name}`);
-      if (before.systemChannelID != after.systemChannelID)
+      if (before.systemChannelId != after.systemChannelId)
         embed.addField(
           language.get("SYSTEM_CHANNEL"),
           `${before.systemChannel?.name || "???"} ➜ ${
             after.systemChannel?.name || "???"
           }`
         );
-      if (before.ownerID != after.ownerID)
+      if (before.ownerId != after.ownerId)
         embed.addField(
           language.get("OWNER"),
-          `${beforeOwner || before.ownerID} ➜ ${afterOwner || after.ownerID}`
+          `${beforeOwner || before.ownerId} ➜ ${afterOwner || after.ownerId}`
         );
       if (before.icon != after.icon)
         embed.addField(

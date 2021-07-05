@@ -75,7 +75,7 @@ export default class Stats extends Command {
         message.language.get("STATS_FOOTER", {
           pid: process.pid,
           cluster: this.client.manager.id,
-          shard: message.guild?.shardID || 0,
+          shard: message.guild?.shardId || 0,
         })
       )
       .addField(
@@ -131,7 +131,7 @@ export default class Stats extends Command {
         message.language.get("STATS_FOOTER", {
           pid: process.pid,
           cluster: this.client.manager.id,
-          shard: message.guild?.shardID || 0,
+          shard: message.guild?.shardId || 0,
         })
       )
       .addField(

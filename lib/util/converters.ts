@@ -20,7 +20,7 @@ import { constants } from "./constants";
 import * as fuzz from "fuzzball";
 import * as centra from "centra";
 
-const messageIDRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
+const messageIdRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
 const userMentionRegex = /<@!?(\d{15,21})>$/im;
 const channelMentionRegex = /<#(\d{15,21})>$/im;
 const roleMentionRegex = /<@&(\d{15,21})>$/im;
@@ -38,7 +38,7 @@ export const getUserMentionMatch = (argument: string) => {
   return match ? (match[1] as Snowflake) : null;
 };
 
-const getMessageIDMatch = (argument: string) => argument.match(messageIDRegex);
+const getMessageIDMatch = (argument: string) => argument.match(messageIdRegex);
 
 const getMessageLinkMatch = (argument: string) =>
   regexes.discord.message.exec(argument);
@@ -316,7 +316,7 @@ export const messageConverter = async (
   )
     return "cross_cluster";
 
-  let messageID: Snowflake, channelID: Snowflake;
+  let messageId: Snowflake, channelId: Snowflake;
   if (linkMatch || groups?.message_id) {
     groups =
       groups ||
@@ -329,17 +329,17 @@ export const messageConverter = async (
       if (!silent) await message.error("INVALID_MESSAGE");
       return null;
     }
-    messageID = groups.message_id as Snowflake;
-    channelID = groups.channel_id as Snowflake;
+    messageId = groups.message_id as Snowflake;
+    channelId = groups.channel_id as Snowflake;
   } else {
-    messageID = idMatch[0] as Snowflake;
-    channelID = message.channel.id;
+    messageId = idMatch[0] as Snowflake;
+    channelId = message.channel.id;
   }
-  const channel = (message.client.channels.cache.get(channelID) ||
+  const channel = (message.client.channels.cache.get(channelId) ||
     message.channel) as FireTextChannel;
 
   try {
-    return (await channel.messages.fetch(messageID)) as FireMessage;
+    return (await channel.messages.fetch(messageId)) as FireMessage;
   } catch {
     if (!silent) await message.error("INVALID_MESSAGE");
     return null;

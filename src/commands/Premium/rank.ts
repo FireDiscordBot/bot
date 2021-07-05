@@ -174,7 +174,7 @@ export default class Rank extends Command {
                 : "SUCCESS"
               : "PRIMARY"
           )
-          .setCustomID(`!rank:${member?.id}:${role.id}`)
+          .setCustomId(`!rank:${member?.id}:${role.id}`)
           .setLabel(name)
       );
       if (emoji) {
@@ -197,7 +197,7 @@ export default class Rank extends Command {
     roles = roles.map((id) => guild.roles.cache.get(id) as Role);
     const dropdown = new MessageSelectMenu()
       .setPlaceholder(guild.language.get("RANKS_SELECT_PLACEHOLDER"))
-      .setCustomID(`!rank:${guild.id}`)
+      .setCustomId(`!rank:${guild.id}`)
       .setMaxValues(roles.length)
       .setMinValues(1);
     const options: MessageSelectOptionData[] = [];

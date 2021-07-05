@@ -81,8 +81,6 @@ const i18n = (i18next as unknown) as typeof i18next.default;
 
 type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
 
-import "./extensions";
-
 // Rewrite completed - 15:10 17/1/2021
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
@@ -154,7 +152,7 @@ export class Fire extends AkairoClient {
       this.console.error(`[Discord]\n${error.stack}`)
     );
     this.on("ready", () => config.fire.readyMessage(this));
-    this.on("raw", (r) => {
+    this.on("raw", (r: any) => {
       if (r.t == Constants.WSEvents.GUILD_CREATE) {
         const member = r.d.members.find(
           (member: APIGuildMember) => member.user.id == this.user.id
@@ -523,7 +521,8 @@ export class Fire extends AkairoClient {
       status: "dnd",
     };
     this.ws.shards.forEach((shard) =>
-      this.user?.setPresence({
+      // @ts-ignore
+      this.presence.set({
         activities: [
           {
             name: this.manager.ws
@@ -533,13 +532,14 @@ export class Fire extends AkairoClient {
           },
         ],
         status: "dnd",
-        shardID: shard.id,
+        shardId: shard.id,
       })
     );
   }
 
   setPartialOutageStatus() {
-    this.user?.setPresence({
+    // @ts-ignore
+    this.presence.set({
       activities: [
         {
           name: "a potential outage",

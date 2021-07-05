@@ -71,7 +71,7 @@ export default class PremiumInhibitor extends Inhibitor {
 
     if (
       !(this.client.options.shards as number[]).includes(
-        this.client.util.getShard(this.client.config.fireGuildId)
+        this.client.util.getShard(this.client.config.fireguildId)
       ) ||
       process.env.NODE_ENV != "production"
     )
@@ -88,7 +88,7 @@ export default class PremiumInhibitor extends Inhibitor {
 
     this.client.once("ready", async () => {
       const guild = this.client.guilds.cache.get(
-        this.client.config.fireGuildId
+        this.client.config.fireguildId
       );
       if (!guild) return;
       const role = guild.roles.cache.get("564060922688176139");

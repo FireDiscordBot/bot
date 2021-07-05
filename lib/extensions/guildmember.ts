@@ -3,6 +3,7 @@ import {
   ThreadChannel,
   GuildChannel,
   MessageEmbed,
+  UserMention,
   GuildMember,
   Permissions,
   Structures,
@@ -45,7 +46,7 @@ export class FireMember extends GuildMember {
   }
 
   toString() {
-    return `${this.user.username}#${this.user.discriminator}`;
+    return `${this.user.username}#${this.user.discriminator}` as unknown as UserMention;
   }
 
   toMention() {
@@ -85,7 +86,7 @@ export class FireMember extends GuildMember {
 
   isModerator(channel?: Channel) {
     if (this.id == this.client.user?.id) return true;
-    if (this.id == this.guild.ownerID) return true;
+    if (this.id == this.guild.ownerId) return true;
     if (channel instanceof FakeChannel) channel = channel.real;
     if (this.isAdmin(channel)) return true;
     const moderators = this.guild.settings.get<string[]>(
@@ -102,7 +103,7 @@ export class FireMember extends GuildMember {
 
   isAdmin(channel?: Channel) {
     if (this.id == this.client.user?.id) return true;
-    if (this.id == this.guild.ownerID) return true;
+    if (this.id == this.guild.ownerId) return true;
     if (channel instanceof FakeChannel) channel = channel.real;
     else if (channel instanceof ThreadChannel) channel = channel.parent;
     return channel

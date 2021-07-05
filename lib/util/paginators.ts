@@ -249,14 +249,14 @@ export class PaginatorInterface {
     };
 
     this.buttonHandler = async (button: ComponentMessage) => {
-      if (button.customID == "close")
+      if (button.customId == "close")
         return (
           this.deleteMessage && (await this.message.delete().catch(() => {}))
         );
-      else if (button.customID == "start") this._displayPage = 0;
-      else if (button.customID == "end") this._displayPage = this.pageCount;
-      else if (button.customID == "back") this._displayPage -= 1;
-      else if (button.customID == "forward") this._displayPage += 1;
+      else if (button.customId == "start") this._displayPage = 0;
+      else if (button.customId == "end") this._displayPage = this.pageCount;
+      else if (button.customId == "back") this._displayPage -= 1;
+      else if (button.customId == "forward") this._displayPage += 1;
       else return;
 
       this.update();
@@ -384,7 +384,7 @@ export class PaginatorInterface {
         new MessageActionRow().addComponents(
           new MessageButton()
             .setStyle("DANGER")
-            .setCustomID("close")
+            .setCustomId("close")
             .setEmoji("835140711489863701")
         ),
       ];
@@ -395,26 +395,26 @@ export class PaginatorInterface {
             .setEmoji("835140711606124574")
             .setDisabled(this.displayPage == 0)
             .setStyle("PRIMARY")
-            .setCustomID("start"),
+            .setCustomId("start"),
           new MessageButton()
             .setEmoji("835140710982352907")
             .setDisabled(this.displayPage == 0)
             .setStyle("PRIMARY")
-            .setCustomID("back"),
+            .setCustomId("back"),
           new MessageButton()
             .setStyle("DANGER")
-            .setCustomID("close")
+            .setCustomId("close")
             .setEmoji("835140711489863701"),
           new MessageButton()
             .setEmoji("835140711476494346")
             .setDisabled(this.displayPage == this.pageCount - 1)
             .setStyle("PRIMARY")
-            .setCustomID("forward"),
+            .setCustomId("forward"),
           new MessageButton()
             .setEmoji("835140711388676116")
             .setDisabled(this.displayPage == this.pageCount - 1)
             .setStyle("PRIMARY")
-            .setCustomID("end"),
+            .setCustomId("end"),
         ]),
       ];
   }

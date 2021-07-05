@@ -44,7 +44,7 @@ export default class CloseTicket extends Command {
         new MessageActionRow().addComponents(
           new MessageButton()
             .setStyle("DANGER")
-            .setCustomID(buttonSnowflake)
+            .setCustomId(buttonSnowflake)
             .setLabel(message.language.get("TICKET_CLOSE_BUTTON_TEXT"))
             .setEmoji("534174796938870792")
         ),

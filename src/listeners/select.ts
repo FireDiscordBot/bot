@@ -22,7 +22,7 @@ export default class Select extends Listener {
     const guild = message?.guild;
 
     if (
-      select.customID == `rank:${guild?.id}` &&
+      select.customId == `rank:${guild?.id}` &&
       select.member instanceof FireMember
     ) {
       const ranks = guild.settings
