@@ -156,6 +156,7 @@ export default class GuildUpdate extends Listener {
           )}`
         );
       if (before.features.length != after.features.length) {
+        // TODO use localised feature names
         const added = after.features.filter(
           (feature) => !before.features.includes(feature)
         );

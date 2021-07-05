@@ -39,14 +39,16 @@ export default class MinecraftStatus extends Command {
       return await message.send("MCSTATUS_FETCH_FAIL");
     const status: MojangStatus = await statusReq.json();
     let statuses: string[] = [];
-    const statusDescriptions = (message.language.get(
-      "MCSTATUS_STATUSES"
-    ) as unknown) as {
+    const statusDescriptions = (message.language.get("MCSTATUS_STATUSES", {
+      returnObjects: true,
+    }) as unknown) as {
       green: string;
       yellow: string;
       red: string;
     };
-    const services = (message.language.get("MCSTATUS_SERVICES") as unknown) as {
+    const services = (message.language.get("MCSTATUS_SERVICES", {
+      returnObjects: true,
+    }) as unknown) as {
       "minecraft.net": string;
       "sessionserver.mojang.com": string;
       "authserver.mojang.com": string;

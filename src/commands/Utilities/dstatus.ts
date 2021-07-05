@@ -44,9 +44,10 @@ export default class DiscordStatus extends Command {
       .filter((component) => !component.group_id)
       .flatMap((group) => [
         `├${constants.emojis.statuspage[group.status]} **${group.name}**: ${
-          message.language.get("STATUSPAGE_COMPONENT_STATUS")[
-            group.status.toLowerCase()
-          ] || titleCase(group.status.replace(/_/gim, " "))
+          message.language.get("STATUSPAGE_COMPONENT_STATUS", {
+            returnObjects: true,
+          })[group.status.toLowerCase()] ||
+          titleCase(group.status.replace(/_/gim, " "))
         }`,
         ...summary.components
           .filter((component) => {
@@ -61,9 +62,10 @@ export default class DiscordStatus extends Command {
               `├─${constants.emojis.statuspage[groupComponent.status]} **${
                 groupComponent.name
               }**: ${
-                message.language.get("STATUSPAGE_COMPONENT_STATUS")[
-                  groupComponent.status.toLowerCase()
-                ] || titleCase(groupComponent.status.replace(/_/gim, " "))
+                message.language.get("STATUSPAGE_COMPONENT_STATUS", {
+                  returnObjects: true,
+                })[groupComponent.status.toLowerCase()] ||
+                titleCase(groupComponent.status.replace(/_/gim, " "))
               }`
           ),
       ]);
@@ -71,9 +73,10 @@ export default class DiscordStatus extends Command {
     const latest = incidents.incidents[0];
     const embed = new MessageEmbed()
       .setTitle(
-        message.language.get("STATUSPAGE_PAGE_DESCRIPTIONS")[
-          summary.status.description.toLowerCase()
-        ] || titleCase(summary.status.description)
+        message.language.get("STATUSPAGE_PAGE_DESCRIPTIONS", {
+          returnObjects: true,
+        })[summary.status.description.toLowerCase()] ||
+          titleCase(summary.status.description)
       )
       .setDescription(components.join("\n"))
       .setColor(
@@ -86,9 +89,9 @@ export default class DiscordStatus extends Command {
         `[${latest.name}](${latest.shortlink})\n${message.language.get(
           "STATUS"
         )}: **${
-          message.language.get("STATUSPAGE_INCIDENT_STATUS")[
-            latest.status.toLowerCase()
-          ] || titleCase(latest.status)
+          message.language.get("STATUSPAGE_INCIDENT_STATUS", {
+            returnObjects: true,
+          })[latest.status.toLowerCase()] || titleCase(latest.status)
         }**`,
         true
       )
