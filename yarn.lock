@@ -637,16 +637,17 @@ discord-api-types@^0.19.0-next.f393ba520d7d6d2aacaca7b3ca5d355fab614f6e:
 
 discord.js@FireDiscordBot/discord.js:
   version "13.0.0-dev"
-  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/9ea0dad0610b672f7ab7c5309d06f7da128299df"
+  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/b91672b91e025b05776e88644bcca646eb7f8a70"
   dependencies:
+    "@discordjs/builders" "^0.2.0"
     "@discordjs/collection" "^0.1.6"
     "@discordjs/form-data" "^3.0.1"
-    "@sapphire/async-queue" "^1.1.2"
+    "@sapphire/async-queue" "^1.1.4"
+    "@types/ws" "^7.4.5"
     abort-controller "^3.0.0"
+    discord-api-types "^0.19.0-next.f393ba520d7d6d2aacaca7b3ca5d355fab614f6e"
     node-fetch "^2.6.1"
-    prism-media "^1.2.9"
-    tweetnacl "^1.0.3"
-    ws "^7.4.5"
+    ws "^7.5.1"
 
 dotenv-extended@^2.9.0:
   version "2.9.0"
