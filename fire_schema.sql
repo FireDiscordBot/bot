@@ -280,7 +280,6 @@ CREATE TABLE public.remind (
     uid text NOT NULL,
     forwhen text,
     reminder text,
-    legacy boolean,
     link text
 );
 
