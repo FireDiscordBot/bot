@@ -27,7 +27,7 @@ export default class LanguageCommand extends Command {
   async exec(message: FireMessage, args: { language: Language }) {
     if (!args.language)
       return await message.send("LANGUAGE_COMMAND_CURRENT", {
-        current: message.language.id,
+        language: message.language.id,
         languages: this.client.languages.modules
           .map((lang) => lang.id)
           .join(", "),
