@@ -318,7 +318,9 @@ export default class User extends Command {
     let user = member instanceof FireMember ? member.user : member;
     const created = user.createdAt.toLocaleString(message.language.id);
     const now = moment();
-    const cakeDay = now.dayOfYear() == moment(user.createdAt).dayOfYear();
+    const cakeDay =
+      now.dayOfYear() == moment(user.createdAt).dayOfYear() &&
+      now.year() != moment(user.createdAt).year();
     const createdDelta =
       humanize(
         moment(user.createdAt).diff(now),
@@ -359,7 +361,7 @@ export default class User extends Command {
           message.guild.members.cache
             .sorted(
               (memberA, memberB) =>
-                memberA.joinedTimestamp - memberB.joinedTimestamp // this may need to be reversed
+                memberA.joinedTimestamp - memberB.joinedTimestamp
             )
             .array()
             .indexOf(member) + 1;
