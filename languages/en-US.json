@@ -1,5 +1,4 @@
 {
-  "DEFAULT": "{{key}} has not been localized for any languages yet.",
   "USER_NOT_FOUND": "User not found! Try use an ID instead.",
   "MEMBER_NOT_FOUND": "Member not found! Try use an ID instead.",
   "CHANNEL_NOT_FOUND": "Channel not found! Try use an ID instead.",
