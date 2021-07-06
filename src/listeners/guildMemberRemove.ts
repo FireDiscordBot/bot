@@ -165,7 +165,7 @@ export default class GuildMemberRemove extends Listener {
             moment(member.joinedAt).diff(moment()),
             language.id.split("-")[0]
           ) + language.get("AGO");
-        embed.addField(language.get("JOINED"), joinedDelta);
+        embed.addField(language.get("JOINED_FIELD"), joinedDelta);
         if (member.nickname)
           embed.addField(language.get("NICKNAME"), member.nickname);
         const roles = member.roles.cache

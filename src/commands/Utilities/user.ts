@@ -328,7 +328,7 @@ export default class User extends Command {
       ) + message.language.get("AGO");
     let info = [
       `**${message.language.get("MENTION")}:** ${user.toMention()}`,
-      `**${message.language.get("CREATED")}:** ${created} (${createdDelta})${
+      `**${message.language.get("CREATED")}** ${created} (${createdDelta})${
         cakeDay ? " 🎂" : ""
       }`,
     ];
@@ -449,7 +449,7 @@ export default class User extends Command {
         });
 
     let info = [
-      `**${message.language.get("CREATED")}:** ${created} (${createdDelta})`,
+      `**${message.language.get("CREATED")}** ${created} (${createdDelta})`,
       `**${message.language.get("TIMESTAMP")}:** ${snowflake.timestamp}`,
       `**${message.language.get("WORKER_ID")}:** ${snowflake.workerId}`,
       `**${message.language.get("PROCESS_ID")}:** ${snowflake.processId}`,
