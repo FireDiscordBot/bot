@@ -96,8 +96,10 @@ export class FireGuild extends Guild {
   }
 
   get language() {
-    return this.client.getLanguage(
-      this.settings.get<string>("utils.language", "en-US")
+    return (
+      this.client.getLanguage(
+        this.settings.get<string>("utils.language", "en-US")
+      ) ?? this.client.getLanguage("en-US")
     );
   }
 
