@@ -34,12 +34,7 @@ export default class Reminders extends Command {
     const paginator = new WrappedPaginator("", "", 1980);
     let index = 1;
     for await (const reminder of remindersResult) {
-      const legacy = (reminder.get("legacy") as boolean) || false;
-      const forwhen = new Date(
-        legacy
-          ? parseFloat(reminder.get("forwhen") as string) * 1000
-          : parseInt(reminder.get("forwhen") as string)
-      );
+      const forwhen = new Date(parseInt(reminder.get("forwhen") as string));
       const delta = humanize(
         moment().diff(forwhen),
         message.language.id.split("-")[0]

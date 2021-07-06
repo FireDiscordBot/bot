@@ -469,32 +469,20 @@ export class FakeChannel {
   }
 
   async update(
-    content: string | MessagePayload | MessageEmbed,
-    options?: WebhookMessageOptions & { embed?: MessageEmbed },
+    options?:
+      | string
+      | MessagePayload
+      | (WebhookMessageOptions & { split?: false }),
     flags?: number // Used for success/error, can also be set
   ): Promise<ComponentMessage> {
     if (this.message.sent) return; // can only update with initial response
 
     let apiMessage: MessagePayload;
 
-    if (content instanceof MessageEmbed) {
-      options = {
-        ...options,
-        embeds: [content],
-      };
-      content = null;
-    }
-
-    if (options?.embed) {
-      options.embeds = [options.embed];
-      delete options.embed;
-    }
-
-    if (content instanceof MessagePayload) apiMessage = content.resolveData();
+    if (options instanceof MessagePayload) apiMessage = options.resolveData();
     else {
       apiMessage = MessagePayload.create(
         new Webhook(this.client, null), // needed to make isWebhook true for embeds array
-        content as string,
         options
       ).resolveData();
     }

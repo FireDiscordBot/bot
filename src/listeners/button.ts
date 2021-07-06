@@ -1,18 +1,22 @@
 import {
+  MessageSelectOptionData,
   MessageActionRow,
   MessageButton,
   SnowflakeUtil,
   MessageEmbed,
   Permissions,
   Snowflake,
+  MessageSelectMenu,
 } from "discord.js";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { codeblockTypeCaster } from "../arguments/codeblock";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { LanguageKeys } from "@fire/lib/util/language";
 import { constants } from "@fire/lib/util/constants";
 import { getBranch } from "@fire/lib/util/gitUtils";
 import { Listener } from "@fire/lib/util/listener";
@@ -23,6 +27,15 @@ import * as centra from "centra";
 
 const { url, emojis } = constants;
 
+const reminderSnoozeTimes = {
+  REMINDER_SNOOZE_FIVEMIN: "300000",
+  REMINDER_SNOOZE_HALFHOUR: "1800000",
+  REMINDER_SNOOZE_HOUR: "3600000",
+  REMINDER_SNOOZE_SIXHOURS: "21600000",
+  REMINDER_SNOOZE_HALFDAY: "43200000",
+  REMINDER_SNOOZE_DAY: "86400000",
+  REMINDER_SNOOZE_WEEK: "604800000",
+};
 const validPaginatorIds = ["close", "start", "back", "forward", "end"];
 const validSk1erTypes = ["general", "purchase", "bug"];
 const sk1erTypeToEmoji = {
@@ -178,7 +191,7 @@ export default class Button extends Listener {
               }) as string)
             : undefined
         );
-      await button.channel.update(null, {
+      await button.channel.update({
         embeds: [embed],
         components,
       });
@@ -225,7 +238,8 @@ export default class Button extends Listener {
         .setColor(button.member?.displayColor ?? "#FFFFFF")
         .setDescription(button.language.get("TAG_EDIT_BUTTON_EMBED"))
         .setTimestamp();
-      await button.channel.update(editEmbed, {
+      await button.channel.update({
+        embeds: [editEmbed],
         components: [
           new MessageActionRow().addComponents(
             new MessageButton()
@@ -313,10 +327,11 @@ export default class Button extends Listener {
 
       const deleted = await button.guild.tags.deleteTag(name);
       if (!deleted)
-        return await button.channel.update(
-          button.language.get("TAG_DELETE_FAILED", { haste: data }),
-          { embeds: [], components: [] }
-        );
+        return await button.channel.update({
+          content: button.language.get("TAG_DELETE_FAILED", { haste: data }),
+          embeds: [],
+          components: [],
+        });
       else {
         const embed = new MessageEmbed()
           .setAuthor(
@@ -328,7 +343,7 @@ export default class Button extends Listener {
             button.language.get("TAG_DELETE_SUCCESS", { haste: data })
           )
           .setTimestamp();
-        return await button.channel.update(embed, { components: [] });
+        return await button.channel.update({ embeds: [embed], components: [] });
       }
     }
 
@@ -432,9 +447,41 @@ export default class Button extends Listener {
           .catch(() => {});
     }
 
+    if (button.customId.startsWith("snooze:")) {
+      const event = this.client.manager.eventHandler?.store?.get(
+        EventType.REMINDER_SEND
+      ) as ReminderSendEvent;
+      if (!event) return await button.error("REMINDER_SNOOZE_ERROR");
+      else if (
+        !event.sent.find((r) =>
+          button.customId.endsWith(r.timestamp.toString())
+        )
+      )
+        return await button.error("REMINDER_SNOOZE_UNKNOWN");
+      const dropdown = new MessageSelectMenu()
+        .setPlaceholder(
+          button.author.language.get("REMINDER_SNOOZE_PLACEHOLDER")
+        )
+        .setCustomId(`!snooze:${button.customId.slice(7)}`)
+        .setMaxValues(1)
+        .setMinValues(1)
+        .addOptions(
+          Object.entries(reminderSnoozeTimes).map(([key, time]) => {
+            return {
+              label: button.author.language.get(key as LanguageKeys),
+              value: time,
+            };
+          })
+        );
+      return await button.channel.update({
+        content: "\u200b",
+        components: [new MessageActionRow().addComponents(dropdown)],
+      });
+    }
+
     if (button.customId.startsWith("deploy:") && button.author.isSuperuser()) {
       await button.channel
-        .update(null, {
+        .update({
           embeds: (button.message as FireMessage).embeds,
           components: [],
         })
@@ -467,7 +514,8 @@ export default class Button extends Listener {
     )
       await message?.paginator.buttonHandler(button).catch(() => {});
     else if (
-      !button.channel.messages.cache.has(button.message?.id) &&
+      !(button.channel.messages.cache.get(button.message?.id) as FireMessage)
+        ?.paginator &&
       button.customId == "close"
     )
       await message?.delete().catch(() => {});

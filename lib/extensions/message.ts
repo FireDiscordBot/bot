@@ -61,28 +61,29 @@ export class FireMessage extends Message {
       this.content = this.content.slice(0, this.content.length - 9).trimEnd();
       if (!this.attachments.size) this.silent = true;
     }
-    const language = this.guild ? this.guild.language : this.author.language;
-    if (this.type == "RECIPIENT_ADD" && this.channel instanceof ThreadChannel)
-      this.content = language.get("TICKET_RECIPIENT_ADD", {
-        author: this.author.toString(),
-        added: this.mentions.users.first()?.toString(),
-      }) as string;
-    else if (
-      this.type == "RECIPIENT_REMOVE" &&
-      this.channel instanceof ThreadChannel
-    )
-      this.content = language.get("TICKET_RECIPIENT_REMOVE", {
-        author: this.author.toString(),
-        removed: this.mentions.users.first()?.toString(),
-      }) as string;
-    else if (
-      this.type == "CHANNEL_NAME_CHANGE" &&
-      this.channel instanceof ThreadChannel
-    )
-      this.content = language.get("TICKET_THREAD_RENAME", {
-        author: this.author.toString(),
-        name: "**" + this.cleanContent + "**",
-      });
+    const language = this.guild ? this.guild?.language : this.author?.language;
+    if (language)
+      if (this.type == "RECIPIENT_ADD" && this.channel instanceof ThreadChannel)
+        this.content = language.get("TICKET_RECIPIENT_ADD", {
+          author: this.author.toString(),
+          added: this.mentions.users.first()?.toString(),
+        }) as string;
+      else if (
+        this.type == "RECIPIENT_REMOVE" &&
+        this.channel instanceof ThreadChannel
+      )
+        this.content = language.get("TICKET_RECIPIENT_REMOVE", {
+          author: this.author.toString(),
+          removed: this.mentions.users.first()?.toString(),
+        }) as string;
+      else if (
+        this.type == "CHANNEL_NAME_CHANGE" &&
+        this.channel instanceof ThreadChannel
+      )
+        this.content = language.get("TICKET_THREAD_RENAME", {
+          author: this.author.toString(),
+          name: "**" + this.cleanContent + "**",
+        });
 
     // @ts-ignore
     if (data.components) this.components = data.components;

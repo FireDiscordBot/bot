@@ -37,16 +37,12 @@ export default class DeleteReminder extends Command {
     let timestamps: number[] = [],
       reminders: (Reminder & { date: Date })[] = [];
     for await (const reminder of remindersResult) {
-      const legacy = (reminder.get("legacy") as boolean) || false;
-      const timestamp = legacy
-        ? parseFloat(reminder.get("forwhen") as string)
-        : parseInt(reminder.get("forwhen") as string);
+      const timestamp = parseInt(reminder.get("forwhen") as string);
       timestamps.push(timestamp);
       reminders.push({
         user: reminder.get("uid") as Snowflake,
         text: reminder.get("reminder") as string,
         link: reminder.get("link") as string,
-        legacy,
         timestamp,
         date: new Date(timestamp),
       });

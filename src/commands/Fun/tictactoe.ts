@@ -424,14 +424,12 @@ export default class TicTacToe extends Command {
         }
 
         return await button.channel
-          .update(
-            button.guild.language.get("TICTACTOE_WINNER", {
+          .update({
+            content: button.guild.language.get("TICTACTOE_WINNER", {
               winner: button.member?.toMention(),
             }),
-            {
-              components: components.slice(0, -1),
-            }
-          )
+            components: components.slice(0, -1),
+          })
           .catch(() => {});
       }
 
@@ -453,19 +451,20 @@ export default class TicTacToe extends Command {
         }
 
         return await button.channel
-          .update(button.guild.language.get("TICTACTOE_DRAW"), {
+          .update({
+            content: button.guild.language.get("TICTACTOE_DRAW"),
             components: components.slice(0, -1),
           })
           .catch(() => {});
       }
 
       await button.channel
-        .update(
-          button.guild.language.get("TICTACTOE_TURN", {
+        .update({
+          content: button.guild.language.get("TICTACTOE_TURN", {
             current: `<@!${game.current}>`,
           }),
-          { components }
-        )
+          components,
+        })
         .catch(() => {});
     };
   }

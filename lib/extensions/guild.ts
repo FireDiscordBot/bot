@@ -49,16 +49,6 @@ import { FireUser } from "./user";
 import * as moment from "moment";
 import { nanoid } from "nanoid";
 
-type Primitive = string | boolean | number | null;
-
-const parseUntil = (time?: string) => {
-  if (!time) return 0;
-  if (time.includes(".")) {
-    // legacy py time
-    return parseInt((parseFloat(time) * 1000).toString().split(".")[0]);
-  } else return parseInt(time);
-};
-
 export class FireGuild extends Guild {
   quoteHooks: Collection<string, Webhook | WebhookClient>;
   reactionRoles: Collection<Snowflake, ReactionRoleData[]>;
@@ -271,7 +261,7 @@ export class FireGuild extends Guild {
     for await (const mute of mutes) {
       this.mutes.set(
         mute.get("uid") as Snowflake,
-        parseUntil(mute.get("until") as string)
+        parseInt(mute.get("until") as string)
       );
     }
     if (this.muteCheckTask) clearInterval(this.muteCheckTask);
@@ -290,7 +280,7 @@ export class FireGuild extends Guild {
     for await (const ban of bans) {
       this.tempBans.set(
         ban.get("uid") as Snowflake,
-        parseUntil(ban.get("until") as string)
+        parseInt(ban.get("until") as string)
       );
     }
     if (this.banCheckTask) clearInterval(this.banCheckTask);
@@ -561,7 +551,8 @@ export class FireGuild extends Guild {
     if (!this.premium || !this.available) return;
     const invites = await this.invites.fetch().catch(() => {});
     if (!invites) return this.inviteUses;
-    for (const [code, invite] of invites) this.inviteUses.set(code, invite.uses);
+    for (const [code, invite] of invites)
+      this.inviteUses.set(code, invite.uses);
     if (this.features.includes("VANITY_URL")) {
       const vanity = await this.fetchVanityData().catch(() => {});
       if (vanity) this.inviteUses.set(vanity.code, vanity.uses);
