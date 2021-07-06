@@ -102,7 +102,8 @@ export class FireUser extends User {
   }
 
   async createReminder(when: Date, why: string, link: string) {
-    if (!this.client.manager.ws?.open) return this.client.config.dev;
+    if (!this.client.manager.ws?.open)
+      return process.env.NODE_ENV == "development";
     const timestamp = +when;
     if (isNaN(timestamp) || timestamp < +new Date() + 60000) return false;
     const reminder = await this.client.db
