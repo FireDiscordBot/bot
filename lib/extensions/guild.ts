@@ -918,13 +918,13 @@ export class FireGuild extends Guild {
           ],
           topic: this.language.get(
             subject
-              ? ("TICKET_CHANNEL_SUBJECT_TOPIC" as LanguageKeys)
+              ? ("TICKET_SUBJECT_CHANNEL_TOPIC" as LanguageKeys)
               : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
             { author: author.toString(), id: author.id, subject }
           ),
           reason: this.language.get(
             subject
-              ? ("TICKET_CHANNEL_SUBJECT_TOPIC" as LanguageKeys)
+              ? ("TICKET_SUBJECT_CHANNEL_TOPIC" as LanguageKeys)
               : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
             { author: author.toString(), id: author.id, subject }
           ),
