@@ -347,7 +347,7 @@ export default class User extends Command {
         info.push(
           `**${message.language.get(
             "CREATED_GUILD"
-          )}:** ${joined} (${joinedDelta})`
+          )}** ${joined} (${joinedDelta})`
         );
       else
         info.push(
