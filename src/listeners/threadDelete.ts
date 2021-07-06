@@ -17,7 +17,7 @@ export default class ThreadDelete extends Listener {
       language = guild.language;
 
     if (guild.settings.has("log.action")) {
-      const owner = await guild.members.fetch(channel.ownerID).catch(() => {});
+      const owner = await guild.members.fetch(channel.ownerId).catch(() => {});
       const now = moment();
       const autoArchiveAt = new Date(
         +new Date() + channel.autoArchiveDuration * 60000
@@ -41,18 +41,18 @@ export default class ThreadDelete extends Listener {
         .setColor("#E74C3C")
         .setTimestamp()
         .setAuthor(
-          language.get("THREADDELETELOG_AUTHOR", guild.name),
+          language.get("THREADDELETELOG_AUTHOR", { guild: guild.name }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .addField(language.get("NAME"), channel.name)
-        .addField(language.get("PARENT"), channel.parent.toString())
+        .addField(language.get("CHANNEL"), channel.parent.toString())
         .addField(
           language.get("ARCHIVE_AT"),
           `${friendlyArchived} (${autoArchiveAt.toLocaleString(language.id)})`
         )
         .addField(
           language.get("CREATED_BY"),
-          owner ? `${owner} (${owner.id})` : channel.ownerID
+          owner ? `${owner} (${owner.id})` : channel.ownerId
         )
         .setFooter(channel.id);
       // if (channel.permissionOverwrites.size > 1) {
@@ -77,7 +77,7 @@ export default class ThreadDelete extends Listener {
       //     (id) => !roles.find((role) => role.id == id)
       //   );
       //   // owner can always see
-      //   memberIds.push(guild.ownerID);
+      //   memberIds.push(guild.ownerId);
       //   const members: string[] = memberIds.length
       //     ? await guild.members
       //         .fetch({ user: memberIds })

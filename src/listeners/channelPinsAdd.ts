@@ -14,7 +14,7 @@ export default class ChannelPinsAdd extends Listener {
 
   async exec(reference: MessageReference, member?: FireMember) {
     const channel = this.client.channels.cache.get(
-      reference.channelID
+      reference.channelId
     ) as FireTextChannel;
     if (!channel || channel.type != "text") return;
     const guild = channel.guild as FireGuild;
@@ -22,7 +22,7 @@ export default class ChannelPinsAdd extends Listener {
     const language = guild.language;
 
     const message = await channel.messages
-      .fetch(reference.messageID)
+      .fetch(reference.messageId)
       .catch(() => {});
     if (!message) return;
 
@@ -34,7 +34,7 @@ export default class ChannelPinsAdd extends Listener {
         .setColor(member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setAuthor(
-          language.get("PINSADDLOG_AUTHOR", channel.name),
+          language.get("PINSADDLOG_AUTHOR", { channel: channel.name }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true }),
           message.url
         )

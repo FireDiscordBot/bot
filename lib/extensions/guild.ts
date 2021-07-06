@@ -37,6 +37,7 @@ import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { MessageIterator } from "../util/iterators";
 import { FakeChannel } from "./slashcommandmessage";
+import { LanguageKeys } from "../util/language";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
@@ -47,16 +48,6 @@ import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import * as moment from "moment";
 import { nanoid } from "nanoid";
-
-type Primitive = string | boolean | number | null;
-
-const parseUntil = (time?: string) => {
-  if (!time) return 0;
-  if (time.includes(".")) {
-    // legacy py time
-    return parseInt((parseFloat(time) * 1000).toString().split(".")[0]);
-  } else return parseInt(time);
-};
 
 export class FireGuild extends Guild {
   quoteHooks: Collection<string, Webhook | WebhookClient>;
@@ -69,8 +60,8 @@ export class FireGuild extends Guild {
   inviteRoles: Collection<string, Snowflake>;
   vcRoles: Collection<Snowflake, Snowflake>;
   tempBans: Collection<Snowflake, number>;
+  inviteUses: Collection<string, number>;
   mutes: Collection<Snowflake, number>;
-  invites: Collection<string, number>;
   fetchingMemberUpdates: boolean;
   muteCheckTask: NodeJS.Timeout;
   declare me: FireMember | null;
@@ -97,7 +88,7 @@ export class FireGuild extends Guild {
     this.permRoles = new Collection();
     this.fetchingRoleUpdates = false;
     this.vcRoles = new Collection();
-    this.invites = new Collection();
+    this.inviteUses = new Collection();
     this.loadStarboardReactions();
     this.loadStarboardMessages();
     this.loadMutes();
@@ -180,8 +171,8 @@ export class FireGuild extends Guild {
     if (!role) return false;
     this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.guildChannels.cache) {
-      await channel
-        .updateOverwrite(
+      await channel.permissionOverwrites
+        .edit(
           role,
           {
             USE_PRIVATE_THREADS: false,
@@ -210,8 +201,8 @@ export class FireGuild extends Guild {
     if (!changed) return false;
     this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.guildChannels.cache) {
-      await channel
-        .updateOverwrite(
+      await channel.permissionOverwrites
+        .edit(
           role,
           {
             USE_PRIVATE_THREADS: false,
@@ -234,15 +225,15 @@ export class FireGuild extends Guild {
     const role = this.muteRole;
     if (!role) return;
     for (const [, channel] of this.guildChannels.cache) {
-      const denied = channel.permissionOverwrites.get(role.id)?.deny;
+      const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
       if (
         !denied ||
         !denied.has(Permissions.FLAGS.SEND_MESSAGES) ||
         !denied.has(Permissions.FLAGS.ADD_REACTIONS) ||
         !denied.has(Permissions.FLAGS.SPEAK)
       )
-        await channel
-          .updateOverwrite(
+        await channel.permissionOverwrites
+          .edit(
             role,
             {
               SEND_MESSAGES: false,
@@ -270,7 +261,7 @@ export class FireGuild extends Guild {
     for await (const mute of mutes) {
       this.mutes.set(
         mute.get("uid") as Snowflake,
-        parseUntil(mute.get("until") as string)
+        parseInt(mute.get("until") as string)
       );
     }
     if (this.muteCheckTask) clearInterval(this.muteCheckTask);
@@ -289,7 +280,7 @@ export class FireGuild extends Guild {
     for await (const ban of bans) {
       this.tempBans.set(
         ban.get("uid") as Snowflake,
-        parseUntil(ban.get("until") as string)
+        parseInt(ban.get("until") as string)
       );
     }
     if (this.banCheckTask) clearInterval(this.banCheckTask);
@@ -324,11 +315,12 @@ export class FireGuild extends Guild {
             `[Guild] Failed to remove mute for ${member} (${id}) in ${this.name} (${this.id}) due to ${unmuted}`
           );
           await this.modLog(
-            this.language.get(
-              "UNMUTE_AUTO_FAIL",
-              `${member} (${id})`,
-              this.language.get(`UNMUTE_FAILED_${unmuted.toUpperCase()}`)
-            ),
+            this.language.get("UNMUTE_AUTO_FAIL", {
+              member: `${member} (${id})`,
+              reason: this.language.get(
+                `UNMUTE_FAILED_${unmuted.toUpperCase()}` as LanguageKeys
+              ),
+            }),
             "unmute"
           );
         } else continue;
@@ -341,7 +333,7 @@ export class FireGuild extends Guild {
           .setColor("#2ECC71")
           .setTimestamp(now)
           .setAuthor(
-            this.language.get("UNMUTE_LOG_AUTHOR", id),
+            this.language.get("UNMUTE_LOG_AUTHOR", { user: id }),
             this.iconURL({ size: 2048, format: "png", dynamic: true })
           )
           .addField(this.language.get("MODERATOR"), me.toString())
@@ -477,7 +469,7 @@ export class FireGuild extends Guild {
       if (!members) return;
       for (const [, state] of this.voiceStates.cache.filter(
         (state) =>
-          state.channelID == channel.id &&
+          state.channelId == channel.id &&
           !members.get(state.id)?.roles.cache.has(role.id) &&
           !members.get(state.id)?.user.bot
       ))
@@ -529,14 +521,15 @@ export class FireGuild extends Guild {
       for (const [, channel] of this.guildChannels.cache.filter(
         (channel) =>
           channel.permissionsFor(this.me).has(Permissions.FLAGS.MANAGE_ROLES) &&
-          (channel.permissionOverwrites.get(id)?.allow.bitfield !=
+          (channel.permissionOverwrites.cache.get(id)?.allow.bitfield !=
             perms.allow ||
-            channel.permissionOverwrites.get(id)?.deny.bitfield != perms.deny)
+            channel.permissionOverwrites.cache.get(id)?.deny.bitfield !=
+              perms.deny)
       ))
-        channel
-          .overwritePermissions(
+        channel.permissionOverwrites
+          .set(
             [
-              ...channel.permissionOverwrites.array().filter(
+              ...channel.permissionOverwrites.cache.array().filter(
                 // ensure the overwrites below are used instead
                 (overwrite) => overwrite.id != id
               ),
@@ -554,16 +547,17 @@ export class FireGuild extends Guild {
   }
 
   async loadInvites() {
-    this.invites = new Collection();
+    this.inviteUses = new Collection();
     if (!this.premium || !this.available) return;
-    const invites = await this.fetchInvites().catch(() => {});
-    if (!invites) return this.invites;
-    for (const [code, invite] of invites) this.invites.set(code, invite.uses);
+    const invites = await this.invites.fetch().catch(() => {});
+    if (!invites) return this.inviteUses;
+    for (const [code, invite] of invites)
+      this.inviteUses.set(code, invite.uses);
     if (this.features.includes("VANITY_URL")) {
       const vanity = await this.fetchVanityData().catch(() => {});
-      if (vanity) this.invites.set(vanity.code, vanity.uses);
+      if (vanity) this.inviteUses.set(vanity.code, vanity.uses);
     }
-    return this.invites;
+    return this.inviteUses;
   }
 
   isPublic() {
@@ -588,7 +582,7 @@ export class FireGuild extends Guild {
         splash,
         vanity: `https://discover.inv.wtf/${this.id}`,
         members: 0,
-        shard: this.shardID,
+        shard: this.shardId,
         cluster: this.client.manager.id,
       };
     if (this.splash)
@@ -614,7 +608,7 @@ export class FireGuild extends Guild {
       splash,
       vanity: `https://discover.inv.wtf/${this.id}`,
       members: this.memberCount,
-      shard: this.shardID,
+      shard: this.shardId,
       cluster: this.client.manager.id,
     };
   }
@@ -783,11 +777,11 @@ export class FireGuild extends Guild {
   async createTicket(
     author: FireMember,
     subject: string,
-    channel?: FireTextChannel | NewsChannel,
+    channel?: FireTextChannel,
     category?: CategoryChannel
   ) {
     if (channel instanceof FakeChannel)
-      channel = channel.real as FireTextChannel | NewsChannel;
+      channel = channel.real as FireTextChannel;
 
     if (author?.guild?.id != this.id) return "author";
     if (this.client.util.isBlacklisted(author.id, this)) return "blacklisted";
@@ -851,24 +845,24 @@ export class FireGuild extends Guild {
           name: `${author} (${author.id})`,
           autoArchiveDuration: 10080,
           reason: this.language.get(
-            "TICKET_CHANNEL_TOPIC",
-            author.toString(),
-            author.id,
             subject
-          ) as string,
+              ? ("TICKET_SUBJECT_CHANNEL_TOPIC" as LanguageKeys)
+              : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
+            { author: author.toString(), id: author.id, subject }
+          ),
           type: "private_thread",
         })
         .catch((e: Error) => e)) as ThreadChannel;
       if (ticket instanceof ThreadChannel) {
         await ticket.members.add(author).catch(() => {});
         if (
-          category.permissionOverwrites.filter(
+          category.permissionOverwrites.cache.filter(
             (overwrite) => overwrite.type == "member"
           ).size
         ) {
           const members = await this.members
             .fetch({
-              user: category.permissionOverwrites
+              user: category.permissionOverwrites.cache
                 .filter((overwrite) => overwrite.type == "member")
                 .map((overwrite) => overwrite.id),
             })
@@ -883,7 +877,7 @@ export class FireGuild extends Guild {
         .create(name.slice(0, 50), {
           parent: category,
           permissionOverwrites: [
-            ...category.permissionOverwrites
+            ...category.permissionOverwrites.cache
               .array()
               .filter(
                 // ensure the overwrites below are used instead
@@ -921,17 +915,17 @@ export class FireGuild extends Guild {
             },
           ],
           topic: this.language.get(
-            "TICKET_CHANNEL_TOPIC",
-            author.toString(),
-            author.id,
             subject
-          ) as string,
+              ? ("TICKET_CHANNEL_SUBJECT_TOPIC" as LanguageKeys)
+              : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
+            { author: author.toString(), id: author.id, subject }
+          ),
           reason: this.language.get(
-            "TICKET_CHANNEL_TOPIC",
-            author.toString(),
-            author.id,
             subject
-          ) as string,
+              ? ("TICKET_CHANNEL_SUBJECT_TOPIC" as LanguageKeys)
+              : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
+            { author: author.toString(), id: author.id, subject }
+          ),
         })
         .catch((e: Error) => e)) as unknown) as FireTextChannel;
     if (ticket instanceof Error) {
@@ -940,7 +934,9 @@ export class FireGuild extends Guild {
       return ticket;
     }
     const embed = new MessageEmbed()
-      .setTitle(this.language.get("TICKET_OPENER_TILE", author.toString()))
+      .setTitle(
+        this.language.get("TICKET_OPENER_TILE", { author: author.toString() })
+      )
       .setTimestamp()
       .setColor(author.displayColor ?? "#FFFFFF")
       .addField(this.language.get("SUBJECT"), subject);
@@ -959,7 +955,7 @@ export class FireGuild extends Guild {
               new MessageActionRow().addComponents(
                 new MessageButton()
                   .setStyle("DANGER")
-                  .setCustomID(`ticket_close_${ticket.id}`)
+                  .setCustomId(`ticket_close_${ticket.id}`)
                   .setLabel(this.language.get("TICKET_CLOSE_BUTTON_TEXT"))
                   .setEmoji("534174796938870792")
               ),
@@ -983,7 +979,7 @@ export class FireGuild extends Guild {
               new MessageActionRow().addComponents(
                 new MessageButton()
                   .setStyle("DANGER")
-                  .setCustomID(`ticket_close_${ticket.id}`)
+                  .setCustomId(`ticket_close_${ticket.id}`)
                   .setLabel(this.language.get("TICKET_CLOSE_BUTTON_TEXT"))
                   .setEmoji("534174796938870792")
               ),
@@ -1053,11 +1049,10 @@ export class FireGuild extends Guild {
       if (creator)
         await creator
           .send({
-            content: creator.language.get(
-              "TICKET_CLOSE_TRANSCRIPT",
-              this.name,
-              reason
-            ),
+            content: creator.language.get("TICKET_CLOSE_TRANSCRIPT", {
+              guild: this.name,
+              reason,
+            }),
             files: [
               new MessageAttachment(buffer, `${channel.name}-transcript.txt`),
             ],
@@ -1073,7 +1068,9 @@ export class FireGuild extends Guild {
         this.settings.get<Snowflake>("log.action")
       ) as FireTextChannel);
     const embed = new MessageEmbed()
-      .setTitle(this.language.get("TICKET_CLOSER_TITLE", channel.name))
+      .setTitle(
+        this.language.get("TICKET_CLOSER_TITLE", { channel: channel.name })
+      )
       .setTimestamp()
       .setColor(author.displayColor ?? "#FFFFFF")
       .addField(
@@ -1085,7 +1082,7 @@ export class FireGuild extends Guild {
       ?.send({
         embeds: [embed],
         files:
-          channel.parentID == "755796036198596688"
+          channel.parentId == "755796036198596688"
             ? []
             : [new MessageAttachment(buffer, `${channel.name}-transcript.txt`)],
       })
@@ -1098,23 +1095,20 @@ export class FireGuild extends Guild {
 
   private getTranscriptContent(message: FireMessage) {
     if (message.type == "RECIPIENT_ADD")
-      return this.language.get(
-        "TICKET_RECIPIENT_ADD",
-        message.author.toString(),
-        message.mentions.users.first()
-      );
+      return this.language.get("TICKET_RECIPIENT_ADD", {
+        author: message.author.toString(),
+        added: message.mentions.users.first().toString(),
+      });
     else if (message.type == "RECIPIENT_REMOVE")
-      return this.language.get(
-        "TICKET_RECIPIENT_REMOVE",
-        message.author.toString(),
-        message.mentions.users.first()
-      );
+      return this.language.get("TICKET_RECIPIENT_REMOVE", {
+        author: message.author.toString(),
+        removed: message.mentions.users.first().toString(),
+      });
     else if (message.type == "CHANNEL_NAME_CHANGE")
-      return this.language.get(
-        "TICKET_THREAD_RENAME",
-        message.author.toString(),
-        message.cleanContent
-      );
+      return this.language.get("TICKET_THREAD_RENAME", {
+        author: message.author.toString(),
+        name: message.cleanContent,
+      });
     let text = message.cleanContent ?? "";
     if (message.embeds.length)
       for (const embed of message.embeds) {
@@ -1127,10 +1121,9 @@ export class FireGuild extends Guild {
       for (const [, attachment] of message.attachments)
         text += `\n${attachment.proxyURL}`;
     if (message.stickers.size)
-      text += `\n${this.language.get(
-        "TICKET_CLOSE_TRANSCRIPT_STICKER",
-        message.stickers.map((sticker) => sticker.name).join(",")
-      )}`;
+      text += `\n${this.language.get("TICKET_CLOSE_TRANSCRIPT_STICKER", {
+        name: message.stickers.map((sticker) => sticker.name)[0],
+      })}`;
 
     return text.trim() || "¯\\\\_(ツ)_/¯";
   }
@@ -1201,7 +1194,7 @@ export class FireGuild extends Guild {
       .setColor("#E74C3C")
       .setTimestamp()
       .setAuthor(
-        this.language.get("UNBAN_LOG_AUTHOR", user.toString()),
+        this.language.get("UNBAN_LOG_AUTHOR", { user: user.toString() }),
         user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.language.get("MODERATOR"), moderator.toString())
@@ -1211,11 +1204,10 @@ export class FireGuild extends Guild {
     if (channel)
       return await channel
         .send(
-          this.language.get(
-            "UNBAN_SUCCESS",
-            Util.escapeMarkdown(user.toString()),
-            Util.escapeMarkdown(this.name)
-          )
+          this.language.getSuccess("UNBAN_SUCCESS", {
+            user: Util.escapeMarkdown(user.toString()),
+            guild: Util.escapeMarkdown(this.name),
+          })
         )
         .catch(() => {});
   }
@@ -1242,8 +1234,8 @@ export class FireGuild extends Guild {
       SEND_MESSAGES: false,
       ADD_REACTIONS: false,
     };
-    const blocked = await channel
-      .updateOverwrite(blockee, overwrite, {
+    const blocked = await channel.permissionOverwrites
+      .edit(blockee, overwrite, {
         reason: `${moderator} | ${reason}`,
       })
       .catch(() => {});
@@ -1259,10 +1251,10 @@ export class FireGuild extends Guild {
       )
       .setTimestamp()
       .setAuthor(
-        this.language.get(
-          "BLOCK_LOG_AUTHOR",
-          blockee instanceof FireMember ? blockee.toString() : blockee.name
-        ),
+        this.language.get("BLOCK_LOG_AUTHOR", {
+          blockee:
+            blockee instanceof FireMember ? blockee.toString() : blockee.name,
+        }),
         blockee instanceof FireMember
           ? blockee.displayAvatarURL({
               size: 2048,
@@ -1278,12 +1270,11 @@ export class FireGuild extends Guild {
     await this.modLog(embed, "block").catch(() => {});
     return await channel
       .send(
-        this.language.get(
-          "BLOCK_SUCCESS",
-          Util.escapeMarkdown(
+        this.language.getSuccess("BLOCK_SUCCESS", {
+          blockee: Util.escapeMarkdown(
             blockee instanceof FireMember ? blockee.toString() : blockee.name
-          )
-        )
+          ),
+        })
       )
       .catch(() => {});
   }
@@ -1310,17 +1301,19 @@ export class FireGuild extends Guild {
       SEND_MESSAGES: null,
       ADD_REACTIONS: null,
     };
-    const unblocked = await channel
-      .updateOverwrite(unblockee, overwrite, {
+    const unblocked = await channel.permissionOverwrites
+      .edit(unblockee, overwrite, {
         reason: `${moderator} | ${reason}`,
       })
       .catch(() => {});
     if (
-      channel.permissionOverwrites?.get(unblockee.id)?.allow.bitfield == 0n &&
-      channel.permissionOverwrites?.get(unblockee.id)?.deny.bitfield == 0n &&
+      channel.permissionOverwrites?.cache.get(unblockee.id)?.allow.bitfield ==
+        0n &&
+      channel.permissionOverwrites?.cache.get(unblockee.id)?.deny.bitfield ==
+        0n &&
       unblockee.id != this.roles.everyone.id
     )
-      await channel.permissionOverwrites
+      await channel.permissionOverwrites.cache
         .get(unblockee.id)
         .delete()
         .catch(() => {}); // this doesn't matter *too* much
@@ -1338,12 +1331,12 @@ export class FireGuild extends Guild {
       )
       .setTimestamp()
       .setAuthor(
-        this.language.get(
-          "UNBLOCK_LOG_AUTHOR",
-          unblockee instanceof FireMember
-            ? unblockee.toString()
-            : unblockee.name
-        ),
+        this.language.get("UNBLOCK_LOG_AUTHOR", {
+          unblockee:
+            unblockee instanceof FireMember
+              ? unblockee.toString()
+              : unblockee.name,
+        }),
         unblockee instanceof FireMember
           ? unblockee.displayAvatarURL({
               size: 2048,
@@ -1358,14 +1351,13 @@ export class FireGuild extends Guild {
     await this.modLog(embed, "unblock").catch(() => {});
     return await channel
       .send(
-        this.language.get(
-          "UNBLOCK_SUCCESS",
-          Util.escapeMarkdown(
+        this.language.getSuccess("UNBLOCK_SUCCESS", {
+          unblockee: Util.escapeMarkdown(
             unblockee instanceof FireMember
               ? unblockee.toString()
               : unblockee.name
-          )
-        )
+          ),
+        })
       )
       .catch(() => {});
   }

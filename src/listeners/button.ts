@@ -1,18 +1,22 @@
 import {
+  MessageSelectOptionData,
   MessageActionRow,
   MessageButton,
   SnowflakeUtil,
   MessageEmbed,
   Permissions,
   Snowflake,
+  MessageSelectMenu,
 } from "discord.js";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { codeblockTypeCaster } from "../arguments/codeblock";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { LanguageKeys } from "@fire/lib/util/language";
 import { constants } from "@fire/lib/util/constants";
 import { getBranch } from "@fire/lib/util/gitUtils";
 import { Listener } from "@fire/lib/util/listener";
@@ -23,6 +27,15 @@ import * as centra from "centra";
 
 const { url, emojis } = constants;
 
+const reminderSnoozeTimes = {
+  REMINDER_SNOOZE_FIVEMIN: "300000",
+  REMINDER_SNOOZE_HALFHOUR: "1800000",
+  REMINDER_SNOOZE_HOUR: "3600000",
+  REMINDER_SNOOZE_SIXHOURS: "21600000",
+  REMINDER_SNOOZE_HALFDAY: "43200000",
+  REMINDER_SNOOZE_DAY: "86400000",
+  REMINDER_SNOOZE_WEEK: "604800000",
+};
 const validPaginatorIds = ["close", "start", "back", "forward", "end"];
 const validSk1erTypes = ["general", "purchase", "bug"];
 const sk1erTypeToEmoji = {
@@ -42,7 +55,7 @@ export default class Button extends Listener {
   // used to handle generic buttons, like ticket close or reaction roles
   async exec(button: ComponentMessage) {
     // check for deletion button
-    if (button.customID == "delete_me")
+    if (button.customId == "delete_me")
       return await button.delete(button.interaction.message.id).catch(() => {});
 
     let message: FireMessage;
@@ -50,22 +63,22 @@ export default class Button extends Listener {
 
     // Run handlers
     try {
-      if (this.client.buttonHandlers.has(button.customID))
-        this.client.buttonHandlers.get(button.customID)(button);
+      if (this.client.buttonHandlers.has(button.customId))
+        this.client.buttonHandlers.get(button.customId)(button);
     } catch {}
     try {
-      if (this.client.buttonHandlersOnce.has(button.customID)) {
-        const handler = this.client.buttonHandlersOnce.get(button.customID);
-        this.client.buttonHandlersOnce.delete(button.customID);
+      if (this.client.buttonHandlersOnce.has(button.customId)) {
+        const handler = this.client.buttonHandlersOnce.get(button.customId);
+        this.client.buttonHandlersOnce.delete(button.customId);
         handler(button);
       }
     } catch {}
 
     if (
-      url.supportedHaste.some((url) => button.customID.startsWith(`h:${url}:`))
+      url.supportedHaste.some((url) => button.customId.startsWith(`h:${url}:`))
     ) {
       button.flags = 64;
-      const [, uploader, key] = button.customID.split(":");
+      const [, uploader, key] = button.customId.split(":");
       const hasteReq = await centra(`https://${uploader}/raw/${key}`)
         .header(
           "User-Agent",
@@ -118,10 +131,10 @@ export default class Button extends Listener {
     }
 
     // handle ticket close buttons
-    if (button.customID.startsWith("ticket_close")) {
+    if (button.customId.startsWith("ticket_close")) {
       const { guild } = button;
       if (!guild) return;
-      const channelId = button.customID.slice(13) as Snowflake;
+      const channelId = button.customId.slice(13) as Snowflake;
       const channel = this.client.channels.cache.get(
         channelId
       ) as FireTextChannel;
@@ -141,8 +154,8 @@ export default class Button extends Listener {
       } else return;
     }
 
-    if (button.customID.startsWith(`rank:${button.member?.id}:`)) {
-      const roleId = button.customID.slice(
+    if (button.customId.startsWith(`rank:${button.member?.id}:`)) {
+      const roleId = button.customId.slice(
         `rank:${button.member?.id}:`.length
       ) as Snowflake;
       const role = button.guild?.roles.cache.get(roleId);
@@ -167,7 +180,9 @@ export default class Button extends Listener {
         .setColor(button.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setAuthor(
-          button.language.get("RANKS_AUTHOR", button.guild.toString()),
+          button.language.get("RANKS_AUTHOR", {
+            guild: button.guild.toString(),
+          }),
           button.guild.icon
             ? (button.guild.iconURL({
                 size: 2048,
@@ -176,28 +191,25 @@ export default class Button extends Listener {
               }) as string)
             : undefined
         );
-      await button.channel.update(null, {
+      await button.channel.update({
         embeds: [embed],
         components,
       });
     }
 
-    if (button.customID.startsWith("tag_edit:") && button.guild) {
+    if (button.customId.startsWith("tag_edit:") && button.guild) {
       if (!button.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
         return await button
-          .error(
-            "MISSING_PERMISSIONS_USER",
-            [
-              this.client.util.cleanPermissionName(
-                "MANAGE_MESSAGES",
-                button.language
-              ),
-            ],
-            "tag edit"
-          )
+          .error("MISSING_PERMISSIONS_USER", {
+            permissions: this.client.util.cleanPermissionName(
+              "MANAGE_MESSAGES",
+              button.language
+            ),
+            command: "tag edit",
+          })
           .catch(() => {});
 
-      const name = button.customID.slice(9);
+      const name = button.customId.slice(9);
       const tag = await button.guild.tags.getTag(name, false);
 
       let cancelled = false;
@@ -226,13 +238,14 @@ export default class Button extends Listener {
         .setColor(button.member?.displayColor ?? "#FFFFFF")
         .setDescription(button.language.get("TAG_EDIT_BUTTON_EMBED"))
         .setTimestamp();
-      await button.channel.update(editEmbed, {
+      await button.channel.update({
+        embeds: [editEmbed],
         components: [
           new MessageActionRow().addComponents(
             new MessageButton()
               .setLabel(button.language.get("TAG_EDIT_CANCEL_BUTTON"))
               .setStyle("DANGER")
-              .setCustomID(cancelSnowflake)
+              .setCustomId(cancelSnowflake)
           ),
         ],
       });
@@ -244,7 +257,7 @@ export default class Button extends Listener {
           errors: ["time"],
           filter: (m: FireMessage) =>
             m.author.id == button.author.id &&
-            m.channel.id == button.interaction.channelID,
+            m.channel.id == button.interaction.channelId,
         })
         .catch(() => {});
       if (cancelled || !newContent || !newContent.first()?.content) return;
@@ -278,8 +291,8 @@ export default class Button extends Listener {
       else return await button.success("TAG_EDIT_SUCCESS");
     }
 
-    if (button.customID.startsWith(`tag_view:`) && button.guild) {
-      const name = button.customID.slice(9);
+    if (button.customId.startsWith(`tag_view:`) && button.guild) {
+      const name = button.customId.slice(9);
       const tag = await button.guild.tags.getTag(name, false);
       if (!tag) return;
       else
@@ -288,22 +301,19 @@ export default class Button extends Listener {
           .catch(() => {});
     }
 
-    if (button.customID.startsWith("tag_delete:") && button.guild) {
+    if (button.customId.startsWith("tag_delete:") && button.guild) {
       if (!button.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
         return await button
-          .error(
-            "MISSING_PERMISSIONS_USER",
-            [
-              this.client.util.cleanPermissionName(
-                "MANAGE_MESSAGES",
-                button.language
-              ),
-            ],
-            "tag delete"
-          )
+          .error("MISSING_PERMISSIONS_USER", {
+            permissions: this.client.util.cleanPermissionName(
+              "MANAGE_MESSAGES",
+              button.language
+            ),
+            command: "tag delete",
+          })
           .catch(() => {});
 
-      const name = button.customID.slice(11);
+      const name = button.customId.slice(11);
       const tag = await button.guild.tags.getTag(name, false);
       if (!tag) return;
 
@@ -317,10 +327,11 @@ export default class Button extends Listener {
 
       const deleted = await button.guild.tags.deleteTag(name);
       if (!deleted)
-        return await button.channel.update(
-          button.language.get("TAG_DELETE_FAILED", data),
-          { embeds: [], components: [] }
-        );
+        return await button.channel.update({
+          content: button.language.get("TAG_DELETE_FAILED", { haste: data }),
+          embeds: [],
+          components: [],
+        });
       else {
         const embed = new MessageEmbed()
           .setAuthor(
@@ -328,14 +339,16 @@ export default class Button extends Listener {
             button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
           )
           .setColor(button.member?.displayColor ?? "#FFFFFF")
-          .setDescription(button.language.get("TAG_DELETE_SUCCESS", data))
+          .setDescription(
+            button.language.get("TAG_DELETE_SUCCESS", { haste: data })
+          )
           .setTimestamp();
-        return await button.channel.update(embed, { components: [] });
+        return await button.channel.update({ embeds: [embed], components: [] });
       }
     }
 
-    if (button.customID.startsWith("sk1er_support_")) {
-      const type = button.customID.slice(14);
+    if (button.customId.startsWith("sk1er_support_")) {
+      const type = button.customId.slice(14);
       if (!type || !validSk1erTypes.includes(type)) return;
       const sk1erModule = this.client.getModule("sk1er") as Sk1er;
       if (!sk1erModule) return;
@@ -352,8 +365,8 @@ export default class Button extends Listener {
           (component) =>
             component.type == "BUTTON" &&
             component.style != "LINK" &&
-            (component.customID == button.customID ||
-              component.customID.slice(1) == button.customID)
+            (component.customId == button.customId ||
+              component.customId.slice(1) == button.customId)
         );
       if (component?.type != "BUTTON" || component?.style == "LINK")
         return "non button";
@@ -365,7 +378,7 @@ export default class Button extends Listener {
 
       button.flags += 64; // set ephemeral
       const confirmButton = new MessageButton()
-        .setCustomID(`sk1er_confirm_${type}`)
+        .setCustomId(`sk1er_confirm_${type}`)
         .setStyle("SUCCESS")
         .setEmoji(emoji)
         .setDisabled(true);
@@ -373,7 +386,7 @@ export default class Button extends Listener {
       const deleteButton = new MessageButton()
         .setEmoji("534174796938870792")
         .setStyle("DANGER")
-        .setCustomID(deleteSnowflake);
+        .setCustomId(deleteSnowflake);
       this.client.buttonHandlersOnce.set(deleteSnowflake, () => {
         button
           .edit(button.language.get("SK1ER_SUPPORT_CANCELLED"), {
@@ -400,8 +413,8 @@ export default class Button extends Listener {
             new MessageActionRow().addComponents([confirmButton, deleteButton]),
           ],
         });
-    } else if (button.customID.startsWith("sk1er_confirm_")) {
-      const type = button.customID.slice(14);
+    } else if (button.customId.startsWith("sk1er_confirm_")) {
+      const type = button.customId.slice(14);
       if (!type || !validSk1erTypes.includes(type)) return;
       const sk1erModule = this.client.getModule("sk1er") as Sk1er;
       if (!sk1erModule) return;
@@ -411,7 +424,7 @@ export default class Button extends Listener {
       (button.message as FireMessage).components = [
         new MessageActionRow().addComponents(
           new MessageButton()
-            .setCustomID(`sk1er_confirm_${type}`)
+            .setCustomId(`sk1er_confirm_${type}`)
             .setEmoji(sk1erTypeToEmoji[type])
         ),
       ];
@@ -420,27 +433,60 @@ export default class Button extends Listener {
         .handleSupport(button, button.author)
         .catch((e: Error) => e);
       if (!(ticket instanceof FireTextChannel))
-        return await button.error("SK1ER_SUPPORT_FAIL", ticket.toString());
+        return await button.error("SK1ER_SUPPORT_FAIL", {
+          reason: ticket.toString(),
+        });
       else
         await button
           .edit(
-            `${emojis.success} ${button.language.get(
-              "NEW_TICKET_CREATED",
-              ticket.toString()
-            )}`,
+            `${emojis.success} ${button.language.get("NEW_TICKET_CREATED", {
+              channel: ticket.toString(),
+            })}`,
             { components: [] }
           )
           .catch(() => {});
     }
 
-    if (button.customID.startsWith("deploy:") && button.author.isSuperuser()) {
+    if (button.customId.startsWith("snooze:")) {
+      const event = this.client.manager.eventHandler?.store?.get(
+        EventType.REMINDER_SEND
+      ) as ReminderSendEvent;
+      if (!event) return await button.error("REMINDER_SNOOZE_ERROR");
+      else if (
+        !event.sent.find((r) =>
+          button.customId.endsWith(r.timestamp.toString())
+        )
+      )
+        return await button.error("REMINDER_SNOOZE_UNKNOWN");
+      const dropdown = new MessageSelectMenu()
+        .setPlaceholder(
+          button.author.language.get("REMINDER_SNOOZE_PLACEHOLDER")
+        )
+        .setCustomId(`!snooze:${button.customId.slice(7)}`)
+        .setMaxValues(1)
+        .setMinValues(1)
+        .addOptions(
+          Object.entries(reminderSnoozeTimes).map(([key, time]) => {
+            return {
+              label: button.author.language.get(key as LanguageKeys),
+              value: time,
+            };
+          })
+        );
+      return await button.channel.update({
+        content: "\u200b",
+        components: [new MessageActionRow().addComponents(dropdown)],
+      });
+    }
+
+    if (button.customId.startsWith("deploy:") && button.author.isSuperuser()) {
       await button.channel
-        .update(null, {
+        .update({
           embeds: (button.message as FireMessage).embeds,
           components: [],
         })
         .catch(() => {});
-      const commit = button.customID.slice(7);
+      const commit = button.customId.slice(7);
       // i should probably make this less jank
       const commitMessage =
         codeblockTypeCaster(
@@ -461,15 +507,16 @@ export default class Button extends Listener {
 
     if (
       message &&
-      validPaginatorIds.includes(button.customID) &&
+      validPaginatorIds.includes(button.customId) &&
       message?.paginator &&
       message.paginator.ready &&
       message.paginator.owner?.id == button.author.id
     )
       await message?.paginator.buttonHandler(button).catch(() => {});
     else if (
-      !button.channel.messages.cache.has(button.message?.id) &&
-      button.customID == "close"
+      !(button.channel.messages.cache.get(button.message?.id) as FireMessage)
+        ?.paginator &&
+      button.customId == "close"
     )
       await message?.delete().catch(() => {});
   }

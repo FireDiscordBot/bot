@@ -1,7 +1,5 @@
 import {
-  GuildChannelOverwriteOptions,
   MessageComponentInteraction,
-  PermissionOverwriteOptions,
   EmojiIdentifierResolvable,
   WebhookEditMessageOptions,
   DeconstructedSnowflake,
@@ -15,10 +13,10 @@ import {
   MessageReaction,
   MessageManager,
   RoleResolvable,
-  UserResolvable,
   MessagePayload,
   SnowflakeUtil,
   ThreadChannel,
+  GuildChannel,
   MessageEmbed,
   NewsChannel,
   Permissions,
@@ -27,10 +25,11 @@ import {
   DMChannel,
   Webhook,
 } from "discord.js";
+import { Language, LanguageKeys } from "../util/language";
 import { FireTextChannel } from "./textchannel";
 import { APIMessage } from "discord-api-types";
+import { TOptions, StringMap } from "i18next";
 import { constants } from "../util/constants";
-import { Language } from "../util/language";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
 import { FireGuild } from "./guild";
@@ -54,7 +53,7 @@ export class ComponentMessage {
   ephemeral: boolean;
   member: FireMember;
   language: Language;
-  customID: string;
+  customId: string;
   guild: FireGuild;
   author: FireUser;
   values: string[];
@@ -65,14 +64,14 @@ export class ComponentMessage {
     this.client = client;
     this.id = component.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
-    this.customID = component.customID;
+    this.customId = component.customId;
     this.type = component.componentType;
     this.values = [];
     if (component.isSelectMenu()) this.values = component.values;
     this.interaction = component;
     this.sent = false;
     this.guild = component.guild as FireGuild;
-    this.realChannel = client.channels.cache.get(component.channelID) as
+    this.realChannel = client.channels.cache.get(component.channelId) as
       | FireTextChannel
       | NewsChannel
       | DMChannel;
@@ -107,7 +106,7 @@ export class ComponentMessage {
         client,
         component.id,
         component.token,
-        component.guildID ? null : this.author.dmChannel
+        component.guildId ? null : this.author.dmChannel
       );
       return this;
     }
@@ -154,16 +153,16 @@ export class ComponentMessage {
     return this.snowflake.timestamp;
   }
 
-  send(key: string = "", ...args: any[]) {
+  send(key?: LanguageKeys, args?: TOptions<StringMap>) {
     return this.channel.send(
-      { content: this.language.get(key, ...args) },
+      { content: this.language.get(key, args) },
       this.flags
     );
   }
 
   success(
-    key: string = "",
-    ...args: any[]
+    key?: LanguageKeys,
+    args?: TOptions<StringMap>
   ): Promise<ComponentMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
@@ -178,14 +177,36 @@ export class ComponentMessage {
         });
     }
     return this.channel.send(
-      `${emojis.success} ${this.language.get(key, ...args)}`,
+      `${emojis.success} ${this.language.get(key, args)}`,
+      typeof this.flags == "number" ? this.flags : 64
+    );
+  }
+
+  warn(
+    key?: LanguageKeys,
+    args?: TOptions<StringMap>
+  ): Promise<ComponentMessage | MessageReaction | void> {
+    if (!key) {
+      if (this.sourceMessage instanceof FireMessage)
+        return this.sourceMessage.react(reactions.warning).catch(() => {});
+      else
+        return this.getRealMessage().then((message) => {
+          if (!message || !(message instanceof FireMessage))
+            return this.warn("SLASH_COMMAND_HANDLE_FAIL");
+          message.react(reactions.warning).catch(() => {
+            return this.warn("SLASH_COMMAND_HANDLE_FAIL");
+          });
+        });
+    }
+    return this.channel.send(
+      `${emojis.warning} ${this.language.get(key, args)}`,
       typeof this.flags == "number" ? this.flags : 64
     );
   }
 
   error(
-    key: string = "",
-    ...args: any[]
+    key?: LanguageKeys,
+    args?: TOptions<StringMap>
   ): Promise<ComponentMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
@@ -200,7 +221,7 @@ export class ComponentMessage {
         });
     }
     return this.channel.send(
-      `${emojis.error} ${this.language.get(key, ...args)}`,
+      `${emojis.slashError} ${this.language.get(key, args)}`,
       typeof this.flags == "number" ? this.flags : 64
     );
   }
@@ -291,8 +312,8 @@ export class ComponentMessage {
 
 export class FakeChannel {
   real: FireTextChannel | ThreadChannel | NewsChannel | DMChannel;
-  messages: MessageManager;
   message: ComponentMessage;
+  guild: FireGuild;
   token: string;
   client: Fire;
   id: string;
@@ -309,11 +330,24 @@ export class FakeChannel {
     this.token = token;
     this.client = client;
     this.message = message;
-    this.messages = real?.messages;
+
+    if (!(real instanceof DMChannel) && real?.guild)
+      this.guild = real.guild as FireGuild;
+    else if (this.message.guild) this.guild = this.message.guild;
   }
 
   get flags() {
     return this.message.flags;
+  }
+
+  get permissionOverwrites() {
+    return this.real instanceof GuildChannel
+      ? this.real.permissionOverwrites
+      : null;
+  }
+
+  get messages() {
+    return this.real.messages;
   }
 
   toString() {
@@ -348,17 +382,6 @@ export class FakeChannel {
 
   awaitMessages(options?: AwaitMessagesOptions) {
     return this.real?.awaitMessages(options);
-  }
-
-  updateOverwrite(
-    userOrRole: RoleResolvable | UserResolvable,
-    options: PermissionOverwriteOptions,
-    overwriteOptions?: GuildChannelOverwriteOptions
-  ) {
-    return !(this.real instanceof DMChannel) &&
-      !(this.real instanceof ThreadChannel)
-      ? this.real?.updateOverwrite(userOrRole, options, overwriteOptions)
-      : false;
   }
 
   createInvite(options?: CreateInviteOptions) {
@@ -446,32 +469,20 @@ export class FakeChannel {
   }
 
   async update(
-    content: string | MessagePayload | MessageEmbed,
-    options?: WebhookMessageOptions & { embed?: MessageEmbed },
+    options?:
+      | string
+      | MessagePayload
+      | (WebhookMessageOptions & { split?: false }),
     flags?: number // Used for success/error, can also be set
   ): Promise<ComponentMessage> {
     if (this.message.sent) return; // can only update with initial response
 
     let apiMessage: MessagePayload;
 
-    if (content instanceof MessageEmbed) {
-      options = {
-        ...options,
-        embeds: [content],
-      };
-      content = null;
-    }
-
-    if (options?.embed) {
-      options.embeds = [options.embed];
-      delete options.embed;
-    }
-
-    if (content instanceof MessagePayload) apiMessage = content.resolveData();
+    if (options instanceof MessagePayload) apiMessage = options.resolveData();
     else {
       apiMessage = MessagePayload.create(
         new Webhook(this.client, null), // needed to make isWebhook true for embeds array
-        content as string,
         options
       ).resolveData();
     }

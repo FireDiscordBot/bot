@@ -1,8 +1,8 @@
 import { CategoryChannel, Permissions, Snowflake, Role } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
 export default class FilterExclude extends Command {
@@ -85,15 +85,39 @@ export default class FilterExclude extends Command {
     }
     if (!changed)
       return await message.send(
-        current.length ? "FILTEREXCL_LIST_SOME_REMOVED" : "FILTEREXCL_LIST",
-        Object.values(mentions),
-        current
+        current.length
+          ? mentions.length
+            ? current.length == 1
+              ? "FILTEREXCL_LIST_SOME_REMOVED_SINGLE"
+              : "FILTEREXCL_LIST_SOME_REMOVED_MULTI"
+            : "FILTEREXCL_REMOVE_RESET"
+          : Object.keys(mentions).length == 1
+          ? "FILTEREXCL_LIST_SINGLE"
+          : mentions.length
+          ? "FILTEREXCL_LIST_MULTI"
+          : "FILTEREXCL_LIST_NONE",
+        {
+          mention: Object.values(mentions)[0],
+          mentions: Object.values(mentions).join(", "),
+          removed: current.join(", "),
+        }
       );
     else
       return await message.success(
-        current.length ? "FILTEREXCL_SET_SOME_REMOVED" : "FILTEREXCL_SET",
-        Object.values(mentions),
-        current
+        (current.length
+          ? mentions.length
+            ? current.length == 1
+              ? "FILTEREXCL_SET_SOME_REMOVED_SINGLE"
+              : "FILTEREXCL_SET_SOME_REMOVED_MULTI"
+            : "FILTEREXCL_REMOVE_RESET"
+          : mentions.length
+          ? "FILTEREXCL_SET"
+          : "FILTEREXCL_RESET") as LanguageKeys,
+        {
+          mention: Object.values(mentions)[0],
+          mentions: Object.values(mentions).join(", "),
+          removed: current.join(", "),
+        }
       );
   }
 }

@@ -65,19 +65,18 @@ export default class Stats extends Command {
         this.client.user.displayAvatarURL({ size: 2048, format: "png" })
       )
       .setTitle(
-        message.language.get(
-          "STATS_TITLE",
-          clusterStats.name,
-          clusterStats.version
-        )
+        message.language.get("STATS_TITLE", {
+          name: clusterStats.name,
+          version: clusterStats.version,
+        })
       )
       .setTimestamp()
       .setFooter(
-        message.language.get(
-          "STATS_FOOTER",
-          this.client.manager.id,
-          message.guild?.shardID || 0
-        )
+        message.language.get("STATS_FOOTER", {
+          pid: process.pid,
+          cluster: this.client.manager.id,
+          shard: message.guild?.shardId || 0,
+        })
       )
       .addField(
         message.language.get("GUILDS"),
@@ -121,14 +120,19 @@ export default class Stats extends Command {
         this.client.user.username,
         this.client.user.displayAvatarURL({ size: 2048, format: "png" })
       )
-      .setTitle(message.language.get("STATS_TITLE", stats.name, stats.version))
+      .setTitle(
+        message.language.get("STATS_TITLE", {
+          name: stats.name,
+          version: stats.version,
+        })
+      )
       .setTimestamp()
       .setFooter(
-        message.language.get(
-          "STATS_FOOTER",
-          this.client.manager.id,
-          message.guild?.shardID || 0
-        )
+        message.language.get("STATS_FOOTER", {
+          pid: process.pid,
+          cluster: this.client.manager.id,
+          shard: message.guild?.shardId || 0,
+        })
       )
       .addField(
         message.language.get("GUILDS"),

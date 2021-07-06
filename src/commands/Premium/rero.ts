@@ -44,14 +44,13 @@ export default class ReactionRole extends Command {
         args.role.rawPosition >= message.guild.me.roles.highest.rawPosition ||
         args.role.id == message.guild.roles.everyone.id ||
         (args.role.rawPosition >= message.member.roles.highest.rawPosition &&
-          message.guild.ownerID != message.author.id))
+          message.guild.ownerId != message.author.id))
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
 
-    const initialMessage = await message.send(
-      "REACTIONROLE_INITIAL",
-      args.role.toString()
-    );
+    const initialMessage = await message.send("REACTIONROLE_INITIAL", {
+      role: args.role.toString(),
+    });
     let reaction: MessageReaction, user: FireUser;
     [reaction, user] = await pEvent(this.client, "messageReactionAdd", {
       timeout: 60000,
@@ -90,25 +89,25 @@ export default class ReactionRole extends Command {
         .catch(() => {});
       if (deleted && deleted.status.startsWith("DELETE ")) {
         await this.logDeletion(message, args.role, reaction);
-        return await message.success(
-          "REACTIONROLE_DELETED",
-          reactionMessage.author.toString(),
-          reactionMessage.channel.toString(),
-          reactionMessage.url,
-          reaction.emoji.toString(),
-          args.role.toString()
-        );
+        return await message.success("REACTIONROLE_DELETED", {
+          author: reactionMessage.author.toString(),
+          channel: reactionMessage.channel.toString(),
+          jump: reactionMessage.url,
+          emoji: reaction.emoji.toString(),
+          role: args.role.toString(),
+        });
       } else return await message.error();
     }
 
-    const confirmation = await message.send(
-      "REACTIONROLE_CONFIRMATION",
-      reactionMessage.author.toString(),
-      reactionMessage.channel.toString(),
-      reactionMessage.url,
-      reaction.emoji.toString(),
-      args.role.toString()
-    );
+    const confirmation = await message.send("REACTIONROLE_CONFIRMATION", {
+      author: reactionMessage.author.toString(),
+      channel: reactionMessage.channel.toString(),
+      jump: reactionMessage.url,
+      emoji: reaction.emoji.toString(),
+      role: args.role.toString(),
+      success: emojis.success,
+      error: emojis.error,
+    });
     confirmation.react(reactions.success);
     confirmation.react(reactions.error);
     let yesOrNo: MessageReaction;
@@ -151,10 +150,9 @@ export default class ReactionRole extends Command {
       .setColor(message.member?.displayColor || "#2ECC71")
       .setTimestamp()
       .setAuthor(
-        message.guild.language.get(
-          "REACTIONROLE_LOG_AUTHOR",
-          message.guild.name
-        ),
+        message.guild.language.get("REACTIONROLE_LOG_AUTHOR", {
+          guild: message.guild.name,
+        }),
         message.guild.iconURL({
           size: 2048,
           format: "png",
@@ -184,10 +182,9 @@ export default class ReactionRole extends Command {
       .setColor("#E74C3C")
       .setTimestamp()
       .setAuthor(
-        message.guild.language.get(
-          "REACTIONROLE_LOG_AUTHOR",
-          message.guild.name
-        ),
+        message.guild.language.get("REACTIONROLE_LOG_AUTHOR", {
+          guild: message.guild.name,
+        }),
         message.guild.iconURL({
           size: 2048,
           format: "png",

@@ -36,7 +36,9 @@ export default class StarboardMinimum extends Command {
 
     message.guild.settings.set<number>("starboard.minimum", args.minimum);
     this.check(message, args.minimum);
-    return await message.success("STARBOARD_MINIMUM_SET", args.minimum);
+    return await message.success("STARBOARD_MINIMUM_SET", {
+      min: args.minimum,
+    });
   }
 
   async check(message: FireMessage, minimum: number) {

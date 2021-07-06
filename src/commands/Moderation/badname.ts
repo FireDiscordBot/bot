@@ -38,7 +38,7 @@ export default class BadName extends Command {
     else message.guild.settings.delete("utils.badname");
 
     return args.name
-      ? message.success("BADNAME_SET", args.name)
+      ? message.success("BADNAME_SET", { name: args.name })
       : message.success("BADNAME_RESET");
   }
 }

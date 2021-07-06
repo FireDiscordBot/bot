@@ -1,4 +1,4 @@
-import { MessageEmbed, Structures, User, Util } from "discord.js";
+import { MessageEmbed, UserMention, Structures, User, Util } from "discord.js";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { UserSettings } from "@fire/lib/util/settings";
@@ -32,7 +32,7 @@ export class FireUser extends User {
   }
 
   toString() {
-    return `${this.username}#${this.discriminator}`;
+    return (`${this.username}#${this.discriminator}` as unknown) as UserMention;
   }
 
   toMention() {
@@ -101,9 +101,10 @@ export class FireUser extends User {
     return this.client.util.isSuperuser(this.id);
   }
 
-  async createReminder(when: Date, why: string, link: string) {
-    if (!this.client.manager.ws?.open) return this.client.config.dev;
-    const timestamp = +when;
+  async createReminder(when: Date | number, why: string, link: string) {
+    if (!this.client.manager.ws?.open)
+      return process.env.NODE_ENV == "development";
+    const timestamp = typeof when == "number" ? when : +when;
     if (isNaN(timestamp) || timestamp < +new Date() + 60000) return false;
     const reminder = await this.client.db
       .query(
@@ -118,7 +119,6 @@ export class FireUser extends User {
           user: this.id,
           text: why,
           link,
-          legacy: false,
           timestamp,
         })
       )
@@ -177,7 +177,7 @@ export class FireUser extends User {
       .setColor("#E74C3C")
       .setTimestamp()
       .setAuthor(
-        guild.language.get("BAN_LOG_AUTHOR", this.toString()),
+        guild.language.get("BAN_LOG_AUTHOR", { user: this.toString() }),
         this.avatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(guild.language.get("MODERATOR"), moderator.toString())
@@ -187,11 +187,10 @@ export class FireUser extends User {
     if (channel)
       return await channel
         .send(
-          guild.language.get(
-            "BAN_SUCCESS",
-            Util.escapeMarkdown(this.toString()),
-            Util.escapeMarkdown(guild.name)
-          ) +
+          guild.language.get("BAN_SUCCESS", {
+            user: Util.escapeMarkdown(this.toString()),
+            guild: Util.escapeMarkdown(guild.name),
+          }) +
             (this.id == "159985870458322944"
               ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336"
               : "")
@@ -201,3 +200,8 @@ export class FireUser extends User {
 }
 
 Structures.extend("User", () => FireUser);
+// hack of the century
+const clientUserCacheKey = Object.keys(require.cache).find((key) =>
+  key.includes("ClientUser")
+);
+delete require.cache[clientUserCacheKey];

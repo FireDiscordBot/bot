@@ -44,18 +44,17 @@ export default class TicketAdd extends Command {
     )
       return await message.error("TICKET_ADD_FORBIDDEN");
     const updated = await channel
-      .updateOverwrite(
+      .permissionOverwrites.edit(
         args.user,
         {
           VIEW_CHANNEL: true,
           SEND_MESSAGES: true,
         },
         {
-          reason: message.language.get(
-            "TICKET_ADD_REASON",
-            message.author.toString(),
-            message.author.id
-          ) as string,
+          reason: message.language.get("TICKET_ADD_REASON", {
+            author: message.author.toString(),
+            id: message.author.id,
+          }) as string,
           type: 1,
         }
       )

@@ -40,7 +40,7 @@ export default class InviteRole extends Command {
         args.role.rawPosition >= message.guild.me.roles.highest.rawPosition ||
         args.role.id == message.guild.roles.everyone.id ||
         (args.role.rawPosition >= message.member.roles.highest.rawPosition &&
-          message.guild.ownerID != message.author.id))
+          message.guild.ownerId != message.author.id))
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
 
@@ -77,16 +77,8 @@ export default class InviteRole extends Command {
           .catch(() => {});
       }
       return deleted && deleted.status.startsWith("DELETE")
-        ? await message.success(
-            "INVITEROLE_DELETE_SUCCESS",
-            invite,
-            role?.toString()
-          )
-        : await message.error(
-            "INVITEROLE_DELETE_FAILED",
-            invite,
-            role?.toString()
-          );
+        ? await message.success("INVITEROLE_DELETE_SUCCESS", { invite })
+        : await message.error("INVITEROLE_DELETE_FAILED", { invite });
     } else if (!args.role)
       return await message.error("INVITEROLE_ROLE_REQUIRED");
 
@@ -126,16 +118,7 @@ export default class InviteRole extends Command {
     }
     return added &&
       (added.status.startsWith("INSERT") || added.status.startsWith("UPDATE"))
-      ? await message.success(
-          "INVITEROLE_CREATE_SUCCESS",
-          invite,
-          role?.toString(),
-          !exists
-        )
-      : await message.error(
-          "INVITEROLE_CREATE_FAILED",
-          invite,
-          role?.toString()
-        );
+      ? await message.success("INVITEROLE_CREATE_SUCCESS", { invite })
+      : await message.error("INVITEROLE_CREATE_FAILED", { invite });
   }
 }

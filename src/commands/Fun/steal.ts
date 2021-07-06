@@ -69,7 +69,7 @@ export default class Steal extends Command {
     } catch {
       return await message.error("STEAL_CAUGHT");
     }
-    return await message.success("STEAL_STOLEN", created.toString());
+    return await message.success("STEAL_STOLEN", { emoji: created.toString() });
   }
 
   async getFormat(url: string) {

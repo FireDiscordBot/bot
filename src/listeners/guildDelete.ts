@@ -13,14 +13,14 @@ export default class GuildDelete extends Listener {
   async exec(guild: FireGuild) {
     if (!this.client.readyAt) return;
     const owner = (await this.client.users
-      .fetch(guild.ownerID, {
+      .fetch(guild.ownerId, {
         cache: false,
       })
       .catch(() => {})) as FireUser;
     this.client.console.log(
       `[Guilds] Fire left a guild! ${guild.name} (${guild.id}) with ${
         guild.memberCount
-      } members owned by ${owner ?? "an unknown user"} (${guild.ownerID})`
+      } members owned by ${owner ?? "an unknown user"} (${guild.ownerId})`
     );
   }
 }

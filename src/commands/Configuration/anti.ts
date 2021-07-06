@@ -1,4 +1,5 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Permissions } from "discord.js";
@@ -54,10 +55,15 @@ export default class Anti extends Command {
           false
         ),
       };
-      return await message.send(
-        "ANTI_CURRENT_OPTIONS",
-        Object.entries(options)
-      );
+      return await message.send("ANTI_CURRENT_OPTIONS", {
+        filters: Object.entries(options)
+          .map(([name, enabled]) =>
+            enabled
+              ? `${constants.emojis.success} ${name}`
+              : `${constants.emojis.error} ${name}`
+          )
+          .join("\n"),
+      });
     }
 
     // there will be more added as time goes on
@@ -104,7 +110,7 @@ export default class Anti extends Command {
           : await message.success("ANTI_SELFBOT_ENABLED");
       }
       default: {
-        return await message.error("ANTI_UNKNOWN", valid);
+        return await message.error("ANTI_UNKNOWN", { valid: valid.join(", ") });
       }
     }
   }

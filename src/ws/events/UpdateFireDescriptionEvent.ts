@@ -19,13 +19,13 @@ export default class UpdateFireDescriptionEvent extends Event {
 
     if (
       !(client.options.shards as number[]).includes(
-        client.util.getShard(client.config.fireGuildId)
+        client.util.getShard(client.config.fireguildId)
       )
     )
       return;
 
     const guild = client.guilds.cache.get(
-      client.config.fireGuildId
+      client.config.fireguildId
     ) as FireGuild;
     await guild
       .edit({

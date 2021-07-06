@@ -49,7 +49,9 @@ export default class LinkFilter extends Command {
     }
   ) {
     if (!args.filters || !valid.includes(args.filters))
-      return await message.error("LINKFILTER_FILTER_LIST", valid);
+      return await message.error("LINKFILTER_FILTER_LIST", {
+        valid: valid.join(", "),
+      });
     else {
       let current = message.guild.settings.get<string[]>("mod.linkfilter", []);
       const filter = args.filters;
@@ -61,7 +63,7 @@ export default class LinkFilter extends Command {
       else message.guild.settings.delete("mod.linkfilter");
       return await message.success(
         current.length ? "LINKFILTER_SET" : "LINKFILTER_RESET",
-        current
+        { enabled: current.join(", ") }
       );
     }
   }

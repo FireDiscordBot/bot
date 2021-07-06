@@ -26,7 +26,7 @@ export default class Sk1er extends Module {
   supportMessage: FireMessage;
   statusCheck: NodeJS.Timeout;
   supportMessageId: Snowflake;
-  supportGuildId: Snowflake;
+  supportguildId: Snowflake;
   supportGuild: FireGuild;
   nitroId: Snowflake;
   guildId: Snowflake;
@@ -39,7 +39,7 @@ export default class Sk1er extends Module {
   constructor() {
     super("sk1er");
     this.guildId = "411619823445999637";
-    this.supportGuildId = "755794954743185438";
+    this.supportguildId = "755794954743185438";
     this.supportMessageId = "755817441581596783";
     this.nitroId = "585534346551754755";
     this.statusCheck = setInterval(
@@ -68,7 +68,7 @@ export default class Sk1er extends Module {
   async ready() {
     this.guild = this.client.guilds.cache.get(this.guildId) as FireGuild;
     this.supportGuild = this.client.guilds.cache.get(
-      this.supportGuildId
+      this.supportguildId
     ) as FireGuild;
     if ([!this.guild, !this.supportGuild].every((value) => value == true)) {
       this.remove();
@@ -163,10 +163,9 @@ export default class Sk1er extends Module {
             (this.guild.channels.cache.get(
               "411620457754787841"
             ) as FireTextChannel).send({
-              content: this.guild.language.get(
-                "SK1ER_NITRO_PERKS_REMOVED",
-                member.toMention()
-              ) as string,
+              content: this.guild.language.get("SK1ER_NITRO_PERKS_REMOVED", {
+                member: member.toMention(),
+              }) as string,
               allowedMentions: { users: [member.id] },
             });
         }
@@ -195,10 +194,9 @@ export default class Sk1er extends Module {
             (this.guild.channels.cache.get(
               "411620457754787841"
             ) as FireTextChannel).send(
-              this.guild.language.get(
-                "SK1ER_NITRO_PERKS_REMOVED_LEFT",
-                user.toString()
-              )
+              this.guild.language.get("SK1ER_NITRO_PERKS_REMOVED_LEFT", {
+                member: user.toString(),
+              })
             );
         }
       });
@@ -233,7 +231,7 @@ export default class Sk1er extends Module {
           (component) =>
             component.type == "BUTTON" &&
             component.style != "LINK" &&
-            component.customID == trigger.customID
+            component.customId == trigger.customId
         );
       if (component.type != "BUTTON" || component.style == "LINK")
         return "non button";

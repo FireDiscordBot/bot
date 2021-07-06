@@ -1,39 +1,68 @@
 import { AkairoHandler, AkairoModule } from "discord-akairo";
+import { StringMap, TOptions } from "i18next";
+import * as enUS from "@fire/i18n/en-US.json";
+import { constants } from "./constants";
 import { Fire } from "@fire/lib/Fire";
 
+type LanguageOptions = Partial<typeof enUS>;
+export type LanguageKeys = keyof typeof enUS;
+
 export class Language extends AkairoModule {
+  private language: LanguageOptions;
   declare client: Fire;
   enabled: boolean;
-  language: any;
 
   constructor(
     id: string,
-    options = {
-      language: {},
+    options: {
+      enabled: boolean;
+      language?: LanguageOptions;
+    } = {
       enabled: true,
     }
   ) {
     super(id, {});
 
-    const { language, enabled } = options;
+    const { enabled, language } = options;
     this.language = language;
     this.enabled = enabled;
   }
 
-  has(key: string) {
-    return this.language.hasOwnProperty(key);
+  init() {
+    this.client.i18n.addResourceBundle(
+      this.id,
+      "fire",
+      this.language,
+      true,
+      true
+    );
   }
 
-  get(key: string, ...args: any[]): string {
-    const defaultLang = this.client.languages.modules.get("en-US") as Language;
-    const message = this.has(key)
-      ? this.language[key]
-      : defaultLang.has(key)
-      ? defaultLang.get(key, ...args)
-      : defaultLang.get("DEFAULT", key);
-    if (typeof message === "function") {
-      return message(...args);
-    } else return message;
+  has(key: string) {
+    if (!this.enabled)
+      return typeof this.client.i18n.t(key, { lng: "en-US" }) != key;
+    return typeof this.client.i18n.t(key, { lng: this.id }) != key;
+  }
+
+  get(key?: LanguageKeys, args?: TOptions<StringMap>) {
+    if (args && !("interpolation" in args))
+      args.interpolation = { escapeValue: false };
+    if (!this.enabled) return this.client.i18n.t(key, { ...args });
+    else if (!this.has(key))
+      return `"${key} has not been localized for any languages yet."`;
+    return this.client.i18n.t(key, { ...args, lng: this.id });
+  }
+
+  getSuccess(key?: LanguageKeys, args?: TOptions<StringMap>) {
+    return `${constants.emojis.success} ${this.get(key, args)}`;
+  }
+
+  getWarning(key?: LanguageKeys, args?: TOptions<StringMap>) {
+    return `${constants.emojis.warning} ${this.get(key, args)}`;
+  }
+
+  getError(key?: LanguageKeys, args?: TOptions<StringMap>) {
+    return `${constants.emojis.error} ${this.get(key, args)}`;
   }
 }
 

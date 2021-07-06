@@ -26,7 +26,9 @@ export default class Icon extends Command {
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
-      .setTitle(message.language.get("ICON_TITLE", message.guild.name))
+      .setTitle(
+        message.language.get("ICON_TITLE", { guild: message.guild.name })
+      )
       .setImage(
         message.guild?.iconURL({
           size: 2048,

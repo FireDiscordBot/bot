@@ -61,7 +61,7 @@ export default class Autorole extends Command {
         args.role.rawPosition >= message.guild.me.roles.highest.rawPosition ||
         args.role.id == message.guild.roles.everyone.id ||
         (args.role.rawPosition >= message.member.roles.highest.rawPosition &&
-          message.guild.ownerID != message.author.id))
+          message.guild.ownerId != message.author.id))
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
     if (bot && delay) return await message.error("AUTOROLE_INVALID_FLAGS");
@@ -74,10 +74,11 @@ export default class Autorole extends Command {
       role.id
     );
 
-    await message.success(
-      bot ? "AUTOROLE_ENABLED_BOT" : "AUTOROLE_ENABLED",
-      role.toString(),
-      !!delay
-    );
+    await message.success(bot ? "AUTOROLE_ENABLED_BOT" : "AUTOROLE_ENABLED", {
+      role: role.toString(),
+      delay: !!delay
+        ? message.language.get("AUTOROLE_ENABLED_FIRST_MESSAGE")
+        : message.language.get("AUTOROLE_ENABLED_JOIN"),
+    });
   }
 }

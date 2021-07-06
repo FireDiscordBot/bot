@@ -38,6 +38,6 @@ export default class MinecraftUUID extends Command {
     let uuid = await this.client.util.nameToUUID(ign);
     if (!uuid) return await message.error("MCUUID_FETCH_FAIL");
     if (dashed) uuid = this.client.util.addDashesToUUID(uuid);
-    return await message.send("MCUUID_UUID", ign, uuid);
+    return await message.send("MCUUID_UUID", { ign, uuid });
   }
 }

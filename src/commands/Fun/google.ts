@@ -1,9 +1,9 @@
 import { DiscordAPIError, SnowflakeUtil, Permissions } from "discord.js";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import Filters from "@fire/src/modules/filters";
 import { Message } from "@fire/lib/ws/Message";
@@ -129,7 +129,7 @@ export default class Google extends Command {
       return await message.error("PLAYWRIGHT_ERROR_UNKNOWN");
     if (playwrightResponse.error)
       return await message.error(
-        `PLAYWRIGHT_ERROR_${playwrightResponse.error.toUpperCase()}`
+        `PLAYWRIGHT_ERROR_${playwrightResponse.error.toUpperCase()}` as LanguageKeys
       );
     else if (playwrightResponse.screenshot) {
       const screenshot = Buffer.from(playwrightResponse.screenshot.data);

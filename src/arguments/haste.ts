@@ -17,14 +17,18 @@ export const hasteTypeCaster: ArgumentTypeCaster = async (
   const uploader = match?.groups?.uploader;
   const key = match?.groups?.key;
   if (!uploader) {
-    await message.error("HASTE_INVALID_DOMAIN", supportedHaste.join(", "));
+    await message.error("HASTE_INVALID_DOMAIN", {
+      supported: supportedHaste.join(", "),
+    });
     return null;
   } else if (!key) {
     await message.error("HASTE_INVALID_URL");
   }
 
   if (uploader == "h.inv.wtf" && !message.author.isSuperuser()) {
-    await message.error("HASTE_INVALID_DOMAIN", supportedHaste.join(", "));
+    await message.error("HASTE_INVALID_DOMAIN", {
+      supported: supportedHaste.join(", "),
+    });
     return null;
   }
 

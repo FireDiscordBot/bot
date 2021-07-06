@@ -61,11 +61,17 @@ export default class PermRoles extends Command {
           .filter((permission) => !!permission);
         paginator.addLine(
           message.language.get(
-            "PERMROLES_CURRENT_ITEM",
-            role.toString(),
-            friendlyAllowed,
-            friendlyDenied
-          ) as string
+            friendlyAllowed.length && friendlyDenied.length
+              ? "PERMROLES_CURRENT_ITEM_COMBINED"
+              : friendlyAllowed.length
+              ? "PERMROLES_CURRENT_ITEM_ALLOW"
+              : "PERMROLES_CURRENT_ITEM_DENY",
+            {
+              role: role.toString(),
+              allowed: friendlyAllowed.join(", "),
+              denied: friendlyDenied.join(", "),
+            }
+          )
         );
       }
       if (!paginator.pages.length)
@@ -88,11 +94,11 @@ export default class PermRoles extends Command {
       (args.role.rawPosition >= message.guild.me.roles.highest.rawPosition ||
         args.role.id == message.guild.roles.everyone.id ||
         (args.role.rawPosition >= message.member.roles.highest.rawPosition &&
-          message.guild.ownerID != message.author.id))
+          message.guild.ownerId != message.author.id))
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
 
-    const channelPerms = (message.channel as TextChannel).permissionOverwrites.get(
+    const channelPerms = (message.channel as TextChannel).permissionOverwrites.cache.get(
       args.role.id
     );
     if (!channelPerms) return await message.error("PERMROLES_NOTHING_TO_COPY");
@@ -142,15 +148,15 @@ export default class PermRoles extends Command {
         channel
           .permissionsFor(message.guild.me)
           .has(Permissions.FLAGS.MANAGE_ROLES) &&
-        (channel.permissionOverwrites.get(args.role.id)?.allow.bitfield !=
+        (channel.permissionOverwrites.cache.get(args.role.id)?.allow.bitfield !=
           channelPerms.allow.bitfield ||
-          channel.permissionOverwrites.get(args.role.id)?.deny.bitfield !=
+          channel.permissionOverwrites.cache.get(args.role.id)?.deny.bitfield !=
             channelPerms.deny.bitfield)
     ))
-      await channel
-        .overwritePermissions(
+      await channel.permissionOverwrites
+        .set(
           [
-            ...channel.permissionOverwrites.array().filter(
+            ...channel.permissionOverwrites.cache.array().filter(
               // ensure the overwrites below are used instead
               (overwrite) => overwrite.id != args.role.id
             ),
@@ -167,7 +173,7 @@ export default class PermRoles extends Command {
     return await updating.edit(
       message.language.get(
         failed ? "PERMROLES_FINISHED_FAIL_SOME" : "PERMROLES_FINISHED",
-        failed
+        { failed }
       )
     );
   }

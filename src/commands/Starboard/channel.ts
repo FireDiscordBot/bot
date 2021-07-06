@@ -47,15 +47,15 @@ export default class StarboardChannel extends Command {
         Permissions.FLAGS.EMBED_LINKS,
       ]);
     if (missing.length)
-      return await message.error(
-        "MISSING_PERMISSIONS_CLIENT",
-        missing
+      return await message.error("MISSING_PERMISSIONS_CLIENT", {
+        permissions: missing
           .map((name) =>
             this.client.util.cleanPermissionName(name, message.language)
           )
-          .filter((permission) => !!permission),
-        `starboard channel`
-      );
+          .filter((permission) => !!permission)
+          .join(", "),
+        command: "starboard channel",
+      });
 
     const current = message.guild.settings.get<string>("starboard.channel");
     if (current && args.channel.id != current) {
@@ -70,9 +70,8 @@ export default class StarboardChannel extends Command {
     }
 
     message.guild.settings.set<string>("starboard.channel", args.channel.id);
-    return await message.success(
-      "STARBOARD_CHANNEL_SET",
-      args.channel.toString()
-    );
+    return await message.success("STARBOARD_CHANNEL_SET", {
+      channel: args.channel.toString(),
+    });
   }
 }

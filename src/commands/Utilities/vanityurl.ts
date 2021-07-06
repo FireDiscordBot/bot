@@ -122,10 +122,10 @@ export default class VanityURL extends Command {
     else if (vanity == "blacklisted")
       return await message.error("VANITYURL_BLACKLISTED");
     else
-      return await message.success(
-        "VANITYURL_CREATED",
-        args.code,
-        this.client.config.dev
-      );
+      return await message.success("VANITYURL_CREATED", {
+        vanity: `https://${
+          process.env.NODE_ENV != "production" ? "test." : ""
+        }inv.wtf/${args.code}`,
+      });
   }
 }

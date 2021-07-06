@@ -1,7 +1,7 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
 export default class Unmute extends Command {
@@ -38,7 +38,7 @@ export default class Unmute extends Command {
     else if (
       args.user instanceof FireMember &&
       args.user.isModerator(message.channel) &&
-      message.author.id != message.guild.ownerID
+      message.author.id != message.guild.ownerId
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     await message.delete().catch(() => {});
@@ -53,6 +53,6 @@ export default class Unmute extends Command {
     if (unmuted == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof unmuted == "string")
-      return await message.error(`UNMUTE_FAILED_${unmuted.toUpperCase()}`);
+      return await message.error(`UNMUTE_FAILED_${unmuted.toUpperCase()}` as LanguageKeys);
   }
 }

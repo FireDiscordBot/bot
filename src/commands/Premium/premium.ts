@@ -37,7 +37,9 @@ export default class Premium extends Command {
       return await message.error("PREMIUM_LIMIT_ZERO");
 
     if (current.length >= limit && !current.includes(message.guild.id))
-      return await message.error("PREMIUM_LIMIT_REACHED", current);
+      return await message.error("PREMIUM_LIMIT_REACHED", {
+        current: current.join(", "),
+      });
 
     if (this.client.util.premium.has(message.guild.id)) {
       const currentPremium = this.client.util.premium.get(message.guild.id);
@@ -86,7 +88,10 @@ export default class Premium extends Command {
         syncData,
         current.includes(message.guild.id) ? "add" : "remove"
       );
-      return await message.success("PREMIUM_GUILDS_UPDATED", current);
+      return await message.success("PREMIUM_GUILDS_UPDATED", {
+        amount: current.length,
+        servers: current.join(", "),
+      });
     } else return await message.error("PREMIUM_UPDATE_FAILED");
   }
 

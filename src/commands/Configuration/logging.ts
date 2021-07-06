@@ -1,6 +1,6 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Permissions } from "discord.js";
 
@@ -16,6 +16,9 @@ const typeMapping = {
   moderation: ["mod", "moderation"],
   action: ["action", "actions"],
   members: ["member", "members"],
+};
+const langKeys = {
+  types: "moderation, action, members",
 };
 
 export default class Logging extends Command {
@@ -56,10 +59,7 @@ export default class Logging extends Command {
   ) {
     args.type = args.type?.toLowerCase() as validTypes;
     if (!args.type || !valid.includes(args.type))
-      return await message.error(
-        "LOGGING_INVALID_TYPE",
-        "moderation, action, members"
-      );
+      return await message.error("LOGGING_INVALID_TYPE", langKeys);
     const [type] = Object.entries(typeMapping).find(([, names]) =>
       names.includes(args.type)
     );
@@ -80,7 +80,7 @@ export default class Logging extends Command {
         await message.guild.logger.refreshWebhooks().catch(() => {});
       } catch {}
       return deleted
-        ? await message.success(`LOGGING_DISABLED_${type.toUpperCase()}`)
+        ? await message.success(`LOGGING_DISABLED_${type.toUpperCase()}` as LanguageKeys)
         : await message.error();
     } else {
       let set: any;
@@ -92,7 +92,7 @@ export default class Logging extends Command {
         if (set) await message.guild.logger.refreshWebhooks().catch(() => {});
       } catch {}
       return set
-        ? await message.success(`LOGGING_ENABLED_${type.toUpperCase()}`)
+        ? await message.success(`LOGGING_ENABLED_${type.toUpperCase()}` as LanguageKeys)
         : await message.error();
     }
   }

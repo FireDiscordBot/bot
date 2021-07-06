@@ -1,7 +1,7 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Role } from "discord.js";
 
@@ -39,7 +39,7 @@ export default class Unblock extends Command {
     else if (
       args.tounblock instanceof FireMember &&
       args.tounblock.isModerator(message.channel) &&
-      message.author.id != message.guild.ownerID
+      message.author.id != message.guild.ownerId
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     else if (
@@ -67,6 +67,6 @@ export default class Unblock extends Command {
     if (blocked == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof blocked == "string")
-      return await message.error(`UNBLOCK_FAILED_${blocked.toUpperCase()}`);
+      return await message.error(`UNBLOCK_FAILED_${blocked.toUpperCase()}` as LanguageKeys);
   }
 }

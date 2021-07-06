@@ -1,6 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { constants } from "@fire/lib/util/constants";
 
 export default class Discover extends Command {
   constructor() {
@@ -14,6 +15,8 @@ export default class Discover extends Command {
   }
 
   async exec(message: FireMessage) {
-    await message.send("DISCOVER_MESSAGE");
+    await message.send("DISCOVER_MESSAGE", {
+      discovery: constants.url.discovery,
+    });
   }
 }

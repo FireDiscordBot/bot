@@ -42,15 +42,14 @@ export default class Color extends Command {
     else if (args.color instanceof FireMember)
       color = tinycolor(args.color.displayHexColor ?? "#FFFFFF");
     if (!color || !color.isValid()) {
-      return await message.error(
-        "COLOR_ARGUMENT_INVALID",
-        tinycolor.random().toHexString()
-      );
+      return await message.error("COLOR_ARGUMENT_INVALID", {
+        random: tinycolor.random().toHexString(),
+      });
     }
 
     const colorInfo = `<:pallete:804044718379237407> ${message.language.get(
       "COLOR_HEADING",
-      color.toName() || color.toHexString()
+      { color: color.toName() || color.toHexString() }
     )}
     
 **HEX:** ${color.toHexString()}

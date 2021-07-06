@@ -3,6 +3,7 @@ import {
   ThreadChannel,
   GuildChannel,
   MessageEmbed,
+  UserMention,
   GuildMember,
   Permissions,
   Structures,
@@ -45,7 +46,7 @@ export class FireMember extends GuildMember {
   }
 
   toString() {
-    return `${this.user.username}#${this.user.discriminator}`;
+    return `${this.user.username}#${this.user.discriminator}` as unknown as UserMention;
   }
 
   toMention() {
@@ -85,7 +86,7 @@ export class FireMember extends GuildMember {
 
   isModerator(channel?: Channel) {
     if (this.id == this.client.user?.id) return true;
-    if (this.id == this.guild.ownerID) return true;
+    if (this.id == this.guild.ownerId) return true;
     if (channel instanceof FakeChannel) channel = channel.real;
     if (this.isAdmin(channel)) return true;
     const moderators = this.guild.settings.get<string[]>(
@@ -102,11 +103,13 @@ export class FireMember extends GuildMember {
 
   isAdmin(channel?: Channel) {
     if (this.id == this.client.user?.id) return true;
-    if (this.id == this.guild.ownerID) return true;
+    if (this.id == this.guild.ownerId) return true;
     if (channel instanceof FakeChannel) channel = channel.real;
     else if (channel instanceof ThreadChannel) channel = channel.parent;
     return channel
-      ? this.permissionsIn(channel as GuildChannel).has(Permissions.FLAGS.MANAGE_GUILD)
+      ? this.permissionsIn(channel as GuildChannel).has(
+          Permissions.FLAGS.MANAGE_GUILD
+        )
       : this.permissions.has(Permissions.FLAGS.MANAGE_GUILD);
   }
 
@@ -268,7 +271,7 @@ export class FireMember extends GuildMember {
       .setColor("#E67E22")
       .setTimestamp()
       .setAuthor(
-        this.guild.language.get("WARN_LOG_AUTHOR", this.toString()),
+        this.guild.language.get("WARN_LOG_AUTHOR", { user: this.toString() }),
         this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
@@ -280,7 +283,10 @@ export class FireMember extends GuildMember {
     if (!logEntry) return "entry";
     let noDM: boolean = false;
     await this.send(
-      this.language.get("WARN_DM", Util.escapeMarkdown(this.guild.name), reason)
+      this.language.get("WARN_DM", {
+        guild: Util.escapeMarkdown(this.guild.name),
+        reason,
+      })
     ).catch(() => {
       noDM = true;
     });
@@ -313,20 +319,18 @@ export class FireMember extends GuildMember {
       return noDM
         ? await channel
             .send(
-              this.guild.language.get(
-                "WARN_FAIL",
-                Util.escapeMarkdown(this.toString()),
-                times
-              )
+              this.guild.language.getWarning("WARN_FAIL", {
+                user: Util.escapeMarkdown(this.toString()),
+                times,
+              })
             )
             .catch(() => {})
         : await channel
             .send(
-              this.guild.language.get(
-                "WARN_SUCCESS",
-                Util.escapeMarkdown(this.toString()),
-                times
-              )
+              this.guild.language.getSuccess("WARN_SUCCESS", {
+                user: Util.escapeMarkdown(this.toString()),
+                times,
+              })
             )
             .catch(() => {});
   }
@@ -374,7 +378,7 @@ export class FireMember extends GuildMember {
       .setColor(this.displayColor || "#E74C3C")
       .setTimestamp()
       .setAuthor(
-        this.guild.language.get("BAN_LOG_AUTHOR", this.toString()),
+        this.guild.language.get("BAN_LOG_AUTHOR", { user: this.toString() }),
         this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
@@ -392,7 +396,10 @@ export class FireMember extends GuildMember {
     }
     let noDM: boolean = false;
     await this.send(
-      this.language.get("BAN_DM", Util.escapeMarkdown(this.guild.name), reason)
+      this.language.get("BAN_DM", {
+        guild: Util.escapeMarkdown(this.guild.name),
+        reason,
+      })
     ).catch(() => {
       noDM = true;
     });
@@ -406,16 +413,14 @@ export class FireMember extends GuildMember {
       return await channel
         .send(
           (dbadd
-            ? this.guild.language.get(
-                "BAN_SUCCESS",
-                Util.escapeMarkdown(this.toString()),
-                Util.escapeMarkdown(this.guild.name)
-              )
-            : this.guild.language.get(
-                "BAN_SEMI_SUCCESS",
-                Util.escapeMarkdown(this.toString()),
-                Util.escapeMarkdown(this.guild.name)
-              )) +
+            ? this.guild.language.getSuccess("BAN_SUCCESS", {
+                user: Util.escapeMarkdown(this.toString()),
+                guild: Util.escapeMarkdown(this.guild.name),
+              })
+            : this.guild.language.getWarning("BAN_SEMI_SUCCESS", {
+                user: Util.escapeMarkdown(this.toString()),
+                guild: Util.escapeMarkdown(this.guild.name),
+              })) +
             (this.id == "159985870458322944"
               ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336"
               : "")
@@ -441,7 +446,7 @@ export class FireMember extends GuildMember {
       .setColor(this.displayColor || "#E74C3C")
       .setTimestamp()
       .setAuthor(
-        this.guild.language.get("KICK_LOG_AUTHOR", this.toString()),
+        this.guild.language.get("KICK_LOG_AUTHOR", { user: this.toString() }),
         this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
@@ -451,10 +456,9 @@ export class FireMember extends GuildMember {
     if (channel)
       return await channel
         .send(
-          this.guild.language.get(
-            "KICK_SUCCESS",
-            Util.escapeMarkdown(this.toString())
-          )
+          this.guild.language.getSuccess("KICK_SUCCESS", {
+            user: Util.escapeMarkdown(this.toString()),
+          })
         )
         .catch(() => {});
   }
@@ -496,7 +500,7 @@ export class FireMember extends GuildMember {
       .setColor(this.displayColor || "#E74C3C")
       .setTimestamp()
       .setAuthor(
-        this.guild.language.get("DERANK_LOG_AUTHOR", this.toString()),
+        this.guild.language.get("DERANK_LOG_AUTHOR", { user: this.toString() }),
         this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
@@ -515,18 +519,16 @@ export class FireMember extends GuildMember {
       return await channel
         .send(
           failed
-            ? this.guild.language.get(
-                "DERANK_FAILED",
-                Util.escapeMarkdown(this.toString()),
-                this.guild.roles.cache
+            ? this.guild.language.getWarning("DERANK_FAILED", {
+                user: Util.escapeMarkdown(this.toString()),
+                roles: this.guild.roles.cache
                   .filter((role) => afterIds.includes(role.id))
                   .map((role) => Util.escapeMarkdown(role.name))
-                  .join(", ")
-              )
-            : this.guild.language.get(
-                "DERANK_SUCCESS",
-                Util.escapeMarkdown(this.toString())
-              )
+                  .join(", "),
+              })
+            : this.guild.language.getSuccess("DERANK_SUCCESS", {
+                user: Util.escapeMarkdown(this.toString()),
+              })
         )
         .catch(() => {});
   }
@@ -582,7 +584,7 @@ export class FireMember extends GuildMember {
       .setColor(this.displayColor || "#2ECC71")
       .setTimestamp()
       .setAuthor(
-        this.guild.language.get("MUTE_LOG_AUTHOR", this.toString()),
+        this.guild.language.get("MUTE_LOG_AUTHOR", { user: this.toString() }),
         this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
@@ -600,7 +602,10 @@ export class FireMember extends GuildMember {
     }
     let noDM: boolean = false;
     await this.send(
-      this.language.get("MUTE_DM", Util.escapeMarkdown(this.guild.name), reason)
+      this.language.get("MUTE_DM", {
+        guild: Util.escapeMarkdown(this.guild.name),
+        reason,
+      })
     ).catch(() => {
       noDM = true;
     });
@@ -614,14 +619,12 @@ export class FireMember extends GuildMember {
       return await channel
         .send(
           dbadd
-            ? this.guild.language.get(
-                "MUTE_SUCCESS",
-                Util.escapeMarkdown(this.toString())
-              )
-            : this.guild.language.get(
-                "MUTE_SEMI_SUCCESS",
-                Util.escapeMarkdown(this.toString())
-              )
+            ? this.guild.language.getSuccess("MUTE_SUCCESS", {
+                user: Util.escapeMarkdown(this.toString()),
+              })
+            : this.guild.language.getWarning("MUTE_SEMI_SUCCESS", {
+                user: Util.escapeMarkdown(this.toString()),
+              })
         )
         .catch(() => {});
   }
@@ -687,7 +690,7 @@ export class FireMember extends GuildMember {
       .setColor(this.displayColor || "#2ECC71")
       .setTimestamp()
       .setAuthor(
-        this.guild.language.get("UNMUTE_LOG_AUTHOR", this.toString()),
+        this.guild.language.get("UNMUTE_LOG_AUTHOR", { user: this.toString() }),
         this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
@@ -702,10 +705,9 @@ export class FireMember extends GuildMember {
     if (channel)
       return await channel
         .send(
-          this.guild.language.get(
-            "UNMUTE_SUCCESS",
-            Util.escapeMarkdown(this.toString())
-          )
+          this.guild.language.getSuccess("UNMUTE_SUCCESS", {
+            user: Util.escapeMarkdown(this.toString()),
+          })
         )
         .catch(() => {});
   }

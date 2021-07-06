@@ -1,7 +1,7 @@
 import { GuildChannel, MessageEmbed, Permissions, DMChannel } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { humanize, titleCase } from "@fire/lib/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { humanize } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 
 export default class ChannelDelete extends Listener {
@@ -20,7 +20,7 @@ export default class ChannelDelete extends Listener {
     if (guild.settings.has("log.action")) {
       const data = {
         ...channel,
-        permissionOverwrites: channel.permissionOverwrites.toJSON(),
+        permissionOverwrites: channel.permissionOverwrites.cache.toJSON(),
         messages: null,
       };
       if (channel.hasOwnProperty("messages"))
@@ -37,7 +37,10 @@ export default class ChannelDelete extends Listener {
         .setColor("#E74C3C")
         .setTimestamp()
         .setAuthor(
-          language.get("CHANNELDELETELOG_AUTHOR", channel.type, guild.name),
+          language.get("CHANNELDELETELOG_AUTHOR", {
+            type: titleCase(channel.type),
+            guild: guild.name,
+          }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .addField(language.get("NAME"), channel.name)
@@ -49,8 +52,8 @@ export default class ChannelDelete extends Listener {
           language.get("SLOWMODE"),
           humanize(channel.rateLimitPerUser, language.id.split("-")[0])
         );
-      if (channel.permissionOverwrites.size > 1) {
-        const canView = channel.permissionOverwrites
+      if (channel.permissionOverwrites.cache.size > 1) {
+        const canView = channel.permissionOverwrites.cache
           .filter((overwrite) =>
             overwrite.allow.has(Permissions.FLAGS.VIEW_CHANNEL)
           )
@@ -71,7 +74,7 @@ export default class ChannelDelete extends Listener {
           (id) => !roles.find((role) => role.id == id)
         );
         // owner can always see
-        memberIds.push(guild.ownerID);
+        memberIds.push(guild.ownerId);
         const members: string[] = memberIds.length
           ? await guild.members
               .fetch({ user: memberIds })

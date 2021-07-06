@@ -62,7 +62,10 @@ export default class TicketName extends Command {
       let name = args.name;
       for (const [key, value] of Object.entries(variables))
         name = name.replace(key, value);
-      return await message.success("TICKET_NAME_SET", args.name, name);
+      return await message.success("TICKET_NAME_SET", {
+        name: args.name,
+        example: name,
+      });
     }
   }
 }

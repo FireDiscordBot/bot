@@ -3,6 +3,7 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import VanityURLs from "@fire/src/modules/vanityurls";
+import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
@@ -35,10 +36,9 @@ export default class Public extends Command {
       [message.guild.id]
     );
     if (!vanitys.rows.length)
-      return await message.error(
-        "PUBLIC_VANITY_REQUIRED",
-        message.util.parsed.prefix
-      );
+      return await message.error("PUBLIC_VANITY_REQUIRED", {
+        prefix: message.util?.parsed?.prefix,
+      });
     await message.guild.settings.set<boolean>("utils.public", !current);
     if (!current) {
       if (this.client.manager.ws?.open)
@@ -50,9 +50,13 @@ export default class Public extends Command {
             })
           )
         );
-      await message.success("PUBLIC_ENABLED", vanitys.rows[0][0]);
+      await message.success("PUBLIC_ENABLED", { vanity: vanitys.rows[0][0] });
       await message.guild.actionLog(
-        message.language.get("PUBLIC_ENABLED_LOG", message.author.toString()),
+        `${
+          constants.emojis.statuspage.operational
+        } ${message.language.get("PUBLIC_ENABLED_LOG", {
+          user: message.author.toString(),
+        })}`,
         "public_toggle"
       );
     } else {
@@ -67,7 +71,11 @@ export default class Public extends Command {
         );
       await message.success("PUBLIC_DISABLED");
       await message.guild.actionLog(
-        message.language.get("PUBLIC_DISABLED_LOG", message.author.toString()),
+        `${
+          constants.emojis.statuspage.major_outage
+        } ${message.language.get("PUBLIC_DISABLED_LOG", {
+          user: message.author.toString(),
+        })}`,
         "public_toggle"
       );
     }

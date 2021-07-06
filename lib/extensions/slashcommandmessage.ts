@@ -25,13 +25,15 @@ import {
   Collection,
   DMChannel,
   Snowflake,
+  GuildChannel,
 } from "discord.js";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
-import { Language } from "@fire/lib/util/language";
 import { FireTextChannel } from "./textchannel";
 import { APIMessage } from "discord-api-types";
+import { TOptions, StringMap } from "i18next";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
 import { Fire } from "@fire/lib/Fire";
@@ -57,7 +59,7 @@ export class SlashCommandMessage {
   util: CommandUtil;
   command: Command;
   author: FireUser;
-  webhookID = null;
+  webhookId = null;
   content: string;
   id: Snowflake;
   client: Fire;
@@ -76,11 +78,11 @@ export class SlashCommandMessage {
       }`;
       command.options = command.options.first().options;
     }
-    this.guild = client.guilds.cache.get(command.guildID) as FireGuild;
+    this.guild = client.guilds.cache.get(command.guildId) as FireGuild;
     this.command = this.client.getCommand(command.commandName);
     this._flags = 0;
     if (
-      this.guild?.tags?.slashCommands[command.commandID] == command.commandName
+      this.guild?.tags?.slashCommands[command.commandId] == command.commandName
     ) {
       this.command = this.client.getCommand("tag");
       command.options = new Collection<string, CommandInteractionOption>().set(
@@ -117,7 +119,7 @@ export class SlashCommandMessage {
         : this.author.language
       : this.guild?.language || client.getLanguage("en-US");
     this.realChannel = this.client.channels.cache.get(
-      this.slashCommand.channelID
+      this.slashCommand.channelId
     ) as FireTextChannel | NewsChannel | DMChannel;
     this.latestResponse = "@original" as Snowflake;
     this.sent = false;
@@ -130,7 +132,7 @@ export class SlashCommandMessage {
         client,
         command.id,
         command.token,
-        command.guildID ? null : this.author.dmChannel
+        command.guildId ? null : this.author.dmChannel
       );
       return this;
     }
@@ -223,16 +225,16 @@ export class SlashCommandMessage {
     return this.content;
   }
 
-  send(key: string = "", ...args: any[]) {
+  send(key?: LanguageKeys, args?: TOptions<StringMap>) {
     return this.channel.send(
-      { content: this.language.get(key, ...args) },
+      { content: this.language.get(key, args) },
       this.flags
     );
   }
 
   success(
-    key: string = "",
-    ...args: any[]
+    key?: LanguageKeys,
+    args?: TOptions<StringMap>
   ): Promise<SlashCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
@@ -247,14 +249,36 @@ export class SlashCommandMessage {
         });
     }
     return this.channel.send(
-      `${emojis.success} ${this.language.get(key, ...args)}`,
+      `${emojis.success} ${this.language.get(key, args)}`,
+      typeof this.flags == "number" ? this.flags : 64
+    );
+  }
+
+  warn(
+    key?: LanguageKeys,
+    args?: TOptions<StringMap>
+  ): Promise<SlashCommandMessage | MessageReaction | void> {
+    if (!key) {
+      if (this.sourceMessage instanceof FireMessage)
+        return this.sourceMessage.react(reactions.warning).catch(() => {});
+      else
+        return this.getRealMessage().then((message) => {
+          if (!message || !(message instanceof FireMessage))
+            return this.warn("SLASH_COMMAND_HANDLE_FAIL");
+          message.react(reactions.warning).catch(() => {
+            return this.warn("SLASH_COMMAND_HANDLE_FAIL");
+          });
+        });
+    }
+    return this.channel.send(
+      `${emojis.warning} ${this.language.get(key, args)}`,
       typeof this.flags == "number" ? this.flags : 64
     );
   }
 
   error(
-    key: string = "",
-    ...args: any[]
+    key?: LanguageKeys,
+    args?: TOptions<StringMap>
   ): Promise<SlashCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
@@ -269,7 +293,7 @@ export class SlashCommandMessage {
         });
     }
     return this.channel.send(
-      `${emojis.slashError} ${this.language.get(key, ...args)}`,
+      `${emojis.slashError} ${this.language.get(key, args)}`,
       typeof this.flags == "number" ? this.flags : 64
     );
   }
@@ -377,9 +401,9 @@ export class FakeChannel {
   }
 
   get permissionOverwrites() {
-    return this.real instanceof DMChannel || this.real instanceof ThreadChannel
-      ? new Collection<string, PermissionOverwrites>()
-      : this.real.permissionOverwrites;
+    return this.real instanceof GuildChannel
+      ? this.real.permissionOverwrites
+      : null;
   }
 
   get messages() {
@@ -418,17 +442,6 @@ export class FakeChannel {
 
   awaitMessages(options?: AwaitMessagesOptions) {
     return this.real?.awaitMessages(options);
-  }
-
-  updateOverwrite(
-    userOrRole: RoleResolvable | UserResolvable,
-    options: PermissionOverwriteOptions,
-    overwriteOptions?: GuildChannelOverwriteOptions
-  ) {
-    return !(this.real instanceof DMChannel) &&
-      !(this.real instanceof ThreadChannel)
-      ? this.real?.updateOverwrite(userOrRole, options, overwriteOptions)
-      : false;
   }
 
   createInvite(options?: CreateInviteOptions) {

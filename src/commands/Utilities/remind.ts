@@ -54,11 +54,11 @@ export default class Remind extends Command {
     else if (parsedMinutes < 2)
       return await message.error("REMINDER_TOO_SHORT");
     let reminder = parseTime(args.reminder, true) as string;
-    if (!reminder.replace(/\s/gim, "").length && !message.reference?.messageID)
+    if (!reminder.replace(/\s/gim, "").length && !message.reference?.messageId)
       return await message.error("REMINDER_MISSING_CONTENT");
     else if (!reminder.replace(/\s/gim, "").length) {
       const referenced = await message.channel.messages
-        .fetch(message.reference.messageID)
+        .fetch(message.reference.messageId)
         .catch(() => {});
       if (!referenced || !referenced.content)
         return await message.error("REMINDER_MISSING_CONTENT");
@@ -96,7 +96,15 @@ export default class Remind extends Command {
       .filter(([, success]) => !success)
       .map(([duration]) => duration);
     return failed.length != repeat
-      ? await message.success("REMINDER_CREATED", success, failed)
+      ? await message.success(
+          success.length == 1
+            ? "REMINDER_CREATED_SINGLE"
+            : "REMINDER_CREATED_MULTI",
+          {
+            time: success[0],
+            times: success.map((s) => "- " + s).join("\n"),
+          }
+        )
       : await message.error();
   }
 }

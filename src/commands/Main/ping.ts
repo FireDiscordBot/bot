@@ -32,17 +32,16 @@ export default class Ping extends Command {
                 ? message.editedTimestamp
                 : message.createdTimestamp)
         }ms.\n:heartpulse: ${
-          this.client.ws.shards.get(message.guild ? message.guild.shardID : 0)
+          this.client.ws.shards.get(message.guild ? message.guild.shardId : 0)
             .ping
         }ms.`
       )
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setFooter(
-        message.language.get(
-          "PING_FOOTER",
-          message.guild ? message.guild.shardID : 0,
-          this.client.manager.id
-        )
+        message.language.get("PING_FOOTER", {
+          shard: message.guild ? message.guild.shardId : 0,
+          cluster: this.client.manager.id,
+        })
       )
       .setTimestamp();
 

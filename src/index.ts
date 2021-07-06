@@ -2,6 +2,8 @@ import * as dotEnvExtended from "dotenv-extended";
 import "source-map-support/register";
 import "module-alias/register";
 
+import "@fire/lib/extensions";
+
 const env = {
   development: "dev.env",
   staging: "stg.env",

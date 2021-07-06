@@ -52,7 +52,7 @@ export default class VCRole extends Command {
       if (removed) {
         message.guild.vcRoles.delete(args.channel.id);
         const states = message.guild.voiceStates.cache.filter(
-          (state) => state.channelID == args.channel.id
+          (state) => state.channelId == args.channel.id
         );
         const members = await message.guild.members
           .fetch({
@@ -86,7 +86,7 @@ export default class VCRole extends Command {
     if (inserted) {
       message.guild.vcRoles.set(args.channel.id, args.role.id);
       const states = message.guild.voiceStates.cache.filter(
-        (state) => state.channelID == args.channel.id
+        (state) => state.channelId == args.channel.id
       );
       const members = await message.guild.members
         .fetch({
@@ -100,11 +100,10 @@ export default class VCRole extends Command {
               .add(args.role, message.guild.language.get("VCROLE_ADD_REASON"))
               .catch(() => {});
       }
-      return await message.success(
-        "VCROLE_SET",
-        args.channel.name,
-        args.role.toString()
-      );
+      return await message.success("VCROLE_SET", {
+        channel: args.channel.name,
+        role: args.role.toString(),
+      });
     } else return await message.error("VCROLE_SET_FAILED");
   }
 }

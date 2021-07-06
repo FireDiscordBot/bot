@@ -83,7 +83,7 @@ export class GuildLogManager {
       this._data.members.webhook,
       this._data.moderation.webhook,
     ];
-    return !!hooks.filter((hook) => !!hook && hook.channelID == channelId)
+    return !!hooks.filter((hook) => !!hook && hook.channelId == channelId)
       .length;
   }
 
@@ -129,10 +129,9 @@ export class GuildLogManager {
             size: 2048,
             format: "png",
           }),
-          reason: this.guild.language.get(
-            "LOGGING_WEBHOOK_CREATE",
-            "moderation"
-          ) as string,
+          reason: this.guild.language.get("LOGGING_WEBHOOK_CREATE", {
+            type: "moderation",
+          }) as string,
         })
         .catch(() => null);
       if (!data.webhook) return data.queue.push({ content, type });
@@ -232,10 +231,9 @@ export class GuildLogManager {
             size: 2048,
             format: "png",
           }),
-          reason: this.guild.language.get(
-            "LOGGING_WEBHOOK_CREATE",
-            "member"
-          ) as string,
+          reason: this.guild.language.get("LOGGING_WEBHOOK_CREATE", {
+            type: "member",
+          }) as string,
         })
         .catch(() => null);
       if (!data.webhook) return;
@@ -335,10 +333,9 @@ export class GuildLogManager {
             size: 2048,
             format: "png",
           }),
-          reason: this.guild.language.get(
-            "LOGGING_WEBHOOK_CREATE",
-            "action"
-          ) as string,
+          reason: this.guild.language.get("LOGGING_WEBHOOK_CREATE", {
+            type: "action",
+          }) as string,
         })
         .catch(() => null);
       if (!data.webhook) return;
@@ -408,7 +405,7 @@ export class GuildLogManager {
         .fetchWebhook(webhook.id, webhook.token)
         .catch(() => {});
       const channelId = this.guild.settings.get<string>(`log.${type}`);
-      if (!channelId || !newWebhook || newWebhook.channelID != channelId)
+      if (!channelId || !newWebhook || newWebhook.channelId != channelId)
         this._data[type].webhook = null;
     }
   }

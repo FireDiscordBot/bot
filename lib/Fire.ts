@@ -40,7 +40,6 @@ import { ThreadMembersUpdateAction } from "./util/actions/ThreadMembersUpdate";
 import { SlashCommandMessage } from "./extensions/slashcommandmessage";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
-import { PresenceUpdateAction } from "./util/actions/PresenceUpdate";
 import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
 import { languageTypeCaster } from "@fire/src/arguments/language";
 import { listenerTypeCaster } from "@fire/src/arguments/listener";
@@ -74,17 +73,22 @@ import { Util } from "./util/clientutil";
 import * as Sentry from "@sentry/node";
 import { Message } from "./ws/Message";
 import { Manager } from "./Manager";
+import * as i18next from "i18next";
 import * as moment from "moment";
 
-type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
+// this shit has some weird import fuckery, this is the only way I can use it
+const i18n = (i18next as unknown) as typeof i18next.default;
 
-import "./extensions";
+type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
 
 // Rewrite completed - 15:10 17/1/2021
 export class Fire extends AkairoClient {
   launchTime: moment.Moment;
   started: boolean;
   restPing: number;
+
+  // i18n
+  i18n: typeof i18next.default;
 
   // Sharding
   manager: Manager;
@@ -121,12 +125,12 @@ export class Fire extends AkairoClient {
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
 
+    this.i18n = i18n;
+
     // @ts-ignore
     this.rest = new RESTManager(this);
     this.useCanary = true; // use canary api by default
 
-    // @ts-ignore
-    this.actions["PresenceUpdate"] = new PresenceUpdateAction(this);
     // @ts-ignore
     this.actions["ThreadMembersUpdate"] = new ThreadMembersUpdateAction(this);
 
@@ -148,7 +152,7 @@ export class Fire extends AkairoClient {
       this.console.error(`[Discord]\n${error.stack}`)
     );
     this.on("ready", () => config.fire.readyMessage(this));
-    this.on("raw", (r) => {
+    this.on("raw", (r: any) => {
       if (r.t == Constants.WSEvents.GUILD_CREATE) {
         const member = r.d.members.find(
           (member: APIGuildMember) => member.user.id == this.user.id
@@ -336,6 +340,16 @@ export class Fire extends AkairoClient {
         : "./src/languages/",
     });
     this.languages.loadAll();
+    i18n
+      .init({
+        fallbackLng: "en-US",
+        fallbackNS: "fire",
+        resources: {},
+        lng: "en-US",
+      })
+      .then(() => {
+        this.languages.modules.forEach((language: Language) => language.init());
+      });
 
     this.modules = new ModuleHandler(this, {
       directory: __dirname.includes("/dist/")
@@ -507,7 +521,8 @@ export class Fire extends AkairoClient {
       status: "dnd",
     };
     this.ws.shards.forEach((shard) =>
-      this.user?.setPresence({
+      // @ts-ignore
+      this.presence.set({
         activities: [
           {
             name: this.manager.ws
@@ -517,13 +532,14 @@ export class Fire extends AkairoClient {
           },
         ],
         status: "dnd",
-        shardID: shard.id,
+        shardId: shard.id,
       })
     );
   }
 
   setPartialOutageStatus() {
-    this.user?.setPresence({
+    // @ts-ignore
+    this.presence.set({
       activities: [
         {
           name: "a potential outage",

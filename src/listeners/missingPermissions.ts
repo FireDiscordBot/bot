@@ -25,19 +25,17 @@ export default class MissingPermissions extends Listener {
 
     if (type == "client")
       return await message
-        .error(
-          "MISSING_PERMISSIONS_CLIENT",
-          cleanPermissions,
-          message.util?.parsed?.alias || command.id
-        )
+        .error("MISSING_PERMISSIONS_CLIENT", {
+          permissions: cleanPermissions.join(", "),
+          command: message.util?.parsed?.alias || command.id,
+        })
         .catch(() => {});
     else if (type == "user")
       return await message
-        .error(
-          "MISSING_PERMISSIONS_USER",
-          cleanPermissions,
-          message.util?.parsed?.alias || command.id
-        )
+        .error("MISSING_PERMISSIONS_USER", {
+          permissions: cleanPermissions.join(", "),
+          command: message.util?.parsed?.alias || command.id,
+        })
         .catch(() => {});
   }
 }

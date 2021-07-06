@@ -47,7 +47,7 @@ export default class CommandError extends Listener {
         "message.id": message.id,
         "guild.id": message.guild?.id,
         "guild.name": message.guild?.name,
-        "guild.shard": message.guild?.shardID || 0,
+        "guild.shard": message.guild?.shardId || 0,
         "channel.id":
           channel instanceof FakeChannel
             ? channel.real?.id
@@ -70,10 +70,9 @@ export default class CommandError extends Listener {
 
     try {
       if (!message.author.isSuperuser()) {
-        return await message.error(
-          "COMMAND_ERROR_GENERIC",
-          message.util?.parsed?.alias
-        );
+        return await message.error("COMMAND_ERROR_GENERIC", {
+          id: message.util?.parsed?.alias,
+        });
       } else {
         return await message.channel.send("```js\n" + error.stack + "```");
       }

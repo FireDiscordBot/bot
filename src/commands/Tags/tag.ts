@@ -40,12 +40,13 @@ export default class Tag extends Command {
       message.delete();
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(args.tag);
-    if (!cachedTag) return await message.error("TAG_INVALID_TAG", args.tag);
+    if (!cachedTag)
+      return await message.error("TAG_INVALID_TAG", { tag: args.tag });
     await manager.useTag(cachedTag.name);
     let referenced: FireMessage;
     if (message.type == "REPLY") {
       referenced = (await message.channel.messages
-        .fetch(message.reference.messageID)
+        .fetch(message.reference.messageId)
         .catch(() => {})) as FireMessage;
     }
     if (referenced)
@@ -65,7 +66,7 @@ export default class Tag extends Command {
     if (!names.length) return await message.error("TAG_NONE_FOUND");
     const embed = new MessageEmbed()
       .setAuthor(
-        message.language.get("TAG_LIST", message.guild.name),
+        message.language.get("TAG_LIST", { guild: message.guild.name }),
         message.guild.iconURL({ size: 2048, format: "png", dynamic: true })
       )
       .setColor(message.member?.displayColor ?? "#FFFFFF")
