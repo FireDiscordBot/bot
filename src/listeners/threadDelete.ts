@@ -45,7 +45,7 @@ export default class ThreadDelete extends Listener {
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .addField(language.get("NAME"), channel.name)
-        .addField(language.get("PARENT"), channel.parent.toString())
+        .addField(language.get("CHANNEL"), channel.parent.toString())
         .addField(
           language.get("ARCHIVE_AT"),
           `${friendlyArchived} (${autoArchiveAt.toLocaleString(language.id)})`
