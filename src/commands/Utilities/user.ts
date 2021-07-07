@@ -351,7 +351,7 @@ export default class User extends Command {
         );
       else
         info.push(
-          `**${message.language.get("JOINED")}:** ${joined} (${joinedDelta})`
+          `**${message.language.get("JOINED")}** ${joined} (${joinedDelta})`
         );
       if (
         message.guild &&
