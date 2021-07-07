@@ -157,8 +157,10 @@ export class FireUser extends User {
     days: number = 0,
     channel?: FireTextChannel
   ) {
-    if (!reason || !moderator) return "args";
+    if (!guild || !reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
+    const already = await guild.bans.fetch(this).catch(() => {});
+    if (already) return "already";
     const logEntry = await guild
       .createModLogEntry(this, moderator, "ban", reason)
       .catch(() => {});
@@ -189,7 +191,7 @@ export class FireUser extends User {
     if (channel)
       return await channel
         .send(
-          guild.language.get("BAN_SUCCESS", {
+          guild.language.getSuccess("BAN_SUCCESS", {
             user: Util.escapeMarkdown(this.toString()),
             guild: Util.escapeMarkdown(guild.name),
           }) +
