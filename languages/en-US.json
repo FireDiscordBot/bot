@@ -263,6 +263,7 @@
   "BAN_DM": "You were banned from {{guild}} for \"{{reason}}\"",
   "BAN_SUCCESS": "**{{user}}** has been banished from {{guild}}.",
   "BAN_SEMI_SUCCESS": "**{{user}}** has been banished from {{guild}} but I was unable to save it in my database meaning they may not be unbanned when it expires, depending on the length of the ban.",
+  "BAN_FAILED_ALREADY": "That user is already banned, you cannot banish them again.",
   "BAN_FAILED_ENTRY": "Failed to create mod log entry, user was not banned.",
   "BAN_FAILED_BAN": "Failed to ban user, please try again.",
   "BAN_FAILED_BAN_AND_ENTRY": "Failed to ban user and was unable to delete the created mod log entry.",
