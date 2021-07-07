@@ -285,7 +285,9 @@ export class Util extends ClientUtil {
     else if (typeof permission == "string") name = permission;
     if (!name) return null;
     return (
-      language.get(`PERMISSIONS.${name}` as LanguageKeys) ??
+      (language ?? this.client.getLanguage("en-US")).get(
+        `PERMISSIONS.${name}` as LanguageKeys
+      ) ??
       titleCase(
         name.toLowerCase().replace(/_/gim, " ").replace(/guild/gim, "server")
       )
