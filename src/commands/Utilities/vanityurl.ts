@@ -124,7 +124,7 @@ export default class VanityURL extends Command {
     else
       return await message.success("VANITYURL_CREATED", {
         vanity: `https://${
-          process.env.NODE_ENV != "production" ? "test." : ""
+          process.env.NODE_ENV == "production" ? "" : "test."
         }inv.wtf/${args.code}`,
       });
   }
