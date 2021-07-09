@@ -27,7 +27,6 @@ export default class FilterExclude extends Command {
       aliases: ["filterwhitelist", "filterexcl"],
       enableSlashCommand: true,
       restrictTo: "guild",
-      ephemeral: false,
     });
   }
 
@@ -35,17 +34,18 @@ export default class FilterExclude extends Command {
     message: FireMessage,
     args: { toexclude?: FireMember | Role | FireTextChannel | CategoryChannel }
   ) {
-    if (typeof args.toexclude == "undefined")
-      return await this.sendCurrent(message);
-    else if (!args.toexclude) return;
-    let current = message.guild.settings.get<string[]>("excluded.filter", []);
-    if (current.includes(args.toexclude.id))
-      current = current.filter((id) => id != args.toexclude.id);
-    else current.push(args.toexclude.id);
-    if (current.length)
-      await message.guild.settings.set<string[]>("excluded.filter", current);
-    else await message.guild.settings.delete("excluded.filter");
-    return await this.sendCurrent(message, true);
+    return await message.error("FILTEREXCL_TEMP_DISABLE");
+    // if (typeof args.toexclude == "undefined")
+    //   return await this.sendCurrent(message);
+    // else if (!args.toexclude) return;
+    // let current = message.guild.settings.get<string[]>("excluded.filter", []);
+    // if (current.includes(args.toexclude.id))
+    //   current = current.filter((id) => id != args.toexclude.id);
+    // else current.push(args.toexclude.id);
+    // if (current.length)
+    //   await message.guild.settings.set<string[]>("excluded.filter", current);
+    // else await message.guild.settings.delete("excluded.filter");
+    // return await this.sendCurrent(message, true);
   }
 
   async sendCurrent(message: FireMessage, changed: boolean = false) {
@@ -67,27 +67,27 @@ export default class FilterExclude extends Command {
           .toString();
     }
     let mentionKeys = Object.keys(mentions);
-    current = current.filter((id) => !mentionKeys.includes(id));
+    const existing = current.filter((id) => mentionKeys.includes(id));
     const members = await message.guild.members.fetch({ user: current });
     for (const member of members.values())
       mentions[member.id] = (member as FireMember).toMention();
     mentionKeys = Object.keys(mentions);
-    current = current.filter((id) => !mentionKeys.includes(id));
-    if (current.length) {
+    const removed = current.filter((id) => !mentionKeys.includes(id));
+    if (removed.length) {
       let excluded = message.guild.settings.get<Snowflake[]>(
         "excluded.filter",
         []
       );
-      excluded = excluded.filter((id) => !current.includes(id));
+      excluded = excluded.filter((id) => !removed.includes(id));
       if (excluded.length)
         await message.guild.settings.set<string[]>("excluded.filter", excluded);
       else await message.guild.settings.delete("excluded.filter");
     }
     if (!changed)
       return await message.send(
-        current.length
+        removed.length
           ? mentions.length
-            ? current.length == 1
+            ? removed.length == 1
               ? "FILTEREXCL_LIST_SOME_REMOVED_SINGLE"
               : "FILTEREXCL_LIST_SOME_REMOVED_MULTI"
             : "FILTEREXCL_REMOVE_RESET"
@@ -99,14 +99,14 @@ export default class FilterExclude extends Command {
         {
           mention: Object.values(mentions)[0],
           mentions: Object.values(mentions).join(", "),
-          removed: current.join(", "),
+          removed: removed.join(", "),
         }
       );
     else
       return await message.success(
-        (current.length
+        (removed.length
           ? mentions.length
-            ? current.length == 1
+            ? removed.length == 1
               ? "FILTEREXCL_SET_SOME_REMOVED_SINGLE"
               : "FILTEREXCL_SET_SOME_REMOVED_MULTI"
             : "FILTEREXCL_REMOVE_RESET"
@@ -116,7 +116,7 @@ export default class FilterExclude extends Command {
         {
           mention: Object.values(mentions)[0],
           mentions: Object.values(mentions).join(", "),
-          removed: current.join(", "),
+          removed: removed.join(", "),
         }
       );
   }
