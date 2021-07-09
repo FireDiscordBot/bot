@@ -40,7 +40,10 @@ export default class CrossClusterQuote extends Event {
         `[Aether] Attempted cross cluster quote with unknown member`
       );
     const channel = guild.channels.cache
-      .filter((channel) => channel.type == "text" || channel.type == "news")
+      .filter(
+        (channel) =>
+          channel.type == "GUILD_TEXT" || channel.type == "GUILD_NEWS"
+      )
       .get(data.channel_id) as FireTextChannel | NewsChannel;
     if (!channel)
       return this.manager.client.console.warn(

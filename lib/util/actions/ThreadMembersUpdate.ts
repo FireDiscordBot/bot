@@ -31,6 +31,7 @@ export class ThreadMembersUpdateAction extends GenericAction {
       thread.memberCount = data.member_count;
 
       data.added_members?.forEach((rawMember) => {
+        // @ts-ignore we're replacing internals so we need to use this
         thread.members._add(rawMember);
       });
 

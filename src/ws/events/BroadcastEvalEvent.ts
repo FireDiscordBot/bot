@@ -16,7 +16,7 @@ export default class BroadcastEvalEvent extends Event {
     );
     try {
       const channel = await this.manager.client.channels.fetch(data.channelId);
-      if (channel.type != "text") return;
+      if (channel.type != "GUILD_TEXT") return;
       const message = (
         await (channel as FireTextChannel).messages.fetch({
           around: data.messageId,

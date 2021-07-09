@@ -120,7 +120,7 @@ export default class Redirect extends Command {
 
     return await message.success("REDIRECT_CREATED", {
       redirect: `https://${
-        process.env.NODE_ENV != "development" ? "test." : ""
+        process.env.NODE_ENV == "production" ? "" : "test."
       }inv.wtf/${created.get("code")}`,
       url: created.get("redirect"),
     });

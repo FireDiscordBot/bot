@@ -138,7 +138,7 @@ export default class Button extends Listener {
       const channel = this.client.channels.cache.get(
         channelId
       ) as FireTextChannel;
-      if (!channel || !channel.guild || channel.type != "text") return;
+      if (!channel || !channel.guild || channel.type != "GUILD_TEXT") return;
       if (guild.tickets.find((ticket) => ticket.id == channelId)) {
         const closure = await guild
           .closeTicket(

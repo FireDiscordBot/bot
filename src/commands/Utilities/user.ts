@@ -503,7 +503,7 @@ export default class User extends Command {
 
     if (this.client.channels.cache.has(snowflake.snowflake)) {
       const channel = this.client.channels.cache.get(snowflake.snowflake);
-      if (channel.type == "dm") {
+      if (channel.type == "DM") {
         if ((channel as DMChannel).recipient.id == message.author.id)
           info.push(
             message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
@@ -551,19 +551,19 @@ export default class User extends Command {
 
     if (
       this.client.channels.cache
-        .filter((c) => c.type == "text")
+        .filter((c) => c.type == "GUILD_TEXT")
         .map((c: FireTextChannel) => c.messages.cache)
         .find((m) => m.has(snowflake.snowflake))
     ) {
       let viewable = false;
       const snowflakeMessage = this.client.channels.cache
-        .filter((c) => c.type == "text")
+        .filter((c) => c.type == "GUILD_TEXT")
         .map((c: FireTextChannel) => c.messages.cache)
         .find((m) => m.has(snowflake.snowflake))
         .get(snowflake.snowflake) as FireMessage;
       const channel = snowflakeMessage.channel;
       if (
-        channel.type == "dm" &&
+        channel.type == "DM" &&
         (channel as DMChannel).recipient.id == message.author.id
       )
         viewable = true;
@@ -594,19 +594,19 @@ export default class User extends Command {
 
     if (
       this.client.channels.cache
-        .filter((c) => c.type == "text")
+        .filter((c) => c.type == "GUILD_TEXT")
         .map((c: FireTextChannel) => c.messages.cache)
         .find((c) => c.find((m) => m.attachments.has(snowflake.snowflake)))
     ) {
       let viewable = false;
       const snowflakeMessage = this.client.channels.cache
-        .filter((c) => c.type == "text")
+        .filter((c) => c.type == "GUILD_TEXT")
         .map((c: FireTextChannel) => c.messages.cache)
         .find((c) => c.find((m) => m.attachments.has(snowflake.snowflake)))
         .first() as FireMessage;
       const channel = snowflakeMessage.channel;
       if (
-        channel.type == "dm" &&
+        channel.type == "DM" &&
         (channel as DMChannel).recipient.id == message.author.id
       )
         viewable = true;

@@ -163,7 +163,7 @@ export class FireMessage extends Message {
     quoter: FireMember,
     webhook?: WebhookClient
   ) {
-    if (this.channel.type == "dm") return "dm";
+    if (this.channel.type == "DM") return "dm";
     let thread: ThreadChannel;
     if (destination instanceof ThreadChannel) {
       // we can't assign thread to destination since we're reassigning it
