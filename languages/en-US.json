@@ -406,7 +406,7 @@
   "EXPLICIT_CONTENT_FILTER_MEMBERS_WITHOUT_ROLES": "Members Without Roles",
   "EXPLICIT_CONTENT_FILTER_ALL_MEMBERS": "All Members",
   "FILTEREXCL_COMMAND_DESCRIPTION": "Exclude a member/role/channel from link filtering",
-  "FILTEREXCL_REMOVE_RESET": "I have reset the filter exclusion list due to some items from the exclusion list ({{removed}}) not being found (member left, role/channel deleted)",
+  "FILTEREXCL_REMOVE_RESET": "I have reset the filter exclusion list due to all items on the exclusion list ({{removed}}) not being found (member left, role/channel deleted)",
   "FILTEREXCL_RESET": "Successfully reset filter exclusion list.",
   "FILTEREXCL_LIST_SOME_REMOVED_SINGLE": "Currently excluded from filtering is:\n{{mention}}\n\nI have also removed some items from the exclusion list due to not being found (member left, role/channel deleted):\n{{removed}}",
   "FILTEREXCL_LIST_SOME_REMOVED_MULTI": "Currently excluded from filtering are:\n{{mentions}}\n\nI have also removed some items from the exclusion list due to not being found (member left, role/channel deleted):\n{{removed}}",
