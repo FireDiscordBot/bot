@@ -396,7 +396,7 @@ export const textChannelConverter = async (
       .filter(
         (channel) =>
           channel.name.toLowerCase() == argument.toLowerCase() &&
-          channel.type == "text"
+          channel.type == "GUILD_TEXT"
       )
       .first();
     if (channel) {
@@ -407,7 +407,7 @@ export const textChannelConverter = async (
     return null;
   } else {
     const channel = guild.channels.cache.get(match);
-    if (channel && channel.type == "text") {
+    if (channel && channel.type == "GUILD_TEXT") {
       return channel as FireTextChannel;
     }
 
@@ -435,19 +435,23 @@ export const voiceChannelConverter = async (
       .filter(
         (channel) =>
           (channel.name.toLowerCase() == argument.toLowerCase() &&
-            channel.type == "voice") ||
-          channel.type == "stage"
+            channel.type == "GUILD_VOICE") ||
+          channel.type == "GUILD_STAGE_VOICE"
       )
       .first();
-    if (channel && channel.type == "voice") return channel as VoiceChannel;
-    else if (channel && channel.type == "stage") return channel as StageChannel;
+    if (channel && channel.type == "GUILD_VOICE")
+      return channel as VoiceChannel;
+    else if (channel && channel.type == "GUILD_STAGE_VOICE")
+      return channel as StageChannel;
 
     if (!silent) await message.error("CHANNEL_NOT_FOUND");
     return null;
   } else {
     const channel = guild.channels.cache.get(match);
-    if (channel && channel.type == "voice") return channel as VoiceChannel;
-    else if (channel && channel.type == "stage") return channel as StageChannel;
+    if (channel && channel.type == "GUILD_VOICE")
+      return channel as VoiceChannel;
+    else if (channel && channel.type == "GUILD_STAGE_VOICE")
+      return channel as StageChannel;
 
     if (!silent) await message.error("INVALID_CHANNEL_ID");
     return null;
@@ -473,7 +477,7 @@ export const categoryChannelConverter = async (
       .filter(
         (channel) =>
           channel.name.toLowerCase() == argument.toLowerCase() &&
-          channel.type == "category"
+          channel.type == "GUILD_CATEGORY"
       )
       .first();
     if (channel) {
@@ -484,7 +488,7 @@ export const categoryChannelConverter = async (
     return null;
   } else {
     const channel = guild.channels.cache.get(match);
-    if (channel && channel.type == "category") {
+    if (channel && channel.type == "GUILD_CATEGORY") {
       return channel as CategoryChannel;
     }
 

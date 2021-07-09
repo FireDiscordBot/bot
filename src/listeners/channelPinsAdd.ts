@@ -16,7 +16,7 @@ export default class ChannelPinsAdd extends Listener {
     const channel = this.client.channels.cache.get(
       reference.channelId
     ) as FireTextChannel;
-    if (!channel || channel.type != "text") return;
+    if (!channel || channel.type != "GUILD_TEXT") return;
     const guild = channel.guild as FireGuild;
     if (!guild) return;
     const language = guild.language;

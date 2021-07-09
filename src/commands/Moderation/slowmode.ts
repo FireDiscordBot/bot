@@ -69,12 +69,12 @@ export default class Slowmode extends Command {
       (message.util?.parsed?.alias == "slowmodeall" || args.global)
     )
       return await this.globalSlowmode(message, args.delay);
-    if (!["text", "category", undefined].includes(args.channel?.type))
+    if (!["GUILD_TEXT", "category", undefined].includes(args.channel?.type))
       return await message.error("SLOWMODE_INVALID_TYPE");
     let failed = [];
-    if (args.channel?.type == "category") {
+    if (args.channel?.type == "GUILD_CATEGORY") {
       args.channel.children.forEach(async (channel) => {
-        if (channel.type == "text")
+        if (channel.type == "GUILD_TEXT")
           await (channel as FireTextChannel)
             .setRateLimitPerUser(
               args.delay,
@@ -87,7 +87,7 @@ export default class Slowmode extends Command {
       return failed.length
         ? await message.error("SLOWMODE_FAILED", { failed: failed.join(", ") })
         : await message.success();
-    } else if (args.channel.type == "text") {
+    } else if (args.channel.type == "GUILD_TEXT") {
       const limited = await args.channel
         .setRateLimitPerUser(args.delay, `Slowmode set by ${message.author}`)
         .catch(async () => {
@@ -101,7 +101,7 @@ export default class Slowmode extends Command {
   async globalSlowmode(message: FireMessage, delay: number) {
     let failed: string[] = [];
     const channels = message.guild.channels.cache
-      .filter((channel: GuildChannel) => channel.type == "text")
+      .filter((channel: GuildChannel) => channel.type == "GUILD_TEXT")
       .array() as FireTextChannel[];
     let warning: FireMessage;
     if (channels.length > 50)

@@ -59,7 +59,7 @@ export default class FilterExclude extends Command {
         mentions[exclude] = message.guild.roles.cache.get(exclude).toString();
       if (
         message.guild.channels.cache
-          .filter((channel) => channel.type == "text")
+          .filter((channel) => channel.type == "GUILD_TEXT")
           .has(exclude)
       )
         mentions[exclude] = message.guild.channels.cache

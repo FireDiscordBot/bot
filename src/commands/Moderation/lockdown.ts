@@ -86,7 +86,7 @@ export default class Lockdown extends Command {
     let locked: string[] = [];
     const channels = message.guild.channels.cache.filter(
       (channel) =>
-        channel.type == "text" &&
+        channel.type == "GUILD_TEXT" &&
         channel
           .permissionsFor(message.guild.roles.everyone)
           .has(Permissions.FLAGS.VIEW_CHANNEL) &&
@@ -192,7 +192,7 @@ export default class Lockdown extends Command {
     if (!locked.length) return await message.error("LOCKDOWN_END_NONE_LOCKED");
     const channels = message.guild.channels.cache.filter(
       (channel) =>
-        channel.type == "text" &&
+        channel.type == "GUILD_TEXT" &&
         channel
           .permissionsFor(message.guild.roles.everyone)
           .has(Permissions.FLAGS.VIEW_CHANNEL) &&
@@ -224,8 +224,8 @@ export default class Lockdown extends Command {
           )
           .catch(() => {});
       }
-      await channel
-        .permissionOverwrites.set(
+      await channel.permissionOverwrites
+        .set(
           [
             ...channel.permissionOverwrites.cache
               .mapValues((overwrite) =>
@@ -233,9 +233,12 @@ export default class Lockdown extends Command {
               )
               .values(),
             channel.permissionOverwrites.cache.has(this.client.user.id)
-              ? update(channel.permissionOverwrites.cache.get(this.client.user.id), {
-                  SEND_MESSAGES: null,
-                })
+              ? update(
+                  channel.permissionOverwrites.cache.get(this.client.user.id),
+                  {
+                    SEND_MESSAGES: null,
+                  }
+                )
               : {
                   id: this.client.user.id,
                   allow: ["SEND_MESSAGES"],

@@ -103,17 +103,21 @@ export default class GuildCommand extends Command {
           )}:** ${guild.channels.cache.size.toLocaleString(
             message.language.id
           )} (${channels.text} ${
-            guild.channels.cache.filter((channel) => channel.type == "text")
-              .size
+            guild.channels.cache.filter(
+              (channel) => channel.type == "GUILD_TEXT"
+            ).size
           }, ${channels.voice} ${
-            guild.channels.cache.filter((channel) => channel.type == "voice")
-              .size
+            guild.channels.cache.filter(
+              (channel) => channel.type == "GUILD_VOICE"
+            ).size
           }, ${channels.stage} ${
-            guild.channels.cache.filter((channel) => channel.type == "stage")
-              .size
+            guild.channels.cache.filter(
+              (channel) => channel.type == "GUILD_STAGE_VOICE"
+            ).size
           }, ${channels.news} ${
-            guild.channels.cache.filter((channel) => channel.type == "news")
-              .size
+            guild.channels.cache.filter(
+              (channel) => channel.type == "GUILD_NEWS"
+            ).size
           })`
         : null,
       guild instanceof FireGuild
@@ -124,8 +128,9 @@ export default class GuildCommand extends Command {
               ? guild.regions
                   .map(
                     (region) =>
-                      message.language.get(`REGIONS.${region}` as LanguageKeys) ||
-                      message.language.get("REGION_AUTOMATIC")
+                      message.language.get(
+                        `REGIONS.${region}` as LanguageKeys
+                      ) || message.language.get("REGION_AUTOMATIC")
                   )
                   .join(", ")
               : message.language.get("REGION_AUTOMATIC")

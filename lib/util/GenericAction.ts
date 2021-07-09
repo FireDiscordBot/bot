@@ -48,7 +48,8 @@ export class GenericAction {
   ) {
     const existing = manager.cache.get(id as Snowflake);
     if (!existing && this.client.options.partials.includes(partialType)) {
-      return manager.add(data, cache);
+      // @ts-ignore we're replacing internals so we need to use this
+      return manager._add(data, cache);
     }
     return existing;
   }

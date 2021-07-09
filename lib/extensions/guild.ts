@@ -122,7 +122,10 @@ export class FireGuild extends Guild {
 
   get regions() {
     let regions = this.channels.cache
-      .filter((channel) => channel.type == "voice" || channel.type == "stage")
+      .filter(
+        (channel) =>
+          channel.type == "GUILD_VOICE" || channel.type == "GUILD_STAGE_VOICE"
+      )
       .map((channel: VoiceChannel | StageChannel) => channel.rtcRegion);
     regions = regions.filter(
       // remove duplicates
@@ -647,7 +650,7 @@ export class FireGuild extends Guild {
     const channel = this.channels.cache.get(
       this.settings.get<Snowflake>("log.action")
     );
-    if (!channel || channel.type != "text") return;
+    if (!channel || channel.type != "GUILD_TEXT") return;
 
     if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
       return await (channel as FireTextChannel)
@@ -666,7 +669,7 @@ export class FireGuild extends Guild {
     const channel = this.channels.cache.get(
       this.settings.get<Snowflake>("log.moderation")
     );
-    if (!channel || channel.type != "text") return;
+    if (!channel || channel.type != "GUILD_TEXT") return;
 
     if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
       return await (channel as FireTextChannel)
@@ -685,7 +688,7 @@ export class FireGuild extends Guild {
     const channel = this.channels.cache.get(
       this.settings.get<Snowflake>("log.members")
     );
-    if (!channel || channel.type != "text") return;
+    if (!channel || channel.type != "GUILD_TEXT") return;
 
     if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
       return await (channel as FireTextChannel)
@@ -742,10 +745,10 @@ export class FireGuild extends Guild {
   get tickets() {
     const textChannelsAndThreads = [
       ...this.channels.cache
-        .filter((channel) => channel.type == "text")
+        .filter((channel) => channel.type == "GUILD_TEXT")
         .array(),
       ...this.channels.cache
-        .filter((channel) => channel.type == "text")
+        .filter((channel) => channel.type == "GUILD_TEXT")
         .flatMap((channel: FireTextChannel) => channel.threads.cache)
         .array(),
     ] as (FireTextChannel | ThreadChannel)[];
@@ -763,7 +766,8 @@ export class FireGuild extends Guild {
         this.channels.cache
           .filter(
             (channel) =>
-              (channel.type == "text" || channel instanceof ThreadChannel) &&
+              (channel.type == "GUILD_TEXT" ||
+                channel instanceof ThreadChannel) &&
               channel.id == id
           )
           .get(id)
@@ -790,7 +794,7 @@ export class FireGuild extends Guild {
     category =
       category ||
       (this.channels.cache
-        .filter((chan) => chan.type == "category")
+        .filter((chan) => chan.type == "GUILD_CATEGORY")
         .get(
           this.settings.get<Snowflake>("tickets.parent")
         ) as CategoryChannel);
@@ -852,7 +856,7 @@ export class FireGuild extends Guild {
               : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
             { author: author.toString(), id: author.id, subject }
           ),
-          type: "private_thread",
+          type: "GUILD_PRIVATE_THREAD",
         })
         .catch((e: Error) => e)) as ThreadChannel;
       if (ticket instanceof ThreadChannel) {
