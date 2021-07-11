@@ -554,7 +554,7 @@ export class FireGuild extends Guild {
   async loadInvites() {
     this.inviteUses = new Collection();
     if (!this.premium || !this.available) return;
-    const invites = await this.invites.fetch().catch(() => {});
+    const invites = await this.invites.fetch({ cache: false }).catch(() => {});
     if (!invites) return this.inviteUses;
     for (const [code, invite] of invites)
       this.inviteUses.set(code, invite.uses);
