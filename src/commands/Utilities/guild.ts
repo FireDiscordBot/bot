@@ -126,11 +126,12 @@ export default class GuildCommand extends Command {
           )}:** ${
             guild.regions.length > 1
               ? guild.regions
-                  .map(
-                    (region) =>
-                      message.language.get(
-                        `REGIONS.${region}` as LanguageKeys
-                      ) || message.language.get("REGION_AUTOMATIC")
+                  .map((region) =>
+                    region && message.language.has(`REGIONS.${region}`)
+                      ? message.language.get(
+                          `REGIONS.${region}` as LanguageKeys
+                        )
+                      : message.language.get("REGION_AUTOMATIC")
                   )
                   .join(", ")
               : message.language.get("REGION_AUTOMATIC")
