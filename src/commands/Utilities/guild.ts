@@ -45,9 +45,7 @@ export default class GuildCommand extends Command {
     if (guild.features.includes("PARTNERED")) emojis.push(badges.PARTNERED);
     if (guild.features.includes("VERIFIED")) emojis.push(badges.VERIFIED);
 
-    if (emojis.length) {
-      emojis.push(zws);
-    }
+    if (emojis.length) emojis.push(zws);
 
     return emojis;
   }
