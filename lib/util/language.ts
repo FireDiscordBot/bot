@@ -39,9 +39,8 @@ export class Language extends AkairoModule {
   }
 
   has(key: string) {
-    if (!this.enabled)
-      return typeof this.client.i18n.t(key, { lng: "en-US" }) != key;
-    return typeof this.client.i18n.t(key, { lng: this.id }) != key;
+    if (!this.enabled) return this.client.i18n.t(key, { lng: "en-US" }) != key;
+    return this.client.i18n.t(key, { lng: this.id }) != key;
   }
 
   get(key?: LanguageKeys, args?: TOptions<StringMap>) {
