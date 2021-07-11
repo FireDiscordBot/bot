@@ -164,9 +164,7 @@ export default class Eval extends Command {
           ? `${emojis.success} Evaluation Complete`
           : `${emojis.error} Evaluation Failed`
       )
-      .setColor(
-        success ? message.member?.displayColor  : "#ef5350"
-      )
+      .setColor(success ? message.member?.displayColor : "#ef5350")
       .setDescription(
         type.toString() != "any" ? `Output Type: ${type}` : "fuck"
       );
@@ -177,7 +175,7 @@ export default class Eval extends Command {
       const paginator = new WrappedPaginator("```js", "```", 1200);
       result.split("\n").forEach((line: string) => paginator.addLine(line));
       const paginatorEmbed = new MessageEmbed().setColor(
-        success ? message.member?.displayColor  : "#ef5350"
+        success ? message.member?.displayColor : "#ef5350"
       );
       const paginatorInterface = new PaginatorEmbedInterface(
         message.client,

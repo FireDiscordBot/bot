@@ -83,12 +83,12 @@ export class FireGuild extends Guild {
     this.persistedRoles = new Collection();
     this.reactionRoles = new Collection();
     this.inviteRoles = new Collection();
+    this.inviteUses = new Collection();
     this.fetchingMemberUpdates = false;
     this.quoteHooks = new Collection();
     this.permRoles = new Collection();
     this.fetchingRoleUpdates = false;
     this.vcRoles = new Collection();
-    this.inviteUses = new Collection();
     this.loadStarboardReactions();
     this.loadStarboardMessages();
     this.loadMutes();
@@ -157,6 +157,7 @@ export class FireGuild extends Guild {
   }
 
   async initMuteRole() {
+    if (!this.available) return;
     if (this.muteRole) return this.muteRole;
     const role = await this.roles
       .create({
@@ -197,6 +198,7 @@ export class FireGuild extends Guild {
   }
 
   async changeMuteRole(role: Role) {
+    if (!this.available) return;
     const changed = await role
       .edit({
         position: this.me.roles.highest.rawPosition - 2,
@@ -227,8 +229,8 @@ export class FireGuild extends Guild {
   }
 
   async syncMuteRolePermissions() {
+    if (!this.muteRole) return;
     const role = this.muteRole;
-    if (!role) return;
     for (const [, channel] of this.guildChannels.cache) {
       const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
       if (
@@ -255,6 +257,7 @@ export class FireGuild extends Guild {
   }
 
   private async loadMutes() {
+    if (!this.available) return;
     this.mutes = new Collection();
     const mutes = await this.client.db
       .query("SELECT * FROM mutes WHERE gid=$1;", [this.id])
@@ -274,6 +277,7 @@ export class FireGuild extends Guild {
   }
 
   private async loadBans() {
+    if (!this.available) return;
     this.tempBans = new Collection();
     const bans = await this.client.db
       .query("SELECT * FROM bans WHERE gid=$1;", [this.id])
@@ -380,6 +384,7 @@ export class FireGuild extends Guild {
   }
 
   async loadStarboardMessages() {
+    if (!this.available) return;
     this.starboardMessages = new Collection();
     const messages = await this.client.db
       .query("SELECT * FROM starboard WHERE gid=$1;", [this.id])
@@ -396,6 +401,7 @@ export class FireGuild extends Guild {
   }
 
   async loadStarboardReactions() {
+    if (!this.available) return;
     this.starboardReactions = new Collection();
     const reactions = await this.client.db
       .query("SELECT * FROM starboard_reactions WHERE gid=$1;", [this.id])
@@ -412,8 +418,8 @@ export class FireGuild extends Guild {
   }
 
   async loadInviteRoles() {
-    this.inviteRoles = new Collection();
     if (!this.premium || !this.available) return;
+    this.inviteRoles = new Collection();
     const invroles = await this.client.db
       .query("SELECT * FROM invrole WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -429,8 +435,8 @@ export class FireGuild extends Guild {
   }
 
   async loadPersistedRoles() {
-    this.persistedRoles = new Collection();
     if (!this.premium || !this.available) return;
+    this.persistedRoles = new Collection();
     const persisted = await this.client.db
       .query("SELECT * FROM rolepersists WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -446,8 +452,8 @@ export class FireGuild extends Guild {
   }
 
   async loadVcRoles() {
-    this.vcRoles = new Collection();
     if (!this.premium || !this.available) return;
+    this.vcRoles = new Collection();
     const voiceroles = await this.client.db
       .query("SELECT * FROM vcroles WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -486,8 +492,8 @@ export class FireGuild extends Guild {
   }
 
   async loadReactionRoles() {
-    this.reactionRoles = new Collection();
     if (!this.premium || !this.available) return;
+    this.reactionRoles = new Collection();
     const reactRoles = await this.client.db
       .query("SELECT * FROM reactrole WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -506,8 +512,8 @@ export class FireGuild extends Guild {
   }
 
   async loadPermRoles() {
-    this.permRoles = new Collection();
     if (!this.available) return;
+    this.permRoles = new Collection();
     const permRoles = await this.client.db
       .query("SELECT * FROM permroles WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -552,9 +558,9 @@ export class FireGuild extends Guild {
   }
 
   async loadInvites() {
-    this.inviteUses = new Collection();
     if (!this.premium || !this.available) return;
-    const invites = await this.invites.fetch().catch(() => {});
+    this.inviteUses = new Collection();
+    const invites = await this.invites.fetch({ cache: false }).catch(() => {});
     if (!invites) return this.inviteUses;
     for (const [code, invite] of invites)
       this.inviteUses.set(code, invite.uses);

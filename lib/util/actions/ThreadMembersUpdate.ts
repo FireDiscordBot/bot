@@ -9,7 +9,7 @@ export class ThreadMembersUpdateAction extends GenericAction {
     const thread = client.channels.cache.get(data.id) as ThreadChannel;
     if (thread) {
       const old = thread.members.cache.clone();
-      
+
       // fill in fake thread members from removed ids
       // to allow for knowing who was removed
       // without the members being cached

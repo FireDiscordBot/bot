@@ -48,6 +48,8 @@ export default class Unban extends Command {
     if (unbanned == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof unbanned == "string")
-      return await message.error(`UNBAN_FAILED_${unbanned.toUpperCase()}` as LanguageKeys);
+      return await message.error(
+        `UNBAN_FAILED_${unbanned.toUpperCase()}` as LanguageKeys
+      );
   }
 }

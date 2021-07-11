@@ -52,11 +52,12 @@ export default class Public extends Command {
         );
       await message.success("PUBLIC_ENABLED", { vanity: vanitys.rows[0][0] });
       await message.guild.actionLog(
-        `${
-          constants.emojis.statuspage.operational
-        } ${message.language.get("PUBLIC_ENABLED_LOG", {
-          user: message.author.toString(),
-        })}`,
+        `${constants.emojis.statuspage.operational} ${message.language.get(
+          "PUBLIC_ENABLED_LOG",
+          {
+            user: message.author.toString(),
+          }
+        )}`,
         "public_toggle"
       );
     } else {
@@ -71,11 +72,12 @@ export default class Public extends Command {
         );
       await message.success("PUBLIC_DISABLED");
       await message.guild.actionLog(
-        `${
-          constants.emojis.statuspage.major_outage
-        } ${message.language.get("PUBLIC_DISABLED_LOG", {
-          user: message.author.toString(),
-        })}`,
+        `${constants.emojis.statuspage.major_outage} ${message.language.get(
+          "PUBLIC_DISABLED_LOG",
+          {
+            user: message.author.toString(),
+          }
+        )}`,
         "public_toggle"
       );
     }

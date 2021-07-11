@@ -8,7 +8,6 @@ import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
 import { APIMessage } from "discord-api-types";
 import MCLogs from "@fire/src/modules/mclogs";
-import Sk1er from "@fire/src/modules/sk1er";
 import { Snowflake } from "discord.js";
 import * as centra from "centra";
 
@@ -140,11 +139,9 @@ export default class Message extends Listener {
         message.channel as FireTextChannel
       );
 
-    const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
     // These won't run if the modules aren't loaded
     await mcLogsModule?.checkLogs(message).catch(() => {});
-    await sk1erModule?.checkBotStatus(message).catch(() => {});
 
     // Ensures people get dehoisted/decancered even if
     // Fire missed them joining/changing name

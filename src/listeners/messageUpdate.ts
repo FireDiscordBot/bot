@@ -2,7 +2,6 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageEmbed, Snowflake } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
-import Sk1er from "@fire/src/modules/sk1er";
 import Message from "./message";
 
 export default class MessageUpdate extends Listener {
@@ -15,16 +14,13 @@ export default class MessageUpdate extends Listener {
 
   async exec(before: FireMessage, after: FireMessage) {
     if (this.client.manager.id != 0 && !after.guild) return;
-    const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-    await sk1erModule?.checkBotStatus(after).catch(() => {});
 
     // Ensures people get dehoisted/decancered even if
     // Fire missed them joining/changing name
-    if (after.member) {
+    if (after.member)
       // This will check permissions & whether
       // dehoist/decancer is enabled so no need for checks here
       after.member.dehoistAndDecancer();
-    }
 
     await after.runFilters().catch(() => {});
 

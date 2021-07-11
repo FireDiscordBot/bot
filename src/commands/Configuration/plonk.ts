@@ -47,7 +47,9 @@ export default class Plonk extends Command {
       !message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
     )
       return await message.error("PLONK_FORBIDDEN", {
-        manage: message.language.get("PERMISSIONS.MANAGE_GUILD" as LanguageKeys),
+        manage: message.language.get(
+          "PERMISSIONS.MANAGE_GUILD" as LanguageKeys
+        ),
       });
 
     if (!args.user && typeof args.user == "undefined")
@@ -67,7 +69,9 @@ export default class Plonk extends Command {
       await this.globalBlacklist(message, args);
     else
       return await message.error("PLONK_FORBIDDEN", {
-        manage: message.language.get("PERMISSIONS.MANAGE_GUILD" as LanguageKeys),
+        manage: message.language.get(
+          "PERMISSIONS.MANAGE_GUILD" as LanguageKeys
+        ),
       });
   }
 

@@ -26,7 +26,11 @@ export const discord: ClientOptions = {
   },
   makeCache: (manager) => {
     if (manager.name == "MessageManager") return new LimitedCollection(30);
-    else if (manager.name == "PresenceManager") return new LimitedCollection(0);
+    else if (
+      manager.name == "PresenceManager" ||
+      manager.name == "GuildInviteManager" // this is an absolute gremlin
+    )
+      return new LimitedCollection(0);
     return new Collection();
   },
   messageCacheLifetime: 150,

@@ -83,9 +83,7 @@ export default class Quote extends Command {
         if (!shards.includes(shard)) {
           if (!this.client.manager.ws?.open) continue;
           const webhookURL = await this.client.util
-            .getQuoteWebhookURL(
-              message.channel as FireTextChannel
-            )
+            .getQuoteWebhookURL(message.channel as FireTextChannel)
             .catch(() => {});
           if (!webhookURL || typeof webhookURL != "string") continue;
           this.client.console.info(
