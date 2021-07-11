@@ -89,9 +89,7 @@ export class CommandHandler extends AkairoCommandHandler {
       if (this.commandUtil) message.util.parsed = parsed as ParsedComponentData;
 
       let ran = false;
-      if (!parsed.command)
-        ran = await this.handleRegexAndConditionalCommands(message);
-      else
+      if (parsed.command)
         ran = await this.handleDirectCommand(
           message,
           parsed.content,
