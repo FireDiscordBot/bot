@@ -112,6 +112,8 @@ export default class Ban extends Command {
     if (beaned == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof beaned == "string")
-      return await message.error(`BAN_FAILED_${beaned.toUpperCase()}` as LanguageKeys);
+      return await message.error(
+        `BAN_FAILED_${beaned.toUpperCase()}` as LanguageKeys
+      );
   }
 }

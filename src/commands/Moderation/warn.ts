@@ -47,6 +47,8 @@ export default class Warn extends Command {
     if (warned == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof warned == "string")
-      return await message.error(`WARN_FAILED_${warned.toUpperCase()}` as LanguageKeys);
+      return await message.error(
+        `WARN_FAILED_${warned.toUpperCase()}` as LanguageKeys
+      );
   }
 }

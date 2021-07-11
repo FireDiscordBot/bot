@@ -80,7 +80,9 @@ export default class Logging extends Command {
         await message.guild.logger.refreshWebhooks().catch(() => {});
       } catch {}
       return deleted
-        ? await message.success(`LOGGING_DISABLED_${type.toUpperCase()}` as LanguageKeys)
+        ? await message.success(
+            `LOGGING_DISABLED_${type.toUpperCase()}` as LanguageKeys
+          )
         : await message.error();
     } else {
       let set: any;
@@ -92,7 +94,9 @@ export default class Logging extends Command {
         if (set) await message.guild.logger.refreshWebhooks().catch(() => {});
       } catch {}
       return set
-        ? await message.success(`LOGGING_ENABLED_${type.toUpperCase()}` as LanguageKeys)
+        ? await message.success(
+            `LOGGING_ENABLED_${type.toUpperCase()}` as LanguageKeys
+          )
         : await message.error();
     }
   }

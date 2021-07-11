@@ -53,6 +53,8 @@ export default class Derank extends Command {
     if (deranked == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof deranked == "string")
-      return await message.error(`DERANK_FAILED_${deranked.toUpperCase()}` as LanguageKeys);
+      return await message.error(
+        `DERANK_FAILED_${deranked.toUpperCase()}` as LanguageKeys
+      );
   }
 }

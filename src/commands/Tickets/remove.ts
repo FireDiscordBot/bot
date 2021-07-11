@@ -47,8 +47,8 @@ export default class TicketRemove extends Command {
       return await message.error("TICKET_REMOVE_AUTHOR");
     if (!args.user.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL))
       return await message.error("TICKET_REMOVE_NOT_FOUND");
-    const updated = await channel
-      .permissionOverwrites.edit(
+    const updated = await channel.permissionOverwrites
+      .edit(
         args.user,
         {
           VIEW_CHANNEL: false,
