@@ -123,7 +123,7 @@ export default class Select extends Listener {
       const time = +new Date() + snoozeTime;
       const now = new Date();
       const remind = await select.author.createReminder(
-        time,
+        new Date(time),
         currentRemind.text,
         currentRemind.link
       );

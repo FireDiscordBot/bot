@@ -12,9 +12,3 @@ export interface Experiment {
   active: boolean;
   data: [string, number][];
 }
-
-export interface BuildOverride {
-  releaseChannel: "development" | "staging" | "production";
-  validForUserIds: string[];
-  expiresAt: Date;
-}
