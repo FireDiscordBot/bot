@@ -190,6 +190,20 @@ export class Fire extends AkairoClient {
             new Message(EventType.DISCORD_GUILD_MEMBER_REMOVE, r.d)
           )
         );
+
+      // fuck you nora
+      if (
+        r.t == "GUILD_STICKERS_UPDATE" &&
+        r.d?.guild_id == "411619823445999637"
+      ) {
+        const fuckYouNora = r.d.stickers.find((s) => s.name.includes("weezer"));
+        if (fuckYouNora?.id)
+          this.req
+            .guilds(r.d.guild_id)
+            .stickers(fuckYouNora.id)
+            .delete()
+            .catch(() => {});
+      }
     });
 
     if (sentry) {
