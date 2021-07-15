@@ -11,7 +11,6 @@ import {
   MessageEditOptions,
   MessageResolvable,
   MessageReaction,
-  MessageManager,
   RoleResolvable,
   MessagePayload,
   SnowflakeUtil,
