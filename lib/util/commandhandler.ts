@@ -10,10 +10,9 @@ import { CommandUtil, ParsedComponentData } from "./commandutil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Fire } from "@fire/lib/Fire";
 import { Command } from "./command";
-import { FireUser } from "../extensions/user";
-import { FireTextChannel } from "../extensions/textchannel";
 
 const { CommandHandlerEvents } = Constants;
+const allowedTypes = ["DEFAULT", "REPLY"];
 
 export class CommandHandler extends AkairoCommandHandler {
   declare categories: Collection<string, Category<string, Command>>;
@@ -56,7 +55,12 @@ export class CommandHandler extends AkairoCommandHandler {
   }
 
   async handle(message: FireMessage) {
-    if (message.webhookId || message.author?.bot) return false;
+    if (
+      message.webhookId ||
+      message.author?.bot ||
+      !allowedTypes.includes(message.type)
+    )
+      return false;
 
     try {
       if (this.fetchMembers && message.guild && !message.member)
