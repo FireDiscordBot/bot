@@ -1,6 +1,4 @@
 import {
-  GuildChannelOverwriteOptions,
-  PermissionOverwriteOptions,
   EmojiIdentifierResolvable,
   WebhookEditMessageOptions,
   CommandInteractionOption,
@@ -8,7 +6,6 @@ import {
   GuildMemberResolvable,
   WebhookMessageOptions,
   AwaitMessagesOptions,
-  PermissionOverwrites,
   CreateInviteOptions,
   CommandInteraction,
   MessageResolvable,
@@ -16,16 +13,16 @@ import {
   MessageMentions,
   MessageReaction,
   MessagePayload,
-  UserResolvable,
   RoleResolvable,
   ThreadChannel,
   SnowflakeUtil,
+  GuildChannel,
   Permissions,
   NewsChannel,
+  MessageType,
   Collection,
   DMChannel,
   Snowflake,
-  GuildChannel,
 } from "discord.js";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
@@ -48,6 +45,7 @@ export class SlashCommandMessage {
   private snowflake: DeconstructedSnowflake;
   slashCommand: CommandInteraction;
   sent: false | "ack" | "message";
+  type: MessageType = "DEFAULT";
   sourceMessage: FireMessage;
   mentions: MessageMentions;
   latestResponse: Snowflake;
