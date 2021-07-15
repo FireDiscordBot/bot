@@ -882,7 +882,7 @@
   "PERMROLES_REASON": "Setting up permission role...",
   "PREMIUM_COMMAND_DESCRIPTION": "Toggle Fire Premium in the current server (temporary command for beta testers)",
   "PREMIUM_NO_SUBSCRIPTION": "Seems you don't have a premium subscription...\n\nNote: This command is temporary and will not work for those who have not been given access to the new premium purchase flow!\nIf you do have access, make sure you have actually purchased premium (if this is not the dev bot, it will require you to *actually* purchase premium with real money)",
-  "PREMIUM_LIMIT_ZERO": "Seems you haven't purchased premium or you have cancelled your subscription. You may not be able to modify your premium servers after cancelling your subscription, even if you still have your trial!",
+  "PREMIUM_LIMIT_ZERO": "Seems you haven't purchased premium or your subscription is inactive. You may not be able to modify your premium servers after cancelling your subscription, even if you still have your trial!",
   "PREMIUM_LIMIT_REACHED": "You've reached the server limit for your subscription! You will need to remove premium from a server before adding it to a new one.\n\nYour existing premium servers are: {{current}}",
   "PREMIUM_MANAGED_OTHER": "This server's premium is managed by another user.",
   "PREMIUM_TRIAL_INELIGIBLE": "You currently have a premium trial which this server is ineligible for!",
