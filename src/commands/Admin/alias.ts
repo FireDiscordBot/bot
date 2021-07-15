@@ -47,7 +47,8 @@ export default class Alias extends Command {
     const existing = this.client.aliases.findKey((aliases) =>
       aliases.includes(alias.toLowerCase())
     );
-    if (existing != user.id) return await message.error("ALIAS_EXISTS");
+    if (existing && existing != user.id)
+      return await message.error("ALIAS_EXISTS");
 
     let current = this.client.aliases.get(user.id) || [];
     if (current.includes(alias.toLowerCase()))
