@@ -103,15 +103,15 @@ export class FireUser extends User {
     return this.client.util.isSuperuser(this.id);
   }
 
-  async createReminder(when: Date | number, why: string, link: string) {
+  async createReminder(when: Date, why: string, link: string) {
     if (!this.client.manager.ws?.open)
       return process.env.NODE_ENV == "development";
-    const timestamp = typeof when == "number" ? when : +when;
+    const timestamp = +when;
     if (isNaN(timestamp) || timestamp < +new Date() + 60000) return false;
     const reminder = await this.client.db
       .query(
         "INSERT INTO remind (uid, forwhen, reminder, link) VALUES ($1, $2, $3, $4);",
-        [this.id, timestamp.toString(), why, link]
+        [this.id, when, why, link]
       )
       .catch(() => {});
     if (!reminder) return false;
@@ -135,7 +135,7 @@ export class FireUser extends User {
     const deleted = await this.client.db
       .query("DELETE FROM remind WHERE uid=$1 AND forwhen=$2;", [
         this.id,
-        timestamp,
+        new Date(timestamp),
       ])
       .catch(() => false);
     if (typeof deleted == "boolean" && !deleted) return false;

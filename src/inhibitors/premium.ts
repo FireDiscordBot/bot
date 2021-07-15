@@ -35,12 +35,12 @@ export default class PremiumInhibitor extends Inhibitor {
       });
     }
     const premiumStripe = await this.client.db.query(
-      "SELECT * FROM premium_stripe"
+      "SELECT * FROM premium_stripe WHERE active=true;"
     );
     const now = new Date();
     for await (const row of premiumStripe) {
       const guilds = row.get("guilds") as Snowflake[];
-      const expiry = new Date((row.get("periodend") as number) * 1000);
+      const expiry = row.get("periodend") as Date;
       if (now > expiry) continue;
       if (guilds && guilds.length)
         for (const guild of guilds) {

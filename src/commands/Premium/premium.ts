@@ -28,12 +28,13 @@ export default class Premium extends Command {
       return await message.error("PREMIUM_NO_SUBSCRIPTION");
 
     const limit = premiumInfo.get("serverlimit") as number;
+    const active = premiumInfo.get("active") as boolean;
     let current = (premiumInfo.get("guilds") || []) as string[];
 
     // checking for current allows the user to remove
     // their own premium after their subscription ends
     // if it wasn't done automatically
-    if (!limit && !current.includes(message.guild.id))
+    if ((!limit || !active) && !current.includes(message.guild.id))
       return await message.error("PREMIUM_LIMIT_ZERO");
 
     if (current.length >= limit && !current.includes(message.guild.id))
@@ -66,7 +67,7 @@ export default class Premium extends Command {
       .catch(() => {});
     if (updated) {
       const syncData: PremiumData = {
-        periodEnd: (updated.get("periodend") as number) * 1000,
+        periodEnd: +(updated.get("periodend") as Date),
         status: updated.get("status") as SubscriptionStatus,
         limit: updated.get("serverlimit") as 1 | 3 | 5,
         user: updated.get("uid") as string,

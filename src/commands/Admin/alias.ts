@@ -1,8 +1,11 @@
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Message } from "@fire/lib/ws/Message";
 
 export default class Alias extends Command {
   constructor() {
@@ -41,6 +44,12 @@ export default class Alias extends Command {
     if (!user) return;
     if (!alias) return await message.error("ALIAS_REQUIRED_ARG");
 
+    const existing = this.client.aliases.findKey((aliases) =>
+      aliases.includes(alias.toLowerCase())
+    );
+    if (existing && existing != user.id)
+      return await message.error("ALIAS_EXISTS");
+
     let current = this.client.aliases.get(user.id) || [];
     if (current.includes(alias.toLowerCase()))
       current = current.filter((a) => a != alias.toLowerCase());
@@ -60,6 +69,17 @@ export default class Alias extends Command {
       );
     if (current.length) this.client.aliases.set(user.id, current);
     else this.client.aliases.delete(user.id);
+
+    this.client.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(EventType.ALIAS_SYNC, {
+          id: this.client.manager.id,
+          user: user.id,
+          aliases: current,
+        })
+      )
+    );
+
     return await message.success();
   }
 }

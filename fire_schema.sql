@@ -82,7 +82,7 @@ CREATE TABLE public.buildoverrides (
     bucket integer NOT NULL,
     releasechannel text NOT NULL,
     userids text[],
-    expiry integer,
+    expiry timestamp without time zone,
     hash text NOT NULL,
     experiment bigint NOT NULL
 );
@@ -238,8 +238,9 @@ CREATE TABLE public.premium_stripe (
     customer text NOT NULL,
     serverlimit integer DEFAULT 0 NOT NULL,
     guilds text[],
-    periodend integer NOT NULL,
-    status text DEFAULT 'unpaid'::text NOT NULL
+    periodend timestamp without time zone NOT NULL,
+    status text DEFAULT 'unpaid'::text NOT NULL,
+    active boolean DEFAULT true
 );
 
 
@@ -278,7 +279,7 @@ ALTER TABLE public.referrals OWNER TO postgres;
 
 CREATE TABLE public.remind (
     uid text NOT NULL,
-    forwhen text,
+    forwhen timestamp without time zone,
     reminder text,
     link text
 );
@@ -355,13 +356,13 @@ CREATE TABLE public.subscriptions (
     status text DEFAULT 'unpaid'::text NOT NULL,
     link text NOT NULL,
     cancelonend boolean NOT NULL,
-    cancelat integer,
-    periodstart integer,
-    periodend integer,
-    created integer,
-    ended integer,
-    trialstart integer,
-    trialend integer
+    cancelat timestamp without time zone,
+    periodstart timestamp without time zone,
+    periodend timestamp without time zone,
+    created timestamp without time zone,
+    ended timestamp without time zone,
+    trialstart timestamp without time zone,
+    trialend timestamp without time zone
 );
 
 
@@ -461,105 +462,6 @@ ALTER TABLE ONLY public.invrole
 
 ALTER TABLE ONLY public.vcroles
     ADD CONSTRAINT vcroles_cid_key UNIQUE (cid);
-
-
---
--- Name: TABLE aliases; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.aliases TO grafana;
-
-
---
--- Name: TABLE blacklist; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.blacklist TO grafana;
-
-
---
--- Name: TABLE guildconfig; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.guildconfig TO grafana;
-
-
---
--- Name: TABLE invrole; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.invrole TO grafana;
-
-
---
--- Name: TABLE modlogs; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.modlogs TO grafana;
-
-
---
--- Name: TABLE mutes; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.mutes TO grafana;
-
-
---
--- Name: TABLE premium; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.premium TO grafana;
-
-
---
--- Name: TABLE reactrole; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.reactrole TO grafana;
-
-
---
--- Name: TABLE referrals; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.referrals TO grafana;
-
-
---
--- Name: TABLE remind; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.remind TO grafana;
-
-
---
--- Name: TABLE rolepersists; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.rolepersists TO grafana;
-
-
---
--- Name: TABLE tags; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.tags TO grafana;
-
-
---
--- Name: TABLE vanity; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.vanity TO grafana;
-
-
---
--- Name: TABLE vanitybl; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.vanitybl TO grafana;
-
 
 --
 -- PostgreSQL database dump complete
