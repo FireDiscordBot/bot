@@ -139,13 +139,6 @@ export default class Message extends Listener {
         message.channel as FireTextChannel
       );
 
-    // fuck you nora
-    if (
-      message.guild?.id == "411619823445999637" &&
-      lowerContent.includes("weezer")
-    )
-      return await message.delete().catch(() => {});
-
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
     // These won't run if the modules aren't loaded
     await mcLogsModule?.checkLogs(message).catch(() => {});
