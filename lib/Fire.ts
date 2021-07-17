@@ -123,6 +123,7 @@ export class Fire extends AkairoClient {
   db: PGClient;
 
   // temp
+  clearTimeout: typeof clearTimeout;
   setInterval: typeof setInterval;
   setTimeout: typeof setTimeout;
 
@@ -132,6 +133,7 @@ export class Fire extends AkairoClient {
     this.i18n = i18n;
 
     // temp until discord-akairo/discord-akairo#229 is merged
+    this.clearTimeout = clearTimeout;
     this.setInterval = setInterval;
     this.setTimeout = setTimeout;
 
