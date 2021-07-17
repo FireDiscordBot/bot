@@ -44,18 +44,16 @@ export default class TagSlash extends Command {
     if (current == null) return await message.error("ERROR_CONTACT_SUPPORT");
     message.guild.settings.set<boolean>("tags.slashcommands", !current);
     if (!current) {
-      message.channel.startTyping(5);
+      message.channel.sendTyping();
       const prepared = await message.guild.tags?.prepareSlashCommands();
-      message.channel.stopTyping(true);
       if (prepared == null) {
         message.guild.settings.set<boolean>("tags.slashcommands", false);
         return await message.error("TAG_SLASH_MISSING_ACCESS");
       } else if (!prepared) return await message.error();
       else return await message.success("TAG_SLASH_ENABLED");
     } else {
-      message.channel.startTyping(5);
+      message.channel.sendTyping();
       const removed = await message.guild.tags?.removeSlashCommands();
-      message.channel.stopTyping(true);
       if (!removed) return await message.error();
       else return await message.success("TAG_SLASH_DISABLED");
     }

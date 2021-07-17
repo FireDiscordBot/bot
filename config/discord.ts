@@ -1,10 +1,9 @@
 import {
-  LimitedCollection,
   ClientOptions,
   HTTPOptions,
-  Collection,
   Constants,
   Intents,
+  Options,
 } from "discord.js";
 
 let litecord: { http?: HTTPOptions } = {};
@@ -24,15 +23,12 @@ export const discord: ClientOptions = {
     roles: [],
     repliedUser: false,
   },
-  makeCache: (manager) => {
-    if (manager.name == "MessageManager") return new LimitedCollection(30);
-    else if (
-      manager.name == "PresenceManager" ||
-      manager.name == "GuildInviteManager" // this is an absolute gremlin
-    )
-      return new LimitedCollection(0);
-    return new Collection();
-  },
+  makeCache: Options.cacheWithLimits({
+    MessageManager: 30,
+    PresenceManager: 0,
+    // @ts-ignore ABSOLUTE FUCKING GREMLIN AAAAAAAAAAAAAAAA
+    GuildInviteManager: 0,
+  }),
   messageCacheLifetime: 150,
   messageSweepInterval: 60,
   // messageCacheMaxSize: 30,

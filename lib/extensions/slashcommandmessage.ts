@@ -309,7 +309,12 @@ export class SlashCommandMessage {
     return message;
   }
 
-  async edit(options?: WebhookEditMessageOptions | MessagePayload) {
+  async edit(
+    options?:
+      | string
+      | MessagePayload
+      | (WebhookMessageOptions & { split?: false })
+  ) {
     let apiMessage: MessagePayload;
 
     if (options instanceof MessagePayload) apiMessage = options.resolveData();
@@ -414,12 +419,8 @@ export class FakeChannel {
       : this.real?.permissionsFor(memberOrRole) || new Permissions(0n);
   }
 
-  startTyping(count?: number) {
+  sendTyping() {
     return new Promise(() => {});
-  }
-
-  stopTyping(force?: boolean) {
-    return;
   }
 
   bulkDelete(
@@ -446,7 +447,7 @@ export class FakeChannel {
       : false;
   }
 
-  // Acknowledges without sending a message
+  // Defer interaction unless ephemeral
   async ack(ephemeral = false) {
     if (ephemeral || (this.flags & 64) != 0) return;
     await this.message.slashCommand

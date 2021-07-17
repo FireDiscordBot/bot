@@ -85,8 +85,6 @@ export class FireMessage extends Message {
           name: "**" + this.cleanContent + "**",
         });
 
-    // @ts-ignore
-    if (data.components) this.components = data.components;
     this.invWtfResolved = new Collection();
   }
 

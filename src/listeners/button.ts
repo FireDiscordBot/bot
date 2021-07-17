@@ -356,7 +356,7 @@ export default class Button extends Listener {
       if (!message) return "no message";
       const component = message.components
         ?.map((component) =>
-          component.type == "ACTION_ROW"
+          component.type == "ACTION_ROW" || component.type == 1
             ? component?.components ?? component
             : component
         )
@@ -389,26 +389,25 @@ export default class Button extends Listener {
         .setCustomId(deleteSnowflake);
       this.client.buttonHandlersOnce.set(deleteSnowflake, () => {
         button
-          .edit(button.language.get("SK1ER_SUPPORT_CANCELLED"), {
+          .edit({
+            content: button.language.get("SK1ER_SUPPORT_CANCELLED"),
             components: [],
           })
           .catch(() => {});
       });
-      await button.channel.send(
-        {
-          content: button.language.get("SK1ER_SUPPORT_CONFIRM"),
-          components: [
-            new MessageActionRow().addComponents([confirmButton, deleteButton]),
-          ],
-        },
-        64
-      );
+      await button.edit({
+        content: button.language.get("SK1ER_SUPPORT_CONFIRM"),
+        components: [
+          new MessageActionRow().addComponents([confirmButton, deleteButton]),
+        ],
+      });
 
       await this.client.util.sleep(5000);
       confirmButton.setDisabled(false);
       // user has not clicked delete button
       if (this.client.buttonHandlersOnce.has(deleteSnowflake))
-        await button.edit(button.language.get("SK1ER_SUPPORT_CONFIRM_EDIT"), {
+        await button.edit({
+          content: button.language.get("SK1ER_SUPPORT_CONFIRM_EDIT"),
           components: [
             new MessageActionRow().addComponents([confirmButton, deleteButton]),
           ],
@@ -432,18 +431,36 @@ export default class Button extends Listener {
       const ticket = await sk1erModule
         .handleSupport(button, button.author)
         .catch((e: Error) => e);
-      if (!(ticket instanceof FireTextChannel))
+      if (!(ticket instanceof FireTextChannel)) {
+        if (ticket instanceof Error)
+          this.client.sentry.captureException(ticket, {
+            user: {
+              username: button.author.toString(),
+              id: button.author.id,
+            },
+            extra: {
+              "message.id": button.id,
+              "guild.id": button.guild?.id,
+              "guild.name": button.guild?.name,
+              "guild.shard": button.guild?.shardId || 0,
+              "button.customid": button.customId,
+              env: process.env.NODE_ENV,
+            },
+          });
         return await button.error("SK1ER_SUPPORT_FAIL", {
           reason: ticket.toString(),
         });
-      else
+      } else
         await button
-          .edit(
-            `${emojis.success} ${button.language.get("NEW_TICKET_CREATED", {
-              channel: ticket.toString(),
-            })}`,
-            { components: [] }
-          )
+          .edit({
+            content: `${emojis.success} ${button.language.get(
+              "NEW_TICKET_CREATED",
+              {
+                channel: ticket.toString(),
+              }
+            )}`,
+            components: [],
+          })
           .catch(() => {});
     }
 
