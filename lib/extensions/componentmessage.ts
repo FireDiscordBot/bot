@@ -247,29 +247,17 @@ export class ComponentMessage {
   }
 
   async edit(
-    content: string | MessageEditOptions | MessageEmbed | MessagePayload,
-    options?: WebhookEditMessageOptions & { embed?: MessageEmbed }
+    options?:
+      | string
+      | MessagePayload
+      | (WebhookMessageOptions & { split?: false })
   ) {
     let apiMessage: MessagePayload;
 
-    if (content instanceof MessageEmbed) {
-      options = {
-        ...options,
-        embeds: [content],
-      };
-      content = null;
-    }
-
-    if (options?.embed) {
-      options.embeds = [options.embed];
-      delete options.embed;
-    }
-
-    if (content instanceof MessagePayload) apiMessage = content.resolveData();
+    if (options instanceof MessagePayload) apiMessage = options.resolveData();
     else {
       apiMessage = MessagePayload.create(
-        new Webhook(this.client, null), // needed to make isWebhook true for embeds array
-        content as string,
+        this.interaction,
         options
       ).resolveData();
     }
@@ -404,6 +392,17 @@ export class FakeChannel {
       .catch(() => (this.message.sent = "ack"));
   }
 
+  // Defer interaction ephemerally
+  async defer() {
+    await this.message.interaction
+      .defer({ ephemeral: true })
+      .then(() => {
+        this.message.sent = "ack";
+        this.message.getRealMessage().catch(() => {});
+      })
+      .catch(() => (this.message.sent = "ack"));
+  }
+
   async send(
     options?:
       | string
@@ -416,7 +415,7 @@ export class FakeChannel {
     if (options instanceof MessagePayload) apiMessage = options.resolveData();
     else {
       apiMessage = MessagePayload.create(
-        new Webhook(this.client, null), // needed to make isWebhook true for embeds array
+        this.message.interaction,
         options
       ).resolveData();
     }
@@ -481,7 +480,7 @@ export class FakeChannel {
     if (options instanceof MessagePayload) apiMessage = options.resolveData();
     else {
       apiMessage = MessagePayload.create(
-        new Webhook(this.client, null), // needed to make isWebhook true for embeds array
+        this.message.interaction,
         options
       ).resolveData();
     }
