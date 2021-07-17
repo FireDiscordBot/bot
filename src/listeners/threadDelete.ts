@@ -33,7 +33,6 @@ export default class ThreadDelete extends Listener {
       };
       delete data.client;
       delete data.guild;
-      delete data._typing;
       const raw = await this.client.util
         .haste(JSON.stringify(data, null, 4))
         .catch(() => {});

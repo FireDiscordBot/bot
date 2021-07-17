@@ -4,7 +4,12 @@ import {
   CommandHandlerOptions,
   Constants,
 } from "discord-akairo";
-import { DiscordAPIError, ThreadChannel, Collection } from "discord.js";
+import {
+  DiscordAPIError,
+  ThreadChannel,
+  Collection,
+  DMChannel,
+} from "discord.js";
 import { SlashCommandMessage } from "../extensions/slashcommandmessage";
 import { CommandUtil, ParsedComponentData } from "./commandutil";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -29,28 +34,20 @@ export class CommandHandler extends AkairoCommandHandler {
     command: Command,
     args: any[]
   ): Promise<void> {
-    if (command.typing) {
-      message.channel.startTyping();
-    }
+    if (command.typing) message.channel.sendTyping();
 
+    this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
     try {
-      this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
-      try {
-        const ret = await command.exec(message, args);
-        this.emit(
-          CommandHandlerEvents.COMMAND_FINISHED,
-          message,
-          command,
-          args,
-          ret
-        );
-      } catch (err) {
-        this.emit("commandError", message, command, args, err);
-      }
-    } finally {
-      if (command.typing) {
-        message.channel.stopTyping();
-      }
+      const ret = await command.exec(message, args);
+      this.emit(
+        CommandHandlerEvents.COMMAND_FINISHED,
+        message,
+        command,
+        args,
+        ret
+      );
+    } catch (err) {
+      this.emit("commandError", message, command, args, err);
     }
   }
 

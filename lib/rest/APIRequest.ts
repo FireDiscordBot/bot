@@ -76,7 +76,7 @@ export class APIRequest {
     } else if (this.options.data != null) body = this.options.data;
 
     const controller = new AbortController();
-    const timeout = this.client.setTimeout(
+    const timeout = setTimeout(
       () => controller.abort(),
       this.client.options.restRequestTimeout
     );
@@ -92,7 +92,7 @@ export class APIRequest {
       );
     const start = +new Date();
     return request.send().finally(() => {
-      this.client.clearTimeout(timeout);
+      clearTimeout(timeout);
       this.client.restPing = +new Date() - start;
       if (this.options.debug)
         this.client.console.warn(

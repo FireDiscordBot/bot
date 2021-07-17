@@ -419,12 +419,8 @@ export class FakeChannel {
       : this.real?.permissionsFor(memberOrRole) || new Permissions(0n);
   }
 
-  startTyping(count?: number) {
+  sendTyping() {
     return new Promise(() => {});
-  }
-
-  stopTyping(force?: boolean) {
-    return;
   }
 
   bulkDelete(

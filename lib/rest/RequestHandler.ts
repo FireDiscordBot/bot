@@ -81,7 +81,7 @@ export class RequestHandler {
 
   globalDelayFor(ms: number) {
     return new Promise<void>((resolve) => {
-      this.manager.client.setTimeout(() => {
+      setTimeout(() => {
         this.manager.globalDelay = null;
         resolve();
       }, ms);
