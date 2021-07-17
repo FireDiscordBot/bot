@@ -24,6 +24,9 @@ export default class MCLogs extends Module {
     noRaw: RegExp;
     secrets: RegExp;
     jvm: RegExp;
+    optifine: RegExp;
+    exOptifine: RegExp;
+    forge: RegExp;
     ram: RegExp;
     email: RegExp;
     url: RegExp;
@@ -44,7 +47,10 @@ export default class MCLogs extends Module {
       reupload: /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?([\w-\.]+)/gim,
       noRaw: /(justpaste\.it)\/(\w+)/gim,
       secrets: /("access_key":".+"|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken \S+|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*|https:\/\/api\.hypixel\.net\/.+(\?key=|&key=))/gim,
-      jvm: /-Xmx\d{1,2}(?:G|M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
+      jvm: /JVM Flags: 8 total; (?:-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump )?-Xmx\d{1,2}(?:G|M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
+      optifine: /HD_U_M(?:5|6)(?:\.jar)?(\s\d{1,3} mods loaded|$)/im,
+      exOptifine: /HD_U_\w\d_MOD/gm,
+      forge: /(?:version |MinecraftForge v)11\.15\.1\.2318/gim,
       ram: /-Xmx(?<ram>\d{1,2})(?<type>G|M)/gim,
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}/gim,
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
@@ -101,18 +107,23 @@ export default class MCLogs extends Module {
     let currentRecommendations: string[] = [];
 
     for (const [err, sol] of Object.entries(this.solutions.solutions)) {
-      if (log.includes(err) && !currentSolutions.includes(`- ${sol}`))
+      if (log.includes(err) && !currentSolutions.includes(`- **${sol}**`))
         currentSolutions.push(`- **${sol}**`);
     }
     if (
       log.includes("OptiFine_1.8.9_HD_U") &&
-      !log.match(/HD_U_M5(?:\.jar)?(\s\d{1,3} mods loaded|$)/im)
+      !log.match(this.regexes.optifine)
     )
-      currentSolutions.push("- Update Optifine to the latest version, M5");
+      currentSolutions.push(
+        "- **Update Optifine to one of the latest versions, M6 if on macOS, M5 if not**"
+      );
 
-    if (log.includes("_MOD") && log.match(/HD_U_\w\d_MOD/gm))
+    if (log.includes("11.15.1.") && !log.match(this.regexes.forge))
+      currentSolutions.push("- **Update Forge to the latest version. (2318)**");
+
+    if (log.includes("_MOD") && log.match(this.regexes.exOptifine))
       currentRecommendations.push(
-        "Don't extract Optifine, just put it in your mods folder"
+        "- Don't extract Optifine, just put it in your mods folder"
       );
 
     const isDefault = this.regexes.jvm.test(log);
