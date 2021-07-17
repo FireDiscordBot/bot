@@ -85,6 +85,6 @@ export default class CommandError extends Listener {
     if (channel instanceof DMChannel) return channel.recipient?.toString();
     else if (channel instanceof FakeChannel)
       return this.getChannelName(channel.real);
-    else return channel.name;
+    else return channel?.name;
   }
 }
