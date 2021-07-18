@@ -122,20 +122,10 @@ export class Fire extends AkairoClient {
   declare util: Util;
   db: PGClient;
 
-  // temp
-  clearTimeout: typeof clearTimeout;
-  setInterval: typeof setInterval;
-  setTimeout: typeof setTimeout;
-
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
 
     this.i18n = i18n;
-
-    // temp until discord-akairo/discord-akairo#229 is merged
-    this.clearTimeout = clearTimeout;
-    this.setInterval = setInterval;
-    this.setTimeout = setTimeout;
 
     // @ts-ignore
     this.rest = new RESTManager(this);
