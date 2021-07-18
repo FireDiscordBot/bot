@@ -614,7 +614,7 @@ detect-libc@^1.0.3:
 
 discord-akairo@discord-akairo/discord-akairo:
   version "8.1.0"
-  resolved "https://codeload.github.com/discord-akairo/discord-akairo/tar.gz/e092ce4e0c9e749418601476bcd054a30a262785"
+  resolved "https://codeload.github.com/discord-akairo/discord-akairo/tar.gz/828bc5236ed9fbab25d260f913fed4ba58e5d767"
 
 discord-api-types@^0.18.1:
   version "0.18.1"
@@ -630,15 +630,14 @@ discord.js@FireDiscordBot/discord.js:
   version "13.0.0-dev"
   resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/a64b898d16fa15268211021068fa20f0916ba92c"
   dependencies:
-    "@discordjs/builders" "^0.2.0"
     "@discordjs/collection" "^0.1.6"
     "@discordjs/form-data" "^3.0.1"
-    "@sapphire/async-queue" "^1.1.4"
-    "@types/ws" "^7.4.5"
+    "@sapphire/async-queue" "^1.1.2"
     abort-controller "^3.0.0"
-    discord-api-types "^0.19.0-next.f393ba520d7d6d2aacaca7b3ca5d355fab614f6e"
     node-fetch "^2.6.1"
-    ws "^7.5.1"
+    prism-media "^1.2.9"
+    tweetnacl "^1.0.3"
+    ws "^7.4.5"
 
 dotenv-extended@^2.9.0:
   version "2.9.0"
