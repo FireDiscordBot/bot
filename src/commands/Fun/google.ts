@@ -1,4 +1,4 @@
-import { DiscordAPIError, SnowflakeUtil, Permissions } from "discord.js";
+import { SnowflakeUtil, Permissions } from "discord.js";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
