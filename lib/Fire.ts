@@ -77,7 +77,7 @@ import * as i18next from "i18next";
 import * as moment from "moment";
 
 // this shit has some weird import fuckery, this is the only way I can use it
-const i18n = (i18next as unknown) as typeof i18next.default;
+const i18n = i18next as unknown as typeof i18next.default;
 
 type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
 
@@ -109,6 +109,9 @@ export class Fire extends AkairoClient {
   // Buttons
   buttonHandlersOnce: Collection<string, ButtonHandler>;
   buttonHandlers: Collection<string, ButtonHandler>;
+  
+  // Private Utilities
+  private readyWait: Promise<Fire>;
 
   // Common Attributes
   experiments: Collection<number, Experiment>;
@@ -457,6 +460,15 @@ export class Fire extends AkairoClient {
     };
     this.cacheSweepTask = setInterval(this.cacheSweep, 120000);
     return super.login();
+  }
+
+  waitUntilReady() {
+    if (this.readyWait) return this.readyWait
+    this.readyWait = new Promise((resolve) => {
+      if (!!this.readyAt) return resolve(this);
+      this.once("ready", () => resolve(this));
+    });
+    return this.readyWait
   }
 
   private isRunningCommand(member: FireMember) {

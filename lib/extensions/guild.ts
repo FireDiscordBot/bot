@@ -13,7 +13,6 @@ import {
   StageChannel,
   GuildChannel,
   Permissions,
-  NewsChannel,
   Structures,
   Collection,
   Snowflake,
@@ -259,7 +258,6 @@ export class FireGuild extends Guild {
 
   private async loadMutes() {
     this.mutes = new Collection();
-    if (!this.available) return;
     const mutes = await this.client.db
       .query("SELECT * FROM mutes WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -279,7 +277,6 @@ export class FireGuild extends Guild {
 
   private async loadBans() {
     this.tempBans = new Collection();
-    if (!this.available) return;
     const bans = await this.client.db
       .query("SELECT * FROM bans WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -386,7 +383,6 @@ export class FireGuild extends Guild {
 
   async loadStarboardMessages() {
     this.starboardMessages = new Collection();
-    if (!this.available) return;
     const messages = await this.client.db
       .query("SELECT * FROM starboard WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -403,7 +399,6 @@ export class FireGuild extends Guild {
 
   async loadStarboardReactions() {
     this.starboardReactions = new Collection();
-    if (!this.available) return;
     const reactions = await this.client.db
       .query("SELECT * FROM starboard_reactions WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -467,6 +462,7 @@ export class FireGuild extends Guild {
         vcrole.get("cid") as Snowflake,
         vcrole.get("rid") as Snowflake
       );
+      await this.client.waitUntilReady(); // this will resolve when ready or if already ready
       const channel = this.channels.cache.get(
         vcrole.get("cid") as Snowflake
       ) as VoiceChannel | StageChannel;
@@ -514,7 +510,6 @@ export class FireGuild extends Guild {
 
   async loadPermRoles() {
     this.permRoles = new Collection();
-    if (!this.available) return;
     const permRoles = await this.client.db
       .query("SELECT * FROM permroles WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -528,6 +523,7 @@ export class FireGuild extends Guild {
         deny: BigInt(role.get("deny") as string),
       });
     }
+    await this.client.waitUntilReady();
     if (this.guildChannels.cache.size >= 100) return;
     for (const [id, perms] of this.permRoles) {
       for (const [, channel] of this.guildChannels.cache.filter(
@@ -588,7 +584,7 @@ export class FireGuild extends Guild {
     let splash = "https://i.imgur.com/jWRMBRd.png";
     if (!this.available)
       return {
-        name: "",
+        name: "Unavailable Guild",
         id: this.id,
         icon: "https://cdn.discordapp.com/embed/avatars/0.png",
         splash,
@@ -886,7 +882,7 @@ export class FireGuild extends Guild {
         }
       }
     } else
-      ticket = ((await this.channels
+      ticket = (await this.channels
         .create(name.slice(0, 50), {
           parent: category,
           permissionOverwrites: [
@@ -940,7 +936,7 @@ export class FireGuild extends Guild {
             { author: author.toString(), id: author.id, subject }
           ),
         })
-        .catch((e: Error) => e)) as unknown) as FireTextChannel;
+        .catch((e: Error) => e)) as unknown as FireTextChannel;
     if (ticket instanceof Error) {
       locked = false;
       this.ticketLock.lock.release();
