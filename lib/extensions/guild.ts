@@ -13,7 +13,6 @@ import {
   StageChannel,
   GuildChannel,
   Permissions,
-  NewsChannel,
   Structures,
   Collection,
   Snowflake,
@@ -259,7 +258,6 @@ export class FireGuild extends Guild {
 
   private async loadMutes() {
     this.mutes = new Collection();
-    if (!this.available) return;
     const mutes = await this.client.db
       .query("SELECT * FROM mutes WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -886,7 +884,7 @@ export class FireGuild extends Guild {
         }
       }
     } else
-      ticket = ((await this.channels
+      ticket = (await this.channels
         .create(name.slice(0, 50), {
           parent: category,
           permissionOverwrites: [
@@ -940,7 +938,7 @@ export class FireGuild extends Guild {
             { author: author.toString(), id: author.id, subject }
           ),
         })
-        .catch((e: Error) => e)) as unknown) as FireTextChannel;
+        .catch((e: Error) => e)) as unknown as FireTextChannel;
     if (ticket instanceof Error) {
       locked = false;
       this.ticketLock.lock.release();
