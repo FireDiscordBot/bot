@@ -209,7 +209,7 @@ export class Fire extends AkairoClient {
 
     if (sentry) {
       this.sentry = sentry;
-      this.sentry.setTag("cluster", process.pid.toString());
+      this.sentry.setTag("process", process.pid.toString());
       this.sentry.setTag("discord.js", djsver);
       this.sentry.setTag("discord-akairo", akairover);
       this.console.log("[Sentry] Connected.");
