@@ -20,7 +20,8 @@ import { constants } from "./constants";
 import * as fuzz from "fuzzball";
 import * as centra from "centra";
 
-const messageIdRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
+const messageIdRegex =
+  /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
 const userMentionRegex = /<@!?(\d{15,21})>$/im;
 const channelMentionRegex = /<#(\d{15,21})>$/im;
 const roleMentionRegex = /<@&(\d{15,21})>$/im;
@@ -52,6 +53,8 @@ const getRoleMentionMatch = (argument: string) => {
   const match = roleMentionRegex.exec(argument);
   return match ? (match[1] as Snowflake) : null;
 };
+
+// TODO: use resolved data from slash cmds
 
 export const snowflakeConverter = async (
   message: FireMessage,
