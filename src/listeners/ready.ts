@@ -64,7 +64,8 @@ export default class Ready extends Listener {
     ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
     // or "0" which may be used for something later
 
-    const guilds = this.client.guilds.cache.values() as IterableIterator<FireGuild>;
+    const guilds =
+      this.client.guilds.cache.values() as IterableIterator<FireGuild>;
     for (const guild of guilds) {
       await guild.loadInvites();
       await guild.loadVcRoles();
@@ -77,7 +78,8 @@ export default class Ready extends Listener {
         await guild.tags.prepareSlashCommands();
     }
 
-    if (process.env.USE_LITECORD || this.client.manager.id != 0) return;
+    return; //temp
+    // if (process.env.USE_LITECORD || this.client.manager.id != 0) return;
 
     const slashCommands = await this.client.application.commands.fetch();
 

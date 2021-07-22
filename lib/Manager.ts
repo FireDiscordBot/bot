@@ -97,8 +97,9 @@ export class Manager {
     this.id = data.id;
     this.session = data.session;
     this.client.options.presence.shardId = this.client.options.shards =
-      data.shards;
+    data.shards;
     this.client.options.shardCount = data.shardCount;
+    this.client.sentry.setTag("cluster", this.id);
     return this.client.login();
   }
 

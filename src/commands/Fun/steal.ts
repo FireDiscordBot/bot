@@ -15,9 +15,9 @@ export default class Steal extends Command {
         language.get("STEAL_COMMAND_DESCRIPTION"),
       clientPermissions: [
         Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.MANAGE_EMOJIS,
+        Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS,
       ],
-      userPermissions: [Permissions.FLAGS.MANAGE_EMOJIS],
+      userPermissions: [Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS],
       args: [
         {
           id: "emoji",

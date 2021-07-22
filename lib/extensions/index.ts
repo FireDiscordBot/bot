@@ -1,3 +1,4 @@
+import "./commandinteraction";
 import "./guildmember";
 import "./textchannel";
 import "./message";

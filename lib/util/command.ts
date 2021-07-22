@@ -66,6 +66,7 @@ export class Command extends AkairoCommand {
   declare client: Fire;
   guilds: Snowflake[];
   ephemeral: boolean;
+  context: string[];
   premium: boolean;
   parent?: string;
   hidden: boolean;
@@ -129,6 +130,7 @@ export class Command extends AkairoCommand {
     this.group = options.group || false;
     this.guilds = options.guilds || [];
     this.args = options.args;
+    this.context = options.context || [];
   }
 
   async init(): Promise<any> {}
@@ -190,9 +192,9 @@ export class Command extends AkairoCommand {
 
   getSlashCommandOption(argument: ArgumentOptions) {
     const type =
-      ((Object.keys(slashCommandTypeMappings).find((type) =>
+      (Object.keys(slashCommandTypeMappings).find((type) =>
         slashCommandTypeMappings[type].includes(argument.type)
-      ) as unknown) as ApplicationCommandOptionType) || "STRING";
+      ) as unknown as ApplicationCommandOptionType) || "STRING";
     let options: ApplicationCommandOptionData = {
       type: type as keyof typeof ApplicationCommandOptionType,
       name: (argument.slashCommandType
@@ -317,6 +319,7 @@ export interface CommandOptions extends AkairoCommandOptions {
   moderatorOnly?: boolean;
   guilds?: Snowflake[];
   ephemeral?: boolean;
+  context?: string[];
   premium?: boolean;
   hidden?: boolean;
   group?: boolean;

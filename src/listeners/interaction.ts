@@ -1,9 +1,6 @@
-import {
-  CommandInteraction,
-  Interaction,
-  MessageComponentInteraction,
-} from "discord.js";
+import { MessageComponentInteraction, Interaction } from "discord.js";
 import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { CommandInteraction } from "@fire/lib/extensions/commandinteraction";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
@@ -24,7 +21,9 @@ export default class InteractionListener extends Listener {
   async exec(interaction: Interaction) {
     if (this.blacklistCheck(interaction)) return;
     else if (interaction.isCommand())
-      return await this.handleApplicationCommand(interaction);
+      return await this.handleApplicationCommand(
+        interaction as CommandInteraction
+      );
     else if (
       interaction.isMessageComponent() &&
       interaction.componentType == "BUTTON"

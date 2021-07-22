@@ -8,8 +8,8 @@ export default class EmojiLock extends Command {
     super("emojilock", {
       description: (language: Language) =>
         language.get("EMOJILOCK_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.MANAGE_EMOJIS],
-      userPermissions: [Permissions.FLAGS.MANAGE_EMOJIS],
+      clientPermissions: [Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS],
+      userPermissions: [Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS],
       args: [
         {
           id: "emoji",
