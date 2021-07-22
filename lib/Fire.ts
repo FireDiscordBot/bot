@@ -109,9 +109,15 @@ export class Fire extends AkairoClient {
   // Buttons
   buttonHandlersOnce: Collection<string, ButtonHandler>;
   buttonHandlers: Collection<string, ButtonHandler>;
-  
+
   // Private Utilities
   private readyWait: Promise<Fire>;
+
+  // temp until akairo stops being weird and reverting itself
+  clearInterval: typeof clearInterval;
+  clearTimeout: typeof clearTimeout;
+  setInterval: typeof setInterval;
+  setTimeout: typeof setTimeout;
 
   // Common Attributes
   experiments: Collection<number, Experiment>;
@@ -127,6 +133,12 @@ export class Fire extends AkairoClient {
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
+
+    // temp until akairo stops being weird and reverting itself
+    this.clearInterval = clearInterval;
+    this.clearTimeout = clearTimeout;
+    this.setInterval = setInterval;
+    this.setTimeout = setTimeout;
 
     this.i18n = i18n;
 
@@ -463,12 +475,12 @@ export class Fire extends AkairoClient {
   }
 
   waitUntilReady() {
-    if (this.readyWait) return this.readyWait
+    if (this.readyWait) return this.readyWait;
     this.readyWait = new Promise((resolve) => {
       if (!!this.readyAt) return resolve(this);
       this.once("ready", () => resolve(this));
     });
-    return this.readyWait
+    return this.readyWait;
   }
 
   private isRunningCommand(member: FireMember) {
@@ -572,6 +584,14 @@ export class Fire extends AkairoClient {
       );
       if (command) return command as Command;
     }
+  }
+
+  getContextCommand(id: string) {
+    id = id.toLowerCase();
+    const command = this.commandHandler.modules.find((command) =>
+      command.context.includes(id)
+    );
+    if (command) return command as Command;
   }
 
   getLanguage(id: string) {
