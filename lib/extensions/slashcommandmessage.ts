@@ -1,13 +1,10 @@
 import {
-  CommandInteractionOptionResolver,
   EmojiIdentifierResolvable,
-  CommandInteractionOption,
   DeconstructedSnowflake,
   GuildMemberResolvable,
   WebhookMessageOptions,
   AwaitMessagesOptions,
   CreateInviteOptions,
-  CommandInteraction,
   MessageResolvable,
   MessageAttachment,
   MessageMentions,
@@ -24,6 +21,10 @@ import {
   DMChannel,
   Snowflake,
 } from "discord.js";
+import {
+  CommandInteractionOptionResolver,
+  CommandInteraction,
+} from "./commandinteraction";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { CommandUtil } from "@fire/lib/util/commandutil";
@@ -138,6 +139,18 @@ export class SlashCommandMessage {
       command.token,
       this.realChannel
     );
+  }
+
+  isContext() {
+    return this.slashCommand.isContext();
+  }
+
+  isUserContext() {
+    return this.slashCommand.isUserContext();
+  }
+
+  isMessageContext() {
+    return this.slashCommand.isMessageContext();
   }
 
   set flags(flags: number) {
