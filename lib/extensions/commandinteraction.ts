@@ -78,7 +78,7 @@ export class CommandInteraction extends CommandInteractionBase {
       ];
     }
 
-    if (data.data.options.find((opt) => opt.value == this.targetId))
+    if (data.data.options?.find((opt) => opt.value == this.targetId))
       // likely changed above, retransform options
       this.options = new CommandInteractionOptionResolver(
         this.client,
