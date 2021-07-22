@@ -300,9 +300,9 @@ export class FireGuild extends Guild {
       this.me instanceof FireMember
         ? this.me
         : ((await this.members
-            .fetch(this.client.user.id)
+            .fetch({ user: this.client.user.id, cache: true })
             .catch(() => {})) as FireMember);
-    if (!me) return; // could mean discord issues so return
+    if (!me || !me.permissions.has("MANAGE_ROLES")) return;
     const now = +new Date();
     for (const [id] of this.mutes.filter(
       // likely never gonna be equal but if somehow it is then you're welcome
@@ -361,9 +361,9 @@ export class FireGuild extends Guild {
       this.me instanceof FireMember
         ? this.me
         : ((await this.members
-            .fetch(this.client.user.id)
+            .fetch({ user: this.client.user.id, cache: true })
             .catch(() => {})) as FireMember);
-    if (!me) return; // could mean discord issues so return
+    if (!me || !me.permissions.has("BAN_MEMBERS")) return;
     const now = +new Date();
     for (const [id] of this.tempBans.filter(
       // likely never gonna be equal but if somehow it is then you're welcome
