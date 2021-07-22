@@ -1,9 +1,10 @@
-import { SnowflakeUtil, Permissions } from "discord.js";
+import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { SnowflakeUtil, Permissions } from "discord.js";
 import { Command } from "@fire/lib/util/command";
 import Filters from "@fire/src/modules/filters";
 import { Message } from "@fire/lib/ws/Message";
@@ -29,11 +30,11 @@ export default class Google extends Command {
         {
           id: "query",
           type: "string",
-          default: "Hi",
-          required: true, // Default is set to Hi so that the assistant will likely ask what it can do
+          required: true,
         },
       ],
       enableSlashCommand: true,
+      context: ["google-it"],
       cooldown: 5000,
       lock: "user",
       typing: true, // This command takes a hot sec to run, especially when running locally so type while waiting
@@ -65,8 +66,17 @@ export default class Google extends Command {
       await message.error("GOOGLE_MISSING_CREDENTIALS");
       return this.remove();
     }
+
+    // context menu shenanigans
+    if (message instanceof SlashCommandMessage && message.isMessageContext())
+      args.query =
+        (message as SlashCommandMessage).slashCommand.options.getMessage(
+          "message",
+          true
+        )?.content || "Hi";
+
     const response = await this.assistant
-      .query(args.query, {
+      .query(args.query || "Hi", {
         audioInConfig: {
           encoding: 1,
           sampleRateHertz: 16000,
