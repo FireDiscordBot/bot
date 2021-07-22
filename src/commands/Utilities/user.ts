@@ -163,9 +163,9 @@ export default class User extends Command {
           this.shorten(roles, 1000, " - "),
           false
         );
-      const permissionsTranslated = (message.language.get("PERMISSIONS", {
+      const permissionsTranslated = message.language.get("PERMISSIONS", {
         returnObjects: true,
-      }) as unknown) as object;
+      }) as unknown as object;
       if (!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
         let perms = [];
         const keyPerms: PermissionString[] = [
@@ -174,7 +174,7 @@ export default class User extends Command {
           "KICK_MEMBERS",
           "MANAGE_CHANNELS",
           "MANAGE_GUILD",
-          "MANAGE_EMOJIS",
+          "MANAGE_EMOJIS_AND_STICKERS",
           "MANAGE_MESSAGES",
           "MANAGE_NICKNAMES",
           "MANAGE_ROLES",
