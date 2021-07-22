@@ -1,4 +1,11 @@
-import { APIGuildMember, APIUser, APIMessage } from "discord-api-types";
+import {
+  APIInteractionDataResolvedChannel,
+  APIInteractionGuildMember,
+  APIGuildMember,
+  APIMessage,
+  APIUser,
+  APIRole,
+} from "discord-api-types";
 import { Snowflake } from "discord.js";
 
 export type Interaction =
@@ -88,6 +95,8 @@ export enum ApplicationCommandOptionType {
   CHANNEL,
   ROLE,
   MENTIONABLE,
+  NUMBER,
+  MESSAGE, // not real, used as a pseudo type 
 }
 
 export interface APIApplicationCommand {
@@ -204,3 +213,17 @@ export type APIComponent =
       type: ButtonType.ACTION_ROW;
       components: APIComponent[];
     };
+
+export enum ApplicationCommandType {
+  CHAT_INPUT = 1,
+  USER = 2,
+  MESSAGE = 3,
+}
+
+export interface APIApplicationCommandOptionResolved {
+  users?: Record<Snowflake, APIUser>;
+  members?: Record<Snowflake, APIInteractionGuildMember>;
+  roles?: Record<Snowflake, APIRole>;
+  channels?: Record<Snowflake, APIInteractionDataResolvedChannel>;
+  messages?: Record<Snowflake, APIMessage>;
+}
