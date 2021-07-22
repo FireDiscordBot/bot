@@ -1,6 +1,6 @@
 import {
+  CommandInteractionOptionResolver,
   EmojiIdentifierResolvable,
-  WebhookEditMessageOptions,
   CommandInteractionOption,
   DeconstructedSnowflake,
   GuildMemberResolvable,
@@ -67,30 +67,31 @@ export class SlashCommandMessage {
     this.id = command.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
     this.slashCommand = command;
-    if (
-      command.options?.size &&
-      command.options.first()?.type == "SUB_COMMAND"
-    ) {
-      command.commandName = `${command.commandName}-${
-        command.options.first().name
-      }`;
-      command.options = command.options.first().options;
+    if (command.options.data.find((opt) => opt.type == "SUB_COMMAND")) {
+      command.commandName = `${
+        command.commandName
+      }-${command.options.getSubCommand()}`;
+      command.options = new CommandInteractionOptionResolver(
+        client,
+        command.options.data[0].options
+      );
     }
     this.guild = client.guilds.cache.get(command.guildId) as FireGuild;
-    this.command = this.client.getCommand(command.commandName);
+    this.command =
+      this.client.getCommand(command.commandName) ||
+      this.client.getContextCommand(command.commandName);
     this._flags = 0;
     if (
       this.guild?.tags?.slashCommands[command.commandId] == command.commandName
     ) {
       this.command = this.client.getCommand("tag");
-      command.options = new Collection<string, CommandInteractionOption>().set(
-        "tag",
+      command.options = new CommandInteractionOptionResolver(client, [
         {
           name: "tag",
           value: command.commandName,
           type: "STRING",
-        }
-      );
+        },
+      ]);
       if (this.guild.tags.ephemeral) this.flags = 64;
     }
     if (this.command?.ephemeral) this.flags = 64;
@@ -185,17 +186,11 @@ export class SlashCommandMessage {
   }
 
   async generateContent() {
-    let prefix = (this.client.commandHandler.prefix as (
-      message: any
-    ) => string | string[] | Promise<string | string[]>)(this);
-    if (this.client.util.isPromise(prefix)) prefix = await prefix;
-    if (prefix instanceof Array) prefix = prefix[0].trim();
-    let content = (prefix as string) + " ";
-    content += this.command.id + " ";
-    if (this.command.args?.length && this.slashCommand.options?.size) {
+    let content = `/${this.command.id} `;
+    if (this.command.args?.length && this.slashCommand.options?.data.length) {
       const commandArgs = this.command.args as ArgumentOptions[];
-      const argNames = this.slashCommand.options.map((opt) => opt.name);
-      const sortedArgs = this.slashCommand.options.sort(
+      const argNames = this.slashCommand.options.data.map((opt) => opt.name);
+      const sortedArgs = Object.values(this.slashCommand.options.data).sort(
         (a, b) =>
           argNames.indexOf(a.name.toLowerCase()) -
           argNames.indexOf(b.name.toLowerCase())
