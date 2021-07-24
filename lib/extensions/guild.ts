@@ -584,12 +584,13 @@ export class FireGuild extends Guild {
     let splash = "https://i.imgur.com/jWRMBRd.png";
     if (!this.available)
       return {
-        name: "Unavailable Guild",
+        name: this.name || "Unavailable Guild",
         id: this.id,
-        icon: "https://cdn.discordapp.com/embed/avatars/0.png",
+        icon: "https://cdn.discordapp.com/emojis/293495010719170560.png?v=1",
         splash,
         vanity: `https://discover.inv.wtf/${this.id}`,
         members: 0,
+        featured: false,
         shard: this.shardId,
         cluster: this.client.manager.id,
       };
@@ -616,6 +617,7 @@ export class FireGuild extends Guild {
       splash,
       vanity: `https://discover.inv.wtf/${this.id}`,
       members: this.memberCount,
+      featured: this.settings.get<boolean>("utils.featured", false),
       shard: this.shardId,
       cluster: this.client.manager.id,
     };

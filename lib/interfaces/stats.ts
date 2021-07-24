@@ -57,6 +57,7 @@ export interface DiscoverableGuild {
   splash: string;
   vanity: string;
   members: number;
+  featured: boolean;
   shard?: number;
   cluster?: number;
 }
