@@ -23,9 +23,8 @@ const cleanMap = {
   com: [/c.m/gim],
   "discord.gg/$1": [/\.gg\/(?<code>[\w-]{1,25})/gim],
   // always keep this at the end
-  "lets be honest there is no reason to post this other than trying to send rick roll so lol, youtu.be/dQw4w9WgXcQ": [
-    /\/(?:watch\?v=)?dQw4w9WgXcQ/gim,
-  ],
+  "lets be honest there is no reason to post this other than trying to send rick roll so lol, youtu.be/dQw4w9WgXcQ":
+    [/\/(?:watch\?v=)?dQw4w9WgXcQ/gim],
 };
 
 export default class Message extends Listener {
@@ -37,7 +36,8 @@ export default class Message extends Listener {
       emitter: "client",
       event: "messageCreate",
     });
-    this.tokenRegex = /[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{27}/gm;
+    this.tokenRegex =
+      /[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{27}/gm;
     this.recentTokens = [];
   }
 
@@ -118,18 +118,9 @@ export default class Message extends Listener {
     const lowerContent = message.content.toLowerCase().replace(/\s/gim, "");
     if (
       message.guild?.id == "411619823445999637" &&
-      ((lowerContent.includes(".ru") &&
-        lowerContent.includes("@everyone") &&
-        lowerContent.includes("partner")) ||
-        lowerContent.includes("/king8") ||
-        (lowerContent.includes("cs:go") &&
-          lowerContent.includes("?partner=")) ||
-        (lowerContent.includes("leave") &&
-          lowerContent.includes("cs:go") &&
-          lowerContent.includes("give") &&
-          lowerContent.includes("knife")) ||
-        (lowerContent.includes("fucking game") &&
-          lowerContent.includes("partner=")))
+      (lowerContent.includes(".ru") ||
+        (lowerContent.includes("nitro") && lowerContent.includes("free"))) &&
+      lowerContent.includes("@everyone")
     )
       return await message.member?.bean(
         "Phishing links",
