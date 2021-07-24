@@ -242,7 +242,7 @@ export default class GuildCommand extends Command {
   async exec(message: FireMessage, args: { guild?: GuildPreview | FireGuild }) {
     if (message.channel instanceof DMChannel && !args.guild)
       return await message.error("COMMAND_GUILD_ONLY", {
-        prefix: this.client.config.inviteLink,
+        invite: this.client.config.inviteLink,
       });
     if (!args.guild && typeof args.guild != "undefined") return;
     const guild = args.guild ? args.guild : message.guild;
