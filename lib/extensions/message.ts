@@ -57,6 +57,7 @@ export class FireMessage extends Message {
   ) {
     super(client, data, channel);
     this.silent = false;
+    this.content = this.content ?? ""
     if (this.content?.toLowerCase().endsWith(" --silent")) {
       this.content = this.content.slice(0, this.content.length - 9).trimEnd();
       if (!this.attachments.size) this.silent = true;
