@@ -74,7 +74,7 @@ export class SlashCommandMessage {
       }-${command.options.getSubCommand()}`;
       command.options = new CommandInteractionOptionResolver(
         client,
-        command.options.data[0].options
+        command.options.data[0].options ?? []
       );
     }
     this.guild = client.guilds.cache.get(command.guildId) as FireGuild;
