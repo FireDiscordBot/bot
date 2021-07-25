@@ -7,11 +7,11 @@ import {
 import { FireMessage } from "../extensions/message";
 import { FireUser } from "../extensions/user";
 
-const EmptyMessageCollection = new Collection<string, FireMessage>();
-const EmptyReactionCollection = new Collection<string, FireUser>();
+const EmptyMessageCollection = () => new Collection<Snowflake, FireMessage>();
+const EmptyReactionCollection = () => new Collection<Snowflake, FireUser>();
 
-type MessageSource = { messages: MessageManager };
-type MessageCollection = Collection<string, FireMessage>;
+type MessageSource = { messages: MessageManager; id: Snowflake };
+type MessageCollection = Collection<Snowflake, FireMessage>;
 type MessageOptions = {
   around?: Date | Snowflake;
   before?: Date | Snowflake;
@@ -20,10 +20,30 @@ type MessageOptions = {
   limit?: number;
 };
 
-type ReactionCollection = Collection<string, FireUser>;
+type ReactionCollection = Collection<Snowflake, FireUser>;
 type ReactionOptions = {
   emoji: Snowflake | string;
   limit?: number;
+};
+
+type ObjectWithId = { id: Snowflake };
+
+const getOldestSnowflake = (
+  collection: MessageCollection | ReactionCollection
+) =>
+  collection
+    .array()
+    .map((obj: ObjectWithId) => obj.id)
+    .sort((a, b) => Number(BigInt(a) - BigInt(b)))[0] || "0";
+
+const getNewestSnowflake = (
+  collection: MessageCollection | ReactionCollection
+) => {
+  const snowflakes = collection
+    .array()
+    .map((obj: ObjectWithId) => obj.id)
+    .sort((a, b) => Number(BigInt(a) - BigInt(b)));
+  return snowflakes[snowflakes.length - 1] || "0";
 };
 
 export class MessageIterator {
@@ -54,7 +74,7 @@ export class MessageIterator {
     else this.before = options.before;
     if (options.after instanceof Date)
       this.after = SnowflakeUtil.generate(options.after);
-    else this.after = options.after;
+    else this.after = options.after ?? "0";
     if (options.around instanceof Date)
       this.around = SnowflakeUtil.generate(options.around);
     else this.around = options.around;
@@ -66,7 +86,7 @@ export class MessageIterator {
     this.filter = null;
 
     if (this.around) {
-      if (this.limit) throw new Error("Cannot use around with limit");
+      if (!this.limit) throw new Error("Cannot use around without limit");
       if (this.limit > 101)
         throw new Error("Max limit of 101 when using around");
       if (this.limit == 101) this.limit = 100;
@@ -81,10 +101,12 @@ export class MessageIterator {
       if (this.reverse) {
         this.strategy = this._after;
         if (this.before) this.filter = (message) => message.id < this.before;
+        if (!this.limit && !this.after) this.after = source.id;
       } else {
         this.strategy = this._before;
         if (this.after && this.after != "0")
           this.filter = (message) => message.id > this.after;
+        if (!this.limit && !this.before) this.before = SnowflakeUtil.generate();
       }
     }
   }
@@ -105,9 +127,9 @@ export class MessageIterator {
       data = await this.strategy(this.next);
       if (data.size < 100) this.limit = 0;
 
-      if (this.reverse) {
+      if (this.reverse && data.size) {
         const messageArray = data.array().reverse();
-        data = new Collection<string, FireMessage>();
+        data = new Collection<Snowflake, FireMessage>();
         for (const message of messageArray) data.set(message.id, message);
       }
 
@@ -130,9 +152,9 @@ export class MessageIterator {
     let data = await this.strategy(this.next);
     if (data.size < 100) this.limit = 0;
 
-    if (this.reverse) {
+    if (this.reverse && data.size) {
       const messageArray = data.array().reverse();
-      data = new Collection<string, FireMessage>();
+      data = new Collection<Snowflake, FireMessage>();
       for (const message of messageArray) data.set(message.id, message);
     }
 
@@ -153,39 +175,39 @@ export class MessageIterator {
       if (data) return data as MessageCollection;
     }
 
-    return EmptyMessageCollection;
+    return EmptyMessageCollection();
   }
 
   private async _after(amount: number): Promise<MessageCollection> {
-    const data = await this.source.messages
+    const data = (await this.source.messages
       .fetch({
         limit: amount,
         after: this.after,
       })
-      .catch(() => {});
+      .catch(() => {})) as MessageCollection;
     if (data && data.size) {
       if (typeof this.limit == "number") this.limit -= amount;
-      this.after = data.lastKey();
-      return data as MessageCollection;
+      this.after = getNewestSnowflake(data);
+      return data;
     }
 
-    return EmptyMessageCollection;
+    return EmptyMessageCollection();
   }
 
   private async _before(amount: number): Promise<MessageCollection> {
-    const data = await this.source.messages
+    const data = (await this.source.messages
       .fetch({
         limit: amount,
         before: this.before,
       })
-      .catch(() => {});
+      .catch(() => {})) as MessageCollection;
     if (data && data.size) {
       if (typeof this.limit == "number") this.limit -= amount;
-      this.before = data.firstKey();
-      return data as MessageCollection;
+      this.before = getOldestSnowflake(data);
+      return data;
     }
 
-    return EmptyMessageCollection;
+    return EmptyMessageCollection();
   }
 }
 
@@ -256,19 +278,19 @@ export class ReactionIterator {
   private async _all(amount: number): Promise<ReactionCollection> {
     if (this.source.partial || !this.source.reactions.cache.size)
       await this.source.fetch();
-    const data = await this.source.reactions.cache
+    const data = (await this.source.reactions.cache
       .get(this.emoji)
       .users.fetch({
         limit: amount,
         after: this.after,
       })
-      .catch(() => {});
+      .catch(() => {})) as ReactionCollection;
     if (data && data.size) {
       if (typeof this.limit == "number") this.limit -= amount;
-      this.after = data.lastKey();
-      return data as ReactionCollection;
+      this.after = getNewestSnowflake(data);
+      return data;
     }
 
-    return EmptyReactionCollection;
+    return EmptyReactionCollection();
   }
 }
