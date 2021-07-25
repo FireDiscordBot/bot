@@ -944,13 +944,31 @@ export class FireGuild extends Guild {
       this.ticketLock.lock.release();
       return ticket;
     }
+    let authorInfo = `${this.language.get("CREATED")} <t:${Math.floor(
+      author.user.createdTimestamp / 1000
+    )}:R>
+${this.language.get("JOINED")} <t:${Math.floor(
+      author.joinedTimestamp / 1000
+    )}:R>
+${this.language.get("ROLES")}: 
+`;
+    const roles = author.roles.cache
+      .sort((one, two) => (one.position > two.position ? 1 : -1))
+      .filter((role) => this.id != role.id)
+      .map((role) => role.toString());
+    authorInfo += this.client.util.shorten(
+      roles,
+      1024 - authorInfo.length,
+      " - "
+    );
     const embed = new MessageEmbed()
       .setTitle(
         this.language.get("TICKET_OPENER_TILE", { author: author.toString() })
       )
       .setTimestamp()
       .setColor(author.displayColor ?? "#FFFFFF")
-      .addField(this.language.get("SUBJECT"), subject);
+      .addField(this.language.get("SUBJECT"), subject)
+      .addField(this.language.get("USER"), authorInfo);
     const description = this.settings.get<string>("tickets.description");
     if (description) embed.setDescription(description);
     const alertId = this.settings.get<Snowflake>("tickets.alert");
