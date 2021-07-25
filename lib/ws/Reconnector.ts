@@ -1,6 +1,8 @@
-import { WebsocketStates } from "./util/constants";
-import { Websocket } from "./Websocket";
+import { EventType, WebsocketStates } from "./util/constants";
+import { MessageUtil } from "./util/MessageUtil";
 import { Manager } from "@fire/lib/Manager";
+import { Websocket } from "./Websocket";
+import { Message } from "./Message";
 
 export class Reconnector {
   timeout?: NodeJS.Timeout;
@@ -18,6 +20,15 @@ export class Reconnector {
     if (this.state == WebsocketStates.RECONNECTING) {
       this.manager.client.console.log("[Aether] Reconnected to Websocket.");
       this.state = WebsocketStates.CONNECTED;
+      if (this.manager.client)
+        this.manager.ws?.send(
+          MessageUtil.encode(
+            new Message(
+              EventType.DISCOVERY_UPDATE,
+              this.manager.client.util.getDiscoverableGuilds()
+            )
+          )
+        );
     } else {
       this.manager.client.console.log("[Aether] Connected to Websocket.");
       this.state = WebsocketStates.CONNECTED;
