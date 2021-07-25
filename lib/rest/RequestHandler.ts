@@ -377,6 +377,8 @@ export class RequestHandler {
     if (useHigher ? latency > 15000 : latency > 10000) type = "high";
     if (useHigher ? latency > 25000 : latency > 15000) type = "extreme";
     if (!type) return;
+    if (response.statusCode.toString().startsWith("2") && latency < 25000)
+      return;
     const API =
       request.options.versioned === false
         ? request.client.options.http.api
