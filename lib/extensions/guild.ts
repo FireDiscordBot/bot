@@ -954,8 +954,7 @@ export class FireGuild extends Guild {
 ${this.language.get("JOINED")} <t:${Math.floor(
       author.joinedTimestamp / 1000
     )}:R>
-${this.language.get("ROLES")}: 
-`;
+${this.language.get("ROLES")}: `;
     const roles = author.roles.cache
       .sort((one, two) => (one.position > two.position ? 1 : -1))
       .filter((role) => this.id != role.id)
