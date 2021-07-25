@@ -66,4 +66,5 @@ export enum DiscoveryUpdateOp {
   SYNC = 1,
   REMOVE = 2,
   ADD = 3,
+  ADD_OR_SYNC = 4,
 }
