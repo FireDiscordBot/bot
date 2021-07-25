@@ -225,20 +225,6 @@ export default class GuildCommand extends Command {
     return info;
   }
 
-  shorten(items: any[], max = 1000, sep = ", ") {
-    let text = "";
-
-    while (text.length < max && items.length > 0) {
-      text += `${items.shift()}${sep}`;
-    }
-
-    if (text.endsWith(sep)) text = text.slice(0, text.length - sep.length);
-
-    return items.length > 0 && text.length < 11 + items.toString().length
-      ? `${text} and ${items.length} more...`
-      : text;
-  }
-
   async exec(message: FireMessage, args: { guild?: GuildPreview | FireGuild }) {
     if (message.channel instanceof DMChannel && !args.guild)
       return await message.error("COMMAND_GUILD_ONLY", {
@@ -304,7 +290,7 @@ export default class GuildCommand extends Command {
       embed.addField(
         message.language.get("GUILD_ROLES") +
           ` [${guild.roles.cache.array().length - 1}]`,
-        this.shorten(roles, 1000, " - ")
+        this.client.util.shorten(roles, 1000, " - ")
       );
 
     if (

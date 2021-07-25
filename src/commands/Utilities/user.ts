@@ -160,7 +160,7 @@ export default class User extends Command {
       if (roles.length)
         embed.addField(
           `» ${message.language.get("ROLES")} [${member.roles.cache.size - 1}]`,
-          this.shorten(roles, 1000, " - "),
+          this.client.util.shorten(roles, 1000, " - "),
           false
         );
       const permissionsTranslated = message.language.get("PERMISSIONS", {
@@ -395,17 +395,6 @@ export default class User extends Command {
         proof: banned.proof,
       })}`;
     return "";
-  }
-
-  shorten(items: any[], max: number = 1000, sep: string = ", ") {
-    let text = "";
-    while (text.length < max && items.length) {
-      text = text + `${items[0]}${sep}`;
-      items.shift();
-    }
-    if (text.endsWith(sep)) text = text.slice(0, text.length - sep.length);
-    if (items.length >= 1) return text + ` and ${items.length} more...`;
-    return text;
   }
 
   async snowflakeInfo(

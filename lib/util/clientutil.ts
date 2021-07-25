@@ -300,6 +300,20 @@ export class Util extends ClientUtil {
     else return null;
   }
 
+  shorten(items: any[], max = 1000, sep = ", ") {
+    let text = "";
+
+    while (text.length < max && items.length > 0) {
+      text += `${items.shift()}${sep}`;
+    }
+
+    if (text.endsWith(sep)) text = text.slice(0, text.length - sep.length);
+
+    return items.length > 0 && text.length < 11 + items.toString().length
+      ? `${text} and ${items.length} more...`
+      : text;
+  }
+
   isSuperuser(user: Snowflake) {
     return this.client.userSettings.get<boolean>(
       user,
