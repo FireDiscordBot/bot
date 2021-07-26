@@ -390,7 +390,7 @@ export default class Button extends Listener {
       this.client.buttonHandlersOnce.set(deleteSnowflake, () => {
         button
           .edit({
-            content: button.language.get("SK1ER_SUPPORT_CANCELLED"),
+            content: button.language.get("INTERACTION_CANCELLED"),
             components: [],
           })
           .catch(() => {});
