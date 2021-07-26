@@ -20,7 +20,7 @@ export class Reconnector {
     if (this.state == WebsocketStates.RECONNECTING) {
       this.manager.client.console.log("[Aether] Reconnected to Websocket.");
       this.state = WebsocketStates.CONNECTED;
-      if (this.manager.client)
+      if (!!this.manager.client.readyAt)
         this.manager.ws?.send(
           MessageUtil.encode(
             new Message(
