@@ -80,7 +80,7 @@ export default class MCLogs extends Module {
   }
 
   async init() {
-    if (this.client.config.dev) return this.remove();
+    // if (this.client.config.dev) return this.remove();
     if (
       !this.client.config.hasteLogEnabled.some((guild) =>
         (this.client.options.shards as number[]).includes(
@@ -252,15 +252,32 @@ export default class MCLogs extends Module {
           }
         }
         chunks = chunks.reverse();
-        let processed: string[] = [];
+        const processed: string[] = [];
+        const triggeredCleaners = [];
         while (chunks.length) {
-          let text: string[] = [];
+          const text: string[] = [];
           for (
             let i = 0;
             i < 5;
             i++ // add up to 5 chunks
-          )
-            if (chunks.length) text.push(chunks.pop());
+          ) {
+            if (chunks.length) {
+              const chunk = chunks.pop();
+              if (!mcLogFilters.some((filter) => chunk.includes(filter)))
+                text.push(chunk);
+              else {
+                const triggered =
+                  mcLogFilters.find((filter) => chunk.includes(filter)) ?? "";
+                if (!triggeredCleaners.some((line) => line.includes(triggered)))
+                  triggeredCleaners.push(
+                    `Line: ${chunk
+                      .split("\n")
+                      .find((line) => line.includes(triggered))
+                      .trim()}\nFilter: ${triggered}\n`
+                  );
+              }
+            }
+          }
           const [data, diff] = await this.processLogStream(
             message,
             text.join("")
@@ -268,6 +285,16 @@ export default class MCLogs extends Module {
           if (data) processed.push(data);
           if (diff) logDiff = diff;
         }
+
+        if (triggeredCleaners.length)
+          processed.push(
+            ...[
+              "\n\n\n",
+              "This log triggered some filters to clean up spammy logs. Knowing which filters were triggered may help diagnosing the issue so here you go:\n",
+              triggeredCleaners.join("\n"),
+            ]
+          );
+
         if (
           processed.length &&
           processed.some((chunk) => this.hasLogText(chunk))
