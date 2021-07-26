@@ -119,6 +119,8 @@ export default class Message extends Listener {
     if (
       message.guild?.id == "411619823445999637" &&
       (lowerContent.includes(".ru") ||
+        lowerContent.includes("cs:go") ||
+        lowerContent.includes("tradeoffer") ||
         (lowerContent.includes("nitro") && lowerContent.includes("free"))) &&
       lowerContent.includes("@everyone")
     )
