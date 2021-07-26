@@ -155,11 +155,7 @@ export default class Message extends Listener {
       await this.tokenGist(message, toSearch);
     }
 
-    if (
-      message.channel.id == "388850472632451073" &&
-      message.embeds.length &&
-      this.client.config.datamineUsers.includes(message.embeds[0].author.name)
-    ) {
+    if (message.channel.id == "388850472632451073" && message.embeds.length) {
       if (message.embeds[0].title.includes("new commit"))
         this.client.manager.ws.send(
           MessageUtil.encode(
