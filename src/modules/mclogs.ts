@@ -1,11 +1,11 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 // import * as solutions from "../../mc_solutions.json";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import { Readable } from "stream";
 import * as centra from "centra";
 import Filters from "./filters";
-import Sk1er from "./sk1er";
 
 const { mcLogFilters } = constants;
 
@@ -72,20 +72,16 @@ export default class MCLogs extends Module {
       "[Client thread/INFO]: Setting user:",
       "[Client thread/INFO]: (Session ID is",
       "MojangTricksIntelDriversForPerformance",
-      "[DefaultDispatcher-worker-1] INFO Installer",
-      "[DefaultDispatcher-worker-1] ERROR Installer",
       "net.minecraftforge",
       "club.sk1er",
     ];
   }
 
   async init() {
-    // if (this.client.config.dev) return this.remove();
+    await this.client.waitUntilReady();
     if (
-      !this.client.config.hasteLogEnabled.some((guild) =>
-        (this.client.options.shards as number[]).includes(
-          this.client.util.getShard(guild)
-        )
+      !this.client.guilds.cache.some((guild: FireGuild) =>
+        guild.hasExperiment(77266757, 1)
       )
     )
       return this.remove();
@@ -169,7 +165,7 @@ export default class MCLogs extends Module {
 
   async checkLogs(message: FireMessage) {
     if (message.author.bot) return; // you should see what it's like without this lol
-    if (!this.client.config.hasteLogEnabled.includes(message.guild.id)) return;
+    if (!message.guild.hasExperiment(77266757, 1)) return;
 
     if (this.regexes.noRaw.test(message.content)) {
       this.regexes.noRaw.lastIndex = 0;
