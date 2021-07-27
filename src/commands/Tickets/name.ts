@@ -30,7 +30,7 @@ export default class TicketName extends Command {
       aliases: ["tickets-name"],
       parent: "ticket",
     });
-    this.words = readFileSync("words.txt").toString().split(" ");
+    this.words = readFileSync("words.txt").toString().split("\n");
   }
 
   async exec(message: FireMessage, args: { name?: string }) {
