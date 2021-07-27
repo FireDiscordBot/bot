@@ -259,7 +259,10 @@ export default class MCLogs extends Module {
           ) {
             if (chunks.length) {
               const chunk = chunks.pop();
-              if (!mcLogFilters.some((filter) => chunk.includes(filter)))
+              if (
+                !message.guild.hasExperiment(77266757, 2) ||
+                !mcLogFilters.some((filter) => chunk.includes(filter))
+              )
                 text.push(chunk);
               else {
                 const triggered =
