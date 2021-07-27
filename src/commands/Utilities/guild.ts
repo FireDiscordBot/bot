@@ -237,9 +237,9 @@ export default class GuildCommand extends Command {
     const info = await this.getInfo(message, guild);
     const security = this.getSecurity(message, guild);
 
-    const featuresLocalization = (message.language.get("FEATURES", {
+    const featuresLocalization = message.language.get("FEATURES", {
       returnObjects: true,
-    }) as unknown) as Record<string, string>;
+    }) as unknown as Record<string, string>;
     const features: string[] = guild.features
       .filter((feature) => featuresLocalization.hasOwnProperty(feature))
       .map((feature) => featuresLocalization[feature]);
@@ -298,7 +298,8 @@ export default class GuildCommand extends Command {
       this.client.manager.state.discordExperiments?.length
     ) {
       const experiments = await this.client.util.getFriendlyGuildExperiments(
-        guild.id
+        guild.id,
+        guild
       );
       if (experiments.length)
         embed.addField(

@@ -1,11 +1,21 @@
 import {
   version as djsver,
   PermissionString,
+  GuildPreview,
+  OAuth2Guild,
   Permissions,
   Collection,
   Snowflake,
   Webhook,
 } from "discord.js";
+import {
+  ExperimentFilters,
+  ExperimentRange,
+  Experiments,
+  FeatureFilter,
+  GuildIdRangeFilter,
+  GuildMemberCountFilter,
+} from "../interfaces/discord";
 import { Channel, Video } from "@fire/lib/interfaces/youtube";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireTextChannel } from "../extensions/textchannel";
@@ -17,7 +27,6 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Cluster } from "@fire/lib/interfaces/stats";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Experiments } from "../interfaces/discord";
 import { Language, LanguageKeys } from "./language";
 import { humanize, titleCase } from "./constants";
 import { Message } from "@fire/lib/ws/Message";
@@ -104,9 +113,11 @@ export class Util extends ClientUtil {
   }
 
   getDiscoverableGuilds() {
-    return (this.client.guilds.cache
-      .filter((guild: FireGuild) => guild.isPublic())
-      .array() as FireGuild[]).map((guild) => guild.getDiscoverableData());
+    return (
+      this.client.guilds.cache
+        .filter((guild: FireGuild) => guild.isPublic())
+        .array() as FireGuild[]
+    ).map((guild) => guild.getDiscoverableData());
   }
 
   async haste(
@@ -492,46 +503,148 @@ export class Util extends ClientUtil {
     return `${root}.${format}${size ? `?size=${size}` : ""}`;
   }
 
-  async getFriendlyGuildExperiments(id: Snowflake) {
+  async getFriendlyGuildExperiments(
+    id: Snowflake,
+    guild?: FireGuild | GuildPreview | OAuth2Guild
+  ) {
     const knownExperiments: { [hash: number]: DiscordExperiment } = {};
     for (const experiment of this.client.manager.state.discordExperiments) {
       const hash = murmur3(experiment.id);
       knownExperiments[hash] = experiment;
     }
 
-    const {
-      guild_experiments: GuildExperiments,
-    } = await this.client.req.experiments
-      .get<Experiments>({ query: { with_guild_experiments: true } })
-      .catch(() => {
-        return {
-          assignments: [],
-          guild_experiments: [],
-        } as Experiments;
-      });
+    const { guild_experiments: GuildExperiments } =
+      await this.client.req.experiments
+        .get<Experiments>({ query: { with_guild_experiments: true } })
+        .catch(() => {
+          return {
+            assignments: [],
+            guild_experiments: [],
+          } as Experiments;
+        });
 
-    const hashAndBucket: [number, number][] = [];
+    const hashAndBucket: (
+      | [number, number]
+      | [number, number, ExperimentRange]
+    )[] = [];
     for (const experiment of GuildExperiments) {
       if (experiment.length != 5) continue;
-      const bucket = experiment[4].find((o) => o.k.includes(id));
-      if (bucket && typeof bucket.b == "number")
-        hashAndBucket.push([experiment[0], bucket.b]);
+      const override = experiment[4].find((o) => o.k.includes(id));
+      if (override && typeof override.b == "number")
+        hashAndBucket.push([experiment[0], override.b]);
+      const buckets = experiment[3];
+      let filters: ExperimentFilters[] = [];
+      for (const bucket of buckets)
+        for (const bucketAndRanges of bucket.reverse()) {
+          if (
+            bucketAndRanges.some(
+              (br: Array<unknown>) => br?.length && br[0] > 100000000
+            )
+          ) {
+            // we hit filters
+            filters = bucketAndRanges as unknown as ExperimentFilters[];
+            continue;
+          }
+          for (const [b, r] of bucketAndRanges as [
+            number,
+            ExperimentRange[]
+          ][]) {
+            if (b == -1) continue;
+            const known = knownExperiments[experiment[0]];
+            if (!known) continue;
+            const guildRange = murmur3(`${known.id}:${id}`) % 1e4;
+            for (const startAndEnd of r)
+              if (
+                !(startAndEnd.s == 0 && startAndEnd.e == 1e4) &&
+                guildRange >= startAndEnd.s &&
+                guildRange < startAndEnd.e &&
+                this.applyFilters(guild, filters)
+              ) {
+                hashAndBucket.push([experiment[0], b, startAndEnd]);
+                break;
+              }
+          }
+        }
     }
 
     if (hashAndBucket.length) {
       const friendlyExperiments: string[] = [];
-      for (const [hash, bucket] of hashAndBucket) {
+      for (const data of hashAndBucket) {
+        let ranges: ExperimentRange;
+        const [hash, bucket] = data;
+        if (data.length == 3) ranges = data[2];
         const experiment = knownExperiments[hash];
-        if (experiment)
+        if (experiment) {
+          const guildRange = ranges
+            ? murmur3(`${experiment.id}:${id}`) % 1e4
+            : null;
           friendlyExperiments.push(
-            `${titleCase(experiment.title)} | ${titleCase(
-              experiment.description[bucket]
-            )}`
+            ranges && !(ranges.s == 0 && ranges.e == 1e4)
+              ? `${titleCase(experiment.title)} | ${titleCase(
+                  experiment.description[bucket]
+                )} | ${guildRange} / ${ranges.s} - ${ranges.e}`
+              : `${titleCase(experiment.title)} | ${titleCase(
+                  experiment.description[bucket]
+                )}`
           );
+        }
       }
       if (friendlyExperiments.length) return friendlyExperiments;
     }
 
     return [];
+  }
+
+  private applyFilters(
+    guild: FireGuild | GuildPreview | OAuth2Guild,
+    filters: ExperimentFilters[]
+  ) {
+    if (!filters.length) return true;
+    let isEligible = true;
+    const featureFilters = filters.filter(
+      (filter) => filter[0] == 1604612045
+    ) as FeatureFilter[];
+    const idRangeFilters = filters.filter(
+      (filter) => filter[0] == 2404720969
+    ) as GuildIdRangeFilter[];
+    const memberCountFilters = filters.filter(
+      (filter) => filter[0] == 2918402255
+    ) as GuildMemberCountFilter[];
+    try {
+      isEligible =
+        isEligible &&
+        guild?.features.length &&
+        featureFilters.every((filter) => {
+          const requiresFeatures = filter[1].flatMap(
+            ([, features]) => features
+          );
+          if (!requiresFeatures.length) return true;
+          return requiresFeatures.every((feature) =>
+            guild.features.includes(feature)
+          );
+        });
+      isEligible =
+        isEligible &&
+        idRangeFilters.every((filter) => {
+          const id = BigInt(guild.id);
+          const min =
+            typeof filter[1][1] == "string" ? BigInt(filter[1][1]) : null;
+          const max =
+            typeof filter[2][1] == "string" ? BigInt(filter[2][1]) : null;
+          return (min == null || id >= min) && (max == null || id <= max);
+        });
+      isEligible =
+        isEligible &&
+        memberCountFilters.every((filter) => {
+          let count = -1;
+          if (guild instanceof FireGuild) count = guild.memberCount;
+          else if (guild instanceof GuildPreview)
+            count = guild.approximateMemberCount;
+          const min = filter[1][1] ? BigInt(filter[1][1]) : null;
+          const max = filter[2][1] ? BigInt(filter[2][1]) : null;
+          return (min == null || count >= min) && (max == null || count <= max);
+        });
+    } catch {}
+    return isEligible;
   }
 }
