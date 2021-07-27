@@ -508,10 +508,8 @@ export class Util extends ClientUtil {
     guild?: FireGuild | GuildPreview | OAuth2Guild
   ) {
     const knownExperiments: { [hash: number]: DiscordExperiment } = {};
-    for (const experiment of this.client.manager.state.discordExperiments) {
-      const hash = murmur3(experiment.id);
-      knownExperiments[hash] = experiment;
-    }
+    for (const experiment of this.client.manager.state.discordExperiments)
+      knownExperiments[experiment.hash] = experiment;
 
     const { guild_experiments: GuildExperiments } =
       await this.client.req.experiments

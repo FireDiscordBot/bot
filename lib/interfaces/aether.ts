@@ -36,6 +36,7 @@ export interface DiscordExperiment {
   title: string;
   description: string[];
   buckets: number[];
+  hash: number
 }
 
 export interface ManagerState {
