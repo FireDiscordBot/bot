@@ -265,15 +265,20 @@ export default class MCLogs extends Module {
               )
                 text.push(chunk);
               else {
-                const triggered =
-                  mcLogFilters.find((filter) => chunk.includes(filter)) ?? "";
-                if (!triggeredCleaners.some((line) => line.includes(triggered)))
-                  triggeredCleaners.push(
-                    `Line: ${chunk
-                      .split("\n")
-                      .find((line) => line.includes(triggered))
-                      .trim()}\nFilter: ${triggered}\n`
-                  );
+                for (const line of chunk.split("\n")) {
+                  if (!mcLogFilters.some((filter) => line.includes(filter))) {
+                    text.push(line);
+                    continue;
+                  }
+                  const triggered =
+                    mcLogFilters.find((filter) => line.includes(filter)) ?? "";
+                  if (
+                    !triggeredCleaners.some((l) => l.includes(triggered))
+                  )
+                    triggeredCleaners.push(
+                      `Line: ${line.trim()}\nFilter: ${triggered}\n`
+                    );
+                }
               }
             }
           }
