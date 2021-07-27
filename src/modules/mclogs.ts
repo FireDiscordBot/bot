@@ -4,6 +4,7 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import { Readable } from "stream";
+import { Util } from "discord.js";
 import * as centra from "centra";
 import Filters from "./filters";
 
@@ -12,6 +13,7 @@ const { mcLogFilters } = constants;
 const allowedURLs = [
   "minecraftforge.net",
   "logging.apache.org",
+  "essential.gg",
   "sk1er.club",
   "lwjgl.org",
   "127.0.0.1",
@@ -272,9 +274,7 @@ export default class MCLogs extends Module {
                   }
                   const triggered =
                     mcLogFilters.find((filter) => line.includes(filter)) ?? "";
-                  if (
-                    !triggeredCleaners.some((l) => l.includes(triggered))
-                  )
+                  if (!triggeredCleaners.some((l) => l.includes(triggered)))
                     triggeredCleaners.push(
                       `Line: ${line.trim()}\nFilter: ${triggered}\n`
                     );
@@ -383,7 +383,7 @@ export default class MCLogs extends Module {
       }
 
       return await message.send("MC_LOG_HASTE", {
-        user: message.author.toString(),
+        user: Util.escapeMarkdown(message.author.toString()),
         msgType,
         extra: msgType == "uploaded" ? message.content : "",
         haste,
