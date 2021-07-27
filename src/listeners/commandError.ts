@@ -44,6 +44,7 @@ export default class CommandError extends Listener {
           ? message.realChannel
           : message.channel;
       const extras = {
+        "button": "N/A",
         "message.id": message.id,
         "guild.id": message.guild?.id,
         "guild.name": message.guild?.name,
