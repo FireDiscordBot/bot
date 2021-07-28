@@ -68,7 +68,7 @@ export default class ChannelCreate extends Listener {
         .setTimestamp(channel.createdAt)
         .setAuthor(
           language.get("CHANNELCREATELOG_AUTHOR", {
-            type: titleCase(channel.type),
+            type: titleCase(channel.type.replace(/_/g, " ")),
             guild: guild.name,
           }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })

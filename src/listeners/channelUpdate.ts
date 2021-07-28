@@ -107,7 +107,7 @@ export default class ChannelUpdate extends Listener {
         .setTimestamp()
         .setAuthor(
           language.get("CHANNELUPDATELOG_AUTHOR", {
-            type: titleCase(after.type.replace("_", " ")),
+            type: titleCase(after.type.replace(/_/g, " ")),
             channel: after.name,
           }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })

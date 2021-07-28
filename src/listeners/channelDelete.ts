@@ -38,7 +38,7 @@ export default class ChannelDelete extends Listener {
         .setTimestamp()
         .setAuthor(
           language.get("CHANNELDELETELOG_AUTHOR", {
-            type: titleCase(channel.type),
+            type: titleCase(channel.type.replace(/_/g, " ")),
             guild: guild.name,
           }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
