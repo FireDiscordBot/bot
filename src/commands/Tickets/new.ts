@@ -1,6 +1,6 @@
+import { ThreadChannel, Permissions, GuildChannel } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { ThreadChannel, Permissions } from "discord.js";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -36,6 +36,29 @@ export default class NewTicket extends Command {
     if (!message.member) return; // how
     if (message.channel instanceof ThreadChannel)
       return await message.error("NEW_TICKET_THREAD");
+    if (
+      message.guild.hasExperiment(1651882237, 1) &&
+      !message.guild.me
+        ?.permissionsIn(message.channel as GuildChannel)
+        .has(
+          Permissions.FLAGS.VIEW_CHANNEL |
+            Permissions.FLAGS.SEND_MESSAGES |
+            Permissions.FLAGS.USE_PRIVATE_THREADS
+        )
+    )
+      return this.client.commandHandler.emit(
+        "missingPermissions",
+        message,
+        message.util?.parsed?.command,
+        "client",
+        message.guild.me
+          ?.permissionsIn(message.channel as GuildChannel)
+          .missing(
+            Permissions.FLAGS.VIEW_CHANNEL |
+              Permissions.FLAGS.SEND_MESSAGES |
+              Permissions.FLAGS.USE_PRIVATE_THREADS
+          )
+      );
     const creating = await message.send("NEW_TICKET_CREATING");
     const ticket = await message.guild
       .createTicket(
