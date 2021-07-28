@@ -150,7 +150,13 @@ export const memberConverter = async (
     return null;
   }
 
-  if (argument == "^" && message.channel.messages.cache.size >= 4)
+  if (
+    argument == "^" &&
+    message.util.parsed?.command?.categoryID == "Moderation"
+  ) {
+    if (!silent) await message.error("MEMBER_NOT_FOUND");
+    return null;
+  } else if (argument == "^" && message.channel.messages.cache.size >= 4)
     return message.channel.messages.cache
       .filter((m) => m.id < message.id && m.author?.id != message.author?.id)
       .last().member as FireMember;
