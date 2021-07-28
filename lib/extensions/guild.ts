@@ -139,7 +139,8 @@ export class FireGuild extends Guild {
   get guildChannels() {
     return {
       cache: this.channels.cache.filter(
-        (channel) => !channel.type.endsWith("thread")
+        (channel) =>
+          !(channel instanceof ThreadChannel) && !!channel.permissionOverwrites
       ) as Collection<`${bigint}`, GuildChannel>,
     };
   }
