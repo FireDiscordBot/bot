@@ -553,7 +553,11 @@ export class Util extends ClientUtil {
             const guildRange = murmur3(`${known.id}:${id}`) % 1e4;
             for (const startAndEnd of r)
               if (
-                !(startAndEnd.s == 0 && startAndEnd.e == 1e4) &&
+                !(
+                  startAndEnd.s == 0 &&
+                  startAndEnd.e == 1e4 &&
+                  !filters.length
+                ) &&
                 guildRange >= startAndEnd.s &&
                 guildRange < startAndEnd.e &&
                 this.applyFilters(guild, filters)
