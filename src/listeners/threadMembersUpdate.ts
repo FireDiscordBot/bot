@@ -38,7 +38,7 @@ export default class ThreadMembersUpdate extends Listener {
         const members = await guild.members
           .fetch({ user: ids })
           .catch(() => {});
-        if (members)
+        if (members && members.size)
           embed.addField(
             language.get("NEW_MEMBERS"),
             members.map((member: FireMember) => member.toMention()).join(" - ")
@@ -49,7 +49,7 @@ export default class ThreadMembersUpdate extends Listener {
         const members = await guild.members
           .fetch({ user: ids })
           .catch(() => {});
-        if (members)
+        if (members && members.size)
           embed.addField(
             language.get("OLD_MEMBERS"),
             members.map((member: FireMember) => member.toMention()).join(" - ")
