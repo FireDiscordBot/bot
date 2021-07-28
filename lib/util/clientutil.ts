@@ -563,7 +563,7 @@ export class Util extends ClientUtil {
                 this.applyFilters(guild, filters)
               ) {
                 hashAndBucket.push([experiment[0], b, startAndEnd]);
-                break;
+                continue;
               }
           }
         }
@@ -613,39 +613,46 @@ export class Util extends ClientUtil {
       (filter) => filter[0] == 2918402255
     ) as GuildMemberCountFilter[];
     try {
-      isEligible =
-        isEligible &&
-        guild?.features.length &&
-        featureFilters.every((filter) => {
-          const requiresFeatures = filter[1].flatMap(
-            ([, features]) => features
-          );
-          if (!requiresFeatures.length) return true;
-          return requiresFeatures.every((feature) =>
-            guild.features.includes(feature)
-          );
-        });
-      isEligible =
-        isEligible &&
-        idRangeFilters.every((filter) => {
-          const id = BigInt(guild.id);
-          const min =
-            typeof filter[1][1] == "string" ? BigInt(filter[1][1]) : null;
-          const max =
-            typeof filter[2][1] == "string" ? BigInt(filter[2][1]) : null;
-          return (min == null || id >= min) && (max == null || id <= max);
-        });
-      isEligible =
-        isEligible &&
-        memberCountFilters.every((filter) => {
-          let count = -1;
-          if (guild instanceof FireGuild) count = guild.memberCount;
-          else if (guild instanceof GuildPreview)
-            count = guild.approximateMemberCount;
-          const min = filter[1][1] ? BigInt(filter[1][1]) : null;
-          const max = filter[2][1] ? BigInt(filter[2][1]) : null;
-          return (min == null || count >= min) && (max == null || count <= max);
-        });
+      if (featureFilters.length)
+        isEligible =
+          isEligible &&
+          guild?.features.length &&
+          featureFilters.every((filter) => {
+            const requiresFeatures = filter[1].flatMap(
+              ([, features]) => features
+            );
+            if (!requiresFeatures.length) return true;
+            return requiresFeatures.every((feature) =>
+              guild.features.includes(feature)
+            );
+          });
+      if (idRangeFilters.length)
+        isEligible =
+          isEligible &&
+          idRangeFilters.every((filter) => {
+            const id = BigInt(guild.id);
+            const min =
+              typeof filter[1][1] == "string" ? BigInt(filter[1][1]) : null;
+            const max =
+              typeof filter[2][1] == "string" ? BigInt(filter[2][1]) : null;
+            return (min == null || id >= min) && (max == null || id <= max);
+          });
+      if (memberCountFilters.length)
+        isEligible =
+          isEligible &&
+          memberCountFilters.every((filter) => {
+            let count = -1;
+            if (guild instanceof FireGuild) count = guild.memberCount;
+            else if (guild instanceof GuildPreview)
+              count = guild.approximateMemberCount;
+            const min =
+              filter.flat().find((f) => f[0] == 3399957344)?.[1] ?? null;
+            const max =
+              filter.flat().find((f) => f[0] == 1238858341)?.[1] ?? null;
+            return (
+              (min == null || count >= min) && (max == null || count <= max)
+            );
+          });
     } catch {}
     return isEligible;
   }
