@@ -85,9 +85,11 @@ export class FireMessage extends Message {
   }
 
   get language() {
-    return this.author?.settings.has("utils.language")
-      ? this.author.language
-      : this.guild?.language ?? this.client.getLanguage("en-US");
+    return (
+      (this.author?.settings.has("utils.language")
+        ? this.author.language
+        : this.guild?.language) ?? this.client.getLanguage("en-US")
+    );
   }
 
   send(key?: LanguageKeys, args?: TOptions<StringMap>) {

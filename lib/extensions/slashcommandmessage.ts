@@ -109,11 +109,13 @@ export class SlashCommandMessage {
         (this.guild.members.cache.get(this.author.id) as FireMember) ||
         new FireMember(client, command.member, this.guild);
     }
-    this.language = this.author?.settings.has("utils.language")
-      ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
-        ? this.guild?.language
-        : this.author.language
-      : this.guild?.language || client.getLanguage("en-US");
+    this.language =
+      (this.author?.settings.has("utils.language")
+        ? this.author.language.id == "en-US" &&
+          this.guild?.language.id != "en-US"
+          ? this.guild?.language
+          : this.author.language
+        : this.guild?.language) ?? client.getLanguage("en-US");
     this.realChannel = this.client.channels.cache.get(
       this.slashCommand.channelId
     ) as FireTextChannel | NewsChannel | DMChannel;

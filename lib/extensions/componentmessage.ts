@@ -94,11 +94,13 @@ export class ComponentMessage {
       : component.member &&
         ((client.users.cache.get(component.member.user.id) as FireUser) ||
           new FireUser(client, component.member.user));
-    this.language = this.author?.settings.has("utils.language")
-      ? this.author.language.id == "en-US" && this.guild?.language.id != "en-US"
-        ? this.guild?.language
-        : this.author.language
-      : this.guild?.language || client.getLanguage("en-US");
+    this.language =
+      (this.author?.settings.has("utils.language")
+        ? this.author.language.id == "en-US" &&
+          this.guild?.language.id != "en-US"
+          ? this.guild?.language
+          : this.author.language
+        : this.guild?.language) ?? client.getLanguage("en-US");
     if (!this.guild) {
       this.channel = new FakeChannel(
         this,
