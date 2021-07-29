@@ -1,4 +1,5 @@
 import {
+  EmojiIdentifierResolvable,
   DiscordAPIError,
   MessageReaction,
   ThreadChannel,
@@ -29,14 +30,8 @@ import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import * as centra from "centra";
 
-const {
-  emojis,
-  reactions,
-  regexes,
-  imageExts,
-  audioExts,
-  videoExts,
-} = constants;
+const { emojis, reactions, regexes, imageExts, audioExts, videoExts } =
+  constants;
 
 export class FireMessage extends Message {
   declare channel: DMChannel | FireTextChannel | NewsChannel | ThreadChannel;
@@ -57,7 +52,7 @@ export class FireMessage extends Message {
   ) {
     super(client, data, channel);
     this.silent = false;
-    this.content = this.content ?? ""
+    this.content = this.content ?? "";
     if (this.content?.toLowerCase().endsWith(" --silent")) {
       this.content = this.content.slice(0, this.content.length - 9).trimEnd();
       if (!this.attachments.size) this.silent = true;
@@ -135,6 +130,11 @@ export class FireMessage extends Message {
           content: `${emojis.error} ${this.language.get(key, args)}`,
           failIfNotExists: false,
         });
+  }
+
+  react(emoji: EmojiIdentifierResolvable) {
+    if (this.channel instanceof ThreadChannel && this.channel.archived) return;
+    return super.react(emoji);
   }
 
   hasExperiment(id: number, bucket: number) {
