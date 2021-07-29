@@ -99,9 +99,9 @@ export default class TicTacToe extends Command {
         this.client.buttonHandlers.delete(`${authorHasGame}:forfeit`);
         this.games.delete(authorHasGame);
 
-        const existingMessage = (await (this.client.channels.cache.get(
-          existing.channel
-        ) as FireTextChannel)?.messages
+        const existingMessage = (await (
+          this.client.channels.cache.get(existing.channel) as FireTextChannel
+        )?.messages
           .fetch(existing.message)
           .catch(() => {})) as FireMessage;
         if (existingMessage) {
@@ -402,6 +402,25 @@ export default class TicTacToe extends Command {
                   component.customId == game.buttons[index].customId
               )
           );
+          if (!components[actionRowIndex]) {
+            const sentry = this.client.sentry;
+            sentry.setUser({
+              id: button.author.id,
+              username: button.author.toString(),
+            });
+            const extras = {
+              components: JSON.stringify(components),
+            };
+            sentry.setExtras(extras);
+            sentry.captureException(
+              new Error("tictactoe components did an oopsie")
+            );
+            sentry.setUser(null);
+            sentry.setExtras(null);
+            return await button.channel.send(
+              "something went really wrong, I have reported the issue to my developer"
+            );
+          }
           const buttonIndex = components[actionRowIndex].components.findIndex(
             (component) =>
               component.type == "BUTTON" &&
@@ -411,9 +430,11 @@ export default class TicTacToe extends Command {
           if (
             components[actionRowIndex].components[buttonIndex].type == "BUTTON"
           )
-            (components[actionRowIndex].components[
-              buttonIndex
-            ] as MessageButton).setStyle("PRIMARY");
+            (
+              components[actionRowIndex].components[
+                buttonIndex
+              ] as MessageButton
+            ).setStyle("PRIMARY");
         }
 
         for (const [index, row] of components.entries()) {
