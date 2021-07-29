@@ -119,7 +119,12 @@ export default class User extends Command {
     let color = member ? member.displayColor : message.member?.displayColor;
     if (user.bot && this.client.config.bots[user.id])
       color = this.client.config.bots[user.id].color;
-    const badges = this.getBadges(user, message.author, message.guild);
+    const badges = this.getBadges(
+      user,
+      message.author,
+      message.guild,
+      message.content
+    );
     const info = this.getInfo(message, member ? member : user);
     let application: Exclude<APIApplication, "rpc_origins" | "owner" | "team">;
     if (user.bot)
@@ -299,7 +304,12 @@ export default class User extends Command {
     return await message.channel.send({ embeds: [embed] });
   }
 
-  getBadges(user: FireUser, author: FireMember | FireUser, guild?: FireGuild) {
+  getBadges(
+    user: FireUser,
+    author: FireMember | FireUser,
+    guild?: FireGuild,
+    content?: string
+  ) {
     const flags = user.flags?.toArray() || [];
     let emojis: string[] = [];
     if (guild && guild.ownerId == user.id) emojis.push(badges["OWNER"]);
@@ -308,6 +318,11 @@ export default class User extends Command {
         .filter((badge: UserFlagsString) => flags.includes(badge))
         .map((badge) => badges[badge])
     );
+    if (
+      user.id == "190916650143318016" &&
+      content?.toLowerCase().includes("staff")
+    )
+      emojis.push(badges.DISCORD_EMPLOYEE);
     if (user.isSuperuser()) emojis.push(badges.FIRE_ADMIN);
     if (user.premium) emojis.push(badges.FIRE_PREMIUM);
     if (emojis.length) emojis.push(zws);
