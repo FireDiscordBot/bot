@@ -31,11 +31,7 @@ export default class PermRoles extends Command {
   }
 
   async exec(message: FireMessage, args: { role?: Role }) {
-    if (
-      message.guild.channels.cache.filter(
-        (channel) => !channel.type.endsWith("thread")
-      ).size >= 100
-    )
+    if (message.guild.guildChannels.cache.size >= 100)
       return await message.error("PERMROLES_CHANNEL_LIMIT");
 
     if (!args.role) {
@@ -86,8 +82,20 @@ export default class PermRoles extends Command {
       return await paginatorInterface.send(message.channel);
     }
 
-    if (!message.guild.premium && message.guild.permRoles.size >= 1)
+    if (
+      !message.guild.premium &&
+      message.guild.permRoles.size >= 1 &&
+      !(
+        message.guild.permRoles.size == 1 &&
+        message.guild.permRoles.has(args.role.id)
+      )
+    )
       return await message.error("PERMROLES_LIMIT_PREMIUM");
+
+    if (message.guild.muteRole?.id == args.role.id)
+      return await message.error("PERMROLES_MUTE_ROLE", {
+        prefix: message.util?.parsed?.prefix ?? "$",
+      });
 
     if (
       args.role &&
@@ -98,9 +106,9 @@ export default class PermRoles extends Command {
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
 
-    const channelPerms = (message.channel as TextChannel).permissionOverwrites.cache.get(
-      args.role.id
-    );
+    const channelPerms = (
+      message.channel as TextChannel
+    ).permissionOverwrites.cache.get(args.role.id);
     if (!channelPerms) return await message.error("PERMROLES_NOTHING_TO_COPY");
 
     if (

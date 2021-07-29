@@ -883,6 +883,7 @@
   "PERMROLES_CURRENT_ITEM_DENY": "**Role**: {{role}}\n**Denied**: {{denied}}\n**-----------------**",
   "PERMROLES_CURRENT_ITEM_COMBINED": "**Role**: {{role}}\n**Allowed**: {{allowed}}\n**Denied**: {{denied}}\n**-----------------**",
   "PERMROLES_LIMIT_PREMIUM": "You've reached the permission role limit! Upgrade to premium for unlimited permission roles, <https://inv.wtf/premium>",
+  "PERMROLES_MUTE_ROLE": "Permission Roles aren't meant to be used for mute roles. Use the `{{prefix}}muterole` command instead",
   "PERMROLES_NOTHING_TO_COPY": "That role does not have any permissions set in this channel, so there's nothing to copy.",
   "PERMROLES_MANAGE_ROLES": "Due to a change made on the 23rd of January 2021, I am unable to set the `Manage Permissions` permission in channel overwrites, which that role has in this channel.",
   "PERMROLES_MISSING_PERMISSIONS": "The permissions for that role in this channel includes ones I do not have, meaning I am unable to copy it to other channels.",
