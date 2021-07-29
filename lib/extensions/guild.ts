@@ -236,6 +236,8 @@ export class FireGuild extends Guild {
       const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
       if (
         !denied ||
+        !denied.has(Permissions.FLAGS.USE_PRIVATE_THREADS) ||
+        !denied.has(Permissions.FLAGS.USE_PUBLIC_THREADS) ||
         !denied.has(Permissions.FLAGS.SEND_MESSAGES) ||
         !denied.has(Permissions.FLAGS.ADD_REACTIONS) ||
         !denied.has(Permissions.FLAGS.SPEAK)
@@ -244,6 +246,8 @@ export class FireGuild extends Guild {
           .edit(
             role,
             {
+              USE_PRIVATE_THREADS: false,
+              USE_PUBLIC_THREADS: false,
               SEND_MESSAGES: false,
               ADD_REACTIONS: false,
               SPEAK: false,
