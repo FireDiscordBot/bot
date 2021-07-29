@@ -55,6 +55,9 @@ export class CommandHandler extends AkairoCommandHandler {
     if (
       message.webhookId ||
       message.author?.bot ||
+      !(message instanceof SlashCommandMessage
+        ? message.realChannel
+        : message.channel) ||
       !allowedTypes.includes(message.type)
     )
       return false;
