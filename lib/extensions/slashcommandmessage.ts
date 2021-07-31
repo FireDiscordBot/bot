@@ -414,7 +414,7 @@ export class FakeChannel {
   get permissionOverwrites() {
     return this.real instanceof GuildChannel
       ? this.real.permissionOverwrites
-      : null;
+      : undefined;
   }
 
   get messages() {
