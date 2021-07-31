@@ -963,17 +963,16 @@ export class FireGuild extends Guild {
     )}:R>
 ${this.language.get("JOINED")} <t:${Math.floor(
       author.joinedTimestamp / 1000
-    )}:R>
-${this.language.get("ROLES")}: `;
+    )}:R>`;
     const roles = author.roles.cache
       .sort((one, two) => (one.position > two.position ? 1 : -1))
       .filter((role) => this.id != role.id)
       .map((role) => role.toString());
-    authorInfo += this.client.util.shorten(
+    authorInfo += `\n${this.language.get("ROLES")}: ${this.client.util.shorten(
       roles,
       1024 - authorInfo.length,
       " - "
-    );
+    )}`;
     const embed = new MessageEmbed()
       .setTitle(
         this.language.get("TICKET_OPENER_TILE", { author: author.toString() })
