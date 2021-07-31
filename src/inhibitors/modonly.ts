@@ -12,22 +12,18 @@ export default class ModOnlyInhibitor extends Inhibitor {
   }
 
   exec(message: FireMessage) {
-    const channel =
-      message instanceof SlashCommandMessage
-        ? message.realChannel
-        : message.channel;
     if (message instanceof SlashCommandMessage && (message.flags & 64) == 64)
       return false;
     if (
       message.guild &&
       message.guild.settings
         .get<string[]>("commands.modonly", [])
-        .includes(channel.id)
+        .includes(message.channel.id)
     ) {
       if (message.member.isSuperuser()) return false;
       if (message instanceof SlashCommandMessage && message.command.ephemeral)
         return false;
-      return !message.member.isModerator(channel);
+      return !message.member.isModerator(message.channel);
     }
     return false;
   }

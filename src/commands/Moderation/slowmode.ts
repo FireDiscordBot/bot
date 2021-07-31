@@ -102,7 +102,7 @@ export default class Slowmode extends Command {
     let failed: string[] = [];
     const channels = message.guild.channels.cache
       .filter((channel: GuildChannel) => channel.type == "GUILD_TEXT")
-      .array() as FireTextChannel[];
+      .toJSON() as FireTextChannel[];
     let warning: FireMessage;
     if (channels.length > 50)
       warning = (await message.send("SLOWMODE_SETTING_GLOBAL", {

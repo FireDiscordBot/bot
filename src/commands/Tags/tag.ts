@@ -62,7 +62,9 @@ export default class Tag extends Command {
 
   async sendTagsList(message: FireMessage) {
     const manager = message.guild.tags;
-    const names = manager.cache.size ? manager.cache.keyArray() : manager.names;
+    const names = manager.cache.size
+      ? [...manager.cache.keys()]
+      : manager.names;
     if (!names.length) return await message.error("TAG_NONE_FOUND");
     const embed = new MessageEmbed()
       .setAuthor(

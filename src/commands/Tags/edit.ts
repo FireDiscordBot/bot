@@ -51,7 +51,7 @@ export default class TagEdit extends Command {
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", { tag });
     if (
       manager.cache.size > 20 &&
-      manager.cache.keyArray().indexOf(cachedTag.name) > 20 &&
+      [...manager.cache.keys()].indexOf(cachedTag.name) > 20 &&
       !message.guild.premium
     )
       return await message.error("TAGS_EDIT_LIMIT");

@@ -56,18 +56,17 @@ export default class AddModerator extends Command {
     );
     if (!moderators.length) return await message.error("NO_MODERATORS_SET");
     const roles = moderators.filter((id) => message.guild.roles.cache.has(id));
-    const members = (
-      await message.guild.members.fetch({
-        user: moderators.filter((id) => !roles.includes(id)),
-      })
-    ).array();
-    let mentions = { roles: [], members: [] };
-    roles.forEach((rid) => mentions.roles.push(`<@&${rid}>`));
-    members.forEach((member: FireMember) =>
-      mentions.members.push(member.toMention())
-    );
+    const members = await message.guild.members.fetch({
+      user: moderators.filter((id) => !roles.includes(id)),
+    });
+    const mentions = {
+      roles: roles.map((rid) => `<@&${rid}>`),
+      members: members.map((member: FireMember) => member.toMention()),
+    };
     const invalid = [
-      ...moderators.filter((id) => !JSON.stringify(mentions).includes(id)),
+      ...moderators.filter(
+        (id) => !roles.includes(id) && !members.find((m) => m.id == id)
+      ),
     ];
     let filteredModerators = moderators.filter((id) => !invalid.includes(id));
     if (moderators != filteredModerators)

@@ -1,14 +1,12 @@
 import {
   MessageComponentInteraction,
   EmojiIdentifierResolvable,
-  WebhookEditMessageOptions,
   DeconstructedSnowflake,
   GuildMemberResolvable,
   WebhookMessageOptions,
   AwaitMessagesOptions,
   MessageComponentType,
   CreateInviteOptions,
-  MessageEditOptions,
   MessageResolvable,
   MessageReaction,
   RoleResolvable,
@@ -16,13 +14,11 @@ import {
   SnowflakeUtil,
   ThreadChannel,
   GuildChannel,
-  MessageEmbed,
   NewsChannel,
   Permissions,
   Collection,
   Snowflake,
   DMChannel,
-  Webhook,
 } from "discord.js";
 import { Language, LanguageKeys } from "../util/language";
 import { FireTextChannel } from "./textchannel";
@@ -34,6 +30,7 @@ import { FireMessage } from "./message";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
+import { BaseFakeChannel } from "../interfaces/misc";
 
 const { emojis, reactions } = constants;
 export type EphemeralMessage = { id: Snowflake; flags: number };
@@ -299,14 +296,8 @@ export class ComponentMessage {
   }
 }
 
-export class FakeChannel {
-  real: FireTextChannel | ThreadChannel | NewsChannel | DMChannel;
-  message: ComponentMessage;
-  interactionId: Snowflake;
-  guild: FireGuild;
-  token: string;
-  id: Snowflake;
-  client: Fire;
+export class FakeChannel extends BaseFakeChannel {
+  declare message: ComponentMessage;
 
   constructor(
     message: ComponentMessage,
@@ -315,6 +306,7 @@ export class FakeChannel {
     token: string,
     real?: FireTextChannel | NewsChannel | DMChannel
   ) {
+    super();
     this.real = real;
     this.token = token;
     this.client = client;
@@ -325,6 +317,12 @@ export class FakeChannel {
     if (!(real instanceof DMChannel) && real?.guild)
       this.guild = real.guild as FireGuild;
     else if (this.message.guild) this.guild = this.message.guild;
+  }
+
+  get name() {
+    return this.real instanceof DMChannel
+      ? this.real.recipient.toString()
+      : this.real?.name;
   }
 
   get flags() {

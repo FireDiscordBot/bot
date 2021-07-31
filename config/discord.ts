@@ -5,6 +5,7 @@ import {
   Intents,
   Options,
 } from "discord.js";
+import { FireMessage } from "@fire/lib/extensions/message";
 
 let litecord: { http?: HTTPOptions } = {};
 if (process.env.USE_LITECORD == "true")
@@ -18,20 +19,24 @@ if (process.env.USE_LITECORD == "true")
 
 export const discord: ClientOptions = {
   allowedMentions: {
+    repliedUser: false,
     parse: [],
     users: [],
     roles: [],
-    repliedUser: false,
   },
   makeCache: Options.cacheWithLimits({
-    MessageManager: 30,
+    MessageManager: {
+      sweepFilter: () => {
+        return (message: FireMessage) =>
+          +new Date() - (message.editedTimestamp ?? message.createdTimestamp) >
+          150000;
+      },
+      sweepInterval: 60,
+    },
     PresenceManager: 0,
     // @ts-ignore ABSOLUTE FUCKING GREMLIN AAAAAAAAAAAAAAAA
     GuildInviteManager: 0,
   }),
-  messageCacheLifetime: 150,
-  messageSweepInterval: 60,
-  // messageCacheMaxSize: 30,
   restSweepInterval: 30,
   partials: [
     Constants.PartialTypes.GUILD_MEMBER,

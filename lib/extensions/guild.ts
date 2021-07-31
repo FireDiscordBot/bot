@@ -34,8 +34,8 @@ import { GuildSettings } from "@fire/lib/util/settings";
 import { DiscoverableGuild } from "../interfaces/stats";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
+import { BaseFakeChannel } from "../interfaces/misc";
 import { MessageIterator } from "../util/iterators";
-import { FakeChannel } from "./slashcommandmessage";
 import { LanguageKeys } from "../util/language";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
@@ -141,7 +141,7 @@ export class FireGuild extends Guild {
       cache: this.channels.cache.filter(
         (channel) =>
           !(channel instanceof ThreadChannel) && !!channel.permissionOverwrites
-      ) as Collection<`${bigint}`, GuildChannel>,
+      ) as Collection<Snowflake, GuildChannel>,
     };
   }
 
@@ -542,10 +542,12 @@ export class FireGuild extends Guild {
         channel.permissionOverwrites
           .set(
             [
-              ...channel.permissionOverwrites.cache.array().filter(
-                // ensure the overwrites below are used instead
-                (overwrite) => overwrite.id != id
-              ),
+              ...channel.permissionOverwrites.cache
+                .filter(
+                  // ensure the overwrites below are used instead
+                  (overwrite) => overwrite.id != id
+                )
+                .toJSON(),
               {
                 allow: perms.allow,
                 deny: perms.deny,
@@ -649,7 +651,7 @@ export class FireGuild extends Guild {
 
     if (member) return member;
     const fetchedMembers = await this.members.fetch({
-      user: this.members.cache.size ? [...this.members.cache.array()] : [],
+      user: this.members.cache.size ? [...this.members.cache.values()] : [],
       query: name,
       limit: 1,
     });
@@ -760,11 +762,11 @@ export class FireGuild extends Guild {
     const textChannelsAndThreads = [
       ...this.channels.cache
         .filter((channel) => channel.type == "GUILD_TEXT")
-        .array(),
+        .toJSON(),
       ...this.channels.cache
         .filter((channel) => channel.type == "GUILD_TEXT")
         .flatMap((channel: FireTextChannel) => channel.threads.cache)
-        .array(),
+        .toJSON(),
     ] as (FireTextChannel | ThreadChannel)[];
     return this.settings
       .get<Snowflake[]>("tickets.channels", [])
@@ -800,7 +802,7 @@ export class FireGuild extends Guild {
     channel?: FireTextChannel,
     category?: CategoryChannel
   ) {
-    if (channel instanceof FakeChannel)
+    if (channel instanceof BaseFakeChannel)
       channel = channel.real as FireTextChannel;
 
     if (author?.guild?.id != this.id) return "author";
@@ -898,7 +900,6 @@ export class FireGuild extends Guild {
           parent: category,
           permissionOverwrites: [
             ...category.permissionOverwrites.cache
-              .array()
               .filter(
                 // ensure the overwrites below are used instead
                 (overwrite) => !overwriteTheOverwrites.includes(overwrite.id)
@@ -906,9 +907,13 @@ export class FireGuild extends Guild {
               .map((overwrite) => {
                 // we can't set manage roles without admin so just remove it
                 if (overwrite.allow.has(Permissions.FLAGS.MANAGE_ROLES))
-                  overwrite.allow.remove(Permissions.FLAGS.MANAGE_ROLES);
+                  overwrite.allow = overwrite.allow.remove(
+                    Permissions.FLAGS.MANAGE_ROLES
+                  );
                 if (overwrite.deny.has(Permissions.FLAGS.MANAGE_ROLES))
-                  overwrite.deny.remove(Permissions.FLAGS.MANAGE_ROLES);
+                  overwrite.deny = overwrite.deny.remove(
+                    Permissions.FLAGS.MANAGE_ROLES
+                  );
                 return overwrite;
               }),
             {
@@ -1040,7 +1045,7 @@ ${this.language.get("ROLES")}: `;
     author: FireMember,
     reason: string
   ) {
-    if (channel instanceof FakeChannel)
+    if (channel instanceof BaseFakeChannel)
       channel = channel.real as FireTextChannel;
     if (author instanceof FireUser)
       author = (await this.members.fetch(author).catch(() => {})) as FireMember;

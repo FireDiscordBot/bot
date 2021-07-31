@@ -193,9 +193,9 @@ export default class Prefix extends Command {
       return await message.error("PREFIX_SLASH_COMMANDS");
     if (prefix.includes("\\")) return await message.error("PREFIX_ESCAPED");
     const mentionIds = [
-      ...message.mentions.channels.keyArray(),
-      ...message.mentions.users.keyArray(),
-      ...message.mentions.roles.keyArray(),
+      ...message.mentions.channels.keys(),
+      ...message.mentions.users.keys(),
+      ...message.mentions.roles.keys(),
     ];
     if (
       message.mentions.everyone ||

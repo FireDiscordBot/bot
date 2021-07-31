@@ -114,11 +114,9 @@ export class Util extends ClientUtil {
   }
 
   getDiscoverableGuilds() {
-    return (
-      this.client.guilds.cache
-        .filter((guild: FireGuild) => guild.isPublic())
-        .array() as FireGuild[]
-    ).map((guild) => guild.getDiscoverableData());
+    return this.client.guilds.cache
+      .filter((guild: FireGuild) => guild.isPublic())
+      .map((guild: FireGuild) => guild.getDiscoverableData());
   }
 
   async haste(

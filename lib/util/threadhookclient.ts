@@ -1,6 +1,7 @@
 import {
   WebhookMessageOptions,
   WebhookClientOptions,
+  WebhookClientData,
   MessagePayload,
   WebhookClient,
   Snowflake,
@@ -10,11 +11,10 @@ export class ThreadhookClient extends WebhookClient {
   threadId: Snowflake;
 
   constructor(
-    id: Snowflake,
-    token: string,
+    data: WebhookClientData,
     options?: WebhookClientOptions & { threadId?: Snowflake }
   ) {
-    super(id, token, options);
+    super(data, options);
     if (options?.threadId) this.threadId = options.threadId;
   }
 

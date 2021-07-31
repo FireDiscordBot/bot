@@ -40,9 +40,11 @@ export default class GuildMemberRemove extends Listener {
         .removeNitroPerks(member)
         .catch(() => false);
       if (typeof removed == "boolean" && removed)
-        (sk1erModule.guild.channels.cache.get(
-          "411620457754787841"
-        ) as FireTextChannel).send(
+        (
+          sk1erModule.guild.channels.cache.get(
+            "411620457754787841"
+          ) as FireTextChannel
+        ).send(
           sk1erModule.guild.language.get("SK1ER_NITRO_PERKS_REMOVED_LEFT", {
             member: member.toString(),
           })
@@ -169,7 +171,6 @@ export default class GuildMemberRemove extends Listener {
         if (member.nickname)
           embed.addField(language.get("NICKNAME"), member.nickname);
         const roles = member.roles.cache
-          .array()
           .filter((role) => role.id != member.guild.roles.everyone.id)
           .map((role) => role.toString())
           .join(", ");

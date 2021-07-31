@@ -13,17 +13,13 @@ export default class DisabledCommandsInhibitor extends Inhibitor {
   }
 
   exec(message: FireMessage, command: Command) {
-    const channel =
-      message instanceof SlashCommandMessage
-        ? message.realChannel
-        : message.channel;
     if (
       message.guild &&
       message.guild.settings
         .get<string[]>("disabled.commands", [])
         .includes(command?.id)
     )
-      return !message.member.isModerator(channel);
+      return !message.member.isModerator(message.channel);
     return false;
   }
 }

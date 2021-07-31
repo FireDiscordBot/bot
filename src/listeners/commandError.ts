@@ -1,8 +1,5 @@
-import {
-  FakeChannel,
-  SlashCommandMessage,
-} from "@fire/lib/extensions/slashcommandmessage";
 import { GuildChannel, ThreadChannel, DMChannel } from "discord.js";
+import { BaseFakeChannel } from "@fire/lib/interfaces/misc";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Listener } from "@fire/lib/util/listener";
 import { Command } from "@fire/lib/util/command";
@@ -17,7 +14,7 @@ export default class CommandError extends Listener {
   }
 
   async exec(
-    message: FireMessage | SlashCommandMessage,
+    message: FireMessage,
     command: Command,
     args: any[],
     error: Error
@@ -39,21 +36,14 @@ export default class CommandError extends Listener {
         id: message.author.id,
         username: message.author.toString(),
       });
-      const channel =
-        message instanceof SlashCommandMessage
-          ? message.realChannel
-          : message.channel;
       const extras = {
-        "button": "N/A",
+        button: "N/A",
         "message.id": message.id,
         "guild.id": message.guild?.id,
         "guild.name": message.guild?.name,
         "guild.shard": message.guild?.shardId || 0,
-        "channel.id":
-          channel instanceof FakeChannel
-            ? channel.real?.id
-            : channel?.id || "0",
-        "channel.name": this.getChannelName(channel) || "Unknown",
+        "channel.id": message.channel?.id || "0",
+        "channel.name": this.getChannelName(message.channel) || "Unknown",
         "command.name": command.id,
         env: process.env.NODE_ENV,
       };
@@ -81,11 +71,9 @@ export default class CommandError extends Listener {
   }
 
   getChannelName(
-    channel: GuildChannel | ThreadChannel | FakeChannel | DMChannel
+    channel: GuildChannel | ThreadChannel | BaseFakeChannel | DMChannel
   ) {
     if (channel instanceof DMChannel) return channel.recipient?.toString();
-    else if (channel instanceof FakeChannel)
-      return this.getChannelName(channel.real);
     else return channel?.name;
   }
 }

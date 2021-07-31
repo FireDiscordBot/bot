@@ -250,7 +250,6 @@ export default class GuildMemberAdd extends Listener {
       }
       if (usedInvite) embed.addField(language.get("INVITE_USED"), usedInvite);
       const roles = member.roles.cache
-        .array()
         .filter((role) => role.id != member.guild.roles.everyone.id)
         .map((role) => role.toString())
         .join(", ");

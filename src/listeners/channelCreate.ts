@@ -45,10 +45,12 @@ export default class ChannelCreate extends Listener {
         await channel.permissionOverwrites
           .set(
             [
-              ...channel.permissionOverwrites.cache.array().filter(
-                // ensure the overwrites below are used instead
-                (overwrite) => overwrite.id != role
-              ),
+              ...channel.permissionOverwrites.cache
+                .filter(
+                  // ensure the overwrites below are used instead
+                  (overwrite) => overwrite.id != role
+                )
+                .toJSON(),
               {
                 allow: perms.allow,
                 deny: perms.deny,

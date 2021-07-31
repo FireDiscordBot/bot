@@ -306,7 +306,7 @@ export class GuildTagManager {
       });
     }
     this.names = [
-      ...this.cache.keyArray().map((name) => name.toLowerCase()),
+      ...this.cache.map((tag) => tag.name.toLowerCase()),
       ...this.cache
         .map((tag) => tag.aliases.map((alias) => alias.toLowerCase()))
         .flat(),

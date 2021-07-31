@@ -378,7 +378,7 @@ export default class User extends Command {
               (memberA, memberB) =>
                 memberA.joinedTimestamp - memberB.joinedTimestamp
             )
-            .array()
+            .toJSON()
             .indexOf(member) + 1;
         info.push(
           `**${message.language.get(

@@ -37,6 +37,7 @@ import { FireMessage } from "./message";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
+import { BaseFakeChannel } from "../interfaces/misc";
 
 const { emojis, reactions } = constants;
 
@@ -71,7 +72,7 @@ export class SlashCommandMessage {
     if (command.options.data.find((opt) => opt.type == "SUB_COMMAND")) {
       command.commandName = `${
         command.commandName
-      }-${command.options.getSubCommand()}`;
+      }-${command.options.getSubcommand()}`;
       command.options = new CommandInteractionOptionResolver(
         client,
         command.options.data[0].options ?? []
@@ -379,14 +380,8 @@ export class SlashCommandMessage {
   }
 }
 
-export class FakeChannel {
-  real: FireTextChannel | NewsChannel | ThreadChannel | DMChannel;
-  message: SlashCommandMessage;
-  interactionId: Snowflake;
-  guild?: FireGuild;
-  token: string;
-  id: Snowflake;
-  client: Fire;
+export class FakeChannel extends BaseFakeChannel {
+  declare message: SlashCommandMessage;
 
   constructor(
     message: SlashCommandMessage,
@@ -395,6 +390,7 @@ export class FakeChannel {
     token: string,
     real?: FireTextChannel | NewsChannel | DMChannel
   ) {
+    super();
     this.real = real;
     this.token = token;
     this.client = client;
@@ -405,6 +401,12 @@ export class FakeChannel {
     if (!(real instanceof DMChannel) && real?.guild)
       this.guild = real.guild as FireGuild;
     else if (this.message.guild) this.guild = this.message.guild;
+  }
+
+  get name() {
+    return this.real instanceof DMChannel
+      ? this.real.recipient.toString()
+      : this.real?.name;
   }
 
   get flags() {

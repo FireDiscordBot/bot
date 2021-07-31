@@ -60,27 +60,19 @@ export default class ChannelUpdate extends Listener {
     if (
       before instanceof GuildChannel &&
       after instanceof GuildChannel &&
-      before.permissionOverwrites.cache
-        .keyArray()
-        .sort((a, b) => (a > b ? 1 : -1)) !=
-        after.permissionOverwrites.cache
-          .keyArray()
-          .sort((a, b) => (a > b ? 1 : -1))
+      before.permissionOverwrites.cache.size !=
+        after.permissionOverwrites.cache.size
     ) {
-      if (before.permissionOverwrites.cache.size > 1) {
-        const roleOverwrites = before.permissionOverwrites.cache
-          .map((overwrite) => overwrite.id)
-          .map((id) => guild.roles.cache.get(id))
-          .filter((role) => !!role);
-        beforeOverwrites = roleOverwrites.map((role) => role.toString());
-      }
-      if (after.permissionOverwrites.cache.size > 1) {
-        const roleOverwrites = after.permissionOverwrites.cache
-          .map((overwrite) => overwrite.id)
-          .map((id) => guild.roles.cache.get(id))
-          .filter((role) => !!role);
-        afterOverwrites = roleOverwrites.map((role) => role.toString());
-      }
+      const beforeRoleOverwrites = before.permissionOverwrites.cache
+        .map((overwrite) => overwrite.id)
+        .map((id) => guild.roles.cache.get(id))
+        .filter((role) => !!role);
+      beforeOverwrites = beforeRoleOverwrites.map((role) => role.toString());
+      const afterRoleOverwrites = after.permissionOverwrites.cache
+        .map((overwrite) => overwrite.id)
+        .map((id) => guild.roles.cache.get(id))
+        .filter((role) => !!role);
+      afterOverwrites = afterRoleOverwrites.map((role) => role.toString());
     }
 
     const newOverwrites = afterOverwrites.filter(

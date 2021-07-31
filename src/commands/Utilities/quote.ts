@@ -129,8 +129,7 @@ export default class Quote extends Command {
       regexes.discord.webhook.lastIndex = 0;
       if (!match?.groups.id || !match?.groups.token) return;
       webhook = new ThreadhookClient(
-        match.groups.id as Snowflake,
-        match.groups.token,
+        { id: match.groups.id as Snowflake, token: match.groups.token },
         { threadId: match.groups.threadId as Snowflake }
       );
       return await args.quote

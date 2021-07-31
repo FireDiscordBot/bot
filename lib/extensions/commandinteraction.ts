@@ -110,6 +110,7 @@ export class CommandInteraction extends CommandInteractionBase {
 
       const member = resolved.members?.[option.value as any];
       if (member)
+        // @ts-ignore
         result.member =
           // @ts-ignore
           (this.guild?.members._add({ user, ...member }) as FireMember) ??
@@ -117,6 +118,7 @@ export class CommandInteraction extends CommandInteractionBase {
 
       const channel = resolved.channels?.[option.value as any];
       if (channel)
+        // @ts-ignore
         result.channel =
           // @ts-ignore
           this.client.channels._add(channel, this.guild) ?? channel;

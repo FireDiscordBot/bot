@@ -16,7 +16,7 @@ export class FireConsole {
   }
 
   get timestamp() {
-    return this.template.displayUTC(new Date());
+    return this.template.display(new Date());
   }
 
   debug(...args: any[]) {

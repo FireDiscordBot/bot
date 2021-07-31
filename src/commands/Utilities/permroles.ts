@@ -164,10 +164,12 @@ export default class PermRoles extends Command {
       await channel.permissionOverwrites
         .set(
           [
-            ...channel.permissionOverwrites.cache.array().filter(
-              // ensure the overwrites below are used instead
-              (overwrite) => overwrite.id != args.role.id
-            ),
+            ...channel.permissionOverwrites.cache
+              .filter(
+                // ensure the overwrites below are used instead
+                (overwrite) => overwrite.id != args.role.id
+              )
+              .toJSON(),
             {
               allow: channelPerms.allow,
               deny: channelPerms.deny,

@@ -12,20 +12,16 @@ export default class AdminOnlyInhibitor extends Inhibitor {
   }
 
   exec(message: FireMessage) {
-    const channel =
-      message instanceof SlashCommandMessage
-        ? message.realChannel
-        : message.channel;
     if (
       message.guild &&
       message.guild.settings
         .get<string[]>("commands.adminonly", [])
-        .includes(channel.id)
+        .includes(message.channel.id)
     ) {
       if (message.member.isSuperuser()) return false;
       if (message instanceof SlashCommandMessage && message.command.ephemeral)
         return false;
-      return !message.member.isAdmin(channel);
+      return !message.member.isAdmin(message.channel);
     }
     return false;
   }

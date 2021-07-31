@@ -40,10 +40,10 @@
     discord-api-types "^0.18.1"
     tslib "^2.3.0"
 
-"@discordjs/collection@^0.1.6":
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/@discordjs/collection/-/collection-0.1.6.tgz#9e9a7637f4e4e0688fd8b2b5c63133c91607682c"
-  integrity sha512-utRNxnd9kSS2qhyivo9lMlt5qgAUasH2gb7BEOn6p0efFh24gjGomHzWKMAPn2hEReOPQZCJaRKoURwRotKucQ==
+"@discordjs/collection@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@discordjs/collection/-/collection-0.2.1.tgz#ea4bc7b41b7b7b6daa82e439141222ec95c469b2"
+  integrity sha512-vhxqzzM8gkomw0TYRF3tgx7SwElzUlXT/Aa41O7mOcyN6wIJfj5JmDWaO5XGKsGSsNx7F3i5oIlrucCCWV1Nog==
 
 "@discordjs/form-data@^3.0.1":
   version "3.0.1"
@@ -614,29 +614,29 @@ detect-libc@^1.0.3:
 
 discord-akairo@discord-akairo/discord-akairo:
   version "8.1.0"
-  resolved "https://codeload.github.com/discord-akairo/discord-akairo/tar.gz/1c021f846b8a72398177dff6b7ae4b44608c4878"
+  resolved "https://codeload.github.com/discord-akairo/discord-akairo/tar.gz/a14b18f58a260764d9f071e81869f615847cc139"
 
 discord-api-types@^0.18.1:
   version "0.18.1"
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.18.1.tgz#5d08ed1263236be9c21a22065d0e6b51f790f492"
   integrity sha512-hNC38R9ZF4uaujaZQtQfm5CdQO58uhdkoHQAVvMfIL0LgOSZeW575W8H6upngQOuoxWd8tiRII3LLJm9zuQKYg==
 
-discord-api-types@^0.19.0:
-  version "0.19.0"
-  resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.19.0.tgz#86ba8021b29190cf860e90a2bc3e29b1d7aab3ba"
-  integrity sha512-t2HKLd43Lbe+rf+ffYfKVv9Kk5f6p7sFqvO6CMV55ZB0PgZv8WigCkt9FoJciYo5S3Q6CGYK+WnE/ZG+6vkBDQ==
+discord-api-types@^0.21.0:
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.21.0.tgz#ee66ee1a11bfb9dff46aad9f2fce0e5100c74b72"
+  integrity sha512-x/YpcXK2tS7kQRavirl5/QnYD1U8L3HzCTMkg+gwDEp+IkE8XGCLJHiZZoEKIAvpJFv5XzT5IPsduTIB2ONbuA==
 
 discord.js@FireDiscordBot/discord.js:
   version "13.0.0-dev"
-  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/637c99f2a3df460e3767a2c6e90c8af5a0f5d62e"
+  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/98c3ca2c161809c800a577e5202002696d53a84e"
   dependencies:
     "@discordjs/builders" "^0.2.0"
-    "@discordjs/collection" "^0.1.6"
+    "@discordjs/collection" "^0.2.1"
     "@discordjs/form-data" "^3.0.1"
     "@sapphire/async-queue" "^1.1.4"
     "@types/ws" "^7.4.5"
     abort-controller "^3.0.0"
-    discord-api-types "^0.19.0"
+    discord-api-types "^0.21.0"
     node-fetch "^2.6.1"
     ws "^7.5.1"
 

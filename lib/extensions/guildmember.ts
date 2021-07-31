@@ -10,7 +10,7 @@ import {
   Channel,
   Util,
 } from "discord.js";
-import { FakeChannel } from "./slashcommandmessage";
+import { BaseFakeChannel } from "../interfaces/misc";
 import { humanize } from "@fire/lib/util/constants";
 import { FireTextChannel } from "./textchannel";
 import * as sanitizer from "@aero/sanitizer";
@@ -87,7 +87,7 @@ export class FireMember extends GuildMember {
   isModerator(channel?: Channel) {
     if (this.id == this.client.user?.id) return true;
     if (this.id == this.guild.ownerId) return true;
-    if (channel instanceof FakeChannel) channel = channel.real;
+    if (channel instanceof BaseFakeChannel) channel = channel.real;
     if (this.isAdmin(channel)) return true;
     const moderators = this.guild.settings.get<string[]>(
       "utils.moderators",
@@ -104,7 +104,7 @@ export class FireMember extends GuildMember {
   isAdmin(channel?: Channel) {
     if (this.id == this.client.user?.id) return true;
     if (this.id == this.guild.ownerId) return true;
-    if (channel instanceof FakeChannel) channel = channel.real;
+    if (channel instanceof BaseFakeChannel) channel = channel.real;
     else if (channel instanceof ThreadChannel) channel = channel.parent;
     return channel
       ? this.permissionsIn(channel as GuildChannel).has(

@@ -32,7 +32,7 @@ const getOldestSnowflake = (
   collection: MessageCollection | ReactionCollection
 ) =>
   collection
-    .array()
+    .toJSON()
     .map((obj: ObjectWithId) => obj.id)
     .sort((a, b) => Number(BigInt(a) - BigInt(b)))[0] || "0";
 
@@ -40,7 +40,7 @@ const getNewestSnowflake = (
   collection: MessageCollection | ReactionCollection
 ) => {
   const snowflakes = collection
-    .array()
+    .toJSON()
     .map((obj: ObjectWithId) => obj.id)
     .sort((a, b) => Number(BigInt(a) - BigInt(b)));
   return snowflakes[snowflakes.length - 1] || "0";
@@ -128,7 +128,7 @@ export class MessageIterator {
       if (data.size < 100) this.limit = 0;
 
       if (this.reverse && data.size) {
-        const messageArray = data.array().reverse();
+        const messageArray = data.toJSON().reverse();
         data = new Collection<Snowflake, FireMessage>();
         for (const message of messageArray) data.set(message.id, message);
       }
@@ -153,7 +153,7 @@ export class MessageIterator {
     if (data.size < 100) this.limit = 0;
 
     if (this.reverse && data.size) {
-      const messageArray = data.array().reverse();
+      const messageArray = data.toJSON().reverse();
       data = new Collection<Snowflake, FireMessage>();
       for (const message of messageArray) data.set(message.id, message);
     }

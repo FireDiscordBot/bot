@@ -62,9 +62,7 @@ export default class DeleteReminder extends Command {
         errors: ["time"],
         filter: (msg: FireMessage) =>
           msg.author.id == message.author.id &&
-          (message instanceof SlashCommandMessage
-            ? msg.channel.id == message.realChannel.id
-            : msg.channel.id == message.channel.id),
+          msg.channel.id == message.channel.id,
       })
       .catch(() => {});
     if (yesOrNo)

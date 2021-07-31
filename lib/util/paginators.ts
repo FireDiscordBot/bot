@@ -324,7 +324,6 @@ export class PaginatorInterface {
       | DMChannel
       | FakeChannel
   ) {
-    // if (destination instanceof FakeChannel) destination = destination.real;
     let message: FireMessage | SlashCommandMessage;
     if (
       !(destination instanceof DMChannel) &&

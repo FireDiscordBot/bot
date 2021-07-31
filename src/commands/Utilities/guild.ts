@@ -144,8 +144,8 @@ export default class GuildCommand extends Command {
         message.language.get("GUILD_JOIN_POS", {
           pos: (
             guild.members.cache
-              .array()
               .sort((one, two) => (one.joinedAt > two.joinedAt ? 1 : -1))
+              .toJSON()
               .indexOf(message.member) + 1
           ).toLocaleString(message.language.id),
         })
@@ -289,7 +289,7 @@ export default class GuildCommand extends Command {
     if (guild instanceof FireGuild && roles?.length)
       embed.addField(
         message.language.get("GUILD_ROLES") +
-          ` [${guild.roles.cache.array().length - 1}]`,
+          ` [${guild.roles.cache.size - 1}]`,
         this.client.util.shorten(roles, 1000, " - ")
       );
 
