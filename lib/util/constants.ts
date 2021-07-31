@@ -1,4 +1,6 @@
+import { FireTextChannel } from "../extensions/textchannel";
 import humanizeDuration = require("humanize-duration");
+import { NewsChannel } from "discord.js";
 
 const emojiRegex = require("emoji-regex")() as RegExp;
 const emojiRegexStr = emojiRegex.toString();
@@ -42,6 +44,8 @@ export type MemberLogType =
   | "roles_add"
   | "roles_remove"
   | "nickname_update";
+
+export type GuildTextChannel = FireTextChannel | NewsChannel;
 
 let emojis = {
   // shoutout to blobhub for the ebic emotes, https://inv.wtf/blobhub
@@ -164,7 +168,8 @@ export const constants = {
   regexes: {
     maskedLink: /\[(?<name>.+)\]\((?<link><?https?:\/\/.+>?)\)/gim,
     symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,
-    spoilerAbuse: /(?:\|\|?[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]?){20,}/gim,
+    spoilerAbuse:
+      /(?:\|\|?[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]?){20,}/gim,
     zws: /[\u1CBC\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]/gim,
     customEmoji: /<a?:(?<name>[a-zA-Z0-9\_]+):(?<id>\d{15,21})>/gim,
     unicodeEmoji: emojiRegex,
@@ -185,10 +190,14 @@ export const constants = {
     },
     invwtf: /inv\.wtf\/(?<code>[\w-]{2,25})/gim,
     discord: {
-      invite: /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[\w-]{1,25})/im,
-      message: /(?:ptb\.|canary\.|staging\.|lc\.)?(?:discord(?:app)|inv)?\.(?:com|wtf)?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
-      messageGlobal: /<?(?:ptb\.|canary\.|staging\.)?discord(?:app)?\.com?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})>?/gim,
-      webhook: /discord(?:app)?\.com\/api\/webhooks\/(?<id>\d{15,21})\/(?<token>[\w-]{50,80})/im,
+      invite:
+        /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[\w-]{1,25})/im,
+      message:
+        /(?:ptb\.|canary\.|staging\.|lc\.)?(?:discord(?:app)|inv)?\.(?:com|wtf)?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
+      messageGlobal:
+        /<?(?:ptb\.|canary\.|staging\.)?discord(?:app)?\.com?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})>?/gim,
+      webhook:
+        /discord(?:app)?\.com\/api\/(?:v\d{1,2}\/)?webhooks\/(?<id>\d{15,21})\/(?<token>[\w-]{50,80})(?<thread>\?thread_id=(?<threadId>\d{15,21}))?/im,
     },
     invites: [
       /(?<domain>(?:dsc|dis|discord|invite)\.(?:gd|gg|io|me))\/(?<code>[\w-]+)/gim,
@@ -198,14 +207,17 @@ export const constants = {
     paypal: /(?:paypal\.me|paypal\.com\/paypalme)\/(?<name>[\w-]+)/im,
     youtube: {
       channel: /youtube\.com\/(?:c\/|channel\/|user\/)?(?<channel>[^"\s]+)/im,
-      video: /(youtu\.be\/|invidio\.us\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtube\.com\/clip\/)(?<video>[\w-]+)/im,
+      video:
+        /(youtu\.be\/|invidio\.us\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtube\.com\/clip\/)(?<video>[\w-]+)/im,
     },
     twitch: {
       clip: /clips\.twitch\.tv\/(?<clip>\w+)/im,
       channel: /twitch\.tv\/(?<channel>.+)/im,
     },
-    twitter: /twitter\.com\/(?<username>\w+)(?:\/status\/(?<tweet>\d+)?|\/(?<path>likes|media|with_replies|followers|following|suggested))?/im,
-    imageURL: /((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.jpeg|\.gif|\.gifv|\.webp)))/im,
+    twitter:
+      /twitter\.com\/(?<username>\w+)(?:\/status\/(?<tweet>\d+)?|\/(?<path>likes|media|with_replies|followers|following|suggested))?/im,
+    imageURL:
+      /((?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*(?:\.png|\.jpg|\.jpeg|\.gif|\.gifv|\.webp)))/im,
     time: {
       phrasing: [
         /(?:me to (?<reminder>.+) in | ?me in | ?in )? (?:(?<months>\d+)(?: ?months?| ?mos?))(?: ?about | ?that | ?to )?/im,
@@ -222,7 +234,8 @@ export const constants = {
       minutes: / (?<minutes>\d+)(?: ?m(?:in)?(?:utes?)?)/im,
       seconds: / (?<seconds>\d+)(?: ?s(?:ec)?(?:onds?)?)/im,
     },
-    haste: /(?<uploader>hastebin\.com|hasteb\.in|hst\.sh|h\.inv\.wtf)\/(?<key>\w{1,20})/gim,
+    haste:
+      /(?<uploader>hastebin\.com|hasteb\.in|hst\.sh|h\.inv\.wtf)\/(?<key>\w{1,20})/gim,
   },
   blockedGifts: [
     "690195254191849478",

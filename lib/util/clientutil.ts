@@ -1,4 +1,5 @@
 import {
+  GuildTextChannelResolvable,
   version as djsver,
   PermissionString,
   GuildPreview,
@@ -7,18 +8,18 @@ import {
   Collection,
   Snowflake,
   Webhook,
+  ThreadChannel,
 } from "discord.js";
 import {
+  GuildMemberCountFilter,
+  GuildIdRangeFilter,
   ExperimentFilters,
   ExperimentRange,
-  Experiments,
   FeatureFilter,
-  GuildIdRangeFilter,
-  GuildMemberCountFilter,
+  Experiments,
 } from "../interfaces/discord";
 import { Channel, Video } from "@fire/lib/interfaces/youtube";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireTextChannel } from "../extensions/textchannel";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { PremiumData } from "@fire/lib/interfaces/premium";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -28,7 +29,7 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { Cluster } from "@fire/lib/interfaces/stats";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language, LanguageKeys } from "./language";
-import { humanize, titleCase } from "./constants";
+import { GuildTextChannel, humanize, titleCase } from "./constants";
 import { Message } from "@fire/lib/ws/Message";
 import { ClientUtil } from "discord-akairo";
 import { getCommitHash } from "./gitUtils";
@@ -475,7 +476,13 @@ export class Util extends ClientUtil {
     return channel;
   }
 
-  async getQuoteWebhookURL(destination: FireTextChannel) {
+  async getQuoteWebhookURL(destination: GuildTextChannel | ThreadChannel) {
+    let thread: ThreadChannel;
+    if (destination instanceof ThreadChannel) {
+      // we can't assign thread to destination since we're reassigning it
+      thread = this.client.channels.cache.get(destination.id) as ThreadChannel;
+      destination = destination.parent as GuildTextChannel;
+    } else if (typeof destination.fetchWebhooks != "function") return;
     const hooks = await destination.fetchWebhooks().catch(() => {});
     let hook: Webhook;
     if (hooks) hook = hooks.filter((hook) => !!hook.token).first();
@@ -492,7 +499,9 @@ export class Util extends ClientUtil {
         })
         .catch(() => null);
     }
-    return hook?.url;
+    return thread && hook?.url
+      ? `${hook?.url}?thread_id=${thread.id}`
+      : hook?.url;
   }
 
   makeImageUrl(root: string, { format = "webp", size = 512 } = {}) {

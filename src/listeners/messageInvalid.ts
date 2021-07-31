@@ -3,14 +3,13 @@ import {
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
 import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { constants, GuildTextChannel } from "@fire/lib/util/constants";
 import { messageConverter } from "@fire/lib/util/converters";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import Remind from "@fire/src/commands/Utilities/remind";
 import { EventType } from "@fire/lib/ws/util/constants";
 import Quote from "@fire/src/commands/Utilities/quote";
-import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 
@@ -26,7 +25,8 @@ export default class MessageInvalid extends Listener {
       emitter: "commandHandler",
       event: "messageInvalid",
     });
-    this.botQuoteRegex = /.{1,25}\s?quote (?:https?:\/\/)?(?:(?:ptb|canary|development|staging)\.)?discord(?:app)?\.com?\/channels\/(?:\d{15,21}\/?){3}/gim;
+    this.botQuoteRegex =
+      /.{1,25}\s?quote (?:https?:\/\/)?(?:(?:ptb|canary|development|staging)\.)?discord(?:app)?\.com?\/channels\/(?:\d{15,21}\/?){3}/gim;
     this.slashCommandRegex = /<\/\w+:\d{15,21}>/gim;
   }
 
@@ -85,7 +85,7 @@ export default class MessageInvalid extends Listener {
         !messageLink[0].startsWith("<") &&
         !messageLink[0].endsWith(">")
       )
-        matches.push((messageLink.groups as unknown) as MessageLinkMatch);
+        matches.push(messageLink.groups as unknown as MessageLinkMatch);
     }
 
     if (!matches.length) {
@@ -125,7 +125,7 @@ export default class MessageInvalid extends Listener {
       if (!shards.includes(shard)) {
         if (!this.client.manager.ws?.open) continue;
         const webhookURL = await this.client.util.getQuoteWebhookURL(
-          message.channel as FireTextChannel
+          message.channel as GuildTextChannel
         );
         if (!webhookURL || typeof webhookURL != "string") continue;
         this.client.console.info(
@@ -139,7 +139,7 @@ export default class MessageInvalid extends Listener {
               webhook: webhookURL,
               message: quote,
               destination: {
-                nsfw: (message.channel as FireTextChannel)?.nsfw || false,
+                nsfw: (message.channel as GuildTextChannel)?.nsfw || false,
                 permissions: message.guild
                   ? message.member?.permissions.bitfield.toString() || "0"
                   : "0",

@@ -1,15 +1,16 @@
+import { Permissions, Snowflake } from "discord.js";
 import {
-  MessageLinkMatch,
   PartialQuoteDestination,
+  MessageLinkMatch,
 } from "@fire/lib/interfaces/messages";
 import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { constants, GuildTextChannel } from "@fire/lib/util/constants";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { WebhookClient, Permissions, Snowflake } from "discord.js";
+import { ThreadhookClient } from "@fire/lib/util/threadhookclient";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
@@ -66,7 +67,7 @@ export default class Quote extends Command {
           !messageLink[0].startsWith("<") &&
           !messageLink[0].endsWith(">")
         )
-          matches.push((messageLink.groups as unknown) as MessageLinkMatch);
+          matches.push(messageLink.groups as unknown as MessageLinkMatch);
       }
 
       if (!matches.length) return;
@@ -83,7 +84,7 @@ export default class Quote extends Command {
         if (!shards.includes(shard)) {
           if (!this.client.manager.ws?.open) continue;
           const webhookURL = await this.client.util
-            .getQuoteWebhookURL(message.channel as FireTextChannel)
+            .getQuoteWebhookURL(message.channel as GuildTextChannel)
             .catch(() => {});
           if (!webhookURL || typeof webhookURL != "string") continue;
           this.client.console.info(
@@ -122,14 +123,15 @@ export default class Quote extends Command {
     }
     if (args.quote.content.length > 2000)
       return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
-    let webhook: WebhookClient;
+    let webhook: ThreadhookClient;
     if (args.webhook && args.quoter) {
       const match = regexes.discord.webhook.exec(args.webhook);
       regexes.discord.webhook.lastIndex = 0;
       if (!match?.groups.id || !match?.groups.token) return;
-      webhook = new WebhookClient(
+      webhook = new ThreadhookClient(
         match.groups.id as Snowflake,
-        match.groups.token
+        match.groups.token,
+        { threadId: match.groups.threadId as Snowflake }
       );
       return await args.quote
         .quote(args.destination, args.quoter, webhook)
@@ -138,8 +140,8 @@ export default class Quote extends Command {
     const quoted = await args.quote
       .quote(
         message instanceof SlashCommandMessage
-          ? (message.realChannel as FireTextChannel)
-          : (message.channel as FireTextChannel),
+          ? (message.realChannel as GuildTextChannel)
+          : (message.channel as GuildTextChannel),
         message.member,
         webhook
       )

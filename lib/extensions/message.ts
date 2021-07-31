@@ -16,9 +16,9 @@ import {
   Message,
 } from "discord.js";
 import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
+import { constants, GuildTextChannel } from "@fire/lib/util/constants";
 import { PaginatorInterface } from "@fire/lib/util/paginators";
 import { CommandUtil } from "@fire/lib/util/commandutil";
-import { constants } from "@fire/lib/util/constants";
 import Filters from "@fire/src/modules/filters";
 import { FireTextChannel } from "./textchannel";
 import { LanguageKeys } from "../util/language";
@@ -160,7 +160,7 @@ export class FireMessage extends Message {
   }
 
   async quote(
-    destination: FireTextChannel | ThreadChannel | PartialQuoteDestination,
+    destination: GuildTextChannel | ThreadChannel | PartialQuoteDestination,
     quoter: FireMember,
     webhook?: WebhookClient
   ) {
@@ -239,7 +239,7 @@ export class FireMessage extends Message {
   }
 
   private async webhookQuote(
-    destination: FireTextChannel | PartialQuoteDestination,
+    destination: GuildTextChannel | PartialQuoteDestination,
     quoter: FireMember,
     webhook?: WebhookClient,
     thread?: ThreadChannel
@@ -291,11 +291,15 @@ export class FireMessage extends Message {
     }
     let attachments: { attachment: Buffer; name: string }[] = [];
     if (
-      (destination instanceof FireTextChannel &&
+      ((destination instanceof FireTextChannel ||
+        destination instanceof NewsChannel) &&
         quoter
           .permissionsIn(destination)
           .has(Permissions.FLAGS.ATTACH_FILES)) ||
-      (!(destination instanceof FireTextChannel) &&
+      (!(
+        destination instanceof FireTextChannel ||
+        destination instanceof NewsChannel
+      ) &&
         (BigInt(destination.permissions) & 32768n) == 32768n)
     ) {
       const names = this.attachments.map((attach) => attach.name);
@@ -356,7 +360,7 @@ export class FireMessage extends Message {
   }
 
   private async embedQuote(
-    destination: FireTextChannel | ThreadChannel | PartialQuoteDestination,
+    destination: GuildTextChannel | ThreadChannel | PartialQuoteDestination,
     quoter: FireMember
   ) {
     // PartialQuoteDestination needs to be set for type here
