@@ -302,23 +302,25 @@ export class ComponentMessage {
 export class FakeChannel {
   real: FireTextChannel | ThreadChannel | NewsChannel | DMChannel;
   message: ComponentMessage;
+  interactionId: Snowflake;
   guild: FireGuild;
   token: string;
+  id: Snowflake;
   client: Fire;
-  id: string;
 
   constructor(
     message: ComponentMessage,
     client: Fire,
-    id: string,
+    id: Snowflake,
     token: string,
     real?: FireTextChannel | NewsChannel | DMChannel
   ) {
-    this.id = id;
     this.real = real;
     this.token = token;
     this.client = client;
     this.message = message;
+    this.id = this.real?.id;
+    this.interactionId = id;
 
     if (!(real instanceof DMChannel) && real?.guild)
       this.guild = real.guild as FireGuild;
@@ -380,7 +382,7 @@ export class FakeChannel {
   // Acknowledges without sending a message
   async ack() {
     await this.client.req
-      .interactions(this.id)(this.token)
+      .interactions(this.interactionId)(this.token)
       .callback.post({
         data: { type: 6 },
       })
@@ -434,7 +436,7 @@ export class FakeChannel {
 
     if (!this.message.sent)
       await this.client.req
-        .interactions(this.id)(this.token)
+        .interactions(this.interactionId)(this.token)
         .callback.post({
           data: {
             type: 4,
@@ -498,7 +500,7 @@ export class FakeChannel {
       data.flags -= 64;
 
     await this.client.req
-      .interactions(this.id)(this.token)
+      .interactions(this.interactionId)(this.token)
       .callback.post({
         data: {
           type: 7,

@@ -382,6 +382,7 @@ export class SlashCommandMessage {
 export class FakeChannel {
   real: FireTextChannel | NewsChannel | ThreadChannel | DMChannel;
   message: SlashCommandMessage;
+  interactionId: Snowflake;
   guild?: FireGuild;
   token: string;
   id: Snowflake;
@@ -394,11 +395,12 @@ export class FakeChannel {
     token: string,
     real?: FireTextChannel | NewsChannel | DMChannel
   ) {
-    this.id = id;
     this.real = real;
     this.token = token;
     this.client = client;
     this.message = message;
+    this.id = this.real?.id;
+    this.interactionId = id;
 
     if (!(real instanceof DMChannel) && real?.guild)
       this.guild = real.guild as FireGuild;
@@ -503,7 +505,7 @@ export class FakeChannel {
 
     if (!this.message.sent)
       await this.client.req
-        .interactions(this.id)(this.token)
+        .interactions(this.interactionId)(this.token)
         .callback.post({
           data: {
             type: 4,
