@@ -642,8 +642,8 @@ export default class User extends Command {
     const maybeGuild = await this.client.req
       .guilds(snowflake.snowflake)
       .channels.get()
-      .catch((e) => e);
-    if (maybeGuild instanceof DiscordAPIError && maybeGuild.code == 50001) {
+      .catch((e) => e instanceof DiscordAPIError && e.code == 50001);
+    if (maybeGuild) {
       info.push(
         message.language.get("USER_SNOWFLAKE_BELONGS_TO", {
           type: message.language.get("GUILD"),
@@ -674,7 +674,8 @@ export default class User extends Command {
       this.client.manager.state.discordExperiments?.length
     ) {
       const experiments = await this.client.util.getFriendlyGuildExperiments(
-        snowflake.snowflake
+        snowflake.snowflake,
+        this.client.guilds.cache.get(snowflake.snowflake) as FireGuild
       );
       if (experiments.length)
         embed.addField(
