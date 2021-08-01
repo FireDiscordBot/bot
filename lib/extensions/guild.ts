@@ -27,6 +27,7 @@ import {
   ModLogType,
 } from "@fire/lib/util/constants";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
+import { RawGuildData } from "discord.js/typings/rawDataTypes";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import TicketName from "@fire/src/commands/Tickets/name";
 import { PermRolesData } from "../interfaces/permroles";
@@ -71,7 +72,7 @@ export class FireGuild extends Guild {
   tags: GuildTagManager;
   declare client: Fire;
 
-  constructor(client: Fire, data: object) {
+  constructor(client: Fire, data: RawGuildData) {
     super(client, data);
 
     this.settings = new GuildSettings(client, this);

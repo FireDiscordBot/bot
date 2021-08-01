@@ -1,4 +1,5 @@
 import { MessageEmbed, UserMention, Structures, User, Util } from "discord.js";
+import { RawUserData } from "discord.js/typings/rawDataTypes";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { UserSettings } from "@fire/lib/util/settings";
@@ -14,7 +15,7 @@ export class FireUser extends User {
   settings: UserSettings;
   declare client: Fire;
 
-  constructor(client: Fire, data: object) {
+  constructor(client: Fire, data: RawUserData) {
     super(client, data);
     this.settings = new UserSettings(this.client, this);
   }

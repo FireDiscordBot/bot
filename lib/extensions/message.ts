@@ -17,6 +17,7 @@ import {
 } from "discord.js";
 import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
 import { constants, GuildTextChannel } from "@fire/lib/util/constants";
+import { RawMessageData } from "discord.js/typings/rawDataTypes";
 import { PaginatorInterface } from "@fire/lib/util/paginators";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import Filters from "@fire/src/modules/filters";
@@ -47,7 +48,7 @@ export class FireMessage extends Message {
 
   constructor(
     client: Fire,
-    data: object,
+    data: RawMessageData,
     channel: DMChannel | FireTextChannel | NewsChannel
   ) {
     super(client, data, channel);
