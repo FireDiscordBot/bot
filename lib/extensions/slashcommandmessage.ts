@@ -220,11 +220,15 @@ export class SlashCommandMessage {
         ) {
           const arg = commandArgs.find((arg) => arg.id == opt.name);
           return arg.flag;
-        } else if (commandArgs.find((arg) => arg.id == opt.name && arg.flag))
-          return `--${opt.name} ${opt.value}`;
+        } else if (commandArgs.find((arg) => arg.id == opt.name && arg.flag)) {
+          const arg = commandArgs.find((arg) => arg.id == opt.name && arg.flag);
+          if (arg.match == "flag" && opt.value) return `--${opt.name}`;
+          else if (arg.match == "flag") return "";
+          else return `--${opt.name} ${opt.value}`;
+        }
         return opt.value;
       });
-      content += args.join(" ");
+      content += args.join(" ").trim();
     }
     this.content = content;
     return this.content;
