@@ -20,7 +20,9 @@ import {
   Snowflake,
   DMChannel,
 } from "discord.js";
+import { RawMessageData, RawUserData } from "discord.js/typings/rawDataTypes";
 import { Language, LanguageKeys } from "../util/language";
+import { BaseFakeChannel } from "../interfaces/misc";
 import { FireTextChannel } from "./textchannel";
 import { APIMessage } from "discord-api-types";
 import { TOptions, StringMap } from "i18next";
@@ -30,7 +32,6 @@ import { FireMessage } from "./message";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
-import { BaseFakeChannel } from "../interfaces/misc";
 
 const { emojis, reactions } = constants;
 export type EphemeralMessage = { id: Snowflake; flags: number };
@@ -78,7 +79,11 @@ export class ComponentMessage {
       ? (component.message as EphemeralMessage)
       : component.message instanceof FireMessage
       ? component.message
-      : new FireMessage(client, component.message, this.realChannel);
+      : new FireMessage(
+          client,
+          component.message as RawMessageData,
+          this.realChannel
+        );
     if (component.member)
       this.member =
         (this.guild.members.cache.get(
@@ -87,10 +92,10 @@ export class ComponentMessage {
         new FireMember(client, component.member, this.guild);
     this.author = component.user
       ? (client.users.cache.get(component.user.id) as FireUser) ||
-        new FireUser(client, component.user)
+        new FireUser(client, component.user as unknown as RawUserData)
       : component.member &&
         ((client.users.cache.get(component.member.user.id) as FireUser) ||
-          new FireUser(client, component.member.user));
+          new FireUser(client, component.member.user as RawUserData));
     this.language =
       (this.author?.settings.has("utils.language")
         ? this.author.language.id == "en-US" &&

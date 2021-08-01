@@ -27,8 +27,10 @@ import {
 } from "./commandinteraction";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { RawUserData } from "discord.js/typings/rawDataTypes";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants } from "@fire/lib/util/constants";
+import { BaseFakeChannel } from "../interfaces/misc";
 import { FireTextChannel } from "./textchannel";
 import { APIMessage } from "discord-api-types";
 import { TOptions, StringMap } from "i18next";
@@ -37,7 +39,6 @@ import { FireMessage } from "./message";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
-import { BaseFakeChannel } from "../interfaces/misc";
 
 const { emojis, reactions } = constants;
 
@@ -104,7 +105,7 @@ export class SlashCommandMessage {
     const user = command.user ?? command.member?.user;
     this.author =
       (client.users.cache.get(user.id) as FireUser) ||
-      new FireUser(client, user);
+      new FireUser(client, user as RawUserData);
     if (this.guild) {
       this.member =
         (this.guild.members.cache.get(this.author.id) as FireMember) ||
