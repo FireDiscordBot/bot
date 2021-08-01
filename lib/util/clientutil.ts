@@ -567,7 +567,7 @@ export class Util extends ClientUtil {
                 ) &&
                 guildRange >= startAndEnd.s &&
                 guildRange < startAndEnd.e &&
-                this.applyFilters(guild, filters, startAndEnd)
+                this.applyFilters(guild, filters)
               ) {
                 hashAndBucket.push([experiment[0], b, startAndEnd]);
                 continue;
@@ -606,12 +606,11 @@ export class Util extends ClientUtil {
 
   private applyFilters(
     guild: FireGuild | GuildPreview | OAuth2Guild,
-    filters: ExperimentFilters[],
-    ranges: ExperimentRange
+    filters: ExperimentFilters[]
   ) {
     if (!filters.length) return true;
     // we don't have a guild to apply filters to and the range is full so return false
-    else if (!guild && ranges.s == 0 && ranges.e == 1e4) return false;
+    else if (!guild) return false;
     let isEligible = true;
     const featureFilters = filters.filter(
       (filter) => filter[0] == 1604612045
