@@ -22,7 +22,7 @@ export default class MessageUpdate extends Listener {
       // dehoist/decancer is enabled so no need for checks here
       after.member.dehoistAndDecancer();
 
-    await after.runFilters().catch(() => {});
+    await after.runAntiFilters().catch(() => {});
 
     const messageListener = this.client.getListener("message") as Message;
 

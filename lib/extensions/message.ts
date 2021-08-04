@@ -661,7 +661,7 @@ export class FireMessage extends Message {
     return [`${emoji} **${stars}** | ${this.channel}`, embed];
   }
 
-  async runFilters() {
+  async runAntiFilters() {
     if (!this.guild || this.author.bot) return;
     if (!this.member || this.member.partial)
       await this.guild.members.fetch(this.author.id).catch(() => {});

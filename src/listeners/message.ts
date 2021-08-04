@@ -144,7 +144,7 @@ export default class Message extends Listener {
       message.member.dehoistAndDecancer();
     }
 
-    await message.runFilters().catch(() => {});
+    await message.runAntiFilters().catch(() => {});
 
     let toSearch = (
       message.content +
