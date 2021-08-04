@@ -6,6 +6,8 @@ import {
   Options,
 } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireUser } from "@fire/lib/extensions/user";
 
 let litecord: { http?: HTTPOptions } = {};
 if (process.env.USE_LITECORD == "true")
@@ -29,15 +31,35 @@ export const discord: ClientOptions = {
       sweepFilter: () => {
         return (message: FireMessage) =>
           +new Date() - (message.editedTimestamp ?? message.createdTimestamp) >
-          150000;
+            150000 || message.author.bot;
+      },
+      keepOverLimit: (message: FireMessage) => !message.author.bot,
+      sweepInterval: 60,
+      maxSize: 100,
+    },
+    GuildMemberManager: {
+      sweepFilter: () => {
+        return (member: FireMember) =>
+          member.id != member.client.user?.id &&
+          !member.client.isRunningCommand(member);
       },
       sweepInterval: 60,
     },
-    PresenceManager: 0,
-    // @ts-ignore ABSOLUTE FUCKING GREMLIN AAAAAAAAAAAAAAAA
+    UserManager: {
+      sweepFilter: () => {
+        return (user: FireUser) =>
+          user.id != user.client.user?.id &&
+          !user.client.isRunningCommand(user);
+      },
+      sweepInterval: 60,
+    },
+    StageInstanceManager: 0,
+    GuildStickerManager: 0,
     GuildInviteManager: 0,
+    GuildBanManager: 0,
+    PresenceManager: 0,
   }),
-  restSweepInterval: 30,
+  restSweepInterval: 60,
   partials: [
     Constants.PartialTypes.GUILD_MEMBER,
     Constants.PartialTypes.REACTION,
