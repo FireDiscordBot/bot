@@ -123,9 +123,7 @@ export class Fire extends AkairoClient {
   experiments: Collection<number, Experiment>;
   aliases: Collection<string, string[]>;
   declare user: FireUser & ClientUser;
-  cacheSweepTask: NodeJS.Timeout;
   config: typeof config.fire;
-  cacheSweep: () => void;
   ksoft?: KSoftClient;
   useCanary: boolean;
   declare util: Util;
@@ -454,23 +452,6 @@ export class Fire extends AkairoClient {
         return command.remove();
       }
     });
-    this.cacheSweep = () => {
-      this.guilds.cache.forEach((guild) => {
-        guild.members.cache.sweep(
-          (member: FireMember) =>
-            member.id != this.user?.id && !this.isRunningCommand(member)
-        );
-        guild.presences.cache.sweep(() => true);
-      });
-      this.users.cache.sweep((user) => user.id != this.user?.id);
-      // for (const [, thread] of this.channels.cache.filter(
-      //   (channel) => channel instanceof ThreadChannel
-      // ))
-      //   (thread as ThreadChannel).members.cache.sweep(
-      //     (member) => member.id != this.user?.id
-      //   );
-    };
-    this.cacheSweepTask = setInterval(this.cacheSweep, 120000);
     return super.login();
   }
 
@@ -483,11 +464,12 @@ export class Fire extends AkairoClient {
     return this.readyWait;
   }
 
-  private isRunningCommand(member: FireMember) {
+  isRunningCommand(user: FireMember | FireUser) {
     const hasCommandUtil = this.commandHandler.commandUtils.find(
       (util) =>
-        util.message.guild?.id == member.guild.id &&
-        util.message.author?.id == member.id
+        (user instanceof FireMember
+          ? util.message.guild?.id == user.guild.id
+          : true) && util.message.author?.id == user.id
     );
     return !!hasCommandUtil;
   }
