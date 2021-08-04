@@ -880,7 +880,9 @@ export class FireGuild extends Guild {
         await ticket.members.add(author).catch(() => {});
         if (
           category.permissionOverwrites.cache.filter(
-            (overwrite) => overwrite.type == "member"
+            (overwrite) =>
+              overwrite.type == "member" &&
+              overwrite.allow.has(Permissions.FLAGS.MANAGE_THREADS)
           ).size
         ) {
           const members = await this.members
