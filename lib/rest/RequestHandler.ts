@@ -354,6 +354,24 @@ export class RequestHandler {
     if (res.statusCode >= 500 && res.statusCode < 600) {
       // Retry the specified number of times for possible serverside issues
       if (request.retries === this.manager.client.options.retryLimit) {
+        request.client.sentry.captureEvent({
+          message: `Encountered ${res.statusCode} on ${request.path} and all retries failed`,
+          request: {
+            url:
+              (request.options.versioned === false
+                ? request.client.options.http.api
+                : `${request.client.options.http.api}/v${request.client.options.http.version}`) +
+              request.path,
+            method: request.method,
+            data: request.options?.data ?? res.body.toString(),
+            headers: request.options?.headers,
+          },
+          tags: {
+            reason: request.options?.reason,
+            status: res?.statusCode,
+          },
+          extra: res?.headers,
+        });
         throw new HTTPError(
           res.coreRes.statusMessage,
           res.constructor.name,
