@@ -25,7 +25,11 @@ export default class CrossClusterQuote extends Event {
       debug: boolean;
     }
   ) {
-    if (!data.destination) return;
+    if (!data.destination)
+      return this.manager.client.console.warn(
+        `[Aether] Attempted cross cluster quote with no destination`,
+        JSON.stringify(data)
+      );
     let { destination } = data;
     const quoteCommand = this.manager.client.getCommand("quote") as Quote;
     if (!quoteCommand) return;
