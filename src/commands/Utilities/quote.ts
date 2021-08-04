@@ -87,9 +87,6 @@ export default class Quote extends Command {
             .getQuoteWebhookURL(message.channel as GuildTextChannel)
             .catch(() => {});
           if (!webhookURL || typeof webhookURL != "string") continue;
-          this.client.console.info(
-            `[Command] Sending cross cluster quote request to shard ${shard} for guild ${quote.guild_id}`
-          );
           if (
             message.guild &&
             message.author?.id &&

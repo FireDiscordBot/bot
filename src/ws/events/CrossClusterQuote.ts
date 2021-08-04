@@ -25,9 +25,7 @@ export default class CrossClusterQuote extends Event {
       debug: boolean;
     }
   ) {
-    this.manager.client.console.info(
-      `[Aether] Received cross cluster quote request from guild ${data.destination.guild_id}`
-    );
+    if (!data.destination) return;
     let { destination } = data;
     const quoteCommand = this.manager.client.getCommand("quote") as Quote;
     if (!quoteCommand) return;

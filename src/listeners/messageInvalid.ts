@@ -128,9 +128,6 @@ export default class MessageInvalid extends Listener {
           message.channel as GuildTextChannel
         );
         if (!webhookURL || typeof webhookURL != "string") continue;
-        this.client.console.info(
-          `[Listener] Sending cross cluster quote request to shard ${shard} to guild ${quote.guild_id}`
-        );
         this.client.manager.ws.send(
           MessageUtil.encode(
             new Message(EventType.CROSS_CLUSTER_QUOTE, {
