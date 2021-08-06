@@ -112,7 +112,7 @@ export default class Message extends Listener {
   async exec(message: FireMessage) {
     if (this.client.manager.id != 0 && !message.guild) return;
 
-    if (message.type == "PINS_ADD")
+    if (message.type == "CHANNEL_PINNED_MESSAGE")
       this.client.emit("channelPinsAdd", message.reference, message.member);
 
     const lowerContent = message.content.toLowerCase().replace(/\s/gim, "");

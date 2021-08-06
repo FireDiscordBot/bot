@@ -46,12 +46,8 @@ export class FireMessage extends Message {
   util?: CommandUtil;
   silent?: boolean;
 
-  constructor(
-    client: Fire,
-    data: RawMessageData,
-    channel: DMChannel | FireTextChannel | NewsChannel
-  ) {
-    super(client, data, channel);
+  constructor(client: Fire, data: RawMessageData) {
+    super(client, data);
     this.silent = false;
     this.content = this.content ?? "";
     if (this.content?.toLowerCase().endsWith(" --silent")) {
@@ -94,6 +90,7 @@ export class FireMessage extends Message {
   }
 
   send(key?: LanguageKeys, args?: TOptions<StringMap>) {
+    if (this.channel.deleted) return;
     return this.channel.send({ content: this.language.get(key, args) });
   }
 
@@ -101,7 +98,7 @@ export class FireMessage extends Message {
     key?: LanguageKeys,
     args?: TOptions<StringMap>
   ): Promise<MessageReaction | Message | void> {
-    if (!key && this.deleted) return;
+    if ((!key && this.deleted) || this.channel.deleted) return;
     return !key
       ? this.react(reactions.success).catch(() => {})
       : this.channel.send({
@@ -113,7 +110,7 @@ export class FireMessage extends Message {
     key?: LanguageKeys,
     args?: TOptions<StringMap>
   ): Promise<MessageReaction | Message | void> {
-    if (!key && this.deleted) return;
+    if ((!key && this.deleted) || this.channel.deleted) return;
     return !key
       ? this.react(reactions.warning).catch(() => {})
       : this.reply({
@@ -126,7 +123,7 @@ export class FireMessage extends Message {
     key?: LanguageKeys,
     args?: TOptions<StringMap>
   ): Promise<MessageReaction | Message | void> {
-    if (!key && this.deleted) return;
+    if ((!key && this.deleted) || this.channel.deleted) return;
     return !key
       ? this.react(reactions.error).catch(() => {})
       : this.reply({
@@ -136,7 +133,11 @@ export class FireMessage extends Message {
   }
 
   react(emoji: EmojiIdentifierResolvable) {
-    if (this.channel instanceof ThreadChannel && this.channel.archived) return;
+    if (
+      (this.channel instanceof ThreadChannel && this.channel.archived) ||
+      this.channel.deleted
+    )
+      return;
     return super.react(emoji);
   }
 

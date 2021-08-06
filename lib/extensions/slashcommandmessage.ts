@@ -470,10 +470,10 @@ export class FakeChannel extends BaseFakeChannel {
   async ack(ephemeral = false) {
     if (ephemeral || (this.flags & 64) != 0) return;
     await this.message.slashCommand
-      .defer({ ephemeral: !!((this.flags & 64) == 64) })
-      .then(() => {
+      .deferReply({ ephemeral: !!((this.flags & 64) == 64), fetchReply: true })
+      .then((real) => {
         this.message.sent = "ack";
-        this.message.getRealMessage().catch(() => {});
+        if (real) this.message.sourceMessage = real as FireMessage; // literally (real)
       })
       .catch(() => (this.message.sent = "ack"));
   }

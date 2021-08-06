@@ -79,11 +79,7 @@ export class ComponentMessage {
       ? (component.message as EphemeralMessage)
       : component.message instanceof FireMessage
       ? component.message
-      : new FireMessage(
-          client,
-          component.message as RawMessageData,
-          this.realChannel
-        );
+      : new FireMessage(client, component.message as RawMessageData);
     if (component.member)
       this.member =
         (this.guild.members.cache.get(
@@ -398,10 +394,10 @@ export class FakeChannel extends BaseFakeChannel {
   // Defer interaction ephemerally
   async defer() {
     await this.message.interaction
-      .defer({ ephemeral: true })
-      .then(() => {
+      .deferReply({ ephemeral: true, fetchReply: true })
+      .then((real) => {
         this.message.sent = "ack";
-        this.message.getRealMessage().catch(() => {});
+        if (real) this.message.sourceMessage = real as FireMessage; // literally (real)
       })
       .catch(() => (this.message.sent = "ack"));
   }

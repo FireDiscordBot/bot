@@ -5,6 +5,7 @@ import { Event } from "@fire/lib/ws/event/Event";
 import { Message } from "@fire/lib/ws/Message";
 import { Manager } from "@fire/lib/Manager";
 import { Snowflake } from "discord.js";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 
 export default class CreateInviteDiscoverableEvent extends Event {
   constructor(manager: Manager) {
@@ -46,7 +47,11 @@ export default class CreateInviteDiscoverableEvent extends Event {
     const invite = await (
       guild.systemChannel ||
       guild.rulesChannel ||
-      guild.guildChannels.cache.first()
+      (guild.guildChannels.cache
+        .filter((channel) => channel.type == "GUILD_TEXT")
+        .first() as FireTextChannel) || {
+        createInvite: async () => {}, // funny noop for when we somehow end up here without a channel
+      }
     )
       .createInvite({
         unique: true,

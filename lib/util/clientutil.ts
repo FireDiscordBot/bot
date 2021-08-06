@@ -1,14 +1,14 @@
 import {
-  GuildTextChannelResolvable,
   version as djsver,
   PermissionString,
+  GuildFeatures,
+  ThreadChannel,
   GuildPreview,
   OAuth2Guild,
   Permissions,
   Collection,
   Snowflake,
   Webhook,
-  ThreadChannel,
 } from "discord.js";
 import {
   GuildMemberCountFilter,
@@ -629,7 +629,7 @@ export class Util extends ClientUtil {
           featureFilters.every((filter) => {
             const requiresFeatures = filter[1].flatMap(
               ([, features]) => features
-            );
+            ) as GuildFeatures[];
             if (!requiresFeatures.length) return true;
             return requiresFeatures.every((feature) =>
               guild.features.includes(feature)
