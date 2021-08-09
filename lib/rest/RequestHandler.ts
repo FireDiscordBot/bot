@@ -4,6 +4,9 @@ import { RateLimitError } from "./RateLimitError";
 import { RESTManager } from "./RESTManager";
 import { APIRequest } from "./APIRequest";
 import * as centra from "centra";
+import { MessageUtil } from "../ws/util/MessageUtil";
+import { Message } from "../ws/Message";
+import { EventType } from "../ws/util/constants";
 
 const {
   Events: { DEBUG, RATE_LIMIT, INVALID_REQUEST_WARNING },
@@ -236,6 +239,19 @@ export class RequestHandler {
           sublimitTimeout = retryAfter;
         }
       }
+
+      request.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.LOG_REQUEST, {
+            path: request.path,
+            status: res.statusCode ?? 500,
+            method: request.method,
+            retries: request.retries,
+            limit: this.limit,
+            remaining: this.remaining,
+          })
+        )
+      );
     }
 
     // Count the invalid requests
@@ -352,6 +368,28 @@ export class RequestHandler {
 
     // Handle 5xx responses
     if (res.statusCode >= 500 && res.statusCode < 600) {
+      if (res.statusCode == 502 || res.statusCode == 503) {
+        request.client.useCanary = false;
+        request.client.sentry.captureEvent({
+          message: `Cluster ${request.client.manager.id} switched to stable API due to ${res.statusCode}`,
+          request: {
+            url:
+              (request.options.versioned === false
+                ? request.client.options.http.api
+                : `${request.client.options.http.api}/v${request.client.options.http.version}`) +
+              request.path,
+            method: request.method,
+            data: request.options?.data ?? res.body.toString(),
+            headers: request.options?.headers,
+          },
+          tags: {
+            reason: request.options?.reason,
+            status: res?.statusCode,
+          },
+          extra: res?.headers,
+        });
+      }
+
       // Retry the specified number of times for possible serverside issues
       if (request.retries === this.manager.client.options.retryLimit) {
         request.client.sentry.captureEvent({

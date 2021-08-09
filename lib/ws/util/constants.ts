@@ -36,7 +36,8 @@ export enum EventType {
   FETCH_DISCORD_EXPERIMENTS,
   DISCOVERY_UPDATE,
   API_REQUEST,
-  ALIAS_SYNC
+  ALIAS_SYNC,
+  LOG_REQUEST,
 }
 
 export enum WebsocketStates {
