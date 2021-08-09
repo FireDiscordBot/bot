@@ -33,6 +33,7 @@ export default class ChannelUpdate extends Listener {
     const muteRole = guild.muteRole;
     if (
       after instanceof GuildChannel &&
+      guild.me.permissionsIn(after).has(Permissions.FLAGS.MANAGE_ROLES) &&
       muteRole &&
       (after.permissionsFor(muteRole).has(Permissions.FLAGS.SEND_MESSAGES) ||
         after.permissionsFor(muteRole).has(Permissions.FLAGS.ADD_REACTIONS))

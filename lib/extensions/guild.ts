@@ -179,6 +179,8 @@ export class FireGuild extends Guild {
     if (!role) return false;
     this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.guildChannels.cache) {
+      if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_ROLES))
+        continue;
       await channel.permissionOverwrites
         .edit(
           role,
@@ -210,6 +212,8 @@ export class FireGuild extends Guild {
     if (!changed) return false;
     this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.guildChannels.cache) {
+      if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_ROLES))
+        continue;
       await channel.permissionOverwrites
         .edit(
           role,
@@ -234,6 +238,8 @@ export class FireGuild extends Guild {
     if (!this.muteRole) return;
     const role = this.muteRole;
     for (const [, channel] of this.guildChannels.cache) {
+      if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_ROLES))
+        continue;
       const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
       if (
         !denied ||
