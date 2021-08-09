@@ -627,7 +627,7 @@ detect-libc@^1.0.3:
 
 discord-akairo@discord-akairo/discord-akairo:
   version "8.1.0"
-  resolved "https://codeload.github.com/discord-akairo/discord-akairo/tar.gz/a14b18f58a260764d9f071e81869f615847cc139"
+  resolved "https://codeload.github.com/discord-akairo/discord-akairo/tar.gz/68e842c5278ce57c7dba90f4e886a6d613782e27"
 
 discord-api-types@^0.18.1:
   version "0.18.1"
@@ -640,8 +640,8 @@ discord-api-types@^0.22.0:
   integrity sha512-l8yD/2zRbZItUQpy7ZxBJwaLX/Bs2TGaCthRppk8Sw24LOIWg12t9JEreezPoYD0SQcC2htNNo27kYEpYW/Srg==
 
 discord.js@FireDiscordBot/discord.js:
-  version "13.0.0"
-  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/919359dd87ee31d99553b298387d938927f42505"
+  version "13.1.0-dev"
+  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/69093861d0c16c02bd1f6dbddf4da497871779c1"
   dependencies:
     "@discordjs/builders" "^0.4.0"
     "@discordjs/collection" "^0.2.1"

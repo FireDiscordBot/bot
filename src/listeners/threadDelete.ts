@@ -19,9 +19,11 @@ export default class ThreadDelete extends Listener {
     if (guild.settings.has("log.action")) {
       const owner = await guild.members.fetch(channel.ownerId).catch(() => {});
       const now = moment();
-      const autoArchiveAt = new Date(
-        +new Date() + channel.autoArchiveDuration * 60000
-      );
+      const autoArchiveDuration =
+        typeof channel.autoArchiveDuration == "string"
+          ? 10080
+          : channel.autoArchiveDuration;
+      const autoArchiveAt = new Date(+new Date() + autoArchiveDuration * 60000);
       const friendlyArchived =
         humanize(moment(autoArchiveAt).diff(now), language.id.split("-")[0]) +
         (now.isBefore(autoArchiveAt)
