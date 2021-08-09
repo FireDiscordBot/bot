@@ -117,7 +117,7 @@ export default class Message extends Listener {
 
     const lowerContent = message.content.toLowerCase().replace(/\s/gim, "");
     if (
-      message.guild.hasExperiment(936071411, 1) &&
+      message.guild?.hasExperiment(936071411, 1) &&
       ((lowerContent.includes("@everyone") &&
         ((lowerContent.includes("nitro") && lowerContent.includes("free")) ||
           lowerContent.includes("cs:go") ||
