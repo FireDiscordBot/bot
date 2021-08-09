@@ -18,6 +18,7 @@ import {
   FeatureFilter,
   Experiments,
 } from "../interfaces/discord";
+import { GuildTextChannel, humanize, titleCase } from "./constants";
 import { Channel, Video } from "@fire/lib/interfaces/youtube";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
@@ -29,7 +30,6 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { Cluster } from "@fire/lib/interfaces/stats";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language, LanguageKeys } from "./language";
-import { GuildTextChannel, humanize, titleCase } from "./constants";
 import { Message } from "@fire/lib/ws/Message";
 import { ClientUtil } from "discord-akairo";
 import { getCommitHash } from "./gitUtils";
@@ -356,6 +356,7 @@ export class Util extends ClientUtil {
   }
 
   async blacklist(user: FireMember | FireUser, reason: string) {
+    if (user.isSuperuser()) return false;
     try {
       if (this.client.util.plonked.includes(user.id))
         await this.updateBlacklist(user, reason);
