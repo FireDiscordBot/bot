@@ -18,21 +18,6 @@ export default class ChannelDelete extends Listener {
       language = guild.language;
 
     if (guild.settings.has("log.action")) {
-      const data = {
-        ...channel,
-        permissionOverwrites: channel.permissionOverwrites.cache.toJSON(),
-        messages: null,
-      };
-      if (channel.hasOwnProperty("messages"))
-        // @ts-ignore
-        data.messages = channel.messages?.cache;
-      delete data.client;
-      delete data.guild;
-      // @ts-ignore
-      delete data._typing;
-      const raw = await this.client.util
-        .haste(JSON.stringify(data, null, 4))
-        .catch(() => {});
       const embed = new MessageEmbed()
         .setColor("#E74C3C")
         .setTimestamp()
@@ -104,7 +89,6 @@ export default class ChannelDelete extends Listener {
           }
         }
       }
-      if (raw) embed.addField(language.get("RAW"), raw);
       await guild.actionLog(embed, "channel_delete").catch(() => {});
     }
   }
