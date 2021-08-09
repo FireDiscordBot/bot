@@ -161,7 +161,12 @@ export class FireMember extends GuildMember {
   }
 
   async dehoist() {
-    if (this.isModerator() || this.changingNick) return;
+    if (
+      this.isModerator() ||
+      this.changingNick ||
+      this.roles.highest.rawPosition > this.guild.me.roles.highest.rawPosition
+    )
+      return;
     if (!this.guild.settings.get<boolean>("mod.autodehoist")) return;
     this.changingNick = true;
     const badName = this.guild.settings.get<string>(
@@ -169,8 +174,8 @@ export class FireMember extends GuildMember {
       `John Doe ${this.user.discriminator}`
     );
     if (!this.hoisted && !this.cancerous && this.nickname == badName)
-      return this.setNickname(
-        null,
+      return this.edit(
+        { nick: null },
         this.guild.language.get("AUTODEHOIST_RESET_REASON")
       )
         .catch(() => false)
@@ -182,8 +187,8 @@ export class FireMember extends GuildMember {
       return;
     }
     if (this.hoisted && !this.user.hoisted && !this.cancerous) {
-      return this.setNickname(
-        null,
+      return this.edit(
+        { nick: null },
         this.guild.language.get("AUTODEHOIST_USERNAME_REASON")
       )
         .catch(() => false)
@@ -195,8 +200,8 @@ export class FireMember extends GuildMember {
       this.changingNick = false;
       return;
     }
-    return await this.setNickname(
-      badName,
+    return await this.edit(
+      { nick: badName },
       this.guild.language.get("AUTODEHOIST_REASON")
     )
       .catch(() => false)
@@ -206,7 +211,12 @@ export class FireMember extends GuildMember {
   }
 
   async decancer() {
-    if (this.isModerator() || this.changingNick) return;
+    if (
+      this.isModerator() ||
+      this.changingNick ||
+      this.roles.highest.rawPosition > this.guild.me.roles.highest.rawPosition
+    )
+      return;
     if (!this.guild.settings.get<boolean>("mod.autodecancer")) return;
     this.changingNick = true;
     let badName = this.guild.settings.get<string>(
@@ -214,8 +224,8 @@ export class FireMember extends GuildMember {
       `John Doe ${this.user.discriminator}`
     );
     if (!this.cancerous && !this.hoisted && this.nickname == badName)
-      return await this.setNickname(
-        null,
+      return this.edit(
+        { nick: null },
         this.guild.language.get("AUTODECANCER_RESET_REASON")
       )
         .catch(() => false)
@@ -227,8 +237,8 @@ export class FireMember extends GuildMember {
       return;
     }
     if (this.cancerous && !this.user.cancerous && !this.hoisted) {
-      return await this.setNickname(
-        null,
+      return this.edit(
+        { nick: null },
         this.guild.language.get("AUTODECANCER_USERNAME_REASON")
       )
         .catch(() => false)
@@ -247,8 +257,8 @@ export class FireMember extends GuildMember {
       sanitized != "gibberish"
     )
       badName = sanitized;
-    return await this.setNickname(
-      badName,
+    return await this.edit(
+      { nick: badName },
       this.guild.language.get("AUTODECANCER_REASON")
     )
       .catch(() => false)
