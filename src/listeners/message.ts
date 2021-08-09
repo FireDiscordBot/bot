@@ -117,13 +117,19 @@ export default class Message extends Listener {
 
     const lowerContent = message.content.toLowerCase().replace(/\s/gim, "");
     if (
-      message.guild?.id == "411619823445999637" &&
-      (lowerContent.includes(".ru") ||
-        lowerContent.includes("cs:go") ||
-        lowerContent.includes("tradeoffer") ||
-        (lowerContent.includes("nitro") && lowerContent.includes("free"))) &&
-      lowerContent.includes("@everyone")
-    )
+      message.guild.hasExperiment(936071411, 1) &&
+      ((lowerContent.includes("@everyone") &&
+        ((lowerContent.includes("nitro") && lowerContent.includes("free")) ||
+          lowerContent.includes("cs:go") ||
+          lowerContent.includes("tradeoffer") ||
+          lowerContent.includes("partner"))) ||
+        (lowerContent.includes(".ru") &&
+          (lowerContent.includes("tradeoffer") ||
+            lowerContent.includes("partner") ||
+            lowerContent.includes("cs:go"))))
+    ) {
+      if (process.env.NODE_ENV == "development")
+        return await message.reply("triggered steam/nitro phishing detection");
       return await message.member?.bean(
         "Phishing links",
         message.guild.me,
@@ -131,6 +137,7 @@ export default class Message extends Listener {
         7,
         message.channel as FireTextChannel
       );
+    }
 
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
     // These won't run if the modules aren't loaded
