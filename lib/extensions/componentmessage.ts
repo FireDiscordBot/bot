@@ -392,12 +392,13 @@ export class FakeChannel extends BaseFakeChannel {
   }
 
   // Defer interaction ephemerally
-  async defer() {
+  async defer(ephemeral: boolean = false) {
     await this.message.interaction
-      .deferReply({ ephemeral: true, fetchReply: true })
-      .then((real) => {
+      .deferReply({ ephemeral, fetchReply: !ephemeral })
+      // @ts-ignore
+      .then((real: FireMessage) => {
         this.message.sent = "ack";
-        if (real) this.message.sourceMessage = real as FireMessage; // literally (real)
+        if (real) this.message.sourceMessage = real; // literally (real)
       })
       .catch(() => (this.message.sent = "ack"));
   }

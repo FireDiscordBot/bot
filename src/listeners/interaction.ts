@@ -91,7 +91,7 @@ export default class InteractionListener extends Listener {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(button.channelId).catch(() => {});
       const message = new ComponentMessage(this.client, button);
-      if (message.customId.startsWith("?")) await message.channel.defer();
+      if (message.customId.startsWith("?")) await message.channel.defer(true);
       if (
         !message.customId.startsWith("!") &&
         !message.customId.startsWith("?")
