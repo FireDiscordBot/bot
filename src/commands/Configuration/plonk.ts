@@ -91,7 +91,6 @@ export default class Plonk extends Command {
                 ? `${message.guild} (${message.guild.id})`
                 : "N/A",
               shard: message.guild ? message.guild.shardId : 0,
-              cluster: this.client.manager.id,
               action: `${args.user} (${args.user.id}) was unblacklisted`,
             })
           )
@@ -108,7 +107,6 @@ export default class Plonk extends Command {
                 ? `${message.guild} (${message.guild.id})`
                 : "N/A",
               shard: message.guild ? message.guild.shardId : 0,
-              cluster: this.client.manager.id,
               action: `${args.user} (${args.user.id}) was blacklisted`,
             })
           )

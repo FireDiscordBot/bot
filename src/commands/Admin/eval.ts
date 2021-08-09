@@ -145,7 +145,6 @@ export default class Eval extends Command {
               ? `${message.guild} (${message.guild.id})`
               : "N/A",
             shard: message.guild ? message.guild.shardId : 0,
-            cluster: this.client.manager.id,
             action: `Eval Command Ran. Input: ${input} | Output: ${output}`,
           })
         )
