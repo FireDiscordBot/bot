@@ -14,6 +14,7 @@ import {
   Snowflake,
   Webhook,
   Message,
+  GuildChannel,
 } from "discord.js";
 import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
 import { constants, GuildTextChannel } from "@fire/lib/util/constants";
@@ -289,6 +290,16 @@ export class FireMessage extends Message {
       content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
       const filters = this.client.getModule("filters") as Filters;
       content = await filters.runReplace(content, quoter);
+      for (const [, user] of this.mentions.users)
+        content = content.replace((user as FireUser).toMention(), `@${user}`);
+      for (const [, role] of this.mentions.roles)
+        content = content.replace(
+          role.toString(),
+          `@${role.name ?? "Unknown Role"}`
+        );
+      for (const [, channel] of this.mentions.channels)
+        if (channel instanceof GuildChannel)
+          content = content.replace(channel.toString(), `#${channel.name}`);
       if (content.length > 2000) return "QUOTE_PREMIUM_INCREASED_LENGTH";
     }
     let attachments: { attachment: Buffer; name: string }[] = [];
