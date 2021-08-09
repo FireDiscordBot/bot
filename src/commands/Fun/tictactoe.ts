@@ -194,7 +194,7 @@ export default class TicTacToe extends Command {
     for (const button of Object.values(gameData.buttons))
       this.client.buttonHandlers.set(button.customId, handler);
     this.client.buttonHandlers.set(`${gameId}:forfeit`, async (button) => {
-      if (button.ephemeral) return;
+      if (button.ephemeralSource) return;
       let buttonMessage = button.message as FireMessage;
       const game = this.games.get(gameId);
       if (!(button.author.id in game.players))
@@ -329,7 +329,7 @@ export default class TicTacToe extends Command {
 
   private getGameHandler(gameId: string) {
     return async (button: ComponentMessage) => {
-      if (button.ephemeral) return;
+      if (button.ephemeralSource) return;
       const buttonMessage = button.message as FireMessage;
       const game = this.games.get(gameId);
       if (!game || button.author.id != game.current)

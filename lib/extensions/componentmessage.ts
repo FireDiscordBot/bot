@@ -47,7 +47,7 @@ export class ComponentMessage {
   latestResponse: Snowflake;
   private _flags: number;
   channel: FakeChannel;
-  ephemeral: boolean;
+  ephemeralSource: boolean;
   member: FireMember;
   language: Language;
   customId: string;
@@ -72,10 +72,10 @@ export class ComponentMessage {
       | FireTextChannel
       | NewsChannel
       | DMChannel;
-    this.ephemeral = component.message.flags
+    this.ephemeralSource = component.message.flags
       ? (component.message.flags.valueOf() & 64) != 0
       : false;
-    this.message = this.ephemeral
+    this.message = this.ephemeralSource
       ? (component.message as EphemeralMessage)
       : component.message instanceof FireMessage
       ? component.message
@@ -126,6 +126,10 @@ export class ComponentMessage {
 
   get flags() {
     return this._flags;
+  }
+
+  get ephemeral() {
+    return (this.flags & (1 << 6)) == 1 << 6;
   }
 
   get editedAt() {
@@ -226,7 +230,7 @@ export class ComponentMessage {
   }
 
   async getRealMessage() {
-    if (!this.realChannel || this.ephemeral) return;
+    if (!this.realChannel || this.ephemeralSource || this.ephemeral) return;
     if (this.sourceMessage instanceof FireMessage) return this.sourceMessage;
 
     let messageId = this.latestResponse;
@@ -237,6 +241,7 @@ export class ComponentMessage {
         .get<APIMessage>()
         .catch(() => {});
       if (message) messageId = message.id;
+      else return;
     }
 
     const message = (await this.realChannel.messages
@@ -280,7 +285,7 @@ export class ComponentMessage {
   }
 
   async delete(id?: string) {
-    if (this.ephemeral) return;
+    if (this.ephemeralSource) return;
     await this.client.req
       .webhooks(this.client.user.id, this.interaction.token)
       .messages(id ?? this.latestResponse ?? "@original")

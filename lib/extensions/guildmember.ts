@@ -164,10 +164,12 @@ export class FireMember extends GuildMember {
     if (
       this.isModerator() ||
       this.changingNick ||
-      this.roles.highest.rawPosition > this.guild.me.roles.highest.rawPosition
+      this.roles.highest.rawPosition >
+        this.guild.me.roles.highest.rawPosition ||
+      !this.guild.settings.get<boolean>("mod.autodehoist") ||
+      !this.guild.me.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)
     )
       return;
-    if (!this.guild.settings.get<boolean>("mod.autodehoist")) return;
     this.changingNick = true;
     const badName = this.guild.settings.get<string>(
       "utils.badname",
@@ -214,10 +216,12 @@ export class FireMember extends GuildMember {
     if (
       this.isModerator() ||
       this.changingNick ||
-      this.roles.highest.rawPosition > this.guild.me.roles.highest.rawPosition
+      this.roles.highest.rawPosition >
+        this.guild.me.roles.highest.rawPosition ||
+      !this.guild.settings.get<boolean>("mod.autodecancer") ||
+      !this.guild.me.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)
     )
       return;
-    if (!this.guild.settings.get<boolean>("mod.autodecancer")) return;
     this.changingNick = true;
     let badName = this.guild.settings.get<string>(
       "utils.badname",

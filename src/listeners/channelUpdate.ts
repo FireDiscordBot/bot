@@ -33,10 +33,23 @@ export default class ChannelUpdate extends Listener {
     const muteRole = guild.muteRole;
     if (
       after instanceof GuildChannel &&
-      guild.me.permissionsIn(after).has(Permissions.FLAGS.MANAGE_ROLES) &&
+      guild.me
+        .permissionsIn(after)
+        .has(
+          (after.isVoice()
+            ? Permissions.FLAGS.CONNECT
+            : Permissions.FLAGS.VIEW_CHANNEL) | Permissions.FLAGS.MANAGE_ROLES
+        ) &&
       muteRole &&
-      (after.permissionsFor(muteRole).has(Permissions.FLAGS.SEND_MESSAGES) ||
-        after.permissionsFor(muteRole).has(Permissions.FLAGS.ADD_REACTIONS))
+      (after
+        .permissionsFor(muteRole)
+        .has(Permissions.FLAGS.USE_PRIVATE_THREADS) ||
+        after
+          .permissionsFor(muteRole)
+          .has(Permissions.FLAGS.USE_PUBLIC_THREADS) ||
+        after.permissionsFor(muteRole).has(Permissions.FLAGS.SEND_MESSAGES) ||
+        after.permissionsFor(muteRole).has(Permissions.FLAGS.ADD_REACTIONS) ||
+        after.permissionsFor(muteRole).has(Permissions.FLAGS.SPEAK))
     )
       await after.permissionOverwrites
         .edit(

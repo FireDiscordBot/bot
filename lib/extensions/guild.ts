@@ -179,57 +179,97 @@ export class FireGuild extends Guild {
     if (!role) return false;
     this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.guildChannels.cache) {
-      if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_ROLES))
+      if (
+        !this.me
+          .permissionsIn(channel)
+          .has(
+            (channel.isVoice()
+              ? Permissions.FLAGS.CONNECT
+              : Permissions.FLAGS.VIEW_CHANNEL) | Permissions.FLAGS.MANAGE_ROLES
+          )
+      )
         continue;
-      await channel.permissionOverwrites
-        .edit(
-          role,
-          {
-            USE_PRIVATE_THREADS: false,
-            USE_PUBLIC_THREADS: false,
-            SEND_MESSAGES: false,
-            ADD_REACTIONS: false,
-            SPEAK: false,
-          },
-          {
-            reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
-            type: 0,
-          }
-        )
-        .catch(() => {});
+      const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
+      if (
+        !denied ||
+        !denied.has(Permissions.FLAGS.USE_PRIVATE_THREADS) ||
+        !denied.has(Permissions.FLAGS.USE_PUBLIC_THREADS) ||
+        !denied.has(Permissions.FLAGS.SEND_MESSAGES) ||
+        !denied.has(Permissions.FLAGS.ADD_REACTIONS) ||
+        !denied.has(Permissions.FLAGS.SPEAK)
+      )
+        await channel.permissionOverwrites
+          .edit(
+            role,
+            {
+              USE_PRIVATE_THREADS: false,
+              USE_PUBLIC_THREADS: false,
+              SEND_MESSAGES: false,
+              ADD_REACTIONS: false,
+              SPEAK: false,
+            },
+            {
+              reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
+              type: 0,
+            }
+          )
+          .catch(() => {});
     }
     return role;
   }
 
   async changeMuteRole(role: Role) {
     if (!this.available) return;
-    const changed = await role
-      .edit({
-        position: this.me.roles.highest.rawPosition - 2,
-        permissions: [],
-      })
-      .catch(() => {});
-    if (!changed) return false;
+    let changed: Role | void = role;
+    if (
+      role.rawPosition != this.me.roles.highest.rawPosition - 2 ||
+      role.permissions.bitfield != 0n
+    ) {
+      changed = await role
+        .edit({
+          position: this.me.roles.highest.rawPosition - 2,
+          permissions: [],
+        })
+        .catch(() => {});
+      if (!changed) return false;
+    }
     this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.guildChannels.cache) {
-      if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_ROLES))
+      if (
+        !this.me
+          .permissionsIn(channel)
+          .has(
+            (channel.isVoice()
+              ? Permissions.FLAGS.CONNECT
+              : Permissions.FLAGS.VIEW_CHANNEL) | Permissions.FLAGS.MANAGE_ROLES
+          )
+      )
         continue;
-      await channel.permissionOverwrites
-        .edit(
-          role,
-          {
-            USE_PRIVATE_THREADS: false,
-            USE_PUBLIC_THREADS: false,
-            SEND_MESSAGES: false,
-            ADD_REACTIONS: false,
-            SPEAK: false,
-          },
-          {
-            reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
-            type: 0,
-          }
-        )
-        .catch(() => {});
+      const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
+      if (
+        !denied ||
+        !denied.has(Permissions.FLAGS.USE_PRIVATE_THREADS) ||
+        !denied.has(Permissions.FLAGS.USE_PUBLIC_THREADS) ||
+        !denied.has(Permissions.FLAGS.SEND_MESSAGES) ||
+        !denied.has(Permissions.FLAGS.ADD_REACTIONS) ||
+        !denied.has(Permissions.FLAGS.SPEAK)
+      )
+        await channel.permissionOverwrites
+          .edit(
+            role,
+            {
+              USE_PRIVATE_THREADS: false,
+              USE_PUBLIC_THREADS: false,
+              SEND_MESSAGES: false,
+              ADD_REACTIONS: false,
+              SPEAK: false,
+            },
+            {
+              reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
+              type: 0,
+            }
+          )
+          .catch(() => (changed = void 0));
     }
     return changed;
   }
@@ -238,7 +278,15 @@ export class FireGuild extends Guild {
     if (!this.muteRole) return;
     const role = this.muteRole;
     for (const [, channel] of this.guildChannels.cache) {
-      if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_ROLES))
+      if (
+        !this.me
+          .permissionsIn(channel)
+          .has(
+            (channel.isVoice()
+              ? Permissions.FLAGS.CONNECT
+              : Permissions.FLAGS.VIEW_CHANNEL) | Permissions.FLAGS.MANAGE_ROLES
+          )
+      )
         continue;
       const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
       if (
@@ -570,7 +618,12 @@ export class FireGuild extends Guild {
 
   async loadInvites() {
     this.inviteUses = new Collection();
-    if (!this.premium || !this.available) return;
+    if (
+      !this.premium ||
+      !this.available ||
+      !this.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
+    )
+      return;
     const invites = await this.invites.fetch({ cache: false }).catch(() => {});
     if (!invites) return this.inviteUses;
     for (const [code, invite] of invites)

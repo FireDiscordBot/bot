@@ -31,7 +31,7 @@ export default class Select extends Listener {
     if (select.type != "SELECT_MENU") return;
 
     let message: FireMessage;
-    if (!select.ephemeral) message = select.message as FireMessage;
+    if (!select.ephemeralSource) message = select.message as FireMessage;
 
     const guild = message?.guild;
 

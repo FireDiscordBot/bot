@@ -4,6 +4,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { parseTime } from "@fire/lib/util/constants";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 export default class Mute extends Command {
   constructor() {
@@ -25,6 +26,15 @@ export default class Mute extends Command {
           default: null,
           match: "rest",
         },
+      ],
+      clientPermissions: [
+        Permissions.FLAGS.USE_PRIVATE_THREADS,
+        Permissions.FLAGS.USE_PUBLIC_THREADS,
+        Permissions.FLAGS.MANAGE_CHANNELS,
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.ADD_REACTIONS,
+        Permissions.FLAGS.MANAGE_ROLES,
+        Permissions.FLAGS.SPEAK,
       ],
       aliases: ["silence", "tempmute", "403"],
       restrictTo: "guild",

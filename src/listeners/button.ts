@@ -59,7 +59,7 @@ export default class Button extends Listener {
       return await button.delete(button.interaction.message.id).catch(() => {});
 
     let message: FireMessage;
-    if (!button.ephemeral) message = button.message as FireMessage;
+    if (!button.ephemeralSource) message = button.message as FireMessage;
 
     // Run handlers
     try {
@@ -215,7 +215,7 @@ export default class Button extends Listener {
       let cancelled = false;
       const cancelSnowflake = SnowflakeUtil.generate();
       this.client.buttonHandlersOnce.set(cancelSnowflake, () => {
-        if (button.ephemeral) return;
+        if (button.ephemeralSource) return;
         cancelled = true;
         const cancelledEmbed = new MessageEmbed()
           .setAuthor(
@@ -263,7 +263,7 @@ export default class Button extends Listener {
       if (cancelled || !newContent || !newContent.first()?.content) return;
       this.client.buttonHandlersOnce.delete(cancelSnowflake);
 
-      if (!button.ephemeral && !cancelled) {
+      if (!button.ephemeralSource && !cancelled) {
         const editingEmbed = new MessageEmbed()
           .setAuthor(
             button.guild.name,

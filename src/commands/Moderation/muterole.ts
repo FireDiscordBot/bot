@@ -1,7 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Role } from "discord.js";
+import { Permissions, Role } from "discord.js";
 
 export default class MuteRole extends Command {
   constructor() {
@@ -16,6 +16,15 @@ export default class MuteRole extends Command {
           required: true,
         },
       ],
+      clientPermissions: [
+        Permissions.FLAGS.USE_PRIVATE_THREADS,
+        Permissions.FLAGS.USE_PUBLIC_THREADS,
+        Permissions.FLAGS.MANAGE_CHANNELS,
+        Permissions.FLAGS.SEND_MESSAGES,
+        Permissions.FLAGS.ADD_REACTIONS,
+        Permissions.FLAGS.MANAGE_ROLES,
+        Permissions.FLAGS.SPEAK,
+      ],
       enableSlashCommand: true,
       moderatorOnly: true,
       restrictTo: "guild",
@@ -26,9 +35,9 @@ export default class MuteRole extends Command {
   async exec(message: FireMessage, args: { role: Role }) {
     if (!args.role) return;
     const settingUp = await message.send("MUTE_ROLE_CREATE_REASON");
-    const changed = await message.guild
-      .changeMuteRole(args.role)
-      .catch(() => {});
+    const changed = await message.guild.changeMuteRole(args.role).catch((e) => {
+      this.client.console.error(e.stack);
+    });
     settingUp.delete();
     return changed ? await message.success() : await message.error();
   }

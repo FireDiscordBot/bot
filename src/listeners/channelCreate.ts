@@ -20,7 +20,13 @@ export default class ChannelCreate extends Listener {
     let muteFail = false;
     if (
       muteRole &&
-      guild.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_ROLES)
+      guild.me
+        .permissionsIn(channel)
+        .has(
+          (channel.isVoice()
+            ? Permissions.FLAGS.CONNECT
+            : Permissions.FLAGS.VIEW_CHANNEL) | Permissions.FLAGS.MANAGE_ROLES
+        )
     )
       await channel.permissionOverwrites
         .edit(
