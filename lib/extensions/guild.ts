@@ -1,5 +1,6 @@
 import {
   PermissionOverwriteOptions,
+  PermissionResolvable,
   MessageEmbedOptions,
   FetchOwnerOptions,
   MessageAttachment,
@@ -161,6 +162,13 @@ export class FireGuild extends Guild {
   async initMuteRole() {
     if (!this.available) return;
     if (this.muteRole) return this.muteRole;
+    const muteCommand = this.client.getCommand("mute");
+    if (
+      this.me.permissions.missing(
+        muteCommand.clientPermissions as PermissionResolvable[]
+      ).length
+    )
+      return;
     const role = await this.roles
       .create({
         position: this.me.roles.highest.rawPosition - 2, // -1 seems to fail a lot more than -2 so just do -2 to be safe
@@ -194,6 +202,7 @@ export class FireGuild extends Guild {
         !denied ||
         !denied.has(Permissions.FLAGS.USE_PRIVATE_THREADS) ||
         !denied.has(Permissions.FLAGS.USE_PUBLIC_THREADS) ||
+        !denied.has(Permissions.FLAGS.REQUEST_TO_SPEAK) ||
         !denied.has(Permissions.FLAGS.SEND_MESSAGES) ||
         !denied.has(Permissions.FLAGS.ADD_REACTIONS) ||
         !denied.has(Permissions.FLAGS.SPEAK)
@@ -204,6 +213,7 @@ export class FireGuild extends Guild {
             {
               USE_PRIVATE_THREADS: false,
               USE_PUBLIC_THREADS: false,
+              REQUEST_TO_SPEAK: false,
               SEND_MESSAGES: false,
               ADD_REACTIONS: false,
               SPEAK: false,
@@ -221,6 +231,13 @@ export class FireGuild extends Guild {
   async changeMuteRole(role: Role) {
     if (!this.available) return;
     let changed: Role | void = role;
+    const muteCommand = this.client.getCommand("mute");
+    if (
+      this.me.permissions.missing(
+        muteCommand.clientPermissions as PermissionResolvable[]
+      ).length
+    )
+      return;
     if (
       role.rawPosition != this.me.roles.highest.rawPosition - 2 ||
       role.permissions.bitfield != 0n
@@ -250,6 +267,7 @@ export class FireGuild extends Guild {
         !denied ||
         !denied.has(Permissions.FLAGS.USE_PRIVATE_THREADS) ||
         !denied.has(Permissions.FLAGS.USE_PUBLIC_THREADS) ||
+        !denied.has(Permissions.FLAGS.REQUEST_TO_SPEAK) ||
         !denied.has(Permissions.FLAGS.SEND_MESSAGES) ||
         !denied.has(Permissions.FLAGS.ADD_REACTIONS) ||
         !denied.has(Permissions.FLAGS.SPEAK)
@@ -260,6 +278,7 @@ export class FireGuild extends Guild {
             {
               USE_PRIVATE_THREADS: false,
               USE_PUBLIC_THREADS: false,
+              REQUEST_TO_SPEAK: false,
               SEND_MESSAGES: false,
               ADD_REACTIONS: false,
               SPEAK: false,
@@ -276,6 +295,13 @@ export class FireGuild extends Guild {
 
   async syncMuteRolePermissions() {
     if (!this.muteRole) return;
+    const muteCommand = this.client.getCommand("mute");
+    if (
+      this.me.permissions.missing(
+        muteCommand.clientPermissions as PermissionResolvable[]
+      ).length
+    )
+      return;
     const role = this.muteRole;
     for (const [, channel] of this.guildChannels.cache) {
       if (
@@ -293,6 +319,7 @@ export class FireGuild extends Guild {
         !denied ||
         !denied.has(Permissions.FLAGS.USE_PRIVATE_THREADS) ||
         !denied.has(Permissions.FLAGS.USE_PUBLIC_THREADS) ||
+        !denied.has(Permissions.FLAGS.REQUEST_TO_SPEAK) ||
         !denied.has(Permissions.FLAGS.SEND_MESSAGES) ||
         !denied.has(Permissions.FLAGS.ADD_REACTIONS) ||
         !denied.has(Permissions.FLAGS.SPEAK)
@@ -303,6 +330,7 @@ export class FireGuild extends Guild {
             {
               USE_PRIVATE_THREADS: false,
               USE_PUBLIC_THREADS: false,
+              REQUEST_TO_SPEAK: false,
               SEND_MESSAGES: false,
               ADD_REACTIONS: false,
               SPEAK: false,

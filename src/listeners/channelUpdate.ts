@@ -1,4 +1,5 @@
 import {
+  PermissionResolvable,
   ThreadChannel,
   MessageEmbed,
   GuildChannel,
@@ -31,22 +32,23 @@ export default class ChannelUpdate extends Listener {
 
     const guild = after.guild as FireGuild;
     const muteRole = guild.muteRole;
+    const muteCommand = this.client.getCommand("mute");
     if (
       after instanceof GuildChannel &&
-      guild.me
-        .permissionsIn(after)
-        .has(
-          (after.isVoice()
-            ? Permissions.FLAGS.CONNECT
-            : Permissions.FLAGS.VIEW_CHANNEL) | Permissions.FLAGS.MANAGE_ROLES
-        ) &&
       muteRole &&
+      !guild.me
+        .permissionsIn(after)
+        .missing(muteCommand.clientPermissions as PermissionResolvable[])
+        .length &&
       (after
         .permissionsFor(muteRole)
         .has(Permissions.FLAGS.USE_PRIVATE_THREADS) ||
         after
           .permissionsFor(muteRole)
           .has(Permissions.FLAGS.USE_PUBLIC_THREADS) ||
+        after
+          .permissionsFor(muteRole)
+          .has(Permissions.FLAGS.REQUEST_TO_SPEAK) ||
         after.permissionsFor(muteRole).has(Permissions.FLAGS.SEND_MESSAGES) ||
         after.permissionsFor(muteRole).has(Permissions.FLAGS.ADD_REACTIONS) ||
         after.permissionsFor(muteRole).has(Permissions.FLAGS.SPEAK))
@@ -57,6 +59,7 @@ export default class ChannelUpdate extends Listener {
           {
             USE_PRIVATE_THREADS: false,
             USE_PUBLIC_THREADS: false,
+            REQUEST_TO_SPEAK: false,
             SEND_MESSAGES: false,
             ADD_REACTIONS: false,
             SPEAK: false,

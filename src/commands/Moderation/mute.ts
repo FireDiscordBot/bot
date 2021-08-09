@@ -30,6 +30,7 @@ export default class Mute extends Command {
       clientPermissions: [
         Permissions.FLAGS.USE_PRIVATE_THREADS,
         Permissions.FLAGS.USE_PUBLIC_THREADS,
+        Permissions.FLAGS.REQUEST_TO_SPEAK,
         Permissions.FLAGS.MANAGE_CHANNELS,
         Permissions.FLAGS.SEND_MESSAGES,
         Permissions.FLAGS.ADD_REACTIONS,

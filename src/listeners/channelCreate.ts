@@ -1,4 +1,10 @@
-import { GuildChannel, MessageEmbed, Permissions, DMChannel } from "discord.js";
+import {
+  PermissionResolvable,
+  GuildChannel,
+  MessageEmbed,
+  Permissions,
+  DMChannel,
+} from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { humanize, titleCase } from "@fire/lib/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -18,15 +24,12 @@ export default class ChannelCreate extends Listener {
       language = guild.language;
     const muteRole = guild.muteRole;
     let muteFail = false;
+    const muteCommand = this.client.getCommand("mute");
     if (
       muteRole &&
-      guild.me
+      !guild.me
         .permissionsIn(channel)
-        .has(
-          (channel.isVoice()
-            ? Permissions.FLAGS.CONNECT
-            : Permissions.FLAGS.VIEW_CHANNEL) | Permissions.FLAGS.MANAGE_ROLES
-        )
+        .missing(muteCommand.clientPermissions as PermissionResolvable[]).length
     )
       await channel.permissionOverwrites
         .edit(
@@ -34,6 +37,7 @@ export default class ChannelCreate extends Listener {
           {
             USE_PRIVATE_THREADS: false,
             USE_PUBLIC_THREADS: false,
+            REQUEST_TO_SPEAK: false,
             SEND_MESSAGES: false,
             ADD_REACTIONS: false,
             SPEAK: false,
