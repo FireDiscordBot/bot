@@ -294,13 +294,11 @@ export class Util extends ClientUtil {
       name = this.bitToPermissionString(permission);
     else if (typeof permission == "string") name = permission;
     if (!name) return null;
-    return (
-      (language ?? this.client.getLanguage("en-US")).get(
-        `PERMISSIONS.${name}` as LanguageKeys
-      ) ??
-      titleCase(
-        name.toLowerCase().replace(/_/gim, " ").replace(/guild/gim, "server")
-      )
+    language = language ?? this.client.getLanguage("en-US");
+    if (language.has(`PERMISSIONS.${name}` as LanguageKeys))
+      return language.get(`PERMISSIONS.${name}` as LanguageKeys);
+    return titleCase(
+      name.toLowerCase().replace(/_/gim, " ").replace(/guild/, "server")
     );
   }
 

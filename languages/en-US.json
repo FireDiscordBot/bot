@@ -178,7 +178,13 @@
     "MANAGE_ROLES": "Manage Roles",
     "MANAGE_WEBHOOKS": "Manage Webhooks",
     "MANAGE_EMOJIS": "Manage Emojis",
-    "MANAGE_EMOJIS_AND_STICKERS": "Manage Emojis & Stickers"
+    "MANAGE_EMOJIS_AND_STICKERS": "Manage Emojis & Stickers",
+    "USE_APPLICATION_COMMANDS": "Use Slash Commands",
+    "REQUEST_TO_SPEAK": "Request to Speak",
+    "MANAGE_THREADS": "Manage Threads",
+    "USE_PRIVATE_THREADS": "Use Private Threads",
+    "USE_PUBLIC_THREADS": "Use Public Threads",
+    "USE_EXTERNAL_STICKERS": "Use External Stickers"
   },
   "ACTIVITY_TYPES": {
     "1": "Join",
