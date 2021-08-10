@@ -42,7 +42,7 @@ export default class Remind extends Command {
       ],
       aliases: ["remindme", "reminder"],
       enableSlashCommand: true,
-      context: ["Remind Me"],
+      context: ["remind me"],
       restrictTo: "all",
       ephemeral: true,
     });
