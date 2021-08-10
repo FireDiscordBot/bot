@@ -11,7 +11,6 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
-import { transpile } from "typescript";
 import { Type } from "@klasa/type";
 import { inspect } from "util";
 
@@ -122,8 +121,6 @@ export default class Eval extends Command {
         )
       );
     }
-    if (args.code.language == "ts")
-      args.code.content = transpile(args.code.content);
     const { success, result, type } = await this.eval(message, args);
     success
       ? await message.success()?.catch(() => {})
