@@ -478,8 +478,9 @@ export default class User extends Command {
 
     if (this.client.guilds.cache.has(snowflake.snowflake)) {
       const guild = this.client.guilds.cache.get(snowflake.snowflake);
+      const member = await guild.members.fetch(message.author).catch(() => {});
       info.push(
-        guild.members.cache.has(message.author.id)
+        !!member
           ? message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
               type: message.language.get("GUILD"),
               extra: guild.name,
@@ -640,16 +641,19 @@ export default class User extends Command {
       );
     }
 
-    const maybeGuild = await this.client.req
-      .guilds(snowflake.snowflake)
-      .channels.get()
-      .catch((e) => e instanceof DiscordAPIError && e.code == 50001);
-    if (maybeGuild) {
-      info.push(
-        message.language.get("USER_SNOWFLAKE_BELONGS_TO", {
-          type: message.language.get("GUILD"),
-        })
-      );
+    let maybeGuild: unknown;
+    if (!this.client.guilds.cache.has(snowflake.snowflake)) {
+      maybeGuild = await this.client.req
+        .guilds(snowflake.snowflake)
+        .channels.get()
+        .catch((e) => e instanceof DiscordAPIError && e.code == 50001);
+      if (maybeGuild) {
+        info.push(
+          message.language.get("USER_SNOWFLAKE_BELONGS_TO", {
+            type: message.language.get("GUILD"),
+          })
+        );
+      }
     }
 
     const embed = new MessageEmbed()
