@@ -368,10 +368,36 @@ export class RequestHandler {
 
     // Handle 5xx responses
     if (res.statusCode >= 500 && res.statusCode < 600) {
-      if (res.statusCode == 502 || res.statusCode == 503) {
+      if (
+        request.client.useCanary &&
+        (res.statusCode == 502 || res.statusCode == 503)
+      ) {
         request.client.useCanary = false;
         request.client.sentry.captureEvent({
           message: `Cluster ${request.client.manager.id} switched to stable API due to ${res.statusCode}`,
+          request: {
+            url:
+              (request.options.versioned === false
+                ? request.client.options.http.api
+                : `${request.client.options.http.api}/v${request.client.options.http.version}`) +
+              request.path,
+            method: request.method,
+            data: request.options?.data ?? res.body.toString(),
+            headers: request.options?.headers,
+          },
+          tags: {
+            reason: request.options?.reason,
+            status: res?.statusCode,
+          },
+          extra: res?.headers,
+        });
+      } else if (
+        !request.client.useCanary &&
+        (res.statusCode == 502 || res.statusCode == 503)
+      ) {
+        request.client.useCanary = true;
+        request.client.sentry.captureEvent({
+          message: `Cluster ${request.client.manager.id} switched to canary API due to ${res.statusCode}`,
           request: {
             url:
               (request.options.versioned === false
