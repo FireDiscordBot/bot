@@ -196,6 +196,33 @@ export default class Button extends Listener {
         embeds: [embed],
         components,
       });
+    } else if (button.customId.startsWith(`rank:`)) {
+      const roleId = button.customId.slice(5) as Snowflake;
+      const role = button.guild?.roles.cache.get(roleId);
+      if (!role || !button.guild || !button.member) return;
+      const ranks = button.guild.settings
+        .get<Snowflake[]>("utils.ranks", [])
+        .filter((id) => button.guild.roles.cache.has(id));
+      if (!ranks.includes(roleId))
+        return await button.error("RANKS_MENU_INVALID_ROLE");
+      const shouldRemove = button.member.roles.cache.has(roleId);
+      if (shouldRemove) {
+        const removed = (await button.member.roles
+          .remove(role, button.guild.language.get("RANKS_LEAVE_REASON"))
+          .catch(() => button.member)) as FireMember;
+        if (!removed)
+          return await button.error("COMMAND_ERROR_GENERIC", { id: "rank" });
+        else
+          return await button.success("RANKS_LEFT_RANK", { role: role.name });
+      } else {
+        const added = (await button.member.roles
+          .add(role, button.guild.language.get("RANKS_JOIN_REASON"))
+          .catch(() => button.member)) as FireMember;
+        if (!added)
+          return await button.error("COMMAND_ERROR_GENERIC", { id: "rank" });
+        else
+          return await button.success("RANKS_JOIN_RANK", { role: role.name });
+      }
     }
 
     if (button.customId.startsWith("tag_edit:") && button.guild) {
