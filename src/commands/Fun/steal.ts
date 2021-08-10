@@ -73,11 +73,11 @@ export default class Steal extends Command {
   }
 
   async getFormat(url: string) {
-    const emojiReq = await centra(`${url}.gif`)
+    const emojiReq = await centra(`${url}`, "HEAD")
       .header("User-Agent", this.client.manager.ua)
       .send();
-    if (emojiReq.statusCode == 415) return ".png";
-    else if ([200, 304].includes(emojiReq.statusCode)) return ".gif";
-    else return false;
+    const contentType = emojiReq.headers["content-type"];
+    if (!contentType || !contentType.includes("image/")) return null;
+    else return contentType.split("/")[1];
   }
 }

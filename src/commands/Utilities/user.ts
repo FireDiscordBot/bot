@@ -23,6 +23,7 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Ban } from "@aero/ksoft";
 import * as moment from "moment";
+import * as centra from "centra";
 
 const {
   emojis,
@@ -499,14 +500,25 @@ export default class User extends Command {
         })
       );
 
-    // maybe fetch emoji? a HEAD request might work
-    // if (this.client.emojis.cache.has(snowflake.snowflake))
-    //   info.push(
-    //     message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
-    //       type: message.language.get("EMOJI"),
-    //       extra: this.client.emojis.cache.get(snowflake.snowflake).toString(),
-    //     })
-    //   );
+    const maybeEmoji = await centra(
+      `https://cdn.discordapp.com/emojis/${snowflake.snowflake}`,
+      "HEAD"
+    )
+      .header("User-Agent", this.client.manager.ua)
+      .send();
+    if (
+      maybeEmoji.headers["content-type"] &&
+      maybeEmoji.headers["content-type"].includes("image/")
+    )
+      info.push(
+        message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
+          type: message.language.get("EMOJI"),
+          extra:
+            maybeEmoji.headers["content-type"] == "image/gif"
+              ? `<a:emoji:${snowflake.snowflake}>`
+              : `<:emoji:${snowflake.snowflake}>`,
+        })
+      );
 
     if (this.client.channels.cache.has(snowflake.snowflake)) {
       const channel = this.client.channels.cache.get(snowflake.snowflake);
