@@ -69,6 +69,7 @@ export default class GuildMemberAdd extends Listener {
           }
         }
         if (usedInvite) {
+          if (!member.guild.inviteRoles) await member.guild.loadInviteRoles();
           const roleId = member.guild.inviteRoles.get(usedInvite);
           if (roleId) {
             const role = member.guild.roles.cache.get(roleId);
@@ -95,6 +96,7 @@ export default class GuildMemberAdd extends Listener {
       await member.roles.add(member.guild.muteRole).catch(() => {});
     }
 
+    if (!member.guild.persistedRoles) await member.guild.loadPersistedRoles();
     if (member.guild.persistedRoles.has(member.id)) {
       const roles = member.guild.persistedRoles
         .get(member.id)

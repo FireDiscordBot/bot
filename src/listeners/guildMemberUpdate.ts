@@ -38,6 +38,8 @@ export default class GuildMemberUpdate extends Listener {
     // maybe fix role persist removing on member upddte shortly after joining
     const joinedRecently = +new Date() - newMember.joinedTimestamp < 15000;
 
+    if (!newMember.guild.persistedRoles)
+      await newMember.guild.loadPersistedRoles();
     if (newMember.guild.persistedRoles?.has(newMember.id) && !joinedRecently) {
       const ids = newMember.guild.persistedRoles.get(newMember.id);
       const roles = newMember.guild.persistedRoles
@@ -132,9 +134,11 @@ export default class GuildMemberUpdate extends Listener {
           .removeNitroPerks(newMember)
           .catch(() => false);
         if (typeof removed == "boolean" && removed)
-          (sk1erModule.guild.channels.cache.get(
-            "411620457754787841"
-          ) as FireTextChannel).send({
+          (
+            sk1erModule.guild.channels.cache.get(
+              "411620457754787841"
+            ) as FireTextChannel
+          ).send({
             content: sk1erModule.guild.language.get(
               "SK1ER_NITRO_PERKS_REMOVED",
               { member: newMember.toMention() }
@@ -219,17 +223,13 @@ export default class GuildMemberUpdate extends Listener {
     for (const [, action] of filteredActions) {
       for (const change of action.changes) {
         if (change.key == "$add")
-          await this.logRoleAdd(
-            action,
-            change,
-            newMember.guild
-          ).catch(() => {});
+          await this.logRoleAdd(action, change, newMember.guild).catch(
+            () => {}
+          );
         else if (change.key == "$remove")
-          await this.logRoleRemove(
-            action,
-            change,
-            newMember.guild
-          ).catch(() => {});
+          await this.logRoleRemove(action, change, newMember.guild).catch(
+            () => {}
+          );
       }
     }
   }

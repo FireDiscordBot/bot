@@ -57,7 +57,7 @@ export default class StarboardChannel extends Command {
         command: "starboard channel",
       });
 
-    const current = message.guild.settings.get<string>("starboard.channel");
+    const current = message.guild.starboard?.id;
     if (current && args.channel.id != current) {
       await this.client.db
         .query("DELETE FROM starboard WHERE gid=$1;", [message.guild.id])

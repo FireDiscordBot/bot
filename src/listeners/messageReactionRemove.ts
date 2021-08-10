@@ -26,6 +26,9 @@ export default class MessageReactionRemove extends Listener {
     const message = messageReaction.message as FireMessage;
     const guild = messageReaction.message?.guild as FireGuild;
 
+    if (message.guild?.premium && !message.guild.reactionRoles)
+      await message.guild.loadReactionRoles();
+
     if (guild.reactionRoles.has(messageReaction.message?.id)) {
       const emoji =
         messageReaction.emoji instanceof GuildEmoji
@@ -47,14 +50,8 @@ export default class MessageReactionRemove extends Listener {
       }
     }
 
-    if (
-      guild.settings.has("starboard.channel") &&
-      user?.id != message.author?.id &&
-      !user?.bot
-    ) {
-      const channel = guild.channels.cache.get(
-        guild.settings.get<Snowflake>("starboard.channel")
-      ) as FireTextChannel;
+    if (guild.starboard && user?.id != message.author?.id && !user?.bot) {
+      const channel = guild.starboard;
       const starboardEmoji = guild.settings.get<string>(
         "starboard.emoji",
         "⭐"

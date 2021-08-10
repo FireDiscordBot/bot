@@ -71,6 +71,8 @@ export default class ReactionRole extends Command {
       // if still partial, something go brokey, send error!
       return await message.error("REACTIONROLE_MESSAGE_PARTIAL");
 
+    if (!message.guild.reactionRoles) await message.guild.loadReactionRoles();
+
     const { message: reactionMessage } = reaction;
     const emoji =
       reaction.emoji instanceof GuildEmoji

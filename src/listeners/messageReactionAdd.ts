@@ -31,6 +31,9 @@ export default class MessageReactionAdd extends Listener {
         .handleSupport(messageReaction, user)
         .catch(() => {});
 
+    if (message.guild?.premium && !message.guild.reactionRoles)
+      await message.guild.loadReactionRoles();
+
     if (
       message.guild?.premium &&
       message.guild?.reactionRoles.has(message.id)
@@ -57,13 +60,11 @@ export default class MessageReactionAdd extends Listener {
     }
 
     if (
-      message.guild?.settings.has("starboard.channel") &&
+      message.guild?.starboard &&
       user?.id != message.author?.id &&
       !user?.bot
     ) {
-      const channel = message.guild.channels.cache.get(
-        message.guild?.settings.get<Snowflake>("starboard.channel")
-      ) as FireTextChannel;
+      const channel = message.guild.starboard;
       const starboardEmoji = message.guild?.settings.get<string>(
         "starboard.emoji",
         "⭐"

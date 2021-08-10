@@ -49,6 +49,7 @@ export default class ChannelCreate extends Listener {
         )
         .catch(() => (muteFail = true));
 
+    if (!guild.permRoles) await guild.loadPermRoles();
     if (guild.permRoles.size) {
       for (const [role, perms] of guild.permRoles) {
         if (
@@ -75,7 +76,7 @@ export default class ChannelCreate extends Listener {
           )
           .catch(() => {});
       }
-    }
+    } else if (!guild.permRoles) await guild.loadPermRoles();
 
     if (guild.settings.has("log.action")) {
       const embed = new MessageEmbed()

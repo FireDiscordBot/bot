@@ -58,6 +58,7 @@ export default class RolePersist extends Command {
       return await message.error("ROLEPERSIST_GOD");
 
     let roles: Role[];
+    if (!message.guild.persistedRoles) await message.guild.loadPersistedRoles();
     const existing = message.guild.persistedRoles.get(args.user.id);
     if (!existing || !existing.length) roles = [args.role];
     else

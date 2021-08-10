@@ -1,5 +1,6 @@
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { GuildLogManager } from "@fire/lib/util/logmanager";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { Permissions } from "discord.js";
@@ -77,6 +78,11 @@ export default class Logging extends Command {
       let deleted: any;
       try {
         deleted = await message.guild.settings.delete(`log.${type}`);
+        if (!message.guild.logger)
+          message.guild.logger = new GuildLogManager(
+            this.client,
+            message.guild
+          );
         await message.guild.logger.refreshWebhooks().catch(() => {});
       } catch {}
       return deleted
@@ -91,7 +97,14 @@ export default class Logging extends Command {
           `log.${type}`,
           args.channel.id
         );
-        if (set) await message.guild.logger.refreshWebhooks().catch(() => {});
+        if (set) {
+          if (!message.guild.logger)
+            message.guild.logger = new GuildLogManager(
+              this.client,
+              message.guild
+            );
+          await message.guild.logger.refreshWebhooks().catch(() => {});
+        }
       } catch {}
       return set
         ? await message.success(

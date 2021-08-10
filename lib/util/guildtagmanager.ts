@@ -1,9 +1,10 @@
-import { FireMember } from "@fire/lib/extensions/guildmember";
 import {
-  APIApplicationCommand,
-  Option,
-} from "@fire/lib/interfaces/interactions";
-import { DiscordAPIError, Collection, Snowflake } from "discord.js";
+  LimitedCollection,
+  DiscordAPIError,
+  Snowflake,
+} from "discord.js";
+import { APIApplicationCommand } from "@fire/lib/interfaces/interactions";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Fire } from "@fire/lib/Fire";
@@ -21,9 +22,8 @@ export interface Tag {
 
 export class GuildTagManager {
   slashCommands: { [id: string]: string };
-  cache: Collection<string, Tag>;
+  cache: LimitedCollection<string, Tag>;
   preparedSlashCommands: boolean;
-  ephemeral?: boolean;
   guild: FireGuild;
   names: string[];
   client: Fire;
@@ -34,7 +34,10 @@ export class GuildTagManager {
     this.names = [];
     this.slashCommands = {};
     this.preparedSlashCommands = false;
-    this.cache = new Collection<string, Tag>();
+    this.cache = new LimitedCollection<string, Tag>({
+      sweepInterval: 120,
+      maxSize: 100,
+    });
 
     this.client.db
       .query("SELECT name FROM tags WHERE gid=$1;", [this.guild.id])
@@ -51,6 +54,10 @@ export class GuildTagManager {
 
   get size() {
     return this.cache.size || this.names.length;
+  }
+
+  get ephemeral() {
+    return this.guild.settings.get<boolean>("tags.ephemeral", true);
   }
 
   async getTag(tag: string, useFuzzy = true) {
@@ -115,8 +122,6 @@ export class GuildTagManager {
     );
     if (!useSlash) return false;
     if (this.names.length && !this.cache.size) await this.loadTags();
-
-    this.ephemeral = this.guild.settings.get<boolean>("tags.ephemeral", true);
 
     let current = (await this.client.req
       .applications(this.client.user.id)
@@ -288,7 +293,10 @@ export class GuildTagManager {
   }
 
   async loadTags() {
-    this.cache = new Collection();
+    this.cache = new LimitedCollection<string, Tag>({
+      sweepInterval: 120,
+      maxSize: 100,
+    });
     const result = await this.client.db.query(
       "SELECT * FROM tags WHERE gid=$1;",
       [this.guild.id]

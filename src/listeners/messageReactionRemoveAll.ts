@@ -10,8 +10,10 @@ export default class MessageReactionRemoveAll extends Listener {
   }
 
   async exec(message: FireMessage) {
-    if (!message.guild) return;
+    if (!message.guild || !message.guild.starboard) return;
     const guild = message.guild;
+
+    if (!guild.starboardReactions) await guild.loadStarboardReactions();
 
     if (!guild.starboardReactions.has(message.id)) return;
     else {

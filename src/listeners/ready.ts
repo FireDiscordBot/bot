@@ -67,12 +67,6 @@ export default class Ready extends Listener {
     const guilds =
       this.client.guilds.cache.values() as IterableIterator<FireGuild>;
     for (const guild of guilds) {
-      await guild.loadInvites();
-      await guild.loadVcRoles();
-      await guild.loadPermRoles();
-      await guild.loadInviteRoles();
-      await guild.loadReactionRoles();
-      await guild.loadPersistedRoles();
       if (process.env.USE_LITECORD) continue;
       if (guild.tags?.names.length && !guild.tags.preparedSlashCommands)
         await guild.tags.prepareSlashCommands();

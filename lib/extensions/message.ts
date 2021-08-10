@@ -248,6 +248,7 @@ export class FireMessage extends Message {
     thread?: ThreadChannel
   ) {
     let hook: Webhook | WebhookClient = webhook;
+    if (!this.guild?.quoteHooks) this.guild.quoteHooks = new Collection();
     if (!this.guild?.quoteHooks.has(destination.id)) {
       const hooks =
         typeof destination.fetchWebhooks == "function"
@@ -483,10 +484,11 @@ export class FireMessage extends Message {
 
     if (!stars) return;
 
-    const starboard = this.guild.channels.cache.get(
-      this.guild?.settings.get<Snowflake>("starboard.channel")
-    ) as FireTextChannel;
+    const starboard = this.guild.starboard;
     if (!starboard || this.channel.id == starboard.id) return;
+
+    if (!this.guild.starboardReactions)
+      await this.guild.loadStarboardReactions();
 
     if (!this.guild.starboardReactions.has(this.id)) {
       const inserted = await this.client.db
@@ -516,6 +518,7 @@ export class FireMessage extends Message {
 
     const minimum = this.guild.settings.get<number>("starboard.minimum", 5);
     const emoji = messageReaction.emoji.toString();
+    if (!this.guild.starboardMessages) await this.guild.loadStarboardMessages();
     if (stars >= minimum) {
       if (!this.starLock) this.starLock = new Semaphore(1);
       await this.starLock.acquire();

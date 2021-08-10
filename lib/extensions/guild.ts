@@ -77,22 +77,10 @@ export class FireGuild extends Guild {
     super(client, data);
 
     this.settings = new GuildSettings(client, this);
-    this.logger = new GuildLogManager(client, this);
     this.tags = new GuildTagManager(client, this);
-    this.starboardReactions = new Collection();
-    this.starboardMessages = new Collection();
-    this.persistedRoles = new Collection();
-    this.reactionRoles = new Collection();
-    this.inviteRoles = new Collection();
-    this.inviteUses = new Collection();
     this.fetchingMemberUpdates = false;
-    this.quoteHooks = new Collection();
-    this.permRoles = new Collection();
     this.fetchingRoleUpdates = false;
-    this.vcRoles = new Collection();
     this.mutes = new Collection();
-    this.loadStarboardReactions();
-    this.loadStarboardMessages();
     this.loadMutes();
     this.loadBans();
   }
@@ -472,6 +460,12 @@ export class FireGuild extends Guild {
     }
   }
 
+  get starboard() {
+    return this.channels.cache.get(
+      this.settings.get<Snowflake>("starboard.channel")
+    ) as FireTextChannel;
+  }
+
   async loadStarboardMessages() {
     this.starboardMessages = new Collection();
     const messages = await this.client.db
@@ -648,13 +642,13 @@ export class FireGuild extends Guild {
   }
 
   async loadInvites() {
-    this.inviteUses = new Collection();
     if (
       !this.premium ||
       !this.available ||
       !this.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
     )
       return;
+    this.inviteUses = new Collection();
     const invites = await this.invites.fetch({ cache: false }).catch(() => {});
     if (!invites) return this.inviteUses;
     for (const [code, invite] of invites)
@@ -766,7 +760,10 @@ export class FireGuild extends Guild {
           embeds: typeof log != "string" ? [log] : null,
         })
         .catch(() => {});
-    else return await this.logger.handleAction(log, type);
+    else {
+      if (!this.logger) this.logger = new GuildLogManager(this.client, this);
+      return await this.logger.handleAction(log, type);
+    }
   }
 
   async modLog(
@@ -785,7 +782,10 @@ export class FireGuild extends Guild {
           embeds: typeof log != "string" ? [log] : null,
         })
         .catch(() => {});
-    else return await this.logger.handleModeration(log, type);
+    else {
+      if (!this.logger) this.logger = new GuildLogManager(this.client, this);
+      return await this.logger.handleModeration(log, type);
+    }
   }
 
   async memberLog(
@@ -804,7 +804,10 @@ export class FireGuild extends Guild {
           embeds: typeof log != "string" ? [log] : null,
         })
         .catch(() => {});
-    else return await this.logger.handleMembers(log, type);
+    else {
+      if (!this.logger) this.logger = new GuildLogManager(this.client, this);
+      return await this.logger.handleMembers(log, type);
+    }
   }
 
   hasExperiment(id: number, bucket: number) {

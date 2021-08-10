@@ -15,6 +15,8 @@ export default class VoiceStateUpdate extends Listener {
     const member = await guild.members.fetch(after.id).catch(() => {});
     if (!member || member.user.bot) return;
 
+    if (!guild.vcRoles) await guild.loadVcRoles();
+
     if (before.channelId && !after.channelId) {
       if (guild.vcRoles.has(before.channelId)) {
         const role = guild.roles.cache.get(guild.vcRoles.get(before.channelId));

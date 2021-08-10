@@ -42,10 +42,12 @@ export default class StarboardMinimum extends Command {
   }
 
   async check(message: FireMessage, minimum: number) {
-    const starboard = message.guild.channels.cache.get(
-      message.guild.settings.get<Snowflake>("starboard.channel")
-    ) as FireTextChannel;
+    const starboard = message.guild.starboard;
     if (!starboard) return;
+    if (!message.guild.starboardReactions)
+      await message.guild.loadStarboardReactions();
+    if (!message.guild.starboardMessages)
+      await message.guild.loadStarboardMessages();
     for (const [id, reactions] of message.guild.starboardReactions) {
       if (reactions < minimum && message.guild.starboardMessages.has(id)) {
         const starboardId = message.guild.starboardMessages.get(id);

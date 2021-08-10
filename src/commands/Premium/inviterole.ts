@@ -44,6 +44,8 @@ export default class InviteRole extends Command {
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
 
+    if (!message.guild.inviteRoles) await message.guild.loadInviteRoles();
+
     const invite = args.invite.code;
     if (message.guild.inviteRoles.has(invite) && !args.role) {
       const role = message.guild.roles.cache.get(
