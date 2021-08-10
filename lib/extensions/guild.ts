@@ -148,8 +148,11 @@ export class FireGuild extends Guild {
   }
 
   _patch(data: APIGuild) {
-    delete data.members;
-    delete data.presences;
+    if (data.members)
+      data.members = data.members.filter(
+        (m) => m.user?.id == this.client.user?.id
+      );
+    if (data.presences) delete data.presences;
 
     // @ts-ignore
     super._patch(data);
