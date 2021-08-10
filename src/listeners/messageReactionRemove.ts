@@ -26,10 +26,9 @@ export default class MessageReactionRemove extends Listener {
     const message = messageReaction.message as FireMessage;
     const guild = messageReaction.message?.guild as FireGuild;
 
-    if (message.guild?.premium && !message.guild.reactionRoles)
-      await message.guild.loadReactionRoles();
+    if (guild?.premium && !guild.reactionRoles) await guild.loadReactionRoles();
 
-    if (guild.reactionRoles.has(messageReaction.message?.id)) {
+    if (guild.premium && guild.reactionRoles.has(messageReaction.message?.id)) {
       const emoji =
         messageReaction.emoji instanceof GuildEmoji
           ? messageReaction.emoji.id

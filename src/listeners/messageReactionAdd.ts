@@ -25,20 +25,16 @@ export default class MessageReactionAdd extends Listener {
       return;
 
     const message = messageReaction.message as FireMessage;
+    const guild = messageReaction.message?.guild as FireGuild;
     const sk1erModule = this.client.getModule("sk1er") as Sk1er;
     if (message.id == sk1erModule?.supportMessageId)
       return await sk1erModule
         .handleSupport(messageReaction, user)
         .catch(() => {});
 
-    if (message.guild?.premium && !message.guild.reactionRoles)
-      await message.guild.loadReactionRoles();
+    if (guild?.premium && !guild.reactionRoles) await guild.loadReactionRoles();
 
-    if (
-      message.guild?.premium &&
-      message.guild?.reactionRoles.has(message.id)
-    ) {
-      const guild = message.guild;
+    if (guild?.premium && guild?.reactionRoles.has(message.id)) {
       const emoji =
         messageReaction.emoji instanceof GuildEmoji
           ? messageReaction.emoji.id
