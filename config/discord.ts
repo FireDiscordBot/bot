@@ -5,8 +5,8 @@ import {
   Intents,
   Options,
 } from "discord.js";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 
 let litecord: { http?: HTTPOptions } = {};
@@ -53,6 +53,7 @@ export const discord: ClientOptions = {
       },
       sweepInterval: 60,
     },
+    ApplicationCommandManager: 0,
     StageInstanceManager: 0,
     GuildStickerManager: 0,
     GuildInviteManager: 0,
