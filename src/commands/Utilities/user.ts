@@ -499,13 +499,14 @@ export default class User extends Command {
         })
       );
 
-    if (this.client.emojis.cache.has(snowflake.snowflake))
-      info.push(
-        message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
-          type: message.language.get("EMOJI"),
-          extra: this.client.emojis.cache.get(snowflake.snowflake).toString(),
-        })
-      );
+    // maybe fetch emoji? a HEAD request might work
+    // if (this.client.emojis.cache.has(snowflake.snowflake))
+    //   info.push(
+    //     message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
+    //       type: message.language.get("EMOJI"),
+    //       extra: this.client.emojis.cache.get(snowflake.snowflake).toString(),
+    //     })
+    //   );
 
     if (this.client.channels.cache.has(snowflake.snowflake)) {
       const channel = this.client.channels.cache.get(snowflake.snowflake);

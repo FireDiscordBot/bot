@@ -54,6 +54,7 @@ export const discord: ClientOptions = {
       sweepInterval: 60,
     },
     ApplicationCommandManager: 0,
+    BaseGuildEmojiManager: 0,
     StageInstanceManager: 0,
     GuildStickerManager: 0,
     GuildInviteManager: 0,

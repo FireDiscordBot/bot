@@ -88,12 +88,10 @@ export default class GuildCommand extends Command {
             message.language.id
           )}`
         : null,
-      (guild instanceof FireGuild && guild.emojis.cache.size) ||
-      (guild instanceof GuildPreview && guild.emojis.size)
-        ? `**${message.language.get("EMOJIS")}:** ${(guild instanceof FireGuild
-            ? guild.emojis.cache.size
-            : guild.emojis.size
-          ).toLocaleString(message.language.id)}`
+      guild instanceof GuildPreview && guild.emojis.size
+        ? `**${message.language.get(
+            "EMOJIS"
+          )}:** ${guild.emojis.size.toLocaleString(message.language.id)}`
         : null,
       guild instanceof FireGuild
         ? `**${message.language.get(
