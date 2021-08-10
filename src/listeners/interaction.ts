@@ -7,6 +7,7 @@ import { constants } from "@fire/lib/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
 import { Scope } from "@sentry/node";
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 
 const { emojis } = constants;
 
@@ -44,6 +45,10 @@ export default class InteractionListener extends Listener {
         return await command.reply(
           `${emojis.error} I was unable to find the channel you are in. If it is a private thread, you'll need to mention me to add me to the thread or give me \`Manage Threads\` permission`
         ); // could be a private thread fire can't access
+      if (command.guild && !command.guild?.tags) {
+        command.guild.tags = new GuildTagManager(this.client, command.guild);
+        await command.guild.tags.init();
+      }
       const message = new SlashCommandMessage(this.client, command);
       await message.channel.ack((message.flags & 64) != 0);
       if (!message.command) {

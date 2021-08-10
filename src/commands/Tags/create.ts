@@ -1,3 +1,4 @@
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -53,6 +54,8 @@ export default class TagCreate extends Command {
     else if (!args.content)
       return await message.error("TAGS_CREATE_MISSING_CONTENT");
     const { tag, content } = args;
+    if (content.length > 2000)
+      return await message.error("TAGS_CREATE_CONTENT_TOO_LONG");
     if (this.client.getCommand(`tag-${tag}`))
       return await message.error("TAGS_CREATE_COMMAND_NAME");
     if (!nameRegex.test(tag)) {
@@ -60,10 +63,14 @@ export default class TagCreate extends Command {
       return await message.error("TAGS_CREATE_INVALID_CHARACTERS");
     }
     nameRegex.lastIndex = 0;
+    if (!message.guild.tags) {
+      message.guild.tags = new GuildTagManager(this.client, message.guild);
+      await message.guild.tags.init();
+    }
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(tag, false);
     if (cachedTag) return await message.error("TAGS_CREATE_ALREADY_EXISTS");
-    if (manager.cache.size >= 20 && !message.guild.premium)
+    if (manager.names.length >= 20 && !message.guild.premium)
       return await message.error("TAGS_CREATE_LIMIT");
     const newTag = await manager.createTag(tag, content, message.member);
     if (typeof newTag == "boolean" && !newTag) return await message.error();

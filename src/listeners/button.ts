@@ -10,6 +10,7 @@ import {
 } from "discord.js";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { codeblockTypeCaster } from "../arguments/codeblock";
@@ -210,6 +211,10 @@ export default class Button extends Listener {
           .catch(() => {});
 
       const name = button.customId.slice(9);
+      if (!button.guild.tags) {
+        button.guild.tags = new GuildTagManager(this.client, button.guild);
+        await button.guild.tags.init();
+      }
       const tag = await button.guild.tags.getTag(name, false);
 
       let cancelled = false;
@@ -263,6 +268,9 @@ export default class Button extends Listener {
       if (cancelled || !newContent || !newContent.first()?.content) return;
       this.client.buttonHandlersOnce.delete(cancelSnowflake);
 
+      if (newContent.first()?.content.length > 2000)
+        return await button.error("TAGS_CREATE_CONTENT_TOO_LONG");
+
       if (!button.ephemeralSource && !cancelled) {
         const editingEmbed = new MessageEmbed()
           .setAuthor(
@@ -287,12 +295,35 @@ export default class Button extends Listener {
       const edited = await button.guild.tags
         .editTag(tag.name, newContent.first()?.content)
         .catch(() => {});
-      if (!edited) return await button.error("TAG_EDIT_FAILED");
-      else return await button.success("TAG_EDIT_SUCCESS");
+      if (!button.ephemeralSource && !cancelled) {
+        const editingEmbed = new MessageEmbed()
+          .setAuthor(
+            button.guild.name,
+            button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
+          )
+          .setColor(button.member?.displayColor ?? "#FFFFFF")
+          .setDescription(
+            !edited
+              ? button.language.getError("TAG_EDIT_FAILED")
+              : button.language.getSuccess("TAG_EDIT_SUCCESS")
+          )
+          .setTimestamp();
+        return await (button.message as FireMessage).edit({
+          embeds: [editingEmbed],
+          components: [],
+        });
+      } else {
+        if (!edited) return await button.error("TAG_EDIT_FAILED");
+        else return await button.success("TAG_EDIT_SUCCESS");
+      }
     }
 
     if (button.customId.startsWith(`tag_view:`) && button.guild) {
       const name = button.customId.slice(9);
+      if (!button.guild.tags) {
+        button.guild.tags = new GuildTagManager(this.client, button.guild);
+        await button.guild.tags.init();
+      }
       const tag = await button.guild.tags.getTag(name, false);
       if (!tag) return;
       else
@@ -302,6 +333,10 @@ export default class Button extends Listener {
     }
 
     if (button.customId.startsWith("tag_delete:") && button.guild) {
+      if (!button.guild.tags) {
+        button.guild.tags = new GuildTagManager(this.client, button.guild);
+        await button.guild.tags.init();
+      }
       if (!button.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
         return await button
           .error("MISSING_PERMISSIONS_USER", {
@@ -314,7 +349,7 @@ export default class Button extends Listener {
           .catch(() => {});
 
       const name = button.customId.slice(11);
-      const tag = await button.guild.tags.getTag(name, false);
+      const tag = await button.guild.tags.getTag(name, false, true);
       if (!tag) return;
 
       if (typeof tag.createdBy != "string") tag.createdBy = tag.createdBy.id;

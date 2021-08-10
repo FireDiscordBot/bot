@@ -1,3 +1,4 @@
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -42,6 +43,10 @@ export default class TagSlash extends Command {
     );
     if (current == null) return await message.error("ERROR_CONTACT_SUPPORT");
     message.guild.settings.set<boolean>("tags.slashcommands", !current);
+    if (!message.guild.tags) {
+      message.guild.tags = new GuildTagManager(this.client, message.guild);
+      await message.guild.tags.init();
+    }
     if (!current) {
       message.channel.sendTyping();
       const prepared = await message.guild.tags?.prepareSlashCommands();

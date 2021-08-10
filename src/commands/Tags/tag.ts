@@ -1,3 +1,4 @@
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageEmbed, Permissions } from "discord.js";
 import { Language } from "@fire/lib/util/language";
@@ -38,6 +39,10 @@ export default class Tag extends Command {
     }
     if (["dtag", "dtags"].includes(message.util?.parsed?.alias.toLowerCase()))
       message.delete();
+    if (!message.guild.tags) {
+      message.guild.tags = new GuildTagManager(this.client, message.guild);
+      await message.guild.tags.init();
+    }
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(args.tag);
     if (!cachedTag)
@@ -62,9 +67,7 @@ export default class Tag extends Command {
 
   async sendTagsList(message: FireMessage) {
     const manager = message.guild.tags;
-    const names = manager.cache.size
-      ? [...manager.cache.keys()]
-      : manager.names;
+    const names = manager.names;
     if (!names.length) return await message.error("TAG_NONE_FOUND");
     const embed = new MessageEmbed()
       .setAuthor(

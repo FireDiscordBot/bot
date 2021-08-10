@@ -1,8 +1,4 @@
-import {
-  LimitedCollection,
-  DiscordAPIError,
-  Snowflake,
-} from "discord.js";
+import { LimitedCollection, DiscordAPIError, Snowflake } from "discord.js";
 import { APIApplicationCommand } from "@fire/lib/interfaces/interactions";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -22,8 +18,8 @@ export interface Tag {
 
 export class GuildTagManager {
   slashCommands: { [id: string]: string };
-  cache: LimitedCollection<string, Tag>;
   preparedSlashCommands: boolean;
+  aliases: string[];
   guild: FireGuild;
   names: string[];
   client: Fire;
@@ -32,69 +28,136 @@ export class GuildTagManager {
     this.client = client;
     this.guild = guild;
     this.names = [];
+    this.aliases = [];
     this.slashCommands = {};
     this.preparedSlashCommands = false;
-    this.cache = new LimitedCollection<string, Tag>({
-      sweepInterval: 120,
-      maxSize: 100,
-    });
-
-    this.client.db
-      .query("SELECT name FROM tags WHERE gid=$1;", [this.guild.id])
-      .then(async (result) => {
-        for await (const tag of result) {
-          this.names.push((tag.get("name") as string).toLowerCase());
-          (tag.get("aliases") as string[])?.forEach((alias) =>
-            this.names.push(alias.toLowerCase())
-          );
-        }
-      })
-      .catch(() => {});
   }
 
   get size() {
-    return this.cache.size || this.names.length;
+    return this.names.length;
   }
 
   get ephemeral() {
     return this.guild.settings.get<boolean>("tags.ephemeral", true);
   }
 
-  async getTag(tag: string, useFuzzy = true) {
-    if (this.names.length && !this.cache.size) await this.loadTags();
+  async init() {
+    const result = await this.client.db
+      .query("SELECT name FROM tags WHERE gid=$1;", [this.guild.id])
+      .catch(() => {});
+    if (!result) return 0;
+    for await (const tag of result) {
+      this.names.push((tag.get("name") as string).toLowerCase());
+      (tag.get("aliases") as string[])?.forEach((alias) =>
+        this.aliases.push(alias.toLowerCase())
+      );
+    }
+    if (this.names.length && !this.preparedSlashCommands)
+      await this.prepareSlashCommands();
+    return this.size;
+  }
+
+  async getTag(tag: string, useFuzzy = true, includeCreator = false) {
     if (!this.preparedSlashCommands) this.prepareSlashCommands();
-    if (this.names.includes(tag.toLowerCase()))
-      return await this.getCachedTag(tag);
-    const fuzzy = this.names.find(
+    if (
+      this.names.includes(tag.toLowerCase()) ||
+      this.aliases.includes(tag.toLowerCase())
+    )
+      return await this.fetchTag(tag, includeCreator);
+    const names = [...this.names, ...this.aliases];
+    const fuzzy = names.find(
       (name) =>
         fuzz.ratio(tag.trim().toLowerCase(), name.trim().toLowerCase()) >= 60
     );
-    if (useFuzzy && fuzzy) return await this.getCachedTag(fuzzy);
-    return await this.getCachedTag(tag);
+    if (useFuzzy && fuzzy) return await this.fetchTag(fuzzy);
+    return await this.fetchTag(tag, includeCreator);
   }
 
-  private async getCachedTag(tag: string) {
-    tag = tag.toLowerCase();
-    const cachedTag = this.cache.find(
-      (cached) =>
-        cached.name.toLowerCase() == tag || cached.aliases.includes(tag)
-    );
-    if (!cachedTag) return null;
-    if (typeof cachedTag.createdBy == "string") {
-      const creatorId = cachedTag.createdBy;
+  private async fetchTag(name: string, includeCreator = false): Promise<Tag> {
+    name = name.toLowerCase();
+    const fetchedTag = await this.client.db
+      .query(
+        includeCreator
+          ? "SELECT name, content, uid, aliases, uses FROM tags WHERE gid=$1 AND name=$2 OR gid=$1 AND $2=ANY(aliases)"
+          : "SELECT name, content, aliases, uses FROM tags WHERE gid=$1 AND name=$2 OR gid=$1 AND $2=ANY(aliases)",
+        [this.guild.id, name]
+      )
+      .first()
+      .catch(() => {});
+    if (!fetchedTag) return null;
+    const tag: Tag = {
+      createdBy: (fetchedTag.get("uid") as string) ?? null,
+      content: fetchedTag.get("content") as string,
+      aliases: fetchedTag.get("aliases") as string[],
+      name: fetchedTag.get("name") as string,
+      uses: fetchedTag.get("uses") as number,
+    };
+    if (typeof tag.createdBy == "string") {
+      const creatorId = tag.createdBy;
       const member = this.guild.members.cache.get(creatorId) as FireMember;
       const user = this.client.users.cache.get(creatorId) as FireUser;
-      if (member) cachedTag.createdBy = member;
-      else if (user) cachedTag.createdBy = user;
+      if (member) tag.createdBy = member;
+      else if (user) tag.createdBy = user;
       else {
         const fetched = await this.client.users
           .fetch(creatorId)
           .catch(() => {});
-        if (fetched) cachedTag.createdBy = fetched as FireUser;
+        if (fetched) tag.createdBy = fetched as FireUser;
       }
-      this.cache.set(cachedTag.name, cachedTag);
     }
-    return cachedTag;
+    return tag;
+  }
+
+  private async doesTagExist(name: string) {
+    name = name.toLowerCase();
+    if (this.names.includes(name)) return true;
+    const exists = await this.client.db
+      .query("SELECT name FROM tags WHERE gid=$1 AND name=$2", [
+        this.guild.id,
+        name,
+      ])
+      .first()
+      .catch(() => {});
+    return exists && exists.get("name") == name;
+  }
+
+  private async doesAliasExist(alias: string) {
+    alias = alias.toLowerCase();
+    if (this.aliases.includes(alias)) return true;
+    const exists = await this.client.db
+      .query("SELECT name FROM tags WHERE gid=$1 AND $2=ANY(aliases)", [
+        this.guild.id,
+        alias,
+      ])
+      .first()
+      .catch(() => {});
+    return exists && (exists.get("aliases") as string[]).includes(alias);
+  }
+
+  private async getUses(name: string) {
+    name = name.toLowerCase();
+    const fetchedTag = await this.client.db
+      .query(
+        "SELECT uses FROM tags WHERE gid=$1 AND name=$2 OR gid=$1 AND $2=ANY(aliases)",
+        [this.guild.id, name]
+      )
+      .first()
+      .catch(() => {});
+    if (!fetchedTag) return null;
+    else return fetchedTag.get("uses") as number;
+  }
+
+  private async getAliases(name: string) {
+    name = name.toLowerCase();
+    const fetchedTag = await this.client.db
+      .query(
+        "SELECT aliases FROM tags WHERE gid=$1 AND name=$2 OR gid=$1 AND $2=ANY(aliases)",
+        [this.guild.id, name]
+      )
+      .first()
+      .catch(() => {});
+    if (!fetchedTag) return null;
+    else return fetchedTag.get("aliases") as string[];
   }
 
   private async getTagSlashCommandJSON(cached: Tag) {
@@ -121,7 +184,6 @@ export class GuildTagManager {
       false
     );
     if (!useSlash) return false;
-    if (this.names.length && !this.cache.size) await this.loadTags();
 
     let current = (await this.client.req
       .applications(this.client.user.id)
@@ -129,18 +191,19 @@ export class GuildTagManager {
       .commands.get<APIApplicationCommand[]>()
       .catch((e: DiscordAPIError) => e)) as APIApplicationCommand[];
 
-    if (current instanceof DiscordAPIError && current.code == 50001) {
+    if (current instanceof DiscordAPIError && current.code == 50001)
       // hasn't authorized applications.commands
       return null;
-    } else if (
+    else if (
       current instanceof DiscordAPIError ||
       typeof current.find != "function"
-    ) {
+    )
       return false;
-    }
+
+    const tags = await this.fetchTags();
 
     let commandData = await Promise.all(
-      this.cache.map((tag) => this.getTagSlashCommandJSON(tag))
+      tags.map((tag) => this.getTagSlashCommandJSON(tag))
     );
     commandData = commandData.filter((tag) => !!tag);
     if (!commandData.length) this.preparedSlashCommands = true;
@@ -171,7 +234,7 @@ export class GuildTagManager {
     current = current.filter(
       (cmd) =>
         !commandData.find((tag) => tag.name == cmd.name) &&
-        !(cmd.id in this.slashCommands && !this.cache.has(cmd.name))
+        !(cmd.id in this.slashCommands && !tags.has(cmd.name))
     );
 
     await this.client.req
@@ -235,19 +298,20 @@ export class GuildTagManager {
       .commands.get<APIApplicationCommand[]>()
       .catch((e: DiscordAPIError) => e)) as APIApplicationCommand[];
 
-    if (current instanceof DiscordAPIError && current.code == 50001) {
+    if (current instanceof DiscordAPIError && current.code == 50001)
       // hasn't authorized applications.commands
       return null;
-    } else if (
+    else if (
       current instanceof DiscordAPIError ||
       typeof current.find != "function"
-    ) {
+    )
       return false;
-    }
+
+    const tags = await this.fetchTags();
 
     // used to compare existing guild commands with possible slash commands
     let commandData = await Promise.all(
-      this.cache.map((tag) => this.getTagSlashCommandJSON(tag))
+      tags.map((tag) => this.getTagSlashCommandJSON(tag))
     );
     commandData = commandData.filter((tag) => !!tag);
     if (!commandData.length) return (this.preparedSlashCommands = true);
@@ -292,17 +356,16 @@ export class GuildTagManager {
     return removed;
   }
 
-  async loadTags() {
-    this.cache = new LimitedCollection<string, Tag>({
-      sweepInterval: 120,
-      maxSize: 100,
-    });
+  async fetchTags() {
     const result = await this.client.db.query(
       "SELECT * FROM tags WHERE gid=$1;",
       [this.guild.id]
     );
+    const tags = new LimitedCollection<string, Tag>({
+      maxSize: 100,
+    });
     for await (const tag of result) {
-      this.cache.set(tag.get("name") as string, {
+      tags.set(tag.get("name") as string, {
         name: (tag.get("name") as string).toLowerCase(),
         content: tag.get("content") as string,
         aliases:
@@ -314,43 +377,58 @@ export class GuildTagManager {
       });
     }
     this.names = [
-      ...this.cache.map((tag) => tag.name.toLowerCase()),
-      ...this.cache
+      ...tags.map((tag) => tag.name.toLowerCase()),
+      ...tags
         .map((tag) => tag.aliases.map((alias) => alias.toLowerCase()))
         .flat(),
     ];
-    return this.cache;
+    return tags;
+  }
+
+  async findSimilarTag(content: string) {
+    const fetchedTag = await this.client.db
+      .query(
+        "SELECT name, content, aliases, uses FROM tags WHERE gid=$1 AND content=$2",
+        [this.guild.id, content.trim()]
+      )
+      .first();
+    if (!fetchedTag) return null;
+    else
+      return {
+        content: fetchedTag.get("content") as string,
+        aliases: fetchedTag.get("aliases") as string[],
+        name: fetchedTag.get("name") as string,
+        uses: fetchedTag.get("uses") as number,
+        createdBy: null,
+      } as Tag;
   }
 
   async createTag(name: string, content: string, user: FireUser | FireMember) {
     name = name.toLowerCase();
+    content = content.trim();
     if (this.names.includes(name)) return false;
-    if (this.names.length && !this.cache.size) await this.loadTags();
-    const existing = this.cache.find((tag) => tag.content == content);
-    if (existing) {
-      return await this.addAlias(existing.name, name);
-    }
+    const existing = await this.findSimilarTag(content);
+    if (existing) return await this.addAlias(existing.name, name);
     await this.client.db.query(
       "INSERT INTO tags (gid, name, content, uid) VALUES ($1, $2, $3, $4);",
       [this.guild.id, name, content, user.id]
     );
     this.names.push(name);
-    this.cache.set(name, {
+    this.preparedSlashCommands && Object.keys(this.slashCommands).length
+      ? this.createSlashTag(name)
+      : this.prepareSlashCommands();
+    return {
       name,
       content,
       uses: 0,
       aliases: [],
       createdBy: user,
-    });
-    this.preparedSlashCommands && Object.keys(this.slashCommands).length
-      ? this.createSlashTag(name)
-      : this.prepareSlashCommands();
-    return this.cache.get(name);
+    };
   }
 
-  private async createSlashTag(tag: string) {
-    const cached = await this.getCachedTag(tag);
-    const command = await this.getTagSlashCommandJSON(cached);
+  private async createSlashTag(name: string) {
+    const tag = await this.fetchTag(name);
+    const command = await this.getTagSlashCommandJSON(tag);
 
     const commandRaw = await this.client.req
       .applications(this.client.user.id)
@@ -360,29 +438,26 @@ export class GuildTagManager {
     if (commandRaw instanceof Error) {
       if (commandRaw.httpStatus != 403 && commandRaw.code != 50001)
         this.client.console.warn(
-          `[Commands] Failed to register slash command for tag "${tag}" in guild ${this.guild.name}`,
+          `[Commands] Failed to register slash command for tag "${name}" in guild ${this.guild.name}`,
           commandRaw
         );
-    } else if (commandRaw?.id) this.slashCommands[commandRaw.id] = tag;
+    } else if (commandRaw?.id) this.slashCommands[commandRaw.id] = name;
   }
 
   async deleteTag(name: string) {
     name = name.toLowerCase();
-    if (this.names.length && !this.cache.size) await this.loadTags();
-    const cachedTag = this.cache.find(
-      (tag) => tag.name.toLowerCase() == name || tag.aliases.includes(name)
-    );
-    name = cachedTag?.name; // make sure name != an alias even though the command should handle this
+    const tag = await this.getTag(name, false);
+    name = tag?.name; // make sure name != an alias even though the command should handle this
     if (!name) return false;
     await this.client.db.query("DELETE FROM tags WHERE gid=$1 AND name=$2;", [
       this.guild.id,
       name,
     ]);
     this.names = this.names.filter(
-      (n) => n != name && !cachedTag.aliases.includes(n)
+      (n) => n != name && !tag.aliases.includes(n)
     );
     this.deleteSlashTag(name);
-    return this.cache.delete(name);
+    return true;
   }
 
   private async deleteSlashTag(tag: string) {
@@ -405,55 +480,43 @@ export class GuildTagManager {
 
   async useTag(tag: string) {
     tag = tag.toLowerCase();
-    const cached = this.cache.find(
-      (cached) =>
-        cached.name.toLowerCase() == tag || cached.aliases.includes(tag)
-    );
-    const uses = ++cached.uses;
+    let uses = await this.getUses(tag);
+    uses++;
     await this.client.db.query(
-      "UPDATE tags SET uses=$1 WHERE name=$2 AND gid=$3;",
-      [uses, cached.name, this.guild.id]
+      "UPDATE tags SET uses=$1 WHERE gid=$2 AND name=$2 or gid=$2 AND $2=ANY(aliases);",
+      [uses, this.guild.id, tag]
     );
-    cached.uses = uses;
-    this.cache.set(cached.name, cached);
   }
 
   async addAlias(existing: string, alias: string) {
     existing = existing.toLowerCase();
     alias = alias.toLowerCase();
-    const exists = await this.getTag(alias);
-    if (exists && exists.name == alias) return false;
-    const cached = this.cache.find(
-      (cached) =>
-        cached.name.toLowerCase() == existing ||
-        cached.aliases.includes(existing)
-    );
-    let aliases = cached.aliases;
+    const nameExists = await this.doesTagExist(alias);
+    if (nameExists) return false;
+    const aliasExists = await this.doesAliasExist(alias);
+    if (aliasExists) return false;
+    const tag = await this.getTag(existing, false);
+    if (!tag) return false;
+    let aliases = tag.aliases;
     if (aliases.includes(alias))
       aliases = aliases.filter((a) => a.toLowerCase() != alias);
     else aliases.push(alias);
     await this.client.db.query(
       "UPDATE tags SET aliases=$1 WHERE name=$2 AND gid=$3;",
-      [aliases.length ? aliases : null, cached.name, this.guild.id]
+      [aliases.length ? aliases : null, tag.name, this.guild.id]
     );
-    cached.aliases = aliases;
     this.names.push(alias);
-    this.cache.set(cached.name, cached);
     return true;
   }
 
   async editTag(name: string, newContent: string) {
     name = name.toLowerCase();
-    const cached = this.cache.find(
-      (cached) => cached.name == name || cached.aliases.includes(name)
-    );
-    if (!cached) return false;
+    const tagExists = await this.doesTagExist(name);
+    if (!tagExists) return false;
     await this.client.db.query(
       "UPDATE tags SET content=$1 WHERE name=$2 AND gid=$3;",
-      [newContent, cached.name, this.guild.id]
+      [newContent, name, this.guild.id]
     );
-    cached.content = newContent;
-    this.cache.set(cached.name, cached);
     return true;
   }
 }

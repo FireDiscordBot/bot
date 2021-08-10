@@ -934,6 +934,7 @@
   "TAG_CREATE_COMMAND_DESCRIPTION": "Create a new tag",
   "TAGS_CREATE_MISSING_NAME": "Your shiny new tag needs a name, give it one!",
   "TAGS_CREATE_MISSING_CONTENT": "A tag can't be empty, otherwise it has no purpose in life, like me...",
+  "TAGS_CREATE_CONTENT_TOO_LONG": "Tags have a limit of 2000 characters and you have surpassed that limit! Try and make your tag shorter.",
   "TAGS_CREATE_COMMAND_NAME": "That name is already being used by a subcommand, try a different one",
   "TAGS_CREATE_INVALID_CHARACTERS": "That name contains invalid characters!",
   "TAGS_CREATE_ALREADY_EXISTS": "A tag already exists with that name. Be original next time!",

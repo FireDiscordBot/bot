@@ -77,7 +77,6 @@ export class FireGuild extends Guild {
     super(client, data);
 
     this.settings = new GuildSettings(client, this);
-    this.tags = new GuildTagManager(client, this);
     this.fetchingMemberUpdates = false;
     this.fetchingRoleUpdates = false;
     this.mutes = new Collection();
