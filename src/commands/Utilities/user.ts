@@ -187,6 +187,7 @@ export default class User extends Command {
           "MENTION_EVERYONE",
           "VIEW_AUDIT_LOG",
           "VIEW_GUILD_INSIGHTS",
+          "MANAGE_THREADS",
         ];
         Object.keys(permissionsTranslated)
           .filter((permission: PermissionString) =>
