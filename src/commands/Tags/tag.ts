@@ -1,5 +1,5 @@
-import { DiscordAPIError, MessageEmbed, Permissions } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { MessageEmbed, Permissions } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
