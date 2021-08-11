@@ -31,13 +31,15 @@ export default class ThreadDelete extends Listener {
           : language.get("AGO"));
       const data = {
         ...channel,
-        messages: channel.messages.cache,
       };
       delete data.client;
       delete data.guild;
-      const raw = await this.client.util
-        .haste(JSON.stringify(data, null, 4))
-        .catch(() => {});
+      let raw: string | void;
+      try {
+        raw = await this.client.util
+          .haste(JSON.stringify(data, null, 4))
+          .catch(() => {});
+      } catch {}
       const embed = new MessageEmbed()
         .setColor("#E74C3C")
         .setTimestamp()
