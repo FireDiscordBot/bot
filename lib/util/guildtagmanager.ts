@@ -88,7 +88,7 @@ export class GuildTagManager {
     const tag: Tag = {
       createdBy: (fetchedTag.get("uid") as string) ?? null,
       content: fetchedTag.get("content") as string,
-      aliases: fetchedTag.get("aliases") as string[],
+      aliases: (fetchedTag.get("aliases") as string[]) ?? [],
       name: fetchedTag.get("name") as string,
       uses: fetchedTag.get("uses") as number,
     };
@@ -396,7 +396,7 @@ export class GuildTagManager {
     else
       return {
         content: fetchedTag.get("content") as string,
-        aliases: fetchedTag.get("aliases") as string[],
+        aliases: (fetchedTag.get("aliases") as string[]) ?? [],
         name: fetchedTag.get("name") as string,
         uses: fetchedTag.get("uses") as number,
         createdBy: null,
