@@ -66,6 +66,10 @@ export default class Tag extends Command {
   }
 
   async sendTagsList(message: FireMessage) {
+    if (!message.guild.tags) {
+      message.guild.tags = new GuildTagManager(this.client, message.guild);
+      await message.guild.tags.init();
+    }
     const manager = message.guild.tags;
     const names = manager.names;
     if (!names.length) return await message.error("TAG_NONE_FOUND");
