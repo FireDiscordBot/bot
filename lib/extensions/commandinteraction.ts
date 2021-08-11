@@ -11,6 +11,7 @@ import {
   ApplicationCommandOptionType,
   Option,
 } from "../interfaces/interactions";
+import { RawMessageData } from "discord.js/typings/rawDataTypes";
 import { FireTextChannel } from "./textchannel";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
@@ -128,9 +129,14 @@ export class CommandInteraction extends CommandInteractionBase {
       if (role) result.role = this.guild?.roles._add(role) ?? role;
 
       const message = resolved.messages?.[option.value as any];
-      if (message)
+      if (message && this.channel)
         // @ts-ignore
         result.message = this.channel.messages._add(message) as FireMessage;
+      else
+        result.message = new FireMessage(
+          this.client,
+          message as unknown as RawMessageData
+        );
     }
 
     return result;
