@@ -132,7 +132,7 @@ export class CommandInteraction extends CommandInteractionBase {
       if (message && this.channel)
         // @ts-ignore
         result.message = this.channel.messages._add(message) as FireMessage;
-      else
+      else if (message)
         result.message = new FireMessage(
           this.client,
           message as unknown as RawMessageData
