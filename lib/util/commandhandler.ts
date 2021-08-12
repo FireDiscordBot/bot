@@ -4,7 +4,7 @@ import {
   CommandHandlerOptions,
   Constants,
 } from "discord-akairo";
-import { ApplicationCommandMessage } from "../extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { DiscordAPIError, ThreadChannel, Collection } from "discord.js";
 import { CommandUtil, ParsedComponentData } from "./commandutil";
 import { FireMessage } from "@fire/lib/extensions/message";

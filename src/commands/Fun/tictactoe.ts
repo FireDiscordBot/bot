@@ -5,7 +5,7 @@ import {
   Collection,
   Snowflake,
 } from "discord.js";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";

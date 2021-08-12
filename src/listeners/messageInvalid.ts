@@ -2,7 +2,7 @@ import {
   MessageLinkMatch,
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { constants, GuildTextChannel } from "@fire/lib/util/constants";
 import { messageConverter } from "@fire/lib/util/converters";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";

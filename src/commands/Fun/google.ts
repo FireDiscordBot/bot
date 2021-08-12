@@ -1,4 +1,4 @@
-import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";

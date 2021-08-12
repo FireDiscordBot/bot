@@ -1,4 +1,4 @@
-import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { CommandInteraction } from "@fire/lib/extensions/commandinteraction";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { MessageComponentInteraction, Interaction } from "discord.js";

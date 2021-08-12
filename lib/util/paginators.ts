@@ -13,7 +13,7 @@ import {
 import {
   ApplicationCommandMessage,
   FakeChannel,
-} from "@fire/lib/extensions/slashcommandmessage";
+} from "@fire/lib/extensions/appcommandmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { ComponentMessage } from "../extensions/componentmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";

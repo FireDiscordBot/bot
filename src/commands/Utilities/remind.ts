@@ -1,11 +1,11 @@
-import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
-import ReminderSendEvent from "@fire/src/ws/events/ReminderSendEvent";
 import {
+  MessageSelectMenu,
   MessageActionRow,
   MessageButton,
-  MessageSelectMenu,
   SnowflakeUtil,
 } from "discord.js";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import ReminderSendEvent from "@fire/src/ws/events/ReminderSendEvent";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { humanize, parseTime } from "@fire/lib/util/constants";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -51,7 +51,10 @@ export default class Remind extends Command {
   async exec(message: FireMessage, args: { reminder?: string }) {
     // handle context menu before actual command
     // context menu shenanigans
-    if (message instanceof ApplicationCommandMessage && message.isMessageContext()) {
+    if (
+      message instanceof ApplicationCommandMessage &&
+      message.isMessageContext()
+    ) {
       const clickedMessage = (
         message as ApplicationCommandMessage
       ).slashCommand.options.getMessage("message", true);
@@ -101,9 +104,9 @@ export default class Remind extends Command {
       return await message.channel.send({
         content: message.author.language.get("REMINDER_CONTEXT_CONTENT", {
           content:
-              clickedMessage.content.length >= 503
-                ? clickedMessage.content.slice(0, 500) + "..."
-                : clickedMessage.content,
+            clickedMessage.content.length >= 503
+              ? clickedMessage.content.slice(0, 500) + "..."
+              : clickedMessage.content,
         }),
         components: [
           new MessageActionRow().addComponents(dropdown),

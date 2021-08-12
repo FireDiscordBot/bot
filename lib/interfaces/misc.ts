@@ -1,5 +1,5 @@
 import { NewsChannel, ThreadChannel, DMChannel, Snowflake } from "discord.js";
-import { ApplicationCommandMessage } from "../extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { ComponentMessage } from "../extensions/componentmessage";
 import { FireTextChannel } from "../extensions/textchannel";
 import { FireGuild } from "../extensions/guild";

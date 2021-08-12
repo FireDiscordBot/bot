@@ -37,7 +37,7 @@ import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChann
 import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
 import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
 import { ThreadMembersUpdateAction } from "./util/actions/ThreadMembersUpdate";
-import { ApplicationCommandMessage } from "./extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "./extensions/appcommandmessage";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
 import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";

@@ -1,9 +1,8 @@
-import { Permissions, Snowflake } from "discord.js";
 import {
   PartialQuoteDestination,
   MessageLinkMatch,
 } from "@fire/lib/interfaces/messages";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { constants, GuildTextChannel } from "@fire/lib/util/constants";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { ThreadhookClient } from "@fire/lib/util/threadhookclient";
@@ -11,6 +10,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { Permissions, Snowflake } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";

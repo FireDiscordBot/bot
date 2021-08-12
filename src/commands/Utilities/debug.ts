@@ -6,7 +6,7 @@ import {
   Permissions,
   DMChannel,
 } from "discord.js";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";

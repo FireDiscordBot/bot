@@ -1,4 +1,4 @@
-import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Listener } from "@fire/lib/util/listener";
 
