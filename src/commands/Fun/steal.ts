@@ -2,7 +2,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
+import { DiscordAPIError, Permissions } from "discord.js";
 import * as centra from "centra";
 
 const emojiRegex = constants.regexes.customEmoji;
@@ -66,8 +66,10 @@ export default class Steal extends Command {
     let created;
     try {
       created = await message.guild.emojis.create(emoji, name);
-    } catch {
-      return await message.error("STEAL_CAUGHT");
+    } catch (e) {
+      return await message.error("STEAL_CAUGHT", {
+        code: e instanceof DiscordAPIError ? e.code : 0,
+      });
     }
     return await message.success("STEAL_STOLEN", { emoji: created.toString() });
   }
