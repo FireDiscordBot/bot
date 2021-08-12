@@ -559,12 +559,8 @@ export default class Button extends Listener {
     }
 
     if (button.customId.startsWith("deploy:") && button.author.isSuperuser()) {
-      await button.channel
-        .update({
-          embeds: (button.message as FireMessage).embeds,
-          components: [],
-        })
-        .catch(() => {});
+      await button.channel.ack();
+      await button.delete("@original");
       const commit = button.customId.slice(7);
       // i should probably make this less jank
       const commitMessage =
