@@ -146,7 +146,7 @@ export const memberConverter = async (
   if (message instanceof ApplicationCommandMessage) {
     const predicate = (_: unknown, key: string) => key == argument;
     const resolved = message.slashCommand.options.resolved;
-    if (resolved.members.find(predicate) instanceof FireMember)
+    if (resolved.members?.find(predicate) instanceof FireMember)
       return resolved.members.find(predicate) as FireMember;
   }
 
@@ -237,7 +237,7 @@ export const userConverter = async (
   if (message instanceof ApplicationCommandMessage) {
     const predicate = (_: unknown, key: string) => key == argument;
     const resolved = message.slashCommand.options.resolved;
-    if (resolved.users.find(predicate) instanceof FireUser)
+    if (resolved.users?.find(predicate) instanceof FireUser)
       return resolved.users.find(predicate) as FireUser;
   }
 
