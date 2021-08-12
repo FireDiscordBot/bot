@@ -2,7 +2,7 @@ import {
   CommandUtil as AkairoUtil,
   ParsedComponentData as AkairoParsed,
 } from "discord-akairo";
-import { SlashCommandMessage } from "../extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "../extensions/slashcommandmessage";
 import { FireMessage } from "../extensions/message";
 import { CommandHandler } from "./commandhandler";
 import { Language } from "./language";
@@ -14,7 +14,7 @@ export class CommandUtil extends AkairoUtil {
 
   constructor(
     handler: CommandHandler,
-    message: FireMessage | SlashCommandMessage
+    message: FireMessage | ApplicationCommandMessage
   ) {
     // SlashCommandMessage is compatible enough with Message to work here
     // @ts-ignore

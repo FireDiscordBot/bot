@@ -1,4 +1,4 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import ReminderSendEvent from "@fire/src/ws/events/ReminderSendEvent";
 import {
   MessageActionRow,
@@ -51,9 +51,9 @@ export default class Remind extends Command {
   async exec(message: FireMessage, args: { reminder?: string }) {
     // handle context menu before actual command
     // context menu shenanigans
-    if (message instanceof SlashCommandMessage && message.isMessageContext()) {
+    if (message instanceof ApplicationCommandMessage && message.isMessageContext()) {
       const clickedMessage = (
-        message as SlashCommandMessage
+        message as ApplicationCommandMessage
       ).slashCommand.options.getMessage("message", true);
       if (!clickedMessage)
         return await message.error("REMINDER_MISSING_CONTEXT");

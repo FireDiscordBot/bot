@@ -1,4 +1,3 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Reminder } from "@fire/lib/interfaces/reminders";
 import { Language } from "@fire/lib/util/language";

@@ -4,13 +4,8 @@ import {
   CommandHandlerOptions,
   Constants,
 } from "discord-akairo";
-import {
-  DiscordAPIError,
-  ThreadChannel,
-  Collection,
-  DMChannel,
-} from "discord.js";
-import { SlashCommandMessage } from "../extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "../extensions/slashcommandmessage";
+import { DiscordAPIError, ThreadChannel, Collection } from "discord.js";
 import { CommandUtil, ParsedComponentData } from "./commandutil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Fire } from "@fire/lib/Fire";
@@ -55,7 +50,7 @@ export class CommandHandler extends AkairoCommandHandler {
     if (
       message.webhookId ||
       message.author?.bot ||
-      !(message instanceof SlashCommandMessage
+      !(message instanceof ApplicationCommandMessage
         ? message.realChannel
         : message.channel) ||
       !allowedTypes.includes(message.type)
@@ -114,8 +109,8 @@ export class CommandHandler extends AkairoCommandHandler {
     }
   }
 
-  async preThreadChecks(message: FireMessage | SlashCommandMessage) {
-    if (message instanceof SlashCommandMessage) return; // only needed for typing compatibility
+  async preThreadChecks(message: FireMessage | ApplicationCommandMessage) {
+    if (message instanceof ApplicationCommandMessage) return; // only needed for typing compatibility
 
     const isThreadMember =
       message.channel instanceof ThreadChannel &&

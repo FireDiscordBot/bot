@@ -1,4 +1,4 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
@@ -68,9 +68,9 @@ export default class Google extends Command {
     }
 
     // context menu shenanigans
-    if (message instanceof SlashCommandMessage && message.isMessageContext())
+    if (message instanceof ApplicationCommandMessage && message.isMessageContext())
       args.query =
-        (message as SlashCommandMessage).slashCommand.options.getMessage(
+        (message as ApplicationCommandMessage).slashCommand.options.getMessage(
           "message",
           true
         )?.content || "Hi";

@@ -1,4 +1,4 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { SnowflakeUtil, MessageOptions, Permissions } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -63,7 +63,7 @@ export default class CloseTicket extends Command {
       buttonSnowflake
     ).catch(() => {});
     if (!willClose)
-      return message instanceof SlashCommandMessage
+      return message instanceof ApplicationCommandMessage
         ? await message.edit(
             `${emojis.error} ${message.language.get(
               "TICKET_CONFIRMATION_EXPIRED"

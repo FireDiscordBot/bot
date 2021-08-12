@@ -1,4 +1,4 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
 
@@ -12,7 +12,10 @@ export default class ModOnlyInhibitor extends Inhibitor {
   }
 
   exec(message: FireMessage) {
-    if (message instanceof SlashCommandMessage && (message.flags & 64) == 64)
+    if (
+      message instanceof ApplicationCommandMessage &&
+      (message.flags & 64) == 64
+    )
       return false;
     if (
       message.guild &&
@@ -21,7 +24,10 @@ export default class ModOnlyInhibitor extends Inhibitor {
         .includes(message.channel.id)
     ) {
       if (message.member.isSuperuser()) return false;
-      if (message instanceof SlashCommandMessage && message.command.ephemeral)
+      if (
+        message instanceof ApplicationCommandMessage &&
+        message.command.ephemeral
+      )
         return false;
       return !message.member.isModerator(message.channel);
     }

@@ -1,4 +1,4 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { constants, shortURLs } from "@fire/lib/util/constants";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -54,7 +54,7 @@ export default class Filters extends Module {
   }
 
   shouldRun(
-    message?: FireMessage | SlashCommandMessage,
+    message?: FireMessage | ApplicationCommandMessage,
     userOrMember?: FireMember | FireUser
   ) {
     let user: FireUser, member: FireMember;
@@ -114,11 +114,11 @@ export default class Filters extends Module {
 
   async runReplace(
     text: string,
-    context?: FireMessage | SlashCommandMessage | FireMember | FireUser
+    context?: FireMessage | ApplicationCommandMessage | FireMember | FireUser
   ) {
     if (context) {
       const check =
-        context instanceof FireMessage || context instanceof SlashCommandMessage
+        context instanceof FireMessage || context instanceof ApplicationCommandMessage
           ? this.shouldRun(context)
           : this.shouldRun(null, context);
       if (!check) return text;

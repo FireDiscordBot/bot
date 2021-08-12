@@ -1,13 +1,13 @@
-import { MessageComponentInteraction, Interaction } from "discord.js";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { CommandInteraction } from "@fire/lib/extensions/commandinteraction";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
+import { MessageComponentInteraction, Interaction } from "discord.js";
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
 import { Scope } from "@sentry/node";
-import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 
 const { emojis } = constants;
 
@@ -49,7 +49,7 @@ export default class InteractionListener extends Listener {
         command.guild.tags = new GuildTagManager(this.client, command.guild);
         await command.guild.tags.init();
       }
-      const message = new SlashCommandMessage(this.client, command);
+      const message = new ApplicationCommandMessage(this.client, command);
       await message.channel.ack((message.flags & 64) != 0);
       if (!message.command) {
         this.client.console.warn(

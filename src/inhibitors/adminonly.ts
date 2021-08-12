@@ -1,4 +1,4 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
 
@@ -19,7 +19,10 @@ export default class AdminOnlyInhibitor extends Inhibitor {
         .includes(message.channel.id)
     ) {
       if (message.member.isSuperuser()) return false;
-      if (message instanceof SlashCommandMessage && message.command.ephemeral)
+      if (
+        message instanceof ApplicationCommandMessage &&
+        message.command.ephemeral
+      )
         return false;
       return !message.member.isAdmin(message.channel);
     }

@@ -1,5 +1,5 @@
 import { NewsChannel, ThreadChannel, DMChannel, Snowflake } from "discord.js";
-import { SlashCommandMessage } from "../extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "../extensions/slashcommandmessage";
 import { ComponentMessage } from "../extensions/componentmessage";
 import { FireTextChannel } from "../extensions/textchannel";
 import { FireGuild } from "../extensions/guild";
@@ -11,7 +11,7 @@ export class BaseFakeChannel {
     return "";
   }
   real: FireTextChannel | NewsChannel | ThreadChannel | DMChannel;
-  message: SlashCommandMessage | ComponentMessage;
+  message: ApplicationCommandMessage | ComponentMessage;
   interactionId: Snowflake;
   guild?: FireGuild;
   token: string;

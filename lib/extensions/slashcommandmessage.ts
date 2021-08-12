@@ -42,7 +42,7 @@ import { FireUser } from "./user";
 
 const { emojis, reactions } = constants;
 
-export class SlashCommandMessage {
+export class ApplicationCommandMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   attachments: Collection<string, MessageAttachment>;
   private snowflake: DeconstructedSnowflake;
@@ -245,7 +245,7 @@ export class SlashCommandMessage {
   success(
     key?: LanguageKeys,
     args?: TOptions<StringMap>
-  ): Promise<SlashCommandMessage | MessageReaction | void> {
+  ): Promise<ApplicationCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
         return this.sourceMessage.react(reactions.success).catch(() => {});
@@ -267,7 +267,7 @@ export class SlashCommandMessage {
   warn(
     key?: LanguageKeys,
     args?: TOptions<StringMap>
-  ): Promise<SlashCommandMessage | MessageReaction | void> {
+  ): Promise<ApplicationCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
         return this.sourceMessage.react(reactions.warning).catch(() => {});
@@ -289,7 +289,7 @@ export class SlashCommandMessage {
   error(
     key?: LanguageKeys,
     args?: TOptions<StringMap>
-  ): Promise<SlashCommandMessage | MessageReaction | void> {
+  ): Promise<ApplicationCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
         return this.sourceMessage.react(reactions.error).catch(() => {});
@@ -386,10 +386,10 @@ export class SlashCommandMessage {
 }
 
 export class FakeChannel extends BaseFakeChannel {
-  declare message: SlashCommandMessage;
+  declare message: ApplicationCommandMessage;
 
   constructor(
-    message: SlashCommandMessage,
+    message: ApplicationCommandMessage,
     client: Fire,
     id: Snowflake,
     token: string,
@@ -484,7 +484,7 @@ export class FakeChannel extends BaseFakeChannel {
       | MessagePayload
       | (WebhookMessageOptions & { split?: false }),
     flags?: number // Used for success/error, can also be set
-  ): Promise<SlashCommandMessage> {
+  ): Promise<ApplicationCommandMessage> {
     let apiMessage: MessagePayload;
 
     if (options instanceof MessagePayload) apiMessage = options.resolveData();

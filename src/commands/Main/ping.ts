@@ -1,4 +1,4 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageEmbed, Permissions } from "discord.js";
 import { Language } from "@fire/lib/util/language";
@@ -25,7 +25,7 @@ export default class Ping extends Command {
     const embed = new MessageEmbed()
       .setTitle(
         `:ping_pong: ${
-          message instanceof SlashCommandMessage
+          message instanceof ApplicationCommandMessage
             ? this.client.restPing
             : pingMessage.createdTimestamp -
               (message.editedAt
@@ -45,7 +45,7 @@ export default class Ping extends Command {
       )
       .setTimestamp();
 
-    return message instanceof SlashCommandMessage
+    return message instanceof ApplicationCommandMessage
       ? message.channel.send({ embeds: [embed] })
       : pingMessage.delete() &&
           (await message

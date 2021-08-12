@@ -5,7 +5,7 @@ import {
   Collection,
   Snowflake,
 } from "discord.js";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -158,8 +158,8 @@ export default class TicTacToe extends Command {
         }),
         ...requestMsgOptions,
       });
-      if (message instanceof SlashCommandMessage)
-        return await (message as SlashCommandMessage).edit({
+      if (message instanceof ApplicationCommandMessage)
+        return await (message as ApplicationCommandMessage).edit({
           content: message.guild.language.get(
             "TICTACTOE_REQUEST_EXPIRED_SLASH",
             { opponent: opponent.toMention() }
@@ -168,7 +168,7 @@ export default class TicTacToe extends Command {
         });
       else return await message.error("TICTACTOE_REQUEST_EXPIRED");
     } else
-      message instanceof SlashCommandMessage
+      message instanceof ApplicationCommandMessage
         ? await message.delete()
         : await requestMsg.delete().catch(() => {});
 

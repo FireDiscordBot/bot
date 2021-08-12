@@ -11,8 +11,8 @@ import {
   DMChannel,
 } from "discord.js";
 import {
+  ApplicationCommandMessage,
   FakeChannel,
-  SlashCommandMessage,
 } from "@fire/lib/extensions/slashcommandmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { ComponentMessage } from "../extensions/componentmessage";
@@ -168,7 +168,7 @@ export class PaginatorInterface {
   timeout: number;
   deleteMessage: boolean;
 
-  slashMessage?: SlashCommandMessage;
+  slashMessage?: ApplicationCommandMessage;
   sentPageReactions: boolean;
   message: FireMessage;
   _displayPage: number;
@@ -324,7 +324,7 @@ export class PaginatorInterface {
       | DMChannel
       | FakeChannel
   ) {
-    let message: FireMessage | SlashCommandMessage;
+    let message: FireMessage | ApplicationCommandMessage;
     if (
       !(destination instanceof DMChannel) &&
       !(destination.guild as FireGuild).hasExperiment(1621199146, 1)
@@ -332,14 +332,14 @@ export class PaginatorInterface {
       message = (await destination.send({
         content: typeof this.sendArgs == "string" ? this.sendArgs : null,
         embeds: this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
-      })) as FireMessage | SlashCommandMessage;
+      })) as FireMessage | ApplicationCommandMessage;
     else
       message = (await destination.send({
         content: typeof this.sendArgs == "string" ? this.sendArgs : null,
         embeds: this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
         components: this.getButtons(),
-      })) as FireMessage | SlashCommandMessage;
-    if (message instanceof SlashCommandMessage) {
+      })) as FireMessage | ApplicationCommandMessage;
+    if (message instanceof ApplicationCommandMessage) {
       this.slashMessage = message;
       this.message = await message.getRealMessage();
     } else this.message = message as FireMessage;

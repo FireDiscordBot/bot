@@ -2,7 +2,7 @@ import {
   MessageLinkMatch,
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { constants, GuildTextChannel } from "@fire/lib/util/constants";
 import { messageConverter } from "@fire/lib/util/converters";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
@@ -163,8 +163,8 @@ export default class MessageInvalid extends Listener {
     }
   }
 
-  cleanCommandUtil(message: FireMessage | SlashCommandMessage) {
-    if (message instanceof SlashCommandMessage) return;
+  cleanCommandUtil(message: FireMessage | ApplicationCommandMessage) {
+    if (message instanceof ApplicationCommandMessage) return;
     const util = message.util;
     if (!util.parsed?.command)
       this.client.commandHandler.commandUtils.delete(message.id);

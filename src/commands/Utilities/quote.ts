@@ -3,7 +3,7 @@ import {
   PartialQuoteDestination,
   MessageLinkMatch,
 } from "@fire/lib/interfaces/messages";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { constants, GuildTextChannel } from "@fire/lib/util/constants";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { ThreadhookClient } from "@fire/lib/util/threadhookclient";
@@ -135,7 +135,7 @@ export default class Quote extends Command {
     } else if (!message) return;
     const quoted = await args.quote
       .quote(
-        message instanceof SlashCommandMessage
+        message instanceof ApplicationCommandMessage
           ? (message.realChannel as GuildTextChannel)
           : (message.channel as GuildTextChannel),
         message.member,

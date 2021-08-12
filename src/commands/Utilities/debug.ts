@@ -6,7 +6,7 @@ import {
   Permissions,
   DMChannel,
 } from "discord.js";
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -40,7 +40,7 @@ export default class Debug extends Command {
   async exec(message: FireMessage, args: { command: Command }) {
     const cmd = args.command;
     const channel =
-      message instanceof SlashCommandMessage
+      message instanceof ApplicationCommandMessage
         ? message.realChannel
         : message.channel;
 

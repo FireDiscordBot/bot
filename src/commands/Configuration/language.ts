@@ -1,4 +1,4 @@
-import { SlashCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/slashcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
@@ -45,9 +45,9 @@ export default class LanguageCommand extends Command {
       );
     } else {
       message.author.settings.set<string>("utils.language", args.language.id);
-      if (message instanceof SlashCommandMessage)
+      if (message instanceof ApplicationCommandMessage)
         // ts server gets angry without the "as" even though I have the instance check
-        (message as SlashCommandMessage).flags = 64;
+        (message as ApplicationCommandMessage).flags = 64;
       return await message.success("LANGUAGE_COMMAND_HELLO_USER");
     }
   }

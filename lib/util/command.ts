@@ -164,8 +164,8 @@ export class Command extends AkairoCommand {
         typeof this.description == "function"
           ? this.description(this.client.getLanguage("en-US"))
           : this.description || "No Description Provided",
-      // defaultPermission: !this.requiresExperiment,
-      defaultPermission: true, // until @everyone is supported
+      type: "CHAT_INPUT",
+      defaultPermission: true,
     };
     if (id) data.id = id;
     if (!this.group) {

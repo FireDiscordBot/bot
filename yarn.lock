@@ -32,10 +32,10 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@discordjs/builders@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@discordjs/builders/-/builders-0.4.0.tgz#bb41573ce4824aa9194a53b52c29c5219b610010"
-  integrity sha512-EiwLltKph6TSaPJIzJYdzNc1PnA2ZNaaE0t0ODg3ghnpVHqfgd0YX9/srsleYHW2cw1sfIq+kbM+h0etf7GWLA==
+"@discordjs/builders@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@discordjs/builders/-/builders-0.5.0.tgz#646cbea9cc67f68639e6fb70ed1278b26dacdb14"
+  integrity sha512-HP5y4Rqw68o61Qv4qM5tVmDbWi4mdTFftqIOGRo33SNPpLJ1Ga3KEIR2ibKofkmsoQhEpLmopD1AZDs3cKpHuw==
   dependencies:
     "@sindresorhus/is" "^4.0.1"
     discord-api-types "^0.22.0"
@@ -627,7 +627,7 @@ detect-libc@^1.0.3:
 
 discord-akairo@discord-akairo/discord-akairo:
   version "8.1.0"
-  resolved "https://codeload.github.com/discord-akairo/discord-akairo/tar.gz/68e842c5278ce57c7dba90f4e886a6d613782e27"
+  resolved "https://codeload.github.com/discord-akairo/discord-akairo/tar.gz/905f69382957023601ebbb6f8a3a8b6b0f615bd1"
 
 discord-api-types@^0.18.1:
   version "0.18.1"
@@ -641,9 +641,9 @@ discord-api-types@^0.22.0:
 
 discord.js@FireDiscordBot/discord.js:
   version "13.1.0-dev"
-  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/69093861d0c16c02bd1f6dbddf4da497871779c1"
+  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/7852f1ea6b1d78f6e887b32cc39eb4b10bb9e672"
   dependencies:
-    "@discordjs/builders" "^0.4.0"
+    "@discordjs/builders" "^0.5.0"
     "@discordjs/collection" "^0.2.1"
     "@discordjs/form-data" "^3.0.1"
     "@sapphire/async-queue" "^1.1.4"
