@@ -131,7 +131,7 @@ export class GuildTagManager {
       ])
       .first()
       .catch(() => {});
-    return exists && (exists.get("aliases") as string[]).includes(alias);
+    return exists && (exists.get("aliases") as string[])?.includes(alias);
   }
 
   private async getUses(name: string) {
