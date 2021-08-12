@@ -69,8 +69,8 @@ export class GuildTagManager {
       (name) =>
         fuzz.ratio(tag.trim().toLowerCase(), name.trim().toLowerCase()) >= 60
     );
-    if (useFuzzy && fuzzy) return await this.fetchTag(fuzzy);
-    return await this.fetchTag(tag, includeCreator);
+    if (useFuzzy && fuzzy) return await this.fetchTag(fuzzy, includeCreator);
+    else return await this.fetchTag(tag, includeCreator);
   }
 
   private async fetchTag(name: string, includeCreator = false): Promise<Tag> {
@@ -492,7 +492,7 @@ export class GuildTagManager {
     existing = existing.toLowerCase();
     alias = alias.toLowerCase();
     const nameExists = await this.doesTagExist(alias);
-    if (nameExists) return false;
+    if (!nameExists) return false;
     const aliasExists = await this.doesAliasExist(alias);
     if (aliasExists) return false;
     const tag = await this.getTag(existing, false);
