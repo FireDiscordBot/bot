@@ -96,9 +96,9 @@ export class FireMessage extends Message {
     if (this.channel.deleted) return;
     return this.channel.send({
       content: this.language.get(key, args),
-      allowedMentions: args.allowedMentions,
-      components: args.components,
-      reply: args.reply,
+      allowedMentions: args?.allowedMentions,
+      components: args?.components,
+      reply: args?.reply,
     });
   }
 
@@ -111,9 +111,9 @@ export class FireMessage extends Message {
       ? this.react(reactions.success).catch(() => {})
       : this.channel.send({
           content: `${emojis.success} ${this.language.get(key, args)}`,
-          allowedMentions: args.allowedMentions,
-          components: args.components,
-          reply: args.reply,
+          allowedMentions: args?.allowedMentions,
+          components: args?.components,
+          reply: args?.reply,
         });
   }
 
@@ -126,8 +126,8 @@ export class FireMessage extends Message {
       ? this.react(reactions.warning).catch(() => {})
       : this.reply({
           content: `${emojis.warning} ${this.language.get(key, args)}`,
-          allowedMentions: args.allowedMentions,
-          components: args.components,
+          allowedMentions: args?.allowedMentions,
+          components: args?.components,
           failIfNotExists: false,
         });
   }
@@ -141,8 +141,8 @@ export class FireMessage extends Message {
       ? this.react(reactions.error).catch(() => {})
       : this.reply({
           content: `${emojis.error} ${this.language.get(key, args)}`,
-          allowedMentions: args.allowedMentions,
-          components: args.components,
+          allowedMentions: args?.allowedMentions,
+          components: args?.components,
           failIfNotExists: false,
         });
   }

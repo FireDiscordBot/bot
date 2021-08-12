@@ -224,8 +224,8 @@ export class ApplicationCommandMessage {
     return this.channel.send(
       {
         content: this.language.get(key, args),
-        allowedMentions: args.allowedMentions,
-        components: args.components,
+        allowedMentions: args?.allowedMentions,
+        components: args?.components,
       },
       this.flags
     );
@@ -250,8 +250,8 @@ export class ApplicationCommandMessage {
     return this.channel.send(
       {
         content: `${emojis.success} ${this.language.get(key, args)}`,
-        allowedMentions: args.allowedMentions,
-        components: args.components,
+        allowedMentions: args?.allowedMentions,
+        components: args?.components,
       },
       typeof this.flags == "number" ? this.flags : 64
     );
@@ -276,8 +276,8 @@ export class ApplicationCommandMessage {
     return this.channel.send(
       {
         content: `${emojis.warning} ${this.language.get(key, args)}`,
-        allowedMentions: args.allowedMentions,
-        components: args.components,
+        allowedMentions: args?.allowedMentions,
+        components: args?.components,
       },
       typeof this.flags == "number" ? this.flags : 64
     );
@@ -302,8 +302,8 @@ export class ApplicationCommandMessage {
     return this.channel.send(
       {
         content: `${emojis.slashError} ${this.language.get(key, args)}`,
-        allowedMentions: args.allowedMentions,
-        components: args.components,
+        allowedMentions: args?.allowedMentions,
+        components: args?.components,
       },
       typeof this.flags == "number" ? this.flags : 64
     );
