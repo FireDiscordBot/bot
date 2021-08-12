@@ -491,7 +491,7 @@ export class GuildTagManager {
   async addAlias(existing: string, alias: string) {
     existing = existing.toLowerCase();
     alias = alias.toLowerCase();
-    const nameExists = await this.doesTagExist(alias);
+    const nameExists = await this.doesTagExist(existing);
     if (!nameExists) return false;
     const aliasExists = await this.doesAliasExist(alias);
     if (aliasExists) return false;
