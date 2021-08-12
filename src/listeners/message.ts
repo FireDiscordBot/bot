@@ -119,7 +119,7 @@ export default class Message extends Listener {
     if (
       message.guild?.hasExperiment(936071411, 1) &&
       ((lowerContent.includes("@everyone") &&
-        ((lowerContent.includes("nitro") && lowerContent.includes("free")) ||
+        (lowerContent.includes("nitro") ||
           lowerContent.includes("cs:go") ||
           lowerContent.includes("tradeoffer") ||
           lowerContent.includes("partner"))) ||
