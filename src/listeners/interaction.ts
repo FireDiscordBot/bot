@@ -29,8 +29,8 @@ export default class InteractionListener extends Listener {
       return await this.handleApplicationCommand(
         interaction as CommandInteraction
       );
-    // todo: add this lol
-    else if (interaction.isContextMenu()) return;
+    else if (interaction.isContextMenu())
+      return await this.handleContextMenu(interaction);
     else if (
       interaction.isMessageComponent() &&
       interaction.componentType == "BUTTON"
