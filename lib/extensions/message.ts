@@ -94,7 +94,12 @@ export class FireMessage extends Message {
 
   send(key?: LanguageKeys, args?: i18nOptions) {
     if (this.channel.deleted) return;
-    return this.channel.send({ content: this.language.get(key, args) });
+    return this.channel.send({
+      content: this.language.get(key, args),
+      allowedMentions: args.allowedMentions,
+      components: args.components,
+      reply: args.reply,
+    });
   }
 
   success(
