@@ -48,7 +48,7 @@ export default class Steal extends Command {
       emoji = `https://cdn.discordapp.com/emojis/${emoji}`;
       const format = await this.getFormat(emoji);
       if (!format) return await message.error("STEAL_INVALID_EMOJI");
-      else emoji += format;
+      else emoji = `${emoji}.${format}`;
     } else if (emojiRegex.test(emoji)) {
       emojiRegex.lastIndex = 0;
       const match = emojiRegex.exec(emoji);
