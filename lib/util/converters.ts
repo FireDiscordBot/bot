@@ -11,6 +11,7 @@ import {
   Snowflake,
   Role,
 } from "discord.js";
+import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireTextChannel } from "../extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -53,8 +54,6 @@ const getRoleMentionMatch = (argument: string) => {
   const match = roleMentionRegex.exec(argument);
   return match ? (match[1] as Snowflake) : null;
 };
-
-// TODO: use resolved data from slash cmds
 
 export const snowflakeConverter = async (
   message: FireMessage,
@@ -144,6 +143,13 @@ export const memberConverter = async (
 
   if (argument == "@me" && message.member) return message.member;
 
+  if (message instanceof ApplicationCommandMessage) {
+    const predicate = (_: unknown, key: string) => key == argument;
+    const resolved = message.slashCommand.options.resolved;
+    if (resolved.members.find(predicate) instanceof FireMember)
+      return resolved.members.find(predicate) as FireMember;
+  }
+
   const guild = message.guild;
   if (!guild) {
     if (!silent) await message.error();
@@ -227,6 +233,13 @@ export const userConverter = async (
   if (!argument) return;
 
   if (argument == "@me") return message.author;
+
+  if (message instanceof ApplicationCommandMessage) {
+    const predicate = (_: unknown, key: string) => key == argument;
+    const resolved = message.slashCommand.options.resolved;
+    if (resolved.users.find(predicate) instanceof FireUser)
+      return resolved.users.find(predicate) as FireUser;
+  }
 
   if (argument == "^" && message.channel.messages.cache.size >= 4)
     return message.channel.messages.cache
