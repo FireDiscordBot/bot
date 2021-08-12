@@ -23,15 +23,14 @@ import {
   Snowflake,
 } from "discord.js";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
+import { constants, i18nOptions } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { RawUserData } from "discord.js/typings/rawDataTypes";
 import { CommandInteraction } from "./commandinteraction";
 import { CommandUtil } from "@fire/lib/util/commandutil";
-import { constants } from "@fire/lib/util/constants";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { FireTextChannel } from "./textchannel";
 import { APIMessage } from "discord-api-types";
-import { TOptions, StringMap } from "i18next";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
 import { Fire } from "@fire/lib/Fire";
@@ -221,16 +220,20 @@ export class ApplicationCommandMessage {
     return this.content;
   }
 
-  send(key?: LanguageKeys, args?: TOptions<StringMap>) {
+  send(key?: LanguageKeys, args?: i18nOptions) {
     return this.channel.send(
-      { content: this.language.get(key, args) },
+      {
+        content: this.language.get(key, args),
+        allowedMentions: args.allowedMentions,
+        components: args.components,
+      },
       this.flags
     );
   }
 
   success(
     key?: LanguageKeys,
-    args?: TOptions<StringMap>
+    args?: i18nOptions
   ): Promise<ApplicationCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
@@ -245,14 +248,18 @@ export class ApplicationCommandMessage {
         });
     }
     return this.channel.send(
-      `${emojis.success} ${this.language.get(key, args)}`,
+      {
+        content: `${emojis.success} ${this.language.get(key, args)}`,
+        allowedMentions: args.allowedMentions,
+        components: args.components,
+      },
       typeof this.flags == "number" ? this.flags : 64
     );
   }
 
   warn(
     key?: LanguageKeys,
-    args?: TOptions<StringMap>
+    args?: i18nOptions
   ): Promise<ApplicationCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
@@ -267,14 +274,18 @@ export class ApplicationCommandMessage {
         });
     }
     return this.channel.send(
-      `${emojis.warning} ${this.language.get(key, args)}`,
+      {
+        content: `${emojis.warning} ${this.language.get(key, args)}`,
+        allowedMentions: args.allowedMentions,
+        components: args.components,
+      },
       typeof this.flags == "number" ? this.flags : 64
     );
   }
 
   error(
     key?: LanguageKeys,
-    args?: TOptions<StringMap>
+    args?: i18nOptions
   ): Promise<ApplicationCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
@@ -289,7 +300,11 @@ export class ApplicationCommandMessage {
         });
     }
     return this.channel.send(
-      `${emojis.slashError} ${this.language.get(key, args)}`,
+      {
+        content: `${emojis.slashError} ${this.language.get(key, args)}`,
+        allowedMentions: args.allowedMentions,
+        components: args.components,
+      },
       typeof this.flags == "number" ? this.flags : 64
     );
   }

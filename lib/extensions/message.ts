@@ -6,18 +6,21 @@ import {
   WebhookClient,
   ThreadMember,
   MessageEmbed,
+  GuildChannel,
   Permissions,
   NewsChannel,
   Collection,
   Structures,
   DMChannel,
-  Snowflake,
   Webhook,
   Message,
-  GuildChannel,
 } from "discord.js";
+import {
+  GuildTextChannel,
+  i18nOptions,
+  constants,
+} from "@fire/lib/util/constants";
 import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
-import { constants, GuildTextChannel } from "@fire/lib/util/constants";
 import { RawMessageData } from "discord.js/typings/rawDataTypes";
 import { PaginatorInterface } from "@fire/lib/util/paginators";
 import { CommandUtil } from "@fire/lib/util/commandutil";
@@ -25,7 +28,6 @@ import Filters from "@fire/src/modules/filters";
 import { FireTextChannel } from "./textchannel";
 import { LanguageKeys } from "../util/language";
 import Semaphore from "semaphore-async-await";
-import { TOptions, StringMap } from "i18next";
 import { FireMember } from "./guildmember";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
@@ -90,45 +92,52 @@ export class FireMessage extends Message {
     );
   }
 
-  send(key?: LanguageKeys, args?: TOptions<StringMap>) {
+  send(key?: LanguageKeys, args?: i18nOptions) {
     if (this.channel.deleted) return;
     return this.channel.send({ content: this.language.get(key, args) });
   }
 
   success(
     key?: LanguageKeys,
-    args?: TOptions<StringMap>
+    args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
     return !key
       ? this.react(reactions.success).catch(() => {})
       : this.channel.send({
           content: `${emojis.success} ${this.language.get(key, args)}`,
+          allowedMentions: args.allowedMentions,
+          components: args.components,
+          reply: args.reply,
         });
   }
 
   warn(
     key?: LanguageKeys,
-    args?: TOptions<StringMap>
+    args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
     return !key
       ? this.react(reactions.warning).catch(() => {})
       : this.reply({
           content: `${emojis.warning} ${this.language.get(key, args)}`,
+          allowedMentions: args.allowedMentions,
+          components: args.components,
           failIfNotExists: false,
         });
   }
 
   error(
     key?: LanguageKeys,
-    args?: TOptions<StringMap>
+    args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
     return !key
       ? this.react(reactions.error).catch(() => {})
       : this.reply({
           content: `${emojis.error} ${this.language.get(key, args)}`,
+          allowedMentions: args.allowedMentions,
+          components: args.components,
           failIfNotExists: false,
         });
   }

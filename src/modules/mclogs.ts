@@ -386,11 +386,12 @@ export default class MCLogs extends Module {
       }
 
       return await message.send("MC_LOG_HASTE", {
-        user: Util.escapeMarkdown(message.author.toString()),
+        user: message.author.toMention(),
         msgType,
         extra: msgType == "uploaded" ? message.content : "",
         haste,
         solutions: possibleSolutions,
+        allowedMentions: { users: [message.author.id] },
       });
     } catch (e) {
       this.client.console.error(
