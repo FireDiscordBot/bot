@@ -50,7 +50,6 @@ export default class Remind extends Command {
 
   async exec(message: FireMessage, args: { reminder?: string }) {
     // handle context menu before actual command
-    // context menu shenanigans
     if (message instanceof ContextCommandMessage) {
       const clickedMessage = (
         message as ContextCommandMessage

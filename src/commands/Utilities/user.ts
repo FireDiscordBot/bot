@@ -58,9 +58,10 @@ export default class User extends Command {
           required: false,
         },
       ],
-      enableSlashCommand: true,
       aliases: ["userinfo", "infouser", "whois", "u"],
+      enableSlashCommand: true,
       restrictTo: "all",
+      context: ["user"],
     });
   }
 

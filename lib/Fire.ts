@@ -38,6 +38,7 @@ import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
 import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
 import { ThreadMembersUpdateAction } from "./util/actions/ThreadMembersUpdate";
 import { ApplicationCommandMessage } from "./extensions/appcommandmessage";
+import { ContextCommandMessage } from "./extensions/contextcommandmessage";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
 import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
@@ -237,7 +238,11 @@ export class Fire extends AkairoClient {
       automateCategories: true,
       commandUtilLifetime: 30000,
       prefix: (message: FireMessage) => {
-        if (message instanceof ApplicationCommandMessage) return ["/"];
+        if (
+          message instanceof ApplicationCommandMessage ||
+          message instanceof ContextCommandMessage
+        )
+          return ["/"];
         const prefixes = message.guild?.settings.get<string[]>(
           "config.prefix",
           ["$"]
