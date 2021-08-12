@@ -20,8 +20,6 @@ export default class Stats extends Command {
       args: [
         {
           id: "cluster",
-          flag: "--cluster",
-          match: "option",
           type: "number",
           default: null,
           required: false,
@@ -32,7 +30,8 @@ export default class Stats extends Command {
   }
 
   async exec(message: FireMessage, args: { cluster?: number }) {
-    if (!this.client.manager.ws?.open) return await this.singularStats(message);
+    if (!this.client.manager.ws?.open || args.cluster == this.client.manager.id)
+      return await this.singularStats(message);
     let clusterStats: Cluster;
     const stats: AetherStats = await (
       await centra(
@@ -45,7 +44,7 @@ export default class Stats extends Command {
     ).json();
     if (stats.clusters.length <= 1) return await this.singularStats(message);
     const clusterId = args.cluster;
-    if (clusterId) {
+    if (typeof clusterId == "number") {
       clusterStats = stats.clusters.find(
         (cluster) =>
           cluster.id == clusterId &&
