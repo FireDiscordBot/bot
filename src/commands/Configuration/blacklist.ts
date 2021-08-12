@@ -42,6 +42,8 @@ export default class Blacklist extends Command {
     message: FireMessage,
     args: { user: FireMember | FireUser; reason: string }
   ) {
+    if (args.user instanceof FireMember ? args.user.user.bot : args.user.bot)
+      return await message.error("BLACKLIST_BOT");
     if (
       !message.author.isSuperuser() &&
       !message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD)

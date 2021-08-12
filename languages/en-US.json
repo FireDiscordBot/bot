@@ -670,6 +670,7 @@
   "PUBLIC_DISABLED_LOG": "Ths server was manually removed from Fire's public server list by {{user}}",
   "PUBLIC_DISCOVERABLE_INVITE": "Creating invite for use on Fire's public servers page as this server has the \"DISCOVERABLE\" feature",
   "BLACKLIST_COMMAND_DESCRIPTION": "Make a user unable to use the best discord bot in your server",
+  "BLACKLIST_BOT": "Bots cannot use Fire anyways, there's no need to blacklist them!",
   "BLACKLIST_FORBIDDEN": "You must be in a server and have the **{{manage}}** permission to use this.",
   "BLACKLIST_USER_REQUIRED": "You must provide a user to blacklist",
   "BLACKLIST_LOG_AUTHOR": "Blacklist | {{user}}",
