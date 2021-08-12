@@ -36,7 +36,7 @@ import { getCommitHash } from "./gitUtils";
 import { murmur3 } from "murmurhash-js";
 import { Fire } from "@fire/lib/Fire";
 import * as pidusage from "pidusage";
-import * as Centra from "centra";
+import * as centra from "centra";
 import * as moment from "moment";
 import { totalmem } from "os";
 
@@ -127,7 +127,7 @@ export class Util extends ClientUtil {
     const url = fallback ? "https://h.inv.wtf/" : "https://hst.sh/";
     try {
       const h: { key: string } = await (
-        await Centra(url, "POST")
+        await centra(url, "POST")
           .path("/documents")
           .body(text, "buffer")
           .header("User-Agent", this.client.manager.ua)
@@ -144,9 +144,11 @@ export class Util extends ClientUtil {
 
   async nameToUUID(player: string) {
     if (this.uuidCache.has(player)) return this.uuidCache.get(player);
-    const profileReq = await Centra(
+    const profileReq = await centra(
       `https://api.mojang.com/users/profiles/minecraft/${player}`
-    ).send();
+    )
+      .header("User-Agent", this.client.manager.ua)
+      .send();
     if (profileReq.statusCode == 200) {
       const profile: MojangProfile = await profileReq.json();
       this.uuidCache.set(player, profile.id);
@@ -447,9 +449,10 @@ export class Util extends ClientUtil {
 
   async getYouTubeVideo(id: string) {
     if (!process.env.YOUTUBE_KEY) return false;
-    const videoReq = await Centra(
+    const videoReq = await centra(
       `https://www.googleapis.com/youtube/v3/videos`
     )
+      .header("User-Agent", this.client.manager.ua)
       .query("key", process.env.YOUTUBE_KEY)
       .query("id", id)
       .query("part", "snippet,contentDetails,statistics")
@@ -461,9 +464,10 @@ export class Util extends ClientUtil {
 
   async getYouTubeChannel(id: string) {
     if (!process.env.YOUTUBE_KEY) return false;
-    const channelReq = await Centra(
+    const channelReq = await centra(
       `https://www.googleapis.com/youtube/v3/channels`
     )
+      .header("User-Agent", this.client.manager.ua)
       .query("key", process.env.YOUTUBE_KEY)
       .query(id.startsWith("UC") ? "id" : "forUsername", id)
       .query("part", "snippet,statistics")

@@ -34,21 +34,23 @@ export default class MinecraftStatus extends Command {
   }
 
   async exec(message: FireMessage) {
-    const statusReq = await centra("https://status.mojang.com/check").send();
+    const statusReq = await centra("https://status.mojang.com/check")
+      .header("User-Agent", this.client.manager.ua)
+      .send();
     if (statusReq.statusCode != 200)
       return await message.send("MCSTATUS_FETCH_FAIL");
     const status: MojangStatus = await statusReq.json();
     let statuses: string[] = [];
-    const statusDescriptions = (message.language.get("MCSTATUS_STATUSES", {
+    const statusDescriptions = message.language.get("MCSTATUS_STATUSES", {
       returnObjects: true,
-    }) as unknown) as {
+    }) as unknown as {
       green: string;
       yellow: string;
       red: string;
     };
-    const services = (message.language.get("MCSTATUS_SERVICES", {
+    const services = message.language.get("MCSTATUS_SERVICES", {
       returnObjects: true,
-    }) as unknown) as {
+    }) as unknown as {
       "minecraft.net": string;
       "sessionserver.mojang.com": string;
       "authserver.mojang.com": string;

@@ -44,6 +44,7 @@ export default class Trans extends Command {
     const transReq = await centra(
       `https://api.ravy.lgbt/${overlay ? "overlay" : "circle"}`
     )
+      .header("User-Agent", this.client.manager.ua)
       .query("image", user.displayAvatarURL({ size: 1024, format: "png" }))
       .send();
 

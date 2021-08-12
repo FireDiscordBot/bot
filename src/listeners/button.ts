@@ -81,10 +81,7 @@ export default class Button extends Listener {
       button.flags = 64;
       const [, uploader, key] = button.customId.split(":");
       const hasteReq = await centra(`https://${uploader}/raw/${key}`)
-        .header(
-          "User-Agent",
-          `Fire Discord Bot/${button.client.manager.version} (+https://fire.gaminggeek.dev/)`
-        )
+        .header("User-Agent", button.client.manager.ua)
         .send()
         .catch(() => {});
       if (!hasteReq || hasteReq.statusCode != 200) {

@@ -27,9 +27,13 @@ export default class DiscordStatus extends Command {
 
     try {
       responses = await Promise.all([
-        centra(constants.url.discordStatus).path("/api/v2/summary.json").send(),
+        centra(constants.url.discordStatus)
+          .path("/api/v2/summary.json")
+          .header("User-Agent", this.client.manager.ua)
+          .send(),
         centra(constants.url.discordStatus)
           .path("/api/v2/incidents.json")
+          .header("User-Agent", this.client.manager.ua)
           .send(),
       ]);
     } catch (e) {

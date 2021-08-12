@@ -58,6 +58,7 @@ export default class MakeAMeme extends Command {
         text[0]
       }&bottom_text=${text[1]}`
     )
+      .header("User-Agent", this.client.manager.ua)
       .header("Authorization", process.env.MEME_TOKEN)
       .send();
     if (memeReq.statusCode != 200) return await message.error();

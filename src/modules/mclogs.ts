@@ -240,7 +240,10 @@ export default class MCLogs extends Module {
       try {
         // const text = await (await centra(attach.url).send()).text();
         let chunks: string[] = [];
-        const stream = await centra(attach.url).stream().send();
+        const stream = await centra(attach.url)
+          .header("User-Agent", this.client.manager.ua)
+          .stream()
+          .send();
         let logDiff: string;
         for await (const chunk of stream as unknown as Readable) {
           chunks.push(chunk.toString());

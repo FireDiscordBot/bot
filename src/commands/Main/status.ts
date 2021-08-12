@@ -29,8 +29,14 @@ export default class DiscordStatus extends Command {
 
     try {
       responses = await Promise.all([
-        centra(constants.url.fireStatus).path("/api/v2/summary.json").send(),
-        centra(constants.url.fireStatus).path("/api/v2/incidents.json").send(),
+        centra(constants.url.fireStatus)
+          .path("/api/v2/summary.json")
+          .header("User-Agent", this.client.manager.ua)
+          .send(),
+        centra(constants.url.fireStatus)
+          .path("/api/v2/incidents.json")
+          .header("User-Agent", this.client.manager.ua)
+          .send(),
       ]);
     } catch (e) {
       return await message.send("STATUS_FETCH_FAIL");

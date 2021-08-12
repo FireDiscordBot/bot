@@ -52,6 +52,7 @@ export default class Deepfry extends Command {
     const deepfryReq = await centra(
       `https://memes.aero.bot/api/deepfry?avatar1=${image}`
     )
+      .header("User-Agent", this.client.manager.ua)
       .header("Authorization", process.env.MEME_TOKEN)
       .send();
     if (deepfryReq.statusCode != 200) return await message.error();

@@ -113,9 +113,15 @@ export default class Sk1er extends Module {
   async descriptionUpdater() {
     try {
       const responses = await Promise.all([
-        centra("https://api.sk1er.club/mods_analytics").send(),
-        centra("https://api.autotip.pro/counts").send(),
-        centra("https://api.hyperium.cc/users").send(),
+        centra("https://api.sk1er.club/mods_analytics")
+          .header("User-Agent", this.client.manager.ua)
+          .send(),
+        centra("https://api.autotip.pro/counts")
+          .header("User-Agent", this.client.manager.ua)
+          .send(),
+        centra("https://api.hyperium.cc/users")
+          .header("User-Agent", this.client.manager.ua)
+          .send(),
       ]);
       const jsons = (await Promise.all(
         responses.map((response) => response.json())
@@ -160,9 +166,11 @@ export default class Sk1er extends Module {
               }`
             );
           else if (typeof removed == "boolean" && removed)
-            (this.guild.channels.cache.get(
-              "411620457754787841"
-            ) as FireTextChannel).send({
+            (
+              this.guild.channels.cache.get(
+                "411620457754787841"
+              ) as FireTextChannel
+            ).send({
               content: this.guild.language.get("SK1ER_NITRO_PERKS_REMOVED", {
                 member: member.toMention(),
               }) as string,
@@ -191,9 +199,11 @@ export default class Sk1er extends Module {
               }`
             );
           else if (typeof removed == "boolean" && removed)
-            (this.guild.channels.cache.get(
-              "411620457754787841"
-            ) as FireTextChannel).send(
+            (
+              this.guild.channels.cache.get(
+                "411620457754787841"
+              ) as FireTextChannel
+            ).send(
               this.guild.language.get("SK1ER_NITRO_PERKS_REMOVED_LEFT", {
                 member: user.toString(),
               })
@@ -317,6 +327,7 @@ export default class Sk1er extends Module {
       `https://api.modcore.net/api/v1/nitro/${uuid}/false`,
       "POST"
     )
+      .header("User-Agent", this.client.manager.ua)
       .header("secret", this.essentialHeaders.secret)
       .send();
 
@@ -341,6 +352,7 @@ export default class Sk1er extends Module {
       `https://api.modcore.net/api/v1/nitro/${uuid}/true`,
       "POST"
     )
+      .header("User-Agent", this.client.manager.ua)
       .header("secret", this.essentialHeaders.secret)
       .send();
 

@@ -34,9 +34,9 @@ export default class Levelhead extends Command {
     let levelhead;
     try {
       levelhead = await (
-        await centra(
-          `https://api.sk1er.club/levelheadv5/${args.player}/LEVEL`
-        ).send()
+        await centra(`https://api.sk1er.club/levelheadv5/${args.player}/LEVEL`)
+          .header("User-Agent", this.client.manager.ua)
+          .send()
       ).json();
     } catch {
       return await message.error("LEVELHEAD_FETCH_FAIL");
@@ -58,16 +58,18 @@ export default class Levelhead extends Command {
     let purchase, proposal;
     try {
       purchase = await (
-        await centra(
-          `https://api.sk1er.club/levelhead_purchase_status/${uuid}`
-        ).send()
+        await centra(`https://api.sk1er.club/levelhead_purchase_status/${uuid}`)
+          .header("User-Agent", this.client.manager.ua)
+          .send()
       ).json();
     } catch {
       return await message.error("LEVELHEAD_FETCH_FAIL");
     }
     try {
       proposal = await (
-        await centra(`https://api.hyperium.cc/levelhead_propose/${uuid}`).send()
+        await centra(`https://api.hyperium.cc/levelhead_propose/${uuid}`)
+          .header("User-Agent", this.client.manager.ua)
+          .send()
       ).json();
     } catch {
       proposal = null;

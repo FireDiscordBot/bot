@@ -30,6 +30,7 @@ export default class Mod extends Command {
 
   async exec(message: FireMessage, args: { mod?: string }) {
     const modsReq = await centra("https://api.sk1er.club/mods")
+      .header("User-Agent", this.client.manager.ua)
       .send()
       .catch(() => {});
     if (!modsReq || modsReq.statusCode != 200) return await message.error();
@@ -63,6 +64,7 @@ export default class Mod extends Command {
     }
     if (!mod) return await message.error("MOD_INVALID");
     const analyticsReq = await centra("https://api.sk1er.club/mods_analytics")
+      .header("User-Agent", this.client.manager.ua)
       .send()
       .catch(() => {});
     if (!analyticsReq || analyticsReq.statusCode != 200)
