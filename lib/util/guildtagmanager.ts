@@ -64,12 +64,18 @@ export class GuildTagManager {
       this.aliases.includes(tag.toLowerCase())
     )
       return await this.fetchTag(tag, includeCreator);
-    const names = [...this.names, ...this.aliases];
-    const fuzzy = names.find(
-      (name) =>
-        fuzz.ratio(tag.trim().toLowerCase(), name.trim().toLowerCase()) >= 60
+    if (!this.names.length) return null;
+    const fuzzy = this.names.sort(
+      (a, b) =>
+        fuzz.ratio(tag.trim().toLowerCase(), b.trim().toLowerCase()) -
+        fuzz.ratio(tag.trim().toLowerCase(), a.trim().toLowerCase())
     );
-    if (useFuzzy && fuzzy) return await this.fetchTag(fuzzy, includeCreator);
+    const bestMatch = fuzzy[0];
+    if (
+      useFuzzy &&
+      fuzz.ratio(tag.trim().toLowerCase(), bestMatch.trim().toLowerCase()) >= 60
+    )
+      return await this.fetchTag(bestMatch, includeCreator);
     else return await this.fetchTag(tag, includeCreator);
   }
 
