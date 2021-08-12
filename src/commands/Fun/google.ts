@@ -1,4 +1,4 @@
-import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
@@ -68,12 +68,9 @@ export default class Google extends Command {
     }
 
     // context menu shenanigans
-    if (message instanceof ApplicationCommandMessage && message.isMessageContext())
+    if (message instanceof ContextCommandMessage)
       args.query =
-        (message as ApplicationCommandMessage).slashCommand.options.getMessage(
-          "message",
-          true
-        )?.content || "Hi";
+        (message as ContextCommandMessage).getMessage()?.content || "Hi";
 
     const response = await this.assistant
       .query(args.query || "Hi", {

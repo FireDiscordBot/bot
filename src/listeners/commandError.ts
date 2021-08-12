@@ -3,7 +3,6 @@ import { BaseFakeChannel } from "@fire/lib/interfaces/misc";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Listener } from "@fire/lib/util/listener";
 import { Command } from "@fire/lib/util/command";
-import { Scope } from "@sentry/node";
 
 export default class CommandError extends Listener {
   constructor() {
@@ -53,10 +52,8 @@ export default class CommandError extends Listener {
       } catch {}
       sentry.setExtras(extras);
       sentry.captureException(error);
-      sentry.configureScope((scope: Scope) => {
-        scope.setUser(null);
-        scope.setExtras(null);
-      });
+      sentry.setExtras(null);
+      sentry.setUser(null);
     }
 
     try {

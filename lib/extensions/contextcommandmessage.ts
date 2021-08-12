@@ -1,6 +1,7 @@
 import {
   CommandInteractionOptionResolver,
   EmojiIdentifierResolvable,
+  ContextMenuInteraction,
   DeconstructedSnowflake,
   GuildMemberResolvable,
   WebhookMessageOptions,
@@ -40,11 +41,11 @@ import { FireUser } from "./user";
 
 const { emojis, reactions } = constants;
 
-export class ApplicationCommandMessage {
+export class ContextCommandMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   attachments: Collection<string, MessageAttachment>;
   private snowflake: DeconstructedSnowflake;
-  slashCommand: CommandInteraction;
+  contextCommand: ContextMenuInteraction;
   sent: false | "ack" | "message";
   type: MessageType = "DEFAULT";
   sourceMessage: FireMessage;
@@ -63,38 +64,14 @@ export class ApplicationCommandMessage {
   id: Snowflake;
   client: Fire;
 
-  constructor(client: Fire, command: CommandInteraction) {
+  constructor(client: Fire, command: ContextMenuInteraction) {
     this.client = client;
     this.id = command.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
-    this.slashCommand = command;
-    if (command.options.data.find((opt) => opt.type == "SUB_COMMAND")) {
-      command.commandName = `${
-        command.commandName
-      }-${command.options.getSubcommand()}`;
-      command.options = new CommandInteractionOptionResolver(
-        client,
-        command.options.data[0].options ?? []
-      );
-    }
+    this.contextCommand = command;
     this.guild = client.guilds.cache.get(command.guildId) as FireGuild;
-    this.command =
-      this.client.getCommand(command.commandName) ||
-      this.client.getContextCommand(command.commandName);
+    this.command = this.client.getContextCommand(command.commandName);
     this._flags = 0;
-    if (
-      this.guild?.tags?.slashCommands[command.commandId] == command.commandName
-    ) {
-      this.command = this.client.getCommand("tag");
-      command.options = new CommandInteractionOptionResolver(client, [
-        {
-          name: "tag",
-          value: command.commandName,
-          type: "STRING",
-        },
-      ]);
-      if (this.guild.tags.ephemeral) this.flags = 64;
-    }
     if (this.command?.ephemeral) this.flags = 64;
     // @ts-ignore
     this.mentions = new MessageMentions(this, [], [], false);
@@ -117,7 +94,7 @@ export class ApplicationCommandMessage {
           : this.author.language
         : this.guild?.language) ?? client.getLanguage("en-US");
     this.realChannel = this.client.channels.cache.get(
-      this.slashCommand.channelId
+      this.contextCommand.channelId
     ) as FireTextChannel | NewsChannel | DMChannel;
     this.latestResponse = "@original" as Snowflake;
     this.sent = false;
@@ -188,12 +165,21 @@ export class ApplicationCommandMessage {
       }/${this.realChannel?.id || "0"}/${this.id}`;
   }
 
+  getMessage(required = false) {
+    return this.contextCommand.options.getMessage("message", required);
+  }
+
+  getUser(required = false) {
+    return this.contextCommand.options.getUser("user", required);
+  }
+
+  // this is horribly hacky just like slash commands but will eventually be replaced
   async generateContent() {
     let content = `/${this.command.id} `;
-    if (this.command.args?.length && this.slashCommand.options?.data.length) {
+    if (this.command.args?.length && this.contextCommand.options?.data.length) {
       const commandArgs = this.command.args as ArgumentOptions[];
-      const argNames = this.slashCommand.options.data.map((opt) => opt.name);
-      const sortedArgs = Object.values(this.slashCommand.options.data).sort(
+      const argNames = this.contextCommand.options.data.map((opt) => opt.name);
+      const sortedArgs = Object.values(this.contextCommand.options.data).sort(
         (a, b) =>
           argNames.indexOf(a.name.toLowerCase()) -
           argNames.indexOf(b.name.toLowerCase())
@@ -231,7 +217,7 @@ export class ApplicationCommandMessage {
   success(
     key?: LanguageKeys,
     args?: TOptions<StringMap>
-  ): Promise<ApplicationCommandMessage | MessageReaction | void> {
+  ): Promise<ContextCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
         return this.sourceMessage.react(reactions.success).catch(() => {});
@@ -253,7 +239,7 @@ export class ApplicationCommandMessage {
   warn(
     key?: LanguageKeys,
     args?: TOptions<StringMap>
-  ): Promise<ApplicationCommandMessage | MessageReaction | void> {
+  ): Promise<ContextCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
         return this.sourceMessage.react(reactions.warning).catch(() => {});
@@ -275,7 +261,7 @@ export class ApplicationCommandMessage {
   error(
     key?: LanguageKeys,
     args?: TOptions<StringMap>
-  ): Promise<ApplicationCommandMessage | MessageReaction | void> {
+  ): Promise<ContextCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
         return this.sourceMessage.react(reactions.error).catch(() => {});
@@ -300,7 +286,7 @@ export class ApplicationCommandMessage {
 
     let messageId = this.latestResponse as Snowflake;
     if (messageId == "@original") {
-      const message = await this.slashCommand.fetchReply().catch(() => {});
+      const message = await this.contextCommand.fetchReply().catch(() => {});
       if (message) messageId = message.id;
     }
 
@@ -322,7 +308,7 @@ export class ApplicationCommandMessage {
     if (options instanceof MessagePayload) apiMessage = options.resolveData();
     else {
       apiMessage = MessagePayload.create(
-        this.slashCommand,
+        this.contextCommand,
         options
       ).resolveData();
     }
@@ -333,7 +319,7 @@ export class ApplicationCommandMessage {
     };
 
     await this.client.req
-      .webhooks(this.client.user.id, this.slashCommand.token)
+      .webhooks(this.client.user.id, this.contextCommand.token)
       .messages(this.latestResponse)
       .patch({
         data,
@@ -345,7 +331,7 @@ export class ApplicationCommandMessage {
 
   async delete() {
     await this.client.req
-      .webhooks(this.client.user.id, this.slashCommand.token)
+      .webhooks(this.client.user.id, this.contextCommand.token)
       .messages(this.latestResponse)
       .delete()
       .catch(() => {});
@@ -372,10 +358,10 @@ export class ApplicationCommandMessage {
 }
 
 export class FakeChannel extends BaseFakeChannel {
-  declare message: ApplicationCommandMessage;
+  declare message: ContextCommandMessage;
 
   constructor(
-    message: ApplicationCommandMessage,
+    message: ContextCommandMessage,
     client: Fire,
     id: Snowflake,
     token: string,
@@ -455,7 +441,7 @@ export class FakeChannel extends BaseFakeChannel {
   // Defer interaction unless ephemeral
   async ack(ephemeral = false) {
     if (ephemeral || (this.flags & 64) != 0) return;
-    await this.message.slashCommand
+    await this.message.contextCommand
       .deferReply({ ephemeral: !!((this.flags & 64) == 64), fetchReply: true })
       .then((real) => {
         this.message.sent = "ack";
@@ -470,13 +456,13 @@ export class FakeChannel extends BaseFakeChannel {
       | MessagePayload
       | (WebhookMessageOptions & { split?: false }),
     flags?: number // Used for success/error, can also be set
-  ): Promise<ApplicationCommandMessage> {
+  ): Promise<ContextCommandMessage> {
     let apiMessage: MessagePayload;
 
     if (options instanceof MessagePayload) apiMessage = options.resolveData();
     else {
       apiMessage = MessagePayload.create(
-        this.message.slashCommand,
+        this.message.contextCommand,
         options
       ).resolveData();
     }

@@ -4,7 +4,7 @@ import {
   MessageButton,
   SnowflakeUtil,
 } from "discord.js";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import ReminderSendEvent from "@fire/src/ws/events/ReminderSendEvent";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { humanize, parseTime } from "@fire/lib/util/constants";
@@ -51,14 +51,11 @@ export default class Remind extends Command {
   async exec(message: FireMessage, args: { reminder?: string }) {
     // handle context menu before actual command
     // context menu shenanigans
-    if (
-      message instanceof ApplicationCommandMessage &&
-      message.isMessageContext()
-    ) {
+    if (message instanceof ContextCommandMessage) {
       const clickedMessage = (
-        message as ApplicationCommandMessage
-      ).slashCommand.options.getMessage("message", true);
-      if (!clickedMessage)
+        message as ContextCommandMessage
+      ).getMessage() as FireMessage;
+      if (!clickedMessage?.content)
         return await message.error("REMINDER_MISSING_CONTEXT");
       const event = this.client.manager.eventHandler?.store?.get(
         EventType.REMINDER_SEND

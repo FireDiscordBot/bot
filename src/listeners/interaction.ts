@@ -1,13 +1,17 @@
+import {
+  MessageComponentInteraction,
+  ContextMenuInteraction,
+  Interaction,
+} from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { CommandInteraction } from "@fire/lib/extensions/commandinteraction";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
-import { MessageComponentInteraction, Interaction } from "discord.js";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
-import { Scope } from "@sentry/node";
 
 const { emojis } = constants;
 
@@ -25,6 +29,8 @@ export default class InteractionListener extends Listener {
       return await this.handleApplicationCommand(
         interaction as CommandInteraction
       );
+    // todo: add this lol
+    else if (interaction.isContextMenu()) return;
     else if (
       interaction.isMessageComponent() &&
       interaction.componentType == "BUTTON"
@@ -83,10 +89,8 @@ export default class InteractionListener extends Listener {
           env: process.env.NODE_ENV,
         });
         sentry.captureException(error);
-        sentry.configureScope((scope: Scope) => {
-          scope.setUser(null);
-          scope.setExtras(null);
-        });
+        sentry.setExtras(null);
+        sentry.setUser(null);
       }
     }
   }
@@ -120,10 +124,8 @@ export default class InteractionListener extends Listener {
           env: process.env.NODE_ENV,
         });
         sentry.captureException(error);
-        sentry.configureScope((scope: Scope) => {
-          scope.setUser(null);
-          scope.setExtras(null);
-        });
+        sentry.setExtras(null);
+        sentry.setUser(null);
       }
     }
   }
@@ -152,16 +154,65 @@ export default class InteractionListener extends Listener {
           env: process.env.NODE_ENV,
         });
         sentry.captureException(error);
-        sentry.configureScope((scope: Scope) => {
-          scope.setUser(null);
-          scope.setExtras(null);
+        sentry.setExtras(null);
+        sentry.setUser(null);
+      }
+    }
+  }
+
+  async handleContextMenu(context: ContextMenuInteraction) {
+    try {
+      // should be cached if in guild or fetch if dm channel
+      await this.client.channels.fetch(context.channelId).catch(() => {});
+      if (!this.client.channels.cache.has(context.channelId))
+        return await context.reply(
+          `${emojis.error} I was unable to find the channel you are in. If it is a private thread, you'll need to mention me to add me to the thread or give me \`Manage Threads\` permission`
+        ); // could be a private thread fire can't access
+      const message = new ContextCommandMessage(this.client, context);
+      await message.channel.ack((message.flags & 64) != 0);
+      if (!message.command) {
+        this.client.console.warn(
+          `[Commands] Got application command request for unknown context menu, ${context.commandName}`
+        );
+        return await message.error("UNKNOWN_COMMAND");
+      } else if (!message.guild && message.command.channel == "guild")
+        return await message.error("SLASH_COMMAND_BOT_REQUIRED", {
+          invite: this.client.config.inviteLink,
         });
+      await message.generateContent();
+      // @ts-ignore
+      await this.client.commandHandler.handle(message);
+      // if (message.sent != "message")
+      //   await message.sourceMessage?.delete().catch(() => {});
+    } catch (error) {
+      const guild = this.client.guilds.cache.get(context.guildId);
+      if (!guild)
+        await this.error(context, error).catch(() => {
+          context.reply(`${emojis.error} Something went wrong...`);
+        });
+      if (typeof this.client.sentry != "undefined") {
+        const sentry = this.client.sentry;
+        sentry.setExtras({
+          contextCommand: JSON.stringify(context),
+          member: context.member
+            ? `${context.member.user.username}#${context.member.user.discriminator}`
+            : `${context.user.username}#${context.user.discriminator}`,
+          channel_id: context.channelId,
+          guild_id: context.guildId,
+          env: process.env.NODE_ENV,
+        });
+        sentry.captureException(error);
+        sentry.setExtras(null);
+        sentry.setUser(null);
       }
     }
   }
 
   async error(
-    interaction: CommandInteraction | MessageComponentInteraction,
+    interaction:
+      | CommandInteraction
+      | ContextMenuInteraction
+      | MessageComponentInteraction,
     error: Error
   ) {
     return interaction.reply({
