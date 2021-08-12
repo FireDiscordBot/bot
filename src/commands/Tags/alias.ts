@@ -54,7 +54,7 @@ export default class TagAlias extends Command {
     )
       return await message.error("TAGS_EDIT_LIMIT");
     const aliased = await manager.addAlias(tag, alias);
-    if (typeof aliased == "boolean" && !aliased) return await message.error();
+    if (!aliased) return await message.error();
     else return await message.success();
   }
 }
