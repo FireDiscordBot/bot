@@ -9,7 +9,11 @@ import * as tinycolor from "tinycolor2";
 import * as centra from "centra";
 
 const maybeColor = (_: FireMessage, phrase: string) =>
-  tinycolor(phrase).isValid() ? phrase : null;
+  phrase
+    ? tinycolor(phrase).isValid()
+      ? tinycolor(phrase)
+      : undefined
+    : tinycolor.random();
 
 export default class Color extends Command {
   constructor() {
@@ -19,7 +23,7 @@ export default class Color extends Command {
       args: [
         {
           id: "color",
-          type: Argument.union(maybeColor, "roleSilent", "memberSilent"),
+          type: Argument.union("roleSilent", "memberSilent", maybeColor),
           readableType: "color",
           required: false,
           default: undefined,
@@ -33,14 +37,13 @@ export default class Color extends Command {
 
   async exec(
     message: FireMessage,
-    args: { color?: Role | FireMember | string }
+    args: { color?: Role | FireMember | tinycolor.Instance }
   ) {
     let color: tinycolor.Instance;
-    if (args.color == null) color = tinycolor.random();
-    else if (typeof args.color == "string") color = tinycolor(args.color);
-    else if (args.color instanceof Role) color = tinycolor(args.color.hexColor);
+    if (args.color instanceof Role) color = tinycolor(args.color.hexColor);
     else if (args.color instanceof FireMember)
       color = tinycolor(args.color.displayHexColor ?? "#FFFFFF");
+    else color = args.color;
     if (!color || !color.isValid()) {
       return await message.error("COLOR_ARGUMENT_INVALID", {
         random: tinycolor.random().toHexString(),
