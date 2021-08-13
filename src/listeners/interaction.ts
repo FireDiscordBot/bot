@@ -98,15 +98,6 @@ export default class InteractionListener extends Listener {
 
   async handleButton(button: MessageComponentInteraction) {
     try {
-      let sk1erChannel: Channel;
-      if (button.customId.includes("sk1er")) {
-        sk1erChannel = this.client.channels.cache.get("875763096076054548");
-        if (sk1erChannel && sk1erChannel.isText())
-          sk1erChannel.send(
-            `${button.user} clicked button with ID ${button.customId}`
-          );
-      }
-
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(button.channelId).catch(() => {});
       const message = new ComponentMessage(this.client, button);
@@ -117,10 +108,6 @@ export default class InteractionListener extends Listener {
       )
         await message.channel.ack();
       else message.customId = message.customId.slice(1);
-      if (sk1erChannel && sk1erChannel.isText())
-        sk1erChannel.send(
-          `About to handle button ${message.customId} with latest response "${message.latestResponse}" and sent ${message.sent}`
-        );
       this.client.emit("button", message);
     } catch (error) {
       await this.error(button, error).catch(() => {
