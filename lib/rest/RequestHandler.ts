@@ -183,7 +183,6 @@ export class RequestHandler {
     try {
       res = await request.make();
     } catch (error) {
-      this.checkLatency(request, res);
       // Retry the specified number of times for request abortions
       if (request.retries === this.manager.client.options.retryLimit) {
         throw new HTTPError(
