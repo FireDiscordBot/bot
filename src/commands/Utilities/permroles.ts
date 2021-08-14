@@ -34,8 +34,9 @@ export default class PermRoles extends Command {
     if (message.guild.guildChannels.cache.size >= 100)
       return await message.error("PERMROLES_CHANNEL_LIMIT");
 
+    if (!message.guild.permRoles) await message.guild.loadPermRoles();
+
     if (!args.role) {
-      if (!message.guild.permRoles) await message.guild.loadPermRoles();
       if (!message.guild.permRoles.size)
         return await message.error("PERMROLES_NONE_FOUND");
       const paginator = new WrappedPaginator("", "", 800);
