@@ -164,7 +164,7 @@ export class FireMember extends GuildMember {
     if (
       this.isModerator() ||
       this.changingNick ||
-      this.roles.highest.rawPosition >
+      this.roles.highest.rawPosition >=
         this.guild.me.roles.highest.rawPosition ||
       !this.guild.settings.get<boolean>("mod.autodehoist") ||
       !this.guild.me.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)
@@ -216,7 +216,7 @@ export class FireMember extends GuildMember {
     if (
       this.isModerator() ||
       this.changingNick ||
-      this.roles.highest.rawPosition >
+      this.roles.highest.rawPosition >=
         this.guild.me.roles.highest.rawPosition ||
       !this.guild.settings.get<boolean>("mod.autodecancer") ||
       !this.guild.me.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)
