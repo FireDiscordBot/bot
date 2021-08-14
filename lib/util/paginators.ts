@@ -343,6 +343,7 @@ export class PaginatorInterface {
       this.slashMessage = message;
       this.message = await message.getRealMessage();
     } else this.message = message as FireMessage;
+    if (!this.message) return;
     this.message.paginator = this;
 
     if (
