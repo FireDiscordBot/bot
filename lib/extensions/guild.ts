@@ -189,13 +189,15 @@ export class FireGuild extends Guild {
         continue;
       const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
       if (
-        !denied ||
-        !denied.has(Permissions.FLAGS.USE_PRIVATE_THREADS) ||
-        !denied.has(Permissions.FLAGS.USE_PUBLIC_THREADS) ||
-        !denied.has(Permissions.FLAGS.REQUEST_TO_SPEAK) ||
-        !denied.has(Permissions.FLAGS.SEND_MESSAGES) ||
-        !denied.has(Permissions.FLAGS.ADD_REACTIONS) ||
-        !denied.has(Permissions.FLAGS.SPEAK)
+        typeof denied == "undefined" ||
+        !denied.has(
+          Permissions.FLAGS.USE_PRIVATE_THREADS |
+            Permissions.FLAGS.USE_PUBLIC_THREADS |
+            Permissions.FLAGS.REQUEST_TO_SPEAK |
+            Permissions.FLAGS.SEND_MESSAGES |
+            Permissions.FLAGS.ADD_REACTIONS |
+            Permissions.FLAGS.SPEAK
+        )
       )
         await channel.permissionOverwrites
           .edit(
@@ -254,13 +256,15 @@ export class FireGuild extends Guild {
         continue;
       const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
       if (
-        !denied ||
-        !denied.has(Permissions.FLAGS.USE_PRIVATE_THREADS) ||
-        !denied.has(Permissions.FLAGS.USE_PUBLIC_THREADS) ||
-        !denied.has(Permissions.FLAGS.REQUEST_TO_SPEAK) ||
-        !denied.has(Permissions.FLAGS.SEND_MESSAGES) ||
-        !denied.has(Permissions.FLAGS.ADD_REACTIONS) ||
-        !denied.has(Permissions.FLAGS.SPEAK)
+        typeof denied == "undefined" ||
+        !denied.has(
+          Permissions.FLAGS.USE_PRIVATE_THREADS |
+            Permissions.FLAGS.USE_PUBLIC_THREADS |
+            Permissions.FLAGS.REQUEST_TO_SPEAK |
+            Permissions.FLAGS.SEND_MESSAGES |
+            Permissions.FLAGS.ADD_REACTIONS |
+            Permissions.FLAGS.SPEAK
+        )
       )
         await channel.permissionOverwrites
           .edit(
@@ -306,13 +310,15 @@ export class FireGuild extends Guild {
         continue;
       const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
       if (
-        !denied ||
-        !denied.has(Permissions.FLAGS.USE_PRIVATE_THREADS) ||
-        !denied.has(Permissions.FLAGS.USE_PUBLIC_THREADS) ||
-        !denied.has(Permissions.FLAGS.REQUEST_TO_SPEAK) ||
-        !denied.has(Permissions.FLAGS.SEND_MESSAGES) ||
-        !denied.has(Permissions.FLAGS.ADD_REACTIONS) ||
-        !denied.has(Permissions.FLAGS.SPEAK)
+        typeof denied == "undefined" ||
+        !denied.has(
+          Permissions.FLAGS.USE_PRIVATE_THREADS |
+            Permissions.FLAGS.USE_PUBLIC_THREADS |
+            Permissions.FLAGS.REQUEST_TO_SPEAK |
+            Permissions.FLAGS.SEND_MESSAGES |
+            Permissions.FLAGS.ADD_REACTIONS |
+            Permissions.FLAGS.SPEAK
+        )
       )
         await channel.permissionOverwrites
           .edit(

@@ -40,18 +40,16 @@ export default class ChannelUpdate extends Listener {
         .permissionsIn(after)
         .missing(muteCommand.clientPermissions as PermissionResolvable[])
         .length &&
-      (after
-        .permissionsFor(muteRole)
-        .has(Permissions.FLAGS.USE_PRIVATE_THREADS) ||
-        after
-          .permissionsFor(muteRole)
-          .has(Permissions.FLAGS.USE_PUBLIC_THREADS) ||
-        after
-          .permissionsFor(muteRole)
-          .has(Permissions.FLAGS.REQUEST_TO_SPEAK) ||
-        after.permissionsFor(muteRole).has(Permissions.FLAGS.SEND_MESSAGES) ||
-        after.permissionsFor(muteRole).has(Permissions.FLAGS.ADD_REACTIONS) ||
-        after.permissionsFor(muteRole).has(Permissions.FLAGS.SPEAK))
+      !after.permissionOverwrites.cache
+        .get(muteRole.id)
+        ?.deny.has(
+          Permissions.FLAGS.USE_PRIVATE_THREADS |
+            Permissions.FLAGS.USE_PUBLIC_THREADS |
+            Permissions.FLAGS.REQUEST_TO_SPEAK |
+            Permissions.FLAGS.SEND_MESSAGES |
+            Permissions.FLAGS.ADD_REACTIONS |
+            Permissions.FLAGS.SPEAK
+        )
     )
       await after.permissionOverwrites
         .edit(
