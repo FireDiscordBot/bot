@@ -78,16 +78,5 @@ export default class MessageReactionAdd extends Listener {
     }
 
     if (messageReaction.partial || message.partial) return;
-    if (
-      message.paginator?.ready &&
-      Object.values(message.paginator.emojis).includes(
-        messageReaction.emoji.name // ReactionEmoji.name returns unicode
-      ) &&
-      user.id == message.paginator.owner.id
-    )
-      await message.paginator.reactionHandler(
-        messageReaction.emoji,
-        messageReaction.users
-      );
   }
 }

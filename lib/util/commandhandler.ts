@@ -151,10 +151,7 @@ export class CommandHandler extends AkairoCommandHandler {
               return;
             }
             if (o.content.trim() == m.content.trim()) return;
-            if (o.paginator)
-              await o.paginator
-                .reactionHandler(o.paginator.emojis.close, null)
-                .catch(() => {});
+            if (o.paginator) delete o.paginator;
             if (this.handleEdits) this.handle(m);
           }
         );
