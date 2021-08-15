@@ -1,13 +1,10 @@
 import {
-  ReactionUserManager,
   MessageActionRow,
   EmojiResolvable,
   ThreadChannel,
   MessageButton,
-  ReactionEmoji,
   MessageEmbed,
   NewsChannel,
-  GuildEmoji,
   DMChannel,
 } from "discord.js";
 import {
@@ -19,7 +16,6 @@ import { ComponentMessage } from "../extensions/componentmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
-import { FireGuild } from "../extensions/guild";
 import Semaphore from "semaphore-async-await";
 import { Fire } from "@fire/lib/Fire";
 
@@ -169,7 +165,6 @@ export class PaginatorInterface {
   deleteMessage: boolean;
 
   slashMessage?: ApplicationCommandMessage;
-  sentPageReactions: boolean;
   message: FireMessage;
   _displayPage: number;
   maxPageSize: number;
@@ -177,10 +172,6 @@ export class PaginatorInterface {
   ready: boolean;
   updateLock: Semaphore;
 
-  reactionHandler: (
-    emoji: EmojiResolvable,
-    users: ReactionUserManager
-  ) => Promise<void>;
   buttonHandler: (button: ComponentMessage) => Promise<any>;
 
   constructor(
@@ -218,35 +209,6 @@ export class PaginatorInterface {
         `Paginator passed has too large of a page size for this interface. (${this.pageSize} > 2000)`
       );
     }
-
-    this.reactionHandler = async (
-      emoji: ReactionEmoji,
-      users: ReactionUserManager
-    ) => {
-      if (emoji.name == this.emojis.close) {
-        try {
-          if (this.deleteMessage) await this.message.delete();
-          else {
-            await this.message.reactions.removeAll();
-          }
-        } catch {}
-        return;
-      }
-
-      if (emoji.name == this.emojis.start) this._displayPage = 0;
-      else if (emoji.name == this.emojis.end)
-        this._displayPage = this.pageCount;
-      else if (emoji.name == this.emojis.back) this._displayPage -= 1;
-      else if (emoji.name == this.emojis.forward) this._displayPage += 1;
-
-      this.update();
-
-      await Promise.all(
-        users.cache
-          .filter((user: FireUser) => user.id != this.bot.user.id)
-          .map((user) => users.remove(user).catch(() => {}))
-      ).catch(() => {});
-    };
 
     this.buttonHandler = async (button: ComponentMessage) => {
       if (button.customId == "close")
@@ -324,21 +286,11 @@ export class PaginatorInterface {
       | DMChannel
       | FakeChannel
   ) {
-    let message: FireMessage | ApplicationCommandMessage;
-    if (
-      !(destination instanceof DMChannel) &&
-      !(destination.guild as FireGuild).hasExperiment(1621199146, 1)
-    )
-      message = (await destination.send({
-        content: typeof this.sendArgs == "string" ? this.sendArgs : null,
-        embeds: this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
-      })) as FireMessage | ApplicationCommandMessage;
-    else
-      message = (await destination.send({
-        content: typeof this.sendArgs == "string" ? this.sendArgs : null,
-        embeds: this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
-        components: this.getButtons(),
-      })) as FireMessage | ApplicationCommandMessage;
+    const message = (await destination.send({
+      content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+      embeds: this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+      components: this.getButtons(),
+    })) as FireMessage | ApplicationCommandMessage;
     if (message instanceof ApplicationCommandMessage) {
       this.slashMessage = message;
       this.message = await message.getRealMessage();
@@ -346,36 +298,9 @@ export class PaginatorInterface {
     if (!this.message) return;
     this.message.paginator = this;
 
-    if (
-      !this.sentPageReactions &&
-      !(destination instanceof DMChannel) &&
-      !(destination.guild as FireGuild).hasExperiment(1621199146, 1)
-    )
-      await this.sendAllReactions();
-    else this.sentPageReactions = true;
-
     if (!this.ready) this.ready = true;
 
     return this;
-  }
-
-  async sendAllReactions() {
-    if (this.pageCount == 1)
-      return this.message.react(this.emojis.close).catch(() => {});
-    Object.values(this.emojis)
-      .filter((value) => !!value)
-      .filter(
-        (emoji: EmojiResolvable) =>
-          !this.message.reactions.cache.has(
-            emoji instanceof GuildEmoji || emoji instanceof ReactionEmoji
-              ? emoji.id
-              : emoji
-          )
-      )
-      .forEach((emoji: EmojiResolvable) => {
-        this.message.react(emoji).catch(() => {});
-      });
-    this.sentPageReactions = true;
   }
 
   private getButtons() {
@@ -428,39 +353,19 @@ export class PaginatorInterface {
 
       if (!this.message) await this.bot.util.sleep(500);
 
-      if (
-        (this.slashMessage
-          ? this.slashMessage.guild
-          : this.message.guild
-        )?.hasExperiment(1621199146, 1)
-      )
-        this.slashMessage
-          ? this.slashMessage.edit({
-              content: typeof this.sendArgs == "string" ? this.sendArgs : null,
-              embeds:
-                this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
-              components: this.getButtons(),
-            })
-          : await this.message.edit({
-              content: typeof this.sendArgs == "string" ? this.sendArgs : null,
-              embeds:
-                this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
-              components: this.getButtons(),
-            });
-      else {
-        if (!this.sentPageReactions) this.sendAllReactions();
-        this.slashMessage
-          ? this.slashMessage.edit({
-              content: typeof this.sendArgs == "string" ? this.sendArgs : null,
-              embeds:
-                this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
-            })
-          : await this.message.edit({
-              content: typeof this.sendArgs == "string" ? this.sendArgs : null,
-              embeds:
-                this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
-            });
-      }
+      this.slashMessage
+        ? this.slashMessage.edit({
+            content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+            embeds:
+              this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+            components: this.getButtons(),
+          })
+        : await this.message.edit({
+            content: typeof this.sendArgs == "string" ? this.sendArgs : null,
+            embeds:
+              this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
+            components: this.getButtons(),
+          });
     } catch {}
     this.updateLock.release();
   }

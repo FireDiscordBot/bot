@@ -113,56 +113,37 @@ export default class Help extends Command {
       inline: false,
     });
     let components: MessageActionRow[] = null;
-    if (message.hasExperiment(1621199146, 1)) {
-      let supportInvite = "https://inv.wtf/fire";
-      const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
-      if (vanityurls) {
-        const supportVanity = await vanityurls.getVanity("fire");
-        if (typeof supportVanity == "object" && supportVanity?.invite)
-          supportInvite = `https://discord.gg/${supportVanity.invite}`;
-      }
-      components = [
-        new MessageActionRow().addComponents([
-          new MessageButton()
-            .setStyle("LINK")
-            .setURL("https://fire.gaminggeek.dev/")
-            .setLabel(message.language.get("HELP_BUTTON_WEBSITE")),
-          new MessageButton()
-            .setStyle("LINK")
-            .setURL(supportInvite)
-            .setLabel(message.language.get("HELP_BUTTON_SUPPORT")),
-          new MessageButton()
-            .setStyle("LINK")
-            .setURL("https://inv.wtf/terms")
-            .setLabel(message.language.get("HELP_BUTTON_TOS")),
-          new MessageButton()
-            .setStyle("LINK")
-            .setURL("https://inv.wtf/privacy")
-            .setLabel(message.language.get("HELP_BUTTON_PRIVACY")),
-          new MessageButton()
-            .setStyle("LINK")
-            .setURL("https://inv.wtf/premium")
-            .setLabel(message.language.get("HELP_BUTTON_PREMIUM")),
-        ]),
-      ];
-    } else
-      fields.push({
-        name: message.language.get("HELP_LINKS_NAME"),
-        value: `[${message.language.get("HELP_BUTTON_WEBSITE")}](${
-          constants.url.website
-        }) - [${message.language.get("HELP_BUTTON_SUPPORT")}](${
-          constants.url.support
-        }) - [${message.language.get("HELP_BUTTON_TOS")}](${
-          constants.url.terms
-        }) - [${message.language.get("HELP_BUTTON_PRIVACY")}](${
-          constants.url.privacy
-        }) - [${message.language.get("STATUS")}](${
-          constants.url.fireStatus
-        }) - [${message.language.get("HELP_BUTTON_PREMIUM")}](${
-          constants.url.premium
-        })`,
-        inline: false,
-      });
+    let supportInvite = "https://inv.wtf/fire";
+    const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
+    if (vanityurls) {
+      const supportVanity = await vanityurls.getVanity("fire");
+      if (typeof supportVanity == "object" && supportVanity?.invite)
+        supportInvite = `https://discord.gg/${supportVanity.invite}`;
+    }
+    components = [
+      new MessageActionRow().addComponents([
+        new MessageButton()
+          .setStyle("LINK")
+          .setURL("https://fire.gaminggeek.dev/")
+          .setLabel(message.language.get("HELP_BUTTON_WEBSITE")),
+        new MessageButton()
+          .setStyle("LINK")
+          .setURL(supportInvite)
+          .setLabel(message.language.get("HELP_BUTTON_SUPPORT")),
+        new MessageButton()
+          .setStyle("LINK")
+          .setURL("https://inv.wtf/terms")
+          .setLabel(message.language.get("HELP_BUTTON_TOS")),
+        new MessageButton()
+          .setStyle("LINK")
+          .setURL("https://inv.wtf/privacy")
+          .setLabel(message.language.get("HELP_BUTTON_PRIVACY")),
+        new MessageButton()
+          .setStyle("LINK")
+          .setURL("https://inv.wtf/premium")
+          .setLabel(message.language.get("HELP_BUTTON_PREMIUM")),
+      ]),
+    ];
     const embed = {
       color: message.member?.displayColor,
       author: {

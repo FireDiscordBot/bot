@@ -50,14 +50,12 @@ export default class CloseTicket extends Command {
         ),
       ],
     } as MessageOptions & { split?: false };
-    if (message.hasExperiment(1621199146, 1))
-      await message.channel.send({
-        content: `${emojis.error} ${message.language.get(
-          "TICKET_WILL_CLOSE_BUTTON"
-        )}`,
-        ...buttonOptions,
-      });
-    else await message.error("TICKET_WILL_CLOSE");
+    await message.channel.send({
+      content: `${emojis.error} ${message.language.get(
+        "TICKET_WILL_CLOSE_BUTTON"
+      )}`,
+      ...buttonOptions,
+    });
     const willClose = await this.getConfirmationPromise(
       message,
       buttonSnowflake

@@ -64,6 +64,7 @@ export const discord: ClientOptions = {
     GuildBanManager: 0,
     PresenceManager: 0,
   }),
+  restRequestTimeout: 15000,
   restSweepInterval: 60,
   partials: [
     Constants.PartialTypes.GUILD_MEMBER,

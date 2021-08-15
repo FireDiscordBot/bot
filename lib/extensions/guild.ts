@@ -1086,50 +1086,38 @@ ${this.language.get("JOINED")} <t:${Math.floor(
     if (description) embed.setDescription(description);
     const alertId = this.settings.get<Snowflake>("tickets.alert");
     const alert = this.roles.cache.get(alertId);
-    if (alert && !author.isModerator()) {
-      if (this.hasExperiment(1621199146, 1))
-        await ticket
-          .send({
-            content: alert.toString(),
-            allowedMentions: { roles: [alertId] },
-            embeds: [embed],
-            components: [
-              new MessageActionRow().addComponents(
-                new MessageButton()
-                  .setStyle("DANGER")
-                  .setCustomId(`ticket_close_${ticket.id}`)
-                  .setLabel(this.language.get("TICKET_CLOSE_BUTTON_TEXT"))
-                  .setEmoji("534174796938870792")
-              ),
-            ],
-          })
-          .catch(() => {});
-      else
-        await ticket
-          .send({
-            content: alert.toString(),
-            allowedMentions: { roles: [alertId] },
-            embeds: [embed],
-          })
-          .catch(() => {});
-    } else {
-      if (this.hasExperiment(1621199146, 1))
-        await ticket
-          .send({
-            embeds: [embed],
-            components: [
-              new MessageActionRow().addComponents(
-                new MessageButton()
-                  .setStyle("DANGER")
-                  .setCustomId(`ticket_close_${ticket.id}`)
-                  .setLabel(this.language.get("TICKET_CLOSE_BUTTON_TEXT"))
-                  .setEmoji("534174796938870792")
-              ),
-            ],
-          })
-          .catch(() => {});
-      else await ticket.send({ embeds: [embed] }).catch(() => {});
-    }
+    if (alert && !author.isModerator())
+      await ticket
+        .send({
+          content: alert.toString(),
+          allowedMentions: { roles: [alertId] },
+          embeds: [embed],
+          components: [
+            new MessageActionRow().addComponents(
+              new MessageButton()
+                .setStyle("DANGER")
+                .setCustomId(`ticket_close_${ticket.id}`)
+                .setLabel(this.language.get("TICKET_CLOSE_BUTTON_TEXT"))
+                .setEmoji("534174796938870792")
+            ),
+          ],
+        })
+        .catch(() => {});
+    else
+      await ticket
+        .send({
+          embeds: [embed],
+          components: [
+            new MessageActionRow().addComponents(
+              new MessageButton()
+                .setStyle("DANGER")
+                .setCustomId(`ticket_close_${ticket.id}`)
+                .setLabel(this.language.get("TICKET_CLOSE_BUTTON_TEXT"))
+                .setEmoji("534174796938870792")
+            ),
+          ],
+        })
+        .catch(() => {});
     channels.push(ticket);
     this.settings.set<string[]>(
       "tickets.channels",

@@ -74,12 +74,10 @@ export default class TagInfo extends Command {
         cachedTag.uses.toLocaleString(message.language.id)
       );
 
-    if (message.hasExperiment(1621199146, 1))
-      await message.channel.send({
-        embeds: [embed],
-        components: this.getInitialButtons(message, cachedTag),
-      });
-    else return await message.channel.send({ embeds: [embed] });
+    return await message.channel.send({
+      embeds: [embed],
+      components: this.getInitialButtons(message, cachedTag),
+    });
   }
 
   private getInitialButtons(message: FireMessage, tag: Tag) {

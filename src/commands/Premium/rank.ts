@@ -78,7 +78,6 @@ export default class Rank extends Command {
       const embed = new MessageEmbed()
         .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
-        .setDescription(rankInfo.join("\n"))
         .setAuthor(
           message.language.get("RANKS_AUTHOR", { guild: message.guild.name }),
           message.guild.icon
@@ -89,21 +88,14 @@ export default class Rank extends Command {
               }) as string)
             : undefined
         );
-      if (
-        (!message.hasExperiment(1621199146, 1) &&
-          !message.hasExperiment(1685450372, 1)) ||
-        roles.length > 25
-      )
-        return await message.channel.send({ embeds: [embed] });
-      else delete embed.description;
       let components: MessageActionRow[];
-      if (message.hasExperiment(1621199146, 1) && roles.length <= 5)
+      if (roles.length <= 5)
         components = Rank.getRankButtons(
           message.guild,
           message.member
           // message instanceof FireMessage
         );
-      else if (message.hasExperiment(1685450372, 1))
+      else if (roles.length <= 25)
         components = Rank.getRankDropdown(message.guild);
       if (components.length)
         return message.channel.send({ embeds: [embed], components });
@@ -179,9 +171,9 @@ export default class Rank extends Command {
       );
       if (emoji) {
         const length = components[components.length - 1].components.length - 1;
-        (components[components.length - 1].components[
-          length
-        ] as MessageButton).setEmoji(emoji);
+        (
+          components[components.length - 1].components[length] as MessageButton
+        ).setEmoji(emoji);
       }
     }
     return components;
