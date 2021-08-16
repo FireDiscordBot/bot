@@ -42,6 +42,10 @@ export default class Blacklist extends Command {
     message: FireMessage,
     args: { user: FireMember | FireUser; reason: string }
   ) {
+    if (!args.user && typeof args.user == "undefined")
+      return await message.error("BLACKLIST_USER_REQUIRED");
+    else if (!args.user) return;
+
     if (args.user instanceof FireMember ? args.user.user.bot : args.user.bot)
       return await message.error("BLACKLIST_BOT");
     if (
@@ -54,10 +58,7 @@ export default class Blacklist extends Command {
         ),
       });
 
-    if (!args.user && typeof args.user == "undefined")
-      return await message.error("BLACKLIST_USER_REQUIRED");
-    else if (!args.user) return;
-    else if (
+    if (
       args.user.id == message.author.id ||
       (args.user instanceof FireMember &&
         (args.user.isModerator() || args.user.user.bot) &&
