@@ -130,6 +130,10 @@ export default class Message extends Listener {
         (lowerContent.includes("nitro") &&
           lowerContent.includes("steam") &&
           lowerContent.includes("http")) ||
+        (lowerContent.includes("cs") &&
+          lowerContent.includes("go") &&
+          lowerContent.includes("skin") &&
+          lowerContent.includes("http")) ||
         (lowerContent.includes("leaving") &&
           lowerContent.includes("fucking") &&
           lowerContent.includes("game")))
