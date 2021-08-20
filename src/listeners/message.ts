@@ -141,7 +141,7 @@ export default class Message extends Listener {
           lowerContent.includes("fucking") &&
           lowerContent.includes("game")) ||
         (lowerContent.includes("airdrop") && lowerContent.includes("nitro")) ||
-        (lowerContent.includes("/n") && lowerContent.includes("nitro")))
+        (lowerContent.includes("/n@") && lowerContent.includes("nitro")))
     ) {
       if (process.env.NODE_ENV == "development")
         return await message.reply("triggered steam/nitro phishing detection");
