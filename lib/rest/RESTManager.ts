@@ -12,14 +12,12 @@ export class RESTManager {
   globalRemaining: number;
   globalLimit: number;
   globalReset: number;
-  tokenPrefix: string;
   versioned: boolean;
   client: Fire;
 
-  constructor(client: Fire, tokenPrefix = "Bot") {
+  constructor(client: Fire) {
     this.client = client;
     this.handlers = new Collection();
-    this.tokenPrefix = tokenPrefix;
     this.versioned = true;
     this.globalLimit =
       client.options.restGlobalRateLimit > 0
@@ -42,7 +40,7 @@ export class RESTManager {
   getAuth() {
     // @ts-ignore
     const token = this.client.token || this.client?.accessToken;
-    if (token) return `${this.tokenPrefix} ${token}`;
+    if (token) return `Bot ${token}`;
     throw new Error("TOKEN_MISSING");
   }
 
