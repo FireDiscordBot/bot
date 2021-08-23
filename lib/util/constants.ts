@@ -204,7 +204,11 @@ export const constants = {
     invwtf: /inv\.wtf\/(?<code>[\w-]{2,25})/gim,
     discord: {
       invite:
-        /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[\w-]{1,25})/im,
+        /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[\w-]{1,25})/gim,
+      cdnEmoji:
+        /^https?:\/\/cdn\.discordapp\.com(\/emojis\/\d{15,21})\.\w{3,4}(?:\?v=\d)/gim,
+      cdnAttachment:
+        /^https?:\/\/cdn\.discordapp\.com\/attachments\/\d{15,21}\/\d{15,21}\/\w*\.\w{3,4}/im,
       message:
         /(?:ptb\.|canary\.|staging\.|lc\.)?(?:discord(?:app)|inv)?\.(?:com|wtf)?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
       messageGlobal:

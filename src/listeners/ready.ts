@@ -64,24 +64,24 @@ export default class Ready extends Listener {
     ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
     // or "0" which may be used for something later
 
-    return; //temp
-    // if (process.env.USE_LITECORD || this.client.manager.id != 0) return;
+    if (process.env.USE_LITECORD || this.client.manager.id != 0) return;
 
-    const slashCommands = await this.client.application.commands.fetch();
+    const appCommands = await this.client.application.commands.fetch();
 
-    if (slashCommands?.size) {
-      let commands: (ApplicationCommandData & { id?: string })[] = [];
+    if (appCommands?.size) {
+      let commands: (ApplicationCommandData & { id?: string })[] = appCommands
+        .filter((cmd) => cmd.type != "CHAT_INPUT")
+        .toJSON();
 
       for (const cmd of this.client.commandHandler.modules.values()) {
-        if (
-          cmd.enableSlashCommand &&
-          slashCommands.find((s) => s.name == cmd.id)
-        )
+        if (cmd.enableSlashCommand && appCommands.find((s) => s.name == cmd.id))
           commands.push(
             cmd.getSlashCommandJSON(
-              slashCommands.findKey((s) => s.name == cmd.id)
+              appCommands.findKey((s) => s.name == cmd.id)
             )
           );
+        else if (cmd.enableSlashCommand)
+          commands.push(cmd.getSlashCommandJSON());
       }
 
       const updated = await this.client.application.commands
@@ -96,25 +96,6 @@ export default class Ready extends Listener {
         this.client.console.info(
           `[Commands] Successfully bulk updated ${updated.size} slash commands`
         );
-
-      for (const [, slashCommand] of slashCommands) {
-        if (
-          !this.client.getCommand(slashCommand.name) ||
-          !this.client.getCommand(slashCommand.name).enableSlashCommand
-        ) {
-          this.client.console.warn(
-            `[Commands] Deleting slash command /${slashCommand.name} due to command not being found or slash command disabled`
-          );
-          await this.client.application.commands
-            .delete(slashCommand)
-            .catch((e) =>
-              this.client.console.error(
-                `[Commands] Failed to delete slash command /${slashCommand.name}`,
-                e.stack
-              )
-            );
-        }
-      }
     }
   }
 }
