@@ -685,7 +685,7 @@ export default class User extends Command {
       .setDescription(message.language.get("USER_SNOWFLAKE_DESCRIPTION"))
       .addField(`» ${message.language.get("ABOUT")}`, info.join("\n"));
 
-    if (user)
+    if (user || message.util?.parsed?.command?.id == "snowflake")
       embed.description = embed.description.split("\n").slice(2).join("\n");
 
     if (
