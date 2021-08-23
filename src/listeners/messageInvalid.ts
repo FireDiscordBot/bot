@@ -72,7 +72,10 @@ export default class MessageInvalid extends Listener {
 
     const quoteCommand = this.client.getCommand("quote") as Quote;
 
-    if (quoteCommand.isDisabled(message.guild)) {
+    if (
+      quoteCommand.isDisabled(message.guild) ||
+      process.env.NODE_ENV != "production"
+    ) {
       this.cleanCommandUtil(message);
       return;
     }
