@@ -10,6 +10,7 @@ export default class Discover extends Command {
         language.get("DISCOVER_COMMAND_DESCRIPTION"),
       enableSlashCommand: true,
       restrictTo: "all",
+      slashOnly: true,
       ephemeral: true,
     });
   }

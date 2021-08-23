@@ -19,6 +19,7 @@ export default class Eightball extends Command {
       ],
       aliases: ["eightball"],
       restrictTo: "all",
+      slashOnly: true,
     });
   }
 

@@ -10,6 +10,7 @@ export default class Support extends Command {
         language.get("SUPPORT_COMMAND_DESCRIPTION"),
       enableSlashCommand: true,
       restrictTo: "all",
+      slashOnly: true,
       ephemeral: true,
     });
   }

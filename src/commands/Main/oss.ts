@@ -10,6 +10,7 @@ export default class OpenSource extends Command {
       aliases: ["github", "source", "code"],
       enableSlashCommand: true,
       restrictTo: "all",
+      slashOnly: true,
       ephemeral: true,
     });
   }

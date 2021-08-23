@@ -15,23 +15,14 @@ export default class Ping extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "all",
+      slashOnly: true,
     });
   }
 
   async exec(message: FireMessage) {
-    let pingMessage: FireMessage;
-    if (message instanceof FireMessage)
-      pingMessage = (await message.send("PING_INITIAL_MESSAGE")) as FireMessage;
     const embed = new MessageEmbed()
       .setTitle(
-        `:ping_pong: ${
-          message instanceof ApplicationCommandMessage
-            ? this.client.restPing
-            : pingMessage.createdTimestamp -
-              (message.editedAt
-                ? message.editedTimestamp
-                : message.createdTimestamp)
-        }ms.\n:heartpulse: ${
+        `:ping_pong: ${this.client.restPing}ms.\n:heartpulse: ${
           this.client.ws.shards.get(message.guild ? message.guild.shardId : 0)
             .ping
         }ms.`
@@ -45,14 +36,6 @@ export default class Ping extends Command {
       )
       .setTimestamp();
 
-    return message instanceof ApplicationCommandMessage
-      ? message.channel.send({ embeds: [embed] })
-      : pingMessage.delete() &&
-          (await message
-            .reply({
-              failIfNotExists: false,
-              embeds: [embed],
-            })
-            .catch(() => {}));
+    return await message.channel.send({ embeds: [embed] });
   }
 }

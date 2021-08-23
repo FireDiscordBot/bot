@@ -56,10 +56,9 @@ export default class CloseTicket extends Command {
       )}`,
       ...buttonOptions,
     });
-    const willClose = await this.getConfirmationPromise(
-      message,
-      buttonSnowflake
-    ).catch(() => {});
+    const willClose = await this.getConfirmationPromise(buttonSnowflake).catch(
+      () => {}
+    );
     if (!willClose)
       return message instanceof ApplicationCommandMessage
         ? await message.edit(
@@ -87,20 +86,9 @@ export default class CloseTicket extends Command {
       );
   }
 
-  private getConfirmationPromise(message: FireMessage, customId: string) {
-    return new Promise((resolve, reject) => {
+  private getConfirmationPromise(customId: string) {
+    return new Promise((resolve) => {
       this.client.buttonHandlersOnce.set(customId, resolve);
-      message.channel
-        .awaitMessages({
-          max: 1,
-          time: 10000,
-          errors: ["time"],
-          filter: (m: FireMessage) =>
-            m.content.toLowerCase().trim() == "close" &&
-            m.author.id == message.author.id,
-        })
-        .then(resolve)
-        .catch(reject);
     });
   }
 }
