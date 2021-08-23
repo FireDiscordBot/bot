@@ -2,7 +2,13 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Reminder } from "@fire/lib/interfaces/reminders";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Snowflake } from "discord.js";
+import {
+  MessageActionRow,
+  MessageButton,
+  Snowflake,
+  SnowflakeUtil,
+} from "discord.js";
+import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 
 export default class DeleteReminder extends Command {
   constructor() {
@@ -50,33 +56,47 @@ export default class DeleteReminder extends Command {
       return await message.error("DELREMIND_TOO_HIGH");
     const timestamp = timestamps[args.index - 1];
     const reminder = reminders[args.index - 1];
-    const confirmation = await message.send("DELREMIND_CONFIRM", {
+    const yesSnowflake = SnowflakeUtil.generate();
+    this.client.buttonHandlersOnce.set(yesSnowflake, this.yesButton(timestamp));
+    const noSnowflake = SnowflakeUtil.generate();
+    this.client.buttonHandlersOnce.set(noSnowflake, this.noButton);
+    return await message.send("DELREMIND_CONFIRM", {
       text: reminder.text,
       date: reminder.date.toLocaleString(message.language.id),
+      components: [
+        new MessageActionRow().addComponents([
+          new MessageButton()
+            .setStyle("SUCCESS")
+            .setCustomId(`!${yesSnowflake}`)
+            .setLabel(message.language.get("DELREMIND_DELETE_IT")),
+          new MessageButton()
+            .setStyle("DANGER")
+            .setCustomId(`!${noSnowflake}`)
+            .setLabel(message.language.get("DELREMIND_CANCEL")),
+        ]),
+      ],
     });
-    const yesOrNo = await message.channel
-      .awaitMessages({
-        max: 1,
-        time: 10000,
-        errors: ["time"],
-        filter: (msg: FireMessage) =>
-          msg.author.id == message.author.id &&
-          msg.channel.id == message.channel.id,
-      })
-      .catch(() => {});
-    if (yesOrNo)
-      await yesOrNo
-        .first()
-        ?.delete()
-        .catch(() => {});
-    await confirmation.delete().catch(() => {});
-    if (!yesOrNo || !yesOrNo.first()?.content.toLowerCase().includes("yes"))
-      return await message.send(
-        typeof yesOrNo == "undefined" ? "DELREMIND_TIME" : "DELREMIND_NO"
-      );
-    const deleted = await message.author.deleteReminder(timestamp);
-    return deleted
-      ? await message.success("DELREMIND_YES")
-      : await message.error();
+  }
+
+  private yesButton(timestamp: number) {
+    return async (button: ComponentMessage) => {
+      const deleted = await button.author.deleteReminder(timestamp);
+      return deleted
+        ? await button.channel.update({
+            content: button.language.getSuccess("DELREMIND_YES"),
+            components: [],
+          })
+        : await button.channel.update({
+            content: button.language.getError("ERROR_CONTACT_SUPPORT"),
+            components: [],
+          });
+    };
+  }
+
+  private async noButton(button: ComponentMessage) {
+    return await button.channel.update({
+      content: button.language.get("DELREMIND_NO"),
+      components: [],
+    });
   }
 }
