@@ -57,7 +57,7 @@ export class FireMember extends GuildMember {
     // @ts-ignore
     super._patch(data);
 
-    if (data.avatar) this.avatar = data.avatar ?? null;
+    this.avatar = data.avatar ?? null;
   }
 
   avatarURL({
