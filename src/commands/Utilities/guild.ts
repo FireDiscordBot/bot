@@ -33,6 +33,7 @@ export default class GuildCommand extends Command {
       aliases: ["guildinfo", "infoguild", "serverinfo", "infoserver", "server"],
       enableSlashCommand: true,
       restrictTo: "all",
+      slashOnly: true,
     });
   }
 

@@ -21,6 +21,7 @@ export default class Reminders extends Command {
       aliases: ["listremind", "listreminders"],
       enableSlashCommand: true,
       restrictTo: "all",
+      slashOnly: true,
     });
   }
 

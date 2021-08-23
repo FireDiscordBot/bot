@@ -32,6 +32,7 @@ export default class Redirect extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "all",
+      slashOnly: true,
     });
   }
 

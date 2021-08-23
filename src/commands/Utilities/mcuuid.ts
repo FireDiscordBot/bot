@@ -25,6 +25,7 @@ export default class MinecraftUUID extends Command {
       enableSlashCommand: true,
       restrictTo: "all",
       ephemeral: true,
+      slashOnly: true,
     });
   }
 

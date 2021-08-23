@@ -33,6 +33,7 @@ export default class LinkFilter extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
+      slashOnly: true,
     });
   }
 

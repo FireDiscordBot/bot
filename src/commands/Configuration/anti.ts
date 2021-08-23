@@ -24,9 +24,11 @@ export default class Anti extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
+      slashOnly: true,
     });
   }
 
+  // todo: make "ui" with components rather than using an argument
   async exec(
     message: FireMessage,
     args: { anti?: "everyone" | "zws" | "spoiler" | "selfbot" }

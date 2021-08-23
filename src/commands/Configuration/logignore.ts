@@ -20,6 +20,7 @@ export default class LogIgnore extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
+      slashOnly: true,
     });
   }
 

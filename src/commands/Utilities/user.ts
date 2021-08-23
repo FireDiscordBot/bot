@@ -62,6 +62,7 @@ export default class User extends Command {
       enableSlashCommand: true,
       restrictTo: "all",
       context: ["user"],
+      slashOnly: true,
     });
   }
 

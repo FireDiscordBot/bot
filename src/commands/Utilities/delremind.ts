@@ -28,6 +28,7 @@ export default class DeleteReminder extends Command {
       enableSlashCommand: true,
       restrictTo: "all",
       ephemeral: true,
+      slashOnly: true,
     });
   }
 

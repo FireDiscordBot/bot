@@ -24,6 +24,7 @@ export default class Levelhead extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "all",
+      slashOnly: true,
     });
     this.removeColor = /&[0-9A-FK-OR]/im;
   }

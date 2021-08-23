@@ -35,6 +35,7 @@ export default class Blacklist extends Command {
       aliases: ["plonk", "unblacklist", "unplonk"],
       restrictTo: "all",
       ephemeral: true,
+      slashOnly: true,
     });
   }
 

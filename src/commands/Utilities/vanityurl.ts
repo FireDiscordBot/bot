@@ -35,6 +35,7 @@ export default class VanityURL extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
+      slashOnly: true,
     });
   }
 

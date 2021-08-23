@@ -34,6 +34,7 @@ export default class Debug extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "all",
+      slashOnly: true,
     });
   }
 

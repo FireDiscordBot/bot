@@ -18,6 +18,7 @@ export default class Public extends Command {
       userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       enableSlashCommand: true,
       restrictTo: "guild",
+      slashOnly: true,
     });
   }
 

@@ -26,6 +26,7 @@ export default class Avatar extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "all",
+      slashOnly: true,
     });
   }
 

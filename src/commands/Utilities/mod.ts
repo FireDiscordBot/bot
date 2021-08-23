@@ -25,6 +25,7 @@ export default class Mod extends Command {
       enableSlashCommand: true,
       aliases: ["mods"],
       restrictTo: "all",
+      slashOnly: true,
     });
   }
 

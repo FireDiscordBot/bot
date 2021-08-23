@@ -16,6 +16,7 @@ export default class Icon extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
+      slashOnly: true,
     });
   }
 
