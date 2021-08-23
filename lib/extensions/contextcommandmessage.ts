@@ -163,6 +163,10 @@ export class ContextCommandMessage {
       }/${this.realChannel?.id || "0"}/${this.id}`;
   }
 
+  get channelId() {
+    return this.contextCommand.channelId;
+  }
+
   getMessage(required = false) {
     return this.contextCommand.options.getMessage("message", required);
   }

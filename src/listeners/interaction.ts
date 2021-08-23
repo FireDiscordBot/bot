@@ -48,10 +48,6 @@ export default class InteractionListener extends Listener {
     try {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(command.channelId).catch(() => {});
-      if (!this.client.channels.cache.has(command.channelId))
-        return await command.reply(
-          `${emojis.error} I was unable to find the channel you are in. If it is a private thread, you'll need to mention me to add me to the thread or give me \`Manage Threads\` permission`
-        ); // could be a private thread fire can't access
       if (command.guild && !command.guild?.tags) {
         command.guild.tags = new GuildTagManager(this.client, command.guild);
         await command.guild.tags.init();
@@ -165,10 +161,6 @@ export default class InteractionListener extends Listener {
     try {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(context.channelId).catch(() => {});
-      if (!this.client.channels.cache.has(context.channelId))
-        return await context.reply(
-          `${emojis.error} I was unable to find the channel you are in. If it is a private thread, you'll need to mention me to add me to the thread or give me \`Manage Threads\` permission`
-        ); // could be a private thread fire can't access
       const message = new ContextCommandMessage(this.client, context);
       await message.channel.ack((message.flags & 64) != 0);
       if (!message.command) {

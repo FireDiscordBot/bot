@@ -192,6 +192,10 @@ export class ApplicationCommandMessage {
       }/${this.realChannel?.id || "0"}/${this.id}`;
   }
 
+  get channelId() {
+    return this.slashCommand.channelId;
+  }
+
   async generateContent() {
     let content = `/${this.command.id} `;
     if (this.command.args?.length && this.slashCommand.options?.data.length) {
