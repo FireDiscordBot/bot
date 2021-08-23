@@ -36,7 +36,6 @@ export default class Prefix extends Command {
           default: null,
         },
       ],
-      enableSlashCommand: true,
       aliases: ["prefixes"],
       restrictTo: "guild",
       lock: "guild",
