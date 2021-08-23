@@ -17,7 +17,7 @@ export default class PremiumInhibitor extends Inhibitor {
     });
   }
 
-  exec(message: FireMessage, command: Command) {
+  async exec(message: FireMessage, command: Command) {
     if (command?.premium) return message.guild ? !message.guild.premium : true;
     return false;
   }

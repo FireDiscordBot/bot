@@ -11,7 +11,7 @@ export default class ModOnlyInhibitor extends Inhibitor {
     });
   }
 
-  exec(message: FireMessage) {
+  async exec(message: FireMessage) {
     if (
       message instanceof ApplicationCommandMessage &&
       (message.flags & 64) == 64

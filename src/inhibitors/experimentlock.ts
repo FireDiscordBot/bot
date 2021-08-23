@@ -11,8 +11,8 @@ export default class ExperimentLockInhibitor extends Inhibitor {
     });
   }
 
-  exec(message: FireMessage, command: Command) {
-    if (!command) return;
+  async exec(message: FireMessage, command: Command) {
+    if (!command) return false;
     const requiresExperiment = command.requiresExperiment;
     if (requiresExperiment) {
       const experiment = this.client.experiments.get(requiresExperiment.id);

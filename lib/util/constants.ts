@@ -1,4 +1,5 @@
 import {
+  BaseMessageComponentOptions,
   MessageActionRowOptions,
   MessageMentionOptions,
   MessageActionRow,
@@ -55,7 +56,7 @@ export type MemberLogType =
 export type GuildTextChannel = FireTextChannel | NewsChannel;
 
 export type i18nOptions = TOptions<StringMap> & {
-  components?: (MessageActionRow | MessageActionRowOptions)[];
+  components?: (MessageActionRow | (Required<BaseMessageComponentOptions> & MessageActionRowOptions))[];
   allowedMentions?: MessageMentionOptions;
   reply?: ReplyOptions;
 };

@@ -11,7 +11,7 @@ export default class ModeratorInhibitor extends Inhibitor {
     });
   }
 
-  exec(message: FireMessage, command?: Command) {
+  async exec(message: FireMessage, command?: Command) {
     if ((!message.guild || !message.member) && command?.moderatorOnly)
       return true;
     else if (!message.guild) return false;

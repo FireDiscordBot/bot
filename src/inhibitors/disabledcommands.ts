@@ -11,7 +11,7 @@ export default class DisabledCommandsInhibitor extends Inhibitor {
     });
   }
 
-  exec(message: FireMessage, command: Command) {
+  async exec(message: FireMessage, command: Command) {
     if (
       message.guild &&
       message.guild.settings

@@ -1,4 +1,5 @@
 import {
+  BaseMessageComponentOptions,
   MessageActionRowOptions,
   MessageEmbedOptions,
   MessageEmbed,
@@ -15,7 +16,7 @@ export default class ForwardMessageEvent extends Event {
   }
 
   async run(data: {
-    buttons?: MessageActionRowOptions[];
+    buttons?: (Required<BaseMessageComponentOptions> & MessageActionRowOptions)[];
     message: string | MessageEmbedOptions[];
     parseUsers: Snowflake[];
     channel?: Snowflake;

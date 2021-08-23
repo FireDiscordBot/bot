@@ -11,7 +11,7 @@ export default class BlacklistInhibitor extends Inhibitor {
     });
   }
 
-  exec(message: FireMessage, command?: Command) {
+  async exec(message: FireMessage, command?: Command) {
     return this.client.util.isBlacklisted(
       message.author.id,
       message.guild,

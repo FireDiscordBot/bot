@@ -10,6 +10,7 @@ export default class Invite extends Command {
         language.get("INVITE_COMMAND_DESCRIPTION"),
       enableSlashCommand: true,
       restrictTo: "all",
+      slashOnly: true,
       ephemeral: true,
     });
   }

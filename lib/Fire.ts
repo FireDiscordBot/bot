@@ -324,14 +324,11 @@ export class Fire extends AkairoClient {
         ? "./dist/src/inhibitors/"
         : "./src/inhibitors/",
     });
-    this.inhibitorHandler.on(
-      "load",
-      async (inhibitor: Inhibitor, isReload: boolean) => {
-        await inhibitor?.init();
-      }
-    );
-    this.inhibitorHandler.on("remove", async (inhibitor: Inhibitor) => {
-      await inhibitor?.unload();
+    this.inhibitorHandler.on("load", async (inhibitor) => {
+      if (inhibitor instanceof Inhibitor) await inhibitor?.init();
+    });
+    this.inhibitorHandler.on("remove", async (inhibitor) => {
+      if (inhibitor instanceof Inhibitor) await inhibitor?.unload();
     });
 
     this.commandHandler.useInhibitorHandler(this.inhibitorHandler);

@@ -65,6 +65,7 @@ export class Command extends AkairoCommand {
   superuserOnly: boolean;
   declare client: Fire;
   guilds: Snowflake[];
+  slashOnly: boolean;
   ephemeral: boolean;
   context: string[];
   premium: boolean;
@@ -123,6 +124,7 @@ export class Command extends AkairoCommand {
     this.requiresExperiment = options.requiresExperiment || null;
     this.superuserOnly = options.superuserOnly || false;
     this.moderatorOnly = options.moderatorOnly || false;
+    this.slashOnly = options.slashOnly || false;
     this.ephemeral = options.ephemeral || false;
     this.premium = options.premium || false;
     this.hidden = options.hidden || false;
@@ -318,6 +320,7 @@ export interface CommandOptions extends AkairoCommandOptions {
   superuserOnly?: boolean;
   moderatorOnly?: boolean;
   guilds?: Snowflake[];
+  slashOnly?: boolean;
   ephemeral?: boolean;
   context?: string[];
   premium?: boolean;

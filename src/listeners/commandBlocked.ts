@@ -1,8 +1,8 @@
+import { MessageActionRow, MessageButton, ThreadChannel } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Command } from "@fire/lib/util/command";
-import { ThreadChannel } from "discord.js";
-import { constants } from "@fire/lib/util/constants";
 
 export default class CommandBlocked extends Listener {
   constructor() {
@@ -23,6 +23,17 @@ export default class CommandBlocked extends Listener {
     if (reason == "500")
       return await message.error("COMMAND_ERROR_500", {
         status: constants.url.fireStatus,
+      });
+    else if (reason == "slashonly")
+      return await message.error("COMMAND_ERROR_SLASH_ONLY", {
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setStyle("LINK")
+              .setLabel(message.language.get("INVITE"))
+              .setURL(this.client.config.rawInvite(this.client))
+          ),
+        ],
       });
     else if (reason == "owner")
       return await message.error("COMMAND_OWNER_ONLY");

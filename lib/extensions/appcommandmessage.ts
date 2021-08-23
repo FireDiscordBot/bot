@@ -73,7 +73,8 @@ export class ApplicationCommandMessage {
       }-${command.options.getSubcommand()}`;
       command.options = new CommandInteractionOptionResolver(
         client,
-        command.options.data[0].options ?? []
+        command.options.data[0].options ?? [],
+        command.options.resolved
       );
     }
     this.guild = client.guilds.cache.get(command.guildId) as FireGuild;
@@ -85,13 +86,17 @@ export class ApplicationCommandMessage {
       this.guild?.tags?.slashCommands[command.commandId] == command.commandName
     ) {
       this.command = this.client.getCommand("tag");
-      command.options = new CommandInteractionOptionResolver(client, [
-        {
-          name: "tag",
-          value: command.commandName,
-          type: "STRING",
-        },
-      ]);
+      command.options = new CommandInteractionOptionResolver(
+        client,
+        [
+          {
+            name: "tag",
+            value: command.commandName,
+            type: "STRING",
+          },
+        ],
+        command.options.resolved
+      );
       if (this.guild.tags.ephemeral) this.flags = 64;
     }
     if (this.command?.ephemeral) this.flags = 64;
