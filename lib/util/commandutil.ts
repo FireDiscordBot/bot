@@ -83,7 +83,9 @@ export const getCommands = (client: Fire) => {
             description: command.description(
               client.languages.modules.get("en-US") as Language
             ),
-            usage: `{prefix}${command.id} ${args}`.trim(),
+            usage: command.slashOnly
+              ? `/${command.id} ${args}`.trim()
+              : `{prefix}${command.id} ${args}`.trim(),
             aliases: command.aliases
               .filter((alias) => alias != command.id)
               .join(", "),
@@ -112,7 +114,9 @@ export const getAllCommands = (client: Fire) => {
         description: command.description(
           client.languages.modules.get("en-US") as Language
         ),
-        usage: `{prefix}${command.id} ${args}`.trim(),
+        usage: command.slashOnly
+          ? `/${command.id} ${args}`.trim()
+          : `{prefix}${command.id} ${args}`.trim(),
         aliases: command.aliases
           .filter((alias) => alias != command.id)
           .join(", "),
