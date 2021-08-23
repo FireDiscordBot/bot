@@ -26,6 +26,7 @@ export default class Warnings extends Command {
       restrictTo: "guild",
       moderatorOnly: true,
       aliases: ["warns"],
+      slashOnly: true,
     });
   }
 
@@ -54,7 +55,10 @@ export default class Warnings extends Command {
 **-----------------**`)
       );
     }
-    const embed = new MessageEmbed().setColor("#E67E22").setTimestamp();
+    const embed = new MessageEmbed()
+      .setFooter(args.user.id)
+      .setColor("#E67E22")
+      .setTimestamp();
     const paginatorInterface = new PaginatorEmbedInterface(
       this.client,
       paginator,
