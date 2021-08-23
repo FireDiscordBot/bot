@@ -28,10 +28,8 @@ export default class Alias extends Command {
           default: null,
         },
       ],
-      enableSlashCommand: true,
       superuserOnly: true,
       restrictTo: "all",
-      ephemeral: true,
     });
   }
 
