@@ -178,15 +178,15 @@ export default class Message extends Listener {
     }
 
     if (message.channel.id == "388850472632451073" && message.embeds.length) {
-      // if (message.embeds[0].title.includes("new commit"))
-      //   this.client.manager.ws.send(
-      //     MessageUtil.encode(
-      //       new AetherMessage(EventType.FETCH_DISCORD_EXPERIMENTS, {
-      //         current:
-      //           this.client.manager.state.discordExperiments?.length ?? 0,
-      //       })
-      //     )
-      //   );
+      if (message.embeds[0].title.includes("new commit"))
+        this.client.manager.ws.send(
+          MessageUtil.encode(
+            new AetherMessage(EventType.FETCH_DISCORD_EXPERIMENTS, {
+              current:
+                this.client.manager.state.discordExperiments?.length ?? 0,
+            })
+          )
+        );
       const dataminingMessage = await this.client.req
         .channels("731330454422290463")
         .messages.post<APIMessage>({
