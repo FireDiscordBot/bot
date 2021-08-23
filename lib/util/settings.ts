@@ -30,6 +30,11 @@ export class GuildSettings {
   // will be empty unless there's a migration to run
   async runMigration() {
     this.delete("utils.autoquote");
+    this.client.guildSettings.toMigrate =
+      this.client.guildSettings.toMigrate.filter(
+        (id) =>
+          id != (this.guild instanceof FireGuild ? this.guild.id : this.guild)
+      );
   }
 
   has(option: string) {
