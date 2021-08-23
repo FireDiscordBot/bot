@@ -31,7 +31,7 @@ export class PostgresProvider extends Provider {
 
     // if migration is needed on a table,
     // this will be tableName == "table"
-    this.currentMigration = false;
+    this.currentMigration = tableName == "guildconfig";
     this.migrationLock = new Semaphore(2);
   }
 
@@ -98,7 +98,7 @@ export class PostgresProvider extends Provider {
       exists
         ? `UPDATE ${this.tableName} SET ${key} = $2 WHERE ${this.idColumn} = $1`
         : `INSERT INTO ${this.tableName} (${this.idColumn}, ${key}) VALUES ($1, $2)`,
-      [id, (value as unknown) as ArrayValue<Primitive>]
+      [id, value as unknown as ArrayValue<Primitive>]
     );
   }
 

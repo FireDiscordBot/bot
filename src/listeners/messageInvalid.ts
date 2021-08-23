@@ -70,7 +70,9 @@ export default class MessageInvalid extends Listener {
       }
     }
 
-    if (!message.guild.settings.get<boolean>("utils.autoquote", false)) {
+    const quoteCommand = this.client.getCommand("quote") as Quote;
+
+    if (quoteCommand.isDisabled(message.guild)) {
       this.cleanCommandUtil(message);
       return;
     }
@@ -100,8 +102,6 @@ export default class MessageInvalid extends Listener {
     matches = matches.filter(
       (match, pos) => messageIds.indexOf(match.message_id) == pos
     ); // remove dupes
-
-    const quoteCommand = this.client.getCommand("quote") as Quote;
 
     // reset inhibited
     inhibited = false;

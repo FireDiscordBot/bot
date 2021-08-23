@@ -13,6 +13,7 @@ import {
   Snowflake,
 } from "discord.js";
 import { ApplicationCommandOptionType } from "discord-api-types";
+import { FireGuild } from "../extensions/guild";
 import { Language } from "./language";
 import { Fire } from "@fire/lib/Fire";
 
@@ -138,6 +139,12 @@ export class Command extends AkairoCommand {
   async init(): Promise<any> {}
 
   async unload(): Promise<any> {}
+
+  isDisabled(guild: FireGuild) {
+    return guild?.settings
+      .get<string[]>("disabled.commands", [])
+      .includes(this.id);
+  }
 
   getArgumentsClean() {
     return typeof this.args != "undefined" && Array.isArray(this.args)
