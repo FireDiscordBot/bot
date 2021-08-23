@@ -51,9 +51,7 @@ export default class CloseTicket extends Command {
       ],
     } as MessageOptions & { split?: false };
     await message.channel.send({
-      content: `${emojis.error} ${message.language.get(
-        "TICKET_WILL_CLOSE_BUTTON"
-      )}`,
+      content: `${emojis.error} ${message.language.get("TICKET_WILL_CLOSE")}`,
       ...buttonOptions,
     });
     const willClose = await this.getConfirmationPromise(buttonSnowflake).catch(
