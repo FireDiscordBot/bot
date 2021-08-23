@@ -919,6 +919,8 @@
   "TAG_ALIASES": "Tag Aliases",
   "TAG_CREATOR": "Created By",
   "TAG_USES": "Tag Usage",
+  "TAG_LIST_COMMAND_DESCRIPTION": "List all tags",
+  "TAG_VIEW_COMMAND_DESCRIPTION": "View a tag",
   "TAG_INFO_COMMAND_DESCRIPTION": "View info about a tag such as who created it and how many times it's been used",
   "TAG_INFO_MISSING_ARG": "You need to provide a tag name to view the info for",
   "TAG_INFO_EDIT_BUTTON": "Edit Tag",

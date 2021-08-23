@@ -21,6 +21,7 @@ export default class TagSlash extends Command {
       ],
       aliases: ["tags-slash", "dtag-slash", "dtags-slash"],
       restrictTo: "guild",
+      cooldown: 600000,
       parent: "tag",
     });
   }
