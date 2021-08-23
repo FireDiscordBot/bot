@@ -640,8 +640,8 @@ discord-api-types@^0.22.0:
   integrity sha512-l8yD/2zRbZItUQpy7ZxBJwaLX/Bs2TGaCthRppk8Sw24LOIWg12t9JEreezPoYD0SQcC2htNNo27kYEpYW/Srg==
 
 discord.js@FireDiscordBot/discord.js:
-  version "13.1.0-dev"
-  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/7852f1ea6b1d78f6e887b32cc39eb4b10bb9e672"
+  version "13.2.0-dev"
+  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/3f4dbfa9464c1804bbf0d59db14c44dd8fe6ec11"
   dependencies:
     "@discordjs/builders" "^0.5.0"
     "@discordjs/collection" "^0.2.1"
