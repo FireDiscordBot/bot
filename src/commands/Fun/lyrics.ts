@@ -33,6 +33,7 @@ export default class Lyrics extends Command {
         },
       ],
       enableSlashCommand: true,
+      slashOnly: true,
     });
   }
 

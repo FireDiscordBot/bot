@@ -35,6 +35,7 @@ export default class Google extends Command {
       ],
       enableSlashCommand: true,
       context: ["google it"],
+      slashOnly: true,
       cooldown: 5000,
       lock: "user",
       typing: true, // This command takes a hot sec to run, especially when running locally so type while waiting

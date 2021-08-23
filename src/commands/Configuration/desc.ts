@@ -27,6 +27,7 @@ export default class Description extends Command {
         },
       ],
       enableSlashCommand: true,
+      slashOnly: true,
     });
   }
 

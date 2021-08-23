@@ -14,8 +14,8 @@ export default class LanguageCommand extends Command {
         {
           id: "language",
           type: "language",
-          default: null,
           required: false,
+          default: null,
         },
       ],
       enableSlashCommand: true,
