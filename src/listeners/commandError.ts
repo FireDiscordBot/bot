@@ -28,7 +28,7 @@ export default class CommandError extends Listener {
         message instanceof ContextCommandMessage) &&
       !this.client.channels.cache.has(message.channelId)
     )
-      return await message.reply(
+      return await message.channel.send(
         `${emojis.error} I was unable to find the channel you are in. If it is a private thread, you'll need to mention me to add me to the thread or give me \`Manage Threads\` permission`
       ); // could be a private thread fire can't access
 

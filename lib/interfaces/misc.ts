@@ -11,6 +11,9 @@ export class BaseFakeChannel {
   get name(): string {
     return "";
   }
+  get type(): string {
+    return this.real?.type ?? "GUILD_TEXT";
+  }
   message: ApplicationCommandMessage | ContextCommandMessage | ComponentMessage;
   real: FireTextChannel | NewsChannel | ThreadChannel | DMChannel;
   interactionId: Snowflake;

@@ -586,9 +586,9 @@ export default class Button extends Listener {
     )
       await message?.paginator.buttonHandler(button).catch(() => {});
     else if (
-      !(button.channel.messages.cache.get(button.message?.id) as FireMessage)
-        ?.paginator &&
-      button.customId == "close"
+      button.customId == "close" &&
+      !(button.channel?.messages?.cache?.get(button.message?.id) as FireMessage)
+        ?.paginator
     )
       await message?.delete().catch(() => {});
   }

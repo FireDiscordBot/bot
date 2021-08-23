@@ -79,7 +79,7 @@ export class ComponentMessage {
       : component.message instanceof FireMessage
       ? component.message
       : new FireMessage(client, component.message as RawMessageData);
-    if (component.member)
+    if (component.member && this.guild)
       this.member =
         (this.guild.members.cache.get(
           component.member.user.id
@@ -357,7 +357,7 @@ export class FakeChannel extends BaseFakeChannel {
   }
 
   get messages() {
-    return this.real.messages;
+    return this.real?.messages;
   }
 
   toString() {
