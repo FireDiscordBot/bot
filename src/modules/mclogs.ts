@@ -4,7 +4,7 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import { Readable } from "stream";
-import { Util } from "discord.js";
+import { MessageEmbed, Util } from "discord.js";
 import * as centra from "centra";
 import Filters from "./filters";
 
@@ -149,9 +149,6 @@ export default class MCLogs extends Module {
       if (log.includes(rec) && !currentRecommendations.includes(`- ${sol}`))
         currentRecommendations.push(`- ${sol}`);
     }
-
-    if (currentSolutions.length > 8) currentSolutions = [];
-    if (currentRecommendations.length > 15) currentRecommendations = [];
 
     const solutions = currentSolutions.length
       ? `Possible Solutions:\n${currentSolutions.join("\n")}`
@@ -385,14 +382,38 @@ export default class MCLogs extends Module {
         } catch {}
       }
 
-      return await message.send("MC_LOG_HASTE", {
-        user: message.author.toMention(),
-        msgType,
-        extra: msgType == "uploaded" ? message.content : "",
-        haste,
-        solutions: possibleSolutions,
-        allowedMentions: { users: [message.author.id] },
-      });
+      if (possibleSolutions.length <= 1850)
+        return await message.send("MC_LOG_HASTE", {
+          user: message.author.toMention(),
+          msgType,
+          extra: msgType == "uploaded" ? message.content : "",
+          haste,
+          solutions: possibleSolutions,
+          allowedMentions: { users: [message.author.id] },
+        });
+      else {
+        const logHaste = message.language.get("MC_LOG_HASTE", {
+          user: message.author.toMention(),
+          msgType,
+          extra: msgType == "uploaded" ? message.content : "",
+          haste,
+          solutions: possibleSolutions,
+          allowedMentions: { users: [message.author.id] },
+        });
+        if (logHaste.length <= 4096)
+          return await message.channel.send({
+            embeds: [new MessageEmbed().setDescription(logHaste)],
+          });
+        else
+          return await message.send("MC_LOG_HASTE", {
+            user: message.author.toMention(),
+            msgType,
+            extra: msgType == "uploaded" ? message.content : "",
+            haste,
+            solutions: message.guild.language.get("MC_LOG_WTF"),
+            allowedMentions: { users: [message.author.id] },
+          });
+      }
     } catch (e) {
       this.client.console.error(
         `[MCLogs] Failed to create log haste\n${e.stack}`
