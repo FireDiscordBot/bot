@@ -13,7 +13,6 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Command } from "@fire/lib/util/command";
 import { TOptions, StringMap } from "i18next";
-import * as moment from "moment";
 
 const {
   emojis: { success, error },
@@ -51,7 +50,7 @@ export default class Debug extends Command {
       return await this.sendSingleSuccess(message, "DEBUGGING_DEBUG");
     if (this.client.util.isBlacklisted(message.author.id, message.guild))
       return await this.sendSingleError(message, "DEBUG_BLACKLISTED");
-    if (moment(new Date()).diff(message.author.createdAt) < 86400000)
+    if (+new Date() - message.author.createdTimestamp < 86400000)
       return await this.sendSingleError(message, "COMMAND_ACCOUNT_TOO_YOUNG");
     if (cmd.ownerOnly && !this.client.isOwner(message.author))
       return await this.sendSingleError(message, "COMMAND_OWNER_ONLY");

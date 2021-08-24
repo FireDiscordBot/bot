@@ -10,7 +10,7 @@ export default class RequestCommandsEvent extends Event {
     super(manager, EventType.REQUEST_COMMANDS);
   }
 
-  run() {
+ async run() {
     this.manager.client.console.log(
       `[Event] Received request to sync commands.`
     );

@@ -1,5 +1,6 @@
 import { Payload } from "@fire/lib/interfaces/aether";
 import { Manager } from "@fire/lib/Manager";
+import { EventType } from "../util/constants";
 import { EventStore } from "./EventStore";
 
 export class EventHandler {
@@ -19,6 +20,15 @@ export class EventHandler {
       throw new TypeError(`Event type "${message.op}" not found!`);
     }
 
-    event?.run(message.d, message.n);
+    if (typeof event?.run == "function")
+      event
+        ?.run(message.d, message.n)
+        .catch((e) =>
+          this.manager.client.console.error(
+            `[EventHandler] Failed to handle event ${
+              EventType[message.t]
+            } due to\n${e.stack}`
+          )
+        );
   }
 }

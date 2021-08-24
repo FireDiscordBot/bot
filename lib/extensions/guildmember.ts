@@ -7,18 +7,17 @@ import {
   GuildMember,
   Permissions,
   Structures,
+  Formatters,
   Channel,
   Util,
 } from "discord.js";
 import { BaseFakeChannel } from "../interfaces/misc";
-import { humanize } from "@fire/lib/util/constants";
 import { FireTextChannel } from "./textchannel";
 import * as sanitizer from "@aero/sanitizer";
 import { FireMessage } from "./message";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
-import * as moment from "moment";
 
 export class FireMember extends GuildMember {
   declare guild: FireGuild;
@@ -400,13 +399,9 @@ export class FireMember extends GuildMember {
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     if (until) {
-      const duration = moment(until).diff(moment());
       embed.addField(
         this.guild.language.get("UNTIL"),
-        `${new Date(until).toLocaleString(this.guild.language.id)} (${humanize(
-          duration,
-          this.guild.language.id.split("-")[0]
-        )})`
+        `${Formatters.time(new Date(until), "R")}`
       );
     }
     let noDM: boolean = false;
@@ -606,13 +601,9 @@ export class FireMember extends GuildMember {
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     if (until) {
-      const duration = moment(until).diff(moment());
       embed.addField(
         this.guild.language.get("UNTIL"),
-        `${new Date(until).toLocaleString(this.guild.language.id)} (${humanize(
-          duration,
-          this.guild.language.id.split("-")[0]
-        )})`
+        `${Formatters.time(new Date(until), "R")}`
       );
     }
     let noDM: boolean = false;

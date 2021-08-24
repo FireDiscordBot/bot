@@ -10,7 +10,7 @@ export default class SettingsSyncEvent extends Event {
     super(manager, EventType.SETTINGS_SYNC);
   }
 
-  run(data: {
+ async run(data: {
     user: Snowflake;
     setting: string;
     value: Primitive | Primitive[];

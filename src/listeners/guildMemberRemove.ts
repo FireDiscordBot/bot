@@ -1,15 +1,14 @@
+import { Formatters, MessageEmbed, Permissions, Snowflake } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { MessageEmbed, Permissions, Snowflake } from "discord.js";
-import { constants, humanize } from "@fire/lib/util/constants";
 import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { LanguageKeys } from "@fire/lib/util/language";
+import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 import Sk1er from "@fire/src/modules/sk1er";
-import * as moment from "moment";
 
 const {
   regexes: { joinleavemsgs },
@@ -162,12 +161,10 @@ export default class GuildMemberRemove extends Listener {
         );
       if (action && reason) embed.addField(language.get("REASON"), reason);
       if (!member.partial) {
-        const joinedDelta =
-          humanize(
-            moment(member.joinedAt).diff(moment()),
-            language.id.split("-")[0]
-          ) + language.get("AGO");
-        embed.addField(language.get("JOINED_FIELD"), joinedDelta);
+        embed.addField(
+          language.get("JOINED_FIELD"),
+          Formatters.time(member.joinedAt, "R")
+        );
         if (member.nickname)
           embed.addField(language.get("NICKNAME"), member.nickname);
         const roles = member.roles.cache

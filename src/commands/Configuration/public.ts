@@ -8,7 +8,6 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
 import { Permissions } from "discord.js";
-import * as moment from "moment";
 
 export default class Public extends Command {
   constructor() {
@@ -25,7 +24,7 @@ export default class Public extends Command {
   async exec(message: FireMessage) {
     if (message.guild.memberCount <= 20)
       return await message.error("PUBLIC_MEMBER_COUNT_TOO_SMALL");
-    else if (moment(new Date()).diff(message.guild.createdAt) < 2629800000)
+    else if (+new Date() - message.guild.createdTimestamp < 2629800000)
       return await message.error("PUBLIC_GUILD_TOO_YOUNG");
 
     const current = message.guild.settings.get<boolean>("utils.public", false);

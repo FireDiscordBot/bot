@@ -9,7 +9,7 @@ export default class ReloadExperimentsEvent extends Event {
     super(manager, EventType.RELOAD_EXPERIMENTS);
   }
 
-  run(experiments: Experiment[]) {
+ async run(experiments: Experiment[]) {
     this.manager.client.console.log(
       "[Aether] Received request to reload experiments."
     );

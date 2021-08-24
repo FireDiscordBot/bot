@@ -1,14 +1,13 @@
+import { Formatters, MessageEmbed, Permissions, Snowflake } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { MessageEmbed, Permissions, Snowflake } from "discord.js";
-import { constants, humanize } from "@fire/lib/util/constants";
 import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { LanguageKeys } from "@fire/lib/util/language";
+import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
-import * as moment from "moment";
 
 const {
   regexes: { joinleavemsgs },
@@ -205,11 +204,6 @@ export default class GuildMemberAdd extends Listener {
     }
 
     if (member.guild.settings.has("log.members")) {
-      const createdDelta =
-        humanize(
-          moment(member.user.createdAt).diff(moment()),
-          language.id.split("-")[0]
-        ) + language.get("AGO");
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
         .setTimestamp()
@@ -222,7 +216,10 @@ export default class GuildMemberAdd extends Listener {
           }),
           "https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif"
         )
-        .addField(language.get("ACCOUNT_CREATED"), createdDelta)
+        .addField(
+          language.get("ACCOUNT_CREATED"),
+          Formatters.time(member.user.createdAt, "R")
+        )
         .setFooter(member.id);
       const randInt = this.client.util.randInt(0, 100);
       if (!member.guild.premium && randInt == 69)

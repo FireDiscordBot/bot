@@ -9,6 +9,7 @@ import {
   MessageEmbed,
   Permissions,
   ClientUser,
+  Formatters,
   DMChannel,
   Snowflake,
 } from "discord.js";
@@ -335,42 +336,35 @@ export default class User extends Command {
 
   getInfo(message: FireMessage, member: FireMember | FireUser) {
     let user = member instanceof FireMember ? member.user : member;
-    const created = user.createdAt.toLocaleString(message.language.id);
     const now = moment();
     const cakeDay =
       now.dayOfYear() == moment(user.createdAt).dayOfYear() &&
       now.year() != moment(user.createdAt).year();
-    const createdDelta =
-      humanize(
-        moment(user.createdAt).diff(now),
-        message.language.id.split("-")[0]
-      ) + message.language.get("AGO");
     let info = [
       `**${message.language.get("MENTION")}:** ${user.toMention()}`,
-      `**${message.language.get("CREATED")}** ${created} (${createdDelta})${
-        cakeDay ? " 🎂" : ""
-      }`,
+      `**${message.language.get("CREATED")}** ${Formatters.time(
+        user.createdAt,
+        "R"
+      )}${cakeDay ? " 🎂" : ""}`,
     ];
     if (member instanceof FireMember) {
-      const joined = member.joinedAt.toLocaleString(message.language.id);
-      const joinedDelta =
-        humanize(
-          moment(member.joinedAt).diff(now),
-          message.language.id.split("-")[0]
-        ) + message.language.get("AGO");
       if (
         message.guild &&
         message.guild.ownerId == member.id &&
         member.joinedTimestamp - message.guild.createdTimestamp < 5000
       )
         info.push(
-          `**${message.language.get(
-            "CREATED_GUILD"
-          )}** ${joined} (${joinedDelta})`
+          `**${message.language.get("CREATED_GUILD")}** ${Formatters.time(
+            member.joinedAt,
+            "R"
+          )}`
         );
       else
         info.push(
-          `**${message.language.get("JOINED")}** ${joined} (${joinedDelta})`
+          `**${message.language.get("JOINED")}** ${Formatters.time(
+            member.joinedAt,
+            "R"
+          )}`
         );
       if (
         message.guild &&
@@ -440,24 +434,11 @@ export default class User extends Command {
       };
     }
 
-    const created = snowflake.date.toLocaleString(message.language.id);
-    const now = moment();
-    const createdDelta = now.isBefore(snowflake.date)
-      ? message.language.get("FROM_NOW", {
-          time: humanize(
-            moment(snowflake.date).diff(now),
-            message.language.id.split("-")[0]
-          ),
-        })
-      : message.language.get("AGO", {
-          time: humanize(
-            moment(snowflake.date).diff(now),
-            message.language.id.split("-")[0]
-          ),
-        });
-
     let info = [
-      `**${message.language.get("CREATED")}** ${created} (${createdDelta})`,
+      `**${message.language.get("CREATED")}** ${Formatters.time(
+        snowflake.date,
+        "R"
+      )}`,
       `**${message.language.get("TIMESTAMP")}:** ${snowflake.timestamp}`,
       `**${message.language.get("WORKER_ID")}:** ${snowflake.workerId}`,
       `**${message.language.get("PROCESS_ID")}:** ${snowflake.processId}`,

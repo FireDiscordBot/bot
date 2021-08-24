@@ -2,12 +2,10 @@ import {
   PaginatorEmbedInterface,
   WrappedPaginator,
 } from "@fire/lib/util/paginators";
+import { Formatters, MessageEmbed, Permissions } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { MessageEmbed, Permissions } from "discord.js";
-import { humanize } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import * as moment from "moment";
 
 export default class Reminders extends Command {
   constructor() {
@@ -36,14 +34,11 @@ export default class Reminders extends Command {
     let index = 1;
     for await (const reminder of remindersResult) {
       const forwhen = reminder.get("forwhen") as Date;
-      const delta = humanize(
-        moment().diff(forwhen),
-        message.language.id.split("-")[0]
-      );
       paginator.addLine(
-        `[${index++}] ${reminder.get("reminder")} - ${forwhen.toLocaleString(
-          message.language.id
-        )} (${delta})`
+        `[${index++}] ${reminder.get("reminder")} - ${Formatters.time(
+          forwhen,
+          "R"
+        )}`
       );
     }
     const embed = new MessageEmbed().setColor(message.member?.displayColor);

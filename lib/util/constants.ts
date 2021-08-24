@@ -56,7 +56,10 @@ export type MemberLogType =
 export type GuildTextChannel = FireTextChannel | NewsChannel;
 
 export type i18nOptions = TOptions<StringMap> & {
-  components?: (MessageActionRow | (Required<BaseMessageComponentOptions> & MessageActionRowOptions))[];
+  components?: (
+    | MessageActionRow
+    | (Required<BaseMessageComponentOptions> & MessageActionRowOptions)
+  )[];
   allowedMentions?: MessageMentionOptions;
   reply?: ReplyOptions;
 };
@@ -211,7 +214,7 @@ export const constants = {
       cdnAttachment:
         /^https?:\/\/cdn\.discordapp\.com\/attachments\/\d{15,21}\/\d{15,21}\/\w*\.\w{3,4}/im,
       message:
-        /(?:ptb\.|canary\.|staging\.|lc\.)?(?:discord(?:app)|inv)?\.(?:com|wtf)?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
+        /(?:ptb\.|canary\.|staging\.|lc\.)?(?:discord(?:app)?|inv)\.(?:com|wtf)?\/channels\/(?<guild_id>\d{15,21}|@me)\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
       messageGlobal:
         /<?(?:ptb\.|canary\.|staging\.)?discord(?:app)?\.com?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})>?/gim,
       webhook:

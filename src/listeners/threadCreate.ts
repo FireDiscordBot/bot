@@ -1,8 +1,6 @@
-import { MessageEmbed, ThreadChannel } from "discord.js";
+import { Formatters, MessageEmbed, ThreadChannel } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { humanize } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
-import * as moment from "moment";
 
 // Totally not copied from channelCreate lol
 export default class ThreadCreate extends Listener {
@@ -21,17 +19,11 @@ export default class ThreadCreate extends Listener {
 
     if (guild.settings.has("log.action")) {
       const owner = await guild.members.fetch(channel.ownerId).catch(() => {});
-      const now = moment();
       const autoArchiveDuration =
         typeof channel.autoArchiveDuration == "string"
           ? 10080
           : channel.autoArchiveDuration;
       const autoArchiveAt = new Date(+new Date() + autoArchiveDuration * 60000);
-      const friendlyArchived =
-        humanize(moment(autoArchiveAt).diff(now), language.id.split("-")[0]) +
-        (now.isBefore(autoArchiveAt)
-          ? language.get("FROM_NOW")
-          : language.get("AGO"));
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
         .setTimestamp(channel.createdAt)
@@ -43,7 +35,7 @@ export default class ThreadCreate extends Listener {
         .addField(language.get("CHANNEL"), channel.parent.toString())
         .addField(
           language.get("ARCHIVE_AT"),
-          `${friendlyArchived} (${autoArchiveAt.toLocaleString(language.id)})`
+          Formatters.time(autoArchiveAt, "R")
         )
         .addField(
           language.get("CREATED_BY"),

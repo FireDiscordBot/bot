@@ -1,7 +1,6 @@
 import { humanize } from "@fire/lib/util/constants";
 import { Snowflake } from "discord.js";
 import { Fire } from "@fire/lib/Fire";
-import * as moment from "moment";
 
 export const fire = {
   dev:
@@ -19,11 +18,10 @@ export const fire = {
         : 0
       ).toLocaleString()}`
     );
-    if (!client.started) {
-      const now = moment();
-      const duration = client.launchTime.diff(now);
-      client.console.log(`Started in ${humanize(duration, "en")}`);
-    }
+    if (!client.started)
+      client.console.log(
+        `Started in ${humanize(+new Date() - client.launchTime, "en")}`
+      );
     client.console.log("-------------------------");
   },
   aetherPingTimeout: 10000,

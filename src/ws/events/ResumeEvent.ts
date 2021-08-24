@@ -7,7 +7,7 @@ export default class ResumeEvent extends Event {
     super(manager, EventType.RESUME_CLIENT);
   }
 
-  run(data: { replayed: number }) {
+ async run(data: { replayed: number }) {
     this.manager.client.console.log(
       data.replayed
         ? `[Aether] Sucessfully resumed session ${this.manager.session} with ${data.replayed} replayed events.`

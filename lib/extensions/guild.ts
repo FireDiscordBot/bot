@@ -16,6 +16,7 @@ import {
   Permissions,
   Structures,
   Collection,
+  Formatters,
   Snowflake,
   Webhook,
   Guild,
@@ -47,7 +48,6 @@ import { FireMessage } from "./message";
 import { Fire } from "@fire/lib/Fire";
 import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
-import * as moment from "moment";
 import { nanoid } from "nanoid";
 
 export class FireGuild extends Guild {
@@ -672,7 +672,7 @@ export class FireGuild extends Guild {
     return (
       (this.settings.get<boolean>("utils.public", false) &&
         this.memberCount >= 20 &&
-        moment(new Date()).diff(this.createdAt) > 2629800000) ||
+        +new Date() - this.createdTimestamp > 2629800000) ||
       (this.features && this.features.includes("DISCOVERABLE"))
     );
   }
@@ -1059,19 +1059,18 @@ export class FireGuild extends Guild {
       this.ticketLock.lock.release();
       return ticket;
     }
-    let authorInfo = `${this.language.get("CREATED")} <t:${Math.floor(
-      author.user.createdTimestamp / 1000
-    )}:R>
-${this.language.get("JOINED")} <t:${Math.floor(
-      author.joinedTimestamp / 1000
-    )}:R>`;
+    let authorInfo = `${this.language.get("CREATED")} ${Formatters.time(
+      author.user.createdAt,
+      "R"
+    )}
+${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     const roles = author.roles.cache
       .sort((one, two) => (one.position > two.position ? 1 : -1))
       .filter((role) => this.id != role.id)
       .map((role) => role.toString());
     authorInfo += `\n${this.language.get("ROLES")}: ${this.client.util.shorten(
       roles,
-      1024 - authorInfo.length,
+      1000 - authorInfo.length,
       " - "
     )}`;
     const embed = new MessageEmbed()
@@ -1117,7 +1116,9 @@ ${this.language.get("JOINED")} <t:${Math.floor(
             ),
           ],
         })
-        .catch(() => {});
+        .catch((e) => {
+          console.log(e.stack);
+        });
     channels.push(ticket);
     this.settings.set<string[]>(
       "tickets.channels",

@@ -37,7 +37,6 @@ import { murmur3 } from "murmurhash-js";
 import { Fire } from "@fire/lib/Fire";
 import * as pidusage from "pidusage";
 import * as centra from "centra";
-import * as moment from "moment";
 import { totalmem } from "os";
 
 export const humanFileSize = (size: number) => {
@@ -227,8 +226,6 @@ export class Util extends ClientUtil {
   async getClusterStats(): Promise<Cluster> {
     const processStats = await pidusage(process.pid);
     processStats.memory = process.memoryUsage().heapUsed;
-    const now = moment();
-    const duration = this.client.launchTime.diff(now);
     const env = (process.env.NODE_ENV || "DEVELOPMENT").toLowerCase();
     return {
       id: this.client.manager.id,
@@ -240,8 +237,8 @@ export class Util extends ClientUtil {
       env: env,
       user: this.client.user ? this.client.user.toString() : "Unknown#0000",
       userId: this.client.user ? this.client.user.id : "",
-      started: this.client.launchTime.toISOString(true),
-      uptime: humanize(duration, "en"),
+      started: new Date(this.client.launchTime).toISOString(),
+      uptime: humanize(+new Date() - this.client.launchTime, "en"),
       cpu: parseFloat(processStats.cpu.toFixed(2)),
       ram: humanFileSize(processStats.memory),
       ramBytes: processStats.memory,

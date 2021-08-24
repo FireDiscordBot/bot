@@ -1,13 +1,18 @@
-import { GuildPreview, MessageEmbed, Permissions, DMChannel } from "discord.js";
-import { humanize, zws, constants } from "@fire/lib/util/constants";
+import {
+  GuildPreview,
+  MessageEmbed,
+  Permissions,
+  Formatters,
+  DMChannel,
+} from "discord.js";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { snowflakeConverter } from "@fire/lib/util/converters";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { constants, zws } from "@fire/lib/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import * as moment from "moment";
 
 const {
   emojis: { badges, channels },
@@ -54,15 +59,7 @@ export default class GuildCommand extends Command {
   async getInfo(message: FireMessage, guild: FireGuild | GuildPreview) {
     if (guild instanceof FireGuild) await guild.fetch(); // gets approximatePresenceCount
 
-    const language = message.language;
     const guildSnowflake = await snowflakeConverter(message, guild.id);
-    const created =
-      humanize(
-        moment(
-          guild instanceof FireGuild ? guild.createdAt : guildSnowflake.date
-        ).diff(moment()),
-        language.id.split("-")[0]
-      ) + language.get("AGO");
     let owner: FireMember;
     if (guild instanceof FireGuild) owner = await guild.fetchOwner();
     const ownerString =
@@ -76,7 +73,13 @@ export default class GuildCommand extends Command {
     let messages = [
       message.language.get(
         ownerString ? "GUILD_CREATED_BY" : "GUILD_CREATED_AT",
-        { owner: ownerString, created }
+        {
+          owner: ownerString,
+          created: Formatters.time(
+            guild instanceof FireGuild ? guild.createdAt : guildSnowflake.date,
+            "R"
+          ),
+        }
       ),
       `**${message.language.get("MEMBERS")}:** ${(guild instanceof FireGuild
         ? guild.memberCount

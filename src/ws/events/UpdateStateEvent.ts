@@ -8,7 +8,7 @@ export default class UpdateStateEvent extends Event {
     super(manager, EventType.UPDATE_STATE);
   }
 
-  run(data: ManagerState) {
+ async run(data: ManagerState) {
     this.manager.state = data;
   }
 }

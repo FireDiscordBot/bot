@@ -3,17 +3,17 @@ import {
   MessageActionRow,
   SnowflakeUtil,
   MessageButton,
+  Formatters,
   Snowflake,
 } from "discord.js";
-import { constants, humanize } from "@fire/lib/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { Reminder } from "@fire/lib/interfaces/reminders";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
+import { constants } from "@fire/lib/util/constants";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Message } from "@fire/lib/ws/Message";
 import { Manager } from "@fire/lib/Manager";
-import * as moment from "moment";
 
 const { regexes } = constants;
 
@@ -32,10 +32,14 @@ export default class ReminderSendEvent extends Event {
       this.sent.find(
         (r) => r.user == data.user && r.timestamp == data.timestamp
       )
-    )
+    ) {
+      this.manager.client.console.log(
+        `[Aether] Got duplicated reminder request for ${data.user}, sending delete...`
+      );
       return this.manager?.ws.send(
         MessageUtil.encode(new Message(EventType.REMINDER_DELETE, data))
       );
+    }
     const user = (await this.manager.client.users
       .fetch(data.user, { cache: false })
       .catch(() => {})) as FireUser;
@@ -47,9 +51,6 @@ export default class ReminderSendEvent extends Event {
       ?.message_id as Snowflake;
     let deconstructed: DeconstructedSnowflake;
     if (snowflake) deconstructed = SnowflakeUtil.deconstruct(snowflake);
-
-    const now = moment();
-    const duration = moment(deconstructed?.date || now).diff(now);
 
     if (data.link?.includes("000000000000000000")) delete data.link;
 
@@ -68,8 +69,8 @@ export default class ReminderSendEvent extends Event {
           data.link ? "REMINDER_MESSAGE_LINKED" : "REMINDER_MESSAGE_UNKNOWN",
           {
             time:
-              duration != 0
-                ? humanize(duration, user.language.id.split("-")[0])
+              deconstructed && deconstructed.timestamp != 0
+                ? Formatters.time(deconstructed.date, "R")
                 : user.language.get("REMINDER_TIME_UNKNOWN"),
             text: data.text,
             link: data.link,

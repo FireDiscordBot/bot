@@ -3,19 +3,11 @@ import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { Formatters, Snowflake } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
-import { Snowflake } from "discord.js";
-import * as moment from "moment";
-import { humanize } from "@fire/lib/util/constants";
 
 const reminderSnoozeTimes = [
-  300000,
-  1800000,
-  3600000,
-  21600000,
-  43200000,
-  86400000,
-  604800000,
+  300000, 1800000, 3600000, 21600000, 43200000, 86400000, 604800000,
 ];
 
 export default class Select extends Listener {
@@ -121,22 +113,16 @@ export default class Select extends Listener {
       );
       if (!currentRemind) return await select.error("REMINDER_SNOOZE_UNKNOWN");
       const time = +new Date() + snoozeTime;
-      const now = new Date();
       const remind = await select.author.createReminder(
         new Date(time),
         currentRemind.text,
         currentRemind.link
       );
       if (!remind) return await select.error("REMINDER_SNOOZE_FAILED");
-      const duration = moment(time).diff(moment(now));
-      const friendly = humanize(
-        duration,
-        select.author.language.id.split("-")[0]
-      );
       return await select.channel.update({
         components: [],
         content: select.author.language.getSuccess("REMINDER_CREATED_SINGLE", {
-          time: friendly,
+          time: Formatters.time(time, "R"),
         }),
       });
     }

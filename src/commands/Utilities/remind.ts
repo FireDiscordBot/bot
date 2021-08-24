@@ -3,13 +3,14 @@ import {
   MessageActionRow,
   MessageButton,
   SnowflakeUtil,
+  Formatters,
 } from "discord.js";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import ReminderSendEvent from "@fire/src/ws/events/ReminderSendEvent";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { humanize, parseTime } from "@fire/lib/util/constants";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { parseTime } from "@fire/lib/util/constants";
 import { Command } from "@fire/lib/util/command";
 import * as moment from "moment";
 
@@ -146,7 +147,6 @@ export default class Remind extends Command {
       else reminder = referenced.content;
     }
     const time = new Date();
-    const refMoment = moment(time);
     time.setMinutes(time.getMinutes() + parsedMinutes);
     const largestTime = new Date();
     largestTime.setMinutes(
@@ -167,8 +167,7 @@ export default class Remind extends Command {
         reminder,
         message.url
       );
-      const duration = moment(currentTime).diff(refMoment);
-      created[humanize(duration, message.language.id.split("-")[0])] = remind;
+      created[Formatters.time(currentTime, "R")] = remind;
     }
     const success = Object.entries(created)
       .filter(([, success]) => success)

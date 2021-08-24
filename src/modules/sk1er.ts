@@ -5,10 +5,8 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
-import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
-import * as moment from "moment";
 
 interface Regexes {
   settingUser: RegExp;
@@ -42,10 +40,6 @@ export default class Sk1er extends Module {
     this.supportguildId = "755794954743185438";
     this.supportMessageId = "755817441581596783";
     this.nitroId = "585534346551754755";
-    this.statusCheck = setInterval(
-      async () => await this.statusChecker(),
-      1800000
-    );
     this.descriptionUpdate = setInterval(
       async () => await this.descriptionUpdater(),
       300000
@@ -77,37 +71,13 @@ export default class Sk1er extends Module {
     this.nitro = this.guild?.roles.cache.get(this.nitroId);
     this.essentialHeaders = { secret: process.env.MODCORE_SECRET };
     if (this.guild) {
-      await this.statusChecker();
       await this.descriptionUpdater();
       await this.nitroChecker();
     }
   }
 
   async unload() {
-    clearInterval(this.statusCheck);
     clearInterval(this.descriptionUpdate);
-  }
-
-  async statusChecker() {
-    try {
-      const hoursDifferenceSince = (date: Date) =>
-        moment.duration(moment().diff(moment(date))).asHours();
-
-      const commandsChannel = this.guild.channels.cache.get(
-        "411620555960352787"
-      ) as FireTextChannel;
-
-      const pinnedMessages = await commandsChannel.messages.fetchPinned();
-      pinnedMessages
-        .filter(
-          (message) =>
-            Object.keys(this.bots).includes(message.author.id) &&
-            hoursDifferenceSince(message.createdAt) > 10
-        )
-        .forEach((message) => {
-          message.unpin().catch(() => {});
-        });
-    } catch {}
   }
 
   async descriptionUpdater() {

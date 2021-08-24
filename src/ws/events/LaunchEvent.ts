@@ -8,7 +8,7 @@ export default class LaunchEvent extends Event {
     super(manager, EventType.LAUNCH_CLIENT);
   }
 
-  run(data: {
+ async run(data: {
     state: ManagerState;
     shardCount: number;
     shards: number[];

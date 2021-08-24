@@ -75,7 +75,6 @@ import * as Sentry from "@sentry/node";
 import { Message } from "./ws/Message";
 import { Manager } from "./Manager";
 import * as i18next from "i18next";
-import * as moment from "moment";
 
 // this shit has some weird import fuckery, this is the only way I can use it
 const i18n = i18next as unknown as typeof i18next.default;
@@ -84,7 +83,7 @@ type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
 
 // Rewrite completed - 15:10 17/1/2021
 export class Fire extends AkairoClient {
-  launchTime: moment.Moment;
+  launchTime: number;
   started: boolean;
   restPing: number;
 
@@ -148,7 +147,7 @@ export class Fire extends AkairoClient {
     // @ts-ignore
     this.actions["ThreadMembersUpdate"] = new ThreadMembersUpdateAction(this);
 
-    this.launchTime = moment();
+    this.launchTime = +new Date();
     this.started = false;
     this.restPing = 0;
 
