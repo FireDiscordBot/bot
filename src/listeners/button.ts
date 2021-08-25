@@ -6,6 +6,7 @@ import {
   MessageEmbed,
   Permissions,
   Snowflake,
+  ThreadChannel,
 } from "discord.js";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
@@ -21,10 +22,10 @@ import { constants } from "@fire/lib/util/constants";
 import { getBranch } from "@fire/lib/util/gitUtils";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
+import Essential from "../modules/essential";
 import Rank from "../commands/Premium/rank";
 import Sk1er from "../modules/sk1er";
 import * as centra from "centra";
-import Essential from "../modules/essential";
 
 const { url, emojis } = constants;
 
@@ -498,7 +499,10 @@ export default class Button extends Listener {
       const ticket = await sk1erModule
         .handleSupport(button, button.author)
         .catch((e: Error) => e);
-      if (!(ticket instanceof FireTextChannel)) {
+      if (
+        !(ticket instanceof FireTextChannel) &&
+        !(ticket instanceof ThreadChannel)
+      ) {
         if (ticket instanceof Error)
           this.client.sentry.captureException(ticket, {
             user: {
@@ -616,7 +620,10 @@ export default class Button extends Listener {
       const ticket = await essentialModule
         .handleTicket(button, button.author)
         .catch((e: Error) => e);
-      if (!(ticket instanceof FireTextChannel)) {
+      if (
+        !(ticket instanceof FireTextChannel) &&
+        !(ticket instanceof ThreadChannel)
+      ) {
         if (ticket instanceof Error)
           this.client.sentry.captureException(ticket, {
             user: {
