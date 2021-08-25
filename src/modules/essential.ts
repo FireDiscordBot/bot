@@ -27,13 +27,13 @@ export default class Essential extends Module {
 
   async ready() {
     this.guild = this.client.guilds.cache.get(this.guildId) as FireGuild;
-    this.ticketChannel = this.guild.channels.cache.get(
-      this.ticketChannelId
-    ) as FireTextChannel;
     if (!this.guild) {
       this.remove();
       return;
     }
+    this.ticketChannel = this.guild.channels.cache.get(
+      this.ticketChannelId
+    ) as FireTextChannel;
   }
 
   async handleTicket(trigger: ComponentMessage, user: FireUser) {
@@ -79,7 +79,7 @@ export default class Essential extends Module {
       return await this.guild.createTicket(
         member,
         "General Support",
-        null,
+        this.ticketChannel,
         category
       );
     }
@@ -91,7 +91,7 @@ export default class Essential extends Module {
       return await this.guild.createTicket(
         member,
         "Purchase Support",
-        null,
+        this.ticketChannel,
         category
       );
     }
@@ -103,7 +103,7 @@ export default class Essential extends Module {
       return await this.guild.createTicket(
         member,
         "Bug Report",
-        null,
+        this.ticketChannel,
         category
       );
     }
