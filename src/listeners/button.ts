@@ -533,7 +533,7 @@ export default class Button extends Listener {
 
     // below is a ton of duplicated code since it needs to be kept separate to allow for easy changes
     if (button.customId.startsWith("essential_support_")) {
-      const type = button.customId.slice(14);
+      const type = button.customId.slice(18);
       if (!type || !validSk1erTypes.includes(type)) return;
       const essentialModule = this.client.getModule("essential") as Essential;
       if (!essentialModule) return;
@@ -598,7 +598,7 @@ export default class Button extends Listener {
           ],
         });
     } else if (button.customId.startsWith("essential_confirm_")) {
-      const type = button.customId.slice(14);
+      const type = button.customId.slice(18);
       if (!type || !validSk1erTypes.includes(type)) return;
       const essentialModule = this.client.getModule("essential") as Essential;
       if (!essentialModule) return;
