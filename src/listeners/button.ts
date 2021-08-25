@@ -609,7 +609,7 @@ export default class Button extends Listener {
         new MessageActionRow().addComponents(
           new MessageButton()
             .setCustomId(`essential_confirm_${type}`)
-            .setEmoji(validEssentialTypes[type])
+            .setEmoji(essentialTypeToEmoji[type])
         ),
       ];
 
