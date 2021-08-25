@@ -4,7 +4,7 @@ module.exports = {
       name: "fire",
       script: "dist/src/index.js",
       exec_mode: "cluster",
-      instances: 2,
+      instances: 4,
       wait_ready: true,
       kill_timeout: 3000,
       post_update: ["yarn compile"],
