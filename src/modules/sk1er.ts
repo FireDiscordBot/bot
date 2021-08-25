@@ -8,31 +8,17 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 
-interface Regexes {
-  settingUser: RegExp;
-  reupload: RegExp;
-  secrets: RegExp;
-  noRaw: RegExp;
-  email: RegExp;
-  home: RegExp;
-  url: RegExp;
-}
-
 export default class Sk1er extends Module {
   essentialHeaders: { secret: string };
   descriptionUpdate: NodeJS.Timeout;
   supportMessage: FireMessage;
-  statusCheck: NodeJS.Timeout;
   supportMessageId: Snowflake;
   supportguildId: Snowflake;
   supportGuild: FireGuild;
   nitroId: Snowflake;
   guildId: Snowflake;
-  logText: string[];
   guild: FireGuild;
-  regexes: Regexes;
   nitro: Role;
-  bots: any;
 
   constructor() {
     super("sk1er");
@@ -44,13 +30,6 @@ export default class Sk1er extends Module {
       async () => await this.descriptionUpdater(),
       300000
     );
-    this.bots = {
-      "444871677176709141": "747786560123961443",
-      "234395307759108106": "747787115974230156",
-      "172002275412279296": "747787792402219128",
-      "689373971572850842": "747788002738176110",
-      "155149108183695360": "747786691074457610",
-    };
   }
 
   async init() {

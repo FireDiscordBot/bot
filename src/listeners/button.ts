@@ -1,12 +1,11 @@
 import {
-  MessageSelectOptionData,
+  MessageSelectMenu,
   MessageActionRow,
   MessageButton,
   SnowflakeUtil,
   MessageEmbed,
   Permissions,
   Snowflake,
-  MessageSelectMenu,
 } from "discord.js";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
@@ -25,6 +24,7 @@ import { Message } from "@fire/lib/ws/Message";
 import Rank from "../commands/Premium/rank";
 import Sk1er from "../modules/sk1er";
 import * as centra from "centra";
+import Essential from "../modules/essential";
 
 const { url, emojis } = constants;
 
@@ -40,6 +40,14 @@ const reminderSnoozeTimes = {
 const validPaginatorIds = ["close", "start", "back", "forward", "end"];
 const validSk1erTypes = ["general", "purchase", "bug"];
 const sk1erTypeToEmoji = {
+  general: "🖥️",
+  purchase: "💸",
+  bug: "🐛",
+};
+
+// these are currently the same as sk1er support but can change so they're kept separate
+const validEssentialTypes = ["general", "purchase", "bug"];
+const essentialTypeToEmoji = {
   general: "🖥️",
   purchase: "💸",
   bug: "🐛",
@@ -506,7 +514,125 @@ export default class Button extends Listener {
               env: process.env.NODE_ENV,
             },
           });
-        return await button.error("SK1ER_SUPPORT_FAIL", {
+        return await button.error("BUTTON_SUPPORT_FAIL", {
+          reason: ticket.toString(),
+        });
+      } else
+        await button
+          .edit({
+            content: `${emojis.success} ${button.language.get(
+              "NEW_TICKET_CREATED",
+              {
+                channel: ticket.toString(),
+              }
+            )}`,
+            components: [],
+          })
+          .catch(() => {});
+    }
+
+    // below is a ton of duplicated code since it needs to be kept separate to allow for easy changes
+    if (button.customId.startsWith("essential_support_")) {
+      const type = button.customId.slice(14);
+      if (!type || !validSk1erTypes.includes(type)) return;
+      const essentialModule = this.client.getModule("essential") as Essential;
+      if (!essentialModule) return;
+
+      if (!message) return "no message";
+      const component = message.components
+        ?.map((component) =>
+          component.type == "ACTION_ROW" || component.type == 1
+            ? component?.components ?? component
+            : component
+        )
+        .flat()
+        .find(
+          (component) =>
+            component.type == "BUTTON" &&
+            component.style != "LINK" &&
+            (component.customId == button.customId ||
+              component.customId.slice(1) == button.customId)
+        );
+      if (component?.type != "BUTTON" || component?.style == "LINK")
+        return "non button";
+      if (!component.emoji) return "unknown emoji";
+      const emoji =
+        typeof component.emoji == "string"
+          ? component.emoji
+          : component.emoji.name;
+
+      button.flags += 64; // set ephemeral
+      const confirmButton = new MessageButton()
+        .setCustomId(`essential_confirm_${type}`)
+        .setStyle("SUCCESS")
+        .setEmoji(emoji)
+        .setDisabled(true);
+      const deleteSnowflake = SnowflakeUtil.generate();
+      const deleteButton = new MessageButton()
+        .setEmoji("534174796938870792")
+        .setStyle("DANGER")
+        .setCustomId(deleteSnowflake);
+      this.client.buttonHandlersOnce.set(deleteSnowflake, () => {
+        button
+          .edit({
+            content: button.language.get("INTERACTION_CANCELLED"),
+            components: [],
+          })
+          .catch(() => {});
+      });
+      await button.edit({
+        content: button.language.get("ESSENTIAL_SUPPORT_CONFIRM"),
+        components: [
+          new MessageActionRow().addComponents([confirmButton, deleteButton]),
+        ],
+      });
+
+      await this.client.util.sleep(5000);
+      confirmButton.setDisabled(false);
+      // user has not clicked delete button
+      if (this.client.buttonHandlersOnce.has(deleteSnowflake))
+        await button.edit({
+          content: button.language.get("ESSENTIAL_SUPPORT_CONFIRM_EDIT"),
+          components: [
+            new MessageActionRow().addComponents([confirmButton, deleteButton]),
+          ],
+        });
+    } else if (button.customId.startsWith("essential_confirm_")) {
+      const type = button.customId.slice(14);
+      if (!type || !validSk1erTypes.includes(type)) return;
+      const essentialModule = this.client.getModule("essential") as Essential;
+      if (!essentialModule) return;
+
+      // since this is an ephemeral message, it does not give us the components
+      // so we need to fake them
+      (button.message as FireMessage).components = [
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setCustomId(`sk1er_confirm_${type}`)
+            .setEmoji(sk1erTypeToEmoji[type])
+        ),
+      ];
+
+      const ticket = await essentialModule
+        .handleTicket(button, button.author)
+        .catch((e: Error) => e);
+      if (!(ticket instanceof FireTextChannel)) {
+        if (ticket instanceof Error)
+          this.client.sentry.captureException(ticket, {
+            user: {
+              username: button.author.toString(),
+              id: button.author.id,
+            },
+            extra: {
+              "message.id": button.id,
+              "guild.id": button.guild?.id,
+              "guild.name": button.guild?.name,
+              "guild.shard": button.guild?.shardId || 0,
+              "button.customid": button.customId,
+              env: process.env.NODE_ENV,
+            },
+          });
+        return await button.error("BUTTON_SUPPORT_FAIL", {
           reason: ticket.toString(),
         });
       } else
