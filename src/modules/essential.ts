@@ -69,7 +69,7 @@ export default class Essential extends Module {
     if (!emoji) return "no emoji";
     if (emoji == "🖥️") {
       const category = this.guild.channels.cache.get(
-        "755795962462732288"
+        "880170184931934328"
       ) as CategoryChannel;
       if (!category) return "no category";
       return await this.guild.createTicket(
@@ -81,7 +81,7 @@ export default class Essential extends Module {
     }
     if (emoji == "💸") {
       const category = this.guild.channels.cache.get(
-        "755796036198596688"
+        "880170235397828650"
       ) as CategoryChannel;
       if (!category) return "no category";
       return await this.guild.createTicket(
@@ -93,7 +93,7 @@ export default class Essential extends Module {
     }
     if (emoji == "🐛") {
       const category = this.guild.channels.cache.get(
-        "755795994855211018"
+        "880170285259686018"
       ) as CategoryChannel;
       if (!category) return "no category";
       return await this.guild.createTicket(
