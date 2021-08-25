@@ -18,6 +18,8 @@ export default class SlashOnlyInhibitor extends Inhibitor {
     command: Command
   ) {
     if (command.slashOnly && message instanceof FireMessage) return true;
+    if (message.util?.parsed && message.util.parsed.prefix != "/")
+      message.util.parsed.prefix = "/";
     return false;
   }
 }

@@ -86,9 +86,11 @@ export const getCommands = (client: Fire) => {
             usage: command.slashOnly
               ? `/${command.id} ${args}`.trim()
               : `{prefix}${command.id} ${args}`.trim(),
-            aliases: command.aliases
-              .filter((alias) => alias != command.id)
-              .join(", "),
+            aliases: command.slashOnly
+              ? ""
+              : command.aliases
+                  .filter((alias) => alias != command.id)
+                  .join(", "),
             hidden: command.hidden,
           };
         });
@@ -117,9 +119,9 @@ export const getAllCommands = (client: Fire) => {
         usage: command.slashOnly
           ? `/${command.id} ${args}`.trim()
           : `{prefix}${command.id} ${args}`.trim(),
-        aliases: command.aliases
-          .filter((alias) => alias != command.id)
-          .join(", "),
+        aliases: command.slashOnly
+          ? ""
+          : command.aliases.filter((alias) => alias != command.id).join(", "),
         hidden: command.hidden,
         category: command.category.toString(),
       } as ResponseCommand;
