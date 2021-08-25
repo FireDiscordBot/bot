@@ -192,9 +192,10 @@ export default class TicTacToe extends Command {
     );
     if (opponentHasGame)
       return accepted instanceof ComponentMessage
-        ? await accepted.channel.update(
-            message.language.get("TICTACTOE_OPPONENT_BUSY")
-          )
+        ? await accepted.channel.update({
+            content: message.language.get("TICTACTOE_OPPONENT_BUSY"),
+            components: [],
+          })
         : await message.error("TICTACTOE_OPPONENT_BUSY");
 
     const gameId = SnowflakeUtil.generate();
