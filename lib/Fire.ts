@@ -31,6 +31,7 @@ import {
   Collection,
   ClientUser,
   Constants,
+  SnowflakeUtil,
 } from "discord.js";
 import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
 import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChannel";
@@ -41,6 +42,7 @@ import { ApplicationCommandMessage } from "./extensions/appcommandmessage";
 import { ContextCommandMessage } from "./extensions/contextcommandmessage";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
+import { GuildApplicationCommandsUpdate } from "./interfaces/discord";
 import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
 import { languageTypeCaster } from "@fire/src/arguments/language";
 import { listenerTypeCaster } from "@fire/src/arguments/listener";
@@ -63,6 +65,7 @@ import { FireMessage } from "./extensions/message";
 import { Client as PGClient } from "ts-postgres";
 import { RESTManager } from "./rest/RESTManager";
 import { EventType } from "./ws/util/constants";
+import { FireGuild } from "./extensions/guild";
 import { FireUser } from "./extensions/user";
 import { Inhibitor } from "./util/inhibitor";
 import { FireConsole } from "./util/console";
@@ -80,6 +83,7 @@ import * as i18next from "i18next";
 const i18n = i18next as unknown as typeof i18next.default;
 
 type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
+type NonceHandler = (data: unknown) => Promise<any> | any;
 
 // Rewrite completed - 15:10 17/1/2021
 export class Fire extends AkairoClient {
@@ -109,6 +113,9 @@ export class Fire extends AkairoClient {
   // Buttons
   buttonHandlersOnce: Collection<string, ButtonHandler>;
   buttonHandlers: Collection<string, ButtonHandler>;
+
+  // Gateway Events
+  nonceHandlers: Collection<string, NonceHandler>;
 
   // Private Utilities
   private readyWait: Promise<Fire>;
@@ -165,7 +172,13 @@ export class Fire extends AkairoClient {
       this.console.error(`[Discord]\n${error.stack}`)
     );
     this.on("ready", () => config.fire.readyMessage(this));
+    this.nonceHandlers = new Collection();
     this.on("raw", (r: any) => {
+      if (r.d?.nonce && this.nonceHandlers.has(r.d.nonce)) {
+        this.nonceHandlers.get(r.d.nonce)(r.d);
+        this.nonceHandlers.delete(r.d.nonce);
+      }
+
       if (r.t == Constants.WSEvents.GUILD_CREATE) {
         const member = r.d.members.find(
           (member: APIGuildMember) => member.user.id == this.user.id
@@ -554,6 +567,32 @@ export class Fire extends AkairoClient {
         },
       ],
       status: "idle",
+    });
+  }
+
+  requestSlashCommands(
+    guild: FireGuild
+  ): Promise<GuildApplicationCommandsUpdate> {
+    return new Promise((resolve, reject) => {
+      let hasResolved = false;
+      setTimeout(() => {
+        if (!hasResolved) reject("timeout");
+      }, 10000);
+      const nonce = SnowflakeUtil.generate();
+      this.nonceHandlers.set(nonce, (data) => {
+        hasResolved = true;
+        resolve(data as GuildApplicationCommandsUpdate);
+      });
+      guild.shard.send({
+        op: 24,
+        d: {
+          applications: true,
+          guild_id: guild.id,
+          offset: 0,
+          type: 1,
+          nonce,
+        },
+      });
     });
   }
 

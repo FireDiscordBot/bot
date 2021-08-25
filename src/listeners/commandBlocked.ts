@@ -1,4 +1,9 @@
-import { MessageActionRow, MessageButton, ThreadChannel } from "discord.js";
+import {
+  MessageActionRow,
+  MessageButton,
+  Permissions,
+  ThreadChannel,
+} from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
@@ -24,18 +29,55 @@ export default class CommandBlocked extends Listener {
       return await message.error("COMMAND_ERROR_500", {
         status: constants.url.fireStatus,
       });
-    else if (reason == "slashonly")
-      return await message.error("COMMAND_ERROR_SLASH_ONLY", {
-        components: [
-          new MessageActionRow().addComponents(
-            new MessageButton()
-              .setStyle("LINK")
-              .setLabel(message.language.get("INVITE"))
-              .setURL(this.client.config.rawInvite(this.client))
-          ),
-        ],
-      });
-    else if (reason == "owner")
+    else if (reason == "slashonly") {
+      const slashCommands = await this.client
+        .requestSlashCommands(message.guild)
+        .catch(() => {});
+      const hasSlash =
+        slashCommands &&
+        !!slashCommands.applications.find(
+          (app) => app.id == this.client.user.id
+        );
+      if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
+        if (hasSlash)
+          return await message.error("COMMAND_ERROR_SLASH_ONLY_UPSELL");
+        else
+          return await message.error("COMMAND_ERROR_SLASH_ONLY_NOSLASH", {
+            components: [
+              new MessageActionRow().addComponents(
+                new MessageButton()
+                  .setStyle("LINK")
+                  .setLabel(message.language.get("INVITE"))
+                  .setURL(
+                    this.client.config.commandsInvite(
+                      this.client,
+                      message.guild.id
+                    )
+                  )
+              ),
+            ],
+          });
+      else {
+        if (hasSlash)
+          return await message.error("COMMAND_ERROR_SLASH_ONLY_UPSELL");
+        else
+          return await message.error("COMMAND_ERROR_SLASH_ONLY_USER_NOSLASH", {
+            components: [
+              new MessageActionRow().addComponents(
+                new MessageButton()
+                  .setStyle("LINK")
+                  .setLabel(message.language.get("INVITE"))
+                  .setURL(
+                    this.client.config.commandsInvite(
+                      this.client,
+                      message.guild.id
+                    )
+                  )
+              ),
+            ],
+          });
+      }
+    } else if (reason == "owner")
       return await message.error("COMMAND_OWNER_ONLY");
     else if (reason == "superuser")
       return await message.error("COMMAND_SUPERUSER_ONLY");
