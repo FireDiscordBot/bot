@@ -57,9 +57,9 @@ export default class TicTacToe extends Command {
           required: true,
         },
       ],
+      aliases: ["ttt", "tic-tac-toe"],
       enableSlashCommand: true,
       restrictTo: "all",
-      aliases: ["ttt"],
       slashOnly: true,
     });
 
