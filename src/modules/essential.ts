@@ -5,17 +5,18 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Module } from "@fire/lib/util/module";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 
 export default class Essential extends Module {
-  ticketMessage: FireMessage;
-  ticketMessageId: Snowflake;
+  ticketChannel: FireTextChannel;
+  ticketChannelId: Snowflake;
   guildId: Snowflake;
   guild: FireGuild;
 
   constructor() {
     super("essential");
     this.guildId = "864592657572560958";
-    this.ticketMessageId = "880169115967442974";
+    this.ticketChannelId = "880141313981431829";
   }
 
   async init() {
@@ -26,6 +27,9 @@ export default class Essential extends Module {
 
   async ready() {
     this.guild = this.client.guilds.cache.get(this.guildId) as FireGuild;
+    this.ticketChannel = this.guild.channels.cache.get(
+      this.ticketChannelId
+    ) as FireTextChannel;
     if (!this.guild) {
       this.remove();
       return;

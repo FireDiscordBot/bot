@@ -26,11 +26,6 @@ export default class MessageReactionAdd extends Listener {
 
     const message = messageReaction.message as FireMessage;
     const guild = messageReaction.message?.guild as FireGuild;
-    const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-    if (message.id == sk1erModule?.supportMessageId)
-      return await sk1erModule
-        .handleSupport(messageReaction, user)
-        .catch(() => {});
 
     if (guild?.premium && !guild.reactionRoles) await guild.loadReactionRoles();
 

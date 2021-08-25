@@ -11,8 +11,6 @@ import * as centra from "centra";
 export default class Sk1er extends Module {
   essentialHeaders: { secret: string };
   descriptionUpdate: NodeJS.Timeout;
-  supportMessage: FireMessage;
-  supportMessageId: Snowflake;
   supportguildId: Snowflake;
   supportGuild: FireGuild;
   nitroId: Snowflake;
@@ -24,7 +22,6 @@ export default class Sk1er extends Module {
     super("sk1er");
     this.guildId = "411619823445999637";
     this.supportguildId = "755794954743185438";
-    this.supportMessageId = "755817441581596783";
     this.nitroId = "585534346551754755";
     this.descriptionUpdate = setInterval(
       async () => await this.descriptionUpdater(),
