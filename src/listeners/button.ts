@@ -534,7 +534,7 @@ export default class Button extends Listener {
     // below is a ton of duplicated code since it needs to be kept separate to allow for easy changes
     if (button.customId.startsWith("essential_support_")) {
       const type = button.customId.slice(18);
-      if (!type || !validSk1erTypes.includes(type)) return;
+      if (!type || !validEssentialTypes.includes(type)) return;
       const essentialModule = this.client.getModule("essential") as Essential;
       if (!essentialModule) return;
 
@@ -599,7 +599,7 @@ export default class Button extends Listener {
         });
     } else if (button.customId.startsWith("essential_confirm_")) {
       const type = button.customId.slice(18);
-      if (!type || !validSk1erTypes.includes(type)) return;
+      if (!type || !validEssentialTypes.includes(type)) return;
       const essentialModule = this.client.getModule("essential") as Essential;
       if (!essentialModule) return;
 
@@ -608,8 +608,8 @@ export default class Button extends Listener {
       (button.message as FireMessage).components = [
         new MessageActionRow().addComponents(
           new MessageButton()
-            .setCustomId(`sk1er_confirm_${type}`)
-            .setEmoji(sk1erTypeToEmoji[type])
+            .setCustomId(`essential_confirm_${type}`)
+            .setEmoji(validEssentialTypes[type])
         ),
       ];
 
