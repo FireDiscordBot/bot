@@ -13,6 +13,9 @@ import { constants, zws } from "@fire/lib/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
+import * as centra from "centra";
+
+type ShardInfo = { shardId: number; clusterId: number };
 
 const {
   emojis: { badges, channels },
@@ -307,6 +310,33 @@ export default class GuildCommand extends Command {
         embed.addField(
           message.language.get("GUILD_EXPERIMENTS"),
           experiments.join("\n")
+        );
+    }
+
+    if (message.author.isSuperuser()) {
+      // we make a request so we can get the cluster id too
+      const shardReq: ShardInfo = await (
+        await centra(
+          process.env.REST_HOST
+            ? `https://${process.env.REST_HOST}/v2/shard/${guild.id}`
+            : `http://127.0.0.1:${process.env.REST_PORT}/v2/shard/${guild.id}`
+        )
+          .header("User-Agent", this.client.manager.ua)
+          .send()
+      )
+        .json()
+        .catch(() => ({ shardId: -1, clusterId: -1 }));
+      if (shardReq.shardId != -1)
+        embed.addField(
+          message.language.get("SHARD"),
+          shardReq.shardId.toString(),
+          true
+        );
+      if (shardReq.clusterId != -1)
+        embed.addField(
+          message.language.get("CLUSTER"),
+          shardReq.clusterId.toString(),
+          true
         );
     }
 
