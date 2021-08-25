@@ -142,10 +142,15 @@ export default class Button extends Listener {
       const { guild } = button;
       if (!guild) return;
       const channelId = button.customId.slice(13) as Snowflake;
-      const channel = this.client.channels.cache.get(
-        channelId
-      ) as FireTextChannel;
-      if (!channel || !channel.guild || channel.type != "GUILD_TEXT") return;
+      const channel = this.client.channels.cache.get(channelId) as
+        | FireTextChannel
+        | ThreadChannel;
+      if (
+        !channel ||
+        !channel.guild ||
+        (channel.type != "GUILD_TEXT" && channel.type != "GUILD_PRIVATE_THREAD")
+      )
+        return;
       if (guild.tickets.find((ticket) => ticket.id == channelId)) {
         const closure = await guild
           .closeTicket(
