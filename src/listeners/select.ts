@@ -122,7 +122,7 @@ export default class Select extends Listener {
       return await select.channel.update({
         components: [],
         content: select.author.language.getSuccess("REMINDER_CREATED_SINGLE", {
-          time: Formatters.time(time, "R"),
+          time: Formatters.time(new Date(time), "R"),
         }),
       });
     }
