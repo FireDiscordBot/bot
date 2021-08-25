@@ -1,8 +1,12 @@
 import {
+  MessageActionRow,
   MessageReaction,
+  MessageButton,
+  SnowflakeUtil,
   MessageEmbed,
   Permissions,
   GuildEmoji,
+  Snowflake,
   Role,
 } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -101,30 +105,30 @@ export default class ReactionRole extends Command {
       } else return await message.error();
     }
 
+    const yesSnowflake = SnowflakeUtil.generate();
+    const noSnowflake = SnowflakeUtil.generate();
     const confirmation = await message.send("REACTIONROLE_CONFIRMATION", {
       author: reactionMessage.author.toString(),
       channel: reactionMessage.channel.toString(),
       jump: reactionMessage.url,
       emoji: reaction.emoji.toString(),
       role: args.role.toString(),
-      success: emojis.success,
-      error: emojis.error,
+      components: [
+        new MessageActionRow().addComponents([
+          new MessageButton()
+            .setStyle("SUCCESS")
+            .setCustomId(yesSnowflake)
+            .setLabel(message.language.get("REACTIONROLE_CONFIRM")),
+          new MessageButton()
+            .setStyle("DANGER")
+            .setCustomId(noSnowflake)
+            .setLabel(message.language.get("REACTIONROLE_CANCEL")),
+        ]),
+      ],
     });
-    confirmation.react(reactions.success);
-    confirmation.react(reactions.error);
-    let yesOrNo: MessageReaction;
-    [yesOrNo] = await pEvent(this.client, "messageReactionAdd", {
-      timeout: 10000,
-      multiArgs: true,
-      filter: ([messageReaction, user]) =>
-        user.id == message.author.id &&
-        messageReaction.message?.id == confirmation.id &&
-        (messageReaction.emoji.toString() == emojis.success ||
-          messageReaction.emoji.toString() == emojis.error),
-    }).catch(() => [null]);
+    const yesOrNo = await this.awaitConfirmation(yesSnowflake, noSnowflake);
     await confirmation.delete().catch(() => {});
-    if (!yesOrNo || yesOrNo.emoji?.toString() == emojis.error)
-      return await message.send("REACTIONROLE_CANCELLED");
+    if (!yesOrNo) return await message.send("REACTIONROLE_CANCELLED");
 
     const inserted = await this.client.db
       .query(
@@ -205,5 +209,15 @@ export default class ReactionRole extends Command {
       .addField(message.guild.language.get("ROLE"), role.toString())
       .setFooter(`${role.id} | ${message.author.id}`);
     return await message.guild.actionLog(embed, "reactrole");
+  }
+
+  private async awaitConfirmation(
+    confirm: Snowflake,
+    deny: Snowflake
+  ): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.client.buttonHandlersOnce.set(confirm, () => resolve(true));
+      this.client.buttonHandlersOnce.set(deny, () => resolve(false));
+    });
   }
 }
