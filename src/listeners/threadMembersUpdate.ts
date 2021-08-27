@@ -21,7 +21,7 @@ export default class ThreadMembersUpdate extends Listener {
 
     const added = after.filter((member) => !before.has(member.id));
     const removed = before.filter((member) => !after.has(member.id));
-    if (!added.size && !removed.size) return;
+    if (added.size <= 1 && removed.size <= 1) return;
 
     if (guild.settings.has("log.action")) {
       const language = guild.language;
