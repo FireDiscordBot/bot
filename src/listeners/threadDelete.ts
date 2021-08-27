@@ -10,19 +10,27 @@ export default class ThreadDelete extends Listener {
     });
   }
 
-  async exec(channel: ThreadChannel) {
-    const guild = channel.guild as FireGuild,
+  async exec(thread: ThreadChannel) {
+    const guild = thread.guild as FireGuild,
       language = guild.language;
 
+    if (guild.tickets.find((t) => t.id == thread.id))
+      guild.settings.set(
+        "tickets.channels",
+        guild.settings
+          .get<string[]>("tickets.channels", [])
+          .filter((c) => c != thread.id)
+      );
+
     if (guild.settings.has("log.action")) {
-      const owner = await guild.members.fetch(channel.ownerId).catch(() => {});
+      const owner = await guild.members.fetch(thread.ownerId).catch(() => {});
       const autoArchiveDuration =
-        typeof channel.autoArchiveDuration == "string"
+        typeof thread.autoArchiveDuration == "string"
           ? 10080
-          : channel.autoArchiveDuration;
+          : thread.autoArchiveDuration;
       const autoArchiveAt = new Date(+new Date() + autoArchiveDuration * 60000);
       const data = {
-        ...channel,
+        ...thread,
       };
       delete data.client;
       delete data.guild;
@@ -39,17 +47,17 @@ export default class ThreadDelete extends Listener {
           language.get("THREADDELETELOG_AUTHOR", { guild: guild.name }),
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
-        .addField(language.get("NAME"), channel.name)
-        .addField(language.get("CHANNEL"), channel.parent.toString())
+        .addField(language.get("NAME"), thread.name)
+        .addField(language.get("CHANNEL"), thread.parent.toString())
         .addField(
           language.get("ARCHIVE_AT"),
           Formatters.time(autoArchiveAt, "R")
         )
         .addField(
           language.get("CREATED_BY"),
-          owner ? `${owner} (${owner.id})` : channel.ownerId
+          owner ? `${owner} (${owner.id})` : thread.ownerId
         )
-        .setFooter(channel.id);
+        .setFooter(thread.id);
       // if (channel.permissionOverwrites.size > 1) {
       //   const canView = channel.permissionOverwrites
       //     .filter((overwrite) =>
