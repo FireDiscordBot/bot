@@ -14,13 +14,13 @@ export default class ThreadDelete extends Listener {
     const guild = thread.guild as FireGuild,
       language = guild.language;
 
-    if (guild.tickets.find((t) => t.id == thread.id))
-      guild.settings.set(
-        "tickets.channels",
-        guild.settings
-          .get<string[]>("tickets.channels", [])
-          .filter((c) => c != thread.id)
-      );
+    if (guild.tickets.find((t) => t.id == thread.id)) {
+      const newTickets = guild.settings
+        .get<string[]>("tickets.channels", [])
+        .filter((c) => c != thread.id);
+      if (newTickets.length) guild.settings.set("tickets.channels", newTickets);
+      else guild.settings.delete("tickets.channels");
+    }
 
     if (guild.settings.has("log.action")) {
       const owner = await guild.members.fetch(thread.ownerId).catch(() => {});

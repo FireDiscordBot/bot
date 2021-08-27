@@ -17,13 +17,13 @@ export default class ChannelDelete extends Listener {
     const guild = channel.guild as FireGuild,
       language = guild.language;
 
-    if (guild.tickets.find((t) => t.id == channel.id))
-      guild.settings.set(
-        "tickets.channels",
-        guild.settings
-          .get<string[]>("tickets.channels", [])
-          .filter((c) => c != channel.id)
-      );
+    if (guild.tickets.find((t) => t.id == channel.id)) {
+      const newTickets = guild.settings
+        .get<string[]>("tickets.channels", [])
+        .filter((c) => c != channel.id);
+      if (newTickets.length) guild.settings.set("tickets.channels", newTickets);
+      else guild.settings.delete("tickets.channels");
+    }
 
     if (guild.settings.has("log.action")) {
       const data = {
