@@ -1026,7 +1026,7 @@
   "TICKET_CLOSER_CLOSED_BY": "Closed by",
   "TICKET_CLOSE_REASON": "Ticket closed",
   "TICKET_REOPEN_REASON": "Ticket unarchived",
-  "TICKET_CLOSE_ARCHIVE": "This ticket has been closed, sending a message will unarchive the ticket and re-add the author",
+  "TICKET_CLOSE_ARCHIVE": "This ticket has been closed, sending a message will unlock & unarchive the thread.",
   "TICKET_REMOVE_FAIL": "I was unable to remove {{user}} from the thread while archiving, you'll need to remove them manually",
   "TICKET_CLOSE_FORBIDDEN": "You must own this ticket or have `Manage Channels` permission to close",
   "TICKET_NON_TICKET": "This command can only be ran in ticket channels!",
