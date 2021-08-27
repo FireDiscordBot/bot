@@ -890,8 +890,8 @@ export class FireGuild extends Guild {
 
     return channels.filter((channel: FireTextChannel | ThreadChannel) =>
       channel instanceof FireTextChannel
-        ? channel?.topic.includes(user)
-        : channel?.name.includes(user)
+        ? channel.topic.includes(user)
+        : channel?.name.includes(user) && !channel?.archived
     );
   }
 
