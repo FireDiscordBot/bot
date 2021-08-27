@@ -1224,20 +1224,30 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         .catch((e: Error) => e)) as FireTextChannel | Error;
     else {
       const threadMembers = await channel.members.fetch(false);
-      const guildMembers = await this.members.fetch({
-        user: threadMembers.map((m) => m.id),
-      });
-      for (const [memberId] of threadMembers)
-        if (
-          guildMembers?.has(memberId) &&
-          !guildMembers
-            .get(memberId)
-            .permissionsIn(channel.parent)
-            .has(Permissions.FLAGS.MANAGE_THREADS)
+      const guildMembers = await this.members
+        .fetch({
+          user: threadMembers.map((m) => m.id),
+        })
+        .then((members) =>
+          members.filter(
+            (m) =>
+              !m
+                .permissionsIn(channel.parent)
+                .has(Permissions.FLAGS.MANAGE_THREADS)
+          )
         )
+        .catch(() => {});
+      for (const [, guildMember] of threadMembers)
+        if (guildMembers && guildMembers.has(guildMember.id))
           channel.members
-            .remove(memberId, this.language.get("TICKET_CLOSE_REASON"))
-            .catch(() => {});
+            .remove(guildMember.id, this.language.get("TICKET_CLOSE_REASON"))
+            .catch(() => {
+              channel.send(
+                this.language.getError("TICKET_REMOVE_FAIL", {
+                  user: guildMember.toString(),
+                })
+              );
+            });
       await channel.send(this.language.get("TICKET_CLOSE_ARCHIVE"));
       return await channel.setArchived(
         true,
