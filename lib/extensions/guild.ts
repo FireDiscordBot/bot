@@ -873,6 +873,10 @@ export class FireGuild extends Guild {
       .filter((channel) => !!channel);
   }
 
+  get ticketIds() {
+    return this.settings.get<Snowflake[]>("tickets.channels", []);
+  }
+
   getTickets(user?: Snowflake) {
     if (!user) return this.tickets;
     let channels = this.settings
