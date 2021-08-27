@@ -147,7 +147,8 @@
     "us-central": "🇺🇸 Central US",
     "us-south": "🇺🇸 US South",
     "us-east": "🇺🇸 US East",
-    "us-west": "🇺🇸 US West"
+    "us-west": "🇺🇸 US West",
+    "null": "<:wumpus_land:759529118671831040> Automatic"
   },
   "KEY_PERMISSIONS": "Key Permissions",
   "PERMISSIONS_TEXT": "Permissions",
@@ -1024,6 +1025,8 @@
   "TICKET_CLOSER_TITLE": "Ticket {{channel}} was closed",
   "TICKET_CLOSER_CLOSED_BY": "Closed by",
   "TICKET_CLOSE_REASON": "Ticket closed",
+  "TICKET_REOPEN_REASON": "Ticket unarchived",
+  "TICKET_CLOSE_ARCHIVE": "This ticket has been closed, sending a message will unarchive the ticket and re-add the author",
   "TICKET_CLOSE_FORBIDDEN": "You must own this ticket or have `Manage Channels` permission to close",
   "TICKET_NON_TICKET": "This command can only be ran in ticket channels!",
   "TICKETADD_COMMAND_DESCRIPTION": "Add a user to the current ticket",

@@ -1147,7 +1147,8 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     )
       return "forbidden";
     channels = channels.filter((c) => c && c.id != channel.id);
-    if (channels.length)
+    // threads don't get closed, they get archived and can be reopened so we don't remove it
+    if (channels.length && channel.type == "GUILD_TEXT")
       this.settings.set<string[]>(
         "tickets.channels",
         channels.map((c) => c.id)
@@ -1174,6 +1175,10 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     );
     let creator = author;
     if (id) {
+      if (channel.type == "GUILD_PRIVATE_THREAD")
+        await channel.members
+          .remove(id, this.language.get("TICKET_CLOSE_REASON"))
+          .catch(() => {});
       creator = (await this.members.fetch(id).catch(() => {})) as FireMember;
       if (creator)
         await creator
@@ -1217,9 +1222,17 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       })
       .catch(() => {});
     this.client.emit("ticketClose", creator);
-    return (await channel
-      .delete(this.language.get("TICKET_CLOSE_REASON"))
-      .catch((e: Error) => e)) as FireTextChannel | Error;
+    if (channel instanceof FireTextChannel)
+      return (await channel
+        .delete(this.language.get("TICKET_CLOSE_REASON"))
+        .catch((e: Error) => e)) as FireTextChannel | Error;
+    else {
+      await channel.send(this.language.get("TICKET_CLOSE_ARCHIVE"));
+      return await channel.setArchived(
+        true,
+        this.language.get("TICKET_CLOSE_REASON")
+      );
+    }
   }
 
   private getTranscriptContent(message: FireMessage) {
