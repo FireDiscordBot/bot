@@ -1190,39 +1190,44 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
           .catch(() => {});
       else creator = author;
     }
-    const log =
-      (this.channels.cache.get(
-        this.settings.get<Snowflake>("tickets.transcript_logs")
-      ) as FireTextChannel) ||
-      (this.channels.cache.get(
-        this.settings.get<Snowflake>("log.action")
-      ) as FireTextChannel);
-    const embed = new MessageEmbed()
-      .setTitle(
-        this.language.get("TICKET_CLOSER_TITLE", { channel: channel.name })
-      )
-      .setTimestamp()
-      .setColor(author.displayColor ?? "#FFFFFF")
-      .addField(
-        this.language.get("TICKET_CLOSER_CLOSED_BY"),
-        `${author} (${author.id})`
-      )
-      .addField(this.language.get("REASON"), reason);
-    await log
-      ?.send({
-        embeds: [embed],
-        files:
-          channel.parentId == "755796036198596688"
-            ? []
-            : [new MessageAttachment(buffer, `${channel.name}-transcript.txt`)],
-      })
-      .catch(() => {});
     this.client.emit("ticketClose", creator);
-    if (channel instanceof FireTextChannel)
+    if (channel instanceof FireTextChannel) {
+      const log =
+        (this.channels.cache.get(
+          this.settings.get<Snowflake>("tickets.transcript_logs")
+        ) as FireTextChannel) ||
+        (this.channels.cache.get(
+          this.settings.get<Snowflake>("log.action")
+        ) as FireTextChannel);
+      const embed = new MessageEmbed()
+        .setTitle(
+          this.language.get("TICKET_CLOSER_TITLE", { channel: channel.name })
+        )
+        .setTimestamp()
+        .setColor(author.displayColor ?? "#FFFFFF")
+        .addField(
+          this.language.get("TICKET_CLOSER_CLOSED_BY"),
+          `${author} (${author.id})`
+        )
+        .addField(this.language.get("REASON"), reason);
+      await log
+        ?.send({
+          embeds: [embed],
+          files:
+            channel.parentId == "755796036198596688"
+              ? []
+              : [
+                  new MessageAttachment(
+                    buffer,
+                    `${channel.name}-transcript.txt`
+                  ),
+                ],
+        })
+        .catch(() => {});
       return (await channel
         .delete(this.language.get("TICKET_CLOSE_REASON"))
         .catch((e: Error) => e)) as FireTextChannel | Error;
-    else {
+    } else {
       await channel.send(this.language.get("TICKET_CLOSE_ARCHIVE"));
       await channel.setLocked(true, this.language.get("TICKET_CLOSE_REASON"));
       return await channel.setArchived(
