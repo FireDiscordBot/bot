@@ -72,12 +72,10 @@ export default class NewTicket extends Command {
     if (ticket == "author" || ticket == "blacklisted") return;
     else if (ticket == "disabled")
       return await creating.edit(
-        `${emojis.error} ${message.language.get("NEW_TICKET_DISABLED")}`
+        message.language.getError("NEW_TICKET_DISABLED")
       );
     else if (ticket == "limit")
-      return await creating.edit(
-        `${emojis.error} ${message.language.get("NEW_TICKET_LIMIT")}`
-      );
+      return await creating.edit(message.language.getError("NEW_TICKET_LIMIT"));
     else if (ticket == "lock")
       return await creating.edit(
         `${emojis.error} ${message.language.get("NEW_TICKET_LOCK", {

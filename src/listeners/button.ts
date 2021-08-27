@@ -515,7 +515,23 @@ export default class Button extends Listener {
         !(ticket instanceof FireTextChannel) &&
         !(ticket instanceof ThreadChannel)
       ) {
-        if (ticket instanceof Error)
+        // how?
+        if (ticket == "author" || ticket == "blacklisted") return;
+        else if (ticket == "disabled")
+          return await button.edit(
+            message.language.getError("NEW_TICKET_DISABLED")
+          );
+        else if (ticket == "limit")
+          return await button.edit(
+            message.language.getError("NEW_TICKET_LIMIT")
+          );
+        else if (ticket == "lock")
+          return await button.edit(
+            `${emojis.error} ${message.language.get("NEW_TICKET_LOCK", {
+              limit: message.guild.settings.get<number>("tickets.limit", 1),
+            })}`
+          );
+        else if (ticket instanceof Error)
           this.client.sentry.captureException(ticket, {
             user: {
               username: button.author.toString(),
@@ -643,7 +659,23 @@ export default class Button extends Listener {
         !(ticket instanceof FireTextChannel) &&
         !(ticket instanceof ThreadChannel)
       ) {
-        if (ticket instanceof Error)
+        // how?
+        if (ticket == "author" || ticket == "blacklisted") return;
+        else if (ticket == "disabled")
+          return await button.edit(
+            message.language.getError("NEW_TICKET_DISABLED")
+          );
+        else if (ticket == "limit")
+          return await button.edit(
+            message.language.getError("NEW_TICKET_LIMIT")
+          );
+        else if (ticket == "lock")
+          return await button.edit(
+            `${emojis.error} ${message.language.get("NEW_TICKET_LOCK", {
+              limit: message.guild.settings.get<number>("tickets.limit", 1),
+            })}`
+          );
+        else if (ticket instanceof Error)
           this.client.sentry.captureException(ticket, {
             user: {
               username: button.author.toString(),

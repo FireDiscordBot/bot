@@ -1,7 +1,7 @@
 import { AkairoHandler, AkairoModule } from "discord-akairo";
 import { StringMap, TOptions } from "i18next";
 import * as enUS from "@fire/i18n/en-US.json";
-import { constants } from "./constants";
+import { constants, i18nOptions } from "./constants";
 import { Fire } from "@fire/lib/Fire";
 
 type LanguageOptions = Partial<typeof enUS>;
@@ -62,6 +62,10 @@ export class Language extends AkairoModule {
 
   getError(key?: LanguageKeys, args?: TOptions<StringMap>) {
     return `${constants.emojis.error} ${this.get(key, args)}`;
+  }
+
+  getSlashError(key?: LanguageKeys, args?: TOptions<StringMap>) {
+    return `${constants.emojis.slashError} ${this.get(key, args)}`;
   }
 }
 

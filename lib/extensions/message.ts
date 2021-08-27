@@ -110,7 +110,7 @@ export class FireMessage extends Message {
     return !key
       ? this.react(reactions.success).catch(() => {})
       : this.channel.send({
-          content: `${emojis.success} ${this.language.get(key, args)}`,
+          content: this.language.getSuccess(key, args),
           allowedMentions: args?.allowedMentions,
           components: args?.components,
           reply: args?.reply,
@@ -125,7 +125,7 @@ export class FireMessage extends Message {
     return !key
       ? this.react(reactions.warning).catch(() => {})
       : this.reply({
-          content: `${emojis.warning} ${this.language.get(key, args)}`,
+          content: this.language.getWarning(key, args),
           allowedMentions: args?.allowedMentions,
           components: args?.components,
           failIfNotExists: false,
@@ -140,7 +140,7 @@ export class FireMessage extends Message {
     return !key
       ? this.react(reactions.error).catch(() => {})
       : this.reply({
-          content: `${emojis.error} ${this.language.get(key, args)}`,
+          content: this.language.getError(key, args),
           allowedMentions: args?.allowedMentions,
           components: args?.components,
           failIfNotExists: false,

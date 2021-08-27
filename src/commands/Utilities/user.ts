@@ -228,12 +228,9 @@ export default class User extends Command {
       const appInfo: string[] = [];
       if (application.bot_public)
         appInfo.push(
-          `${emojis.success} ${message.language.get("USER_BOT_PUBLIC")}`
+          message.language.getSuccess("USER_BOT_PUBLIC")
         );
-      else
-        appInfo.push(
-          `${emojis.error} ${message.language.get("USER_BOT_PRIVATE")}`
-        );
+      else appInfo.push(message.language.getError("USER_BOT_PRIVATE"));
       if (
         (application.flags & ApplicationFlags.GatewayGuildMembers) ==
           ApplicationFlags.GatewayGuildMembers ||
@@ -247,10 +244,7 @@ export default class User extends Command {
               : emojis.warning
           } ${message.language.get("USER_BOT_MEMBERS_INTENT")}`
         );
-      else
-        appInfo.push(
-          `${emojis.error} ${message.language.get("USER_BOT_MEMBERS_INTENT")}`
-        );
+      else appInfo.push(message.language.getError("USER_BOT_MEMBERS_INTENT"));
       if (
         (application.flags & ApplicationFlags.GatewayPresence) ==
           ApplicationFlags.GatewayPresence ||
@@ -264,13 +258,10 @@ export default class User extends Command {
               : emojis.warning
           } ${message.language.get("USER_BOT_PRESENCE_INTENT")}`
         );
-      else
-        appInfo.push(
-          `${emojis.error} ${message.language.get("USER_BOT_PRESENCE_INTENT")}`
-        );
+      else appInfo.push(message.language.getError("USER_BOT_PRESENCE_INTENT"));
       if (user.bot && this.client.config.bots[user.id]?.best)
         appInfo.push(
-          `${emojis.success} ${message.language.get("USER_BOT_BEST")}`
+          message.language.getSuccess("USER_BOT_BEST")
         );
       if (application.privacy_policy_url || application.terms_of_service_url)
         appInfo.push(""); // spacing between public/intents and links
