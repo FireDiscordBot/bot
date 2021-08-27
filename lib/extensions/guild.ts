@@ -1153,7 +1153,8 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         "tickets.channels",
         channels.map((c) => c.id)
       );
-    else this.settings.delete("tickets.channels");
+    else if (channel.type == "GUILD_TEXT")
+      this.settings.delete("tickets.channels");
     let transcript: string[] = [];
     const iterator = new MessageIterator(channel, {
       oldestFirst: true,
