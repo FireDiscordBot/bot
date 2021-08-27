@@ -421,6 +421,13 @@ export default class Button extends Listener {
     }
 
     if (button.customId.startsWith("sk1er_support_")) {
+      // handle limit first so we can give a better msg and give it right away
+      if (
+        button.guild?.getTickets(button.author.id).length >=
+        button.guild?.settings.get<number>("tickets.limit", 1)
+      )
+        return await button.edit(button.language.getError("NEW_TICKET_LIMIT"));
+
       const type = button.customId.slice(14);
       if (!type || !validSk1erTypes.includes(type)) return;
       const sk1erModule = this.client.getModule("sk1er") as Sk1er;
@@ -542,6 +549,13 @@ export default class Button extends Listener {
 
     // below is a ton of duplicated code since it needs to be kept separate to allow for easy changes
     if (button.customId.startsWith("essential_support_")) {
+      // handle limit first so we can give a better msg and give it right away
+      if (
+        button.guild?.getTickets(button.author.id).length >=
+        button.guild?.settings.get<number>("tickets.limit", 1)
+      )
+        return await button.edit(button.language.getError("NEW_TICKET_LIMIT"));
+
       const type = button.customId.slice(18);
       if (!type || !validEssentialTypes.includes(type)) return;
       const essentialModule = this.client.getModule("essential") as Essential;
