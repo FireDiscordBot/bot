@@ -130,6 +130,9 @@ export default class Message extends Listener {
         (lowerContent.includes("nitro") &&
           lowerContent.includes("steam") &&
           lowerContent.includes("http")) ||
+        (lowerContent.includes("nitro") &&
+          lowerContent.includes("distributiоn") &&
+          lowerContent.includes("free")) ||
         (lowerContent.includes("discord") &&
           lowerContent.includes("steam") &&
           lowerContent.includes("http")) ||
@@ -137,6 +140,9 @@ export default class Message extends Listener {
           lowerContent.includes("go") &&
           lowerContent.includes("skin") &&
           lowerContent.includes("http")) ||
+        (lowerContent.includes("nitro") &&
+          lowerContent.includes("gift") &&
+          lowerContent.includes(".ru")) ||
         (lowerContent.includes("leaving") &&
           lowerContent.includes("fucking") &&
           lowerContent.includes("game")) ||
