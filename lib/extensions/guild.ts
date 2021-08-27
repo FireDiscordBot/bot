@@ -1116,9 +1116,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
             ),
           ],
         })
-        .catch((e) => {
-          console.log(e.stack);
-        });
+        .catch(() => {});
     channels.push(ticket);
     this.settings.set<string[]>(
       "tickets.channels",
