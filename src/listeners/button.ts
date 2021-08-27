@@ -152,6 +152,12 @@ export default class Button extends Listener {
       )
         return;
       if (guild.tickets.find((ticket) => ticket.id == channelId)) {
+        const componentsCopy =
+          button.message instanceof FireMessage
+            ? [...button.message.components]
+            : null;
+        // clear components while closing
+        await button.edit({ components: [] }).catch(() => {});
         const closure = await guild
           .closeTicket(
             channel,
@@ -159,6 +165,9 @@ export default class Button extends Listener {
             guild.language.get("TICKET_CLOSE_BUTTON")
           )
           .catch(() => {});
+        // readd once closed or after failure
+        if (componentsCopy && componentsCopy.length)
+          await button.edit({ components: componentsCopy }).catch(() => {});
         if (closure == "forbidden")
           return await button.error("TICKET_CLOSE_FORBIDDEN");
         else if (closure == "nonticket")
