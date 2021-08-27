@@ -1175,10 +1175,6 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     );
     let creator = author;
     if (id) {
-      if (channel.type == "GUILD_PRIVATE_THREAD")
-        await channel.members
-          .remove(id, this.language.get("TICKET_CLOSE_REASON"))
-          .catch(() => {});
       creator = (await this.members.fetch(id).catch(() => {})) as FireMember;
       if (creator)
         await creator
@@ -1227,6 +1223,21 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         .delete(this.language.get("TICKET_CLOSE_REASON"))
         .catch((e: Error) => e)) as FireTextChannel | Error;
     else {
+      const threadMembers = await channel.members.fetch(false);
+      const guildMembers = await this.members.fetch({
+        user: threadMembers.map((m) => m.id),
+      });
+      for (const [memberId] of threadMembers)
+        if (
+          guildMembers?.has(memberId) &&
+          !guildMembers
+            .get(memberId)
+            .permissionsIn(channel.parent)
+            .has(Permissions.FLAGS.MANAGE_THREADS)
+        )
+          channel.members
+            .remove(memberId, this.language.get("TICKET_CLOSE_REASON"))
+            .catch(() => {});
       await channel.send(this.language.get("TICKET_CLOSE_ARCHIVE"));
       return await channel.setArchived(
         true,
