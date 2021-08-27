@@ -342,7 +342,7 @@ export default class Button extends Listener {
           .setColor(button.member?.displayColor ?? "#FFFFFF")
           .setDescription(
             !edited
-              ? button.language.getError("TAG_EDIT_FAILED")
+              ? button.language.getSlashError("TAG_EDIT_FAILED")
               : button.language.getSuccess("TAG_EDIT_SUCCESS")
           )
           .setTimestamp();
@@ -426,7 +426,9 @@ export default class Button extends Listener {
         button.guild?.getTickets(button.author.id).length >=
         button.guild?.settings.get<number>("tickets.limit", 1)
       )
-        return await button.edit(button.language.getError("NEW_TICKET_LIMIT"));
+        return await button.edit(
+          button.language.getSlashError("NEW_TICKET_LIMIT")
+        );
 
       const type = button.customId.slice(14);
       if (!type || !validSk1erTypes.includes(type)) return;
@@ -519,17 +521,17 @@ export default class Button extends Listener {
         if (ticket == "author" || ticket == "blacklisted") return;
         else if (ticket == "disabled")
           return await button.edit(
-            message.language.getError("NEW_TICKET_DISABLED")
+            button.language.getSlashError("NEW_TICKET_DISABLED")
           );
         else if (ticket == "limit")
           return await button.edit(
-            message.language.getError("NEW_TICKET_LIMIT")
+            button.language.getSlashError("NEW_TICKET_LIMIT")
           );
         else if (ticket == "lock")
           return await button.edit(
-            `${emojis.error} ${message.language.get("NEW_TICKET_LOCK", {
-              limit: message.guild.settings.get<number>("tickets.limit", 1),
-            })}`
+            button.language.getSlashError("NEW_TICKET_LOCK", {
+              limit: button.guild.settings.get<number>("tickets.limit", 1),
+            })
           );
         else if (ticket instanceof Error)
           this.client.sentry.captureException(ticket, {
@@ -552,12 +554,9 @@ export default class Button extends Listener {
       } else
         await button
           .edit({
-            content: `${emojis.success} ${button.language.get(
-              "NEW_TICKET_CREATED",
-              {
-                channel: ticket.toString(),
-              }
-            )}`,
+            content: button.language.getSuccess("NEW_TICKET_CREATED", {
+              channel: ticket.toString(),
+            }),
             components: [],
           })
           .catch(() => {});
@@ -570,7 +569,9 @@ export default class Button extends Listener {
         button.guild?.getTickets(button.author.id).length >=
         button.guild?.settings.get<number>("tickets.limit", 1)
       )
-        return await button.edit(button.language.getError("NEW_TICKET_LIMIT"));
+        return await button.edit(
+          button.language.getSlashError("NEW_TICKET_LIMIT")
+        );
 
       const type = button.customId.slice(18);
       if (!type || !validEssentialTypes.includes(type)) return;
@@ -663,17 +664,17 @@ export default class Button extends Listener {
         if (ticket == "author" || ticket == "blacklisted") return;
         else if (ticket == "disabled")
           return await button.edit(
-            message.language.getError("NEW_TICKET_DISABLED")
+            button.language.getSlashError("NEW_TICKET_DISABLED")
           );
         else if (ticket == "limit")
           return await button.edit(
-            message.language.getError("NEW_TICKET_LIMIT")
+            button.language.getSlashError("NEW_TICKET_LIMIT")
           );
         else if (ticket == "lock")
           return await button.edit(
-            `${emojis.error} ${message.language.get("NEW_TICKET_LOCK", {
-              limit: message.guild.settings.get<number>("tickets.limit", 1),
-            })}`
+            button.language.getSlashError("NEW_TICKET_LOCK", {
+              limit: button.guild.settings.get<number>("tickets.limit", 1),
+            })
           );
         else if (ticket instanceof Error)
           this.client.sentry.captureException(ticket, {
