@@ -1,6 +1,6 @@
 import { Listener } from "@fire/lib/util/listener";
-import { ThreadChannel } from "discord.js";
 import ChannelUpdate from "./channelUpdate";
+import { ThreadChannel } from "discord.js";
 
 export default class ThreadUpdate extends Listener {
   constructor() {
