@@ -142,7 +142,6 @@ export default class ChannelUpdate extends Listener {
         (after instanceof VoiceChannel || after instanceof StageChannel)
       )
         if (before.rtcRegion != after.rtcRegion) {
-          const unknown = language.get("REGION_AUTOMATIC");
           embed.addField(
             language.get("REGION"),
             `${
