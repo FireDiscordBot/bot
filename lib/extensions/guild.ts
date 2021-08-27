@@ -1158,28 +1158,32 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       );
     else if (channel.type == "GUILD_TEXT")
       this.settings.delete("tickets.channels");
-    let transcript: string[] = [];
-    const iterator = new MessageIterator(channel, {
-      oldestFirst: true,
-    });
-    for await (const message of iterator.iterate()) {
-      transcript.push(
-        `${message.author} (${
-          message.author.id
-        }) at ${message.createdAt.toLocaleString(
-          this.language.id
-        )}\n${this.getTranscriptContent(message)}`
-      );
-    }
-    transcript.push(`${transcript.length} messages, closed by ${author}`);
-    const buffer = Buffer.from(transcript.join("\n\n"), "ascii");
     const id = getIDMatch(
       channel instanceof FireTextChannel ? channel.topic : channel.name,
       true
     );
     let creator = author;
-    if (id) {
-      creator = (await this.members.fetch(id).catch(() => {})) as FireMember;
+    if (id)
+      creator = (await this.members
+        .fetch(id)
+        .catch(() => author)) as FireMember;
+    this.client.emit("ticketClose", creator);
+    if (channel instanceof FireTextChannel) {
+      let transcript: string[] = [];
+      const iterator = new MessageIterator(channel, {
+        oldestFirst: true,
+      });
+      for await (const message of iterator.iterate()) {
+        transcript.push(
+          `${message.author} (${
+            message.author.id
+          }) at ${message.createdAt.toLocaleString(
+            this.language.id
+          )}\n${this.getTranscriptContent(message)}`
+        );
+      }
+      transcript.push(`${transcript.length} messages, closed by ${author}`);
+      const buffer = Buffer.from(transcript.join("\n\n"), "ascii");
       if (creator)
         await creator
           .send({
@@ -1192,10 +1196,6 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
             ],
           })
           .catch(() => {});
-      else creator = author;
-    }
-    this.client.emit("ticketClose", creator);
-    if (channel instanceof FireTextChannel) {
       const log =
         (this.channels.cache.get(
           this.settings.get<Snowflake>("tickets.transcript_logs")
