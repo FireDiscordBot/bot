@@ -72,6 +72,10 @@ export default class Tickets extends Command {
       .addField(
         `${message.util.parsed?.prefix}ticket alert [<role>]`,
         message.language.get("TICKET_ALERT_DESCRIPTION")
+      )
+      .addField(
+        `${message.util.parsed?.prefix}ticket list`,
+        message.language.get("TICKET_LIST_DESCRIPTION")
       );
     return await message.channel.send({ embeds: [embed] });
   }
