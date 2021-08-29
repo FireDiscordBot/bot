@@ -6,13 +6,30 @@ import { Command } from "@fire/lib/util/command";
 import { MessageAttachment } from "discord.js";
 import * as centra from "centra";
 
-export default class Trans extends Command {
+export default class Pride extends Command {
   constructor() {
-    super("trans", {
+    super("pride", {
       description: (language: Language) =>
-        language.get("TRANS_COMMAND_DESCRIPTION"),
+        language.get("PRIDE_COMMAND_DESCRIPTION"),
       restrictTo: "all",
       args: [
+        {
+          id: "flag",
+          type: [
+            "transgender",
+            "agender",
+            "asexual",
+            "bisexual",
+            "genderfluid",
+            "lesbian",
+            "nonbinary",
+            "pansexual",
+            "gay",
+          ],
+          slashCommandType: "flag",
+          required: true, // will make slash arg required
+          default: "transgender", // trans rights are human rights <3
+        },
         {
           id: "user",
           type: "user|member",
@@ -33,7 +50,7 @@ export default class Trans extends Command {
 
   async exec(
     message: FireMessage,
-    args?: { user?: FireMember | FireUser; overlay?: boolean }
+    args?: { flag: string; user?: FireMember | FireUser; overlay?: boolean }
   ) {
     if (!args.user && typeof args.user == "object") return;
     const user =
@@ -41,14 +58,15 @@ export default class Trans extends Command {
         ? args.user.user
         : args.user || message.author;
     const overlay = !args.overlay;
-    const transReq = await centra(
+    const prideReq = await centra(
       `https://api.ravy.lgbt/${overlay ? "overlay" : "circle"}`
     )
       .header("User-Agent", this.client.manager.ua)
+      .query("type", args.flag ?? "transgender")
       .query("image", user.displayAvatarURL({ size: 1024, format: "png" }))
       .send();
 
-    const attachment = new MessageAttachment(transReq.body, "avatar.png");
+    const attachment = new MessageAttachment(prideReq.body, "avatar.png");
     return await message.channel.send({ files: [attachment] });
   }
 }

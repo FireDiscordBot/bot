@@ -1048,7 +1048,7 @@
   "TICKET_REMOVE_AUTHOR": "You cannot remove the ticket author",
   "TICKET_REMOVE_NOT_FOUND": "You can't remove someone who isn't even here",
   "TICKET_REMOVE_REASON": "Removed from ticket by {{author}} ({{id}})",
-  "TRANS_COMMAND_DESCRIPTION": "Generate a trans pride avatar",
+  "PRIDE_COMMAND_DESCRIPTION": "Generate various kinds of pride avatars",
   "TEST_COMMAND_DESCRIPTION": "test?",
   "UNBAN_LOG_AUTHOR": "Unban | {{user}}",
   "UNBAN_SUCCESS": "**{{user}}** has been unbanished from {{guild}}.",
