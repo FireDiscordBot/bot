@@ -200,6 +200,9 @@ export default class MCLogs extends Module {
         toJSON: () => {
           return {};
         },
+        setSpoiler: function (spoiler?: boolean) {
+          return this;
+        },
         contentType: "text/plain; charset=utf-8",
         name: "message.txt",
         id: message.id,

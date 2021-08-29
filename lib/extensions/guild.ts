@@ -962,7 +962,6 @@ export class FireGuild extends Guild {
     if (
       channel &&
       this.hasExperiment(1651882237, 1) &&
-      // @ts-ignore
       this.features.includes("PRIVATE_THREADS")
     ) {
       ticket = (await channel.threads
@@ -975,6 +974,7 @@ export class FireGuild extends Guild {
               : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
             { author: author.toString(), id: author.id, subject }
           ),
+          invitable: this.settings.get("tickets.invitable", true),
           type: "GUILD_PRIVATE_THREAD",
         })
         .catch((e: Error) => e)) as ThreadChannel;

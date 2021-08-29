@@ -69,7 +69,6 @@ export class FireMember extends GuildMember {
       return display
         ? this.user.displayAvatarURL({ format, size, dynamic })
         : this.user.avatarURL({ format, size, dynamic });
-    // @ts-ignore - for some reason gif is not an allowed format like bruh
     if (dynamic) format = this.avatar.startsWith("a_") ? "gif" : format;
     return this.client.util.makeImageUrl(
       `${this.client.options.http.cdn}/guilds/${this.guild.id}/users/${this.id}/avatars/${this.avatar}`,

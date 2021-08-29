@@ -38,9 +38,7 @@ export class RESTManager {
   }
 
   getAuth() {
-    // @ts-ignore
-    const token = this.client.token || this.client?.accessToken;
-    if (token) return `Bot ${token}`;
+    if (this.client.token) return `Bot ${this.client.token}`;
     throw new Error("TOKEN_MISSING");
   }
 
