@@ -74,7 +74,11 @@ export default class Ready extends Listener {
         .toJSON();
 
       for (const cmd of this.client.commandHandler.modules.values()) {
-        if (cmd.enableSlashCommand && appCommands.find((s) => s.name == cmd.id))
+        if (
+          cmd.enableSlashCommand &&
+          !cmd.guilds?.length &&
+          appCommands.find((s) => s.name == cmd.id)
+        )
           commands.push(
             cmd.getSlashCommandJSON(
               appCommands.findKey((s) => s.name == cmd.id)
