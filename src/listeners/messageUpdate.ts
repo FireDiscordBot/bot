@@ -36,6 +36,8 @@ export default class MessageUpdate extends Listener {
     )
       await messageListener.tokenGist(after, toSearch);
 
+    if (!guild) return;
+
     if (guild.starboardMessages?.has(after.id) && guild.starboard) {
       const currentStarboardMsg = await guild.starboard.messages
         .fetch(after.id)
