@@ -80,7 +80,7 @@ export default class Ready extends Listener {
               appCommands.findKey((s) => s.name == cmd.id)
             )
           );
-        else if (cmd.enableSlashCommand)
+        else if (cmd.enableSlashCommand && !cmd.guilds?.length)
           commands.push(cmd.getSlashCommandJSON());
       }
 
