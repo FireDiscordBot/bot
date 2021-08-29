@@ -9,6 +9,7 @@ import {
   Collection,
   Snowflake,
   Webhook,
+  MessageEmbed,
 } from "discord.js";
 import {
   GuildMemberCountFilter,
@@ -664,5 +665,29 @@ export class Util extends ClientUtil {
           });
     } catch {}
     return isEligible;
+  }
+
+  areEmbedsEqual(one: MessageEmbed, two: MessageEmbed) {
+    return (
+      one.title == two.title &&
+      one.description == two.description &&
+      one.url == two.url &&
+      one.color == two.color &&
+      one.footer?.text == two.footer?.text &&
+      one.footer?.iconURL == two.footer?.iconURL &&
+      one.author?.name == two.author?.name &&
+      one.author?.url == two.author?.url &&
+      one.author?.iconURL == two.author?.iconURL &&
+      one.image?.url == two.image?.url &&
+      one.thumbnail?.url == two.thumbnail?.url &&
+      one.timestamp == two.timestamp &&
+      one.fields.length == two.fields.length &&
+      one.fields.every(
+        (f, i) =>
+          f.name == two.fields[i]?.name &&
+          f.value == two.fields[i]?.value &&
+          f.inline == two.fields[i]?.inline
+      )
+    );
   }
 }

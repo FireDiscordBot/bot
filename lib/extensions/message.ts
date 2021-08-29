@@ -595,10 +595,7 @@ export class FireMessage extends Message {
     }
   }
 
-  private getStarboardMessage(
-    emoji: string,
-    stars: number
-  ): [string, MessageEmbed] {
+  getStarboardMessage(emoji: string, stars: number): [string, MessageEmbed] {
     const embed = new MessageEmbed()
       .setTimestamp(this.createdTimestamp)
       .setAuthor(
