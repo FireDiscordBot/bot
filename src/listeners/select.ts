@@ -25,9 +25,10 @@ export default class Select extends Listener {
     let message: FireMessage;
     if (!select.ephemeralSource) message = select.message as FireMessage;
 
-    const guild = message?.guild;
+    const guild = select.guild;
 
     if (
+      guild &&
       select.customId == `rank:${guild?.id}` &&
       select.member instanceof FireMember
     ) {
