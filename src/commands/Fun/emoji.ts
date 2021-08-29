@@ -73,7 +73,13 @@ export default class Emoji extends Command {
       constants.regexes.customEmoji.lastIndex = 0;
       name = match.groups.name;
     } else constants.regexes.customEmoji.lastIndex = 0;
-    if (!constants.imageExts.some((ext) => emoji.endsWith(ext)))
+    if (
+      !constants.imageExts.some(
+        (ext) => emoji.endsWith(ext) || emoji.endsWith(`${ext}?v=1`)
+        // there is a chance for this to break if they change the "1"
+        // but the likelihood of that happening is very low
+      )
+    )
       return await message.error("EMOJI_INVALID");
     let created: GuildEmoji;
     try {
