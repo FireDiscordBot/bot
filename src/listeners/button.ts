@@ -36,7 +36,10 @@ const reminderSnoozeTimes = {
   REMINDER_SNOOZE_SIXHOURS: "21600000",
   REMINDER_SNOOZE_HALFDAY: "43200000",
   REMINDER_SNOOZE_DAY: "86400000",
+  REMINDER_SNOOZE_THREEDAYS: "259200000",
   REMINDER_SNOOZE_WEEK: "604800000",
+  REMINDER_SNOOZE_FORTNIGHT: "1209600000",
+  REMINDER_SNOOZE_MONTH: "2628060000",
 };
 const validPaginatorIds = ["close", "start", "back", "forward", "end"];
 const validSk1erTypes = ["general", "purchase", "bug"];
