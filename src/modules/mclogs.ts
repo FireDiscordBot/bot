@@ -146,7 +146,11 @@ export default class MCLogs extends Module {
       );
 
     for (const [rec, sol] of Object.entries(this.solutions.recommendations)) {
-      if (log.includes(rec) && !currentRecommendations.includes(`- ${sol}`))
+      if (
+        log.includes(rec) &&
+        !currentRecommendations.includes(`- ${sol}`) &&
+        !currentSolutions.includes(`- **${sol}**`)
+      )
         currentRecommendations.push(`- ${sol}`);
     }
 
