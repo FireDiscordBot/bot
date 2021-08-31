@@ -62,72 +62,69 @@ export default class MessageUpdate extends Listener {
             })
             .catch(() => {});
       }
+    }
 
-      if (!after.member || after.author.bot) return;
+    if (!after.member || after.author.bot) return;
 
-      const autoroleId = guild.settings.get<Snowflake>("mod.autorole", null);
-      const delay = guild.settings.get<boolean>(
-        "mod.autorole.waitformsg",
-        false
-      );
-      if (autoroleId && delay && after.type == "DEFAULT") {
-        const role = guild.roles.cache.get(autoroleId);
-        if (role && !after.member.roles.cache.has(role.id))
-          await after.member.roles
-            .add(role, after.member.guild.language.get("AUTOROLE_REASON"))
-            .catch(() => {});
-      }
+    const autoroleId = guild.settings.get<Snowflake>("mod.autorole", null);
+    const delay = guild.settings.get<boolean>("mod.autorole.waitformsg", false);
+    if (autoroleId && delay && after.type == "DEFAULT") {
+      const role = guild.roles.cache.get(autoroleId);
+      if (role && !after.member.roles.cache.has(role.id))
+        await after.member.roles
+          .add(role, after.member.guild.language.get("AUTOROLE_REASON"))
+          .catch(() => {});
+    }
 
-      const filters = this.client.getModule("filters") as Filters;
-      await filters?.runAll(after, messageListener.cleanContent(after));
+    const filters = this.client.getModule("filters") as Filters;
+    await filters?.runAll(after, messageListener.cleanContent(after));
 
-      if (before.content.trim() == after.content.trim()) return;
+    if (before.content.trim() == after.content.trim()) return;
 
-      if (
-        guild?.settings.has("log.action") &&
-        !before.partial &&
-        before.content &&
-        after.content &&
-        // if it's too long to show any changes
-        // (since it is sliced to prevent huge embeds),
-        // don't bother logging the edit
-        before.content.slice(0, 1001) + "..." !=
-          after.content.slice(0, 1001) + "..." &&
-        !guild.logIgnored.includes(after.channel.id)
-      ) {
-        const embed = new MessageEmbed()
-          .setColor(after.member.displayColor ?? "#FFFFFF")
-          .setTimestamp(after.editedAt)
-          .setAuthor(
-            after.author.toString(),
-            after.author.displayAvatarURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            }),
-            after.url
-          )
-          .setDescription(
-            guild.language.get("MSGEDITLOG_DESCRIPTION", {
-              author: after.author.toMention(),
-              channel: after.channel.toString(),
-            })
-          )
-          .addField(
-            guild.language.get("BEFORE"),
-            before.content.length <= 1000
-              ? before.content
-              : before.content.slice(0, 1001) + "..."
-          )
-          .addField(
-            guild.language.get("AFTER"),
-            after.content.length <= 1000
-              ? after.content
-              : after.content.slice(0, 1001) + "..."
-          )
-          .setFooter(`${after.author.id} | ${after.id} | ${after.channel.id}`);
-        await guild.actionLog(embed, "message_edit");
-      }
+    if (
+      guild?.settings.has("log.action") &&
+      !before.partial &&
+      before.content &&
+      after.content &&
+      // if it's too long to show any changes
+      // (since it is sliced to prevent huge embeds),
+      // don't bother logging the edit
+      before.content.slice(0, 1001) + "..." !=
+        after.content.slice(0, 1001) + "..." &&
+      !guild.logIgnored.includes(after.channel.id)
+    ) {
+      const embed = new MessageEmbed()
+        .setColor(after.member.displayColor ?? "#FFFFFF")
+        .setTimestamp(after.editedAt)
+        .setAuthor(
+          after.author.toString(),
+          after.author.displayAvatarURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          }),
+          after.url
+        )
+        .setDescription(
+          guild.language.get("MSGEDITLOG_DESCRIPTION", {
+            author: after.author.toMention(),
+            channel: after.channel.toString(),
+          })
+        )
+        .addField(
+          guild.language.get("BEFORE"),
+          before.content.length <= 1000
+            ? before.content
+            : before.content.slice(0, 1001) + "..."
+        )
+        .addField(
+          guild.language.get("AFTER"),
+          after.content.length <= 1000
+            ? after.content
+            : after.content.slice(0, 1001) + "..."
+        )
+        .setFooter(`${after.author.id} | ${after.id} | ${after.channel.id}`);
+      await guild.actionLog(embed, "message_edit");
     }
   }
 }
