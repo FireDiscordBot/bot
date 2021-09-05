@@ -313,7 +313,7 @@ export default class GuildCommand extends Command {
         );
     }
 
-    if (message.author.isSuperuser()) {
+    if (message.author.isSuperuser() && this.client.manager.ws?.open) {
       // we make a request so we can get the cluster id too
       const shardReq: ShardInfo = await (
         await centra(
