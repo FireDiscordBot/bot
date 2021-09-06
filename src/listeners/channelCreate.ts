@@ -35,8 +35,9 @@ export default class ChannelCreate extends Listener {
         .edit(
           muteRole,
           {
-            USE_PRIVATE_THREADS: false,
-            USE_PUBLIC_THREADS: false,
+            SEND_MESSAGES_IN_THREADS: false,
+            CREATE_PRIVATE_THREADS: false,
+            CREATE_PUBLIC_THREADS: false,
             REQUEST_TO_SPEAK: false,
             SEND_MESSAGES: false,
             ADD_REACTIONS: false,

@@ -43,7 +43,7 @@ export default class NewTicket extends Command {
         .has(
           Permissions.FLAGS.VIEW_CHANNEL |
             Permissions.FLAGS.SEND_MESSAGES |
-            Permissions.FLAGS.USE_PRIVATE_THREADS
+            Permissions.FLAGS.CREATE_PRIVATE_THREADS
         )
     )
       return this.client.commandHandler.emit(
@@ -56,7 +56,7 @@ export default class NewTicket extends Command {
           .missing(
             Permissions.FLAGS.VIEW_CHANNEL |
               Permissions.FLAGS.SEND_MESSAGES |
-              Permissions.FLAGS.USE_PRIVATE_THREADS
+              Permissions.FLAGS.CREATE_PRIVATE_THREADS
           )
       );
     const creating = await message.send("NEW_TICKET_CREATING");

@@ -188,9 +188,10 @@
     "USE_APPLICATION_COMMANDS": "Use Application Commands",
     "REQUEST_TO_SPEAK": "Request to Speak",
     "MANAGE_THREADS": "Manage Threads",
-    "USE_PRIVATE_THREADS": "Use Private Threads",
-    "USE_PUBLIC_THREADS": "Use Public Threads",
-    "USE_EXTERNAL_STICKERS": "Use External Stickers"
+    "CREATE_PRIVATE_THREADS": "Create Private Threads",
+    "CREATE_PUBLIC_THREADS": "Create Public Threads",
+    "USE_EXTERNAL_STICKERS": "Use External Stickers",
+    "SEND_MESSAGES_IN_THREADS": "Send Messages in Threads"
   },
   "ACTIVITY_TYPES": {
     "1": "Join",

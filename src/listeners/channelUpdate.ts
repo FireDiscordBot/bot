@@ -43,8 +43,9 @@ export default class ChannelUpdate extends Listener {
       !after.permissionOverwrites.cache
         .get(muteRole.id)
         ?.deny.has(
-          Permissions.FLAGS.USE_PRIVATE_THREADS |
-            Permissions.FLAGS.USE_PUBLIC_THREADS |
+          Permissions.FLAGS.CREATE_PRIVATE_THREADS |
+            Permissions.FLAGS.CREATE_PUBLIC_THREADS |
+            Permissions.FLAGS.SEND_MESSAGES_IN_THREADS |
             Permissions.FLAGS.REQUEST_TO_SPEAK |
             Permissions.FLAGS.SEND_MESSAGES |
             Permissions.FLAGS.ADD_REACTIONS |
@@ -55,8 +56,9 @@ export default class ChannelUpdate extends Listener {
         .edit(
           muteRole,
           {
-            USE_PRIVATE_THREADS: false,
-            USE_PUBLIC_THREADS: false,
+            SEND_MESSAGES_IN_THREADS: false,
+            CREATE_PRIVATE_THREADS: false,
+            CREATE_PUBLIC_THREADS: false,
             REQUEST_TO_SPEAK: false,
             SEND_MESSAGES: false,
             ADD_REACTIONS: false,
