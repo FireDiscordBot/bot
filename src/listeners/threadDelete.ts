@@ -48,7 +48,7 @@ export default class ThreadDelete extends Listener {
         .addField(language.get("NAME"), thread.name)
         .addField(language.get("CHANNEL"), thread.parent.toString())
         .addField(
-          language.get("ARCHIVE_AT"),
+          language.get("ARCHIVE"),
           Formatters.time(autoArchiveAt, "R")
         )
         .addField(

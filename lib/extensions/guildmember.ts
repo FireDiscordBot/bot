@@ -399,7 +399,7 @@ export class FireMember extends GuildMember {
       .setFooter(`${this.id} | ${moderator.id}`);
     if (until) {
       embed.addField(
-        this.guild.language.get("UNTIL"),
+        this.guild.language.get("BAN_WILL_BE_UNBANNED"),
         `${Formatters.time(new Date(until), "R")}`
       );
     }
@@ -601,7 +601,7 @@ export class FireMember extends GuildMember {
       .setFooter(`${this.id} | ${moderator.id}`);
     if (until) {
       embed.addField(
-        this.guild.language.get("UNTIL"),
+        this.guild.language.get("MUTE_WILL_BE_UNMUTED"),
         `${Formatters.time(new Date(until), "R")}`
       );
     }

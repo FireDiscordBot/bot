@@ -34,7 +34,7 @@ export default class ThreadCreate extends Listener {
         .addField(language.get("NAME"), channel.name)
         .addField(language.get("CHANNEL"), channel.parent.toString())
         .addField(
-          language.get("ARCHIVE_AT"),
+          language.get("ARCHIVE"),
           Formatters.time(autoArchiveAt, "R")
         )
         .addField(
