@@ -1168,7 +1168,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       channel instanceof FireTextChannel ? channel.topic : channel.name,
       true
     );
-    let creator = author;
+    let creator: FireMember;
     if (id)
       creator = (await this.members
         .fetch(id)
