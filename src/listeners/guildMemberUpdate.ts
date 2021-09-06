@@ -5,12 +5,11 @@ import {
   Permissions,
   Snowflake,
 } from "discord.js";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import EssentialNitro from "../modules/essentialnitro";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
-import Sk1er from "@fire/src/modules/sk1er";
 
 export default class GuildMemberUpdate extends Listener {
   constructor() {
@@ -120,31 +119,29 @@ export default class GuildMemberUpdate extends Listener {
       }
     }
 
-    const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-    if (
-      sk1erModule &&
-      !newMember.partial &&
-      newMember.guild.id == sk1erModule.guildId
-    ) {
+    const essentialModule = this.client.getModule(
+      "essentialnitro"
+    ) as EssentialNitro;
+    if (essentialModule && newMember.guild.hasExperiment(223827992, 1)) {
+      const boosterId = newMember.guild.roles.cache.find(
+        (r) => r.tags?.premiumSubscriberRole
+      )?.id;
+      const exists = await essentialModule.getUUID(newMember);
       if (
-        !newMember.roles.cache.has("585534346551754755") &&
+        exists &&
+        boosterId &&
+        !newMember.roles.cache.has(boosterId) &&
         !newMember.isSuperuser()
       ) {
-        const removed = await sk1erModule
-          .removeNitroPerks(newMember)
+        const removed = await essentialModule
+          .removeNitroCosmetic(newMember)
           .catch(() => false);
-        if (typeof removed == "boolean" && removed)
-          (
-            sk1erModule.guild.channels.cache.get(
-              "411620457754787841"
-            ) as FireTextChannel
-          ).send({
-            content: sk1erModule.guild.language.get(
-              "SK1ER_NITRO_PERKS_REMOVED",
-              { member: newMember.toMention() }
-            ),
-            allowedMentions: { users: [newMember.id] },
-          });
+        if (!removed || typeof removed == "number")
+          this.client.console.error(
+            `[Essential] Failed to remove nitro perks from ${newMember}${
+              typeof removed == "number" ? ` with status code ${removed}` : ""
+            }`
+          );
       }
     }
 

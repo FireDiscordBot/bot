@@ -142,8 +142,11 @@ export class Util extends ClientUtil {
     }
   }
 
-  async nameToUUID(player: string) {
-    if (this.uuidCache.has(player)) return this.uuidCache.get(player);
+  async nameToUUID(player: string, dashed: boolean = false) {
+    if (this.uuidCache.has(player))
+      return dashed
+        ? this.addDashesToUUID(this.uuidCache.get(player))
+        : this.uuidCache.get(player);
     const profileReq = await centra(
       `https://api.mojang.com/users/profiles/minecraft/${player}`
     )
@@ -152,7 +155,7 @@ export class Util extends ClientUtil {
     if (profileReq.statusCode == 200) {
       const profile: MojangProfile = await profileReq.json();
       this.uuidCache.set(player, profile.id);
-      return profile.id;
+      return dashed ? this.addDashesToUUID(profile.id) : profile.id;
     } else return null;
   }
 

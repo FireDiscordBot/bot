@@ -1,11 +1,11 @@
 import { CategoryChannel, MessageReaction, Snowflake } from "discord.js";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Module } from "@fire/lib/util/module";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 
 export default class Essential extends Module {
   ticketChannel: FireTextChannel;

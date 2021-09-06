@@ -1,4 +1,10 @@
-import { CategoryChannel, MessageReaction, Snowflake, Role } from "discord.js";
+import {
+  CategoryChannel,
+  MessageReaction,
+  Snowflake,
+  Role,
+  Collection,
+} from "discord.js";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -9,7 +15,6 @@ import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 
 export default class Sk1er extends Module {
-  essentialHeaders: { secret: string };
   descriptionUpdate: NodeJS.Timeout;
   supportguildId: Snowflake;
   supportGuild: FireGuild;
@@ -45,11 +50,7 @@ export default class Sk1er extends Module {
       return;
     }
     this.nitro = this.guild?.roles.cache.get(this.nitroId);
-    this.essentialHeaders = { secret: process.env.MODCORE_SECRET };
-    if (this.guild) {
-      await this.descriptionUpdater();
-      await this.nitroChecker();
-    }
+    if (this.guild) await this.descriptionUpdater();
   }
 
   async unload() {
@@ -83,80 +84,6 @@ export default class Sk1er extends Module {
         "Description Updater Task (Now with less hacky code!)"
       );
     } catch {}
-  }
-
-  async nitroChecker() {
-    let users: Snowflake[] = [];
-    const essentialResult = await this.client.db.query(
-      "SELECT uid FROM essential;"
-    );
-    for await (const row of essentialResult) {
-      users.push(row.get("uid") as Snowflake);
-    }
-    const members = await this.guild.members.fetch({ user: users });
-    const memberIds = members.map((m) => m.id);
-    users = users.filter((u) => !memberIds.includes(u));
-    const membersLoop = async () => {
-      members.forEach(async (member: FireMember) => {
-        if (!member.roles.cache.has(this.nitroId) && !member.isSuperuser()) {
-          this.client.console.warn(
-            `[Sk1er] Removing nitro perks from ${member} due to lack of booster role`
-          );
-          const removed = await this.removeNitroPerks(member).catch(() => {});
-          if (!removed || typeof removed == "number")
-            this.client.console.error(
-              `[Sk1er] Failed to remove nitro perks from ${member}${
-                typeof removed == "number"
-                  ? " with status code " + removed.toString()
-                  : ""
-              }`
-            );
-          else if (typeof removed == "boolean" && removed)
-            (
-              this.guild.channels.cache.get(
-                "411620457754787841"
-              ) as FireTextChannel
-            ).send({
-              content: this.guild.language.get("SK1ER_NITRO_PERKS_REMOVED", {
-                member: member.toMention(),
-              }) as string,
-              allowedMentions: { users: [member.id] },
-            });
-        }
-      });
-    };
-    await membersLoop(); // Ensures foreach finishes before continuing
-    if (users.length) {
-      users.forEach(async (id) => {
-        this.client.console.warn(
-          `[Sk1er] Removing nitro perks from ${id} due to lack of existence`
-        );
-        const user = (await this.client.users
-          .fetch(id)
-          .catch(() => {})) as FireUser;
-        if (user) {
-          const removed = await this.removeNitroPerks(user).catch(() => {});
-          if (!removed || typeof removed == "number")
-            this.client.console.error(
-              `[Sk1er] Failed to remove nitro perks from ${user}${
-                typeof removed == "number"
-                  ? " with status code " + removed.toString()
-                  : ""
-              }`
-            );
-          else if (typeof removed == "boolean" && removed)
-            (
-              this.guild.channels.cache.get(
-                "411620457754787841"
-              ) as FireTextChannel
-            ).send(
-              this.guild.language.get("SK1ER_NITRO_PERKS_REMOVED_LEFT", {
-                member: user.toString(),
-              })
-            );
-        }
-      });
-    }
   }
 
   async handleSupport(
@@ -234,74 +161,5 @@ export default class Sk1er extends Module {
         category
       );
     }
-  }
-
-  async getUUID(user: FireMember | FireUser) {
-    const rows = (
-      await this.client.db.query("SELECT uuid FROM essential WHERE uid=$1;", [
-        user.id,
-      ])
-    ).rows;
-
-    return rows[0] ? rows[0][0]?.toString() : null;
-  }
-
-  async setUUID(user: FireMember | FireUser, uuid: string) {
-    try {
-      const current = await this.getUUID(user);
-      if (current)
-        await this.client.db.query(
-          "UPDATE essential SET uuid=$1 WHERE uid=$2;",
-          [uuid, user.id]
-        );
-      else
-        await this.client.db.query(
-          "INSERT INTO essential (uid, uuid) VALUES ($1, $2);",
-          [user.id, uuid]
-        );
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  async removeNitroPerks(user: FireMember | FireUser) {
-    const uuid = await this.getUUID(user);
-    if (!uuid) return false;
-
-    const nitroReq = await centra(
-      `https://api.modcore.net/api/v1/nitro/${uuid}/false`,
-      "POST"
-    )
-      .header("User-Agent", this.client.manager.ua)
-      .header("secret", this.essentialHeaders.secret)
-      .send();
-
-    if (nitroReq.statusCode == 200) {
-      const result = await this.client.db.query(
-        "DELETE FROM essential WHERE uid=$1;",
-        [user.id]
-      );
-      if (result.status != "DELETE 0") return true;
-      else return false;
-    } else return nitroReq.statusCode;
-  }
-
-  async giveNitroPerks(user: FireMember | FireUser, ign: string) {
-    const uuid = await this.client.util.nameToUUID(ign);
-    if (!uuid) return false;
-
-    const setUUID = await this.setUUID(user, uuid);
-    if (!setUUID) return false;
-
-    const nitroReq = await centra(
-      `https://api.modcore.net/api/v1/nitro/${uuid}/true`,
-      "POST"
-    )
-      .header("User-Agent", this.client.manager.ua)
-      .header("secret", this.essentialHeaders.secret)
-      .send();
-
-    return nitroReq.statusCode == 200;
   }
 }

@@ -5,10 +5,10 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { LanguageKeys } from "@fire/lib/util/language";
+import EssentialNitro from "../modules/essentialnitro";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
-import Sk1er from "@fire/src/modules/sk1er";
 
 const {
   regexes: { joinleavemsgs },
@@ -33,21 +33,21 @@ export default class GuildMemberRemove extends Listener {
         )
       );
 
-    const sk1erModule = this.client.getModule("sk1er") as Sk1er;
-    if (sk1erModule && member.guild.id == sk1erModule.guildId) {
-      const removed = await sk1erModule
-        .removeNitroPerks(member)
-        .catch(() => false);
-      if (typeof removed == "boolean" && removed)
-        (
-          sk1erModule.guild.channels.cache.get(
-            "411620457754787841"
-          ) as FireTextChannel
-        ).send(
-          sk1erModule.guild.language.get("SK1ER_NITRO_PERKS_REMOVED_LEFT", {
-            member: member.toString(),
-          })
+    const essentialModule = this.client.getModule(
+      "essentialnitro"
+    ) as EssentialNitro;
+    if (essentialModule && member.guild.hasExperiment(223827992, 1)) {
+      const exists = await essentialModule.getUUID(member);
+      if (exists) {
+        const removed = await essentialModule
+          .removeNitroCosmetic(member)
+          .catch(() => false);
+        this.client.console.error(
+          `[Essential] Failed to remove nitro perks from ${member}${
+            typeof removed == "number" ? ` with status code ${removed}` : ""
+          }`
         );
+      }
     }
 
     const tickets = member.guild.tickets;
