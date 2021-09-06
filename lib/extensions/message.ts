@@ -46,6 +46,7 @@ export class FireMessage extends Message {
   declare author: FireUser;
   declare client: Fire;
   starLock: Semaphore;
+  selfDelete: boolean;
   util?: CommandUtil;
   silent?: boolean;
 
@@ -173,7 +174,10 @@ export class FireMessage extends Message {
     // (which is the reason why timeout was removed)
     // https://github.com/discordjs/discord.js/pull/4999
     if (this.deleted) return this;
-    return (await super.delete()) as FireMessage;
+    return (await super.delete().then((m: FireMessage) => {
+      m.selfDelete = true;
+      return m;
+    })) as FireMessage;
   }
 
   async quote(

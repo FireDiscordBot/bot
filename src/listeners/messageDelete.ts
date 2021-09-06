@@ -13,7 +13,7 @@ export default class MessageDelete extends Listener {
   }
 
   async exec(message: FireMessage) {
-    if (!message.guild) return
+    if (!message.guild) return;
 
     if (message.guild.premium && !message.guild.reactionRoles)
       await message.guild.loadReactionRoles();
@@ -21,7 +21,7 @@ export default class MessageDelete extends Listener {
       message.guild.reactionRoles.delete(message.id);
       await this.client.db
         .query("DELETE FROM reactrole WHERE mid=$1;", [message.id])
-        .catch(() => { });
+        .catch(() => {});
     }
 
     if (message.guild.starboard && !message.guild.starboardReactions)
@@ -39,13 +39,13 @@ export default class MessageDelete extends Listener {
           "DELETE FROM starboard WHERE gid=$1 AND original=$2 OR gid=$1 AND board=$2;",
           [message.guild.id, message.id]
         )
-        .catch(() => { });
+        .catch(() => {});
       await this.client.db
         .query("DELETE FROM starboard_reactions WHERE gid=$1 AND mid=$2;", [
           message.guild.id,
           message.id,
         ])
-        .catch(() => { });
+        .catch(() => {});
       message.guild.starboardMessages.delete(message.id);
       message.guild.starboardReactions.delete(message.id);
       message.guild.starboardMessages.delete(
@@ -63,7 +63,7 @@ export default class MessageDelete extends Listener {
       if (message.type == "REPLY")
         reference = (await message
           .fetchReference()
-          .catch(() => { })) as FireMessage;
+          .catch(() => {})) as FireMessage;
       const description = message.guild.language.get(
         message.type == "REPLY" && reference
           ? "MSGDELETELOG_DESCRIPTION_REPLY"
@@ -104,8 +104,8 @@ export default class MessageDelete extends Listener {
         embed.addField(
           message.guild.language.get("ATTACHMENTS"),
           message.attachments.map((attach) => attach.name).join("\n") +
-          "\n\n" +
-          message.guild.language.get("MSGDELETELOG_ATTACH_WARN")
+            "\n\n" +
+            message.guild.language.get("MSGDELETELOG_ATTACH_WARN")
         );
       if (message.activity)
         embed.addField(
@@ -113,12 +113,17 @@ export default class MessageDelete extends Listener {
           (message.activity.partyId.startsWith("spotify:")
             ? message.guild.language.get("MSGDELETELOG_SPOTIFY_ACTIVITY") + "\n"
             : "") +
-          message.guild.language.get("MSGDELETELOG_ACTIVITY", {
-            partyID: message.activity.partyId,
-            type: message.guild.language.get(
-              `ACTIVITY_TYPES.${message.activity.type}` as LanguageKeys
-            ),
-          })
+            message.guild.language.get("MSGDELETELOG_ACTIVITY", {
+              partyID: message.activity.partyId,
+              type: message.guild.language.get(
+                `ACTIVITY_TYPES.${message.activity.type}` as LanguageKeys
+              ),
+            })
+        );
+      if (message.selfDelete)
+        embed.addField(
+          message.guild.language.get("DELETED_BY"),
+          message.guild.me?.toString() ?? this.client.user?.toString()
         );
       if (embed.description != description || embed.fields.length)
         await message.guild.actionLog(embed, "message_delete");
