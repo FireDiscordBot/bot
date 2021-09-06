@@ -2,11 +2,8 @@ import { AbortController } from "abort-controller";
 import * as FormData from "@discordjs/form-data";
 import { RequestOptions } from "./APIRouter";
 import { RESTManager } from "./RESTManager";
-import { Constants } from "discord.js";
 import { Fire } from "@fire/lib/Fire";
 import * as centra from "centra";
-
-const { UserAgent } = Constants;
 
 export class APIRequest {
   options: RequestOptions;
