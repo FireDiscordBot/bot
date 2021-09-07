@@ -154,6 +154,8 @@ export class FireMessage extends Message {
       this.channel.deleted
     )
       return;
+    if (process.env.USE_LITECORD == "true")
+      return super.react(emoji).catch(() => this.reactions.cache.first());
     return super.react(emoji);
   }
 

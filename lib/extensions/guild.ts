@@ -1,11 +1,13 @@
 import {
   PermissionOverwriteOptions,
+  GuildAuditLogsFetchOptions,
   PermissionResolvable,
   MessageEmbedOptions,
   FetchOwnerOptions,
   MessageAttachment,
   MessageActionRow,
   CategoryChannel,
+  GuildAuditLogs,
   MessageButton,
   WebhookClient,
   ThreadChannel,
@@ -147,6 +149,18 @@ export class FireGuild extends Guild {
 
   fetchOwner(options?: FetchOwnerOptions) {
     return super.fetchOwner(options) as Promise<FireMember>;
+  }
+
+  async fetchAuditLogs(options?: GuildAuditLogsFetchOptions) {
+    // litecord doesn't have audit logs so we don't even bother with the request
+    if (process.env.USE_LITECORD == "true") return new GuildAuditLogs(this, {
+      audit_log_entries: [],
+      integrations: [],
+      webhooks: [],
+      threads: [],
+      users: [],
+    });
+    else return super.fetchAuditLogs(options)
   }
 
   async initMuteRole() {
