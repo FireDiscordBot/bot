@@ -153,14 +153,15 @@ export class FireGuild extends Guild {
 
   async fetchAuditLogs(options?: GuildAuditLogsFetchOptions) {
     // litecord doesn't have audit logs so we don't even bother with the request
-    if (process.env.USE_LITECORD == "true") return new GuildAuditLogs(this, {
-      audit_log_entries: [],
-      integrations: [],
-      webhooks: [],
-      threads: [],
-      users: [],
-    });
-    else return super.fetchAuditLogs(options)
+    if (process.env.USE_LITECORD == "true")
+      return new GuildAuditLogs(this, {
+        audit_log_entries: [],
+        integrations: [],
+        webhooks: [],
+        threads: [],
+        users: [],
+      });
+    else return super.fetchAuditLogs(options);
   }
 
   async initMuteRole() {
@@ -1184,10 +1185,8 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     );
     let creator: FireMember;
     if (id)
-      creator = (await this.members
-        .fetch(id)
-        .catch(() => author)) as FireMember;
-    this.client.emit("ticketClose", creator);
+      creator = (await this.members.fetch(id).catch(() => {})) as FireMember;
+    if (creator) this.client.emit("ticketClose", creator);
     if (channel instanceof FireTextChannel) {
       let transcript: string[] = [];
       const iterator = new MessageIterator(channel, {
