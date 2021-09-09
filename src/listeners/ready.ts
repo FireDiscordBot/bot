@@ -10,6 +10,7 @@ import { getCommitHash } from "@fire/lib/util/gitUtils";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
+import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
 
 export default class Ready extends Listener {
@@ -77,6 +78,7 @@ export default class Ready extends Listener {
         if (
           cmd.enableSlashCommand &&
           !cmd.guilds?.length &&
+          !cmd.requiresExperiment &&
           appCommands.find((s) => s.name == cmd.id)
         )
           commands.push(
@@ -84,7 +86,11 @@ export default class Ready extends Listener {
               appCommands.findKey((s) => s.name == cmd.id)
             )
           );
-        else if (cmd.enableSlashCommand && !cmd.guilds?.length)
+        else if (
+          cmd.enableSlashCommand &&
+          !cmd.guilds?.length &&
+          !cmd.requiresExperiment
+        )
           commands.push(cmd.getSlashCommandJSON());
       }
 
@@ -99,6 +105,31 @@ export default class Ready extends Listener {
       if (updated && updated.size)
         this.client.console.info(
           `[Commands] Successfully bulk updated ${updated.size} slash commands`
+        );
+    }
+
+    for (const [, command] of this.client.commandHandler.modules as Collection<
+      string,
+      Command
+    >) {
+      if (!command.requiresExperiment) continue;
+      command.guilds = this.client.guilds.cache
+        .filter((guild: FireGuild) =>
+          guild.hasExperiment(
+            command.requiresExperiment.id,
+            command.requiresExperiment.bucket
+          )
+        )
+        .map((g) => g.id);
+      if (!command.guilds.length) continue;
+      const registered = await command.registerSlashCommand();
+      if (registered && registered.length)
+        this.client.console.info(
+          `[Commands] Successfully registered locked command ${command.id} in ${registered.length} guild(s)`,
+          registered
+            .map((cmd) => cmd.guild?.name)
+            .filter((n) => !!n)
+            .join(", ")
         );
     }
   }

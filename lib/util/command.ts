@@ -8,6 +8,7 @@ import {
 import {
   ApplicationCommandOptionData,
   ApplicationCommandData,
+  ApplicationCommand,
   DiscordAPIError,
   Permissions,
   Snowflake,
@@ -274,7 +275,7 @@ export class Command extends AkairoCommand {
   async registerSlashCommand() {
     if (this.parent) return;
     const commandData = this.getSlashCommandJSON();
-    let commands = [];
+    let commands: ApplicationCommand[] = [];
     if (!this.guilds.length) {
       const command = await this.client.application.commands
         .create(commandData)
@@ -303,7 +304,7 @@ export class Command extends AkairoCommand {
             command.code != 50001 &&
             this.client.console.warn(
               `[Commands] Failed to register slash command for ${this.id} in guild ${guild}`,
-              command
+              command.stack
             );
         else if (command instanceof Error)
           this.client.console.warn(
