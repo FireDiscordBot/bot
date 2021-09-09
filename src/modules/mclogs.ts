@@ -13,6 +13,7 @@ const { mcLogFilters } = constants;
 const allowedURLs = [
   "minecraftforge.net",
   "logging.apache.org",
+  "fabricmc.net",
   "essential.gg",
   "sk1er.club",
   "lwjgl.org",
@@ -74,8 +75,15 @@ export default class MCLogs extends Module {
       "[Client thread/INFO]: Setting user:",
       "[Client thread/INFO]: (Session ID is",
       "MojangTricksIntelDriversForPerformance",
+      "Loading for game Minecraft ",
+      "[main/INFO]: [FabricLoader] Loading ",
+      ".minecraft/libraries/net/fabricmc",
+      "net.fabricmc.loader.launch",
+      "net.fabricmc.loader.game",
       "net.minecraftforge",
+      "gg.essential",
       "club.sk1er",
+      "fabric-api",
     ];
   }
 
