@@ -58,7 +58,7 @@ export default class MCLogs extends Module {
       forge:
         /(?:version |MinecraftForge v|Powered by Forge |forge-?1.8.9-)11\.15\.1\.2318/gim,
       ram: /-Xmx(?<ram>\d{1,2})(?<type>G|M)/gim,
-      email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z0-9-.]{1,10}/gim,
+      email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
       home: /(\/Users\/[\w\s]+|\/home\/\w+|C:\\Users\\[\w\s]+)/gim,
       settingUser: /\[Client thread\/INFO]: Setting user: (\w{1,16})/gim,
