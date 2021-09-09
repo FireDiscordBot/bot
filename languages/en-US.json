@@ -516,6 +516,7 @@
   "JOINMSG_DISABLE_ALREADY": "Join messages are already disabled",
   "JOINMSG_SET_SUCCESS": "Join messages will show in {{channel}}!\nExample:",
   "KICK_LOG_AUTHOR": "Kick | {{user}}",
+  "KICK_DM": "You were kicked from {{guild}} for \"{{reason}}\"",
   "KICK_SUCCESS": "**{{user}}** has been kicked.",
   "KICK_FAILED_ENTRY": "Failed to create mod log entry, user was not kicked.",
   "KICK_FAILED_KICK": "Failed to kick user, please try again.",

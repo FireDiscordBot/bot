@@ -461,6 +461,20 @@ export class FireMember extends GuildMember {
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
+    let noDM: boolean = false;
+    await this.send(
+      this.language.get("KICK_DM", {
+        guild: Util.escapeMarkdown(this.guild.name),
+        reason,
+      })
+    ).catch(() => {
+      noDM = true;
+    });
+    if (noDM)
+      embed.addField(
+        this.guild.language.get("ERROR"),
+        this.guild.language.get("DM_FAIL")
+      );
     await this.guild.modLog(embed, "kick").catch(() => {});
     if (channel)
       return await channel
