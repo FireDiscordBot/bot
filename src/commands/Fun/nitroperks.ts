@@ -12,9 +12,11 @@ export default class NitroPerks extends Command {
         {
           id: "ign",
           type: /\w{1,16}/im,
-          readableType: "ign",
+          readableType: "username",
           default: null,
           required: true,
+          description: (language: Language) =>
+            language.get("NITROPERKS_IGN_DESCRIPTION"),
         },
       ],
       requiresExperiment: { id: 223827992, bucket: 1 },

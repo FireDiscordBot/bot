@@ -663,6 +663,7 @@
   "NICKCHANGELOG_OLD_NICK": "Old Nickname",
   "NICKCHANGELOG_NEW_NICK": "New Nickname",
   "NITROPERKS_COMMAND_DESCRIPTION": "Claim the nitro booster cosmetic in Essential",
+  "NITROPERKS_IGN_DESCRIPTION": "Your Minecraft username",
   "NITROPERKS_ROLE_ERROR": "I cannot find the booster role in this server, something has *probably* gone terribly wrong",
   "NITROPERKS_NOT_BOOSTING": "You must boost the server to use this command and claim the nitro cosmetic!",
   "NITROPERKS_INVALID_IGN": "You must provide a valid IGN to claim the nitro booster cosmetic.",
