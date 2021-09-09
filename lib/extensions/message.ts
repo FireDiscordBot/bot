@@ -502,8 +502,6 @@ export class FireMessage extends Message {
       .trim();
     let stars = this.reactions.cache.get(starEmoji)?.count || 0;
 
-    if (!stars) return;
-
     const starboard = this.guild.starboard;
     if (!starboard || this.channel.id == starboard.id) return;
 
@@ -520,9 +518,15 @@ export class FireMessage extends Message {
       if (!inserted) return;
       else this.guild.starboardReactions.set(this.id, stars);
     } else {
-      stars = this.guild.starboardReactions.get(this.id);
-      if (action == "add") stars++;
-      else if (action == "remove") stars--;
+      let cachedStars = this.guild.starboardReactions.get(this.id);
+      if (action == "add") cachedStars++;
+      else if (action == "remove") cachedStars--;
+      // if this is false, we've (probably) drifted too much so we use the reaction count instead of the cached count
+      if (
+        (cachedStars > stars && cachedStars - stars >= 8) ||
+        (stars > cachedStars && stars - cachedStars >= 8)
+      )
+        stars = cachedStars;
       stars > 0
         ? this.guild.starboardReactions.set(this.id, stars)
         : this.guild.starboardReactions.delete(this.id);
@@ -530,8 +534,8 @@ export class FireMessage extends Message {
         .query(
           stars > 0
             ? "UPDATE starboard_reactions SET reactions=$1 WHERE gid=$2 AND mid=$3"
-            : "DELETE FROM starboard_reactions WHERE gid=$2 AND mid=$3;",
-          [stars, this.guild.id, this.id]
+            : "DELETE FROM starboard_reactions WHERE gid=$1 AND mid=$2;",
+          stars > 0 ? [stars, this.guild.id, this.id] : [this.guild.id, this.id]
         )
         .catch(() => {});
     }

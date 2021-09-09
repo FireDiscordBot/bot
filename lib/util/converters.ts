@@ -7,8 +7,10 @@ import {
   GuildChannel,
   VoiceChannel,
   GuildPreview,
+  GuildEmoji,
   Collection,
   Snowflake,
+  Emoji,
   Role,
 } from "discord.js";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
@@ -82,6 +84,24 @@ export const snowflakeConverter = async (
     snowflake,
     ...deconstructed,
   };
+};
+
+export const emojiConverter = async (
+  message: FireMessage,
+  argument: string
+): Promise<Emoji | string | null> => {
+  if (!argument) return;
+
+  const isUnicode = regexes.unicodeEmoji.exec(argument);
+  regexes.unicodeEmoji.lastIndex = 0;
+  if (isUnicode?.length) return isUnicode[0];
+  else if (!message.guild) return null;
+
+  const emojis = (await message.guild.emojis.fetch(undefined, {
+    force: true,
+    cache: false,
+  })) as unknown as Collection<Snowflake, GuildEmoji>;
+  return message.client.util.resolveEmoji(argument, emojis, false, true);
 };
 
 export const guildPreviewConverter = async (

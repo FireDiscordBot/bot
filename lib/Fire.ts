@@ -27,11 +27,10 @@ import {
 } from "@fire/src/arguments/preview";
 import {
   version as djsver,
-  ThreadChannel,
+  SnowflakeUtil,
   Collection,
   ClientUser,
   Constants,
-  SnowflakeUtil,
 } from "discord.js";
 import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
 import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChannel";
@@ -54,6 +53,7 @@ import { messageTypeCaster } from "@fire/src/arguments/message";
 import { moduleTypeCaster } from "@fire/src/arguments/module";
 import { Language, LanguageHandler } from "./util/language";
 import { hasteTypeCaster } from "@fire/src/arguments/haste";
+import { emojiTypeCaster } from "@fire/src/arguments/emoji";
 import { PostgresProvider } from "./providers/postgres";
 import { CommandHandler } from "./util/commandhandler";
 import { Module, ModuleHandler } from "./util/module";
@@ -303,9 +303,9 @@ export class Fire extends AkairoClient {
       "member|role|channel|category": memberRoleChannelCategoryTypeCaster,
       "user|member|snowflake": userMemberSnowflakeTypeCaster,
       "member|role|channel": memberRoleChannelTypeCaster,
+      guildChannelSilent: guildChannelSilentTypeCaster,
       categorySilent: categoryChannelSilentTypeCaster,
       textChannelSilent: textChannelSilentTypeCaster,
-      guildChannelSilent: guildChannelSilentTypeCaster,
       previewSilent: previewSilentTypeCaster,
       memberSilent: memberSilentTypeCaster,
       guildChannel: guildChannelTypeCaster,
@@ -325,6 +325,7 @@ export class Fire extends AkairoClient {
       member: memberTypeCaster,
       module: moduleTypeCaster,
       haste: hasteTypeCaster,
+      emoji: emojiTypeCaster,
       role: roleTypeCaster,
       user: userTypeCaster,
     });

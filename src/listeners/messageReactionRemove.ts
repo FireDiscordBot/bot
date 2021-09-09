@@ -29,10 +29,7 @@ export default class MessageReactionRemove extends Listener {
     if (guild?.premium && !guild.reactionRoles) await guild.loadReactionRoles();
 
     if (guild.premium && guild.reactionRoles.has(messageReaction.message?.id)) {
-      const emoji =
-        messageReaction.emoji instanceof GuildEmoji
-          ? messageReaction.emoji.id
-          : messageReaction.emoji.name;
+      const emoji = messageReaction.emoji.id || messageReaction.emoji.name;
       const member = await guild.members.fetch(user).catch(() => {});
       if (member) {
         const roles = guild.reactionRoles
@@ -56,15 +53,12 @@ export default class MessageReactionRemove extends Listener {
         "⭐"
       );
       const reactionEmoji =
-        messageReaction.emoji instanceof GuildEmoji
-          ? messageReaction.emoji.id
-          : messageReaction.emoji.name;
+        messageReaction.emoji.id || messageReaction.emoji.name;
       if (
         channel?.id != message.channel.id &&
         starboardEmoji.trim() == reactionEmoji.trim()
-      ) {
+      )
         await message.star(messageReaction, user, "remove").catch(() => {});
-      }
     }
   }
 }

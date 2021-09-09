@@ -11,12 +11,9 @@ import {
 } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
-import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import * as pEvent from "p-event";
-
-const { reactions, emojis } = constants;
 
 export default class ReactionRole extends Command {
   constructor() {
@@ -78,10 +75,7 @@ export default class ReactionRole extends Command {
     if (!message.guild.reactionRoles) await message.guild.loadReactionRoles();
 
     const { message: reactionMessage } = reaction;
-    const emoji =
-      reaction.emoji instanceof GuildEmoji
-        ? reaction.emoji.id
-        : reaction.emoji.name;
+    const emoji = reaction.emoji.id || reaction.emoji.name;
     const existing = message.guild.reactionRoles
       .get(reactionMessage.id)
       ?.find((data) => data.role == args.role.id && data.emoji == emoji);

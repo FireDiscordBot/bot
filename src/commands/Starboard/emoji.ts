@@ -37,7 +37,7 @@ export default class StarboardEmoji extends Command {
     let emoji: GuildEmoji | string = defaultEmoji;
     if (discordEmojiRegex.test(args.emoji)) {
       discordEmojiRegex.lastIndex = 0;
-      emoji = this.converter(message, args.emoji);
+      emoji = await this.converter(message, args.emoji);
     } else if (unicodeEmojiRegex.test(args.emoji)) emoji = args.emoji.trim();
 
     if (!emoji) return await message.error("STARBOARD_EMOJI_INVALID");
