@@ -988,7 +988,11 @@ export class FireGuild extends Guild {
       ticket = (await channel.threads
         .create({
           name: `${author} (${author.id})`,
-          autoArchiveDuration: 10080,
+          autoArchiveDuration: this.features.includes(
+            "SEVEN_DAY_THREAD_ARCHIVE"
+          )
+            ? 10080
+            : 4320,
           reason: this.language.get(
             subject
               ? ("TICKET_SUBJECT_CHANNEL_TOPIC" as LanguageKeys)
