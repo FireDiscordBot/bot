@@ -3,7 +3,7 @@ import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
-import { Role } from "discord.js";
+import { Permissions, Role } from "discord.js";
 
 export default class Unblock extends Command {
   constructor() {
@@ -11,6 +11,7 @@ export default class Unblock extends Command {
       description: (language: Language) =>
         language.get("UNBLOCK_COMMAND_DESCRIPTION"),
       enableSlashCommand: true,
+      clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
       args: [
         {
           id: "tounblock",

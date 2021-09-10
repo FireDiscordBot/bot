@@ -3,12 +3,14 @@ import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 export default class Derank extends Command {
   constructor() {
     super("derank", {
       description: (language: Language) =>
         language.get("DERANK_COMMAND_DESCRIPTION"),
+      clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
       enableSlashCommand: true,
       args: [
         {

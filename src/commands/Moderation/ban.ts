@@ -5,12 +5,14 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { parseTime } from "@fire/lib/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 export default class Ban extends Command {
   constructor() {
     super("ban", {
       description: (language: Language) =>
         language.get("BAN_COMMAND_DESCRIPTION"),
+      clientPermissions: [Permissions.FLAGS.BAN_MEMBERS],
       enableSlashCommand: true,
       args: [
         {

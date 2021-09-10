@@ -3,6 +3,7 @@ import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 export default class Kick extends Command {
   constructor() {
@@ -10,6 +11,7 @@ export default class Kick extends Command {
       description: (language: Language) =>
         language.get("KICK_COMMAND_DESCRIPTION"),
       enableSlashCommand: true,
+      clientPermissions: [Permissions.FLAGS.KICK_MEMBERS],
       args: [
         {
           id: "user",

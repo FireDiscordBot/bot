@@ -3,6 +3,7 @@ import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 export default class Unban extends Command {
   constructor() {
@@ -10,6 +11,7 @@ export default class Unban extends Command {
       description: (language: Language) =>
         language.get("UNBAN_COMMAND_DESCRIPTION"),
       enableSlashCommand: true,
+      clientPermissions: [Permissions.FLAGS.BAN_MEMBERS],
       args: [
         {
           id: "user",
