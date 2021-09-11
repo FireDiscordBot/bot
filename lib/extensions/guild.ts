@@ -1103,7 +1103,9 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       )}: ${this.client.util.shorten(roles, 1000 - authorInfo.length, " - ")}`;
     const embed = new MessageEmbed()
       .setTitle(
-        this.language.get("TICKET_OPENER_TILE", { author: author.toString() })
+        this.language.get("TICKET_OPENER_TILE", {
+          author: Util.escapeMarkdown(author.toString()),
+        })
       )
       .setTimestamp()
       .setColor(author.displayColor ?? "#FFFFFF")
@@ -1256,7 +1258,8 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         .catch((e: Error) => e)) as FireTextChannel | Error;
     } else {
       await channel.send(this.language.get("TICKET_CLOSE_ARCHIVE"));
-      await channel.setLocked(true, this.language.get("TICKET_CLOSE_REASON"));
+      if (author.isModerator())
+        await channel.setLocked(true, this.language.get("TICKET_CLOSE_REASON"));
       return await channel.setArchived(
         true,
         this.language.get("TICKET_CLOSE_REASON")
