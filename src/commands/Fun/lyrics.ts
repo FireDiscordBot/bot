@@ -32,8 +32,8 @@ export default class Lyrics extends Command {
           required: false,
         },
       ],
-      enableSlashCommand: true,
-      slashOnly: true,
+      enableSlashCommand: false,
+      hidden: true,
     });
   }
 
@@ -66,43 +66,44 @@ export default class Lyrics extends Command {
   }
 
   async exec(message: FireMessage, args: { song: FireMember | string }) {
+    return await message.error("LYRICS_KSOFT_UNAVAILABLE");
     // async exec(message: FireMessage, args: { song: string }) {
-    if (!args.song && message.member) {
-      args.song = await this.getSpotify(message.member);
-    } else if (args.song instanceof FireMember)
-      args.song = await this.getSpotify(args.song);
-    else if (!args.song) return await message.error("LYRICS_NO_QUERY");
-    if (!args.song) return await message.error("LYRICS_NO_QUERY");
-    // const song = args.song;
-    let lyrics: Track;
-    try {
-      lyrics = await this.client.ksoft.lyrics.get(args.song, {
-        textOnly: false,
-      });
-    } catch (e) {
-      return await message.error("LYRICS_NOT_FOUND");
-    }
-    if (!lyrics.id || !lyrics.lyrics)
-      return await message.error("LYRICS_NOT_FOUND");
-    const paginator = new WrappedPaginator("", "", 1000);
-    lyrics.lyrics.split("\n").forEach((line) => paginator.addLine(line));
-    const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
-      .setTitle(
-        message.language.get("LYRICS_TITLE", {
-          title: lyrics.name,
-          artist: lyrics.artist.name,
-        })
-      );
-    const footer = {
-      text: message.language.get("POWERED_BY_KSOFT"),
-      iconURL: "https://cdn.ksoft.si/images/Logo1024.png",
-    };
-    const paginatorInterface = new PaginatorEmbedInterface(
-      message.client,
-      paginator,
-      { owner: message.author, embed, footer }
-    );
-    return await paginatorInterface.send(message.channel);
+    // if (!args.song && message.member) {
+    //   args.song = await this.getSpotify(message.member);
+    // } else if (args.song instanceof FireMember)
+    //   args.song = await this.getSpotify(args.song);
+    // else if (!args.song) return await message.error("LYRICS_NO_QUERY");
+    // if (!args.song) return await message.error("LYRICS_NO_QUERY");
+    // // const song = args.song;
+    // let lyrics: Track;
+    // try {
+    //   lyrics = await this.client.ksoft.lyrics.get(args.song, {
+    //     textOnly: false,
+    //   });
+    // } catch (e) {
+    //   return await message.error("LYRICS_NOT_FOUND");
+    // }
+    // if (!lyrics.id || !lyrics.lyrics)
+    //   return await message.error("LYRICS_NOT_FOUND");
+    // const paginator = new WrappedPaginator("", "", 1000);
+    // lyrics.lyrics.split("\n").forEach((line) => paginator.addLine(line));
+    // const embed = new MessageEmbed()
+    //   .setColor(message.member?.displayColor ?? "#FFFFFF")
+    //   .setTitle(
+    //     message.language.get("LYRICS_TITLE", {
+    //       title: lyrics.name,
+    //       artist: lyrics.artist.name,
+    //     })
+    //   );
+    // const footer = {
+    //   text: message.language.get("POWERED_BY_KSOFT"),
+    //   iconURL: "https://cdn.ksoft.si/images/Logo1024.png",
+    // };
+    // const paginatorInterface = new PaginatorEmbedInterface(
+    //   message.client,
+    //   paginator,
+    //   { owner: message.author, embed, footer }
+    // );
+    // return await paginatorInterface.send(message.channel);
   }
 }

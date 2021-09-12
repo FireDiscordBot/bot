@@ -586,6 +586,7 @@
   "LOGIGNORE_LIST_NONE": "No channels are currently ignored from logging",
   "LOGIGNORE_LIST_CURRENT": "Currently ignored channels are\n\n{{channels}}",
   "LYRICS_COMMAND_DESCRIPTION": "Get the lyrics for a song. (For best results, use the format \"artist_name song_title\")",
+  "LYRICS_KSOFT_UNAVAILABLE": "This command is currently unavailable as the API it uses had to take their lyrics down for legal reasons. It is unknown if/when it will return.",
   "LYRICS_NO_QUERY": "You need to provide a song to get the lyrics for. For best results, use the format \"artist_name song_title\"",
   "LYRICS_NOT_FOUND": "An error occurred while trying to fetch lyrics or no lyrics were found.",
   "LYRICS_TITLE": "{{title}} by {{artist}}",
