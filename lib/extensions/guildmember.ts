@@ -353,7 +353,8 @@ export class FireMember extends GuildMember {
     moderator: FireMember,
     until?: number,
     days: number = 0,
-    channel?: FireTextChannel
+    channel?: FireTextChannel,
+    sendDM: boolean = true
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -404,19 +405,21 @@ export class FireMember extends GuildMember {
       );
     }
     let noDM: boolean = false;
-    await this.send(
-      this.language.get("BAN_DM", {
-        guild: Util.escapeMarkdown(this.guild.name),
-        reason,
-      })
-    ).catch(() => {
-      noDM = true;
-    });
-    if (noDM)
-      embed.addField(
-        this.guild.language.get("ERROR"),
-        this.guild.language.get("DM_FAIL")
-      );
+    if (sendDM) {
+      await this.send(
+        this.language.get("BAN_DM", {
+          guild: Util.escapeMarkdown(this.guild.name),
+          reason,
+        })
+      ).catch(() => {
+        noDM = true;
+      });
+      if (noDM)
+        embed.addField(
+          this.guild.language.get("ERROR"),
+          this.guild.language.get("DM_FAIL")
+        );
+    }
     await this.guild.modLog(embed, "ban").catch(() => {});
     if (channel)
       return await channel
@@ -437,7 +440,12 @@ export class FireMember extends GuildMember {
         .catch(() => {});
   }
 
-  async yeet(reason: string, moderator: FireMember, channel?: FireTextChannel) {
+  async yeet(
+    reason: string,
+    moderator: FireMember,
+    channel?: FireTextChannel,
+    sendDM: boolean = true
+  ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     const logEntry = await this.guild
@@ -462,19 +470,21 @@ export class FireMember extends GuildMember {
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     let noDM: boolean = false;
-    await this.send(
-      this.language.get("KICK_DM", {
-        guild: Util.escapeMarkdown(this.guild.name),
-        reason,
-      })
-    ).catch(() => {
-      noDM = true;
-    });
-    if (noDM)
-      embed.addField(
-        this.guild.language.get("ERROR"),
-        this.guild.language.get("DM_FAIL")
-      );
+    if (sendDM) {
+      await this.send(
+        this.language.get("KICK_DM", {
+          guild: Util.escapeMarkdown(this.guild.name),
+          reason,
+        })
+      ).catch(() => {
+        noDM = true;
+      });
+      if (noDM)
+        embed.addField(
+          this.guild.language.get("ERROR"),
+          this.guild.language.get("DM_FAIL")
+        );
+    }
     await this.guild.modLog(embed, "kick").catch(() => {});
     if (channel)
       return await channel
@@ -560,7 +570,8 @@ export class FireMember extends GuildMember {
     reason: string,
     moderator: FireMember,
     until?: number,
-    channel?: FireTextChannel
+    channel?: FireTextChannel,
+    sendDM: boolean = true
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -620,19 +631,21 @@ export class FireMember extends GuildMember {
       );
     }
     let noDM: boolean = false;
-    await this.send(
-      this.language.get("MUTE_DM", {
-        guild: Util.escapeMarkdown(this.guild.name),
-        reason,
-      })
-    ).catch(() => {
-      noDM = true;
-    });
-    if (noDM)
-      embed.addField(
-        this.guild.language.get("ERROR"),
-        this.guild.language.get("DM_FAIL")
-      );
+    if (sendDM) {
+      await this.send(
+        this.language.get("MUTE_DM", {
+          guild: Util.escapeMarkdown(this.guild.name),
+          reason,
+        })
+      ).catch(() => {
+        noDM = true;
+      });
+      if (noDM)
+        embed.addField(
+          this.guild.language.get("ERROR"),
+          this.guild.language.get("DM_FAIL")
+        );
+    }
     await this.guild.modLog(embed, "mute").catch(() => {});
     if (channel)
       return await channel
