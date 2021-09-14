@@ -23,10 +23,12 @@ export default class EssentialNitro extends Module {
   }
 
   async nitroChecker() {
-    const guilds = [
-      this.client.guilds.cache.get("864592657572560958"),
-      this.client.guilds.cache.get("411619823445999637"),
-    ].filter((guild: FireGuild) => guild?.hasExperiment(223827992, 1));
+    const guilds = this.client.guilds.cache
+      .filter(
+        (guild: FireGuild) =>
+          guild.hasExperiment(223827992, 1) || guild.hasExperiment(223827992, 2)
+      )
+      .toJSON() as FireGuild[];
     if (!guilds.length) return;
     let users: Snowflake[] = [];
     const essentialResult = await this.client.db.query(

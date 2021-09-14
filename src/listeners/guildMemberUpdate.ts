@@ -122,7 +122,11 @@ export default class GuildMemberUpdate extends Listener {
     const essentialModule = this.client.getModule(
       "essentialnitro"
     ) as EssentialNitro;
-    if (essentialModule && newMember.guild.hasExperiment(223827992, 1)) {
+    if (
+      essentialModule &&
+      (newMember.guild.hasExperiment(223827992, 1) ||
+        newMember.guild.hasExperiment(223827992, 2))
+    ) {
       const boosterId = newMember.guild.roles.cache.find(
         (r) => r.tags?.premiumSubscriberRole
       )?.id;

@@ -36,7 +36,11 @@ export default class GuildMemberRemove extends Listener {
     const essentialModule = this.client.getModule(
       "essentialnitro"
     ) as EssentialNitro;
-    if (essentialModule && member.guild.hasExperiment(223827992, 1)) {
+    if (
+      essentialModule &&
+      (member.guild.hasExperiment(223827992, 1) ||
+        member.guild.hasExperiment(223827992, 2))
+    ) {
       const exists = await essentialModule.getUUID(member);
       if (exists) {
         const removed = await essentialModule
