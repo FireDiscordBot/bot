@@ -508,11 +508,9 @@ export class Fire extends AkairoClient {
     }
   }
 
-  refreshExperiments() {
+  refreshExperiments(experiments: Experiment[]) {
     this.manager.ws?.send(
-      MessageUtil.encode(
-        new Message(EventType.RELOAD_EXPERIMENTS, this.experiments.toJSON())
-      )
+      MessageUtil.encode(new Message(EventType.RELOAD_EXPERIMENTS, experiments))
     );
   }
 

@@ -70,7 +70,7 @@ export class FireUser extends User {
       BigInt(experiment.id),
     ]);
     this.client.experiments.set(experiment.id, experiment);
-    this.client.refreshExperiments();
+    this.client.refreshExperiments([experiment]);
     return this.hasExperiment(id, bucket);
   }
 
@@ -88,7 +88,7 @@ export class FireUser extends User {
       BigInt(experiment.id),
     ]);
     this.client.experiments.set(experiment.id, experiment);
-    this.client.refreshExperiments();
+    this.client.refreshExperiments([experiment]);
     return !this.hasExperiment(id, bucket);
   }
 
