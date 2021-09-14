@@ -14,22 +14,16 @@ export default class RestartEvent extends Event {
     super(manager, EventType.RESTART_CLIENT);
   }
 
-  async run(
-    data:
-      | {
-          state: ManagerState;
-          shardCount: number;
-          shards: number[];
-          session: string;
-          force: false;
-          id: number;
-        }
-      | { force: true }
-  ) {
+  async run(data: {
+    state: ManagerState;
+    shardCount: number;
+    shards: number[];
+    session: string;
+    id: number;
+  }) {
     this.manager.client.console.log(
       "[Aether] Received restart event, checking whether sharding options have changed..."
     );
-    if (data.force == true) return this.manager.kill("forced_restart");
     if (data.id != this.manager.id)
       return this.manager.kill("cluster_id_mismatch");
     const currentOptions = this.manager.client.options;
