@@ -38,77 +38,72 @@ const EMOJI_DEFAULTS: PaginatorEmojiSettings = {
 export class Paginator {
   prefix: string;
   suffix: string;
+  lineSep: string;
   maxSize: number;
 
-  currentPage: string[];
+  currentPage: string;
   count: number;
   _pages: string[];
 
-  constructor(prefix = "```", suffix = "```", maxSize = 2000) {
+  constructor(prefix = "```", suffix = "```", maxSize = 2000, lineSep = "\n") {
     this.prefix = prefix;
     this.suffix = suffix;
     this.maxSize = maxSize;
+    this.lineSep = lineSep;
     this.clear();
   }
 
   clear(clearPages = true) {
-    if (this.prefix != null) {
-      this.currentPage = [this.prefix];
-      this.count = this.prefix.length + 1;
+    if (this.prefix) {
+      this.currentPage = this.prefix;
+      this.count = this.prefix.length + this.lineSep.length;
     } else {
-      this.currentPage = [];
+      this.currentPage = "";
       this.count = 0;
     }
     if (clearPages) this._pages = [];
   }
 
-  get prefixLength() {
-    return this.prefix?.length || 0;
-  }
-
-  get suffixLength() {
-    return this.suffix.length || 0;
-  }
-
   addLine(line = "", empty = false) {
     const maxPageSize =
-      this.maxSize - this.prefixLength - this.suffixLength - 2;
+      this.maxSize -
+      this.prefix.length -
+      this.suffix.length -
+      2 * this.lineSep.length;
     if (line.length > maxPageSize)
       throw new Error(`Line exceeds maximum page size ${maxPageSize}`);
 
-    if (this.count + line.length + 1 > this.maxSize - this.suffixLength)
+    if (
+      this.count + line.length + this.lineSep.length >
+      this.maxSize - this.suffix.length
+    )
       this.closePage();
 
-    this.count += line.length + 1;
-    this.currentPage.push(line);
+    this.count += line.length + this.lineSep.length;
+    this.currentPage += this.lineSep + line;
 
     if (empty) {
-      this.currentPage.push("");
-      this.count += 1;
+      this.currentPage += this.lineSep + "";
+      this.count += this.lineSep.length;
     }
   }
 
   closePage() {
-    if (this.suffix != null) this.currentPage?.push(this.suffix);
-    this._pages.push(this.currentPage.join("\n"));
+    if (this.suffix) this.currentPage += this.suffix;
+    this._pages.push(this.currentPage);
 
     this.clear(false);
   }
 
   get length() {
-    let total: number;
-    if (this._pages.length)
-      total = this._pages.map((page) => page.length).reduce((a, b) => a + b);
-    else
-      total = this.currentPage
-        .map((line) => line.length)
-        .reduce((a, b) => a + b);
+    const total: number = this._pages
+      .map((page) => page.length)
+      .reduce((a, b) => a + b);
     return total + this.count;
   }
 
   get pages() {
-    if (this.currentPage.length > (this.prefix ? 1 : 0)) this.closePage();
-    return this._pages;
+    return [...this._pages, this.currentPage];
   }
 }
 
@@ -171,6 +166,8 @@ export class PaginatorInterface {
 
   ready: boolean;
   updateLock: Semaphore;
+  closed: boolean = false;
+  streaming: boolean = true;
 
   buttonHandler: (button: ComponentMessage) => Promise<any>;
 
@@ -191,8 +188,12 @@ export class PaginatorInterface {
         "Paginator must be an instance of the Paginator class"
       );
     this._displayPage = 0;
-    if (options.maxPageSize > 2000) this.maxPageSize = 2000;
-    else this.maxPageSize = options.maxPageSize;
+    if (
+      options.maxPageSize > 2000 &&
+      !(this instanceof PaginatorEmbedInterface)
+    )
+      this.maxPageSize = 2000;
+    else this.maxPageSize = options.maxPageSize ?? 2000;
 
     this.bot = bot;
     this.paginator = paginator;
@@ -200,28 +201,31 @@ export class PaginatorInterface {
     this.owner = options.owner;
     this.emojis = options.emoji || EMOJI_DEFAULTS;
     this.timeout = options.timeout || 600000;
-    this.deleteMessage = options.deleteMessage || true;
+    this.deleteMessage = options.deleteMessage ?? true;
 
-    this.updateLock = new Semaphore(options.updateMax || 2);
+    this.updateLock = new Semaphore(options.updateMax ?? 2);
 
     if (this.pageSize > this.maxPageSize) {
       throw new Error(
-        `Paginator passed has too large of a page size for this interface. (${this.pageSize} > 2000)`
+        `Paginator passed has too large of a page size for this interface. (${this.pageSize} > ${this.maxPageSize})`
       );
     }
 
     this.buttonHandler = async (button: ComponentMessage) => {
-      if (button.customId == "close")
+      if (button.customId == "close") {
+        this.closed = true;
         return (
           this.deleteMessage && (await this.message.delete().catch(() => {}))
         );
-      else if (button.customId == "start") this._displayPage = 0;
+      } else if (button.customId == "start") this._displayPage = 0;
       else if (button.customId == "end") this._displayPage = this.pageCount;
       else if (button.customId == "back") this._displayPage -= 1;
       else if (button.customId == "forward") this._displayPage += 1;
       else return;
 
-      this.update();
+      if (this.streaming) this.streaming = false;
+
+      this.update(true);
     };
   }
 
@@ -230,9 +234,7 @@ export class PaginatorInterface {
   }
 
   get pages() {
-    let paginatorPages = this.paginator._pages;
-    if (this.paginator.currentPage.length > 1) this.paginator.closePage();
-    return paginatorPages;
+    return [...this.paginator._pages, this.paginator.currentPage];
   }
 
   get pageCount() {
@@ -264,7 +266,8 @@ export class PaginatorInterface {
     return this.pages[displayPage] + pageNum;
   }
 
-  async addLine(line = "", empty = false) {
+  addLine(line = "", empty = false) {
+    if (this.closed) return;
     const displayPage = this.displayPage;
     const pageCount = this.pageCount;
 
@@ -272,10 +275,14 @@ export class PaginatorInterface {
 
     const newPageCount = this.pageCount;
 
-    if (displayPage + 1 == pageCount) {
+    if (
+      displayPage + 1 == pageCount &&
+      newPageCount > pageCount &&
+      !this.streaming
+    ) {
       this._displayPage = newPageCount;
-      await this.update();
-    }
+      this.update(true);
+    } else this.update();
   }
 
   async send(
@@ -344,17 +351,16 @@ export class PaginatorInterface {
       ];
   }
 
-  async update() {
-    if (this.locked) return;
+  async update(force: boolean = false) {
+    if ((this.locked && !force) || this.closed) return;
 
     await this.updateLock.acquire();
-    try {
-      if (this.locked) await this.bot.util.sleep(1000);
 
-      if (!this.message) await this.bot.util.sleep(500);
+    try {
+      if (!this.message) await this.bot.util.sleep(1000);
 
       this.slashMessage
-        ? this.slashMessage.edit({
+        ? await this.slashMessage.edit({
             content: typeof this.sendArgs == "string" ? this.sendArgs : null,
             embeds:
               this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
@@ -389,7 +395,8 @@ export class PaginatorEmbedInterface extends PaginatorInterface {
       footer?: { text: string; iconURL?: string };
     }
   ) {
-    if (options.maxPageSize > 4096) options.maxPageSize = 4096;
+    if (options.maxPageSize > 4096 || typeof options.maxPageSize == "undefined")
+      options.maxPageSize = 4096;
     super(bot, paginator, options);
     this.embed = options.embed;
     this.footer = options.footer || { text: "" };
