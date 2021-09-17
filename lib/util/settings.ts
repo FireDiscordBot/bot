@@ -24,18 +24,11 @@ export class GuildSettings {
 
   // will check if migration is needed for the current migration script
   get shouldMigrate() {
-    return this.has("utils.autoquote");
+    return false;
   }
 
   // will be empty unless there's a migration to run
-  async runMigration() {
-    this.delete("utils.autoquote");
-    this.client.guildSettings.toMigrate =
-      this.client.guildSettings.toMigrate.filter(
-        (id) =>
-          id != (this.guild instanceof FireGuild ? this.guild.id : this.guild)
-      );
-  }
+  async runMigration() {}
 
   has(option: string) {
     const guild = this.guild instanceof FireGuild ? this.guild.id : this.guild;
