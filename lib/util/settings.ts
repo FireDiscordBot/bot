@@ -1,4 +1,5 @@
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { DiscoveryUpdateOp } from "../interfaces/stats";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
@@ -47,11 +48,23 @@ export class GuildSettings {
   }
 
   set<T>(option: string, value: T = null) {
-    return this.client.guildSettings.set<T>(
+    const set = this.client.guildSettings.set<T>(
       this.guild instanceof FireGuild ? this.guild.id : this.guild,
       option,
       value
     );
+
+    if (option == "utils.featured" && this.guild instanceof FireGuild)
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.DISCOVERY_UPDATE, {
+            op: DiscoveryUpdateOp.SYNC,
+            guilds: [this.guild.getDiscoverableData()],
+          })
+        )
+      );
+
+    return set;
   }
 
   delete(option: string) {
