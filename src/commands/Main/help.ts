@@ -7,9 +7,11 @@ import {
   GuildChannel,
   Permissions,
 } from "discord.js";
-import { titleCase, constants } from "@fire/lib/util/constants";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { Option } from "@fire/lib/interfaces/interactions";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import VanityURLs from "@fire/src/modules/vanityurls";
+import { titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -29,6 +31,7 @@ export default class Help extends Command {
         {
           id: "command",
           type: "command",
+          autocomplete: true,
           default: undefined,
           required: false,
         },
@@ -37,6 +40,32 @@ export default class Help extends Command {
       restrictTo: "all",
       ephemeral: true,
     });
+  }
+
+  async autocomplete(guild: FireGuild, option: Option) {
+    if (option.value)
+      return this.client
+        .getFuzzyCommands(option.value.toString())
+        .filter((cmd) =>
+          cmd.requiresExperiment
+            ? guild.hasExperiment(
+                cmd.requiresExperiment.id,
+                cmd.requiresExperiment.bucket
+              )
+            : true
+        )
+        .map((cmd) => cmd.id);
+    return this.client.commandHandler.modules
+      .filter((cmd) =>
+        cmd.requiresExperiment
+          ? guild.hasExperiment(
+              cmd.requiresExperiment.id,
+              cmd.requiresExperiment.bucket
+            )
+          : true
+      )
+      .map((cmd) => cmd.id)
+      .slice(0, 20);
   }
 
   async exec(message: FireMessage, args: { command: Command }) {

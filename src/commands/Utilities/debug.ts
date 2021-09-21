@@ -10,6 +10,8 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { Option } from "@fire/lib/interfaces/interactions";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Command } from "@fire/lib/util/command";
 import { TOptions, StringMap } from "i18next";
@@ -27,6 +29,7 @@ export default class Debug extends Command {
         {
           id: "command",
           type: "command",
+          autocomplete: true,
           default: null,
           required: true,
         },
@@ -35,6 +38,14 @@ export default class Debug extends Command {
       restrictTo: "all",
       slashOnly: true,
     });
+  }
+
+  async autocomplete(guild: FireGuild, option: Option) {
+    if (option.value)
+      return this.client
+        .getFuzzyCommands(option.value.toString())
+        .map((cmd) => cmd.id);
+    return this.client.commandHandler.modules.map((cmd) => cmd.id).slice(0, 20);
   }
 
   async exec(message: FireMessage, args: { command: Command }) {

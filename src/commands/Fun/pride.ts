@@ -5,6 +5,20 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { MessageAttachment } from "discord.js";
 import * as centra from "centra";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { Option } from "@fire/lib/interfaces/interactions";
+
+const flagTypes = [
+  "transgender",
+  "agender",
+  "asexual",
+  "bisexual",
+  "genderfluid",
+  "lesbian",
+  "nonbinary",
+  "pansexual",
+  "gay",
+];
 
 export default class Pride extends Command {
   constructor() {
@@ -15,18 +29,8 @@ export default class Pride extends Command {
       args: [
         {
           id: "flag",
-          type: [
-            "transgender",
-            "agender",
-            "asexual",
-            "bisexual",
-            "genderfluid",
-            "lesbian",
-            "nonbinary",
-            "pansexual",
-            "gay",
-          ],
-          slashCommandType: "flag",
+          type: "string",
+          autocomplete: true,
           required: true, // will make slash arg required
           default: "transgender", // trans rights are human rights <3
         },
@@ -48,11 +52,17 @@ export default class Pride extends Command {
     });
   }
 
+  async autocomplete(guild: FireGuild, option: Option) {
+    // allows it to be immediately updated rather than waiting for the command to propogate
+    return flagTypes;
+  }
+
   async exec(
     message: FireMessage,
     args?: { flag: string; user?: FireMember | FireUser; overlay?: boolean }
   ) {
     if (!args.user && typeof args.user == "object") return;
+    if (!flagTypes.includes(args.flag)) return; // shouldn't be possible with slash cmd so I ain't giving an error
     const user =
       args.user instanceof FireMember
         ? args.user.user

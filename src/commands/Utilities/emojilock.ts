@@ -36,6 +36,8 @@ export default class EmojiLock extends Command {
     });
   }
 
+  // TODO: auto complete emojis
+
   async exec(message: FireMessage, args: { emoji: GuildEmoji; role: Role }) {
     if (!args.emoji || args.emoji?.guild?.id != message.guild.id)
       return await message.error("EMOJILOCK_INVALID_EMOJI");

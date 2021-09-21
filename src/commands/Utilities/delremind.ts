@@ -32,6 +32,8 @@ export default class DeleteReminder extends Command {
     });
   }
 
+  // TODO: add autocomplete (waiting for official support to do personalised ones)
+
   async exec(message: FireMessage, args: { index?: number }) {
     if (!args.index) return await message.error("DELREMIND_MISSING_ARG");
     const remindersResult = await this.client.db.query(

@@ -1,10 +1,10 @@
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { MessageEmbed, Permissions } from "discord.js";
+import { Option } from "@fire/lib/interfaces/interactions";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { Option } from "@fire/lib/interfaces/interactions";
+import { Permissions } from "discord.js";
 
 export default class TagView extends Command {
   constructor() {

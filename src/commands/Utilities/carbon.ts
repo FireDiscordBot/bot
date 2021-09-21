@@ -1,5 +1,7 @@
+import { Option } from "@fire/lib/interfaces/interactions";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Codeblock } from "@fire/src/arguments/codeblock";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { MessageAttachment } from "discord.js";
@@ -72,6 +74,25 @@ const languageMapping = {
   ini: "toml",
 };
 
+const getFuzzy = (
+  items: string[],
+  name: string,
+  limit = 20,
+  forceRatio?: number
+) => {
+  let ratio = forceRatio ?? 90;
+  let fuzzy: string[] = [];
+  while (!fuzzy.length && ratio >= (forceRatio ?? 60)) {
+    fuzzy = items.filter(
+      (item) =>
+        fuzz.ratio(name.trim().toLowerCase(), item.trim().toLowerCase()) >=
+        ratio--
+    );
+  }
+  if (!fuzzy.length) fuzzy = items.filter((item) => item.startsWith(name));
+  return fuzzy.slice(0, limit);
+};
+
 export default class Carbon extends Command {
   constructor() {
     super("carbon", {
@@ -91,6 +112,7 @@ export default class Carbon extends Command {
           id: "theme",
           type: "string",
           required: false,
+          autocomplete: true,
           match: "option",
           flag: "--theme",
           default: null,
@@ -99,6 +121,7 @@ export default class Carbon extends Command {
           id: "font",
           type: "string",
           required: false,
+          autocomplete: true,
           match: "option",
           flag: "--font",
           default: null,
@@ -109,6 +132,17 @@ export default class Carbon extends Command {
       typing: true,
       lock: "user",
     });
+  }
+
+  async autocomplete(guild: FireGuild, option: Option) {
+    if (option.name == "theme") {
+      if (!option.value) return validThemes.slice(0, 20);
+      else return getFuzzy(validThemes, option.value.toString());
+    } else if (option.name == "font") {
+      if (!option.value) return validFonts.slice(0, 20);
+      else return getFuzzy(validFonts, option.value.toString());
+    }
+    return [];
   }
 
   async exec(

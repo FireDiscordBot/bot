@@ -1,4 +1,6 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import { Option } from "@fire/lib/interfaces/interactions";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -17,7 +19,7 @@ export default class Anti extends Command {
         {
           id: "anti",
           type: "string",
-          slashCommandOptions: valid,
+          autocomplete: true,
           required: false,
           default: null,
         },
@@ -28,6 +30,11 @@ export default class Anti extends Command {
     });
   }
 
+  async autocomplete(guild: FireGuild, option: Option) {
+    // allows it to be immediately updated rather than waiting for the command to propogate
+    return valid;
+  }
+
   // todo: make "ui" with components rather than using an argument
   async exec(
     message: FireMessage,
@@ -35,27 +42,14 @@ export default class Anti extends Command {
   ) {
     if (!args.anti) {
       const options = {
-        [message.language.get(
-          "ANTI_EVERYONE"
-        ) as string]: message.guild.settings.get<boolean>(
-          "mod.antieveryone",
-          false
-        ),
-        [message.language.get(
-          "ANTI_ZWS"
-        ) as string]: message.guild.settings.get<boolean>("mod.antizws", false),
-        [message.language.get(
-          "ANTI_SPOILER"
-        ) as string]: message.guild.settings.get<boolean>(
-          "mod.antispoilers",
-          false
-        ),
-        [message.language.get(
-          "ANTI_SELFBOT"
-        ) as string]: message.guild.settings.get<boolean>(
-          "mod.antiselfbot",
-          false
-        ),
+        [message.language.get("ANTI_EVERYONE") as string]:
+          message.guild.settings.get<boolean>("mod.antieveryone", false),
+        [message.language.get("ANTI_ZWS") as string]:
+          message.guild.settings.get<boolean>("mod.antizws", false),
+        [message.language.get("ANTI_SPOILER") as string]:
+          message.guild.settings.get<boolean>("mod.antispoilers", false),
+        [message.language.get("ANTI_SELFBOT") as string]:
+          message.guild.settings.get<boolean>("mod.antiselfbot", false),
       };
       return await message.send("ANTI_CURRENT_OPTIONS", {
         filters: Object.entries(options)

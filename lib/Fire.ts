@@ -78,6 +78,7 @@ import * as Sentry from "@sentry/node";
 import { Message } from "./ws/Message";
 import { Manager } from "./Manager";
 import * as i18next from "i18next";
+import * as fuzz from "fuzzball";
 
 // this shit has some weird import fuckery, this is the only way I can use it
 const i18n = i18next as unknown as typeof i18next.default;
@@ -593,6 +594,24 @@ export class Fire extends AkairoClient {
         },
       });
     });
+  }
+
+  getFuzzyCommands(command: string, limit = 20, forceRatio?: number) {
+    let ratio = forceRatio ?? 90;
+    let fuzzy: Command[] = [];
+    const commands = this.commandHandler.modules.toJSON();
+    while (!fuzzy.length && ratio >= (forceRatio ?? 60)) {
+      fuzzy = commands.filter(
+        (cmd) =>
+          fuzz.ratio(
+            command.trim().toLowerCase(),
+            cmd.id.trim().toLowerCase()
+          ) >= ratio--
+      );
+    }
+    if (!fuzzy.length)
+      fuzzy = commands.filter((cmd) => cmd.id.startsWith(command));
+    return fuzzy.slice(0, limit);
   }
 
   getCommand(id: string) {

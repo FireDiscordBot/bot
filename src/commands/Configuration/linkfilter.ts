@@ -1,4 +1,6 @@
+import { Option } from "@fire/lib/interfaces/interactions";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Permissions } from "discord.js";
@@ -25,8 +27,9 @@ export default class LinkFilter extends Command {
       args: [
         {
           id: "filters",
-          type: valid,
+          type: "string",
           readableType: "filters",
+          autocomplete: true,
           required: false,
           default: null,
         },
@@ -35,6 +38,11 @@ export default class LinkFilter extends Command {
       restrictTo: "guild",
       slashOnly: true,
     });
+  }
+
+  async autocomplete(guild: FireGuild, option: Option) {
+    // allows it to be immediately updated rather than waiting for the command to propogate
+    return valid;
   }
 
   async exec(

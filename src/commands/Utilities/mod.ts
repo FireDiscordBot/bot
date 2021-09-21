@@ -29,6 +29,8 @@ export default class Mod extends Command {
     });
   }
 
+  // TODO: autocomplete mods list
+
   async exec(message: FireMessage, args: { mod?: string }) {
     const modsReq = await centra("https://api.sk1er.club/mods")
       .header("User-Agent", this.client.manager.ua)
