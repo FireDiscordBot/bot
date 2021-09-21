@@ -42,10 +42,11 @@ export default class Debug extends Command {
 
   async autocomplete(guild: FireGuild, option: Option) {
     if (option.value)
-      return this.client
-        .getFuzzyCommands(option.value.toString(), 20, 85)
-        .map((cmd) => cmd.id);
-    return this.client.commandHandler.modules.map((cmd) => cmd.id).slice(0, 20);
+      return this.client.commandHandler.modules
+        .filter((cmd) => cmd.id.includes(option.value.toString()))
+        .map((cmd) => cmd.id.replace("-", " "))
+        .slice(0, 20);
+    return this.client.commandHandler.modules.map((cmd) => cmd.id.replace("-", " ")).slice(0, 20);
   }
 
   async exec(message: FireMessage, args: { command: Command }) {

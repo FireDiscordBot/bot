@@ -30,10 +30,10 @@ export default class CommandCommand extends Command {
 
   async autocomplete(guild: FireGuild, option: Option) {
     if (option.value)
-      return this.client
-        .getFuzzyCommands(option.value.toString(), 20, 85)
+      return this.client.commandHandler.modules
         .filter(
           (cmd) =>
+            cmd.id.includes(option.value.toString()) &&
             !unableToDisable.includes(cmd.id) &&
             (cmd.requiresExperiment
               ? guild.hasExperiment(
@@ -42,7 +42,8 @@ export default class CommandCommand extends Command {
                 )
               : true)
         )
-        .map((cmd) => cmd.id);
+        .map((cmd) => cmd.id.replace("-", " "))
+        .slice(0, 20);
     return this.client.commandHandler.modules
       .filter(
         (cmd) =>
@@ -54,7 +55,7 @@ export default class CommandCommand extends Command {
               )
             : true)
       )
-      .map((cmd) => cmd.id)
+      .map((cmd) => cmd.id.replace("-", " "))
       .slice(0, 20);
   }
 

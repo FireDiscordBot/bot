@@ -44,17 +44,19 @@ export default class Help extends Command {
 
   async autocomplete(guild: FireGuild, option: Option) {
     if (option.value)
-      return this.client
-        .getFuzzyCommands(option.value.toString(), 20, 85)
-        .filter((cmd) =>
-          cmd.requiresExperiment
-            ? guild.hasExperiment(
-                cmd.requiresExperiment.id,
-                cmd.requiresExperiment.bucket
-              )
-            : true
+      return this.client.commandHandler.modules
+        .filter(
+          (cmd) =>
+            cmd.id.includes(option.value.toString()) &&
+            (cmd.requiresExperiment
+              ? guild.hasExperiment(
+                  cmd.requiresExperiment.id,
+                  cmd.requiresExperiment.bucket
+                )
+              : true)
         )
-        .map((cmd) => cmd.id);
+        .map((cmd) => cmd.id.replace("-", " "))
+        .slice(0, 20);
     return this.client.commandHandler.modules
       .filter((cmd) =>
         cmd.requiresExperiment
@@ -64,7 +66,7 @@ export default class Help extends Command {
             )
           : true
       )
-      .map((cmd) => cmd.id)
+      .map((cmd) => cmd.id.replace("-", " "))
       .slice(0, 20);
   }
 
