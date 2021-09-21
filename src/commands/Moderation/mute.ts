@@ -16,12 +16,25 @@ export default class Mute extends Command {
         {
           id: "user",
           type: "memberSilent",
+          description: (language: Language) =>
+            language.get("MUTE_ARGUMENT_USER_DESCRIPTION"),
           required: true,
           default: null,
         },
         {
           id: "reason",
           type: "string",
+          description: (language: Language) =>
+            language.get("MUTE_ARGUMENT_REASON_DESCRIPTION"),
+          required: false,
+          default: null,
+          match: "rest",
+        },
+        {
+          id: "time",
+          type: "string",
+          description: (language: Language) =>
+            language.get("MUTE_ARGUMENT_TIME_DESCRIPTION"),
           required: false,
           default: null,
           match: "rest",
@@ -41,12 +54,15 @@ export default class Mute extends Command {
       aliases: ["silence", "tempmute", "403"],
       restrictTo: "guild",
       moderatorOnly: true,
+      deferAnyways: true,
+      slashOnly: true,
+      ephemeral: true,
     });
   }
 
   async exec(
     message: FireMessage,
-    args: { user: FireMember; reason?: string }
+    args: { user: FireMember; reason?: string; time?: string }
   ) {
     if (!args.user) return await message.error("MUTE_USER_REQUIRED");
     else if (
@@ -57,15 +73,16 @@ export default class Mute extends Command {
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     let minutes: number;
     try {
-      minutes = parseTime(args.reason) as number;
+      minutes = parseTime(args.time) as number;
     } catch {
       return await message.error("MUTE_FAILED_PARSE_TIME");
     }
-    if (minutes != 0 && minutes < 5)
+    if (minutes != 0 && minutes < 5 && process.env.NODE_ENV != "development")
       return await message.error("MUTE_TIME_TOO_SHORT");
     const now = new Date();
     let date: number;
     if (minutes) date = now.setMinutes(now.getMinutes() + minutes);
+    // TODO: remove this when slash commands aren't a hack
     const reason = parseTime(args.reason, true) as string;
     await message.delete().catch(() => {});
     const muted = await args.user.mute(
