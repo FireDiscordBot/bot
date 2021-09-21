@@ -4,7 +4,12 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import { Readable } from "stream";
-import { MessageEmbed, Util } from "discord.js";
+import {
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  Util,
+} from "discord.js";
 import * as centra from "centra";
 import Filters from "./filters";
 
@@ -379,7 +384,9 @@ export default class MCLogs extends Module {
     text = text.replace(this.regexes.secrets, "[secrets removed]");
 
     try {
-      const haste = await this.client.util.haste(text).catch((e: Error) => e);
+      const haste = await this.client.util
+        .haste(text, false, "", true)
+        .catch((e: Error) => e);
       if (haste instanceof Error)
         return await message.error("MC_LOG_FAILED", { error: haste.message });
       message.delete().catch(() => {});
@@ -397,36 +404,50 @@ export default class MCLogs extends Module {
         } catch {}
       }
 
+      const allowedMentions = { users: [message.author.id] };
+      const components = [
+        new MessageActionRow().addComponents([
+          new MessageButton()
+            .setStyle("LINK")
+            .setURL(haste.url)
+            .setLabel(message.language.get("MC_LOG_VIEW")),
+          new MessageButton()
+            .setStyle("LINK")
+            .setURL(haste.raw)
+            .setLabel(message.language.get("MC_LOG_VIEW")),
+        ]),
+      ];
+
+      const logHaste = message.guild.language.get("MC_LOG_HASTE", {
+        extra: msgType == "uploaded" ? message.content : "",
+        user: message.author.toMention(),
+        solutions: possibleSolutions,
+        msgType,
+      });
+
       if (possibleSolutions.length <= 1850)
-        return await message.send("MC_LOG_HASTE", {
-          user: message.author.toMention(),
-          msgType,
-          extra: msgType == "uploaded" ? message.content : "",
-          haste,
-          solutions: possibleSolutions,
-          allowedMentions: { users: [message.author.id] },
+        return await message.channel.send({
+          content: logHaste,
+          allowedMentions,
+          components,
         });
       else {
-        const logHaste = message.language.get("MC_LOG_HASTE", {
-          user: message.author.toMention(),
-          msgType,
-          extra: msgType == "uploaded" ? message.content : "",
-          haste,
-          solutions: possibleSolutions,
-          allowedMentions: { users: [message.author.id] },
-        });
         if (logHaste.length <= 4096)
           return await message.channel.send({
             embeds: [new MessageEmbed().setDescription(logHaste)],
+            allowedMentions,
+            components,
           });
         else
-          return await message.send("MC_LOG_HASTE", {
-            user: message.author.toMention(),
-            msgType,
-            extra: msgType == "uploaded" ? message.content : "",
-            haste,
-            solutions: message.guild.language.get("MC_LOG_WTF"),
-            allowedMentions: { users: [message.author.id] },
+          return await message.channel.send({
+            content: message.guild.language.get("MC_LOG_HASTE", {
+              extra: msgType == "uploaded" ? message.content : "",
+              solutions: message.guild.language.get("MC_LOG_WTF"),
+              user: message.author.toMention(),
+              msgType,
+            }),
+            allowedMentions,
+            components,
           });
       }
     } catch (e) {

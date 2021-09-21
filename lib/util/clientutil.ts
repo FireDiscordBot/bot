@@ -119,11 +119,12 @@ export class Util extends ClientUtil {
       .map((guild: FireGuild) => guild.getDiscoverableData());
   }
 
-  async haste(
+  async haste<R extends boolean>(
     text: string,
     fallback = false,
-    language: string = ""
-  ): Promise<string> {
+    language: string = "",
+    raw: R = false as R
+  ): Promise<R extends true ? { url: string; raw: string } : string> {
     const url = fallback ? "https://h.inv.wtf/" : "https://hst.sh/";
     try {
       const h: { key: string } = await (
@@ -134,7 +135,19 @@ export class Util extends ClientUtil {
           .send()
       ).json();
       if (!h.key) throw new Error(JSON.stringify(h));
-      return url + h.key + (language ? "." + language : "");
+      const fullURL = language
+        ? `${url}${h.key}.${language}`
+        : `${url}${h.key}`;
+      return (
+        raw
+          ? url + h.key + (language ? "." + language : "")
+          : {
+              url: fullURL,
+              raw: language
+                ? `${url}raw/${h.key}.${language}`
+                : `${url}raw/${h.key}`,
+            }
+      ) as any;
     } catch (e) {
       e.message += ` (Haste Service: ${url})`;
       if (!fallback) return await this.haste(text, true, language);
