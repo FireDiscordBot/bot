@@ -3,6 +3,8 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageEmbed, Permissions } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { Option } from "@fire/lib/interfaces/interactions";
 
 export default class TagView extends Command {
   constructor() {
@@ -17,6 +19,7 @@ export default class TagView extends Command {
         {
           id: "tag",
           type: "string",
+          autocomplete: true,
           required: true,
           default: null,
         },
@@ -26,6 +29,16 @@ export default class TagView extends Command {
       slashOnly: true,
       parent: "tag",
     });
+  }
+
+  async autocomplete(guild: FireGuild, option: Option) {
+    if (!guild.tags) {
+      guild.tags = new GuildTagManager(this.client, guild);
+      await guild.tags.init();
+    }
+    if (option.value)
+      return guild.tags.getFuzzyMatches(option.value.toString());
+    return guild.tags.names.slice(0, 20);
   }
 
   async exec(message: FireMessage, args: { tag: string }) {

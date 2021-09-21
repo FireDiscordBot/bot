@@ -41,6 +41,15 @@ export class GuildTagManager {
     return this.guild.settings.get<boolean>("tags.ephemeral", true);
   }
 
+  getFuzzyMatches(tag: string, limit = 20) {
+    const fuzzy = this.names.sort(
+      (a, b) =>
+        fuzz.ratio(tag.trim().toLowerCase(), b.trim().toLowerCase()) -
+        fuzz.ratio(tag.trim().toLowerCase(), a.trim().toLowerCase())
+    );
+    return fuzzy.slice(0, limit);
+  }
+
   async init() {
     const result = await this.client.db
       .query("SELECT name FROM tags WHERE gid=$1;", [this.guild.id])
@@ -53,7 +62,7 @@ export class GuildTagManager {
       );
     }
     if (this.names.length && !this.preparedSlashCommands)
-      await this.prepareSlashCommands();
+      this.prepareSlashCommands();
     return this.size;
   }
 

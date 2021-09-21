@@ -14,6 +14,7 @@ import {
   Snowflake,
 } from "discord.js";
 import { ApplicationCommandOptionType } from "discord-api-types";
+import { Option } from "../interfaces/interactions";
 import { FireGuild } from "../extensions/guild";
 import { Language } from "./language";
 import { Fire } from "@fire/lib/Fire";
@@ -143,6 +144,10 @@ export class Command extends AkairoCommand {
 
   async unload(): Promise<any> {}
 
+  async autocomplete(guild: FireGuild, focused: Option) {
+    return [];
+  }
+
   isDisabled(guild: FireGuild) {
     return guild?.settings
       .get<string[]>("disabled.commands", [])
@@ -220,8 +225,8 @@ export class Command extends AkairoCommand {
           ? argument.description(this.client.getLanguage("en-US"))
           : argument.description || "No Description Provided",
       required: argument.required,
+      autocomplete: argument.autocomplete,
     };
-    if (!options.description) delete options.description;
     if (
       argument.slashCommandOptions ||
       (argument.type instanceof Array &&
@@ -345,6 +350,7 @@ export interface ArgumentOptions extends AkairoArgumentOptions {
   description?: ((language: Language) => string) | string;
   slashCommandOptions?: Array<string>;
   slashCommandType?: string;
+  autocomplete?: boolean;
   readableType?: string;
   required?: boolean;
 }

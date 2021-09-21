@@ -1,7 +1,10 @@
 // The case of the file name is just to signify that
 // this is listening to an event directly from the gateway
 
-import { Interaction } from "@fire/lib/interfaces/interactions";
+import {
+  ApplicationCommandAutocompleteInteraction,
+  Interaction,
+} from "@fire/lib/interfaces/interactions";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
@@ -21,6 +24,8 @@ export default class InteractionCreate extends Listener {
     if (this.blacklistCheck(interaction)) return;
     // slash command or message component, use client interaction event
     else if (interaction.type == 2 || interaction.type == 3) return;
+    else if (interaction.type == 4)
+      return await this.handleCommandAutocomplete(interaction);
     else {
       const haste = await this.client.util.haste(
         JSON.stringify(interaction, null, 4),
@@ -36,6 +41,45 @@ export default class InteractionCreate extends Listener {
         },
       });
     }
+  }
+
+  async handleCommandAutocomplete(
+    interaction: ApplicationCommandAutocompleteInteraction
+  ) {
+    const command = this.client.getCommand(interaction.data.name);
+    if (!command || typeof command.autocomplete !== "function") return;
+    const guild = this.client.guilds.cache.get(
+      interaction.guild_id
+    ) as FireGuild;
+    if (!guild) return;
+    const focused = interaction.data.options.find((option) => option.focused);
+    if (!focused) return await this.callbackAutocomplete(interaction, []);
+    const autocomplete = await command.autocomplete(guild, focused);
+    return await this.callbackAutocomplete(
+      interaction,
+      Array.isArray(autocomplete) && autocomplete.length <= 20
+        ? autocomplete
+        : []
+    );
+  }
+
+  private async callbackAutocomplete(
+    interaction: ApplicationCommandAutocompleteInteraction,
+    choices: unknown[]
+  ) {
+    return await this.client.req
+      .interactions(interaction.id)(interaction.token)
+      .callback.post({
+        data: {
+          type: 8,
+          data: {
+            choices: choices.map((choice) => ({
+              name: choice.toString(),
+              value: choice,
+            })),
+          },
+        },
+      });
   }
 
   async callbackError(interaction: Interaction, error: Error) {

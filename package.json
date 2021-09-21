@@ -39,7 +39,7 @@
     "chrono-node": "^2.1.10",
     "discord-akairo": "discord-akairo/discord-akairo",
     "discord-api-types": "^0.18.1",
-    "discord.js": "FireDiscordBot/discord.js",
+    "discord.js": "FireDiscordBot/discord.js#autocomplete",
     "dotenv-extended": "^2.9.0",
     "emoji-regex": "^9.2.2",
     "erlpack": "discord/erlpack",
