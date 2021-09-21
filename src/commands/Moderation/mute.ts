@@ -84,7 +84,6 @@ export default class Mute extends Command {
     if (minutes) date = now.setMinutes(now.getMinutes() + minutes);
     // TODO: remove this when slash commands aren't a hack
     const reason = parseTime(args.reason, true) as string;
-    await message.delete().catch(() => {});
     const muted = await args.user.mute(
       reason ||
         (message.guild.language.get(
