@@ -43,7 +43,7 @@ export default class Debug extends Command {
   async autocomplete(guild: FireGuild, option: Option) {
     if (option.value)
       return this.client
-        .getFuzzyCommands(option.value.toString())
+        .getFuzzyCommands(option.value.toString(), 20, 85)
         .map((cmd) => cmd.id);
     return this.client.commandHandler.modules.map((cmd) => cmd.id).slice(0, 20);
   }

@@ -611,6 +611,8 @@ export class Fire extends AkairoClient {
     }
     if (!fuzzy.length)
       fuzzy = commands.filter((cmd) => cmd.id.startsWith(command));
+    if (fuzzy.find((cmd) => cmd.id == command || cmd.aliases.includes(command)))
+      fuzzy = [this.getCommand(command)];
     return fuzzy.slice(0, limit);
   }
 

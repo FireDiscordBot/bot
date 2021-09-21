@@ -45,7 +45,7 @@ export default class Help extends Command {
   async autocomplete(guild: FireGuild, option: Option) {
     if (option.value)
       return this.client
-        .getFuzzyCommands(option.value.toString())
+        .getFuzzyCommands(option.value.toString(), 20, 85)
         .filter((cmd) =>
           cmd.requiresExperiment
             ? guild.hasExperiment(
