@@ -65,6 +65,7 @@ export class Command extends AkairoCommand {
   enableSlashCommand: boolean;
   moderatorOnly: boolean;
   superuserOnly: boolean;
+  deferAnyways: boolean;
   declare client: Fire;
   guilds: Snowflake[];
   slashOnly: boolean;
@@ -126,15 +127,16 @@ export class Command extends AkairoCommand {
     this.requiresExperiment = options.requiresExperiment || null;
     this.superuserOnly = options.superuserOnly || false;
     this.moderatorOnly = options.moderatorOnly || false;
+    this.deferAnyways = options.deferAnyways || false;
     this.slashOnly = options.slashOnly || false;
     this.ephemeral = options.ephemeral || false;
     this.premium = options.premium || false;
     this.hidden = options.hidden || false;
     this.parent = options.parent || null;
+    this.context = options.context || [];
     this.group = options.group || false;
     this.guilds = options.guilds || [];
     this.args = options.args;
-    this.context = options.context || [];
   }
 
   async init(): Promise<any> {}
@@ -327,6 +329,7 @@ export interface CommandOptions extends AkairoCommandOptions {
   enableSlashCommand?: boolean;
   superuserOnly?: boolean;
   moderatorOnly?: boolean;
+  deferAnyways?: boolean;
   guilds?: Snowflake[];
   slashOnly?: boolean;
   ephemeral?: boolean;

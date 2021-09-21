@@ -478,7 +478,11 @@ export class FakeChannel extends BaseFakeChannel {
 
   // Defer interaction unless ephemeral
   async ack(ephemeral = false) {
-    if (ephemeral || (this.flags & 64) != 0) return;
+    if (
+      (ephemeral || (this.flags & 64) != 0) &&
+      !this.message.command.deferAnyways
+    )
+      return;
     await this.message.slashCommand
       .deferReply({ ephemeral: !!((this.flags & 64) == 64), fetchReply: true })
       .then((real) => {
