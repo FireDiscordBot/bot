@@ -140,13 +140,13 @@ export class Util extends ClientUtil {
         : `${url}${h.key}`;
       return (
         raw
-          ? url + h.key + (language ? "." + language : "")
-          : {
+          ? {
               url: fullURL,
               raw: language
                 ? `${url}raw/${h.key}.${language}`
                 : `${url}raw/${h.key}`,
             }
+          : url + h.key + (language ? "." + language : "")
       ) as any;
     } catch (e) {
       e.message += ` (Haste Service: ${url})`;

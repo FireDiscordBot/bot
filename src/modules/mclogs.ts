@@ -409,12 +409,12 @@ export default class MCLogs extends Module {
         new MessageActionRow().addComponents([
           new MessageButton()
             .setStyle("LINK")
-            .setURL(haste.url)
+            .setURL(haste.url ?? "https://google.com/something_broke_lol")
             .setLabel(message.language.get("MC_LOG_VIEW")),
           new MessageButton()
             .setStyle("LINK")
-            .setURL(haste.raw)
-            .setLabel(message.language.get("MC_LOG_VIEW")),
+            .setURL(haste.raw ?? "https://google.com/something_broke_lol")
+            .setLabel(message.language.get("MC_LOG_VIEW_RAW")),
         ]),
       ];
 
