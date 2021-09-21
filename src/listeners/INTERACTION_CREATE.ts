@@ -3,6 +3,7 @@
 
 import {
   ApplicationCommandAutocompleteInteraction,
+  ApplicationCommandOptionType,
   Interaction,
 } from "@fire/lib/interfaces/interactions";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -46,6 +47,15 @@ export default class InteractionCreate extends Listener {
   async handleCommandAutocomplete(
     interaction: ApplicationCommandAutocompleteInteraction
   ) {
+    // transform subcommands
+    if (
+      interaction.data.options[0]?.type ==
+      ApplicationCommandOptionType.SUB_COMMAND
+    ) {
+      interaction.data.name = `${interaction.data.name}-${interaction.data.options[0].name}`;
+      interaction.data.options = interaction.data.options[0].options;
+    }
+
     const command = this.client.getCommand(interaction.data.name);
     if (!command || typeof command.autocomplete !== "function") return;
     const guild = this.client.guilds.cache.get(
