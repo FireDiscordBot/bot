@@ -119,11 +119,11 @@ export class Util extends ClientUtil {
       .map((guild: FireGuild) => guild.getDiscoverableData());
   }
 
-  async haste<R extends boolean>(
+  async haste<R extends boolean = false>(
     text: string,
-    fallback = false,
-    language: string = "",
-    raw: R = false as R
+    fallback?: boolean,
+    language?: string,
+    raw?: R
   ): Promise<R extends true ? { url: string; raw: string } : string> {
     const url = fallback ? "https://h.inv.wtf/" : "https://hst.sh/";
     try {
@@ -150,7 +150,7 @@ export class Util extends ClientUtil {
       ) as any;
     } catch (e) {
       e.message += ` (Haste Service: ${url})`;
-      if (!fallback) return await this.haste(text, true, language);
+      if (!fallback) return await this.haste(text, true, language, raw);
       else throw e;
     }
   }
