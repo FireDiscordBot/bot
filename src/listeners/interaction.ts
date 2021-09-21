@@ -72,6 +72,10 @@ export default class InteractionListener extends Listener {
         else return;
       }
 
+      this.client.console.debug(
+        `[Commands] Handling slash command request for command /${command.commandName} from ${message.author} (${message.author.id}) in ${message.guild.name} (${message.guild.id})`
+      );
+
       await message.channel.ack((message.flags & 64) != 0);
       if (!message.command) {
         this.client.console.warn(
