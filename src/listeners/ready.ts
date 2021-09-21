@@ -94,18 +94,35 @@ export default class Ready extends Listener {
           commands.push(cmd.getSlashCommandJSON());
       }
 
-      const updated = await this.client.application.commands
-        .set(commands)
-        .catch((e: Error) => {
-          this.client.console.error(
-            `[Commands] Failed to update slash commands\n${e.stack}`
+      if (process.env.NODE_ENV == "development") {
+        for (const [, guild] of this.client.guilds.cache) {
+          const updated = await guild.commands
+            .set(commands)
+            .catch((e: Error) => {
+              this.client.console.error(
+                `[Commands] Failed to update slash commands in ${guild.name} (${guild.id})\n${e.stack}`
+              );
+              return new Collection<Snowflake, ApplicationCommand>();
+            });
+          if (updated && updated.size)
+            this.client.console.info(
+              `[Commands] Successfully bulk updated ${updated.size} slash commands in ${guild.name} (${guild.id})`
+            );
+        }
+      } else {
+        const updated = await this.client.application.commands
+          .set(commands)
+          .catch((e: Error) => {
+            this.client.console.error(
+              `[Commands] Failed to update slash commands\n${e.stack}`
+            );
+            return new Collection<Snowflake, ApplicationCommand>();
+          });
+        if (updated && updated.size)
+          this.client.console.info(
+            `[Commands] Successfully bulk updated ${updated.size} slash commands`
           );
-          return new Collection<Snowflake, ApplicationCommand>();
-        });
-      if (updated && updated.size)
-        this.client.console.info(
-          `[Commands] Successfully bulk updated ${updated.size} slash commands`
-        );
+      }
     }
 
     for (const [, command] of this.client.commandHandler.modules as Collection<
