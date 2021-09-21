@@ -79,7 +79,8 @@ export default class InteractionCreate extends Listener {
             })),
           },
         },
-      });
+      })
+      .catch(() => {});
   }
 
   async callbackError(interaction: Interaction, error: Error) {
