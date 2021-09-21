@@ -42,10 +42,9 @@ export class GuildTagManager {
   }
 
   getFuzzyMatches(tag: string, limit = 20) {
-    const fuzzy = this.names.sort(
-      (a, b) =>
-        fuzz.ratio(tag.trim().toLowerCase(), b.trim().toLowerCase()) -
-        fuzz.ratio(tag.trim().toLowerCase(), a.trim().toLowerCase())
+    const fuzzy = this.names.filter(
+      (name) =>
+        fuzz.ratio(tag.trim().toLowerCase(), name.trim().toLowerCase()) >= 80
     );
     return fuzzy.slice(0, limit);
   }
@@ -85,7 +84,7 @@ export class GuildTagManager {
       fuzz.ratio(tag.trim().toLowerCase(), bestMatch.trim().toLowerCase()) >= 60
     )
       return await this.fetchTag(bestMatch, includeCreator);
-    else return await this.fetchTag(tag, includeCreator);
+    else return null;
   }
 
   private async fetchTag(name: string, includeCreator = false): Promise<Tag> {
