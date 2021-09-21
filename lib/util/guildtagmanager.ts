@@ -51,6 +51,8 @@ export class GuildTagManager {
           ratio--
       );
     }
+    if (!fuzzy.length)
+      fuzzy = this.names.filter((name) => name.startsWith(tag));
     return fuzzy.slice(0, limit);
   }
 
