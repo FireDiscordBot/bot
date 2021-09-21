@@ -69,7 +69,7 @@ export default class Ready extends Listener {
 
     const appCommands = await this.client.application.commands.fetch();
 
-    if (appCommands?.size) {
+    if (appCommands?.size || process.env.NODE_ENV == "development") {
       let commands: (ApplicationCommandData & { id?: string })[] = appCommands
         .filter((cmd) => cmd.type != "CHAT_INPUT")
         .toJSON();
@@ -95,6 +95,9 @@ export default class Ready extends Listener {
       }
 
       if (process.env.NODE_ENV == "development") {
+        this.client.console.log(
+          `[Commands] Setting commands in ${this.client.guilds.cache.size} guilds...`
+        );
         for (const [, guild] of this.client.guilds.cache) {
           const updated = await guild.commands
             .set(commands)
