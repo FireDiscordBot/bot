@@ -53,6 +53,25 @@ export default class InteractionListener extends Listener {
         await command.guild.tags.init();
       }
       const message = new ApplicationCommandMessage(this.client, command);
+      if (
+        message.command.requiresExperiment?.id &&
+        !message.hasExperiment(
+          message.command.requiresExperiment.id,
+          message.command.requiresExperiment.bucket
+        )
+      ) {
+        await message.error("COMMAND_EXPERIMENT_REQUIRED");
+        if (message.guild)
+          return await message.guild.commands
+            .delete(message.slashCommand.id)
+            .catch((e: Error) =>
+              this.client.console.error(
+                `[Commands] Failed to delete locked slash command "${message.command.id}" in ${message.guild.name} (${message.guild.id})\n${e.stack}`
+              )
+            );
+        else return;
+      }
+
       await message.channel.ack((message.flags & 64) != 0);
       if (!message.command) {
         this.client.console.warn(
@@ -212,7 +231,7 @@ export default class InteractionListener extends Listener {
       content: `${emojis.error} An error occured while trying to handle this interaction that may be caused by being in DMs or the bot not being present...
 
       If this is a slash command, try inviting the bot to a server (<${this.client.config.inviteLink}>) if you haven't already and try again.
-      
+
       Error Message: ${error.message}`,
       ephemeral: true,
     });
