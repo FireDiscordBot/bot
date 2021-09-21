@@ -42,10 +42,15 @@ export class GuildTagManager {
   }
 
   getFuzzyMatches(tag: string, limit = 20) {
-    const fuzzy = this.names.filter(
-      (name) =>
-        fuzz.ratio(tag.trim().toLowerCase(), name.trim().toLowerCase()) >= 80
-    );
+    let ratio = 90;
+    let fuzzy = [];
+    while (!fuzzy.length && ratio > 60) {
+      fuzzy = this.names.filter(
+        (name) =>
+          fuzz.ratio(tag.trim().toLowerCase(), name.trim().toLowerCase()) >=
+          ratio--
+      );
+    }
     return fuzzy.slice(0, limit);
   }
 
