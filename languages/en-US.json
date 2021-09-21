@@ -1094,6 +1094,8 @@
   "UNMUTE_FAILED_UNMUTE_AND_ENTRY": "Failed to unmute user and was unable to delete the created mod log entry.",
   "UNMUTE_FAILED_DB_REMOVE": "There may have been an error while removing the mute from my database.\nIf the user gets automatically muted again, just try unmute them again and it'll likely work",
   "UNMUTE_COMMAND_DESCRIPTION": "Unmute a user",
+  "UNMUTE_ARGUMENT_USER_DESCRIPTION": "The user you would like to unmute",
+  "UNMUTE_ARGUMENT_REASON_DESCRIPTION": "The reason for unmuting the user (shown only in mod logs)",
   "UNMUTE_USER_REQUIRED": "You must provide a user to unmute!",
   "UNBLACKLIST_LOG_AUTHOR": "Unblacklist | {{user}}",
   "VANITYURL_COMMAND_DESCRIPTION": "Creates a vanity invite for your Discord using inv.wtf",

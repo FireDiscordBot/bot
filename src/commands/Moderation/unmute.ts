@@ -16,12 +16,16 @@ export default class Unmute extends Command {
         {
           id: "user",
           type: "memberSilent",
+          description: (language: Language) =>
+            language.get("UNMUTE_ARGUMENT_USER_DESCRIPTION"),
           required: true,
           default: null,
         },
         {
           id: "reason",
           type: "string",
+          description: (language: Language) =>
+            language.get("UNMUTE_ARGUMENT_REASON_DESCRIPTION"),
           required: false,
           default: null,
           match: "rest",
@@ -29,6 +33,9 @@ export default class Unmute extends Command {
       ],
       restrictTo: "guild",
       moderatorOnly: true,
+      deferAnyways: true,
+      slashOnly: true,
+      ephemeral: true,
     });
   }
 
@@ -43,7 +50,6 @@ export default class Unmute extends Command {
       message.author.id != message.guild.ownerId
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
-    await message.delete().catch(() => {});
     const unmuted = await args.user.unmute(
       args.reason?.trim() ||
         (message.guild.language.get(
