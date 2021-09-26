@@ -80,8 +80,6 @@ export class PostgresProvider extends Provider {
     const data = this.items.get(id) || {};
     const exists = this.items.has(id);
 
-    if (data[key] === value) return true;
-
     data[key] = value;
     this.items.set(id, data);
 
