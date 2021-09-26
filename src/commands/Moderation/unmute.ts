@@ -10,27 +10,27 @@ export default class Unmute extends Command {
     super("unmute", {
       description: (language: Language) =>
         language.get("UNMUTE_COMMAND_DESCRIPTION"),
-      enableSlashCommand: true,
-      clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
-      args: [
-        {
-          id: "user",
-          type: "memberSilent",
-          description: (language: Language) =>
+        clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
+        args: [
+          {
+            id: "user",
+            type: "memberSilent",
+            description: (language: Language) =>
             language.get("UNMUTE_ARGUMENT_USER_DESCRIPTION"),
-          required: true,
-          default: null,
-        },
-        {
+            required: true,
+            default: null,
+          },
+          {
           id: "reason",
           type: "string",
           description: (language: Language) =>
-            language.get("UNMUTE_ARGUMENT_REASON_DESCRIPTION"),
+          language.get("UNMUTE_ARGUMENT_REASON_DESCRIPTION"),
           required: false,
           default: null,
           match: "rest",
         },
       ],
+      enableSlashCommand: true,
       restrictTo: "guild",
       moderatorOnly: true,
       deferAnyways: true,

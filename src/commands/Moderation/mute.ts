@@ -11,30 +11,29 @@ export default class Mute extends Command {
     super("mute", {
       description: (language: Language) =>
         language.get("MUTE_COMMAND_DESCRIPTION"),
-      enableSlashCommand: true,
-      args: [
-        {
-          id: "user",
-          type: "memberSilent",
-          description: (language: Language) =>
+        args: [
+          {
+            id: "user",
+            type: "memberSilent",
+            description: (language: Language) =>
             language.get("MUTE_ARGUMENT_USER_DESCRIPTION"),
-          required: true,
-          default: null,
-        },
-        {
-          id: "reason",
-          type: "string",
-          description: (language: Language) =>
+            required: true,
+            default: null,
+          },
+          {
+            id: "reason",
+            type: "string",
+            description: (language: Language) =>
             language.get("MUTE_ARGUMENT_REASON_DESCRIPTION"),
-          required: false,
-          default: null,
-          match: "rest",
-        },
-        {
+            required: false,
+            default: null,
+            match: "rest",
+          },
+          {
           id: "time",
           type: "string",
           description: (language: Language) =>
-            language.get("MUTE_ARGUMENT_TIME_DESCRIPTION"),
+          language.get("MUTE_ARGUMENT_TIME_DESCRIPTION"),
           required: false,
           default: null,
           match: "rest",
@@ -52,6 +51,7 @@ export default class Mute extends Command {
         Permissions.FLAGS.SPEAK,
       ],
       aliases: ["silence", "tempmute", "403"],
+      enableSlashCommand: true,
       restrictTo: "guild",
       moderatorOnly: true,
       deferAnyways: true,
