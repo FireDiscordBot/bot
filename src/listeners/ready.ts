@@ -69,7 +69,7 @@ export default class Ready extends Listener {
 
     const appCommands = await this.client.application.commands.fetch();
 
-    if (appCommands?.size) {
+    if (appCommands?.size || process.env.NODE_ENV == "development") {
       let commands: (ApplicationCommandData & { id?: string })[] = appCommands
         .filter((cmd) => cmd.type != "CHAT_INPUT")
         .toJSON();
@@ -94,18 +94,38 @@ export default class Ready extends Listener {
           commands.push(cmd.getSlashCommandJSON());
       }
 
-      const updated = await this.client.application.commands
-        .set(commands)
-        .catch((e: Error) => {
-          this.client.console.error(
-            `[Commands] Failed to update slash commands\n${e.stack}`
-          );
-          return new Collection<Snowflake, ApplicationCommand>();
-        });
-      if (updated && updated.size)
-        this.client.console.info(
-          `[Commands] Successfully bulk updated ${updated.size} slash commands`
+      if (process.env.NODE_ENV == "development") {
+        this.client.console.log(
+          `[Commands] Setting commands in ${this.client.guilds.cache.size} guilds...`
         );
+        for (const [, guild] of this.client.guilds.cache) {
+          const updated = await guild.commands
+            .set(commands)
+            .catch((e: Error) => {
+              this.client.console.error(
+                `[Commands] Failed to update slash commands in ${guild.name} (${guild.id})\n${e.stack}`
+              );
+              return new Collection<Snowflake, ApplicationCommand>();
+            });
+          if (updated && updated.size)
+            this.client.console.info(
+              `[Commands] Successfully bulk updated ${updated.size} slash commands in ${guild.name} (${guild.id})`
+            );
+        }
+      } else {
+        const updated = await this.client.application.commands
+          .set(commands)
+          .catch((e: Error) => {
+            this.client.console.error(
+              `[Commands] Failed to update slash commands\n${e.stack}`
+            );
+            return new Collection<Snowflake, ApplicationCommand>();
+          });
+        if (updated && updated.size)
+          this.client.console.info(
+            `[Commands] Successfully bulk updated ${updated.size} slash commands`
+          );
+      }
     }
 
     for (const [, command] of this.client.commandHandler.modules as Collection<
