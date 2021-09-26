@@ -270,7 +270,7 @@ export default class Eval extends Command {
       typeof result == "undefined"
     ) {
       result = inspect(result, {
-        depth: args.depth,
+        depth: +args.depth,
         showHidden: false,
       });
     }
