@@ -258,7 +258,7 @@ export class FireMessage extends Message {
 
     return useWebhooks
       ? await this.webhookQuote(destination, quoter, webhook, thread)
-      : await this.embedQuote(destination, quoter);
+      : await this.embedQuote(thread ?? destination, quoter);
   }
 
   private async webhookQuote(
@@ -395,7 +395,8 @@ export class FireMessage extends Message {
 
   private async embedQuote(
     destination: GuildTextChannel | ThreadChannel | PartialQuoteDestination,
-    quoter: FireMember
+    quoter: FireMember,
+    thread?: ThreadChannel
   ) {
     // PartialQuoteDestination needs to be set for type here
     // since this#quote can take either but it should never
