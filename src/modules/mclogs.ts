@@ -357,6 +357,11 @@ export default class MCLogs extends Module {
 
     data = data
       .split("\n")
+      // filter imports as this often makes java code mistaken for logs
+      .filter(
+        (line) => 
+          !(line.startsWith("import "))
+      )
       .filter(
         (line) =>
           !mcLogFilters.some((filter) => line.trim().includes(filter.trim()))
