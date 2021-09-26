@@ -14,12 +14,16 @@ export default class Warn extends Command {
         {
           id: "user",
           type: "member",
+          description: (language: Language) =>
+            language.get("WARN_ARGUMENT_USER_DESCRIPTION"),
           required: true,
           default: null,
         },
         {
           id: "reason",
           type: "string",
+          description: (language: Language) =>
+            language.get("WARN_ARGUMENT_REASON_DESCRIPTION"),
           required: true,
           default: null,
           match: "rest",
@@ -27,6 +31,8 @@ export default class Warn extends Command {
       ],
       restrictTo: "guild",
       moderatorOnly: true,
+      deferAnyways: true,
+      ephemeral: true,
     });
   }
 
@@ -38,7 +44,6 @@ export default class Warn extends Command {
     )
       return await message.error("MODERATOR_ACTION_DISALLOWED");
     if (!args.reason) return await message.error("WARN_REASON_MISSING");
-    await message.delete().catch(() => {});
     const warned = await args.user.warn(
       args.reason,
       message.member,

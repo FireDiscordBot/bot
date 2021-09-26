@@ -1122,6 +1122,8 @@
   "WARN_SUCCESS": "**{{user}}** has been warned for the {{times}} time.",
   "WARN_FAIL": "**{{user}}** was not warned due to having DMs off. The warning has been logged and is their {{times}} warning.",
   "WARN_COMMAND_DESCRIPTION": "Warn a user",
+  "WARN_ARGUMENT_USER_DESCRIPTION": "The user you would like to warn",
+  "WARN_ARGUMENT_REASON_DESCRIPTION": "The reason for warning the user (shown to the user & in mod logs)",
   "WARN_REASON_MISSING": "You must provide a reason to warn a user",
   "WARNINGS_COMMAND_DESCRIPTION": "View warnings for a user",
   "WARNINGS_NONE_FOUND": "No warnings found, they have been a good user :)",
