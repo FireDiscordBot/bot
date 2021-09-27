@@ -6,14 +6,17 @@ import {
   WebhookMessageOptions,
   AwaitMessagesOptions,
   CreateInviteOptions,
+  StartThreadOptions,
   MessageResolvable,
   MessageAttachment,
+  ReactionManager,
   MessageMentions,
   MessageReaction,
   MessagePayload,
   RoleResolvable,
   ThreadChannel,
   SnowflakeUtil,
+  MessageEmbed,
   GuildChannel,
   Permissions,
   NewsChannel,
@@ -21,6 +24,7 @@ import {
   Collection,
   DMChannel,
   Snowflake,
+  Util,
 } from "discord.js";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { constants, i18nOptions } from "@fire/lib/util/constants";
@@ -44,6 +48,7 @@ export class ApplicationCommandMessage {
   attachments: Collection<string, MessageAttachment>;
   private snowflake: DeconstructedSnowflake;
   slashCommand: CommandInteraction;
+  groupActivityApplication: never;
   sent: false | "ack" | "message";
   type: MessageType = "DEFAULT";
   sourceMessage: FireMessage;
@@ -51,16 +56,21 @@ export class ApplicationCommandMessage {
   latestResponse: Snowflake;
   private _flags: number;
   channel: FakeChannel;
+  content: string = "";
   member?: FireMember;
   language: Language;
   guild?: FireGuild;
   util: CommandUtil;
   command: Command;
   author: FireUser;
-  webhookId = null;
-  content: string;
+  components = [];
+  starLock: never;
+  activity: never;
+  deleted = false;
   id: Snowflake;
   client: Fire;
+  embeds = [];
+  nonce = "";
 
   constructor(client: Fire, command: CommandInteraction) {
     this.client = client;
@@ -192,8 +202,102 @@ export class ApplicationCommandMessage {
       }/${this.realChannel?.id || "0"}/${this.id}`;
   }
 
+  get guildId() {
+    return this.slashCommand.guildId;
+  }
+
   get channelId() {
     return this.slashCommand.channelId;
+  }
+
+  get applicationId() {
+    return this.slashCommand.applicationId;
+  }
+
+  get webhookId() {
+    return null;
+  }
+
+  get cleanContent() {
+    return this.language.get("USER_USED_SLASH_COMMAND", {
+      user: this.author.toString(),
+      cmd: this.command.id,
+    });
+  }
+
+  get crosspostable() {
+    return false;
+  }
+
+  get deletable() {
+    return (this.flags & 64) != 64;
+  }
+
+  get selfDelete() {
+    return false;
+  }
+
+  get editable() {
+    return true;
+  }
+
+  get hasThread() {
+    return this.sourceMessage?.hasThread ?? false;
+  }
+
+  get thread() {
+    return this.realChannel instanceof NewsChannel ||
+      this.realChannel instanceof FireTextChannel
+      ? this.realChannel.threads.cache.get(this.sourceMessage.id)
+      : null;
+  }
+
+  get interaction() {
+    return {
+      id: this.id,
+      type: "APPLICATION_COMMAND",
+      commandName: this.command.id,
+      user: this.author,
+    };
+  }
+
+  get partial() {
+    return this.sourceMessage?.partial ?? true;
+  }
+
+  get pinnable() {
+    return true;
+  }
+
+  get pinned() {
+    return this.sourceMessage?.pinned ?? false;
+  }
+
+  get system() {
+    return false;
+  }
+
+  get reactions() {
+    return (
+      this.sourceMessage?.reactions ??
+      new ReactionManager(this as unknown as FireMessage)
+    );
+  }
+
+  get stickers() {
+    return this.sourceMessage?.stickers ?? new Collection();
+  }
+
+  get tts() {
+    return false;
+  }
+
+  get reference() {
+    return null;
+  }
+
+  get invWtfResolved() {
+    return new Collection();
   }
 
   async generateContent() {
@@ -229,6 +333,10 @@ export class ApplicationCommandMessage {
     return this.content;
   }
 
+  toJSON() {
+    return Util.flatten(this);
+  }
+
   send(key?: LanguageKeys, args?: i18nOptions) {
     return this.channel.send(
       {
@@ -240,21 +348,24 @@ export class ApplicationCommandMessage {
     );
   }
 
-  success(
+  async success(
     key?: LanguageKeys,
     args?: i18nOptions
   ): Promise<ApplicationCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
-        return this.sourceMessage.react(reactions.success).catch(() => {});
-      else
-        return this.getRealMessage().then((message) => {
-          if (!message || !(message instanceof FireMessage))
-            return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
+        try {
+          return this.sourceMessage.react(reactions.success);
+        } catch (e) {}
+      else {
+        const message = await this.getRealMessage();
+        if (!message || !(message instanceof FireMessage) || this.sent == "ack")
+          return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
+        else
           message.react(reactions.success).catch(() => {
             return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
           });
-        });
+      }
     }
     return this.channel.send(
       {
@@ -266,21 +377,24 @@ export class ApplicationCommandMessage {
     );
   }
 
-  warn(
+  async warn(
     key?: LanguageKeys,
     args?: i18nOptions
   ): Promise<ApplicationCommandMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
-        return this.sourceMessage.react(reactions.warning).catch(() => {});
-      else
-        return this.getRealMessage().then((message) => {
-          if (!message || !(message instanceof FireMessage))
-            return this.warn("SLASH_COMMAND_HANDLE_FAIL");
+        try {
+          return this.sourceMessage.react(reactions.warning);
+        } catch (e) {}
+      else {
+        const message = await this.getRealMessage();
+        if (!message || !(message instanceof FireMessage) || this.sent == "ack")
+          return this.warn("SLASH_COMMAND_HANDLE_FAIL");
+        else
           message.react(reactions.warning).catch(() => {
             return this.warn("SLASH_COMMAND_HANDLE_FAIL");
           });
-        });
+      }
     }
     return this.channel.send(
       {
@@ -292,21 +406,25 @@ export class ApplicationCommandMessage {
     );
   }
 
-  error(
+  async error(
     key?: LanguageKeys,
     args?: i18nOptions
   ): Promise<ApplicationCommandMessage | MessageReaction | void> {
+    if (!this.sent && (this.flags & 64) != 64) this.flags = 64;
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
-        return this.sourceMessage.react(reactions.error).catch(() => {});
-      else
-        return this.getRealMessage().then((message) => {
-          if (!message || !(message instanceof FireMessage))
-            return this.error("SLASH_COMMAND_HANDLE_FAIL");
+        try {
+          return this.sourceMessage.react(reactions.error);
+        } catch (e) {}
+      else {
+        const message = await this.getRealMessage();
+        if (!message || !(message instanceof FireMessage) || this.sent == "ack")
+          return this.error("SLASH_COMMAND_HANDLE_FAIL");
+        else
           message.react(reactions.error).catch(() => {
             return this.error("SLASH_COMMAND_HANDLE_FAIL");
           });
-        });
+      }
     }
     return this.channel.send(
       {
@@ -368,10 +486,12 @@ export class ApplicationCommandMessage {
   }
 
   async delete() {
+    if (!this.deletable) return;
     await this.client.req
       .webhooks(this.client.user.id, this.slashCommand.token)
       .messages(this.latestResponse)
       .delete()
+      .then(() => (this.deleted = true))
       .catch(() => {});
   }
 
@@ -381,6 +501,24 @@ export class ApplicationCommandMessage {
       return;
 
     return await this.sourceMessage.react(emoji);
+  }
+
+  async fetch(force?: boolean) {
+    await this.sourceMessage?.fetch(force);
+    return this;
+  }
+
+  async pin() {
+    await this.sourceMessage?.pin();
+    return this;
+  }
+
+  async startThread(options: StartThreadOptions) {
+    return this.sourceMessage?.startThread(options);
+  }
+
+  resolveComponent(customId: string) {
+    return this.sourceMessage?.resolveComponent(customId);
   }
 
   hasExperiment(id: number, bucket: number) {
@@ -476,7 +614,7 @@ export class FakeChannel extends BaseFakeChannel {
       : false;
   }
 
-  // Defer interaction unless ephemeral
+  // Defer interaction unless ephemeral & not set to defer anyways
   async ack(ephemeral = false) {
     if (
       (ephemeral || (this.flags & 64) != 0) &&
@@ -484,7 +622,10 @@ export class FakeChannel extends BaseFakeChannel {
     )
       return;
     await this.message.slashCommand
-      .deferReply({ ephemeral: !!((this.flags & 64) == 64), fetchReply: true })
+      .deferReply({
+        ephemeral: ephemeral || !!((this.flags & 64) == 64),
+        fetchReply: true,
+      })
       .then((real) => {
         this.message.sent = "ack";
         if (real) this.message.sourceMessage = real as FireMessage; // literally (real)
