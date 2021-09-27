@@ -362,6 +362,7 @@ export class FireMessage extends Message {
         files: attachments,
         allowedMentions: this.client.options.allowedMentions,
         threadId: thread?.id,
+        components: this.components,
       })
       .catch(async (e) => {
         // this will ensure deleted webhooks are deleted
@@ -483,7 +484,7 @@ export class FireMessage extends Message {
         language.get("QUOTE_EMBED_FOOTER", { user: quoter.toString() })
       );
     return await destination
-      .send({ embeds: [embed, ...extraEmbeds] })
+      .send({ embeds: [embed, ...extraEmbeds], components: this.components })
       .catch(() => {});
   }
 
