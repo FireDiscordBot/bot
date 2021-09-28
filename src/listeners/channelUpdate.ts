@@ -3,11 +3,11 @@ import {
   ThreadChannel,
   MessageEmbed,
   GuildChannel,
-  VoiceChannel,
   StageChannel,
   Permissions,
   DMChannel,
 } from "discord.js";
+import { FireVoiceChannel } from "@fire/lib/extensions/voicechannel";
 import { LanguageKeys } from "@fire/lib/util/language";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { titleCase } from "@fire/lib/util/constants";
@@ -140,8 +140,9 @@ export default class ChannelUpdate extends Listener {
           }`
         );
       if (
-        (before instanceof VoiceChannel || before instanceof StageChannel) &&
-        (after instanceof VoiceChannel || after instanceof StageChannel)
+        (before instanceof FireVoiceChannel ||
+          before instanceof StageChannel) &&
+        (after instanceof FireVoiceChannel || after instanceof StageChannel)
       )
         if (before.rtcRegion != after.rtcRegion) {
           embed.addField(

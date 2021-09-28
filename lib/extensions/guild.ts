@@ -12,7 +12,6 @@ import {
   WebhookClient,
   ThreadChannel,
   MessageEmbed,
-  VoiceChannel,
   StageChannel,
   GuildChannel,
   Permissions,
@@ -41,6 +40,7 @@ import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { MessageIterator } from "../util/iterators";
+import { FireVoiceChannel } from "./voicechannel";
 import { LanguageKeys } from "../util/language";
 import { FireTextChannel } from "./textchannel";
 import Semaphore from "semaphore-async-await";
@@ -117,7 +117,7 @@ export class FireGuild extends Guild {
         (channel) =>
           channel.type == "GUILD_VOICE" || channel.type == "GUILD_STAGE_VOICE"
       )
-      .map((channel: VoiceChannel | StageChannel) => channel.rtcRegion);
+      .map((channel: FireVoiceChannel | StageChannel) => channel.rtcRegion);
     regions = regions.filter(
       // remove duplicates
       (region, index) => regions.indexOf(region) === index
@@ -576,7 +576,7 @@ export class FireGuild extends Guild {
       await this.client.waitUntilReady(); // this will resolve when ready or if already ready
       const channel = this.channels.cache.get(
         vcrole.get("cid") as Snowflake
-      ) as VoiceChannel | StageChannel;
+      ) as FireVoiceChannel | StageChannel;
       if (!channel) continue;
       const role = this.roles.cache.get(vcrole.get("rid") as Snowflake);
       if (!role) continue;
