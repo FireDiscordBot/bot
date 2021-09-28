@@ -6,6 +6,7 @@ import { UserSettings } from "@fire/lib/util/settings";
 import { FireTextChannel } from "./textchannel";
 import { Message } from "@fire/lib/ws/Message";
 import { FireMember } from "./guildmember";
+import { murmur3 } from "murmurhash-js";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 
@@ -35,7 +36,7 @@ export class FireUser extends User {
   }
 
   toString() {
-    return (`${this.username}#${this.discriminator}` as unknown) as UserMention;
+    return `${this.username}#${this.discriminator}` as unknown as UserMention;
   }
 
   toMention() {
@@ -55,7 +56,35 @@ export class FireUser extends User {
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "user") return false;
     if (!experiment.active) return true;
-    return !!experiment.data.find(([i, b]) => i == this.id && b == bucket);
+    if (!!experiment.data.find(([i, b]) => i == this.id && b == bucket))
+      // override
+      return true;
+    let hasExperiment: boolean | number = 1;
+    const filters = experiment.filters.find(
+      (filter) => filter.bucket == bucket
+    );
+    if (!filters) return false;
+    if (
+      typeof filters.min_range == "number" &&
+      murmur3(`${experiment.label}:${this.id}`) % 1e4 < filters.min_range
+    )
+      return false;
+    if (
+      typeof filters.max_range == "number" &&
+      murmur3(`${experiment.label}:${this.id}`) % 1e4 >= filters.max_range
+    )
+      return false;
+    if (
+      typeof filters.min_id == "string" &&
+      BigInt(this.id) < BigInt(filters.min_id)
+    )
+      return false;
+    if (
+      typeof filters.max_id == "string" &&
+      BigInt(this.id) >= BigInt(filters.max_id)
+    )
+      return false;
+    return true;
   }
 
   async giveExperiment(id: number, bucket: number) {

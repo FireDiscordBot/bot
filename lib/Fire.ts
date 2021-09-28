@@ -27,6 +27,7 @@ import {
 } from "@fire/src/arguments/preview";
 import {
   version as djsver,
+  GuildFeatures,
   SnowflakeUtil,
   Collection,
   ClientUser,
@@ -503,8 +504,24 @@ export class Fire extends AkairoClient {
         buckets: experiment.get("buckets") as number[],
         active: experiment.get("active") as boolean,
         data: (experiment.get("data") ?? []) as [string, number][],
+        filters: [],
       };
       this.experiments.set(data.id, data);
+    }
+    const filters = await this.db.query("SELECT * FROM experimentfilters;");
+    for await (const filter of filters) {
+      const id = Number(filter.get("id"));
+      const data = this.experiments.get(id);
+      data.filters.push({
+        bucket: filter.get("bucket") as number,
+        features: (filter.get("features") ?? []) as GuildFeatures[],
+        min_range: (filter.get("min_range") ?? null) as number,
+        max_range: (filter.get("max_range") ?? null) as number,
+        min_members: (filter.get("min_members") ?? null) as number,
+        max_members: (filter.get("max_members") ?? null) as number,
+        min_id: (filter.get("min_id")?.toString() ?? null) as string,
+        max_id: (filter.get("max_id")?.toString() ?? null) as string,
+      });
     }
   }
 

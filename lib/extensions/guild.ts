@@ -47,6 +47,7 @@ import Semaphore from "semaphore-async-await";
 import { APIGuild } from "discord-api-types";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
+import { murmur3 } from "murmurhash-js";
 import { Fire } from "@fire/lib/Fire";
 import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
@@ -841,7 +842,49 @@ export class FireGuild extends Guild {
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "guild") return false;
     if (!experiment.active) return true;
-    return !!experiment.data.find(([i, b]) => i == this.id && b == bucket);
+    if (!!experiment.data.find(([i, b]) => i == this.id && b == bucket))
+      // override
+      return true;
+    const filters = experiment.filters.find(
+      (filter) => filter.bucket == bucket
+    );
+    if (!filters) return false;
+    if (
+      filters.features.length &&
+      !filters.features.every((feature) => this.features.includes(feature))
+    )
+      return false;
+    if (
+      typeof filters.min_range == "number" &&
+      murmur3(`${experiment.label}:${this.id}`) % 1e4 < filters.min_range
+    )
+      return false;
+    if (
+      typeof filters.max_range == "number" &&
+      murmur3(`${experiment.label}:${this.id}`) % 1e4 >= filters.max_range
+    )
+      return false;
+    if (
+      typeof filters.min_members == "number" &&
+      this.memberCount < filters.min_members
+    )
+      return false;
+    if (
+      typeof filters.max_members == "number" &&
+      this.memberCount >= filters.max_members
+    )
+      return false;
+    if (
+      typeof filters.min_id == "string" &&
+      BigInt(this.id) < BigInt(filters.min_id)
+    )
+      return false;
+    if (
+      typeof filters.max_id == "string" &&
+      BigInt(this.id) >= BigInt(filters.max_id)
+    )
+      return false;
+    return true;
   }
 
   async giveExperiment(id: number, bucket: number) {
