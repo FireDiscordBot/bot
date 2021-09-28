@@ -5,7 +5,6 @@ import {
   SnowflakeUtil,
   StageChannel,
   GuildChannel,
-  VoiceChannel,
   GuildPreview,
   GuildEmoji,
   Collection,
@@ -15,6 +14,7 @@ import {
 } from "discord.js";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireVoiceChannel } from "../extensions/voicechannel";
 import { FireTextChannel } from "../extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -462,7 +462,7 @@ export const voiceChannelConverter = async (
   message: FireMessage,
   argument: string,
   silent = false
-): Promise<VoiceChannel | StageChannel | null> => {
+): Promise<FireVoiceChannel | StageChannel | null> => {
   if (!argument) return;
 
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
@@ -482,7 +482,7 @@ export const voiceChannelConverter = async (
       )
       .first();
     if (channel && channel.type == "GUILD_VOICE")
-      return channel as VoiceChannel;
+      return channel as FireVoiceChannel;
     else if (channel && channel.type == "GUILD_STAGE_VOICE")
       return channel as StageChannel;
 
@@ -491,7 +491,7 @@ export const voiceChannelConverter = async (
   } else {
     const channel = guild.channels.cache.get(match);
     if (channel && channel.type == "GUILD_VOICE")
-      return channel as VoiceChannel;
+      return channel as FireVoiceChannel;
     else if (channel && channel.type == "GUILD_STAGE_VOICE")
       return channel as StageChannel;
 
