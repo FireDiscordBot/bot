@@ -73,7 +73,9 @@ export default class InteractionListener extends Listener {
       }
 
       this.client.console.debug(
-        `[Commands] Handling slash command request for command /${command.commandName} from ${message.author} (${message.author.id}) in ${message.guild.name} (${message.guild.id})`
+        message.guild
+          ? `[Commands] Handling slash command request for command /${command.commandName} from ${message.author} (${message.author.id}) in ${message.guild.name} (${message.guild.id})`
+          : `[Commands] Handling slash command request for command /${command.commandName} from ${message.author} (${message.author.id})`
       );
       if (!message.command) {
         this.client.console.warn(
