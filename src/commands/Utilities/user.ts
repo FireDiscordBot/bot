@@ -138,7 +138,10 @@ export default class User extends Command {
       .setTimestamp()
       .setAuthor(
         user.toString(),
-        user.displayAvatarURL({
+        (message.hasExperiment(194480739, 2)
+          ? member ?? user
+          : user
+        ).displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
@@ -162,6 +165,14 @@ export default class User extends Command {
       );
     else if (application) embed.setDescription(application.description);
     if (member) {
+      if (
+        message.hasExperiment(194480739, 1) &&
+        member?.avatar &&
+        member?.avatar != user.avatar
+      )
+        embed.setThumbnail(
+          member.avatarURL({ size: 2048, format: "png", dynamic: true })
+        );
       const roles = member.roles.cache
         .filter((role) => role.id != message.guild.id)
         .sorted((roleA, roleB) => roleA.position - roleB.position)
@@ -227,9 +238,7 @@ export default class User extends Command {
     if (application) {
       const appInfo: string[] = [];
       if (application.bot_public)
-        appInfo.push(
-          message.language.getSuccess("USER_BOT_PUBLIC")
-        );
+        appInfo.push(message.language.getSuccess("USER_BOT_PUBLIC"));
       else appInfo.push(message.language.getError("USER_BOT_PRIVATE"));
       if (
         (application.flags & ApplicationFlags.GatewayGuildMembers) ==
@@ -260,9 +269,7 @@ export default class User extends Command {
         );
       else appInfo.push(message.language.getError("USER_BOT_PRESENCE_INTENT"));
       if (user.bot && this.client.config.bots[user.id]?.best)
-        appInfo.push(
-          message.language.getSuccess("USER_BOT_BEST")
-        );
+        appInfo.push(message.language.getSuccess("USER_BOT_BEST"));
       if (application.privacy_policy_url || application.terms_of_service_url)
         appInfo.push(""); // spacing between public/intents and links
 
