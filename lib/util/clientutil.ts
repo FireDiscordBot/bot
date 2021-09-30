@@ -724,4 +724,24 @@ export class Util extends ClientUtil {
       )
     );
   }
+
+  getModCommandSlashWarning(guild: FireGuild) {
+    if (!guild.hasExperiment(966055531, 1)) return [];
+    return [
+      new MessageEmbed()
+        .setColor("RED")
+        .setAuthor(
+          "Fire",
+          this.client.user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+          })
+        )
+        .setDescription(
+          guild.language.get("COMMAND_NOTICE_MOD_SLASH", {
+            invite: this.client.config.commandsInvite(this.client, guild.id),
+          })
+        ),
+    ];
+  }
 }

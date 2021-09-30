@@ -1421,12 +1421,17 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     await this.modLog(embed, "unban").catch(() => {});
     if (channel)
       return await channel
-        .send(
-          this.language.getSuccess("UNBAN_SUCCESS", {
+        .send({
+          content: this.language.getSuccess("UNBAN_SUCCESS", {
             user: Util.escapeMarkdown(user.toString()),
             guild: Util.escapeMarkdown(this.name),
-          })
-        )
+          }),
+          embeds:
+            channel instanceof BaseFakeChannel ||
+            moderator.id == this.client.user?.id
+              ? []
+              : this.client.util.getModCommandSlashWarning(this),
+        })
         .catch(() => {});
   }
 
@@ -1488,13 +1493,18 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       .setFooter(`${this.id} | ${moderator.id}`);
     await this.modLog(embed, "block").catch(() => {});
     return await channel
-      .send(
-        this.language.getSuccess("BLOCK_SUCCESS", {
+      .send({
+        content: this.language.getSuccess("BLOCK_SUCCESS", {
           blockee: Util.escapeMarkdown(
             blockee instanceof FireMember ? blockee.toString() : blockee.name
           ),
-        })
-      )
+        }),
+        embeds:
+          channel instanceof BaseFakeChannel ||
+          moderator.id == this.client.user?.id
+            ? []
+            : this.client.util.getModCommandSlashWarning(this),
+      })
       .catch(() => {});
   }
 
@@ -1569,15 +1579,20 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       .setFooter(`${this.id} | ${moderator.id}`);
     await this.modLog(embed, "unblock").catch(() => {});
     return await channel
-      .send(
-        this.language.getSuccess("UNBLOCK_SUCCESS", {
+      .send({
+        content: this.language.getSuccess("UNBLOCK_SUCCESS", {
           unblockee: Util.escapeMarkdown(
             unblockee instanceof FireMember
               ? unblockee.toString()
               : unblockee.name
           ),
-        })
-      )
+        }),
+        embeds:
+          channel instanceof BaseFakeChannel ||
+          moderator.id == this.client.user?.id
+            ? []
+            : this.client.util.getModCommandSlashWarning(this),
+      })
       .catch(() => {});
   }
 }
