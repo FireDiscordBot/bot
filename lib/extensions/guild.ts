@@ -1207,6 +1207,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
   ) {
     if (channel instanceof BaseFakeChannel)
       channel = channel.real as FireTextChannel;
+    else if (channel instanceof ThreadChannel && channel.archived) return;
     if (author instanceof FireUser)
       author = (await this.members.fetch(author).catch(() => {})) as FireMember;
     if (!author) return "forbidden";
