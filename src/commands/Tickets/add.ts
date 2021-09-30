@@ -39,7 +39,8 @@ export default class TicketAdd extends Command {
     if (!channels.includes(channel.id))
       return await message.error("TICKET_NON_TICKET");
     if (
-      !channel.topic.includes(message.author.id) &&
+      // TODO: below doesn't work with ticket threads
+      !channel.topic?.includes(message.author.id) &&
       !message.member.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS)
     )
       return await message.error("TICKET_ADD_FORBIDDEN");
