@@ -14,6 +14,11 @@ export class BaseFakeChannel {
   get type(): string {
     return this.real?.type ?? "GUILD_TEXT";
   }
+  get permissionOverwrites() {
+    return this.real?.type != "DM" && !this.real.isThread()
+      ? this.real.permissionOverwrites
+      : undefined;
+  }
   message: ApplicationCommandMessage | ContextCommandMessage | ComponentMessage;
   real: FireTextChannel | NewsChannel | ThreadChannel | DMChannel;
   interactionId: Snowflake;

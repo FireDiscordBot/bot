@@ -1437,6 +1437,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
+    if (!channel.permissionOverwrites) return "block";
     let logEntry: string | false | void;
     if (blockee instanceof FireMember) {
       logEntry = await this.createModLogEntry(
