@@ -282,7 +282,7 @@ export class ComponentMessage {
       ).resolveData();
     }
 
-    const { data } = (await apiMessage.resolveFiles()) as {
+    const { data, files } = (await apiMessage.resolveFiles()) as {
       data: any;
       files: any[];
     };
@@ -294,6 +294,7 @@ export class ComponentMessage {
       .messages(this.latestResponse ?? "@original")
       .patch({
         data,
+        files,
       })
       .catch(() => {});
     return this;

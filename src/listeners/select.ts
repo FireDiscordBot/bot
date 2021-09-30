@@ -128,5 +128,50 @@ export default class Select extends Listener {
         }),
       });
     }
+
+    if (select.customId == "help_category") {
+      const categoryName = select.values[0];
+      const category = this.client.commandHandler.categories.get(categoryName);
+      // the following length checks should always be truthy but you never know what could happen
+      if (!category) {
+        if (message.embeds.length)
+          message.embeds[0].description = select.author.language.get(
+            "HELP_CATEGORY_INVALID",
+            {
+              names: this.client.commandHandler.categories
+                .map((c) => c.id)
+                .join(", "),
+            }
+          );
+        if (message.components.length)
+          message.components = message.components.filter(
+            (r) => !r.components.find((c) => c.type == "SELECT_MENU")
+          );
+        return await select.edit({
+          embeds: message.embeds,
+          components: message.components,
+        });
+      } else {
+        if (message.embeds.length) {
+          delete message.embeds[0].description;
+          message.embeds[0].fields = [
+            {
+              name: categoryName,
+              value: category
+                .map((command) =>
+                  command.parent
+                    ? `\`${command.id.replace("-", " ")}\``
+                    : `\`${command.id}\``
+                )
+                .join(", "),
+              inline: false,
+            },
+          ];
+        }
+        return await select.edit({
+          embeds: message.embeds,
+        });
+      }
+    }
   }
 }
