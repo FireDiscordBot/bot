@@ -19,6 +19,11 @@ export class BaseFakeChannel {
       ? this.real.permissionOverwrites
       : undefined;
   }
+  get rateLimitPerUser() {
+    return this.real?.type == "GUILD_TEXT"
+      ? this.real.rateLimitPerUser
+      : undefined;
+  }
   message: ApplicationCommandMessage | ContextCommandMessage | ComponentMessage;
   real: FireTextChannel | NewsChannel | ThreadChannel | DMChannel;
   interactionId: Snowflake;
