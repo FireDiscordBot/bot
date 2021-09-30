@@ -193,6 +193,10 @@ export default class GuildMemberAdd extends Listener {
             joinleavemsgs.count,
             member.guild.memberCount.toLocaleString(member.guild.language.id),
           ],
+          [
+            joinleavemsgs.countSuffix,
+            this.client.util.numberWithSuffix(member.guild.memberCount),
+          ],
         ];
         for (const [regex, replacement] of regexes)
           joinMessage = joinMessage.replace(

@@ -317,17 +317,7 @@ export class FireMember extends GuildMember {
       ])
       .then((value) => value.rows.length)
       .catch(() => 0);
-    let times: string = count.toString();
-    // shit code tm
-    if (times.endsWith("1")) times = times + (times == "11" ? "th" : "st");
-    else if (times.endsWith("2")) times = times + (times == "12" ? "th" : "nd");
-    else if (times.endsWith("3")) times = times + (times == "13" ? "th" : "rd");
-    else if (
-      ["4", "5", "6", "7", "8", "9", "0"].some((num) =>
-        times.toString().endsWith(num)
-      )
-    )
-      times = times.toString() + "th";
+    const times = this.client.util.numberWithSuffix(count);
     if (channel)
       return noDM
         ? await channel

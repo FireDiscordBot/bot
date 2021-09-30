@@ -73,6 +73,9 @@ export default class LeaveMSG extends Command {
       "{count}": message.guild.memberCount.toLocaleString(
         message.guild.language.id
       ),
+      "{count.suffix}": this.client.util.numberWithSuffix(
+        message.guild.memberCount
+      ),
     };
     if (!args.channel) {
       if (!msg) {
@@ -137,6 +140,10 @@ export default class LeaveMSG extends Command {
       [
         joinleavemsgs.count,
         message.guild.memberCount.toLocaleString(message.guild.language.id),
+      ],
+      [
+        joinleavemsgs.countSuffix,
+        this.client.util.numberWithSuffix(message.guild.memberCount),
       ],
     ];
     for (const [regex, replacement] of regexes)

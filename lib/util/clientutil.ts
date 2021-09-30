@@ -338,6 +338,24 @@ export class Util extends ClientUtil {
       : text;
   }
 
+  numberWithSuffix(num: number, toLocale: boolean = true) {
+    let suffixed: string = toLocale ? num.toLocaleString() : num.toString();
+    // shit code tm
+    if (suffixed.endsWith("1"))
+      suffixed = suffixed + (suffixed.endsWith("11") ? "th" : "st");
+    else if (suffixed.endsWith("2"))
+      suffixed = suffixed + (suffixed.endsWith("12") ? "th" : "nd");
+    else if (suffixed.endsWith("3"))
+      suffixed = suffixed + (suffixed.endsWith("13") ? "th" : "rd");
+    else if (
+      ["4", "5", "6", "7", "8", "9", "0"].some((num) =>
+        suffixed.toString().endsWith(num)
+      )
+    )
+      suffixed = suffixed.toString() + "th";
+    return suffixed;
+  }
+
   isSuperuser(user: Snowflake) {
     return this.client.userSettings.get<boolean>(
       user,

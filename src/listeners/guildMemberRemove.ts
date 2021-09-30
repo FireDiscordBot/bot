@@ -109,6 +109,10 @@ export default class GuildMemberRemove extends Listener {
             joinleavemsgs.count,
             member.guild.memberCount.toLocaleString(member.guild.language.id),
           ],
+          [
+            joinleavemsgs.countSuffix,
+            this.client.util.numberWithSuffix(member.guild.memberCount),
+          ],
         ];
         for (const [regex, replacement] of regexes)
           leaveMessage = leaveMessage.replace(
