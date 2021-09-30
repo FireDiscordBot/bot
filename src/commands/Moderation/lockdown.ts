@@ -161,7 +161,7 @@ export default class Lockdown extends Command {
           })
           .then((m) => {
             if (m instanceof FireMessage) {
-              lockdownMessages.push(`${message.channel.id}-${m.id}`);
+              lockdownMessages.push(`${message.channelId}-${m.id}`);
               message.guild.settings.set<string[]>(
                 "mod.lockdownmessages",
                 lockdownMessages
@@ -176,7 +176,7 @@ export default class Lockdown extends Command {
           })
           .then((m) => {
             if (m instanceof FireMessage) {
-              lockdownMessages.push(`${message.channel.id}-${m.id}`);
+              lockdownMessages.push(`${message.channelId}-${m.id}`);
               message.guild.settings.set<string[]>(
                 "mod.lockdownmessages",
                 lockdownMessages

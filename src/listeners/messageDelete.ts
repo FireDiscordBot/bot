@@ -57,7 +57,7 @@ export default class MessageDelete extends Listener {
 
     if (
       message.guild.settings.has("log.action") &&
-      !message.guild.logIgnored.includes(message.channel.id)
+      !message.guild.logIgnored.includes(message.channelId)
     ) {
       let reference: FireMessage;
       if (message.type == "REPLY")
@@ -98,7 +98,7 @@ export default class MessageDelete extends Listener {
         )
         .setDescription(description + content)
         .setFooter(
-          `${message.author.id} | ${message.id} | ${message.channel.id}`
+          `${message.author.id} | ${message.id} | ${message.channelId}`
         );
       if (message.attachments.size)
         embed.addField(

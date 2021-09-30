@@ -16,7 +16,7 @@ export default class AdminOnlyInhibitor extends Inhibitor {
       message.guild &&
       message.guild.settings
         .get<string[]>("commands.adminonly", [])
-        .includes(message.channel.id)
+        .includes(message.channelId)
     ) {
       if (message.member.isSuperuser()) return false;
       if (
