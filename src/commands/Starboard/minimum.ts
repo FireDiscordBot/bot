@@ -20,6 +20,7 @@ export default class StarboardMinimum extends Command {
         },
       ],
       parent: "starboard",
+      slashOnly: true,
     });
   }
 

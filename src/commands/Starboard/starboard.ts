@@ -20,6 +20,7 @@ export default class Starboard extends Command {
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
+      slashOnly: true,
       group: true,
     });
   }

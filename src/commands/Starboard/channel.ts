@@ -20,6 +20,7 @@ export default class StarboardChannel extends Command {
         },
       ],
       parent: "starboard",
+      slashOnly: true,
     });
   }
 
