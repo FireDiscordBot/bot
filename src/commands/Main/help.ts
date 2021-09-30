@@ -18,23 +18,22 @@ import { Command } from "@fire/lib/util/command";
 const userMentionRegex = /<@!?(\d{15,21})>$/im;
 
 const shouldShowUpsell = async (message: FireMessage) => {
-  return "noslash";
-  // if (!message.hasExperiment(3144709624, 1)) return false;
-  // else if (!(message instanceof FireMessage)) return false;
-  // const slashCommands = await message.client
-  //   .requestSlashCommands(message.guild)
-  //   .catch(() => {});
-  // if (typeof slashCommands == "undefined") return false;
-  // const hasSlash =
-  //   slashCommands &&
-  //   !!slashCommands.applications.find(
-  //     (app) => app.id == message.client.user.id
-  //   );
-  // if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
-  //   if (hasSlash) return "switch";
-  //   else return "invite";
-  // else if (hasSlash) return "switch";
-  // else return "noslash";
+  if (!message.hasExperiment(3144709624, 1)) return false;
+  else if (!(message instanceof FireMessage)) return false;
+  const slashCommands = await message.client
+    .requestSlashCommands(message.guild)
+    .catch(() => {});
+  if (typeof slashCommands == "undefined") return false;
+  const hasSlash =
+    slashCommands &&
+    !!slashCommands.applications.find(
+      (app) => app.id == message.client.user.id
+    );
+  if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
+    if (hasSlash) return "switch";
+    else return "invite";
+  else if (hasSlash) return "switch";
+  else return "noslash";
 };
 
 export default class Help extends Command {
