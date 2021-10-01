@@ -314,6 +314,17 @@ export class ComponentMessage {
 
     return await this.sourceMessage.react(emoji);
   }
+
+  hasExperiment(id: number, bucket: number) {
+    // if (this.client.config.dev) return true;
+    const experiment = this.client.experiments.get(id);
+    if (!experiment) return false;
+    else if (!experiment.active) return true;
+    else if (experiment.kind == "guild" && !this.guild) return false;
+    else if (experiment.kind == "guild")
+      return this.guild.hasExperiment(id, bucket);
+    else return this.author.hasExperiment(id, bucket);
+  }
 }
 
 export class FakeChannel extends BaseFakeChannel {

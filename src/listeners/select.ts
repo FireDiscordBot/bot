@@ -151,6 +151,7 @@ export default class Select extends Listener {
           components: message.components,
         });
       } else {
+        const shouldUpsell = select.hasExperiment(3144709624, 1);
         if (message.embeds.length) {
           delete message.embeds[0].description;
           message.embeds[0].fields = [
@@ -159,13 +160,27 @@ export default class Select extends Listener {
               value: category
                 .map((command) =>
                   command.parent
-                    ? `\`${command.id.replace("-", " ")}\``
+                    ? command.slashOnly && !message.interaction && shouldUpsell
+                      ? `~~\`${command.id.replace("-", " ")}\`~~`
+                      : `\`${command.id.replace("-", " ")}\``
+                    : command.slashOnly && !message.interaction && shouldUpsell
+                    ? `~~\`${command.id}\`~~`
                     : `\`${command.id}\``
                 )
                 .join(", "),
               inline: false,
             },
           ];
+          if (
+            !message.interaction &&
+            category.find((c) => c.slashOnly) &&
+            shouldUpsell
+          )
+            message.embeds[0].fields.push({
+              name: message.language.get("NOTE"),
+              value: message.language.get("HELP_COMMANDS_UNAVAILABLE"),
+              inline: false,
+            });
         }
         return await select.edit({
           embeds: message.embeds,
