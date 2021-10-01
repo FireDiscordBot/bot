@@ -32,14 +32,13 @@ import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 import { Fire } from "../Fire";
 
-const { emojis, reactions } = constants;
-export type EphemeralMessage = { id: Snowflake; flags: number };
+const { reactions } = constants;
 
 export class ComponentMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   private snowflake: DeconstructedSnowflake;
   interaction: MessageComponentInteraction;
-  message: FireMessage | EphemeralMessage;
+  message: FireMessage;
   sent: false | "ack" | "message";
   sourceMessage: FireMessage;
   type: MessageComponentType;
@@ -74,11 +73,10 @@ export class ComponentMessage {
     this.ephemeralSource = component.message.flags
       ? (component.message.flags.valueOf() & 64) != 0
       : false;
-    this.message = this.ephemeralSource
-      ? (component.message as EphemeralMessage)
-      : component.message instanceof FireMessage
-      ? component.message
-      : new FireMessage(client, component.message as RawMessageData);
+    this.message =
+      component.message instanceof FireMessage
+        ? component.message
+        : new FireMessage(client, component.message as RawMessageData);
     if (component.member && this.guild)
       this.member =
         (this.guild.members.cache.get(

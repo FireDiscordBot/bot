@@ -23,8 +23,7 @@ export default class Select extends Listener {
   async exec(select: ComponentMessage) {
     if (select.type != "SELECT_MENU") return;
 
-    let message: FireMessage;
-    if (!select.ephemeralSource) message = select.message as FireMessage;
+    let message = select.message as FireMessage;
 
     const guild = select.guild;
 
