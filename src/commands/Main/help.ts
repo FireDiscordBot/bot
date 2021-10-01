@@ -235,7 +235,7 @@ export default class Help extends Command {
         );
     return await message.channel.send({
       components,
-      embeds: [embed, upsellEmbed],
+      embeds: upsellEmbed ? [embed, upsellEmbed] : [embed],
     });
   }
 
