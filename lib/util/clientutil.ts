@@ -725,6 +725,83 @@ export class Util extends ClientUtil {
     );
   }
 
+  async getSlashUpsellEmbed(message: FireMessage) {
+    if (!message.hasExperiment(3144709624, 1)) return false;
+    else if (!(message instanceof FireMessage)) return false;
+    const slashCommands = await message.client
+      .requestSlashCommands(message.guild)
+      .catch(() => {});
+    if (typeof slashCommands == "undefined") return false;
+    let upsellType: "switch" | "invite" | "noslash";
+    const hasSlash =
+      slashCommands &&
+      !!slashCommands.applications.find(
+        (app) => app.id == message.client.user.id
+      );
+    if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
+      if (hasSlash) upsellType = "switch";
+      else upsellType = "invite";
+    else if (hasSlash) upsellType = "switch";
+    else upsellType = "noslash";
+
+    let upsellEmbed: MessageEmbed;
+    if (upsellType == "invite")
+      upsellEmbed = new MessageEmbed()
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
+        .setAuthor(
+          message.language.get("NOTICE_TITLE"),
+          this.client.user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+          })
+        )
+        .setDescription(
+          message.language.get("COMMAND_NOTICE_SLASH_UPSELL", {
+            invite: this.client.config.commandsInvite(
+              this.client,
+              message.guild.id
+            ),
+          })
+        );
+    else if (upsellType == "noslash")
+      upsellEmbed = new MessageEmbed()
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
+        .setAuthor(
+          message.language.get("NOTICE_TITLE"),
+          this.client.user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+          })
+        )
+        .setDescription(
+          message.language.get("COMMAND_NOTICE_SLASH_POKE", {
+            invite: this.client.config.commandsInvite(
+              this.client,
+              message.guild.id
+            ),
+          })
+        );
+    else if (upsellType == "switch")
+      upsellEmbed = new MessageEmbed()
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
+        .setAuthor(
+          message.language.get("NOTICE_TITLE"),
+          this.client.user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+          })
+        )
+        .setDescription(
+          message.language.get("COMMAND_NOTICE_SLASH_SWITCH", {
+            invite: this.client.config.commandsInvite(
+              this.client,
+              message.guild.id
+            ),
+          })
+        );
+    return upsellEmbed;
+  }
+
   getModCommandSlashWarning(guild: FireGuild) {
     if (!guild.hasExperiment(966055531, 1)) return [];
     return [

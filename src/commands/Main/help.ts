@@ -17,25 +17,6 @@ import { Command } from "@fire/lib/util/command";
 
 const userMentionRegex = /<@!?(\d{15,21})>$/im;
 
-const shouldShowUpsell = async (message: FireMessage) => {
-  if (!message.hasExperiment(3144709624, 1)) return false;
-  else if (!(message instanceof FireMessage)) return false;
-  const slashCommands = await message.client
-    .requestSlashCommands(message.guild)
-    .catch(() => {});
-  if (typeof slashCommands == "undefined") return false;
-  const hasSlash =
-    slashCommands &&
-    !!slashCommands.applications.find(
-      (app) => app.id == message.client.user.id
-    );
-  if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
-    if (hasSlash) return "switch";
-    else return "invite";
-  else if (hasSlash) return "switch";
-  else return "noslash";
-};
-
 export default class Help extends Command {
   constructor() {
     super("help", {
@@ -177,62 +158,7 @@ export default class Help extends Command {
         })
       )
       .setTimestamp();
-    const upsellType = await shouldShowUpsell(message);
-    let upsellEmbed: MessageEmbed;
-    if (upsellType == "invite")
-      upsellEmbed = new MessageEmbed()
-        .setColor(message.member?.displayColor ?? "#FFFFFF")
-        .setAuthor(
-          message.language.get("NOTICE_TITLE"),
-          this.client.user.displayAvatarURL({
-            size: 2048,
-            format: "png",
-          })
-        )
-        .setDescription(
-          message.language.get("COMMAND_NOTICE_SLASH_UPSELL", {
-            invite: this.client.config.commandsInvite(
-              this.client,
-              message.guild.id
-            ),
-          })
-        );
-    else if (upsellType == "noslash")
-      upsellEmbed = new MessageEmbed()
-        .setColor(message.member?.displayColor ?? "#FFFFFF")
-        .setAuthor(
-          message.language.get("NOTICE_TITLE"),
-          this.client.user.displayAvatarURL({
-            size: 2048,
-            format: "png",
-          })
-        )
-        .setDescription(
-          message.language.get("COMMAND_NOTICE_SLASH_POKE", {
-            invite: this.client.config.commandsInvite(
-              this.client,
-              message.guild.id
-            ),
-          })
-        );
-    else if (upsellType == "switch")
-      upsellEmbed = new MessageEmbed()
-        .setColor(message.member?.displayColor ?? "#FFFFFF")
-        .setAuthor(
-          message.language.get("NOTICE_TITLE"),
-          this.client.user.displayAvatarURL({
-            size: 2048,
-            format: "png",
-          })
-        )
-        .setDescription(
-          message.language.get("COMMAND_NOTICE_SLASH_SWITCH", {
-            invite: this.client.config.commandsInvite(
-              this.client,
-              message.guild.id
-            ),
-          })
-        );
+    const upsellEmbed = await this.client.util.getSlashUpsellEmbed(message);
     return await message.channel.send({
       components,
       embeds: upsellEmbed ? [embed, upsellEmbed] : [embed],
