@@ -242,6 +242,12 @@ export default class Message extends Listener {
           .catch(() => {});
     }
 
+    if (
+      message.channelId == "893424326852882462" &&
+      message.content.trim() != "<:B_:785860532041285673>"
+    )
+      await message.delete();
+
     if (!message.member || message.author.bot) return;
 
     const autoroleId = message.guild.settings.get<Snowflake>(
