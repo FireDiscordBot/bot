@@ -10,6 +10,7 @@ export default class GuildUnavailable extends Listener {
   }
 
   async exec(guild: FireGuild) {
+    if (typeof guild.name == "undefined") return;
     this.client.console.warn(
       `[Guilds] Guild ${guild.name} (${guild.id}) has gone unavailable`
     );
