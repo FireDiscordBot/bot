@@ -404,8 +404,8 @@ export default class TicTacToe extends Command {
       );
       if (hasWon) {
         // game is over, remove handler, game data & edit message
-        for (const button of Object.values(game.buttons))
-          this.client.buttonHandlers.delete(button.customId);
+        for (const b of Object.values(game.buttons))
+          this.client.buttonHandlers.delete(b.customId);
         this.client.buttonHandlers.delete(`${gameId}:forfeit`);
         this.games.delete(gameId);
 
@@ -415,49 +415,11 @@ export default class TicTacToe extends Command {
           )
         );
         for (const index of state) {
-          const actionRowIndex = components.findIndex(
-            (component) =>
-              component.type == "ACTION_ROW" &&
-              component.components.find(
-                (component) =>
-                  component.type == "BUTTON" &&
-                  component.style != "LINK" &&
-                  component.customId == game.buttons[index].customId
-              )
+          const gameButton = button.message.resolveComponent(
+            game.buttons[index].customId
           );
-          if (!components[actionRowIndex]) {
-            const sentry = this.client.sentry;
-            sentry.setUser({
-              id: button.author.id,
-              username: button.author.toString(),
-            });
-            const extras = {
-              components: JSON.stringify(components),
-            };
-            sentry.setExtras(extras);
-            sentry.captureException(
-              new Error("tictactoe components did an oopsie")
-            );
-            sentry.setUser(null);
-            sentry.setExtras(null);
-            return await button.channel.send(
-              "something went really wrong, I have reported the issue to my developer"
-            );
-          }
-          const buttonIndex = components[actionRowIndex].components.findIndex(
-            (component) =>
-              component.type == "BUTTON" &&
-              component.style != "LINK" &&
-              component.customId == game.buttons[index].customId
-          );
-          if (
-            components[actionRowIndex].components[buttonIndex].type == "BUTTON"
-          )
-            (
-              components[actionRowIndex].components[
-                buttonIndex
-              ] as MessageButton
-            ).setStyle("PRIMARY");
+          if (gameButton && gameButton.type == "BUTTON")
+            gameButton.setStyle("PRIMARY");
         }
 
         for (const [index, row] of components.entries()) {
