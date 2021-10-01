@@ -17,7 +17,7 @@ export default class ModOnlyInhibitor extends Inhibitor {
       message.guild &&
       message.guild.settings
         .get<string[]>("commands.modonly", [])
-        .includes(message.channel.id)
+        .includes(message.channelId)
     ) {
       if (message.member.isSuperuser()) return false;
       if (

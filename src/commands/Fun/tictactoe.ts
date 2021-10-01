@@ -203,7 +203,7 @@ export default class TicTacToe extends Command {
       .set(gameId, {
         current: opponent.id, // opponent goes first
         buttons: this.getInitialButtons(),
-        channel: message.channel.id,
+        channel: message.channelId,
         players: {
           [message.author.id]: "x",
           [opponent.id]: "o",

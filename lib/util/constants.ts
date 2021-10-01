@@ -204,6 +204,7 @@ export const constants = {
       discrim: /{user\.discrim(?:inator)?}/gim,
       guild: /{(?:guild|server)}/gim,
       count: /{count}/gim,
+      countSuffix: /{count\.suffix}/gim,
     },
     invwtf: /inv\.wtf\/(?<code>[\w-]{2,25})/gim,
     discord: {

@@ -3,6 +3,7 @@ import { RawUserData } from "discord.js/typings/rawDataTypes";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { UserSettings } from "@fire/lib/util/settings";
+import { BaseFakeChannel } from "../interfaces/misc";
 import { FireTextChannel } from "./textchannel";
 import { Message } from "@fire/lib/ws/Message";
 import { FireMember } from "./guildmember";
@@ -220,15 +221,21 @@ export class FireUser extends User {
     await guild.modLog(embed, "ban").catch(() => {});
     if (channel)
       return await channel
-        .send(
-          guild.language.getSuccess("BAN_SUCCESS", {
-            user: Util.escapeMarkdown(this.toString()),
-            guild: Util.escapeMarkdown(guild.name),
-          }) +
+        .send({
+          content:
+            guild.language.getSuccess("BAN_SUCCESS", {
+              user: Util.escapeMarkdown(this.toString()),
+              guild: Util.escapeMarkdown(guild.name),
+            }) +
             (this.id == "159985870458322944"
               ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336"
-              : "")
-        )
+              : ""),
+          embeds:
+            channel instanceof BaseFakeChannel ||
+            moderator.id == this.client.user?.id
+              ? []
+              : this.client.util.getModCommandSlashWarning(guild),
+        })
         .catch(() => {});
   }
 }

@@ -27,6 +27,7 @@ export default class StarboardEmoji extends Command {
       ],
       restrictTo: "guild",
       parent: "starboard",
+      slashOnly: true,
       premium: true,
     });
   }

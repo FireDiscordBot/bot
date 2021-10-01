@@ -1,10 +1,12 @@
 import {
   MessageEmbedOptions,
   BitFieldResolvable,
+  MessageSelectMenu,
   MessageActionRow,
   PermissionString,
   MessageButton,
   GuildChannel,
+  MessageEmbed,
   Permissions,
 } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -16,6 +18,25 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
 const userMentionRegex = /<@!?(\d{15,21})>$/im;
+
+const shouldShowUpsell = async (message: FireMessage) => {
+  if (!message.hasExperiment(3144709624, 1)) return false;
+  else if (!(message instanceof FireMessage)) return false;
+  const slashCommands = await message.client
+    .requestSlashCommands(message.guild)
+    .catch(() => {});
+  if (typeof slashCommands == "undefined") return false;
+  const hasSlash =
+    slashCommands &&
+    !!slashCommands.applications.find(
+      (app) => app.id == message.client.user.id
+    );
+  if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
+    if (hasSlash) return "switch";
+    else return "invite";
+  else if (hasSlash) return "switch";
+  else return "noslash";
+};
 
 export default class Help extends Command {
   constructor() {
@@ -70,6 +91,44 @@ export default class Help extends Command {
       .slice(0, 20);
   }
 
+  private filter(command: Command, message: FireMessage) {
+    if (!(command instanceof Command)) return false;
+    else if (command.hidden && !message.author.isSuperuser()) return false;
+    else if (command.ownerOnly && this.client.ownerID != message.author.id)
+      return false;
+    else if (command.superuserOnly && !message.author.isSuperuser())
+      return false;
+    else if (
+      command.moderatorOnly &&
+      !message.member?.isModerator(message.channel)
+    )
+      return false;
+    else if (
+      command.guilds.length &&
+      !command.guilds.includes(message.guild?.id)
+    )
+      return false;
+    else if (command.channel == "guild" && !message.guild) return false;
+    else if (
+      (command.userPermissions as PermissionString[])?.length &&
+      !message.guild
+    )
+      return false;
+    else if (
+      (command.userPermissions as PermissionString[])?.length &&
+      (message.channel as GuildChannel)
+        .permissionsFor(message.author)
+        .missing(
+          command.userPermissions as BitFieldResolvable<
+            PermissionString,
+            bigint
+          >
+        ).length
+    )
+      return false;
+    return true;
+  }
+
   async exec(message: FireMessage, args: { command: Command }) {
     if (typeof args.command == "undefined") return await this.sendHelp(message);
     else if (!args.command) return await message.error("HELP_NO_COMMAND");
@@ -77,72 +136,16 @@ export default class Help extends Command {
   }
 
   async sendHelp(message: FireMessage) {
-    let fields: { name: string; value: string; inline: boolean }[] = [];
-    for (const [name, category] of this.client.commandHandler.categories) {
-      if (name == "Admin" && !message.author.isSuperuser()) continue;
-      let commands: string[] = [];
-      category
-        .filter((command) => {
-          if (command.hidden && !message.author.isSuperuser()) return false;
-          if (command.ownerOnly && this.client.ownerID != message.author.id)
-            return false;
-          if (command.superuserOnly && !message.author.isSuperuser())
-            return false;
-          if (
-            command.moderatorOnly &&
-            !message.member?.isModerator(message.channel)
-          )
-            return false;
-          if (
-            command.guilds.length &&
-            !command.guilds.includes(message.guild?.id)
-          )
-            return false;
-          if (command.channel == "guild" && !message.guild) return false;
-          if (
-            (command.userPermissions as PermissionString[])?.length &&
-            !message.guild
-          )
-            return false;
-          if (
-            (command.userPermissions as PermissionString[])?.length &&
-            (message.channel as GuildChannel)
-              .permissionsFor(message.author)
-              .missing(
-                command.userPermissions as BitFieldResolvable<
-                  PermissionString,
-                  bigint
-                >
-              ).length
-          )
-            return false;
-          return true;
-        })
-        .forEach((command) =>
-          commands.push(
-            command.parent
-              ? `\`${command.id.replace("-", " ")}\``
-              : `\`${command.id}\``
-          )
+    const categories = this.client.commandHandler.categories.filter(
+      (category) => {
+        if (category.id == "Admin" && !message.author.isSuperuser())
+          return false;
+        const commands = category.filter((command: Command) =>
+          this.filter(command, message)
         );
-      if (commands.length)
-        fields.push({
-          name: category.id,
-          value: commands.join(", "),
-          inline: false,
-        });
-    }
-    fields.push({
-      name: message.language.get("HELP_CREDITS_NAME"),
-      value:
-        "\n" +
-        message.language.get("HELP_CREDITS_VALUE", {
-          links:
-            "[Ravy](https://ravy.pink/) & [The Aero Team](https://aero.bot/)",
-        }) +
-        "\n[@aero/sanitizer](https://www.npmjs.com/package/@aero/sanitizer)\n[@aero/ksoft](https://www.npmjs.com/package/@aero/ksoft)\n[Aether](https://git.farfrom.earth/aero/aether)\n",
-      inline: false,
-    });
+        return commands.size > 0;
+      }
+    );
     let components: MessageActionRow[] = null;
     let supportInvite = "https://inv.wtf/fire";
     const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
@@ -152,6 +155,19 @@ export default class Help extends Command {
         supportInvite = `https://discord.gg/${supportVanity.invite}`;
     }
     components = [
+      new MessageActionRow().addComponents([
+        new MessageSelectMenu()
+          .setPlaceholder(message.language.get("HELP_SELECT_CATEGORY"))
+          .setCustomId(`help_category`)
+          .setMaxValues(1)
+          .setMinValues(1)
+          .addOptions(
+            categories.map((category) => ({
+              label: category.id,
+              value: category.id,
+            }))
+          ),
+      ]),
       new MessageActionRow().addComponents([
         new MessageButton()
           .setStyle("LINK")
@@ -175,30 +191,82 @@ export default class Help extends Command {
           .setLabel(message.language.get("HELP_BUTTON_PREMIUM")),
       ]),
     ];
-    const embed = {
-      color: message.member?.displayColor,
-      author: {
-        icon_url: this.client.user.displayAvatarURL({
-          size: 2048,
-          format: "png",
-        }),
-      },
-      fields,
-      footer: {
-        text: message.language.get("HELP_FOOTER", {
-          prefix:
-            message.util.parsed.prefix.replace(
-              userMentionRegex,
-              `@${this.client.user.username} `
-            ) || "$",
+    const embed = new MessageEmbed()
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .addField(
+        message.language.get("HELP_CREDITS_NAME"),
+        message.language.get("HELP_CREDITS_VALUE", {
+          links:
+            "[Ravy](https://ravy.pink/) & [The Aero Team](https://aero.bot/)",
+        }) +
+          "\n[@aero/sanitizer](https://www.npmjs.com/package/@aero/sanitizer)\n[@aero/ksoft](https://www.npmjs.com/package/@aero/ksoft)\n[Aether](https://git.farfrom.earth/aero/aether)\n"
+      )
+      .setFooter(
+        message.language.get("HELP_FOOTER", {
+          shard: message.guild?.shardId ?? 0,
           cluster: this.client.manager.id,
-        }) as string,
-      },
-      timestamp: new Date(),
-    } as MessageEmbedOptions;
+        })
+      )
+      .setTimestamp();
+    const upsellType = await shouldShowUpsell(message);
+    let upsellEmbed: MessageEmbed;
+    if (upsellType == "invite")
+      upsellEmbed = new MessageEmbed()
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
+        .setAuthor(
+          message.language.get("NOTICE_TITLE"),
+          this.client.user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+          })
+        )
+        .setDescription(
+          message.language.get("COMMAND_NOTICE_SLASH_UPSELL", {
+            invite: this.client.config.commandsInvite(
+              this.client,
+              message.guild.id
+            ),
+          })
+        );
+    else if (upsellType == "noslash")
+      upsellEmbed = new MessageEmbed()
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
+        .setAuthor(
+          message.language.get("NOTICE_TITLE"),
+          this.client.user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+          })
+        )
+        .setDescription(
+          message.language.get("COMMAND_NOTICE_SLASH_POKE", {
+            invite: this.client.config.commandsInvite(
+              this.client,
+              message.guild.id
+            ),
+          })
+        );
+    else if (upsellType == "switch")
+      upsellEmbed = new MessageEmbed()
+        .setColor(message.member?.displayColor ?? "#FFFFFF")
+        .setAuthor(
+          message.language.get("NOTICE_TITLE"),
+          this.client.user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+          })
+        )
+        .setDescription(
+          message.language.get("COMMAND_NOTICE_SLASH_SWITCH", {
+            invite: this.client.config.commandsInvite(
+              this.client,
+              message.guild.id
+            ),
+          })
+        );
     return await message.channel.send({
       components,
-      embeds: [embed],
+      embeds: [embed, upsellEmbed],
     });
   }
 

@@ -375,7 +375,7 @@ export const messageConverter = async (
     channelId = groups.channel_id as Snowflake;
   } else {
     messageId = idMatch[0] as Snowflake;
-    channelId = message.channel.id;
+    channelId = message.channelId;
   }
   const channel = (message.client.channels.cache.get(channelId) ||
     message.channel) as FireTextChannel;

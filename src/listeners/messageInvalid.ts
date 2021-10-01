@@ -144,7 +144,7 @@ export default class MessageInvalid extends Listener {
                   ? message.member?.permissions.bitfield.toString() || "0"
                   : "0",
                 guild_id: message.guild?.id,
-                id: message.channel.id,
+                id: message.channelId,
               } as PartialQuoteDestination,
             })
           )

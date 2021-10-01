@@ -109,6 +109,11 @@ export class BaseFakeChannel {
       ? this.real?.permissionsLocked
       : false;
   }
+  get permissionOverwrites() {
+    return this.real?.type != "DM" && !this.real.isThread()
+      ? this.real.permissionOverwrites
+      : undefined;
+  }
   message: ApplicationCommandMessage | ContextCommandMessage | ComponentMessage;
   real: FireTextChannel | NewsChannel | ThreadChannel | DMChannel;
   interactionId: Snowflake;

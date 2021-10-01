@@ -317,34 +317,34 @@ export class FireMember extends GuildMember {
       ])
       .then((value) => value.rows.length)
       .catch(() => 0);
-    let times: string = count.toString();
-    // shit code tm
-    if (times.endsWith("1")) times = times + (times == "11" ? "th" : "st");
-    else if (times.endsWith("2")) times = times + (times == "12" ? "th" : "nd");
-    else if (times.endsWith("3")) times = times + (times == "13" ? "th" : "rd");
-    else if (
-      ["4", "5", "6", "7", "8", "9", "0"].some((num) =>
-        times.toString().endsWith(num)
-      )
-    )
-      times = times.toString() + "th";
+    const times = this.client.util.numberWithSuffix(count);
     if (channel)
       return noDM
         ? await channel
-            .send(
-              this.guild.language.getWarning("WARN_FAIL", {
+            .send({
+              content: this.guild.language.getWarning("WARN_FAIL", {
                 user: Util.escapeMarkdown(this.toString()),
                 times,
-              })
-            )
+              }),
+              embeds:
+                channel instanceof BaseFakeChannel ||
+                moderator.id == this.client.user?.id
+                  ? []
+                  : this.client.util.getModCommandSlashWarning(this.guild),
+            })
             .catch(() => {})
         : await channel
-            .send(
-              this.guild.language.getSuccess("WARN_SUCCESS", {
+            .send({
+              content: this.guild.language.getSuccess("WARN_SUCCESS", {
                 user: Util.escapeMarkdown(this.toString()),
                 times,
-              })
-            )
+              }),
+              embeds:
+                channel instanceof BaseFakeChannel ||
+                moderator.id == this.client.user?.id
+                  ? []
+                  : this.client.util.getModCommandSlashWarning(this.guild),
+            })
             .catch(() => {});
   }
 
@@ -423,20 +423,26 @@ export class FireMember extends GuildMember {
     await this.guild.modLog(embed, "ban").catch(() => {});
     if (channel)
       return await channel
-        .send(
-          (dbadd
-            ? this.guild.language.getSuccess("BAN_SUCCESS", {
-                user: Util.escapeMarkdown(this.toString()),
-                guild: Util.escapeMarkdown(this.guild.name),
-              })
-            : this.guild.language.getWarning("BAN_SEMI_SUCCESS", {
-                user: Util.escapeMarkdown(this.toString()),
-                guild: Util.escapeMarkdown(this.guild.name),
-              })) +
+        .send({
+          content:
+            (dbadd
+              ? this.guild.language.getSuccess("BAN_SUCCESS", {
+                  user: Util.escapeMarkdown(this.toString()),
+                  guild: Util.escapeMarkdown(this.guild.name),
+                })
+              : this.guild.language.getWarning("BAN_SEMI_SUCCESS", {
+                  user: Util.escapeMarkdown(this.toString()),
+                  guild: Util.escapeMarkdown(this.guild.name),
+                })) +
             (this.id == "159985870458322944"
               ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336"
-              : "")
-        )
+              : ""),
+          embeds:
+            channel instanceof BaseFakeChannel ||
+            moderator.id == this.client.user?.id
+              ? []
+              : this.client.util.getModCommandSlashWarning(this.guild),
+        })
         .catch(() => {});
   }
 
@@ -488,11 +494,16 @@ export class FireMember extends GuildMember {
     await this.guild.modLog(embed, "kick").catch(() => {});
     if (channel)
       return await channel
-        .send(
-          this.guild.language.getSuccess("KICK_SUCCESS", {
+        .send({
+          content: this.guild.language.getSuccess("KICK_SUCCESS", {
             user: Util.escapeMarkdown(this.toString()),
-          })
-        )
+          }),
+          embeds:
+            channel instanceof BaseFakeChannel ||
+            moderator.id == this.client.user?.id
+              ? []
+              : this.client.util.getModCommandSlashWarning(this.guild),
+        })
         .catch(() => {});
   }
 
@@ -550,8 +561,8 @@ export class FireMember extends GuildMember {
     await this.guild.modLog(embed, "derank").catch(() => {});
     if (channel)
       return await channel
-        .send(
-          failed
+        .send({
+          content: failed
             ? this.guild.language.getWarning("DERANK_FAILED", {
                 user: Util.escapeMarkdown(this.toString()),
                 roles: this.guild.roles.cache
@@ -561,8 +572,13 @@ export class FireMember extends GuildMember {
               })
             : this.guild.language.getSuccess("DERANK_SUCCESS", {
                 user: Util.escapeMarkdown(this.toString()),
-              })
-        )
+              }),
+          embeds:
+            channel instanceof BaseFakeChannel ||
+            moderator.id == this.client.user?.id
+              ? []
+              : this.client.util.getModCommandSlashWarning(this.guild),
+        })
         .catch(() => {});
   }
 
@@ -649,15 +665,20 @@ export class FireMember extends GuildMember {
     await this.guild.modLog(embed, "mute").catch(() => {});
     if (channel)
       return await channel
-        .send(
-          dbadd
+        .send({
+          content: dbadd
             ? this.guild.language.getSuccess("MUTE_SUCCESS", {
                 user: Util.escapeMarkdown(this.toString()),
               })
             : this.guild.language.getWarning("MUTE_SEMI_SUCCESS", {
                 user: Util.escapeMarkdown(this.toString()),
-              })
-        )
+              }),
+          embeds:
+            channel instanceof BaseFakeChannel ||
+            moderator.id == this.client.user?.id
+              ? []
+              : this.client.util.getModCommandSlashWarning(this.guild),
+        })
         .catch(() => {});
   }
 
@@ -736,11 +757,16 @@ export class FireMember extends GuildMember {
     await this.guild.modLog(embed, "unmute").catch(() => {});
     if (channel)
       return await channel
-        .send(
-          this.guild.language.getSuccess("UNMUTE_SUCCESS", {
+        .send({
+          content: this.guild.language.getSuccess("UNMUTE_SUCCESS", {
             user: Util.escapeMarkdown(this.toString()),
-          })
-        )
+          }),
+          embeds:
+            channel instanceof BaseFakeChannel ||
+            moderator.id == this.client.user?.id
+              ? []
+              : this.client.util.getModCommandSlashWarning(this.guild),
+        })
         .catch(() => {});
   }
 

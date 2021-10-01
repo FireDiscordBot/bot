@@ -298,7 +298,7 @@ export default class Filters extends Module {
           continue;
         await deleteFail(e);
       }
-      if (message.guild.logIgnored.includes(message.channel.id)) continue;
+      if (message.guild.logIgnored.includes(message.channelId)) continue;
       const embed = new MessageEmbed()
         .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
@@ -471,7 +471,7 @@ export default class Filters extends Module {
     const match = regexes.paypal.exec(sanitizer(searchString));
     if (!match) return;
     await message.delete().catch(() => {});
-    if (message.guild.logIgnored.includes(message.channel.id)) return;
+    if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
@@ -502,7 +502,7 @@ export default class Filters extends Module {
     const match = regexes.youtube.video.exec(sanitizer(searchString));
     if (!match) return;
     await message.delete().catch(() => {});
-    if (message.guild.logIgnored.includes(message.channel.id)) return;
+    if (message.guild.logIgnored.includes(message.channelId)) return;
     const video = await this.client.util
       .getYouTubeVideo(match.groups.video)
       .catch(() => {});
@@ -584,7 +584,7 @@ export default class Filters extends Module {
     const match = regexes.youtube.channel.exec(sanitizer(searchString));
     if (!match) return;
     await message.delete().catch(() => {});
-    if (message.guild.logIgnored.includes(message.channel.id)) return;
+    if (message.guild.logIgnored.includes(message.channelId)) return;
     const channel = await this.client.util
       .getYouTubeChannel(match.groups.channel)
       .catch(() => {});
@@ -657,7 +657,7 @@ export default class Filters extends Module {
     const channelMatch = regexes.twitch.channel.exec(sanitizer(searchString));
     if (!clipMatch && !channelMatch) return;
     await message.delete().catch(() => {});
-    if (message.guild.logIgnored.includes(message.channel.id)) return;
+    if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
@@ -691,7 +691,7 @@ export default class Filters extends Module {
     const match = regexes.twitter.exec(sanitizer(searchString));
     if (!match) return;
     await message.delete().catch(() => {});
-    if (message.guild.logIgnored.includes(message.channel.id)) return;
+    if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
@@ -722,7 +722,7 @@ export default class Filters extends Module {
     const match = this.shortURLRegex.exec(sanitizer(searchString));
     if (!match) return;
     await message.delete().catch(() => {});
-    if (message.guild.logIgnored.includes(message.channel.id)) return;
+    if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()

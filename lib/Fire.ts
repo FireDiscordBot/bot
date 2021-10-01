@@ -181,7 +181,7 @@ export class Fire extends AkairoClient {
         this.nonceHandlers.delete(r.d.nonce);
       }
 
-      if (r.t == Constants.WSEvents.GUILD_CREATE) {
+      if (r.t == Constants.WSEvents.GUILD_CREATE && !r.d?.unavailable) {
         const member = r.d.members.find(
           (member: APIGuildMember) => member.user.id == this.user.id
         ) as APIGuildMember;

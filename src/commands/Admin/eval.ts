@@ -116,7 +116,7 @@ export default class Eval extends Command {
         MessageUtil.encode(
           new Message(EventType.BROADCAST_EVAL, {
             messageId: message.id,
-            channelId: message.channel.id,
+            channelId: message.channelId,
           })
         )
       );
