@@ -11,7 +11,13 @@ export default class CommandFinished extends Listener {
   }
 
   async exec(message: FireMessage | ApplicationCommandMessage) {
-    if (message instanceof ApplicationCommandMessage) return;
+    if (
+      message instanceof ApplicationCommandMessage ||
+      message.deleted ||
+      !message.channel ||
+      message.channel?.deleted
+    )
+      return;
 
     const chance = this.client.util.randInt(0, 100);
     if (
@@ -21,10 +27,12 @@ export default class CommandFinished extends Listener {
     ) {
       const upsellEmbed = await this.client.util.getSlashUpsellEmbed(message);
       if (upsellEmbed)
-        return await message.reply({
-          embeds: [upsellEmbed],
-          allowedMentions: { repliedUser: true },
-        });
+        return await message
+          .reply({
+            embeds: [upsellEmbed],
+            allowedMentions: { repliedUser: true },
+          })
+          .catch(() => {});
     }
 
     // member cache sweep ignores members with
