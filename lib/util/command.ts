@@ -289,60 +289,63 @@ export class Command extends AkairoCommand {
 
   async parseSlash(message: ApplicationCommandMessage) {
     const args = {};
-    for (const arg of this.args) {
-      let name = this.getSlashCommandArgName(arg);
-      if (arg.flag && arg.readableType == "boolean")
-        name = arg.id.toLowerCase();
-      const [type] =
-        arg.flag && !arg.type
-          ? ["BOOLEAN"]
-          : Object.entries(slashCommandTypeMappings).find(([, types]) =>
-              types.includes(arg.type?.toString())
-            ) ?? ["STRING"];
-      switch (type) {
-        case "STRING": {
-          args[name] = message.slashCommand.options.getString(name);
-          break;
+    if (this.args?.length) {
+      for (const arg of this.args) {
+        let name = this.getSlashCommandArgName(arg);
+        if (arg.flag && arg.readableType == "boolean")
+          name = arg.id.toLowerCase();
+        const [type] =
+          arg.flag && !arg.type
+            ? ["BOOLEAN"]
+            : Object.entries(slashCommandTypeMappings).find(([, types]) =>
+                types.includes(arg.type?.toString())
+              ) ?? ["STRING"];
+        switch (type) {
+          case "STRING": {
+            args[name] = message.slashCommand.options.getString(name);
+            break;
+          }
+          case "INTEGER": {
+            args[name] = message.slashCommand.options.getInteger(name);
+            break;
+          }
+          case "BOOLEAN": {
+            args[name] = message.slashCommand.options.getBoolean(name);
+            break;
+          }
+          case "USER": {
+            args[name] = message.slashCommand.options.getUser(name);
+            break;
+          }
+          case "CHANNEL": {
+            const resolvedChannel =
+              message.slashCommand.options.getChannel(name);
+            if (this.client.channels.cache.has(resolvedChannel.id))
+              args[name] = this.client.channels.cache.get(resolvedChannel.id);
+            break;
+          }
+          case "ROLE": {
+            const role = message.slashCommand.options.getRole(name);
+            if (role instanceof Role) args[name] = role;
+            break;
+          }
+          case "MENTIONABLE": {
+            if (message.slashCommand.options.getMember(name, false))
+              args[name] = message.slashCommand.options.getMember(name);
+            else if (
+              message.slashCommand.options.getRole(name, false) instanceof Role
+            )
+              args[name] = message.slashCommand.options.getRole(name);
+            break;
+          }
         }
-        case "INTEGER": {
-          args[name] = message.slashCommand.options.getInteger(name);
-          break;
-        }
-        case "BOOLEAN": {
-          args[name] = message.slashCommand.options.getBoolean(name);
-          break;
-        }
-        case "USER": {
-          args[name] = message.slashCommand.options.getUser(name);
-          break;
-        }
-        case "CHANNEL": {
-          const resolvedChannel = message.slashCommand.options.getChannel(name);
-          if (this.client.channels.cache.has(resolvedChannel.id))
-            args[name] = this.client.channels.cache.get(resolvedChannel.id);
-          break;
-        }
-        case "ROLE": {
-          const role = message.slashCommand.options.getRole(name);
-          if (role instanceof Role) args[name] = role;
-          break;
-        }
-        case "MENTIONABLE": {
-          if (message.slashCommand.options.getMember(name, false))
-            args[name] = message.slashCommand.options.getMember(name);
-          else if (
-            message.slashCommand.options.getRole(name, false) instanceof Role
-          )
-            args[name] = message.slashCommand.options.getRole(name);
-          break;
-        }
+        if (!args[name] && typeof arg.type == "function")
+          args[name] = await arg.type(
+            message as unknown as FireMessage,
+            message.slashCommand.options.get(name).value.toString()
+          );
+        else if (!args[name]) args[name] = arg.default;
       }
-      if (!args[name] && typeof arg.type == "function")
-        args[name] = await arg.type(
-          message as unknown as FireMessage,
-          message.slashCommand.options.get(name).value.toString()
-        );
-      else if (!args[name]) args[name] = arg.default;
     }
     return args;
   }
