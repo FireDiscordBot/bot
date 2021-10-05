@@ -120,7 +120,11 @@ export default class ReactionRole extends Command {
         ]),
       ],
     });
-    const yesOrNo = await this.awaitConfirmation(yesSnowflake, noSnowflake);
+    const yesOrNo = await this.awaitConfirmation(
+      message,
+      yesSnowflake,
+      noSnowflake
+    );
     await confirmation.delete().catch(() => {});
     if (!yesOrNo) return await message.send("REACTIONROLE_CANCELLED");
 
@@ -206,12 +210,25 @@ export default class ReactionRole extends Command {
   }
 
   private async awaitConfirmation(
+    message: FireMessage,
     confirm: Snowflake,
     deny: Snowflake
   ): Promise<boolean> {
     return new Promise((resolve) => {
-      this.client.buttonHandlersOnce.set(confirm, () => resolve(true));
-      this.client.buttonHandlersOnce.set(deny, () => resolve(false));
+      this.client.buttonHandlers.set(confirm, (b) => {
+        if (b.author.id == message.author.id) {
+          this.client.buttonHandlers.delete(confirm);
+          this.client.buttonHandlers.delete(deny);
+          resolve(true);
+        }
+      });
+      this.client.buttonHandlers.set(deny, (b) => {
+        if (b.author.id == message.author.id) {
+          this.client.buttonHandlers.delete(confirm);
+          this.client.buttonHandlers.delete(deny);
+          resolve(false);
+        }
+      });
     });
   }
 }
