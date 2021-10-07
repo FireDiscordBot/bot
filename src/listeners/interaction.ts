@@ -2,17 +2,19 @@ import {
   MessageComponentInteraction,
   ContextMenuInteraction,
   Interaction,
-  Channel,
 } from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { CommandInteraction } from "@fire/lib/extensions/commandinteraction";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
+import { Message } from "@fire/lib/ws/Message";
 
 const { emojis } = constants;
 
@@ -105,6 +107,22 @@ export default class InteractionListener extends Listener {
         await message.channel.ack();
       else message.customId = message.customId.slice(1);
       this.client.emit("button", message);
+      if (!message.message) await message.getRealMessage().catch(() => {});
+      if (message.guild?.hasExperiment(3389051620, 1))
+        this.client.manager.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.LOG_BUTTON, {
+              guildId: button.guildId,
+              authorId: button.user?.id,
+              customId: button.customId,
+              timeToClick:
+                button.createdTimestamp -
+                (message.message?.editedTimestamp ??
+                  message.message?.createdTimestamp ??
+                  button.createdTimestamp),
+            })
+          )
+        );
     } catch (error) {
       await this.error(button, error).catch(() => {
         button.reply(`${emojis.error} Something went wrong...`);
@@ -212,7 +230,7 @@ export default class InteractionListener extends Listener {
       content: `${emojis.error} An error occured while trying to handle this interaction that may be caused by being in DMs or the bot not being present...
 
       If this is a slash command, try inviting the bot to a server (<${this.client.config.inviteLink}>) if you haven't already and try again.
-      
+
       Error Message: ${error.message}`,
       ephemeral: true,
     });

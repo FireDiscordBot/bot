@@ -39,6 +39,7 @@ export enum EventType {
   API_REQUEST,
   ALIAS_SYNC,
   LOG_REQUEST,
+  LOG_BUTTON,
 }
 
 export enum WebsocketStates {
