@@ -57,17 +57,17 @@ export default class Essential extends Module {
   }
 
   async init() {
-    // if (this.client.config.dev) return this.remove();
+    if (this.client.config.dev) return this.remove();
     if (this.client.readyAt) await this.ready();
     else this.client.once("ready", () => this.ready());
   }
 
   async ready() {
     this.guild = this.client.guilds.cache.get(this.guildId) as FireGuild;
-    // if (!this.guild) {
-    //   this.remove();
-    //   return;
-    // }
+    if (!this.guild) {
+      this.remove();
+      return;
+    }
     this.ticketChannel = this.guild?.channels.cache.get(
       this.ticketChannelId
     ) as FireTextChannel;
@@ -79,7 +79,6 @@ export default class Essential extends Module {
       : ((await this.guild.members.fetch(trigger.author)) as FireMember);
     if (!member) return "no member"; // how
     if (!type) return "no type";
-    if (type.startsWith("nuf")) return "a ticket would be created here"
     if (type == "general") {
       const category = this.guild.channels.cache.get(
         "880170184931934328"
