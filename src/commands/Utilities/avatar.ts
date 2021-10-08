@@ -1,6 +1,6 @@
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { MessageEmbed, Permissions } from "discord.js";
+import { MessageEmbed, Permissions, MessageActionRow, MessageButton } from "discord.js";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -43,18 +43,28 @@ export default class Avatar extends Command {
         ? user?.displayColor
         : message.member?.displayColor;
 
+    const avatarURL = user?.displayAvatarURL({
+      size: 2048,
+      format: "png",
+      dynamic: true,
+    });
+
     const embed = new MessageEmbed()
       .setColor(color)
       .setTimestamp()
       .setTitle(message.language.get("AVATAR_TITLE", { user: user.toString() }))
-      .setImage(
-        user?.displayAvatarURL({
-          size: 2048,
-          format: "png",
-          dynamic: true,
-        })
-      );
+      .setImage(avatarURL);
 
-    return await message.channel.send({ embeds: [embed] });
+    return await message.channel.send({
+      embeds: [embed],
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setStyle("LINK")
+            .setLabel(message.language.get("OPEN_IN_BROWSER"))
+            .setURL(avatarURL)
+        ),
+      ],
+    });
   }
 }
