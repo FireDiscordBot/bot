@@ -19,6 +19,7 @@ export default class AddModerator extends Command {
         {
           id: "modToAdd",
           type: "member|role",
+          readableType: "mention",
           match: "rest",
           default: null,
           required: false,
