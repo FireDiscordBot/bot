@@ -1139,5 +1139,6 @@
   "CLEARWARNINGS_ARGUMENT_REQUIRED": "You must provide a member or case ID to clear warn(s)",
   "CLEARWARN_CASEID_REQUIRED": "You must provide a case ID when using \"clearwarn\" or \"clearwarning\"",
   "YTSYNC_COMMAND_DESCRIPTION": "Allows creation of YT Sync invites for a specific voice channel, allowing access without the need for experiments",
-  "YTSYNC_CHANNEL_REQUIRED": "You must provide a valid voice channel!"
+  "YTSYNC_CHANNEL_REQUIRED": "You must provide a valid voice channel!",
+  "OPEN_IN_BROWSER": "Open in Browser"
 }
