@@ -1,5 +1,6 @@
 import { ThreadChannel, Permissions, GuildChannel } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { BaseFakeChannel } from "@fire/lib/interfaces/misc";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
@@ -34,7 +35,11 @@ export default class NewTicket extends Command {
 
   async exec(message: FireMessage, args: { subject: string }) {
     if (!message.member) return; // how
-    if (message.channel instanceof ThreadChannel)
+    if (
+      message.channel instanceof ThreadChannel ||
+      (message.channel instanceof BaseFakeChannel &&
+        message.channel.real instanceof ThreadChannel)
+    )
       return await message.error("NEW_TICKET_THREAD");
     if (
       message.guild.hasExperiment(1651882237, 1) &&
