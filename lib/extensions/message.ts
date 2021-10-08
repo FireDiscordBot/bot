@@ -1,7 +1,9 @@
 import {
   EmojiIdentifierResolvable,
+  ReplyMessageOptions,
   DiscordAPIError,
   MessageReaction,
+  MessagePayload,
   ThreadChannel,
   WebhookClient,
   ThreadMember,
@@ -101,6 +103,15 @@ export class FireMessage extends Message {
       components: args?.components,
       reply: args?.reply,
     });
+  }
+
+  async reply(options: string | MessagePayload | ReplyMessageOptions) {
+    if (
+      this.channel.deleted ||
+      (this.guild && !this.guild.me?.permissions.has("READ_MESSAGE_HISTORY"))
+    )
+      return this; // we need to return a message to prevent issues so just return this
+    return (await super.reply(options)) as FireMessage;
   }
 
   success(
