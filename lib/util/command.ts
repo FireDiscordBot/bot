@@ -21,6 +21,8 @@ import { FireGuild } from "../extensions/guild";
 import { Language } from "./language";
 import { Fire } from "@fire/lib/Fire";
 import { FireMessage } from "../extensions/message";
+import { FireMember } from "../extensions/guildmember";
+import { FireUser } from "../extensions/user";
 
 type ArgumentGenerator = (
   ...a: Parameters<AkairoArgumentGenerator>
@@ -330,12 +332,20 @@ export class Command extends AkairoCommand {
             break;
           }
           case "MENTIONABLE": {
-            if (message.slashCommand.options.getMember(name, false))
-              args[name] = message.slashCommand.options.getMember(name);
-            else if (
-              message.slashCommand.options.getRole(name, false) instanceof Role
+            const mentionable =
+              message.slashCommand.options.getMentionable(name);
+            if (
+              mentionable instanceof Role ||
+              mentionable instanceof FireMember
             )
-              args[name] = message.slashCommand.options.getRole(name);
+              args[name] = mentionable;
+            else if (mentionable instanceof FireUser && message.guild) {
+              const member = await message.guild.members
+                .fetch(mentionable)
+                .catch(() => {});
+              if (member) args[name] = member;
+            } else if (mentionable instanceof FireUser)
+              args[name] = mentionable;
             break;
           }
         }
