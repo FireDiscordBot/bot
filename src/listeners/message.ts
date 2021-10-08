@@ -218,7 +218,8 @@ export default class Message extends Listener {
     }
 
     if (
-      message.channelId == "888494860460515388" &&
+      (message.channelId == "888494860460515388" ||
+        message.channelId == "893611010227838976") &&
       message.webhookId &&
       message.embeds.length
     ) {
@@ -241,12 +242,6 @@ export default class Message extends Listener {
           .crosspost.post<void>()
           .catch(() => {});
     }
-
-    if (
-      message.channelId == "893424326852882462" &&
-      message.content.trim() != "<:B_:785860532041285673>"
-    )
-      await message.delete();
 
     if (!message.member || message.author.bot) return;
 
